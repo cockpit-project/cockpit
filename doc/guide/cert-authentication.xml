@@ -11,26 +11,23 @@
   </para>
 
   <para>
-    This requires the host to be in an Identity Management domain like
+    Certificate authentication requires
+    <ulink url="https://sssd.io/docs/design_pages/matching_and_mapping_certificates.html">mapping certificates to user names</ulink>
+    in <ulink url="https://sssd.io/">sssd</ulink>.
+
+    Commonly these mappings are provided in an Identity Management domain like
     <ulink url="https://www.freeipa.org">FreeIPA</ulink> or
-    <ulink url="https://en.wikipedia.org/wiki/Active_Directory">Active Directory</ulink>,
-    which can associate certificates to users.
-  </para>
+    <ulink url="https://en.wikipedia.org/wiki/Active_Directory">Active Directory</ulink>.
+    For that the server which Cockpit is running on must be joined to a domain; see the
+    <link linkend="sso-server">SSO server requirements</link> for details.
+    sssd also supports local user mappings. Both approaches are described below.</para>
 
-
-  <section id="certauth-server-idm">
-    <title>Identity Management setup</title>
-
-    <para>To authenticate users from a Identity Management domain, the server that
-      Cockpit is running on must be joined to that domain. See the
-      <link linkend="sso-server">SSO server requirements</link> for details.</para>
-
-    <para>The domain's users also need to get associated to certificates, usually with
-    the <command>ipa user-add-cert</command> command. See the
-    <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
-    FreeIPA User Certificates documentation</ulink>
-    for details. As a simple example, these commands will generate a new certificate/key
-    pair and associate it to the user <code>alice</code>:</para>
+  <section id="certauth-server-cert-generation">
+    <title>User certificate generation</title>
+    <para>Generating the certificates for users is usually done with a certificate management system like
+      <ulink url="https://pagure.io/certmonger">certmonger</ulink> or
+      <ulink url="https://www.freeipa.org/page/PKI">FreeIPA</ulink>, which are not documented here.
+      For testing purposes, these commands will generate a self-signed certificate/key for the "alice" user:</para>
 
 <programlisting>
 # create self-signed certificate and key
@@ -41,16 +38,10 @@ printf '[req]\ndistinguished_name=dn\nextensions=v3_req\n[dn]\n
 openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout alice.key \
     -out alice.pem -subj "/CN=alice" -config /tmp/openssl.cnf -extensions v3_req
 
-# FreeIPA only accepts DER format, convert it
-openssl x509 -outform der -in alice.pem -out alice.der
-
 # browsers and smart cart utilities accept PKCS#12 format, convert it
 # this needs to set a transfer/import password
 openssl pkcs12 -export -password pass:somepassword \
     -in alice.pem -inkey alice.key -out alice.p12
-
-# assign it to the IdM user alice
-ipa user-add-cert alice --certificate="$(base64 alice.der)"
 </programlisting>
 
   <para>You can now import <code>alice.p12</code> directly into your browser,
@@ -59,6 +50,48 @@ ipa user-add-cert alice --certificate="$(base64 alice.der)"
 
 <programlisting>
 pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-ipa">
+    <title>Certificate import/mapping with FreeIPA</title>
+
+    <para>The domain's users get associated to certificates with
+      the <command>ipa user-add-cert</command> command. See the
+      <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
+      FreeIPA User Certificates documentation</ulink>:</para>
+
+<programlisting>
+# FreeIPA only accepts DER format, convert it
+openssl x509 -outform der -in alice.pem -out alice.der
+
+# assign it to the domain-managed user alice
+ipa user-add-cert alice --certificate="$(base64 alice.der)"
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-local">
+    <title>Certificate mapping to local user</title>
+
+    <para>If you do not want to use identity management, it is also possible to use
+      <ulink url="https://sssd.io/docs/design_pages/certmaps_for_LDAP_AD_file.html">custom certificate mapping rules</ulink>
+      in <citerefentry><refentrytitle>sssd.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+      in a <code>[certmap/domain/user]</code> section, usually for the default <code>implicit_files</code>
+      pseudo-domain. For example, this matches a certificate with a particular Subject
+      and maps it to the user <code>alice</code>:</para>
+
+<programlisting>
+[certmap/implicit_files/alice]
+matchrule = &lt;SUBJECT&gt;^DC=COM,DC=EXAMPLE,CN=alice$
+</programlisting>
+
+    <para>For the self-signed certificate example generated above, it would look like this:</para>
+
+<programlisting>
+[certmap/implicit_files/alice]
+matchrule = &lt;SUBJECT&gt;^CN=alice$
 </programlisting>
 
   </section>

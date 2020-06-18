@@ -132,12 +132,10 @@ string response if there is no available key.
 
 Client certificate authentication
 ---------------------------------
-When a machine is joined to an Identity Management domain (like
-[FreeIPA](https://www.freeipa.org) or Active Directory) which has [client-side
-user certificates](https://www.freeipa.org/page/V4/User_Certificates) set up,
-then these can be enabled for authentication to Cockpit by setting this option
-in cockpit.conf:
 
+On a machine that has [sssd](https://sssd.io/) configured for mapping
+certificates to users, Cockpit can enable certificate based logins by setting
+this option in cockpit.conf:
 ```
 [WebService]
 ClientCertAuthentication = yes
@@ -147,6 +145,9 @@ This uses the `[tls-cert]` authentication scheme.
 
 When enabling this mode, other authentication types commonly get disabled. See
 the next section for details.
+
+See the [Certificate/smart card authentication guide](https://cockpit-project.org/guide/latest/cert-authentication.html)
+for details how to set this up.
 
 Actions
 -------

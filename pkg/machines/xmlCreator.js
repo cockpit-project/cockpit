@@ -222,3 +222,25 @@ export function getPoolXML({ name, type, source, target }) {
 
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
+
+export function getSnapshotXML(name, description) {
+    const doc = document.implementation.createDocument('', '', null);
+
+    const snapElem = doc.createElement('domainsnapshot');
+
+    if (name) {
+        const nameElem = doc.createElement('name');
+        nameElem.appendChild(doc.createTextNode(name));
+        snapElem.appendChild(nameElem);
+    }
+
+    if (description) {
+        const descriptionElem = doc.createElement('description');
+        descriptionElem.appendChild(doc.createTextNode(description));
+        snapElem.appendChild(descriptionElem);
+    }
+
+    doc.appendChild(snapElem);
+
+    return new XMLSerializer().serializeToString(doc.documentElement);
+}

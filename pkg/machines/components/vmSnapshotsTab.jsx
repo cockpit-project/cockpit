@@ -21,8 +21,9 @@ import moment from "moment";
 
 import cockpit from 'cockpit';
 import { vmId } from "../helpers.js";
+import { CreateSnapshotModal } from "./vmSnapshotsCreateModal.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import './vmSnapshotsTab.css';
@@ -43,118 +44,153 @@ function prettyTime(unixTime) {
     return moment(Number(unixTime) * 1000).calendar();
 }
 
-const VmSnapshotsTab = ({ vm }) => {
-    const id = vmId(vm.name);
+class VmSnapshotsTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showCreateSnapshotModal: false,
+        };
 
-    const emptyCaption = (<div className="no-snapshots">
-        <h3>{_("No snapshots")}</h3>
-        {_("Previously taken snapshots allow you to revert to an earlier state if something goes wrong")}
-    </div>);
-
-    let detailMap = [
-        {
-            name: _("Creation Time"), value: (snap, snapId) => {
-                const date = prettyTime(snap.creationTime);
-                return (
-                    <div id={`${id}-snapshot-${snapId}-date`}>
-                        {date}
-                    </div>
-                );
-            }
-        },
-        {
-            name: _("Name"), value: (snap, snapId) => {
-                return (
-                    <div id={`${id}-snapshot-${snapId}-name`}>
-                        {snap.name}
-                    </div>
-                );
-            }
-        },
-        {
-            name: _("Description"), value: (snap, snapId) => {
-                let desc = snap.description;
-                if (!desc)
-                    desc = (<span className="snap-greyed-out">{_("No description")}</span>);
-
-                return (
-                    <div id={`${id}-snapshot-${snapId}-description`}>
-                        {desc}
-                    </div>
-                );
-            }
-        },
-        {
-            name: _("VM State"), value: (snap, snapId) => {
-                const statesMap = {
-                    shutoff: "shut off",
-                    "disk-snapshot": <span className="snap-greyed-out">{_("no state saved")}</span>,
-                };
-                const state = statesMap[snap.state] || snap.state;
-
-                const infoTips = {
-                    shutdown: _("Shutting down"),
-                    "disk-snapshot": _("Disk-only snapshot"),
-                    blocked: _("Domain is blocked on resource"),
-                    crashed: _("Domain has crashed"),
-                };
-                const tooltipMessage = infoTips[snap.state];
-                const tooltip = tooltipMessage
-                    ? (<span className="tooltip-circle">
-                        <Tooltip entryDelay={0} exitDelay={0} content={tooltipMessage}>
-                            <InfoAltIcon />
-                        </Tooltip>
-                    </span>) : null;
-
-                return (
-                    <div id={`${id}-snapshot-${snapId}-type`}>
-                        {state}
-                        {tooltip}
-                    </div>
-                );
-            }
-        },
-        {
-            name: _("Parent Snapshot"), value: (snap, snapId) => {
-                const parentName = snap.parentName || (<span className="snap-greyed-out">{_("No parent")}</span>);
-
-                return (
-                    <div id={`${id}-snapshot-${snapId}-parent`}>
-                        {parentName}
-                    </div>
-                );
-            }
-        },
-    ];
-
-    detailMap = detailMap.filter(d => !d.hidden);
-
-    const columnTitles = detailMap.map(target => target.name);
-    let rows = [];
-    if (vm.snapshots) {
-        rows = vm.snapshots.sort((a, b) => b.creationTime - a.creationTime).map((target, snapId) => {
-            const columns = detailMap.map(d => {
-                let column = null;
-                if (typeof d.value === 'string') {
-                    if (target[d.value] !== undefined)
-                        column = { title: <div id={`${id}-snapshot-${snapId}-${d.value}`}>{target[d.value]}</div> };
-                }
-                if (typeof d.value === 'function')
-                    column = { title: d.value(target, snapId) };
-
-                return column;
-            });
-            return { columns };
-        });
+        this.openCreateSnapshot = this.openCreateSnapshot.bind(this);
+        this.closeCreateSnapshot = this.closeCreateSnapshot.bind(this);
     }
 
-    return (
-        <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}
-            variant='compact'
-            emptyCaption={emptyCaption}
-            columns={columnTitles}
-            rows={rows} />
-    );
-};
+    openCreateSnapshot() {
+        this.setState({ showCreateSnapshotModal: true });
+    }
+
+    closeCreateSnapshot() {
+        this.setState({ showCreateSnapshotModal: false });
+    }
+
+    render() {
+        const { vm, dispatch } = this.props;
+        const id = vmId(vm.name);
+
+        const emptyCaption = (<div className="no-snapshots">
+            <h3>{_("No snapshots")}</h3>
+            {_("Previously taken snapshots allow you to revert to an earlier state if something goes wrong")}
+        </div>);
+
+        let detailMap = [
+            {
+                name: _("Creation Time"), value: (snap, snapId) => {
+                    const date = prettyTime(snap.creationTime);
+                    return (
+                        <div id={`${id}-snapshot-${snapId}-date`}>
+                            {date}
+                        </div>
+                    );
+                }
+            },
+            {
+                name: _("Name"), value: (snap, snapId) => {
+                    return (
+                        <div id={`${id}-snapshot-${snapId}-name`}>
+                            {snap.name}
+                        </div>
+                    );
+                }
+            },
+            {
+                name: _("Description"), value: (snap, snapId) => {
+                    let desc = snap.description;
+                    if (!desc)
+                        desc = (<span className="snap-greyed-out">{_("No description")}</span>);
+
+                    return (
+                        <div id={`${id}-snapshot-${snapId}-description`}>
+                            {desc}
+                        </div>
+                    );
+                }
+            },
+            {
+                name: _("VM State"), value: (snap, snapId) => {
+                    const statesMap = {
+                        shutoff: "shut off",
+                        "disk-snapshot": <span className="snap-greyed-out">{_("no state saved")}</span>,
+                    };
+                    const state = statesMap[snap.state] || snap.state;
+
+                    const infoTips = {
+                        shutdown: _("Shutting down"),
+                        "disk-snapshot": _("Disk-only snapshot"),
+                        blocked: _("Domain is blocked on resource"),
+                        crashed: _("Domain has crashed"),
+                    };
+                    const tooltipMessage = infoTips[snap.state];
+                    const tooltip = tooltipMessage
+                        ? (<span className="tooltip-circle">
+                            <Tooltip entryDelay={0} exitDelay={0} content={tooltipMessage}>
+                                <InfoAltIcon />
+                            </Tooltip>
+                        </span>) : null;
+
+                    return (
+                        <div id={`${id}-snapshot-${snapId}-type`}>
+                            {state}
+                            {tooltip}
+                        </div>
+                    );
+                }
+            },
+            {
+                name: _("Parent Snapshot"), value: (snap, snapId) => {
+                    const parentName = snap.parentName || (<span className="snap-greyed-out">{_("No parent")}</span>);
+
+                    return (
+                        <div id={`${id}-snapshot-${snapId}-parent`}>
+                            {parentName}
+                        </div>
+                    );
+                }
+            },
+        ];
+
+        detailMap = detailMap.filter(d => !d.hidden);
+
+        const columnTitles = detailMap.map(target => target.name);
+        let rows = [];
+        if (vm.snapshots) {
+            rows = vm.snapshots.sort((a, b) => b.creationTime - a.creationTime).map((target, snapId) => {
+                const columns = detailMap.map(d => {
+                    let column = null;
+                    if (typeof d.value === 'string') {
+                        if (target[d.value] !== undefined)
+                            column = { title: <div id={`${id}-snapshot-${snapId}-${d.value}`}>{target[d.value]}</div> };
+                    }
+                    if (typeof d.value === 'function')
+                        column = { title: d.value(target, snapId) };
+
+                    return column;
+                });
+                return { columns };
+            });
+        }
+
+        return (
+            <div className="snapshots-list">
+                <Button id={`${id}-add-snapshot-button`} variant="secondary" className="pull-right" onClick={this.openCreateSnapshot}>
+                    {_("Create Snapshot")}
+                </Button>
+
+                {this.state.showCreateSnapshotModal &&
+                    <CreateSnapshotModal dispatch={dispatch}
+                        idPrefix={`${id}-create-snapshot`}
+                        vm={vm}
+                        onClose={this.closeCreateSnapshot} />}
+
+                <div className="ct-table-wrapper">
+                    <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}
+                        variant="compact"
+                        emptyCaption={emptyCaption}
+                        columns={columnTitles}
+                        rows={rows} />
+                </div>
+            </div>
+        );
+    }
+}
 
 export default VmSnapshotsTab;

@@ -126,7 +126,7 @@ DOMAIN_XML = """
     <acpi/>
   </features>
   <devices>
-    <disk type='file' snapshot='external'>
+    <disk type='file'>
       <driver name='qemu' type='qcow2'/>
       <source file='{image}'/>
       <target dev='vda' bus='virtio'/>

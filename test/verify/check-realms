@@ -485,7 +485,6 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
-    @skipImage("RHEL 8.0 does not yet have the necessary SELinux policy updates", "centos-8-stream")
     def testClientCertAuthentication(self):
         m = self.machine
 

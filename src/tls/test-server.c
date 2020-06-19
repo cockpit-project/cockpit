@@ -46,11 +46,14 @@
 #define CERTKEYFILE SRCDIR "/src/ws/mock-combined.crt"
 #define CERTCHAINKEYFILE SRCDIR "/test/verify/files/cert-chain.cert"
 
+#define CLIENT_CERT_CA SRCDIR "/src/tls/ca/ca.pem"
 #define CLIENT_CERTFILE SRCDIR "/src/tls/ca/alice.pem"
 #define CLIENT_KEYFILE SRCDIR "/src/tls/ca/alice.key"
+#define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/tls/ca/alice-expired.pem"
 #define ALTERNATE_CERTFILE SRCDIR "/src/tls/ca/bob.pem"
 #define ALTERNATE_KEYFILE SRCDIR "/src/tls/ca/bob.key"
-#define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/tls/ca/alice-expired.pem"
+#define UNSIGNED_CLIENT_CERTFILE SRCDIR "/src/bridge/mock-client.crt"
+#define UNSIGNED_CLIENT_KEYFILE SRCDIR "/src/bridge/mock-client.key"
 
 const unsigned server_port = 9123;
 
@@ -69,6 +72,8 @@ typedef struct {
   const char *client_crt;
   const char *client_key;
   const char *client_fingerprint;
+  const char *client_ca;
+  bool rejected_client_cert;
 } TestFixture;
 
 static const TestFixture fixture_separate_crt_key = {
@@ -81,6 +86,24 @@ static const TestFixture fixture_separate_crt_key_client_cert = {
   .client_crt = CLIENT_CERTFILE,
   .client_key = CLIENT_KEYFILE,
   .client_fingerprint = CLIENT_CERT_FINGERPRINT,
+};
+
+static const TestFixture fixture_client_cert_ca = {
+  .certfile = CERTFILE,
+  .cert_request_mode = GNUTLS_CERT_REQUEST,
+  .client_ca = CLIENT_CERT_CA,
+  .client_crt = CLIENT_CERTFILE,
+  .client_key = CLIENT_KEYFILE,
+  .client_fingerprint = CLIENT_CERT_FINGERPRINT,
+};
+
+static const TestFixture fixture_client_cert_ca_unsigned = {
+  .certfile = CERTFILE,
+  .cert_request_mode = GNUTLS_CERT_REQUEST,
+  .client_ca = CLIENT_CERT_CA,
+  .client_crt = UNSIGNED_CLIENT_CERTFILE,
+  .client_key = UNSIGNED_CLIENT_KEYFILE,
+  .rejected_client_cert = true,
 };
 
 static const TestFixture fixture_expired_client_cert = {
@@ -275,7 +298,7 @@ assert_https_outcome (TestCase *tc,
       if (fixture && fixture->client_crt)
         {
 
-          if (fixture->cert_request_mode != GNUTLS_CERT_IGNORE)
+          if (fixture->cert_request_mode != GNUTLS_CERT_IGNORE && !fixture->rejected_client_cert)
             {
               g_autofree char *cert_file = NULL;
               g_autofree char *expected_pem = NULL;
@@ -353,7 +376,7 @@ setup (TestCase *tc, gconstpointer data)
 
   server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, server_port);
   if (fixture && fixture->certfile)
-    connection_crypto_init (fixture->certfile, fixture->cert_request_mode);
+    connection_crypto_init (fixture->certfile, fixture->cert_request_mode, fixture->client_ca);
 
   tc->server_addr.sin_family = AF_INET;
   tc->server_addr.sin_port = htons (server_port);
@@ -756,10 +779,19 @@ main (int argc, char *argv[])
               setup, test_tls_no_client_cert, teardown);
   g_test_add ("/server/tls/client-cert", TestCase, &fixture_separate_crt_key_client_cert,
               setup, test_tls_client_cert, teardown);
+  g_test_add ("/server/tls/client-cert-ca-signed", TestCase, &fixture_client_cert_ca,
+              setup, test_tls_client_cert, teardown);
   g_test_add ("/server/tls/client-cert-disabled", TestCase, &fixture_separate_crt_key,
               setup, test_tls_client_cert_disabled, teardown);
   g_test_add ("/server/tls/client-cert-expired", TestCase, &fixture_expired_client_cert,
               setup, test_tls_client_cert_expired, teardown);
+  /* The server sends the list of accepted CAs to the client by default; as the client
+   * sends an unsigned certificate, this amounts to the server not getting any
+   * certificate, and thus behaves like the client never sent one in the first place;
+   * this could be changed with gnutls_certificate_send_x509_rdn_sequence(), but makes
+   * sense in general */
+  g_test_add ("/server/tls/client-cert-ca-unsigned", TestCase, &fixture_client_cert_ca_unsigned,
+              setup, test_tls_no_client_cert, teardown);
   g_test_add ("/server/tls/client-cert-parallel", TestCase, &fixture_separate_crt_key_client_cert,
               setup, test_tls_client_cert_parallel, teardown);
   g_test_add ("/server/tls/client-cert-parallel/alternate", TestCase, &fixture_alternate_client_cert,

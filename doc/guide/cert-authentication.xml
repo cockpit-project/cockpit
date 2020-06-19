@@ -94,6 +94,12 @@ matchrule = &lt;SUBJECT&gt;^DC=COM,DC=EXAMPLE,CN=alice$
 matchrule = &lt;SUBJECT&gt;^CN=alice$
 </programlisting>
 
+    <warning>
+      <para>When using <code>matchrule</code>, you <emphasis>must</emphasis> configure
+        Cockpit to validate client certificates against a Certificate Authority using the
+        <code>ClientCertAuthenticationCA</code> option (see below). Otherwise clients
+        can create and send a certificate with any arbitrary information.</para>
+    </warning>
   </section>
 
   <section id="certauth-server-cockpitconf">
@@ -105,7 +111,18 @@ matchrule = &lt;SUBJECT&gt;^CN=alice$
 <programlisting>
 [WebService]
 ClientCertAuthentication = yes
+ClientCertAuthenticationCA = /etc/sssd/pki/sssd_auth_ca_db.pem
 </programlisting>
+
+  <para>Any client can generate certificates with arbitrary information, thus
+    the client certificates must be checked for validity. This usually happens
+    by ensuring that they are signed by a given Certificate Authority, whose
+    certificate path gets set with the <code>ClientCertAuthenticationCA</code>
+    option (similar to <code>sssd.conf</code> options <code>ca_db</code> and
+    <code>pam_cert_db_path</code>). If that option is not set, then Cockpit
+    accepts any client certificate and relies on sssd to verify their validity.
+    This is secure only when importing the complete certificates into FreeIPA,
+    but not with local sssd <code>certmap</code> rules.</para>
 
   <para>When enabling this mode,
     <ulink url="https://github.com/cockpit-project/cockpit/blob/master/doc/authentication.md">

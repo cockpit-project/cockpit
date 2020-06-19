@@ -31,7 +31,8 @@ connection_set_directories (const char *wsinstance_sockdir,
 
 void
 connection_crypto_init (const char *certfile,
-                        gnutls_certificate_request_t request_mode);
+                        gnutls_certificate_request_t request_mode,
+                        const char *client_cert_ca);
 
 void
 connection_cleanup (void);

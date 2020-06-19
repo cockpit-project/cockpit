@@ -135,10 +135,11 @@ Client certificate authentication
 
 On a machine that has [sssd](https://sssd.io/) configured for mapping
 certificates to users, Cockpit can enable certificate based logins by setting
-this option in cockpit.conf:
+these options in cockpit.conf:
 ```
 [WebService]
 ClientCertAuthentication = yes
+ClientCertAuthenticationCA = /path/to/ca.pem
 ```
 
 This uses the `[tls-cert]` authentication scheme.

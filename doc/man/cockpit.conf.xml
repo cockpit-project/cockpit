@@ -145,6 +145,23 @@ ProtocolHeader = X-Forwarded-Proto
             section in the Cockpit guide for details.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>ClientCertAuthenticationCA</option></term>
+        <listitem>
+          <para>Path to a Certificate Authority PEM file. If set, TLS client certificates must
+            be signed by this CA, or they will be rejected. This is crucial when using local
+            sssd certificate mapping rules, and optional if certificate validity can be ensured
+            through other means, like importing complete certificates into FreeIPA.
+            Please see the
+            <ulink url="https://cockpit-project.org/guide/latest/cert-authentication.html">Certificate/smart card authentication</ulink>
+            section in the Cockpit guide for details.</para>
+
+          <para>This mirrors the
+            <citerefentry><refentrytitle>sssd.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+            options <code>ca_db</code> and <code>pam_cert_db_path</code>, so it is recommended to
+            use sssd's default CA <code>/etc/sssd/pki/sssd_auth_ca_db.pem</code>.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 

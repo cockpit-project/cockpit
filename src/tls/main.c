@@ -121,7 +121,7 @@ main (int argc, char **argv)
       if (cockpit_conf_bool ("WebService", "ClientCertAuthentication", false))
         client_cert_mode = GNUTLS_CERT_REQUEST;
 
-      connection_crypto_init (certfile, client_cert_mode);
+      connection_crypto_init (certfile, client_cert_mode, cockpit_conf_string ("WebService", "ClientCertAuthenticationCA"));
       free (certfile);
     }
 

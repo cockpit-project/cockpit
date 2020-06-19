@@ -54,6 +54,7 @@
 static struct {
   gnutls_certificate_request_t request_mode;
   gnutls_certificate_credentials_t x509_cred;
+  const char *client_cert_ca;
   int wsinstance_sockdir;
   int cert_session_dir;
 } parameters = {
@@ -703,9 +704,10 @@ connection_thread_main (int fd)
 /**
  * verify_peer_certificate: Custom client certificate validation function
  *
- * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
- * validate the other properties such as expiry, unsafe algorithms, etc.
- * This combination cannot be done with gnutls_session_set_verify_cert().
+ * If no client certification CA file was set in connection_crypto_init(), then
+ * ignore CA/trusted owner, but validate the other properties such as expiry,
+ * unsafe algorithms, etc. This combination cannot be done with
+ * gnutls_session_set_verify_cert().
  */
 static int
 verify_peer_certificate (gnutls_session_t session)
@@ -719,8 +721,11 @@ verify_peer_certificate (gnutls_session_t session)
 
   if (ret == 0)
     {
-      /* ignore CA/trusted owner and leave that to e. g. sssd */
-      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
+      if (!parameters.client_cert_ca)
+        {
+          /* ignore CA/trusted owner without CA */
+          status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
+        }
       if (status != 0)
         {
           gnutls_datum_t msg;
@@ -736,13 +741,19 @@ verify_peer_certificate (gnutls_session_t session)
 #endif
         }
     }
-  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
+  else if (ret == GNUTLS_E_NO_CERTIFICATE_FOUND)
+    {
+      debug (CONNECTION, "verify_peer_certificate: peer certificate not found");
+      /* that's ok, client certs are optional */
+      ret = GNUTLS_E_SUCCESS;
+    }
+  else
     {
       warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
       return ret;
     }
 
-  return GNUTLS_E_SUCCESS;
+  return ret;
 }
 
 static int
@@ -776,10 +787,13 @@ set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
  *
  * @certfile: Server TLS certificate file; cannot be %NULL
  * @request_mode: Whether to ask for client certificates
+ * @client_cert_ca: Path to CA certificate for client certificates;
+ *                  if %NULL, client certificates do not get validated
  */
 void
 connection_crypto_init (const char *certfile,
-                        gnutls_certificate_request_t request_mode)
+                        gnutls_certificate_request_t request_mode,
+                        const char *client_cert_ca)
 {
   int ret;
   char *keyfile;
@@ -807,6 +821,14 @@ connection_crypto_init (const char *certfile,
   if (ret != GNUTLS_E_SUCCESS)
     errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
 
+  /* set client cert CA file */
+  if (client_cert_ca)
+    {
+      ret = gnutls_certificate_set_x509_trust_file (parameters.x509_cred, client_cert_ca, GNUTLS_X509_FMT_PEM);
+      if (ret < 0) /* returns the number of processed certs, *not* GNUTLS_E_SUCCESS */
+        errx (EXIT_FAILURE, "Failed to initialize client certificate CA: %s", gnutls_strerror (ret));
+    }
+
   gnutls_certificate_set_verify_function (parameters.x509_cred, verify_peer_certificate);
 
 #if GNUTLS_VERSION_NUMBER >= 0x030506 && GNUTLS_VERSION_NUMBER <= 0x030600
@@ -815,6 +837,7 @@ connection_crypto_init (const char *certfile,
 #endif
 
   parameters.request_mode = request_mode;
+  parameters.client_cert_ca = client_cert_ca;
 }
 
 void

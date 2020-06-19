@@ -107,8 +107,17 @@ socket_activation_helper_SOURCES = \
 
 noinst_PROGRAMS += $(TLS_TESTS) socket-activation-helper
 EXTRA_DIST += \
-	src/tls/alternate.crt \
-	src/tls/alternate.key \
+	src/tls/ca/alice-expired.pem \
+	src/tls/ca/alice.key \
+	src/tls/ca/alice.p12 \
+	src/tls/ca/alice.pem \
+	src/tls/ca/bob.key \
+	src/tls/ca/bob.p12 \
+	src/tls/ca/bob.pem \
+	src/tls/ca/ca.conf \
+	src/tls/ca/ca.key \
+	src/tls/ca/ca.pem \
+	src/tls/ca/generate.sh \
 	$(TLS_SCRIPT_TESTS) \
 	$(NULL)
 TESTS += $(TLS_TESTS) $(TLS_SCRIPT_TESTS)

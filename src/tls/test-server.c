@@ -46,11 +46,11 @@
 #define CERTKEYFILE SRCDIR "/src/ws/mock-combined.crt"
 #define CERTCHAINKEYFILE SRCDIR "/test/verify/files/cert-chain.cert"
 
-#define CLIENT_CERTFILE SRCDIR "/src/bridge/mock-client.crt"
-#define CLIENT_KEYFILE SRCDIR "/src/bridge/mock-client.key"
-#define ALTERNATE_CERTFILE SRCDIR "/src/tls/alternate.crt"
-#define ALTERNATE_KEYFILE SRCDIR "/src/tls/alternate.key"
-#define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/bridge/mock-client-expired.crt"
+#define CLIENT_CERTFILE SRCDIR "/src/tls/ca/alice.pem"
+#define CLIENT_KEYFILE SRCDIR "/src/tls/ca/alice.key"
+#define ALTERNATE_CERTFILE SRCDIR "/src/tls/ca/bob.pem"
+#define ALTERNATE_KEYFILE SRCDIR "/src/tls/ca/bob.key"
+#define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/tls/ca/alice-expired.pem"
 
 const unsigned server_port = 9123;
 

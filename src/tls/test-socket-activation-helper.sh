@@ -44,7 +44,7 @@ expect_start() {
     fi
 }
 
-SHA256_CERT=fd1245619267040f6aa88d8071bbae3c99d99ac759fdfec99fcc1af4c28ba23c
+SHA256_CERT=$(sed -n '/CLIENT_CERT_FINGERPRINT/ { s/^[^"]*//; s/"//g; p }' $srcdir/src/tls/testing.h)
 SHA256_NIL="$(sha256sum < /dev/null | cut -c1-64)"
 
 expect_curl http.sock "$SUCCESS"

@@ -19,7 +19,6 @@
 
 import re
 import time
-import os
 import struct
 import hmac
 import hashlib
@@ -494,27 +493,19 @@ class TestIPA(TestRealms, CommonTests):
             while ! echo %s | kinit -f %s; do sleep 5; done
             export LC_ALL=C.UTF-8 && while ! ipa user-find >/dev/null; do sleep 5; done'
             """ % (self.admin_password, self.admin_user), timeout=300)
+        with open("src/tls/ca/alice.pem") as f:
+            alice_cert = f.read().strip()
+        # IPA does not like the ---BEGIN/END lines
+        alice_cert = '\n'.join([l for l in alice_cert.splitlines() if not l.startswith("----")])
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
         ipa_machine.execute(r"""docker exec -i freeipa sh -exc '
-CERTUSER=jane
-ipa user-add --first=$CERTUSER --last="developer" $CERTUSER
-yes foobar | ipa user-mod --password $CERTUSER
-ipa user-mod --password-expiration='2030-01-01T00:00:00Z' $CERTUSER
-# some browsers insist on "Key Usage" extension
-printf "[req]\ndistinguished_name=dn\nextensions=v3_req\n[v3_req]\nkeyUsage=digitalSignature,keyEncipherment,keyAgreement\n[dn]\n" > openssl.cnf
-openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout ${CERTUSER}.key -out ${CERTUSER}.pem -config openssl.cnf -extensions v3_req -subj "/CN=$CERTUSER"
-openssl x509 -outform der -in ${CERTUSER}.pem -out ${CERTUSER}.der
-ipa user-add-cert $CERTUSER --certificate="$(base64 ${CERTUSER}.der)"
-# for browser import with manual tests
-openssl pkcs12 -export -password pass:foo -in ${CERTUSER}.pem -inkey ${CERTUSER}.key -out ${CERTUSER}.p12
-'
-for s in key p12 pem; do docker cp freeipa:jane.$s .; done
-""")
-        jane_pem = os.path.join(self.tmpdir, "jane.pem")
-        jane_key = os.path.join(self.tmpdir, "jane.key")
-        ipa_machine.download("jane.key", jane_key)
-        ipa_machine.download("jane.pem", jane_pem)
-        m.upload([jane_key, jane_pem], "/var/tmp")
+ipa user-add --first=Alice --last="Developer" alice
+yes foobar | ipa user-mod --password alice
+ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
+ipa user-add-cert alice --certificate="%s"
+' """ % alice_cert)
+        m.upload(["alice.pem", "alice.key", "alice-expired.pem", "bob.pem", "bob.key"], "/var/tmp",
+                 relative_dir="src/tls/ca/")
 
         # On older Debian/Ubuntu D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
         static_ifp_conf = m.image in ["debian-stable"]
@@ -525,18 +516,18 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
         # join domain, wait until it works
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
         m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
-        m.execute('while ! id jane; do sleep 5; systemctl restart sssd; done', timeout=300)
+        m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
 
         # ensure sssd certificate lookup works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                              'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
-                             '''"$(cat /var/tmp/jane.pem)" | sed 's/^o "//; s/"$//' ''')
+                             '''"$(cat /var/tmp/alice.pem)" | sed 's/^o "//; s/"$//' ''')
         self.assertEqual(m.execute('busctl get-property org.freedesktop.sssd.infopipe ' + user_obj.strip() +
                                    ' org.freedesktop.sssd.infopipe.Users.User name').strip(),
-                         's "jane"')
+                         's "alice"')
 
         # These tests have to be run with curl, as chromium-headless does not support selecting/handling client-side
-        # certificates; it just rejects cert requests. For interactive tests, grab jane.p12 from the services VM and import
+        # certificates; it just rejects cert requests. For interactive tests, grab src/tls/ca/alice.p12 and import
         # it into the browser.
 
         def do_test(authopts, expected, not_expected=[], session_leader=None):
@@ -550,7 +541,7 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
             if session_leader:
                 tries = 0
                 while tries < 10:
-                    out = m.execute('loginctl show-user --property=Sessions jane')
+                    out = m.execute('loginctl show-user --property=Sessions alice')
                     sessions = out.split('=')[1].split()
                     if len(sessions) == 1:
                         break
@@ -564,57 +555,54 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
                 # sessions time out after 10s, but let's not wait for that
                 m.execute('loginctl terminate-session ' + sessions[0])
                 # wait until the session is gone
-                m.execute("while loginctl show-user jane; do sleep 1; done")
+                m.execute("while loginctl show-user alice; do sleep 1; done")
 
             m.stop_cockpit()
 
-        self.allow_journal_messages("jane is not allowed to run sudo on x0.  This incident will be reported.")
+        self.allow_journal_messages("alice is not allowed to run sudo on x0.  This incident will be reported.")
         self.allow_authorize_journal_messages()
 
         # cert auth should not be enabled by default
-        do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],
+        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ["HTTP/1.1 401 Authentication required", '"authorize"'])
         # password auth should work
-        do_test(['-u', 'jane:foobar'],
+        do_test(['-u', 'alice:foobar'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'],
                 session_leader='cockpit-session')
 
         # enable cert based auth
         m.execute("printf '[WebService]\nClientCertAuthentication = true\n' >> /etc/cockpit/cockpit.conf")
         # cert auth should work now
-        do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],
+        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'])
         # password auth, too
-        do_test(['-u', 'jane:foobar'],
+        do_test(['-u', 'alice:foobar'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'],
                 session_leader='cockpit-session')
         # cert auth should go through PAM stack and re-create home dir
-        home_dir = m.execute("getent passwd jane | cut -d: -f6").strip()
+        home_dir = m.execute("getent passwd alice | cut -d: -f6").strip()
         m.execute("rm -r " + home_dir)
-        do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],
+        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'])
         m.execute('test -f %s/.bashrc' % home_dir)
 
         # another certificate gets rejected
-        m.execute("openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout /tmp/jane2.key -out /tmp/jane2.pem -subj /CN=jane")
-        do_test(['--cert', '/tmp/jane2.pem', '--key', '/tmp/jane2.key'],
+        do_test(['--cert', '/var/tmp/bob.pem', '--key', '/var/tmp/bob.key'],
                 ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
 
         # check expired certificate
-        m.execute("openssl req -new -key /var/tmp/jane.key -out /tmp/jane.csr -subj /CN=jane")
-        m.execute("openssl x509 -in /tmp/jane.csr -out /var/tmp/jane-exp.pem -req -signkey /var/tmp/jane.key -days -1")
         m.start_cockpit(tls=True)
-        m.execute('! curl -ksS --cert /var/tmp/jane-exp.pem --key /var/tmp/jane.key https://localhost:9090/cockpit/login')
+        m.execute('! curl -ksS --cert /var/tmp/alice-expired.pem --key /var/tmp/alice.key https://localhost:9090/cockpit/login')
         m.stop_cockpit()
         self.allow_journal_messages('.*Invalid TLS peer certificate.* expired')
         self.allow_journal_messages('.*TLS handshake failed: Error in the certificate verification.*')
 
         # disallow password auth
         m.execute("printf '[Basic]\naction = none\n' >> /etc/cockpit/cockpit.conf")
-        do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],
+        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'])
-        do_test(['-u', 'jane:foobar'],
+        do_test(['-u', 'alice:foobar'],
                 ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
                 not_expected=["crsf-token"])
 
@@ -623,7 +611,7 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
             m.execute("mv /etc/sssd/conf.d/ifp.conf /etc/sssd/conf.d/ifp.conf.disabled && systemctl restart sssd")
         else:
             m.execute("systemctl mask sssd-ifp && systemctl stop sssd-ifp")
-        do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],
+        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
         if static_ifp_conf:

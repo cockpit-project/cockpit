@@ -254,7 +254,6 @@ EXTRA_DIST += \
 	src/bridge/mock-pmda.c \
 	src/bridge/mock-pmns \
 	src/bridge/mock-client.crt \
-	src/bridge/mock-client-expired.crt \
 	src/bridge/mock-client.key \
 	src/bridge/mock-server.crt \
 	src/bridge/mock-server.key \

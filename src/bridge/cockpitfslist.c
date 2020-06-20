@@ -133,6 +133,14 @@ on_files_listed (GObject *source_object,
         (msg, "path", g_file_info_get_attribute_byte_string (info, G_FILE_ATTRIBUTE_STANDARD_NAME));
       json_object_set_string_member
         (msg, "type", cockpit_file_type_to_string (g_file_info_get_file_type (info)));
+      json_object_set_string_member
+        (msg, "owner", g_file_info_get_attribute_string (info, G_FILE_ATTRIBUTE_OWNER_USER));
+      json_object_set_string_member
+        (msg, "group", g_file_info_get_attribute_string (info, G_FILE_ATTRIBUTE_OWNER_GROUP));
+      json_object_set_int_member
+        (msg, "size", g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_STANDARD_SIZE));
+      json_object_set_int_member
+        (msg, "modified", g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED));
       msg_bytes = cockpit_json_write_bytes (msg);
       json_object_unref (msg);
       cockpit_channel_send (COCKPIT_CHANNEL(self), msg_bytes, FALSE);
@@ -250,7 +258,9 @@ cockpit_fslist_prepare (CockpitChannel *channel)
     }
 
   g_file_enumerate_children_async (file,
-                                   G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                   G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+                                   G_FILE_ATTRIBUTE_OWNER_USER "," G_FILE_ATTRIBUTE_OWNER_GROUP ","
+                                   G_FILE_ATTRIBUTE_STANDARD_SIZE "," G_FILE_ATTRIBUTE_TIME_MODIFIED,
                                    G_FILE_QUERY_INFO_NONE,
                                    G_PRIORITY_DEFAULT,
                                    self->cancellable,

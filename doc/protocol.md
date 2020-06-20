@@ -872,9 +872,10 @@ The following options can be specified in the "open" control message:
 The channel will send a number of JSON messages that list the current
 content of the directory.  These messages have a "event" field with
 value "present", a "path" field that holds the (relative) name of
-the file and a type field. Type will be one of: file, directory, link,
-special or unknown. After all files have been listed the "ready"
-control message will be sent.
+the file, "owner", "group", "size" and "modified" (timestamp) fields with
+some basic file information, and a "type" field. Type will be one of:
+file, directory, link, special or unknown. After all files have been listed the
+"ready" control message will be sent.
 
 Other messages on the stream signal changes to the directory, in the
 same format as used by the "fswatch1" payload type.

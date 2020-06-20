@@ -834,6 +834,10 @@ test_dir_simple (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
   g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
+  g_assert_cmpstr (json_object_get_string_member (event, "owner"), ==, g_get_user_name());
+  g_assert_cmpstr (json_object_get_string_member (event, "group"), !=, NULL);
+  g_assert_cmpint (json_object_get_int_member (event, "size"), ==, 6);
+  g_assert_cmpint (json_object_get_int_member (event, "modified"), >, 1610000000);
   json_object_unref (event);
 
   control = recv_control (tc);
@@ -863,6 +867,10 @@ test_dir_simple_no_watch (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
   g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
+  g_assert_cmpstr (json_object_get_string_member (event, "owner"), ==, g_get_user_name());
+  g_assert_cmpstr (json_object_get_string_member (event, "group"), !=, NULL);
+  g_assert_cmpint (json_object_get_int_member (event, "size"), ==, 6);
+  g_assert_cmpint (json_object_get_int_member (event, "modified"), >, 1610000000);
   json_object_unref (event);
 
   control = recv_control (tc);

@@ -84,7 +84,7 @@ function getPoolSpaceAvailable({ storagePools, poolName, poolPath, connectionNam
     if (poolName)
         storagePool = storagePools.find(pool => pool.name === poolName);
     else if (poolPath)
-        storagePool = storagePools.find(pool => pool.target.path === poolPath);
+        storagePool = storagePools.find(pool => pool.target && pool.target.path === poolPath);
 
     return storagePool ? storagePool.available : undefined;
 }

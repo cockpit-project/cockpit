@@ -76,11 +76,11 @@ ClientCertAuthentication = yes
 
   <para>When enabling this mode,
     <ulink url="https://github.com/cockpit-project/cockpit/blob/master/doc/authentication.md">
-    other authentication types</ulink> commonly get disabled, so that *only* client certificate
-    authentication will be accepted. By default, after a failed certificate authentication attempt,
-    Cockpit's normal login page will appear and permit other login types such as <code>basic</code>
-    (passwords) or <code>negotiate</code> (Kerberos).  For example, password authentication gets
-    disabled with:</para>
+    other authentication types</ulink> commonly get disabled, so that <emphasis>only</emphasis>
+    client certificate authentication will be accepted. By default, after a failed certificate
+    authentication attempt, Cockpit's normal login page will appear and permit other login types
+    such as <code>basic</code> (passwords) or <code>negotiate</code> (Kerberos).  For example,
+    password authentication gets disabled with:</para>
 
 <programlisting>
 [basic]

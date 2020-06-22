@@ -801,7 +801,7 @@ const LIBVIRT_DBUS_PROVIDER = {
                         else
                             dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
                     })
-                    .catch(function(ex) { console.warn("GET_VM action failed for path", objPath, ex.toString()); return cockpit.reject(ex) });
+                    .catch(ex => console.warn("GET_VM action failed for path", objPath, ex.toString()));
         };
     },
 

@@ -403,8 +403,8 @@ export class KdumpPage extends React.Component {
         }
         // this.storeLocation(this.props.kdumpStatus.config);
         var settingsLink;
-        if (targetCanChange)
-            settingsLink = <span><button className="link-button" onClick={this.handleSettingsClick}>{ kdumpLocation }</button></span>;
+        if (targetCanChange && !!this.props.kdumpStatus)
+            settingsLink = <span><button className="link-button" id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</button></span>;
         else
             settingsLink = <span>{ kdumpLocation }</span>;
         var reservedMemory;

@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-if ! type curl >/dev/null 2>&1 || ! type nc >/dev/null 2>&1; then
-    echo "1..0 # SKIP: curl or nc not installed"
+if ! type curl >/dev/null 2>&1; then
+    echo "1..0 # SKIP: curl not installed"
     exit 0
 fi
 

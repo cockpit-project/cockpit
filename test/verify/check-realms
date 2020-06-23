@@ -332,6 +332,7 @@ class TestIPA(TestRealms, CommonTests):
         super().setUp()
         self.admin_user = "admin"
         self.admin_password = "foobarfoo"
+        self.alice_password = 'WonderLand123'
         self.expected_server_software = "ipa"
         self.machines['services'].execute("/run-freeipa")
         # Wait for FreeIPA to come up and DNS to work as expected
@@ -496,12 +497,10 @@ class TestIPA(TestRealms, CommonTests):
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
         ipa_machine.execute(r"""docker exec -i freeipa sh -exc '
 ipa user-add --first=Alice --last="Developer" alice
-yes foobar | ipa user-mod --password alice
+yes "%(password)s" | ipa user-mod --password alice
 ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
-ipa user-add-cert alice --certificate="%s"
-' """ % alice_cert)
-        m.upload(["alice.pem", "alice.key", "bob.pem", "bob.key"], "/var/tmp",
-                 relative_dir="src/tls/ca/")
+ipa user-add-cert alice --certificate="%(cert)s"
+' """ % {"cert": alice_cert, "password": self.alice_password})
 
         # On Debian 9, D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
         if m.image in ["debian-stable"]:
@@ -511,6 +510,13 @@ ipa user-add-cert alice --certificate="%s"
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
         m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
         m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
+
+        # upload certificates to client machine
+        m.upload(["alice.pem", "alice.key", "bob.pem", "bob.key"], "/var/tmp",
+                 relative_dir="src/tls/ca/")
+        alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]
+        alice_user_pass = ['-u', 'alice:' + self.alice_password]
+        bob_cert_key = ['--cert', "/var/tmp/bob.pem", '--key', "/var/tmp/bob.key"]
 
         # ensure sssd certificate lookup works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
@@ -557,40 +563,30 @@ ipa user-add-cert alice --certificate="%s"
         self.allow_authorize_journal_messages()
 
         # cert auth should not be enabled by default
-        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
-                ["HTTP/1.1 401 Authentication required", '"authorize"'])
+        do_test(alice_cert_key, ["HTTP/1.1 401 Authentication required", '"authorize"'])
         # password auth should work
-        do_test(['-u', 'alice:foobar'],
-                ['HTTP/1.1 200 OK', '"csrf-token"'],
-                session_leader='cockpit-session')
+        do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session')
 
         # enable cert based auth
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nClientCertAuthentication = true\n", append=True)
         # cert auth should work now
-        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
-                ['HTTP/1.1 200 OK', '"csrf-token"'])
+        do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
         # password auth, too
-        do_test(['-u', 'alice:foobar'],
-                ['HTTP/1.1 200 OK', '"csrf-token"'],
-                session_leader='cockpit-session')
+        do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session')
         # cert auth should go through PAM stack and re-create home dir
         home_dir = m.execute("getent passwd alice | cut -d: -f6").strip()
         m.execute("rm -r " + home_dir)
-        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
-                ['HTTP/1.1 200 OK', '"csrf-token"'])
+        do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
         m.execute('test -f %s/.bashrc' % home_dir)
 
         # another certificate gets rejected
-        do_test(['--cert', '/var/tmp/bob.pem', '--key', '/var/tmp/bob.key'],
-                ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
+        do_test(bob_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
 
         # disallow password auth
         m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)
-        do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
-                ['HTTP/1.1 200 OK', '"csrf-token"'])
-        do_test(['-u', 'alice:foobar'],
-                ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
+        do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
+        do_test(alice_user_pass, ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
                 not_expected=["crsf-token"])
 
 
@@ -600,6 +596,7 @@ class TestAD(TestRealms, CommonTests):
         super().setUp()
         self.admin_user = "Administrator"
         self.admin_password = "foobarFoo123"
+        self.alice_password = 'WonderLand123'
         self.expected_server_software = "active-directory"
         self.machines['services'].execute("/run-samba-domain")
         # Wait for AD to come up and DNS to work as expected

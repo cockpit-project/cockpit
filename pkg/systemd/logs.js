@@ -123,7 +123,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, priority, tag, keep_following, grep) {
+    function journalbox(outer, match, priority, tag, keep_following, grep, boot, since) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -260,25 +260,15 @@ $(function() {
             reverse: true,
             priority: priority,
             grep: grep,
+            boot: boot,
+            since: since,
         };
 
         let last = keep_following ? null : 1;
         var count = 0;
         var oldest = null;
         var stopped = false;
-
-        var all = false;
-        if (start == 'boot') {
-            options.boot = null;
-        } else if (start == 'previous-boot') {
-            options.boot = "-1";
-        } else if (start == 'last-24h') {
-            options.since = "-1days";
-        } else if (start == 'last-week') {
-            options.since = "-7days";
-        } else {
-            all = true;
-        }
+        var all = boot === undefined && since === undefined;
 
         var tags_match = [];
         match.forEach(function (field) {
@@ -373,13 +363,6 @@ $(function() {
         const grep = options.grep || "";
         let full_grep = "";
 
-        // Set selected item into start time select menu
-        var query_start = options.start || "recent";
-        if (query_start == 'recent')
-            $(window).scrollTop($(document).height());
-        else
-            full_grep += "start:" + query_start + " ";
-
         const prio_level = options.prio || "err";
         full_grep += "priority:" + prio_level + " ";
 
@@ -392,17 +375,9 @@ $(function() {
                 p.selected = false;
         });
 
-        const time_options = [...document.getElementById('journal-current-day-menu').children];
-        time_options.forEach(p => {
-            if (p.getAttribute('value') === query_start)
-                p.selected = true;
-            else
-                p.selected = false;
-        });
-
         let follow = !(options.follow && options.follow === "false");
 
-        if (query_start == "previous-boot") // Don't follow if we want to see only previous boot
+        if (options.boot && options.boot !== "0") // Don't follow if specific boot is picked
             follow = false;
 
         const follow_button = document.getElementById("journal-follow");
@@ -427,6 +402,12 @@ $(function() {
             full_grep += "identifier:" + options.tag + " ";
         }
 
+        if (options.boot)
+            full_grep += "boot:" + options.boot + " ";
+
+        if (options.since)
+            full_grep += "since:" + options.since + " ";
+
         // Other filters may be passed as well
         Object.keys(options).forEach(k => {
             if (k === k.toUpperCase() && options[k]) {
@@ -441,7 +422,7 @@ $(function() {
         if (the_journal)
             the_journal.stop();
 
-        the_journal = journalbox($("#journal-box"), query_start, match, prio_level, options.tag, follow, grep);
+        the_journal = journalbox($("#journal-box"), match, prio_level, options.tag, follow, grep, options.boot, options.since);
     }
 
     function update_entry() {
@@ -968,7 +949,7 @@ $(function() {
                         return false;
                     }
 
-                    const well_know_keys = ["start", "priority", "follow", "service", "identifier"];
+                    const well_know_keys = ["since", "boot", "priority", "follow", "service", "identifier"];
                     const map_keys = (key) => {
                         if (key === "priority")
                             return "prio";
@@ -1032,11 +1013,25 @@ $(function() {
         }
     });
 
-    $('#journal-current-day-menu').on('change', function() {
+    function onFilter(e) {
+        console.log(e);
+        if (e.type == "keyup" && e.keyCode !== 13) // Only accept enter for entering
+            return;
+
         const options = parse_search(document.getElementById("journal-grep").value);
         update_services_list = true;
-        cockpit.location.go([], $.extend(options, { start: $(this).val() }));
-    });
+        const key = $(this).attr("data-key");
+        const val = $(this).attr("data-value");
+
+        // Remove all parameters which can be set up using filters
+        delete options.boot;
+        delete options.since;
+
+        cockpit.location.go([], $.extend(options, { [key]: val }));
+    }
+
+    $('#logs-predefined-filters a').on('click', onFilter);
+    $('#logs-predefined-filters a').on('keyup', onFilter);
 
     $('#journal-prio-menu').on('change', function() {
         const options = parse_search(document.getElementById("journal-grep").value);

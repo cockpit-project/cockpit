@@ -33,7 +33,7 @@ class NavigateTestSuite(SeleniumTest):
         # Now navigate to the logs
         self.click(self.wait_link('Logs', cond=clickable))
         self.wait_frame("logs")
-        self.wait_id("journal-current-day-menu")
+        self.wait_id("log-filters")
         self.mainframe()
 
         # Now navigate back to system page

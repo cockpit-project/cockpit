@@ -626,8 +626,22 @@ class TestAD(TestRealms, CommonTests):
 
         pass
 
-    def testQualifiedUsers(self):
-        super().testQualifiedUsers()
+    def testUnqualifiedUsers(self):
+        '''Extend the test to check a new AD user'''
+
+        super().testUnqualifiedUsers()
+
+        m = self.machine
+        b = self.browser
+
+        m.start_cockpit()
+        # create another AD user
+        self.machines['services'].execute("docker exec -i samba samba-tool user add alice %s" % self.alice_password)
+        # ensure it works
+        m.execute('id alice')
+        b.login_and_go('/system', user='alice', password=self.alice_password)
+        b.wait_visible("#overview")
+        b.logout()
 
 
 JOIN_SCRIPT = """

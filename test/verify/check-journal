@@ -196,13 +196,13 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_log123()
 
-        b.go("#/?prio=debug&start=recent&service=nonexisting.service")
+        b.go("#/?prio=debug&service=nonexisting.service")
         wait_journal_empty()
 
-        b.go("#/?prio=debug&start=recent&service=log123")
+        b.go("#/?prio=debug&service=log123")
         wait_log123()
 
-        b.go("#/?prio=debug&start=recent&service=slow10.service")
+        b.go("#/?prio=debug&service=slow10.service")
         wait_journal_empty()
 
         def wait_slow10():
@@ -225,9 +225,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_slow10()
 
-        b.go("#/?prio=debug&start=recent&service=nonexisting.service")
+        b.go("#/?prio=debug&service=nonexisting.service")
         wait_journal_empty()
-        b.go("#/?prio=debug&start=recent&service=slow10.service")
+        b.go("#/?prio=debug&service=slow10.service")
         wait_slow10()
 
         b.go("#/?prio=debug")
@@ -322,8 +322,26 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
-        b.go("#/?tag=logger&start=last-24h&prio=crit&grep=foo")
-        b.wait_val("#journal-grep", "start:last-24h priority:crit identifier:logger foo")
+        if m.image == "rhel-8-3-distropkg": # Introduced in #14262
+            b.go("#/?tag=logger&start=last-24h&prio=crit&grep=foo")
+            b.wait_val("#journal-grep", "start:last-24h priority:crit identifier:logger foo")
+        else:
+            # Test filters
+            b.click("#log-filters")
+            b.click("#logs-predefined-filters li:first-child a")
+            b.wait_val("#journal-grep", "priority:err identifier:logger boot:0 [5-6]")
+
+            b.click("#log-filters")
+            b.click("#logs-predefined-filters li:nth-child(2) a")
+            b.wait_val("#journal-grep", "priority:err identifier:logger boot:-1 [5-6]")
+
+            b.click("#log-filters")
+            b.click("#logs-predefined-filters li:nth-child(3) a")
+            b.wait_val("#journal-grep", "priority:err identifier:logger since:-24hours [5-6]")
+
+            b.click("#log-filters")
+            b.click("#logs-predefined-filters li:nth-child(4) a")
+            b.wait_val("#journal-grep", "priority:err identifier:logger since:-7days [5-6]")
 
     def testRebootAndTime(self):
         b = self.browser
@@ -412,7 +430,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
 
-        b.go("#/?start=boot&tag=check-journal")
+        if m.image == "rhel-8-3-distropkg": # Changed in #14262
+            b.go("#/?start=boot&tag=check-journal")
+        else:
+            b.go("#/?boot=0&tag=check-journal")
         wait_log_lines([expected_date,
                         ["check-journal", "AFTER BOOT", ""],
                         "Load earlier entries",
@@ -427,13 +448,19 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ])
 
         # Check selecting of services
-        b.go("#/?start=previous-boot&tag=check-journal")
+        if m.image == "rhel-8-3-distropkg": # Changed in #14262
+            b.go("#/?start=previous-boot&tag=check-journal")
+        else:
+            b.go("#/?boot=-1&tag=check-journal")
         wait_log_lines([expected_date,
                         ["check-journal", "BEFORE BOOT", ""],
                         "Load earlier entries"
                         ])
 
-        b.go("#/?start=boot&tag=check-journal")
+        if m.image == "rhel-8-3-distropkg": # Changed in #14262
+            b.go("#/?start=boot&tag=check-journal")
+        else:
+            b.go("#/?boot=0&tag=check-journal")
         wait_log_lines([expected_date,
                         ["check-journal", "AFTER BOOT", ""],
                         "Load earlier entries"

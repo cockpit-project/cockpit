@@ -70,6 +70,7 @@
 }
 
 #journal .filter select,
+#journal .filter button,
 #journal .filter input {
     margin-right: var(--pf-global--spacer--md);
 }
@@ -87,8 +88,10 @@
 }
 
 .filter {
+    position: relative;
     display: flex;
     align-items: baseline;
+    align-self: end;
     flex-direction: row;
     margin: 1rem 0 0;
     text-align: right;
@@ -222,6 +225,11 @@
 .dropdown-toggle:focus,
 .dropdown.open .dropdown-toggle {
     color: var(--pf-global--link--Color) !important;
+}
+
+.dropdown-menu {
+    left: auto;
+    margin: 0;
 }
 
 #logs-help-menu {

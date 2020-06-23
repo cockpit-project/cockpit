@@ -599,16 +599,22 @@ class TestAD(TestRealms, CommonTests):
         self.alice_password = 'WonderLand123'
         self.expected_server_software = "active-directory"
         self.machines['services'].execute("/run-samba-domain")
+
+        m = self.machine
+
         # Wait for AD to come up and DNS to work as expected
-        wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
         # DNS is not sufficient yet, needs to start LDAP server as well
-        self.machine.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
+        m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
         # also wait for Kerberos
-        self.machine.execute("set -e; until echo %s | kinit %s@COCKPIT.LAN; do sleep 1; done; kdestroy" % (self.admin_password, self.admin_user))
+        m.execute("set -e; until echo %s | kinit %s@COCKPIT.LAN; do sleep 1; done; kdestroy" % (self.admin_password, self.admin_user))
 
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?
-        self.machine.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
+        m.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
+
+        # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1839805
+        m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''

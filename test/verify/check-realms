@@ -94,18 +94,19 @@ class CommonTests:
         # Join cockpit.lan
         b.click(self.domain_sel)
         b.wait_popup("realms-op")
-        with b.wait_timeout(180):
-            b.set_val(self.op_address, "cockpit.lan")
+        b.set_val(self.op_address, "cockpit.lan")
+        with b.wait_timeout(300):
             b.wait_text(".realms-op-address-error", "Contacted domain")
-            b.wait_attr(self.op_admin, "placeholder", 'e.g. "%s"' % self.admin_user)
-            b.set_val(self.op_admin, self.admin_user)
-            b.set_val(self.op_admin_password, self.admin_password)
-            b.wait_not_visible(".realms-op-leave-only-row")
-            b.click(".realms-op-apply")
+        b.wait_attr(self.op_admin, "placeholder", 'e.g. "%s"' % self.admin_user)
+        b.set_val(self.op_admin, self.admin_user)
+        b.set_val(self.op_admin_password, self.admin_password)
+        b.wait_not_visible(".realms-op-leave-only-row")
+        b.click(".realms-op-apply")
+        with b.wait_timeout(300):
             b.wait_popdown("realms-op")
 
-            # Check that this has worked
-            wait_number_domains(1)
+        # Check that this has worked
+        wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
         b.wait_not_present("#system_information_hostname_button")

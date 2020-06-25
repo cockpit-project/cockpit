@@ -17,20 +17,16 @@
     which can associate certificates to users.
   </para>
 
+  <para>To authenticate users from a Identity Management domain, the server that
+    Cockpit is running on must be joined to that domain. See the
+    <link linkend="sso-server">SSO server requirements</link> for details.</para>
 
-  <section id="certauth-server-idm">
-    <title>Identity Management setup</title>
-
-    <para>To authenticate users from a Identity Management domain, the server that
-      Cockpit is running on must be joined to that domain. See the
-      <link linkend="sso-server">SSO server requirements</link> for details.</para>
-
-    <para>The domain's users also need to get associated to certificates, usually with
-    the <command>ipa user-add-cert</command> command. See the
-    <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
-    FreeIPA User Certificates documentation</ulink>
-    for details. As a simple example, these commands will generate a new certificate/key
-    pair and associate it to the user <code>alice</code>:</para>
+  <section id="certauth-server-cert-generation">
+    <title>User certificate generation</title>
+    <para>Generating the certificates for users is usually done with a certificate management system like
+      <ulink url="https://pagure.io/certmonger">certmonger</ulink> or
+      <ulink url="https://www.freeipa.org/page/PKI">FreeIPA</ulink>, which are not documented here.
+      For testing purposes, these commands will generate a self-signed certificate/key for the "alice" user:</para>
 
 <programlisting>
 # create self-signed certificate and key
@@ -41,16 +37,10 @@ printf '[req]\ndistinguished_name=dn\nextensions=v3_req\n[dn]\n
 openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout alice.key \
     -out alice.pem -subj "/CN=alice" -config /tmp/openssl.cnf -extensions v3_req
 
-# FreeIPA only accepts DER format, convert it
-openssl x509 -outform der -in alice.pem -out alice.der
-
 # browsers and smart cart utilities accept PKCS#12 format, convert it
 # this needs to set a transfer/import password
 openssl pkcs12 -export -password pass:somepassword \
     -in alice.pem -inkey alice.key -out alice.p12
-
-# assign it to the IdM user alice
-ipa user-add-cert alice --certificate="$(base64 alice.der)"
 </programlisting>
 
   <para>You can now import <code>alice.p12</code> directly into your browser,
@@ -59,6 +49,81 @@ ipa user-add-cert alice --certificate="$(base64 alice.der)"
 
 <programlisting>
 pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-ipa">
+    <title>Certificate mapping with FreeIPA</title>
+
+    <para>The domain's users get associated to certificates with
+      the <command>ipa user-add-cert</command> command. This expects PEM format, but without the
+      <code>-----BEGIN</code>/<code>-----END</code> markers.  See the
+      <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
+      FreeIPA User Certificates documentation</ulink>:</para>
+
+<programlisting>
+ipa user-add-cert alice --certificate="$(grep -v ^---- alice.pem)"
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-ms-ad">
+    <title>Certificate mapping with Microsoft Active Directory</title>
+
+    <para>The domain user certificates get imported into the <code>userCertificate;binary</code>
+      LDAP attribute. The following commands convert the PEM certificate into binary DER form, create an
+      <ulink url="https://ldap.com/ldif-the-ldap-data-interchange-format/">LDIF</ulink>
+      file and apply it to the LDAP server running on the domain contoller
+      "dc.example.com":</para>
+
+<programlisting>
+openssl x509 -outform der -in alice.pem -out alice.der
+
+cat &lt;&lt;EOF &gt; alice.ldif
+version: 1
+dn: cn=alice,ou=users,ou=YOUR_NETBIOS_NAME,dc=example,dc=com
+changetype: modify
+add: userCertificate;binary
+userCertificate;binary:&lt; file://$(pwd)/alice.der
+EOF
+
+ldapmodify -H ldap://dc.example.com -f alice.ldif
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-samba-ad">
+    <title>Certificate mapping with Samba Active Directory</title>
+
+    <para>At least some versions of <ulink url="https://www.samba.org/">Samba</ulink>
+      do not support the <code>userCertificate;binary</code> LDAP attribute, so the
+      import has to happen in base64 PEM form into the textual
+      <code>userCertificate</code> attribute instead. Also, Samba uses a slightly
+      different user hierarchy:</para>
+
+<programlisting>
+cat &lt;&lt;EOF &gt; alice.ldif
+version: 1
+dn: cn=alice,cn=users,dc=example,dc=com
+changetype: modify
+add: userCertificate
+userCertificate: $(grep -v ^---- alice.pem | tr -d '\n')
+EOF
+
+ldapmodify -H ldap://dc.example.com  -f alice.ldif
+</programlisting>
+
+    <para>As <code>userCertificate</code> is a text instead of binary field, you need to set up a
+      <ulink url="https://www.mankier.com/5/sssd.conf#Certificate_Mapping_Section">certificate mapping rule</ulink>
+      in <citerefentry><refentrytitle>sssd.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+      in a <code>[certmap/domain/rulename]</code> section, for example:</para>
+
+<programlisting>
+[certmap/example.com/adcerts]
+# we match full certificates, so it is not important to check anything here
+matchrule = &lt;KU&gt;digitalSignature
+maprule = LDAP:(userCertificate={cert!base64})
 </programlisting>
 
   </section>

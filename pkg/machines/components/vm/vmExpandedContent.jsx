@@ -52,7 +52,7 @@ export const VmExpandedContent = ({
     ];
 
     let initiallyActiveTab = null;
-    if (vm.ui.initiallyOpenedConsoleTab) {
+    if (vm.ui && vm.ui.initiallyOpenedConsoleTab) {
         initiallyActiveTab = tabRenderers.map((o) => o.name).indexOf(consolesTabName);
     }
 

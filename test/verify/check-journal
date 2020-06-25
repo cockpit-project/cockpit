@@ -343,6 +343,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             b.click("#logs-predefined-filters li:nth-child(4) a")
             b.wait_val("#journal-grep", "priority:err identifier:logger since:-7days [5-6]")
 
+            self.allow_journal_messages("Data from the specified boot .* is not available: No such boot ID in journal")
+
     def testRebootAndTime(self):
         b = self.browser
         m = self.machine

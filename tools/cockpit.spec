@@ -297,6 +297,7 @@ sed -i "s|%{buildroot}||" *.list
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
 find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
+ln -s opensuse-tumbleweed opensuse-microos
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd

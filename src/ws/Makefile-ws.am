@@ -1,5 +1,5 @@
 
-COCKPIT_BUILD_INFO = "Built on $(shell date)"
+COCKPIT_BUILD_INFO = "Built on $(shell date -u -d @$${SOURCE_DATE_EPOCH:-$$(date +%s)})"
 
 LOGIN_PO_FILES = $(patsubst %,dist/static/login.po.%.html,$(LINGUAS))
 

@@ -78,7 +78,7 @@ class CommonTests:
         b = self.browser
 
         # Tell realmd to enable domain-qualified logins; unqualified ones are covered in testUnqualifiedUsers
-        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = yes\\n'  >> /etc/realmd.conf")
+        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = yes\n", append=True)
 
         self.login_and_go("/system")
 
@@ -256,7 +256,7 @@ class CommonTests:
 
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
-        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
+        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
         m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
 
         # wait until domain user works
@@ -508,14 +508,13 @@ ipa user-add-cert alice --certificate="%s"
         m.upload(["alice.pem", "alice.key", "alice-expired.pem", "bob.pem", "bob.key"], "/var/tmp",
                  relative_dir="src/tls/ca/")
 
-        # On older Debian/Ubuntu D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
+        # On Debian 9, D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
         static_ifp_conf = m.image in ["debian-stable"]
         if static_ifp_conf:
-            m.write("/etc/sssd/conf.d/ifp.conf", "[sssd]\nservices = nss, sudo, pam, ssh, ifp\n")
-            m.execute("chmod 600 /etc/sssd/conf.d/ifp.conf")
+            m.write("/etc/sssd/conf.d/ifp.conf", "[sssd]\nservices = nss, sudo, pam, ssh, ifp\n", perm="0600")
 
         # join domain, wait until it works
-        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
+        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
         m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
         m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
 
@@ -572,7 +571,7 @@ ipa user-add-cert alice --certificate="%s"
                 session_leader='cockpit-session')
 
         # enable cert based auth
-        m.execute("printf '[WebService]\nClientCertAuthentication = true\n' >> /etc/cockpit/cockpit.conf")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nClientCertAuthentication = true\n", append=True)
         # cert auth should work now
         do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'])
@@ -600,7 +599,7 @@ ipa user-add-cert alice --certificate="%s"
         self.allow_journal_messages('.*TLS handshake failed: Error in the certificate verification.*')
 
         # disallow password auth
-        m.execute("printf '[Basic]\naction = none\n' >> /etc/cockpit/cockpit.conf")
+        m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)
         do_test(['--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key'],
                 ['HTTP/1.1 200 OK', '"csrf-token"'])
         do_test(['-u', 'alice:foobar'],
@@ -728,7 +727,7 @@ class TestKerberos(MachineCase):
 
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
-        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
+        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
 
         # delete the local admin user, going to use the IPA one instead
         m.execute("userdel admin")
@@ -819,7 +818,7 @@ class TestKerberos(MachineCase):
         self.assertIn('"csrf-token"', output)
         self.allow_restart_journal_messages()
 
-        m.execute("printf '[Negotiate]\naction = none\n' >> /etc/cockpit/cockpit.conf")
+        m.write("/etc/cockpit/cockpit.conf", "[Negotiate]\naction = none\n", append=True)
         m.restart_cockpit()
         output = m.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                             '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',

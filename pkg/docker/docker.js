@@ -368,7 +368,7 @@ docker.console = function console_(container_id, command, options) {
     function prepare() {
         self.connected = false;
 
-        /* Nothing to prepare? Connect directly to container? */
+        /* Nothing to prepare? Connect directly to container. */
         if (!exec) {
             if (tty === false) {
                 return attach("GET /v1.15/containers/" + encodeURIComponent(container_id) +

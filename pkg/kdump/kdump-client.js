@@ -25,7 +25,7 @@ import crashKernelScript from 'raw-loader!./crashkernel.sh';
 import testWritableScript from 'raw-loader!./testwritable.sh';
 const _ = cockpit.gettext;
 
-const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blocklist"];
+const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blacklist"];
 const knownKeys = [
     "raw", "nfs", "ssh", "sshkey", "path", "core_collector", "kdump_post", "kdump_pre", "extra_bins", "extra_modules",
     "default", "force_rebuild", "override_resettable", "dracut_args", "fence_kdump_args", "fence_kdump_nodes"

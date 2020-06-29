@@ -4,7 +4,7 @@
 # https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg02661.html
 # https://github.com/qemu/qemu/blob/master/block/curl.c
 #
-# Standart python http server doesn't support range option, so we need to implement it manually.
+# Standard python http server doesn't support range option, so we need to implement it manually.
 #
 # QEMU also doesn't accept http driver for certain distributions (block-drv-ro-whitelist option in qemu-kvm.spec).
 # So server needs to be HTTPS.

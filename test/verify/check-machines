@@ -1532,7 +1532,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 storage_pool="No Storage",
                                                 start_vm=True, delete=False))
 
-        # We don't want to use start_vm == False because if we get a seperate install phase
+        # We don't want to use start_vm == False because if we get a separate install phase
         # virt-install will overwrite our changes.
         self.machine.execute("virsh destroy pxe-guest")
 
@@ -2132,7 +2132,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                         b.click("button.alert-link.more-button")
                         waitForError(errors, error_location)
 
-            # Close the notificaton
+            # Close the notification
             b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
             b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
@@ -2245,7 +2245,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text(selector, before)
 
             # Make sure that the initial state goes away and then try to check what the new state is
-            # because we might end up checking the text for the new state the momment it dissapears
+            # because we might end up checking the text for the new state the momment it disappears
             def waitStateWentAway(selector, state):
                 try:
                     b.wait_text_not(selector, state)
@@ -2974,7 +2974,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         self.waitVmRow("subVmTest1")
 
-        # Wait for the login promt before we try detaching disks - we need the OS to be fully responsive
+        # Wait for the login prompt before we try detaching disks - we need the OS to be fully responsive
         wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching non permanent disk of a running domain
@@ -3954,7 +3954,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             xfail_error = "Invalid",
         ).execute()
 
-        # Check "Address not withing subnet"
+        # Check "Address not within subnet"
         NetworkCreateDialog(
             self,
             name="test_network",
@@ -4405,7 +4405,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             pool_name="disk-pool",
             pool_type="disk",
             vol_name="sda1", # Partition names must follow pattern of sda1, sda2...
-            size="10", # Only 50MiB availabl on disk-pool
+            size="10", # Only 50MiB available on disk-pool
             unit="MiB",
             format="none",
             remove=True,

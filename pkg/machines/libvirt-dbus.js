@@ -818,7 +818,18 @@ const LIBVIRT_DBUS_PROVIDER = {
                     const snaps = [];
                     const promises = [];
 
-                    objPaths[0].forEach(objPath => promises.push(call(connectionName, objPath, 'org.libvirt.DomainSnapshot', 'GetXMLDesc', [0], { timeout, type: 'u' })));
+                    objPaths[0].forEach(objPath => {
+                        promises.push(call(connectionName, objPath, 'org.libvirt.DomainSnapshot', 'GetXMLDesc', [0], { timeout, type: 'u' })
+                                .then((xml) => {
+                                    const result = { xml };
+                                    return call(connectionName, objPath, 'org.libvirt.DomainSnapshot', 'IsCurrent', [0], { timeout, type: 'u' })
+                                            .then((isCurrent) => {
+                                                result.isCurrent = isCurrent;
+                                                return result;
+                                            });
+                                })
+                        );
+                    });
 
                     // WA to avoid Promise.all() fail-fast behavior
                     const toResultObject = (promise) => {
@@ -831,9 +842,10 @@ const LIBVIRT_DBUS_PROVIDER = {
                             .then(snapXmlList => {
                                 snapXmlList.forEach(snap => {
                                     if (snap.success) {
-                                        const snapXml = snap.result[0];
-                                        const dumpxmlParams = parseDomainSnapshotDumpxml(snapXml);
-                                        snaps.push(dumpxmlParams);
+                                        const result = snap.result;
+                                        const snapParams = parseDomainSnapshotDumpxml(result.xml[0]);
+                                        snapParams.isCurrent = result.isCurrent[0];
+                                        snaps.push(snapParams);
                                     } else {
                                         console.warn("DomainSnapshot method GetXMLDesc failed", snap.error.toString());
                                     }

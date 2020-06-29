@@ -30,7 +30,7 @@ import { RevertSnapshotModal } from './vmSnapshotsRevertModal.jsx';
 import { deleteSnapshot } from '../libvirt-dbus.js';
 import { getVmSnapshots } from '../actions/provider-actions.js';
 
-import './vmSnapshotsTab.css';
+import './vmSnapshotsTab.scss';
 
 const _ = cockpit.gettext;
 
@@ -80,11 +80,14 @@ class VmSnapshotsTab extends React.Component {
             {
                 name: _("Creation Time"), value: (snap, snapId) => {
                     const date = prettyTime(snap.creationTime);
-                    return (
+                    return (<div className="snap-creation-time">
                         <div id={`${id}-snapshot-${snapId}-date`}>
                             {date}
                         </div>
-                    );
+                        { snap.isCurrent && <Tooltip content={_("Current")}>
+                            <i id={`${id}-snapshot-${snapId}-current`} className="pficon pficon-ok" />
+                        </Tooltip> }
+                    </div>);
                 }
             },
             {

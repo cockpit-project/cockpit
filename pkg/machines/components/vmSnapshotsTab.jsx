@@ -25,6 +25,10 @@ import { CreateSnapshotModal } from "./vmSnapshotsCreateModal.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
+import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
+import { RevertSnapshotModal } from './vmSnapshotsRevertModal.jsx';
+import { deleteSnapshot } from '../libvirt-dbus.js';
+import { getVmSnapshots } from '../actions/provider-actions.js';
 
 import './vmSnapshotsTab.css';
 
@@ -146,6 +150,50 @@ class VmSnapshotsTab extends React.Component {
                     );
                 }
             },
+            {
+                name: "", value: (snap, snapId) => {
+                    const revertSnapshotHelper = () => {
+                        const revertDialogProps = {
+                            idPrefix: `${id}-snapshot-${snapId}-revert`,
+                            vm,
+                            snap,
+                            onClose: () => this.setState({ revertDialogProps: undefined }),
+                        };
+                        return (
+                            <Button id={`${id}-snapshot-${snapId}-revert`}
+                                variant='secondary'
+                                onClick={() => this.setState({ revertDialogProps })}>
+                                {_("Revert")}
+                            </Button>
+                        );
+                    };
+
+                    const deleteSnapshotHelper = () => {
+                        const deleteDialogProps = {
+                            objectType: "Snapshot",
+                            objectName: snap.name,
+                            actionDescription: _("After deleting the snapshot, all its captured content will be lost."),
+                            onClose: () => this.setState({ deleteDialogProps: undefined }),
+                            deleteHandler: () => {
+                                return deleteSnapshot({ connectionName: vm.connectionName, domainPath: vm.id, snapshotName: snap.name })
+                                        .then(() => dispatch(getVmSnapshots({ connectionName: vm.connectionName, domainPath: vm.id })));
+                            },
+                        };
+
+                        return (
+                            <DeleteResourceButton objectId={`${id}-snapshot-${snapId}`}
+                                showDialog={() => this.setState({ deleteDialogProps })} />
+                        );
+                    };
+
+                    return (
+                        <div className='machines-listing-actions'>
+                            { revertSnapshotHelper() }
+                            { deleteSnapshotHelper() }
+                        </div>
+                    );
+                }
+            },
         ];
 
         detailMap = detailMap.filter(d => !d.hidden);
@@ -180,6 +228,8 @@ class VmSnapshotsTab extends React.Component {
                         idPrefix={`${id}-create-snapshot`}
                         vm={vm}
                         onClose={this.closeCreateSnapshot} />}
+                {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
+                {this.state.revertDialogProps && <RevertSnapshotModal {...this.state.revertDialogProps } />}
 
                 <div className="ct-table-wrapper">
                     <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}

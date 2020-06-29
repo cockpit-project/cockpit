@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2019 Red Hat, Inc.
+ * Copyright (C) 2020 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -20,14 +20,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'patternfly-react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { revertSnapshot } from '../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 
-export class DeleteResourceModal extends React.Component {
+export class RevertSnapshotModal extends React.Component {
     constructor(props) {
         super(props);
 
@@ -36,16 +37,18 @@ export class DeleteResourceModal extends React.Component {
             inProgress: false,
         };
 
-        this.delete = this.delete.bind(this);
+        this.revert = this.revert.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
     }
 
-    delete() {
+    revert() {
         this.setState({ inProgress: true });
-        this.props.deleteHandler()
+        const { vm, snap } = this.props;
+
+        revertSnapshot({ connectionName: vm.connectionName, domainPath: vm.id, snapshotName: snap.name })
                 .then(this.props.onClose, exc => {
                     this.setState({ inProgress: false });
-                    this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message);
+                    this.dialogErrorSet(_("Could not revert to snapshot"), exc.message);
                 });
     }
 
@@ -54,21 +57,21 @@ export class DeleteResourceModal extends React.Component {
     }
 
     render() {
-        const { objectName, objectType, actionName, actionDescription, onClose } = this.props;
+        const { idPrefix, snap, onClose } = this.props;
 
         return (
-            <Modal show onHide={onClose}>
+            <Modal id={`${idPrefix}-snapshot-${snap.name}-modal`} show onHide={onClose}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{ (actionName || _("Delete")) + cockpit.format((" $0 $1"), objectType, objectName) }</Modal.Title>
+                    <Modal.Title>{ cockpit.format(_("Revert to Snapshot $0"), snap.name) }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    { actionDescription || cockpit.format(_("Confirm this action")) }
+                    { cockpit.format(_("Reverting to this snapshot will take the VM back to the time of the snapshot and the current state will be lost, along with any data not captured in a snapshot")) }
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>
-                        {actionName || _("Delete")}
+                    <Button variant='primary' isDisabled={this.state.inProgress} onClick={this.revert}>
+                        {_("Revert")}
                     </Button>
                     <Button variant='link' className='btn-cancel' onClick={onClose}>
                         {_("Cancel")}
@@ -80,41 +83,9 @@ export class DeleteResourceModal extends React.Component {
     }
 }
 
-DeleteResourceModal.propTypes = {
-    objectType: PropTypes.string.isRequired,
-    objectName: PropTypes.string.isRequired,
-    deleteHandler: PropTypes.func.isRequired,
+RevertSnapshotModal.propTypes = {
+    idPrefix: PropTypes.string.isRequired,
+    vm: PropTypes.object.isRequired,
+    snap: PropTypes.object.isRequired,
     onClose: PropTypes.func.isRequired,
-};
-
-export const DeleteResourceButton = ({ objectId, disabled, overlayText, actionName, showDialog }) => {
-    if (disabled) {
-        return (
-            <Tooltip id={`delete-${objectId}-tooltip`}
-                     content={overlayText}>
-                <span>
-                    <Button id={`delete-${objectId}`}
-                        variant='danger'
-                        isDisabled>
-                        {actionName || _("Delete")}
-                    </Button>
-                </span>
-            </Tooltip>
-        );
-    } else {
-        return (
-            <Button id={`delete-${objectId}`}
-                variant='danger'
-                onClick={showDialog}>
-                {actionName || _("Delete")}
-            </Button>
-        );
-    }
-};
-DeleteResourceButton.propTypes = {
-    objectId: PropTypes.string.isRequired,
-    disabled: PropTypes.bool,
-    overlayText: PropTypes.string,
-    actionName: PropTypes.string,
-    showDialog: PropTypes.func.isRequired,
 };

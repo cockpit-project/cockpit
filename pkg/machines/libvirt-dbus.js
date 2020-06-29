@@ -1476,6 +1476,20 @@ export function createSnapshot({ connectionName, vmId, name, description }) {
     return call(connectionName, vmId, 'org.libvirt.Domain', 'SnapshotCreateXML', [xmlDesc, 0], { timeout, type: 'su' });
 }
 
+export function deleteSnapshot({ connectionName, domainPath, snapshotName }) {
+    return call(connectionName, domainPath, 'org.libvirt.Domain', 'SnapshotLookupByName', [snapshotName, 0], { timeout, type: 'su' })
+            .then((objPath) => {
+                return call(connectionName, objPath[0], 'org.libvirt.DomainSnapshot', 'Delete', [0], { timeout, type: 'u' });
+            });
+}
+
+export function revertSnapshot({ connectionName, domainPath, snapshotName }) {
+    return call(connectionName, domainPath, 'org.libvirt.Domain', 'SnapshotLookupByName', [snapshotName, 0], { timeout, type: 'su' })
+            .then((objPath) => {
+                return call(connectionName, objPath[0], 'org.libvirt.DomainSnapshot', 'Revert', [0], { timeout, type: 'u' });
+            });
+}
+
 export function detachIface(mac, connectionName, id, live, persistent, dispatch) {
     let ifaceXML;
     let detachFlags = Enum.VIR_DOMAIN_AFFECT_CURRENT;

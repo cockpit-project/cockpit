@@ -1,6 +1,3 @@
-
-COCKPIT_BUILD_INFO = "Built on $(shell date)"
-
 LOGIN_PO_FILES = $(patsubst %,dist/static/login.po.%.html,$(LINGUAS))
 
 staticdir = $(datadir)/cockpit/static
@@ -90,7 +87,6 @@ libcockpit_ws_a_SOURCES = \
 
 libcockpit_ws_a_CFLAGS = \
 	-I$(top_srcdir)/src/ws \
-	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	-DG_LOG_DOMAIN=\"cockpit-ws\" \
 	$(COCKPIT_WS_CFLAGS) \
 	$(NULL)

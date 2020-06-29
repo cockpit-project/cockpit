@@ -5,7 +5,7 @@ Flow Control
 
 Cockpit's protocol passes messages on reliable, ordered underlying
 transports (eg: WebSockets, HTTP responses, stdio) between multiple
-peers, aranged in in a non-rooted tree graph.
+peers, arranged in in a non-rooted tree graph.
 
 Cockpit's flow control is not about replaying messages, but avoiding
 flooding any peer by sending messages along any link in the graph
@@ -19,7 +19,7 @@ down a certain channel which is flooding communication.
 Therefore we use a windowing flow control protocol. It is based around
 per-channel "ping" control messages. In the Cockpit protocol "ping"
 messages in a channel are responded to by specific leaves of the graph.
-They are replied to with a "pong" contaning otherwise identical content.
+They are replied to with a "pong" containing otherwise identical content.
 Other "ping" messages are used as keep alives, but these are beyond the
 scope of this description.
 

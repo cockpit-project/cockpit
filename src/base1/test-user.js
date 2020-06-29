@@ -20,7 +20,7 @@ QUnit.test("load user info", function (assert) {
                 assert.equal(user.Groups.t, "as", "type Groups");
             })
             .always(function() {
-                assert.equal(this.state(), "resolved", "finished successfuly");
+                assert.equal(this.state(), "resolved", "finished successfully");
                 done();
             });
 });

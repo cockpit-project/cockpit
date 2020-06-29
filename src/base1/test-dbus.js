@@ -82,8 +82,8 @@ QUnit.test("owned messages", function (assert) {
     var org_owner = null;
     function on_owner (event, owner) {
         if (times_changed === 0) {
-            assert.strictEqual(typeof owner, "string", "intial owner string");
-            assert.ok(owner.length > 1, "intial owner not empty");
+            assert.strictEqual(typeof owner, "string", "initial owner string");
+            assert.ok(owner.length > 1, "initial owner not empty");
             org_owner = owner;
         } else if (times_changed === 1) {
             assert.strictEqual(owner, null, "no owner");

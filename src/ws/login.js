@@ -791,7 +791,7 @@
              * session ends login-data should be too.
              */
             localStorage.setItem(application + 'login-data', str);
-            /* Backwards compatbility for packages that aren't application prefixed */
+            /* Backwards compatibility for packages that aren't application prefixed */
             localStorage.setItem('login-data', str);
         }
 

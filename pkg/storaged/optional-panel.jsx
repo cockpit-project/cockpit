@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
    - is_enabled:  A function that should return whether the feature is enabled.  This
                   function is called during rendering and thus needs to be fast and synchronous.
 
-   - package:     The name of tha package to install.  If omitted or false, the feature
+   - package:     The name of the package to install.  If omitted or false, the feature
                   can not be enabled at run-time and the panel will be fully invisible
                   if not already enabled.
 

@@ -42,7 +42,7 @@ import cockpit from "cockpit";
  * boolean that tells whether the service is started 'enabled'.
  * What it means exactly for a service to be enabled depends on
  * the service, but a enabled service is usually started on boot,
- * no matter wether other services need it or not.  A disabled
+ * no matter whether other services need it or not.  A disabled
  * service is usually only started when it is needed by some other
  * service.
  *

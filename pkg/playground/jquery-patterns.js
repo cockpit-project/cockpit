@@ -22,7 +22,7 @@ $(function() {
     });
 
     /*
-     * These are failures targetted at specific fields. Note that we set
+     * These are failures targeted at specific fields. Note that we set
      * selectors on the target property of the exception. Also note how
      * the .dialog('failure') accepts multiple exceptions as arguments.
      */

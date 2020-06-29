@@ -26,7 +26,7 @@ function AuthorizedKeys (user_name, home_dir) {
             self.state = "ready";
         } else {
             self.state = "failed";
-            console.warn("Error proccessing authentication keys: " + ex);
+            console.warn("Error processing authentication keys: " + ex);
         }
         self.dispatchEvent("changed");
     }

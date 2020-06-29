@@ -233,7 +233,7 @@ class VmOverviewTabLibvirt extends React.Component {
                         );
                     } else {
                         firmwareLinkWrapper = (
-                            <Tooltip id='firmware-edit-disabled-on-transient' content={_("Transient VMs don't support editting firmware configuration")}>
+                            <Tooltip id='firmware-edit-disabled-on-transient' content={_("Transient VMs don't support editing firmware configuration")}>
                                 {firmwareLink(true)}
                             </Tooltip>
                         );

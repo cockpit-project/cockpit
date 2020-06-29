@@ -272,7 +272,7 @@ class ServiceActions extends React.Component {
             <>
                 { this.state.dialogMaskedOpened &&
                     <ServiceConfirmDialog id="mask-service" title={ _("Mask Service") }
-                                          message={ _("Masking service prevents all dependant units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
+                                          message={ _("Masking service prevents all dependent units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
                                           close={() => this.setState({ dialogMaskedOpened: false }) }
                                           confirmText={ _("Mask Service") }
                                           confirmAction={() => {
@@ -301,7 +301,7 @@ ServiceActions.propTypes = {
 
 /*
  * React template for a service details
- * Shows current status and informations about the service.
+ * Shows current status and information about the service.
  * Enables user to control this unit like starting, enabling, etc. the service.
  * Required props:
  *  -  unit

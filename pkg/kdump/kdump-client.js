@@ -25,7 +25,7 @@ import crashKernelScript from 'raw-loader!./crashkernel.sh';
 import testWritableScript from 'raw-loader!./testwritable.sh';
 const _ = cockpit.gettext;
 
-const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blacklist"];
+const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blocklist"];
 const knownKeys = [
     "raw", "nfs", "ssh", "sshkey", "path", "core_collector", "kdump_post", "kdump_pre", "extra_bins", "extra_modules",
     "default", "force_rebuild", "override_resettable", "dracut_args", "fence_kdump_args", "fence_kdump_nodes"
@@ -114,7 +114,7 @@ export class KdumpClient {
             return dfd.promise();
         } else if (target.target === "nfs") {
             if (!target.nfs.value.match("\\S+:/.+"))
-                dfd.reject(_("nfs dump target isn't formated as server:path"));
+                dfd.reject(_("nfs dump target isn't formatted as server:path"));
         } else if (target.target === "ssh") {
             if (!target.ssh.value.trim())
                 dfd.reject(_("ssh server is empty"));

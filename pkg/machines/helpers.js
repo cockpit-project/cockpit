@@ -512,7 +512,7 @@ export function getBootOrderDevices(vm) {
     }
 
     // if boot order was defined in os->boot (old way), array contains only devices without boot order
-    // in case of boot order devined in devices->boot (new way), array contains all devices
+    // in case of boot order defined in devices->boot (new way), array contains all devices
     for (let i = 0; i < disks.length; i++) {
         const disk = disks[i];
 
@@ -524,7 +524,7 @@ export function getBootOrderDevices(vm) {
     }
 
     // if boot order was defined in os->boot (old way), array contains only devices without boot order
-    // in case of boot order devined in devices->boot (new way), array contains all devices
+    // in case of boot order defined in devices->boot (new way), array contains all devices
     for (let i = 0; i < ifaces.length; i++) {
         const iface = ifaces[i];
 

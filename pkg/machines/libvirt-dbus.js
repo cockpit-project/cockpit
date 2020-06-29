@@ -1023,7 +1023,7 @@ function doUsagePolling(name, connectionName, objPath) {
 }
 
 /**
- * Subscribe to D-Bus signals and defines the handlers to be invoked in each occassion.
+ * Subscribe to D-Bus signals and defines the handlers to be invoked in each occasion.
  * @param  {String} connectionName D-Bus connection type; one of session/system.
  * @param  {String} libvirtServiceName
  */

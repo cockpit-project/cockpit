@@ -132,7 +132,7 @@ test_set_language (const gconstpointer data)
       g_assert_cmpstr (dgettext ("test", "Unavailable"), ==, fixture->string);
     }
 
-  /* A second time, excercise cache code */
+  /* A second time, exercise cache code */
   cockpit_locale_set_language (fixture->language);
 
   /* Was supposed to fail */

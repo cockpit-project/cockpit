@@ -36,7 +36,7 @@
 
 /*
  * To recalculate the checksums found in this file, do something like:
- * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistant ./cockpit-bridge --packages
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
 #define CHECKSUM_GLOB           "f5d1bfe84c378dee517cea3e0f0380ad2c9201f6be021fbae877a89d4cb51859"
 #define CHECKSUM_BADPACKAGE     "86ae6170eb6245c5c80dbcbcc0ba12beddee2e1d807cfdb705440e944b177fbc"

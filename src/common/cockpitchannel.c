@@ -756,7 +756,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                                          /**
    * CockpitChannel:capabilities:
    *
-   * The capabilties that this channel supports.
+   * The capabilities that this channel supports.
    */
   g_object_class_install_property (gobject_class, PROP_CAPABILITIES,
                                    g_param_spec_boxed ("capabilities",
@@ -783,7 +783,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
  * @self: a channel
  * @problem: the problem or NULL
  *
- * Close the channel. This can be called mulitple times.
+ * Close the channel. This can be called multiple times.
  *
  * It may be that the channel doesn't close immediately.
  * The channel will emit the CockpitChannel::closed signal when the
@@ -829,7 +829,7 @@ cockpit_channel_close (CockpitChannel *self,
  * @problem: the problem
  *
  * Close the channel with a @problem. In addition a "message" field
- * will be set on the channel, using the @format argument to bulid
+ * will be set on the channel, using the @format argument to build
  * the message. The message will also be logged.
  *
  * See cockpit_channel_close() for further info.

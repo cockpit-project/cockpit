@@ -1439,7 +1439,7 @@ cockpit_ssh_connect (CockpitSshData *data,
       g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
     }
 
-  /* If the user specifies a port explicitely, overwrite the config */
+  /* If the user specifies a port explicitly, overwrite the config */
   if (port != 0)
     g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
 
@@ -2115,7 +2115,7 @@ cockpit_ssh_source_dispatch (GSource *source,
   g_return_val_if_fail ((cond & G_IO_NVAL) == 0, FALSE);
 
   /*
-   * HACK: Yes this is anohter poll() call. The async support in
+   * HACK: Yes this is another poll() call. The async support in
    * libssh is quite hacky right now.
    *
    * https://red.libssh.org/issues/155

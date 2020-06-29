@@ -744,7 +744,7 @@ test_watch_simple (TestCase *tc,
 
   /*
    * HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1259594
-   * Some versions of glib2 erroneously emit spurios "delete" events.
+   * Some versions of glib2 erroneously emit spurious "delete" events.
    */
   if (g_str_equal (json_object_get_string_member (event, "event"), "deleted"))
     {

@@ -486,7 +486,7 @@ do_auth_response (CockpitTransport *transport,
 
 static void
 do_basic_auth (CockpitTransport *transport,
-               const gchar *challange,
+               const gchar *challenge,
                const gchar *user,
                const gchar *password)
 {
@@ -498,7 +498,7 @@ do_basic_auth (CockpitTransport *transport,
   encoded = g_base64_encode ((guchar *)userpass, strlen (userpass));
   response = g_strdup_printf ("Basic %s", encoded);
 
-  do_auth_response (transport, challange, response);
+  do_auth_response (transport, challenge, response);
 
   g_free (userpass);
   g_free (response);
@@ -1050,7 +1050,7 @@ test_hostkey_conversation_invalid (TestCase *tc,
 
 /* The output from this will go to stderr */
 static const TestFixture fixture_bad_command = {
-  .ssh_command = "/nonexistant",
+  .ssh_command = "/nonexistent",
   .problem = "no-cockpit"
 };
 

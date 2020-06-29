@@ -415,7 +415,7 @@ cockpit_transport_maybe_frame (GBytes *message,
  * @options: location to return the options
  *
  * Parse a command and return various values from the
- * command. The @options value is transfered with ownership,
+ * command. The @options value is transferred with ownership,
  * so you should free it after done. @command and @channel are owned by
  * @options. @channel will be NULL for a missing channel.
  *
@@ -437,7 +437,7 @@ cockpit_transport_parse_command (GBytes *payload,
   object = cockpit_json_parse_bytes (payload, &error);
   if (!object)
     {
-      g_warning ("Received unparseable control message: %s", error->message);
+      g_warning ("Received unparsable control message: %s", error->message);
       g_error_free (error);
       goto out;
     }

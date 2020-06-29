@@ -486,17 +486,17 @@ is_empty (const gchar *s)
 static void
 cockpit_router_normalize_host_params (JsonObject *options)
 {
-  const gchar *sharable = NULL;
+  const gchar *shareable = NULL;
   const gchar *user = NULL;
   gboolean needs_private = FALSE;
 
-  if (!cockpit_json_get_string (options, "session", NULL, &sharable))
-    sharable = NULL;
+  if (!cockpit_json_get_string (options, "session", NULL, &shareable))
+    shareable = NULL;
 
   if (!cockpit_json_get_string (options, "user", NULL, &user))
     user = NULL;
 
-  if (!sharable)
+  if (!shareable)
     {
       /* Fallback to older ways of indicating this */
       if (user || json_object_has_member (options, "host-key"))

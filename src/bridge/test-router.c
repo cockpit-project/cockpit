@@ -536,7 +536,7 @@ test_sharable_processing (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\"}");
   control = NULL;
 
-  /* Test user with sharable is not touched */
+  /* Test user with shareable is not touched */
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\", \"session\": \"other\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);

@@ -40,7 +40,7 @@
 
 /*
  * To recalculate the checksums found in this file, do something like:
- * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant ./cockpit-bridge --packages
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
 #define CHECKSUM "$6d675909f0b33b83a48e67e29cea9797012ded09394546634b9cd967bbe3fbf5"
 
@@ -381,7 +381,7 @@ setup_default (Test *test,
   if (fixture->with_home)
     g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   else
-    g_setenv ("XDG_DATA_HOME", "/nonexistant", TRUE);
+    g_setenv ("XDG_DATA_HOME", "/nonexistent", TRUE);
 
   base_setup (test);
   test->response = cockpit_web_response_new (test->io,

@@ -160,7 +160,7 @@ test_prepare_fail (TestCase *tc,
   GVariant *retval;
   GError *error = NULL;
 
-  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existant";
+  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existent";
 
   cockpit_expect_message ("unable to open*");
 
@@ -275,7 +275,7 @@ test_transfer_fail (TestCase *tc,
 
   const gchar *empty[] = { NULL };
 
-  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existant";
+  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existent";
 
   cockpit_expect_message ("unable to open*");
 
@@ -561,7 +561,7 @@ test_commit_fail_passwd (TestCase *tc,
 
   const gchar *empty[] = { NULL };
 
-  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existant";
+  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/non-existent";
 
   cockpit_expect_message ("unable to open*");
 

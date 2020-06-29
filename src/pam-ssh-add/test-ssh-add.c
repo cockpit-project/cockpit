@@ -36,7 +36,7 @@
 
 static int unexpected_message;
 
-/* Enviroment variables we set */
+/* Environment variables we set */
 static const char *env_names[] = {
   "XDG_RUNTIME_DIR",
   "HOME",

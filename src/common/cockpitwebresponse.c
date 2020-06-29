@@ -908,7 +908,7 @@ finish_headers (CockpitWebResponse *self,
 /**
  * cockpit_web_response_set_cache_type:
  * @self: the response
- * @cache_type: Ensures the apropriate cache headers are returned for
+ * @cache_type: Ensures the appropriate cache headers are returned for
    the given cache type.
  */
 void

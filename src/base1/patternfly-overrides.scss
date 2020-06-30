@@ -405,6 +405,13 @@ select.form-control {
 
 // Restyle modals
 .modal {
+  &.in {
+    // Align to the center, like PF4
+    // !important is needed as PF3 adds an inline "display: block" style
+    display: grid !important;
+    align-items: center;
+  }
+
   &-header {
     background: var(--pf-global--BackgroundColor--100);
     padding: 0 0 1.5rem;

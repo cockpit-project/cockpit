@@ -13,7 +13,6 @@ libcockpit_ssh_a_SOURCES = \
 libcockpit_ssh_a_CFLAGS = \
 	-fPIC \
 	-I$(top_srcdir)/src/ssh \
-	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	-DG_LOG_DOMAIN=\"cockpit-ssh\" \
 	$(COCKPIT_SSH_SESSION_CFLAGS) \
 	$(NULL)

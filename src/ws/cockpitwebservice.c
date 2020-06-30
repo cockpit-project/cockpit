@@ -1129,7 +1129,6 @@ on_web_socket_open (WebSocketConnection *connection,
 
   info = json_object_new ();
   json_object_set_string_member (info, "version", PACKAGE_VERSION);
-  json_object_set_string_member (info, "build", COCKPIT_BUILD_INFO);
   json_object_set_object_member (object, "system", info);
 
   command = cockpit_json_write_bytes (object);

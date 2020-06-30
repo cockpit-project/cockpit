@@ -19,6 +19,7 @@
 
 import base64
 import time
+import os
 import subprocess
 
 import parent
@@ -771,6 +772,96 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         # Now make one up and check that is is served.
         m.write("/etc/cockpit/ws-certs.d/0-self-signed-ca.pem", "FAKE CERT FOR TESTING\n")
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
+
+
+class TestReverseProxy(MachineCase):
+
+    provision = {
+        "0": {"forward": {"443": 8443 }}
+    }
+
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+
+        m.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service https; fi")
+
+        m.upload(["../src/tls/ca/alice.pem", "../src/tls/ca/alice.key"], "/etc/pki")
+
+        m.write("/etc/cockpit/cockpit.conf", """[WebService]
+Origins = https://%(origin)s wss://%(origin)s
+ProtocolHeader = X-Forwarded-Proto
+""" % {"origin": m.forward["443"]}, append=True)
+
+        m.execute("setsebool -P httpd_can_network_connect on")
+        self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
+
+    @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
+               "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-stable", "ubuntu-2004")
+    @skipBrowser("Firefox needs proper cert and CA", "firefox")
+    def testNginxSSL(self):
+        '''test proxying to Cockpit with SSL
+
+        As described on https://github.com/cockpit-project/cockpit/wiki/Proxying-Cockpit-over-NGINX
+        Using SSL is fairly pointless in this case where nginx and cockpit run on the same machine,
+        but the use case is important for proxying a remote machine.
+        '''
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/nginx/conf.d/cockpit.conf", """
+server {
+    listen 443 ssl;
+    server_name %(origin)s;
+
+    ssl_certificate "/etc/pki/alice.pem";
+    ssl_certificate_key "/etc/pki/alice.key";
+
+    location / {
+        # Required to proxy the connection to Cockpit
+        proxy_pass https://127.0.0.1:9090;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Required for web sockets to function
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Pass ETag header from Cockpit to clients.
+        # See: https://github.com/cockpit-project/cockpit/issues/5239
+        gzip off;
+    }
+}
+""" % {"origin": m.forward["443"]})
+
+        m.execute("systemctl start nginx")
+        m.start_cockpit(tls=True)
+
+        # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
+        (https_host, https_port) = m.forward["443"].split(':')
+        out = subprocess.check_output(
+                ["curl", "--verbose", "--head",
+                 "--resolve", "alice:%s:%s" % (https_port, https_host),
+                 "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
+                 "https://alice:%s/cockpit/static/login.min.html" % https_port],
+                stderr=subprocess.STDOUT)
+        self.assertIn(b"HTTP/1.1 200 OK", out)
+        self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
+
+        # works with browser (but we can't set our CA)
+        b.ignore_ssl_certificate_errors(True)
+        b.open("https://%s:%s/system" % (https_host, https_port))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_visible('#content')
+        b.logout()
+
+        self.allow_restart_journal_messages()
 
 
 if __name__ == '__main__':

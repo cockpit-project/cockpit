@@ -862,7 +862,7 @@ test_web_filter_split (TestCase *tc,
                    "4\r\ne</t\r\n"
                    "4\r\nitle\r\n"
                    "4\r\n></h\r\n"
-                   "4\r\need>\r\n"
+                   "4\r\nead>\r\n"
                    "11\r\n<body>Body</body>\r\n"
                    "4\r\n</ht\r\n"
                    "3\r\nml>\r\n"

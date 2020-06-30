@@ -157,7 +157,7 @@ function PageStatus({ status, name }) {
     );
 }
 
-function FormatedText({ keyword, term }) {
+function FormattedText({ keyword, term }) {
     function split_text(text, term) {
         const b = text.toLowerCase().indexOf(term);
         const e = b + term.length;
@@ -194,9 +194,9 @@ export function CockpitNavItem(props) {
         <li className={classes.join(" ")}>
             <span className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")} data-for={props.to}>
                 <a href={props.to}>
-                    { props.header && <span className="hint">{header_matches ? <FormatedText keyword={props.header} term={props.term} /> : props.header}</span> }
-                    { name_matches ? <FormatedText keyword={props.name} term={props.term} /> : props.name }
-                    { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormatedText keyword={props.keyword} term={props.term} /></span> }
+                    { props.header && <span className="hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                    { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                    { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
                 </a>
                 {s && s.type && <PageStatus status={s} name={props.name} />}
                 { props.actions &&

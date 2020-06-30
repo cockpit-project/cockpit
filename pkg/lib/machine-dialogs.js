@@ -965,7 +965,7 @@ function SyncUsers(dialog) {
     }
 
     function render() {
-        function formated_groups() {
+        function formatted_groups() {
             if (this.groups)
                 return this.groups.join(", ");
         }
@@ -986,7 +986,7 @@ function SyncUsers(dialog) {
             users : user_list,
             perm_failed : perm_failed ? cockpit.message(perm_failed) : null,
             allows_password : allows_password,
-            formated_groups: formated_groups,
+            formatted_groups: formatted_groups,
         });
 
         dialog.get_sel(".modal-content").html(text);

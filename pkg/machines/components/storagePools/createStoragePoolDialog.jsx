@@ -71,7 +71,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
         poolTypes.push({ type: 'iscsi-direct', detail: _("iSCSI direct Target") });
 
     /* TODO
-        { type: 'fs', detail _("Pre-formated Block Device") },
+        { type: 'fs', detail _("Pre-formatted Block Device") },
         { type: 'gluster', detail _("Gluster Filesystem") },
         { type: 'mpath', detail _("Multipath Device Enumerator") },
         { type: 'rbd', detail _("RADOS Block Device/Ceph") },

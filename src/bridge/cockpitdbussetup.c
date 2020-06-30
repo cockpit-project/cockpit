@@ -600,7 +600,7 @@ setup_commit_passwd1 (GVariant *parameters,
   GString *string;
   gboolean user_exists;
 
-  /* We are getting crypted passwords so we need to use
+  /* We are getting crypt()-ed passwords so we need to use
    * --crypt-method=NONE with newusers and chpasswd so that the string
    * is installed unchanged.  Unfortunately, newusers might or might
    * not support the --crypt-method option, depending on whether it

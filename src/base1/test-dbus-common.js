@@ -32,7 +32,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "reply");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -124,7 +124,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     ], "round trip");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -197,7 +197,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     ], "round trip");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -221,7 +221,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     ], "round trip");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -303,7 +303,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     }], "reply");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -383,7 +383,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "emmision requested");
+                    assert.equal(this.state(), "resolved", "emission requested");
                     assert.equal(received, true, "signal received");
                     done();
                 });
@@ -407,7 +407,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "emmision requested");
+                    assert.equal(this.state(), "resolved", "emission requested");
                     assert.equal(received, true, "signal received");
                 })
                 .then(function() {
@@ -416,7 +416,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                             .always(function() {
-                                assert.equal(this.state(), "resolved", "second emmision requested");
+                                assert.equal(this.state(), "resolved", "second emission requested");
                                 assert.equal(received, false, "signal not received");
                                 done();
                             });
@@ -436,7 +436,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(options.type, "a{ss}uit", "got back type");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -489,7 +489,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(options.type, "ay", "got back type");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -650,7 +650,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "has byte order");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -665,7 +665,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.deepEqual(reply, [], "round trip");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     done();
                 });
     });
@@ -791,7 +791,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                      }, "correct data");
                 })
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfuly");
+                    assert.equal(this.state(), "resolved", "finished successfully");
                     $(dbus).off();
                     done();
                 });
@@ -1023,7 +1023,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         proxy.call("RequestSignalEmission", [0])
                 .always(function() {
-                    assert.equal(this.state(), "resolved", "emmision requested");
+                    assert.equal(this.state(), "resolved", "emission requested");
                     assert.equal(received, true, "signal received");
                     $(dbus).off();
                     $(proxy).off();

@@ -16,7 +16,7 @@ function ph_only(els, sel)
     if (els.length === 0)
         throw sel + " not found";
     if (els.length > 1)
-        throw sel + " is ambigous";
+        throw sel + " is ambiguous";
     return els[0];
 }
 

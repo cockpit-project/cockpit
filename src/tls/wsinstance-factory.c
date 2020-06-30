@@ -93,7 +93,7 @@ main (void)
    *    back to NULL.  that's how we know when to stop waiting.
    *
    * In effect, the duration of job_path being set to non-NULL is more
-   * or less equal to the duration of the existance of a job object at
+   * or less equal to the duration of the existence of a job object at
    * that path.
    */
   r = sd_bus_match_signal_async (bus, NULL,

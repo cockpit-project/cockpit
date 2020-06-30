@@ -38,7 +38,7 @@ event_mixin(cockpit, { });
  * by various parts of the code to show/hide debug
  * messages in the javascript console.
  *
- * We supprot using storage to get/set that property
+ * We support using storage to get/set that property
  * so that it carries across the various frames or
  * alternatively persists across refreshes.
  */
@@ -1512,7 +1512,7 @@ function factory() {
     };
 
     cockpit.format_number = function format_number(number) {
-        /* We show 3 digits of precison but avoid scientific notation.
+        /* We show 3 digits of precision but avoid scientific notation.
          * We also show integers without digits after the comma.
          *
          * We want to localise the decimal place, but we never want to
@@ -2132,7 +2132,7 @@ function factory() {
                             path = gdata.links[k][0];
                             row = gdata.links[k][1];
 
-                            /* Calulate the data field to fill in */
+                            /* Calculate the data field to fill in */
                             data = items[f + i];
                             map = mapping;
                             jlen = path.length;
@@ -3594,7 +3594,7 @@ function factory() {
         };
     }
 
-    /* Well known busses */
+    /* Well known buses */
     var shared_dbus = {
         internal: null,
         session: null,

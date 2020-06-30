@@ -284,7 +284,7 @@ main (int argc,
 {
   CockpitTransport *transport;
   gboolean terminated = FALSE;
-  gboolean interupted = FALSE;
+  gboolean interrupted = FALSE;
   gboolean closed = FALSE;
   GOptionContext *context;
   GError *error = NULL;
@@ -328,7 +328,7 @@ main (int argc,
     }
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
-  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interrupted);
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
 
@@ -339,7 +339,7 @@ main (int argc,
   /* Owns the channels */
   channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
-  while (!terminated && !closed && !interupted)
+  while (!terminated && !closed && !interrupted)
     g_main_context_iteration (NULL, TRUE);
 
   g_object_unref (transport);

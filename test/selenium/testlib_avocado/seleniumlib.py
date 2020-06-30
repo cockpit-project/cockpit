@@ -179,7 +179,7 @@ class SeleniumTest(Test):
                 self.log.info(msg)
 
     def tearDown(self):
-        # take screenshot everytime to ensure that if test fails there will be debugging info
+        # take screenshot every time to ensure that if test fails there will be debugging info
         # in case it assert in some condition, not directly inside elements
         # and logic of when transfer images is up to scheduler
         self.take_screenshot(phase="{}-tearDown".format(self.id()), fatal=False)
@@ -312,7 +312,7 @@ parameters:
     overridetry - change value of repeats
     fatal - boolean if search is fatal or notice
     cond - use selenium conditions (aliases are defined above class)
-    wait_data_loaded - use javascipt to wait for element has attribute-data loaded; ONLY applies to cockpit page <iframe>s
+    wait_data_loaded - use javascript to wait for element has attribute-data loaded; ONLY applies to cockpit page <iframe>s
     text_ - text to be present in element
         """
         if not baseelement:

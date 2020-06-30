@@ -150,7 +150,7 @@ class TestMetrics(MachineCase, StorageHelpers):
 
         net_pid = m.spawn("socat TCP-LISTEN:2000 PIPE", "load-net.log")
 
-        # might take several attemps until server-side is listening
+        # might take several attempts until server-side is listening
         (host, port) = m.forward["2000"].split(":")
         client = subprocess.Popen(
             "for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)

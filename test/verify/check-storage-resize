@@ -134,7 +134,7 @@ class TestStorageResize(StorageCase):
                          need_passphrase=(self.machine.image in ["rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]))
 
     def wait_not_present_with_udev_trigger(self, selector):
-        # This is fundamentally the same as Brower.wait, but uses a
+        # This is fundamentally the same as Browser.wait, but uses a
         # longer delay between checks to avoid spamming the machine
         # with udev triggers, which would bring it to its knees.  (And
         # a waiting loop is simple eough to repeat the code here.)

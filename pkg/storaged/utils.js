@@ -102,9 +102,9 @@ export function fmt_rate(bytes_per_sec) {
 }
 
 export function format_temperature(kelvin) {
-    var celcius = kelvin - 273.15;
-    var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
-    return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
+    var celsius = kelvin - 273.15;
+    var fahrenheit = 9.0 * celsius / 5.0 + 32.0;
+    return celsius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
 }
 
 export function format_fsys_usage(used, total) {

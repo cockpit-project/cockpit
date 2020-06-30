@@ -460,7 +460,7 @@ run_bridge (const gchar *interactive,
   CockpitTransport *transport;
   CockpitRouter *router;
   gboolean terminated = FALSE;
-  gboolean interupted = FALSE;
+  gboolean interrupted = FALSE;
   gboolean closed = FALSE;
   const gchar *directory;
   struct passwd *pwd;
@@ -532,7 +532,7 @@ run_bridge (const gchar *interactive,
     }
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
-  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interrupted);
 
   cockpit_dbus_internal_startup (interactive != NULL);
 
@@ -579,7 +579,7 @@ run_bridge (const gchar *interactive,
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   send_init_command (transport, interactive ? TRUE : FALSE);
 
-  while (!terminated && !closed && !interupted)
+  while (!terminated && !closed && !interrupted)
     g_main_context_iteration (NULL, TRUE);
 
 #ifdef WITH_POLKIT

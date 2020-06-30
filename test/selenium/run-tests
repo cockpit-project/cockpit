@@ -186,7 +186,7 @@ class AvocadoTestSuite:
     def _run_one_avocado_test(self, test):
         status = True
         start_time = datetime.datetime.now()
-        # wrap command to timeout to see also partial run result, to see whats happen
+        # wrap command to timeout to see also partial run result, to see what happens
         # instead of empty output and just timeout
         self.avocado_command = ["timeout {}".format(self.timeout - round(self.timeout/100)),
                      self.base_cmd, "run",
@@ -359,7 +359,7 @@ class SeleniumOwnHub(SeleniumTestSuite):
         self.env["HUB"] = hub_address
         self.env["GUEST"] = guest_adress
         self.env["PORT"] = cockpit_port
-        # avocado and cockpit machine is in same network so use internal adress
+        # avocado and cockpit machine is in same network so use internal address
         self.env["SSH_PORT"] = "22"
         self.env["SSH_GUEST"] = self.ipaddr_cockpit
         self.env["BROWSER"] = browser
@@ -383,7 +383,7 @@ def main():
                         dest="hub",
                         action="store",
                         help="Use own Selenium hub (it is important to ensure that hub can see cockpit machine)"
-                             " You can use adress formats:"
+                             " You can use address formats:"
                              " yourHubIP"
                              " or yourHubIP:CockpitIP"
                              " or yourHubIP:CockpitIP:CockpitPort"

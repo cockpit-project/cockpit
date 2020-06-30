@@ -65,7 +65,7 @@ export var journal = { };
  *  .done(function(entries) { }): Called when done, @entries is
  *         an array of all journal entries loaded. If .stream()
  *         has been invoked then @entries will be empty.
- *  .fail(funciton(ex) { }): called if the operation fails
+ *  .fail(function(ex) { }): called if the operation fails
  *  .stream(function(entries) { }): called when we receive entries
  *         entries. Called once per batch of journal @entries,
  *         whether following or not.

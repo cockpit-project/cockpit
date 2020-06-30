@@ -96,7 +96,7 @@ class TestSystemInfo(MachineCase):
     def setUp(self):
         super().setUp()
 
-        # Debian will not allow timesyncd to start if any other NTP packge is installed We only
+        # Debian will not allow timesyncd to start if any other NTP package is installed We only
         # support timesyncd for NTP configuration, so make sure chrony is not installed in the older
         # debian/ubuntu images which don't yet have systemd-timesyncd
         if self.machine.image in ["debian-stable", "ubuntu-stable"]:

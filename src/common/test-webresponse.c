@@ -239,7 +239,7 @@ test_return_error_resource (TestCase *tc,
 {
   const gchar *roots[] = { srcdir, NULL };
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-  cockpit_web_response_file (tc->response, "/non-existant", roots);
+  cockpit_web_response_file (tc->response, "/non-existent", roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*<img*Not Found*");
   cockpit_web_failure_resource = NULL;
 }
@@ -249,7 +249,7 @@ test_file_not_found (TestCase *tc,
                      gconstpointer user_data)
 {
   const gchar *roots[] = { srcdir, NULL };
-  cockpit_web_response_file (tc->response, "/non-existant", roots);
+  cockpit_web_response_file (tc->response, "/non-existent", roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*");
 }
 
@@ -332,7 +332,7 @@ test_file_breakout_non_existant (TestCase *tc,
 {
   gchar *root = realpath ( SRCDIR "/src", NULL);
   const gchar *roots[] = { root, NULL };
-  const gchar *breakout = "/../non-existant";
+  const gchar *breakout = "/../non-existent";
   gchar *check = g_build_filename (roots[0], breakout, NULL);
   g_assert (root);
   g_assert (!g_file_test (check, G_FILE_TEST_EXISTS));
@@ -1415,7 +1415,7 @@ test_negotiation_notfound (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existant",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existent",
                                             NULL, NULL, &chosen, &error);
 
   g_assert_no_error (error);

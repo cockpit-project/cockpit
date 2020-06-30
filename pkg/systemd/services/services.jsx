@@ -210,7 +210,7 @@ class ServicesPage extends React.Component {
         });
 
         /* Start listening to signals for updates - when in the middle of reload mute all signals
-         * - We don't need to listen to 'UnitFilesChanged' signal since everytime we
+         * - We don't need to listen to 'UnitFilesChanged' signal since every time we
          *   perform some file operation we do call Reload which issues 'Reload' signal
          * - JobNew is also useless, JobRemoved is enough since it comes in pair with JobNew
          *   but we are interested to update the state when the operation finished

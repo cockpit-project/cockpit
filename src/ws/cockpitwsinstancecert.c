@@ -116,7 +116,7 @@ get_ws_https_instance (void)
  * (which will be added).  If @contents is %NULL then no attempt will be
  * made to read the file contents, but the other checks are performed.
  *
- * On sucess, the size of the certificate file (excluding nul
+ * On success, the size of the certificate file (excluding nul
  * terminator) is returned.  This value is never 0.  On error, -1 is
  * returned with errno not guaranteed to be set (but a message will be
  * logged).

@@ -35,7 +35,7 @@ struct _CockpitTransportClass
   /* signals */
 
   /*
-   * Fired when the transport recieves a new message.
+   * Fired when the transport receives a new message.
    */
   gboolean    (* recv)        (CockpitTransport *transport,
                                const gchar *channel,

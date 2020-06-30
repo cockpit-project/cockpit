@@ -55,7 +55,7 @@
 
    ACTION FUNCTIONS
 
-   The action funtion is called like this:
+   The action function is called like this:
 
       action(values, progress_callback)
 
@@ -323,10 +323,10 @@ export const dialog_open = (def) => {
 
     fields.forEach(f => { values[f.tag] = f.initial_value });
 
-    // We reconstruct the body everytime the values change so that it
+    // We reconstruct the body every time the values change so that it
     // will be re-rendered.  This could be done with some state in the
     // Body component maybe, but we also want the values up here so
-    // that we can pass them to validate and the action functon.
+    // that we can pass them to validate and the action function.
 
     const update = (errors, trigger) => {
         if (def.update)

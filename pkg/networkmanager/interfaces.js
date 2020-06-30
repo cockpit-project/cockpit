@@ -191,7 +191,7 @@ function NetworkManagerModel() {
      * structure.  This has the advantage of avoiding wasting
      * resources for maintaining the unused proxies, avoids some code
      * complexity, and allows to do the right thing with the
-     * pecularities of the NetworkManager API.
+     * peculiarities of the NetworkManager API.
      *
      * However, we do use a fake object manager since that allows us
      * to avoid a lot of 'GetAll' round trips during initialization
@@ -2021,7 +2021,7 @@ function choice_title(choices, choice, def) {
  * 2) Make the change
  * 3) Destroy the checkpoint
  *
- * If step 2 breaks the connection, step 3 wont happen and the
+ * If step 2 breaks the connection, step 3 won't happen and the
  * checkpoint will roll back after some time.  This is supposed to
  * restore connectivity, so steps 2 and 3 will complete at that time,
  * and step 3 will fail because the checkpoint doesn't exist anymore.
@@ -2068,7 +2068,7 @@ function choice_title(choices, choice, def) {
  * changes, and it is thus important to show it if at all possible.
  */
 
-/* Considerations for chosing the times below
+/* Considerations for choosing the times below
  *
  * curtain_time too short:  Curtain comes up too often for good changes.
  *
@@ -3548,7 +3548,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
         }
 
         return settings_applier(model, iface.Device, main_connection)(slave_settings).then(function () {
-            // If the master already exists, activate or deactivate the slave immediatly so that
+            // If the master already exists, activate or deactivate the slave immediately so that
             // the settings actually apply and the interface becomes a slave.  Otherwise we
             // activate it later when the master is created.
             if (master_connection) {
@@ -4667,7 +4667,7 @@ function PageNetworkMacSettings() {
  * pages and dialogs, and expects page.setup, page.enter, page.show,
  * and page.leave to be called at the right times.
  *
- * We cater to this with a little compatability shim consisting of
+ * We cater to this with a little compatibility shim consisting of
  * 'dialog_setup', 'page_show', and 'page_hide'.
  */
 

@@ -58,7 +58,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
   const gchar *prefix;
 
   /*
-   * Note: we should not call GLib fucntions here.
+   * Note: we should not call GLib functions here.
    *
    * Mapping glib log levels to syslog priorities
    * is not at all obvious.

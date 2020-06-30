@@ -93,7 +93,7 @@ class TestSuperuser(MachineCase):
         self.login_and_go(superuser=False)
         b.wait_text("#super-user-indicator", "Limited access")
 
-        # Configure the sudo PAM stack to make two propmts
+        # Configure the sudo PAM stack to make two prompts
         if "debian" in m.image or "ubuntu" in m.image:
             m.write("/etc/pam.d/sudo", """
 auth required pam_unix.so

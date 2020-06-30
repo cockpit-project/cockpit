@@ -149,7 +149,7 @@ function Dialog(selector, address, machines_ins, codes) {
 
         var machine = self.machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {
-            conn_options['temp-session'] = false; /* Compatiblity option */
+            conn_options['temp-session'] = false; /* Compatibility option */
             conn_options.session = 'shared';
             conn_options['host-key'] = machine.host_key;
         }
@@ -901,7 +901,7 @@ function SyncUsers(dialog) {
 
         dialog.run(promise);
 
-        /* A successfull sync should close the dialog */
+        /* A successful sync should close the dialog */
         dialog.set_on_success(null);
 
         promise.always(function () {
@@ -965,7 +965,7 @@ function SyncUsers(dialog) {
     }
 
     function render() {
-        function formated_groups() {
+        function formatted_groups() {
             if (this.groups)
                 return this.groups.join(", ");
         }
@@ -986,7 +986,7 @@ function SyncUsers(dialog) {
             users : user_list,
             perm_failed : perm_failed ? cockpit.message(perm_failed) : null,
             allows_password : allows_password,
-            formated_groups: formated_groups,
+            formatted_groups: formatted_groups,
         });
 
         dialog.get_sel(".modal-content").html(text);

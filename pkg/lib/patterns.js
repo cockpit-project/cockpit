@@ -237,7 +237,7 @@ window.addEventListener("hashchange", function() {
  *
  * The following div.slider-bar if present is resized to fill the remainder
  * of the slider if not given a specific size. You can put more div.slider-bar
- * inside it to reflect squashing other prevous allocations.
+ * inside it to reflect squashing other previous allocations.
  *
  * If the following div.slider-bar have a width specified, then the
  * slider supports the concept of overflowing. If the slider overflows

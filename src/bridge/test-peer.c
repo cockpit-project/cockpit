@@ -242,11 +242,11 @@ mock_peer_fail_new (MockTransport *transport,
 
   if (problem)
     {
-      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existant\" ], \"problem\": \"%s\" }", payload, problem);
+      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existent\" ], \"problem\": \"%s\" }", payload, problem);
     }
   else
     {
-      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existant\" ] }", payload);
+      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existent\" ] }", payload);
     }
 
   peer = peer_new (transport, bridge);
@@ -422,7 +422,7 @@ test_fallback (TestCase *tc,
 {
   GBytes *sent;
 
-  /* The "upper" channel has a local implementaiton to fallback to */
+  /* The "upper" channel has a local implementation to fallback to */
   tc->peer = mock_peer_fail_new (tc->transport, "upper", NULL);
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");

@@ -341,7 +341,7 @@ test_parse_headers_not_enough (void)
   const gchar *input =
       "Header1: value3\r\n"
       "Header2:  field\r\n"
-      "Head3:  Anothe";
+      "Head3:  Another";
 
   gssize ret;
 

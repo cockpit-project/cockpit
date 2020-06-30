@@ -69,7 +69,7 @@ the domain name. If it does not, then rename the computer Cockpit is running on:
 
     $ sudo hostnamectl set-hostname my-server.domain.com
 
-**BUG:** If your domain is an IPA domain, then you need to explictly add a service
+**BUG:** If your domain is an IPA domain, then you need to explicitly add a service
 before Cockpit can be used with Single Sign on. The following must be done on
 the computer running Cockpit.
 [realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144292)

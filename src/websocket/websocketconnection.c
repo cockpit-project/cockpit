@@ -733,11 +733,11 @@ process_contents_rfc6455 (WebSocketConnection *self,
         {
           if (pv->message_data)
             {
-              g_message ("received out of order inital message fragment");
+              g_message ("received out of order initial message fragment");
               protocol_error_and_close (self);
               return;
             }
-          g_debug ("received inital fragment frame %d with %d payload", (int)opcode, (int)payload_len);
+          g_debug ("received initial fragment frame %d with %d payload", (int)opcode, (int)payload_len);
         }
 
       /* Middle fragment of a message */
@@ -1451,7 +1451,7 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
    *
    * The underlying IO stream the WebSocket is communicating over. For servers
    * this must be specified as a construct property. For clients, this may be
-   * specified, if you have a stream that you've alrady connected to.
+   * specified, if you have a stream that you've already connected to.
    *
    * The input and output streams must be pollable streams.
    */
@@ -1497,7 +1497,7 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
   /**
    * WebSocketConnection::error:
    * @self: the WebSocket
-   * @error: the error that occured
+   * @error: the error that occurred
    *
    * Emitted when an error occurred on the WebSocket. This may be fired
    * multiple times. Fatal errors will be followed by the #WebSocketConnection::close

@@ -48,13 +48,13 @@ QUnit.test("calculated order", function (assert) {
     });
 
     /* Callbacks must be called in the right order for this to work */
-    var dependant = grid.add(function(row, x, n) {
+    var dependent = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
             row[i + x] = calculated[i + x] + 10;
     });
 
     grid.notify(1, 4);
-    assert.deepEqual(dependant, [undefined, 10, 11, 12, 13], "dependant array contents");
+    assert.deepEqual(dependent, [undefined, 10, 11, 12, 13], "dependent array contents");
 });
 
 QUnit.test("calculated early", function (assert) {
@@ -63,7 +63,7 @@ QUnit.test("calculated early", function (assert) {
     var calculated;
 
     /* Callbacks must be called in the right order for this to work */
-    var dependant = grid.add(function(row, x, n) {
+    var dependent = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
             row[i + x] = calculated[i + x] + 10;
     });
@@ -75,7 +75,7 @@ QUnit.test("calculated early", function (assert) {
     }, true);
 
     grid.notify(1, 4);
-    assert.deepEqual(dependant, [undefined, 10, 11, 12, 13], "dependant array contents");
+    assert.deepEqual(dependent, [undefined, 10, 11, 12, 13], "dependent array contents");
 });
 
 QUnit.test("notify limit", function (assert) {

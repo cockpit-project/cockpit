@@ -68,7 +68,7 @@ function child_frame() {
                 dbus.close();
             })
             .always(function() {
-                test.equal(this.state(), "resolved", "finished successfuly");
+                test.equal(this.state(), "resolved", "finished successfully");
             });
     dbus.addEventListener("close", function(ev, options) {
         test.assert(!options.problem, "close cleanly");

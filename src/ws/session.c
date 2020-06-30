@@ -329,7 +329,7 @@ map_gssapi_to_local (gss_name_t name,
         }
       else
         {
-          debug ("ignoring non-existant gssapi local user '%s'", str);
+          debug ("ignoring non-existent gssapi local user '%s'", str);
 
           /* If the local user doesn't exist, pretend gss_localname() failed */
           free (str);
@@ -360,7 +360,7 @@ map_gssapi_to_local (gss_name_t name,
                 }
               else
                 {
-                  warnx ("non-existant local user '%s'", str);
+                  warnx ("non-existent local user '%s'", str);
                   free (str);
                   str = NULL;
                 }
@@ -470,7 +470,7 @@ perform_gssapi (const char *authorization)
       free (challenge);
 
       /*
-       * The GSSAPI mechanism can require multiple chanllenge response
+       * The GSSAPI mechanism can require multiple challenge response
        * iterations ... so do that here.
        */
       free (input.value);

@@ -221,7 +221,7 @@ class TestApps(PackageCase):
         # First lay down some good XML so that we can later detect the reaction to broken XML.
         reset()
 
-        # Unparseable
+        # Unparsable
         m.write("/usr/share/app-info/xmls/test.xml", """
 This <is <not XML.
 """)

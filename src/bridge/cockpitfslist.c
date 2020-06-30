@@ -314,7 +314,7 @@ cockpit_fslist_class_init (CockpitFslistClass *klass)
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @path: the path name of the file to read
- * @watch: boolean, watch the directoy as well?
+ * @watch: boolean, watch the directory as well?
  *
  * This function is mainly used by tests. The usual way
  * to get a #CockpitFslist is via cockpit_channel_open()

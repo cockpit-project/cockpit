@@ -29,7 +29,7 @@ Authentication commands are called with a single argument which is the host that
 is connecting to. They communicate with their parent process using the cockpit protocol on
 stdin and stdout.
 
-Credentials can then be retrived by issuing a authorize command with a challenge. The challenge
+Credentials can then be retrieved by issuing a authorize command with a challenge. The challenge
 should correspond to the authorization type in header (ei: Basic or Bearer). For example:
 
 

@@ -838,7 +838,7 @@ test_spawn_and_fail (void)
   gchar *problem = NULL;
   CockpitPipe *pipe;
 
-  const gchar *argv[] = { "/non-existant", NULL };
+  const gchar *argv[] = { "/non-existent", NULL };
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
   g_assert (pipe != NULL);

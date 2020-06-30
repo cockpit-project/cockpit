@@ -223,7 +223,7 @@ by adding a "auth-method-results" object to the close object. This is mainly
 useful to provide helpful error messages and suggestions to users.
 
 The "auth-method-results" object contains a key for each method that cockpit-ws
-is able to atempt authentication with as well as the result of the atempt.
+is able to attempt authentication with as well as the result of the attempt.
 For example:
 
     {

@@ -368,7 +368,7 @@ docker.console = function console_(container_id, command, options) {
     function prepare() {
         self.connected = false;
 
-        /* Nothing to prepare? Connect diretly to container? */
+        /* Nothing to prepare? Connect directly to container. */
         if (!exec) {
             if (tty === false) {
                 return attach("GET /v1.15/containers/" + encodeURIComponent(container_id) +
@@ -508,7 +508,7 @@ docker.console = function console_(container_id, command, options) {
         }
     };
 
-    /* Allows the curser to restart the attach request */
+    /* Allows the cursor to restart the attach request */
     self.connect = function connect() {
         self.close("disconnected");
         prepare();

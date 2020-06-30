@@ -40,7 +40,7 @@ export function validateIpv4(address) {
 }
 
 /**
- * validates correctnes of ipv4 prefix length or mask
+ * validates correctness of ipv4 prefix length or mask
  *
  * @param {string} prefixOrNetmask
  * @returns {boolean}
@@ -167,7 +167,7 @@ export function validateIpv6(address) {
 }
 
 /**
- * validates correctnes of ipv6 prefix length
+ * validates correctness of ipv6 prefix length
  *
  * @param {string} prefixOrNetmask
  * @returns {boolean}

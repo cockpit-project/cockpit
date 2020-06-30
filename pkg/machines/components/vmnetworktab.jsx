@@ -161,7 +161,7 @@ class VmNetworkTab extends React.Component {
                     const ips = (iface && iface[2]) ? iface[2] : undefined;
 
                     if (!ips) {
-                    // There is not IP address assosiated with this NIC
+                    // There is not IP address associated with this NIC
                         return _("Unknown");
                     } else {
                         return (

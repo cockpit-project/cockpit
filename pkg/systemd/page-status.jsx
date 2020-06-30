@@ -47,7 +47,7 @@ export class PageStatusNotifications extends React.Component {
     }
 
     render() {
-        // Explicit whitelist for now, until we can get a dynamic list
+        // Explicit allowlist for now, until we can get a dynamic list
         return ["system/services", "updates"].map(page => {
             const status = page_status.get(page);
             if (status && (status.type || status.details) && status.title) {

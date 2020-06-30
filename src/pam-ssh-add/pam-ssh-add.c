@@ -369,10 +369,10 @@ log_problem (char *line,
 
 static const char *
 get_optional_env (const char *name,
-                  const char *overide)
+                  const char *override)
 {
-  if (overide)
-    return overide;
+  if (override)
+    return override;
 
   return getenv (name);
 }
@@ -543,7 +543,7 @@ get_environ_vars_from_agent (char *line,
                              void *arg)
 {
   /*
-  * ssh-agent outputs commands for exporting it's envirnment
+  * ssh-agent outputs commands for exporting it's environment
   * variables. We want to return these variables so parse
   * them out and store them.
   */
@@ -922,7 +922,7 @@ start_agent (pam_handle_t *pamh,
                                      &auth_socket,
                                      &auth_pid);
 
-  /* Store pid and socket enviroment vars */
+  /* Store pid and socket environment vars */
   if (!success || !auth_socket || !auth_pid)
     {
       res = PAM_SERVICE_ERR;

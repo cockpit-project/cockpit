@@ -79,7 +79,8 @@
       and a second one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
       The key must not be encrypted.</para>
     <para>If there is no TLS certificate, a self-signed certificate is
-      automatically generated using <command>openssl</command> and stored in
+      automatically generated using <command>sscg</command> (if available) or
+      <command>openssl</command> and stored in
       the <filename>0-self-signed.cert</filename> file.</para>
     <para>When enrolling into a FreeIPA domain, an SSL certificate is requested from
       the IPA server and stored in <filename>10-ipa.cert</filename>.</para>

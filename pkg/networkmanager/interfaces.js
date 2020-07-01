@@ -3135,18 +3135,18 @@ function PageNetworkInterface(model) {
 
 function switchbox(val, callback) {
     var onoff = $('<span>');
-    var enabled = true;
+    var disabled = false;
     function render () {
         ReactDOM.render(
             React.createElement(OnOffSwitch, {
                 state: val,
-                enabled: enabled,
+                disabled: disabled,
                 onChange: callback
             }),
             onoff[0]);
     }
     onoff.enable = function (val) {
-        enabled = val;
+        disabled = !val;
         render();
     };
     render();

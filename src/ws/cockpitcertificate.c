@@ -133,10 +133,10 @@ openssl_make_dummy_cert (const gchar *key_file,
 {
   gboolean ret = FALSE;
   gint exit_status;
-  gchar *stderr_str = NULL;
-  gchar *command_line = NULL;
-  gchar *ssl_config = NULL;
-  gchar *subject = generate_subject ();
+  g_autofree gchar *stderr_str = NULL;
+  g_autofree gchar *command_line = NULL;
+  g_autofree gchar *ssl_config = NULL;
+  g_autofree gchar *subject = generate_subject ();
 
   /* make config file with subjectAltName for localhost and our tests */
   ssl_config = create_temp_file (g_get_tmp_dir (), "ssl.conf.XXXXXX", error);
@@ -186,10 +186,6 @@ openssl_make_dummy_cert (const gchar *key_file,
 out:
   if (ssl_config)
     g_unlink (ssl_config);
-  g_free (ssl_config);
-  g_free (stderr_str);
-  g_free (command_line);
-  g_free (subject);
   return ret;
 }
 

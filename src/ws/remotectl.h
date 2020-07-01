@@ -25,9 +25,4 @@
 int             cockpit_remotectl_certificate       (int argc,
                                                      char *argv[]);
 
-gboolean        cockpit_remotectl_no_arguments      (const gchar *option_value,
-                                                     const gchar *value,
-                                                     gpointer data,
-                                                     GError **error);
-
 #endif /* COCKPIT_REMOTECTL_H_ */

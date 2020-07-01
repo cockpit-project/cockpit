@@ -48,17 +48,6 @@ message_handler (const gchar *log_domain,
   g_printerr ("%s: %s\n", g_get_prgname (), message);
 }
 
-gboolean
-cockpit_remotectl_no_arguments (const gchar *option_value,
-                                const gchar *value,
-                                gpointer data,
-                                GError **error)
-{
-  g_set_error_literal (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
-                       "Too many arguments specified");
-  return FALSE;
-}
-
 int
 main (int argc,
       char **argv)

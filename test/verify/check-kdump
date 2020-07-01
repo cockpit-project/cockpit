@@ -176,7 +176,6 @@ class TestKdump(MachineCase):
             m.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
 
     @nondestructive
-    @skipImage("Introduced in #14261", "rhel-8-3-distropkg")
     def testConfiguration(self):
         b = self.browser
         m = self.machine

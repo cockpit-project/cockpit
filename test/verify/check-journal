@@ -28,8 +28,14 @@ class TestJournal(MachineCase):
     def setUp(self):
         super().setUp()
 
-        self.restore_dir("/var/log/journal", post_restore_action="systemctl try-restart systemd-journald")
-        self.machine.execute("systemctl try-restart systemd-journald")
+        if self.is_nondestructive():
+            # we need persistent journal for the rebooting tests
+            self.restore_dir("/run/log/journal", post_restore_action="systemctl try-restart systemd-journald")
+            self.restore_dir("/var/log/journal", post_restore_action="systemctl try-restart systemd-journald")
+            self.machine.execute("systemctl stop systemd-journald")
+            self.machine.execute("rm -rf /run/log/journal/* /var/log/journal/*")
+            self.machine.execute("systemctl start systemd-journald")
+            self.allow_journal_messages("Specifying boot ID or boot offset has no effect, no persistent journal was found.*")
 
     def injectExtras(self):
         self.browser.inject_js("""

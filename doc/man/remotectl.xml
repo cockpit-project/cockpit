@@ -58,7 +58,10 @@
         <listitem><para>Manage Cockpit's SSL certificate. If used without options will check if cockpit has a valid certificate without making any changes.</para>
 
         <para>
-          <option>--ensure</option> Ensure that a certificate exists and can be loaded. Certificate will be created if it does not already exist.
+          <option>--ensure</option> Ensure that a certificate exists and can be loaded. If none exists, create a <code>0-self-signed.cert</code>
+            certificate, using <ulink url="https://github.com/sgallagher/sscg">sscg</ulink> (if available) or
+            <ulink url="https://linux.die.net/man/1/openssl">openssl</ulink>. That self-signed default certificate will be automatically
+            renewed when it expires.
         </para>
 
         <para>

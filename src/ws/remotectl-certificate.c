@@ -147,7 +147,8 @@ out:
 static int
 ensure_certificate (const gchar *user,
                     const gchar *group,
-                    const gchar *selinux)
+                    const gchar *selinux,
+                    gboolean check_expired)
 {
   GError *error = NULL;
   GTlsCertificate *certificate = NULL;
@@ -168,6 +169,20 @@ ensure_certificate (const gchar *user,
     {
       g_message ("%s", error->message);
       goto out;
+    }
+
+  /* auto-renew our expired auto-created certificates */
+  /* must specify ca due to https://gitlab.gnome.org/GNOME/glib-networking/-/issues/139 */
+  if (check_expired && g_str_has_suffix (path, "/0-self-signed.cert") &&
+      g_tls_certificate_verify (certificate, NULL, certificate) & G_TLS_CERTIFICATE_EXPIRED)
+    {
+      int r;
+      g_message ("Automatically created certificate %s is expired, renewing it", path);
+      r = g_unlink (path);
+      if (r == 0)
+        ensure_certificate (user, group, selinux, FALSE);  /* avoid infinite recursion */
+      else
+        g_warning ("Failed to remove %s: %m", path);
     }
 
   ret = set_cert_attributes (path, user, group, selinux);
@@ -311,7 +326,7 @@ cockpit_remotectl_certificate (int argc,
       if (pem_files)
         ret = cockpit_certificate_combine (pem_files, user, group, selinux);
       else if (ensure)
-        ret = ensure_certificate (user, group, selinux);
+        ret = ensure_certificate (user, group, selinux, TRUE);
       else
         ret = locate_certificate ();
     }

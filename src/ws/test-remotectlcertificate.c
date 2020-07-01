@@ -201,6 +201,63 @@ test_valid_selfsigned (TestCase *test,
 }
 
 static void
+test_refresh_expired (TestCase *test,
+                      gconstpointer data)
+{
+  GError *error = NULL;
+  g_autofree gchar *oldpath = g_build_filename (test->cert_dir, "alice-expired.cert", NULL);
+  g_autofree gchar *selfsigned_path = g_build_filename (test->cert_dir, "0-self-signed.cert", NULL);
+  g_autoptr(GTlsCertificate) certificate = NULL;
+  char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--ensure", NULL };
+  int ret;
+
+  if (!openssl_path)
+    {
+      g_test_skip ("openssl not available");
+      return;
+    }
+
+  /* The call in setup() just created a combined certificate out of alice-expired.
+   * Rename it to pretend it was a self-signed one */
+  g_assert_cmpint (g_rename (oldpath, selfsigned_path), ==, 0);
+
+  /* sanity check: cert should be expired */
+  certificate = g_tls_certificate_new_from_file (selfsigned_path, &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (g_tls_certificate_verify (certificate, NULL, certificate), ==, G_TLS_CERTIFICATE_EXPIRED);
+
+  /* call with --ensure again, refreshes the cert */
+  ret = cockpit_remotectl_certificate (4, argv);
+  g_assert_cmpint (ret, ==, 0);
+
+  /* now it's a valid certificate again */
+  test_valid_selfsigned (test, data);
+}
+
+static void
+test_keep_custom_expired (TestCase *test,
+                          gconstpointer data)
+{
+  GError *error = NULL;
+  g_autofree gchar *path = g_build_filename (test->cert_dir, "alice-expired.cert", NULL);
+  g_autofree gchar *orig_content = NULL;
+  g_autofree gchar *new_content = NULL;
+  char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--ensure", NULL };
+  int ret;
+
+  /* The call in setup() just created a combined certificate out of alice-expired */
+  g_file_get_contents (path, &orig_content, NULL, &error);
+  g_assert_no_error (error);
+
+  /* call with --ensure again; this is a custom certificate, should *not* be touched */
+  ret = cockpit_remotectl_certificate (4, argv);
+  g_assert_cmpint (ret, ==, 0);
+  g_file_get_contents (path, &new_content, NULL, &error);
+  g_assert_no_error (error);
+  g_assert_cmpstr (orig_content, ==, new_content);
+}
+
+static void
 test_failure (TestCase *test,
               gconstpointer data)
 {
@@ -226,6 +283,8 @@ const gchar *invalid_files1[] = { SRCDIR "/src/ws/mock-config/cockpit/cockpit.co
 const gchar *invalid_files2[] = { SRCDIR "/src/bridge/mock-server.crt",
                                   SRCDIR "/src/bridge/mock-client.crt", NULL };
 const gchar *invalid_files3[] = { SRCDIR "/src/bridge/mock-client.key", NULL };
+const gchar *expired_files[] = { SRCDIR "/src/tls/ca/alice-expired.pem",
+                                 SRCDIR "/src/tls/ca/alice.key", NULL };
 
 /* test both possible orders in combined files: certs|key and key|certs */
 #define combined_key_first SRCDIR "/src/ws/mock-combined.crt"
@@ -272,6 +331,10 @@ static const TestFixture fixture_create = {
   .needs_openssl = TRUE,
 };
 
+static const TestFixture fixture_expired = {
+  .files = expired_files,
+};
+
 static const TestFixture fixture_create_no_permission = {
   .expected_message = "Couldn't create temporary file*Permission denied",
   .files = no_files,
@@ -315,6 +378,10 @@ main (int argc,
               setup, test_valid_selfsigned, teardown);
   g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
               setup, test_failure, teardown);
+  g_test_add ("/remotectl-certificate/refresh-expired", TestCase, &fixture_expired,
+              setup, test_refresh_expired, teardown);
+  g_test_add ("/remotectl-certificate/keep-custom-expired", TestCase, &fixture_expired,
+              setup, test_keep_custom_expired, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-first", TestCase, &fixture_preinstall_combined_key_first,
               setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-last", TestCase, &fixture_preinstall_combined_key_last,

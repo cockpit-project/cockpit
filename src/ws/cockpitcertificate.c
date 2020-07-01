@@ -156,7 +156,7 @@ openssl_make_dummy_cert (const gchar *key_file,
   const gchar *argv[] = {
     "openssl",
     "req", "-x509",
-    "-days", "36500",
+    "-days", "365",
     "-newkey", "rsa:2048",
     "-keyout", key_file,
     "-keyform", "PEM",
@@ -210,7 +210,7 @@ sscg_make_dummy_cert (const gchar *key_file,
 
   const gchar *argv[] = {
     "sscg", "--quiet",
-    "--lifetime", "3650",
+    "--lifetime", "365",
     "--key-strength", "2048",
     "--cert-key-file", key_file,
     "--cert-file", cert_file,

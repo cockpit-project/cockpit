@@ -176,7 +176,8 @@ openssl_make_dummy_cert (const gchar *key_file,
                      NULL, &stderr_str, &exit_status, error) ||
       !g_spawn_check_exit_status (exit_status, error))
     {
-      g_warning ("%s", stderr_str);
+      if (stderr_str)
+        g_warning ("%s", stderr_str);
       g_prefix_error (error, "Error generating temporary self-signed dummy cert using openssl: ");
       goto out;
     }

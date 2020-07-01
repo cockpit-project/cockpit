@@ -156,17 +156,15 @@ teardown (TestCase *tc,
 
 
 static void
-test_combine_good (TestCase *test,
-                   gconstpointer data)
+test_success (TestCase *test,
+              gconstpointer data)
 {
-
   g_assert_cmpint (test->ret, ==, 0);
-
 }
 
 static void
-test_combine_bad (TestCase *test,
-                  gconstpointer data)
+test_failure (TestCase *test,
+              gconstpointer data)
 {
   GDir *dir = NULL;
   GError *error = NULL;
@@ -254,24 +252,24 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/remotectl-certificate/combine-good-rsa", TestCase, &fixture_good_rsa_file,
-              setup, test_combine_good, teardown);
+              setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/combine-good-ecc", TestCase, &fixture_good_ecc_file,
-              setup, test_combine_good, teardown);
+              setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/combine-bad-file", TestCase, &fixture_bad_file,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/combine-bad-file2", TestCase, &fixture_bad_file2,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/combine-not-valid", TestCase, &fixture_invalid1,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/combine-no-key", TestCase, &fixture_invalid2,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/combine-no-cert", TestCase, &fixture_invalid3,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
-              setup, test_combine_bad, teardown);
+              setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-first", TestCase, &fixture_preinstall_combined_key_first,
-              setup, test_combine_good, teardown);
+              setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-last", TestCase, &fixture_preinstall_combined_key_last,
-              setup, test_combine_good, teardown);
+              setup, test_success, teardown);
   return g_test_run ();
 }

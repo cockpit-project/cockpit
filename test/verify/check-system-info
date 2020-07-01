@@ -219,10 +219,7 @@ class TestSystemInfo(MachineCase):
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
         b.click("#system_information_change_systime label:contains('Set Time') + div button")
-        if self.machine.image != "rhel-8-3-distropkg":
-            b.click("#system_information_change_systime label:contains('Set Time') + div ul button:contains('%s')" % mode)
-        else:
-            b.click("#system_information_change_systime label:contains('Set Time') + div ul a:contains('%s')" % mode)
+        b.click("#system_information_change_systime label:contains('Set Time') + div ul button:contains('%s')" % mode)
         b.wait_in_text("#system_information_change_systime label:contains('Set Time') + div button", mode)
 
     def testTime(self):
@@ -261,12 +258,8 @@ class TestSystemInfo(MachineCase):
         b.set_input_text("#systime-date-input", "2020-01-24")
         b.set_input_text("#systime-time-hours", "08")
         b.set_input_text("#systime-time-minutes", "03")
-        if self.machine.image != "rhel-8-3-distropkg":
-            b.click("#system_information_change_systime .apply")
-            b.wait_not_present("#system_information_change_systime")
-        else:
-            b.click("#systime-apply-button")
-            b.wait_popdown("system_information_change_systime")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
 
         b.wait_text("#system_information_systime_button", "Jan 24, 2020 8:03 AM")
 
@@ -278,12 +271,8 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Automatically using NTP")
-        if self.machine.image != "rhel-8-3-distropkg":
-            b.click("#system_information_change_systime .apply")
-            b.wait_not_present("#system_information_change_systime")
-        else:
-            b.click("#systime-apply-button")
-            b.wait_popdown("system_information_change_systime")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
 
         wait(ntp_enabled)
 
@@ -294,12 +283,8 @@ class TestSystemInfo(MachineCase):
         b.set_input_text("#systime-date-input", "2018-06-04")
         b.set_input_text("#systime-time-hours", "06")
         b.set_input_text("#systime-time-minutes", "34")
-        if self.machine.image != "rhel-8-3-distropkg":
-            b.click("#system_information_change_systime .apply")
-            b.wait_not_present("#system_information_change_systime")
-        else:
-            b.click("#systime-apply-button")
-            b.wait_popdown("system_information_change_systime")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
 
         self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))

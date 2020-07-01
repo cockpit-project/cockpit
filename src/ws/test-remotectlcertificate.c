@@ -33,6 +33,8 @@
 
 const gchar *config_dir = BUILDDIR "/test-configdir";
 
+static gchar *openssl_path = NULL;
+
 typedef struct {
   gint ret;
   gchar *cert_dir;
@@ -44,6 +46,7 @@ typedef struct {
   const gchar *preinstall;
   gboolean readonly_dir;
   gboolean ensure;
+  gboolean needs_openssl;
 } TestFixture;
 
 static void
@@ -98,6 +101,9 @@ setup (TestCase *tc,
       g_assert (g_mkdir_with_parents (tc->cert_dir, 0755) == 0);
       g_assert (g_chmod (tc->cert_dir, 0555) == 0);
     }
+
+  if (fix->needs_openssl && !openssl_path)
+    return;
 
   if (fix->preinstall)
     {
@@ -160,6 +166,38 @@ test_success (TestCase *test,
               gconstpointer data)
 {
   g_assert_cmpint (test->ret, ==, 0);
+}
+
+static void
+test_valid_selfsigned (TestCase *test,
+                       gconstpointer data)
+{
+  GError *error = NULL;
+  g_autoptr(GDir) dir = NULL;
+  const gchar *fname;
+  g_autofree gchar *path = NULL;
+  g_autoptr(GTlsCertificate) certificate = NULL;
+
+  if (!openssl_path)
+    {
+      g_test_skip ("openssl not available");
+      return;
+    }
+
+  g_assert_cmpint (test->ret, ==, 0);
+  dir = g_dir_open (test->cert_dir, 0, &error);
+  g_assert_no_error (error);
+  fname = g_dir_read_name (dir);
+  g_assert_cmpstr (fname, ==, "0-self-signed.cert");
+  /* no further file created */
+  g_assert_null (g_dir_read_name (dir));
+
+  /* should be a valid certificate */
+  path = g_build_filename (test->cert_dir, fname, NULL);
+  certificate = g_tls_certificate_new_from_file (path, &error);
+  g_assert_no_error (error);
+  /* set cert as its own CA, as it's self-signed */
+  g_assert_cmpint (g_tls_certificate_verify (certificate, NULL, certificate), ==, 0);
 }
 
 static void
@@ -228,6 +266,12 @@ static const TestFixture fixture_invalid3 = {
   .files = invalid_files3
 };
 
+static const TestFixture fixture_create = {
+  .files = no_files,
+  .ensure = TRUE,
+  .needs_openssl = TRUE,
+};
+
 static const TestFixture fixture_create_no_permission = {
   .expected_message = "Couldn't create temporary file*Permission denied",
   .files = no_files,
@@ -251,6 +295,8 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
+  openssl_path = g_find_program_in_path ("openssl");
+
   g_test_add ("/remotectl-certificate/combine-good-rsa", TestCase, &fixture_good_rsa_file,
               setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/combine-good-ecc", TestCase, &fixture_good_ecc_file,
@@ -265,6 +311,8 @@ main (int argc,
               setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/combine-no-cert", TestCase, &fixture_invalid3,
               setup, test_failure, teardown);
+  g_test_add ("/remotectl-certificate/create", TestCase, &fixture_create,
+              setup, test_valid_selfsigned, teardown);
   g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
               setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-first", TestCase, &fixture_preinstall_combined_key_first,

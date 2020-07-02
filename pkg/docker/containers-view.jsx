@@ -570,7 +570,7 @@ export class ImageList extends React.Component {
             </button>
         </div>;
 
-        var columnTitles = [_("Name"), '', _("Created"), _("Size"), ''];
+        var columnTitles = [_("Name"), _("Created"), _("Size"), ''];
 
         var pendingRows = this.state.pulling.map(function (job) {
             if (job.error)

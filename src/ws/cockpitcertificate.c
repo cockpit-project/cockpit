@@ -141,7 +141,7 @@ openssl_make_dummy_cert (const gchar *key_file,
   /* make config file with subjectAltName for localhost and our tests */
   ssl_config = create_temp_file (g_get_tmp_dir (), "ssl.conf.XXXXXX", error);
   if (!ssl_config)
-      return FALSE;
+      goto out;
   if (!g_file_set_contents (ssl_config,
               "[ req ]\n"
               "req_extensions = v3_req\n"
@@ -151,7 +151,7 @@ openssl_make_dummy_cert (const gchar *key_file,
               "[ v3_req ]\n"
               "subjectAltName=IP:127.0.0.1,DNS:localhost\n",
               -1, error))
-      return FALSE;
+      goto out;
 
   const gchar *argv[] = {
     "openssl",

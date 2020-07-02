@@ -386,6 +386,24 @@
   @include deconstruct();
 }
 
+// Alternate to reduce spacing, used at ct-form grid-level
+.ct-form-compact {
+  --padding-y: var(--pf-global--spacer--xs);
+}
+
+// Compact form used for info tables
+.ct-form-info {
+  @extend .ct-form-compact;
+
+  // Invalidate widget height, to fall back to normal line height
+  --widget-height: invalidate-this;
+
+  > .control-label,
+  > .pf-c-form__label {
+    font-weight: normal;
+  }
+}
+
 @media (max-width: $screen-xs) {
   // When inside of lists or modals & the page is *very* narrow,
   // collapse the grid further, so labels are above controls

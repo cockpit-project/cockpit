@@ -24,7 +24,7 @@ import "./cockpit-components-onoff.scss";
 /* Component to show an on/off switch
  * state      boolean value (off or on)
  * onChange   triggered when the switch is flipped, parameter: new state
- * enabled    whether the component is enabled or not, defaults to true
+ * disabled   whether the component is disabled or not, defaults to false
  * id         optional string, ID of the top-level HTML tag (only necessary
  *            when embedding this into a non-React page)
  * text       optional string that appears to the right of the button

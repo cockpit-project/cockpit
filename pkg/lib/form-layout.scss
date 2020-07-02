@@ -63,16 +63,16 @@
 
 .ct-form {
   // Locally redefine padding to Bootstrap values for this LESS block
-  $padding-large-vertical: 1rem;
-  $padding-small-vertical: 0.5rem;
-  $padding-small-horizontal: 1.5rem;
+  --padding-y-lg: 1rem;
+  --padding-y-sm: 0.5rem;
+  --padding-x-sm: 1.5rem;
   // Bootstrap & PatternFly use a 1px border around widgets
-  $border-width: 1px;
-  $widget-height: 2.25rem; // (36px for PF4 widgets)
+  --border-width: 1px;
+  --widget-height: 2.25rem; // (36px for PF4 widgets)
 
   align-self: start; // Don't vertically fill content by default
   display: grid;
-  grid-gap: $padding-small-vertical $padding-small-horizontal;
+  grid-gap: var(--padding-y-sm) var(--padding-x-sm);
   // Repeat a label that is a minimum of 4em and its control that
   // fills the remaining space by a CSS variable (default: 2)
   grid-template-columns: repeat(var(--ct-form-columns), max-content 1fr);
@@ -189,7 +189,7 @@
     align-self: start;
     align-content: center;
     display: grid;
-    grid-gap: $padding-small-vertical;
+    grid-gap: var(--padding-y-sm);
     min-height: 2.25rem;
     justify-content: start;
     // Only support 2 splits for now (can change to 3 later, if needed)
@@ -238,7 +238,7 @@
   .radio-inline {
     display: inline-flex;
     padding-left: 0;
-    padding-right: $padding-small-horizontal;
+    padding-right: var(--padding-x-sm);
     align-items: center;
 
     > input[type="checkbox"],
@@ -265,7 +265,7 @@
 
   // List groups override the grid gap, so we're adding it manually
   .list-group {
-    margin-bottom: $padding-small-vertical;
+    margin-bottom: var(--padding-y-sm);
   }
 
   // Relax split elements to only take up one column
@@ -391,7 +391,7 @@
 
       // Reduce vertical height spacing between groups of elements
       > hr {
-        height: $padding-large-vertical * 2;
+        height: calc(var(--padding-y-lg) * 2);
       }
     }
   }

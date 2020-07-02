@@ -62,17 +62,16 @@
 // a <form class="ct-form"> and layout magic happens.
 
 .ct-form {
-  // Locally redefine padding to Bootstrap values for this LESS block
-  --padding-y-lg: 1rem;
-  --padding-y-sm: 0.5rem;
-  --padding-x-sm: 1.5rem;
+  // Locally redefine padding to Bootstrap values for this SASS block
+  --padding-y: var(--pf-global--spacer--md);
+  --padding-x: var(--pf-global--spacer--lg);
   // Bootstrap & PatternFly use a 1px border around widgets
   --border-width: 1px;
   --widget-height: 2.25rem; // (36px for PF4 widgets)
 
   align-self: start; // Don't vertically fill content by default
   display: grid;
-  grid-gap: var(--padding-y-sm) var(--padding-x-sm);
+  grid-gap: var(--padding-y) var(--padding-x);
   // Repeat a label that is a minimum of 4em and its control that
   // fills the remaining space by a CSS variable (default: 2)
   grid-template-columns: repeat(var(--ct-form-columns), max-content 1fr);
@@ -80,16 +79,19 @@
   align-content: baseline;
 
   // All <label> elements describing form elements in PatternFly are
-  // supposed to have a `control-label` class.
+  // supposed to have a `control-label` class (PF3) or `pf-c-form__label` (PF4).
   // These precede control elements.
-  > .control-label {
-    text-align: right;
+  > .control-label,
+  > .pf-c-form__label {
     padding: 0;
     margin: 0;
+    text-align: left;
+    font-weight: var(--pf-global--FontWeight--bold);
+    font-size: var(--pf-global--FontSize--sm);
   }
 
   > :not(hr):not(p) {
-    line-height: 2.25rem;
+    line-height: var(--widget-height);
   }
 
   > p {
@@ -98,7 +100,7 @@
 
   // Put all control elements to the right of the labels,
   // stretching to the rightmost column
-  > :not(.control-label):not(hr):not(.ct-form-split):not(.ct-form-full) {
+  > :not(.control-label):not(.pf-c-form__label):not(hr):not(.ct-form-split):not(.ct-form-full) {
     grid-column: 2 / -1;
   }
 
@@ -115,10 +117,8 @@
   // in the usual ways as well as adding a role="group".
   > hr {
     border: none;
-    // LESS needs this to be escaped with "". You'll see it below too.
-    // CSS wants the string to be 1 / -1 without escaping.
     grid-column: 1 / -1;
-    height: 0.5rem;
+    height: 0;
     // Reset padding to ensure all browsers treat this the same
     margin: 0;
     padding: 0;
@@ -141,7 +141,7 @@
   }
 
   // Special considerations for widgets (and widget-like elements)
-  // This is a LESS mixin that will not be in the compiled CSS.
+  // This is a SASS mixin that will not be in the compiled CSS.
   @mixin widget-rules() {
     > input,
     > textarea,
@@ -155,8 +155,11 @@
     > [data-field],
     > .form-group,
     > .btn-group,
+    > .pf-c-form__group-control,
     > label.checkbox,
     > label.radio,
+    > label.pf-c-radio,
+    > label.pf-c-check,
     > .checkbox-inline,
     > .radio-inline {
       line-height: var(--pf-global--LineHeight--md);
@@ -164,7 +167,7 @@
   }
 
   &, > .ct-validation-wrapper {
-    @include widget-rules;
+    @include widget-rules();
   }
 
   // Some elements need special width considerations
@@ -189,8 +192,8 @@
     align-self: start;
     align-content: center;
     display: grid;
-    grid-gap: var(--padding-y-sm);
-    min-height: 2.25rem;
+    grid-gap: var(--padding-y);
+    min-height: var(--widget-height);
     justify-content: start;
     // Only support 2 splits for now (can change to 3 later, if needed)
     grid-template-columns: repeat(2, auto);
@@ -238,7 +241,7 @@
   .radio-inline {
     display: inline-flex;
     padding-left: 0;
-    padding-right: var(--padding-x-sm);
+    padding-right: var(--padding-x);
     align-items: center;
 
     > input[type="checkbox"],
@@ -265,7 +268,7 @@
 
   // List groups override the grid gap, so we're adding it manually
   .list-group {
-    margin-bottom: var(--padding-y-sm);
+    margin-bottom: var(--padding-y);
   }
 
   // Relax split elements to only take up one column
@@ -279,21 +282,9 @@
   }
 
   // Move warnings, errors, info, etc. up a bit to associate with previous field
-  @mixin bump-up() {
+  > .help-block {
     position: relative;
     margin-top: -0.5rem;
-  }
-
-  > .has-success,
-  > .has-warning,
-  > .has-error {
-    &:not(.form-group):not(fieldset):not([role=group]) {
-      //.bump-up();
-    }
-  }
-
-  > .help-block {
-    @include bump-up;
   }
 
   .help-block {
@@ -339,13 +330,39 @@
   grid-column: 2 / -1;
 }
 
+@mixin deconstruct() {
+  // Only use one column
+  --ct-form-columns: 1;
+  // Don't set the line height for widgets;
+  // setting this to an invalid CSS rule invalidates it, so it falls back
+  --widget-height: not-needed;
+  // Completely deconstruct the grid layout
+  grid-template-columns: initial;
+
+  > * {
+    // Don't restrict grid placement
+    grid-column: auto;
+    max-width: 100%;
+  }
+
+  // As control labels fill the row, left align and remove padding
+  > .control-label,
+  > .pf-c-form__label {
+    margin: 0 0 -.5rem;
+    padding: 1rem 0 0;
+    text-align: left;
+  }
+}
+
 @media (max-width: 640px) {
   // When inside of lists or modals & the page isn't wide enough,
   // collapse (label + control) columns down to 1, to force splits on
   // their own lines
   .listing-ct-body,
   .modal {
-    --ct-form-columns: 1;
+    .ct-form {
+      @include deconstruct();
+    }
   }
 }
 
@@ -363,6 +380,12 @@
   grid-template-columns: max-content 1fr max-content min-content;
 }
 
+// Alternate layout, vertical form approach, used at ct-form grid-level
+// Similar to the responsive layout, but used even for large sizes.
+.ct-form-vertical {
+  @include deconstruct();
+}
+
 @media (max-width: $screen-xs) {
   // When inside of lists or modals & the page is *very* narrow,
   // collapse the grid further, so labels are above controls
@@ -374,25 +397,7 @@
   .listing-ct-body,
   .modal {
     .ct-form {
-      // Completely deconstruct the grid layout
-      grid-template-columns: initial;
-
-      > * {
-        // Don't restrict grid placement
-        grid-column: auto;
-        max-width: 100%;
-      }
-
-      // As control labels fill the row, left align and remove padding
-      > .control-label {
-        padding: 0;
-        text-align: left;
-      }
-
-      // Reduce vertical height spacing between groups of elements
-      > hr {
-        height: calc(var(--padding-y-lg) * 2);
-      }
+      @include deconstruct();
     }
   }
 }

@@ -82,6 +82,14 @@
             available to the user running this command.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>--output-fd</option> <replaceable>NUMBER</replaceable></term>
+        <listitem>
+          <para>Send protocol responses to given file descriptor number instead of stdout.
+            This is useful when stdout is already being used for something else, such as
+            debug logs or messages printed by shell profiles.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 

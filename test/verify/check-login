@@ -147,6 +147,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.open("/system")
             b.wait_not_visible("#option-group")
 
+            # test login with tcsh
+            if not m.image.startswith("rhel") and not m.image.startswith("centos"):  # no tcsh in RHEL
+                m.execute("sed -r -i.bak '/^admin:/ s_:[^:]+$_:/bin/tcsh_' /etc/passwd")
+                b.login_and_go()
+                b.logout()
+                m.execute("mv /etc/passwd.bak /etc/passwd")
+                self.allow_journal_messages('Could not query seals on fd .*: not memfd.*')
+
             # login with user shell that prints some stdout/err noise
             # having stdout output in ~/.bashrc confuses docker, so don't run on Atomic
             m.execute("set -e; cd ~admin; cp -a .bashrc .bashrc.bak; [ ! -e .profile ] || cp -a .profile .profile.bak; "
@@ -154,9 +162,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                       "echo 'echo noise-profile-out; echo noise-profile-err >&2' >> .profile")
             self.addCleanup(m.execute, "set -e; cd ~admin; mv .bashrc.bak .bashrc; "
                                        "if [ -e .profile.bak ]; then mv .profile.bak .profile; else rm .profile; fi")
-            b.try_login("admin", "foobar")
-            b.expect_load()
-            b.wait_present("#content")
+            b.login_and_go()
+            b.logout()
 
         self.allow_journal_messages("Returning error-response ... with reason .*",
                                     "pam_unix\(cockpit:auth\): authentication failure; .*",

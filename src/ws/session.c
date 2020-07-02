@@ -565,7 +565,9 @@ perform_tlscert (void)
 static int
 session (char **env)
 {
-  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge >&3", NULL };
+ /* connect our socketpair for the protocol to the bridge via fd 0. Then the shell is free to
+  * output stuff from ~/.profile without interfering with the cockpit protocol. */
+  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge --output-fd=0", NULL };
   gss_key_value_set_desc store;
   struct gss_key_value_element_struct element;
   OM_uint32 major, minor;
@@ -608,13 +610,11 @@ session (char **env)
 
   debug ("executing cockpit-bridge through user shell %s", pwd->pw_shell);
 
-  /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
-   * from ~/.profile and friends to interfere with the protocol; route shell's
-   * stdout to its stderr, so that we can still see it in the logs */
-  int remap_fds[5] = { -1, 2, -1, 1 };
-  int n_remap_fds = 4;
+  /* route shell's and bridge's stdout to stderr, so that we can see it in the logs */
+  int remap_fds[4] = { -1, 2, -1 };
+  int n_remap_fds = 3;
 
-  /* This is the "COCKPIT_LOGIN_MESSAGES_MEMFD" blob (ie: fd 4) */
+  /* This is the "COCKPIT_LOGIN_MESSAGES_MEMFD" blob (ie: fd 3) */
   if (login_messages)
     remap_fds[n_remap_fds++] = fileno (login_messages);
 
@@ -711,8 +711,8 @@ main (int argc,
 
   if (want_session) /* no session → no login messages → no memfd */
     {
-      if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=4") != PAM_SUCCESS)
-        errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=4 in PAM environment");
+      if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=3") != PAM_SUCCESS)
+        errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=3 in PAM environment");
 
       login_messages = open_memfd ("cockpit login messages");
     }

@@ -455,7 +455,8 @@ call_update_router (gconstpointer user_data)
 
 static int
 run_bridge (const gchar *interactive,
-            gboolean privileged_slave)
+            gboolean privileged_slave,
+            int outfd)
 {
   CockpitTransport *transport;
   CockpitRouter *router;
@@ -468,23 +469,31 @@ run_bridge (const gchar *interactive,
   GPid agent_pid = 0;
   guint sig_term;
   guint sig_int;
-  int outfd;
   uid_t uid;
   struct CallUpdateRouterData call_update_router_data;
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
+  if (outfd < 0)
     {
-      g_printerr ("bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
+      g_printerr ("file descriptors must not be negative\n");
+      return 1;
+    }
+
+  if (outfd == 1)
+    {
+      /*
+       * This process talks on stdin/stdout. However lots of stuff wants to write
+       * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
+       * it goes to stderr, and use another fd for the protocol stream output.
+       */
+
+      outfd = dup (1);
+      if (outfd < 0 || dup2 (2, 1) < 1)
+        {
+          g_printerr ("bridge couldn't redirect stdout to stderr\n");
+          if (outfd > -1)
+            close (outfd);
+          outfd = 1;
+        }
     }
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
@@ -682,12 +691,14 @@ main (int argc,
   static gboolean opt_privileged = FALSE;
   static gboolean opt_version = FALSE;
   static gchar *opt_interactive = NULL;
+  static int opt_outfd = 1;
 
   static GOptionEntry entries[] = {
     { "interact", 0, 0, G_OPTION_ARG_STRING, &opt_interactive, "Interact with the raw protocol", "boundary" },
     { "privileged", 0, 0, G_OPTION_ARG_NONE, &opt_privileged, "Privileged copy of bridge", NULL },
     { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
     { "rules", 0, 0, G_OPTION_ARG_NONE, &opt_rules, "Show Cockpit bridge rules", NULL },
+    { "output-fd", 0, 0, G_OPTION_ARG_INT, &opt_outfd, "Send protocol responses to given file descriptor instead of stdout", "NUMBER" },
     { "version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Show Cockpit version information", NULL },
     { NULL }
   };
@@ -741,13 +752,13 @@ main (int argc,
       return 0;
     }
 
-  if (!opt_interactive && isatty (1))
+  if (!opt_interactive && isatty (opt_outfd))
     {
       g_printerr ("cockpit-bridge: no option specified\n");
       return 2;
     }
 
-  ret = run_bridge (opt_interactive, opt_privileged);
+  ret = run_bridge (opt_interactive, opt_privileged, opt_outfd);
 
   if (packages)
     cockpit_packages_free (packages);

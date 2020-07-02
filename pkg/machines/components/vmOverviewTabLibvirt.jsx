@@ -259,7 +259,7 @@ class VmOverviewTabLibvirt extends React.Component {
         return (
             <>
                 <div className="overview-tab-grid">
-                    <div className='ct-form'>
+                    <div className='ct-form ct-form-info'>
                         <Text component={TextVariants.h4} className='ct-form-full'>
                             {_("General")}
                         </Text>
@@ -276,7 +276,7 @@ class VmOverviewTabLibvirt extends React.Component {
                             {autostart}
                         </>}
                     </div>
-                    <div className="ct-form">
+                    <div className="ct-form ct-form-info">
                         <Text component={TextVariants.h4} className='ct-form-full'>
                             {_("Hypervisor Details")}
                         </Text>

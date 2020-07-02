@@ -76,7 +76,7 @@ export class NetworkOverviewTab extends React.Component {
         return (
             <>
                 <div className="overview-tab-grid">
-                    <div className='ct-form'>
+                    <div className='ct-form ct-form-info'>
                         <label className='control-label label-title'> {_("General")} </label>
                         <span />
 
@@ -100,7 +100,7 @@ export class NetworkOverviewTab extends React.Component {
                         </> }
                     </div>
 
-                    <div className="ct-form">
+                    <div className="ct-form ct-form-info">
                         { ip[0] && <>
                             <label className='control-label label-title'> {_("IPv4 Address")} </label>
                             <span />

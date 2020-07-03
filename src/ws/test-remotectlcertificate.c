@@ -34,6 +34,7 @@
 const gchar *config_dir = BUILDDIR "/test-configdir";
 
 static gchar *openssl_path = NULL;
+static gchar *sscg_path = NULL;
 
 typedef struct {
   gint ret;
@@ -123,7 +124,7 @@ setup (TestCase *tc,
   if (fix->ensure)
     {
       cockpit_expect_info ("Generating temporary certificate*");
-      cockpit_expect_info ("Error generating temporary dummy cert using sscg, falling back to openssl*");
+      cockpit_expect_possible_log (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "Error generating temporary dummy cert using sscg, falling back to openssl*");
       g_ptr_array_add (ptr, "--ensure");
     }
   g_ptr_array_add (ptr, "--user");
@@ -188,6 +189,15 @@ test_valid_selfsigned (TestCase *test,
   dir = g_dir_open (test->cert_dir, 0, &error);
   g_assert_no_error (error);
   fname = g_dir_read_name (dir);
+  if (sscg_path)
+    {
+      /* sscg creates a certificate signed by a self-signed CA; files can be in any order */
+      if (strcmp (fname, "0-self-signed-ca.pem") == 0)
+        fname = g_dir_read_name (dir);
+      else
+        g_assert_cmpstr (g_dir_read_name (dir), ==, "0-self-signed-ca.pem");
+    }
+
   g_assert_cmpstr (fname, ==, "0-self-signed.cert");
   /* no further file created */
   g_assert_null (g_dir_read_name (dir));
@@ -359,6 +369,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   openssl_path = g_find_program_in_path ("openssl");
+  sscg_path = g_find_program_in_path ("sscg");
 
   g_test_add ("/remotectl-certificate/combine-good-rsa", TestCase, &fixture_good_rsa_file,
               setup, test_success, teardown);

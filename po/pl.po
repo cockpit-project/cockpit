@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-17 08:40+0000\n"
+"POT-Creation-Date: 2020-06-25 11:00+0000\n"
 "PO-Revision-Date: 2020-06-17 14:21+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -304,7 +304,7 @@ msgstr "Strefa $0"
 msgid "$0, $1 free"
 msgstr "$0, wolne: $1"
 
-#: pkg/systemd/logs.js:479
+#: pkg/systemd/logs.js:460
 msgid "$0: crash at $1"
 msgstr "$0: awaria o $1"
 
@@ -346,7 +346,7 @@ msgstr "—"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/systemd/index.html:182 pkg/systemd/index.html:186
+#: pkg/systemd/index.html:75 pkg/systemd/index.html:79
 msgid "1 Minute"
 msgstr "1 minuta"
 
@@ -432,7 +432,7 @@ msgstr "2 MiB"
 msgid "2 min"
 msgstr "2 minuty"
 
-#: pkg/systemd/index.html:188
+#: pkg/systemd/index.html:81
 msgid "20 Minutes"
 msgstr "20 minut"
 
@@ -508,7 +508,7 @@ msgstr "4 KiB"
 msgid "4 min"
 msgstr "4 minuty"
 
-#: pkg/systemd/index.html:189
+#: pkg/systemd/index.html:82
 msgid "40 Minutes"
 msgstr "40 minut"
 
@@ -516,7 +516,7 @@ msgstr "40 minut"
 msgid "4th"
 msgstr "4."
 
-#: pkg/systemd/index.html:187
+#: pkg/systemd/index.html:80
 msgid "5 Minutes"
 msgstr "5 minut"
 
@@ -544,7 +544,7 @@ msgstr "5."
 msgid "6 hours"
 msgstr "6 godzin"
 
-#: pkg/systemd/index.html:190
+#: pkg/systemd/index.html:83
 msgid "60 Minutes"
 msgstr "Godzina"
 
@@ -922,7 +922,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "Po uruchomieniu systemu"
 
-#: pkg/systemd/logs.html:50
+#: pkg/systemd/logs.html:52
 msgid "Alert and above"
 msgstr "Alarmy i powyżej"
 
@@ -1113,11 +1113,11 @@ msgstr "Automatyczne włączanie usługi libvirt podczas uruchamiania"
 msgid "Automatically starts"
 msgstr "Automatycznie się uruchamia"
 
-#: pkg/systemd/index.html:100
+#: pkg/systemd/overview-cards/serverTime.js:526
 msgid "Automatically using NTP"
 msgstr "Automatycznie za pomocą NTP"
 
-#: pkg/systemd/index.html:101
+#: pkg/systemd/overview-cards/serverTime.js:527
 msgid "Automatically using specific NTP servers"
 msgstr "Automatycznie za pomocą podanych serwerów NTP"
 
@@ -1325,7 +1325,7 @@ msgstr "Pamięć podręczna"
 msgid "Cached"
 msgstr "W pamięci podręcznej"
 
-#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Nie można odnaleźć żadnych dzienników za pomocą obecnego połączenia filtrów."
@@ -1349,8 +1349,8 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/networkmanager/index.html:607 pkg/networkmanager/index.html:634
 #: pkg/networkmanager/index.html:661 pkg/networkmanager/index.html:688
 #: pkg/networkmanager/index.html:715 pkg/playground/translate.html:38
-#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:122
-#: pkg/systemd/index.html:206 pkg/systemd/index.html:260
+#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:99
+#: pkg/systemd/index.html:153
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
@@ -1414,8 +1414,9 @@ msgstr "Pojemność"
 msgid "Carrier"
 msgstr "Operator"
 
-#: pkg/docker/index.html:627 pkg/systemd/index.html:121
-#: pkg/systemd/index.html:259 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/docker/index.html:627 pkg/systemd/index.html:152
+#: pkg/storaged/iscsi-panel.jsx:188
+#: pkg/systemd/overview-cards/serverTime.js:683
 #: pkg/users/expiration-dialogs.js:112 pkg/users/expiration-dialogs.js:226
 msgid "Change"
 msgstr "Zmień"
@@ -1424,7 +1425,7 @@ msgstr "Zmień"
 msgid "Change Firmware"
 msgstr "Zmień oprogramowanie sprzętowe"
 
-#: pkg/systemd/index.html:216
+#: pkg/systemd/index.html:109
 msgid "Change Host Name"
 msgstr "Zmień nazwę komputera"
 
@@ -1440,7 +1441,7 @@ msgstr "Zmień profil wydajności"
 msgid "Change Profile"
 msgstr "Zmień profil"
 
-#: pkg/systemd/index.html:79
+#: pkg/systemd/overview-cards/serverTime.js:676
 msgid "Change System Time"
 msgstr "Zmień czas systemu"
 
@@ -1566,7 +1567,7 @@ msgstr "Oprogramowanie klienta"
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
-#: pkg/systemd/index.html:163 pkg/apps/utils.jsx:104
+#: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:400 pkg/users/dialog-utils.js:61
@@ -1779,7 +1780,7 @@ msgstr "Warunek $0=$1 nie został spełniony"
 msgid "Condition failed"
 msgstr "Warunek się nie powiódł"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:371
+#: pkg/systemd/overview-cards/configurationCard.jsx:273
 msgid "Configuration"
 msgstr "Konfiguracja"
 
@@ -1880,7 +1881,7 @@ msgstr "Łączenie z komputerem"
 msgid "Connection"
 msgstr "Połączenie"
 
-#: pkg/dashboard/list.js:415 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "Błąd połączenia"
 
@@ -2220,7 +2221,7 @@ msgstr "Tworzenie grupy woluminów $target"
 msgid "Creation of VM $0 failed"
 msgstr "Utworzenie maszyny wirtualnej $0 się nie powiodło"
 
-#: pkg/systemd/logs.html:51
+#: pkg/systemd/logs.html:53
 msgid "Critical and above"
 msgstr "Krytyczne i powyżej"
 
@@ -2236,7 +2237,7 @@ msgstr "Ctrl+Insert"
 msgid "Current Allocation"
 msgstr "Obecny przydział"
 
-#: pkg/systemd/logs.html:39
+#: pkg/systemd/logs.html:41
 msgid "Current boot"
 msgstr "Obecne uruchomienie"
 
@@ -2312,7 +2313,7 @@ msgstr "Dezaktywowanie"
 msgid "Deactivating $target"
 msgstr "Dezaktywowanie $target"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.html:58
 msgid "Debug and above"
 msgstr "Debugowania i powyżej"
 
@@ -2324,7 +2325,7 @@ msgstr "Deduplikacja"
 msgid "Default"
 msgstr "Domyślne"
 
-#: pkg/systemd/index.html:177
+#: pkg/systemd/index.html:70
 msgid "Delay"
 msgstr "Opóźnienie"
 
@@ -2610,7 +2611,7 @@ msgid "Does not automatically start"
 msgstr "Nie uruchamia się automatycznie"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domena"
@@ -2758,7 +2759,7 @@ msgstr "Emulowany komputer"
 msgid "Enable Service"
 msgstr "Włącz usługę"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:428
+#: pkg/systemd/overview-cards/configurationCard.jsx:325
 msgid "Enable stored metrics"
 msgstr "Włącz przechowywane statystyki"
 
@@ -2844,11 +2845,11 @@ msgstr ""
 msgid "Entire subnet"
 msgstr "Cała podsieć"
 
-#: pkg/systemd/logs.html:114
+#: pkg/systemd/logs.html:116
 msgid "Entry"
 msgstr "Wpis"
 
-#: pkg/systemd/logs.js:485
+#: pkg/systemd/logs.js:466
 msgid "Entry at $0"
 msgstr "Wpis o $0"
 
@@ -2880,7 +2881,7 @@ msgstr "Poprawka:"
 msgid "Error"
 msgstr "Błąd"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.html:54
 msgid "Error and above"
 msgstr "Błędy i powyżej"
 
@@ -2953,7 +2954,7 @@ msgstr "Obudowa rozszerzenia"
 msgid "Expose container ports"
 msgstr "Eksponuj porty kontenera"
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/logs.js:550
 msgid "Extended Information"
 msgstr "Rozszerzone informacje"
 
@@ -3208,7 +3209,7 @@ msgstr "Brama:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:264
-#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:574
+#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "Ogólne"
 
@@ -3306,7 +3307,7 @@ msgstr "Pomoc"
 msgid "Hide Additional Options"
 msgstr "Ukryj dodatkowe opcje"
 
-#: pkg/systemd/logs.js:957 pkg/systemd/logs.js:1086
+#: pkg/systemd/logs.js:938 pkg/systemd/logs.js:1081
 msgid "Hide filters"
 msgstr "Ukryj filtry"
 
@@ -3338,7 +3339,7 @@ msgstr "Nie należy zmieniać nazwy komputera w domenie"
 msgid "Host should not be empty"
 msgstr "Gospodarz nie może być pusty"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:376
+#: pkg/systemd/overview-cards/configurationCard.jsx:278
 msgid "Hostname"
 msgstr "Nazwa komputera"
 
@@ -3358,6 +3359,12 @@ msgstr "Godzina musi być liczbą między 0 a 23"
 #: pkg/systemd/services.html:224
 msgid "Hours"
 msgstr "Godziny"
+
+#: pkg/systemd/overview-cards/serverTime.js:620
+#, fuzzy
+#| msgid "Hour needs to be a number between 0-23"
+msgid "Hours must be a number between 0 and 23"
+msgstr "Godzina musi być liczbą między 0 a 23"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
 msgid "Hypervisor Details"
@@ -3465,7 +3472,7 @@ msgstr "Identyfikator $id"
 msgid "Id:"
 msgstr "Identyfikator:"
 
-#: pkg/systemd/logs.html:61
+#: pkg/systemd/logs.html:63
 msgid "Identifier"
 msgstr "Identyfikator"
 
@@ -3572,7 +3579,7 @@ msgstr "Niepoprawny klucz komputera"
 msgid "Index Memory"
 msgstr "Pamięć indeksu"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.html:57
 msgid "Info and above"
 msgstr "Informacje i powyżej"
 
@@ -3699,12 +3706,10 @@ msgstr "Nieprawidłowy przedrostek IPv6"
 msgid "Invalid address $0"
 msgstr "Nieprawidłowy adres $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:955
-#: pkg/systemd/shutdown.js:154
+#: pkg/systemd/overview-cards/serverTime.js:615 pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Nieprawidłowy format daty"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Nieprawidłowy format daty i nieprawidłowy format czasu"
@@ -3761,13 +3766,14 @@ msgstr "Nieprawidłowy przedrostek lub maska sieci $0"
 msgid "Invalid range"
 msgstr "Nieprawidłowy zakres"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Nieprawidłowy format czasu"
 
-#: pkg/systemd/index.html:87
-msgid "Invalid time zone"
+#: pkg/systemd/overview-cards/serverTime.js:610
+#, fuzzy
+#| msgid "Invalid time zone"
+msgid "Invalid timezone"
 msgstr "Nieprawidłowa strefa czasowa"
 
 #: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:169
@@ -3818,11 +3824,11 @@ msgstr "Dołącza do przestrzeni nazw"
 msgid "Journal"
 msgstr "Dziennik"
 
-#: pkg/systemd/logs.js:465
+#: pkg/systemd/logs.js:446
 msgid "Journal entry"
 msgstr "Wpis dziennika"
 
-#: pkg/systemd/logs.js:503
+#: pkg/systemd/logs.js:484
 msgid "Journal entry not found"
 msgstr "Nie odnaleziono wpisu dziennika"
 
@@ -3889,11 +3895,11 @@ msgstr "Grupa woluminów LVM"
 msgid "Laptop"
 msgstr "Laptop"
 
-#: pkg/systemd/logs.html:41
+#: pkg/systemd/logs.html:43
 msgid "Last 24 hours"
 msgstr "Ostatni dzień"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.html:44
 msgid "Last 7 days"
 msgstr "Ostatni tydzień"
 
@@ -3917,7 +3923,7 @@ msgstr "Ostatnie logowanie:"
 msgid "Launch Remote Viewer"
 msgstr "Uruchom zdalną przeglądarkę"
 
-#: pkg/systemd/logs.html:83 pkg/networkmanager/interfaces.js:1718
+#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1718
 msgid "Learn more"
 msgstr "Więcej informacji"
 
@@ -4113,7 +4119,7 @@ msgstr "Zaloguj do {{host}}"
 msgid "Log in with your server user account."
 msgstr "Logowanie za pomocą konta użytkownika serwera."
 
-#: pkg/systemd/index.html:51
+#: pkg/systemd/overview-cards/serverTime.js:394
 msgid "Log messages"
 msgstr "Komunikaty dziennika"
 
@@ -4161,7 +4167,7 @@ msgstr "Logowanie się nie powiodło"
 msgid "Logout Successful"
 msgstr "Pomyślnie wylogowano"
 
-#: pkg/systemd/logs.html:113 pkg/systemd/manifest.json.in
+#: pkg/systemd/logs.html:115 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "Dzienniki"
 
@@ -4207,7 +4213,7 @@ msgstr "MTU musi być liczbą dodatnią"
 msgid "Machine ID"
 msgstr "Identyfikator komputera"
 
-#: pkg/systemd/index.html:150
+#: pkg/systemd/index.html:43
 msgid "Machine SSH Key Fingerprints"
 msgstr "Odciski kluczy SSH komputera"
 
@@ -4264,7 +4270,7 @@ msgstr "Ręczne"
 msgid "Manual Connection"
 msgstr "Ręczne połączenie"
 
-#: pkg/systemd/index.html:95 pkg/systemd/index.html:99
+#: pkg/systemd/overview-cards/serverTime.js:525
 msgid "Manually"
 msgstr "Ręcznie"
 
@@ -4295,7 +4301,7 @@ msgstr "Zamaskowana"
 
 #: pkg/systemd/services/service-details.jsx:275
 msgid ""
-"Masking service prevents all dependent units from running. This can have "
+"Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4426,6 +4432,12 @@ msgstr "Minuta musi być liczbą między 0 a 59"
 #: pkg/systemd/services.html:223
 msgid "Minutes"
 msgstr "Minuty"
+
+#: pkg/systemd/overview-cards/serverTime.js:625
+#, fuzzy
+#| msgid "Minute needs to be a number between 0-59"
+msgid "Minutes must be a number between 0 and 59"
+msgstr "Minuta musi być liczbą między 0 a 59"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4589,7 +4601,7 @@ msgstr "Zmiana stanu NIC $0 maszyny wirtualnej $1 się nie powiodła"
 msgid "NSNA Ping"
 msgstr "Ping NSNA"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1024
+#: pkg/systemd/overview-cards/serverTime.js:491
 msgid "NTP Server"
 msgstr "Serwer NTP"
 
@@ -4664,7 +4676,7 @@ msgstr "Nazwa nie może być pusta"
 msgid "Name: "
 msgstr "Nazwa: "
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:851
+#: pkg/systemd/overview-cards/serverTime.js:630
 msgid "Need at least one NTP server"
 msgstr "Wymagany jest co najmniej jeden serwer NTP"
 
@@ -4801,7 +4813,7 @@ msgstr "Nice"
 msgid "No"
 msgstr "Nie"
 
-#: pkg/systemd/index.html:192
+#: pkg/systemd/index.html:85
 msgid "No Delay"
 msgstr "Brak opóźnienia"
 
@@ -4817,7 +4829,7 @@ msgstr "Brak systemu plików"
 msgid "No Logical Volumes"
 msgstr "Brak woluminów logicznych"
 
-#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr "Nie odnaleziono dzienników"
 
@@ -4935,7 +4947,7 @@ msgstr "Brak wolnych gniazd na klucze"
 msgid "No free space"
 msgstr "Brak wolnego miejsca"
 
-#: pkg/systemd/index.html:140
+#: pkg/systemd/index.html:33
 msgid "No host keys found."
 msgstr "Nie odnaleziono kluczy komputera."
 
@@ -5119,7 +5131,7 @@ msgstr "Za mało miejsca do powiększenia."
 msgid "Not found"
 msgstr "Nie odnaleziono"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:365
+#: pkg/systemd/overview-cards/configurationCard.jsx:267
 msgid "Not joined"
 msgstr "Niedołączone"
 
@@ -5137,7 +5149,7 @@ msgstr "Brak uprawnień do wykonania tego działania."
 msgid "Not running"
 msgstr "Niedziałające"
 
-#: pkg/systemd/index.html:49
+#: pkg/systemd/overview-cards/serverTime.js:388
 msgid "Not synchronized"
 msgstr "Niesynchronizowane"
 
@@ -5149,7 +5161,7 @@ msgstr "Uwaga"
 msgid "Notebook"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.html:56
 msgid "Notice and above"
 msgstr "Uwagi i powyżej"
 
@@ -5217,7 +5229,7 @@ msgstr ""
 msgid "Only $0 of $1 are used."
 msgstr "Tylko $0 z $1 jest używane."
 
-#: pkg/systemd/logs.html:49
+#: pkg/systemd/logs.html:51
 msgid "Only Emergency"
 msgstr "Tylko awaryjne"
 
@@ -5296,7 +5308,7 @@ msgstr "Zastąp istniejące dane zerami"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:425
+#: pkg/systemd/overview-cards/configurationCard.jsx:322
 msgid "PCP"
 msgstr "PCP"
 
@@ -5453,12 +5465,12 @@ msgstr "Ścieżka do pliku"
 msgid "Paths"
 msgstr "Ścieżki"
 
-#: pkg/systemd/logs.html:104 pkg/machines/components/vm/vmActions.jsx:53
-#: pkg/systemd/logs.js:410 pkg/systemd/logs.js:1060
+#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:53
+#: pkg/systemd/logs.js:385 pkg/systemd/logs.js:1055
 msgid "Pause"
 msgstr "Wstrzymaj"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:296
 msgid "Performance profile"
 msgstr "Profil wydajności"
 
@@ -5683,11 +5695,11 @@ msgstr "Obecne"
 msgid "Preserve"
 msgstr "Zachowaj"
 
-#: pkg/systemd/index.html:222
+#: pkg/systemd/index.html:115
 msgid "Pretty Host Name"
 msgstr "Czytelna nazwa komputera"
 
-#: pkg/systemd/logs.html:40
+#: pkg/systemd/logs.html:42
 msgid "Previous boot"
 msgstr "Poprzednie uruchomienie"
 
@@ -5696,7 +5708,7 @@ msgid "Primary"
 msgstr "Główne"
 
 #: pkg/networkmanager/index.html:257 pkg/networkmanager/index.html:376
-#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:47
+#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:49
 msgid "Priority"
 msgstr "Priorytet"
 
@@ -5708,11 +5720,11 @@ msgstr "Priorytet $priority"
 msgid "Private"
 msgstr "Prywatne"
 
-#: pkg/systemd/logs.js:576
+#: pkg/systemd/logs.js:557
 msgid "Problem details"
 msgstr "Informacje o problemie"
 
-#: pkg/systemd/logs.js:575
+#: pkg/systemd/logs.js:556
 msgid "Problem info"
 msgstr "Informacje o problemie"
 
@@ -5903,11 +5915,11 @@ msgctxt "verb"
 msgid "Ready"
 msgstr "Gotowe"
 
-#: pkg/systemd/index.html:231
+#: pkg/systemd/index.html:124
 msgid "Real Host Name"
 msgstr "Prawdziwa nazwa komputera"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:522
+#: pkg/systemd/overview-cards/configurationCard.jsx:419
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5915,7 +5927,7 @@ msgstr ""
 "Prawdziwa nazwa komputera może zawierać tylko małe litery, cyfry, myślniki "
 "i kropki (z zaludnionymi poddomenami)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:523
+#: pkg/systemd/overview-cards/configurationCard.jsx:420
 msgid "Real host name must be 64 characters or less"
 msgstr "Prawdziwa nazwa komputera może mieć co najwyżej 64 znaki"
 
@@ -5928,10 +5940,6 @@ msgstr "Uruchom ponownie"
 #: pkg/networkmanager/index.html:466
 msgid "Receiving"
 msgstr "Odbieranie"
-
-#: pkg/systemd/logs.html:38
-msgid "Recent"
-msgstr "Ostatnie"
 
 #: pkg/storaged/format-dialog.jsx:152
 msgid "Recommended default"
@@ -6238,8 +6246,8 @@ msgstr "Ponowne uruchamianie"
 msgid "Restoring connection"
 msgstr "Przywracanie połączenia"
 
-#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:413
-#: pkg/systemd/logs.js:1056
+#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:388
+#: pkg/systemd/logs.js:1051
 msgid "Resume"
 msgstr "Wznów"
 
@@ -6428,7 +6436,7 @@ msgstr "Sealed-case PC"
 msgid "Search"
 msgstr "Szukaj"
 
-#: pkg/systemd/logs.html:76
+#: pkg/systemd/logs.html:78
 msgid "Search the logs with a combination of terms:"
 msgstr "Przeszukaj dzienniki za pomocą połączenia terminów:"
 
@@ -6437,7 +6445,7 @@ msgstr "Przeszukaj dzienniki za pomocą połączenia terminów:"
 msgid "Seconds"
 msgstr "Sekundy"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:404
+#: pkg/systemd/overview-cards/configurationCard.jsx:301
 msgid "Secure Shell keys"
 msgstr "Klucze SSH"
 
@@ -6575,7 +6583,7 @@ msgstr "Ustaw"
 msgid "Set DHCP Range"
 msgstr "Ustaw zakres DHCP"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "Set Hostname"
 msgstr "Ustaw nazwę komputera"
 
@@ -6583,7 +6591,7 @@ msgstr "Ustaw nazwę komputera"
 msgid "Set Password"
 msgstr "Ustaw hasło"
 
-#: pkg/systemd/index.html:90
+#: pkg/systemd/overview-cards/serverTime.js:521
 msgid "Set Time"
 msgstr "Ustaw czas"
 
@@ -6670,11 +6678,11 @@ msgstr "Wyświetl wszystkie kontenery"
 msgid "Show all images"
 msgstr "Wyświetl wszystkie obrazy"
 
-#: pkg/systemd/logs.html:101 pkg/systemd/logs.js:955 pkg/systemd/logs.js:1088
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
 msgid "Show filters"
 msgstr "Wyświetl filtry"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:407
+#: pkg/systemd/overview-cards/configurationCard.jsx:304
 msgid "Show fingerprints"
 msgstr "Wyświetl odciski"
 
@@ -6852,7 +6860,7 @@ msgstr "Protokół STP"
 msgid "Spare"
 msgstr "Zapasowe"
 
-#: pkg/systemd/index.html:193
+#: pkg/systemd/index.html:86
 msgid "Specific Time"
 msgstr "Podany czas"
 
@@ -7052,7 +7060,7 @@ msgstr ""
 msgid "Storage size must not be 0"
 msgstr "Rozmiar urządzenia do przechowywania danych nie może wynosić 0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:413
+#: pkg/systemd/overview-cards/configurationCard.jsx:310
 msgid "Store metrics"
 msgstr "Przechowuj statystyki"
 
@@ -7146,13 +7154,21 @@ msgstr "Zsynchronizuj"
 msgid "Synchronize users"
 msgstr "Zsynchronizuj użytkowników"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/overview-cards/serverTime.js:378
 msgid "Synchronized"
 msgstr "Synchronizowane"
 
-#: pkg/systemd/index.html:38
-msgid "Synchronized with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:380
+#, fuzzy
+#| msgid "Synchronized with {{Server}}"
+msgid "Synchronized with $0"
 msgstr "Synchronizowane z {{Server}}"
+
+#: pkg/systemd/overview-cards/serverTime.js:384
+#, fuzzy
+#| msgid "Synchronize"
+msgid "Synchronizing"
+msgstr "Zsynchronizuj"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7184,7 +7200,7 @@ msgstr "Informacje o systemie"
 msgid "System is up to date"
 msgstr "System jest aktualny"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:286
 msgid "System time"
 msgstr "Czas systemowy"
 
@@ -7272,7 +7288,7 @@ msgstr "Przetestuj ustawienia kdump"
 msgid "Testing connection"
 msgstr "Testowanie połączenia"
 
-#: pkg/systemd/logs.html:68
+#: pkg/systemd/logs.html:70
 msgid "Text"
 msgstr "Tekst"
 
@@ -7556,10 +7572,6 @@ msgstr ""
 "Użytkownik $0 nie ma zezwolenia na zmianę poprawek zabezpieczeń procesora "
 "zmniejszających ryzyko"
 
-#: pkg/dashboard/list.js:232
-msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na zarządzanie serwerami"
-
 #: pkg/users/account-roles.js:93
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
@@ -7825,11 +7837,11 @@ msgstr "czwartek"
 msgid "Thursdays"
 msgstr "czwartki"
 
-#: pkg/systemd/logs.html:36
+#: pkg/systemd/logs.html:37
 msgid "Time"
 msgstr "Czas"
 
-#: pkg/systemd/index.html:82
+#: pkg/systemd/overview-cards/serverTime.js:512
 msgid "Time Zone"
 msgstr "Strefa czasowa"
 
@@ -7883,7 +7895,7 @@ msgid "Tower"
 msgstr "Tower"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editing firmware configuration"
+msgid "Transient VMs don't support editting firmware configuration"
 msgstr ""
 "Tymczasowe maszyny wirtualne nie obsługują modyfikowania konfiguracji "
 "oprogramowania sprzętowego"
@@ -7917,8 +7929,10 @@ msgstr "Spróbuj ponownie"
 msgid "Try again"
 msgstr "Spróbuj ponownie"
 
-#: pkg/systemd/index.html:46
-msgid "Trying to synchronize with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:385
+#, fuzzy
+#| msgid "Trying to synchronize with {{Server}}"
+msgid "Trying to synchronize with $0"
 msgstr "Próbowanie synchronizacji z {{Server}}"
 
 #: pkg/systemd/services.html:54
@@ -7973,7 +7987,7 @@ msgstr "Identyfikator typu"
 msgid "Type a password"
 msgstr "Proszę wpisać hasło"
 
-#: pkg/systemd/logs.html:70
+#: pkg/systemd/logs.html:72
 msgid "Type to filter"
 msgstr "Filtrowanie"
 
@@ -8573,7 +8587,7 @@ msgstr "Chciane przez"
 msgid "Wants"
 msgstr "Chce"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.html:55
 msgid "Warning and above"
 msgstr "Ostrzeżenia i powyżej"
 
@@ -8656,7 +8670,7 @@ msgstr ""
 "Połączono z {{#strong}}{{host}}{{/strong}}, jednakże do synchronizacji "
 "użytkowników wymagane są uprawnienia superużytkownika."
 
-#: pkg/dashboard/list.js:449
+#: pkg/dashboard/list.js:445
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "Obecnie połączono bezpośrednio z tym serwerem. Nie można go usunąć."
@@ -8783,7 +8797,7 @@ msgstr "alias"
 msgid "and restart the machine automatically."
 msgstr "i automatycznie uruchom komputer ponownie."
 
-#: pkg/systemd/logs.html:80
+#: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr "dowolny ciąg jako wyrażenie regularne"
 
@@ -8929,7 +8943,7 @@ msgstr "napęd"
 msgid "dying"
 msgstr "w trakcie umierania"
 
-#: pkg/systemd/logs.html:78 pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
 msgid "e.g."
 msgstr "np."
 
@@ -8938,7 +8952,7 @@ msgstr "np."
 msgid "e.g. \"$0\""
 msgstr "np. „$0”"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "edit"
 msgstr "modyfikuj"
 
@@ -8974,7 +8988,7 @@ msgstr "codziennie"
 msgid "extension"
 msgstr "rozszerzenie"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:271
+#: pkg/systemd/overview-cards/configurationCard.jsx:180
 msgid "failed to list ssh host keys: $0"
 msgstr "wyświetlenie listy kluczy SSH komputera się nie powiodło: $0"
 
@@ -9075,7 +9089,7 @@ msgstr "ISO"
 msgid "journal"
 msgstr "dziennik"
 
-#: pkg/systemd/logs.html:84
+#: pkg/systemd/logs.html:86
 msgid "journalctl manpage"
 msgstr "strona podręcznika journalctl"
 
@@ -9107,7 +9121,7 @@ msgstr "libvirt"
 msgid "locally in $0"
 msgstr "lokalnie w $0"
 
-#: pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:81
 msgid "log fields"
 msgstr "pola dziennika"
 
@@ -9169,7 +9183,7 @@ msgid "nfs"
 msgstr "NFS"
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formatted as server:path"
+msgid "nfs dump target isn't formated as server:path"
 msgstr "cel zrzutu NFS nie jest sformatowany jako serwer:ścieżka"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
@@ -9255,7 +9269,7 @@ msgstr "qcow2"
 msgid "qemu"
 msgstr "QEMU"
 
-#: pkg/systemd/logs.html:78
+#: pkg/systemd/logs.html:80
 msgid "qualifiers"
 msgstr "kwalifikatory"
 
@@ -9546,6 +9560,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "strefa"
+
+#~ msgid "Recent"
+#~ msgstr "Ostatnie"
+
+#~ msgid "The user <b>$0</b> is not permitted to manage servers"
+#~ msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na zarządzanie serwerami"
 
 #~ msgctxt "page-title"
 #~ msgid "Accounts"

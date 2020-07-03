@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-17 08:40+0000\n"
+"POT-Creation-Date: 2020-06-25 11:00+0000\n"
 "PO-Revision-Date: 2020-05-12 14:40+0000\n"
 "Last-Translator: Hajime Taira <htaira@pantora.net>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -266,7 +266,7 @@ msgstr "$0 ゾーン"
 msgid "$0, $1 free"
 msgstr "$0, $1 空き"
 
-#: pkg/systemd/logs.js:479
+#: pkg/systemd/logs.js:460
 msgid "$0: crash at $1"
 msgstr "$0: $1 でクラッシュ"
 
@@ -304,7 +304,7 @@ msgstr "--"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/systemd/index.html:182 pkg/systemd/index.html:186
+#: pkg/systemd/index.html:75 pkg/systemd/index.html:79
 msgid "1 Minute"
 msgstr "1 分"
 
@@ -390,7 +390,7 @@ msgstr "2 MiB"
 msgid "2 min"
 msgstr "2 分"
 
-#: pkg/systemd/index.html:188
+#: pkg/systemd/index.html:81
 msgid "20 Minutes"
 msgstr "20 分"
 
@@ -466,7 +466,7 @@ msgstr "4 KiB"
 msgid "4 min"
 msgstr "4 分"
 
-#: pkg/systemd/index.html:189
+#: pkg/systemd/index.html:82
 msgid "40 Minutes"
 msgstr "40 分"
 
@@ -474,7 +474,7 @@ msgstr "40 分"
 msgid "4th"
 msgstr "4 日"
 
-#: pkg/systemd/index.html:187
+#: pkg/systemd/index.html:80
 msgid "5 Minutes"
 msgstr "5 分"
 
@@ -502,7 +502,7 @@ msgstr "5 日"
 msgid "6 hours"
 msgstr "6 時間"
 
-#: pkg/systemd/index.html:190
+#: pkg/systemd/index.html:83
 msgid "60 Minutes"
 msgstr "60 分"
 
@@ -887,7 +887,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "システムブート後"
 
-#: pkg/systemd/logs.html:50
+#: pkg/systemd/logs.html:52
 msgid "Alert and above"
 msgstr "アラート以上のレベル"
 
@@ -1078,11 +1078,11 @@ msgstr "起動時に libvirt を自動開始"
 msgid "Automatically starts"
 msgstr "自動起動"
 
-#: pkg/systemd/index.html:100
+#: pkg/systemd/overview-cards/serverTime.js:526
 msgid "Automatically using NTP"
 msgstr "NTP を自動的に使用"
 
-#: pkg/systemd/index.html:101
+#: pkg/systemd/overview-cards/serverTime.js:527
 msgid "Automatically using specific NTP servers"
 msgstr "特定の NTP サーバーを自動的に使用"
 
@@ -1290,7 +1290,7 @@ msgstr "キャッシュ"
 msgid "Cached"
 msgstr "キャッシュ済み"
 
-#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
@@ -1314,8 +1314,8 @@ msgstr "イメージをロードできません"
 #: pkg/networkmanager/index.html:607 pkg/networkmanager/index.html:634
 #: pkg/networkmanager/index.html:661 pkg/networkmanager/index.html:688
 #: pkg/networkmanager/index.html:715 pkg/playground/translate.html:38
-#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:122
-#: pkg/systemd/index.html:206 pkg/systemd/index.html:260
+#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:99
+#: pkg/systemd/index.html:153
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
@@ -1377,8 +1377,9 @@ msgstr "容量"
 msgid "Carrier"
 msgstr "キャリア"
 
-#: pkg/docker/index.html:627 pkg/systemd/index.html:121
-#: pkg/systemd/index.html:259 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/docker/index.html:627 pkg/systemd/index.html:152
+#: pkg/storaged/iscsi-panel.jsx:188
+#: pkg/systemd/overview-cards/serverTime.js:683
 #: pkg/users/expiration-dialogs.js:112 pkg/users/expiration-dialogs.js:226
 msgid "Change"
 msgstr "変更"
@@ -1387,7 +1388,7 @@ msgstr "変更"
 msgid "Change Firmware"
 msgstr "ファームウェアの変更"
 
-#: pkg/systemd/index.html:216
+#: pkg/systemd/index.html:109
 msgid "Change Host Name"
 msgstr "ホスト名の変更"
 
@@ -1403,7 +1404,7 @@ msgstr "パフォーマンスプロファイルの変更"
 msgid "Change Profile"
 msgstr "プロファイルの変更"
 
-#: pkg/systemd/index.html:79
+#: pkg/systemd/overview-cards/serverTime.js:676
 msgid "Change System Time"
 msgstr "システム時間の変更"
 
@@ -1530,7 +1531,7 @@ msgstr "クライアントソフトウェア"
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
-#: pkg/systemd/index.html:163 pkg/apps/utils.jsx:104
+#: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:400 pkg/users/dialog-utils.js:61
@@ -1738,7 +1739,7 @@ msgstr "条件 $0=$1 を満たしていませんでした"
 msgid "Condition failed"
 msgstr "条件が満たされませんでした"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:371
+#: pkg/systemd/overview-cards/configurationCard.jsx:273
 msgid "Configuration"
 msgstr "設定"
 
@@ -1837,7 +1838,7 @@ msgstr "マシンへ接続中"
 msgid "Connection"
 msgstr "接続"
 
-#: pkg/dashboard/list.js:415 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "接続エラー"
 
@@ -2178,7 +2179,7 @@ msgstr "ボリュームグループ $target の作成"
 msgid "Creation of VM $0 failed"
 msgstr "VM $0 の作成に失敗"
 
-#: pkg/systemd/logs.html:51
+#: pkg/systemd/logs.html:53
 msgid "Critical and above"
 msgstr "重大以上のレベル"
 
@@ -2194,7 +2195,7 @@ msgstr "Ctrl+Insert"
 msgid "Current Allocation"
 msgstr "現在の割り当て"
 
-#: pkg/systemd/logs.html:39
+#: pkg/systemd/logs.html:41
 msgid "Current boot"
 msgstr "現在の起動"
 
@@ -2270,7 +2271,7 @@ msgstr "非アクティブ化"
 msgid "Deactivating $target"
 msgstr "$target の非アクティブ化"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.html:58
 msgid "Debug and above"
 msgstr "デバッグ以上のレベル"
 
@@ -2282,7 +2283,7 @@ msgstr "重複"
 msgid "Default"
 msgstr "デフォルト"
 
-#: pkg/systemd/index.html:177
+#: pkg/systemd/index.html:70
 msgid "Delay"
 msgstr "遅延"
 
@@ -2569,7 +2570,7 @@ msgid "Does not automatically start"
 msgstr "自動起動しません"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domain"
@@ -2719,7 +2720,7 @@ msgstr "エミュレートされたマシン"
 msgid "Enable Service"
 msgstr "サービスを有効にします"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:428
+#: pkg/systemd/overview-cards/configurationCard.jsx:325
 msgid "Enable stored metrics"
 msgstr "保存されたメトリックを有効にします"
 
@@ -2806,11 +2807,11 @@ msgstr ""
 msgid "Entire subnet"
 msgstr "サブネット全体"
 
-#: pkg/systemd/logs.html:114
+#: pkg/systemd/logs.html:116
 msgid "Entry"
 msgstr "エントリー"
 
-#: pkg/systemd/logs.js:485
+#: pkg/systemd/logs.js:466
 msgid "Entry at $0"
 msgstr "$0 でのエントリー"
 
@@ -2842,7 +2843,7 @@ msgstr "エラータ:"
 msgid "Error"
 msgstr "エラー"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.html:54
 msgid "Error and above"
 msgstr "エラー以上のレベル"
 
@@ -2914,7 +2915,7 @@ msgstr "拡張シャーシ"
 msgid "Expose container ports"
 msgstr "コンテナーポートの公開"
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/logs.js:550
 msgid "Extended Information"
 msgstr "拡張情報"
 
@@ -3168,7 +3169,7 @@ msgstr "ゲートウェイ:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:264
-#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:574
+#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "全般"
 
@@ -3266,7 +3267,7 @@ msgstr "ヘルプ"
 msgid "Hide Additional Options"
 msgstr "その他のオプションを非表示にします"
 
-#: pkg/systemd/logs.js:957 pkg/systemd/logs.js:1086
+#: pkg/systemd/logs.js:938 pkg/systemd/logs.js:1081
 #, fuzzy
 #| msgid "Clear all filters"
 msgid "Hide filters"
@@ -3300,7 +3301,7 @@ msgstr "ドメインでホスト名は変更できません"
 msgid "Host should not be empty"
 msgstr "ホストは空にできません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:376
+#: pkg/systemd/overview-cards/configurationCard.jsx:278
 msgid "Hostname"
 msgstr "ホスト名"
 
@@ -3322,6 +3323,12 @@ msgstr "時間は 0〜23 の数字である必要があります"
 #: pkg/systemd/services.html:224
 msgid "Hours"
 msgstr "時"
+
+#: pkg/systemd/overview-cards/serverTime.js:620
+#, fuzzy
+#| msgid "Hour needs to be a number between 0-23"
+msgid "Hours must be a number between 0 and 23"
+msgstr "時間は 0〜23 の数字である必要があります"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
 msgid "Hypervisor Details"
@@ -3429,7 +3436,7 @@ msgstr "Id $id"
 msgid "Id:"
 msgstr "Id:"
 
-#: pkg/systemd/logs.html:61
+#: pkg/systemd/logs.html:63
 msgid "Identifier"
 msgstr ""
 
@@ -3536,7 +3543,7 @@ msgstr "正しくないホストキー"
 msgid "Index Memory"
 msgstr "インデックスメモリー"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.html:57
 msgid "Info and above"
 msgstr "情報以上のレベル"
 
@@ -3663,12 +3670,10 @@ msgstr "無効な IPv6 プレフィックス"
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:955
-#: pkg/systemd/shutdown.js:154
+#: pkg/systemd/overview-cards/serverTime.js:615 pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "無効な日付形式と無効な時間形式"
@@ -3725,13 +3730,14 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
-#: pkg/systemd/index.html:87
-msgid "Invalid time zone"
+#: pkg/systemd/overview-cards/serverTime.js:610
+#, fuzzy
+#| msgid "Invalid time zone"
+msgid "Invalid timezone"
 msgstr "無効なタイムゾーン"
 
 #: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:169
@@ -3782,11 +3788,11 @@ msgstr "名前空間に参加"
 msgid "Journal"
 msgstr "ジャーナル"
 
-#: pkg/systemd/logs.js:465
+#: pkg/systemd/logs.js:446
 msgid "Journal entry"
 msgstr "ジャーナルエントリー"
 
-#: pkg/systemd/logs.js:503
+#: pkg/systemd/logs.js:484
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
@@ -3853,11 +3859,11 @@ msgstr "LVM ボリュームグループ"
 msgid "Laptop"
 msgstr "ラップトップ"
 
-#: pkg/systemd/logs.html:41
+#: pkg/systemd/logs.html:43
 msgid "Last 24 hours"
 msgstr "過去 24 時間"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.html:44
 msgid "Last 7 days"
 msgstr "過去 7 日間"
 
@@ -3881,7 +3887,7 @@ msgstr "最終ログイン:"
 msgid "Launch Remote Viewer"
 msgstr "リモートビューアーの起動"
 
-#: pkg/systemd/logs.html:83 pkg/networkmanager/interfaces.js:1718
+#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1718
 msgid "Learn more"
 msgstr "もっと詳しく"
 
@@ -4077,7 +4083,7 @@ msgstr "{{host}} へのログイン"
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
-#: pkg/systemd/index.html:51
+#: pkg/systemd/overview-cards/serverTime.js:394
 msgid "Log messages"
 msgstr "ログメッセージ"
 
@@ -4125,7 +4131,7 @@ msgstr "ログインが失敗しました"
 msgid "Logout Successful"
 msgstr "ログアウトが正常に行われました"
 
-#: pkg/systemd/logs.html:113 pkg/systemd/manifest.json.in
+#: pkg/systemd/logs.html:115 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "ログ"
 
@@ -4171,7 +4177,7 @@ msgstr "MTU は正の数値である必要があります"
 msgid "Machine ID"
 msgstr "マシン ID"
 
-#: pkg/systemd/index.html:150
+#: pkg/systemd/index.html:43
 msgid "Machine SSH Key Fingerprints"
 msgstr "マシンSSH 鍵フィンガープリント"
 
@@ -4227,7 +4233,7 @@ msgstr "手作業"
 msgid "Manual Connection"
 msgstr "手動接続"
 
-#: pkg/systemd/index.html:95 pkg/systemd/index.html:99
+#: pkg/systemd/overview-cards/serverTime.js:525
 msgid "Manually"
 msgstr "手動"
 
@@ -4258,7 +4264,7 @@ msgstr "マスク"
 
 #: pkg/systemd/services/service-details.jsx:275
 msgid ""
-"Masking service prevents all dependent units from running. This can have "
+"Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4388,6 +4394,12 @@ msgstr "分は 0〜59 の数字である必要があります"
 #: pkg/systemd/services.html:223
 msgid "Minutes"
 msgstr "分"
+
+#: pkg/systemd/overview-cards/serverTime.js:625
+#, fuzzy
+#| msgid "Minute needs to be a number between 0-59"
+msgid "Minutes must be a number between 0 and 59"
+msgstr "分は 0〜59 の数字である必要があります"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4551,7 +4563,7 @@ msgstr "VM $1 の NIC $0 は、状態の変更に失敗しました"
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1024
+#: pkg/systemd/overview-cards/serverTime.js:491
 msgid "NTP Server"
 msgstr "NTP サーバー"
 
@@ -4628,7 +4640,7 @@ msgstr "名前は空欄にできません"
 msgid "Name: "
 msgstr "名前: "
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:851
+#: pkg/systemd/overview-cards/serverTime.js:630
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
@@ -4761,7 +4773,7 @@ msgstr "Nice値"
 msgid "No"
 msgstr "いいえ"
 
-#: pkg/systemd/index.html:192
+#: pkg/systemd/index.html:85
 msgid "No Delay"
 msgstr "遅延なし"
 
@@ -4777,7 +4789,7 @@ msgstr "ファイルシステムなし"
 msgid "No Logical Volumes"
 msgstr "論理ボリュームなし"
 
-#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr "ログが見つかりません"
 
@@ -4892,7 +4904,7 @@ msgstr "フリーのキースロットはありません"
 msgid "No free space"
 msgstr "空き領域なし"
 
-#: pkg/systemd/index.html:140
+#: pkg/systemd/index.html:33
 msgid "No host keys found."
 msgstr "ホストキーが見つかりません。"
 
@@ -5075,7 +5087,7 @@ msgstr "スペースが不足しています。"
 msgid "Not found"
 msgstr "見つかりません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:365
+#: pkg/systemd/overview-cards/configurationCard.jsx:267
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Not joined"
@@ -5095,7 +5107,7 @@ msgstr "この動作を実行する権限がありません。"
 msgid "Not running"
 msgstr "実行中ではありません"
 
-#: pkg/systemd/index.html:49
+#: pkg/systemd/overview-cards/serverTime.js:388
 msgid "Not synchronized"
 msgstr "同期されていません"
 
@@ -5107,7 +5119,7 @@ msgstr "注記"
 msgid "Notebook"
 msgstr "ノートブック"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.html:56
 msgid "Notice and above"
 msgstr "注意以上のレベル"
 
@@ -5173,7 +5185,7 @@ msgstr ""
 msgid "Only $0 of $1 are used."
 msgstr "$1 のうち $0 だけが使用されています。"
 
-#: pkg/systemd/logs.html:49
+#: pkg/systemd/logs.html:51
 msgid "Only Emergency"
 msgstr "緊急時限定"
 
@@ -5252,7 +5264,7 @@ msgstr "既存のデータをゼロで上書きする"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:425
+#: pkg/systemd/overview-cards/configurationCard.jsx:322
 msgid "PCP"
 msgstr "PCP"
 
@@ -5409,12 +5421,12 @@ msgstr "ファイルのパス"
 msgid "Paths"
 msgstr "パス"
 
-#: pkg/systemd/logs.html:104 pkg/machines/components/vm/vmActions.jsx:53
-#: pkg/systemd/logs.js:410 pkg/systemd/logs.js:1060
+#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:53
+#: pkg/systemd/logs.js:385 pkg/systemd/logs.js:1055
 msgid "Pause"
 msgstr "一時停止"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:296
 msgid "Performance profile"
 msgstr "パフォーマンスプロファイル"
 
@@ -5639,11 +5651,11 @@ msgstr "存在"
 msgid "Preserve"
 msgstr "保存"
 
-#: pkg/systemd/index.html:222
+#: pkg/systemd/index.html:115
 msgid "Pretty Host Name"
 msgstr "プリティホスト名"
 
-#: pkg/systemd/logs.html:40
+#: pkg/systemd/logs.html:42
 msgid "Previous boot"
 msgstr "以前のブート"
 
@@ -5652,7 +5664,7 @@ msgid "Primary"
 msgstr "プライマリ"
 
 #: pkg/networkmanager/index.html:257 pkg/networkmanager/index.html:376
-#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:47
+#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:49
 msgid "Priority"
 msgstr "優先度"
 
@@ -5664,11 +5676,11 @@ msgstr "優先度 $priority"
 msgid "Private"
 msgstr "プライベート"
 
-#: pkg/systemd/logs.js:576
+#: pkg/systemd/logs.js:557
 msgid "Problem details"
 msgstr "問題の詳細"
 
-#: pkg/systemd/logs.js:575
+#: pkg/systemd/logs.js:556
 msgid "Problem info"
 msgstr "問題の情報"
 
@@ -5859,11 +5871,11 @@ msgctxt "verb"
 msgid "Ready"
 msgstr "準備ができています"
 
-#: pkg/systemd/index.html:231
+#: pkg/systemd/index.html:124
 msgid "Real Host Name"
 msgstr "実際のホスト名"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:522
+#: pkg/systemd/overview-cards/configurationCard.jsx:419
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5871,7 +5883,7 @@ msgstr ""
 "実際のホスト名には小文字、数字、ダッシュ、およびピリオドのみを使用できます "
 "(入力されたサブドメインを含む)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:523
+#: pkg/systemd/overview-cards/configurationCard.jsx:420
 msgid "Real host name must be 64 characters or less"
 msgstr "実際のホスト名は 64 文字以下である必要があります"
 
@@ -5884,10 +5896,6 @@ msgstr "再起動"
 #: pkg/networkmanager/index.html:466
 msgid "Receiving"
 msgstr "受信"
-
-#: pkg/systemd/logs.html:38
-msgid "Recent"
-msgstr "最近開いたファイル"
 
 #: pkg/storaged/format-dialog.jsx:152
 msgid "Recommended default"
@@ -6194,8 +6202,8 @@ msgstr "再起動中"
 msgid "Restoring connection"
 msgstr "接続の復元"
 
-#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:413
-#: pkg/systemd/logs.js:1056
+#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:388
+#: pkg/systemd/logs.js:1051
 msgid "Resume"
 msgstr "再開"
 
@@ -6386,7 +6394,7 @@ msgstr "シールドケース PC"
 msgid "Search"
 msgstr "検索"
 
-#: pkg/systemd/logs.html:76
+#: pkg/systemd/logs.html:78
 #, fuzzy
 #| msgid "Can not find any logs using the current combination of filters."
 msgid "Search the logs with a combination of terms:"
@@ -6398,7 +6406,7 @@ msgstr ""
 msgid "Seconds"
 msgstr "秒"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:404
+#: pkg/systemd/overview-cards/configurationCard.jsx:301
 msgid "Secure Shell keys"
 msgstr "安全なシェルキー"
 
@@ -6535,7 +6543,7 @@ msgstr "セット"
 msgid "Set DHCP Range"
 msgstr "DHCP の範囲を設定します"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "Set Hostname"
 msgstr "ホスト名を設定します"
 
@@ -6543,7 +6551,7 @@ msgstr "ホスト名を設定します"
 msgid "Set Password"
 msgstr "パスワードの設定"
 
-#: pkg/systemd/index.html:90
+#: pkg/systemd/overview-cards/serverTime.js:521
 msgid "Set Time"
 msgstr "時間の設定"
 
@@ -6628,13 +6636,13 @@ msgstr "すべてのコンテナーの表示"
 msgid "Show all images"
 msgstr "すべてのイメージの表示"
 
-#: pkg/systemd/logs.html:101 pkg/systemd/logs.js:955 pkg/systemd/logs.js:1088
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "Show filters"
 msgstr "フィンガープリントの表示"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:407
+#: pkg/systemd/overview-cards/configurationCard.jsx:304
 msgid "Show fingerprints"
 msgstr "フィンガープリントの表示"
 
@@ -6815,7 +6823,7 @@ msgstr "スパニング ツリープロトコル (STP)"
 msgid "Spare"
 msgstr "スペア"
 
-#: pkg/systemd/index.html:193
+#: pkg/systemd/index.html:86
 msgid "Specific Time"
 msgstr "特定の時間"
 
@@ -7011,7 +7019,7 @@ msgstr "ストレージは、このシステムで管理できません。"
 msgid "Storage size must not be 0"
 msgstr "ストレージサイズは 0 であってはいけません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:413
+#: pkg/systemd/overview-cards/configurationCard.jsx:310
 msgid "Store metrics"
 msgstr "メトリクスの保存"
 
@@ -7105,13 +7113,21 @@ msgstr "同期"
 msgid "Synchronize users"
 msgstr "ユーザーの同期"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/overview-cards/serverTime.js:378
 msgid "Synchronized"
 msgstr "同期済み"
 
-#: pkg/systemd/index.html:38
-msgid "Synchronized with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:380
+#, fuzzy
+#| msgid "Synchronized with {{Server}}"
+msgid "Synchronized with $0"
 msgstr "{{Server}} と同期済み"
+
+#: pkg/systemd/overview-cards/serverTime.js:384
+#, fuzzy
+#| msgid "Synchronize"
+msgid "Synchronizing"
+msgstr "同期"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7143,7 +7159,7 @@ msgstr "システム情報"
 msgid "System is up to date"
 msgstr "システムは最新の状態です"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:286
 msgid "System time"
 msgstr "システム時間"
 
@@ -7231,7 +7247,7 @@ msgstr "kdump 設定のテスト"
 msgid "Testing connection"
 msgstr "接続のテスト"
 
-#: pkg/systemd/logs.html:68
+#: pkg/systemd/logs.html:70
 msgid "Text"
 msgstr ""
 
@@ -7505,10 +7521,6 @@ msgstr "サーバーはサポートされた方法を使用した認証を拒否
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
-#: pkg/dashboard/list.js:232
-msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
-
 #: pkg/users/account-roles.js:93
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
@@ -7766,13 +7778,13 @@ msgstr "木曜日"
 msgid "Thursdays"
 msgstr "毎週木曜日"
 
-#: pkg/systemd/logs.html:36
+#: pkg/systemd/logs.html:37
 #, fuzzy
 #| msgid "Timers"
 msgid "Time"
 msgstr "タイマー"
 
-#: pkg/systemd/index.html:82
+#: pkg/systemd/overview-cards/serverTime.js:512
 msgid "Time Zone"
 msgstr "タイムゾーン"
 
@@ -7828,7 +7840,7 @@ msgid "Tower"
 msgstr "タワー"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editing firmware configuration"
+msgid "Transient VMs don't support editting firmware configuration"
 msgstr "transient VMはファームウェア設定の編集をサポートしていません"
 
 #: pkg/systemd/services/service-details.jsx:515
@@ -7860,8 +7872,10 @@ msgstr "再試行します"
 msgid "Try again"
 msgstr "再試行します"
 
-#: pkg/systemd/index.html:46
-msgid "Trying to synchronize with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:385
+#, fuzzy
+#| msgid "Trying to synchronize with {{Server}}"
+msgid "Trying to synchronize with $0"
 msgstr "{{Server}} との同期を試行中です"
 
 #: pkg/systemd/services.html:54
@@ -7918,7 +7932,7 @@ msgstr "Type ID"
 msgid "Type a password"
 msgstr "パスワードを入力します"
 
-#: pkg/systemd/logs.html:70
+#: pkg/systemd/logs.html:72
 #, fuzzy
 #| msgid "Type to filter…"
 msgid "Type to filter"
@@ -8517,7 +8531,7 @@ msgstr "望まれる"
 msgid "Wants"
 msgstr "望む"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.html:55
 msgid "Warning and above"
 msgstr "警告以上のレベル"
 
@@ -8600,7 +8614,7 @@ msgstr ""
 "{{#strong}}{{host}}{{/strong}} に接続されていますが、ユーザーを同期するには、"
 "スーパーユーザー権限を持つユーザーが必要です。"
 
-#: pkg/dashboard/list.js:449
+#: pkg/dashboard/list.js:445
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "現在このサーバーに直接接続されています。削除できません。"
@@ -8724,7 +8738,7 @@ msgstr "alias"
 msgid "and restart the machine automatically."
 msgstr "マシンを自動的に再起動します。"
 
-#: pkg/systemd/logs.html:80
+#: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr ""
 
@@ -8874,7 +8888,7 @@ msgstr "ドライブ"
 msgid "dying"
 msgstr "終了中"
 
-#: pkg/systemd/logs.html:78 pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
 #, fuzzy
 #| msgid "e.g. \"$0\""
 msgid "e.g."
@@ -8885,7 +8899,7 @@ msgstr "例: \"$0\""
 msgid "e.g. \"$0\""
 msgstr "例: \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "edit"
 msgstr "編集"
 
@@ -8921,7 +8935,7 @@ msgstr "毎日"
 msgid "extension"
 msgstr "拡張"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:271
+#: pkg/systemd/overview-cards/configurationCard.jsx:180
 msgid "failed to list ssh host keys: $0"
 msgstr "ssh ホスト鍵の一覧表示に失敗しました: $0"
 
@@ -9022,7 +9036,7 @@ msgstr "iso"
 msgid "journal"
 msgstr "ジャーナル"
 
-#: pkg/systemd/logs.html:84
+#: pkg/systemd/logs.html:86
 msgid "journalctl manpage"
 msgstr ""
 
@@ -9054,7 +9068,7 @@ msgstr "libvirt"
 msgid "locally in $0"
 msgstr "$0 (ローカル)"
 
-#: pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:81
 msgid "log fields"
 msgstr ""
 
@@ -9116,7 +9130,7 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formatted as server:path"
+msgid "nfs dump target isn't formated as server:path"
 msgstr "nfs ダンプターゲットは server:path の形式になっていません"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
@@ -9200,7 +9214,7 @@ msgstr "qcow2"
 msgid "qemu"
 msgstr "qemu"
 
-#: pkg/systemd/logs.html:78
+#: pkg/systemd/logs.html:80
 msgid "qualifiers"
 msgstr ""
 
@@ -9491,6 +9505,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Recent"
+#~ msgstr "最近開いたファイル"
+
+#~ msgid "The user <b>$0</b> is not permitted to manage servers"
+#~ msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
 
 #~ msgctxt "page-title"
 #~ msgid "Accounts"

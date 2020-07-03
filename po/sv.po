@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-17 08:40+0000\n"
+"POT-Creation-Date: 2020-06-25 11:00+0000\n"
 "PO-Revision-Date: 2020-06-11 12:40+0000\n"
 "Last-Translator: Jakob Sundberg <jakob@mress.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -281,7 +281,7 @@ msgstr "zon $0"
 msgid "$0, $1 free"
 msgstr "$0, $1 fritt"
 
-#: pkg/systemd/logs.js:479
+#: pkg/systemd/logs.js:460
 msgid "$0: crash at $1"
 msgstr "$0: stop vid $1"
 
@@ -321,7 +321,7 @@ msgstr "—"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/systemd/index.html:182 pkg/systemd/index.html:186
+#: pkg/systemd/index.html:75 pkg/systemd/index.html:79
 msgid "1 Minute"
 msgstr "1 minut"
 
@@ -407,7 +407,7 @@ msgstr "2 MiB"
 msgid "2 min"
 msgstr "2 min"
 
-#: pkg/systemd/index.html:188
+#: pkg/systemd/index.html:81
 msgid "20 Minutes"
 msgstr "20 minuter"
 
@@ -483,7 +483,7 @@ msgstr "4 KiB"
 msgid "4 min"
 msgstr "4 min"
 
-#: pkg/systemd/index.html:189
+#: pkg/systemd/index.html:82
 msgid "40 Minutes"
 msgstr "40 minuter"
 
@@ -491,7 +491,7 @@ msgstr "40 minuter"
 msgid "4th"
 msgstr "4:e"
 
-#: pkg/systemd/index.html:187
+#: pkg/systemd/index.html:80
 msgid "5 Minutes"
 msgstr "5 minuter"
 
@@ -519,7 +519,7 @@ msgstr "5:e"
 msgid "6 hours"
 msgstr "6 timmar"
 
-#: pkg/systemd/index.html:190
+#: pkg/systemd/index.html:83
 msgid "60 Minutes"
 msgstr "60 minuter"
 
@@ -898,7 +898,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "Efter systemstart"
 
-#: pkg/systemd/logs.html:50
+#: pkg/systemd/logs.html:52
 msgid "Alert and above"
 msgstr "Larm och högre"
 
@@ -1089,11 +1089,11 @@ msgstr "Starta automatiskt libvirt vid uppstart"
 msgid "Automatically starts"
 msgstr "Startar automatiskt"
 
-#: pkg/systemd/index.html:100
+#: pkg/systemd/overview-cards/serverTime.js:526
 msgid "Automatically using NTP"
 msgstr "Använder automatiskt NTP"
 
-#: pkg/systemd/index.html:101
+#: pkg/systemd/overview-cards/serverTime.js:527
 msgid "Automatically using specific NTP servers"
 msgstr "Använder automatiskt specifika NTP-servrar"
 
@@ -1301,7 +1301,7 @@ msgstr "Cache"
 msgid "Cached"
 msgstr "Cachad"
 
-#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Hittade inga loggar med dessa filter aktiva."
 
@@ -1324,8 +1324,8 @@ msgstr "Kan inte ladda avbilden"
 #: pkg/networkmanager/index.html:607 pkg/networkmanager/index.html:634
 #: pkg/networkmanager/index.html:661 pkg/networkmanager/index.html:688
 #: pkg/networkmanager/index.html:715 pkg/playground/translate.html:38
-#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:122
-#: pkg/systemd/index.html:206 pkg/systemd/index.html:260
+#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:99
+#: pkg/systemd/index.html:153
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
@@ -1388,8 +1388,9 @@ msgstr "Kapacitet"
 msgid "Carrier"
 msgstr "Transport"
 
-#: pkg/docker/index.html:627 pkg/systemd/index.html:121
-#: pkg/systemd/index.html:259 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/docker/index.html:627 pkg/systemd/index.html:152
+#: pkg/storaged/iscsi-panel.jsx:188
+#: pkg/systemd/overview-cards/serverTime.js:683
 #: pkg/users/expiration-dialogs.js:112 pkg/users/expiration-dialogs.js:226
 msgid "Change"
 msgstr "Ändra"
@@ -1398,7 +1399,7 @@ msgstr "Ändra"
 msgid "Change Firmware"
 msgstr "Ändra hårdvarufirmware"
 
-#: pkg/systemd/index.html:216
+#: pkg/systemd/index.html:109
 msgid "Change Host Name"
 msgstr "Ändra värdnamn"
 
@@ -1414,7 +1415,7 @@ msgstr "Ändra prestandaprofil"
 msgid "Change Profile"
 msgstr "Ändra profil"
 
-#: pkg/systemd/index.html:79
+#: pkg/systemd/overview-cards/serverTime.js:676
 msgid "Change System Time"
 msgstr "Ändra systemtid"
 
@@ -1540,7 +1541,7 @@ msgstr "Klientprogramvara"
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
-#: pkg/systemd/index.html:163 pkg/apps/utils.jsx:104
+#: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:400 pkg/users/dialog-utils.js:61
@@ -1751,7 +1752,7 @@ msgstr "Villkoret $0=$1 uppfylldes inte"
 msgid "Condition failed"
 msgstr "Villkoret misslyckades"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:371
+#: pkg/systemd/overview-cards/configurationCard.jsx:273
 msgid "Configuration"
 msgstr "Konfiguration"
 
@@ -1854,7 +1855,7 @@ msgstr "Ansluter till maskinen"
 msgid "Connection"
 msgstr "Anslutning"
 
-#: pkg/dashboard/list.js:415 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "Anslutningsfel"
 
@@ -2196,7 +2197,7 @@ msgstr "Skapar en volymgrupp $target"
 msgid "Creation of VM $0 failed"
 msgstr "Misslyckades att skapa VM $0"
 
-#: pkg/systemd/logs.html:51
+#: pkg/systemd/logs.html:53
 msgid "Critical and above"
 msgstr "Kritisk och högre"
 
@@ -2212,7 +2213,7 @@ msgstr "Ctrl+Insert"
 msgid "Current Allocation"
 msgstr "Nuvarande indelning"
 
-#: pkg/systemd/logs.html:39
+#: pkg/systemd/logs.html:41
 msgid "Current boot"
 msgstr "Nuvarande uppstart"
 
@@ -2288,7 +2289,7 @@ msgstr "Avaktiverar"
 msgid "Deactivating $target"
 msgstr "Avaktiverar $target"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.html:58
 msgid "Debug and above"
 msgstr "Felsökning och högre"
 
@@ -2300,7 +2301,7 @@ msgstr "Avduplicering"
 msgid "Default"
 msgstr "Standard"
 
-#: pkg/systemd/index.html:177
+#: pkg/systemd/index.html:70
 msgid "Delay"
 msgstr "Fördröjning"
 
@@ -2584,7 +2585,7 @@ msgid "Does not automatically start"
 msgstr "Startar inte automatiskt"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domän"
@@ -2734,7 +2735,7 @@ msgstr "Emulerad maskin"
 msgid "Enable Service"
 msgstr "Aktivera tjänst"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:428
+#: pkg/systemd/overview-cards/configurationCard.jsx:325
 msgid "Enable stored metrics"
 msgstr "Aktivera mätdatalagring"
 
@@ -2820,11 +2821,11 @@ msgstr ""
 msgid "Entire subnet"
 msgstr "Hela subnätet"
 
-#: pkg/systemd/logs.html:114
+#: pkg/systemd/logs.html:116
 msgid "Entry"
 msgstr "Post"
 
-#: pkg/systemd/logs.js:485
+#: pkg/systemd/logs.js:466
 msgid "Entry at $0"
 msgstr "Ingång vid $0"
 
@@ -2856,7 +2857,7 @@ msgstr "Errata:"
 msgid "Error"
 msgstr "Fel"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.html:54
 msgid "Error and above"
 msgstr "Fel och högre"
 
@@ -2928,7 +2929,7 @@ msgstr "Expansionschassin"
 msgid "Expose container ports"
 msgstr "Exponerade behållarportar"
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/logs.js:550
 msgid "Extended Information"
 msgstr "Utökad information"
 
@@ -3179,7 +3180,7 @@ msgstr "Gateway:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:264
-#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:574
+#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "Allmänt"
 
@@ -3277,7 +3278,7 @@ msgstr "Hjälp"
 msgid "Hide Additional Options"
 msgstr "Göm ytterligare inställningar"
 
-#: pkg/systemd/logs.js:957 pkg/systemd/logs.js:1086
+#: pkg/systemd/logs.js:938 pkg/systemd/logs.js:1081
 msgid "Hide filters"
 msgstr "Göm filter"
 
@@ -3309,7 +3310,7 @@ msgstr "Datornamn skall inte ändras i en domän"
 msgid "Host should not be empty"
 msgstr "Värden får inte vara tom"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:376
+#: pkg/systemd/overview-cards/configurationCard.jsx:278
 msgid "Hostname"
 msgstr "Värdnamn"
 
@@ -3331,6 +3332,12 @@ msgstr "Timmen måste vara ett tal mellan 0-23"
 #: pkg/systemd/services.html:224
 msgid "Hours"
 msgstr "Timmar"
+
+#: pkg/systemd/overview-cards/serverTime.js:620
+#, fuzzy
+#| msgid "Hour needs to be a number between 0-23"
+msgid "Hours must be a number between 0 and 23"
+msgstr "Timmen måste vara ett tal mellan 0-23"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
 msgid "Hypervisor Details"
@@ -3438,7 +3445,7 @@ msgstr "Id $id"
 msgid "Id:"
 msgstr "Id:"
 
-#: pkg/systemd/logs.html:61
+#: pkg/systemd/logs.html:63
 msgid "Identifier"
 msgstr "Identifierare"
 
@@ -3545,7 +3552,7 @@ msgstr "Felaktig värdnyckel"
 msgid "Index Memory"
 msgstr "Indexminne"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.html:57
 msgid "Info and above"
 msgstr "Info och högre"
 
@@ -3670,12 +3677,10 @@ msgstr "Felaktigt IPv6-prefix"
 msgid "Invalid address $0"
 msgstr "Felaktig adress $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:955
-#: pkg/systemd/shutdown.js:154
+#: pkg/systemd/overview-cards/serverTime.js:615 pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Felaktigt datumformat"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Felaktigt datumformat och felaktigt tidsformat"
@@ -3732,13 +3737,14 @@ msgstr "Felaktigt prefix eller nätmask $0"
 msgid "Invalid range"
 msgstr "Felaktigt område"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Felaktigt tidsformat"
 
-#: pkg/systemd/index.html:87
-msgid "Invalid time zone"
+#: pkg/systemd/overview-cards/serverTime.js:610
+#, fuzzy
+#| msgid "Invalid time zone"
+msgid "Invalid timezone"
 msgstr "Felaktigt tidszon"
 
 #: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:169
@@ -3789,11 +3795,11 @@ msgstr "Går med i namnrymden för"
 msgid "Journal"
 msgstr "Journal"
 
-#: pkg/systemd/logs.js:465
+#: pkg/systemd/logs.js:446
 msgid "Journal entry"
 msgstr "Journalpost"
 
-#: pkg/systemd/logs.js:503
+#: pkg/systemd/logs.js:484
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
@@ -3860,11 +3866,11 @@ msgstr "LVM Volymgrupp"
 msgid "Laptop"
 msgstr "Bärbar dator"
 
-#: pkg/systemd/logs.html:41
+#: pkg/systemd/logs.html:43
 msgid "Last 24 hours"
 msgstr "Senaste 24 timmarna"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.html:44
 msgid "Last 7 days"
 msgstr "Senaste 7 datgarna"
 
@@ -3888,7 +3894,7 @@ msgstr "Senaste inloggningen:"
 msgid "Launch Remote Viewer"
 msgstr "Starta fjärrvisare"
 
-#: pkg/systemd/logs.html:83 pkg/networkmanager/interfaces.js:1718
+#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1718
 msgid "Learn more"
 msgstr "Mer information"
 
@@ -4078,7 +4084,7 @@ msgstr "Logga in på {{host}}"
 msgid "Log in with your server user account."
 msgstr "Logga in med ditt serveranvändarkonto."
 
-#: pkg/systemd/index.html:51
+#: pkg/systemd/overview-cards/serverTime.js:394
 msgid "Log messages"
 msgstr "Loggmeddelanden"
 
@@ -4126,7 +4132,7 @@ msgstr "Inloggningen misslyckades"
 msgid "Logout Successful"
 msgstr "Utloggningen lyckades"
 
-#: pkg/systemd/logs.html:113 pkg/systemd/manifest.json.in
+#: pkg/systemd/logs.html:115 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "Loggar"
 
@@ -4172,7 +4178,7 @@ msgstr "MTU måste vara ett positivt tal"
 msgid "Machine ID"
 msgstr "Makin-ID"
 
-#: pkg/systemd/index.html:150
+#: pkg/systemd/index.html:43
 msgid "Machine SSH Key Fingerprints"
 msgstr "Makinens SSH-nyckels fingeravtryck"
 
@@ -4228,7 +4234,7 @@ msgstr "Manuell"
 msgid "Manual Connection"
 msgstr "Manuell anslutning"
 
-#: pkg/systemd/index.html:95 pkg/systemd/index.html:99
+#: pkg/systemd/overview-cards/serverTime.js:525
 msgid "Manually"
 msgstr "Manuellt"
 
@@ -4259,7 +4265,7 @@ msgstr "Gömd"
 
 #: pkg/systemd/services/service-details.jsx:275
 msgid ""
-"Masking service prevents all dependent units from running. This can have "
+"Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4389,6 +4395,12 @@ msgstr "Minuterna måste vara ett tal mellan 0-59"
 #: pkg/systemd/services.html:223
 msgid "Minutes"
 msgstr "Minuter"
+
+#: pkg/systemd/overview-cards/serverTime.js:625
+#, fuzzy
+#| msgid "Minute needs to be a number between 0-59"
+msgid "Minutes must be a number between 0 and 59"
+msgstr "Minuterna måste vara ett tal mellan 0-59"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4552,7 +4564,7 @@ msgstr "NIC $0 på VM $1 kunde inte ändra läge"
 msgid "NSNA Ping"
 msgstr "NSNA-ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1024
+#: pkg/systemd/overview-cards/serverTime.js:491
 msgid "NTP Server"
 msgstr "NTP-server"
 
@@ -4627,7 +4639,7 @@ msgstr "Namnet får inte vara tomt"
 msgid "Name: "
 msgstr "Namn:"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:851
+#: pkg/systemd/overview-cards/serverTime.js:630
 msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
@@ -4761,7 +4773,7 @@ msgstr "Nice"
 msgid "No"
 msgstr "Nej"
 
-#: pkg/systemd/index.html:192
+#: pkg/systemd/index.html:85
 msgid "No Delay"
 msgstr "Ingen fördröjning"
 
@@ -4777,7 +4789,7 @@ msgstr "Inget filsystem"
 msgid "No Logical Volumes"
 msgstr "Inga logiska volymer"
 
-#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr ""
 
@@ -4892,7 +4904,7 @@ msgstr "Inga fria nyckelfack"
 msgid "No free space"
 msgstr "Inget ledigt utrymme"
 
-#: pkg/systemd/index.html:140
+#: pkg/systemd/index.html:33
 msgid "No host keys found."
 msgstr "Inga värdnycklar hittade."
 
@@ -5071,7 +5083,7 @@ msgstr "Inte tillräckligt med utrymme för att växa"
 msgid "Not found"
 msgstr "Finns inte"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:365
+#: pkg/systemd/overview-cards/configurationCard.jsx:267
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Not joined"
@@ -5091,7 +5103,7 @@ msgstr "Inte tillåtet att utföra denna åtgärd."
 msgid "Not running"
 msgstr "Kör inte"
 
-#: pkg/systemd/index.html:49
+#: pkg/systemd/overview-cards/serverTime.js:388
 msgid "Not synchronized"
 msgstr "Inte synkroniserad"
 
@@ -5103,7 +5115,7 @@ msgstr "Observera"
 msgid "Notebook"
 msgstr "Bärbar (notebook)"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.html:56
 msgid "Notice and above"
 msgstr "Notering och högre"
 
@@ -5168,7 +5180,7 @@ msgstr ""
 msgid "Only $0 of $1 are used."
 msgstr "Endast $0 av $1 används."
 
-#: pkg/systemd/logs.html:49
+#: pkg/systemd/logs.html:51
 msgid "Only Emergency"
 msgstr "Endast nödläge"
 
@@ -5247,7 +5259,7 @@ msgstr "Skriv över befintliga data med nollor"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:425
+#: pkg/systemd/overview-cards/configurationCard.jsx:322
 msgid "PCP"
 msgstr ""
 
@@ -5406,12 +5418,12 @@ msgstr "Sökväg till filen"
 msgid "Paths"
 msgstr "Sökvägar"
 
-#: pkg/systemd/logs.html:104 pkg/machines/components/vm/vmActions.jsx:53
-#: pkg/systemd/logs.js:410 pkg/systemd/logs.js:1060
+#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:53
+#: pkg/systemd/logs.js:385 pkg/systemd/logs.js:1055
 msgid "Pause"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:296
 msgid "Performance profile"
 msgstr ""
 
@@ -5640,11 +5652,11 @@ msgstr ""
 msgid "Preserve"
 msgstr "Bevara"
 
-#: pkg/systemd/index.html:222
+#: pkg/systemd/index.html:115
 msgid "Pretty Host Name"
 msgstr "Snyggt värdnamn"
 
-#: pkg/systemd/logs.html:40
+#: pkg/systemd/logs.html:42
 msgid "Previous boot"
 msgstr ""
 
@@ -5653,7 +5665,7 @@ msgid "Primary"
 msgstr "Primär"
 
 #: pkg/networkmanager/index.html:257 pkg/networkmanager/index.html:376
-#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:47
+#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:49
 msgid "Priority"
 msgstr "Prioritet"
 
@@ -5665,11 +5677,11 @@ msgstr "Prioritet $priority"
 msgid "Private"
 msgstr ""
 
-#: pkg/systemd/logs.js:576
+#: pkg/systemd/logs.js:557
 msgid "Problem details"
 msgstr "Problemdetaljer"
 
-#: pkg/systemd/logs.js:575
+#: pkg/systemd/logs.js:556
 msgid "Problem info"
 msgstr "Probleminformation"
 
@@ -5864,11 +5876,11 @@ msgctxt "verb"
 msgid "Ready"
 msgstr "Klar"
 
-#: pkg/systemd/index.html:231
+#: pkg/systemd/index.html:124
 msgid "Real Host Name"
 msgstr "Verkligt värdnamn"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:522
+#: pkg/systemd/overview-cards/configurationCard.jsx:419
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5876,7 +5888,7 @@ msgstr ""
 "Det verkliga värdnamnet kan endast innehålla gemena bokstäver, siffror, "
 "bindestreck och punkter (med populerade underdomäner)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:523
+#: pkg/systemd/overview-cards/configurationCard.jsx:420
 msgid "Real host name must be 64 characters or less"
 msgstr "Det verkliga värdnamnet får bara vara 64 tecken eller mindre"
 
@@ -5889,10 +5901,6 @@ msgstr "Starta om"
 #: pkg/networkmanager/index.html:466
 msgid "Receiving"
 msgstr "Tar emot"
-
-#: pkg/systemd/logs.html:38
-msgid "Recent"
-msgstr "Senaste"
 
 #: pkg/storaged/format-dialog.jsx:152
 msgid "Recommended default"
@@ -6194,8 +6202,8 @@ msgstr "Startar om"
 msgid "Restoring connection"
 msgstr "Återställer förbindelsen"
 
-#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:413
-#: pkg/systemd/logs.js:1056
+#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:388
+#: pkg/systemd/logs.js:1051
 msgid "Resume"
 msgstr ""
 
@@ -6389,7 +6397,7 @@ msgstr "PC med slutet hölje"
 msgid "Search"
 msgstr ""
 
-#: pkg/systemd/logs.html:76
+#: pkg/systemd/logs.html:78
 msgid "Search the logs with a combination of terms:"
 msgstr ""
 
@@ -6398,7 +6406,7 @@ msgstr ""
 msgid "Seconds"
 msgstr "Sekunder"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:404
+#: pkg/systemd/overview-cards/configurationCard.jsx:301
 msgid "Secure Shell keys"
 msgstr ""
 
@@ -6537,7 +6545,7 @@ msgstr "Sätt"
 msgid "Set DHCP Range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "Set Hostname"
 msgstr ""
 
@@ -6545,7 +6553,7 @@ msgstr ""
 msgid "Set Password"
 msgstr "Sätt lösenord"
 
-#: pkg/systemd/index.html:90
+#: pkg/systemd/overview-cards/serverTime.js:521
 msgid "Set Time"
 msgstr "Ställ in tiden"
 
@@ -6632,13 +6640,13 @@ msgstr "Visa alla behållare"
 msgid "Show all images"
 msgstr "Visa alla avbilder"
 
-#: pkg/systemd/logs.html:101 pkg/systemd/logs.js:955 pkg/systemd/logs.js:1088
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "Show filters"
 msgstr "Visa fingeravtryck"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:407
+#: pkg/systemd/overview-cards/configurationCard.jsx:304
 msgid "Show fingerprints"
 msgstr "Visa fingeravtryck"
 
@@ -6813,7 +6821,7 @@ msgstr "Uppspännande-träd-protokollet (STP)"
 msgid "Spare"
 msgstr "Reserv"
 
-#: pkg/systemd/index.html:193
+#: pkg/systemd/index.html:86
 msgid "Specific Time"
 msgstr "Specifik tid"
 
@@ -7011,7 +7019,7 @@ msgstr ""
 msgid "Storage size must not be 0"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:413
+#: pkg/systemd/overview-cards/configurationCard.jsx:310
 msgid "Store metrics"
 msgstr "Lagringsmått"
 
@@ -7105,13 +7113,21 @@ msgstr "Synkronisera"
 msgid "Synchronize users"
 msgstr "Synkronisera användare"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/overview-cards/serverTime.js:378
 msgid "Synchronized"
 msgstr "Synkroniserad"
 
-#: pkg/systemd/index.html:38
-msgid "Synchronized with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:380
+#, fuzzy
+#| msgid "Synchronized with {{Server}}"
+msgid "Synchronized with $0"
 msgstr "Synkroniserad med {{Server}}"
+
+#: pkg/systemd/overview-cards/serverTime.js:384
+#, fuzzy
+#| msgid "Synchronize"
+msgid "Synchronizing"
+msgstr "Synkronisera"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7143,7 +7159,7 @@ msgstr ""
 msgid "System is up to date"
 msgstr "Systemet är uppdaterat"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:286
 msgid "System time"
 msgstr ""
 
@@ -7233,7 +7249,7 @@ msgstr "Testa kdump-inställningar"
 msgid "Testing connection"
 msgstr "Testar anslutningen"
 
-#: pkg/systemd/logs.html:68
+#: pkg/systemd/logs.html:70
 msgid "Text"
 msgstr ""
 
@@ -7492,10 +7508,6 @@ msgstr "Servern vägrade att autentisera med några stödda metoder."
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 
-#: pkg/dashboard/list.js:232
-msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Användaren <b>$0</b> har inte rättighet att hantera servrar"
-
 #: pkg/users/account-roles.js:93
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
@@ -7749,13 +7761,13 @@ msgstr "Torsdag"
 msgid "Thursdays"
 msgstr ""
 
-#: pkg/systemd/logs.html:36
+#: pkg/systemd/logs.html:37
 #, fuzzy
 #| msgid "Timers"
 msgid "Time"
 msgstr "Timrar"
 
-#: pkg/systemd/index.html:82
+#: pkg/systemd/overview-cards/serverTime.js:512
 msgid "Time Zone"
 msgstr "Tidszon"
 
@@ -7811,7 +7823,7 @@ msgid "Tower"
 msgstr "Torn"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editing firmware configuration"
+msgid "Transient VMs don't support editting firmware configuration"
 msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:515
@@ -7843,8 +7855,10 @@ msgstr "Försök igen"
 msgid "Try again"
 msgstr "Försök igen"
 
-#: pkg/systemd/index.html:46
-msgid "Trying to synchronize with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:385
+#, fuzzy
+#| msgid "Trying to synchronize with {{Server}}"
+msgid "Trying to synchronize with $0"
 msgstr "Försök att synkronisera med {{Server}}"
 
 #: pkg/systemd/services.html:54
@@ -7899,7 +7913,7 @@ msgstr ""
 msgid "Type a password"
 msgstr "Skriv ett lösenord"
 
-#: pkg/systemd/logs.html:70
+#: pkg/systemd/logs.html:72
 #, fuzzy
 #| msgid "Type to filter…"
 msgid "Type to filter"
@@ -8506,7 +8520,7 @@ msgstr "Önskat av"
 msgid "Wants"
 msgstr "Önskar"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.html:55
 msgid "Warning and above"
 msgstr "Varning och högre"
 
@@ -8591,7 +8605,7 @@ msgstr ""
 "Du är ansluten till {{#strong}}{{host}}{{/strong}}, dock, för att "
 "synkronisera användare krävs en användare med superanvändarens rättigheter."
 
-#: pkg/dashboard/list.js:449
+#: pkg/dashboard/list.js:445
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr ""
@@ -8720,7 +8734,7 @@ msgstr "alias"
 msgid "and restart the machine automatically."
 msgstr "och starta automatiskt om maskinen."
 
-#: pkg/systemd/logs.html:80
+#: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr ""
 
@@ -8868,7 +8882,7 @@ msgstr ""
 msgid "dying"
 msgstr "döende"
 
-#: pkg/systemd/logs.html:78 pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
 #, fuzzy
 #| msgid "e.g. \"$0\""
 msgid "e.g."
@@ -8879,7 +8893,7 @@ msgstr "t.ex. ”$0”"
 msgid "e.g. \"$0\""
 msgstr "t.ex. ”$0”"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "edit"
 msgstr ""
 
@@ -8915,7 +8929,7 @@ msgstr "varje dag"
 msgid "extension"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:271
+#: pkg/systemd/overview-cards/configurationCard.jsx:180
 msgid "failed to list ssh host keys: $0"
 msgstr "misslyckades att lista ssh-värdnycklar: $0"
 
@@ -9016,7 +9030,7 @@ msgstr ""
 msgid "journal"
 msgstr ""
 
-#: pkg/systemd/logs.html:84
+#: pkg/systemd/logs.html:86
 msgid "journalctl manpage"
 msgstr ""
 
@@ -9048,7 +9062,7 @@ msgstr ""
 msgid "locally in $0"
 msgstr "lokalt i $0"
 
-#: pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:81
 msgid "log fields"
 msgstr ""
 
@@ -9110,7 +9124,7 @@ msgid "nfs"
 msgstr ""
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formatted as server:path"
+msgid "nfs dump target isn't formated as server:path"
 msgstr "nfs-dumpmålet är inte formaterat som server:sökväg"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
@@ -9198,7 +9212,7 @@ msgstr "qcow2"
 msgid "qemu"
 msgstr ""
 
-#: pkg/systemd/logs.html:78
+#: pkg/systemd/logs.html:80
 msgid "qualifiers"
 msgstr ""
 
@@ -9487,6 +9501,12 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "zon"
+
+#~ msgid "Recent"
+#~ msgstr "Senaste"
+
+#~ msgid "The user <b>$0</b> is not permitted to manage servers"
+#~ msgstr "Användaren <b>$0</b> har inte rättighet att hantera servrar"
 
 #~ msgctxt "page-title"
 #~ msgid "Accounts"

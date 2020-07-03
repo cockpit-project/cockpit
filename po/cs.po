@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-17 08:40+0000\n"
+"POT-Creation-Date: 2020-06-25 11:00+0000\n"
 "PO-Revision-Date: 2020-05-14 11:40+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -304,7 +304,7 @@ msgstr "zóna $0"
 msgid "$0, $1 free"
 msgstr "$0, $1 volné"
 
-#: pkg/systemd/logs.js:479
+#: pkg/systemd/logs.js:460
 msgid "$0: crash at $1"
 msgstr "$0: pád v $1"
 
@@ -346,7 +346,7 @@ msgstr "–"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/systemd/index.html:182 pkg/systemd/index.html:186
+#: pkg/systemd/index.html:75 pkg/systemd/index.html:79
 msgid "1 Minute"
 msgstr "1 minuta"
 
@@ -432,7 +432,7 @@ msgstr "2 MiB"
 msgid "2 min"
 msgstr "2 min"
 
-#: pkg/systemd/index.html:188
+#: pkg/systemd/index.html:81
 msgid "20 Minutes"
 msgstr "20 minut"
 
@@ -508,7 +508,7 @@ msgstr "4 KiB"
 msgid "4 min"
 msgstr "4 min"
 
-#: pkg/systemd/index.html:189
+#: pkg/systemd/index.html:82
 msgid "40 Minutes"
 msgstr "40 minut"
 
@@ -516,7 +516,7 @@ msgstr "40 minut"
 msgid "4th"
 msgstr "4."
 
-#: pkg/systemd/index.html:187
+#: pkg/systemd/index.html:80
 msgid "5 Minutes"
 msgstr "5 minut"
 
@@ -544,7 +544,7 @@ msgstr "5."
 msgid "6 hours"
 msgstr "6 hodin"
 
-#: pkg/systemd/index.html:190
+#: pkg/systemd/index.html:83
 msgid "60 Minutes"
 msgstr "60 minut"
 
@@ -938,7 +938,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "Po startu systému"
 
-#: pkg/systemd/logs.html:50
+#: pkg/systemd/logs.html:52
 msgid "Alert and above"
 msgstr "Výstraha a závažnější"
 
@@ -1138,11 +1138,11 @@ msgstr "Spouštět libvirt automaticky při startu"
 msgid "Automatically starts"
 msgstr "Spouští se automaticky"
 
-#: pkg/systemd/index.html:100
+#: pkg/systemd/overview-cards/serverTime.js:526
 msgid "Automatically using NTP"
 msgstr "Automatické použití NTP"
 
-#: pkg/systemd/index.html:101
+#: pkg/systemd/overview-cards/serverTime.js:527
 msgid "Automatically using specific NTP servers"
 msgstr "Automatické použití uvedených NTP serverů"
 
@@ -1358,7 +1358,7 @@ msgstr "Mezipaměť"
 msgid "Cached"
 msgstr "Uloženo v mezipaměti"
 
-#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Při použití stávající kombinace filtrů se nedaří nalézt žádné záznamy "
@@ -1383,8 +1383,8 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/networkmanager/index.html:607 pkg/networkmanager/index.html:634
 #: pkg/networkmanager/index.html:661 pkg/networkmanager/index.html:688
 #: pkg/networkmanager/index.html:715 pkg/playground/translate.html:38
-#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:122
-#: pkg/systemd/index.html:206 pkg/systemd/index.html:260
+#: pkg/shell/index.html:137 pkg/shell/index.html:189 pkg/systemd/index.html:99
+#: pkg/systemd/index.html:153
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
@@ -1450,8 +1450,9 @@ msgstr "Kapacita"
 msgid "Carrier"
 msgstr "Nosný signál"
 
-#: pkg/docker/index.html:627 pkg/systemd/index.html:121
-#: pkg/systemd/index.html:259 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/docker/index.html:627 pkg/systemd/index.html:152
+#: pkg/storaged/iscsi-panel.jsx:188
+#: pkg/systemd/overview-cards/serverTime.js:683
 #: pkg/users/expiration-dialogs.js:112 pkg/users/expiration-dialogs.js:226
 msgid "Change"
 msgstr "Změnit"
@@ -1460,7 +1461,7 @@ msgstr "Změnit"
 msgid "Change Firmware"
 msgstr "Změnit firmware"
 
-#: pkg/systemd/index.html:216
+#: pkg/systemd/index.html:109
 msgid "Change Host Name"
 msgstr "Změnit název počítače"
 
@@ -1476,7 +1477,7 @@ msgstr "Změnit profil výkonu"
 msgid "Change Profile"
 msgstr "Změnit profil"
 
-#: pkg/systemd/index.html:79
+#: pkg/systemd/overview-cards/serverTime.js:676
 msgid "Change System Time"
 msgstr "Změnit systémový čas"
 
@@ -1607,7 +1608,7 @@ msgstr "Klientský software"
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
-#: pkg/systemd/index.html:163 pkg/apps/utils.jsx:104
+#: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:400 pkg/users/dialog-utils.js:61
@@ -1826,7 +1827,7 @@ msgstr "Podmínka nebyla úspěšná"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/overview-cards/configurationCard.jsx:371
+#: pkg/systemd/overview-cards/configurationCard.jsx:273
 msgid "Configuration"
 msgstr "Nastavení"
 
@@ -1933,7 +1934,7 @@ msgstr "Připojování ke stroji"
 msgid "Connection"
 msgstr "Spojení"
 
-#: pkg/dashboard/list.js:415 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "Chyba připojení"
 
@@ -2282,7 +2283,7 @@ msgstr "Vytváření skupiny svazků $target"
 msgid "Creation of VM $0 failed"
 msgstr "Vytvoření virt. stroje $0 se nezdařilo"
 
-#: pkg/systemd/logs.html:51
+#: pkg/systemd/logs.html:53
 msgid "Critical and above"
 msgstr "Kritické a závažnější"
 
@@ -2298,7 +2299,7 @@ msgstr "Ctrl+Insert"
 msgid "Current Allocation"
 msgstr "Stávající přiřazení"
 
-#: pkg/systemd/logs.html:39
+#: pkg/systemd/logs.html:41
 msgid "Current boot"
 msgstr "Od tohoto spuštění systému"
 
@@ -2376,7 +2377,7 @@ msgstr "Deaktivuje se"
 msgid "Deactivating $target"
 msgstr "Deaktivuje se $target"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.html:58
 msgid "Debug and above"
 msgstr "Ladící a závažnější"
 
@@ -2390,7 +2391,7 @@ msgstr "Deduplikace"
 msgid "Default"
 msgstr "Výchozí"
 
-#: pkg/systemd/index.html:177
+#: pkg/systemd/index.html:70
 msgid "Delay"
 msgstr "Prodleva"
 
@@ -2695,7 +2696,7 @@ msgid "Does not automatically start"
 msgstr "Nespouštět automaticky"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Doména"
@@ -2861,7 +2862,7 @@ msgstr "Emulovaný stroj"
 msgid "Enable Service"
 msgstr "Zapnout službu"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:428
+#: pkg/systemd/overview-cards/configurationCard.jsx:325
 msgid "Enable stored metrics"
 msgstr "Zapnout uložené metriky"
 
@@ -2951,11 +2952,11 @@ msgstr "Celá podsíť"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/logs.html:114
+#: pkg/systemd/logs.html:116
 msgid "Entry"
 msgstr "Položka"
 
-#: pkg/systemd/logs.js:485
+#: pkg/systemd/logs.js:466
 msgid "Entry at $0"
 msgstr "Položka na $0"
 
@@ -2989,7 +2990,7 @@ msgstr "Errata:"
 msgid "Error"
 msgstr "Chyba"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.html:54
 msgid "Error and above"
 msgstr "Chyba a závažnější"
 
@@ -3063,7 +3064,7 @@ msgstr "Rozšiřující šasi"
 msgid "Expose container ports"
 msgstr "Odhalit porty kontejneru"
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/logs.js:550
 msgid "Extended Information"
 msgstr "Rozšířené informace"
 
@@ -3345,7 +3346,7 @@ msgstr "Brána:"
 # cockpit
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:264
-#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:574
+#: pkg/networkmanager/interfaces.js:2703 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "Obecné"
 
@@ -3445,7 +3446,7 @@ msgstr "Nápověda"
 msgid "Hide Additional Options"
 msgstr "Skrýt další možnosti"
 
-#: pkg/systemd/logs.js:957 pkg/systemd/logs.js:1086
+#: pkg/systemd/logs.js:938 pkg/systemd/logs.js:1081
 msgid "Hide filters"
 msgstr "Skrýt filtry"
 
@@ -3481,7 +3482,7 @@ msgstr "Název stroje není v doméně možné měnit"
 msgid "Host should not be empty"
 msgstr "Hostitele je třeba vyplnit"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:376
+#: pkg/systemd/overview-cards/configurationCard.jsx:278
 msgid "Hostname"
 msgstr "Název stroje"
 
@@ -3507,6 +3508,12 @@ msgstr "Je třeba, aby hodina bylo číslo z rozmezí 0 až 23"
 #: pkg/systemd/services.html:224
 msgid "Hours"
 msgstr "Hodin"
+
+#: pkg/systemd/overview-cards/serverTime.js:620
+#, fuzzy
+#| msgid "Hour needs to be a number between 0-23"
+msgid "Hours must be a number between 0 and 23"
+msgstr "Je třeba, aby hodina bylo číslo z rozmezí 0 až 23"
 
 # auto translated by TM merge from project: Fedora Websites, version:
 # getfedora.org, DocId: po/getfedora
@@ -3628,7 +3635,7 @@ msgstr "Identif. $id"
 msgid "Id:"
 msgstr "Identif.:"
 
-#: pkg/systemd/logs.html:61
+#: pkg/systemd/logs.html:63
 msgid "Identifier"
 msgstr "Identifikátor"
 
@@ -3737,7 +3744,7 @@ msgstr "Nesprávný klíč stroje"
 msgid "Index Memory"
 msgstr "Paměť indexu"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.html:57
 msgid "Info and above"
 msgstr "Informace a závažnější"
 
@@ -3873,12 +3880,10 @@ msgstr "Neplatná IPv6 předpona"
 msgid "Invalid address $0"
 msgstr "Neplatná adresa $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:955
-#: pkg/systemd/shutdown.js:154
+#: pkg/systemd/overview-cards/serverTime.js:615 pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Neplatný formát data"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Neplatný formát data a času"
@@ -3935,13 +3940,14 @@ msgstr "Neplatná předpona nebo maska sítě $0"
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Neplatný formát času"
 
-#: pkg/systemd/index.html:87
-msgid "Invalid time zone"
+#: pkg/systemd/overview-cards/serverTime.js:610
+#, fuzzy
+#| msgid "Invalid time zone"
+msgid "Invalid timezone"
 msgstr "Neplatná časová zóna"
 
 #: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:169
@@ -4000,11 +4006,11 @@ msgstr "Připojuje jmenný prostor od"
 msgid "Journal"
 msgstr "Žurnál"
 
-#: pkg/systemd/logs.js:465
+#: pkg/systemd/logs.js:446
 msgid "Journal entry"
 msgstr "Položka žurnálu"
 
-#: pkg/systemd/logs.js:503
+#: pkg/systemd/logs.js:484
 msgid "Journal entry not found"
 msgstr "Položka žurnálu nenalezena"
 
@@ -4073,11 +4079,11 @@ msgstr "LVM skupina svazků"
 msgid "Laptop"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:41
+#: pkg/systemd/logs.html:43
 msgid "Last 24 hours"
 msgstr "Uplynulých 24 hodin"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.html:44
 msgid "Last 7 days"
 msgstr "Uplynulých 7 dnů"
 
@@ -4101,7 +4107,7 @@ msgstr "Poslední přihlášení:"
 msgid "Launch Remote Viewer"
 msgstr "Spustit vzdálený prohlížeč"
 
-#: pkg/systemd/logs.html:83 pkg/networkmanager/interfaces.js:1718
+#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1718
 msgid "Learn more"
 msgstr "Další informace naleznete"
 
@@ -4300,7 +4306,7 @@ msgstr "Přihlásit na {{host}}"
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru."
 
-#: pkg/systemd/index.html:51
+#: pkg/systemd/overview-cards/serverTime.js:394
 msgid "Log messages"
 msgstr "Zprávy záznamu událostí"
 
@@ -4350,7 +4356,7 @@ msgstr "Přihlášení se nezdařilo"
 msgid "Logout Successful"
 msgstr "Odhlášení úspěšné"
 
-#: pkg/systemd/logs.html:113 pkg/systemd/manifest.json.in
+#: pkg/systemd/logs.html:115 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "Záznamy událostí"
 
@@ -4398,7 +4404,7 @@ msgstr "Je třeba, aby MTU bylo kladné číslo"
 msgid "Machine ID"
 msgstr "Identif. stroje"
 
-#: pkg/systemd/index.html:150
+#: pkg/systemd/index.html:43
 msgid "Machine SSH Key Fingerprints"
 msgstr "Otisky SSH klíče stroje"
 
@@ -4459,7 +4465,7 @@ msgstr "Ruční"
 msgid "Manual Connection"
 msgstr "Ruční připojení"
 
-#: pkg/systemd/index.html:95 pkg/systemd/index.html:99
+#: pkg/systemd/overview-cards/serverTime.js:525
 msgid "Manually"
 msgstr "Ručně"
 
@@ -4490,7 +4496,7 @@ msgstr "Maskováno"
 
 #: pkg/systemd/services/service-details.jsx:275
 msgid ""
-"Masking service prevents all dependent units from running. This can have "
+"Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4627,6 +4633,12 @@ msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
 #: pkg/systemd/services.html:223
 msgid "Minutes"
 msgstr "Minut"
+
+#: pkg/systemd/overview-cards/serverTime.js:625
+#, fuzzy
+#| msgid "Minute needs to be a number between 0-59"
+msgid "Minutes must be a number between 0 and 59"
+msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4802,7 +4814,7 @@ msgstr "Nepodařilo se změnit stav síť. rozhraní $0 virt. stroje $1"
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1024
+#: pkg/systemd/overview-cards/serverTime.js:491
 msgid "NTP Server"
 msgstr "NTP server"
 
@@ -4879,7 +4891,7 @@ msgstr "Název je třeba vyplnit"
 msgid "Name: "
 msgstr "Název: "
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:851
+#: pkg/systemd/overview-cards/serverTime.js:630
 msgid "Need at least one NTP server"
 msgstr "Je třeba alespoň jeden NTP server"
 
@@ -5025,7 +5037,7 @@ msgstr "Nice"
 msgid "No"
 msgstr "Ne"
 
-#: pkg/systemd/index.html:192
+#: pkg/systemd/index.html:85
 msgid "No Delay"
 msgstr "Bez prodlevy"
 
@@ -5041,7 +5053,7 @@ msgstr "Žádný souborový systém"
 msgid "No Logical Volumes"
 msgstr "Žádné logické svazky"
 
-#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:320
+#: pkg/systemd/logs.js:169 pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr "Nenalezeny žádné záznamy událostí"
 
@@ -5158,7 +5170,7 @@ msgstr "Žádné volné sloty klíčů"
 msgid "No free space"
 msgstr "Žádné volné místo"
 
-#: pkg/systemd/index.html:140
+#: pkg/systemd/index.html:33
 msgid "No host keys found."
 msgstr "Nenalezeny žádné klíče stroje."
 
@@ -5340,7 +5352,7 @@ msgstr "Pro zvětšení není k dispozici dostatek prostoru."
 msgid "Not found"
 msgstr "Nenalezeno"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:365
+#: pkg/systemd/overview-cards/configurationCard.jsx:267
 msgid "Not joined"
 msgstr "Nepřidáno do"
 
@@ -5358,7 +5370,7 @@ msgstr "Neoprávněni k provedení této akce."
 msgid "Not running"
 msgstr "Není spuštěné"
 
-#: pkg/systemd/index.html:49
+#: pkg/systemd/overview-cards/serverTime.js:388
 msgid "Not synchronized"
 msgstr "Nesynchronizováno"
 
@@ -5372,7 +5384,7 @@ msgstr "Poznámka"
 msgid "Notebook"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.html:56
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
@@ -5440,7 +5452,7 @@ msgstr ""
 msgid "Only $0 of $1 are used."
 msgstr "Je použito pouze $0 z $1."
 
-#: pkg/systemd/logs.html:49
+#: pkg/systemd/logs.html:51
 msgid "Only Emergency"
 msgstr "Pouze nouzové"
 
@@ -5524,7 +5536,7 @@ msgstr "Přepsat existující data nulami"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:425
+#: pkg/systemd/overview-cards/configurationCard.jsx:322
 msgid "PCP"
 msgstr "PCP"
 
@@ -5697,12 +5709,12 @@ msgstr "Popis umístění serveru"
 msgid "Paths"
 msgstr "Popisy umístění"
 
-#: pkg/systemd/logs.html:104 pkg/machines/components/vm/vmActions.jsx:53
-#: pkg/systemd/logs.js:410 pkg/systemd/logs.js:1060
+#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:53
+#: pkg/systemd/logs.js:385 pkg/systemd/logs.js:1055
 msgid "Pause"
 msgstr "Pozastavit"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:296
 msgid "Performance profile"
 msgstr "Profil výkonnosti"
 
@@ -5942,11 +5954,11 @@ msgstr "Přítomno"
 msgid "Preserve"
 msgstr "Zachovat"
 
-#: pkg/systemd/index.html:222
+#: pkg/systemd/index.html:115
 msgid "Pretty Host Name"
 msgstr "Hezký název stroje"
 
-#: pkg/systemd/logs.html:40
+#: pkg/systemd/logs.html:42
 msgid "Previous boot"
 msgstr "Předchozí zavedení"
 
@@ -5959,7 +5971,7 @@ msgstr "Primární"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/networkmanager/index.html:257 pkg/networkmanager/index.html:376
-#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:47
+#: pkg/networkmanager/index.html:386 pkg/systemd/logs.html:49
 msgid "Priority"
 msgstr "Priorita"
 
@@ -5973,11 +5985,11 @@ msgstr "Soukromé"
 
 # auto translated by TM merge from project: libreport, version: master, DocId:
 # libreport
-#: pkg/systemd/logs.js:576
+#: pkg/systemd/logs.js:557
 msgid "Problem details"
 msgstr "Podrobnosti o problému"
 
-#: pkg/systemd/logs.js:575
+#: pkg/systemd/logs.js:556
 msgid "Problem info"
 msgstr "Informace o problému"
 
@@ -6172,11 +6184,11 @@ msgctxt "verb"
 msgid "Ready"
 msgstr "Připraveno"
 
-#: pkg/systemd/index.html:231
+#: pkg/systemd/index.html:124
 msgid "Real Host Name"
 msgstr "Skutečný název stroje"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:522
+#: pkg/systemd/overview-cards/configurationCard.jsx:419
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -6184,7 +6196,7 @@ msgstr ""
 "Skutečný název stroje může obsahovat pouze malá písmena (bez diakritiky), "
 "číslice, spojovníky a tečky (u použitých subdomén)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:523
+#: pkg/systemd/overview-cards/configurationCard.jsx:420
 msgid "Real host name must be 64 characters or less"
 msgstr "Je třeba, aby skutečný název stroje byl nanejvýš 64 znaků dlouhý"
 
@@ -6199,10 +6211,6 @@ msgstr "Restartovat"
 #: pkg/networkmanager/index.html:466
 msgid "Receiving"
 msgstr "Příchozí"
-
-#: pkg/systemd/logs.html:38
-msgid "Recent"
-msgstr "Nedávné"
 
 #: pkg/storaged/format-dialog.jsx:152
 msgid "Recommended default"
@@ -6517,8 +6525,8 @@ msgstr "Restartuje se"
 msgid "Restoring connection"
 msgstr "Obnovování spojení"
 
-#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:413
-#: pkg/systemd/logs.js:1056
+#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:388
+#: pkg/systemd/logs.js:1051
 msgid "Resume"
 msgstr "Obnovit chod"
 
@@ -6714,7 +6722,7 @@ msgstr "Počítač se zapečetěnou skříní"
 msgid "Search"
 msgstr "Hledat"
 
-#: pkg/systemd/logs.html:76
+#: pkg/systemd/logs.html:78
 #, fuzzy
 #| msgid "Can not find any logs using the current combination of filters."
 msgid "Search the logs with a combination of terms:"
@@ -6727,7 +6735,7 @@ msgstr ""
 msgid "Seconds"
 msgstr "Sekund"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:404
+#: pkg/systemd/overview-cards/configurationCard.jsx:301
 msgid "Secure Shell keys"
 msgstr "Klíče zabezpečeného shellu"
 
@@ -6876,7 +6884,7 @@ msgstr "Nastavit"
 msgid "Set DHCP Range"
 msgstr "Nastavit DHCP rozsah"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "Set Hostname"
 msgstr "Nastavit název stroje"
 
@@ -6884,7 +6892,7 @@ msgstr "Nastavit název stroje"
 msgid "Set Password"
 msgstr "Nastavit heslo"
 
-#: pkg/systemd/index.html:90
+#: pkg/systemd/overview-cards/serverTime.js:521
 msgid "Set Time"
 msgstr "Nastavit čas"
 
@@ -6974,11 +6982,11 @@ msgstr "Zobrazit všechny kontejnery"
 msgid "Show all images"
 msgstr "Zobrazit všechny obrazy"
 
-#: pkg/systemd/logs.html:101 pkg/systemd/logs.js:955 pkg/systemd/logs.js:1088
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
 msgid "Show filters"
 msgstr "Zobrazit filtry"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:407
+#: pkg/systemd/overview-cards/configurationCard.jsx:304
 msgid "Show fingerprints"
 msgstr "Zobrazit otisky"
 
@@ -7168,7 +7176,7 @@ msgstr "Spanning Tree Protocol (STP)"
 msgid "Spare"
 msgstr "Náhradní"
 
-#: pkg/systemd/index.html:193
+#: pkg/systemd/index.html:86
 msgid "Specific Time"
 msgstr "Konkrétní čas"
 
@@ -7380,7 +7388,7 @@ msgstr "Úložiště není na tomto systému možné spravovat."
 msgid "Storage size must not be 0"
 msgstr "Velikost úložiště nemůže být nula"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:413
+#: pkg/systemd/overview-cards/configurationCard.jsx:310
 msgid "Store metrics"
 msgstr "Uchovávat metriky"
 
@@ -7478,13 +7486,21 @@ msgstr "Synchronizovat"
 msgid "Synchronize users"
 msgstr "Synchronizovat uživatele"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/overview-cards/serverTime.js:378
 msgid "Synchronized"
 msgstr "Synchronizováno"
 
-#: pkg/systemd/index.html:38
-msgid "Synchronized with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:380
+#, fuzzy
+#| msgid "Synchronized with {{Server}}"
+msgid "Synchronized with $0"
 msgstr "Synchronizováno s {{Server}}"
+
+#: pkg/systemd/overview-cards/serverTime.js:384
+#, fuzzy
+#| msgid "Synchronize"
+msgid "Synchronizing"
+msgstr "Synchronizovat"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7518,7 +7534,7 @@ msgstr "Informace o systému"
 msgid "System is up to date"
 msgstr "Systém je aktuální"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:286
 msgid "System time"
 msgstr "Systémový čas"
 
@@ -7613,7 +7629,7 @@ msgstr "Vyzkoušet nastavení kdump"
 msgid "Testing connection"
 msgstr "Zkouška spojení"
 
-#: pkg/systemd/logs.html:68
+#: pkg/systemd/logs.html:70
 msgid "Text"
 msgstr "Text"
 
@@ -7882,10 +7898,6 @@ msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Uživatel $0 není oprávněn měnit zmírňování dopadu chyb zabezpečení procesoru"
 
-#: pkg/dashboard/list.js:232
-msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Uživatel <b>$0</b> není oprávněn spravovat servery"
-
 #: pkg/users/account-roles.js:93
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
@@ -8149,11 +8161,11 @@ msgstr "čtvrtek"
 msgid "Thursdays"
 msgstr "Čtvrtky"
 
-#: pkg/systemd/logs.html:36
+#: pkg/systemd/logs.html:37
 msgid "Time"
 msgstr "Čas"
 
-#: pkg/systemd/index.html:82
+#: pkg/systemd/overview-cards/serverTime.js:512
 msgid "Time Zone"
 msgstr "Časová zóna"
 
@@ -8207,7 +8219,7 @@ msgid "Tower"
 msgstr "Věž"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editing firmware configuration"
+msgid "Transient VMs don't support editting firmware configuration"
 msgstr "U přechodných virt. strojů nelze upravovat nastavení firmware"
 
 #: pkg/systemd/services/service-details.jsx:515
@@ -8241,8 +8253,10 @@ msgstr "Zkusit znovu"
 msgid "Try again"
 msgstr "Zkusit znovu"
 
-#: pkg/systemd/index.html:46
-msgid "Trying to synchronize with {{Server}}"
+#: pkg/systemd/overview-cards/serverTime.js:385
+#, fuzzy
+#| msgid "Trying to synchronize with {{Server}}"
+msgid "Trying to synchronize with $0"
 msgstr "Pokus o synchronizaci se {{Server}}"
 
 # auto translated by TM merge from project: docbook-locales, version: master,
@@ -8301,7 +8315,7 @@ msgstr "Identifikátor typu"
 msgid "Type a password"
 msgstr "Zadejte heslo"
 
-#: pkg/systemd/logs.html:70
+#: pkg/systemd/logs.html:72
 msgid "Type to filter"
 msgstr "Filtrujte psaním"
 
@@ -8939,7 +8953,7 @@ msgstr "Vyžadováno"
 msgid "Wants"
 msgstr "Vyžaduje"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.html:55
 msgid "Warning and above"
 msgstr "Varování a závažnější"
 
@@ -9029,7 +9043,7 @@ msgstr ""
 "synchronizaci uživatelských účtů je zapotřebí uživatele s oprávněním pro "
 "správu systému."
 
-#: pkg/dashboard/list.js:449
+#: pkg/dashboard/list.js:445
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr ""
@@ -9156,7 +9170,7 @@ msgstr "alternativní název"
 msgid "and restart the machine automatically."
 msgstr "a automaticky restartovat stroj."
 
-#: pkg/systemd/logs.html:80
+#: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr ""
 
@@ -9316,7 +9330,7 @@ msgstr "jednotka"
 msgid "dying"
 msgstr "vypíná se"
 
-#: pkg/systemd/logs.html:78 pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
 #, fuzzy
 #| msgid "e.g. \"$0\""
 msgid "e.g."
@@ -9327,7 +9341,7 @@ msgstr "např. „$0“"
 msgid "e.g. \"$0\""
 msgstr "např. „$0“"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:345
+#: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid "edit"
 msgstr "upravit"
 
@@ -9367,7 +9381,7 @@ msgstr "každý den"
 msgid "extension"
 msgstr "rozšíření"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:271
+#: pkg/systemd/overview-cards/configurationCard.jsx:180
 msgid "failed to list ssh host keys: $0"
 msgstr "nepodařilo se vypsat ssh klíče stroje: $0"
 
@@ -9470,7 +9484,7 @@ msgstr "iso"
 msgid "journal"
 msgstr "žurnál"
 
-#: pkg/systemd/logs.html:84
+#: pkg/systemd/logs.html:86
 msgid "journalctl manpage"
 msgstr ""
 
@@ -9502,7 +9516,7 @@ msgstr "libvirt"
 msgid "locally in $0"
 msgstr "místně v $0"
 
-#: pkg/systemd/logs.html:79
+#: pkg/systemd/logs.html:81
 msgid "log fields"
 msgstr ""
 
@@ -9564,7 +9578,7 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formatted as server:path"
+msgid "nfs dump target isn't formated as server:path"
 msgstr "cíl výpisu nfs nemá podobu server:umisteni"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
@@ -9652,7 +9666,7 @@ msgstr "qcow2"
 msgid "qemu"
 msgstr "qemu"
 
-#: pkg/systemd/logs.html:78
+#: pkg/systemd/logs.html:80
 msgid "qualifiers"
 msgstr ""
 
@@ -9955,6 +9969,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "zóna"
+
+#~ msgid "Recent"
+#~ msgstr "Nedávné"
+
+#~ msgid "The user <b>$0</b> is not permitted to manage servers"
+#~ msgstr "Uživatel <b>$0</b> není oprávněn spravovat servery"
 
 #~ msgctxt "page-title"
 #~ msgid "Accounts"

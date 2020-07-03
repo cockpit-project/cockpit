@@ -1495,7 +1495,7 @@ class TapRunner:
 
         # Return 77 if all tests were skipped
         if len(skips) == test_count:
-            sys.stdout.write("# SKIP {1}\n".format(failures, ", ".join(["{0} {1}".format(str(s[0]), s[1]) for s in skips])))
+            sys.stdout.write("# SKIP {0}\n".format(", ".join(["{0} {1}".format(str(s[0]), s[1]) for s in skips])))
             return 77
         if failures:
             sys.stdout.write("# {0} TEST{1} FAILED {2}\n".format(failures, "S" if failures > 1 else "", details))

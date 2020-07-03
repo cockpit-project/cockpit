@@ -120,8 +120,12 @@ spawn_setup (gpointer data)
   /* Send this signal to all direct child processes, when bridge dies */
   prctl (PR_SET_PDEATHSIG, SIGHUP);
 
+  /* as done in cockpitauth:
+   *
+   * fd 0 is for IO and fd 1 is redirected to stderr
+   */
   g_assert_cmpint (dup2 (fd, 0), >, -1);
-  g_assert_cmpint (dup2 (fd, 1), >, -1);
+  g_assert_cmpint (dup2 (2, 1), >, -1);
 
   close (fd);
 }

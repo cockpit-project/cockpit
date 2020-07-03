@@ -493,13 +493,21 @@ session_child_setup (gpointer data)
 {
   ChildData *child = data;
 
-  if (dup2 (child->io, 0) < 0 || dup2 (child->io, 1) < 0)
+  /* For local sessions, we use fd 0 for cockpit protocol in and out */
+  if (dup2 (child->io, 0) < 0)
     {
-      g_printerr ("couldn't set child stdin/stout file descriptors\n");
+      g_printerr ("couldn't set child stdin socket file descriptor\n");
       _exit (127);
     }
 
-  close (child->io);
+  /* Too much random stuff writes log messages to stdout, so redirect it
+   * to stderr for logging.
+   */
+  if (dup2 (2, 1) < 0)
+    {
+      g_printerr ("couldn't remap stdout to stderr\n");
+      _exit (127);
+    }
 
   if (cockpit_unix_fd_close_all (3, -1) < 0)
     {

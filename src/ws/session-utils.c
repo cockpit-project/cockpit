@@ -150,7 +150,7 @@ read_authorize_response (const char *what)
 
   debug ("reading %s authorize message", what);
 
-  len = cockpit_frame_read (STDIN_FILENO, &message);
+  len = cockpit_frame_read (COCKPIT_BRIDGE_FD, &message);
   if (len < 0)
     err (EX, "couldn't read %s", what);
 
@@ -225,7 +225,7 @@ write_control_end (void)
   assert (auth_msg_size > 0);
   assert (auth_msg != NULL);
 
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)auth_msg, auth_msg_size) < 0)
+  if (cockpit_frame_write (COCKPIT_BRIDGE_FD, (unsigned char *)auth_msg, auth_msg_size) < 0)
     err (EX, "couldn't write auth request");
 
   debug ("finished auth request");
@@ -264,7 +264,7 @@ exit_init_problem (int result_code)
                 problem, message) < 0)
     errx (EX, "couldn't allocate memory for message");
 
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
+  if (cockpit_frame_write (COCKPIT_BRIDGE_FD, (unsigned char *)payload, strlen (payload)) < 0)
     err (EX, "couldn't write init message");
 
   free (payload);
@@ -401,52 +401,6 @@ open_session (pam_handle_t *pamh)
   return PAM_SUCCESS;
 }
 
-int
-fork_session (char **env, int (*session)(char**))
-{
-  int status;
-
-  fflush (stderr);
-  assert (pwd != NULL);
-
-  child = fork ();
-  if (child < 0)
-    {
-      warn ("can't fork");
-      return 1 << 8;
-    }
-
-  if (child == 0)
-    {
-      if (setgid (pwd->pw_gid) < 0)
-        {
-          warn ("setgid() failed");
-          _exit (42);
-        }
-
-      if (setuid (pwd->pw_uid) < 0)
-        {
-          warn ("setuid() failed");
-          _exit (42);
-        }
-
-      if (getuid() != geteuid() &&
-          getgid() != getegid())
-        {
-          warnx ("couldn't drop privileges");
-          _exit (42);
-        }
-
-      debug ("dropped privileges");
-
-      _exit (session (env));
-    }
-
-  close (0);
-  close (1);
-  waitpid (child, &status, 0);
-  return status;
-}
 
 static bool
 do_lastlog (uid_t                 uid,
@@ -873,7 +827,7 @@ authorize_logger (const char *data)
 FILE *
 open_memfd (const char *name)
 {
-  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING);
+  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC);
 
   if (fd == -1)
     return NULL;
@@ -881,20 +835,38 @@ open_memfd (const char *name)
   return fdopen (fd, "w");
 }
 
-bool
-seal_memfd (FILE *memfd)
+int
+seal_memfd (FILE **memfd)
 {
-  if (fflush (memfd) != 0)
-    return false;
+  char fd_name[] = "/proc/self/fd/xxxxxx";
+  int fd;
+
+  if (fflush (*memfd) != 0)
+    return -1;
+
+  fd = fileno (*memfd);
 
   const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
-  return fcntl (fileno (memfd), F_ADD_SEALS, seals) == 0;
+  if (fcntl (fd, F_ADD_SEALS, seals) != 0)
+    return -1;
+
+  int r = snprintf (fd_name, sizeof fd_name, "/proc/self/fd/%d", fd);
+  assert (r < sizeof fd_name);
+
+  int readonly_fd = open (fd_name, O_RDONLY);
+  if (readonly_fd == -1)
+    return -1;
+
+  fclose (*memfd);
+  *memfd = NULL;
+
+  return readonly_fd;
 }
 
 /* signal- and after-fork()-safe function to format a string, print it
  * to stderr and abort execution.  Never returns.
  */
-static noreturn void
+noreturn void
 __attribute__ ((format (printf, 1, 2)))
 abort_with_message (const char *format,
                     ...)
@@ -929,7 +901,7 @@ abort_with_message (const char *format,
  *
  * Commonly used after fork() and before exec().
  */
-void
+static void
 fd_remap (const int *remap_fds,
           int        n_remap_fds)
 {
@@ -965,4 +937,83 @@ fd_remap (const int *remap_fds,
   /* close everything else */
   if (fdwalk (closefd, &n_remap_fds) < 0)
     abort_with_message ("couldn't close all file descriptors");
+}
+
+bool
+spawn_and_wait (const char **argv, const char **envp,
+                const int *remap_fds, int n_remap_fds,
+                uid_t uid, gid_t gid,
+                int *out_status)
+{
+  pid_t child;
+
+  child = fork ();
+  if (child == -1)
+    return false;
+
+  if (child == 0)
+    {
+      /* This is the child process.  Do preparation, and exec(). */
+      if (setresgid (gid, gid, gid) != 0)
+        abort_with_message ("setresgid: couldn't set gid to %u: %m\n", (int) gid);
+
+      if (setresuid (uid, uid, uid) != 0)
+        abort_with_message ("setresgid: couldn't set uid to %u: %m\n", (int) gid);
+
+      /* paranoid */
+      {
+        uid_t real, effective, saved;
+        int r;
+
+        r = getresuid (&real, &effective, &saved);
+        assert (r == 0 && real == uid && effective == uid && saved == uid);
+      }
+
+      {
+        gid_t real, effective, saved;
+        int r;
+
+        r = getresgid (&real, &effective, &saved);
+        assert (r == 0 && real == gid && effective == gid && saved == gid);
+      }
+
+      if (n_remap_fds != -1)
+        fd_remap (remap_fds, n_remap_fds);
+
+      execvpe (argv[0], (char **) argv, (char **) envp);
+      //abort_with_message ("execvpe: %s: %m\n", argv[0]);
+      _exit(127);
+    }
+
+  else
+    {
+      /* This is the parent process.  Wait for the child to exit. */
+      int r;
+
+      do
+        r = waitpid (child, out_status, 0);
+      while (r == -1 && errno == EINTR);
+
+      /* 0 can only be returned of WNOHANG was given */
+      assert (r == -1 || r == child);
+
+      return r == child;
+    }
+}
+
+bool
+user_has_valid_login_shell (const char **envp)
+{
+  /* <lis> >>> random.randint(0,127)
+   * <lis> 71
+   * <pitti> https://xkcd.com/221/
+   */
+  const char *argv[] = { pwd->pw_shell, "-c", "exit 71;", NULL };
+  const int remap_fds[] = { -1, -1, -1 }; /* only stdin/out/err */
+  int wstatus;
+
+  if (!spawn_and_wait (argv, envp, remap_fds, 3, pwd->pw_uid, pwd->pw_gid, &wstatus))
+    return false;
+
+  return WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71;
 }

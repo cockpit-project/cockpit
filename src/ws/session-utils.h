@@ -25,6 +25,7 @@
 #include <err.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
@@ -88,9 +89,23 @@ GNUC_NORETURN void exit_init_problem (int result_code);
 #endif
 
 int open_session (pam_handle_t *pamh);
-int fork_session (char **env, int (*session)(char**));
 
 FILE *open_memfd (const char *name);
-bool seal_memfd (FILE *memfd);
+int seal_memfd (FILE **memfd);
 
-void fd_remap (const int *remap_fds, int n_remap_fds);
+noreturn void
+__attribute__ ((format (printf, 1, 2)))
+abort_with_message (const char *format,
+                    ...);
+
+bool
+spawn_and_wait (const char **argv,
+                const char **envp,
+                const int *remap_fds,
+                int n_remap_fds,
+                uid_t uid,
+                gid_t gid,
+                int *out_status);
+
+bool
+user_has_valid_login_shell (const char **envp);

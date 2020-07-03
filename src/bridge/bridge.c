@@ -455,7 +455,8 @@ call_update_router (gconstpointer user_data)
 
 static int
 run_bridge (const gchar *interactive,
-            gboolean privileged_peer)
+            gboolean privileged_peer,
+            int socket_fd)
 {
   CockpitTransport *transport;
   CockpitRouter *router;
@@ -468,23 +469,35 @@ run_bridge (const gchar *interactive,
   GPid agent_pid = 0;
   guint sig_term;
   guint sig_int;
+  int infd;
   int outfd;
   uid_t uid;
   struct CallUpdateRouterData call_update_router_data;
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
+  if (socket_fd != -1)
     {
-      g_printerr ("bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
+      /* Simple case is that we've been told which socket to speak on. */
+      infd = socket_fd;
+      outfd = socket_fd;
+    }
+  else
+    {
+      /* Otherwise, we want to talk to stdin/stdout.
+       *
+       * Lots of other stuff wants to write to stdout, though, such as
+       * g_debug, and uses fd 1 to do that. Reassign the current stdout
+       * to a new fd, and use that for our output.  Then take the
+       * current stderr and copy it to fd 1, so that g_debug() et al.
+       * will end up there.
+       */
+
+      infd = 0; /* stdin */
+      outfd = dup (1);
+      if (outfd < 0 || dup2 (2, 1) < 1)
+        {
+          g_printerr ("bridge couldn't redirect stdout to stderr\n");
+          return 1;
+        }
     }
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
@@ -539,7 +552,7 @@ run_bridge (const gchar *interactive,
   if (interactive)
     {
       /* Allow skipping the init message when interactive */
-      transport = cockpit_interact_transport_new (0, outfd, interactive);
+      transport = cockpit_interact_transport_new (infd, outfd, interactive);
     }
   else
     {
@@ -682,12 +695,14 @@ main (int argc,
   static gboolean opt_privileged = FALSE;
   static gboolean opt_version = FALSE;
   static gchar *opt_interactive = NULL;
+  static int opt_socket_fd = -1;
 
   static GOptionEntry entries[] = {
     { "interact", 0, 0, G_OPTION_ARG_STRING, &opt_interactive, "Interact with the raw protocol", "boundary" },
     { "privileged", 0, 0, G_OPTION_ARG_NONE, &opt_privileged, "Privileged copy of bridge", NULL },
     { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
     { "rules", 0, 0, G_OPTION_ARG_NONE, &opt_rules, "Show Cockpit bridge rules", NULL },
+    { "socket-fd", 0, 0, G_OPTION_ARG_INT, &opt_socket_fd, "Speak cockpit protocol on the given file descriptor (default: stdio)", "NUMBER" },
     { "version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Show Cockpit version information", NULL },
     { NULL }
   };
@@ -741,13 +756,13 @@ main (int argc,
       return 0;
     }
 
-  if (!opt_interactive && isatty (1))
+  if (!opt_interactive && opt_socket_fd == - 1 && isatty (1))
     {
       g_printerr ("cockpit-bridge: no option specified\n");
       return 2;
     }
 
-  ret = run_bridge (opt_interactive, opt_privileged);
+  ret = run_bridge (opt_interactive, opt_privileged, opt_socket_fd);
 
   if (packages)
     cockpit_packages_free (packages);

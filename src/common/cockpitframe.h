@@ -22,6 +22,8 @@
 
 #include <sys/types.h>
 
+#define COCKPIT_BRIDGE_FD 0
+
 ssize_t            cockpit_frame_parse       (unsigned char *input,
                                               size_t length,
                                               size_t *consumed);

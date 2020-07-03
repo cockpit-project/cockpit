@@ -51,7 +51,7 @@ read_authorize_response (void)
   unsigned char *message;
   ssize_t len;
 
-  len = cockpit_frame_read (STDIN_FILENO, &message);
+  len = cockpit_frame_read (COCKPIT_BRIDGE_FD, &message);
   if (len < 0)
     err (EX, "couldn't read authorize response");
 
@@ -86,7 +86,7 @@ write_authorize_challenge (const char *data)
 #if DEBUG
   fprintf (stderr, "mock-auth-command > %s\n", message);
 #endif
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
+  if (cockpit_frame_write (COCKPIT_BRIDGE_FD, (unsigned char *)message, strlen (message)) < 0)
     err (EX, "couldn't write auth request");
   free (message);
 }
@@ -94,7 +94,7 @@ write_authorize_challenge (const char *data)
 static void
 write_message (const char *message)
 {
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
+  if (cockpit_frame_write (COCKPIT_BRIDGE_FD, (unsigned char *)message, strlen (message)) < 0)
     err (EX, "coludn't write message");
 }
 
@@ -321,9 +321,9 @@ out:
   if (success)
     {
       if (launch_bridge)
-        execlp (BUILDDIR "/cockpit-bridge", BUILDDIR "/cockpit-bridge", NULL);
+        execlp (BUILDDIR "/cockpit-bridge", BUILDDIR "/cockpit-bridge", "--socket-fd", "0", NULL);
       else
-        execlp ("cat", "cat", NULL);
+        execlp ("sh", "sh", "-c", "cat >&0", NULL);
     }
   exit (PAM_AUTH_ERR);
 }

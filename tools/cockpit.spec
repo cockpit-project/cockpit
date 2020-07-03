@@ -457,6 +457,8 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
+Conflicts: cockpit-bridge < %{version}-%{release}
+Conflicts: cockpit-bridge > %{version}-%{release}
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos

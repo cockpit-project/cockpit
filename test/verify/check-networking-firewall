@@ -417,9 +417,9 @@ class TestFirewall(NetworkCase):
 
             b.wait_not_present("#add-zone-dialog")
             for source in sources.split(",") if sources else []:
-                b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone, source))
+                b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), source)
             for i in interfaces:
-                b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone, i))
+                b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), i)
             b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone))
             b.wait_present("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
 

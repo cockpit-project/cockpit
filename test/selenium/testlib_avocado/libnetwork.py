@@ -174,7 +174,7 @@ class BaseNetworkClass:
 
     def set_ipv4(self, ip, gw):
         self._nmcli_con_cmd("mod", self.name, "ipv4.method manual ipv4.addresses {ip}  ipv4.gateway {gw}".
-                            format(type=type, ip=ip, gw=gw))
+                            format(ip=ip, gw=gw))
         self.con_up()
 
     @staticmethod

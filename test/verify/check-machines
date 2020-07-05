@@ -3614,7 +3614,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "subVmTest1")
 
-        m.execute("virsh detach-disk --config --target vdd subVmTest1".format(diskXML))
+        m.execute("virsh detach-disk --config --target vdd subVmTest1")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
 
         # Check activate button when pool activation is pending

@@ -25,6 +25,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @nondestructive
+@skipImage("Changed in #14322", "rhel-8-3-distropkg")
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -68,10 +69,10 @@ class TestBonding(NetworkCase):
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
-        self.wait_onoff("#network-interface-slaves tr[data-interface='%s']" % iface1, True)
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
-        self.wait_onoff("#network-interface-slaves tr[data-interface='%s']" % iface2, True)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface1)
+        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface1, True)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface2)
+        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
 
         # Check that it has the expected mode
         b.wait_in_text("#network-interface-settings", "Active Backup")
@@ -88,8 +89,8 @@ class TestBonding(NetworkCase):
         b.enter_page("/network")
         b.wait_text("#network-interface-name", "tbond")
         b.wait_text("#network-interface-hw", "Bond")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface2)
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
@@ -199,13 +200,13 @@ class TestBonding(NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
 
-        # Check that it has the interface enslaved and the right IP address
+        # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbond')", ip)
 
-    def testAmbiguousSlave(self):
+    def testAmbiguousMember(self):
         b = self.browser
         m = self.machine
 
@@ -220,26 +221,27 @@ class TestBonding(NetworkCase):
         con_id = self.iface_con_id(iface)
         self.assertTrue(con_id)
 
-        # Manually create a bond and make 'iface' its slave via a
+        # Manually create a bond and make 'iface' its member via a
         # second connection.  Cockpit should ignore that second
         # connection and still show iface as a normal interface.
-        m.execute("nmcli con add type bond-slave ifname %s  con-name bond0-slave-1 master bond0" % iface)
+        m.execute("nmcli con add type bond-slave ifname %s  con-name bond0-member-1 master bond0" % iface)
         m.execute("nmcli con add type bond ifname bond0 con-name bond0")
 
         self.wait_for_iface("bond0", state="Configuring")
         self.wait_for_iface(iface)
 
-        # Now activate 'iface' as a slave.  Cockpit should now ignore
-        # the first connection and show 'iface' as a slave of bond0.
+        # Now activate 'iface' as a member.  Cockpit should now ignore
+        # the first connection and show 'iface' as a member of bond0.
 
-        m.execute("nmcli con up bond0-slave-1")
+        m.execute("nmcli con up bond0-member-1")
         b.wait_not_present("#networking-interfaces tr[data-interface='%s']" % iface)
 
         b.click("#networking-interfaces tr[data-interface='bond0'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
 
 
+@skipImage("Changed in #14322", "rhel-8-3-distropkg")
 class TestBondingVirt(NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
@@ -264,10 +266,10 @@ class TestBondingVirt(NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
 
-        # Check that it has the main connection enslaved and the right IP address
+        # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
 
         # Delete the bond
@@ -302,10 +304,10 @@ class TestBondingVirt(NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
 
-        # Check that it has the main connection enslaved and the right IP address
+        # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
 
 

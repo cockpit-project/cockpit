@@ -188,7 +188,7 @@ export class VCPUModal extends React.Component {
                         {_("vCPU Count")}
                     </label>
                     <div controlid="vcpu-count" role="group">
-                        <input id="machines-vcpu-count-field" type="number" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />
+                        <input id="machines-vcpu-count-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />
                         <div className="info-circle">
                             <Tooltip entryDelay={0} content={_("Fewer than the maximum number of virtual CPUs should be enabled.")}>
                                 <InfoAltIcon />
@@ -200,7 +200,7 @@ export class VCPUModal extends React.Component {
                         {_("vCPU Maximum")}
                     </label>
                     <div controlid="vcpu-maximum" role="group">
-                        <input id="machines-vcpu-max-field" type="number" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />
+                        <input id="machines-vcpu-max-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />
                         <div className="info-circle">
                             <Tooltip entryDelay={0} content={cockpit.format(
                                 _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),

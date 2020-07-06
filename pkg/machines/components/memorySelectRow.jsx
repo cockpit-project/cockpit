@@ -63,7 +63,7 @@ class MemorySelectRow extends React.Component {
                     onSlide={onValueChange} /> : null}
                 <div role="group" className="form-group">
                     <input id={id} className="form-control"
-                        type="number"
+                        type="text" inputMode="numeric" pattern="[0-9]*"
                         min={minValue}
                         max={maxValue}
                         value={toFixedPrecision(this.state.memory)}

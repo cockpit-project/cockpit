@@ -81,7 +81,7 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolType, onValueC
             <div role="group" className="ct-form-split">
                 <input id={`${idPrefix}-size`}
                        className="form-control add-disk-size"
-                       type="number"
+                       type="text" inputMode="numeric" pattern="[0-9]*"
                        value={toFixedPrecision(size)}
                        onKeyPress={digitFilter}
                        step={1}

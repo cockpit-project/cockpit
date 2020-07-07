@@ -623,12 +623,14 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                   ['script src="react-patterns.js"']
                  ),
                  # no ssh host
-                 (['/cockpit/@localhost/manifests.json'], ['"system"', '"Overview"', '"Dashboard"']
+                 (['/cockpit/@localhost/manifests.json'],
+                  ['"system"', '"Overview"', '"Dashboard"']
                  ),
+                 # remote ssh host
+                 (['/cockpit/@localhost/manifests.json test1@localhost'],
+                  ['"system"', '"Overview"', '"HACK"']
+                 )
                 ]
-
-        # remote ssh host
-        cases.append( (['/cockpit/@localhost/manifests.json test1@localhost'], ['"system"', '"Overview"', '"HACK"']) )
 
         # prepare fake ssh target; to verify that we really use that, override dashboard manifest
         m.execute("""set -e; useradd test1

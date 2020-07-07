@@ -35,6 +35,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef struct {
   gchar *name;
@@ -1759,11 +1760,22 @@ superuser_init_step (CockpitRouter *router)
 {
   for (GList *l = router->superuser_init_next_rule; l; l = g_list_next (l))
     {
-      gchar *rule_id = rule_superuser_id (l->data);
-      if (rule_id && (router->superuser_init_id == NULL
-                      || g_str_equal (router->superuser_init_id, rule_id)))
+      RouterRule *rule = l->data;
+      gchar *rule_id = rule_superuser_id (rule);
+      gboolean only_explicitly = FALSE;
+
+      // XXX - This is a hack to make sure that "any" will always
+      // choose "sudo".  The rest of the code is not really ready for
+      // anything else.  Once it is, there might not be any need for
+      // "only-explicitly" any more.
+
+      if (rule->config)
+        cockpit_json_get_bool (rule->config, "only-explicitly", FALSE, &only_explicitly);
+
+      if (rule_id && ((router->superuser_init_id == NULL && !only_explicitly)
+                      || (router->superuser_init_id != NULL && g_str_equal (router->superuser_init_id, rule_id))))
         {
-          router->superuser_rule = l->data;
+          router->superuser_rule = rule;
           router->superuser_init_next_rule = g_list_next (l);
           cockpit_peer_reset (router->superuser_rule->user_data);
           router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,

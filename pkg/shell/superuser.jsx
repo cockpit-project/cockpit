@@ -240,7 +240,7 @@ export class SuperuserDialogs extends React.Component {
             cancel: cancel
         });
 
-        let did_prompt = this.superuser.Bridges.length > 1;
+        let did_prompt = false;
 
         const onprompt = (event, message, prompt, def, echo) => {
             did_prompt = true;

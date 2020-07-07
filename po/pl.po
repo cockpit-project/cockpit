@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 11:00+0000\n"
-"PO-Revision-Date: 2020-06-17 14:21+0000\n"
+"POT-Creation-Date: 2020-07-03 11:43+0000\n"
+"PO-Revision-Date: 2020-07-05 10:37+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
 "master/pl/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.0.4\n"
+"X-Generator: Weblate 4.1.1\n"
 
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
@@ -3361,8 +3361,6 @@ msgid "Hours"
 msgstr "Godziny"
 
 #: pkg/systemd/overview-cards/serverTime.js:620
-#, fuzzy
-#| msgid "Hour needs to be a number between 0-23"
 msgid "Hours must be a number between 0 and 23"
 msgstr "Godzina musi być liczbą między 0 a 23"
 
@@ -3771,8 +3769,6 @@ msgid "Invalid time format"
 msgstr "Nieprawidłowy format czasu"
 
 #: pkg/systemd/overview-cards/serverTime.js:610
-#, fuzzy
-#| msgid "Invalid time zone"
 msgid "Invalid timezone"
 msgstr "Nieprawidłowa strefa czasowa"
 
@@ -4301,7 +4297,7 @@ msgstr "Zamaskowana"
 
 #: pkg/systemd/services/service-details.jsx:275
 msgid ""
-"Masking service prevents all dependant units from running. This can have "
+"Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4434,8 +4430,6 @@ msgid "Minutes"
 msgstr "Minuty"
 
 #: pkg/systemd/overview-cards/serverTime.js:625
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Minutes must be a number between 0 and 59"
 msgstr "Minuta musi być liczbą między 0 a 59"
 
@@ -6668,7 +6662,7 @@ msgstr "Wyświetl wszystkie urządzenia $0"
 
 #: pkg/storaged/drives-panel.jsx:104
 msgid "Show all $0 drives"
-msgstr "Wyświetl wszystkie dyski $0"
+msgstr "Wyświetl wszystkie napędy $0"
 
 #: pkg/docker/index.html:121
 msgid "Show all containers"
@@ -7159,16 +7153,12 @@ msgid "Synchronized"
 msgstr "Synchronizowane"
 
 #: pkg/systemd/overview-cards/serverTime.js:380
-#, fuzzy
-#| msgid "Synchronized with {{Server}}"
 msgid "Synchronized with $0"
-msgstr "Synchronizowane z {{Server}}"
+msgstr "Synchronizowane z $0"
 
 #: pkg/systemd/overview-cards/serverTime.js:384
-#, fuzzy
-#| msgid "Synchronize"
 msgid "Synchronizing"
-msgstr "Zsynchronizuj"
+msgstr "Synchronizowanie"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7895,7 +7885,7 @@ msgid "Tower"
 msgstr "Tower"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editting firmware configuration"
+msgid "Transient VMs don't support editing firmware configuration"
 msgstr ""
 "Tymczasowe maszyny wirtualne nie obsługują modyfikowania konfiguracji "
 "oprogramowania sprzętowego"
@@ -7930,10 +7920,8 @@ msgid "Try again"
 msgstr "Spróbuj ponownie"
 
 #: pkg/systemd/overview-cards/serverTime.js:385
-#, fuzzy
-#| msgid "Trying to synchronize with {{Server}}"
 msgid "Trying to synchronize with $0"
-msgstr "Próbowanie synchronizacji z {{Server}}"
+msgstr "Próbowanie synchronizacji z $0"
 
 #: pkg/systemd/services.html:54
 msgid "Tuesday"
@@ -9000,6 +8988,10 @@ msgstr "system plików"
 msgid "firewall"
 msgstr "zapora sieciowa"
 
+#: pkg/networkmanager/manifest.json.in
+msgid "firewalld"
+msgstr "firewalld"
+
 #: pkg/storaged/manifest.json.in
 msgid "format"
 msgstr "format"
@@ -9183,7 +9175,7 @@ msgid "nfs"
 msgstr "NFS"
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formated as server:path"
+msgid "nfs dump target isn't formatted as server:path"
 msgstr "cel zrzutu NFS nie jest sformatowany jako serwer:ścieżka"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84

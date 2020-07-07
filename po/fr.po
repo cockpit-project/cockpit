@@ -1,11 +1,11 @@
-# Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2015. #zanata
+# Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2015. #zanata, 2020.
 # Jérôme Fenal <jfenal@gmail.com>, 2015. #zanata
 # Jérôme Bivia <jerome.bivia@gmail.com>, 2016. #zanata
 # Jérôme Fenal <jfenal@gmail.com>, 2016. #zanata
 # Peter Perron <peter.perron@videotron.ca>, 2017. #zanata
 # Ludek Janda <ljanda@redhat.com>, 2018. #zanata, 2020.
 # cockpit <cockpituous@gmail.com>, 2018. #zanata
-# Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2019. #zanata
+# Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2019. #zanata, 2020.
 # Jérôme Fenal <jfenal@gmail.com>, 2019. #zanata
 # Ludek Janda <ljanda@redhat.com>, 2019. #zanata, 2020.
 # Matej Marusak <mmarusak@redhat.com>, 2019. #zanata, 2020.
@@ -14,13 +14,14 @@
 # Luclu7 <me@luclu7.fr>, 2020.
 # Anonymous <noreply@weblate.org>, 2020.
 # Sébastien POHER <sogal@member.fsf.org>, 2020.
+# Côme Borsoi <fedora@borsoi.fr>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 11:00+0000\n"
-"PO-Revision-Date: 2020-06-22 14:40+0000\n"
-"Last-Translator: Julien Humbert <julroy67@gmail.com>\n"
+"POT-Creation-Date: 2020-07-03 11:43+0000\n"
+"PO-Revision-Date: 2020-07-07 07:06+0000\n"
+"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
 "master/fr/>\n"
 "Language: fr\n"
@@ -68,8 +69,8 @@ msgstr "Réseau $0"
 #: pkg/packagekit/history.jsx:100
 msgid "$0 Package"
 msgid_plural "$0 Packages"
-msgstr[0] "0 paquet"
-msgstr[1] "0 paquets"
+msgstr[0] "$0 paquet"
+msgstr[1] "$0 paquets"
 
 #: pkg/systemd/services/service-details.jsx:130
 #: pkg/systemd/services/services.jsx:380
@@ -276,7 +277,7 @@ msgstr[1] "$0 semaines"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:108
 msgid "$0 will be installed."
-msgstr "0 $ sera installé."
+msgstr "$0 sera installé."
 
 #: pkg/lib/plot.js:962
 msgid "$0 year"
@@ -986,7 +987,7 @@ msgstr "Appliquez cette solution"
 
 #: pkg/selinux/setroubleshoot-view.jsx:98
 msgid "Applying solution..."
-msgstr "Application de la solution…"
+msgstr "Application de la solution..."
 
 #: pkg/packagekit/updates.jsx:55
 msgid "Applying updates"
@@ -1857,7 +1858,7 @@ msgstr "Connexion à Docker"
 
 #: pkg/selinux/setroubleshoot-view.jsx:364
 msgid "Connecting to SETroubleshoot daemon..."
-msgstr "Connexion au démon SETroubleshoot…"
+msgstr "Connexion au démon SETroubleshoot..."
 
 #: pkg/machines/components/libvirtSlate.jsx:79
 msgid "Connecting to Virtualization Service"
@@ -2910,7 +2911,7 @@ msgstr "Erreur lors de la suppression de l’alerte : $0"
 
 #: pkg/selinux/setroubleshoot.js:72
 msgid "Error while setting SELinux mode: '$0'"
-msgstr "Erreur lors du réglage du mode SELinux : $0"
+msgstr "Erreur lors du réglage du mode SELinux : « $0 »"
 
 #: pkg/networkmanager/index.html:700
 msgid "Ethernet MAC"
@@ -3355,17 +3356,15 @@ msgstr "Heure : Minute"
 #: pkg/systemd/services/timer-dialog.js:108
 #: pkg/systemd/services/timer-dialog.js:137
 msgid "Hour needs to be a number between 0-23"
-msgstr "L’heure doit être un nombre compris entre 0 et 23"
+msgstr "L’heure doit correspondre à un nombre compris entre 0 et 23"
 
 #: pkg/systemd/services.html:224
 msgid "Hours"
 msgstr "Heures"
 
 #: pkg/systemd/overview-cards/serverTime.js:620
-#, fuzzy
-#| msgid "Hour needs to be a number between 0-23"
 msgid "Hours must be a number between 0 and 23"
-msgstr "L’heure doit être un nombre compris entre 0 et 23"
+msgstr "Les heures doivent être un nombre compris entre 0 et 23"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
 msgid "Hypervisor Details"
@@ -3586,7 +3585,7 @@ msgstr "Info et au-dessus"
 
 #: pkg/packagekit/updates.jsx:468
 msgid "Initializing..."
-msgstr "Initialisation…"
+msgstr "Initialisation..."
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:165
 msgid "Initiator"
@@ -3770,10 +3769,8 @@ msgid "Invalid time format"
 msgstr "Format d’heure non valide"
 
 #: pkg/systemd/overview-cards/serverTime.js:610
-#, fuzzy
-#| msgid "Invalid time zone"
 msgid "Invalid timezone"
-msgstr "Fuseau horaire non valide"
+msgstr "Fuseau horaire incorrect"
 
 #: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:169
 msgid "Invalid username or password"
@@ -4053,17 +4050,18 @@ msgstr "Le chargement des mises à jour disponibles a échoué"
 #: pkg/packagekit/updates.jsx:51
 msgid "Loading available updates, please wait..."
 msgstr ""
-"Le chargement des mises à jour disponibles est en cours, veuillez patienter…"
+"Le chargement des mises à jour disponibles est en cours, veuillez "
+"patienter..."
 
 #: pkg/lib/cockpit-components-modifications.jsx:145
 msgid "Loading system modifications..."
-msgstr "Chargement des modifications système…"
+msgstr "Chargement des modifications système..."
 
 #: pkg/kdump/kdump-view.jsx:370 pkg/machines/components/serialConsole.jsx:68
 #: pkg/storaged/devices.jsx:68 pkg/systemd/logs.js:214 pkg/systemd/logs.js:256
 #: pkg/systemd/services/services.jsx:678
 msgid "Loading..."
-msgstr "Chargement…"
+msgstr "Chargement..."
 
 #: pkg/users/index.html:23
 msgid "Local Accounts"
@@ -4301,8 +4299,13 @@ msgid "Masked"
 msgstr "Masqué"
 
 #: pkg/systemd/services/service-details.jsx:275
+#, fuzzy
+#| msgid ""
+#| "Masking service prevents all dependant units from running. This can have "
+#| "bigger impact than anticipated. Please confirm that you want to mask this "
+#| "unit."
 msgid ""
-"Masking service prevents all dependant units from running. This can have "
+"Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
@@ -4427,17 +4430,15 @@ msgstr "Mini Tour"
 #: pkg/systemd/services/timer-dialog.js:123
 #: pkg/systemd/services/timer-dialog.js:132
 msgid "Minute needs to be a number between 0-59"
-msgstr "La minute doit être un nombre entre 0-59"
+msgstr "Minute doit correspondre à un nombre entre 0-59"
 
 #: pkg/systemd/services.html:223
 msgid "Minutes"
 msgstr "Minutes"
 
 #: pkg/systemd/overview-cards/serverTime.js:625
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Minutes must be a number between 0 and 59"
-msgstr "La minute doit être un nombre entre 0-59"
+msgstr "Les minutes doivent correspondre à un nombre compris entre 0 et 59"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -5880,7 +5881,7 @@ msgstr "Raw à un appareil"
 
 #: pkg/systemd/hwinfo.jsx:199
 msgid "Read more..."
-msgstr "En savoir plus…"
+msgstr "En savoir plus..."
 
 #: pkg/machines/components/diskEdit.jsx:106
 #: pkg/machines/components/vmDisksTab.jsx:143
@@ -5902,7 +5903,7 @@ msgstr "Lecture en cours"
 
 #: pkg/kdump/kdump-view.jsx:416
 msgid "Reading..."
-msgstr "Lecture en cours…"
+msgstr "Lecture en cours..."
 
 #: pkg/playground/translate.html:18
 msgid "Ready"
@@ -6802,7 +6803,7 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
 "Un autre programme utilise actuellement le gestionnaire de paquets, veuillez "
-"patienter…"
+"patienter..."
 
 #: pkg/shell/superuser.jsx:291
 msgid "Something went wrong"
@@ -7156,16 +7157,12 @@ msgid "Synchronized"
 msgstr "Synchronisé"
 
 #: pkg/systemd/overview-cards/serverTime.js:380
-#, fuzzy
-#| msgid "Synchronized with {{Server}}"
 msgid "Synchronized with $0"
-msgstr "Synchronisé avec {{Server}}"
+msgstr "Synchronisé avec $0"
 
 #: pkg/systemd/overview-cards/serverTime.js:384
-#, fuzzy
-#| msgid "Synchronize"
 msgid "Synchronizing"
-msgstr "Synchroniser"
+msgstr "Synchronisation"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7905,7 +7902,9 @@ msgid "Tower"
 msgstr "Tower"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-msgid "Transient VMs don't support editting firmware configuration"
+#, fuzzy
+#| msgid "Transient VMs don't support editting firmware configuration"
+msgid "Transient VMs don't support editing firmware configuration"
 msgstr ""
 "Les machines virtuelles temporaires ne permettent pas de modifier la "
 "configuration du micrologiciel"
@@ -7940,10 +7939,8 @@ msgid "Try again"
 msgstr "Réessayer"
 
 #: pkg/systemd/overview-cards/serverTime.js:385
-#, fuzzy
-#| msgid "Trying to synchronize with {{Server}}"
 msgid "Trying to synchronize with $0"
-msgstr "Essayer de synchroniser avec {{Server}}"
+msgstr "Essaye de synchroniser avec $0"
 
 #: pkg/systemd/services.html:54
 msgid "Tuesday"
@@ -8568,7 +8565,7 @@ msgstr "Attente"
 #: pkg/selinux/setroubleshoot-view.jsx:73
 #: pkg/selinux/setroubleshoot-view.jsx:206
 msgid "Waiting for details..."
-msgstr "En attente de détails…"
+msgstr "En attente de détails..."
 
 #: pkg/systemd/reporting.jsx:221
 msgid "Waiting for input…"
@@ -8578,7 +8575,7 @@ msgstr "En attente d’informations…"
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr ""
 "En attente d’autres programmes pour terminer l’utilisation du gestionnaire "
-"de paquets…"
+"de paquets..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:143
 #: pkg/lib/cockpit-components-install-dialog.jsx:178
@@ -9014,6 +9011,12 @@ msgstr "système de fichiers"
 msgid "firewall"
 msgstr "pare-feu"
 
+#: pkg/networkmanager/manifest.json.in
+#, fuzzy
+#| msgid "firewall"
+msgid "firewalld"
+msgstr "pare-feu"
+
 #: pkg/storaged/manifest.json.in
 msgid "format"
 msgstr "formater"
@@ -9197,7 +9200,9 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formated as server:path"
+#, fuzzy
+#| msgid "nfs dump target isn't formated as server:path"
+msgid "nfs dump target isn't formatted as server:path"
 msgstr "la cible nfs dump n’a pas été formatée sous la forme server : path"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
@@ -9540,8 +9545,8 @@ msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
 msgstr ""
-"Le paquet virt-install doit être installé sur le système pour pour pouvoir "
-"créer les nouvelles VM"
+"Le paquet virt-install doit être installé sur le système pour pouvoir créer "
+"les nouvelles VM"
 
 #: pkg/networkmanager/manifest.json.in
 msgid "vlan"

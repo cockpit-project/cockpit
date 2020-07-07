@@ -176,7 +176,7 @@ export BROWSER_HOME=$(mktemp --directory --tmpdir cockpit.desktop.XXXXXX)
 # forward parent stdin and stdout (from bridge) to cockpit-ws
 # it pretty well does not matter which port we use in our own namespace, so use standard http
 # disable /etc/cockpit/
-XDG_CONFIG_DIRS="$BROWSER_HOME" '${COCKPIT_WS:-@libexecdir@/cockpit-ws}' -p 80 -a 127.0.0.90 --local-session=- <&0 >&1 &
+XDG_CONFIG_DIRS="$BROWSER_HOME" COCKPIT_SUPERUSER="pkexec" '${COCKPIT_WS:-@libexecdir@/cockpit-ws}' -p 80 -a 127.0.0.90 --local-session=- <&0 >&1 &
 WS_PID=$!
 # ... and stop using that stdin/out for everything else
 exec 0</dev/null

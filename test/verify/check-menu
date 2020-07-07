@@ -85,6 +85,12 @@ class TestMenu(MachineCase):
         # Ensure that our tests pick up unhandled JS exceptions
         b.switch_to_top()
         b.go("/playground/exception")
+
+        # Test that subpages are correctly shown in the navigation (twice - once that only one page is shown as active)
+        if m.image != "rhel-8-3-distropkg": # Introduced in #14325
+            b.wait_visible("#host-apps .pf-m-current")
+            b.wait_visible("#host-apps .pf-m-current:contains('Development')")
+
         b.enter_page("/playground/exception")
         b.wait_visible("button")
         with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):

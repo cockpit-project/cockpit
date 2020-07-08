@@ -399,17 +399,14 @@ process_init (CockpitRouter *self,
       self->init_host = g_strdup (host);
       problem = NULL;
 
-      if (!self->privileged)
+      JsonNode *superuser_options = json_object_get_member (options, "superuser");
+      if (superuser_options)
         {
-          JsonNode *superuser_options = json_object_get_member (options, "superuser");
-          if (superuser_options)
-            {
-              if (JSON_NODE_HOLDS_OBJECT (superuser_options))
-                superuser_init (self, json_node_get_object (superuser_options));
-            }
-          else
-            superuser_legacy_init (self);
+          if (JSON_NODE_HOLDS_OBJECT (superuser_options))
+            superuser_init (self, json_node_get_object (superuser_options));
         }
+      else
+        superuser_legacy_init (self);
     }
 }
 
@@ -1739,25 +1736,28 @@ superuser_init_start (CockpitRouter *router,
 {
   router->superuser_init_in_progress = TRUE;
 
-  for (GList *l = router->rules; l; l = g_list_next (l))
+  if (!router->privileged)
     {
-      gchar *rule_id = rule_superuser_id (l->data);
-      if (rule_id && (id == NULL || g_str_equal (id, rule_id)))
+      for (GList *l = router->rules; l; l = g_list_next (l))
         {
-          router->superuser_rule = l->data;
-          cockpit_peer_reset (router->superuser_rule->user_data);
-          router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
-                                                                       superuser_init_done,
-                                                                       g_object_ref (router));
-          g_signal_connect (router->superuser_transport, "closed",
-                            G_CALLBACK (on_superuser_transport_closed), router);
-          return;
+          gchar *rule_id = rule_superuser_id (l->data);
+          if (rule_id && (id == NULL || g_str_equal (id, rule_id)))
+            {
+              router->superuser_rule = l->data;
+              cockpit_peer_reset (router->superuser_rule->user_data);
+              router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
+                                                                           superuser_init_done,
+                                                                           g_object_ref (router));
+              g_signal_connect (router->superuser_transport, "closed",
+                                G_CALLBACK (on_superuser_transport_closed), router);
+              return;
+            }
+          g_free (rule_id);
         }
-      g_free (rule_id);
-    }
 
-  if (id)
-    g_warning ("No such superuser bridge: %s", id);
+      if (id)
+        g_warning ("No such superuser bridge: %s", id);
+    }
 
   superuser_init_done (NULL, g_object_ref (router));
 }
@@ -1772,6 +1772,7 @@ superuser_init (CockpitRouter *router,
       || id == NULL)
     {
       g_warning ("invalid superuser options in \"init\" message");
+      superuser_init_done (NULL, g_object_ref (router));
       return;
     }
 

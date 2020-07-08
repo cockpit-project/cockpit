@@ -52,14 +52,13 @@ struct _CockpitPeer {
   GHashTable *channels;
   GQueue *frozen;
 
-  /* Authorizations going on */
-  GHashTable *authorizes;
-
-  /* authorize types we will reply to */
+  /* Authorize types we will reply to */
   GHashTable *authorize_values;
+  guint authorize_values_timeout;
 
   /* first_host */
   gchar *init_host;
+  gchar *init_superuser;
 
   /* The transport we're routing from */
   CockpitTransport *transport;
@@ -198,6 +197,15 @@ on_answer (const gchar *value,
 }
 
 static gboolean
+cockpit_peer_delete_authorize_values (gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+  g_hash_table_remove_all (self->authorize_values);
+  self->authorize_values_timeout = 0;
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
 on_other_control (CockpitTransport *transport,
                   const char *command,
                   const gchar *channel,
@@ -205,7 +213,6 @@ on_other_control (CockpitTransport *transport,
                   GBytes *payload,
                   gpointer user_data)
 {
-  gchar *default_init = NULL;
   CockpitPeer *self = user_data;
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
@@ -221,7 +228,8 @@ on_other_control (CockpitTransport *transport,
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
-      g_hash_table_remove_all (self->authorize_values);
+      JsonObject *capabilities;
+      gboolean explicit_superuser_capability = FALSE;
 
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         {
@@ -252,6 +260,24 @@ on_other_control (CockpitTransport *transport,
           problem = "not-supported";
         }
 
+      if (cockpit_json_get_object (options, "capabilities", NULL, &capabilities) && capabilities)
+        {
+          if (!cockpit_json_get_bool (capabilities, "explicit-superuser", FALSE, &explicit_superuser_capability))
+            g_warning ("invalued 'explicit-superuser' value in init message");
+        }
+
+      // Authorization for SSH is over now, but we still need the
+      // authorize_values for superuser initialization.
+      //
+      // If the peer has the explicit-superuser capability, we know it
+      // will send us a "superuser-init-done" message, and we can
+      // delete the creds at that time.  For a legacy bridge without
+      // explicit-superuser, we give it two minutes to start up sudo.
+
+      if (self->authorize_values_timeout)
+        g_source_remove (self->authorize_values_timeout);
+      self->authorize_values_timeout = g_timeout_add (2*60*1000, cockpit_peer_delete_authorize_values, self);
+
       startup_done (self, problem);
 
       if (problem)
@@ -265,9 +291,33 @@ on_other_control (CockpitTransport *transport,
 
           if (!self->last_init)
             {
-              default_init = g_strdup_printf ("{ \"command\": \"init\", \"version\": 1, \"host\": \"%s\" }",
-                                       self->init_host ? self->init_host : "localhost");
-              self->last_init = g_bytes_new_take (default_init, strlen (default_init));
+              JsonObject *object = cockpit_transport_build_json ("command", "init", NULL);
+              json_object_set_int_member (object, "version", 1);
+              json_object_set_string_member (object, "host", self->init_host ? self->init_host : "localhost");
+
+              if (explicit_superuser_capability)
+                {
+                  const gchar *superuser = "any";
+                  if (self->init_superuser && *self->init_superuser)
+                    superuser = self->init_superuser;
+
+                  if (!g_str_equal (superuser, "none"))
+                    {
+                      JsonObject *superuser_options;
+
+                      superuser_options = json_object_new ();
+                      json_object_set_string_member (superuser_options, "id", superuser);
+                      json_object_set_object_member (object, "superuser", superuser_options);
+                    }
+                  else
+                    {
+                      json_object_set_boolean_member (object, "superuser", FALSE);
+                      g_hash_table_remove_all (self->authorize_values);
+                    }
+                }
+
+              self->last_init = cockpit_json_write_bytes (object);
+              json_object_unref (object);
             }
           cockpit_transport_send (transport, NULL, self->last_init);
 
@@ -281,7 +331,11 @@ on_other_control (CockpitTransport *transport,
         }
     }
 
-  /* Authorize messages get forwarded even without an "init" */
+  else if (g_str_equal (command, "superuser-init-done"))
+    {
+      cockpit_peer_delete_authorize_values (self);
+    }
+
   else if (g_str_equal (command, "authorize"))
     {
       if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
@@ -320,8 +374,7 @@ on_other_control (CockpitTransport *transport,
         }
 
       /* If we have info we can respond to basic authorize challenges.
-         This is used when troubleshooting connections to remote
-         machines.
+         This is used for remote machines.
       */
       else if (challenge && g_hash_table_contains (self->authorize_values, challenge))
         {
@@ -335,15 +388,18 @@ on_other_control (CockpitTransport *transport,
           g_bytes_unref (reply);
         }
 
-      /* Otherwise forward the authorize challenge on.  This is how we
-         use the login password for SSH to remote machines, and also
-         for root bridges on remote machines.
-      */
+      /* Don't pass on "authorize" messages.
+       */
       else
         {
-          g_hash_table_add (self->authorizes, g_strdup (cookie));
-          cockpit_transport_send (self->transport, NULL, payload);
+          reply = cockpit_transport_build_control ("command", "authorize",
+                                                   "cookie", cookie,
+                                                   "response", "",
+                                                   NULL);
+          cockpit_transport_send (transport, NULL, reply);
+          g_bytes_unref (reply);
         }
+
     }
 
   /* Otherwise we need an init message first */
@@ -534,7 +590,6 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitPeer *self = user_data;
-  const gchar *cookie = NULL;
   gboolean forward = FALSE;
   gboolean handled = FALSE;
 
@@ -549,17 +604,6 @@ on_transport_control (CockpitTransport *transport,
       handled = forward = TRUE;
       if (g_str_equal (command, "close"))
         g_hash_table_remove (self->channels, channel);
-    }
-  else if (g_str_equal (command, "authorize"))
-    {
-      if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
-        {
-          g_message ("%s: received \"authorize\" reply without a valid cookie", self->name);
-        }
-      else
-        {
-          forward = handled = g_hash_table_remove (self->authorizes, cookie);
-        }
     }
   else if (self->inited)
     {
@@ -579,9 +623,8 @@ static void
 cockpit_peer_init (CockpitPeer *self)
 {
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  self->authorizes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   self->authorize_values = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  NULL, clear_authorize_value);
+                                                  g_free, clear_authorize_value);
 }
 
 static void
@@ -664,7 +707,6 @@ cockpit_peer_finalize (GObject *object)
   CockpitPeer *self = COCKPIT_PEER (object);
 
   g_hash_table_destroy (self->channels);
-  g_hash_table_destroy (self->authorizes);
   g_hash_table_destroy (self->authorize_values);
 
   if (self->config)
@@ -681,6 +723,7 @@ cockpit_peer_finalize (GObject *object)
 
   g_free (self->problem);
   g_free (self->init_host);
+  g_free (self->init_superuser);
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->finalize (object);
 }
@@ -876,6 +919,7 @@ cockpit_peer_handle (CockpitPeer *self,
   const gchar *password = NULL;
   const gchar *host = NULL;
   const gchar *host_key = NULL;
+  const gchar *superuser = NULL;
 
   g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
   g_return_val_if_fail (channel != NULL, FALSE);
@@ -913,14 +957,40 @@ cockpit_peer_handle (CockpitPeer *self,
       if (cockpit_json_get_string (options, "user", NULL, &user) &&
           cockpit_json_get_string (options, "password", NULL, &password) && password)
         {
-          g_hash_table_insert (self->authorize_values, "basic",
+          const gchar *at_host = self->init_host ? strchr (self->init_host, '@') : NULL;
+          gchar *user_at_host = NULL;
+
+          if (!user && at_host)
+            {
+              user_at_host = g_strndup (self->init_host, at_host - self->init_host);
+              user = user_at_host;
+            }
+
+          if (!user)
+            user = g_getenv ("USER");
+
+          gchar *user_hex = cockpit_hex_encode (user, -1);
+          gchar *plain1_challenge = g_strdup_printf ("plain1:%s:", user_hex);
+
+          g_hash_table_insert (self->authorize_values, g_strdup ("basic"),
                                cockpit_authorize_build_basic (user, password));
+          g_hash_table_insert (self->authorize_values, plain1_challenge,
+                               g_strdup (password));
+
+          g_free (user_hex);
+          g_free (user_at_host);
         }
 
       if (cockpit_json_get_string (options, "host-key", NULL, &host_key))
         {
-          g_hash_table_insert (self->authorize_values, "x-host-key",
+          g_hash_table_insert (self->authorize_values, g_strdup ("x-host-key"),
                                host_key ? g_strdup_printf ("x-host-key %s", host_key) : g_strdup (""));
+        }
+
+      if (cockpit_json_get_string (options, "init-superuser", NULL, &superuser))
+        {
+          g_free (self->init_superuser);
+          self->init_superuser = g_strdup (superuser);
         }
     }
 
@@ -1028,11 +1098,18 @@ cockpit_peer_reset (CockpitPeer *self)
   self->frozen = NULL;
 
   g_hash_table_remove_all (self->channels);
-  g_hash_table_remove_all (self->authorizes);
   g_hash_table_remove_all (self->authorize_values);
+  if (self->authorize_values_timeout)
+    {
+      g_source_remove (self->authorize_values_timeout);
+      self->authorize_values_timeout = 0;
+    }
 
   g_free (self->startup_auth_cookie);
   self->startup_auth_cookie = NULL;
+
+  g_free (self->init_superuser);
+  self->init_superuser = NULL;
 
   if (self->failure)
     {

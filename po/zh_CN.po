@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-03 11:43+0000\n"
-"PO-Revision-Date: 2020-06-30 14:40+0000\n"
-"Last-Translator: Charles Lee <lchopn@gmail.com>\n"
+"POT-Creation-Date: 2020-07-07 08:53+0000\n"
+"PO-Revision-Date: 2020-07-08 04:42+0000\n"
+"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/master/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -95,7 +95,7 @@ msgstr[0] "$0 字节"
 #: pkg/systemd/overview-cards/insights.jsx:155
 msgid "$0 critical hit"
 msgid_plural "$0 hits, including critical"
-msgstr[0] ""
+msgstr[0] "$0 关键 hit"
 
 #: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
@@ -167,7 +167,7 @@ msgstr[0] "$0 小时"
 #: pkg/systemd/overview-cards/insights.jsx:160
 msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
-msgstr[0] ""
+msgstr[0] "$0 重要 hit"
 
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
@@ -196,7 +196,7 @@ msgstr "$0 被信号 $1 终止"
 #: pkg/systemd/overview-cards/insights.jsx:170
 msgid "$0 low severity hit"
 msgid_plural "$0 low severity hits"
-msgstr[0] ""
+msgstr[0] "$0 低度 hit"
 
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
@@ -204,12 +204,9 @@ msgid_plural "$0 minutes"
 msgstr[0] "$0 分钟"
 
 #: pkg/systemd/overview-cards/insights.jsx:165
-#, fuzzy
-#| msgid "$0 month"
-#| msgid_plural "$0 months"
 msgid "$0 moderate hit"
 msgid_plural "$0 hits, including moderate"
-msgstr[0] "$0 月"
+msgstr[0] "$0 中度 hit"
 
 #: pkg/lib/plot.js:965
 msgid "$0 month"
@@ -2594,7 +2591,7 @@ msgstr "正在下载"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:182
 msgid "Downloading $0"
-msgstr "正在下载"
+msgstr "$0 正在下载"
 
 #: pkg/storaged/drive-details.jsx:68
 msgid "Drive"
@@ -3267,10 +3264,8 @@ msgid "Hours"
 msgstr "小时"
 
 #: pkg/systemd/overview-cards/serverTime.js:620
-#, fuzzy
-#| msgid "Hour needs to be a number between 0-23"
 msgid "Hours must be a number between 0 and 23"
-msgstr "小时需要是在 0-23 间的数字"
+msgstr "小时数必须是 0 到 23 之间的数字"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
 msgid "Hypervisor Details"
@@ -3670,8 +3665,6 @@ msgid "Invalid time format"
 msgstr "无效的时间格式"
 
 #: pkg/systemd/overview-cards/serverTime.js:610
-#, fuzzy
-#| msgid "Invalid time zone"
 msgid "Invalid timezone"
 msgstr "无效的时区"
 
@@ -3860,7 +3853,7 @@ msgstr "如果你不希望创建一个用户账号，则将密码留空"
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:249
 msgid ""
 "Libvirt did not detect any UEFI/OVMF firmware image installed on the host"
-msgstr "Libvirt 未检测到安装在主机上的任何 UEFI/OVMF 固件镜像。"
+msgstr "Libvirt 未检测到安装在主机上的任何 UEFI/OVMF 固件镜像"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:243
 msgid "Libvirt or hypervisor does not support UEFI"
@@ -4186,11 +4179,6 @@ msgid "Masked"
 msgstr "掩盖的"
 
 #: pkg/systemd/services/service-details.jsx:275
-#, fuzzy
-#| msgid ""
-#| "Masking service prevents all dependant units from running. This can have "
-#| "bigger impact than anticipated. Please confirm that you want to mask this "
-#| "unit."
 msgid ""
 "Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
@@ -4294,7 +4282,7 @@ msgstr "已使用的元数据"
 
 #: pkg/shell/superuser.jsx:57
 msgid "Method"
-msgstr "模式(_M)"
+msgstr "模式"
 
 #: pkg/docker/index.html:429 pkg/docker/index.html:604
 #: pkg/machines/components/memorySelectRow.jsx:82
@@ -4321,10 +4309,8 @@ msgid "Minutes"
 msgstr "分钟"
 
 #: pkg/systemd/overview-cards/serverTime.js:625
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Minutes must be a number between 0 and 59"
-msgstr "分钟需要是 0-59 间的数字"
+msgstr "分钟必须是 0 到 59 之间的数字"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4462,7 +4448,7 @@ msgstr "多系统机箱"
 #: pkg/storaged/drive-details.jsx:79
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr "多路径设备(_M)"
+msgstr "多路径设备"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:93
 msgid "NAT to $0"
@@ -5969,7 +5955,7 @@ msgstr "重命名 $target"
 
 #: pkg/storaged/jobs-panel.jsx:48
 msgid "Repairing $target"
-msgstr "修复$ target"
+msgstr "修复$ $target"
 
 #: pkg/systemd/services.html:248
 msgid "Repeat Daily"
@@ -6996,14 +6982,10 @@ msgid "Synchronized"
 msgstr "已同步"
 
 #: pkg/systemd/overview-cards/serverTime.js:380
-#, fuzzy
-#| msgid "Synchronized with {{Server}}"
 msgid "Synchronized with $0"
-msgstr "与 {{Server}} 同步"
+msgstr "与 $0 同步"
 
 #: pkg/systemd/overview-cards/serverTime.js:384
-#, fuzzy
-#| msgid "Synchronize"
 msgid "Synchronizing"
 msgstr "同步"
 
@@ -7656,8 +7638,6 @@ msgid "Tower"
 msgstr "Tower"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
-#, fuzzy
-#| msgid "Transient VMs don't support editting firmware configuration"
 msgid "Transient VMs don't support editing firmware configuration"
 msgstr "瞬态 VM 不支持编辑固件配置"
 
@@ -7691,10 +7671,8 @@ msgid "Try again"
 msgstr "重试"
 
 #: pkg/systemd/overview-cards/serverTime.js:385
-#, fuzzy
-#| msgid "Trying to synchronize with {{Server}}"
 msgid "Trying to synchronize with $0"
-msgstr "正在尝试与 {{Server}} 同步"
+msgstr "正在尝试与 $0 同步"
 
 #: pkg/systemd/services.html:54
 msgid "Tuesday"
@@ -8325,7 +8303,7 @@ msgstr "等待输入…"
 
 #: pkg/apps/utils.jsx:64
 msgid "Waiting for other programs to finish using the package manager..."
-msgstr "正在等待其他程序来结束使用中的软件包管理器…"
+msgstr "正在等待其他程序来结束使用中的软件包管理器..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:143
 #: pkg/lib/cockpit-components-install-dialog.jsx:178
@@ -8751,10 +8729,8 @@ msgid "firewall"
 msgstr "防火墙"
 
 #: pkg/networkmanager/manifest.json.in
-#, fuzzy
-#| msgid "firewall"
 msgid "firewalld"
-msgstr "防火墙"
+msgstr "firewalld"
 
 #: pkg/storaged/manifest.json.in
 msgid "format"
@@ -8879,7 +8855,7 @@ msgstr "位于 $0 本地"
 
 #: pkg/systemd/logs.html:81
 msgid "log fields"
-msgstr ""
+msgstr "日志项"
 
 #: pkg/users/manifest.json.in
 msgid "login"
@@ -8939,8 +8915,6 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
-#, fuzzy
-#| msgid "nfs dump target isn't formated as server:path"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs dump 目标的格式不是 server:path"
 
@@ -9027,7 +9001,7 @@ msgstr "qemu"
 
 #: pkg/systemd/logs.html:80
 msgid "qualifiers"
-msgstr ""
+msgstr "合规者"
 
 #: pkg/storaged/manifest.json.in
 msgid "raid"

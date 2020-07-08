@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-03 11:43+0000\n"
-"PO-Revision-Date: 2020-06-04 17:55+0000\n"
-"Last-Translator: Seungyeon Choi <p@ij.rs>\n"
+"POT-Creation-Date: 2020-07-07 08:53+0000\n"
+"PO-Revision-Date: 2020-07-08 04:42+0000\n"
+"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "master/ko/>\n"
 "Language: ko\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.0.4\n"
+"X-Generator: Weblate 4.1.1\n"
 
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
@@ -88,7 +88,7 @@ msgstr[0] "$0 바이트"
 #: pkg/systemd/overview-cards/insights.jsx:155
 msgid "$0 critical hit"
 msgid_plural "$0 hits, including critical"
-msgstr[0] ""
+msgstr[0] "$0 심각한 영향"
 
 #: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
@@ -115,10 +115,8 @@ msgid_plural "$0 disks are missing"
 msgstr[0] "$0 디스크 누락"
 
 #: pkg/shell/indexes.js:388
-#, fuzzy
-#| msgid "Ansible roles documentation"
 msgid "$0 documentation"
-msgstr "Ansible 역할 문서"
+msgstr "$0 문서"
 
 #: src/ws/login.js:338 src/ws/login.js:703
 msgid "$0 error"
@@ -147,12 +145,12 @@ msgstr "$0 파일 시스템의 크기를 조정할 수 없습니다."
 #: pkg/systemd/overview.jsx:99
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
-msgstr ""
+msgstr "$0 ($1에서)"
 
 #: pkg/systemd/overview.jsx:97
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
-msgstr ""
+msgstr "$0 $2의 $1에서"
 
 #: pkg/lib/plot.js:974
 msgid "$0 hour"
@@ -162,7 +160,7 @@ msgstr[0] "$0 시"
 #: pkg/systemd/overview-cards/insights.jsx:160
 msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
-msgstr[0] ""
+msgstr[0] "$0 중요한 영향"
 
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
@@ -191,7 +189,7 @@ msgstr "$1 시그널에 의해 $0이/가 종료되었습니다"
 #: pkg/systemd/overview-cards/insights.jsx:170
 msgid "$0 low severity hit"
 msgid_plural "$0 low severity hits"
-msgstr[0] ""
+msgstr[0] "$0 낮은 심각도"
 
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
@@ -199,12 +197,9 @@ msgid_plural "$0 minutes"
 msgstr[0] "$0 분"
 
 #: pkg/systemd/overview-cards/insights.jsx:165
-#, fuzzy
-#| msgid "$0 month"
-#| msgid_plural "$0 months"
 msgid "$0 moderate hit"
 msgid_plural "$0 hits, including moderate"
-msgstr[0] "$0 달"
+msgstr[0] "$0 보통 영향"
 
 #: pkg/lib/plot.js:965
 msgid "$0 month"
@@ -221,11 +216,9 @@ msgid "$0 of $1"
 msgstr "$0 / $1"
 
 #: pkg/systemd/overview.jsx:101
-#, fuzzy
-#| msgid "$0 of $1"
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
-msgstr "$0 / $1"
+msgstr "$0에 $1"
 
 #: pkg/systemd/services/services.jsx:664
 msgid "$0 service has failed"
@@ -264,10 +257,8 @@ msgid_plural "$0 years"
 msgstr[0] "$0 년"
 
 #: pkg/networkmanager/firewall.jsx:151
-#, fuzzy
-#| msgid "zone"
 msgid "$0 zone"
-msgstr "영역"
+msgstr "$0 영역"
 
 #: pkg/storaged/vgroup-details.jsx:108
 msgid "$0, $1 free"
@@ -566,6 +557,8 @@ msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
 msgstr ""
+"네트워크 본딩은 여러 네트워크 인터페이스를 하나의 논리적 인터페이스로 결합하"
+"여 처리량 또는 중복성을 증가시킵니다."
 
 #: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
@@ -584,10 +577,8 @@ msgid "ARP Ping"
 msgstr "ARP Ping"
 
 #: pkg/shell/index.html:148 pkg/shell/indexes.js:402
-#, fuzzy
-#| msgid "Consoles"
 msgid "About Web Console"
-msgstr "콘솔"
+msgstr "웹 콘솔 정보"
 
 #: pkg/lib/machine-info.js:254
 msgid "Absent"
@@ -613,10 +604,8 @@ msgid "Accounts"
 msgstr "계정"
 
 #: pkg/machines/hostvmslist.jsx:98
-#, fuzzy
-#| msgid "Applications"
 msgid "Actions"
-msgstr "애플리케이션"
+msgstr "동작"
 
 #: pkg/machines/components/networks/network.jsx:164
 #: pkg/machines/components/storagePools/storagePool.jsx:166
@@ -719,10 +708,8 @@ msgid "Add Zone"
 msgstr "영역 추가"
 
 #: pkg/lib/machine-add.html:4
-#, fuzzy
-#| msgid "Add a new zone"
 msgid "Add a New Host"
-msgstr "새로운 영역 추가"
+msgstr "새 호스트 추가"
 
 #: pkg/networkmanager/firewall.jsx:865
 msgid "Add a new zone"
@@ -737,10 +724,8 @@ msgid "Add key"
 msgstr "키 추가"
 
 #: pkg/shell/hosts.jsx:243
-#, fuzzy
-#| msgid "Add a new zone"
 msgid "Add new host"
-msgstr "새로운 영역 추가"
+msgstr "새 호스트 추가"
 
 #: pkg/networkmanager/firewall.jsx:470
 msgid "Add ports to $0 zone"
@@ -811,10 +796,8 @@ msgid "Additional packages:"
 msgstr "추가 패키지 :"
 
 #: pkg/networkmanager/firewall.jsx:104
-#, fuzzy
-#| msgid "Additional"
 msgid "Additional ports"
-msgstr "추가"
+msgstr "추가 포트"
 
 #: pkg/lib/machine-add.html:11
 #: pkg/machines/components/networks/networkOverviewTab.jsx:109
@@ -856,10 +839,8 @@ msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit 웹 콘솔로 관리"
 
 #: pkg/shell/superuser.jsx:70 pkg/shell/superuser.jsx:332
-#, fuzzy
-#| msgid "Administrator Password"
 msgid "Administrative access"
-msgstr "관리자 암호"
+msgstr "관리 액세스"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:335
 msgid "Administrator Password"
@@ -908,7 +889,7 @@ msgstr "일체형"
 #: pkg/networkmanager/index.html:160
 #: pkg/lib/cockpit-components-logs-panel.jsx:150
 msgid "All logs"
-msgstr ""
+msgstr "모든 로그"
 
 #: pkg/systemd/services/service-details.jsx:234
 msgid "Allow running (unmask)"
@@ -981,12 +962,12 @@ msgstr "업데이트 적용 실패"
 
 #: pkg/shell/indexes.js:319
 msgid "Apps"
-msgstr ""
+msgstr "Apps"
 
 #: pkg/storaged/drive-details.jsx:51
 msgctxt "storage"
 msgid "Assessment"
-msgstr ""
+msgstr "평가"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:116
 msgid "Asset tag"
@@ -1010,10 +991,8 @@ msgid "Audit log"
 msgstr "감사 로그"
 
 #: pkg/shell/superuser.jsx:79
-#, fuzzy
-#| msgid "Authenticating"
 msgid "Authenticate"
-msgstr "인증 중입니다"
+msgstr "인증"
 
 #: pkg/networkmanager/interfaces.js:828
 msgid "Authenticating"
@@ -1159,7 +1138,7 @@ msgstr "바인딩"
 #: pkg/storaged/mdraid-details.jsx:191
 msgctxt "storage"
 msgid "Bitmap"
-msgstr ""
+msgstr "Bitmap"
 
 #: pkg/systemd/terminal.jsx:96
 msgid "Black"
@@ -1350,10 +1329,8 @@ msgid "Cancel"
 msgstr "취소"
 
 #: pkg/systemd/services/services-list.jsx:74
-#, fuzzy
-#| msgid "Size cannot be negative"
 msgid "Cannot be enabled"
-msgstr "크기는 음수일 수 없습니다"
+msgstr "활성화할 수 없습니다"
 
 #: pkg/shell/indexes.js:456
 msgid "Cannot connect to an unknown machine"
@@ -1377,8 +1354,6 @@ msgstr "용량"
 
 #: pkg/storaged/block-details.jsx:37 pkg/storaged/drive-details.jsx:75
 #: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/vgroup-details.jsx:223
-#, fuzzy
-#| msgid "Capacity"
 msgctxt "storage"
 msgid "Capacity"
 msgstr "용량"
@@ -1395,10 +1370,8 @@ msgid "Change"
 msgstr "변경"
 
 #: pkg/machines/components/vm/firmwareModal.jsx:57
-#, fuzzy
-#| msgid "Change passphrase"
 msgid "Change Firmware"
-msgstr "암호문 변경"
+msgstr "펌웨어 변경"
 
 #: pkg/systemd/index.html:109
 msgid "Change Host Name"
@@ -1520,8 +1493,6 @@ msgid "Clear Search"
 msgstr "검색 지우기"
 
 #: pkg/systemd/services/services.jsx:789
-#, fuzzy
-#| msgid "Clear All Filters"
 msgid "Clear all filters"
 msgstr "모든 필터 지우기"
 
@@ -1766,16 +1737,12 @@ msgid "Configuring IP"
 msgstr "IP 인증 중입니다"
 
 #: pkg/kdump/manifest.json.in
-#, fuzzy
-#| msgid "Configuring"
 msgid "Configuring kdump"
-msgstr "설정 중입니다"
+msgstr "kdump 설정"
 
 #: pkg/systemd/manifest.json.in
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Configuring system settings"
-msgstr "설정 변경"
+msgstr "시스템 설정 구성"
 
 #: pkg/shell/index.html:375 pkg/storaged/format-dialog.jsx:221
 #: pkg/users/account-create-dialog.js:58
@@ -1923,10 +1890,8 @@ msgid "Containers"
 msgstr "컨테이너들"
 
 #: pkg/shell/nav.jsx:199
-#, fuzzy
-#| msgid "Contains"
 msgid "Contains:"
-msgstr "포함"
+msgstr "포함:"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -2201,10 +2166,8 @@ msgid "Critical and above"
 msgstr "중대한 이상 수준"
 
 #: pkg/machines/components/vnc.jsx:134
-#, fuzzy
-#| msgid "Ctrl+Alt+Del"
 msgid "Ctrl+Alt+$0"
-msgstr "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+$0"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104
 msgid "Ctrl+Insert"
@@ -2228,7 +2191,7 @@ msgstr "사용자 지정 암호화 옵션"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:206
 msgid "Custom firmware: $0"
-msgstr ""
+msgstr "사용자 지정 펌웨어 : $0"
 
 #: pkg/storaged/format-dialog.jsx:247 pkg/storaged/fsys-tab.jsx:241
 #: pkg/storaged/nfs-details.jsx:174
@@ -2448,8 +2411,6 @@ msgid "Device"
 msgstr "장치"
 
 #: pkg/storaged/mdraid-details.jsx:313
-#, fuzzy
-#| msgid "Device"
 msgctxt "storage"
 msgid "Device"
 msgstr "장치"
@@ -2459,8 +2420,6 @@ msgid "Device File"
 msgstr "장치 파일"
 
 #: pkg/storaged/block-details.jsx:40 pkg/storaged/drive-details.jsx:77
-#, fuzzy
-#| msgid "Device File"
 msgctxt "storage"
 msgid "Device File"
 msgstr "장치 파일"
@@ -2567,7 +2526,7 @@ msgstr "디스크"
 
 #: pkg/selinux/setroubleshoot-view.jsx:397
 msgid "Dismiss"
-msgstr ""
+msgstr "취소"
 
 #: pkg/shell/index.html:72 pkg/shell/index.html:180
 msgid "Display Language"
@@ -2590,10 +2549,8 @@ msgid "Docking Station"
 msgstr "도킹 스테이션"
 
 #: pkg/systemd/services/services-list.jsx:70
-#, fuzzy
-#| msgid "Automatically starts"
 msgid "Does not automatically start"
-msgstr "자동 시작"
+msgstr "자동으로 시작되지 않습니다"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
 #: pkg/systemd/overview-cards/configurationCard.jsx:291
@@ -2695,10 +2652,8 @@ msgid "Edit"
 msgstr "편집"
 
 #: pkg/shell/index.html:101
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Host"
-msgstr "편집"
+msgstr "호스트 편집"
 
 #: pkg/dashboard/index.html:141
 msgid "Edit Server"
@@ -2710,7 +2665,7 @@ msgstr "Tang 키 서버 편집"
 
 #: pkg/shell/hosts.jsx:242
 msgid "Edit hosts"
-msgstr ""
+msgstr "호스트 편집"
 
 #: pkg/storaged/crypto-keyslots.jsx:548
 msgid "Editing a key requires a free slot"
@@ -2977,10 +2932,8 @@ msgid "Failed to add zone"
 msgstr "영역 추가 실패"
 
 #: pkg/machines/components/vm/firmwareModal.jsx:49
-#, fuzzy
-#| msgid "Failed to change password"
 msgid "Failed to change firmware"
-msgstr "암호 변경 실패"
+msgstr "펌웨어를 변경하지 못했습니다"
 
 #: pkg/lib/credentials.js:228 pkg/users/password-dialogs.js:95
 #: pkg/users/password-dialogs.js:125
@@ -3017,7 +2970,7 @@ msgstr "승인된 키를 불러오지 못했습니다."
 
 #: pkg/machines/components/vnc.jsx:130
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
-msgstr ""
+msgstr "Ctrl+Alt+$0키를 VM $1(으)로 보내지 못했습니다"
 
 #: pkg/systemd/services/service-details.jsx:422
 #: pkg/systemd/services/services.jsx:526
@@ -3063,17 +3016,15 @@ msgstr "파일 시스템"
 
 #: pkg/systemd/services/services.jsx:733
 msgid "Filter"
-msgstr ""
+msgstr "필터"
 
 #: pkg/networkmanager/firewall.jsx:489
 msgid "Filter Services"
 msgstr "필터 서비스"
 
 #: pkg/systemd/services/services.jsx:741
-#, fuzzy
-#| msgid "Filter by name or description..."
 msgid "Filter by name or description"
-msgstr "이름 또는 설명에 따라 필터링..."
+msgstr "이름 또는 설명에 따라 필터링"
 
 #: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:345
 msgid "Fingerprint"
@@ -3089,17 +3040,13 @@ msgid "Firewall is not available"
 msgstr "방화벽을 사용할 수 없습니다"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:285
-#, fuzzy
-#| msgid "Version"
 msgid "Firmware"
-msgstr "버전"
+msgstr "펌웨어"
 
 #: pkg/storaged/drive-details.jsx:72
-#, fuzzy
-#| msgid "Version"
 msgctxt "storage"
 msgid "Firmware Version"
-msgstr "버전"
+msgstr "펌웨어 버전"
 
 #: pkg/storaged/vdos-panel.jsx:129
 msgid "For legacy applications only. Reduces performance."
@@ -3297,17 +3244,15 @@ msgstr "Hello 타임 $hello_time"
 
 #: pkg/shell/index.html:57
 msgid "Help"
-msgstr ""
+msgstr "도움말"
 
 #: pkg/machines/components/diskAdd.jsx:157
 msgid "Hide Additional Options"
 msgstr "추가 옵션 숨기기"
 
 #: pkg/systemd/logs.js:938 pkg/systemd/logs.js:1081
-#, fuzzy
-#| msgid "Clear All Filters"
 msgid "Hide filters"
-msgstr "모든 필터 지우기"
+msgstr "필터 숨기기"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
@@ -3342,8 +3287,6 @@ msgid "Hostname"
 msgstr "호스트 이름"
 
 #: pkg/shell/hosts.jsx:198
-#, fuzzy
-#| msgid "Host"
 msgid "Hosts"
 msgstr "호스트"
 
@@ -3361,16 +3304,12 @@ msgid "Hours"
 msgstr "시"
 
 #: pkg/systemd/overview-cards/serverTime.js:620
-#, fuzzy
-#| msgid "Hour needs to be a number between 0-23"
 msgid "Hours must be a number between 0 and 23"
-msgstr "시간은 0-23 사이의 값이어야 합니다"
+msgstr "시간은 0에서 23 사이의 숫자 여야합니다"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
-#, fuzzy
-#| msgid "More details"
 msgid "Hypervisor Details"
-msgstr "더 자세히"
+msgstr "하이퍼 바이저 세부 사항"
 
 #: pkg/systemd/graphs.html:144 pkg/systemd/graphs.js:297
 msgid "I/O Wait"
@@ -3478,7 +3417,7 @@ msgstr "Id:"
 
 #: pkg/systemd/logs.html:63
 msgid "Identifier"
-msgstr ""
+msgstr "식별자"
 
 #: pkg/storaged/crypto-keyslots.jsx:333
 msgid "If tang-show-keys is not available, run the following:"
@@ -3571,10 +3510,8 @@ msgid "Included services"
 msgstr "포함된 서비스"
 
 #: pkg/storaged/fsys-tab.jsx:479
-#, fuzzy
-#| msgid "The filesystem is not mounted."
 msgid "Inconsistent filesystem mount"
-msgstr "파일 시스템이 마운트되어 있지 않습니다."
+msgstr "일관되지 않은 파일 시스템 마운트"
 
 #: pkg/lib/machine-invalid-hostkey.html:2
 msgid "Incorrect Host Key"
@@ -3602,7 +3539,7 @@ msgstr "개시자 IQN은 비워둘 수 없습니다"
 
 #: pkg/systemd/overview-cards/insights.jsx:184
 msgid "Insights: "
-msgstr ""
+msgstr "Insights: "
 
 #: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
@@ -3776,8 +3713,6 @@ msgid "Invalid time format"
 msgstr "잘못된 시간 형식"
 
 #: pkg/systemd/overview-cards/serverTime.js:610
-#, fuzzy
-#| msgid "Invalid time zone"
 msgid "Invalid timezone"
 msgstr "잘못된 시간대"
 
@@ -3918,26 +3853,20 @@ msgid "Last checked: $0"
 msgstr "마지막 접속 날짜: $0"
 
 #: pkg/systemd/overview.jsx:136
-#, fuzzy
-#| msgid "Last Login"
 msgid "Last failed login:"
-msgstr "마지막 로그인"
+msgstr "마지막 로그인 실패:"
 
 #: pkg/systemd/overview.jsx:135
-#, fuzzy
-#| msgid "Last Login"
 msgid "Last login:"
-msgstr "마지막 로그인"
+msgstr "마지막 로그인:"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
 msgstr "원격 뷰어 시작"
 
 #: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1718
-#, fuzzy
-#| msgid "Read more..."
 msgid "Learn more"
-msgstr "더 알아보기..."
+msgstr "더 알아보기"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:24
 #: pkg/systemd/overview-cards/realmd-operation.html:28
@@ -3966,23 +3895,22 @@ msgstr ""
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 msgid ""
 "Leave the password blank if you do not wish to have a root account created"
-msgstr ""
+msgstr "root 계정을 만들지 않으려면 암호를 비워 두십시오"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:456
 msgid ""
 "Leave the password blank if you do not wish to have a user account created"
-msgstr ""
+msgstr "사용자 계정을 만들지 않으려면 암호를 비워 두십시오"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:249
 msgid ""
 "Libvirt did not detect any UEFI/OVMF firmware image installed on the host"
 msgstr ""
+"Libvirt가 호스트에 설치된 UEFI/OVMF 펌웨어 이미지를 감지하지 못했습니다"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:243
-#, fuzzy
-#| msgid "Network Selection does not support PXE."
 msgid "Libvirt or hypervisor does not support UEFI"
-msgstr "네트워크 선택은 PXE를 지원하지 않습니다."
+msgstr "Libvirt 또는 하이퍼바이저는 UEFI를 지원하지 않습니다"
 
 #: pkg/shell/index.html:156
 msgid "Licensed under:"
@@ -3993,22 +3921,20 @@ msgid "Light"
 msgstr "경량"
 
 #: pkg/shell/superuser.jsx:135
-#, fuzzy
-#| msgid "access"
 msgid "Limit access"
-msgstr "액세스"
+msgstr "액세스 제한"
 
 #: pkg/shell/superuser.jsx:332
-#, fuzzy
-#| msgid "access"
 msgid "Limited access"
-msgstr "액세스"
+msgstr "제한된 액세스"
 
 #: pkg/shell/superuser.jsx:129
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
 msgstr ""
+"제한된 액세스 모드는 관리 권한을 제한합니다. 웹 콘솔의 일부 부분은 기능이 축"
+"소됩니다."
 
 #: pkg/networkmanager/index.html:307
 msgid "Link Monitoring"
@@ -4246,50 +4172,36 @@ msgid "Make sure the key hash from the Tang server matches:"
 msgstr "Tang 서버의 키 해시가 일치하는지 확인합니다:"
 
 #: pkg/networkmanager/manifest.json.in
-#, fuzzy
-#| msgid "firewall"
 msgid "Managing firewall"
-msgstr "방화벽"
+msgstr "방화벽 관리"
 
 #: pkg/networkmanager/manifest.json.in
-#, fuzzy
-#| msgid "Networking"
 msgid "Managing networking"
-msgstr "네트워킹"
+msgstr "네트워킹 관리"
 
 #: pkg/storaged/manifest.json.in
-#, fuzzy
-#| msgid "partition"
 msgid "Managing partitions"
-msgstr "파티션"
+msgstr "파티션 관리"
 
 #: pkg/systemd/manifest.json.in
-#, fuzzy
-#| msgid "Backing Device"
 msgid "Managing services"
-msgstr "백업 장치"
+msgstr "서비스 관리"
 
 #: pkg/packagekit/manifest.json.in
-#, fuzzy
-#| msgid "Software Updates"
 msgid "Managing software updates"
-msgstr "소프트웨어 업데이트"
+msgstr "소프트웨어 업데이트 관리"
 
 #: pkg/storaged/manifest.json.in
-#, fuzzy
-#| msgid "Raw to a device"
 msgid "Managing storage devices"
-msgstr "로우(raw) 장치"
+msgstr "저장 장치 관리"
 
 #: pkg/users/manifest.json.in
 msgid "Managing user accounts"
-msgstr ""
+msgstr "사용자 계정 관리"
 
 #: pkg/machines/manifest.json.in
-#, fuzzy
-#| msgid "Virtual Machines"
 msgid "Managing virtual machines"
-msgstr "가상머신"
+msgstr "가상 머신 관리"
 
 #: pkg/networkmanager/interfaces.js:1954 pkg/networkmanager/interfaces.js:1964
 msgid "Manual"
@@ -4329,11 +4241,6 @@ msgid "Masked"
 msgstr "마스크 설정됨"
 
 #: pkg/systemd/services/service-details.jsx:275
-#, fuzzy
-#| msgid ""
-#| "Masking service prevents all dependant units from running. This can have "
-#| "bigger impact than anticipated. Please confirm that you want to mask this "
-#| "unit."
 msgid ""
 "Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
@@ -4437,7 +4344,7 @@ msgstr "사용된 메타데이터"
 
 #: pkg/shell/superuser.jsx:57
 msgid "Method"
-msgstr ""
+msgstr "방식"
 
 #: pkg/docker/index.html:429 pkg/docker/index.html:604
 #: pkg/machines/components/memorySelectRow.jsx:82
@@ -4464,10 +4371,8 @@ msgid "Minutes"
 msgstr "분"
 
 #: pkg/systemd/overview-cards/serverTime.js:625
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Minutes must be a number between 0 and 59"
-msgstr "분은 0-59 사이의 값이어야 합니다"
+msgstr "분은 0에서 59 사이의 숫자이어야합니다"
 
 #: pkg/systemd/hwinfo.jsx:59
 msgid "Mitigations"
@@ -4483,8 +4388,6 @@ msgid "Model"
 msgstr "모델"
 
 #: pkg/storaged/drive-details.jsx:71
-#, fuzzy
-#| msgid "Model"
 msgctxt "storage"
 msgid "Model"
 msgstr "모델"
@@ -4605,11 +4508,9 @@ msgid "Multi-system Chassis"
 msgstr "멀티 시스템 섀시"
 
 #: pkg/storaged/drive-details.jsx:79
-#, fuzzy
-#| msgid "Other Devices"
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr "다른 장치"
+msgstr "다중 경로 장치"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:93
 msgid "NAT to $0"
@@ -4694,10 +4595,8 @@ msgid "Name cannot contain whitespace."
 msgstr "이름에는 공백이 없어야 합니다."
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Name contains invalid characters"
-msgstr "이름에는 문자 '$0'를 포함할 수 없습니다."
+msgstr "이름에 잘못된 문자가 있습니다"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
 msgid "Name must not be empty"
@@ -4763,11 +4662,8 @@ msgid "Network Traffic"
 msgstr "네트워크 통신량"
 
 #: pkg/networkmanager/interfaces.js:1725
-#, fuzzy
-#| msgid "Network"
-#| msgid_plural "Networks"
 msgid "Network bond"
-msgstr "네트워크"
+msgstr "네트워크 본드"
 
 #: pkg/networkmanager/index.html:55
 msgid "Network devices and graphs require NetworkManager."
@@ -5004,14 +4900,10 @@ msgid "No keys added"
 msgstr "추가된 키가 없습니다"
 
 #: pkg/lib/journal.js:567 pkg/systemd/services/service.jsx:113
-#, fuzzy
-#| msgid "Load earlier entries"
 msgid "No log entries"
-msgstr "이전 항목 로드"
+msgstr "로그 항목이 없습니다"
 
 #: pkg/systemd/services/services.jsx:790
-#, fuzzy
-#| msgid "No Matching Results"
 msgid "No matching results"
 msgstr "일치하는 결과를 찾을 수 없습니다"
 
@@ -5060,10 +4952,12 @@ msgstr "결과를 찾을 수 없습니다"
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
+"필터 기준과 일치하는 결과가 없습니다. 결과를 표시하려면 모든 필터를 지우십시"
+"오."
 
 #: pkg/systemd/overview-cards/insights.jsx:143
 msgid "No rule hits"
-msgstr ""
+msgstr "규칙 히트 없음"
 
 #: pkg/docker/containers-view.jsx:371
 msgid "No running containers"
@@ -5162,10 +5056,8 @@ msgid "Not found"
 msgstr "찾을 수 없습니다"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:267
-#, fuzzy
-#| msgid "Not mounted"
 msgid "Not joined"
-msgstr "마운트되어 있지 않습니다"
+msgstr "미가입"
 
 #: pkg/storaged/nfs-panel.jsx:52
 msgid "Not mounted"
@@ -5428,10 +5320,8 @@ msgid "Password Expiration"
 msgstr "암호 만료"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:450
-#, fuzzy
-#| msgid "Password"
 msgid "Password for $0"
-msgstr "암호"
+msgstr "$0의 암호"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:13
 #: pkg/users/password-dialogs.js:151
@@ -5580,19 +5470,15 @@ msgstr "Pizza Box"
 
 #: pkg/shell/superuser.jsx:43
 msgid "Please authenticate to gain administrative access"
-msgstr ""
+msgstr "관리 액세스 권한을 얻으려면 인증하십시오"
 
 #: pkg/machines/components/diskAdd.jsx:390
-#, fuzzy
-#| msgid "Could not reset the storage pool"
 msgid "Please choose a storage pool"
-msgstr "스토리지 풀을 재설정할 수 없습니다"
+msgstr "스토리지 풀을 선택하십시오"
 
 #: pkg/machines/components/diskAdd.jsx:429
-#, fuzzy
-#| msgid "Please enter new volume name"
 msgid "Please choose a volume"
-msgstr "새 볼륨 이름을 입력해 주십시오"
+msgstr "볼륨을 선택하십시오"
 
 #: pkg/docker/containers-view.jsx:205 pkg/docker/details.js:286
 #: pkg/docker/util.js:616 pkg/storaged/content-views.jsx:340
@@ -5623,7 +5509,7 @@ msgstr "$0 패키지를 설치해 주십시오"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:187
 msgid "Please set a root or a user password"
-msgstr ""
+msgstr "root 또는 사용자 비밀번호를 설정하십시오"
 
 #: pkg/users/expiration-dialogs.js:91
 msgid "Please specify an expiration date"
@@ -5784,10 +5670,8 @@ msgid "Product"
 msgstr "제품"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:419
-#, fuzzy
-#| msgid "Change Profile"
 msgid "Profile"
-msgstr "프로파일 변경"
+msgstr "프로파일"
 
 #: pkg/shell/index.html:152
 msgid "Project website"
@@ -5893,8 +5777,6 @@ msgid "RAID Level"
 msgstr "RAID 레벨"
 
 #: pkg/storaged/mdraid-details.jsx:322
-#, fuzzy
-#| msgid "RAID Level"
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "RAID 레벨"
@@ -6307,16 +6189,12 @@ msgid "Retries:"
 msgstr "재시도 횟수:"
 
 #: src/ws/login.html:59
-#, fuzzy
-#| msgid "Reuse my password for privileged tasks"
 msgid "Reuse my password for remote connections"
-msgstr "권한 작업 실행을 위해 암호 재사용"
+msgstr "원격 연결에 비밀번호를 재사용"
 
 #: pkg/systemd/manifest.json.in
-#, fuzzy
-#| msgid "Networking Logs"
 msgid "Reviewing logs"
-msgstr "네트워킹 로그"
+msgstr "로그 검토"
 
 # auto translated by TM merge from project: RHEV Administration Guide,
 # version: 4.0, DocId: chap-
@@ -6326,10 +6204,8 @@ msgid "Roles"
 msgstr "역할"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:439
-#, fuzzy
-#| msgid "Set Password"
 msgid "Root Password"
-msgstr "암호 설정"
+msgstr "Root 암호"
 
 #: pkg/networkmanager/interfaces.js:1970 pkg/networkmanager/interfaces.js:1987
 msgid "Round Robin"
@@ -6358,7 +6234,7 @@ msgstr "이미지 실행"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:402
 msgid "Run unattended installation"
-msgstr ""
+msgstr "무인 설치 실행"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:93
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:172
@@ -6424,10 +6300,8 @@ msgid "SPICE TLS Port:"
 msgstr "SPICE TLS 포트:"
 
 #: pkg/shell/index.html:79 pkg/shell/index.html:231
-#, fuzzy
-#| msgid "Keys"
 msgid "SSH Keys"
-msgstr "키"
+msgstr "SSH 키"
 
 #: pkg/networkmanager/index.html:241
 msgid "STP Forward delay"
@@ -6497,10 +6371,8 @@ msgid "Search"
 msgstr "검색"
 
 #: pkg/systemd/logs.html:78
-#, fuzzy
-#| msgid "Can not find any logs using the current combination of filters."
 msgid "Search the logs with a combination of terms:"
-msgstr "현재 필터 조합을 사용하여 로그를 찾을 수 없습니다."
+msgstr "결합된 조건을 사용하여 로그를 검색하십시오:"
 
 #: pkg/systemd/services.html:218 pkg/systemd/services.html:222
 #: pkg/systemd/services/timer-dialog.js:319
@@ -6554,7 +6426,7 @@ msgstr "직렬 콘솔"
 #: pkg/storaged/drive-details.jsx:73
 msgctxt "storage"
 msgid "Serial Number"
-msgstr ""
+msgstr "일련 번호"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -6685,6 +6557,7 @@ msgid ""
 "Setting the user passwords for unattended installation requires starting the "
 "VM when creating it"
 msgstr ""
+"자동 설치를 위한 사용자 암호를 설정하려면 VM을 생성할 때 VM을 시작해야합니다"
 
 #: pkg/packagekit/updates.jsx:65
 msgid "Setting up"
@@ -6741,10 +6614,8 @@ msgid "Show all images"
 msgstr "모든 이미지 표시"
 
 #: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
-#, fuzzy
-#| msgid "Show fingerprints"
 msgid "Show filters"
-msgstr "지문 표시"
+msgstr "필터 표시"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:304
 msgid "Show fingerprints"
@@ -6772,7 +6643,7 @@ msgstr "종료"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:230
 msgid "Shut off the VM in order to edit firmware configuration"
-msgstr ""
+msgstr "펌웨어 구성을 편집하려면 VM을 종료하십시오"
 
 #: pkg/systemd/overview.jsx:212
 msgid "Shutdown"
@@ -6817,16 +6688,12 @@ msgid "Size must be at least $0"
 msgstr "크기는 최소 $0이어야 합니다"
 
 #: pkg/shell/index.html:18
-#, fuzzy
-#| msgid "mitigation"
 msgid "Skip main navigation"
-msgstr "완화"
+msgstr "기본 탐색 건너 뛰기"
 
 #: pkg/shell/index.html:17
-#, fuzzy
-#| msgid "Grow Content"
 msgid "Skip to Content"
-msgstr "컨텐츠 확장"
+msgstr "내용으로 건너 뛰기"
 
 #: pkg/systemd/hwinfo.jsx:261
 msgid "Slot"
@@ -6877,7 +6744,7 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:291
 msgid "Something went wrong"
-msgstr ""
+msgstr "문제가 발생했습니다"
 
 #: pkg/networkmanager/firewall.jsx:650
 msgid "Sorted from least trusted to most trusted"
@@ -7002,8 +6869,6 @@ msgid "State"
 msgstr "상태"
 
 #: pkg/storaged/mdraid-details.jsx:327
-#, fuzzy
-#| msgid "State"
 msgctxt "storage"
 msgid "State"
 msgstr "상태"
@@ -7061,7 +6926,7 @@ msgstr "중지 및 제거"
 
 #: pkg/shell/hosts.jsx:242
 msgid "Stop editing hosts"
-msgstr ""
+msgstr "호스트 편집 중지"
 
 #: pkg/docker/util.js:232
 msgid "Stopped"
@@ -7190,7 +7055,7 @@ msgstr "$0 켜기"
 
 #: pkg/shell/superuser.jsx:126
 msgid "Switch to limited access"
-msgstr ""
+msgstr "제한된 액세스로 전환"
 
 #: pkg/networkmanager/interfaces.js:2492
 msgid ""
@@ -7227,16 +7092,12 @@ msgid "Synchronized"
 msgstr "동기화됨"
 
 #: pkg/systemd/overview-cards/serverTime.js:380
-#, fuzzy
-#| msgid "Synchronized with {{Server}}"
 msgid "Synchronized with $0"
-msgstr "{{Server}}와 동기화됨"
+msgstr "$0와 동기화됨"
 
 #: pkg/systemd/overview-cards/serverTime.js:384
-#, fuzzy
-#| msgid "Synchronize"
 msgid "Synchronizing"
-msgstr "동기화"
+msgstr "동기화 중"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Synchronizing RAID Device $target"
@@ -7276,10 +7137,8 @@ msgid "System time"
 msgstr "시스템 시간"
 
 #: pkg/systemd/services/services-list.jsx:33
-#, fuzzy
-#| msgid "System time"
 msgid "Systemd Units"
-msgstr "시스템 시간"
+msgstr "Systemd 유닛"
 
 #: pkg/docker/index.html:290 pkg/docker/index.html:294
 #: pkg/networkmanager/firewall.jsx:160
@@ -7363,7 +7222,7 @@ msgstr "연결 테스트 중"
 
 #: pkg/systemd/logs.html:70
 msgid "Text"
-msgstr ""
+msgstr "텍스트"
 
 #: pkg/machines/components/deleteResource.jsx:48
 msgid "The $0 could not be deleted"
@@ -7541,18 +7400,13 @@ msgid "The following containers depend on this image and will become unusable."
 msgstr "다음 컨테이너는 이 이미지에 종속되어 있으며 사용할 수 없게 됩니다."
 
 #: pkg/sosreport/index.html:51
-#, fuzzy
-#| msgid ""
-#| "The generated archive contains data considered sensitive and its content "
-#| "should be reviewed by the originating organization before being passed to "
-#| "any third party.              "
 msgid ""
 "The generated archive contains data considered sensitive and its content "
 "should be reviewed by the originating organization before being passed to "
 "any third party."
 msgstr ""
 "생성된 아카이브에는 기밀로 간주되는 데이터가 포함되어 있으며 해당 컨텐츠는 "
-"제 3자에게 전달되기 전에 원래 조직에서 검토해야합니다.              "
+"제 3자에게 전달되기 전에 원래 조직에서 검토해야합니다."
 
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
@@ -7601,12 +7455,8 @@ msgid "The pool is empty"
 msgstr "풀이 비어 있습니다"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:407
-#, fuzzy
-#| msgid ""
-#| "The selected Operating System has minimum storage size requirement of $0 "
-#| "$1"
 msgid "The selected Operating System does not support unattended installation"
-msgstr "선택한 운영 체제의 최소 스토리지 크기 요구 사항은 $0 $1입니다"
+msgstr "선택한 운영 체제가 자동 설치를 지원하지 않습니다"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:165
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
@@ -7682,7 +7532,7 @@ msgstr ""
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
-msgstr[0] ""
+msgstr[0] "마지막으로 로그인한 후 $0의 로그인 시도가 실패했습니다."
 
 #: pkg/shell/index.html:432
 msgid "There was an unexpected error while connecting to the machine."
@@ -7702,7 +7552,7 @@ msgstr "이 VDO 장치는 백업 장치를 사용하지 않습니다."
 
 #: pkg/machines/components/vm/vmActions.jsx:139
 msgid "This VM is transient. Shut it down if you wish to delete it."
-msgstr ""
+msgstr "이 VM은 일시적입니다. 삭제하려면 VM을 종료하십시오."
 
 #: pkg/systemd/services/timer-dialog.js:147
 msgid ""
@@ -7754,7 +7604,7 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:288
 msgid "This didn't work, please try again"
-msgstr ""
+msgstr "작동하지 않습니다. 다시 시도하십시오"
 
 #: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
@@ -7885,10 +7735,8 @@ msgid "Thursdays"
 msgstr "목요일"
 
 #: pkg/systemd/logs.html:37
-#, fuzzy
-#| msgid "Timers"
 msgid "Time"
-msgstr "타이머"
+msgstr "시간"
 
 # ctx::sourcefile::/rhn/account/LocalePreferences
 #: pkg/systemd/overview-cards/serverTime.js:512
@@ -7923,10 +7771,8 @@ msgstr ""
 "다른 포트를 사용하려면 cockpit-ws를 최신 버전으로 업그레이드해야 합니다."
 
 #: pkg/shell/index.html:65
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Toggle session settings"
-msgstr "설정 변경"
+msgstr "세션 설정 전환"
 
 #: src/base1/cockpit.js:4067
 msgid "Too much data"
@@ -7934,7 +7780,7 @@ msgstr "데이터가 너무 많습니다"
 
 #: pkg/shell/indexes.js:325
 msgid "Tools"
-msgstr ""
+msgstr "툴"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:98
 msgid "Total size: $0"
@@ -7946,7 +7792,7 @@ msgstr "타워"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
 msgid "Transient VMs don't support editing firmware configuration"
-msgstr ""
+msgstr "Transient VM은 펌웨어 구성 편집을 지원하지 않습니다"
 
 #: pkg/systemd/services/service-details.jsx:515
 msgid "Triggered By"
@@ -7978,10 +7824,8 @@ msgid "Try again"
 msgstr "다시 시도"
 
 #: pkg/systemd/overview-cards/serverTime.js:385
-#, fuzzy
-#| msgid "Trying to synchronize with {{Server}}"
 msgid "Trying to synchronize with $0"
-msgstr "{{Server}}와 동기화를 시도 중입니다"
+msgstr "$0와 동기화를 시도 중입니다"
 
 #: pkg/systemd/services.html:54
 msgid "Tuesday"
@@ -8008,10 +7852,8 @@ msgid "Tuned is off"
 msgstr "Tuned이 종료되어 있습니다"
 
 #: pkg/systemd/superuser-alert.jsx:44
-#, fuzzy
-#| msgid "Requires administration access to edit"
 msgid "Turn on administrative access"
-msgstr "편집하려면 관리 권한이 필요합니다"
+msgstr "관리자 액세스 설정"
 
 #: pkg/shell/index.html:341
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
@@ -8038,10 +7880,8 @@ msgid "Type a password"
 msgstr "암호 입력"
 
 #: pkg/systemd/logs.html:72
-#, fuzzy
-#| msgid "Type to filter…"
 msgid "Type to filter"
-msgstr "필터 입력…"
+msgstr "필터 입력"
 
 #: pkg/docker/containers-view.jsx:119
 msgid "Type to filter…"
@@ -8064,8 +7904,6 @@ msgstr "UUID"
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vgroup-details.jsx:220
-#, fuzzy
-#| msgid "UUID"
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -8135,7 +7973,7 @@ msgstr "단위"
 
 #: pkg/users/account-roles.js:74
 msgid "Unix group: $0"
-msgstr ""
+msgstr "Unix 그룹: $0"
 
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:241
 #: pkg/machines/components/vmnetworktab.jsx:165
@@ -8166,10 +8004,8 @@ msgid "Unknown configuration"
 msgstr "알 수 없는 설정"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:208
-#, fuzzy
-#| msgid "unknown target"
 msgid "Unknown firmware"
-msgstr "알 수 없는 대상"
+msgstr "알 수 없는 펌웨어"
 
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
@@ -8286,10 +8122,8 @@ msgid "Update Log"
 msgstr "로그 업데이트"
 
 #: pkg/apps/application-list.jsx:129
-#, fuzzy
-#| msgid "Package information"
 msgid "Update package information"
-msgstr "패키지 정보"
+msgstr "패키지 정보 업데이트"
 
 #: pkg/packagekit/updates.jsx:72
 msgid "Updated"
@@ -8312,10 +8146,8 @@ msgid "Updating status..."
 msgstr "상태 업데이트 중 ..."
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:128
-#, fuzzy
-#| msgid "time"
 msgid "Uptime"
-msgstr "시간"
+msgstr "가동 시간"
 
 #: pkg/machines/components/diskEdit.jsx:41
 msgid "Url"
@@ -8658,10 +8490,8 @@ msgid "Warning and above"
 msgstr "경고 이상의 수준"
 
 #: pkg/shell/indexes.js:390
-#, fuzzy
-#| msgid "Consoles"
 msgid "Web Console"
-msgstr "콘솔"
+msgstr "웹 콘솔"
 
 #: src/ws/cockpit.appdata.xml.in:8
 msgid "Web Console for Linux servers"
@@ -8669,7 +8499,7 @@ msgstr "Linux 서버 용 웹 콘솔"
 
 #: pkg/systemd/superuser-alert.jsx:60
 msgid "Web console is running in limited access mode."
-msgstr ""
+msgstr "웹 콘솔이 제한된 액세스 모드로 실행 중입니다."
 
 #: pkg/systemd/services.html:55
 msgid "Wednesday"
@@ -8698,7 +8528,7 @@ msgstr "터미널 실행"
 #: pkg/storaged/drive-details.jsx:74
 msgctxt "storage"
 msgid "World Wide Name"
-msgstr ""
+msgstr "월드 와이드 이름"
 
 #: pkg/storaged/mdraid-details.jsx:98
 msgid "Write-mostly"
@@ -8749,7 +8579,7 @@ msgstr "방화벽을 수정할 수있는 권한이 없습니다."
 
 #: pkg/shell/superuser.jsx:221
 msgid "You can not gain administrative access."
-msgstr ""
+msgstr "관리 액세스 권한을 얻을 수 없습니다."
 
 #: pkg/users/authorized-keys-panel.js:102
 msgid ""
@@ -8776,23 +8606,19 @@ msgstr "가장 일치하는 운영 체제를 선택해야합니다"
 #: pkg/sosreport/index.html:35
 msgid ""
 "You need to switch to \"Administrative Access\" in order to create reports."
-msgstr ""
+msgstr "보고서를 작성하려면 \"관리 액세스\"로 전환해야합니다."
 
 #: pkg/shell/superuser.jsx:279
-#, fuzzy
-#| msgid "Requires administration access to edit"
 msgid "You now have administrative access."
-msgstr "편집하려면 관리 권한이 필요합니다"
+msgstr "이제 관리자 액세스 권한이 있습니다."
 
 #: pkg/shell/base_index.js:529
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
 #: pkg/users/accounts-list.js:49
-#, fuzzy
-#| msgid "Lock Account"
 msgid "Your account"
-msgstr "계정 잠금"
+msgstr "사용자 계정"
 
 #: pkg/packagekit/updates.jsx:897
 msgid ""
@@ -8804,7 +8630,7 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:130
 msgid "Your browser will remember your access level across sessions."
-msgstr ""
+msgstr "브라우저는 서로 다른 세션 간의 액세스 수준을 기억합니다."
 
 #: pkg/packagekit/updates.jsx:937
 msgid ""
@@ -8864,7 +8690,7 @@ msgstr "자동으로 컴퓨터를 다시 시작합니다."
 
 #: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
-msgstr ""
+msgstr "정규식으로 사용되는 자유 형식 문자열"
 
 #: pkg/apps/manifest.json.in
 msgid "apps"
@@ -8947,14 +8773,12 @@ msgid "crashed"
 msgstr "충돌됨"
 
 #: pkg/machines/hostvmslist.jsx:50
-#, fuzzy
-#| msgid "Create VM"
 msgid "creating VM"
-msgstr "가상 머신 만들기"
+msgstr "VM 생성 중"
 
 #: pkg/machines/hostvmslist.jsx:48
 msgid "creating VM installation"
-msgstr ""
+msgstr "VM 설치 생성 중"
 
 #: pkg/machines/helpers.js:214
 msgid "custom"
@@ -9014,10 +8838,8 @@ msgid "dying"
 msgstr "종료 중"
 
 #: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
-#, fuzzy
-#| msgid "e.g. \"$0\""
 msgid "e.g."
-msgstr "예: \"$0\""
+msgstr "예:"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:298
 #: pkg/systemd/overview-cards/realmd-operation.js:304
@@ -9073,10 +8895,8 @@ msgid "firewall"
 msgstr "방화벽"
 
 #: pkg/networkmanager/manifest.json.in
-#, fuzzy
-#| msgid "firewall"
 msgid "firewalld"
-msgstr "방화벽"
+msgstr "firewalld"
 
 #: pkg/storaged/manifest.json.in
 msgid "format"
@@ -9169,7 +8989,7 @@ msgstr "저널"
 
 #: pkg/systemd/logs.html:86
 msgid "journalctl manpage"
-msgstr ""
+msgstr "journalctl manpage"
 
 #: pkg/kdump/manifest.json.in
 msgid "kdump"
@@ -9201,7 +9021,7 @@ msgstr "$0 (로컬)"
 
 #: pkg/systemd/logs.html:81
 msgid "log fields"
-msgstr ""
+msgstr "로그 필드"
 
 #: pkg/users/manifest.json.in
 msgid "login"
@@ -9261,8 +9081,6 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
-#, fuzzy
-#| msgid "nfs dump target isn't formated as server:path"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs 덤프 대상이 server:path 형식으로 되어 있지 않습니다"
 
@@ -9349,7 +9167,7 @@ msgstr "qemu"
 
 #: pkg/systemd/logs.html:80
 msgid "qualifiers"
-msgstr ""
+msgstr "qualifiers"
 
 #: pkg/storaged/manifest.json.in
 msgid "raid"

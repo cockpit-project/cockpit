@@ -2297,7 +2297,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.click("#vm-{0}-forceOff".format(name))
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
-            b.wait_in_text("#vm-{0}-state".format(name), "shut off")
 
             return self
 

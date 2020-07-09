@@ -151,7 +151,7 @@ OnCalendar=*:1/2
 Description=Test OnBoot Timer
 
 [Timer]
-OnBootSec=100min
+OnBootSec=200min
 Unit=test.service
 """)
 
@@ -215,7 +215,7 @@ Unit=test.service
         b.wait_present(self.svc_sel('test-onboot.timer'))
         b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test-onboot.timer")
-        # Check the next run. Since it triggers 100mins after the boot, it might be today or tomorrow (after 22:20)
+        # Check the next run. Since it triggers 200mins after the boot, it might be today or tomorrow (after 20:40)
         try:
             b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")
         except Error:

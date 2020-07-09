@@ -183,8 +183,8 @@ function validateParams(vmParams) {
             );
         }
     }
-    if (vmParams.unattendedInstallation && !vmParams.rootPassword && (permission.user.name == 'root' || !vmParams.userPassword))
-        validationFailed.password = _("Please set a root or a user password");
+    if (vmParams.unattendedInstallation && !vmParams.rootPassword)
+        validationFailed.password = _("Please set a root password");
 
     return validationFailed;
 }
@@ -445,18 +445,6 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                         {profile == 'desktop' && <p className="text-info">{_("Leave the password blank if you do not wish to have a root account created")}</p>}
                     </HelpBlock>
                 </FormGroup>
-                {permission.user.name != 'root' && profile == 'desktop' && <>
-                    <label htmlFor='user-password' className='control-label'>
-                        {cockpit.format(_("Password for $0"), permission.user.name)}
-                    </label>
-                    <FormGroup validationState={validationStatePassword} bsClass='form-group ct-validation-wrapper' controlId='user-password'>
-                        <Password id='user-password' onValueChanged={(value) => onValueChanged('userPassword', value)} />
-                        <HelpBlock>
-                            <p className="text-danger">{validationFailed.password}</p>
-                            <p className="text-info">{_("Leave the password blank if you do not wish to have a user account created")}</p>
-                        </HelpBlock>
-                    </FormGroup>
-                </>}
                 <hr />
             </> : <span />}
         </>
@@ -596,7 +584,6 @@ class CreateVmModal extends React.Component {
             minimumMemory: 0,
             recommendedStorage: undefined,
             minimumStorage: 0,
-            userPassword: '',
             rootPassword: '',
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
@@ -785,7 +772,6 @@ class CreateVmModal extends React.Component {
                 storageVolume: this.state.storageVolume,
                 startVm: this.state.startVm,
                 unattended: this.state.unattendedInstallation,
-                userPassword: this.state.userPassword,
                 rootPassword: this.state.rootPassword,
             };
 

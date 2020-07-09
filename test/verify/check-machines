@@ -1446,7 +1446,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                                 is_unattended=True, profile="Workstation",
-                                                                user_password="catsaremybestfr13nds", root_password="dogsaremybestfr13nds",
+                                                                root_password="dogsaremybestfr13nds",
                                                                 storage_size=246, storage_size_unit='MiB',
                                                                 os_name=config.FEDORA_28,
                                                                 os_short_id=config.FEDORA_28_SHORTID))
@@ -1458,15 +1458,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                                 storage_size=256, storage_size_unit='MiB',
                                                                 os_name=config.FEDORA_28,
                                                                 os_short_id=config.FEDORA_28_SHORTID))
-
-            # Don't create root account
-            runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
-                                                                is_unattended=True, profile="Workstation",
-                                                                user_password="catsaremybestfr13nds",
-                                                                storage_size=256, storage_size_unit='MiB',
-                                                                os_name=config.FEDORA_28,
-                                                                os_short_id=config.FEDORA_28_SHORTID))
-
 
             # name already used from a VM that is currently being created
             # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
@@ -1956,9 +1947,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if self.root_password:
                     root_password_file = virt_install_cmd_out.split("admin-password-file=", 1)[1].split(",")[0]
                     self.assertIn(self.machine.execute("cat {0}".format(root_password_file)).rstrip(), self.root_password)
-                if self.user_password:
-                    user_password_file = virt_install_cmd_out.split("user-password-file=", 1)[1].split(",")[0]
-                    self.assertIn(self.machine.execute("cat {0}".format(user_password_file)).rstrip(), self.user_password)
 
         def fill(self):
             def getSourceTypeLabel(sourceType):
@@ -2056,8 +2044,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.click("#unattended-installation")
                 if self.profile:
                     b.select_from_dropdown("#profile-select", self.profile)
-                if self.user_password:
-                    b.set_input_text("#user-password", self.user_password)
                 if self.root_password:
                     b.set_input_text("#root-password", self.root_password)
 

@@ -680,6 +680,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
             m.execute("su - -c 'BROWSER=/tmp/browser.sh %s system' admin" % cockpit_desktop)
             self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
 
+        self.allow_authorize_journal_messages()
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("Refusing to render service to dead parents.")
         self.allow_journal_messages(".*No authentication agent found.*")

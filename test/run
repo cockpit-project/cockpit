@@ -14,15 +14,15 @@ case $TEST_SCENARIO in
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     firefox)
-        test/image-prepare --verbose $TEST_OS
+        test/image-prepare --quick --verbose $TEST_OS
         TEST_BROWSER=firefox test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     selenium-*)
-        test/image-prepare --verbose $TEST_OS
+        test/image-prepare --quick --verbose $TEST_OS
         test/selenium/run-tests --browser ${TEST_SCENARIO#*-}
         ;;
     container-*)
-        test/image-prepare --containers --verbose $TEST_OS
+        test/image-prepare --quick --containers --verbose $TEST_OS
         test/containers/run-tests --container ${TEST_SCENARIO#*-}
         ;;
     *)

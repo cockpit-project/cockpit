@@ -58,7 +58,6 @@ __all__ = (
     'enableAxe',
     'timeout',
     'Error',
-    'attach',
 
     'sit',
     'wait',

@@ -82,7 +82,7 @@ def finish_test(opts, test, affected_tests):
     Return (retry_reason, exit_code). retry_reason can be None or a string.
     """
 
-    affected = test.command[0] in affected_tests
+    affected = "check-network" in test.command[0]
 
     # Try affected tests 3 times
     if test.process.returncode == 0 and affected and test.retries < 2:
@@ -144,7 +144,7 @@ def check_valid(filename):
 
 def build_command(filename, test, opts):
     cmd = [filename]
-    if opts.trace:
+    if opts.trace or "network" in filename:
         cmd.append("-t")
     if opts.verbosity:
         cmd.append("-v")

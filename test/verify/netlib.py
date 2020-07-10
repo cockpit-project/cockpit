@@ -48,6 +48,7 @@ class NetworkHelpers:
                                         "dhcp-%s.log" % name)
             self.addCleanup(self.machine.execute, "kill %i" % server)
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
+        self.browser.eval_js("window.debugging = 'dbus'")
 
     def nm_activate_eth(self, iface):
         '''Create an NM connection for a given interface'''
@@ -150,6 +151,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
             print("Interface %s didn't show up." % iface)
             print(self.machine.execute("grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show %s || true" % iface))
             raise e
+        self.browser.eval_js("window.debugging = null")
 
     def iface_con_id(self, iface):
         con_id = self.machine.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()

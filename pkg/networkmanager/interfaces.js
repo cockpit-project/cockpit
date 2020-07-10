@@ -1801,6 +1801,8 @@ PageNetworking.prototype = {
                                 ? [$('<td>').text(""), $('<td>').text("")]
                                 : $('<td colspan="2">').text(device_state_text(dev))));
 
+            if (dev)
+                console.log("XXX MANAGED", iface.Name, dev.Managed, dev.State);
             if (!dev || dev.Managed) {
                 managed_tbody.append(row.click(function () {
                     cockpit.location.go([iface.Name]);

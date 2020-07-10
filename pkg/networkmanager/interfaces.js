@@ -480,6 +480,7 @@ function NetworkManagerModel() {
         subscription = client.subscribe({ }, signal_emitted);
         watch = client.watch({ });
         $(client).on("notify", function(event, data) {
+            console.log("XXX NM interfaces notify", JSON.stringify(data));
             $.each(data, function(path, ifaces) {
                 $.each(ifaces, function(iface, props) {
                     if (props)

@@ -57,6 +57,10 @@ var info = {
         "playground/plot": [
             "playground/plot.js",
         ],
+        "playground/plot-pf4": [
+            "playground/plot-pf4.js",
+            "playground/plot-pf4.css",
+        ],
         "playground/react-patterns": [
             "playground/react-patterns",
         ],
@@ -189,6 +193,7 @@ var info = {
         "playground/metrics.html",
         "playground/pkgs.html",
         "playground/plot.html",
+        "playground/plot-pf4.html",
         "playground/react-patterns.html",
         "playground/service.html",
         "playground/speed.html",

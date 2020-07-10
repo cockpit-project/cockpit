@@ -1,0 +1,35 @@
+.sparky {
+    margin-left: 50px;
+    margin-top: 50px;
+    height: 135px;
+}
+
+.sparky > div > div > svg {
+    pointer-events: all;
+}
+
+.sparky defs + path {
+    fill: #06c;
+    width: 33px;
+    fill-opacity: 0.3;
+    stroke-width: 2;
+    stroke: #06c;
+}
+
+.sparky g[role=presentation] {
+    fill: rgb(21, 21, 21);
+    pointer-events: none;
+    stroke: rgb(21, 21, 21);
+    stroke-width: 1px;
+}
+
+.sparky g[role=presentation] tspan {
+    font-family: var(--pf-chart-global--FontFamily);
+    font-size: 14px;
+    letter-spacing: var(--pf-chart-global--letter-spacing);
+    padding: 8px;
+    stroke: transparent;
+    text-anchor: middle;
+    fill: rgb(240, 240, 240);
+    pointer-events: none;
+}

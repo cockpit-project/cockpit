@@ -332,11 +332,10 @@ export class AddDiskModalBody extends React.Component {
         case 'storagePoolName': {
             const currentPool = storagePools.find(pool => pool.name === value && pool.connectionName === vm.connectionName);
             const prevPool = storagePools.find(pool => pool.name === this.state.storagePoolName && pool.connectionName === vm.connectionName);
-
             this.setState({ storagePoolName: value });
             // Reset the format only when the Format selection dropdown changes entries - otherwise just keep the old selection
             // All pool types apart from 'disk' have either 'raw' or 'qcow2' format
-            if ((currentPool.type == 'disk' && prevPool.type != 'disk') || (currentPool.type != 'disk' && prevPool.type == 'disk'))
+            if (currentPool && prevPool && ((currentPool.type == 'disk' && prevPool.type != 'disk') || (currentPool.type != 'disk' && prevPool.type == 'disk')))
                 this.onValueChanged('format', getDefaultVolumeFormat(value));
 
             if (this.state.mode === USE_EXISTING) { // user changed pool

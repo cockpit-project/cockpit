@@ -33,13 +33,21 @@ import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx'
 
 const _ = cockpit.gettext;
 
-class VmNetworkTab extends React.Component {
+const getNetworkDevices = (updateState) => {
+    cockpit.spawn(["find", "/sys/class/net", "-type", "l", "-printf", '%f\n'], { err: "message" })
+            .then(output => {
+                const devs = output.trim().split('\n');
+                updateState(devs);
+            })
+            .catch(e => console.warn("could not read /sys/class/net:", e.toString()));
+};
+
+export class VmNetworkActions extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             showAddNICModal: false,
-            interfaceAddress: [],
             networkDevices: undefined,
         };
 
@@ -57,12 +65,63 @@ class VmNetworkTab extends React.Component {
 
     componentDidMount() {
         // only consider symlinks -- there might be other stuff like "bonding_masters" which we don't want
-        cockpit.spawn(["find", "/sys/class/net", "-type", "l", "-printf", '%f\n'], { err: "message" })
-                .then(output => {
-                    const devs = output.trim().split('\n');
-                    this.setState({ networkDevices: devs });
-                })
-                .catch(e => console.warn("could not read /sys/class/net:", e.toString()));
+        getNetworkDevices(devs => this.setState({ networkDevices: devs }));
+    }
+
+    render() {
+        const { vm, dispatch, networks, nodeDevices, interfaces } = this.props;
+        const id = vmId(vm.name);
+        const availableSources = {
+            network: networks.map(network => network.name),
+            device: this.state.networkDevices,
+        };
+        return (<>
+            {this.state.showAddNICModal && this.state.networkDevices !== undefined &&
+                <AddNIC dispatch={dispatch}
+                    idPrefix={`${id}-add-iface`}
+                    vm={vm}
+                    nodeDevices={nodeDevices}
+                    availableSources={availableSources}
+                    interfaces={interfaces}
+                    close={this.close} />}
+            <Button id={`${id}-add-iface-button`} onClick={this.open}>
+                {_("Add network interface")}
+            </Button>
+        </>);
+    }
+}
+
+VmNetworkActions.propTypes = {
+    vm: PropTypes.object.isRequired,
+    networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
+    dispatch: PropTypes.func.isRequired,
+};
+
+export class VmNetworkTab extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            interfaceAddress: [],
+            networkDevices: undefined,
+        };
+
+        this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
+        this.client = cockpit.dbus("org.freedesktop.NetworkManager", {});
+        this.hostDevices = this.client.proxies("org.freedesktop.NetworkManager.Device");
+        this.hostDevices.addEventListener('changed', this.deviceProxyHandler);
+        this.hostDevices.addEventListener('removed', this.deviceProxyHandler);
+    }
+
+    deviceProxyHandler() {
+        this.forceUpdate();
+    }
+
+    componentDidMount() {
+        // only consider symlinks -- there might be other stuff like "bonding_masters" which we don't want
+        getNetworkDevices(devs => this.setState({ networkDevices: devs }));
 
         if (this.props.vm.state != 'running' && this.props.vm.state != 'paused')
             return;
@@ -79,8 +138,12 @@ class VmNetworkTab extends React.Component {
                 });
     }
 
+    componentWillUnmount() {
+        this.client.close();
+    }
+
     render() {
-        const { vm, dispatch, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
+        const { vm, dispatch, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
             network: networks.map(network => network.name),
@@ -92,8 +155,8 @@ class VmNetworkTab extends React.Component {
         };
 
         const checkDeviceAviability = (network) => {
-            for (const i in hostDevices) {
-                if (hostDevices[i].valid && hostDevices[i].Interface == network) {
+            for (const i in this.hostDevices) {
+                if (this.hostDevices[i].valid && this.hostDevices[i].Interface == network) {
                     return true;
                 }
             }
@@ -275,30 +338,16 @@ class VmNetworkTab extends React.Component {
         });
 
         return (
-            <div className="machines-network-list">
+            <>
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
                 {this.state.editNICDialogProps && <EditNICModal {...this.state.editNICDialogProps } />}
-                <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
-                    {_("Add network interface")}
-                </Button>
-
-                {this.state.showAddNICModal && this.state.networkDevices !== undefined &&
-                    <AddNIC dispatch={dispatch}
-                        idPrefix={`${id}-add-iface`}
-                        vm={vm}
-                        nodeDevices={nodeDevices}
-                        availableSources={availableSources}
-                        interfaces={interfaces}
-                        close={this.close} />}
-
-                <div className="ct-table-wrapper">
-                    <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
-                        variant='compact'
-                        emptyCaption={_("No network interfaces defined for this VM")}
-                        columns={columnTitles}
-                        rows={rows} />
-                </div>
-            </div>
+                <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
+                    gridBreakPoint='grid-xl'
+                    variant='compact'
+                    emptyCaption={_("No network interfaces defined for this VM")}
+                    columns={columnTitles}
+                    rows={rows} />
+            </>
         );
     }
 }
@@ -309,6 +358,5 @@ VmNetworkTab.propTypes = {
     interfaces: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
-
-export default VmNetworkTab;

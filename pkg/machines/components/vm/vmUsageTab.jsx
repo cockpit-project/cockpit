@@ -36,14 +36,6 @@ import DonutChart from "../../c3charts.jsx";
 const _ = cockpit.gettext;
 
 class VmUsageTab extends React.Component {
-    componentDidMount() {
-        this.props.onUsageStartPolling();
-    }
-
-    componentWillUnmount() {
-        this.props.onUsageStopPolling();
-    }
-
     render() {
         const vm = this.props.vm;
         const width = 220;
@@ -109,8 +101,6 @@ class VmUsageTab extends React.Component {
 
 VmUsageTab.propTypes = {
     vm: PropTypes.object.isRequired,
-    onUsageStartPolling: PropTypes.func.isRequired,
-    onUsageStopPolling: PropTypes.func.isRequired,
 };
 
 export default VmUsageTab;

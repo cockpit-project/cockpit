@@ -26,6 +26,17 @@ import {
 } from '@patternfly/react-core';
 
 import {
+    shutdownVm,
+    pauseVm,
+    resumeVm,
+    forceVmOff,
+    forceRebootVm,
+    rebootVm,
+    sendNMI,
+    startVm,
+    installVm,
+} from "../../actions/provider-actions.js";
+import {
     vmId,
 } from "../../helpers.js";
 
@@ -34,7 +45,7 @@ import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
+const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification }) => {
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [showDeleteDialog, toggleDeleteModal] = useState(false);
 
@@ -42,6 +53,61 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
     const state = vm.state;
     const hasInstallPhase = vm.metadata.hasInstallPhase;
     const dropdownItems = [];
+
+    const onStart = () => dispatch(startVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to start"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onInstall = () => dispatch(installVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to get installed"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onReboot = () => dispatch(rebootVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to reboot"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onForceReboot = () => dispatch(forceRebootVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to force reboot"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onShutdown = () => dispatch(shutdownVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onPause = () => dispatch(pauseVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to pause"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onResume = () => dispatch(resumeVm(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to resume"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onForceoff = () => dispatch(forceVmOff(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onSendNMI = () => dispatch(sendNMI(vm)).catch(ex => {
+        onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to send NMI"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
 
     let shutdown;
 
@@ -132,9 +198,8 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
     if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
         if (!vm.persistent) {
             dropdownItems.push(
-                <Tooltip id={`${id}-delete-tooltip`} content={_("This VM is transient. Shut it down if you wish to delete it.")}>
-                    <DropdownItem key={`${id}-delete`}
-                                  id={`${id}-delete`}
+                <Tooltip key={`${id}-delete`} id={`${id}-delete-tooltip`} content={_("This VM is transient. Shut it down if you wish to delete it.")}>
+                    <DropdownItem id={`${id}-delete`}
                                   className='pf-m-danger'
                                   isDisabled>
                         {_("Delete")}
@@ -176,14 +241,7 @@ VmActions.propTypes = {
     vm: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     storagePools: PropTypes.array.isRequired,
-    onStart: PropTypes.func.isRequired,
-    onReboot: PropTypes.func.isRequired,
-    onForceReboot: PropTypes.func.isRequired,
-    onShutdown: PropTypes.func.isRequired,
-    onPause: PropTypes.func.isRequired,
-    onResume: PropTypes.func.isRequired,
-    onForceoff: PropTypes.func.isRequired,
-    onSendNMI: PropTypes.func.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };
 
 export default VmActions;

@@ -24,9 +24,11 @@ import {
     rephraseUI,
 } from "../../helpers.js";
 
+import "./stateIcon.scss";
+
 const _ = cockpit.gettext;
 
-const StateIcon = ({ state, valueId, extra }) => {
+export const StateIcon = ({ state, valueId, extra, showIcon }) => {
     if (state === undefined) {
         return (<div />);
     }
@@ -54,7 +56,8 @@ const StateIcon = ({ state, valueId, extra }) => {
         return (
             <span title={stateMap[state].title} data-toggle='tooltip' data-placement='left'>
                 {extra}
-                <span id={valueId}>{rephraseUI('vmStates', state)}</span>
+                <span className="vm-state-text" id={valueId}>{rephraseUI('vmStates', state)}</span>
+                {showIcon && <span className={stateMap[state].className} />}
             </span>);
     }
     return (<small>{state}</small>);

@@ -17,49 +17,174 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect } from 'react';
 import cockpit from 'cockpit';
+
+import {
+    Breadcrumb, BreadcrumbItem,
+    Gallery, Button,
+    Card, CardTitle, CardActions, CardHeader, CardBody, CardFooter,
+    Page, PageSection, PageSectionVariants,
+} from '@patternfly/react-core';
+import { ExpandIcon } from '@patternfly/react-icons';
 
 import { vmId } from "../../helpers.js";
 
-import VmDisksTab from '../vmDisksTabLibvirt.jsx';
-import VmNetworkTab from '../vmnetworktab.jsx';
+import { VmDisksTabLibvirt, VmDisksActions } from '../vmDisksTab.jsx';
+import { VmNetworkTab, VmNetworkActions } from '../vmnetworktab.jsx';
 import Consoles from '../consoles.jsx';
 import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
 import VmUsageTab from './vmUsageTab.jsx';
-import VmSnapshotsTab from '../vmSnapshotsTab.jsx';
-import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
+import { VmSnapshotsTab, VmSnapshotsActions } from '../vmSnapshotsTab.jsx';
+import VmActions from './vmActions.jsx';
+
+import './vmExpandedContent.scss';
 
 const _ = cockpit.gettext;
 
-/** One VM in the list (a row)
- */
 export const VmExpandedContent = ({
     vm, vms, config, libvirtVersion, hostDevices, storagePools,
     onUsageStartPolling, onUsageStopPolling, dispatch, networks,
-    interfaces, nodeDevices, onAddErrorNotification
+    interfaces, nodeDevices, notifications, onAddErrorNotification
 }) => {
-    const tabRenderers = [
-        { name: _("Overview"), id: cockpit.format("$0-overview", vmId(vm.name)), renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices, libvirtVersion } },
-        { name: _("Usage"), id: cockpit.format("$0-usage", vmId(vm.name)), renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
-        { name: _("Disks"), id: cockpit.format("$0-disks", vmId(vm.name)), renderer: VmDisksTab, data: { vm, vms, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
-        { name: _("Network interfaces"), id: cockpit.format("$0-networks", vmId(vm.name)), renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, interfaces, networks, nodeDevices, onAddErrorNotification } },
-        { name: _("Consoles"), id: cockpit.format("$0-consoles", vmId(vm.name)), renderer: Consoles, data: { vm, config, dispatch, onAddErrorNotification } },
-    ];
-    if (vm.snapshots !== -1)
-        tabRenderers.splice(4, 0, { name: _("Snapshots"), id: cockpit.format("$0-snapshots", vmId(vm.name)), renderer: VmSnapshotsTab, data: { vm, dispatch, config, onAddErrorNotification } });
+    useEffect(() => {
+        // Anything in here is fired on component mount.
+        onUsageStartPolling();
+        return () => {
+            // Anything in here is fired on component unmount.
+            onUsageStopPolling();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    let initiallyActiveTab = null;
-    if (vm.ui && vm.ui.initiallyOpenedConsoleTab) {
-        initiallyActiveTab = tabRenderers.map((o) => o.name).indexOf(_("Consoles"));
+    if (cockpit.location.path[1] == "console") {
+        return (<>
+            <Breadcrumb className='machines-listing-breadcrumb'>
+                <BreadcrumbItem to='#'>
+                    {_("Virtual machines")}
+                </BreadcrumbItem>
+                <BreadcrumbItem to="#" onClick={() => cockpit.location.go(["vm"], Object.assign(cockpit.location.options, { name: vm.name, connection: vm.connectionName }))}>
+                    {vm.name}
+                </BreadcrumbItem>
+                <BreadcrumbItem isActive>
+                    {_("Console")}
+                </BreadcrumbItem>
+            </Breadcrumb>
+            <Card>
+                <CardBody>
+                    <Consoles vm={vm} config={config} dispatch={dispatch}
+                             onAddErrorNotification={onAddErrorNotification} />;
+                </CardBody>
+                <CardFooter />
+            </Card>
+        </>);
     }
 
-    return (vm.snapshots !== undefined
-        ? <ListingPanel
-            colSpan='4'
-            initiallyActiveTab={initiallyActiveTab}
-            tabRenderers={tabRenderers} />
-        : null);
+    const cardContents = [
+        {
+            id: `${vmId(vm.name)}-overview`,
+            title: _("Overview"),
+            body: <VmOverviewTab vm={vm} config={config} dispatch={dispatch}
+                                 nodeDevices={nodeDevices} libvirtVersion={libvirtVersion} />,
+        },
+        {
+            id: `${vmId(vm.name)}-usage`,
+            className: 'usage-card',
+            title: _("Usage"),
+            body: <VmUsageTab vm={vm} />,
+        },
+        {
+            id: `${vmId(vm.name)}-consoles`,
+            className: "consoles-card",
+            title: _("Console"),
+            actions: <Button variant="link"
+                           isDisabled={vm.state == "shut off"}
+                           onClick={() => {
+                               const urlOptions = { name: vm.name, connection: vm.connectionName };
+                               return cockpit.location.go(["vm", "console"], { ...cockpit.location.options, ...urlOptions });
+                           }}
+                           icon={<ExpandIcon />}
+                           iconPosition="right">{_("Expand")}</Button>,
+            body: <Consoles vm={vm} config={config} dispatch={dispatch}
+                            onAddErrorNotification={onAddErrorNotification} />,
+        },
+        {
+            id: `${vmId(vm.name)}-disks`,
+            className: "disks-card",
+            title: _("Disks"),
+            actions: <VmDisksActions vm={vm} vms={vms} storagePools={storagePools}
+                                     dispatch={dispatch} />,
+            body: <VmDisksTabLibvirt vm={vm} config={config} storagePools={storagePools}
+                                     dispatch={dispatch} onAddErrorNotification={onAddErrorNotification} />,
+        },
+        {
+            id: `${vmId(vm.name)}-networks`,
+            className: "networks-card",
+            title: _("Networks"),
+            actions: <VmNetworkActions vm={vm} dispatch={dispatch}
+                                       interfaces={interfaces} networks={networks}
+                                       nodeDevices={nodeDevices} />,
+            body: <VmNetworkTab vm={vm} dispatch={dispatch} config={config}
+                                interfaces={interfaces} networks={networks}
+                                nodeDevices={nodeDevices} onAddErrorNotification={onAddErrorNotification} />,
+        },
+    ];
+    if (vm.snapshots !== -1 && vm.snapshots !== undefined) {
+        cardContents.push({
+            id: cockpit.format("$0-snapshots", vmId(vm.name)),
+            className: "snapshots-card",
+            title: _("Snapshots"),
+            actions: <VmSnapshotsActions vm={vm} dispatch={dispatch} />,
+            body: <VmSnapshotsTab vm={vm} dispatch={dispatch} config={config}
+                                  onAddErrorNotification={onAddErrorNotification} />
+        });
+    }
+
+    const cards = cardContents.map(card => {
+        return (
+            <Card key={card.id}
+                  className={card.className}
+                  id={card.id}>
+                <CardHeader>
+                    <CardTitle><h2>{card.title}</h2></CardTitle>
+                    {card.actions && <CardActions>{card.actions}</CardActions>}
+                </CardHeader>
+                <CardBody className={["disks-card", "networks-card", "snapshots-card"].includes(card.className) ? "contains-list" : ""}>
+                    {card.body}
+                </CardBody>
+                <CardFooter />
+            </Card>
+        );
+    });
+
+    return (
+        <Page breadcrumb={
+            <Breadcrumb className='machines-listing-breadcrumb'>
+                <BreadcrumbItem to='#'>
+                    {_("Virtual machines")}
+                </BreadcrumbItem>
+                <BreadcrumbItem isActive>
+                    {vm.name}
+                </BreadcrumbItem>
+            </Breadcrumb>}>
+            <PageSection variant={PageSectionVariants.light}>
+                <div className="vm-top-panel">
+                    <h2 className="vm-name">{vm.name}</h2>
+                    <VmActions vm={vm}
+                               config={config}
+                               dispatch={dispatch}
+                               storagePools={storagePools}
+                               onAddErrorNotification={onAddErrorNotification} />
+                </div>
+                {notifications && <div className="vm-notifications">{notifications}</div>}
+            </PageSection>
+            <PageSection>
+                <Gallery className='ct-vm-overview' hasGutter>
+                    {cards}
+                </Gallery>
+            </PageSection>
+        </Page>
+    );
 };
 
 VmExpandedContent.propTypes = {
@@ -68,10 +193,10 @@ VmExpandedContent.propTypes = {
     config: PropTypes.object.isRequired,
     libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
-    hostDevices: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,
+    notifications: PropTypes.array,
     onAddErrorNotification: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

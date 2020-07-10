@@ -19,16 +19,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ToastNotificationList } from 'patternfly-react';
+import { Alert } from "@patternfly/react-core";
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
 
 import HostVmsList from "./hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import { NetworkList } from "./components/networks/networkList.jsx";
-import LibvirtSlate from "./components/libvirtSlate.jsx";
+import { VmExpandedContent } from './components/vm/vmExpandedContent.jsx';
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
-import { isObjectEmpty, dummyVmsFilter } from "./helpers.js";
+import LibvirtSlate from "./components/libvirtSlate.jsx";
+import { isObjectEmpty, dummyVmsFilter, vmId } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
+import {
+    usageStartPolling,
+    usageStopPolling,
+} from "./actions/provider-actions.js";
 
 superuser.reload_page_on_change();
 
@@ -129,6 +135,44 @@ class App extends React.Component {
 
         const pathVms = path.length == 0 || (path.length > 0 && path[0] == 'vms');
 
+        let vmContent;
+        if (path.length > 0 && path[0] == 'vm') {
+            const vm = vms.find(vm => vm.name == cockpit.location.options.name && vm.connectionName == cockpit.location.options.connection);
+            if (!vm)
+                return null;
+
+            const connectionName = vm.connectionName;
+            // If vm.isUi is set we show a dummy placeholder until libvirt gets a real domain object for newly created V
+            const expandedContent = vm.isUi ? undefined : (
+                <VmExpandedContent vm={vm} vms={vms} config={config}
+                    libvirtVersion={systemInfo.libvirtVersion}
+                    notifications={this.state.resourceHasError[vm.id]
+                        ? Object.keys(this.state.notifications)
+                                .map(notificationId => this.state.notifications[notificationId])
+                                .filter(notification => notification.resourceId == vm.id)
+                                .map(notification => {
+                                    return (
+                                        <Alert variant='danger' key={notification.index}
+                                               isInline
+                                               onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                               title={notification.text}>{notification.detail}</Alert>
+                                    );
+                                })
+                        : undefined}
+                    onAddErrorNotification={this.onAddErrorNotification}
+                    storagePools={storagePools.filter(pool => pool && pool.connectionName == connectionName)}
+                    onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
+                    onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                    dispatch={dispatch}
+                    interfaces={interfaces}
+                    networks={networks.filter(network => network && network.connectionName == connectionName)}
+                    nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
+                    key={vmId(vm.name)}
+                />
+            );
+            return expandedContent;
+        }
+
         return (
             <>
                 {Object.keys(this.state.notifications).length > 0 &&
@@ -160,6 +204,7 @@ class App extends React.Component {
                     onAddErrorNotification={this.onAddErrorNotification}
                     nodeDevices={nodeDevices} />
                 }
+                {path.length > 0 && path[0] == 'vms' && vmContent}
                 {path.length > 0 && path[0] == 'storages' &&
                 <StoragePoolList storagePools={storagePools}
                     dispatch={dispatch}

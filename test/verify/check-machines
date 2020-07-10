@@ -103,8 +103,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
 
-    def toggleVmRow(self, vmName, connectionName='system'):
-        self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] .pf-c-table__toggle button".format(vmName, connectionName)) # click on the row header
+        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
+
+    def goToVmPage(self, vmName, connectionName='system'):
+        self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
+
+    def goToMainPage(self):
+        self.browser.click(".machines-listing-breadcrumb li:first-of-type a")
 
     def waitVmRow(self, vmName, connectionName='system', present=True):
         b = self.browser
@@ -238,8 +243,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow(name)
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
@@ -287,8 +292,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "1")
 
         b.wait_in_text("#vm-subVmTest1-boot-order", "disk,network")
@@ -362,12 +367,18 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait(lambda: get_usage("#chart-donut-0") == 0.0)
         b.wait(lambda: get_usage("#chart-donut-1") == 0.0)
 
+        self.goToMainPage()
+
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        self.toggleVmRow("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-state", "running")
+        self.goToVmPage("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
         b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
+
+        self.goToMainPage()
+        self.waitVmRow("subVmTest1")
+        self.waitVmRow("subVmTest2")
 
         if superuser:
             # restart libvirtd
@@ -379,7 +390,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.waitVmRow("subVmTest2")
             b.wait_in_text("#vm-subVmTest1-state", "shut off")
             b.wait_in_text("#vm-subVmTest2-state", "running")
-            self.toggleVmRow("subVmTest2")
 
         # stop second VM, event handling should still work
         b.click("#vm-subVmTest2-action-kebab button")
@@ -434,11 +444,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         def tryRunDomain(index, name):
             self.waitVmRow(name)
-
-            row_classes = b.attr("#virtual-machines-listing .ct-table > tbody:nth-of-type({0})".format(index), "class")
-            expanded = row_classes and 'pf-m-expanded' in row_classes
-            if not expanded:
-                self.toggleVmRow(name)
 
             b.click("#vm-{0}-run".format(name))
 
@@ -568,10 +573,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+        self.goToVmPage("subVmTest1")
 
         # Test basic disk properties
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
@@ -617,7 +621,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testAddDisk(self):
         b = self.browser
         m = self.machine
-        toggleVmRow = self.toggleVmRow
+        goToVmPage = self.goToVmPage
 
         dev = self.add_ram_disk()
 
@@ -732,6 +736,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
                 # Check volume was added to pool's volume list
                 if not self.use_existing_volume:
+                    self.test_obj.goToMainPage()
                     b.click(".cards-pf .card-pf-title span:contains(Storage pool)")
 
                     self.test_obj.waitPoolRow(self.pool_name)
@@ -742,8 +747,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
 
                     b.click(".machines-listing-breadcrumb li a:contains(Virtual machines)")
-                    toggleVmRow("subVmTest1")
-                    b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+                    goToVmPage("subVmTest1")
 
                 # Detect volume format
                 detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '{2}' -"
@@ -762,7 +766,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
                 # Unknown pool format isn't present in xml anymore
                 if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
-                    m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
+                    m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")
                 else:
                     self.test_obj.assertEqual(
                         m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
@@ -823,9 +827,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+        self.goToVmPage("subVmTest1")
 
         VMAddDiskDialog(
             self,
@@ -978,7 +981,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 expected_target=get_next_free_target(),
             ).execute()
 
-        # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
+        self.goToMainPage()
+
+        # Undefine all Storage pools and  confirm that the Add Disk dialog is disabled
         active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
         print(active_pools)
         for pool in active_pools:
@@ -988,6 +993,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         for pool in inactive_pools:
             m.execute("virsh pool-undefine {0}".format(pool))
         b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
+
+        self.goToVmPage('subVmTest1')
         b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
         b.click("label:contains(Use existing)")
@@ -998,8 +1005,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.reload()
         b.enter_page('/machines')
         b.wait_in_text("body", "Virtual machines")
-        self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         # Check that usage information can't be fetched since the pool is inactive
         b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
 
@@ -1037,14 +1042,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Wait for the dynamic IP address to be assigned before logging in
         # If the IP will change or get assigned after fetching the domain data the user will not see any
         # changes until they refresh the page, since there is not any signal associated with this change
         wait(lambda: "1" in self.machine.execute("virsh domifaddr subVmTest1  | grep 192.168.122. | wc -l"), delay=3)
-        b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
+        self.goToVmPage("subVmTest1")
 
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
@@ -1072,9 +1076,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        self.toggleVmRow("subVmTest1")
 
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
         b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
 
@@ -1198,10 +1202,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
-
-        b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
+        self.goToVmPage("subVmTest1")
 
         # since VNC is not defined for this VM, the view for "Desktop Viewer" is rendered by default
         b.wait_in_text("#vm-subVmTest1-consoles-manual-address", "127.0.0.1")
@@ -1229,10 +1231,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
-
-        b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
+        self.goToVmPage("subVmTest1")
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
@@ -1262,13 +1262,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         m.execute("test -f {0}".format(img2))
 
-        self.toggleVmRow("subVmTest1")
+        self.goToVmPage("subVmTest1")
 
         def addDisk(volName, poolName):
             # Virsh does not offer some option to create disks of type volume
             # We have to do this from cockpit UI
-            b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-
             b.click("#vm-subVmTest1-disks-adddisk") # button
             b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
             b.wait_present("label:contains(Create new)") # radio button label in the modal dialog
@@ -1313,7 +1311,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         name = "paused-test-vm"
         args = self.startVm(name)
 
-        self.toggleVmRow(name)
+        self.goToVmPage(name)
 
         # Make sure that the VM booted normally before attempting to suspend it
         wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -1331,12 +1329,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh undefine {0}".format(name))
         b.reload()
         self.browser.enter_page('/machines')
-        self.toggleVmRow(name)
+        self.goToMainPage()
         b.click("#vm-{0}-action-kebab button".format(name))
         b.wait_present("#vm-{0}-delete a.pf-m-disabled".format(name))
         b.click("#vm-{0}-forceOff".format(name))
         self.waitVmRow(name, 'system', False)
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
+
+        # Deleting a running guest will disconnect the serial console
+        self.allow_browser_errors("Disconnection timed out.")
+        self.allow_journal_messages(".* couldn't shutdown fd: Transport endpoint is not connected")
 
     def testSerialConsole(self):
         b = self.browser
@@ -1348,10 +1350,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow(name)
 
-        self.toggleVmRow(name)
+        self.goToVmPage(name)
         b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
-
-        b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
 
         b.set_val("#console-type-select", "serial-browser")
         b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
@@ -1377,10 +1377,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         self.waitVmRow(name)
-        self.toggleVmRow(name)
+        self.goToVmPage(name)
         b.wait_in_text("#vm-{0}-state".format(name), "running")
 
-        b.click("#vm-{0}-consoles".format(name))
+        b.wait_present("#vm-{0}-consoles".format(name))
         b.wait_present("div.vnc-console canvas")
         b.select_from_dropdown("#console-type-select", "Serial console")
         b.wait_not_present("div.vnc-console canvas")
@@ -1582,6 +1582,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Wait for virt-install to define the VM and then stop it
         wait(lambda: "pxe-guest" in self.machine.execute("virsh list --persistent"), delay=3)
         self.machine.execute("virsh destroy pxe-guest")
+        self.goToMainPage()
 
         # Remove all serial ports and consoles first and tehn add a console of type file
         # virt-xml tool does not allow to remove both serial and console devices at once
@@ -1818,6 +1819,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 location=config.VALID_URL, storage_size=1,
                                                 delete=False))
 
+        self.goToMainPage()
         runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
                                                                    env_is_empty=False), {"Name": "already exists"})
 
@@ -2358,7 +2360,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present("#create-vm-dialog")
 
         def _tryCreate(self, dialog):
-            b = self.browser
             name = dialog.name
 
             dialog.open() \
@@ -2367,14 +2368,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # successfully created
             self.test_obj.waitVmRow(name, dialog.connection or "system")
-
-            if dialog.start_vm:
-                # wait for console tab to open
-                b.wait_present("#vm-{0}-consoles.pf-m-current".format(name))
-            else:
-                # wait for Overview tab to open
-                b.wait_present("#vm-{0}-memory-count".format(name))
-                b.wait_present("#vm-{0}-vcpus-count".format(name))
 
             self._assertCorrectConfiguration(dialog)
 
@@ -2391,8 +2384,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             self.test_obj.waitVmRow(name)
             b.click("#vm-{0}-install".format(name))
-            b.wait_present("#vm-{0}-consoles.pf-m-current".format(name))
 
+            b.wait_in_text("#vm-{}-state".format(name), "running")
             self._assertCorrectConfiguration(dialog)
 
             # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
@@ -2431,8 +2424,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b = self.browser
             name = dialog.name
 
+            self.test_obj.goToVmPage(name, dialog.connection or "system")
+
             # check memory
-            b.click("#vm-{0}-usage".format(name))
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
             # the host has (less or more than 1 GiB), and thus needs to be dynamic
             if dialog.memory_size >= 1024 and dialog.memory_size_unit == "MiB":
@@ -2442,8 +2436,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text(".memory-usage-chart .usage-donut-caption", memory_text)
 
             # check disks
-            b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
-
             # Test disk got imported/created
             if dialog.sourceType == 'disk_image':
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
@@ -2470,7 +2462,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                b.wait_in_text(".ct-table-empty", "No disks defined")
+                b.wait_in_text("#vm-{0}-disks .ct-table-empty".format(name), "No disks defined")
                 b.click("#vm-{0}-disks-adddisk".format(name))
                 b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self
@@ -2592,8 +2584,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
 
         # set checkbox state and check state of checkbox
@@ -2631,8 +2623,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
         # Wait for the edit button
         bootOrder = b.text("#vm-subVmTest1-boot-order")
@@ -2720,6 +2712,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#create-vm-dialog")
 
         self.waitVmRow("VmNotInstalled")
+        self.goToVmPage("VmNotInstalled")
 
         # Change autostart
         autostart = not b.get_checked("#vm-VmNotInstalled-autostart-checkbox")
@@ -2785,7 +2778,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # Reload for the new configuration to be read
             b.reload()
             b.enter_page('/machines')
-            self.toggleVmRow("VmNotInstalled")
 
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
@@ -2795,7 +2787,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     # We don't get events for shut off VMs so reload the page
                     b.reload()
                     b.enter_page('/machines')
-                    self.toggleVmRow("VmNotInstalled")
 
             hack_broken_caps()
 
@@ -2816,7 +2807,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
         m.execute("> {0}".format(logfile)) # clear logfile
-        b.wait_present("#vm-VmNotInstalled-consoles.pf-m-current")
         b.click("#vm-VmNotInstalled-action-kebab button")
         b.click("#vm-VmNotInstalled-forceOff")
         if m.image not in [ "fedora-33" ]:
@@ -2830,8 +2820,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1) # Wait until memory parameters get adjusted after shutting the VM
 
         # Check configuration changes survived installation
-        b.click("#vm-VmNotInstalled-overview")
-
         # Check memory settings have persisted
         b.click("#vm-VmNotInstalled-memory-count")
         b.wait_present("#vm-VmNotInstalled-memory-modal-memory")
@@ -2864,7 +2852,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.assertEqual(b.get_checked("#vm-VmNotInstalled-autostart-checkbox"), autostart)
 
         # Check new vNIC have persisted
-        b.click("#vm-VmNotInstalled-networks")
         b.wait_present("#vm-VmNotInstalled-network-1-type")
 
         self.allow_browser_errors("Failed when connecting: Connection closed")
@@ -2895,9 +2882,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
+        self.goToVmPage("subVmTest1")
 
         # Test non-persistent disks are not configurable
         b.wait_not_present("#vm-subVmTest1-disks-vdf-edit")
@@ -2986,10 +2973,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
-
-        b.click("#vm-subVmTest1-overview") # open the "Overview" subtab
+        self.goToVmPage("subVmTest1")
 
         # Wait for the edit link
         b.click("#vm-subVmTest1-memory-count")
@@ -3077,10 +3062,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching non permanent disk of a running domain
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
         b.wait_present(".modal-dialog")
@@ -3102,7 +3086,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
         # Test detaching permanent disk of a stopped domain
-        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
         b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
@@ -3140,8 +3123,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        self.goToVmPage("subVmTest1")
 
         # Change Boot Order setting
         bootOrder = b.text("#vm-subVmTest1-boot-order")
@@ -3184,13 +3167,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Make sure that the Networks are loaded into the global state
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
 
-        b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
+        self.goToVmPage("subVmTest1")
 
         # Wait for the edit button
         b.click("#vm-subVmTest1-network-1-edit-dialog")
@@ -3244,11 +3226,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.reload()
         b.enter_page('/machines')
         b.wait_in_text("body", "Virtual machines")
+
+        self.goToMainPage()
+
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
         self.waitVmRow("subVmTest1")
-        self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
+        self.goToVmPage("subVmTest1")
 
         # Change network type and source from the bridge NIC
         b.wait_in_text("#vm-subVmTest1-network-1-type", "bridge")
@@ -3312,10 +3296,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh net-destroy test_network && virsh net-destroy default")
         self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml && virsh net-autostart default")
 
+        self.goToMainPage()
+
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
+
+        self.goToVmPage("subVmTest1")
 
         # Remove the network interface
         m.execute("virsh detach-interface --persistent --type network --domain subVmTest1")
@@ -3552,11 +3540,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        self.toggleVmRow("subVmTest1")
+        self.goToVmPage("subVmTest1")
         if m.image in distrosWithoutSnapshot:
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
-        b.click("#vm-subVmTest1-snapshots")
 
         b.wait_present("#vm-subVmTest1-snapshot-0-current")
         b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
@@ -3590,13 +3577,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        self.goToVmPage("subVmTest1")
         if m.image in distrosWithoutSnapshot:
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
 
-        b.click("#vm-subVmTest1-snapshots") # open the "Disks" subtab
         b.wait_in_text(".no-snapshots", "No snapshots")
 
         # Check snapshot for running VM
@@ -3608,9 +3595,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
-        b.wait_in_text("body", "Virtual machines")
-        self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-snapshots")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
 
         b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot1")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot1")
@@ -3629,9 +3614,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
-        b.wait_in_text("body", "Virtual machines")
-        self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-snapshots")
 
         b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot2")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot2")
@@ -3683,12 +3665,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Shuf off the VM in order to allow deleting volumes that are used as
         # disks later
-        self.toggleVmRow("subVmTest1")
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
-        # Click on Storage Pools card
+        # Click on Storage pools card
         b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
 
         # Check that all defined pools are there
@@ -4205,7 +4186,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        # Click on Storage Pools card
+        # Click on Storage pools card
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pools")
         b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
 
@@ -4490,7 +4471,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        # Click on Storage Pools card
+        # Click on Storage pools card
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pools")
         b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
 
@@ -4648,13 +4629,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
-
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        self.goToVmPage("subVmTest1")
 
         class NICAddDialog(object):
             def __init__(
@@ -4755,8 +4735,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.reload()
                     b.enter_page('/machines')
                     b.wait_in_text("body", "Virtual machines")
-                    self.test_obj.toggleVmRow("subVmTest1")
-                    b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
                 else:
                     b.click("#delete-vm-subVmTest1-iface-{0}".format(self.nic_num))
                     # Confirm in confirmation window
@@ -4857,11 +4835,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        self.toggleVmRow("subVmTest1")
         if m.image in distrosWithoutSnapshot:
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
-        b.click("#vm-subVmTest1-snapshots") # open the Network Interfaces subtab
+        self.goToVmPage("subVmTest1")
+        b.wait_present("#vm-subVmTest1-snapshots")
 
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")

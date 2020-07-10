@@ -1379,6 +1379,10 @@ $.fn.extend({
     }
 });
 
+function is_managed(dev) {
+    return dev.State != 10;
+}
+
 function render_interface_link(iface) {
     return $('<a tabindex="0">')
             .text(iface)
@@ -1392,7 +1396,7 @@ function device_state_text(dev) {
         return _("Inactive");
     if (dev.State == 100 && dev.Carrier === false)
         return _("No carrier");
-    if (!dev.Managed) {
+    if (!is_managed(dev)) {
         if (!dev.ActiveConnection &&
             (!dev.Ip4Config || dev.Ip4Config.Addresses.length === 0) &&
             (!dev.Ip6Config || dev.Ip6Config.Addresses.length === 0))
@@ -1800,7 +1804,7 @@ PageNetworking.prototype = {
                                 ? [$('<td>').text(""), $('<td>').text("")]
                                 : $('<td colspan="2">').text(device_state_text(dev))));
 
-            if (!dev || dev.Managed) {
+            if (!dev || is_managed(dev)) {
                 managed_tbody.append(row.click(function () {
                     cockpit.location.go([iface.Name]);
                 }));
@@ -2498,7 +2502,7 @@ PageNetworkInterface.prototype = {
         var self = this;
         var iface = self.model.find_interface(self.dev_name);
         var dev = iface && iface.Device;
-        var managed = iface && (!dev || dev.Managed);
+        var managed = iface && (!dev || is_managed(dev));
 
         self.iface = iface;
         self.dev = dev;
@@ -2996,7 +3000,7 @@ PageNetworkInterface.prototype = {
                     /* Unmanaged devices shouldn't show up as slaves
                      * but let's not take any chances.
                      */
-                    if (dev && !dev.Managed)
+                    if (dev && !is_managed(dev))
                         return;
 
                     self.rx_series.add_instance(iface.Name);
@@ -3417,7 +3421,7 @@ function is_interface_connection(iface, connection) {
 }
 
 function is_interesting_interface(iface) {
-    return !iface.Device || iface.Device.Managed;
+    return !iface.Device || is_managed(iface.Device);
 }
 
 function array_find(array, predicate) {

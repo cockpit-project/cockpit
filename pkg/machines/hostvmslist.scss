@@ -8,25 +8,12 @@
     --pf-c-table--cell--Width: 1%;
 }
 
-// Adjust padding, alignment, and location (in mobile mode) for topmost action buttons only
-#virtual-machines-listing > table > tbody > tr:first-child > td:last-child {
-    --pf-c-table--cell--PaddingTop: 0;
-    --pf-c-table--cell--PaddingRight: var(--pf-c-table__action--PaddingRight);
-    --pf-c-table--cell--PaddingBottom: 0;
-    --pf-c-table--cell--PaddingLeft: var(--pf-c-table__action--PaddingLeft);
-
-    vertical-align: middle;
-
-    @media screen and (max-width: 428px) {
-        margin-top: var(--pf-c-table--m-compact__action--responsive--MarginTop);
-        margin-bottom: var(--pf-c-table--m-compact__action--responsive--MarginTop);
-
-        grid-row-start: 1;
-        grid-column-start: 2;
-        text-align: right;
-    }
-}
-
 #virtual-machines-page-main-nav {
     padding: 0;
+}
+
+// Expand the link to the container, for easier clickability
+#virtual-machines-listing th a {
+    display: block;
+    text-align: left;
 }

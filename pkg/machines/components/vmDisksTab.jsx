@@ -22,13 +22,14 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { Button } from '@patternfly/react-core';
 
-import { convertToUnit, diskPropertyChanged, toReadableNumber, units } from "../helpers.js";
+import { convertToUnit, diskPropertyChanged, toReadableNumber, units, vmId } from "../helpers.js";
 import { AddDiskModalBody } from './diskAdd.jsx';
 import { getAllStoragePools, getVm, detachDisk } from '../actions/provider-actions.js';
 import { EditDiskAction } from './diskEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { ListingTable } from "cockpit-components-table.jsx";
 import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
+import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
 const _ = cockpit.gettext;
 
@@ -60,7 +61,7 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-class VmDisksTab extends React.Component {
+export class VmDisksActions extends React.Component {
     constructor(props) {
         super(props);
 
@@ -86,17 +87,133 @@ class VmDisksTab extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, vms, disks, renderCapacity, dispatch, onAddErrorNotification, storagePools } = this.props;
-        const actions = (
+        const { dispatch, vm, vms, storagePools } = this.props;
+        const idPrefix = `${vmId(vm.name)}-disks`;
+
+        return (
             <>
-                <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open} className='pull-right'>
+                <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open}>
                     {_("Add disk")}
                 </Button>
                 {this.state.showAddDiskModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} />}
             </>
         );
+    }
+}
+
+export class VmDisksTabLibvirt extends React.Component {
+    /**
+     * Returns true, if disk statistics are retrieved.
+     */
+    getDiskStatsSupport(vm) {
+        /* Possible states for disk stats:
+            available ~ already read
+            supported, but not available yet ~ will be read soon
+         */
+        let areDiskStatsSupported = false;
+        if (vm.disksStats) {
+            // stats are read/supported if there is a non-NaN stat value
+            areDiskStatsSupported = !!Object.getOwnPropertyNames(vm.disksStats)
+                    .some(target => {
+                        if (!vm.disks[target] || (vm.disks[target].type !== 'volume' && !vm.disksStats[target])) {
+                            return false; // not yet retrieved, can't decide about disk stats support
+                        }
+                        return vm.disks[target].type == 'volume' || !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
+                    });
+        }
+
+        return areDiskStatsSupported;
+    }
+
+    prepareDiskData(disk, diskStats, idPrefix, storagePools) {
+        diskStats = diskStats || {};
+
+        let used = diskStats.allocation;
+        let capacity = diskStats.capacity;
+
+        /*
+         * For disks of type `volume` allocation and capacity stats are not
+         * fetched with the virConnectGetAllDomainStats API so we need to get
+         * them from the volume.
+         *
+         * Both pool and volume of the disk might have been undefined so make
+         * required checks before reading them.
+         */
+        if (disk.type == 'volume') {
+            const pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
+            const volumes = pool ? pool.volumes : [];
+            const volumeName = disk.source.volume;
+            const volume = volumes.filter(vol => vol.name == volumeName)[0];
+
+            if (volume) {
+                capacity = volume.capacity;
+                used = volume.allocation;
+            }
+        }
+
+        return {
+            used: used,
+            capacity: capacity,
+
+            device: disk.device,
+            driver: disk.driver,
+            target: disk.target,
+            bus: disk.bus,
+            readonly: disk.readonly,
+            shareable: disk.shareable,
+
+            // ugly hack due to complexity, refactor if abstraction is really needed
+            diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix} />),
+            diskExtras: (
+                (disk.driver.cache || disk.driver.io || disk.driver.discard || disk.driver.errorPolicy)
+                    ? <DiskExtras idPrefix={idPrefix}
+                                  cache={disk.driver.cache}
+                                  io={disk.driver.io}
+                                  discard={disk.driver.discard}
+                                  errorPolicy={disk.driver.errorPolicy} /> : null
+            ),
+        };
+    }
+
+    render() {
+        const { vm, dispatch, storagePools } = this.props;
+
+        const idPrefix = `${vmId(vm.name)}-disks`;
+        const areDiskStatsSupported = this.getDiskStatsSupport(vm);
+
+        const disks = Object.getOwnPropertyNames(vm.disks)
+                .sort() // by 'target'
+                .map(target => this.prepareDiskData(vm.disks[target],
+                                                    vm.disksStats && vm.disksStats[target],
+                                                    `${idPrefix}-${target}`,
+                                                    storagePools));
+        return (
+            <VmDisksTab
+                vm={vm}
+                disks={disks}
+                renderCapacity={areDiskStatsSupported}
+                dispatch={dispatch}
+                onAddErrorNotification={this.props.onAddErrorNotification} />
+        );
+    }
+}
+
+VmDisksTabLibvirt.propTypes = {
+    vm: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+};
+
+export class VmDisksTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    render() {
+        const { vm, disks, renderCapacity, dispatch, onAddErrorNotification } = this.props;
         let renderCapacityUsed, renderAccess, renderAdditional;
         const columnTitles = [];
+        const idPrefix = `${vmId(vm.name)}-disks`;
 
         if (disks && disks.length > 0) {
             columnTitles.push(_("Device"));
@@ -193,23 +310,18 @@ class VmDisksTab extends React.Component {
         return (
             <>
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
-                <div className="ct-table-wrapper">
-                    <ListingTable variant='compact'
-                        actions={actions}
-                        emptyCaption={_("No disks defined for this VM")}
-                        aria-label={`VM ${vm.name} Disks`}
-                        columns={columnTitles}
-                        rows={rows} />
-                </div>
+                <ListingTable variant='compact'
+                    gridBreakPoint='grid-xl'
+                    emptyCaption={_("No disks defined for this VM")}
+                    aria-label={`VM ${vm.name} Disks`}
+                    columns={columnTitles}
+                    rows={rows} />
             </>
         );
     }
 }
 VmDisksTab.propTypes = {
-    idPrefix: PropTypes.string.isRequired,
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     onAddErrorNotification: PropTypes.func.isRequired,
 };
-
-export default VmDisksTab;

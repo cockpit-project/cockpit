@@ -49,6 +49,7 @@ import './cockpit-components-table.scss';
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - variant: For compact tables pass 'compact'
+ * - gridBreakPoint: Specifies the grid breakpoints ('grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
  */
 export class ListingTable extends React.Component {
@@ -182,6 +183,8 @@ export class ListingTable extends React.Component {
     render() {
         const tableProps = {};
 
+        if (this.props.gridBreakPoint)
+            tableProps.gridBreakPoint = this.props.gridBreakPoint;
         tableProps.className = "ct-table";
         if (this.props.className)
             tableProps.className = tableProps.className + " " + this.props.className;

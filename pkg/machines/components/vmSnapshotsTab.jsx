@@ -48,7 +48,7 @@ function prettyTime(unixTime) {
     return moment(Number(unixTime) * 1000).calendar();
 }
 
-class VmSnapshotsTab extends React.Component {
+export class VmSnapshotsActions extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -65,6 +65,32 @@ class VmSnapshotsTab extends React.Component {
 
     closeCreateSnapshot() {
         this.setState({ showCreateSnapshotModal: false });
+    }
+
+    render() {
+        const { vm, dispatch } = this.props;
+        const id = vmId(vm.name);
+
+        return (
+            <>
+                <Button id={`${id}-add-snapshot-button`} variant="secondary" onClick={this.openCreateSnapshot}>
+                    {_("Create snapshot")}
+                </Button>
+
+                {this.state.showCreateSnapshotModal &&
+                    <CreateSnapshotModal dispatch={dispatch}
+                        idPrefix={`${id}-create-snapshot`}
+                        vm={vm}
+                        onClose={this.closeCreateSnapshot} />}
+            </>
+        );
+    }
+}
+
+export class VmSnapshotsTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
     }
 
     render() {
@@ -221,29 +247,17 @@ class VmSnapshotsTab extends React.Component {
         }
 
         return (
-            <div className="snapshots-list">
-                <Button id={`${id}-add-snapshot-button`} variant="secondary" className="pull-right" onClick={this.openCreateSnapshot}>
-                    {_("Create snapshot")}
-                </Button>
-
-                {this.state.showCreateSnapshotModal &&
-                    <CreateSnapshotModal dispatch={dispatch}
-                        idPrefix={`${id}-create-snapshot`}
-                        vm={vm}
-                        onClose={this.closeCreateSnapshot} />}
+            <>
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
                 {this.state.revertDialogProps && <RevertSnapshotModal {...this.state.revertDialogProps } />}
 
-                <div className="ct-table-wrapper">
-                    <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}
-                        variant="compact"
-                        emptyCaption={emptyCaption}
-                        columns={columnTitles}
-                        rows={rows} />
-                </div>
-            </div>
+                <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}
+                    gridBreakPoint='grid-xl'
+                    variant="compact"
+                    emptyCaption={emptyCaption}
+                    columns={columnTitles}
+                    rows={rows} />
+            </>
         );
     }
 }
-
-export default VmSnapshotsTab;

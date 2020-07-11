@@ -23,6 +23,7 @@ from testlib import *
 
 
 @nondestructive
+@skipImage("Changed in #14322", "rhel-8-3-distropkg")
 class TestBridge(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -86,10 +87,10 @@ class TestBridge(NetworkCase):
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")
 
-        # Check that it has the interface enslaved and the right IP address
+        # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbridge')", "10.111")
 
 

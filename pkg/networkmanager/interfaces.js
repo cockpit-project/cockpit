@@ -588,14 +588,14 @@ function NetworkManagerModel() {
                 timestamp:      get("connection", "timestamp", 0),
                 id:             get("connection", "id", _("Unknown")),
                 autoconnect:    get("connection", "autoconnect", true),
-                autoconnect_slaves:
+                autoconnect_members:
                                 get("connection", "autoconnect-slaves", -1),
-                slave_type:     get("connection", "slave-type"),
-                master:         get("connection", "master")
+                member_type:    get("connection", "slave-type"),
+                group:          get("connection", "master")
             }
         };
 
-        if (!settings.connection.master) {
+        if (!settings.connection.group) {
             result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, utils.ip4_to_text);
             result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, utils.ip6_to_text);
         }
@@ -632,7 +632,7 @@ function NetworkManagerModel() {
             };
         }
 
-        if (settings["team-port"] || result.connection.slave_type == "team") {
+        if (settings["team-port"] || result.connection.member_type == "team") {
             result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")), };
         }
 
@@ -648,7 +648,7 @@ function NetworkManagerModel() {
             };
         }
 
-        if (settings["bridge-port"] || result.connection.slave_type == "bridge") {
+        if (settings["bridge-port"] || result.connection.member_type == "bridge") {
             result.bridge_port = {
                 priority:       get("bridge-port", "priority", 32),
                 path_cost:      get("bridge-port", "path-cost", 100),
@@ -709,12 +709,12 @@ function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
-        set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_slaves);
+        set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_members);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
-        set("connection", "slave-type", 's', settings.connection.slave_type);
-        set("connection", "master", 's', settings.connection.master);
+        set("connection", "slave-type", 's', settings.connection.member_type);
+        set("connection", "master", 's', settings.connection.group);
 
         if (settings.ipv4)
             set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
@@ -977,8 +977,8 @@ function NetworkManagerModel() {
 
         exporters: [
             function (obj) {
-                obj.Masters = [];
-                obj.Slaves = [];
+                obj.Groups = [];
+                obj.Members = [];
                 obj.Interfaces = [];
             },
 
@@ -988,36 +988,36 @@ function NetworkManagerModel() {
 
             // Needs: type_Interface.Connections
             //
-            // Sets:  type_Connection.Slaves
-            //        type_Connection.Masters
+            // Sets:  type_Connection.Members
+            //        type_Connection.Groups
             //
             function (obj) {
-                var master, iface;
+                var group, iface;
 
-                // Most of the time, a connection has zero or one masters,
-                // but when a connection refers to its master by interface
-                // name, we might end up with more than one master
+                // Most of the time, a connection has zero or one groups,
+                // but when a connection refers to its group by interface
+                // name, we might end up with more than one group
                 // connection so we just collect them all.
                 //
                 // TODO - Nail down how NM really handles this.
 
                 function check_con(con) {
-                    var master_settings = connection_settings(con);
+                    var group_settings = connection_settings(con);
                     var my_settings = connection_settings(obj);
-                    if (master_settings.type == my_settings.slave_type) {
-                        obj.Masters.push(con);
-                        con.Slaves.push(obj);
+                    if (group_settings.type == my_settings.member_type) {
+                        obj.Groups.push(con);
+                        con.Members.push(obj);
                     }
                 }
 
                 var cs = connection_settings(obj);
-                if (cs.slave_type) {
-                    master = connections_by_uuid[cs.master];
-                    if (master) {
-                        obj.Masters.push(master);
-                        master.Slaves.push(obj);
+                if (cs.member_type) {
+                    group = connections_by_uuid[cs.group];
+                    if (group) {
+                        obj.Groups.push(group);
+                        group.Members.push(obj);
                     } else {
-                        iface = peek_interface(cs.master);
+                        iface = peek_interface(cs.group);
                         if (iface) {
                             iface.Connections.forEach(check_con);
                         }
@@ -1037,7 +1037,7 @@ function NetworkManagerModel() {
             Connection:           { conv: conv_Object(type_Connection) },
             Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
             Ip6Config:            { conv: conv_Object(type_Ipv6Config) }
-            // See below for "Master"
+            // See below for "Group"
         },
 
         prototype: {
@@ -1076,7 +1076,7 @@ function NetworkManagerModel() {
             Carrier:              { def: true },
             Speed:                { },
             Managed:              { def: false },
-            // See below for "Slaves"
+            // See below for "Members"
         },
 
         prototype: {
@@ -1318,8 +1318,8 @@ function NetworkManagerModel() {
 
     /* Now create the cyclic declarations.
      */
-    type_ActiveConnection.props.Master = { conv: conv_Object(type_Device) };
-    type_Device.props.Slaves = { conv: conv_Array(conv_Object(type_Device)), def: [] };
+    type_ActiveConnection.props.Group = { conv: conv_Object(type_Device) };
+    type_Device.props.Members = { conv: conv_Array(conv_Object(type_Device)), def: [] };
 
     /* Accessing the model.
      */
@@ -1439,10 +1439,10 @@ function render_active_connection(dev, with_link, hide_link_local) {
 
     con = dev.ActiveConnection;
 
-    if (con && con.Master) {
+    if (con && con.Group) {
         return $('<span>').append(
             $('<span>').text(_("Part of ")),
-            (with_link ? render_interface_link(con.Master.Interface) : con.Master.Interface));
+            (with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface));
     }
 
     var ip4config = con ? con.Ip4Config : dev.Ip4Config;
@@ -1770,21 +1770,21 @@ PageNetworking.prototype = {
         $('#networking-unmanaged-interfaces').prop('hidden', true);
 
         self.model.list_interfaces().forEach(function (iface) {
-            function has_master(iface) {
+            function has_group(iface) {
                 return ((iface.Device &&
                          iface.Device.ActiveConnection &&
-                         iface.Device.ActiveConnection.Master &&
-                         iface.Device.ActiveConnection.Master.Slaves.length > 0) ||
+                         iface.Device.ActiveConnection.Group &&
+                         iface.Device.ActiveConnection.Group.Members.length > 0) ||
                         (iface.MainConnection &&
-                         iface.MainConnection.Masters.length > 0));
+                         iface.MainConnection.Groups.length > 0));
             }
 
             // Skip loopback
             if (iface.Device && iface.Device.DeviceType == 'loopback')
                 return;
 
-            // Skip slaves
-            if (has_master(iface))
+            // Skip members
+            if (has_group(iface))
                 return;
 
             var dev = iface.Device;
@@ -2232,9 +2232,9 @@ PageNetworkInterface.prototype = {
         $('#network-interface-delete').syn_click(self.model, $.proxy(this, "delete_connections"));
 
         function highlight_netdev_row(event, id) {
-            $('#network-interface-slaves tr').removeClass('highlight-ct');
+            $('#network-interface-members tr').removeClass('highlight-ct');
             if (id) {
-                $('#network-interface-slaves tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
+                $('#network-interface-members tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
             }
         }
 
@@ -2299,7 +2299,7 @@ PageNetworkInterface.prototype = {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
                 var tx = samples[1][0];
-                var row = $('#network-interface-slaves tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
+                var row = $('#network-interface-members tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (row.length > 0) {
                     row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(tx * 8));
                     row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(rx * 8));
@@ -2410,12 +2410,12 @@ PageNetworkInterface.prototype = {
     delete_connections: function() {
         var self = this;
 
-        function delete_connection_and_slaves(con) {
-            return Promise.all(con.Slaves.map(s => free_slave_connection(s))).then(() => con.delete_());
+        function delete_connection_and_members(con) {
+            return Promise.all(con.Members.map(s => free_member_connection(s))).then(() => con.delete_());
         }
 
         function delete_connections(cons) {
-            return Promise.all(cons.map(delete_connection_and_slaves));
+            return Promise.all(cons.map(delete_connection_and_members));
         }
 
         function delete_iface_connections(iface) {
@@ -2603,7 +2603,7 @@ PageNetworkInterface.prototype = {
         function render_active_status_row() {
             var state;
 
-            if (self.main_connection && self.main_connection.Masters.length > 0)
+            if (self.main_connection && self.main_connection.Groups.length > 0)
                 return null;
 
             if (!dev)
@@ -2631,9 +2631,9 @@ PageNetworkInterface.prototype = {
             if (!settings)
                 return [];
 
-            var master_settings = null;
-            if (con && con.Masters.length > 0)
-                master_settings = con.Masters[0].Settings;
+            var group_settings = null;
+            if (con && con.Groups.length > 0)
+                group_settings = con.Groups[0].Settings;
 
             function render_ip_settings(topic) {
                 var params = settings[topic];
@@ -2680,7 +2680,7 @@ PageNetworkInterface.prototype = {
             }
 
             function configure_team_port_settings() {
-                PageNetworkTeamPortSettings.master_settings = master_settings;
+                PageNetworkTeamPortSettings.group_settings = group_settings;
                 self.show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
             }
 
@@ -2765,12 +2765,12 @@ PageNetworkInterface.prototype = {
                 return render_settings_row(_("MTU"), rows, configure_mtu_settings);
             }
 
-            function render_master() {
-                if (con && con.Masters.length > 0) {
+            function render_group() {
+                if (con && con.Groups.length > 0) {
                     return $('<tr>').append(
-                        $('<td>').text(_("Master")),
+                        $('<td>').text(_("Group")),
                         $('<td>').append(
-                            array_join(con.Masters.map(render_connection_link), ", ")));
+                            array_join(con.Groups.map(render_connection_link), ", ")));
                 } else
                     return null;
             }
@@ -2828,12 +2828,12 @@ PageNetworkInterface.prototype = {
                 /* Only "activebackup" and "lacp" team ports have
                  * something to configure.
                  */
-                if (!master_settings ||
-                    !master_settings.team ||
-                    !master_settings.team.config ||
-                    !master_settings.team.config.runner ||
-                    !(master_settings.team.config.runner.name == "activebackup" ||
-                      master_settings.team.config.runner.name == "lacp"))
+                if (!group_settings ||
+                    !group_settings.team ||
+                    !group_settings.team.config ||
+                    !group_settings.team.config.runner ||
+                    !(group_settings.team.config.runner.name == "activebackup" ||
+                      group_settings.team.config.runner.name == "lacp"))
                     return null;
 
                 var config = settings.team_port.config;
@@ -2911,7 +2911,7 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
-            return [render_master(),
+            return [render_group(),
                 render_autoconnect_row(),
                 render_ip_settings_row("ipv4", _("IPv4")),
                 render_ip_settings_row("ipv6", _("IPv6")),
@@ -2970,10 +2970,10 @@ PageNetworkInterface.prototype = {
                 .append(render_connection_settings_rows(self.main_connection, self.connection_settings));
         update_network_privileged();
 
-        function update_connection_slaves(con) {
-            var tbody = $('#network-interface-slaves tbody');
+        function update_connection_members(con) {
+            var tbody = $('#network-interface-members tbody');
             var rows = { };
-            var slave_ifaces = { };
+            var member_ifaces = { };
 
             tbody.empty();
             self.rx_series.clear_instances();
@@ -2986,18 +2986,18 @@ PageNetworkInterface.prototype = {
                 return;
             }
 
-            $('#network-interface-slaves thead th:first-child')
+            $('#network-interface-members thead th:first-child')
                     .text(cs.type == "bond" ? _("Interfaces") : _("Ports"));
 
-            con.Slaves.forEach(function (slave_con) {
-                slave_con.Interfaces.forEach(function(iface) {
-                    if (iface.MainConnection != slave_con)
+            con.Members.forEach(function (member_con) {
+                member_con.Interfaces.forEach(function(iface) {
+                    if (iface.MainConnection != member_con)
                         return;
 
                     var dev = iface.Device;
                     var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
-                    /* Unmanaged devices shouldn't show up as slaves
+                    /* Unmanaged devices shouldn't show up as members
                      * but let's not take any chances.
                      */
                     if (dev && !is_managed(dev))
@@ -3006,7 +3006,7 @@ PageNetworkInterface.prototype = {
                     self.rx_series.add_instance(iface.Name);
                     self.tx_series.add_instance(iface.Name);
                     add_usage_monitor(iface.Name);
-                    slave_ifaces[iface.Name] = true;
+                    member_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =
                         $('<tr>', {
@@ -3023,7 +3023,7 @@ PageNetworkInterface.prototype = {
                                                     with_checkpoint(
                                                         self.model,
                                                         function () {
-                                                            return slave_con.activate(dev)
+                                                            return member_con.activate(dev)
                                                                     .fail(show_unexpected_error);
                                                         },
                                                         {
@@ -3052,7 +3052,7 @@ PageNetworkInterface.prototype = {
                                                         with_checkpoint(
                                                             self.model,
                                                             function () {
-                                                                return (free_slave_connection(slave_con)
+                                                                return (free_member_connection(member_con)
                                                                         .fail(show_unexpected_error));
                                                             },
                                                             {
@@ -3095,7 +3095,7 @@ PageNetworkInterface.prototype = {
                             .append(
                                 self.model.list_interfaces().map(function (iface) {
                                     if (is_interesting_interface(iface) &&
-                                    !slave_ifaces[iface.Name] &&
+                                    !member_ifaces[iface.Name] &&
                                     iface != self.iface) {
                                         return $('<li role="presentation">').append(
                                             $('<a tabindex="0" role="menuitem" class="network-privileged">')
@@ -3105,8 +3105,8 @@ PageNetworkInterface.prototype = {
                                                             self.model,
                                                             function () {
                                                                 var cs = connection_settings(con);
-                                                                return set_slave(self.model, con, con.Settings,
-                                                                                 cs.type, iface.Name, true)
+                                                                return set_member(self.model, con, con.Settings,
+                                                                                  cs.type, iface.Name, true)
                                                                         .fail(show_unexpected_error);
                                                             },
                                                             {
@@ -3120,15 +3120,15 @@ PageNetworkInterface.prototype = {
                                     return null;
                                 })));
 
-            $('#network-interface-slaves thead th:nth-child(5)').html(add_btn);
+            $('#network-interface-members thead th:nth-child(5)').html(add_btn);
 
-            $('#network-interface-slaves').prop('hidden', false);
+            $('#network-interface-members').prop('hidden', false);
             update_network_privileged();
         }
 
-        $('#network-interface-slaves').prop('hidden', true);
+        $('#network-interface-members').prop('hidden', true);
         if (self.main_connection)
-            update_connection_slaves(self.main_connection);
+            update_connection_members(self.main_connection);
     }
 
 };
@@ -3447,21 +3447,21 @@ function array_find(array, predicate) {
     return undefined;
 }
 
-function slave_connection_for_interface(master, iface) {
-    return master && array_find(master.Slaves, function (s) {
+function member_connection_for_interface(group, iface) {
+    return group && array_find(group.Members, function (s) {
         return is_interface_connection(iface, s);
     });
 }
 
-function slave_interface_choices(model, master) {
+function member_interface_choices(model, group) {
     return model.list_interfaces().filter(function (iface) {
-        return !is_interface_connection(iface, master) && is_interesting_interface(iface);
+        return !is_interface_connection(iface, group) && is_interesting_interface(iface);
     });
 }
 
-function render_slave_interface_choices(model, master) {
+function render_member_interface_choices(model, group) {
     return $('<ul class="list-group dialog-list-ct">').append(
-        slave_interface_choices(model, master).map(function (iface) {
+        member_interface_choices(model, group).map(function (iface) {
             return $('<li class="list-group-item">').append(
                 $('<div class="checkbox">')
                         .css('margin', "0px")
@@ -3471,14 +3471,14 @@ function render_slave_interface_choices(model, master) {
                                     type: "checkbox",
                                     'data-iface': iface.Name
                                 })
-                                        .prop('checked', !!slave_connection_for_interface(master, iface)),
+                                        .prop('checked', !!member_connection_for_interface(group, iface)),
                                 $('<span>').text(iface.Name))));
         }));
 }
 
-function slave_chooser_btn(change, slave_choices) {
+function member_chooser_btn(change, member_choices) {
     var choices = [{ title: "-", choice: "", is_default: true }];
-    slave_choices.find('input[data-iface]').each(function (i, elt) {
+    member_choices.find('input[data-iface]').each(function (i, elt) {
         var name = $(elt).attr("data-iface");
         if ($(elt).prop('checked'))
             choices.push({ title: name, choice: name });
@@ -3486,18 +3486,18 @@ function slave_chooser_btn(change, slave_choices) {
     return select_btn(change, choices, "form-control");
 }
 
-function free_slave_connection(con) {
+function free_member_connection(con) {
     var cs = connection_settings(con);
-    if (cs.slave_type) {
-        delete cs.slave_type;
-        delete cs.master;
+    if (cs.member_type) {
+        delete cs.member_type;
+        delete cs.group;
         delete con.Settings.team_port;
         delete con.Settings.bridge_port;
         return con.apply_settings(con.Settings).then(() => { con.activate(null, null) });
     }
 }
 
-function set_slave(model, master_connection, master_settings, slave_type,
+function set_member(model, group_connection, group_settings, member_type,
     iface_name, val) {
     var iface;
     var main_connection;
@@ -3509,81 +3509,81 @@ function set_slave(model, master_connection, master_settings, slave_type,
     main_connection = iface.MainConnection;
 
     if (val) {
-        /* Turn the main_connection into a slave for master.
+        /* Turn the main_connection into a member for group.
          */
 
-        var master_iface;
-        if (master_connection) {
-            master_iface = master_connection.Interfaces[0].Name;
+        var group_iface;
+        if (group_connection) {
+            group_iface = group_connection.Interfaces[0].Name;
         } else {
-            master_iface = master_settings.connection.interface_name;
+            group_iface = group_settings.connection.interface_name;
         }
 
-        if (!master_iface)
+        if (!group_iface)
             return false;
 
-        var slave_settings;
+        var member_settings;
         if (main_connection) {
-            slave_settings = main_connection.Settings;
+            member_settings = main_connection.Settings;
 
-            if (slave_settings.connection.master == master_settings.connection.uuid ||
-                slave_settings.connection.master == master_settings.connection.id ||
-                slave_settings.connection.master == master_iface)
+            if (member_settings.connection.group == group_settings.connection.uuid ||
+                member_settings.connection.group == group_settings.connection.id ||
+                member_settings.connection.group == group_iface)
                 return cockpit.resolve();
 
-            slave_settings.connection.slave_type = slave_type;
-            slave_settings.connection.master = master_iface;
-            slave_settings.connection.autoconnect = true;
-            delete slave_settings.ipv4;
-            delete slave_settings.ipv6;
-            delete slave_settings.team_port;
-            delete slave_settings.bridge_port;
+            member_settings.connection.member_type = member_type;
+            member_settings.connection.group = group_iface;
+            member_settings.connection.autoconnect = true;
+            delete member_settings.ipv4;
+            delete member_settings.ipv6;
+            delete member_settings.team_port;
+            delete member_settings.bridge_port;
         } else {
-            slave_settings = {
+            member_settings = {
                 connection:
                                {
                                    autoconnect: true,
                                    interface_name: iface.Name,
-                                   slave_type: slave_type,
-                                   master: master_iface
+                                   member_type: member_type,
+                                   group: group_iface
                                }
             };
-            complete_settings(slave_settings, iface.Device);
+            complete_settings(member_settings, iface.Device);
         }
 
-        return settings_applier(model, iface.Device, main_connection)(slave_settings).then(function () {
-            // If the master already exists, activate or deactivate the slave immediately so that
-            // the settings actually apply and the interface becomes a slave.  Otherwise we
-            // activate it later when the master is created.
-            if (master_connection) {
-                var master_dev = master_connection.Interfaces[0].Device;
-                if (master_dev && master_dev.ActiveConnection)
+        return settings_applier(model, iface.Device, main_connection)(member_settings).then(function () {
+            // If the group already exists, activate or deactivate the member immediately so that
+            // the settings actually apply and the interface becomes a member.  Otherwise we
+            // activate it later when the group is created.
+            if (group_connection) {
+                var group_dev = group_connection.Interfaces[0].Device;
+                if (group_dev && group_dev.ActiveConnection)
                     return main_connection.activate(iface.Device);
                 else if (iface.Device.ActiveConnection)
                     return iface.Device.ActiveConnection.deactivate();
             }
         });
     } else {
-        /* Free the main_connection from being a slave if it is our slave.  If there is
+        /* Free the main_connection from being a member if it is our member.  If there is
          * no main_connection, we don't need to do anything.
          */
-        if (main_connection && main_connection.Masters.indexOf(master_connection) != -1) {
-            free_slave_connection(main_connection);
+        if (main_connection && main_connection.Groups.indexOf(group_connection) != -1) {
+            free_member_connection(main_connection);
         }
     }
 
     return true;
 }
 
-function apply_master_slave(choices, model, apply_master, master_connection, master_settings, slave_type) {
+function apply_group_member(choices, model, apply_group, group_connection, group_settings, member_type) {
     var active_settings = [];
     var iface;
 
-    if (!master_connection) {
-        if (master_settings.bond &&
-            master_settings.bond.options &&
-            master_settings.bond.options.primary) {
-            iface = model.find_interface(master_settings.bond.options.primary);
+    if (!group_connection) {
+        if (group_settings.bond &&
+            group_settings.bond.options &&
+            group_settings.bond.options.primary) {
+            iface = model.find_interface(group_settings.bond.options.primary);
             if (iface && iface.MainConnection)
                 active_settings.push(iface.MainConnection.Settings);
         } else {
@@ -3599,31 +3599,31 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
         }
 
         if (active_settings.length == 1) {
-            master_settings.ipv4 = $.extend(true, { }, active_settings[0].ipv4);
-            master_settings.ipv6 = $.extend(true, { }, active_settings[0].ipv6);
+            group_settings.ipv4 = $.extend(true, { }, active_settings[0].ipv4);
+            group_settings.ipv6 = $.extend(true, { }, active_settings[0].ipv6);
         }
 
-        master_settings.connection.autoconnect_slaves = 1;
+        group_settings.connection.autoconnect_members = 1;
     }
 
-    /* For bonds, the order in which slaves are added to their master matters since the first slaves gets to
+    /* For bonds, the order in which members are added to their group matters since the first members gets to
      * set the MAC address of the bond, which matters for DHCP.  We leave it to NetworkManager to determine
-     * the order in which slaves are added so that the order is consistent with what happens when the bond is
+     * the order in which members are added so that the order is consistent with what happens when the bond is
      * activated the next time, such as after a reboot.
      */
 
-    function set_all_slaves() {
+    function set_all_members() {
         var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
             return model.synchronize().then(function () {
-                return set_slave(model, master_connection, master_settings, slave_type,
-                                 $(elt).attr("data-iface"), $(elt).prop('checked'));
+                return set_member(model, group_connection, group_settings, member_type,
+                                  $(elt).attr("data-iface"), $(elt).prop('checked'));
             });
         });
         return Promise.all(deferreds.get());
     }
 
-    return set_all_slaves().then(function () {
-        return apply_master(master_settings);
+    return set_all_members().then(function () {
+        return apply_group(group_settings);
     });
 }
 
@@ -3675,11 +3675,11 @@ PageNetworkBondSettings.prototype = {
     leave: function() {
     },
 
-    find_slave_con: function(iface) {
+    find_member_con: function(iface) {
         if (!PageNetworkBondSettings.connection)
             return null;
 
-        return array_find(PageNetworkBondSettings.connection.Slaves, function (s) {
+        return array_find(PageNetworkBondSettings.connection.Members, function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
     },
@@ -3687,20 +3687,20 @@ PageNetworkBondSettings.prototype = {
     update: function() {
         var self = this;
         var model = PageNetworkBondSettings.model;
-        var master = PageNetworkBondSettings.connection;
+        var group = PageNetworkBondSettings.connection;
         var options = self.settings.bond.options;
 
-        var slaves_element;
+        var members_element;
         var mac_input, mode_btn, primary_btn;
         var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
 
-        function change_slaves() {
-            var btn = slave_chooser_btn(change_mode, slaves_element);
+        function change_members() {
+            var btn = member_chooser_btn(change_mode, members_element);
             primary_btn.replaceWith(btn);
             primary_btn = btn;
             select_btn_select(primary_btn, options.primary);
             change_mode();
-            self.slaves_changed = true;
+            self.members_changed = true;
         }
 
         function change_mac() {
@@ -3763,8 +3763,8 @@ PageNetworkBondSettings.prototype = {
                     self.settings.connection.interface_name = val;
                 });
         body.find('#network-bond-settings-members')
-                .replaceWith(slaves_element = render_slave_interface_choices(model, master)
-                        .change(change_slaves));
+                .replaceWith(members_element = render_member_interface_choices(model, group)
+                        .change(change_members));
         fill_mac_menu(body.find('#network-bond-settings-mac-menu'),
                       mac_input = body.find('#network-bond-settings-mac-input'),
                       model);
@@ -3772,7 +3772,7 @@ PageNetworkBondSettings.prototype = {
         body.find('#network-bond-settings-mode-select')
                 .replaceWith(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
         body.find('#network-bond-settings-primary-select')
-                .replaceWith(primary_btn = slave_chooser_btn(change_mode, slaves_element, "form-control"));
+                .replaceWith(primary_btn = member_chooser_btn(change_mode, members_element, "form-control"));
         body.find('#network-bond-settings-link-monitoring-select')
                 .replaceWith(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
         mode_btn.attr("id", "network-bond-settings-mode-select");
@@ -3790,11 +3790,11 @@ PageNetworkBondSettings.prototype = {
 
         select_btn_select(mode_btn, options.mode);
         select_btn_select(monitoring_btn, (options.miimon !== 0) ? "mii" : "arp");
-        change_slaves();
+        change_members();
         change_mode();
         change_monitoring();
 
-        self.slaves_changed = false;
+        self.members_changed = false;
 
         $('#network-bond-settings-body').html(body);
     },
@@ -3807,7 +3807,7 @@ PageNetworkBondSettings.prototype = {
         var self = this;
 
         function modify() {
-            return apply_master_slave($('#network-bond-settings-body'),
+            return apply_group_member($('#network-bond-settings-body'),
                                       PageNetworkBondSettings.model,
                                       PageNetworkBondSettings.apply_settings,
                                       PageNetworkBondSettings.connection,
@@ -3828,10 +3828,10 @@ PageNetworkBondSettings.prototype = {
         if (PageNetworkBondSettings.connection) {
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
                                      {
-                                         devices: (self.slaves_changed
+                                         devices: (self.members_changed
                                              ? [] : connection_devices(PageNetworkBondSettings.connection)),
-                                         hack_does_add_or_remove: self.slaves_changed,
-                                         rollback_on_failure: self.slaves_changed
+                                         hack_does_add_or_remove: self.members_changed,
+                                         rollback_on_failure: self.members_changed
                                      });
         } else {
             with_checkpoint(
@@ -3876,11 +3876,11 @@ PageNetworkTeamSettings.prototype = {
     leave: function() {
     },
 
-    find_slave_con: function(iface) {
+    find_member_con: function(iface) {
         if (!PageNetworkTeamSettings.connection)
             return null;
 
-        return array_find(PageNetworkTeamSettings.connection.Slaves, function (s) {
+        return array_find(PageNetworkTeamSettings.connection.Members, function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
     },
@@ -3888,7 +3888,7 @@ PageNetworkTeamSettings.prototype = {
     update: function() {
         var self = this;
         var model = PageNetworkTeamSettings.model;
-        var master = PageNetworkTeamSettings.connection;
+        var group = PageNetworkTeamSettings.connection;
         var config = self.settings.team.config;
 
         var runner_btn, balancer_btn, watch_btn;
@@ -3911,8 +3911,8 @@ PageNetworkTeamSettings.prototype = {
         if (config.link_watch.delay_down === undefined)
             config.link_watch.delay_down = 0;
 
-        function change_slaves() {
-            self.slaves_changed = true;
+        function change_members() {
+            self.members_changed = true;
         }
 
         function change_runner() {
@@ -3971,7 +3971,7 @@ PageNetworkTeamSettings.prototype = {
                     self.settings.connection.interface_name = val;
                 });
         body.find('#network-team-settings-members')
-                .replaceWith(render_slave_interface_choices(model, master).change(change_slaves));
+                .replaceWith(render_member_interface_choices(model, group).change(change_members));
         body.find('#network-team-settings-runner-select')
                 .replaceWith(runner_btn = select_btn(change_runner, team_runner_choices, "form-control"));
         body.find('#network-team-settings-balancer-select')
@@ -3997,7 +3997,7 @@ PageNetworkTeamSettings.prototype = {
         change_runner();
         change_watch();
 
-        self.slaves_changed = false;
+        self.members_changed = false;
 
         $('#network-team-settings-body').html(body);
     },
@@ -4010,7 +4010,7 @@ PageNetworkTeamSettings.prototype = {
         var self = this;
 
         function modify () {
-            return apply_master_slave($('#network-team-settings-body'),
+            return apply_group_member($('#network-team-settings-body'),
                                       PageNetworkTeamSettings.model,
                                       PageNetworkTeamSettings.apply_settings,
                                       PageNetworkTeamSettings.connection,
@@ -4031,10 +4031,10 @@ PageNetworkTeamSettings.prototype = {
         if (PageNetworkTeamSettings.connection) {
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
                                      {
-                                         devices: (self.slaves_changed
+                                         devices: (self.members_changed
                                              ? [] : connection_devices(PageNetworkTeamSettings.connection)),
-                                         hack_does_add_or_remove: self.slaves_changed,
-                                         rollback_on_failure: self.slaves_changed
+                                         hack_does_add_or_remove: self.members_changed,
+                                         rollback_on_failure: self.members_changed
                                      });
         } else {
             with_checkpoint(
@@ -4081,7 +4081,7 @@ PageNetworkTeamPortSettings.prototype = {
 
     update: function() {
         var self = this;
-        var master_config = PageNetworkTeamPortSettings.master_settings.team.config;
+        var group_config = PageNetworkTeamPortSettings.group_settings.team.config;
         var config = self.settings.team_port.config;
 
         var ab_prio_input, ab_sticky_input, lacp_prio_input, lacp_key_input;
@@ -4091,10 +4091,10 @@ PageNetworkTeamPortSettings.prototype = {
 
         function change() {
             // XXX - handle parse errors
-            if (master_config.runner.name == "activebackup") {
+            if (group_config.runner.name == "activebackup") {
                 config.prio = parseInt(ab_prio_input.val(), 10);
                 config.sticky = ab_sticky_input.prop('checked');
-            } else if (master_config.runner.name == "lacp") {
+            } else if (group_config.runner.name == "lacp") {
                 config.lacp_prio = parseInt(lacp_prio_input.val(), 10);
                 config.lacp_key = parseInt(lacp_key_input.val(), 10);
             }
@@ -4110,17 +4110,17 @@ PageNetworkTeamPortSettings.prototype = {
         lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
         lacp_key_input.change(change);
 
-        ab_prio_input.toggle(master_config.runner.name == "activebackup");
-        ab_prio_input.prev().toggle(master_config.runner.name == "activebackup");
-        ab_sticky_input.toggle(master_config.runner.name == "activebackup");
+        ab_prio_input.toggle(group_config.runner.name == "activebackup");
+        ab_prio_input.prev().toggle(group_config.runner.name == "activebackup");
+        ab_sticky_input.toggle(group_config.runner.name == "activebackup");
         ab_sticky_input
                 .parent()
                 .prev()
-                .toggle(master_config.runner.name == "activebackup");
-        lacp_prio_input.toggle(master_config.runner.name == "lacp");
-        lacp_prio_input.prev().toggle(master_config.runner.name == "lacp");
-        lacp_key_input.toggle(master_config.runner.name == "lacp");
-        lacp_key_input.prev().toggle(master_config.runner.name == "lacp");
+                .toggle(group_config.runner.name == "activebackup");
+        lacp_prio_input.toggle(group_config.runner.name == "lacp");
+        lacp_prio_input.prev().toggle(group_config.runner.name == "lacp");
+        lacp_key_input.toggle(group_config.runner.name == "lacp");
+        lacp_key_input.prev().toggle(group_config.runner.name == "lacp");
 
         $('#network-teamport-settings-body').html(body);
     },
@@ -4178,11 +4178,11 @@ PageNetworkBridgeSettings.prototype = {
     leave: function() {
     },
 
-    find_slave_con: function(iface) {
+    find_member_con: function(iface) {
         if (!PageNetworkBridgeSettings.connection)
             return null;
 
-        return array_find(PageNetworkBridgeSettings.connection.Slaves, function (s) {
+        return array_find(PageNetworkBridgeSettings.connection.Members, function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
     },
@@ -4195,8 +4195,8 @@ PageNetworkBridgeSettings.prototype = {
 
         var stp_input, priority_input, forward_delay_input, hello_time_input, max_age_input;
 
-        function change_slaves() {
-            self.slaves_changed = true;
+        function change_members() {
+            self.members_changed = true;
         }
 
         function change_stp() {
@@ -4232,10 +4232,10 @@ PageNetworkBridgeSettings.prototype = {
                     self.settings.connection.id = val;
                     self.settings.connection.interface_name = val;
                 });
-        var slave_interfaces = body.find('#network-bridge-settings-slave-interfaces')
-                .replaceWith(render_slave_interface_choices(model, con).change(change_slaves));
-        slave_interfaces.toggle(!con);
-        slave_interfaces.prev().toggle(!con);
+        var member_interfaces = body.find('#network-bridge-settings-member-interfaces')
+                .replaceWith(render_member_interface_choices(model, con).change(change_members));
+        member_interfaces.toggle(!con);
+        member_interfaces.prev().toggle(!con);
 
         stp_input = body.find('#network-bridge-settings-stp-enabled-input');
         stp_input.change(change_stp);
@@ -4250,7 +4250,7 @@ PageNetworkBridgeSettings.prototype = {
 
         change_stp();
 
-        self.slaves_changed = false;
+        self.members_changed = false;
 
         $('#network-bridge-settings-body').html(body);
     },
@@ -4263,7 +4263,7 @@ PageNetworkBridgeSettings.prototype = {
         var self = this;
 
         function modify () {
-            return apply_master_slave($('#network-bridge-settings-body'),
+            return apply_group_member($('#network-bridge-settings-body'),
                                       PageNetworkBridgeSettings.model,
                                       PageNetworkBridgeSettings.apply_settings,
                                       PageNetworkBridgeSettings.connection,
@@ -4286,10 +4286,10 @@ PageNetworkBridgeSettings.prototype = {
         if (PageNetworkBridgeSettings.connection) {
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
                                      {
-                                         devices: (self.slaves_changed
+                                         devices: (self.members_changed
                                              ? [] : connection_devices(PageNetworkBridgeSettings.connection)),
-                                         hack_does_add_or_remove: self.slaves_changed,
-                                         rollback_on_failure: self.slaves_changed
+                                         hack_does_add_or_remove: self.members_changed,
+                                         rollback_on_failure: self.members_changed
                                      });
         } else {
             with_checkpoint(

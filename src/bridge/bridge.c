@@ -412,9 +412,9 @@ getpwuid_a (uid_t uid)
 
 static void
 update_router (CockpitRouter *router,
-               gboolean privileged_slave)
+               gboolean privileged_peer)
 {
-  if (!privileged_slave)
+  if (!privileged_peer)
     {
       GList *bridges = cockpit_packages_get_bridges (packages);
       cockpit_router_set_bridges (router, bridges);
@@ -424,7 +424,7 @@ update_router (CockpitRouter *router,
 
 static CockpitRouter *
 setup_router (CockpitTransport *transport,
-              gboolean privileged_slave)
+              gboolean privileged_peer)
 {
   CockpitRouter *router = NULL;
 
@@ -436,26 +436,26 @@ setup_router (CockpitTransport *transport,
   /* This has to happen after add_router_channels as the
    * packages based bridges should have priority.
    */
-  update_router (router, privileged_slave);
+  update_router (router, privileged_peer);
 
   return router;
 }
 
 struct CallUpdateRouterData {
   CockpitRouter *router;
-  gboolean privileged_slave;
+  gboolean privileged_peer;
 };
 
 static void
 call_update_router (gconstpointer user_data)
 {
   const struct CallUpdateRouterData *data = user_data;
-  update_router (data->router, data->privileged_slave);
+  update_router (data->router, data->privileged_peer);
 }
 
 static int
 run_bridge (const gchar *interactive,
-            gboolean privileged_slave)
+            gboolean privileged_peer)
 {
   CockpitTransport *transport;
   CockpitRouter *router;
@@ -510,7 +510,7 @@ run_bridge (const gchar *interactive,
    * The bridge always runs from within $XDG_RUNTIME_DIR
    * This makes it easy to create user sockets and/or files.
    */
-  if (!privileged_slave)
+  if (!privileged_peer)
     {
       directory = g_get_user_runtime_dir ();
       if (g_mkdir_with_parents (directory, 0700) < 0)
@@ -523,7 +523,7 @@ run_bridge (const gchar *interactive,
   umask (022);
 
   /* Start daemons if necessary */
-  if (!interactive && !privileged_slave)
+  if (!interactive && !privileged_peer)
     {
       if (!have_env ("DBUS_SESSION_BUS_ADDRESS"))
         daemon_pid = start_dbus_daemon ();
@@ -546,7 +546,7 @@ run_bridge (const gchar *interactive,
       transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
 
-  router = setup_router (transport, privileged_slave);
+  router = setup_router (transport, privileged_peer);
 
 #ifdef WITH_POLKIT
   gpointer polkit_agent = NULL;
@@ -570,7 +570,7 @@ run_bridge (const gchar *interactive,
   cockpit_router_dbus_startup (router);
 
   call_update_router_data.router = router;
-  call_update_router_data.privileged_slave = privileged_slave;
+  call_update_router_data.privileged_peer = privileged_peer;
   cockpit_packages_on_change (packages, call_update_router, &call_update_router_data);
 
   g_free (pwd);

@@ -238,32 +238,32 @@ class Bond(BaseNetworkClass):
                             additional_params="type bond ifname {name} mode {mode}".format(name=self.name, mode=mode))
 
     def deactivate_interfaces(self):
-        for item in self.list_slaves():
+        for item in self.list_members():
             self.con_down(item, fail=False)
         self.con_down(fail=False)
 
-    def attach_slave(self, iface):
+    def attach_member(self, iface):
         iface = BaseNetworkClass.get_name(iface)
         self._nmcli_con_cmd(command="add con-name",
                             name=self.name + iface,
-                            additional_params="type bond-slave ifname {slave} master {master}".
-                            format(slave=iface, master=self.name))
+                            additional_params="type bond-slave ifname {member} master {group}".
+                            format(member=iface, group=self.name))
         self.con_up(self.name + iface)
 
-    def detach_slave(self, iface):
+    def detach_member(self, iface):
         iface = BaseNetworkClass.get_name(iface)
         self.con_down(self.name + iface)
         self.con_delete(self.name + iface)
 
-    def list_slaves(self):
+    def list_members(self):
         try:
             return self.execute("cat /sys/class/net/{}/bonding/slaves".format(self.name)).strip().split()
         except subprocess.CalledProcessError:
             return []
 
     def cleanup(self):
-        for item in self.list_slaves():
-            self.detach_slave(item)
+        for item in self.list_members():
+            self.detach_member(item)
         super().cleanup()
 
 
@@ -275,32 +275,32 @@ class Bridge(BaseNetworkClass):
                             additional_params="type bridge ifname {name}".format(name=self.name))
 
     def deactivate_interfaces(self):
-        for item in self.list_slaves():
+        for item in self.list_members():
             self.con_down(item, fail=False)
         self.con_down(fail=False)
 
-    def attach_slave(self, iface):
+    def attach_member(self, iface):
         iface = BaseNetworkClass.get_name(iface)
         self._nmcli_con_cmd(command="add con-name",
                             name=self.name + iface,
-                            additional_params="type bridge-slave ifname {slave} master {master}".
-                            format(slave=iface, master=self.name))
+                            additional_params="type bridge-slave ifname {member} master {group}".
+                            format(member=iface, group=self.name))
         self.con_up(self.name + iface)
 
-    def detach_slave(self, iface):
+    def detach_member(self, iface):
         iface = BaseNetworkClass.get_name(iface)
         self.con_down(self.name + iface)
         self.con_delete(self.name + iface)
 
-    def list_slaves(self):
+    def list_members(self):
         try:
             return self.execute("ls /sys/class/net/{}/brif/".format(self.name)).strip().split()
         except subprocess.CalledProcessError:
             return []
 
     def cleanup(self):
-        for item in self.list_slaves():
-            self.detach_slave(item)
+        for item in self.list_members():
+            self.detach_member(item)
         super().cleanup()
 
 
@@ -336,20 +336,20 @@ class TestBond(TestCase):
             self.assertIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
         self.assertNotIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
 
-    def test_slaves(self):
+    def test_members(self):
         iface_name = "ttbx"
-        slave1_name = "tti1"
-        slave2_name = "tti2"
+        member1_name = "tti1"
+        member2_name = "tti2"
         with Bond(None, iface_name) as bond:
-            with Veth(None, slave1_name) as slave1, Veth(None, slave2_name) as slave2:
+            with Veth(None, member1_name) as member1, Veth(None, member2_name) as member2:
                 self.assertIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
-                bond.attach_slave(slave1.left.name)
-                bond.attach_slave(slave2.left.name)
-                self.assertIn(slave1.left.name, bond.list_slaves())
-                self.assertIn(slave2.left.name, bond.list_slaves())
+                bond.attach_member(member1.left.name)
+                bond.attach_member(member2.left.name)
+                self.assertIn(member1.left.name, bond.list_members())
+                self.assertIn(member2.left.name, bond.list_members())
 
         self.assertNotIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
-        self.assertNotIn(slave2_name + "0", BaseNetworkClass(None, "None").list_all_devices())
+        self.assertNotIn(member2_name + "0", BaseNetworkClass(None, "None").list_all_devices())
 
 
 class TestBridge(TestCase):
@@ -366,20 +366,20 @@ class TestBridge(TestCase):
             self.assertIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
         self.assertNotIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
 
-    def test_slaves(self):
+    def test_members(self):
         iface_name = "ttmx"
-        slave1_name = "tti3"
-        slave2_name = "tti4"
+        member1_name = "tti3"
+        member2_name = "tti4"
         with Bridge(None, iface_name) as bridge:
-            with Veth(None, slave1_name) as slave1, Veth(None, slave2_name) as slave2:
+            with Veth(None, member1_name) as member1, Veth(None, member2_name) as member2:
                 self.assertIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
-                bridge.attach_slave(slave1.left)
-                bridge.attach_slave(slave2.left)
-                self.assertIn(slave1.left.name, bridge.list_slaves())
-                self.assertIn(slave2.left.name, bridge.list_slaves())
+                bridge.attach_member(member1.left)
+                bridge.attach_member(member2.left)
+                self.assertIn(member1.left.name, bridge.list_members())
+                self.assertIn(member2.left.name, bridge.list_members())
 
         self.assertNotIn(iface_name, BaseNetworkClass(None, "None").list_all_devices())
-        self.assertNotIn(slave2_name + "0", BaseNetworkClass(None, "None").list_all_devices())
+        self.assertNotIn(member2_name + "0", BaseNetworkClass(None, "None").list_all_devices())
 
 
 class GenericFunctions(TestCase):
@@ -399,7 +399,7 @@ class GenericFunctions(TestCase):
     def test_complex(self):
         with Veth(None, "ttvth") as veth:
             with Bond(None, "ttbnd") as bond, Bridge(None, "ttmost") as bridge:
-                bond.attach_slave(veth.left)
-                bridge.attach_slave(veth.right)
+                bond.attach_member(veth.left)
+                bridge.attach_member(veth.right)
                 bridge.set_ipv4("192.168.225.5/24", "192.168.225.1")
                 self.assertIn("192.168.225.5", BaseNetworkClass(None, "None").execute("ip a"))

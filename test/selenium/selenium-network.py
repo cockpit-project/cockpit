@@ -63,7 +63,7 @@ class Bonding(NeworkTestSuite):
         super().setUp()
         self.veth1 = Veth(self.machine, self.if_prefix + "sla1")
         self.bond = Bond(self.machine, self.if_prefix + "bnd")
-        self.bond.attach_slave(self.veth1.left)
+        self.bond.attach_member(self.veth1.left)
         self.bond.set_ipv4("192.168.223.150/24", "192.168.1.1")
         self.reload_frame()
 
@@ -73,7 +73,7 @@ class Bonding(NeworkTestSuite):
         self.veth1.cleanup()
         self.bond.remove_connections("^" + self.if_prefix)
 
-    def testSlaveRemove(self):
+    def testMemberRemove(self):
         self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable)
         self.click(self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable))
         self.click(self.wait_xpath("//tr[@data-interface='%s']//button" % self.veth1.left.name, cond=clickable))

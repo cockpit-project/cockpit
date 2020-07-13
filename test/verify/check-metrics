@@ -227,6 +227,97 @@ class TestMetrics(MachineCase, StorageHelpers):
         self.check_host_metrics()
         m.execute("! pgrep cockpit-pcp")
 
+    @skipImage("No PCP available", "fedora-coreos")
+    @skipImage("restarting pmlogger times out", "ubuntu-stable")
+    def testPcpHistory(self):
+        m = self.machine
+        b = self.browser
+
+        out = m.execute("""set -eu
+        # reset PCP logs
+        systemctl stop pmcd pmie pmlogger
+        rm -rf /var/log/pcp/pmlogger/*
+
+        # time travel to yesterday
+        timedatectl set-ntp off
+        # this is async; wait until timesyncd stops
+        while systemctl is-active systemd-timesyncd; do sleep 1; done
+        NOW=$(date +%s)
+        timedatectl set-time "@$(( $(date +%s) - 86400 ))"
+
+        systemctl start pmcd pmlogger
+        DAY=$(date +%Y%m%d)
+        SPIKETIME=$(date +%s)
+
+        # generate 90s memory usage spike (shorter ones don't appear in archives)
+        sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep 90'
+
+        # travel back to the present
+        systemctl stop pmcd pmlogger
+        timedatectl set-time "@$NOW"
+        systemctl start pmcd pmlogger
+
+        echo "$DAY"
+        echo "$SPIKETIME"
+        """, timeout=300)
+
+        (day, spiketime) = out.strip().splitlines()[-2:]
+        spiketime = int(spiketime)
+
+        # force PCP to archive/pack the whole day
+        if m.image in ["debian-stable", "debian-testing", "ubuntu-2004"]:
+            # handled via cronjob
+            # sometimes gets stuck on async pmlogger.service not being ready yet, so retry a few times
+            m.execute("for i in `seq 5`; do /usr/lib/pcp/bin/pmlogger_daily -p && break; sleep 5; done")
+        else:
+            # handled via systemd timer
+            m.execute("systemctl start pmlogger_daily")
+
+        # should now have an archive for yesterday
+        self.assertIn(day + ".index", m.execute("ls /var/log/pcp/pmlogger/$(hostname)"))
+
+        # test setup sanity check: PCP should have memory data
+        # looks like this:
+        # 09:29:43.201               808068
+        # 09:29:45.201  No values available
+        out = m.execute("pmval -t 2sec -f3 mem.util.available -a /var/log/pcp/pmlogger/$(hostname)/" + day)
+        self.assertRegex(out, r"\n\d\d:\d\d:[0-9.]+\s+\d{6,}.*\n")
+
+        self.login_and_go("/system/graphs")
+        b.wait_visible("#server_memory_graph")
+
+        b.click("#server-graph-toolbar .dropdown .dropdown-toggle")
+        b.click("#server-graph-toolbar .dropdown a:contains('6 hours')")
+        # scroll left until the graph contains the spike time
+        laststart = None
+        for i in range(60):
+            b.click('#server-graph-toolbar [data-action="scroll-left"]')
+
+            # wait until it redraws with new data
+            for _ in range(60):
+                data = b.eval_js('$("#server_memory_graph").data("flot_data")[0]["data"]')
+                if data[0][0] != laststart:
+                    break
+                time.sleep(0.1)
+            else:
+                raise Error("timed out waiting for graph to update")
+            laststart = data[0][0]
+
+            # check if the graph contains the spike interval, plus 5s margin
+            if data[0][0] < (spiketime - 5) * 1000 and data[-1][0] > (spiketime + 65) * 1000:
+                break
+        else:
+            raise Error("did not reach interval containing the spike in 60 clicks")
+
+        # search for spike
+        for (t, v) in data:
+            # don't be too strict here: we formally expect > 300M, but it gets averaged out a bit
+            # the fact that we have anything non-zero is sufficient
+            if v > 150000000:
+                break
+        else:
+            raise Error("did not find spike in data")
+
     def testOverview(self):
         m = self.machine
         b = self.browser

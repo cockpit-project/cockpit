@@ -67,7 +67,7 @@ export function prepareNICParam(nics) {
             user: nic.type === "user",
             bridge: nic.source.bridge,
             network: nic.source.network,
-            type: nic.type === "direct" ? "direct" : null,
+            type: (nic.type === "direct" || nic.type === "ethernet") ? nic.type : null,
             source: nic.source.dev,
             mac: nic.mac,
             model: nic.model,

@@ -70,7 +70,7 @@ class ApplicationRow extends React.Component {
                     <div>
                         {comp.summary}
                         <Alert isInline variant='danger'
-                            action={<AlertActionCloseButton onClose={left_click(() => { this.setState({ error: null }) })} />}
+                            actionClose={<AlertActionCloseButton onClose={left_click(() => { this.setState({ error: null }) })} />}
                             title={state.error} />
                     </div>
                 );

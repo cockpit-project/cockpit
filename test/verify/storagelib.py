@@ -255,7 +255,8 @@ class StorageHelpers:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)
                 self.browser.set_input_text(sel + "+ input[type=text]", val)
         elif ftype == "combobox":
-            self.browser.set_input_text(sel + " input[type=text]", val)
+            self.browser.click(sel + " button.pf-c-select__toggle-button")
+            self.browser.click(sel + " .pf-c-select__menu li:contains('{0}') button".format(val))
         else:
             self.browser.set_val(sel, val)
 

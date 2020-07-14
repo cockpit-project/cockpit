@@ -18,8 +18,8 @@
  */
 import React from 'react';
 import {
-    Card, CardHeader, CardBody, CardFooter,
-    Progress, ProgressMeasureLocation, ProgressVariant,
+    Card, CardBody, CardFooter,
+    Progress, ProgressMeasureLocation, ProgressVariant, CardTitle,
 } from '@patternfly/react-core';
 
 import * as machine_info from "machine-info.js";
@@ -113,7 +113,7 @@ export class UsageCard extends React.Component {
 
         return (
             <Card className="system-usage">
-                <CardHeader>{_("Usage")}</CardHeader>
+                <CardTitle>{_("Usage")}</CardTitle>
                 <CardBody>
                     <table className="pf-c-table pf-m-grid-md pf-m-compact">
                         <tbody>

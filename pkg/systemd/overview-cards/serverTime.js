@@ -512,7 +512,7 @@ function ChangeSystimeBody({ state, errors, change }) {
             <label htmlFor="systime-timezones" className="control-label">{_("Time Zone")}</label>
             <Validated errors={errors} error_key="time_zone">
                 <Select id="systime-timezones" variant={SelectVariant.typeahead}
-                        isExpanded={zonesOpen} onToggle={setZonesOpen}
+                        isOpen={zonesOpen} onToggle={setZonesOpen}
                         selections={time_zone}
                         onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}>
                     { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
@@ -520,7 +520,7 @@ function ChangeSystimeBody({ state, errors, change }) {
             </Validated>
             <label className="control-label" htmlFor="change_systime">{_("Set Time")}</label>
             <Select id="change_systime"
-                    isExpanded={modeOpen} onToggle={setModeOpen}
+                    isOpen={modeOpen} onToggle={setModeOpen}
                     selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}>
                 <SelectOption value="manual_time">{_("Manually")}</SelectOption>
                 <SelectOption isDisabled={!ntp_supported} value="ntp_time">{_("Automatically using NTP")}</SelectOption>

@@ -1919,11 +1919,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def checkOsFiltered(self):
             b = self.browser
 
-            b.focus("label[for=os-select] + div > div > div > input")
+            b.focus("label[for=os-select] + div input")
             b.key_press(self.os_name)
+
             try:
                 with b.wait_timeout(5):
-                    b.wait_in_text("#os-select li a", "No matches found")
+                    b.wait_in_text("#os-select li button", "No results found")
                 return self
             except AssertionError:
                 # os found which is not ok
@@ -1983,9 +1984,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
 
             if self.os_name:
-                b.focus("label:contains('Operating System') + div > div > div > input")
-                b.key_press(self.os_name)
-                b.key_press("\t")
+                b.click("label:contains('Operating System') + div button")
+                b.click("#os-select li:contains('{0}') button".format(self.os_name))
 
             if self.sourceType != 'disk_image':
                 if not self.expected_storage_size:

@@ -110,7 +110,7 @@
   }
 
   .pf-c-card {
-    &__header {
+    &__title {
       font-size: var(--pf-global--FontSize--xl);
       font-weight: var(--pf-global--FontWeight--normal);
     }
@@ -246,14 +246,14 @@
     --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
     --pf-c-card--child--PaddingBottom: var(--pf-global--spacer--md);
     --pf-c-card--child--PaddingLeft: var(--pf-global--spacer--md);
-    --pf-c-card__header--not-last-child--PaddingBottom: var(--pf-global--spacer--sm);
+    --pf-c-card__title--not-last-child--PaddingBottom: var(--pf-global--spacer--sm);
   }
 }
 
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */
 
-  .ct-system-overview .pf-c-card__header {
+  .ct-system-overview .pf-c-card__title {
     font-size: var(--pf-global--FontSize--2xl);
   }
 
@@ -367,6 +367,21 @@
 
 .pf-c-button.no-left-padding {
     padding-left: 0;
+}
+
+/* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
+.pf-c-page__main-section:not(.ct-overview-header),
+.pf-l-gallery {
+  > .pf-c-alert {
+    box-shadow: var(--pf-global--BoxShadow--sm);
+
+    // Default PF4 blue and background grey are too close in shade
+    // So: Lighten up the blue to provide a touch more contrast
+    // (Based on default's light green, but in a blue shade)
+    &.pf-m-info {
+      --pf-c-alert--BackgroundColor: #f1f8fe;
+    }
+  }
 }
 
 #motd-box > .pf-c-alert {

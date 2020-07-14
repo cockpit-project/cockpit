@@ -63,7 +63,7 @@ $desktop: $phone + 1px;
         width: 100%;
         font-size: var(--pf-global--FontSize--sm);
         font-weight: var(--pf-global--FontWeight--normal);
-        color: var(--pf-c-nav--m-dark__list-link--Color);
+        color: var(--pf-c-nav--m-dark__link--Color);
         display: inline-block;
         opacity: 0.8;
     }
@@ -73,7 +73,7 @@ $desktop: $phone + 1px;
     }
 
     .non-menu-item {
-        color: var(--pf-c-nav__list-link--Color);
+        color: var(--pf-c-nav__link--Color);
         display: flex;
         justify-content: center;
     }
@@ -435,6 +435,10 @@ $desktop: $phone + 1px;
     display: flex;
     justify-content: space-between;
 
+    > .pf-c-nav__section-title:not(a) {
+        flex: auto;
+    }
+
     a {
         color: var(--pf-global--link--Color--light);
         font-weight: normal;
@@ -688,20 +692,6 @@ $desktop: $phone + 1px;
     .pf-c-page__sidebar .pf-c-nav {
         width: unset;
     }
-}
-
-// TODO - this should come from PF, just overwrite until new version is available
-.pf-c-nav__list > .pf-c-nav__item > .pf-c-nav__link::after {
-    left: 0;
-    top: 0;
-    bottom: 0;
-    height: 100%; // We may actually need this even with the new PF version (when item has 'Contains:...'
-    width: var(--pf-c-nav__list-link--after--Height);
-}
-
-// TODO - this should come from PF, just overwrite until new version is available
-.pf-c-nav__list .pf-c-nav__link {
-    padding-bottom: var(--pf-c-nav__list-link--PaddingTop);
 }
 
 /* Navigation animation */

@@ -19,12 +19,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock, Modal, TypeAheadSelect } from 'patternfly-react';
-import { Button, Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import {
+    Select as PFSelect, SelectOption, SelectVariant,
+    Button, Tooltip, TooltipPosition
+} from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
-import * as Select from "cockpit-components-select.jsx";
+import * as CockpitSelect from "cockpit-components-select.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
 import {
@@ -252,11 +255,11 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
 
         installationSource = (
             <>
-                <Select.StatelessSelect id="network-select"
+                <CockpitSelect.StatelessSelect id="network-select"
                     selected={source || 'no-resource'}
                     onChange={value => onValueChanged('source', value)}>
                     {getPXENetworkRows(nodeDevices, networks)}
-                </Select.StatelessSelect>
+                </CockpitSelect.StatelessSelect>
 
                 {installationSourceWarning &&
                 <HelpBlock>
@@ -287,20 +290,20 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                 <label className="control-label" htmlFor="source-type">
                     {_("Installation Type")}
                 </label>
-                <Select.Select id="source-type"
+                <CockpitSelect.Select id="source-type"
                     initial={sourceType}
                     onChange={value => onValueChanged('sourceType', value)}>
-                    {downloadOSSupported ? <Select.SelectEntry data={DOWNLOAD_AN_OS}
-                        key={DOWNLOAD_AN_OS}>{_("Download an OS")}</Select.SelectEntry> : null}
-                    <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
-                    <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
-                    <Select.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
+                    {downloadOSSupported ? <CockpitSelect.SelectEntry data={DOWNLOAD_AN_OS}
+                        key={DOWNLOAD_AN_OS}>{_("Download an OS")}</CockpitSelect.SelectEntry> : null}
+                    <CockpitSelect.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
+                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</CockpitSelect.SelectEntry>
+                    <CockpitSelect.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</CockpitSelect.SelectEntry>
+                    <CockpitSelect.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
                         disabled={connectionName == 'session'}
                         data={PXE_SOURCE}
                         key={PXE_SOURCE}>{_("Network Boot (PXE)")}
-                    </Select.SelectEntry>
-                </Select.Select>
+                    </CockpitSelect.SelectEntry>
+                </CockpitSelect.Select>
             </>}
 
             {sourceType != DOWNLOAD_AN_OS
@@ -346,12 +349,21 @@ class OSRow extends React.Component {
             typeAheadKey: Math.random(),
             osEntries: osInfoListExt,
         };
+        this.createValue = os => {
+            return ({
+                toString: function() { return this.displayName },
+                compareTo: function(value) {
+                    return value.os.shortId.toLowerCase().includes(this.os.shortId) || value.displayName.toLowerCase().includes(this.displayName);
+                },
+                ...os,
+                displayName: getOSStringRepresentation(os),
+            });
+        };
     }
 
     render() {
         const { os, onValueChanged, isLoading, validationFailed } = this.props;
         const validationStateOS = validationFailed.os ? 'error' : undefined;
-        const filterByFields = ['shortId', 'displayName'];
 
         return (
             <>
@@ -359,28 +371,29 @@ class OSRow extends React.Component {
                     {_("Operating System")}
                 </label>
                 <FormGroup validationState={validationStateOS} bsClass='form-group ct-validation-wrapper'>
-                    <TypeAheadSelect
+                    <PFSelect
+                        variant={SelectVariant.typeahead}
                         key={this.state.typeAheadKey}
                         id='os-select'
-                        labelKey='displayName'
-                        selected={os != undefined ? [getOSStringRepresentation(os)] : []}
-                        isLoading={isLoading}
-                        placeholder={_("Choose an operating system")}
-                        paginate={false}
-                        maxResults={500}
-                        onKeyDown={ev => {
-                            ev.persist();
-                            ev.nativeEvent.stopImmediatePropagation();
-                            ev.stopPropagation();
+                        isDisabled={isLoading}
+                        selections={os}
+                        typeAheadAriaLabel={_("Choose an operating system")}
+                        placeholderText={_("Choose an operating system")}
+                        onSelect={(event, value) => {
+                            this.setState({
+                                isOpen: false
+                            });
+                            onValueChanged('os', value);
                         }}
-                        onChange={value => value[0] && onValueChanged('os', this.state.osEntries.find(os => getOSStringRepresentation(os) == value[0].displayName))}
-                        onBlur={() => {
-                            if (!this.state.osEntries.find(os => getOSStringRepresentation(os) == os)) {
-                                this.setState({ typeAheadKey: Math.random() });
-                            }
+                        onClear={() => {
+                            this.setState({ isOpen: false });
+                            onValueChanged('os', null);
                         }}
-                        filterBy={filterByFields}
-                        options={this.state.osEntries.map(os => ({ displayName: getOSStringRepresentation(os), shortId: os.shortId }))} />
+                        onToggle={isOpen => this.setState({ isOpen })}
+                        isOpen={this.state.isOpen}>
+                        {this.state.osEntries.map(os => <SelectOption key={os.shortId}
+                                                                      value={this.createValue(os)} />)}
+                    </PFSelect>
                     { validationFailed.os && os == undefined &&
                     <HelpBlock>
                         <p className="text-danger">{validationFailed.os}</p>
@@ -418,7 +431,7 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                     <label className="control-label" htmlFor="profile-select">
                         {_("Profile")}
                     </label>
-                    <Select.Select id="profile-select"
+                    <CockpitSelect.Select id="profile-select"
                         initial={os.profiles && os.profiles[0]}
                         onChange={e => onValueChanged('profile', e)}>
                         { (os.profiles || []).sort()
@@ -431,9 +444,9 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                                         profileName = 'Workstation';
                                     else
                                         profileName = profile;
-                                    return <Select.SelectEntry data={profile} key={profile}>{profileName}</Select.SelectEntry>;
+                                    return <CockpitSelect.SelectEntry data={profile} key={profile}>{profileName}</CockpitSelect.SelectEntry>;
                                 }) }
-                    </Select.Select>
+                    </CockpitSelect.Select>
                 </>}
                 <label htmlFor='root-password' className='control-label'>
                     {_("Root Password")}
@@ -484,7 +497,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
 
         isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
         volumeEntries = (
-            storagePool.volumes.map(vol => <Select.SelectEntry data={vol.name} key={vol.name}>{vol.name}</Select.SelectEntry>)
+            storagePool.volumes.map(vol => <CockpitSelect.SelectEntry data={vol.name} key={vol.name}>{vol.name}</CockpitSelect.SelectEntry>)
         );
     }
 
@@ -495,19 +508,19 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
             <label className="control-label" htmlFor="storage-pool-select">
                 {_("Storage")}
             </label>
-            <Select.Select id="storage-pool-select"
+            <CockpitSelect.Select id="storage-pool-select"
                            initial={storagePoolName}
                            onChange={e => onValueChanged('storagePool', e)}>
-                <Select.SelectEntry data="NewVolume" key="NewVolume">{_("Create New Volume")}</Select.SelectEntry>
-                <Select.SelectEntry data="NoStorage" key="NoStorage">{_("No Storage")}</Select.SelectEntry>
-                <Select.SelectDivider />
+                <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">{_("Create New Volume")}</CockpitSelect.SelectEntry>
+                <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">{_("No Storage")}</CockpitSelect.SelectEntry>
+                <CockpitSelect.SelectDivider />
                 <optgroup key="Storage Pools" label="Storage Pools">
                     { storagePools.map(pool => {
                         if (pool.volumes && pool.volumes.length)
-                            return <Select.SelectEntry data={pool.name} key={pool.name}>{pool.name}</Select.SelectEntry>;
+                            return <CockpitSelect.SelectEntry data={pool.name} key={pool.name}>{pool.name}</CockpitSelect.SelectEntry>;
                     })}
                 </optgroup>
-            </Select.Select>
+            </CockpitSelect.Select>
 
             { storagePoolName !== "NewVolume" &&
             storagePoolName !== "NoStorage" &&
@@ -515,11 +528,11 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                 <label className="control-label" htmlFor="storage-volume-select">
                     {_("Volume")}
                 </label>
-                <Select.Select id="storage-volume-select"
+                <CockpitSelect.Select id="storage-volume-select"
                                initial={storageVolume}
                                onChange={e => onValueChanged('storageVolume', e)}>
                     {volumeEntries}
-                </Select.Select>
+                </CockpitSelect.Select>
 
                 { isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0 &&
                 <HelpBlock>
@@ -733,7 +746,7 @@ class CreateVmModal extends React.Component {
             } else {
                 stateDelta.recommendedStorage = undefined;
             }
-            if (!value.unattendedInstallable)
+            if (!value || !value.unattendedInstallable)
                 this.onValueChanged('unattendedInstallation', false);
             this.setState(stateDelta);
             break;

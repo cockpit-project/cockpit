@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { FormGroup, HelpBlock, TypeAheadSelect } from "patternfly-react";
+import { Select, SelectVariant, SelectOption } from "@patternfly/react-core";
 import PropTypes from "prop-types";
 import { debounce } from 'throttle-debounce';
 
@@ -32,15 +32,14 @@ export class FileAutoComplete extends React.Component {
         this.state = {
             directory: '', // The current directory we list files/dirs from
             displayFiles: [],
-            error: null,
-            hasFocus: false,
-            value: '',
+            isOpen: false,
         };
         this.allowFilesUpdate = true;
         this.updateFiles = this.updateFiles.bind(this);
         this.finishUpdate = this.finishUpdate.bind(this);
-        this.onValueChanged = this.onValueChanged.bind(this);
-        this.onInputChanged = this.onInputChanged.bind(this);
+        this.onFilter = this.onFilter.bind(this);
+        this.onToggle = this.onToggle.bind(this);
+        this.clearSelection = this.clearSelection.bind(this);
 
         this.debouncedChange = debounce(300, (value) => {
             const cb = (dirPath) => this.updateFiles(dirPath == '' ? '/' : dirPath);
@@ -113,78 +112,67 @@ export class FileAutoComplete extends React.Component {
         });
     }
 
-    onValueChanged(value) {
-        if (value.length == 0)
-            return;
-
-        if (this.props.onChange)
-            this.props.onChange(value[0].path);
-
-        this.setState({ value: value[0].path });
-
-        if (value[0].type == 'directory') {
-            this.setState({ directory: value[0].path });
-            this.updateFiles(value[0].path);
+    onFilter(event) {
+        if (event.target.value == "" || event.target.value.slice(-1) == "/") {
+            this.setState({ directory: event.target.value || "/" });
+            this.updateFiles(event.target.value || "/");
         }
+
+        const res = event.target.value !== '' ? this.state.displayFiles.filter(file => file.path.startsWith(event.target.value)) : this.state.displayFiles;
+        return res.map(option => (
+            <SelectOption key={option.path}
+                          className={option.type}
+                          value={{
+                              ...option,
+                              toString: function() { return this.path },
+                          }} />
+        ));
     }
 
-    onInputChanged(value) {
-        if (this.props.onChange)
-            this.props.onChange(value);
+    onToggle(isOpen) {
+        this.setState({ isOpen });
+    }
 
-        this.setState({ value });
-
-        this.debouncedChange(value);
+    clearSelection() {
+        this.updateFiles("/");
+        this.setState({
+            directory: "",
+            value: null,
+            isOpen: false
+        });
     }
 
     render() {
         const placeholder = this.props.placeholder || _("Path to file");
 
         return (
-            <FormGroup validationState={this.state.error && !this.state.hasFocus ? 'error' : undefined}>
-                <TypeAheadSelect
-                    id={this.props.id}
-                    labelKey='path'
-                    placeholder={placeholder}
-                    paginate={false}
-                    onChange={this.onValueChanged}
-                    onInputChange={this.onInputChanged}
-                    options={this.state.displayFiles}
-                    onKeyDown={ev => { // Capture ESC event
-                        if (ev.keyCode == 27) {
-                            ev.persist();
-                            ev.nativeEvent.stopImmediatePropagation();
-                            ev.stopPropagation();
-                        }
-                    }}
-                    renderMenu={(results, menuProps) => {
-                        // Hide the menu when there are no results.
-                        if (!results.length) {
-                            return null;
-                        }
-                        return <TypeAheadSelect.TypeaheadMenu {...menuProps} labelKey='path' options={results} />;
-                    }}
-                    onFocus={() => this.setState({ hasFocus: true, error: undefined })}
-                    onBlur={() => {
-                        let value = this.state.value;
-
-                        if (value.lastIndexOf('/') == value.length - 1)
-                            value = value.slice(0, value.length - 1);
-
-                        if (value && (value + '/') != this.state.directory &&
-                            !this.state.displayFiles.find(file => (file.type == 'directory' ? (this.state.value + '/') : this.state.value) == file.path)) {
-                            if (!this.state.error)
-                                this.setState({ error: cockpit.format("No such file or directory '$0'", this.state.value) });
-                        }
-                        this.setState({ hasFocus: false });
-                    }}
-                    open={this.state.hasFocus}
-                />
-                { this.state.error && !this.state.hasFocus &&
-                <HelpBlock>
-                    <p className="text-danger">{this.state.error}</p>
-                </HelpBlock> }
-            </FormGroup>
+            <Select
+                variant={SelectVariant.typeahead}
+                id={this.props.id}
+                placeholderText={placeholder}
+                noResultsFoundText={cockpit.format(_("No such file or directory '$0'"), this.state.value)}
+                onFilter={this.onFilter}
+                selections={this.state.value}
+                onSelect={(event, value) => {
+                    const stateDelta = { value };
+                    if (value.type == 'file')
+                        stateDelta.isOpen = false;
+                    this.setState(stateDelta);
+                    this.onFilter({ target: { value: value.path } });
+                    this.props.onChange && this.props.onChange(value.path);
+                }}
+                onToggle={this.onToggle}
+                onClear={this.clearSelection}
+                isOpen={this.state.isOpen}>
+                {this.state.displayFiles.map((option, index) => (
+                    <SelectOption key={option.path}
+                                  className={option.type}
+                                  value={{
+                                      ...option,
+                                      toString: function() { return this.path },
+                                  }} />
+                ))}
+            </Select>
         );
     }
 }

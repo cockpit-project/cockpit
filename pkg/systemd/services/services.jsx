@@ -28,13 +28,11 @@ import {
     Page, PageSection, PageSectionVariants,
     TextInput,
     Card,
+    Toolbar,
+    ToolbarContent,
+    ToolbarItem,
+    ToolbarGroup,
 } from '@patternfly/react-core';
-import {
-    DataToolbar,
-    DataToolbarItem,
-    DataToolbarGroup,
-    DataToolbarContent,
-} from '@patternfly/react-core/dist/esm/experimental';
 import { SearchIcon } from '@patternfly/react-icons';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -729,9 +727,9 @@ class ServicesPage extends React.Component {
                 .sort(this.compareUnits);
 
         const toolbarItems = <>
-            <DataToolbarGroup>
-                <DataToolbarItem variant="label" id="services-text-filter-label">{_("Filter")}</DataToolbarItem>
-                <DataToolbarItem variant="search-filter">
+            <ToolbarGroup>
+                <ToolbarItem variant="label" id="services-text-filter-label">{_("Filter")}</ToolbarItem>
+                <ToolbarItem variant="search-filter">
                     <TextInput name="services-text-filter"
                             id="services-text-filter"
                             type="search"
@@ -739,8 +737,8 @@ class ServicesPage extends React.Component {
                             onChange={this.onInputChange}
                             aria-labelledby="services-text-filter-label"
                             placeholder={_("Filter by name or description")} />
-                </DataToolbarItem>
-                <DataToolbarItem variant="search-filter">
+                </ToolbarItem>
+                <ToolbarItem variant="search-filter">
                     <Select.StatelessSelect id="services-dropdown"
                             selected={currentTypeFilter.key}
                             onChange={value => this.onTypeDropdownSelect(typeDropdownOptions.find(option => option.key == value))}>
@@ -750,17 +748,17 @@ class ServicesPage extends React.Component {
                             </Select.SelectEntry>
                         ))}
                     </Select.StatelessSelect>
-                </DataToolbarItem>
-            </DataToolbarGroup>
+                </ToolbarItem>
+            </ToolbarGroup>
             {activeTab == "timer" &&
             <>
-                <DataToolbarItem variant="separator" />
-                <DataToolbarItem>
+                <ToolbarItem variant="separator" />
+                <ToolbarItem>
                     { this.state.privileged && <Button key='create-timer-action' variant="secondary"
                                                        id="create-timer"
                                                        onClick={onCreateTimer}>{_("Create Timer")}</Button>
                     }
-                </DataToolbarItem>
+                </ToolbarItem>
             </>}
         </>;
 
@@ -775,10 +773,10 @@ class ServicesPage extends React.Component {
                 </PageSection>
                 <PageSection>
                     <Card isCompact>
-                        <DataToolbar data-loading={this.state.loadingUnits}
+                        <Toolbar data-loading={this.state.loadingUnits}
                                      id="services-toolbar">
-                            <DataToolbarContent>{toolbarItems}</DataToolbarContent>
-                        </DataToolbar>
+                            <ToolbarContent>{toolbarItems}</ToolbarContent>
+                        </Toolbar>
                         <ServicesList key={cockpit.format("$0-list", activeTab)}
                             isTimer={activeTab == 'timer'}
                             units={units} />

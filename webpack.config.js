@@ -509,7 +509,8 @@ module.exports = {
                             options: {
                                 resources: [
                                     path.resolve(libdir, './_global-variables.scss'),
-                                    path.resolve(nodedir, './@patternfly/patternfly/patternfly-variables.scss'),
+                                    path.resolve(nodedir, './@patternfly/patternfly/base/patternfly-themes.scss'),
+                                    path.resolve(nodedir, './@patternfly/patternfly/base/patternfly-variables.scss'),
                                     path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
                                 ],
                             },

@@ -684,7 +684,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("Refusing to render service to dead parents.")
         self.allow_journal_messages(".*No authentication agent found.*")
-        self.allow_journal_messages(".*Peer failed to perform TLS handshake")
+        self.allow_journal_messages(".*Peer failed to perform TLS handshake.*")
 
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):

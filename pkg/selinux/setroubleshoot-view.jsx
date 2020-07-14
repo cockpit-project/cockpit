@@ -238,7 +238,7 @@ class DismissableError extends React.Component {
         return (
             <Alert isInline
                 variant='danger' title={this.props.children}
-                action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
+                actionClose={<AlertActionCloseButton onClose={this.handleDismissError} />} />
         );
     }
 }
@@ -464,7 +464,7 @@ export class SETroubleshootPage extends React.Component {
             errorMessage = (
                 <Alert isInline
                     variant='danger' title={this.props.error}
-                    action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
+                    actionClose={<AlertActionCloseButton onClose={this.handleDismissError} />} />
             );
         }
 

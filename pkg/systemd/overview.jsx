@@ -140,7 +140,7 @@ class LoginMessages extends React.Component {
                    variant={this.state.messages.type}
                    isInline={!fail_count_message}
                    className={!fail_count_message ? "no-title" : ""}
-                   action={<AlertActionCloseButton onClose={this.close} />}
+                   actionClose={<AlertActionCloseButton onClose={this.close} />}
                    title={fail_count_message || last_log_item}
             >
                 {last_login_message && fail_count_message && last_log_item}
@@ -260,7 +260,7 @@ class OverviewPage extends React.Component {
                 </PageSection>
                 <PageSection variant={PageSectionVariants.default}>
                     <LoginMessages />
-                    <Gallery className='ct-system-overview' gutter="lg">
+                    <Gallery className='ct-system-overview' hasGutter>
                         <MotdCard />
                         <HealthCard />
                         <UsageCard />

@@ -324,14 +324,15 @@ class Browser:
             self.wait_val(selector, val)
 
     def set_file_autocomplete_val(self, identifier, location):
-        file_item_selector_template = "#{0} li a:contains({1})"
+        file_item_selector_template = "#{0} li button:contains({1})"
 
         path = ''
         index = 0
+        self.click("label[for={0}] + div button".format(identifier))
+        self.wait_present("#" + identifier)
         for path_part in filter(None, location.split('/')):
             path += '/' + path_part
-            file_item_selector = file_item_selector_template.format(identifier, path_part)
-            self.click("label[for={0}] + div input[type=text]".format(identifier))
+            file_item_selector = file_item_selector_template.format(identifier, path)
             self.click(file_item_selector)
             if index != len(list(filter(None, location.split('/')))) - 1 or location[-1] == '/':
                 self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path + '/')

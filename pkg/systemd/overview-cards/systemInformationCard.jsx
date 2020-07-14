@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
+import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import moment from 'moment';
 
 import cockpit from "cockpit";
@@ -102,7 +102,7 @@ export class SystemInfomationCard extends React.Component {
     render() {
         return (
             <Card className="system-information">
-                <CardHeader>{_("System information")}</CardHeader>
+                <CardTitle>{_("System information")}</CardTitle>
                 <CardBody>
                     <table className="pf-c-table pf-m-grid-md pf-m-compact">
                         <tbody>

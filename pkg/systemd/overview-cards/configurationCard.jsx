@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Card, CardHeader, CardBody, Button } from '@patternfly/react-core';
+import { Card, CardBody, Button, CardTitle } from '@patternfly/react-core';
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as service from "service.js";
@@ -270,7 +270,7 @@ export class ConfigurationCard extends React.Component {
 
         return (
             <Card className="system-configuration">
-                <CardHeader>{_("Configuration")}</CardHeader>
+                <CardTitle>{_("Configuration")}</CardTitle>
                 <CardBody>
                     <table className="pf-c-table pf-m-grid-md pf-m-compact">
                         <tbody>

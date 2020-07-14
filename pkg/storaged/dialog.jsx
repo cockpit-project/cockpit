@@ -213,9 +213,8 @@
 
 import cockpit from "cockpit";
 
-import React from "react";
-import { TypeAheadSelect } from "patternfly-react";
-import { Alert, Tooltip, TooltipPosition } from "@patternfly/react-core";
+import React, { useState } from "react";
+import { Alert, Tooltip, TooltipPosition, Select as TypeAheadSelect, SelectOption, SelectVariant } from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
@@ -492,6 +491,25 @@ export const PassInput = (tag, title, options) => {
     };
 };
 
+const TypeAheadSelectElement = ({ options, change }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [value, setValue] = useState(null);
+
+    return (
+        <TypeAheadSelect
+            variant={SelectVariant.typeahead}
+            id="nfs-path-on-server"
+            isOpen={isOpen}
+            selections={value}
+            onToggle={isOpen => setIsOpen(isOpen)}
+            onSelect={(event, value) => { setValue(value); change(value) }}
+            onClear={() => setValue(false)}
+            isDisabled={options.disabled}>
+            {options.choices.map(entry => <SelectOption key={entry} value={entry} />)}
+        </TypeAheadSelect>
+    );
+};
+
 export const ComboBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -501,30 +519,7 @@ export const ComboBox = (tag, title, options) => {
 
         render: (val, change) =>
             <div data-field={tag} data-field-type="combobox">
-                <TypeAheadSelect
-                    id="nfs-path-on-server"
-                    labelKey="path"
-                    placeholder=""
-                    paginate={false}
-                    onChange={value => change(value[0])}
-                    onInputChange={change}
-                    options={options.choices}
-                    disabled={options.disabled}
-                    onKeyDown={ev => { // Capture ESC event
-                        if (ev.keyCode == 27) {
-                            ev.persist();
-                            ev.nativeEvent.stopImmediatePropagation();
-                            ev.stopPropagation();
-                        }
-                    }}
-                    renderMenu={(results, menuProps) => {
-                        // Hide the menu when there are no results.
-                        if (!results.length) {
-                            return null;
-                        }
-                        return <TypeAheadSelect.TypeaheadMenu {...menuProps} labelKey='path' options={results} />;
-                    }}
-                />
+                <TypeAheadSelectElement options={options} change={change} />
             </div>
     };
 };

@@ -65,7 +65,7 @@ export class InlineNotification extends React.Component {
         }
         const extraProps = {};
         if (onDismiss)
-            extraProps.action = <AlertActionCloseButton onClose={onDismiss} />;
+            extraProps.actionClose = <AlertActionCloseButton onClose={onDismiss} />;
 
         return (
             <Alert variant={type || 'danger'}

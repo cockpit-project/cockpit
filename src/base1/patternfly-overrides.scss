@@ -152,33 +152,6 @@ select.form-control {
   padding-right: 2.5em !important;
 }
 
-// Adjust typeahead find style
-.rbt {
-  &-input {
-    // Support typehead hints
-    &-hint {
-      // Stretch the hint and its input child 100% tall
-      &,
-      > input {
-        height: 100%;
-      }
-
-      // Shave off the border and padding, as these misalign the element
-      // (as this widget uses inline styles (ugh!), we _have to_ use !important)
-      > input {
-        border-width: 0 1px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-      }
-    }
-  }
-
-  // Adjust spinner position
-  &-aux {
-    right: 2rem !important;
-  }
-}
-
 // Adjust dropdown menus
 .dropdown-menu {
   > li {

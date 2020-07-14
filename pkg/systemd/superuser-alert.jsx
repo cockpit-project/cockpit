@@ -56,7 +56,7 @@ export class SuperuserAlert extends React.Component {
                 <Alert className="ct-limited-access-alert"
                        hidden={this.superuser.Current != "none"}
                        variant="info" isInline
-                       action={actions}
+                       actionClose={actions}
                        title={_("Web console is running in limited access mode.")} />
             </>);
     }

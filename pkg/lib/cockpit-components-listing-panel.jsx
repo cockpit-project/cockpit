@@ -19,7 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Nav, NavItem, NavList, NavVariants } from '@patternfly/react-core';
+import { Nav, NavItem, NavList } from '@patternfly/react-core';
 import './cockpit-components-listing-panel.scss';
 
 /* tabRenderers optional: list of tab renderers for inline expansion, array of objects with
@@ -129,8 +129,8 @@ export class ListingPanel extends React.Component {
                 </div>;
         } else {
             heading = (<div className="ct-listing-panel-head">
-                {links.length && <Nav onSelect={this.handleTabClick}>
-                    <NavList variant={NavVariants.tertiary}>
+                {links.length && <Nav variant="tertiary" onSelect={this.handleTabClick}>
+                    <NavList>
                         {links}
                     </NavList>
                 </Nav>}

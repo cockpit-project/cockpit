@@ -22,7 +22,7 @@ import ReactDOM from "react-dom";
 
 import {
     Button, Card, CardHeader, CardBody, CardFooter,
-    CardHead, CardActions, Gallery, GalleryItem
+    CardTitle, CardActions, Gallery, GalleryItem
 } from '@patternfly/react-core';
 
 const CardsDemo = () => {
@@ -38,17 +38,17 @@ const CardsDemo = () => {
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
         <Card isCompact key="card4">
-            <CardHeader>I have a header too</CardHeader>
+            <CardTitle>I have a header too</CardTitle>
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
         <Card key="card5">
-            <CardHead>
+            <CardHeader>
                 <CardActions>
                     <input type="checkbox" />
                     <Button className="btn">click</Button>
                 </CardActions>
-                <CardHeader>This is a card header</CardHeader>
-            </CardHead>
+            </CardHeader>
+            <CardTitle>This is a card header</CardTitle>
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
         <GalleryItem key="card6">
@@ -58,7 +58,7 @@ const CardsDemo = () => {
     return (
         <>
             <h4>PF4 cards arranged using a PF4 Gallery</h4>
-            <Gallery gutter="md">
+            <Gallery hasGutter>
                 { cards }
             </Gallery>
         </>

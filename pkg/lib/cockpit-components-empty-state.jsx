@@ -27,8 +27,8 @@ import {
     EmptyStateIcon,
     EmptyStateBody,
     EmptyStateSecondaryActions,
+    Spinner,
 } from '@patternfly/react-core';
-import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
 import "./cockpit-components-empty-state.css";
 
 export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary }) => {
@@ -37,7 +37,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAct
         <EmptyState variant={EmptyStateVariant.full}>
             { loading && <Spinner size="xl" /> }
             { icon && <EmptyStateIcon icon={icon} /> }
-            <Title size="lg">
+            <Title headingLevel="h1" size="lg">
                 {title}
             </Title>
             <EmptyStateBody>

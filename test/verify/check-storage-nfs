@@ -168,7 +168,7 @@ class TestStorageNfs(StorageCase):
                 return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
             self.retry(None, check, None)
 
-        b.click('#dialog [data-field="remote"] input.rbt-input-main')
+        b.click('#dialog [data-field="remote"] button.pf-c-select__toggle-button')
         wait_for_exports()
 
     def testNfsBusy(self):

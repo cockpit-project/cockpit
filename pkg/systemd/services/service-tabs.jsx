@@ -19,7 +19,7 @@
 
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Nav, NavList, NavItem, NavVariants } from '@patternfly/react-core';
+import { Nav, NavList, NavItem } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 
@@ -43,9 +43,10 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
     const [activeItem, setActiveItem] = useState(activeTab);
 
     return (
-        <Nav id="services-filter"
-            onSelect={result => { setActiveItem(result.itemId); onChange(result.itemId) }}>
-            <NavList variant={NavVariants.tertiary} className="ct-m-nav__tertiary-wrap ct-m-nav__tertiary-center">
+        <Nav variant="tertiary" id="services-filter"
+             className="ct-m-nav__tertiary-wrap ct-m-nav__tertiary-center"
+             onSelect={result => { setActiveItem(result.itemId); onChange(result.itemId) }}>
+            <NavList>
                 {Object.keys(service_tabs_suffixes).map(key => {
                     return (
                         <NavItem itemId={key}

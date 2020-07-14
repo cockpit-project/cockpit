@@ -82,6 +82,23 @@ threads=1
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
+    def testCancel(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("rm -rf /var/tmp/sos*")
+
+        self.login_and_go("/sosreport")
+        b.click('[data-target="#sos"]')
+        b.wait_visible("#sos")
+        m.execute("until pgrep sosreport >/dev/null; do sleep 1; done")
+
+        b.click("#sos-cancel")
+        b.wait_not_visible("#sos")
+        # cleans up properly
+        m.execute("! pgrep -a sosreport")
+        self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
+
     def testAppStream(self):
         b = self.browser
         m = self.machine

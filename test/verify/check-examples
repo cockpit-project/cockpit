@@ -87,7 +87,7 @@ class TestLongRunning(MachineCase):
         self.login_and_go("/long-running-process")
 
         self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "inactive")
-        b.wait_text("#state", "cockpit-longrunning.service is not running")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
         b.wait_text("#output", "")
 
         # run a command that the test can control synchronously
@@ -95,7 +95,7 @@ class TestLongRunning(MachineCase):
         b.set_val("#command", "date; echo STEP_A; until [ -e %s ]; do sleep 1; done; echo STEP_B; sleep 1; echo DONE" % ack_file)
         b.click("button#run")
 
-        b.wait_text("#state", "cockpit-longrunning.service is running")
+        b.wait_text("#state", "cockpit-longrunning.service running")
         b.wait_in_text("#output", "\nSTEP_A\n")
         self.assertNotIn("\nSTEP_B", b.text("#output"))
         self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "activating")
@@ -103,7 +103,7 @@ class TestLongRunning(MachineCase):
         # reattaches in new session
         b.logout()
         b.login_and_go("/long-running-process")
-        b.wait_text("#state", "cockpit-longrunning.service is running")
+        b.wait_text("#state", "cockpit-longrunning.service running")
         b.wait_in_text("#output", "\nSTEP_A\n")
         self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "activating")
 
@@ -112,23 +112,23 @@ class TestLongRunning(MachineCase):
         b.wait_in_text("#output", "\nSTEP_B\n")
         # wait for completion
         b.wait_in_text("#output", "\nDONE\n")
-        b.wait_text("#state", "cockpit-longrunning.service is not running")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
         self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "inactive")
 
         # in next session it is back at "not running"
         b.logout()
         b.login_and_go("/long-running-process")
-        b.wait_text("#state", "cockpit-longrunning.service is not running")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
         b.wait_text("#output", "")
 
         # failing process
         m.execute("rm -f " + ack_file)
         b.set_val("#command", "date; echo BREAK_A; until [ -e %s ]; do sleep 1; done; false; echo NOTME" % ack_file)
         b.click("button#run")
-        b.wait_text("#state", "cockpit-longrunning.service is running")
+        b.wait_text("#state", "cockpit-longrunning.service running")
         b.wait_in_text("#output", "\nBREAK_A\n")
         m.execute("touch " + ack_file)
-        b.wait_text("#state", "cockpit-longrunning.service is not running and failed")
+        b.wait_text("#state", "cockpit-longrunning.service failed")
         b.wait_in_text("#output", "cockpit-longrunning.service: Main process exited, code=exited, status=1/FAILURE")
         out = b.text("#output")
         self.assertNotIn("\nNOTME", out)
@@ -138,11 +138,12 @@ class TestLongRunning(MachineCase):
         # failing state gets picked up on page reconnect
         b.logout()
         b.login_and_go("/long-running-process")
-        b.wait_text("#state", "cockpit-longrunning.service is not running and failed")
+        b.wait_text("#state", "cockpit-longrunning.service failed")
         b.wait_in_text("#output", "cockpit-longrunning.service: Main process exited, code=exited, status=1/FAILURE")
         out = b.text("#output")
         self.assertIn("\nBREAK_A\n", out)
         self.assertNotIn("\nNOTME", out)
+        b.wait_present("button#run:disabled")
 
 
 if __name__ == '__main__':

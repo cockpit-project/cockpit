@@ -49,12 +49,12 @@ export class LongRunningProcess {
      *                 argument is `this` LongRunningProcess instance.
      */
     constructor(serviceName, updateCallback) {
-        // don't require superuser; this is only for reading the current state
-        this.systemdClient = cockpit.dbus("org.freedesktop.systemd1");
+        this.systemdClient = cockpit.dbus("org.freedesktop.systemd1", { superuser: "require" });
         this.serviceName = serviceName;
         this.updateCallback = updateCallback;
         this._setState(ProcessState.INIT);
         this.startTimestamp = null; // µs since epoch
+        this.terminated = false;
 
         // Watch for start event of the service
         this.systemdClient.subscribe({ interface: I_SD_MGR, member: "JobNew" }, (path, iface, signal, args) => {
@@ -79,6 +79,18 @@ export class LongRunningProcess {
                              { superuser: "require", err: "message", ...options });
     }
 
+    /*  Stop long-running process while it is RUNNING, or reset a FAILED one */
+    terminate() {
+        if (this.state !== ProcessState.RUNNING && this.state !== ProcessState.FAILED)
+            throw new Error(`cannot terminate LongRunningProcess in state ${ this.sate }`);
+
+        /* This sends a SIGTERM to the unit, causing it to go into "failed" state. This would not
+         * happen with `systemd-run -p SuccessExitStatus=0`, but that does not yet work on older
+         * OSes with systemd ≤ 241 So let checkState() know that a failure is due to termination. */
+        this.terminated = true;
+        return this.systemdClient.call(O_SD_OBJ, I_SD_MGR, "StopUnit", [this.serviceName, "replace"], { type: "ss" });
+    }
+
     /*
      * below are internal private methods
      */
@@ -88,6 +100,7 @@ export class LongRunningProcess {
         if (state === this.state)
             return;
         this.state = state;
+        this.terminated = false;
         if (this.updateCallback)
             this.updateCallback(this);
     }
@@ -100,7 +113,12 @@ export class LongRunningProcess {
                 break;
             case 'failed':
                 this.startTimestamp = null; // TODO: can we derive this from InvocationID?
-                this._setState(ProcessState.FAILED);
+                if (this.terminated) {
+                    /* terminating causes failure; reset that and do not announce it as failed */
+                    this.systemdClient.call(O_SD_OBJ, I_SD_MGR, "ResetFailedUnit", [this.serviceName], { type: "s" })
+                } else {
+                    this._setState(ProcessState.FAILED);
+                }
                 break;
             case 'inactive':
                 this._setState(ProcessState.STOPPED);

@@ -31,14 +31,17 @@ function update(process) {
             break;
         case ProcessState.STOPPED:
             run_button.removeAttribute("disabled");
+            run_button.innerHTML = "Start";
             break;
         case ProcessState.RUNNING:
-            run_button.setAttribute("disabled", "");
+            run_button.removeAttribute("disabled");
+            run_button.innerHTML = "Terminate";
             // StateChangeTimestamp property is in µs since epoch, but journalctl expects seconds
             showJournal(process.serviceName, "--since=@" + Math.floor(process.startTimestamp / 1000000));
             break;
         case ProcessState.FAILED:
             run_button.setAttribute("disabled", "");
+            run_button.innerHTML = "Start";
             // Show the whole journal of this boot
             showJournal(process.serviceName, "--boot");
             break;
@@ -69,10 +72,13 @@ cockpit.transport.wait(() => {
      * This runs as root, thus will be shared with all privileged Cockpit sessions.
      */
     run_button.addEventListener("click", () => {
-        process.run(["/bin/sh", "-ec", command.value])
-                .catch(ex => {
-                    state.innerHTML = "Error: " + ex.toString();
-                    run_button.setAttribute("disabled", "");
-                });
+        if (process.state === ProcessState.RUNNING)
+            process.terminate();
+        else
+            process.run(["/bin/sh", "-ec", command.value])
+                    .catch(ex => {
+                        state.innerHTML = "Error: " + ex.toString();
+                        run_button.setAttribute("disabled", "");
+                    });
     });
 });

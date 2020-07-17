@@ -95,8 +95,8 @@ threads=1
 
         b.click("#sos-cancel")
         b.wait_not_visible("#sos")
-        # cleans up properly
-        m.execute("! pgrep -a sosreport")
+        # cleans up properly; unfortunately closing the process is async, so need to retry a few times
+        m.execute("while pgrep -a sosreport; do sleep 1; done", timeout=10)
         self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
 
     def testAppStream(self):

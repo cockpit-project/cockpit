@@ -1,7 +1,7 @@
 #!/bin/sh
 # Generate CA and certificates for testing
 set -eux
-openssl req -config ca.conf -x509  -newkey rsa:2048 -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -nodes
+openssl req -config ca.conf -x509  -newkey rsa:2048 -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -nodes -days 3650
 mkdir certs
 touch index.txt
 echo 01 > serial

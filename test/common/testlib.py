@@ -677,17 +677,18 @@ class _DebugOutcome(unittest.case._Outcome):
         else:
             if getattr(self, "ran_debug", None) is False:
                 self.ran_debug = True
-                (err_case, exc_info) = self.errors[-1]
-                if exc_info and isinstance(test_case, MachineCase):
-                    assert err_case == test_case
-                    # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
-                    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
-                    test_case.snapshot("FAIL")
-                    test_case.copy_js_log("FAIL")
-                    test_case.copy_journal("FAIL")
-                    test_case.copy_cores("FAIL")
-                    if opts.sit:
-                        sit(test_case.machines)
+                if self.errors:
+                    (err_case, exc_info) = self.errors[-1]
+                    if exc_info and isinstance(test_case, MachineCase):
+                        assert err_case == test_case
+                        # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
+                        traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
+                        test_case.snapshot("FAIL")
+                        test_case.copy_js_log("FAIL")
+                        test_case.copy_journal("FAIL")
+                        test_case.copy_cores("FAIL")
+                        if opts.sit:
+                            sit(test_case.machines)
 
         return super().testPartExecutor(test_case, isTest)
 
@@ -789,6 +790,23 @@ class MachineCase(unittest.TestCase):
         self.write_file(path, '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
 
     def setUp(self, restrict=True):
+
+        if os.getenv("MACHINE"):
+            # apply env variable together if MACHINE envvar is set
+            opts.address = os.getenv("MACHINE")
+            if self.is_nondestructive():
+                pass
+            elif os.getenv("DESTRUCTIVE") and not self.is_nondestructive():
+                print("Run destructive test, be careful, may lead to upredictable state of machine")
+            else:
+                raise unittest.SkipTest("Skip destructive test by default")
+            if os.getenv("BROWSER"):
+                opts.browser = os.getenv("BROWSER")
+            if os.getenv("TRACE"):
+                opts.trace = True
+            if os.getenv("SIT"):
+                opts.sit = True
+
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
 

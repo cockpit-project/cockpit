@@ -873,7 +873,7 @@ authorize_logger (const char *data)
 FILE *
 open_memfd (const char *name)
 {
-  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING);
+  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC);
 
   if (fd == -1)
     return NULL;
@@ -881,14 +881,31 @@ open_memfd (const char *name)
   return fdopen (fd, "w");
 }
 
-bool
-seal_memfd (FILE *memfd)
+int
+seal_memfd (FILE **memfd)
 {
-  if (fflush (memfd) != 0)
-    return false;
+  char fd_name[] = "/proc/self/fd/xxxxxx";
+  int fd;
+
+  if (fflush (*memfd) != 0)
+    return -1;
+
+  fd = fileno (*memfd);
 
   const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
-  return fcntl (fileno (memfd), F_ADD_SEALS, seals) == 0;
+  if (fcntl (fd, F_ADD_SEALS, seals) != 0)
+    return -1;
+
+  int r = snprintf (fd_name, sizeof fd_name, "/proc/self/fd/%d", fd);
+  assert (r < sizeof fd_name);
+
+  int readonly_fd = open (fd_name, O_RDONLY);
+  assert (readonly_fd != -1);
+
+  fclose (*memfd);
+  *memfd = NULL;
+
+  return readonly_fd;
 }
 
 /* signal- and after-fork()-safe function to format a string, print it

@@ -689,15 +689,15 @@ main (int argc,
 
   if (want_session) /* no session → no login messages → no memfd */
     {
-      if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=4") != PAM_SUCCESS)
-        errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=4 in PAM environment");
+      if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=3") != PAM_SUCCESS)
+        errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=3 in PAM environment");
     }
 
   env = (const char **) pam_getenvlist (pamh);
   if (env == NULL)
     errx (EX, "get pam environment failed");
 
-  const char *bridge_argv[] = { pwd->pw_shell, "-c", "exec cockpit-bridge >&3", NULL };
+  const char *bridge_argv[] = { "cockpit-bridge", NULL };
 
   if (want_session)
     {
@@ -705,6 +705,9 @@ main (int argc,
 
       if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
         err (EX, "%s: can't init groups", pwd->pw_name);
+
+      if (!user_has_valid_login_shell (env))
+        exit_init_problem (PAM_PERM_DENIED);
 
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);
@@ -723,10 +726,7 @@ main (int argc,
       if (creds != GSS_C_NO_CREDENTIAL)
         store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);
 
-      /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
-       * from ~/.profile and friends to interfere with the protocol; route shell's
-       * stdout to its stderr, so that we can still see it in the logs */
-      const int remap_fds[] = { -1, 2, -1, 1, login_messages_fd };
+      const int remap_fds[] = { -1, -1, -1, login_messages_fd };
       status = spawn_and_wait (bridge_argv, env, remap_fds, 4, pwd->pw_uid, pwd->pw_gid);
 
       utmp_log (0, rhost, NULL);

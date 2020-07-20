@@ -100,3 +100,6 @@ spawn_and_wait (const char **argv,
                 int n_remap_fds,
                 uid_t uid,
                 gid_t gid);
+
+bool
+user_has_valid_login_shell (const char **envp);

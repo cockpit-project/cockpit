@@ -401,52 +401,6 @@ open_session (pam_handle_t *pamh)
   return PAM_SUCCESS;
 }
 
-int
-fork_session (char **env, int (*session)(char**))
-{
-  int status;
-
-  fflush (stderr);
-  assert (pwd != NULL);
-
-  child = fork ();
-  if (child < 0)
-    {
-      warn ("can't fork");
-      return 1 << 8;
-    }
-
-  if (child == 0)
-    {
-      if (setgid (pwd->pw_gid) < 0)
-        {
-          warn ("setgid() failed");
-          _exit (42);
-        }
-
-      if (setuid (pwd->pw_uid) < 0)
-        {
-          warn ("setuid() failed");
-          _exit (42);
-        }
-
-      if (getuid() != geteuid() &&
-          getgid() != getegid())
-        {
-          warnx ("couldn't drop privileges");
-          _exit (42);
-        }
-
-      debug ("dropped privileges");
-
-      _exit (session (env));
-    }
-
-  close (0);
-  close (1);
-  waitpid (child, &status, 0);
-  return status;
-}
 
 static bool
 do_lastlog (uid_t                 uid,
@@ -946,7 +900,7 @@ abort_with_message (const char *format,
  *
  * Commonly used after fork() and before exec().
  */
-void
+static void
 fd_remap (const int *remap_fds,
           int        n_remap_fds)
 {
@@ -982,4 +936,68 @@ fd_remap (const int *remap_fds,
   /* close everything else */
   if (fdwalk (closefd, &n_remap_fds) < 0)
     abort_with_message ("couldn't close all file descriptors");
+}
+
+int
+spawn_and_wait (const char **argv, const char **envp,
+                const int *remap_fds, int n_remap_fds,
+                uid_t uid, gid_t gid)
+{
+  pid_t child;
+
+  child = fork ();
+  if (child == -1)
+    abort_with_message ("cockpit-session: fork() failed: %m");
+
+  if (child == 0)
+    {
+      /* This is the child process.  Do preparation, and exec(). */
+      if (setresgid (gid, gid, gid) != 0)
+        abort_with_message ("setresgid: couldn't set gid to %u: %m\n", (int) gid);
+
+      if (setresuid (uid, uid, uid) != 0)
+        abort_with_message ("setresgid: couldn't set uid to %u: %m\n", (int) gid);
+
+      /* paranoid */
+      {
+        uid_t real, effective, saved;
+        int r;
+
+        r = getresuid (&real, &effective, &saved);
+        assert (r == 0 && real == uid && effective == uid && saved == uid);
+      }
+
+      {
+        gid_t real, effective, saved;
+        int r;
+
+        r = getresgid (&real, &effective, &saved);
+        assert (r == 0 && real == gid && effective == gid && saved == gid);
+      }
+
+      if (n_remap_fds != -1)
+        fd_remap (remap_fds, n_remap_fds);
+
+      execvpe (argv[0], (char **) argv, (char **) envp);
+      _exit(127);
+    }
+
+  else
+    {
+      /* This is the parent process.  Wait for the child to exit. */
+      int wstatus;
+      int r;
+
+      do
+        r = waitpid (child, &wstatus, 0);
+      while (r == -1 && errno == EINTR);
+
+      if (r == -1)
+        abort_with_message ("waitpid(%d) on cockpit-bridge process failed: %m", (int) child);
+
+      /* 0 can only be returned of WNOHANG was given */
+      assert (r == child);
+
+      return wstatus;
+    }
 }

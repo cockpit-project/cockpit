@@ -127,11 +127,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present(pool_row)
 
     def toggleNetworkRow(self, networkName, connectionName="system"):
-        self.browser.click("tbody tr[data-row-id=network-{0}-system] th".format(networkName)) # click on the row header
+        self.browser.click("tbody tr[data-row-id=network-{0}-{1}] .pf-c-table__toggle button".format(networkName, connectionName)) # click on the row header
 
     def waitNetworkRow(self, networkName, connectionName="system", present="true"):
         b = self.browser
-        network_row = "tbody tr[data-row-id=network-{0}-{1}] th".format(networkName, connectionName)
+        network_row = "tbody tr[data-row-id=network-{0}-{1}] td".format(networkName, connectionName)
         if present:
             b.wait_present(network_row)
         else:

@@ -17,10 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button, Progress, Tooltip } from '@patternfly/react-core';
 
-import { ListingRow } from 'cockpit-components-listing.jsx';
+import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import {
     convertToUnit,
     rephraseUI,
@@ -36,79 +35,75 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export class StoragePool extends React.Component {
-    render() {
-        const { storagePool, vms } = this.props;
-        const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
-        const name = (
-            <span id={`${idPrefix}-name`}>
-                { storagePool.name }
-            </span>);
-        const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
-        const capacity = parseFloat(convertToUnit(storagePool.capacity, units.B, units.GiB).toFixed(2));
-        const sizeLabel = String(cockpit.format("$0 / $1 GiB", allocation, capacity));
-        const size = (
-            <Progress value={Number(storagePool.allocation)}
-                      min={0}
-                      max={Number(storagePool.capacity)}
-                      label={sizeLabel}
-                      valueText={sizeLabel} />
-        );
-        const state = (
-            <>
-                { this.props.resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
-                <span id={`${idPrefix}-state`}>
-                    { storagePool.active ? _("active") : _("inactive") }
-                </span>
-            </>);
-        const cols = [
-            { name, header: true },
-            size,
-            rephraseUI('connections', storagePool.connectionName),
-            state,
-        ];
+export const getStoragePoolRow = ({ storagePool, vms, resourceHasError, onAddErrorNotification }) => {
+    const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
+    const name = (
+        <span id={`${idPrefix}-name`}>
+            { storagePool.name }
+        </span>);
+    const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
+    const capacity = parseFloat(convertToUnit(storagePool.capacity, units.B, units.GiB).toFixed(2));
+    const sizeLabel = String(cockpit.format("$0 / $1 GiB", allocation, capacity));
+    const size = (
+        <Progress value={Number(storagePool.allocation)}
+                  min={0}
+                  max={Number(storagePool.capacity)}
+                  label={sizeLabel}
+                  valueText={sizeLabel} />
+    );
+    const state = (
+        <>
+            { resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
+            <span id={`${idPrefix}-state`}>
+                { storagePool.active ? _("active") : _("inactive") }
+            </span>
+        </>);
 
-        const overviewTabName = (
-            <div id={`${idPrefix}-overview`}>
-                {_("Overview")}
-            </div>
-        );
-        const storageVolsTabName = (
-            <div id={`${idPrefix}-storage-volumes`}>
-                {_("Storage Volumes")}
-            </div>
-        );
-        const tabRenderers = [
-            {
-                name: overviewTabName,
-                renderer: StoragePoolOverviewTab,
-                data: { storagePool }
-            },
-            {
-                name: storageVolsTabName,
-                renderer: StoragePoolVolumesTab,
-                data: { storagePool, vms }
-            },
-        ];
-        const extraClasses = [];
+    const overviewTabName = (
+        <div id={`${idPrefix}-overview`}>
+            {_("Overview")}
+        </div>
+    );
+    const storageVolsTabName = (
+        <div id={`${idPrefix}-storage-volumes`}>
+            {_("Storage Volumes")}
+        </div>
+    );
+    const tabRenderers = [
+        {
+            name: overviewTabName,
+            renderer: StoragePoolOverviewTab,
+            data: { storagePool }
+        },
+        {
+            name: storageVolsTabName,
+            renderer: StoragePoolVolumesTab,
+            data: { storagePool, vms }
+        },
+    ];
+    const extraClasses = [];
 
-        if (this.props.resourceHasError[storagePool.id])
-            extraClasses.push('error');
+    if (resourceHasError[storagePool.id])
+        extraClasses.push('error');
 
-        return (
-            <ListingRow rowId={idPrefix}
-                extraClasses={extraClasses}
-                columns={cols}
-                tabRenderers={tabRenderers}
-                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
-        );
-    }
-}
-StoragePool.propTypes = {
-    onAddErrorNotification: PropTypes.func.isRequired,
-    resourceHasError: PropTypes.object.resourceHasError,
-    storagePool: PropTypes.object.isRequired,
-    vms: PropTypes.array.isRequired,
+    const expandedContent = (
+        <ListingPanel
+            tabRenderers={tabRenderers}
+            listingActions={<StoragePoolActions onAddErrorNotification={onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
+    );
+
+    return {
+        extraClasses: resourceHasError[storagePool.id] ? ['error'] : [],
+        columns: [
+            { title: name, header: true },
+            { title: size },
+            { title: rephraseUI('connections', storagePool.connectionName) },
+            { title: state },
+        ],
+        rowId: idPrefix,
+        props: { key: idPrefix },
+        expandedContent: expandedContent,
+    };
 };
 
 class StoragePoolActions extends React.Component {
@@ -192,8 +187,3 @@ class StoragePoolActions extends React.Component {
         );
     }
 }
-StoragePool.propTypes = {
-    storagePool: PropTypes.object.isRequired,
-    vms: PropTypes.array.isRequired,
-    onAddErrorNotification: PropTypes.func.isRequired,
-};

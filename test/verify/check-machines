@@ -116,11 +116,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present(vm_row)
 
     def togglePoolRow(self, poolName, connectionName="system"):
-        self.browser.click("tbody tr[data-row-id=pool-{0}-system] th".format(poolName)) # click on the row header
+        self.browser.click("tbody tr[data-row-id=pool-{0}-{1}] .pf-c-table__toggle button".format(poolName, connectionName)) # click on the row header
 
     def waitPoolRow(self, poolName, connectionName="system", present="true"):
         b = self.browser
-        pool_row = "tbody tr[data-row-id=pool-{0}-{1}] th".format(poolName, connectionName)
+        pool_row = "tbody tr[data-row-id=pool-{0}-{1}] td".format(poolName, connectionName)
         if present:
             b.wait_present(pool_row)
         else:

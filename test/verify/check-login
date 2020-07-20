@@ -99,9 +99,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Login as admin
         b.open("/system")
-        b.try_login("admin", "foobar")
-        b.expect_load()
-        b.wait_present("#content")
+        b.login_and_go()
         b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
@@ -154,9 +152,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                       "echo 'echo noise-profile-out; echo noise-profile-err >&2' >> .profile")
             self.addCleanup(m.execute, "set -e; cd ~admin; mv .bashrc.bak .bashrc; "
                                        "if [ -e .profile.bak ]; then mv .profile.bak .profile; else rm .profile; fi")
-            b.try_login("admin", "foobar")
-            b.expect_load()
-            b.wait_present("#content")
+            b.login_and_go()
 
         self.allow_journal_messages("Returning error-response ... with reason .*",
                                     "pam_unix\(cockpit:auth\): authentication failure; .*",

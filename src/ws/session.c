@@ -562,16 +562,57 @@ perform_tlscert (void)
 }
 
 
+static void
+store_krb_credentials (gss_cred_id_t creds, uid_t uid, gid_t gid)
+{
+  assert (creds != GSS_C_NO_CREDENTIAL);
+
+  bool was_root = getuid() == 0;
+
+  /* We want to do this before the fork(), so we need to temporarily
+   * change our euid/egid
+   */
+  if (setresgid (gid, gid, -1) != 0 || setresuid (uid, uid, -1) != 0)
+    err (127, "Unable to temporarily drop permissions to store gss credentials");
+
+  assert (geteuid () == uid && getegid() == gid);
+
+  krb5_context k5;
+  int res = krb5_init_context (&k5);
+  if (res == 0)
+    {
+      gss_key_value_set_desc store;
+      struct gss_key_value_element_struct element;
+      OM_uint32 major, minor;
+
+      store.count = 1;
+      store.elements = &element;
+      element.key = "ccache";
+      element.value = krb5_cc_default_name (k5);
+
+      debug ("storing kerberos credentials in session: %s", element.value);
+
+      major = gss_store_cred_into (&minor, creds, GSS_C_INITIATE, GSS_C_NULL_OID, 1, 1, &store, NULL, NULL);
+      if (GSS_ERROR (major))
+        warnx ("couldn't store gssapi credentials: %s", gssapi_strerror (GSS_C_NO_OID, major, minor));
+
+      krb5_free_context (k5);
+    }
+  else
+    {
+      warnx ("couldn't initialize kerberos context: %s", krb5_get_error_message (NULL, res));
+    }
+
+
+  if (was_root && (setresuid (0, 0, 0) != 0 || setresgid (0, 0, 0) != 0))
+    err (127, "Unable to restore permissions after storing gss credentials");
+}
+
 static int
 session (char **env)
 {
   char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge >&3", NULL };
-  gss_key_value_set_desc store;
-  struct gss_key_value_element_struct element;
-  OM_uint32 major, minor;
-  krb5_context k5;
   struct passwd *pwd;
-  int res;
 
   /* determine the user's shell and run the bridge through it, so that we catch
    * disabled accounts like /bin/false or /bin/nologin shells */
@@ -581,30 +622,6 @@ session (char **env)
   argv[0] = pwd->pw_shell;
   if (!argv[0])
     errx (EX, "passwd entry for user has NULL shell");
-
-  if (creds != GSS_C_NO_CREDENTIAL)
-    {
-      res = krb5_init_context (&k5);
-      if (res == 0)
-        {
-          store.count = 1;
-          store.elements = &element;
-          element.key = "ccache";
-          element.value = krb5_cc_default_name (k5);
-
-          debug ("storing kerberos credentials in session: %s", element.value);
-
-          major = gss_store_cred_into (&minor, creds, GSS_C_INITIATE, GSS_C_NULL_OID, 1, 1, &store, NULL, NULL);
-          if (GSS_ERROR (major))
-            warnx ("couldn't store gssapi credentials: %s", gssapi_strerror (GSS_C_NO_OID, major, minor));
-
-          krb5_free_context (k5);
-        }
-      else
-        {
-          warnx ("couldn't initialize kerberos context: %s", krb5_get_error_message (NULL, res));
-        }
-    }
 
   debug ("executing cockpit-bridge through user shell %s", pwd->pw_shell);
 
@@ -739,6 +756,9 @@ main (int argc,
       fprintf (login_messages, "}");
 
       login_messages_fd = seal_memfd (&login_messages);
+
+      if (creds != GSS_C_NO_CREDENTIAL)
+        store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);
 
       status = fork_session (env, session);
 

@@ -29,7 +29,6 @@
 
 static char *last_txt_msg = NULL;
 static char *conversation = NULL;
-static int login_messages_fd = -1;
 
 /* This program opens a session for a given user and runs the bridge in
  * it.  It is used to manage localhost; for remote hosts sshd does
@@ -608,44 +607,6 @@ store_krb_credentials (gss_cred_id_t creds, uid_t uid, gid_t gid)
     err (127, "Unable to restore permissions after storing gss credentials");
 }
 
-static int
-session (char **env)
-{
-  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge >&3", NULL };
-  struct passwd *pwd;
-
-  /* determine the user's shell and run the bridge through it, so that we catch
-   * disabled accounts like /bin/false or /bin/nologin shells */
-  pwd = getpwuid (geteuid ());
-  if (!pwd)
-    errx (EX, "failed to get passwd entry for user: %m");
-  argv[0] = pwd->pw_shell;
-  if (!argv[0])
-    errx (EX, "passwd entry for user has NULL shell");
-
-  debug ("executing cockpit-bridge through user shell %s", pwd->pw_shell);
-
-  /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
-   * from ~/.profile and friends to interfere with the protocol; route shell's
-   * stdout to its stderr, so that we can still see it in the logs */
-  int remap_fds[5] = { -1, 2, -1, 1 };
-  int n_remap_fds = 4;
-
-  /* This is the "COCKPIT_LOGIN_MESSAGES_MEMFD" blob (ie: fd 4) */
-  if (login_messages_fd != -1)
-    remap_fds[n_remap_fds++] = login_messages_fd;
-
-  fd_remap (remap_fds, n_remap_fds);
-
-  if (env)
-    execvpe (argv[0], argv, env);
-  else
-    execvp (argv[0], argv);
-
-  warn ("can't exec %s", argv[0]);
-  return EX;
-}
-
 int
 main (int argc,
       char **argv)
@@ -655,7 +616,7 @@ main (int argc,
   const char *rhost;
   char *authorization;
   char *type = NULL;
-  char **env;
+  const char **env;
   int status;
   int res;
   int i;
@@ -732,9 +693,11 @@ main (int argc,
         errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=4 in PAM environment");
     }
 
-  env = pam_getenvlist (pamh);
+  env = (const char **) pam_getenvlist (pamh);
   if (env == NULL)
     errx (EX, "get pam environment failed");
+
+  const char *bridge_argv[] = { pwd->pw_shell, "-c", "exec cockpit-bridge >&3", NULL };
 
   if (want_session)
     {
@@ -755,12 +718,16 @@ main (int argc,
 
       fprintf (login_messages, "}");
 
-      login_messages_fd = seal_memfd (&login_messages);
+      int login_messages_fd = seal_memfd (&login_messages);
 
       if (creds != GSS_C_NO_CREDENTIAL)
         store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);
 
-      status = fork_session (env, session);
+      /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
+       * from ~/.profile and friends to interfere with the protocol; route shell's
+       * stdout to its stderr, so that we can still see it in the logs */
+      const int remap_fds[] = { -1, 2, -1, 1, login_messages_fd };
+      status = spawn_and_wait (bridge_argv, env, remap_fds, 4, pwd->pw_uid, pwd->pw_gid);
 
       utmp_log (0, rhost, NULL);
 
@@ -779,7 +746,7 @@ main (int argc,
     }
   else
     {
-      status = session (env);
+      status = spawn_and_wait (bridge_argv, env, NULL, -1, pwd->pw_uid, pwd->pw_gid);
     }
 
   pam_end (pamh, PAM_SUCCESS);

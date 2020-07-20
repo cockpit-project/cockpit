@@ -21,9 +21,9 @@ import PropTypes from 'prop-types';
 import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
-import { Listing } from 'cockpit-components-listing.jsx';
-import { Network } from './network.jsx';
-import { getNetworkDevices, networkId } from '../../helpers.js';
+import { ListingTable } from 'cockpit-components-table.jsx';
+import { getNetworkRow } from './network.jsx';
+import { getNetworkDevices } from '../../helpers.js';
 import { CreateNetworkAction } from './createNetworkDialog.jsx';
 
 const _ = cockpit.gettext;
@@ -51,22 +51,15 @@ export class NetworkList extends React.Component {
                     </BreadcrumbItem>
                 </Breadcrumb>
                 <div id='networks-listing' className='container-fluid'>
-                    <Listing title={_("Networks")}
-                        columnTitles={[_("Name"), _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
+                    <ListingTable title={_("Networks")}
+                        variant='compact'
+                        columns={[_("Name"), _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
                         emptyCaption={_("No network is defined on this host")}
-                        actions={actions}>
-                        {networks
+                        actions={actions}
+                        rows={networks
                                 .sort(sortFunction)
-                                .map(network => {
-                                    return (
-                                        <Network key={`${networkId(network.name, network.connectionName)}`}
-                                            dispatch={dispatch} network={network}
-                                            resourceHasError={resourceHasError}
-                                            onAddErrorNotification={onAddErrorNotification} />
-                                    );
-                                })
-                        }
-                    </Listing>
+                                .map(network => getNetworkRow({ dispatch, network, resourceHasError, onAddErrorNotification }))
+                        } />
                 </div>
             </>
         );

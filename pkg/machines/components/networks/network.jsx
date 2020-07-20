@@ -17,10 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from '@patternfly/react-core';
 
-import { ListingRow } from 'cockpit-components-listing.jsx';
+import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import {
     rephraseUI,
     networkId
@@ -37,70 +36,67 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export class Network extends React.Component {
-    render() {
-        const { dispatch, network, resourceHasError, onAddErrorNotification } = this.props;
-        const idPrefix = `${networkId(network.name, network.connectionName)}`;
-        const name = (
-            <span id={`${idPrefix}-name`}>
-                { network.name }
-            </span>);
-        const device = (
-            <span id={`${idPrefix}-device`}>
-                { network.bridge && network.bridge.name }
-            </span>);
-        const forwarding = (
-            <span id={`${idPrefix}-forwarding`}>
-                { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
-            </span>);
-        const state = (
-            <>
-                { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
-                <span id={`${idPrefix}-state`}>
-                    { network.active ? _("active") : _("inactive") }
-                </span>
-            </>);
-        const cols = [
-            { name, header: true },
-            device,
-            rephraseUI('connections', network.connectionName),
-            forwarding,
-            state,
-        ];
+export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorNotification }) => {
+    const idPrefix = `${networkId(network.name, network.connectionName)}`;
+    const name = (
+        <span id={`${idPrefix}-name`}>
+            { network.name }
+        </span>);
+    const device = (
+        <span id={`${idPrefix}-device`}>
+            { network.bridge && network.bridge.name }
+        </span>);
+    const forwarding = (
+        <span id={`${idPrefix}-forwarding`}>
+            { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
+        </span>);
+    const state = (
+        <>
+            { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
+            <span id={`${idPrefix}-state`}>
+                { network.active ? _("active") : _("inactive") }
+            </span>
+        </>);
+    const cols = [
+        { title: name, header: true },
+        { title: device },
+        { title: rephraseUI('connections', network.connectionName) },
+        { title: forwarding },
+        { title: state },
+    ];
 
-        const overviewTabName = (
-            <div id={`${idPrefix}-overview`}>
-                {_("Overview")}
-            </div>
-        );
+    const overviewTabName = (
+        <div id={`${idPrefix}-overview`}>
+            {_("Overview")}
+        </div>
+    );
 
-        const tabRenderers = [
-            {
-                name: overviewTabName,
-                renderer: NetworkOverviewTab,
-                data: { network, dispatch, }
-            },
-        ];
-        const extraClasses = [];
+    const tabRenderers = [
+        {
+            name: overviewTabName,
+            renderer: NetworkOverviewTab,
+            data: { network, dispatch, }
+        },
+    ];
+    const extraClasses = [];
 
-        if (resourceHasError[network.id])
-            extraClasses.push('error');
+    if (resourceHasError[network.id])
+        extraClasses.push('error');
 
-        return (
-            <ListingRow rowId={idPrefix}
-                extraClasses={extraClasses}
-                columns={cols}
-                tabRenderers={tabRenderers}
-                listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />
-        );
-    }
-}
+    const expandedContent = (
+        <ListingPanel
+            columns={cols}
+            tabRenderers={tabRenderers}
+            listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />
+    );
 
-Network.propTypes = {
-    onAddErrorNotification: PropTypes.func.isRequired,
-    resourceHasError: PropTypes.object.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    network: PropTypes.object.isRequired,
+    return {
+        extraClasses,
+        columns: cols,
+        rowId: idPrefix,
+        props: { key: idPrefix },
+        expandedContent: expandedContent,
+    };
 };
 
 class NetworkActions extends React.Component {

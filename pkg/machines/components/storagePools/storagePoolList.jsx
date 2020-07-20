@@ -21,9 +21,8 @@ import PropTypes from 'prop-types';
 import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
-import { Listing } from 'cockpit-components-listing.jsx';
-import { StoragePool } from './storagePool.jsx';
-import { storagePoolId } from '../../helpers.js';
+import { ListingTable } from 'cockpit-components-table.jsx';
+import { getStoragePoolRow } from './storagePool.jsx';
 import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 
 const _ = cockpit.gettext;
@@ -50,25 +49,20 @@ export class StoragePoolList extends React.Component {
                     </BreadcrumbItem>
                 </Breadcrumb>
                 <div id='storage-pools-listing' className='container-fluid'>
-                    <Listing title={_("Storage Pools")}
-                        columnTitles={[_("Name"), _("Size"), _("Connection"), _("State")]}
+                    <ListingTable caption={_("Storage Pools")}
+                        variant='compact'
+                        columns={[_("Name"), _("Size"), _("Connection"), _("State")]}
                         emptyCaption={_("No storage pool is defined on this host")}
-                        actions={actions}>
-                        {storagePools
+                        actions={actions}
+                        rows={storagePools
                                 .sort(sortFunction)
                                 .map(storagePool => {
                                     const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
 
-                                    return (
-                                        <StoragePool key={`${storagePoolId(storagePool.id, storagePool.connectionName)}`}
-                                            storagePool={storagePool}
-                                            vms={filterVmsByConnection}
-                                            resourceHasError={resourceHasError}
-                                            onAddErrorNotification={onAddErrorNotification} />
-                                    );
+                                    return getStoragePoolRow({ storagePool, vms: filterVmsByConnection, resourceHasError, onAddErrorNotification });
                                 })
                         }
-                    </Listing>
+                    />
                 </div>
             </>
         );

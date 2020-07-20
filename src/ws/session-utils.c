@@ -1001,3 +1001,18 @@ spawn_and_wait (const char **argv, const char **envp,
       return wstatus;
     }
 }
+
+bool
+user_has_valid_login_shell (const char **envp)
+{
+  /* <lis> >>> random.randint(0,127)
+   * <lis> 71
+   * <pitti> https://xkcd.com/221/
+   */
+  const char *argv[] = { pwd->pw_shell, "-c", "exit 71;", NULL };
+  const int remap_fds[] = { -1, 2, -1 }; /* send stdout to stderr */
+  int wstatus;
+
+  wstatus = spawn_and_wait (argv, envp, remap_fds, 3, pwd->pw_uid, pwd->pw_gid);
+  return WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71;
+}

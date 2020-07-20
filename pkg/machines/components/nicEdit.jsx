@@ -158,7 +158,7 @@ export class EditNICModal extends React.Component {
         return (
             <Modal id={`${idPrefix}-edit-dialog-modal-window`} onHide={this.props.onClose} className='nic-edit' show>
                 <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.close} />
+                    <Modal.CloseButton onClick={this.props.onClose} />
                     <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

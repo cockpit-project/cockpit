@@ -80,14 +80,12 @@
         // As the width is smaller than the contents, and this is a table,
         // the cell will stay at the correct width.
         width: 1px;
+    }
 
-        > .pf-c-button {
-            padding-top: var(--pf-global--spacer--sm);
-            padding-bottom: var(--pf-global--spacer--sm);
-            vertical-align: top;
-            // Not every browser supports text-top, so define top (above) as a fallback
-            vertical-align: text-top;
-        }
+    .pf-c-button.pf-m-expanded .pf-c-table__toggle-icon {
+        // Similar to PF4, but with a translate to bump the expanded icon down 3 pixels,
+        // to better align the expanded form
+        transform: translateY(3px) rotate(var(--pf-c-table__toggle--c-button--m-expanded__toggle-icon--Rotate));
     }
 
     // Shrink buttons down a little

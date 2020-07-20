@@ -206,35 +206,6 @@ You need to disable SELinux with
 for this to work, as your local build tree does not otherwise have the expected
 SELinux type.
 
-## Working on Cockpit using Vagrant
-
-It is also possible to use a Vagrant virtual machine to develop Cockpit.
-
-Most of Cockpit is written in JavaScript. Almost all of this code is found
-in the packages in the pkg/ subdirectory of the Cockpit git checkout.
-
-To use Vagrant to develop Cockpit, run in its top level git checkout.
-In some cases you may need to use `sudo` with vagrant commands:
-
-    $ vagrant up
-
-Now you can edit files in the `pkg/` subdirectory of the Cockpit sources.  Use
-`make` to build those sources. The changes should take effect after syncing
-them to the Vagrant VM. For example:
-
-    $ make && vagrant rsync
-
-Now log into Cockpit on the vagrant VM to see your changes. Use the
-user name 'admin' and the password 'foobar' to log in. The Cockpit
-instance in vagrant should be available at the following URL:
-
-http://localhost:9090
-
-If you want to setup automatic syncing as you edit JavaScript files
-you can run:
-
-    $ vagrant rsync-auto &
-
 ## Installation from upstream sources
 
     $ make

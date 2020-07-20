@@ -221,6 +221,21 @@ that `make install` not write outside that prefix, then specify the
 installation of Cockpit that does not work without further tweaking.
 For advanced users only.
 
+## Build distribution packages
+
+Instead of a direct `make install` as above, you can also build distribution
+packages and install them. This is generally more robust, as they upgrade and
+remove cleanly, and don't interfere with distribution packages in `/usr`.
+
+In a Fedora/RHEL build environment you can build binary RPMs with
+
+    tools/make-rpms --quick
+
+In a Debian/Ubuntu build environment you can build debs with
+
+    cp -r tools/debian .
+    dpkg-buildpackage -us -uc -b
+
 ## Contributing a change
 
 Make a pull request on github.com with your change. All changes get

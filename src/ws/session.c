@@ -29,7 +29,7 @@
 
 static char *last_txt_msg = NULL;
 static char *conversation = NULL;
-static FILE *login_messages = NULL;
+static int login_messages_fd = -1;
 
 /* This program opens a session for a given user and runs the bridge in
  * it.  It is used to manage localhost; for remote hosts sshd does
@@ -615,8 +615,8 @@ session (char **env)
   int n_remap_fds = 4;
 
   /* This is the "COCKPIT_LOGIN_MESSAGES_MEMFD" blob (ie: fd 4) */
-  if (login_messages)
-    remap_fds[n_remap_fds++] = fileno (login_messages);
+  if (login_messages_fd != -1)
+    remap_fds[n_remap_fds++] = login_messages_fd;
 
   fd_remap (remap_fds, n_remap_fds);
 
@@ -713,8 +713,6 @@ main (int argc,
     {
       if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=4") != PAM_SUCCESS)
         errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=4 in PAM environment");
-
-      login_messages = open_memfd ("cockpit login messages");
     }
 
   env = pam_getenvlist (pamh);
@@ -732,12 +730,15 @@ main (int argc,
       signal (SIGINT, pass_to_child);
       signal (SIGQUIT, pass_to_child);
 
+      FILE *login_messages = open_memfd ("cockpit login messages");
+
       fprintf (login_messages, "{\"version\": 1");
 
       utmp_log (1, rhost, login_messages);
 
       fprintf (login_messages, "}");
-      seal_memfd (login_messages);
+
+      login_messages_fd = seal_memfd (&login_messages);
 
       status = fork_session (env, session);
 
@@ -747,7 +748,7 @@ main (int argc,
       signal (SIGINT, SIG_DFL);
       signal (SIGQUIT, SIG_DFL);
 
-      fclose (login_messages);
+      close (login_messages_fd);
 
       res = pam_setcred (pamh, PAM_DELETE_CRED);
       if (res != PAM_SUCCESS)

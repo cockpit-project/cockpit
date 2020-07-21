@@ -19,10 +19,10 @@
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'patternfly-react';
 import {
     Button,
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
+    Tooltip,
 } from '@patternfly/react-core';
 
 import {
@@ -132,15 +132,14 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
     if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
         if (!vm.persistent) {
             dropdownItems.push(
-                <DropdownItem key={`${id}-delete`}
-                              id={`${id}-delete`}
-                              className='pf-m-danger'
-                              tooltip={<Tooltip id={`${id}-delete-tooltip`}>
-                                  {_("This VM is transient. Shut it down if you wish to delete it.")}
-                              </Tooltip>}
-                              isDisabled>
-                    {_("Delete")}
-                </DropdownItem>
+                <Tooltip id={`${id}-delete-tooltip`} content={_("This VM is transient. Shut it down if you wish to delete it.")}>
+                    <DropdownItem key={`${id}-delete`}
+                                  id={`${id}-delete`}
+                                  className='pf-m-danger'
+                                  isDisabled>
+                        {_("Delete")}
+                    </DropdownItem>
+                </Tooltip>
             );
         } else {
             dropdownItems.push(

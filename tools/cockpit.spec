@@ -190,7 +190,7 @@ exec 2>&1
 %{?testsuite_skip} make -j4 check %{?testsuite_fail}
 
 %install
-make install DESTDIR=%{buildroot}
+%make_install
 make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit

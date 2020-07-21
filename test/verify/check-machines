@@ -1479,7 +1479,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         runner = TestMachines.CreateVmRunner(self)
 
         self.login_and_go("/machines")
-        self.browser.wait_in_text("body", "Virtual Machines")
+
+        b = self.browser
+        b.wait_in_text("body", "Virtual Machines")
 
         # test PXE Source
         # check that the pxe booting is not available on session connection
@@ -1511,9 +1513,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.add_veth(iface)
 
         # We don't handle events for networks yet, so reload the page to refresh the state
-        self.browser.reload()
-        self.browser.enter_page('/machines')
-        self.browser.wait_in_text("body", "Virtual Machines")
+        b.reload()
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual Machines")
 
         # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
         # to have serial console at bios and also redirect serial console to a file
@@ -1525,6 +1527,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # We don't want to use start_vm == False because if we get a separate install phase
         # virt-install will overwrite our changes.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
+        # After shutting it off virt-install will restart the domain and exit because of the above bug
+        # Wait for virt-install to define the VM and then stop it in real
+        self.machine.execute("virsh destroy pxe-guest")
+        wait(lambda: "pxe-guest" in self.machine.execute("virsh list --persistent"), delay=3)
         self.machine.execute("virsh destroy pxe-guest")
 
         # Remove all serial ports and consoles first and tehn add a console of type file
@@ -1571,10 +1578,21 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check that host network devices are appearing in the options for PXE boot sources
         runner.createTest(TestMachines.VmDialog(self, sourceType='pxe',
+                                                name="pxe-guest",
                                                 location="Host Device {0}: macvtap".format(iface),
-                                                memory_size=256, memory_size_unit='MiB',
-                                                storage_pool="No Storage",
-                                                start_vm=False))
+                                                storage_size=100, storage_size_unit='MiB',
+                                                start_vm=True,
+                                                delete=False))
+        self.machine.execute("virsh destroy pxe-guest")
+
+        # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is marked as non bootable
+        b.click("#vm-pxe-guest-overview")
+        b.click("#vm-pxe-guest-boot-order")
+        b.wait_present("#vm-pxe-guest-order-modal-window")
+        b.wait_present("#vm-pxe-guest-order-modal-device-row-0 input:checked")
+        b.wait_in_text("#vm-pxe-guest-order-modal-device-row-0 .list-group-item-heading", "disk")
+        b.wait_present("#vm-pxe-guest-order-modal-device-row-1 input:not(checked)")
+        b.wait_in_text("#vm-pxe-guest-order-modal-device-row-1 .list-group-item-heading", "network")
 
     def testCreateThenInstall(self):
         runner = TestMachines.CreateVmRunner(self)
@@ -2415,10 +2433,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def createTest(self, dialog):
             self._tryCreate(dialog) \
 
-            # When not booting the actual OS from either existing image or PXE
+            # When not booting the actual OS from either existing image
             # configure virt-install to wait for the installation to complete.
             # Thus we should only check that virt-install exited when using existing disk images.
-            if dialog.sourceType == 'disk_image' or dialog.sourceType == 'pxe':
+            if dialog.sourceType == 'disk_image':
                 self._assertScriptFinished() \
                     ._assertDomainDefined(dialog.name, dialog.connection)
 

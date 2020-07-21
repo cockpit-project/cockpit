@@ -104,8 +104,8 @@ fi
 if [ "$START_VM" = "true" ]; then
     STARTUP_PARAMS="--noautoconsole"
     HAS_INSTALL_PHASE="false"
-    # Wait for the installer to complete in case we don't use existing image or we don't boot with PXE
-    if [ "$SOURCE_TYPE" != "pxe" ] && [ "$SOURCE_TYPE" != "disk_image" ]; then
+    # Wait for the installer to complete in case we don't use existing image
+    if [ "$SOURCE_TYPE" != "disk_image" ]; then
         STARTUP_PARAMS="$STARTUP_PARAMS --wait -1"
     fi
 else

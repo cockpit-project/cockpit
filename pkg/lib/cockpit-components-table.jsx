@@ -32,7 +32,6 @@ import {
 } from '@patternfly/react-table';
 
 import './cockpit-components-table.scss';
-import './listing.scss';
 
 /* This is a wrapper around PF Table component
  * See https://www.patternfly.org/v4/documentation/react/components/table

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 
@@ -290,7 +291,6 @@ main (int argc,
   GError *error = NULL;
   guint sig_term;
   guint sig_int;
-  int outfd;
 
   static GOptionEntry entries[] = {
     { "lower", 0, 0, G_OPTION_ARG_NONE, &opt_lower, "Lower case channel type", NULL },
@@ -320,17 +320,12 @@ main (int argc,
       return 255;
     }
 
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_warning ("bridge couldn't redirect stdout to stderr");
-      outfd = 1;
-    }
+  cockpit_hacks_redirect_gdebug_to_stderr ();
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interrupted);
 
-  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
+  transport = cockpit_pipe_transport_new_fds ("stdio", 0, 1);
 
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

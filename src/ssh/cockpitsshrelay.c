@@ -70,7 +70,6 @@ typedef struct {
   const gchar *host_key_type;
   GHashTable *auth_results;
   gchar *user_known_hosts;
-  gint outfd;
 
   gchar *problem_error;
 } CockpitSshData;
@@ -230,8 +229,7 @@ read_control_message (int fd)
 }
 
 static void
-send_authorize_challenge (const gchar *challenge,
-                          gint outfd)
+send_authorize_challenge (const gchar *challenge)
 {
   gchar *cookie = NULL;
   JsonObject *object = json_object_new ();
@@ -243,7 +241,7 @@ send_authorize_challenge (const gchar *challenge,
   json_object_set_string_member (object, "challenge", challenge);
   json_object_set_string_member (object, "cookie", cookie);
 
-  write_control_message (outfd, object);
+  write_control_message (STDOUT_FILENO, object);
 
   g_free (cookie);
   json_object_unref (object);
@@ -251,7 +249,6 @@ send_authorize_challenge (const gchar *challenge,
 
 static gchar *
 challenge_for_auth_data (const gchar *challenge,
-                         gint outfd,
                          gchar **ret_type)
 {
   const gchar *response = NULL;
@@ -260,7 +257,7 @@ challenge_for_auth_data (const gchar *challenge,
   gchar *type = NULL;
   JsonObject *reply;
 
-  send_authorize_challenge (challenge ? challenge : "*", outfd);
+  send_authorize_challenge (challenge ? challenge : "*");
   reply = read_control_message (STDIN_FILENO);
   if (!reply)
     goto out;
@@ -299,7 +296,7 @@ challenge_for_knownhosts_data (CockpitSshData *data)
   gchar *ret = NULL;
   gchar *response = NULL;
 
-  response = challenge_for_auth_data ("x-host-key", data->outfd, NULL);
+  response = challenge_for_auth_data ("x-host-key", NULL);
   if (response)
     {
       value = cockpit_authorize_type (response, NULL);
@@ -351,7 +348,7 @@ prompt_with_authorize (CockpitSshData *data,
 
   json_object_set_boolean_member (request, "echo", echo);
 
-  ret = write_control_message (data->outfd, request);
+  ret = write_control_message (STDOUT_FILENO, request);
   json_object_unref (request);
 
   if (!ret)
@@ -1114,9 +1111,7 @@ has_password (CockpitSshData *data)
   if (data->auth_type == NULL &&
       data->initial_auth_data == NULL)
     {
-      data->initial_auth_data = challenge_for_auth_data ("basic",
-                                                         data->outfd,
-                                                         &data->auth_type);
+      data->initial_auth_data = challenge_for_auth_data ("basic", &data->auth_type);
     }
 
   return (data->initial_auth_data != NULL &&
@@ -1308,7 +1303,7 @@ send_auth_reply (CockpitSshData *data,
     }
 
   json_object_set_object_member (object, "auth-method-results", auth_json);
-  ret = write_control_message (data->outfd, object);
+  ret = write_control_message (STDOUT_FILENO, object);
   json_object_unref (object);
 
   if (!ret)
@@ -2205,11 +2200,11 @@ cockpit_ssh_relay_start_source (CockpitSshRelay *self) {
 }
 
 static void
-cockpit_ssh_relay_start (CockpitSshRelay *self,
-                         gint outfd)
+cockpit_ssh_relay_start (CockpitSshRelay *self)
 {
   const gchar *problem;
   int in;
+  int out;
   int rc;
 
   static struct ssh_channel_callbacks_struct channel_cbs = {
@@ -2221,9 +2216,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
     .channel_exit_status_function = on_channel_exit_status,
   };
 
-  self->ssh_data->outfd = outfd;
-  self->ssh_data->initial_auth_data = challenge_for_auth_data ("*", outfd,
-                                                               &self->ssh_data->auth_type);
+  self->ssh_data->initial_auth_data = challenge_for_auth_data ("*", &self->ssh_data->auth_type);
 
   problem = cockpit_ssh_connect (self->ssh_data, self->connection_string, &self->channel);
   if (problem)
@@ -2239,10 +2232,12 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
 
   in = dup (0);
   g_assert (in >= 0);
+  out = dup (1);
+  g_assert (out >= 0);
 
   self->pipe = g_object_new (COCKPIT_TYPE_PIPE,
                              "in-fd", in,
-                             "out-fd", outfd,
+                             "out-fd", out,
                              "name", self->logname,
                              NULL);
   self->sig_read = g_signal_connect (self->pipe,
@@ -2273,7 +2268,6 @@ out:
     {
       self->exit_code = AUTHENTICATION_FAILED;
       cockpit_relay_disconnect (self, problem);
-      close (outfd);
     }
 }
 
@@ -2355,14 +2349,13 @@ cockpit_ssh_relay_class_init (CockpitSshRelayClass *klass)
 }
 
 CockpitSshRelay *
-cockpit_ssh_relay_new (const gchar *connection_string,
-                       gint outfd)
+cockpit_ssh_relay_new (const gchar *connection_string)
 {
 
   CockpitSshRelay *self = g_object_new (COCKPIT_TYPE_SSH_RELAY,
                                         "connection-string", connection_string,
                                         NULL);
-  cockpit_ssh_relay_start (self, outfd);
+  cockpit_ssh_relay_start (self);
   return self;
 }
 

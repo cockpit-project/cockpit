@@ -34,6 +34,7 @@
 
 #include "common/cockpitassets.h"
 #include "common/cockpitconf.h"
+#include "common/cockpithacks-glib.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
@@ -132,7 +133,6 @@ main (int argc,
   g_autoptr(CockpitWebServer) server = NULL;
   CockpitWebServerFlags server_flags = COCKPIT_WEB_SERVER_NONE;
   CockpitHandlerData data;
-  int outfd = -1;
 
   signal (SIGPIPE, SIG_IGN);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
@@ -171,17 +171,7 @@ main (int argc,
   if (opt_for_tls_proxy)
     opt_no_tls = TRUE;
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_printerr ("ws couldn't redirect stdout to stderr");
-      goto out;
-    }
+  cockpit_hacks_redirect_gdebug_to_stderr ();
 
   if (opt_local_session || opt_no_tls)
     {
@@ -272,8 +262,7 @@ main (int argc,
 
       if (g_str_equal (opt_local_session, "-"))
         {
-          pipe = cockpit_pipe_new (opt_local_session, 0, outfd);
-          outfd = -1;
+          pipe = cockpit_pipe_new (opt_local_session, 0, 1);
         }
       else
         {
@@ -307,8 +296,6 @@ main (int argc,
   ret = 0;
 
 out:
-  if (outfd >= 0)
-    close (outfd);
   if (error)
     g_printerr ("cockpit-ws: %s\n", error->message);
   g_clear_object (&data.auth);

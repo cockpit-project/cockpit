@@ -21,6 +21,7 @@
 
 #include <gio/gio.h>
 
+#include "common/cockpithacks-glib.h"
 #include "common/cockpittest.h"
 
 #include "cockpitsshrelay.h"
@@ -31,25 +32,12 @@ main (int argc,
       char *argv[])
 {
   gint ret = 1;
-  gint outfd;
   CockpitSshRelay *relay;
   GOptionContext *context;
   GError *error = NULL;
   GMainLoop *loop = NULL;
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_printerr ("cockpit-ssh: bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
-    }
+  cockpit_hacks_redirect_gdebug_to_stderr ();
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -84,7 +72,7 @@ main (int argc,
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  relay = cockpit_ssh_relay_new (argv[1], outfd);
+  relay = cockpit_ssh_relay_new (argv[1]);
   g_signal_connect_swapped (relay, "disconnect", G_CALLBACK (g_main_loop_quit), loop);
 
   g_main_loop_run (loop);

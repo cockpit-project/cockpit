@@ -24,6 +24,7 @@
 #include "cockpitrouter.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitunixfd.h"
@@ -94,7 +95,6 @@ main (int argc,
   GOptionContext *context;
   GError *error = NULL;
   guint sig_term;
-  int outfd;
 
   static GOptionEntry entries[] = {
     { NULL }
@@ -126,22 +126,11 @@ main (int argc,
       return 2;
     }
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_warning ("bridge couldn't redirect stdout to stderr");
-      outfd = 1;
-    }
+  cockpit_hacks_redirect_gdebug_to_stderr ();
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
 
-  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
+  transport = cockpit_pipe_transport_new_fds ("stdio", 0, 1);
 
   router = cockpit_router_new (transport, NULL, NULL);
   add_router_channels (router);

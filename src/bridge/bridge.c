@@ -39,6 +39,7 @@
 
 #include "common/cockpitassets.h"
 #include "common/cockpitchannel.h"
+#include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
@@ -468,24 +469,10 @@ run_bridge (const gchar *interactive,
   GPid agent_pid = 0;
   guint sig_term;
   guint sig_int;
-  int outfd;
   uid_t uid;
   struct CallUpdateRouterData call_update_router_data;
 
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_printerr ("bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
-    }
+  cockpit_hacks_redirect_gdebug_to_stderr ();
 
   /* Always set environment variables early */
   uid = geteuid();
@@ -537,11 +524,11 @@ run_bridge (const gchar *interactive,
   if (interactive)
     {
       /* Allow skipping the init message when interactive */
-      transport = cockpit_interact_transport_new (0, outfd, interactive);
+      transport = cockpit_interact_transport_new (0, 1, interactive);
     }
   else
     {
-      transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
+      transport = cockpit_pipe_transport_new_fds ("stdio", 0, 1);
     }
 
   router = setup_router (transport, privileged_peer);

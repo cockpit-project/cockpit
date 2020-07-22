@@ -39,8 +39,7 @@ typedef struct _CockpitSshRelay                  CockpitSshRelayClass;
 
 GType                   cockpit_ssh_relay_get_type     (void) G_GNUC_CONST;
 
-CockpitSshRelay *       cockpit_ssh_relay_new          (const gchar *connection_string,
-                                                        gint out_fd);
+CockpitSshRelay *       cockpit_ssh_relay_new          (const gchar *connection_string);
 
 gint                    cockpit_ssh_relay_result       (CockpitSshRelay* self);
 

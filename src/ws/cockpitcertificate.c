@@ -22,7 +22,6 @@
 #include "cockpitcertificate.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitwebcertificate.h"
 

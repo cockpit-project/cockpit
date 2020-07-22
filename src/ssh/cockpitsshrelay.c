@@ -26,7 +26,6 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitpipe.h"
-#include "common/cockpitlog.h"
 #include "common/cockpittest.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitunixfd.h"

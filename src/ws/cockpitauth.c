@@ -30,7 +30,6 @@
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpithex.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitpipe.h"

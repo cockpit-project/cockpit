@@ -25,6 +25,8 @@ import { ListingTable } from 'cockpit-components-table.jsx';
 import { getStoragePoolRow } from './storagePool.jsx';
 import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 
+import './storagePoolList.scss';
+
 const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {

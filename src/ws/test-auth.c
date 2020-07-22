@@ -166,7 +166,6 @@ test_userpass_cookie_check (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "this is the password");
-  g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -458,10 +457,8 @@ typedef struct {
   const gchar *header;
   const gchar *path;
   const gchar *user;
-  const gchar *password;
   const gchar *application;
   const gchar *cookie_name;
-  gboolean authorized;
 } SuccessFixture;
 
 static void
@@ -545,7 +542,6 @@ test_custom_success (Test *test,
   JsonObject *login_data;
   const SuccessFixture *fix = data;
   const gchar *path = fix->path ? fix->path : "/cockpit";
-  const gchar *password = fix->password ? fix->password : "this is the password";
   const gchar *application = fix->application ? fix->application : "cockpit";
 
   if (fix->warning)
@@ -553,8 +549,6 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  if (fix->authorized)
-    g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   g_hash_table_insert (headers, g_strdup ("X-Superuser"), g_strdup ("none"));
   cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
@@ -574,17 +568,7 @@ test_custom_success (Test *test,
   service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
-  if (fix->authorized && g_str_has_prefix (fix->header, "Basic"))
-    {
-      if (password == NULL)
-        g_assert_null (cockpit_creds_get_password (creds));
-      else
-        g_assert_cmpstr (g_bytes_get_data (cockpit_creds_get_password (creds), NULL), ==, password);
-    }
-  else
-    {
-      g_assert_null (cockpit_creds_get_password (creds));
-    }
+  g_assert_null (cockpit_creds_get_password (creds));
 
   login_data = cockpit_creds_get_login_data (creds);
   if (fix->data)
@@ -600,15 +584,13 @@ test_custom_success (Test *test,
 static const SuccessFixture fixture_ssh_basic = {
   .warning = NULL,
   .data = NULL,
-  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=",
-  .authorized = TRUE
+  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ="
 };
 
 static const SuccessFixture fixture_ssh_not_authorized = {
   .warning = NULL,
   .data = NULL,
   .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=",
-  .authorized = FALSE
 };
 
 static const SuccessFixture fixture_ssh_remote_basic = {
@@ -617,7 +599,6 @@ static const SuccessFixture fixture_ssh_remote_basic = {
   .header = "Basic cmVtb3RlLXVzZXI6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==",
   .path = "/cockpit+=machine",
   .user = "remote-user",
-  .password = "this is the machine password",
   .application = "cockpit+=machine",
   .cookie_name = "machine-cockpit+machine"
 };

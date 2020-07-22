@@ -39,7 +39,6 @@ class TestEmbed(MachineCase):
         b.wait_visible("#login")
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
-        b.set_checked('#authorized-input', True)
         b.click('#login-button')
         # don't use expect_load() here as the outside page doesn't reload, just the iframe
         b.expect_load_frame("cockpit1:localhost/system")

@@ -216,6 +216,7 @@ struct _CockpitWebService {
   gulong recv_sig;
   gulong closed_sig;
   gboolean sent_done;
+  guint credentials_timeout;
 
   GHashTable *checksum_by_host;
   GHashTable *host_by_checksum;
@@ -247,6 +248,10 @@ cockpit_web_service_dispose (GObject *object)
   if (self->closed_sig)
     g_signal_handler_disconnect (self->transport, self->closed_sig);
   self->closed_sig = 0;
+
+  if (self->credentials_timeout)
+    g_source_remove (self->credentials_timeout);
+  self->credentials_timeout = 0;
 
   if (!self->sent_done)
     {
@@ -595,6 +600,15 @@ process_transport_authorize (CockpitWebService *self,
   return TRUE;
 }
 
+static gboolean
+poison_creds (gpointer user_data)
+{
+  CockpitWebService *self = user_data;
+  cockpit_creds_poison (self->creds);
+  self->credentials_timeout = 0;
+  return G_SOURCE_REMOVE;
+}
+
 static const gchar *
 process_transport_init (CockpitWebService *self,
                         CockpitTransport *transport,
@@ -626,6 +640,17 @@ process_transport_init (CockpitWebService *self,
             g_warning ("invalued 'explicit-superuser' value in init message");
         }
 
+      /* If the bridge has the explicit-superuser capability, it will
+         send a "superuser-init-done" message once any authorization
+         is over.  We will poisen our credentials at that time.
+
+         For a bridge without the explicit-superuser capability, we
+         keep the credentials for two minutes after receiving an
+         "init" message.
+      */
+
+      self->credentials_timeout = g_timeout_add (2*60*1000, poison_creds, self);
+
       /* Always send an init message down the new transport */
       object = cockpit_transport_build_json ("command", "init", NULL);
       json_object_set_int_member (object, "version", 1);
@@ -643,7 +668,7 @@ process_transport_init (CockpitWebService *self,
       else
         {
           json_object_set_boolean_member (object, "superuser", FALSE);
-          cockpit_creds_consume_init_password (self->creds);
+          cockpit_creds_poison (self->creds);
         }
 
       payload = cockpit_json_write_bytes (object);
@@ -692,7 +717,7 @@ on_transport_control (CockpitTransport *transport,
         }
       else if (g_strcmp0 (command, "superuser-init-done") == 0)
         {
-          cockpit_creds_consume_init_password (self->creds);
+          cockpit_creds_poison (self->creds);
           valid = TRUE;
         }
       else

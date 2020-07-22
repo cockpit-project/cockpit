@@ -271,14 +271,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self._testBasic(user, False, True)
         self.allow_authorize_journal_messages()
 
-    def _testBasic(self, user=None, authorized=True, expect_empty_list=False):
+    def _testBasic(self, user=None, superuser=True, expect_empty_list=False):
         b = self.browser
         m = self.machine
 
         args = self.startVm("subVmTest1")
 
         self.allow_authorize_journal_messages()
-        self.login_and_go("/machines", user=user, authorized=authorized, superuser=authorized)
+        self.login_and_go("/machines", user=user, superuser=superuser)
 
         if expect_empty_list:
             b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
@@ -368,7 +368,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
         b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
 
-        if authorized:
+        if superuser:
             # restart libvirtd
             m.execute("systemctl stop libvirtd.service")
             b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")

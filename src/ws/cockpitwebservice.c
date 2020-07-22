@@ -34,7 +34,6 @@
 #include "common/cockpitconf.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpitwebresponse.h"

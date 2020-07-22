@@ -25,7 +25,6 @@
 #include "cockpitpackages.h"
 
 #include "common/cockpitchannel.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 #include "common/mock-transport.h"

@@ -286,11 +286,6 @@
             el.focus();
         });
 
-        /* Setup the user's last choice about the authorized button */
-        var authorized = localStorage.getItem('authorized-default');
-        if (authorized === null || authorized.indexOf("password") !== -1)
-            id("authorized-input").checked = true;
-
         var os_release = environment["os-release"];
         if (os_release)
             localStorage.setItem('os-release', JSON.stringify(os_release));
@@ -485,10 +480,7 @@
             id("server-name").textContent = machine || environment.hostname;
             id("login-button").removeEventListener("click", call_login);
 
-            /* When checked we tell the server to keep authentication */
-            var authorized = id("authorized-input").checked ? "password" : "";
             var password = id("login-password-input").value;
-            localStorage.setItem('authorized-default', authorized);
 
             var superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
             var superuser = localStorage.getItem(superuser_key) || "any";
@@ -500,7 +492,6 @@
 
             var headers = {
                 Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
-                "X-Authorize": authorized,
                 "X-Superuser": superuser,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
@@ -562,7 +553,6 @@
         };
 
         id("login-password-input").addEventListener("keydown", do_login);
-        id("authorized-input").addEventListener("keydown", do_login);
 
         show_form();
         id("login-user-input").focus();

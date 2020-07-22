@@ -531,7 +531,7 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def try_login(self, user=None, password=None, authorized=True, superuser=True):
+    def try_login(self, user=None, password=None, superuser=True, legacy_authorized=None):
         """Fills in the login dialog and clicks the button.
 
         This differs from login_and_go() by not expecting any particular result.
@@ -543,12 +543,14 @@ class Browser:
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', password)
-        self.set_checked('#authorized-input', authorized)
+        if legacy_authorized is not None:
+            self.set_checked('#authorized-input', legacy_authorized)
         if superuser is not None:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, superuser=True, urlroot=None, tls=False, password=None):
+    def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, password=None,
+                     legacy_authorized=None):
         href = path
         if not href:
             href = "/"
@@ -558,7 +560,7 @@ class Browser:
             href = "/@" + host + href
         self.open(href, tls=tls)
 
-        self.try_login(user, password, authorized=authorized, superuser=superuser)
+        self.try_login(user, password, superuser=superuser, legacy_authorized=legacy_authorized)
 
         self.expect_load()
         self.wait_present('#content')
@@ -579,15 +581,13 @@ class Browser:
             self.click('#go-logout')
         self.expect_load()
 
-    def relogin(self, path=None, user=None, authorized=None, superuser=None):
+    def relogin(self, path=None, user=None, superuser=None):
         if user is None:
             user = self.default_user
         self.logout()
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", self.password)
-        if authorized is not None:
-            self.set_checked('#authorized-input', authorized)
         if superuser is not None:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
@@ -949,9 +949,9 @@ class MachineCase(unittest.TestCase):
             self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, superuser=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
-        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, superuser=superuser, urlroot=urlroot, tls=tls)
+        self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
 
     allow_core_dumps = False
 

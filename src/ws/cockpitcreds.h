@@ -33,7 +33,6 @@ typedef struct _CockpitCreds       CockpitCreds;
 #define COCKPIT_CRED_PASSWORD     "password"
 #define COCKPIT_CRED_RHOST        "rhost"
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
-#define COCKPIT_CRED_FOR_REMOTE   "for-remote"
 #define COCKPIT_CRED_SUPERUSER    "superuser"
 
 #define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
@@ -63,8 +62,6 @@ const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);
 
-const gchar *   cockpit_creds_get_for_remote (CockpitCreds *creds);
-
 const gchar *   cockpit_creds_get_superuser  (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
@@ -75,8 +72,6 @@ void            cockpit_creds_set_login_data             (CockpitCreds *creds,
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_to_json                    (CockpitCreds *creds);
-
-void            cockpit_creds_consume_init_password (CockpitCreds *creds);
 
 
 G_END_DECLS

@@ -52,7 +52,7 @@ if (ops.watch) {
         const time = new Date().toTimeString().split(' ')[0];
         process.stdout.write(`${ time  } Build started\n`);
     });
-    compiler.watch({}, process_result);
+    compiler.watch(config.watchOptions, process_result);
 } else {
     compiler.run(process_result);
 }

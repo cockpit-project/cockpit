@@ -401,6 +401,10 @@ module.exports = {
         maxEntrypointSize: 20000000,
     },
 
+    watchOptions: {
+        ignored: /node_modules/
+    },
+
     module: {
         rules: [
             {

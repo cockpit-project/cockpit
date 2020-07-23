@@ -6,7 +6,7 @@ LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 
 WEBLATE_REPO=tmp/weblate-repo
 WEBLATE_REPO_URL=https://github.com/cockpit-project/cockpit-weblate.git
-WEBLATE_REPO_BRANCH=master
+WEBLATE_REPO_BRANCH=rhel-8.3
 
 # The full list of various input and output file types
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))

@@ -3,28 +3,14 @@
 @import "../lib/table.css";
 @import "../lib/cockpit-components-table.scss";
 
-.app-list header {
-    color: unset;
+.page-ct {
+    /* Remove margin above the header */
+    margin: 0;
 }
 
-.app-list header h2 {
-    margin: 0px;
-}
-
-.app-list header table td:nth-child(2) {
-    width: 100%;
-    padding-left: 6em;
-    color: var(--color-gray-11);
-}
-
-.app-list header table td:nth-child(3) {
-    text-align: right;
-    padding-right: 10px;
-    padding-left: 2em;
-}
-
-.table > tbody > tr:last-child > td {
-    border-bottom: 1px solid var(--color-border);
+.ct-table-header {
+    /* Add enough spacing to align header & refresh to the list edges */
+    padding: 0 var(--pf-global--spacer--md) var(--pf-global--spacer--md);
 }
 
 .app-list-empty {
@@ -42,31 +28,7 @@
 .app-list img {
     width: 32px;
     height: 32px;
-    margin-top: 5px;
-    margin-bottom: 5px;
     max-width: unset;
-}
-
-.app-list td {
-    vertical-align: middle !important;
-}
-
-.app-list td:nth-child(2) {
-    margin-right: 10px;
-}
-
-.app-list td:nth-child(3) {
-    width: 70%;
-}
-
-.app-list td:nth-child(4) {
-    /* shrink to fit */
-    width: 1%;
-    white-space: nowrap;
-}
-
-.app-list td:nth-child(4) button {
-    width: 100%;
 }
 
 .app-list .progress-title {
@@ -75,6 +37,15 @@
 
 .app-list .progress {
     margin-bottom: 0px;
+}
+
+.app-list .pf-c-data-list__item-action button {
+    min-width: 6rem;
+}
+
+.app-list .pf-c-data-list__item-content {
+    /* Vertically align application info to the center */
+    align-items: center;
 }
 
 /* Application */
@@ -137,9 +108,4 @@
 
 .right-menu * {
     display: inline-block;
-}
-
-/* Give it the same padding as button have */
-.noninstalled {
-    margin-left: var(--pf-global--spacer--md);
 }

@@ -19,7 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, AlertActionCloseButton, Button } from "@patternfly/react-core";
+import {
+    Alert, AlertActionCloseButton, Button,
+    DataList, DataListItem, DataListItemRow, DataListCell,
+    DataListAction,
+    DataListItemCells,
+} from "@patternfly/react-core";
 import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
@@ -56,9 +61,9 @@ class ApplicationRow extends React.Component {
         var name, summary_or_progress, button;
 
         if (comp.installed) {
-            name = <Button variant="link" onClick={left_click(() => launch(comp))}>{comp.name}</Button>;
+            name = <Button variant="link" isInline id={comp.name} onClick={left_click(() => launch(comp))}>{comp.name}</Button>;
         } else {
-            name = <span className="noninstalled">{comp.name}</span>;
+            name = <Button variant="link" isInline id={comp.name} onClick={left_click(() => cockpit.location.go(comp.id))}>{comp.name}</Button>;
         }
 
         if (state.progress) {
@@ -86,12 +91,26 @@ class ApplicationRow extends React.Component {
         }
 
         return (
-            <tr onClick={left_click(() => cockpit.location.go(comp.id))}>
-                <td><img src={icon_url(comp.icon)} role="presentation" alt="" /></td>
-                <td>{name}</td>
-                <td>{summary_or_progress}</td>
-                <td>{button}</td>
-            </tr>
+            <DataListItem className="app-list" aria-labelledby={comp.name}>
+                <DataListItemRow>
+                    <DataListItemCells
+                        dataListCells={[
+                            <DataListCell isIcon key="icon">
+                                <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                            </DataListCell>,
+                            <DataListCell width={1} key="app name">
+                                {name}
+                            </DataListCell>,
+                            <DataListCell width={4} key="secondary content">
+                                {summary_or_progress}
+                            </DataListCell>,
+                        ]}
+                    />
+                    <DataListAction aria-labelledby={comp.name} aria-label={_("Actions")}>
+                        {button}
+                    </DataListAction>
+                </DataListItemRow>
+            </DataListItem>
         );
     }
 }
@@ -119,7 +138,7 @@ export class ApplicationList extends React.Component {
                     .catch(show_error);
         }
 
-        var refresh_progress, refresh_button, empty_caption, tbody, table_classes;
+        var refresh_progress, refresh_button, empty_caption, tbody;
         if (this.state.progress) {
             refresh_progress = <ProgressBar title={_("Checking for new applications")} data={this.state.progress} />;
             refresh_button = <CancelButton data={this.state.progress} />;
@@ -132,15 +151,13 @@ export class ApplicationList extends React.Component {
             );
         }
 
-        table_classes = "table app-list";
         if (comps.length === 0) {
             if (this.props.metainfo_db.ready)
                 empty_caption = _("No applications installed or available");
             else
                 empty_caption = <div className="spinner spinner-sm" />;
-            tbody = <tr className="app-list-empty"><td>{empty_caption}</td></tr>;
+            tbody = <div className="app-list-empty">{empty_caption}</div>;
         } else {
-            table_classes += " table-hover";
             tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);
         }
 
@@ -155,11 +172,9 @@ export class ApplicationList extends React.Component {
                         </div>
                     </div>
                 </header>
-                <table className={table_classes}>
-                    <tbody>
-                        { tbody }
-                    </tbody>
-                </table>
+                <DataList aria-label={_("Applications list")}>
+                    { tbody }
+                </DataList>
             </>
         );
     }

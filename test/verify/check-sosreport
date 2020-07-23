@@ -109,10 +109,10 @@ threads=1
         b.wait_not_present(".app-list-empty .spinner")
         image_os = m.image.split('-')[0]
         if image_os in ['fedora', 'debian', 'ubuntu']:
-            b.wait_present(".app-list tr:contains('Diagnostic Reports')")
-            b.wait_present(".app-list tr:contains('Diagnostic Reports') button:contains('Remove')")
+            b.wait_present(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic Reports']")
+            b.wait_present(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic Reports'] button:contains('Remove')")
         else:
-            b.wait_not_present(".app-list tr:contains('Diagnostic Reports')")
+            b.wait_not_present(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic Reports']")
 
 
 if __name__ == '__main__':

@@ -1,22 +1,23 @@
 /* Application list */
 
 @import "../lib/table.css";
+@import "../lib/cockpit-components-table.scss";
 
-.app-list caption {
+.app-list header {
     color: unset;
 }
 
-.app-list caption h2 {
+.app-list header h2 {
     margin: 0px;
 }
 
-.app-list caption table td:nth-child(2) {
+.app-list header table td:nth-child(2) {
     width: 100%;
     padding-left: 6em;
     color: var(--color-gray-11);
 }
 
-.app-list caption table td:nth-child(3) {
+.app-list header table td:nth-child(3) {
     text-align: right;
     padding-right: 10px;
     padding-left: 2em;

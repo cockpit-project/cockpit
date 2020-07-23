@@ -97,7 +97,7 @@ class TestApps(PackageCase):
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.enableAppStreamRepo()
 
-        b.click(".app-list tr:contains('An application for testing')")
+        b.click(".app-list #app-1")
         b.wait_present('.app-links a[href="https://app-1.com"]')
         b.wait_present('.app img[src^="%s/cockpit/channel/"]' % urlroot)
         b.click(".breadcrumb button:contains('Applications')")
@@ -105,14 +105,14 @@ class TestApps(PackageCase):
         b.wait_visible("#list-page")
         b.wait_not_visible("#app-page")
 
-        b.click(".app-list tr:contains('app-1') button:contains('Install')")
-        b.wait_present(".app-list tr:contains('app-1') button:contains('Remove')")
-        b.wait_present(".app-list tr:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
+        b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
         m.execute("test -f /stamp-app-1-1.0-1")
 
-        b.click(".app-list tr:contains('app-1') button:contains('Remove')")
-        b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
-        b.wait_present(".app-list tr:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
+        b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
         m.execute("! test -f /stamp-app-1-1.0-1")
 
     def testWithUrlRoot(self):
@@ -155,8 +155,8 @@ class TestApps(PackageCase):
   </component>
 </components>""")
 
-        b.wait_present(".app-list tr:contains('SUMMARY:none') button:contains('Install')")
-        b.click(".app-list tr:contains('SUMMARY:none')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('SUMMARY:none') button:contains('Install')")
+        b.click(".app-list .pf-c-data-list__item-row:contains('SUMMARY:none') .pf-m-inline")
 
         b.wait_present(".app-description:contains('DESCRIPTION:none')")
 
@@ -216,7 +216,7 @@ class TestApps(PackageCase):
   </component>
 </components>""")
             b.wait_not_present(".app-list-empty")
-            b.wait_present(".app-list tr:contains('Summary')")
+            b.wait_present(".app-list .pf-c-data-list__item-row:contains('Summary')")
 
         # First lay down some good XML so that we can later detect the reaction to broken XML.
         reset()
@@ -311,7 +311,7 @@ This <is <not XML.
   </component>
 </components>""")
         b.wait_not_present(".app-list-empty")
-        b.wait_present(".app-list tr:contains('Summary 2')")
+        b.wait_present(".app-list .pf-c-data-list__item-row:contains('Summary 2')")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,27 @@
+// PF4 issue https://github.com/patternfly/patternfly-react/issues/4612
+@import "~@patternfly/patternfly/components/Table/table.scss";
+@import "~@patternfly/patternfly/components/Table/table-grid.scss";
+
+// Mimic .pf-c-table__action,
+#virtual-machines-listing > table > tbody tr:first-child td:last-child {
+    --pf-c-table--cell--PaddingTop: 0;
+    --pf-c-table--cell--PaddingRight: var(--pf-c-table__action--PaddingRight);
+    --pf-c-table--cell--PaddingBottom: 0;
+    --pf-c-table--cell--PaddingLeft: var(--pf-c-table__action--PaddingLeft);
+
+    --pf-c-table--cell--MinWidth: 0;
+    --pf-c-table--cell--Width: 1%;
+
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: middle;
+
+    @media screen and (max-width: 428px) {
+        margin-top: var(--pf-c-table--m-compact__action--responsive--MarginTop);
+        margin-bottom: var(--pf-c-table--m-compact__action--responsive--MarginTop);
+
+        grid-row-start: 1;
+        grid-column-start: 2;
+        text-align: right;
+    }
+}

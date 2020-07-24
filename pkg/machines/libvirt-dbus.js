@@ -391,7 +391,7 @@ const LIBVIRT_DBUS_PROVIDER = {
         }
 
         if (options.destroy) {
-            return destroy().then(undefine());
+            return undefine().then(destroy());
         } else {
             return undefine()
                     .catch(ex => {

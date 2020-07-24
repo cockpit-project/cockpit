@@ -91,12 +91,12 @@ threads=1
         self.login_and_go("/sosreport")
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")
-        m.execute("until pgrep sosreport >/dev/null; do sleep 1; done")
+        m.execute("until pgrep -x sosreport >/dev/null; do sleep 1; done")
 
         b.click("#sos-cancel")
         b.wait_not_visible("#sos")
         # cleans up properly; unfortunately closing the process is async, so need to retry a few times
-        m.execute("while pgrep -a sosreport; do sleep 1; done", timeout=10)
+        m.execute("while pgrep -a -x sosreport; do sleep 1; done", timeout=10)
         self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
 
     def testAppStream(self):

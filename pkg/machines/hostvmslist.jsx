@@ -94,7 +94,7 @@ class HostVmsList extends React.Component {
                 emptyCaption={_("No VM is running or defined on this host")}
                 actions={actions}
                 columns={[
-                    { title: _("Name") },
+                    { title: _("Name"), header: true },
                     { title: _("Connection") },
                     { title: _("State") },
                     { title: "" },

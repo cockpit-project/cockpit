@@ -53,7 +53,7 @@ export class NetworkList extends React.Component {
                 <div id='networks-listing' className='container-fluid'>
                     <ListingTable title={_("Networks")}
                         variant='compact'
-                        columns={[_("Name"), _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
+                        columns={[{ title: _("Name"), header: true }, _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
                         emptyCaption={_("No network is defined on this host")}
                         actions={actions}
                         rows={networks

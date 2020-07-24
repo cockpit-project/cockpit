@@ -254,7 +254,6 @@ class SeleniumTestSuite(AvocadoTestSuite):
 
     def _cockpit_prepare(self):
         super()._cockpit_prepare()
-        self._prepare_kdump_test()
         self._prepare_machines_test_env()
 
     def cleanup(self):
@@ -270,15 +269,6 @@ class SeleniumTestSuite(AvocadoTestSuite):
     """ % (host, port)
         with testvm.Timeout(seconds=300, error_message="Timeout while waiting for selenium to start"):
             self.machine_avocado.execute(script=WAIT_SELENIUM_RUNNING)
-
-    def _prepare_kdump_test(self):
-        # enable kernel kdump support
-        self.machine_cockpit.execute("rpm -q nfs-utils || yum install -y nfs-utils", timeout=500)
-        self.machine_cockpit.execute("grubby --update-kernel DEFAULT --args='crashkernel=128M'")
-        self.machine_cockpit.execute("reboot")
-        self.machine_cockpit.wait_reboot()
-        self.machine_cockpit.execute("systemctl start kdump")
-        self.machine_cockpit.execute("systemctl enable kdump")
 
     def _prepare_machines_test_env(self):
         # Ensure everything has started correctly

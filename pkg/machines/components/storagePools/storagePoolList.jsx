@@ -51,7 +51,7 @@ export class StoragePoolList extends React.Component {
                 <div id='storage-pools-listing' className='container-fluid'>
                     <ListingTable caption={_("Storage Pools")}
                         variant='compact'
-                        columns={[_("Name"), _("Size"), _("Connection"), _("State")]}
+                        columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
                         emptyCaption={_("No storage pool is defined on this host")}
                         actions={actions}
                         rows={storagePools

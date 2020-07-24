@@ -107,6 +107,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
 
+        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
+
     def toggleVmRow(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] .pf-c-table__toggle button".format(vmName, connectionName)) # click on the row header
 

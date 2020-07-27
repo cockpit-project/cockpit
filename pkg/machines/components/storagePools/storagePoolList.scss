@@ -1,5 +1,33 @@
-@media screen and (min-width: 429px) {
-  #storage-pools-listing .pf-c-table.pf-m-expandable td[data-label=Size] {
-      padding-right: 5rem;
+#storage-pools-listing {
+  .pf-c-table tbody > tr > * {
+    // These tables are 1 row tall; progress bar does odd stuff for alignment;
+    // vertical alignment makes text line up
+    vertical-align: middle;
+  }
+
+  .pf-c-table__toggle > .pf-c-button {
+    // Undo the PF alignment offset, as we're aligning to the middle (see above)
+    margin-top: 0;
+  }
+
+  // Approximate size of text
+  // (overflows work, but will knock out alignment)
+  --progress-text: 8rem;
+  --progress-bar-min: 2rem;
+  --progress-bar-max: 12vw;
+
+  td[data-label=Size] {
+    // Set an upper bound constraint for the progress bar + status text
+    max-width: calc(var(--progress-text) * 2);
+
+    > .pf-c-progress {
+      // Fix progress bar size
+      grid-template-columns: minmax(var(--progress-bar-min), var(--progress-bar-max)) minmax(max-content, var(--progress-text));
+
+      > .pf-c-progress__status {
+        // Align status text to the end (for GiB to align properly)
+        justify-self: end;
+      }
+    }
   }
 }

@@ -2328,6 +2328,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
             b.click("#vm-{0}-action-kebab button".format(dialog.name))
+            b.wait_present(vm_delete_button + " a[aria-disabled=false]")
             b.click(vm_delete_button)
             b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))

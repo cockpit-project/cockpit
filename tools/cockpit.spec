@@ -91,6 +91,7 @@ BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
+BuildRequires: make
 BuildRequires: /usr/bin/python3
 BuildRequires: gettext >= 0.19.7
 %if %{defined build_dashboard}

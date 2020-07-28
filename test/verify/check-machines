@@ -2312,6 +2312,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             self._assertCorrectConfiguration(dialog)
 
+            # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
+            wait(lambda: dialog.name in self.machine.execute("virsh list --persistent"), delay=3)
+
             # unfinished install script runs indefinitelly, so we need to force it off
             b.click("#vm-{0}-action-kebab button".format(name))
             b.click("#vm-{0}-forceOff".format(name))
@@ -2398,13 +2401,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def _assertDomainDefined(self, name, connection):
             listCmd = ""
             if connection == "session":
-                listCmd = "runuser -l admin -c 'virsh -c qemu:///session list --persistent --all'"
+                listCmd = "runuser -l admin -c 'virsh -c qemu:///session dumpxml --inactive {0} | grep cockpit_machines | wc -l'".format(name)
             else:
                 # When creating VMs from the UI default connection is the system
                 # In this case don't use runuser -l admin because we get errors 'authentication unavailable'
-                listCmd = "virsh -c qemu:///system list --persistent --all"
+                listCmd = "virsh -c qemu:///system dumpxml --inactive {0} | grep cockpit_machines | wc -l".format(name)
 
-            wait(lambda: name in self.machine.execute(listCmd))
+            wait(lambda: "6" in self.machine.execute(listCmd))
 
             return self
 

@@ -286,6 +286,7 @@ def run(opts, image):
                     if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
                         # try hard to keep the test output consistent
                         testlib.MachineCase.kill_global_machine()
+                        # FIXME: May change the ports when a parallel run-tests is running
                         testlib.MachineCase.get_global_machine()
 
                 # run again if needed
@@ -305,7 +306,7 @@ def run(opts, image):
             time.sleep(0.5)
 
     if not opts.list:
-        testlib.MachineCase.kill_global_machine()
+        testlib.MachineCase.kill_global_machines()
 
         duration = int(time.time() - start_time)
         hostname = socket.gethostname().split(".")[0]

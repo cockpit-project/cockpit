@@ -699,7 +699,7 @@ class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
-    global_machine = None
+    global_machines = {}
     machines = {}
     machine_class = None
     browser = None
@@ -712,22 +712,26 @@ class MachineCase(unittest.TestCase):
     provision = None
 
     @classmethod
-    def get_global_machine(klass, restrict=True):
-        if not klass.global_machine:
-            klass.global_machine = klass.new_machine(klass, restrict=restrict, cleanup=False)
+    def get_global_machine(klass, restrict=True, id="1"):
+        if id not in klass.global_machines:
+            klass.global_machines[id] = m = klass.new_machine(klass, restrict=restrict, cleanup=False)
             if opts.trace:
-                print("Starting global machine {0}".format(klass.global_machine.label))
-            klass.global_machine.start()
-        return klass.global_machine
+                print("Starting global machine {0}: {1}".format(id, m.label))
+            m.start()
+        return klass.global_machines[id]
 
     @classmethod
-    def kill_global_machine(klass):
+    def kill_global_machine(klass, id):
         if klass.network:
             klass.network.kill()
             klass.network = None
-        if klass.global_machine:
-            klass.global_machine.kill()
-            klass.global_machine = None
+        klass.global_machines[id].kill()
+        del klass.global_machines[id]
+
+    @classmethod
+    def kill_global_machines(klass):
+        for id in list(klass.global_machines):
+            klass.kill_global_machine(id)
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
@@ -1492,7 +1496,7 @@ class TapRunner:
         hostname = socket.gethostname().split(".")[0]
         details = "[{0}s on {1}]".format(duration, hostname)
 
-        MachineCase.kill_global_machine()
+        MachineCase.kill_global_machines()
 
         # Return 77 if all tests were skipped
         if len(skips) == test_count:

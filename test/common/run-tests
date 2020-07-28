@@ -305,7 +305,7 @@ def run(opts, image):
             time.sleep(0.5)
 
     if not opts.list:
-        testlib.MachineCase.kill_global_machine()
+        testlib.MachineCase.kill_global_machines()
 
         duration = int(time.time() - start_time)
         hostname = socket.gethostname().split(".")[0]

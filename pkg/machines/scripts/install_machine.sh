@@ -128,6 +128,7 @@ virsh -c "$CONNECTION_URI"  -q dumpxml --inactive "$VM_NAME" > "$DOMAIN_FILE"
 METADATA_LINE=`grep -n '</metadata>' "$DOMAIN_FILE" | sed 's/[^0-9]//g'`
 METADATA='    <cockpit_machines:data xmlns:cockpit_machines="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines"> \
   <cockpit_machines:has_install_phase>false</cockpit_machines:has_install_phase> \
+  <cockpit_machines:install_source_type>'"$SOURCE_TYPE"'</cockpit_machines:install_source_type> \
   <cockpit_machines:install_source>'"$SOURCE"'</cockpit_machines:install_source> \
   <cockpit_machines:os_variant>'"$OS"'</cockpit_machines:os_variant> \
 </cockpit_machines:data>'

@@ -25,6 +25,7 @@ from testlib import *
 @skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
 @skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Needs sssd >=2.4.1", "fedora-32", "rhel-8-4", "centos-8-stream")
 class TestS4USsh(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -35,6 +36,8 @@ class TestS4USsh(MachineCase):
     def setUp(self):
         super().setUp()
         self.machines['services'].execute("/run-freeipa")
+        # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
+        self.machines['1'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
 
     def testBasic(self):
         client_machine = self.machine
@@ -56,6 +59,7 @@ class TestS4USsh(MachineCase):
         ipa_machine.execute("docker exec freeipa bash -c 'echo foobarfoo | kinit admin@COCKPIT.LAN'")
         # add user to impersonate
         ipa_machine.execute("docker exec freeipa bash -c 'ipa user-add --first=user --last=user user'")
+        ipa_machine.execute("docker exec freeipa bash -c 'echo foobarfoo | ipa user-mod user --password'")
         # add service which will be allowed to delegate creds
         ipa_machine.execute("docker exec freeipa bash -c 'ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true'")
         # Allow retrieval of service keytab by admin
@@ -90,8 +94,35 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         # enable gssapiauth
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
+        client_machine.execute("KRB5RCACHEDIR=\"/var/cache/krb5rcache\" KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
 
-        client_machine.execute("KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
+        # configure gssapi authentication for sudo
+        sshd_machine.write('/etc/sudoers.d/cockpit-krb5-sudo', """
+Defaults    env_keep += "KRB5CCNAME"
+        """)
+
+        sshd_machine.write('/etc/pam.d/sudo', """
+auth       sufficient   pam_sss_gss.so
+auth       required     pam_deny.so
+account    include      system-auth
+password   include      system-auth
+session    optional     pam_keyinit.so revoke
+session    required     pam_limits.so
+session    include      system-auth
+""")
+
+        sshd_machine.execute(script="""#!/bin/sh
+        sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
+        systemctl restart sssd
+        usermod -G wheel user
+        su user
+        echo -ne 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit -c /home/user/cache user
+        exit 0
+        """)
+
+        # ssh via s4u gssapi + sudo
+        out = client_machine.execute("KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami'")
+        self.assertEqual(out.strip(), "root")
 
 
 if __name__ == '__main__':

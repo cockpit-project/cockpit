@@ -444,15 +444,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # not an admin
         b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
-        # RHEL 8.3 cockpit-session doesn't reopen the memfd correctly, so it
-        # still hits the selinux fail.
-        if m.image in ['rhel-8-3-distropkg']:
-            self.allow_journal_messages('.*type=1400.*avc:  denied  { write }.*comm="bash".*')
-            self.allow_journal_messages('Could not query seals on fd .*: not memfd.*')
-            self.assertFalse(b.is_present('#last-login'))
-        else:
-            b.wait_in_text('#last-login', "Last login:")
-            b.wait_in_text('#last-login', "web console")
+        b.wait_in_text('#last-login', "Last login:")
+        b.wait_in_text('#last-login', "web console")
 
         b.logout()
         self.allow_authorize_journal_messages()

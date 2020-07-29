@@ -34,6 +34,7 @@ class Test:
         self.command = command
         self.timeout = timeout
         self.nondestructive = nondestructive
+        self.serial_machine = None
 
 
 def test_name(test):
@@ -164,7 +165,12 @@ def run(opts, image):
     result = 0
     jobs = 1 if opts.list else opts.jobs
     start_time = time.time()
-    serial_tests_duration = 0
+
+    # Map of batches of serial tests. Key is the batch name, value is a map with 3 keys:
+    # - "working" - None if the machine is idle
+    # - "tests"   - Array of tests to run
+    # - "time"    - Combined time all tests took
+    batch_tests = {}
 
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))
@@ -228,35 +234,68 @@ def run(opts, image):
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
     flush_stdout()
 
+    if serial_tests and opts.list:
+        # Just build one batch for listing
+        batch_tests[0] = {"working": None, "tests": [], "time": 0}
+        for test in serial_tests:
+            test.serial_machine = 0
+            batch_tests[0]["tests"].append(test)
+
     if serial_tests and not opts.list:
         if opts.machine:
+            batch_tests[0] = {"working": None, "tests": [], "time": 0}
             ssh_address = opts.machine
             web_address = opts.browser
+
+            for test in serial_tests:
+                batch_tests[0]["tests"].append(test)
+                test.command.insert(-2, "--machine")
+                test.command.insert(-2, ssh_address)
+                test.command.insert(-2, "--browser")
+                test.command.insert(-2, web_address)
+                test.serial_machine = 0
         else:
-            m = testlib.MachineCase.get_global_machine(restrict=not opts.enable_network)
-            ssh_address = "{0}:{1}".format(m.ssh_address,
-                                           m.ssh_port)
-            web_address = "{0}:{1}".format(m.web_address,
-                                           m.web_port)
-        for test in serial_tests:
-            test.command.insert(-2, "--machine")
-            test.command.insert(-2, ssh_address)
-            test.command.insert(-2, "--browser")
-            test.command.insert(-2, web_address)
+            batch_size = len(serial_tests) // opts.batches
+
+            for i in range(opts.batches):
+                batch_tests[i] = {"working": None, "tests": [], "time": 0}
+                m = testlib.MachineCase.get_global_machine(restrict=not opts.enable_network, id=i)
+                ssh_address = "{0}:{1}".format(m.ssh_address,
+                                               m.ssh_port)
+                web_address = "{0}:{1}".format(m.web_address,
+                                               m.web_port)
+
+                if i == opts.batches - 1: # Last machine needs to resolve the rest
+                    batch = serial_tests[batch_size * i : ]
+                else:
+                    batch = serial_tests[batch_size * i : batch_size * i + batch_size]
+
+                for test in batch:
+                    batch_tests[i]["tests"].append(test)
+                    test.command.insert(-2, "--machine")
+                    test.command.insert(-2, ssh_address)
+                    test.command.insert(-2, "--browser")
+                    test.command.insert(-2, web_address)
+                    test.serial_machine = i
 
     running_tests = []
-    serial_test = None
     serial_tests_len = len(serial_tests)
-    while serial_tests or parallel_tests or running_tests:
+    serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
+    while serial_remaining or parallel_tests or running_tests:
         made_progress = False
         if len(running_tests) < jobs:
             test = None
-            if serial_tests and serial_test is None:
-                test = serial_tests.pop(0)
-                serial_test = test
-                serial_test_start = time.time()
-            elif parallel_tests:
-                test = parallel_tests.pop(0)
+            # Find if there is parallel machine that is not busy and has some other tests to run
+            for batch in batch_tests:
+                if batch_tests[batch]["working"] is None and len(batch_tests[batch]["tests"]) > 0:
+                    test = batch_tests[batch]["tests"].pop(0)
+                    batch_tests[batch]["working"] = True
+                    serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
+                    batch_tests[batch]["started"] = time.time()
+                    break
+            else:
+                if parallel_tests:
+                    test = parallel_tests.pop(0)
 
             if test:
                 made_progress = True
@@ -278,28 +317,30 @@ def run(opts, image):
                 retry_reason, test_result = finish_test(opts, test, changed_tests)
                 result += test_result
 
-                if test is serial_test:
-                    serial_tests_duration += (time.time() - serial_test_start)
+                if test.serial_machine is not None:
+                    tests_duration = (time.time() - batch_tests[test.serial_machine]["started"])
+                    batch_tests[test.serial_machine]["time"] += tests_duration
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
                     if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
                         # try hard to keep the test output consistent
-                        testlib.MachineCase.kill_global_machine()
+                        testlib.MachineCase.kill_global_machine(test.serial_machine)
                         # FIXME: May change the ports when a parallel run-tests is running
-                        testlib.MachineCase.get_global_machine()
+                        testlib.MachineCase.get_global_machine(restrict=not opts.enable_network, id=test.serial_machine)
 
                 # run again if needed
                 if retry_reason:
                     test.output = None
                     test.process = None
-                    if test is serial_test:
-                        serial_tests.insert(0, test)
+                    if test.serial_machine is not None:
+                        batch_tests[test.serial_machine]["tests"].insert(0, test)
+                        serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
                     else:
                         parallel_tests.insert(0, test)
 
-                if test is serial_test:
-                    serial_test = None
+                if test.serial_machine is not None:
+                    batch_tests[test.serial_machine]["working"] = None
 
         # Sleep if we didn't make progress
         if not made_progress and not opts.list:
@@ -310,7 +351,12 @@ def run(opts, image):
 
         duration = int(time.time() - start_time)
         hostname = socket.gethostname().split(".")[0]
-        details = "[{0}s on {1}, {2} serial tests took {3}s]".format(duration, hostname, serial_tests_len, int(serial_tests_duration))
+
+        serial_details = []
+        for batch in batch_tests:
+            serial_details.append("{0}: {1}s".format(batch, int(batch_tests[batch]["time"])))
+
+        details = "[{0}s on {1}, {2} serial tests: {3}]".format(duration, hostname, serial_tests_len, ", ".join(serial_details))
         print()
         if result > 0:
             print("# {0} TESTS FAILED {1}".format(result, details))
@@ -321,9 +367,10 @@ def run(opts, image):
 
 
 def main():
+    jobs = int(os.environ.get("TEST_JOBS", 1))
     parser = testlib.arg_parser(enable_sit=False)
     parser.add_argument('-j', '--jobs', type=int,
-                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+                        default=jobs, help="Number of concurrent jobs")
     parser.add_argument('--thorough', action='store_true',
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-n', '--nondestructive', action='store_true',
@@ -336,6 +383,8 @@ def main():
                         help="Directory in which to glob check-* files")
     parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
                         help="Exclude test (exact match only); can be specified multiple times")
+    parser.add_argument('-b', '--batches', type=int,
+                        default=max(jobs // 2, 1), help="Number of concurrent batches of nondestructive tests")
     opts = parser.parse_args()
 
     if opts.machine:

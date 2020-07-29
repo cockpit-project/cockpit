@@ -66,7 +66,8 @@ import {
     getIfaceXML,
     getNetworkXML,
     getPoolXML,
-    getVolumeXML
+    getVolumeXML,
+    getSnapshotXML
 } from './xmlCreator.js';
 
 import {
@@ -1467,6 +1468,12 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
                 return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, { timeout, type: 'ssv' });
             })
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
+}
+
+export function createSnapshot({ connectionName, vmId, name, description }) {
+    const xmlDesc = getSnapshotXML(name, description);
+
+    return call(connectionName, vmId, 'org.libvirt.Domain', 'SnapshotCreateXML', [xmlDesc, 0], { timeout, type: 'su' });
 }
 
 export function detachIface(mac, connectionName, id, live, persistent, dispatch) {

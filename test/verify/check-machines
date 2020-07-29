@@ -4724,5 +4724,128 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#vm-subVmTest1-network-3-mac")
         b.wait_not_present(".modal-dialog")
 
+    def testSnapshotCreate(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        snapshots_present = m.execute("gdbus introspect --xml --system --dest org.libvirt --object-path /org/libvirt/QEMU | grep snapshot || true")
+        if not snapshots_present.strip(): # libvirt-dbus doesn't have snapshot APIs
+            return
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        self.toggleVmRow("subVmTest1")
+        b.click("#vm-subVmTest1-snapshots") # open the Network Interfaces subtab
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        class SnapshotCreateDialog(object):
+            def __init__(
+                self, test_obj, name=None, description=None, state="shutoff", snap_num=0, remove=True
+            ):
+                self.test_obj = test_obj
+                self.name = name
+                self.description = description
+                self.state = state
+                self.snap_num = snap_num
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                self.verify_frontend()
+                self.verify_backend()
+                if self.remove:
+                    self.cleanup()
+
+            def open(self):
+                b.click("#vm-subVmTest1-add-snapshot-button") # open the Network Interfaces subtab
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Snapshot")
+
+            def fill(self):
+                if self.name:
+                    b.set_input_text("#name", self.name)
+                if self.description:
+                    b.set_input_text("#description", self.description)
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Create)")
+                b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
+
+            def verify_frontend(self):
+                if self.name:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-name".format(self.snap_num), self.name)
+                else:
+                    self.name = b.text("#vm-subVmTest1-snapshot-{0}-name".format(self.snap_num))
+                if self.description:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-description".format(self.snap_num), self.description)
+                else:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-description".format(self.snap_num), "No description")
+                if self.state:
+                    if self.state == "shutoff":
+                        state = "shut off"
+                    else:
+                        state = self.state
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-type".format(self.snap_num), state)
+
+            def verify_backend(self):
+                # Verify libvirt XML
+                print(self.name)
+                snap_xml = "virsh -c qemu:///system snapshot-dumpxml --domain {0} --snapshotname {1}".format("subVmTest1", self.name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//domainsnapshot/{{prop}})' - 2>&1 || true".format(snap_xml)
+
+                if (self.name):
+                    self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                if (self.description):
+                    self.test_obj.assertEqual(self.description, m.execute(xmllint_element.format(prop='description')).strip())
+                if (self.state):
+                    self.test_obj.assertEqual(self.state, m.execute(xmllint_element.format(prop='state')).strip())
+
+            def cleanup(self):
+                m.execute("virsh -c qemu:///system snapshot-delete --domain {0} --snapshotname {1}".format("subVmTest1", self.name))
+                b.reload()
+                b.enter_page('/machines')
+                b.wait_in_text("body", "Virtual Machines")
+                self.test_obj.toggleVmRow("subVmTest1")
+                b.click("#vm-subVmTest1-snapshots")
+
+        # No Snapshots present
+        b.wait_present("#vm-subVmTest1-add-snapshot-button")
+
+        # Test snapshot creation with pre-generated values
+        SnapshotCreateDialog(
+            self,
+        ).execute()
+
+        # Test snapshot creation with predefined values
+        SnapshotCreateDialog(
+            self,
+            name = "test_snap_1",
+            description = "Description of test_snap_1",
+            state = "shutoff",
+        ).execute()
+
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # Test snapshot creation on running VM
+        SnapshotCreateDialog(
+            self,
+            name = "test_snap_2",
+            description = "Description of test_snap_2",
+            state = "running",
+        ).execute()
+
 if __name__ == '__main__':
     test_main()

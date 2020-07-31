@@ -1387,15 +1387,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                       os_name=config.FEDORA_28,
                                                       start_vm=False))
 
-        virtInstallVersion = self.machine.execute("virt-install --version")
-        if virtInstallVersion >= "2":
-            # Test OS autodetection from URL tree media
-            runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
-                                                          location=config.TREE_URL,
-                                                          memory_size=256, memory_size_unit='MiB',
-                                                          storage_pool="No Storage",
-                                                          os_name=config.FEDORA_28,
-                                                          start_vm=False))
+        # Test OS autodetection from URL tree media
+        runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
+                                                      location=config.TREE_URL,
+                                                      memory_size=256, memory_size_unit='MiB',
+                                                      storage_pool="No Storage",
+                                                      os_name=config.FEDORA_28,
+                                                      start_vm=False))
 
         # check if older os are filtered
         runner.checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
@@ -1806,25 +1804,23 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 storage_size=100, storage_size_unit='MiB',
                                                 start_vm=False))
 
-        virtInstallVersion = self.machine.execute("virt-install --version")
-        if virtInstallVersion >= "2":
-            # Test detection of ISO file in URL
-            runner.createTest(TestMachines.VmDialog(self, sourceType='url',
-                                                    location=config.ISO_URL,
-                                                    memory_size=256, memory_size_unit='MiB',
-                                                    storage_pool="No Storage",
-                                                    start_vm=True))
+        # Test detection of ISO file in URL
+        runner.createTest(TestMachines.VmDialog(self, sourceType='url',
+                                                location=config.ISO_URL,
+                                                memory_size=256, memory_size_unit='MiB',
+                                                storage_pool="No Storage",
+                                                start_vm=True))
 
-            # This functionality works on debian only because of extra dep.
-            # Check error is returned if dependency is missing
-            if self.machine.image.startswith("debian"):
-                # remove package
-                self.machine.execute("dpkg -P qemu-block-extra")
-                runner.checkDialogErrorTest(TestMachines.VmDialog(self, sourceType='url',
-                                                                  location=config.ISO_URL,
-                                                                  memory_size=256, memory_size_unit='MiB',
-                                                                  storage_pool="No Storage",
-                                                                  start_vm=True), ["qemu", "protocol"])
+        # This functionality works on debian only because of extra dep.
+        # Check error is returned if dependency is missing
+        if self.machine.image.startswith("debian"):
+            # remove package
+            self.machine.execute("dpkg -P qemu-block-extra")
+            runner.checkDialogErrorTest(TestMachines.VmDialog(self, sourceType='url',
+                                                              location=config.ISO_URL,
+                                                              memory_size=256, memory_size_unit='MiB',
+                                                              storage_pool="No Storage",
+                                                              start_vm=True), ["qemu", "protocol"])
 
     def testDisabledCreate(self):
         self.login_and_go("/machines")
@@ -2016,7 +2012,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # For the mocked fedora URL installation wait to see that the OS section is automatically filed
             if self.sourceType == "url" and self.location == TestMachines.TestCreateConfig.TREE_URL:
-                b.wait_attr("label[for=os-select] + div input", "value", TestMachines.TestCreateConfig.FEDORA_28)
+                # libosinfo >= "1.4" is needed for OS autodetection
+                # Otherwise we get this error:  Failed to load .treeinfo file: Operation not supported (15)
+                if self.machine.image not in ["ubuntu-stable", "debian-stable"]:
+                    b.wait_attr("label[for=os-select] + div input", "value", TestMachines.TestCreateConfig.FEDORA_28)
+                else:
+                    b.wait_attr("label[for=os-select] + div input", "value", "")
+                    b.click("label:contains('Operating System') + div button")
+                    b.click("#os-select li:contains('{0}') button".format(self.os_name))
             elif self.os_name:
                 b.click("label:contains('Operating System') + div button")
                 b.click("#os-select li:contains('{0}') button".format(self.os_name))

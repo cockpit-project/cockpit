@@ -1390,6 +1390,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                       os_name=config.FEDORA_28,
                                                       start_vm=False))
 
+        virtInstallVersion = self.machine.execute("virt-install --version")
+        if virtInstallVersion >= "2":
+            # Test OS autodetection from URL tree media
+            runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
+                                                          location=config.TREE_URL,
+                                                          memory_size=256, memory_size_unit='MiB',
+                                                          storage_pool="No Storage",
+                                                          os_name=config.FEDORA_28,
+                                                          start_vm=False))
+
         # check if older os are filtered
         runner.checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
@@ -1841,6 +1851,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
+        TREE_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os'
 
         MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 
@@ -2006,7 +2017,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
 
-            if self.os_name:
+            # For the mocked fedora URL installation wait to see that the OS section is automatically filed
+            if self.sourceType == "url" and self.location == TestMachines.TestCreateConfig.TREE_URL:
+                b.wait_attr("label[for=os-select] + div input", "value", TestMachines.TestCreateConfig.FEDORA_28)
+            elif self.os_name:
                 b.click("label:contains('Operating System') + div button")
                 b.click("#os-select li:contains('{0}') button".format(self.os_name))
 

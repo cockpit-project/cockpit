@@ -376,7 +376,7 @@ class OSRow extends React.Component {
                         key={this.state.typeAheadKey}
                         id='os-select'
                         isDisabled={isLoading}
-                        selections={os}
+                        selections={os ? this.createValue(os) : null}
                         typeAheadAriaLabel={_("Choose an operating system")}
                         placeholderText={_("Choose an operating system")}
                         onSelect={(event, value) => {

@@ -341,6 +341,18 @@ class TestConnection(MachineCase):
         m.message(output)
         self.assertIn("DONE", output)
 
+        # has proper keyUsage and SAN (both with sscg and with self-signed)
+        output = m.execute("openssl s_client -showcerts -connect 172.27.0.15:9090 |"
+                           "openssl x509 -in - -noout -ext keyUsage,extendedKeyUsage,subjectAltName")
+        # keyUsage
+        self.assertIn("Digital Signature", output)
+        self.assertIn("Key Encipherment", output)
+        # extendedKeyUsage
+        self.assertIn("TLS Web Server Authentication", output)
+        # SAN
+        self.assertIn("IP Address:127.0.0.1", output)
+        self.assertIn("DNS:localhost", output)
+
         # SSLv3 should not work
         output = m.execute('openssl s_client -connect 172.27.0.15:9090 -ssl3 2>&1 || true')
         self.assertNotIn("DONE", output)

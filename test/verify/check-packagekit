@@ -1106,7 +1106,8 @@ class TestAutoUpdates(NoSubManCase):
         out = m.execute(
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
         self.assertIn("vanilla", out)
-        self.assertIn("Shutdown scheduled", out)
+        # systemd 245.7 correctly says "reboot", older version say "shutdown"
+        self.assertRegex(out, "(Shutdown|Reboot) scheduled")
 
         # run it again, now there are no available updates → no reboot
         m.execute("systemctl start dnf-automatic-install.service")

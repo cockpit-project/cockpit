@@ -192,7 +192,7 @@ rm -rf ~/rpmbuild
         if install:
             cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
-        self.addCleanup(self.machine.execute, "rpm -e %s 2>/dev/null || true" % name)
+        self.addCleanup(self.machine.execute, "rpm -e --nodeps %s 2>/dev/null || true" % name)
 
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog

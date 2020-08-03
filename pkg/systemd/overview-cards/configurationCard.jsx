@@ -35,7 +35,6 @@ import { superuser } from "superuser";
 /* These add themselves to jQuery so just including is enough */
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
-import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
 import "./configurationCard.scss";
 

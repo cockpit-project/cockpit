@@ -134,6 +134,19 @@
         font-size: var(--pf-global--FontSize--sm);
         font-weight: var(--pf-global--FontWeight--semi-bold);
     }
+
+    // Adjust the padding for nested ct-tables in ct-tables
+    .ct-table {
+        td {
+            &:first-child {
+                --pf-c-table--nested--first-last-child--PaddingLeft: var(--pf-global--spacer--lg);
+            }
+
+            &:last-child {
+                --pf-c-table--nested--first-last-child--PaddingRight: var(--pf-global--spacer--lg);
+            }
+        }
+    }
 }
 
 // Special handling for rows with errors

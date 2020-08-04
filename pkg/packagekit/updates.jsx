@@ -25,14 +25,21 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import {
-    Button, Gallery, Progress, Tooltip,
+    Alert, Button, Gallery, Modal, Progress, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
     Page, PageSection, PageSectionVariants,
-    Text, TextVariants,
+    Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
-import { RebootingIcon, CheckIcon, ExclamationCircleIcon, RedoIcon } from "@patternfly/react-icons";
+import {
+    CheckIcon,
+    ExclamationCircleIcon,
+    ExclamationTriangleIcon,
+    RebootingIcon,
+    RedoIcon,
+    ProcessAutomationIcon
+} from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdates, AutoUpdatesBody } from "./autoupdates.jsx";
@@ -40,9 +47,14 @@ import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
+
+import * as python from "python.js";
+import callTracerScript from 'raw-loader!./callTracer.py';
 
 import "listing.scss";
 
@@ -61,7 +73,6 @@ function init() {
         refreshing: _("Refreshing package information"),
         uptodate: _("System is up to date"),
         applying: _("Applying updates"),
-        updateSuccess: null,
         updateError: _("Applying updates failed"),
         loadError: _("Loading available updates failed"),
     };
@@ -123,6 +134,18 @@ function cleanupChangelogLine(text) {
     text = text.replace(/^=+\s+/, "").replace(/=+\s*$/, "");
 
     return text.trim();
+}
+
+// Replace cockpit-wsinstance-https@[long_id] with a shorter string
+function shortenCockpitWsInstance(list) {
+    list = [...list];
+
+    list.forEach((item, idx) => {
+        if (item.startsWith("cockpit-wsinstance-https"))
+            list[idx] = "cockpit-wsinstance-https@.";
+    });
+
+    return list;
 }
 
 const Expander = ({ title, onExpand, children }) => {
@@ -352,6 +375,100 @@ const UpdatesList = ({ updates }) => {
     );
 };
 
+class RestartServices extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dialogError: undefined,
+            restartInProgress: false,
+        };
+
+        this.dialogErrorSet = this.dialogErrorSet.bind(this);
+        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
+        this.restart = this.restart.bind(this);
+    }
+
+    dialogErrorSet(text, detail) {
+        this.setState({ dialogError: text, dialogErrorDetail: detail });
+    }
+
+    dialogErrorDismiss() {
+        this.setState({ dialogError: undefined });
+    }
+
+    restart() {
+        // make sure cockpit package is the last to restart
+        const daemons = this.props.tracerPackages.daemons.sort((a, b) => {
+            if (a.includes("cockpit") && b.includes("cockpit"))
+                return 0;
+            if (a.includes("cockpit"))
+                return 1;
+            return a.localeCompare(b);
+        });
+        const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service + ".service"], { superuser: "required", err: "message" }));
+        this.setState({ restartInProgress: true });
+        Promise.all(restarts)
+                .then(() => {
+                    this.props.onValueChanged({ tracerPackages: { reboot: this.props.tracerPackages.reboot, daemons: [], manual: this.props.tracerPackages.manual } });
+                    if (this.props.state === "updateSuccess")
+                        this.props.loadUpdates();
+                    this.setState({ restartInProgress: false });
+                    this.props.close();
+                })
+                .catch(ex => {
+                    this.dialogErrorSet(_("Failed to restart service"), ex.message);
+                    // call Tracer again to see what services remain
+                    this.props.callTracer(null);
+                });
+    }
+
+    render() {
+        let body;
+        if (this.props.tracerRunning) {
+            body = (<>
+                <div className="spinner spinner-xs spinner-inline" />
+                <p>{_("Reloading the state of remaining services")}</p>
+            </>);
+        } else if (this.props.tracerPackages.daemons.length > 0) {
+            body = (<>
+                {cockpit.ngettext("The following service will be restarted:", "The following services will be restarted:", this.props.tracerPackages.daemons.length)}
+                <TwoColumnContent list={this.props.tracerPackages.daemons} flexClassName="restart-services-modal-body" />
+            </>);
+        }
+
+        return (
+            <Modal id="restart-services-modal" isOpen
+                   position="top"
+                   variant="medium"
+                   onClose={this.props.close}
+                   title={_("Restart services")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           {this.props.tracerPackages.daemons.includes("cockpit") &&
+                               <Alert variant="warning"
+                                   title={_("Web Console will restart")}
+                                   isInline>
+                                   <p>
+                                       _("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")
+                                   </p>
+                               </Alert>}
+                           <Button variant='primary'
+                               isDisabled={ this.state.restartInProgress }
+                               onClick={ this.restart }>
+                               {_("Restart services")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {body}
+            </Modal>
+        );
+    }
+}
+
 class ApplyUpdates extends React.Component {
     constructor() {
         super();
@@ -451,57 +568,222 @@ class ApplyUpdates extends React.Component {
     }
 }
 
-const AskRestart = ({ onIgnore, onRestart, history }) => <>
-    <EmptyStatePanel icon={RebootingIcon}
-                     title={ _("Restart recommended") }
-                     paragraph={ _("Updated packages may require a restart to take effect.") }
-                     action={ _("Restart now") }
-                     onAction={ onRestart}
-                     secondary={ <Button variant="link" onClick={onIgnore}>{_("Ignore")}</Button> } />
+const TwoColumnContent = ({ list, flexClassName }) => {
+    const half = Math.round(list.length / 2);
+    const col1 = list.slice(0, half);
+    const col2 = list.slice(half);
+    return (
+        <Flex className={flexClassName}>
+            <FlexItem flex={{ default: 'flex_1' }}>
+                <TextContent>
+                    <TextList>
+                        {col1.map(item => (<TextListItem key={item}>{item}</TextListItem>))}
+                    </TextList>
+                </TextContent>
+            </FlexItem>
+            {col2.length > 0 && <FlexItem flex={{ default: 'flex_1' }}>
+                <TextContent>
+                    <TextList>
+                        {col2.map(item => (<TextListItem key={item}>{item}</TextListItem>))}
+                    </TextList>
+                </TextContent>
+            </FlexItem>}
+        </Flex>
+    );
+};
 
-    <div className="flow-list-blank-slate">
-        <Expander title={_("Package information")}>
-            <PackageList packages={history[0]} />
-        </Expander>
-    </div>
-</>;
+const TwoColumnTitle = ({ icon, str }) => {
+    return (<>
+        {icon}
+        <span className="update-success-table-title">
+            {str}
+        </span>
+    </>);
+};
 
-const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
+const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, tracerAvailable, history }) => {
+    if (!tracerAvailable) {
+        return (<>
+            <EmptyStatePanel icon={RebootingIcon}
+                             title={ _("Update was successful") }
+                             paragraph={ _("Updated packages may require a reboot to take effect.") }
+                             secondary={
+                                 <>
+                                     <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button>
+                                     <Button id="ignore" variant="link" onClick={onIgnore}>{_("Ignore")}</Button>
+                                 </>
+                             } />
+            <div className="flow-list-blank-slate">
+                <Expander title={_("Package information")}>
+                    <PackageList packages={history[0]} />
+                </Expander>
+            </div>
+        </>);
+    }
+
+    const entries = [];
+    if (reboot.length > 0) {
+        entries.push({
+            columns: [
+                {
+                    title: <TwoColumnTitle icon={<RebootingIcon />}
+                                           str={cockpit.format(cockpit.ngettext("$0 package needs a system reboot",
+                                                                                "$0 packages need a system reboot",
+                                                                                reboot.length),
+                                                               reboot.length)} />
+                },
+            ],
+            props: { key: "reboot", id: "reboot-row" },
+            hasPadding: true,
+            expandedContent: <TwoColumnContent list={reboot} />,
+        });
+    }
+
+    if (restart.length > 0) {
+        entries.push({
+            columns: [
+                {
+                    title: <TwoColumnTitle icon={<ProcessAutomationIcon />}
+                                           str={cockpit.format(cockpit.ngettext("$0 service needs to be restarted",
+                                                                                "$0 services need to be restarted",
+                                                                                restart.length),
+                                                               restart.length)} />
+                },
+            ],
+            props: { key: "service", id: "service-row" },
+            hasPadding: true,
+            expandedContent: <TwoColumnContent list={restart} />,
+        });
+    }
+
+    if (manual.length > 0) {
+        entries.push({
+            columns: [
+                {
+                    title: <TwoColumnTitle icon={<ProcessAutomationIcon />}
+                                           str={_("Some software needs to be restarted manually")} />
+                }
+            ],
+            props: { key: "manual", id: "manual-row" },
+            hasPadding: true,
+            expandedContent: <TwoColumnContent list={manual} />,
+        });
+    }
+
+    return (<>
+        <EmptyStatePanel title={ _("Update was successful") }
+            secondary={
+                <>
+                    { entries.length > 0 && <ListingTable aria-label={_("Update Success Table")}
+                        columns={[{ title: _("Info") }]}
+                        showHeader={false}
+                        className="updates-success-table"
+                        rows={entries} /> }
+                    <div className="update-success-actions">
+                        { (reboot.length > 0 || manual.length > 0) && <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button> }
+                        { restart.length > 0 && <Button id="choose-service" variant={reboot.length > 0 ? "secondary" : "primary"} onClick={openServiceRestartDialog}>{_("Restart services...")}</Button> }
+                        { reboot.length > 0 || restart.length > 0 || manual.length > 0
+                            ? <Button id="ignore" variant="link" onClick={onIgnore}>{_("Ignore")}</Button>
+                            : <Button id="ignore" variant="primary" onClick={onIgnore}>{_("Continue")}</Button> }
+                    </div>
+                </>
+            } />
+        <div className="flow-list-blank-slate">
+            <Expander title={_("Package information")}>
+                <PackageList packages={history[0]} />
+            </Expander>
+        </div>
+    </>);
+};
+
+const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
     const numUpdates = Object.keys(updates).length;
     const numSecurity = count_security_updates(updates);
-    let stateStr;
-
-    if (numUpdates == 0)
-        stateStr = STATE_HEADINGS.uptodate;
-    else if (numUpdates == numSecurity)
-        stateStr = cockpit.ngettext("$1 security fix available", "$1 security fixes available", numSecurity);
-    else {
-        stateStr = cockpit.ngettext("$0 update available", "$0 updates available", numUpdates);
-        if (numSecurity > 0)
-            stateStr += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", numSecurity);
-    }
-    stateStr = cockpit.format(stateStr, numUpdates, numSecurity);
-
-    if (!stateStr)
-        return null;
-
+    const numRestartServices = tracerPackages.daemons.length;
+    const numManualSoftware = tracerPackages.manual.length;
+    const numRebootPackages = tracerPackages.reboot.length;
     let lastChecked;
     if (timeSinceRefresh !== null)
         lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - timeSinceRefresh * 1000).fromNow());
 
-    const icon = highestSeverity ? <span className={PK.getSeverityIcon(highestSeverity)} /> : <CheckIcon color="green" />;
+    const notifications = [];
+    if (numUpdates > 0) {
+        if (numUpdates == numSecurity) {
+            const stateStr = cockpit.ngettext("$0 security fix available", "$0 security fixes available", numSecurity);
+            notifications.push({
+                id: "security-updates-available",
+                stateStr: cockpit.format(stateStr, numSecurity),
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+            });
+        } else {
+            let stateStr = cockpit.ngettext("$0 update available", "$0 updates available", numUpdates);
+            if (numSecurity > 0)
+                stateStr += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", numSecurity);
+            notifications.push({
+                id: "updates-available",
+                stateStr: cockpit.format(stateStr, numUpdates, numSecurity),
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+            });
+        }
+    } else if (!numRestartServices && !numRebootPackages && !numManualSoftware) {
+        notifications.push({
+            id: "system-up-to-date",
+            stateStr: STATE_HEADINGS.uptodate,
+            icon: <CheckIcon color="green" size="md" />,
+            secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+        });
+    }
 
-    return (<Flex>
-        <Flex>
-            <FlexItem>{icon}</FlexItem>
-        </Flex>
-        <Flex flex={{ default: 'flex_1' }}>
-            <FlexItem>
-                <Text id="state" component={TextVariants.p}>{stateStr}</Text>
-                <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
-            </FlexItem>
-        </Flex>
-    </Flex>);
+    if (numRebootPackages > 0) {
+        const stateStr = cockpit.ngettext("$0 package needs a system reboot", "$0 packages need a system reboot", numRebootPackages);
+        notifications.push({
+            id: "packages-need-reboot",
+            stateStr: cockpit.format(stateStr, numRebootPackages),
+            icon: <RebootingIcon id="icon" size="md" />,
+            secondary: <Button variant="danger" onClick={() => onValueChanged("showRebootSystemDialog", true)} isInline>
+                {_("Reboot system...")}
+            </Button>
+        });
+    }
+
+    if (numRestartServices > 0) {
+        const stateStr = cockpit.ngettext("$0 service needs to be restarted", "$0 services need to be restarted", numRestartServices);
+        notifications.push({
+            id: "services-need-restart",
+            stateStr: cockpit.format(stateStr, numRestartServices),
+            icon: <ProcessAutomationIcon id="icon" size="md" />,
+            secondary: <Button variant="primary" onClick={() => onValueChanged("showRestartServicesDialog", true)} isInline>
+                {_("Restart services...")}
+            </Button>
+        });
+    }
+
+    if (numManualSoftware > 0) {
+        notifications.push({
+            id: "processes-need-restart",
+            stateStr: _("Some software needs to be restarted manually"),
+            icon: <ProcessAutomationIcon id="icon" size="md" />,
+            secondary: <Text id="last-checked" component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
+        });
+    }
+
+    return (<>
+        { notifications.map(notification => (
+            <Flex direction={{ default: 'column', lg: 'row' }} key={notification.id} id={notification.id} className="status-notification">
+                <FlexItem>{notification.icon}</FlexItem>
+                <Flex flex={{ default: 'flex_1' }} direction={{ default: 'column' }}>
+                    <FlexItem>
+                        <Text id="state" component={TextVariants.p}>{notification.stateStr}</Text>
+                    </FlexItem>
+                    <FlexItem>
+                        { notification.secondary }
+                    </FlexItem>
+                </Flex>
+            </Flex>
+        ))}
+    </>);
 };
 
 class CardsPage extends React.Component {
@@ -525,6 +807,8 @@ class CardsPage extends React.Component {
                     <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
                 </Tooltip>),
                 body: <StatusCard updates={this.props.updates}
+                                  onValueChanged={this.props.onValueChanged}
+                                  tracerPackages={this.props.tracerPackages}
                                   highestSeverity={this.props.highestSeverity}
                                   timeSinceRefresh={this.props.timeSinceRefresh} />
             },
@@ -545,6 +829,22 @@ class CardsPage extends React.Component {
                 id: "available-updates",
                 title: _("Available updates"),
                 actions: (<div className="pk-updates--header--actions">
+                    {this.props.cockpitUpdate &&
+                        <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
+                            <FlexItem>
+                                <ExclamationTriangleIcon size="ms" color="#f0ab00" className="cockpit-update-warning-icon" />
+                                <strong className="cockpit-update-warning-text">
+                                    <span className="pf-screen-reader">{_("Danger alert:")}</span>
+                                    {_("Web Console will restart")}
+                                </strong>
+                            </FlexItem>
+                            <FlexItem>
+                                <Popover aria-label="More information popover"
+                                         bodyContent={_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}>
+                                    <a href="#">{_("More info...")}</a>
+                                </Popover>
+                            </FlexItem>
+                        </Flex>}
                     {this.props.applySecurity}
                     {this.props.applyAll}
                 </div>),
@@ -592,11 +892,17 @@ class OsUpdates extends React.Component {
             history: [],
             unregistered: false,
             privileged: false,
+            autoUpdatesEnabled: undefined,
+            tracerPackages: { daemons: [], manual: [], reboot: [] },
+            tracerAvailable: false,
+            tracerRunning: false,
+            showRestartServicesDialog: false,
+            showRebootSystemDialog: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
-        this.handleRestart = this.handleRestart.bind(this);
         this.loadUpdates = this.loadUpdates.bind(this);
+        this.onValueChanged = this.onValueChanged.bind(this);
 
         superuser.addEventListener("changed", () => {
             this.setState({ privileged: superuser.allowed });
@@ -606,7 +912,13 @@ class OsUpdates extends React.Component {
         });
     }
 
+    onValueChanged(key, value) {
+        this.setState({ [key]: value });
+    }
+
     componentDidMount() {
+        this.callTracer(null);
+
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
                 .done(result => {
@@ -634,6 +946,31 @@ class OsUpdates extends React.Component {
                             });
                 })
                 .fail(this.handleLoadError);
+    }
+
+    callTracer(state) {
+        this.setState({ tracerRunning: true });
+        python.spawn(callTracerScript, null, { err: "message", superuser: "require" })
+                .then(output => {
+                    const tracerPackages = JSON.parse(output);
+                    // Filter out duplicates
+                    tracerPackages.reboot = [...new Set(shortenCockpitWsInstance(tracerPackages.reboot))];
+                    tracerPackages.daemons = [...new Set(shortenCockpitWsInstance(tracerPackages.daemons))];
+                    tracerPackages.manual = [...new Set(shortenCockpitWsInstance(tracerPackages.manual))];
+                    const nextState = { tracerAvailable: true, tracerRunning: false, tracerPackages: tracerPackages };
+                    if (state)
+                        nextState.state = state;
+
+                    this.setState(nextState);
+                })
+                .catch((exception, data) => {
+                    console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                    // When tracer fails, act like it's not available (demand reboot after every update)
+                    const nextState = { tracerAvailable: false, tracerRunning: false, tracerPackages: { reboot: [], daemons: [], manual: [] } };
+                    if (state)
+                        nextState.state = state;
+                    this.setState(nextState);
+                });
     }
 
     handleLoadError(ex) {
@@ -710,10 +1047,10 @@ class OsUpdates extends React.Component {
                     // get the details for all packages
                     const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
-                        this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
+                        this.setState({ updates, cockpitUpdate: cockpitUpdate });
                         this.loadUpdateDetails(pkg_ids);
                     } else {
-                        this.setState({ state: "uptodate" });
+                        this.setState({ updates: {}, state: "uptodate" });
                     }
                     this.loadHistory();
                 })
@@ -799,10 +1136,18 @@ class OsUpdates extends React.Component {
                                            this.setState({ applyTransaction: null, allowCancel: null });
 
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
-                                               this.setState({ state: "updateSuccess", loadPercent: null });
+                                               if (this.state.tracerAvailable) {
+                                                   this.setState({ state: "loading", loadPercent: null });
+                                                   this.callTracer("updateSuccess");
+                                               } else {
+                                                   this.setState({ state: "updateSuccess", loadPercent: null });
+                                               }
                                                this.loadHistory();
                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
-                                               this.setState({ state: "loading", loadPercent: null });
+                                               if (this.state.tracerAvailable) {
+                                                   this.setState({ state: "loading", loadPercent: null });
+                                                   this.callTracer(null);
+                                               }
                                                this.loadUpdates();
                                            } else {
                                                // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
@@ -891,7 +1236,8 @@ class OsUpdates extends React.Component {
             if (this.state.loadPercent)
                 return <Progress value={this.state.loadPercent} title={STATE_HEADINGS[this.state.state]} />;
             else
-                return <EmptyStatePanel paragraph={STATE_HEADINGS[this.state.state]} loading />;
+                return <EmptyStatePanel loading title={ _("Checking software status")}
+                                        paragraph={STATE_HEADINGS[this.state.state]} />;
 
         case "available":
         {
@@ -938,9 +1284,21 @@ class OsUpdates extends React.Component {
                                        applySecurity={applySecurity}
                                        applyAll={applyAll}
                                        highestSeverity={highest_severity}
+                                       onValueChanged={this.onValueChanged}
                                        {...this.state} />
                         </Gallery>
                     </PageSection>
+                    { this.state.showRestartServicesDialog &&
+                        <RestartServices tracerPackages={this.state.tracerPackages}
+                            close={() => this.setState({ showRestartServicesDialog: false })}
+                            state={this.state.state}
+                            callTracer={(state) => this.callTracer(state)}
+                            onValueChanged={delta => this.setState(delta)}
+                            loadUpdates={this.loadUpdates} />
+                    }
+                    { this.state.showRebootSystemDialog &&
+                        <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
+                    }
                 </>
             );
         }
@@ -962,13 +1320,53 @@ class OsUpdates extends React.Component {
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
                                  allowCancel={this.state.allowCancel} />;
 
-        case "updateSuccess":
-            page_status.set_own({
-                type: "warning",
-                title: _("Restart recommended")
-            });
+        case "updateSuccess": {
+            let warningTitle;
+            if (!this.state.tracerAvailable) {
+                warningTitle = _("Reboot recommended");
+            } else {
+                if (this.state.tracerPackages.reboot.length > 0)
+                    warningTitle = cockpit.ngettext("A package needs a system reboot for the updates to take effect:",
+                                                    "Some packages need a system reboot for the updates to take effect:",
+                                                    this.state.tracerPackages.reboot.length);
+                else if (this.state.tracerPackages.daemons.length > 0)
+                    warningTitle = cockpit.ngettext("A service needs to be restarted for the updates to take effect:",
+                                                    "Some services need to be restarted for the updates to take effect:",
+                                                    this.state.tracerPackages.daemons.length);
+                else if (this.state.tracerPackages.manual.length > 0)
+                    warningTitle = _("Some software needs to be restarted manually");
+            }
 
-            return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
+            if (warningTitle) {
+                page_status.set_own({
+                    type: "warning",
+                    title: warningTitle
+                });
+            }
+
+            return (
+                <>
+                    <UpdateSuccess onIgnore={this.loadUpdates}
+                        openServiceRestartDialog={() => this.setState({ showRestartServicesDialog: true })}
+                        openRebootDialog={() => this.setState({ showRebootSystemDialog: true })}
+                        restart={this.state.tracerPackages.daemons}
+                        manual={this.state.tracerPackages.manual}
+                        reboot={this.state.tracerPackages.reboot}
+                        tracerAvailable={this.state.tracerAvailable}
+                        history={this.state.history} />
+                    { this.state.showRebootSystemDialog &&
+                        <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
+                    }
+                    { this.state.showRestartServicesDialog &&
+                        <RestartServices tracerPackages={this.state.tracerPackages}
+                            close={() => this.setState({ showRestartServicesDialog: false })}
+                            state={this.state.state}
+                            callTracer={(state) => this.callTracer(state)}
+                            onValueChanged={delta => this.setState(delta)}
+                            loadUpdates={this.loadUpdates} />
+                    }
+                </>);
+        }
 
         case "restart":
             page_status.set_own(null);
@@ -989,8 +1387,19 @@ class OsUpdates extends React.Component {
                 <>
                     <PageSection>
                         <Gallery className='ct-cards-grid' hasGutter>
-                            <CardsPage handleRefresh={this.handleRefresh} {...this.state} />
+                            <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                         </Gallery>
+                        { this.state.showRestartServicesDialog &&
+                            <RestartServices tracerPackages={this.state.tracerPackages}
+                                close={() => this.setState({ showRestartServicesDialog: false })}
+                                state={this.state.state}
+                                callTracer={(state) => this.callTracer(state)}
+                                onValueChanged={delta => this.setState(delta)}
+                                loadUpdates={this.loadUpdates} />
+                        }
+                        { this.state.showRebootSystemDialog &&
+                            <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
+                        }
                     </PageSection>
                 </>
             );
@@ -1010,18 +1419,6 @@ class OsUpdates extends React.Component {
                     this.loadUpdates();
                 })
                 .catch(this.handleLoadError);
-    }
-
-    handleRestart() {
-        this.setState({ state: "restart" });
-        // give the user a chance to actually read the message
-        window.setTimeout(() => {
-            cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: true, err: "message" })
-                    .fail(ex => {
-                        this.state.errorMessages.push(ex);
-                        this.setState({ state: "updateError" });
-                    });
-        }, 5000);
     }
 
     render() {

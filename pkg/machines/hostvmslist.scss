@@ -2,18 +2,18 @@
 @import "~@patternfly/patternfly/components/Table/table.scss";
 @import "~@patternfly/patternfly/components/Table/table-grid.scss";
 
-// Mimic .pf-c-table__action,
-#virtual-machines-listing > table > tbody tr:first-child td:last-child {
+// Mimic .pf-c-table__action
+#virtual-machines-listing td:last-child {
+    --pf-c-table--cell--Width: 1%;
+}
+
+// Adjust padding, alignment, and location (in mobile mode) for topmost action buttons only
+#virtual-machines-listing > table > tbody > tr:first-child > td:last-child {
     --pf-c-table--cell--PaddingTop: 0;
     --pf-c-table--cell--PaddingRight: var(--pf-c-table__action--PaddingRight);
     --pf-c-table--cell--PaddingBottom: 0;
     --pf-c-table--cell--PaddingLeft: var(--pf-c-table__action--PaddingLeft);
 
-    --pf-c-table--cell--MinWidth: 0;
-    --pf-c-table--cell--Width: 1%;
-
-    padding-top: 0;
-    padding-bottom: 0;
     vertical-align: middle;
 
     @media screen and (max-width: 428px) {
@@ -24,8 +24,4 @@
         grid-column-start: 2;
         text-align: right;
     }
-}
-
-#virtual-machines-listing > table > tbody tr td:last-child {
-    --pf-c-table--cell--PaddingRight: var(--pf-c-table__action--PaddingRight);
 }

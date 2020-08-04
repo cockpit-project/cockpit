@@ -122,6 +122,13 @@
         }
     }
 
+    // Properly align actions on the end
+    > tbody > tr > td:last-child > .btn-group {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
     // Use PF4 style headings
     > thead th {
         font-size: var(--pf-global--FontSize--sm);

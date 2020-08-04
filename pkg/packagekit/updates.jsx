@@ -44,6 +44,7 @@ const _ = cockpit.gettext;
 let STATE_HEADINGS = {};
 let PK_STATUS_STRINGS = {};
 let PK_STATUS_LOG_STRINGS = {};
+let REBOOT_PKGS = [];
 const packageSummaries = {};
 
 function init() {
@@ -73,6 +74,25 @@ function init() {
         [PK.Enum.STATUS_CLEANUP]: _("Set up"),
         [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
     };
+
+    // This list is inspired by https://access.redhat.com/solutions/27943
+    // It's done the same way by yum util needs-restarting
+    REBOOT_PKGS = [
+        "kernel",
+        "kernel-rt",
+        "glibc",
+        "linux-firmware",
+        "systemd",
+        "udev",
+        "openssl-libs",
+        "gnutls",
+        "dbus",
+        "dbus-daemon",
+        "gvfsd-metadata",
+        "at-spi-bus-launcher",
+        "gconfd-2",
+        "cockpit-testing-package", // This package is here only for Cockpit's testing purposes
+    ];
 }
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
@@ -504,9 +524,9 @@ class ApplyUpdates extends React.Component {
 
 const AskRestart = ({ onIgnore, onRestart, history }) => <>
     <EmptyStatePanel icon={RebootingIcon}
-                     title={ _("Restart Recommended") }
-                     paragraph={ _("Updated packages may require a restart to take effect.") }
-                     action={ _("Restart Now") }
+                     title={ _("Reboot Required") }
+                     paragraph={ _("Updated packages requires a system reboot to take effect.") }
+                     action={ _("Reboot Now") }
                      onAction={ onRestart}
                      secondary={ <Button variant="link" onClick={onIgnore}>{_("Ignore")}</Button> } />
 
@@ -531,7 +551,8 @@ class OsUpdates extends React.Component {
             history: [],
             unregistered: false,
             privileged: false,
-            autoUpdatesEnabled: undefined
+            autoUpdatesEnabled: undefined,
+            rebootRequired: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -771,11 +792,20 @@ class OsUpdates extends React.Component {
         if (securityOnly)
             ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
 
+        let rebootRequired = false;
+        ids.forEach(id => {
+            if (REBOOT_PKGS.includes(this.state.updates[id].name))
+                rebootRequired = true;
+        });
+
         PK.transaction()
                 .then(transactionPath => {
                     this.watchUpdates(transactionPath)
                             .then(() => {
                                 PK.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
+                                        .then(() => {
+                                            this.setState({ rebootRequired });
+                                        })
                                         .fail(ex => {
                                             // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                                             // show this if we don't have anything else
@@ -793,6 +823,7 @@ class OsUpdates extends React.Component {
 
     renderContent() {
         var applySecurity, applyAll, unregisteredWarning;
+        const packagesRequiringReboot = [];
 
         if (this.state.unregistered) {
             // always show empty state pattern, even if there are some
@@ -875,6 +906,11 @@ class OsUpdates extends React.Component {
                         icon: PK.getSeverityIcon(highest_severity)
                     }
                 });
+
+                Object.values(this.state.updates).forEach(update => {
+                    if (REBOOT_PKGS.includes(update.name))
+                        packagesRequiringReboot.push(update.name);
+                });
             }
 
             return (
@@ -888,6 +924,17 @@ class OsUpdates extends React.Component {
                             {applyAll}
                         </div>
                     </div>
+                    { packagesRequiringReboot.length > 0
+                        ? <div className="alert alert-warning">
+                            <span className="pficon pficon-warning-triangle-o" />
+                            <span>
+                                <strong>{_("System will need a reboot.")}</strong>
+                                    &nbsp;
+                                {_("The following packages require a system reboot after update: ") + packagesRequiringReboot.join(", ")}
+                            </span>
+                        </div>
+                        : null
+                    }
                     { this.state.cockpitUpdate
                         ? <div className="alert alert-warning">
                             <span className="pficon pficon-warning-triangle-o" />
@@ -924,10 +971,14 @@ class OsUpdates extends React.Component {
             return <ApplyUpdates transaction={this.state.applyTransaction} />;
 
         case "updateSuccess":
-            page_status.set_own({
-                type: "warning",
-                title: _("Restart Recommended")
-            });
+            if (this.state.rebootRequired) {
+                page_status.set_own({
+                    type: "warning",
+                    title: _("Reboot Required")
+                });
+            } else {
+                this.loadUpdates();
+            }
 
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
 

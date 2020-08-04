@@ -70,6 +70,13 @@ class TestUpdates(NoSubManCase):
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
+    def assertHistory(self, path, updates):
+        selector = path + " li:nth-child({0})"
+        for index, pkg in enumerate(updates, start=1):
+            self.browser.wait_in_text(selector.format(index), pkg)
+        # make sure we don't have any extra ones
+        self.assertFalse(self.browser.is_present(selector.format(len(updates) + 1)))
+
     def check_nth_update(self, index, pkgname, version, severity="bug",
                          num_issues=None, desc_matches=[], cves=[], bugs=[], arch=None):
         """Check the contents of the package update table row at index
@@ -212,12 +219,8 @@ class TestUpdates(NoSubManCase):
         # finish the package installation
         m.execute("touch {0}".format(install_lockfile))
 
-        # update should succeed and show restart page; cancel
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        self.assertEqual(b.text("#app .container-fluid button.pf-m-primary"), "Restart Now")
-        b.click("#app .container-fluid button.pf-m-link:contains('Ignore')")
-
         # should go back to updates overview, nothing pending any more
+        b.wait_in_text("#app .container-fluid h1", "System is up to date")
         b.wait_in_text("#state", "No updates pending")
         b.wait_in_text(".content-header-extra--updated", "Last checked:")
 
@@ -238,6 +241,60 @@ class TestUpdates(NoSubManCase):
         self.wait_checking_updates()
         self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
         b.wait_text(self.update_text, "System is up to date")
+
+    def testRequireReboot(self):
+        b = self.browser
+        m = self.machine
+
+        self.createPackage("cockpit-testing-package", "1", "1", install=True)
+        self.createPackage("cockpit-testing-package", "1", "2", changes="very important changes")
+
+        self.enableRepo()
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        # Check update is present
+        b.wait_in_text("#available h2", "Available Updates")
+        self.assertEqual(b.text("#state"), "1 update")
+        b.wait_in_text("table.available", "cockpit-testing-package")
+
+        b.wait_present(".alert-warning span strong")
+        b.wait_in_text(".alert-warning span strong", "System will need a reboot")
+
+        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
+        b.click("#app .container-fluid button")
+
+        b.wait_in_text("#state", "Applying updates")
+        b.wait_present("#app div.progress-bar")
+
+        # reboot page should be present after update
+        b.wait_in_text("#app .container-fluid h1", "Reboot Required")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-primary"), "Reboot Now")
+
+        # check update is in reboot page history panel
+        b.click(".expander-title button")
+        self.assertHistory("ul", ["cockpit-testing-package"])
+
+        # do the reboot; this will disconnect the web UI
+        b.click("#app .container-fluid button.pf-m-primary")
+        b.switch_to_top()
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        # ensure that rebooting actually worked
+        m.wait_reboot()
+        m.start_cockpit()
+        b.reload()
+        b.login_and_go("/updates")
+
+        # check no updates are present
+        b.wait_in_text("#state", "No updates pending")
+        b.wait_present(".container-fluid .pf-c-empty-state")
+
+        # history on "up to date" page should show the recent update (expanded by default)
+        self.assertHistory("table.updates-history tbody.open ul", ["cockpit-testing-package"])
+
+        self.allow_restart_journal_messages()
 
     def testInfoSecurity(self):
         b = self.browser
@@ -347,25 +404,8 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # should have succeeded and show restart page
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-
-        def assertHistory(path, updates):
-            selector = path + " li:nth-child({0})"
-            for index, pkg in enumerate(updates, start=1):
-                b.wait_in_text(selector.format(index), pkg)
-            # make sure we don't have any extra ones
-            self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
-
-        # history on restart page should show the three security updates
-        b.click(".expander-title button")
-        assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
-
-        # ignore restarting
-        b.click("#app .container-fluid button.pf-m-link:contains('Ignore')")
-
         # should have succeeded; 3 non-security updates left
-        b.wait_in_text("#state", "3 updates")
+        b.wait_present("#state:contains(3 updates)")
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
         b.wait_in_text("table.available", "norefs-doc")
         self.assertIn("buggy", b.text("table.available"))
@@ -373,7 +413,7 @@ class TestUpdates(NoSubManCase):
         self.assertNotIn("secparse", b.text("table.available"))
 
         # history should show the security updates
-        assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
+        self.assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
         m.execute("systemctl kill --signal=KILL packagekit.service")
@@ -390,19 +430,14 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # should have succeeded and show restart
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.wait_present("#app .container-fluid button.pf-m-link:Contains('Ignore')")
+        # should have succeeded
+        b.wait_in_text("#app .container-fluid h1", "System is up to date")
 
         # new versions are now installed
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
-        # history on restart page should show the three non-security updates
-        b.click(".expander-title button")
-        assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
-
         # do the reboot; this will disconnect the web UI
-        b.click("#app .container-fluid button.pf-m-primary")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
@@ -418,7 +453,7 @@ class TestUpdates(NoSubManCase):
         b.wait_present(".container-fluid .pf-c-empty-state")
 
         # history on "up to date" page should show the recent update (expanded by default)
-        assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
+        self.assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
         # and the previous one, not expaned
         b.wait_present("table.updates-history tbody:not(.open)")
 
@@ -636,12 +671,10 @@ class TestUpdates(NoSubManCase):
         # applying updates works now
         b.click("#app .container-fluid button")
 
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        self.assertEqual(b.text("#app .container-fluid button.pf-m-primary"), "Restart Now")
-        b.click("#app .container-fluid button.pf-m-link:contains('Ignore')")
-
         # should go back to updates overview, nothing pending any more
-        b.wait_in_text("#state", "No updates pending")
+        b.wait_present("#state:contains(No updates pending)")
+
+        b.wait_in_text("#app .container-fluid h1", "System is up to date")
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 class TestWsUpdate(NoSubManCase):
@@ -680,10 +713,8 @@ class TestWsUpdate(NoSubManCase):
         # finish the package installation
         m.execute("touch {0}".format(install_lockfile))
 
-        # should have succeeded and show restart page; cancel
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.click("#app .container-fluid button.pf-m-link:contains('Ignore')")
-        b.wait_in_text("#state", "No updates pending")
+        # should have succeeded
+        b.wait_in_text("#app .container-fluid h1", "System is up to date")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
         self.createPackage("cockpit-ws", "999", "1")
@@ -1143,8 +1174,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         # apply updates
         b.click("#app .container-fluid button.pk-update--all")
 
-        # empty state visible in main area
-        b.click('.container-fluid .pf-c-empty-state button.pf-m-link')
+        b.wait_in_text("#app .container-fluid h1", "System is up to date")
         self.assertFalse(b.is_present("#available"))
         if self.backend == 'dnf':
             b.is_present('#automatic')

@@ -455,6 +455,8 @@ function Loader(machines, session_only) {
         } else if (problem) {
             values.manifests = null;
             values.checksum = null;
+            if (problem == "authentication-failed" || problem == "authentication-not-supported")
+                values.restarting = false;
         }
         machines.overlay(host, values);
     }

@@ -416,10 +416,15 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_superuser(machine, state, compiled) {
-        ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
-                        document.getElementById('super-user-indicator'));
-        ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
-                        document.getElementById('super-user-indicator-mobile'));
+        if (machine.state == "connected") {
+            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+                            document.getElementById('super-user-indicator'));
+            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+                            document.getElementById('super-user-indicator-mobile'));
+        } else {
+            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));
+            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator-mobile'));
+        }
     }
 
     function update_title(label, machine) {

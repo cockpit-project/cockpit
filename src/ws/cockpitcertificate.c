@@ -149,7 +149,10 @@ openssl_make_dummy_cert (const gchar *key_file,
               "distinguished_name = req_distinguished_name\n"
               "[ req_distinguished_name ]\n"
               "[ v3_req ]\n"
-              "subjectAltName=IP:127.0.0.1,DNS:localhost\n",
+              "subjectAltName=IP:127.0.0.1,DNS:localhost\n"
+              "basicConstraints = critical, CA:TRUE\n"
+              "keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement\n"
+              "extendedKeyUsage = serverAuth\n",
               -1, error))
       goto out;
 

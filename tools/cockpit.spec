@@ -673,6 +673,7 @@ Summary: Cockpit user interface for packages
 BuildArch: noarch
 Requires: cockpit-bridge >= %{required_base}
 Requires: PackageKit
+Recommends: python3-tracer
 
 %description -n cockpit-packagekit
 The Cockpit components for installing OS updates and Cockpit add-ons,

@@ -24,4 +24,8 @@
         grid-column-start: 2;
         text-align: right;
     }
+
+// Hide the CSS generated content for the tab row's data-label
+#virtual-machines-listing .pf-c-table__expandable-row > .pf-m-no-padding[data-label]::before {
+    content: none;
 }

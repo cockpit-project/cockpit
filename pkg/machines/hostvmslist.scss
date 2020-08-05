@@ -20,10 +20,12 @@
         margin-top: var(--pf-c-table--m-compact__action--responsive--MarginTop);
         margin-bottom: var(--pf-c-table--m-compact__action--responsive--MarginTop);
 
-        grid-row-start: 1;
-        grid-column-start: 2;
-        text-align: right;
+        // Colum 20 is the same as the expander in PF4's breakpoint
+        grid-area: 20 / 1;
+        justify-self: start;
+        margin: var(--pf-global--spacer--xs) 0;
     }
+}
 
 // Hide the CSS generated content for the tab row's data-label
 #virtual-machines-listing .pf-c-table__expandable-row > .pf-m-no-padding[data-label]::before {

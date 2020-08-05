@@ -85,7 +85,6 @@ export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorN
 
     const expandedContent = (
         <ListingPanel
-            columns={cols}
             tabRenderers={tabRenderers}
             listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />
     );

@@ -93,6 +93,11 @@
         // As the width is smaller than the contents, and this is a table,
         // the cell will stay at the correct width.
         width: 1px;
+
+        @media screen and (max-width: $pf-global--breakpoint--md) {
+            grid-column: 1 / -1;
+            align-self: center;
+        }
     }
 
     .pf-c-button.pf-m-expanded .pf-c-table__toggle-icon {

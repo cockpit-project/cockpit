@@ -23,6 +23,8 @@ import { Modal } from 'patternfly-react';
 import { Button } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { StatelessSelect, SelectEntry } from 'cockpit-components-select.jsx';
+import { host_superuser_storage_key } from 'machines';
+
 import "form-layout.scss";
 
 const _ = cockpit.gettext;
@@ -31,18 +33,6 @@ export function can_do_sudo(host) {
     return cockpit.spawn(["sudo", "-v", "-n"], { err: "out", environ: ["LC_ALL=C"], host: host })
             .then(() => true,
                   (err, out) => !(err.exit_status == 1 && out.match("Sorry, user .+ may not run sudo on .+\\.")));
-}
-
-function storage_key(host) {
-    const local_key = window.localStorage.getItem("superuser-key");
-    if (!host || host == "localhost")
-        return local_key;
-    else if (host.indexOf("@") >= 0)
-        return "superuser:" + host;
-    else if (local_key)
-        return local_key + "@" + host;
-    else
-        return null;
 }
 
 class UnlockDialog extends React.Component {
@@ -121,7 +111,7 @@ class LockDialog extends React.Component {
             proxy.Stop()
                     .then(() => {
                         return cockpit.spawn(["sudo", "-k"], { host: this.props.host }).always(() => {
-                            const key = storage_key(this.props.host);
+                            const key = host_superuser_storage_key(this.props.host);
                             if (key)
                                 window.localStorage.setItem(key, "none");
                             onclose();
@@ -174,7 +164,7 @@ export class SuperuserDialogs extends React.Component {
         this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: host });
         this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
         this.superuser.addEventListener("changed", () => {
-            const key = storage_key(host);
+            const key = host_superuser_storage_key(host);
             if (key) {
                 // Reset wanted state if we fail to gain admin privs.
                 // Failing to gain admin privs might take a noticeable
@@ -281,7 +271,7 @@ export class SuperuserDialogs extends React.Component {
                 .then(() => {
                     this.superuser.removeEventListener("Prompt", onprompt);
 
-                    const key = storage_key(this.props.host);
+                    const key = host_superuser_storage_key(this.props.host);
                     if (key)
                         window.localStorage.setItem(key, method);
                     if (did_prompt)

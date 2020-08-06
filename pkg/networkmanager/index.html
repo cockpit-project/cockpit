@@ -38,130 +38,133 @@
     <h1 id="testing-connection-curtain-restoring" translate="yes">Restoring connection</h1>
   </div>
 
-  <div id="networking" hidden>
-    <div id="networking-nm-crashed" class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert" hidden>
-      <div class="pf-c-alert__icon">
-        <span class="pficon pficon-error-circle-o"></span>
+  <div id="networking" class="pf-c-page" hidden>
+    <main  class="pf-c-page__main" tabIndex="-1">
+      <div id="networking-nm-crashed" class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert" hidden>
+        <div class="pf-c-alert__icon">
+          <span class="pficon pficon-error-circle-o"></span>
+        </div>
+        <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
+        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start Service</button>
       </div>
-      <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
-      <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start Service</button>
-    </div>
 
-    <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
-      <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable Service</button>
-      <div class="pf-c-alert__icon">
-        <span class="pficon pficon-info"></span>
+      <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
+        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable Service</button>
+        <div class="pf-c-alert__icon">
+          <span class="pficon pficon-info"></span>
+        </div>
+        <h4 class="pf-c-alert__title" translate="yes">Network devices and graphs require NetworkManager.</h4>
       </div>
-      <h4 class="pf-c-alert__title" translate="yes">Network devices and graphs require NetworkManager.</h4>
-    </div>
 
-    <div id="networking-graphs" class="row">
-      <div id="networking-graph-toolbar" class="zoom-controls standard-zoom-controls">
-        <div class="dropdown">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span></span>
-            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+      <section id="networking-graphs" class="pf-c-page__main-section pf-m-light">
+        <div id="networking-graph-toolbar" class="zoom-controls standard-zoom-controls">
+          <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span></span>
+              <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
+              <li role="presentation" class="divider"></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
+            </ul>
+          </div>
+          <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
+            <span class="glyphicon glyphicon-zoom-out"></span>
           </button>
-          <ul class="dropdown-menu" role="menu">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
-            <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
-          </ul>
-        </div>
-        <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
-          <span class="glyphicon glyphicon-zoom-out"></span>
-        </button>
-        <div class="btn-group">
-          <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
-              <span class="fa fa-angle-left" />
-          </button>
-          <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
-              <span class="fa fa-angle-right" />
-          </button>
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div>
-          <span class="plot-unit" id="networking-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
-        </div>
-        <div id="networking-tx-graph"></div>
-      </div>
-      <div class="col-sm-6">
-        <div>
-          <span class="plot-unit" id="networking-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
-        </div>
-        <div id="networking-rx-graph"></div>
-      </div>
-    </div>
-    <br/>
-
-    <div class="networking-page container-fluid">
-      <div class="panel panel-default" id="networking-firewall" hidden>
-        <div class="panel-heading">
-          <h2 class="panel-title">
-            <a role="link" tabindex="0" id="networking-firewall-link" translate="yes">Firewall</a>
-          </h2>
-          <div class="panel-actions">
+          <div class="btn-group">
+            <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
+                <span class="fa fa-angle-left" />
+            </button>
+            <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
+                <span class="fa fa-angle-right" />
+            </button>
           </div>
         </div>
-        <div id="networking-firewall-summary" class="panel-body">
+        <div class="col-sm-6">
+          <div>
+            <span class="plot-unit" id="networking-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
+          </div>
+          <div id="networking-tx-graph"></div>
         </div>
-      </div>
-      <div class="panel panel-default"
-           id="networking-interfaces">
-        <div class="panel-heading">
-          <h2 class="panel-title" translate="yes">Interfaces</h2>
-          <div class="panel-actions">
-            <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add Bond</button>
-            <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add Team</button>
-            <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add Bridge</button>
-            <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
+        <div class="col-sm-6">
+          <div>
+            <span class="plot-unit" id="networking-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
+          </div>
+          <div id="networking-rx-graph"></div>
+        </div>
+      </section>
+
+      <section class="networking-page pf-c-page__main-section">
+        <div class="pf-l-gallery pf-m-gutter">
+          <div class="panel panel-default" id="networking-firewall" hidden>
+            <div class="panel-heading">
+              <h2 class="panel-title">
+                <a role="link" tabindex="0" id="networking-firewall-link" translate="yes">Firewall</a>
+              </h2>
+              <div class="panel-actions">
+              </div>
+            </div>
+            <div id="networking-firewall-summary" class="panel-body">
+            </div>
+          </div>
+          <div class="panel panel-default"
+               id="networking-interfaces">
+            <div class="panel-heading">
+              <h2 class="panel-title" translate="yes">Interfaces</h2>
+              <div class="panel-actions">
+                <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add Bond</button>
+                <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add Team</button>
+                <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add Bridge</button>
+                <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
+              </div>
+            </div>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th translate="yes">Name</th>
+                  <th translate="yes">IP Address</th>
+                  <th translate="yes" class="networking-speed">Sending</th>
+                  <th translate="yes" class="networking-speed">Receiving</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel panel-default"
+               id="networking-unmanaged-interfaces">
+            <div class="panel-heading">
+              <h2 class="panel-title" translate="yes">Unmanaged Interfaces</h2>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th translate="yes">Name</th>
+                  <th translate="yes">IP Address</th>
+                  <th translate="yes" class="networking-speed">Sending</th>
+                  <th translate="yes" class="networking-speed">Receiving</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel panel-default cockpit-log-panel" role="table"
+           aria-labelledby="networking-log-header">
+            <div class="panel-heading">
+                <h2 class="panel-title" id="networking-log-header" translate>Networking Logs</h2>
+                <button class="link-button" role="link" id="goto-networking-logs" translate>All logs</button>
+            </div>
+            <div class="panel-body" id="networking-log" role="rowgroup"></div>
           </div>
         </div>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th translate="yes">Name</th>
-              <th translate="yes">IP Address</th>
-              <th translate="yes" class="networking-speed">Sending</th>
-              <th translate="yes" class="networking-speed">Receiving</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-      <div class="panel panel-default"
-           id="networking-unmanaged-interfaces">
-        <div class="panel-heading">
-          <h2 class="panel-title" translate="yes">Unmanaged Interfaces</h2>
-        </div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th translate="yes">Name</th>
-              <th translate="yes">IP Address</th>
-              <th translate="yes" class="networking-speed">Sending</th>
-              <th translate="yes" class="networking-speed">Receiving</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-      <div class="panel panel-default cockpit-log-panel" role="table"
-       aria-labelledby="networking-log-header">
-        <div class="panel-heading">
-            <h2 class="panel-title" id="networking-log-header" translate>Networking Logs</h2>
-            <button class="link-button" role="link" id="goto-networking-logs" translate>All logs</button>
-        </div>
-        <div class="panel-body" id="networking-log" role="rowgroup"></div>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 
   <script id="network-vlan-settings-template" type="x-template/mustache">
@@ -440,7 +443,6 @@
         <div id="network-interface-rx-graph"></div>
       </div>
     </div>
-    <br/>
     <div class="panel panel-default">
       <div class="panel-heading">
         <h2 class="panel-title" id="network-interface-name"></h2>

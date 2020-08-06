@@ -2,9 +2,26 @@
 @import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.css";
+@import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
+@import "../../node_modules/@patternfly/patternfly/components/Table/table.css";
+@import "../../node_modules/@patternfly/patternfly/components/Table/table-grid.css";
 
 #networking .pf-l-gallery {
     --pf-l-gallery--GridTemplateColumns: 1fr;
+}
+
+.networking-page .pf-c-card__header,
+.networking-page .pf-c-card__header .pf-c-card__actions {
+    flex-wrap: wrap;
+    button {
+        margin-bottom: 0.5rem;
+    }
+}
+
+.networking-page .pf-c-card__header > .pf-c-card__title {
+  padding: 0;
+  font-weight: normal;
+  font-size: var(--pf-global--FontSize--3xl);
 }
 
 .ipv4-address {

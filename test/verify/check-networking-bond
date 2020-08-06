@@ -80,10 +80,16 @@ class TestBonding(NetworkCase):
         # Deactivate the bond and make sure it is still there after a
         # reload.
         b.wait_text_not("#network-interface-mac", "")
-        self.wait_onoff(".panel-heading:contains('tbond')", True)
-        self.toggle_onoff(".panel-heading:contains('tbond')")
-        b.wait_in_text("tr:contains('Status')", "Inactive")
-        b.wait_not_present(".panel-heading:contains('tbond') .onoff-ct input:disabled")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            self.wait_onoff(".pf-c-card__header:contains('tbond')", True)
+            self.toggle_onoff(".pf-c-card__header:contains('tbond')")
+            b.wait_in_text("tr:contains('Status')", "Inactive")
+            b.wait_not_present(".pf-c-card__header:contains('tbond') .onoff-ct input:disabled")
+        else:
+            self.wait_onoff(".panel-heading:contains('tbond')", True)
+            self.toggle_onoff(".panel-heading:contains('tbond')")
+            b.wait_in_text("tr:contains('Status')", "Inactive")
+            b.wait_not_present(".panel-heading:contains('tbond') .onoff-ct input:disabled")
 
         b.reload()
         b.enter_page("/network")
@@ -167,7 +173,10 @@ class TestBonding(NetworkCase):
         self.addCleanup(m.execute, "nmcli dev delete tbond3000 2>/dev/null || true")
 
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
-        self.wait_onoff("#network-interface .panel-heading", True)
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            self.wait_onoff("#network-interface .pf-c-card__header", True)
+        else:
+            self.wait_onoff("#network-interface .panel-heading", True)
         b.wait_in_text("tr:contains('Status')", "Configuring")
 
         b.click("tr:contains('Bond') a")
@@ -179,6 +188,7 @@ class TestBonding(NetworkCase):
 
     def testActive(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/network")
 
@@ -204,7 +214,10 @@ class TestBonding(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
-        b.wait_in_text("#network-interface .panel:contains('tbond')", ip)
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", ip)
+        else:
+            b.wait_in_text("#network-interface .panel:contains('tbond')", ip)
 
     def testAmbiguousMember(self):
         b = self.browser
@@ -270,7 +283,10 @@ class TestBondingVirt(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
-        b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", "10.111.113.1")
+        else:
+            b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
@@ -308,7 +324,10 @@ class TestBondingVirt(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
-        b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", "10.111.113.1")
+        else:
+            b.wait_in_text("#network-interface .panel:contains('tbond')", "10.111.113.1")
 
 
 if __name__ == '__main__':

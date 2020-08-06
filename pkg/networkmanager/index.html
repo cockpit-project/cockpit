@@ -101,68 +101,67 @@
 
       <section class="networking-page pf-c-page__main-section">
         <div class="pf-l-gallery pf-m-gutter">
-          <div class="panel panel-default" id="networking-firewall" hidden>
-            <div class="panel-heading">
-              <h2 class="panel-title">
+          <article class="pf-c-card" id="networking-firewall" hidden>
+            <div class="pf-c-card__header">
+              <div class="pf-c-card__title">
                 <a role="link" tabindex="0" id="networking-firewall-link" translate="yes">Firewall</a>
-              </h2>
-              <div class="panel-actions">
+              </div>
+              <div class="pf-c-card__actions">
               </div>
             </div>
-            <div id="networking-firewall-summary" class="panel-body">
+            <div id="networking-firewall-summary" class="pf-c-card__body">
             </div>
-          </div>
-          <div class="panel panel-default"
-               id="networking-interfaces">
-            <div class="panel-heading">
-              <h2 class="panel-title" translate="yes">Interfaces</h2>
-              <div class="panel-actions">
+          </article>
+          <article class="pf-c-card" id="networking-interfaces">
+            <div class="pf-c-card__header">
+              <div class="pf-c-card__title" translate="yes">Interfaces</div>
+              <div class="pf-c-card__actions">
                 <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add Bond</button>
                 <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add Team</button>
                 <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add Bridge</button>
                 <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
               </div>
             </div>
-            <table class="table table-hover">
+            <table class="pf-c-table pf-m-grid-md pf-m-compact table-hover" role="grid">
               <thead>
-                <tr>
-                  <th translate="yes">Name</th>
-                  <th translate="yes">IP Address</th>
-                  <th translate="yes" class="networking-speed">Sending</th>
-                  <th translate="yes" class="networking-speed">Receiving</th>
+                <tr role="row">
+                  <th role="columnheader" scope="col" translate="yes">Name</th>
+                  <th role="columnheader" scope="col" translate="yes">IP Address</th>
+                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
+                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody role="rowgroup">
               </tbody>
             </table>
-          </div>
-          <div class="panel panel-default"
-               id="networking-unmanaged-interfaces">
-            <div class="panel-heading">
-              <h2 class="panel-title" translate="yes">Unmanaged Interfaces</h2>
+          </article>
+          <article class="pf-c-card" id="networking-unmanaged-interfaces">
+            <div class="pf-c-card__header">
+              <div class="pf-c-card__title" translate="yes">Unmanaged Interfaces</div>
             </div>
-            <table class="table">
+            <table class="pf-c-table pf-m-compact pf-m-grid-md" role="grid">
               <thead>
-                <tr>
-                  <th translate="yes">Name</th>
-                  <th translate="yes">IP Address</th>
-                  <th translate="yes" class="networking-speed">Sending</th>
-                  <th translate="yes" class="networking-speed">Receiving</th>
+                <tr role="row">
+                  <th role="columnheader" scope="col" translate="yes">Name</th>
+                  <th role="columnheader" scope="col" translate="yes">IP Address</th>
+                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
+                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody role="rowgroup">
               </tbody>
             </table>
-          </div>
-          <div class="panel panel-default cockpit-log-panel" role="table"
-           aria-labelledby="networking-log-header">
-            <div class="panel-heading">
-                <h2 class="panel-title" id="networking-log-header" translate>Networking Logs</h2>
-                <button class="link-button" role="link" id="goto-networking-logs" translate>All logs</button>
+          </article>
+          <article class="pf-c-card cockpit-log-panel" aria-labelledby="networking-log-header">
+            <div class="pf-c-card__header">
+                <div class="pf-c-card__title" id="networking-log-header" translate>Networking Logs</div>
+                <div class="pf-c-card__actions">
+                  <button class="link-button" role="link" id="goto-networking-logs" translate>All logs</button>
+                </div>
             </div>
-            <div class="panel-body" id="networking-log" role="rowgroup"></div>
+            <div class="pf-c-card__body" id="networking-log" role="rowgroup"></div>
           </div>
-        </div>
+        </article>
       </section>
     </main>
   </div>
@@ -443,23 +442,23 @@
         <div id="network-interface-rx-graph"></div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title" id="network-interface-name"></h2>
+    <div class="pf-c-card">
+      <div class="pf-c-card__header">
+        <div class="pf-c-card__title" id="network-interface-name"></div>
         <span id="network-interface-hw"></span>
         <span id="network-interface-mac"></span>
-        <div class="panel-actions">
+        <div class="pf-c-card__actions">
           <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
           <span id="network-interface-delete-switch" class="network-privileged">
           </span>
         </div>
       </div>
-      <div class="panel-body">
+      <div class="pf-c-card__body">
         <table class="form-table-ct" id="network-interface-settings">
         </table>
       </div>
     </div>
-    <div class="panel panel-default" id="network-interface-members">
+    <div class="pf-c-card" id="network-interface-members">
       <table class="table table-hover">
         <thead>
           <tr>

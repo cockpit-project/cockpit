@@ -69,6 +69,7 @@ class TestBridge(NetworkCase):
 
     def testActive(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/network")
 
@@ -91,7 +92,10 @@ class TestBridge(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
-        b.wait_in_text("#network-interface .panel:contains('tbridge')", "10.111")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            b.wait_in_text("#network-interface .pf-c-card:contains('tbridge')", "10.111")
+        else:
+            b.wait_in_text("#network-interface .panel:contains('tbridge')", "10.111")
 
 
 if __name__ == '__main__':

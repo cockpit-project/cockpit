@@ -26,6 +26,29 @@ function generate_session_key(host) {
     return session_prefix + "/" + host;
 }
 
+export function host_superuser_storage_key(host) {
+    if (!host)
+        host = cockpit.transport.host;
+
+    const local_key = window.localStorage.getItem("superuser-key");
+    if (host == "localhost")
+        return local_key;
+    else if (host.indexOf("@") >= 0)
+        return "superuser:" + host;
+    else if (local_key)
+        return local_key + "@" + host;
+    else
+        return null;
+}
+
+export function get_host_superuser_value(host) {
+    const key = host_superuser_storage_key(host);
+    if (key)
+        return window.localStorage.getItem(key);
+    else
+        return null;
+}
+
 function Machines() {
     var self = this;
 
@@ -521,7 +544,8 @@ function Loader(machines, session_only) {
 
         var options = {
             host: machine.connection_string,
-            payload: "echo"
+            payload: "echo",
+            "init-superuser": get_host_superuser_value(machine.connection_string)
         };
 
         if (!machine.on_disk && machine.host_key) {

@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import { mustache } from "mustache";
 
-import { machines } from "machines";
+import { machines, get_host_superuser_value } from "machines";
 import * as credentials from "credentials";
 import "patterns";
 
@@ -143,7 +143,8 @@ function Dialog(selector, address, machines_ins, codes) {
         var dfd = $.Deferred();
         var conn_options = $.extend({
             payload: "echo",
-            host: address
+            host: address,
+            "init-superuser": get_host_superuser_value(address)
         },
                                     options);
 

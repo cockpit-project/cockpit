@@ -1798,11 +1798,11 @@ PageNetworking.prototype = {
                 "data-interface": encodeURIComponent(iface.Name),
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
-                    .append($('<td>').text(iface.Name),
-                            $('<td>').html(render_active_connection(dev, false, true)),
+                    .append($('<td data-label="Name" translate="data-label" role="cell">').text(iface.Name),
+                            $('<td data-label="IP Address" translate="data-label" role="cell">').html(render_active_connection(dev, false, true)),
                             (show_traffic
-                                ? [$('<td>').text(""), $('<td>').text("")]
-                                : $('<td colspan="2">').text(device_state_text(dev))));
+                                ? [$('<td data-label="Sending" translate="data-label" role="cell">').text(""), $('<td data-label="Receiving" translate="data-label" role=cell">').text("")]
+                                : $('<td data-label="Sending" translate="data-label" role="cell" colspan="2">').text(device_state_text(dev))));
 
             if (!dev || is_managed(dev)) {
                 managed_tbody.append(row.click(function () {
@@ -2315,7 +2315,7 @@ PageNetworkInterface.prototype = {
                     disabled: pending || firewall.readonly,
                     onChange: onFirewallSwitchChange
                 }),
-                document.querySelector('#networking-firewall .panel-actions')
+                document.querySelector('#networking-firewall .pf-c-card__actions')
             );
         }
 

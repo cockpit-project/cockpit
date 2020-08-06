@@ -67,8 +67,12 @@ class TestTeam(NetworkCase):
         # Deactivate the team and make sure it is still there after a
         # reload.
         b.wait_text_not("#network-interface-mac", "")
-        self.wait_onoff(".panel-heading:contains('tteam')", True)
-        self.toggle_onoff(".panel-heading:contains('tteam')")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            self.wait_onoff(".pf-c-card__header:contains('tteam')", True)
+            self.toggle_onoff(".pf-c-card__header:contains('tteam')")
+        else:
+            self.wait_onoff(".panel-heading:contains('tteam')", True)
+            self.toggle_onoff(".panel-heading:contains('tteam')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         b.reload()
         b.enter_page("/network")
@@ -92,6 +96,7 @@ class TestTeam(NetworkCase):
 
     def testActive(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/network")
 
@@ -114,7 +119,10 @@ class TestTeam(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
-        b.wait_in_text("#network-interface .panel:contains('tteam')", "10.111")
+        if m.image != "rhel-8-3-distropkg": # Changed in #14454
+            b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")
+        else:
+            b.wait_in_text("#network-interface .panel:contains('tteam')", "10.111")
 
 
 if __name__ == '__main__':

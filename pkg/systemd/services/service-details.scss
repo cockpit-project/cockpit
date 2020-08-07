@@ -29,65 +29,9 @@
     vertical-align: text-bottom;
 }
 
-/* Make the kebab wrapper and button flex to parents for proper alignment */
-.service-top-panel .dropdown-kebab-pf,
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle {
+/* Make the kebab wrapper flex to parents for proper alignment */
+.service-top-panel .pf-c-dropdown {
     display: flex;
-}
-
-/* Remove unnecessary margin */
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle {
-    margin: 0;
-}
-
-/* Use up to 13rem width for the kebab space (including menu) */
-.service-top-panel .dropdown-kebab-pf {
-    flex: auto;
-    max-width: 13rem;
-}
-
-/* Bump up the z-index to menu's z-index + 1 */
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle[aria-expanded=true] {
-    position: relative;
-    z-index: 1001;
-}
-
-/* Recreate the ^ menu pointer, but under the button itself */
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle[aria-expanded=true]:before,
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle[aria-expanded=true]:after {
-    border: 10px solid var(--pf-global--BorderColor--200);
-    border-top-width: 0;
-    border-right: 10px solid transparent;
-    border-left: 10px solid transparent;
-    content: "";
-    display: inline-block;
-    position: absolute;
-    bottom: -0.5rem;
-    /* Start element at 50% width */
-    left: 50%;
-    /* Bump element to the left ½ its width */
-    transform: translateX(-50%);
-}
-
-/* Recolor inner triangle and bump down a pixel to overlap */
-.service-top-panel .dropdown-kebab-pf > .dropdown-toggle[aria-expanded=true]:after {
-    border-bottom-color: var(--pf-global--BackgroundColor--100);
-    bottom: calc(-0.5rem - 1px);
-}
-
-/* Turn off PF3 kebab menu's ^ caret */
-.service-top-panel .dropdown-kebab-pf > .dropdown-menu::before,
-.service-top-panel .dropdown-kebab-pf > .dropdown-menu::after {
-    display: none;
-}
-
-/* Reposition kebab menu */
-.service-top-panel .dropdown-kebab-pf > .dropdown-menu {
-    left: auto;
-    right: 0;
-    margin: 0 -0.5rem;
-    min-width: calc(100% + 1rem);
-    top: calc(100% + 0.5rem);
 }
 
 .action-button {

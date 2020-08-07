@@ -48,8 +48,12 @@ class TestServices(MachineCase):
         self.browser.click(".service-top-panel .onoff-ct input")
 
     def do_action(self, action):
-        self.browser.click(".service-top-panel .dropdown-kebab-pf button")
-        self.browser.click(".service-top-panel .dropdown-menu a:contains('{0}')".format(action))
+        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14459
+            self.browser.click(".service-top-panel .pf-c-dropdown button")
+            self.browser.click(".service-top-panel .pf-c-dropdown__menu a:contains('{0}')".format(action))
+        else:
+            self.browser.click(".service-top-panel .dropdown-kebab-pf button")
+            self.browser.click(".service-top-panel .dropdown-menu a:contains('{0}')".format(action))
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         self.browser.wait_collected_text("#statuses .status", "".join(statuses))
@@ -57,13 +61,23 @@ class TestServices(MachineCase):
             self.wait_onoff(enabled)
         else:
             self.browser.wait_not_present(".service-top-panel .onoff-ct")
-        if kebab:
-            self.browser.click(".service-top-panel .dropdown-kebab-pf button")
-            self.browser.wait_text(".service-top-panel .dropdown-menu", "".join(actions))
-            # Click away to close the dropdown-menu
-            self.browser.click(".service-top-panel .dropdown-kebab-pf button")
+
+        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14459
+            if kebab:
+                self.browser.click(".service-top-panel .pf-c-dropdown button")
+                self.browser.wait_text(".service-top-panel .pf-c-dropdown__menu", "".join(actions))
+                # Click away to close the pf-c-dropdown__menu
+                self.browser.click(".service-top-panel .pf-c-dropdown button")
+            else:
+                self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
         else:
-            self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
+            if kebab:
+                self.browser.click(".service-top-panel .dropdown-kebab-pf button")
+                self.browser.wait_text(".service-top-panel .dropdown-menu", "".join(actions))
+                # Click away to close the dropdown-menu
+                self.browser.click(".service-top-panel .dropdown-kebab-pf button")
+            else:
+                self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
     def svc_sel(self, service):
         return 'li[data-goto-unit="%s"]' % service

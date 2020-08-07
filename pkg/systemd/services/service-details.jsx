@@ -20,8 +20,12 @@
 import React from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
-import { Alert, Button, Tooltip, TooltipPosition } from "@patternfly/react-core";
-import { Modal, DropdownKebab, MenuItem } from 'patternfly-react';
+import {
+    Alert, Button,
+    Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
+    Tooltip, TooltipPosition
+} from "@patternfly/react-core";
+import { Modal } from 'patternfly-react';
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -231,40 +235,40 @@ class ServiceActions extends React.Component {
         // If masked, only show unmasking and nothing else
         if (this.props.masked) {
             actions.push(
-                <MenuItem key="unmask" onClick={() => this.props.fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</MenuItem>
+                <DropdownItem key="unmask" onClick={() => this.props.fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</DropdownItem>
             );
         } else { // All cases when not masked
             if (this.props.active) {
                 if (this.props.canReload) {
                     actions.push(
-                        <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
+                        <DropdownItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</DropdownItem>
                     );
                 }
                 actions.push(
-                    <MenuItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</MenuItem>
+                    <DropdownItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</DropdownItem>
                 );
                 actions.push(
-                    <MenuItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</MenuItem>,
+                    <DropdownItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</DropdownItem>,
                 );
             } else {
                 actions.push(
-                    <MenuItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</MenuItem>
+                    <DropdownItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</DropdownItem>
                 );
             }
 
             if (actions.length > 0) {
                 actions.push(
-                    <MenuItem key="divider2" divider />
+                    <DropdownSeparator key="divider" divider />
                 );
             }
 
             if (this.props.failed)
                 actions.push(
-                    <MenuItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</MenuItem>
+                    <DropdownItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</DropdownItem>
                 );
 
             actions.push(
-                <MenuItem key="mask" onClick={() => this.setState({ dialogMaskedOpened: true }) }>{ _("Disallow running (mask)") }</MenuItem>
+                <DropdownItem key="mask" onClick={() => this.setState({ dialogMaskedOpened: true }) }>{ _("Disallow running (mask)") }</DropdownItem>
             );
         }
 
@@ -281,10 +285,13 @@ class ServiceActions extends React.Component {
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }
-                {/* DropdownKebab has no disabled prop, see #13552 */}
-                <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
-                    {actions}
-                </DropdownKebab>
+                <Dropdown id="service-actions" title={ _("Additional actions") }
+                          toggle={<KebabToggle onToggle={isActionOpen => this.setState({ isActionOpen })} />}
+                          isOpen={this.state.isActionOpen}
+                          isPlain
+                          onSelect={() => this.setState({ isActionOpen: !this.state.isActionOpen })}
+                          isDisabled={this.props.disabled}
+                          dropdownItems={actions} />
             </>
         );
     }

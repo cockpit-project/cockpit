@@ -98,8 +98,8 @@ class TestSystemInfo(MachineCase):
 
         # Debian will not allow timesyncd to start if any other NTP package is installed We only
         # support timesyncd for NTP configuration, so make sure chrony is not installed in the older
-        # debian/ubuntu images which don't yet have systemd-timesyncd
-        if self.machine.image in ["debian-stable", "ubuntu-stable"]:
+        # debian images which don't yet have systemd-timesyncd
+        if self.machine.image in ["debian-stable"]:
             self.machine.execute("dpkg --remove chrony");
 
         # Most OSes don't set nosmt by default, but there are some exceptions

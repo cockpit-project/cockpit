@@ -228,7 +228,6 @@ class TestMetrics(MachineCase, StorageHelpers):
         m.execute("! pgrep cockpit-pcp")
 
     @skipImage("No PCP available", "fedora-coreos")
-    @skipImage("restarting pmlogger times out", "ubuntu-stable")
     def testPcpHistory(self):
         m = self.machine
         b = self.browser
@@ -265,7 +264,7 @@ class TestMetrics(MachineCase, StorageHelpers):
         spiketime = int(spiketime)
 
         # force PCP to archive/pack the whole day
-        if m.image in ["debian-stable", "debian-testing", "ubuntu-2004"]:
+        if m.image in ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable"]:
             # handled via cronjob
             # sometimes gets stuck on async pmlogger.service not being ready yet, so retry a few times
             m.execute("for i in `seq 5`; do /usr/lib/pcp/bin/pmlogger_daily -p && break; sleep 5; done")

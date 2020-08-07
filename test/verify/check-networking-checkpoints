@@ -50,7 +50,7 @@ class TestNetworkingCheckpoints(NetworkCase):
         # Wait for dialog to appear and dismiss it
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
-        if m.image not in ["debian-testing", "debian-stable", "ubuntu-stable"]:
+        if m.image not in ["debian-testing", "debian-stable"]:
             # Change IP
             b.click("tr:contains('IPv4') a")
             b.wait_popup("network-ip-settings-dialog")

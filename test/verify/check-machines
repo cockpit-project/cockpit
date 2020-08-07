@@ -90,22 +90,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
         # AppArmor doesn't like the non-standard path for our storage pools
         self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="virt-aa-helper" name="%s.*' % self.vm_tmpdir)
-        if m.image in ["ubuntu-2004"]:
+        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/" .* denied_mask="r" .*')
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/sys/bus/nd/devices/" .* denied_mask="r" .*')
-
-        # FIXME: report downstream: qemu often crashes in testAddDisk and testMultipleSettings
-        if m.image in ["ubuntu-stable"]:
-            self.allow_journal_messages('Process .*qemu-system-x86.* of user .* dumped core.')
 
         # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
-
-        # HACK: https://launchpad.net/bugs/1802005
-        if m.image == "ubuntu-stable":
-            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-            m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
 
         m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
 
@@ -377,10 +368,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("systemctl stop libvirtd.service")
             b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
             m.execute("systemctl start libvirtd.service")
-            # HACK: https://launchpad.net/bugs/1802005
-            if m.image == "ubuntu-stable":
-                m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-                m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
             b.wait_in_text("body", "Virtual Machines")
             self.waitVmRow("subVmTest1")
             self.waitVmRow("subVmTest2")
@@ -503,10 +490,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#enable-libvirt:checked")
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: checkLibvirtEnabled())
-        # HACK: https://launchpad.net/bugs/1802005
-        if m.image == "ubuntu-stable":
-            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-            m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
             b.wait_not_present(".pf-c-empty-state")
@@ -519,10 +502,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
-        # HACK: https://launchpad.net/bugs/1802005
-        if m.image == "ubuntu-stable":
-            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-            m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
             b.wait_not_present(".pf-c-empty-state")
@@ -804,8 +783,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Prepare an iscsi pool
         # Debian images' -cloud kernel don't have target-cli-mod kmod
-        # Ubuntu 19.10 is affected by https://bugzilla.redhat.com/show_bug.cgi?id=1659195
-        if "debian" not in m.image and m.image != "ubuntu-stable":
+        if "debian" not in m.image:
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
@@ -1020,7 +998,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.logout()
 
         # AppArmor doesn't like the non-standard path for our storage pools
-        if m.image in ["debian-testing", "ubuntu-stable"]:
+        if m.image in ["debian-testing"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
 
     def testVmNICs(self):
@@ -1447,7 +1425,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.browser.wait_in_text("body", "Virtual Machines")
 
         # try to CREATE few machines
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'centos-8-stream']:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
@@ -1475,7 +1453,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # name already used from a VM that is currently being created
             # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
             # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
-            if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'centos-8-stream']:
+            if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
                 self.browser.wait_not_present('select option[data-value="Download an OS"]')
             else:
                 runner.createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
@@ -2017,7 +1995,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if self.sourceType == "url" and self.location == TestMachines.TestCreateConfig.TREE_URL:
                 # libosinfo >= "1.4" is needed for OS autodetection
                 # Otherwise we get this error:  Failed to load .treeinfo file: Operation not supported (15)
-                if self.machine.image not in ["ubuntu-stable", "debian-stable"]:
+                if self.machine.image not in ["debian-stable"]:
                     b.wait_attr("label[for=os-select] + div input", "value", TestMachines.TestCreateConfig.FEDORA_28)
                 else:
                     b.wait_attr("label[for=os-select] + div input", "value", "")
@@ -2722,7 +2700,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
             def hack_broken_caps():
-                if m.image in ["fedora-32", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-2004", "debian-testing"]:
+                if m.image in ["fedora-32", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
                     m.execute("systemctl restart libvirtd")
                     # We don't get events for shut off VMs so reload the page
                     b.reload()
@@ -4306,8 +4284,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
 
         # Debian images' -cloud kernel don't have target-cli-mod kmod
-        # Ubuntu 19.10 is affected by https://bugzilla.redhat.com/show_bug.cgi?id=1659195
-        if "debian" not in m.image and m.image != "ubuntu-stable":
+        if "debian" not in m.image:
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"

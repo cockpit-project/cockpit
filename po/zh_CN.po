@@ -19,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-23 08:10+0000\n"
-"PO-Revision-Date: 2020-07-29 16:29+0000\n"
+"POT-Creation-Date: 2020-07-31 09:12+0000\n"
+"PO-Revision-Date: 2020-08-03 14:29+0000\n"
 "Last-Translator: Charles Lee <lchopn@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/master/zh_CN/>\n"
@@ -607,7 +607,7 @@ msgstr "帐户不可用或不可编辑."
 msgid "Accounts"
 msgstr "账户"
 
-#: pkg/machines/hostvmslist.jsx:98
+#: pkg/apps/application-list.jsx:109
 msgid "Actions"
 msgstr "操作"
 
@@ -838,7 +838,7 @@ msgstr "地址"
 msgid "Administration with Cockpit Web Console"
 msgstr "使用 Cockpit Web 控制台管理"
 
-#: pkg/shell/superuser.jsx:70 pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:82 pkg/shell/superuser.jsx:344
 msgid "Administrative access"
 msgstr "管理员权限"
 
@@ -919,10 +919,14 @@ msgstr "Ansible 角色文档"
 msgid "Appearance:"
 msgstr "外观："
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:151
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
 #: pkg/apps/application.jsx:144 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "应用"
+
+#: pkg/apps/application-list.jsx:175
+msgid "Applications list"
+msgstr "应用列表"
 
 #: pkg/networkmanager/index.html:497 pkg/networkmanager/index.html:525
 #: pkg/networkmanager/index.html:552 pkg/networkmanager/index.html:579
@@ -989,7 +993,7 @@ msgstr "在指定时间"
 msgid "Audit log"
 msgstr "审计日志"
 
-#: pkg/shell/superuser.jsx:79
+#: pkg/shell/superuser.jsx:91
 msgid "Authenticate"
 msgstr "认证"
 
@@ -1317,9 +1321,10 @@ msgstr "无法加载镜像"
 #: pkg/machines/components/vm/bootOrderModal.jsx:325
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:150
 #: pkg/networkmanager/firewall.jsx:565 pkg/networkmanager/firewall.jsx:718
 #: pkg/networkmanager/firewall.jsx:741 pkg/packagekit/updates.jsx:192
-#: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
+#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:150
 #: pkg/sosreport/index.js:52 pkg/storaged/dialog.jsx:399
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:227
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
@@ -1445,7 +1450,7 @@ msgstr "检查 RAID 设备 $target"
 msgid "Checking and Repairing RAID Device $target"
 msgstr "检查并修复 RAID 设备 $target"
 
-#: pkg/apps/application-list.jsx:124
+#: pkg/apps/application-list.jsx:143
 msgid "Checking for new applications"
 msgstr "检查新的应用"
 
@@ -1512,7 +1517,7 @@ msgstr "客户端软件"
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
 #: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
-#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:95
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
@@ -1808,8 +1813,8 @@ msgstr "正在连接至主机"
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/hostvmslist.jsx:96
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/hostvmslist.jsx:98
 msgid "Connection"
 msgstr "连接"
 
@@ -1968,6 +1973,7 @@ msgstr "导致系统崩溃"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:147
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -2019,6 +2025,8 @@ msgstr "创建 RAID 设备"
 msgid "Create Report"
 msgstr "创建报表"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:139
+#: pkg/machines/components/vmSnapshotsTab.jsx:175
 #: pkg/storaged/content-views.jsx:269 pkg/storaged/content-views.jsx:290
 msgid "Create Snapshot"
 msgstr "创建快照"
@@ -2140,7 +2148,7 @@ msgstr "创建该组将断开与服务器的连接，并且将会导致管理界
 msgid "Creating volume group $target"
 msgstr "创建卷组 $target"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:56
+#: pkg/machines/components/vmSnapshotsTab.jsx:77
 msgid "Creation Time"
 msgstr "创建时间"
 
@@ -2351,10 +2359,18 @@ msgstr "删除一个不活跃的池指挥取消定义这个池，而不会删除
 msgid "Deleting volume group $target"
 msgstr "删除卷组 $target"
 
-#: pkg/systemd/services.html:172 pkg/machines/components/vmSnapshotsTab.jsx:75
+#: pkg/systemd/services.html:172
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:61
+#: pkg/machines/components/vmSnapshotsTab.jsx:96
 #: pkg/networkmanager/firewall.jsx:668
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
+msgstr "描述"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:67
+#, fuzzy
+#| msgid "Description"
+msgid "Description input text"
 msgstr "描述"
 
 #: pkg/lib/machine-info.js:69
@@ -2494,7 +2510,7 @@ msgstr "磁盘口令"
 msgid "Disk settings could not be saved"
 msgstr "磁盘设置不能被保存"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:97
+#: pkg/machines/components/vmSnapshotsTab.jsx:118
 msgid "Disk-only snapshot"
 msgstr ""
 
@@ -2559,11 +2575,11 @@ msgstr "域管理员用户名"
 msgid "Domain Administrator Password"
 msgstr "域管理员密码"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:99
+#: pkg/machines/components/vmSnapshotsTab.jsx:120
 msgid "Domain has crashed"
 msgstr ""
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:98
+#: pkg/machines/components/vmSnapshotsTab.jsx:119
 msgid "Domain is blocked on resource"
 msgstr ""
 
@@ -3177,7 +3193,7 @@ msgstr "图表"
 
 #: pkg/networkmanager/interfaces.js:2771
 msgid "Group"
-msgstr ""
+msgstr "组"
 
 #: pkg/storaged/lvol-tabs.jsx:240 pkg/storaged/lvol-tabs.jsx:389
 #: pkg/storaged/lvol-tabs.jsx:441 pkg/storaged/vdo-details.jsx:228
@@ -3518,7 +3534,7 @@ msgstr "启动器 IQN 不能为空"
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
+#: pkg/apps/application-list.jsx:89 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:127
 msgid "Install"
@@ -3564,7 +3580,7 @@ msgstr "安装类型"
 msgid "Installed"
 msgstr "已安装"
 
-#: pkg/apps/application-list.jsx:49 pkg/apps/application.jsx:56
+#: pkg/apps/application-list.jsx:54 pkg/apps/application.jsx:56
 #: pkg/packagekit/updates.jsx:63
 msgid "Installing"
 msgstr "正在安装"
@@ -3885,15 +3901,15 @@ msgstr "授权为："
 msgid "Light"
 msgstr "亮色"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:147
 msgid "Limit access"
 msgstr "限制访问"
 
-#: pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:344
 msgid "Limited access"
 msgstr "被限制的访问"
 
-#: pkg/shell/superuser.jsx:129
+#: pkg/shell/superuser.jsx:141
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4294,7 +4310,7 @@ msgstr "与失败相关的消息可能会在日志中找到："
 msgid "Metadata Used"
 msgstr "已使用的元数据"
 
-#: pkg/shell/superuser.jsx:57
+#: pkg/shell/superuser.jsx:69
 msgid "Method"
 msgstr "模式"
 
@@ -4501,11 +4517,12 @@ msgstr "NTP 服务器"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/components/vmSnapshotsTab.jsx:66
-#: pkg/machines/hostvmslist.jsx:95 pkg/packagekit/updates.jsx:394
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:41
+#: pkg/machines/components/vmSnapshotsTab.jsx:87
+#: pkg/machines/hostvmslist.jsx:97 pkg/packagekit/updates.jsx:394
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:271
 #: pkg/storaged/content-views.jsx:717 pkg/storaged/format-dialog.jsx:201
 #: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:340
@@ -4550,6 +4567,10 @@ msgstr "名称不能包含空格。"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name contains invalid characters"
 msgstr "名称包含无效的字符"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:50
+msgid "Name input text"
+msgstr ""
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid "Name must not be empty"
@@ -4746,7 +4767,7 @@ msgstr "没有为这个存储池定义存储卷"
 msgid "No System Modifications"
 msgstr "没有系统改变"
 
-#: pkg/machines/hostvmslist.jsx:92
+#: pkg/machines/hostvmslist.jsx:94
 msgid "No VM is running or defined on this host"
 msgstr "该主机上没有定义或运行虚拟机"
 
@@ -4758,7 +4779,7 @@ msgstr "没有虚拟网络"
 msgid "No alias specified"
 msgstr "未指定别名"
 
-#: pkg/apps/application-list.jsx:138
+#: pkg/apps/application-list.jsx:156
 msgid "No applications installed or available"
 msgstr "没有可用的安装"
 
@@ -4798,7 +4819,7 @@ msgstr "没有容器"
 msgid "No containers that match the current filter"
 msgstr "没有容器匹配当前的过滤条件"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:78
+#: pkg/machines/components/vmSnapshotsTab.jsx:99
 msgid "No description"
 msgstr "没有描述"
 
@@ -4889,7 +4910,7 @@ msgstr "没有在这个主机上定义网络"
 msgid "No networks available"
 msgstr "没有可用的网络"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:119
+#: pkg/machines/components/vmSnapshotsTab.jsx:140
 msgid "No parent"
 msgstr "没有上级"
 
@@ -4926,11 +4947,11 @@ msgstr "没有运行的容器"
 msgid "No running containers that match the current filter"
 msgstr "没有匹配当前过滤器的容器"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:50
+#: pkg/machines/components/vmSnapshotsTab.jsx:71
 msgid "No snapshots"
 msgstr "没有快照"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:55
+#: pkg/machines/components/storagePools/storagePoolList.jsx:57
 msgid "No storage pool is defined on this host"
 msgstr "没有在这个主机上定义存储池"
 
@@ -5220,7 +5241,7 @@ msgstr "父"
 msgid "Parent $parent"
 msgstr "父 $parent"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:118
+#: pkg/machines/components/vmSnapshotsTab.jsx:139
 msgid "Parent Snapshot"
 msgstr "上级快照"
 
@@ -5271,7 +5292,7 @@ msgstr "口令不匹配"
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:275
 #: pkg/shell/index.html:304 pkg/shell/index.html:319 src/ws/login.html:55
-#: pkg/shell/superuser.jsx:44 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/shell/superuser.jsx:56 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157 pkg/users/account-create-dialog.js:52
 #: pkg/users/account-details.js:318
 msgid "Password"
@@ -5424,7 +5445,7 @@ msgstr "Ping 目标"
 msgid "Pizza Box"
 msgstr "披萨盒"
 
-#: pkg/shell/superuser.jsx:43
+#: pkg/shell/superuser.jsx:55
 msgid "Please authenticate to gain administrative access"
 msgstr "请认证以获得管理员权限"
 
@@ -5587,7 +5608,7 @@ msgstr "好主机名"
 msgid "Previous boot"
 msgstr "以前的引导"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:51
+#: pkg/machines/components/vmSnapshotsTab.jsx:72
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -5894,7 +5915,7 @@ msgstr "可移动驱动器"
 msgid "Removals:"
 msgstr "移除："
 
-#: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:110
 #: pkg/machines/components/vmDisksTab.jsx:171
 #: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
@@ -5938,7 +5959,7 @@ msgstr "删除服务 $0"
 msgid "Remove zone $0"
 msgstr "移除区 $0"
 
-#: pkg/apps/application-list.jsx:53 pkg/apps/application.jsx:60
+#: pkg/apps/application-list.jsx:58 pkg/apps/application.jsx:60
 msgid "Removing"
 msgstr "正在移除"
 
@@ -6585,7 +6606,7 @@ msgstr "关闭 VM 以编辑固件配置"
 msgid "Shutdown"
 msgstr "关机"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:96
+#: pkg/machines/components/vmSnapshotsTab.jsx:117
 msgid "Shutting down"
 msgstr "正在关机"
 
@@ -6595,7 +6616,7 @@ msgstr "Single Rank"
 
 #: pkg/docker/containers-view.jsx:573
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:764
@@ -6643,6 +6664,10 @@ msgstr "插槽"
 msgid "Slot $0"
 msgstr "插槽 $0"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:121
+msgid "Snapshot failed to be created"
+msgstr "创建快照失败"
+
 #: pkg/machines/components/vm/vmExpandedContent.jsx:50
 msgid "Snapshots"
 msgstr "快照"
@@ -6682,7 +6707,7 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "某些其他程序正在使用软件包管理器，请等待..."
 
-#: pkg/shell/superuser.jsx:291
+#: pkg/shell/superuser.jsx:303
 msgid "Something went wrong"
 msgstr "出现了一些错误"
 
@@ -6802,8 +6827,8 @@ msgstr "启动"
 
 #: pkg/docker/containers-view.jsx:137 pkg/docker/containers-view.jsx:366
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:97
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:99
 #: pkg/systemd/hwinfo.jsx:273 pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "状态"
@@ -6909,8 +6934,8 @@ msgstr "存储池名"
 msgid "Storage Pool failed to be created"
 msgstr "创建存储池失败"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:48
-#: pkg/machines/components/storagePools/storagePoolList.jsx:52
+#: pkg/machines/components/storagePools/storagePoolList.jsx:50
+#: pkg/machines/components/storagePools/storagePoolList.jsx:54
 msgid "Storage Pools"
 msgstr "存储池"
 
@@ -6991,7 +7016,7 @@ msgstr "关掉 $0"
 msgid "Switch on $0"
 msgstr "打开 $0"
 
-#: pkg/shell/superuser.jsx:126
+#: pkg/shell/superuser.jsx:138
 msgid "Switch to limited access"
 msgstr "切换到限制权限"
 
@@ -7504,7 +7529,7 @@ msgid ""
 "from its volume groups."
 msgstr "该设备正在被卷组使用。继续进行将从卷组中移除它。"
 
-#: pkg/shell/superuser.jsx:288
+#: pkg/shell/superuser.jsx:300
 msgid "This didn't work, please try again"
 msgstr "操作失败，请重试"
 
@@ -7662,7 +7687,7 @@ msgid ""
 "version."
 msgstr "为了尝试一个不同的端口，需要把 cockpit-ws 升级到一个新版本。"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:34
+#: pkg/machines/components/vmSnapshotsTab.jsx:35
 msgid "Today"
 msgstr "今天"
 
@@ -8011,7 +8036,7 @@ msgstr "更新历史"
 msgid "Update Log"
 msgstr "更新日志"
 
-#: pkg/apps/application-list.jsx:129
+#: pkg/apps/application-list.jsx:148
 msgid "Update package information"
 msgstr "更新软件包信息"
 
@@ -8160,15 +8185,15 @@ msgstr "VLAN 设置"
 msgid "VM $0 already exists"
 msgstr "VM $0 已存在"
 
-#: pkg/machines/hostvmslist.jsx:123
+#: pkg/machines/hostvmslist.jsx:125
 msgid "VM $0 failed to Reboot"
 msgstr "VM $0 重启失败"
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:131
 msgid "VM $0 failed to force Reboot"
 msgstr "VM $0 强制重启失败"
 
-#: pkg/machines/hostvmslist.jsx:153
+#: pkg/machines/hostvmslist.jsx:155
 msgid "VM $0 failed to force shutdown"
 msgstr "VM $0 强制关闭失败"
 
@@ -8176,31 +8201,31 @@ msgstr "VM $0 强制关闭失败"
 msgid "VM $0 failed to get deleted"
 msgstr "VM $0 删除失败"
 
-#: pkg/machines/hostvmslist.jsx:117 pkg/machines/libvirt-common.js:1378
+#: pkg/machines/hostvmslist.jsx:119 pkg/machines/libvirt-common.js:1378
 msgid "VM $0 failed to get installed"
 msgstr "VM $0 安装失败"
 
-#: pkg/machines/hostvmslist.jsx:141
+#: pkg/machines/hostvmslist.jsx:143
 msgid "VM $0 failed to pause"
 msgstr "VM $0 暂停失败"
 
-#: pkg/machines/hostvmslist.jsx:147
+#: pkg/machines/hostvmslist.jsx:149
 msgid "VM $0 failed to resume"
 msgstr "VM $0 恢复失败"
 
-#: pkg/machines/hostvmslist.jsx:159
+#: pkg/machines/hostvmslist.jsx:161
 msgid "VM $0 failed to send NMI"
 msgstr "VM $0 发送 NMI 失败"
 
-#: pkg/machines/hostvmslist.jsx:135
+#: pkg/machines/hostvmslist.jsx:137
 msgid "VM $0 failed to shutdown"
 msgstr "VM $0 关闭失败"
 
-#: pkg/machines/hostvmslist.jsx:111
+#: pkg/machines/hostvmslist.jsx:113
 msgid "VM $0 failed to start"
 msgstr "VM $0 启动失败"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:88
+#: pkg/machines/components/vmSnapshotsTab.jsx:109
 msgid "VM State"
 msgstr "VM 状态"
 
@@ -8275,8 +8300,8 @@ msgid "View report"
 msgstr "查看报告"
 
 #: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/storagePoolList.jsx:45
-#: pkg/machines/hostvmslist.jsx:90 pkg/machines/manifest.json.in
+#: pkg/machines/components/storagePools/storagePoolList.jsx:47
+#: pkg/machines/hostvmslist.jsx:92 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "虚拟机"
 
@@ -8450,7 +8475,7 @@ msgstr "XOR"
 msgid "Yes"
 msgstr "是"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:33
+#: pkg/machines/components/vmSnapshotsTab.jsx:34
 msgid "Yesterday"
 msgstr "昨天"
 
@@ -8471,7 +8496,7 @@ msgstr "您当前已直接连接到该服务器。您不能删除它。"
 msgid "You are not authorized to modify the firewall."
 msgstr "您无权修改防火墙。"
 
-#: pkg/shell/superuser.jsx:221
+#: pkg/shell/superuser.jsx:233
 msgid "You can not gain administrative access."
 msgstr "你不能获取管理员权限。"
 
@@ -8502,7 +8527,7 @@ msgid ""
 "You need to switch to \"Administrative Access\" in order to create reports."
 msgstr "你需要切换到“管理员权限”以创建报告。"
 
-#: pkg/shell/superuser.jsx:279
+#: pkg/shell/superuser.jsx:291
 msgid "You now have administrative access."
 msgstr "你已经获取了管理员权限。"
 
@@ -8522,7 +8547,7 @@ msgstr ""
 "您的浏览器将断开连接，但这不会影响更新过程。您可以在几分钟后重新连接以继续观"
 "察进度。"
 
-#: pkg/shell/superuser.jsx:130
+#: pkg/shell/superuser.jsx:142
 msgid "Your browser will remember your access level across sessions."
 msgstr "你的浏览器将会在不同会话之间记住你的访问级别。"
 
@@ -8663,11 +8688,11 @@ msgstr "崩溃"
 msgid "crashed"
 msgstr "已崩溃"
 
-#: pkg/machines/hostvmslist.jsx:50
+#: pkg/machines/hostvmslist.jsx:52
 msgid "creating VM"
 msgstr "创建虚拟机"
 
-#: pkg/machines/hostvmslist.jsx:48
+#: pkg/machines/hostvmslist.jsx:50
 msgid "creating VM installation"
 msgstr "创建虚拟机安装"
 
@@ -8982,7 +9007,7 @@ msgstr "nfs dump 目标的格式不是 server:path"
 msgid "no"
 msgstr "否"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:91
+#: pkg/machines/components/vmSnapshotsTab.jsx:112
 msgid "no state saved"
 msgstr ""
 

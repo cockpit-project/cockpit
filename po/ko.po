@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-23 08:10+0000\n"
+"POT-Creation-Date: 2020-07-31 09:12+0000\n"
 "PO-Revision-Date: 2020-07-08 04:42+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -603,7 +603,7 @@ msgstr "계정을 사용할 수 없거나 편집 할 수 없습니다."
 msgid "Accounts"
 msgstr "계정"
 
-#: pkg/machines/hostvmslist.jsx:98
+#: pkg/apps/application-list.jsx:109
 msgid "Actions"
 msgstr "동작"
 
@@ -838,7 +838,7 @@ msgstr "주소"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit 웹 콘솔로 관리"
 
-#: pkg/shell/superuser.jsx:70 pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:82 pkg/shell/superuser.jsx:344
 msgid "Administrative access"
 msgstr "관리 액세스"
 
@@ -920,9 +920,15 @@ msgstr "Ansible 역할 문서"
 msgid "Appearance:"
 msgstr "Appearance:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:151
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
 #: pkg/apps/application.jsx:144 pkg/apps/manifest.json.in
 msgid "Applications"
+msgstr "애플리케이션"
+
+#: pkg/apps/application-list.jsx:175
+#, fuzzy
+#| msgid "Applications"
+msgid "Applications list"
 msgstr "애플리케이션"
 
 #: pkg/networkmanager/index.html:497 pkg/networkmanager/index.html:525
@@ -990,7 +996,7 @@ msgstr "특정 시간"
 msgid "Audit log"
 msgstr "감사 로그"
 
-#: pkg/shell/superuser.jsx:79
+#: pkg/shell/superuser.jsx:91
 msgid "Authenticate"
 msgstr "인증"
 
@@ -1319,9 +1325,10 @@ msgstr "이미지를 로드할 수 없습니다"
 #: pkg/machines/components/vm/bootOrderModal.jsx:325
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:150
 #: pkg/networkmanager/firewall.jsx:565 pkg/networkmanager/firewall.jsx:718
 #: pkg/networkmanager/firewall.jsx:741 pkg/packagekit/updates.jsx:192
-#: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
+#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:150
 #: pkg/sosreport/index.js:52 pkg/storaged/dialog.jsx:399
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:227
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
@@ -1448,7 +1455,7 @@ msgstr "RAID 장치 $target 확인 중"
 msgid "Checking and Repairing RAID Device $target"
 msgstr "RAID 장치 $target 확인 및 복구 중"
 
-#: pkg/apps/application-list.jsx:124
+#: pkg/apps/application-list.jsx:143
 msgid "Checking for new applications"
 msgstr "새 애플리케이션 확인 중"
 
@@ -1515,7 +1522,7 @@ msgstr "클라이언트 소프트웨어"
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
 #: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
-#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:95
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
@@ -1816,8 +1823,8 @@ msgstr "장치에 연결 중입니다"
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/hostvmslist.jsx:96
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/hostvmslist.jsx:98
 msgid "Connection"
 msgstr "연결"
 
@@ -1980,6 +1987,7 @@ msgstr "크래시 시스템"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:147
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -2031,6 +2039,8 @@ msgstr "RAID 장치 만들기"
 msgid "Create Report"
 msgstr "보고서 작성"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:139
+#: pkg/machines/components/vmSnapshotsTab.jsx:175
 #: pkg/storaged/content-views.jsx:269 pkg/storaged/content-views.jsx:290
 msgid "Create Snapshot"
 msgstr "스냅샷 생성"
@@ -2159,7 +2169,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "볼륨 그룹 $target 생성 중"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:56
+#: pkg/machines/components/vmSnapshotsTab.jsx:77
 #, fuzzy
 #| msgid "Create Timer"
 msgid "Creation Time"
@@ -2379,10 +2389,18 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "볼륨 그룹 $target 삭제 중"
 
-#: pkg/systemd/services.html:172 pkg/machines/components/vmSnapshotsTab.jsx:75
+#: pkg/systemd/services.html:172
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:61
+#: pkg/machines/components/vmSnapshotsTab.jsx:96
 #: pkg/networkmanager/firewall.jsx:668
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
+msgstr "설명"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:67
+#, fuzzy
+#| msgid "Description"
+msgid "Description input text"
 msgstr "설명"
 
 #: pkg/lib/machine-info.js:69
@@ -2526,7 +2544,7 @@ msgstr "디스크 암호"
 msgid "Disk settings could not be saved"
 msgstr "디스크 설정을 저장할 수 없습니다"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:97
+#: pkg/machines/components/vmSnapshotsTab.jsx:118
 msgid "Disk-only snapshot"
 msgstr ""
 
@@ -2591,11 +2609,11 @@ msgstr "도메인 관리자 이름"
 msgid "Domain Administrator Password"
 msgstr "도메인 관리자 암호"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:99
+#: pkg/machines/components/vmSnapshotsTab.jsx:120
 msgid "Domain has crashed"
 msgstr ""
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:98
+#: pkg/machines/components/vmSnapshotsTab.jsx:119
 msgid "Domain is blocked on resource"
 msgstr ""
 
@@ -3566,7 +3584,7 @@ msgstr "개시자 IQN은 비워둘 수 없습니다"
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
+#: pkg/apps/application-list.jsx:89 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:127
 msgid "Install"
@@ -3614,7 +3632,7 @@ msgstr "설치 유형"
 msgid "Installed"
 msgstr "설치됨"
 
-#: pkg/apps/application-list.jsx:49 pkg/apps/application.jsx:56
+#: pkg/apps/application-list.jsx:54 pkg/apps/application.jsx:56
 #: pkg/packagekit/updates.jsx:63
 msgid "Installing"
 msgstr "설치 중"
@@ -3940,15 +3958,15 @@ msgstr "라이센스 보유자:"
 msgid "Light"
 msgstr "경량"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:147
 msgid "Limit access"
 msgstr "액세스 제한"
 
-#: pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:344
 msgid "Limited access"
 msgstr "제한된 액세스"
 
-#: pkg/shell/superuser.jsx:129
+#: pkg/shell/superuser.jsx:141
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4358,7 +4376,7 @@ msgstr "실행 실패와 관련된 메시지는 저널에서 찾을 수 있습�
 msgid "Metadata Used"
 msgstr "사용된 메타데이터"
 
-#: pkg/shell/superuser.jsx:57
+#: pkg/shell/superuser.jsx:69
 msgid "Method"
 msgstr "방식"
 
@@ -4565,11 +4583,12 @@ msgstr "NTP 서버"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/components/vmSnapshotsTab.jsx:66
-#: pkg/machines/hostvmslist.jsx:95 pkg/packagekit/updates.jsx:394
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:41
+#: pkg/machines/components/vmSnapshotsTab.jsx:87
+#: pkg/machines/hostvmslist.jsx:97 pkg/packagekit/updates.jsx:394
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:271
 #: pkg/storaged/content-views.jsx:717 pkg/storaged/format-dialog.jsx:201
 #: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:340
@@ -4614,6 +4633,10 @@ msgstr "이름에는 공백이 없어야 합니다."
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name contains invalid characters"
 msgstr "이름에 잘못된 문자가 있습니다"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:50
+msgid "Name input text"
+msgstr ""
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid "Name must not be empty"
@@ -4810,7 +4833,7 @@ msgstr "이 스토리지 풀에 대해 정의된 스토리지 볼륨이 없습�
 msgid "No System Modifications"
 msgstr "시스템 수정 없음"
 
-#: pkg/machines/hostvmslist.jsx:92
+#: pkg/machines/hostvmslist.jsx:94
 msgid "No VM is running or defined on this host"
 msgstr "이 호스트에서 실행 중이거나 정의된 가상 머신이 없습니다"
 
@@ -4822,7 +4845,7 @@ msgstr "가상 네트워크가 없습니다"
 msgid "No alias specified"
 msgstr "alias가 지정되지 않았습니다"
 
-#: pkg/apps/application-list.jsx:138
+#: pkg/apps/application-list.jsx:156
 msgid "No applications installed or available"
 msgstr "애플리케이션이 설치되어 있지 않거나 사용할 수 없습니다"
 
@@ -4862,7 +4885,7 @@ msgstr "컨테이너 없음"
 msgid "No containers that match the current filter"
 msgstr "현재 필터에 일치하는 컨테이너가 없습니다"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:78
+#: pkg/machines/components/vmSnapshotsTab.jsx:99
 #, fuzzy
 #| msgid "Description"
 msgid "No description"
@@ -4955,7 +4978,7 @@ msgstr "이 호스트에 정의된 네트워크가 없습니다"
 msgid "No networks available"
 msgstr "사용 가능한 네트워크가 없습니다"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:119
+#: pkg/machines/components/vmSnapshotsTab.jsx:140
 #, fuzzy
 #| msgid "Parent"
 msgid "No parent"
@@ -4996,11 +5019,11 @@ msgstr "실행 중인 컨테이너가 없습니다"
 msgid "No running containers that match the current filter"
 msgstr "현재 필터에 일치하는 실행 중인 컨테이너가 없습니다"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:50
+#: pkg/machines/components/vmSnapshotsTab.jsx:71
 msgid "No snapshots"
 msgstr ""
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:55
+#: pkg/machines/components/storagePools/storagePoolList.jsx:57
 msgid "No storage pool is defined on this host"
 msgstr "이 호스트에 지정된 스토리지 풀이 없습니다"
 
@@ -5299,7 +5322,7 @@ msgstr "부모"
 msgid "Parent $parent"
 msgstr "부모 $parent"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:118
+#: pkg/machines/components/vmSnapshotsTab.jsx:139
 #, fuzzy
 #| msgid "Create Snapshot"
 msgid "Parent Snapshot"
@@ -5354,7 +5377,7 @@ msgstr "암호가 일치하지 않습니다"
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:275
 #: pkg/shell/index.html:304 pkg/shell/index.html:319 src/ws/login.html:55
-#: pkg/shell/superuser.jsx:44 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/shell/superuser.jsx:56 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157 pkg/users/account-create-dialog.js:52
 #: pkg/users/account-details.js:318
 msgid "Password"
@@ -5509,7 +5532,7 @@ msgstr "Ping 대상"
 msgid "Pizza Box"
 msgstr "Pizza Box"
 
-#: pkg/shell/superuser.jsx:43
+#: pkg/shell/superuser.jsx:55
 msgid "Please authenticate to gain administrative access"
 msgstr "관리 액세스 권한을 얻으려면 인증하십시오"
 
@@ -5674,7 +5697,7 @@ msgstr "모양새를 갖춘 호스트 이름"
 msgid "Previous boot"
 msgstr "이전 부트"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:51
+#: pkg/machines/components/vmSnapshotsTab.jsx:72
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -5984,7 +6007,7 @@ msgstr "삭제 가능한 드라이브"
 msgid "Removals:"
 msgstr "삭제:"
 
-#: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:110
 #: pkg/machines/components/vmDisksTab.jsx:171
 #: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
@@ -6030,7 +6053,7 @@ msgstr "$0 영역 제거"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/apps/application-list.jsx:53 pkg/apps/application.jsx:60
+#: pkg/apps/application-list.jsx:58 pkg/apps/application.jsx:60
 msgid "Removing"
 msgstr "삭제 중"
 
@@ -6698,7 +6721,7 @@ msgstr "펌웨어 구성을 편집하려면 VM을 종료하십시오"
 msgid "Shutdown"
 msgstr "종료"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:96
+#: pkg/machines/components/vmSnapshotsTab.jsx:117
 #, fuzzy
 #| msgid "Shutdown"
 msgid "Shutting down"
@@ -6710,7 +6733,7 @@ msgstr "단일 등급"
 
 #: pkg/docker/containers-view.jsx:573
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:764
@@ -6758,6 +6781,12 @@ msgstr "슬롯"
 msgid "Slot $0"
 msgstr "슬롯 $0"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:121
+#, fuzzy
+#| msgid "Disk failed to be created"
+msgid "Snapshot failed to be created"
+msgstr "디스크를 만들지 못했습니다"
+
 #: pkg/machines/components/vm/vmExpandedContent.jsx:50
 #, fuzzy
 #| msgid "Create Snapshot"
@@ -6803,7 +6832,7 @@ msgid ""
 msgstr ""
 "다른 프로그램이 패키지 관리자를 사용 중입니다. 잠시만 기다려주십시오..."
 
-#: pkg/shell/superuser.jsx:291
+#: pkg/shell/superuser.jsx:303
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
@@ -6923,8 +6952,8 @@ msgstr "시작"
 
 #: pkg/docker/containers-view.jsx:137 pkg/docker/containers-view.jsx:366
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:97
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:99
 #: pkg/systemd/hwinfo.jsx:273 pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "상태"
@@ -7032,8 +7061,8 @@ msgstr "스토리지 풀 이름"
 msgid "Storage Pool failed to be created"
 msgstr "스토리지 풀 생성에 실패했습니다"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:48
-#: pkg/machines/components/storagePools/storagePoolList.jsx:52
+#: pkg/machines/components/storagePools/storagePoolList.jsx:50
+#: pkg/machines/components/storagePools/storagePoolList.jsx:54
 msgid "Storage Pools"
 msgstr "스토리지 풀"
 
@@ -7114,7 +7143,7 @@ msgstr "$0 끄기"
 msgid "Switch on $0"
 msgstr "$0 켜기"
 
-#: pkg/shell/superuser.jsx:126
+#: pkg/shell/superuser.jsx:138
 msgid "Switch to limited access"
 msgstr "제한된 액세스로 전환"
 
@@ -7663,7 +7692,7 @@ msgstr ""
 "현재 이 장치는 볼륨 그룹으로 사용되고 있습니다. 계속 진행하면 볼륨 그룹에서 "
 "이 장치가 제거됩니다."
 
-#: pkg/shell/superuser.jsx:288
+#: pkg/shell/superuser.jsx:300
 msgid "This didn't work, please try again"
 msgstr "작동하지 않습니다. 다시 시도하십시오"
 
@@ -7831,7 +7860,7 @@ msgid ""
 msgstr ""
 "다른 포트를 사용하려면 cockpit-ws를 최신 버전으로 업그레이드해야 합니다."
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:34
+#: pkg/machines/components/vmSnapshotsTab.jsx:35
 msgid "Today"
 msgstr ""
 
@@ -8186,7 +8215,7 @@ msgstr "변경 내역 업데이트"
 msgid "Update Log"
 msgstr "로그 업데이트"
 
-#: pkg/apps/application-list.jsx:129
+#: pkg/apps/application-list.jsx:148
 msgid "Update package information"
 msgstr "패키지 정보 업데이트"
 
@@ -8337,15 +8366,15 @@ msgstr "VLAN 설정"
 msgid "VM $0 already exists"
 msgstr "VM $0이 이미 존재합니다"
 
-#: pkg/machines/hostvmslist.jsx:123
+#: pkg/machines/hostvmslist.jsx:125
 msgid "VM $0 failed to Reboot"
 msgstr "VM $0 재부팅에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:131
 msgid "VM $0 failed to force Reboot"
 msgstr "VM $0 강제 재부팅에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:153
+#: pkg/machines/hostvmslist.jsx:155
 msgid "VM $0 failed to force shutdown"
 msgstr "VM $0 강제 종료에 실패했습니다"
 
@@ -8353,31 +8382,31 @@ msgstr "VM $0 강제 종료에 실패했습니다"
 msgid "VM $0 failed to get deleted"
 msgstr "VM $0 삭제에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:117 pkg/machines/libvirt-common.js:1378
+#: pkg/machines/hostvmslist.jsx:119 pkg/machines/libvirt-common.js:1378
 msgid "VM $0 failed to get installed"
 msgstr "VM $0 설치에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:141
+#: pkg/machines/hostvmslist.jsx:143
 msgid "VM $0 failed to pause"
 msgstr "VM $0 일시 정지에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:147
+#: pkg/machines/hostvmslist.jsx:149
 msgid "VM $0 failed to resume"
 msgstr "VM $0 재개에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:159
+#: pkg/machines/hostvmslist.jsx:161
 msgid "VM $0 failed to send NMI"
 msgstr "VM $0의 NMI 전송에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:135
+#: pkg/machines/hostvmslist.jsx:137
 msgid "VM $0 failed to shutdown"
 msgstr "VM $0 종료에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:111
+#: pkg/machines/hostvmslist.jsx:113
 msgid "VM $0 failed to start"
 msgstr "VM $0 시작에 실패했습니다"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:88
+#: pkg/machines/components/vmSnapshotsTab.jsx:109
 #, fuzzy
 #| msgid "State"
 msgid "VM State"
@@ -8456,8 +8485,8 @@ msgid "View report"
 msgstr "보고서 보기"
 
 #: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/storagePoolList.jsx:45
-#: pkg/machines/hostvmslist.jsx:90 pkg/machines/manifest.json.in
+#: pkg/machines/components/storagePools/storagePoolList.jsx:47
+#: pkg/machines/hostvmslist.jsx:92 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "가상머신"
 
@@ -8631,7 +8660,7 @@ msgstr "XOR"
 msgid "Yes"
 msgstr "네"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:33
+#: pkg/machines/components/vmSnapshotsTab.jsx:34
 msgid "Yesterday"
 msgstr ""
 
@@ -8652,7 +8681,7 @@ msgstr "현재 직접적으로 이 서버에 연결되어 있습니다. 삭제�
 msgid "You are not authorized to modify the firewall."
 msgstr "방화벽을 수정할 수있는 권한이 없습니다."
 
-#: pkg/shell/superuser.jsx:221
+#: pkg/shell/superuser.jsx:233
 msgid "You can not gain administrative access."
 msgstr "관리 액세스 권한을 얻을 수 없습니다."
 
@@ -8683,7 +8712,7 @@ msgid ""
 "You need to switch to \"Administrative Access\" in order to create reports."
 msgstr "보고서를 작성하려면 \"관리 액세스\"로 전환해야합니다."
 
-#: pkg/shell/superuser.jsx:279
+#: pkg/shell/superuser.jsx:291
 msgid "You now have administrative access."
 msgstr "이제 관리자 액세스 권한이 있습니다."
 
@@ -8703,7 +8732,7 @@ msgstr ""
 "브라우저 연결이 해제되지만 업데이트 프로세스에는 영향을 미치지 않습니다. 다"
 "시 연결 하여 진행 상황을 계속 확인할 수 있습니다."
 
-#: pkg/shell/superuser.jsx:130
+#: pkg/shell/superuser.jsx:142
 msgid "Your browser will remember your access level across sessions."
 msgstr "브라우저는 서로 다른 세션 간의 액세스 수준을 기억합니다."
 
@@ -8847,11 +8876,11 @@ msgstr "충돌"
 msgid "crashed"
 msgstr "충돌됨"
 
-#: pkg/machines/hostvmslist.jsx:50
+#: pkg/machines/hostvmslist.jsx:52
 msgid "creating VM"
 msgstr "VM 생성 중"
 
-#: pkg/machines/hostvmslist.jsx:48
+#: pkg/machines/hostvmslist.jsx:50
 msgid "creating VM installation"
 msgstr "VM 설치 생성 중"
 
@@ -9166,7 +9195,7 @@ msgstr "nfs 덤프 대상이 server:path 형식으로 되어 있지 않습니다
 msgid "no"
 msgstr "아니요"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:91
+#: pkg/machines/components/vmSnapshotsTab.jsx:112
 msgid "no state saved"
 msgstr ""
 

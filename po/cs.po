@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-23 08:10+0000\n"
-"PO-Revision-Date: 2020-07-26 17:28+0000\n"
+"POT-Creation-Date: 2020-07-31 09:12+0000\n"
+"PO-Revision-Date: 2020-08-03 14:29+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "master/cs/>\n"
@@ -650,7 +650,7 @@ msgstr "Účet není k dispozici nebo ho není možné měnit."
 msgid "Accounts"
 msgstr "Účty"
 
-#: pkg/machines/hostvmslist.jsx:98
+#: pkg/apps/application-list.jsx:109
 msgid "Actions"
 msgstr "Akce"
 
@@ -895,7 +895,7 @@ msgstr "Adresy"
 msgid "Administration with Cockpit Web Console"
 msgstr "Správa pomocí webové konzole Cockpit"
 
-#: pkg/shell/superuser.jsx:70 pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:82 pkg/shell/superuser.jsx:344
 msgid "Administrative access"
 msgstr "Přístup na úrovni správce"
 
@@ -979,10 +979,14 @@ msgstr "Dokumentace k Ansible rolím"
 msgid "Appearance:"
 msgstr "Vzhled:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:151
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
 #: pkg/apps/application.jsx:144 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "Aplikace"
+
+#: pkg/apps/application-list.jsx:175
+msgid "Applications list"
+msgstr "Seznam aplikací"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
@@ -1051,7 +1055,7 @@ msgstr "V uvedený čas"
 msgid "Audit log"
 msgstr "Záznam auditu"
 
-#: pkg/shell/superuser.jsx:79
+#: pkg/shell/superuser.jsx:91
 msgid "Authenticate"
 msgstr "Ověřit se"
 
@@ -1397,9 +1401,10 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/machines/components/vm/bootOrderModal.jsx:325
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:150
 #: pkg/networkmanager/firewall.jsx:565 pkg/networkmanager/firewall.jsx:718
 #: pkg/networkmanager/firewall.jsx:741 pkg/packagekit/updates.jsx:192
-#: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
+#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:150
 #: pkg/sosreport/index.js:52 pkg/storaged/dialog.jsx:399
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:227
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
@@ -1531,7 +1536,7 @@ msgstr "Ověřuje se RAID zařízení $target"
 msgid "Checking and Repairing RAID Device $target"
 msgstr "Kontroluje a opravuje se RAID zařízení $target"
 
-#: pkg/apps/application-list.jsx:124
+#: pkg/apps/application-list.jsx:143
 msgid "Checking for new applications"
 msgstr "Hledají se nové aplikace"
 
@@ -1604,7 +1609,7 @@ msgstr "Klientský software"
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
 #: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
-#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:95
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
@@ -1924,8 +1929,8 @@ msgstr "Připojování ke stroji"
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/hostvmslist.jsx:96
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/hostvmslist.jsx:98
 msgid "Connection"
 msgstr "Spojení"
 
@@ -2091,6 +2096,7 @@ msgstr "Zhavarovat systém"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:147
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -2144,6 +2150,8 @@ msgstr "Vytvořit RAID zařízení"
 msgid "Create Report"
 msgstr "Vytvořit výkaz"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:139
+#: pkg/machines/components/vmSnapshotsTab.jsx:175
 #: pkg/storaged/content-views.jsx:269 pkg/storaged/content-views.jsx:290
 msgid "Create Snapshot"
 msgstr "Pořídit zachycený stav"
@@ -2273,7 +2281,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Vytváření skupiny svazků $target"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:56
+#: pkg/machines/components/vmSnapshotsTab.jsx:77
 msgid "Creation Time"
 msgstr "Okamžik vytvoření"
 
@@ -2498,11 +2506,19 @@ msgstr "Maže se skupina svazků $target"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/services.html:172 pkg/machines/components/vmSnapshotsTab.jsx:75
+#: pkg/systemd/services.html:172
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:61
+#: pkg/machines/components/vmSnapshotsTab.jsx:96
 #: pkg/networkmanager/firewall.jsx:668
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
 msgstr "Popis"
+
+# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
+# po/ipa
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:67
+msgid "Description input text"
+msgstr "Vstupní text popisu"
 
 # auto translated by TM merge from project: Fedora Websites, version:
 # arm.fedoraproject.org, DocId: po/arm.fedoraproject.org
@@ -2657,7 +2673,7 @@ msgstr "Heslová fráze k disku"
 msgid "Disk settings could not be saved"
 msgstr "Nastavení disku nebylo možné uložit"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:97
+#: pkg/machines/components/vmSnapshotsTab.jsx:118
 msgid "Disk-only snapshot"
 msgstr "Zachycený stav pouze disku"
 
@@ -2724,11 +2740,11 @@ msgstr "Uživatelské jméno správce domény"
 msgid "Domain Administrator Password"
 msgstr "Heslo správce domény"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:99
+#: pkg/machines/components/vmSnapshotsTab.jsx:120
 msgid "Domain has crashed"
 msgstr "(virt.) doména zhavarovala"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:98
+#: pkg/machines/components/vmSnapshotsTab.jsx:119
 msgid "Domain is blocked on resource"
 msgstr "(virt.) doména je blokována na (výpočetním) prostředku"
 
@@ -3774,7 +3790,7 @@ msgid "Insights: "
 msgstr "Vhledy: "
 
 # auto translated by TM merge from project: dnf, version: master, DocId: dnf
-#: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
+#: pkg/apps/application-list.jsx:89 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:127
 msgid "Install"
@@ -3826,7 +3842,7 @@ msgstr "Nainstalováno"
 
 # auto translated by TM merge from project: dnf, version: master, DocId:
 # po/dnf
-#: pkg/apps/application-list.jsx:49 pkg/apps/application.jsx:56
+#: pkg/apps/application-list.jsx:54 pkg/apps/application.jsx:56
 #: pkg/packagekit/updates.jsx:63
 msgid "Installing"
 msgstr "Instaluje se"
@@ -4166,15 +4182,15 @@ msgstr "Licencováno pod:"
 msgid "Light"
 msgstr "Světlý"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:147
 msgid "Limit access"
 msgstr "Omezit přístup"
 
-#: pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:344
 msgid "Limited access"
 msgstr "Omezený přístup"
 
-#: pkg/shell/superuser.jsx:129
+#: pkg/shell/superuser.jsx:141
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4600,7 +4616,7 @@ msgstr "Zprávy týkající se nezdaru se mohou nacházet v žurnálu:"
 msgid "Metadata Used"
 msgstr "Využito metadat"
 
-#: pkg/shell/superuser.jsx:57
+#: pkg/shell/superuser.jsx:69
 msgid "Method"
 msgstr "Metoda"
 
@@ -4825,11 +4841,12 @@ msgstr "NTP server"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/components/vmSnapshotsTab.jsx:66
-#: pkg/machines/hostvmslist.jsx:95 pkg/packagekit/updates.jsx:394
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:41
+#: pkg/machines/components/vmSnapshotsTab.jsx:87
+#: pkg/machines/hostvmslist.jsx:97 pkg/packagekit/updates.jsx:394
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:271
 #: pkg/storaged/content-views.jsx:717 pkg/storaged/format-dialog.jsx:201
 #: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:340
@@ -4874,6 +4891,10 @@ msgstr "Název nemůže obsahovat prázdné znaky."
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name contains invalid characters"
 msgstr "Název obsahuje neplatné znaky"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:50
+msgid "Name input text"
+msgstr "Vstupní text názvu"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid "Name must not be empty"
@@ -5083,7 +5104,7 @@ msgstr "Pro tento fond úložiště nejsou definované žádné úložné svazky
 msgid "No System Modifications"
 msgstr "Žádné modifikace systému"
 
-#: pkg/machines/hostvmslist.jsx:92
+#: pkg/machines/hostvmslist.jsx:94
 msgid "No VM is running or defined on this host"
 msgstr "Na tomto stroji nejsou spuštěné nebo definované žádné virt. stroje"
 
@@ -5095,7 +5116,7 @@ msgstr "Žádné virtuální sítě"
 msgid "No alias specified"
 msgstr "Není zadán žádný alternativní název"
 
-#: pkg/apps/application-list.jsx:138
+#: pkg/apps/application-list.jsx:156
 msgid "No applications installed or available"
 msgstr "Nejsou nainstalované ani dostupné žádné aplikace"
 
@@ -5137,7 +5158,7 @@ msgstr "Žádné kontejnery, které by odpovídaly stávajícímu filtru"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/machines/components/vmSnapshotsTab.jsx:78
+#: pkg/machines/components/vmSnapshotsTab.jsx:99
 msgid "No description"
 msgstr "Bez popisu"
 
@@ -5233,7 +5254,7 @@ msgstr "Žádné sítě k dispozici"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/machines/components/vmSnapshotsTab.jsx:119
+#: pkg/machines/components/vmSnapshotsTab.jsx:140
 msgid "No parent"
 msgstr "Nic nenadřazeno"
 
@@ -5272,11 +5293,11 @@ msgstr "Žádné spuštěné kontejnery"
 msgid "No running containers that match the current filter"
 msgstr "Žádné spuštěné kontejnery, které by odpovídaly stávajícímu filtru"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:50
+#: pkg/machines/components/vmSnapshotsTab.jsx:71
 msgid "No snapshots"
 msgstr "Nejsou zachycené stavy"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:55
+#: pkg/machines/components/storagePools/storagePoolList.jsx:57
 msgid "No storage pool is defined on this host"
 msgstr "Na tomto stroji není definován žádný fond úložiště"
 
@@ -5583,7 +5604,7 @@ msgstr "Nadřazené"
 msgid "Parent $parent"
 msgstr "Nadřazené $parent"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:118
+#: pkg/machines/components/vmSnapshotsTab.jsx:139
 msgid "Parent Snapshot"
 msgstr "Nadřazený zachycený stav"
 
@@ -5642,7 +5663,7 @@ msgstr "Zadání heslové fráze se neshodují"
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:275
 #: pkg/shell/index.html:304 pkg/shell/index.html:319 src/ws/login.html:55
-#: pkg/shell/superuser.jsx:44 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/shell/superuser.jsx:56 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157 pkg/users/account-create-dialog.js:52
 #: pkg/users/account-details.js:318
 msgid "Password"
@@ -5803,7 +5824,7 @@ msgstr "Cíl pro ping"
 msgid "Pizza Box"
 msgstr "Velikost „krabice od pizzy“"
 
-#: pkg/shell/superuser.jsx:43
+#: pkg/shell/superuser.jsx:55
 msgid "Please authenticate to gain administrative access"
 msgstr "Pro získání přístupu na úrovni správce se prosím ověřte"
 
@@ -5977,7 +5998,7 @@ msgstr "Hezký název stroje"
 msgid "Previous boot"
 msgstr "Předchozí zavedení"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:51
+#: pkg/machines/components/vmSnapshotsTab.jsx:72
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -6302,7 +6323,7 @@ msgstr "Odebrání:"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:110
 #: pkg/machines/components/vmDisksTab.jsx:171
 #: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
@@ -6347,7 +6368,7 @@ msgid "Remove zone $0"
 msgstr "Odebrat zónu $0"
 
 # auto translated by TM merge from project: dnf, version: master, DocId: dnf
-#: pkg/apps/application-list.jsx:53 pkg/apps/application.jsx:60
+#: pkg/apps/application-list.jsx:58 pkg/apps/application.jsx:60
 msgid "Removing"
 msgstr "Odebírá se"
 
@@ -7041,7 +7062,7 @@ msgstr ""
 msgid "Shutdown"
 msgstr "Vypnout"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:96
+#: pkg/machines/components/vmSnapshotsTab.jsx:117
 msgid "Shutting down"
 msgstr "Vypínání"
 
@@ -7053,7 +7074,7 @@ msgstr "Single Rank"
 # po/ipa
 #: pkg/docker/containers-view.jsx:573
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:764
@@ -7101,6 +7122,10 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:121
+msgid "Snapshot failed to be created"
+msgstr "Zachycený stav se nepodařilo vytvořit"
+
 #: pkg/machines/components/vm/vmExpandedContent.jsx:50
 msgid "Snapshots"
 msgstr "Zachycené stavy"
@@ -7142,7 +7167,7 @@ msgid ""
 msgstr ""
 "Správa balíčků je v tuto chvíli používána nějakým jiným programem, vyčkejte…"
 
-#: pkg/shell/superuser.jsx:291
+#: pkg/shell/superuser.jsx:303
 msgid "Something went wrong"
 msgstr "Něco se pokazilo"
 
@@ -7265,8 +7290,8 @@ msgstr "Při spuštění"
 # version: master, DocId: policycoreutils
 #: pkg/docker/containers-view.jsx:137 pkg/docker/containers-view.jsx:366
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:97
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:99
 #: pkg/systemd/hwinfo.jsx:273 pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "Stav"
@@ -7386,8 +7411,8 @@ msgstr "Název fondu úložiště"
 msgid "Storage Pool failed to be created"
 msgstr "Fond úložiště se nepodařilo uložit"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:48
-#: pkg/machines/components/storagePools/storagePoolList.jsx:52
+#: pkg/machines/components/storagePools/storagePoolList.jsx:50
+#: pkg/machines/components/storagePools/storagePoolList.jsx:54
 msgid "Storage Pools"
 msgstr "Fondy úložiště"
 
@@ -7472,7 +7497,7 @@ msgstr "Vypnout $0"
 msgid "Switch on $0"
 msgstr "Zapnout $0"
 
-#: pkg/shell/superuser.jsx:126
+#: pkg/shell/superuser.jsx:138
 msgid "Switch to limited access"
 msgstr "Přepnout na omezený přístup"
 
@@ -8043,7 +8068,7 @@ msgstr ""
 "Toto zařízení je v tuto chvíli používáno ve skupinách svazků. Pokračování ho "
 "odebere z jeho skupin svazků."
 
-#: pkg/shell/superuser.jsx:288
+#: pkg/shell/superuser.jsx:300
 msgid "This didn't work, please try again"
 msgstr "Toto nezafungovalo, zkuste to prosím znovu"
 
@@ -8215,7 +8240,7 @@ msgid ""
 msgstr ""
 "Pro vyzkoušení jiného portu bude třeba přejít na novější verzi cockpit-ws."
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:34
+#: pkg/machines/components/vmSnapshotsTab.jsx:35
 msgid "Today"
 msgstr "Dnes"
 
@@ -8584,7 +8609,7 @@ msgstr "Historie aktualizací"
 msgid "Update Log"
 msgstr "Záznam událostí aktualizací"
 
-#: pkg/apps/application-list.jsx:129
+#: pkg/apps/application-list.jsx:148
 msgid "Update package information"
 msgstr "Aktualizovat informace o balíčcích"
 
@@ -8749,15 +8774,15 @@ msgstr "Nastavení VLAN"
 msgid "VM $0 already exists"
 msgstr "Virt. stroj $0 už existuje"
 
-#: pkg/machines/hostvmslist.jsx:123
+#: pkg/machines/hostvmslist.jsx:125
 msgid "VM $0 failed to Reboot"
 msgstr "Virt. stroj $0 se nepodařilo restartovat"
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:131
 msgid "VM $0 failed to force Reboot"
 msgstr "Nepodařilo se vynutit restart virt. stroje $0"
 
-#: pkg/machines/hostvmslist.jsx:153
+#: pkg/machines/hostvmslist.jsx:155
 msgid "VM $0 failed to force shutdown"
 msgstr "Nepodařilo se vynutit vypnutí virt. stroje $0"
 
@@ -8765,33 +8790,33 @@ msgstr "Nepodařilo se vynutit vypnutí virt. stroje $0"
 msgid "VM $0 failed to get deleted"
 msgstr "Virt. stroj $0 se nezdařilo smazat"
 
-#: pkg/machines/hostvmslist.jsx:117 pkg/machines/libvirt-common.js:1378
+#: pkg/machines/hostvmslist.jsx:119 pkg/machines/libvirt-common.js:1378
 msgid "VM $0 failed to get installed"
 msgstr "Virt. stroj $0 se nezdařilo nainstalovat"
 
-#: pkg/machines/hostvmslist.jsx:141
+#: pkg/machines/hostvmslist.jsx:143
 msgid "VM $0 failed to pause"
 msgstr "Virt. stroj $0 se nezdařilo pozastavit"
 
-#: pkg/machines/hostvmslist.jsx:147
+#: pkg/machines/hostvmslist.jsx:149
 msgid "VM $0 failed to resume"
 msgstr "Nezdařilo se navázat v chodu virt. stroje $0"
 
-#: pkg/machines/hostvmslist.jsx:159
+#: pkg/machines/hostvmslist.jsx:161
 msgid "VM $0 failed to send NMI"
 msgstr "Nezdařilo se zaslat virt. stroji $0 nemaskovatelné přerušení"
 
-#: pkg/machines/hostvmslist.jsx:135
+#: pkg/machines/hostvmslist.jsx:137
 msgid "VM $0 failed to shutdown"
 msgstr "Virt. stroj $0 se nepodařilo vypnout"
 
-#: pkg/machines/hostvmslist.jsx:111
+#: pkg/machines/hostvmslist.jsx:113
 msgid "VM $0 failed to start"
 msgstr "Virt. stroj $0 se nepodařilo zapnout"
 
 # auto translated by TM merge from project: selinux (policycoreutils),
 # version: master, DocId: policycoreutils
-#: pkg/machines/components/vmSnapshotsTab.jsx:88
+#: pkg/machines/components/vmSnapshotsTab.jsx:109
 msgid "VM State"
 msgstr "Stav virt. stroje"
 
@@ -8874,8 +8899,8 @@ msgid "View report"
 msgstr "Zobrazit hlášení"
 
 #: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/storagePoolList.jsx:45
-#: pkg/machines/hostvmslist.jsx:90 pkg/machines/manifest.json.in
+#: pkg/machines/components/storagePools/storagePoolList.jsx:47
+#: pkg/machines/hostvmslist.jsx:92 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "Virtuální stroje"
 
@@ -9059,7 +9084,7 @@ msgstr "XOR"
 msgid "Yes"
 msgstr "Ano"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:33
+#: pkg/machines/components/vmSnapshotsTab.jsx:34
 msgid "Yesterday"
 msgstr "Včera"
 
@@ -9082,7 +9107,7 @@ msgstr ""
 msgid "You are not authorized to modify the firewall."
 msgstr "Nemáte oprávnění upravovat bránu firewall."
 
-#: pkg/shell/superuser.jsx:221
+#: pkg/shell/superuser.jsx:233
 msgid "You can not gain administrative access."
 msgstr "Nemáte oprávnění pro získání přístupu na úrovni správce systému."
 
@@ -9115,7 +9140,7 @@ msgstr ""
 "Abyste mohli vytvářet výkazy, je třeba se přepnout do „Přístupu na úrovni "
 "správy“."
 
-#: pkg/shell/superuser.jsx:279
+#: pkg/shell/superuser.jsx:291
 msgid "You now have administrative access."
 msgstr "Nyní máte přístup na úrovni správy systému."
 
@@ -9135,7 +9160,7 @@ msgstr ""
 "Váš prohlížeč se odpojí, ale to neovlivní proces aktualizace. Můžete se "
 "kdykoli znovu připojit a podívat se na postup."
 
-#: pkg/shell/superuser.jsx:130
+#: pkg/shell/superuser.jsx:142
 msgid "Your browser will remember your access level across sessions."
 msgstr "Váš prohlížeč si bude úroveň přístupu pamatovat i pro příště."
 
@@ -9286,11 +9311,11 @@ msgstr "pád"
 msgid "crashed"
 msgstr "zhavarovalo"
 
-#: pkg/machines/hostvmslist.jsx:50
+#: pkg/machines/hostvmslist.jsx:52
 msgid "creating VM"
 msgstr "vytváří se virt. stroj"
 
-#: pkg/machines/hostvmslist.jsx:48
+#: pkg/machines/hostvmslist.jsx:50
 msgid "creating VM installation"
 msgstr "vytváří se instalace virt. stroje"
 
@@ -9615,7 +9640,7 @@ msgstr "cíl výpisu nfs nemá podobu server:umisteni"
 msgid "no"
 msgstr "ne"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:91
+#: pkg/machines/components/vmSnapshotsTab.jsx:112
 msgid "no state saved"
 msgstr "neuložen žádný stav"
 

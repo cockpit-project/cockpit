@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-23 08:10+0000\n"
-"PO-Revision-Date: 2020-07-26 17:29+0000\n"
+"POT-Creation-Date: 2020-07-31 09:12+0000\n"
+"PO-Revision-Date: 2020-08-03 14:29+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/master/uk/>\n"
@@ -648,7 +648,7 @@ msgstr "Обліковий запис недоступний або його н�
 msgid "Accounts"
 msgstr "Облікові записи"
 
-#: pkg/machines/hostvmslist.jsx:98
+#: pkg/apps/application-list.jsx:109
 msgid "Actions"
 msgstr "Дії"
 
@@ -883,7 +883,7 @@ msgstr "Адреси"
 msgid "Administration with Cockpit Web Console"
 msgstr "Адміністрування за допомогою вебконсолі Cockpit"
 
-#: pkg/shell/superuser.jsx:70 pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:82 pkg/shell/superuser.jsx:344
 msgid "Administrative access"
 msgstr "Адміністративний доступ"
 
@@ -966,10 +966,14 @@ msgstr "Документація з ролей Ansible"
 msgid "Appearance:"
 msgstr "Вигляд:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:151
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
 #: pkg/apps/application.jsx:144 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "Програми"
+
+#: pkg/apps/application-list.jsx:175
+msgid "Applications list"
+msgstr "Список програм"
 
 #: pkg/networkmanager/index.html:497 pkg/networkmanager/index.html:525
 #: pkg/networkmanager/index.html:552 pkg/networkmanager/index.html:579
@@ -1036,7 +1040,7 @@ msgstr "У вказаний момент часу"
 msgid "Audit log"
 msgstr "Журнал інспектування"
 
-#: pkg/shell/superuser.jsx:79
+#: pkg/shell/superuser.jsx:91
 msgid "Authenticate"
 msgstr "Розпізнавання"
 
@@ -1366,9 +1370,10 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/machines/components/vm/bootOrderModal.jsx:325
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:150
 #: pkg/networkmanager/firewall.jsx:565 pkg/networkmanager/firewall.jsx:718
 #: pkg/networkmanager/firewall.jsx:741 pkg/packagekit/updates.jsx:192
-#: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
+#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:150
 #: pkg/sosreport/index.js:52 pkg/storaged/dialog.jsx:399
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:227
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
@@ -1496,7 +1501,7 @@ msgstr "Перевіряємо пристрій RAID $target"
 msgid "Checking and Repairing RAID Device $target"
 msgstr "Перевіряємо і відновлюємо пристрій RAID $target"
 
-#: pkg/apps/application-list.jsx:124
+#: pkg/apps/application-list.jsx:143
 msgid "Checking for new applications"
 msgstr "Шукаємо нові програми"
 
@@ -1565,7 +1570,7 @@ msgstr "Клієнтське програмне забезпечення"
 #: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:734
 #: pkg/shell/index.html:162 pkg/shell/index.html:221 pkg/shell/index.html:403
 #: pkg/systemd/index.html:56 pkg/apps/utils.jsx:104
-#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:95
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
@@ -1877,8 +1882,8 @@ msgstr "Встановлюємо з’єднання із комп’ютеро�
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/hostvmslist.jsx:96
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/hostvmslist.jsx:98
 msgid "Connection"
 msgstr "З’єднання"
 
@@ -2039,6 +2044,7 @@ msgstr "Аварійно завершити роботу системи"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:147
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -2090,6 +2096,8 @@ msgstr "Створити пристрій RAID"
 msgid "Create Report"
 msgstr "Створити звіт"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:139
+#: pkg/machines/components/vmSnapshotsTab.jsx:175
 #: pkg/storaged/content-views.jsx:269 pkg/storaged/content-views.jsx:290
 msgid "Create Snapshot"
 msgstr "Створення знімка"
@@ -2219,7 +2227,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Створюємо групу томів $target"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:56
+#: pkg/machines/components/vmSnapshotsTab.jsx:77
 msgid "Creation Time"
 msgstr "Час створення"
 
@@ -2443,11 +2451,17 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Вилучаємо групу томів $target"
 
-#: pkg/systemd/services.html:172 pkg/machines/components/vmSnapshotsTab.jsx:75
+#: pkg/systemd/services.html:172
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:61
+#: pkg/machines/components/vmSnapshotsTab.jsx:96
 #: pkg/networkmanager/firewall.jsx:668
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
 msgstr "Опис"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:67
+msgid "Description input text"
+msgstr "Вхідний текст опису"
 
 #: pkg/lib/machine-info.js:69
 msgid "Desktop"
@@ -2588,7 +2602,7 @@ msgstr "Пароль до диска"
 msgid "Disk settings could not be saved"
 msgstr "Не вдалося зберегти параметри диска"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:97
+#: pkg/machines/components/vmSnapshotsTab.jsx:118
 msgid "Disk-only snapshot"
 msgstr "Знімок лише на диску"
 
@@ -2653,11 +2667,11 @@ msgstr "Ім’я адміністратора домену"
 msgid "Domain Administrator Password"
 msgstr "Пароль адміністратора домену"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:99
+#: pkg/machines/components/vmSnapshotsTab.jsx:120
 msgid "Domain has crashed"
 msgstr "Домен завершив роботу аварійно"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:98
+#: pkg/machines/components/vmSnapshotsTab.jsx:119
 msgid "Domain is blocked on resource"
 msgstr "Домен заблоковано на ресурсі"
 
@@ -3628,7 +3642,7 @@ msgstr "IQN ініціатора має бути непорожнімy"
 msgid "Insights: "
 msgstr "Натяки: "
 
-#: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
+#: pkg/apps/application-list.jsx:89 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:127
 msgid "Install"
@@ -3676,7 +3690,7 @@ msgstr "Тип встановлення"
 msgid "Installed"
 msgstr "Встановлено"
 
-#: pkg/apps/application-list.jsx:49 pkg/apps/application.jsx:56
+#: pkg/apps/application-list.jsx:54 pkg/apps/application.jsx:56
 #: pkg/packagekit/updates.jsx:63
 msgid "Installing"
 msgstr "Встановлення"
@@ -4006,15 +4020,15 @@ msgstr "Умови ліцензування:"
 msgid "Light"
 msgstr "Світлий"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:147
 msgid "Limit access"
 msgstr "Обмежити доступ"
 
-#: pkg/shell/superuser.jsx:332
+#: pkg/shell/superuser.jsx:344
 msgid "Limited access"
 msgstr "Обмежений доступ"
 
-#: pkg/shell/superuser.jsx:129
+#: pkg/shell/superuser.jsx:141
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4420,7 +4434,7 @@ msgstr "Повідомлення, пов'язані із аварією, яки�
 msgid "Metadata Used"
 msgstr "Використано метаданих"
 
-#: pkg/shell/superuser.jsx:57
+#: pkg/shell/superuser.jsx:69
 msgid "Method"
 msgstr "Метод"
 
@@ -4627,11 +4641,12 @@ msgstr "Сервер NTP"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/components/vmSnapshotsTab.jsx:66
-#: pkg/machines/hostvmslist.jsx:95 pkg/packagekit/updates.jsx:394
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:41
+#: pkg/machines/components/vmSnapshotsTab.jsx:87
+#: pkg/machines/hostvmslist.jsx:97 pkg/packagekit/updates.jsx:394
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:271
 #: pkg/storaged/content-views.jsx:717 pkg/storaged/format-dialog.jsx:201
 #: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:340
@@ -4676,6 +4691,10 @@ msgstr "У назві не повинно бути пробілів."
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name contains invalid characters"
 msgstr "У назві містяться некоректні символи"
+
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:50
+msgid "Name input text"
+msgstr "Вхідний текст назви"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid "Name must not be empty"
@@ -4877,7 +4896,7 @@ msgstr "Для цього буфера зберігання сховища не 
 msgid "No System Modifications"
 msgstr "Немає модифікацій системи"
 
-#: pkg/machines/hostvmslist.jsx:92
+#: pkg/machines/hostvmslist.jsx:94
 msgid "No VM is running or defined on this host"
 msgstr "У цій основній системі не запущено або не визначено віртуальних машин"
 
@@ -4889,7 +4908,7 @@ msgstr "Немає віртуальних мереж"
 msgid "No alias specified"
 msgstr "Альтернативної назви не вказано"
 
-#: pkg/apps/application-list.jsx:138
+#: pkg/apps/application-list.jsx:156
 msgid "No applications installed or available"
 msgstr "Немає встановлених або доступних програм"
 
@@ -4929,7 +4948,7 @@ msgstr "Немає контейнерів"
 msgid "No containers that match the current filter"
 msgstr "Немає контейнерів, які проходять поточні умови фільтрування"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:78
+#: pkg/machines/components/vmSnapshotsTab.jsx:99
 msgid "No description"
 msgstr "Немає опису"
 
@@ -5021,7 +5040,7 @@ msgstr "У цій основній системі мережу не визнач
 msgid "No networks available"
 msgstr "Немає доступних мереж"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:119
+#: pkg/machines/components/vmSnapshotsTab.jsx:140
 msgid "No parent"
 msgstr "Немає батьківського запису"
 
@@ -5060,11 +5079,11 @@ msgstr "Немає запущених контейнерів"
 msgid "No running containers that match the current filter"
 msgstr "Немає запущених контейнерів, які проходять поточні умови фільтрування"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:50
+#: pkg/machines/components/vmSnapshotsTab.jsx:71
 msgid "No snapshots"
 msgstr "Немає знімків"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:55
+#: pkg/machines/components/storagePools/storagePoolList.jsx:57
 msgid "No storage pool is defined on this host"
 msgstr "На цьому вузлі не визначено буфера зберігання даних"
 
@@ -5362,7 +5381,7 @@ msgstr "Батьківський"
 msgid "Parent $parent"
 msgstr "Батьківський $parent"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:118
+#: pkg/machines/components/vmSnapshotsTab.jsx:139
 msgid "Parent Snapshot"
 msgstr "Батьківський знімок"
 
@@ -5413,7 +5432,7 @@ msgstr "Паролі не збігаються"
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:275
 #: pkg/shell/index.html:304 pkg/shell/index.html:319 src/ws/login.html:55
-#: pkg/shell/superuser.jsx:44 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/shell/superuser.jsx:56 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157 pkg/users/account-create-dialog.js:52
 #: pkg/users/account-details.js:318
 msgid "Password"
@@ -5566,7 +5585,7 @@ msgstr "Ціль тестування луною"
 msgid "Pizza Box"
 msgstr "З коробку для піци"
 
-#: pkg/shell/superuser.jsx:43
+#: pkg/shell/superuser.jsx:55
 msgid "Please authenticate to gain administrative access"
 msgstr ""
 "Будь ласка, пройдіть розпізнавання, щоб отримати адміністративний доступ"
@@ -5731,7 +5750,7 @@ msgstr "Зручна назва вузла"
 msgid "Previous boot"
 msgstr "Попереднє завантаження"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:51
+#: pkg/machines/components/vmSnapshotsTab.jsx:72
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -6042,7 +6061,7 @@ msgstr "Портативний диск"
 msgid "Removals:"
 msgstr "Вилучення:"
 
-#: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:110
 #: pkg/machines/components/vmDisksTab.jsx:171
 #: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
@@ -6086,7 +6105,7 @@ msgstr "Вилучити службу $0"
 msgid "Remove zone $0"
 msgstr "Вилучити зону $0"
 
-#: pkg/apps/application-list.jsx:53 pkg/apps/application.jsx:60
+#: pkg/apps/application-list.jsx:58 pkg/apps/application.jsx:60
 msgid "Removing"
 msgstr "Вилучаємо"
 
@@ -6750,7 +6769,7 @@ msgstr ""
 msgid "Shutdown"
 msgstr "Вимкнути"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:96
+#: pkg/machines/components/vmSnapshotsTab.jsx:117
 msgid "Shutting down"
 msgstr "Вимикання"
 
@@ -6760,7 +6779,7 @@ msgstr "Єдиний ранг"
 
 #: pkg/docker/containers-view.jsx:573
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:764
@@ -6808,6 +6827,10 @@ msgstr "Слот"
 msgid "Slot $0"
 msgstr "Слот $0"
 
+#: pkg/machines/components/vmSnapshotsCreateModal.jsx:121
+msgid "Snapshot failed to be created"
+msgstr "Не вдалося створити знімок"
+
 #: pkg/machines/components/vm/vmExpandedContent.jsx:50
 msgid "Snapshots"
 msgstr "Знімки"
@@ -6850,7 +6873,7 @@ msgstr ""
 "Програмою для керування пакунків користується якась інша програма, будь "
 "ласка, зачекайте…"
 
-#: pkg/shell/superuser.jsx:291
+#: pkg/shell/superuser.jsx:303
 msgid "Something went wrong"
 msgstr "Щось пішло не так"
 
@@ -6970,8 +6993,8 @@ msgstr "Запуск"
 
 #: pkg/docker/containers-view.jsx:137 pkg/docker/containers-view.jsx:366
 #: pkg/machines/components/networks/networkList.jsx:56
-#: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:97
+#: pkg/machines/components/storagePools/storagePoolList.jsx:56
+#: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:99
 #: pkg/systemd/hwinfo.jsx:273 pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "Стан"
@@ -7079,8 +7102,8 @@ msgstr "Назва резервного сховища"
 msgid "Storage Pool failed to be created"
 msgstr "Не вдалося створити резервне сховище"
 
-#: pkg/machines/components/storagePools/storagePoolList.jsx:48
-#: pkg/machines/components/storagePools/storagePoolList.jsx:52
+#: pkg/machines/components/storagePools/storagePoolList.jsx:50
+#: pkg/machines/components/storagePools/storagePoolList.jsx:54
 msgid "Storage Pools"
 msgstr "Буфери даних"
 
@@ -7161,7 +7184,7 @@ msgstr "Вимкнути $0"
 msgid "Switch on $0"
 msgstr "Увімкнути $0"
 
-#: pkg/shell/superuser.jsx:126
+#: pkg/shell/superuser.jsx:138
 msgid "Switch to limited access"
 msgstr "Перемкнутися на обмежений доступ"
 
@@ -7750,7 +7773,7 @@ msgstr ""
 "Цей пристрій зараз використовується для груп томів. Якщо дію буде виконано, "
 "пристрій буде вилучено із його груп томів."
 
-#: pkg/shell/superuser.jsx:288
+#: pkg/shell/superuser.jsx:300
 msgid "This didn't work, please try again"
 msgstr "Це спрацювало, будь ласка, повторіть спробу"
 
@@ -7923,7 +7946,7 @@ msgid ""
 "version."
 msgstr "Щоб спробувати інший порт, вам слід оновити cockpit-ws."
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:34
+#: pkg/machines/components/vmSnapshotsTab.jsx:35
 msgid "Today"
 msgstr "Сьогодні"
 
@@ -8274,7 +8297,7 @@ msgstr "Історія оновлень"
 msgid "Update Log"
 msgstr "Журнал оновлень"
 
-#: pkg/apps/application-list.jsx:129
+#: pkg/apps/application-list.jsx:148
 msgid "Update package information"
 msgstr "Оновити дані щодо пакунків"
 
@@ -8425,15 +8448,15 @@ msgstr "Параметри VLAN"
 msgid "VM $0 already exists"
 msgstr "ВМ із назвою $0 вже існує"
 
-#: pkg/machines/hostvmslist.jsx:123
+#: pkg/machines/hostvmslist.jsx:125
 msgid "VM $0 failed to Reboot"
 msgstr "Не вдалося перезавантажити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:131
 msgid "VM $0 failed to force Reboot"
 msgstr "Не вдалося примусово перезавантажити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:153
+#: pkg/machines/hostvmslist.jsx:155
 msgid "VM $0 failed to force shutdown"
 msgstr "Не вдалося примусово вимкнути віртуальну машину $0"
 
@@ -8441,31 +8464,31 @@ msgstr "Не вдалося примусово вимкнути віртуаль
 msgid "VM $0 failed to get deleted"
 msgstr "Не вдалося вилучити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:117 pkg/machines/libvirt-common.js:1378
+#: pkg/machines/hostvmslist.jsx:119 pkg/machines/libvirt-common.js:1378
 msgid "VM $0 failed to get installed"
 msgstr "Не вдалося встановити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:141
+#: pkg/machines/hostvmslist.jsx:143
 msgid "VM $0 failed to pause"
 msgstr "Не вдалося призупинити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:147
+#: pkg/machines/hostvmslist.jsx:149
 msgid "VM $0 failed to resume"
 msgstr "Не вдалося відновити роботу віртуальної машини $0"
 
-#: pkg/machines/hostvmslist.jsx:159
+#: pkg/machines/hostvmslist.jsx:161
 msgid "VM $0 failed to send NMI"
 msgstr "Не вдалося надіслати NMI віртуальній машині $0"
 
-#: pkg/machines/hostvmslist.jsx:135
+#: pkg/machines/hostvmslist.jsx:137
 msgid "VM $0 failed to shutdown"
 msgstr "Не вдалося вимкнути віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:111
+#: pkg/machines/hostvmslist.jsx:113
 msgid "VM $0 failed to start"
 msgstr "Не вдалося запустити віртуальну машину $0"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:88
+#: pkg/machines/components/vmSnapshotsTab.jsx:109
 msgid "VM State"
 msgstr "Стан ВМ"
 
@@ -8540,8 +8563,8 @@ msgid "View report"
 msgstr "Переглянути звіт"
 
 #: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/storagePoolList.jsx:45
-#: pkg/machines/hostvmslist.jsx:90 pkg/machines/manifest.json.in
+#: pkg/machines/components/storagePools/storagePoolList.jsx:47
+#: pkg/machines/hostvmslist.jsx:92 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
 
@@ -8717,7 +8740,7 @@ msgstr "XOR"
 msgid "Yes"
 msgstr "Так"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:33
+#: pkg/machines/components/vmSnapshotsTab.jsx:34
 msgid "Yesterday"
 msgstr "Вчора"
 
@@ -8741,7 +8764,7 @@ msgstr ""
 msgid "You are not authorized to modify the firewall."
 msgstr "Вас не уповноважено на внесення змін до брандмауера."
 
-#: pkg/shell/superuser.jsx:221
+#: pkg/shell/superuser.jsx:233
 msgid "You can not gain administrative access."
 msgstr "Ви не можете набути прав адміністративного доступу."
 
@@ -8776,7 +8799,7 @@ msgstr ""
 "Вам слід перемкнутися у режим «Адміністративний доступ», щоб мати змогу "
 "створювати звіти."
 
-#: pkg/shell/superuser.jsx:279
+#: pkg/shell/superuser.jsx:291
 msgid "You now have administrative access."
 msgstr "Тепер ви маєте адміністративний доступ."
 
@@ -8797,7 +8820,7 @@ msgstr ""
 "процес оновлення. Ви зможете з'єднатися знову за декілька секунд, щоб "
 "продовжити спостереження за поступом."
 
-#: pkg/shell/superuser.jsx:130
+#: pkg/shell/superuser.jsx:142
 msgid "Your browser will remember your access level across sessions."
 msgstr "Ваш браузер запам'ятовуватиме ваш рівень доступу між сеансами."
 
@@ -8942,11 +8965,11 @@ msgstr "аварія"
 msgid "crashed"
 msgstr "аварійне завершення"
 
-#: pkg/machines/hostvmslist.jsx:50
+#: pkg/machines/hostvmslist.jsx:52
 msgid "creating VM"
 msgstr "створення ВМ"
 
-#: pkg/machines/hostvmslist.jsx:48
+#: pkg/machines/hostvmslist.jsx:50
 msgid "creating VM installation"
 msgstr "створення встановленої ВМ"
 
@@ -9262,7 +9285,7 @@ msgstr ""
 msgid "no"
 msgstr "ні"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:91
+#: pkg/machines/components/vmSnapshotsTab.jsx:112
 msgid "no state saved"
 msgstr "немає збережених станів"
 

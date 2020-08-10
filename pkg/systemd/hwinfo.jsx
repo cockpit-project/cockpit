@@ -91,7 +91,7 @@ class SystemInfo extends React.Component {
                         </tr>
                         <tr>
                             <th>{ _("BIOS date") }</th>
-                            <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
+                            <td>{ moment(info.bios_date, "MM/DD/YYYY").isValid() ? moment(info.bios_date, "MM/DD/YYYY").format('L') : info.bios_date }</td>
                         </tr>
                     </>
                     }

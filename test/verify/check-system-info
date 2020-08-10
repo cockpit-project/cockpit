@@ -378,8 +378,9 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "Standard PC")
         # BIOS
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(1) td', "SeaBIOS")
-        # BIOS date; just ensure it's from this century
-        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
+        # BIOS date
+        if m.image != "rhel-8-3-distropkg": # Fixed in #14465
+            b.wait_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', m.execute("cat /sys/class/dmi/id/bios_date").strip())
 
         pci_selector = '#hwinfo #pci-listing'
         heading_selector = ' .ct-table-heading'

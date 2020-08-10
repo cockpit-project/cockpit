@@ -108,7 +108,8 @@ function parseDMIFields(text) {
         const sep = line.indexOf(':');
         if (sep <= 0)
             return;
-        const key = line.slice(0, sep).slice(line.lastIndexOf('/') + 1);
+        const file = line.slice(0, sep);
+        const key = file.slice(file.lastIndexOf('/') + 1);
         const value = line.slice(sep + 1);
         info[key] = value;
 

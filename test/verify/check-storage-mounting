@@ -145,17 +145,9 @@ class TestStorageMounting(StorageCase):
         wait_not_checked("crypto_options.ro")
         wait_not_checked("mount_options.ro")
 
-        # Uncheck crypto auto.  This gets propagated to mount auto.
-        self.dialog_set_val("crypto_options.auto", False)
-        wait_not_checked("mount_options.auto")
-
         # Check crypto ro.  This gets propagated to mount ro.
         self.dialog_set_val("crypto_options.ro", True)
         wait_checked("mount_options.ro")
-
-        # Check mount auto.  This gets propagated to crypto auto.
-        self.dialog_set_val("mount_options.auto", True)
-        wait_checked("crypto_options.auto")
 
         # Uncheck mount ro.  This gets propagated to crypto ro.
         self.dialog_set_val("mount_options.ro", False)
@@ -167,8 +159,8 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("crypto_options.ro", True)
 
         # Set extra options.
-        self.dialog_set_val("crypto_options.extra", "foo")
-        self.dialog_set_val("mount_options.extra", "foo")
+        self.dialog_set_val("crypto_options.extra", "x-foo")
+        self.dialog_set_val("mount_options.extra", "x-foo")
 
         # Fill in the erst and do the format
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -180,8 +172,10 @@ class TestStorageMounting(StorageCase):
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration("/data")
-        m.execute("grep 'noauto,readonly,foo' /etc/crypttab")
-        m.execute("grep 'noauto,ro,foo' /etc/fstab")
+        self.wait_mounted(2, 1)
+
+        m.execute("grep 'noauto,readonly,x-foo' /etc/crypttab")
+        m.execute("grep 'noauto,ro,x-foo' /etc/fstab")
 
 
     def testMountingHelp(self):
@@ -292,6 +286,26 @@ class TestStorageMounting(StorageCase):
                      "mount_point": "/run/data"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
+
+    def testFirstMount(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="MYDISK")
+        b.click("#drives tr:contains(MYDISK)")
+        b.wait_visible("#storage-detail")
+
+        m.execute("mkfs.ext4 /dev/sda")
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+
+        m.execute("! grep /run/data /etc/fstab")
+        self.content_head_action(1, "Mount")
+        self.dialog({ "mount_point": "/run/data",
+                      "mount_options.extra": "x-foo" })
+        m.execute("grep /run/data /etc/fstab")
+        m.execute("grep 'x-foo' /etc/fstab")
 
 if __name__ == '__main__':
     test_main()

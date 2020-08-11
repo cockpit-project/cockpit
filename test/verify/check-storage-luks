@@ -377,5 +377,59 @@ class TestStorageLuks(StorageCase):
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "Unrecognized Data")
 
+    def testNoauto(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem, but without "Unlock at boot"
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_head_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto.on": True,
+                     "crypto_options.auto": False,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_tab_wait_in_info(1, 1, "Options", "noauto")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # The filesystem should be mounted but have the "noauto" option
+        self.wait_mounted(2,1)
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+
+        # Unmounting should keep the noauto option, as always
+        self.content_dropdown_action(2, "Unmount")
+        self.content_tab_wait_in_info(2, 1, "Mount Point", "The filesystem is not mounted")
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+
+        # Mounting should also keep the "noauto", but it should not show up in the extra options
+        self.content_head_action(2, "Mount")
+        self.dialog_check({ "mount_options.extra": False })
+        self.dialog_apply()
+        self.wait_mounted(2,1)
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+
+        # As should updating the mount information
+        self.content_tab_info_action(2, 1, "Mount Point", wrapped=True)
+        self.dialog_check({ "mount_options.extra": False })
+        self.dialog_apply()
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+
+        # Removing "noauto" externally should show a warning
+        m.execute("sed -i -e 's/noauto//' /etc/fstab")
+        fsys_tab = self.content_tab_expand(2, 1)
+        b.wait_in_text(fsys_tab, "The filesystem is configured to be automatically mounted on boot but its encryption container will not be unlocked at that time.")
+        b.click(fsys_tab + " button:contains(Do not mount automatically)")
+        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
+
 if __name__ == '__main__':
     test_main()

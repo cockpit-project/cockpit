@@ -26,7 +26,7 @@ import {
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
-import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
+import { get_fstab_config, is_valid_mount_point, get_cryptobacking_noauto } from "./fsys-tab.jsx";
 
 const _ = cockpit.gettext;
 
@@ -250,12 +250,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
             ),
         ],
         update: function (dlg, vals, trigger) {
-            if (trigger == "crypto_options" && vals.crypto_options.auto == false)
-                dlg.set_nested_values("mount_options", { auto: false });
             if (trigger == "crypto_options" && vals.crypto_options.ro == true)
                 dlg.set_nested_values("mount_options", { ro: true });
-            if (trigger == "mount_options" && vals.mount_options.auto == true)
-                dlg.set_nested_values("crypto_options", { auto: true });
             if (trigger == "mount_options" && vals.mount_options.ro == false)
                 dlg.set_nested_values("crypto_options", { ro: false });
         },
@@ -297,8 +293,11 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 
                 if (is_filesystem(vals)) {
                     var mount_options = [];
-                    if (!vals.mount_options.auto)
+                    if (!vals.mount_options.auto ||
+                        (is_encrypted(vals) && !vals.crypto_options.auto) ||
+                        get_cryptobacking_noauto(client, block)) {
                         mount_options.push("noauto");
+                    }
                     if (vals.mount_options.ro)
                         mount_options.push("ro");
                     if (vals.mount_options.extra)

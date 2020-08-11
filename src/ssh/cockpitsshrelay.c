@@ -1738,7 +1738,7 @@ on_channel_data (ssh_session session,
 
   if (is_stderr || self->exit_code == NO_COCKPIT)
     {
-      g_printerr ("%s", bdata);
+      g_printerr ("%.*s", (int) len, bdata);
       ret = len;
     }
   else if (self->received_frame)

@@ -75,9 +75,26 @@ html.index-page body {
     margin-bottom: 5px;
 }
 
-#add-unknown-host pre {
+// Fix fingerprint layout
+.add-host-fingerprint {
+    margin-top: var(--pf-global--spacer--md);
+
+    td {
+        padding: 0;
+        line-height: inherit;
+        height: auto;
+        vertical-align: middle !important;
+
+        &:first-child {
+            padding-right: var(--pf-global--spacer--md);
+        }
+    }
+}
+
+.machine-key {
     margin: 0;
     white-space: pre-line;
+    padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
 }
 
 #edit-machine-port {

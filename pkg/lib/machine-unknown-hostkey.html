@@ -4,14 +4,12 @@
 <div id="add-unknown-host" class="modal-body">
     {{#key}}
         <p translate="yes">The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established. Are you sure you want to continue connecting?</p>
-        <div>
-        <table class="form-table-ct">
+        <table class="form-table-ct add-host-fingerprint">
             <tr>
                 <td translate="yes">Fingerprint</td>
                 <td><pre class="machine-key">{{key}}</pre></td>
             </tr>
         </table>
-        </div>
     {{/key}}
 </div>
 

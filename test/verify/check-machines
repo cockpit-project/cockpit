@@ -2755,6 +2755,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-VmNotInstalled-action-kebab button")
         b.click("#vm-VmNotInstalled-forceOff")
         b.wait_in_text("#vm-VmNotInstalled-state", "shut off")
+        wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1) # Wait until memory parameters get adjusted after shutting the VM
 
         # Check configuration changes survived installation
         b.click("#vm-VmNotInstalled-overview")

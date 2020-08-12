@@ -75,6 +75,9 @@ Description=Test timer
 [Timer]
 OnCalendar=daily
 """)
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
+
         m.execute("systemctl start test.timer")
 
         self.allow_restart_journal_messages()

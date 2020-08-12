@@ -107,6 +107,7 @@ class TestNetworkingBasic(NetworkCase):
 
         iface = "cockpit42"
         self.add_veth(iface)
+        self.addCleanup(m.execute, "systemctl enable --now NetworkManager")
 
         def assert_running():
             b.wait_not_visible("#networking-nm-crashed")

@@ -885,7 +885,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(m.execute, "logger -p user.info 'COCKPITTEST: end %s'" % name)
 
         # core dumps get copied per-test, don't clobber subsequent tests with them
-        self.addCleanup(m.execute, "rm -rf /var/lib/systemd/coredump")
+        self.addCleanup(m.execute, "find /var/lib/systemd/coredump -type f -delete")
 
         # temporary directory in the VM
         self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))

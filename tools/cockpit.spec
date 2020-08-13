@@ -454,11 +454,16 @@ Requires: glib2 >= 2.50.0
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
-Requires: systemd >= 235
 Suggests: sssd-dbus
+%if !0%{?suse_version}
+Requires: systemd >= 235
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
+%else
+Requires: group(wheel)
+Requires(pre): permissions
+%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
@@ -516,6 +521,10 @@ getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
 getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 
 %post ws
+%if 0%{?suse_version}
+%set_permissions %{_libexecdir}/cockpit-session
+%tmpfiles_create cockpit-tempfiles.conf
+%endif
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
@@ -526,6 +535,11 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 %postun ws
 %systemd_postun_with_restart cockpit.socket
 %systemd_postun_with_restart cockpit.service
+
+%if 0%{?suse_version}
+%verifyscript ws
+%verify_permissions -e %{_libexecdir}/cockpit-session
+%endif
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora

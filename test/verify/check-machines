@@ -99,13 +99,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
 
-        # HACK: https://launchpad.net/bugs/1802005
-        if m.image == "ubuntu-stable":
-            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-            m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-
-        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
-
     def toggleVmRow(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] .pf-c-table__toggle button".format(vmName, connectionName)) # click on the row header
 
@@ -147,7 +140,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Wait until we can get a list of domains
         m.execute("until virsh list; do sleep 1; done")
+
         # Wait for the network 'default' to become active
+        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
         m.execute("virsh net-start default || true")
         m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 

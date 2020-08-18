@@ -72,7 +72,7 @@ export class LongRunningProcess {
      */
     run(argv, options) {
         if (this.state !== ProcessState.STOPPED && this.state !== ProcessState.FAILED)
-            throw new Error(`cannot start LongRunningProcess in state ${ this.state }`);
+            throw new Error(`cannot start LongRunningProcess in state ${this.state}`);
 
         // no need to directly react to this -- JobNew and _checkState() will pick up when the unit runs
         return cockpit.spawn(["systemd-run", "--unit", this.serviceName, "--service-type=oneshot", "--no-block", "--"].concat(argv),
@@ -82,7 +82,7 @@ export class LongRunningProcess {
     /*  Stop long-running process while it is RUNNING, or reset a FAILED one */
     terminate() {
         if (this.state !== ProcessState.RUNNING && this.state !== ProcessState.FAILED)
-            throw new Error(`cannot terminate LongRunningProcess in state ${ this.sate }`);
+            throw new Error(`cannot terminate LongRunningProcess in state ${this.sate}`);
 
         /* This sends a SIGTERM to the unit, causing it to go into "failed" state. This would not
          * happen with `systemd-run -p SuccessExitStatus=0`, but that does not yet work on older
@@ -107,27 +107,27 @@ export class LongRunningProcess {
 
     _setStateFromProperties(activeState, stateChangeTimestamp) {
         switch (activeState) {
-            case 'activating':
-                this.startTimestamp = stateChangeTimestamp;
-                this._setState(ProcessState.RUNNING);
-                break;
-            case 'failed':
-                this.startTimestamp = null; // TODO: can we derive this from InvocationID?
-                if (this.terminated) {
-                    /* terminating causes failure; reset that and do not announce it as failed */
-                    this.systemdClient.call(O_SD_OBJ, I_SD_MGR, "ResetFailedUnit", [this.serviceName], { type: "s" })
-                } else {
-                    this._setState(ProcessState.FAILED);
-                }
-                break;
-            case 'inactive':
-                this._setState(ProcessState.STOPPED);
-                break;
-            case 'deactivating':
-                /* ignore these transitions */
-                break;
-            default:
-                throw new Error(`unexpected state of unit ${this.serviceName}: ${activeState}`);
+        case 'activating':
+            this.startTimestamp = stateChangeTimestamp;
+            this._setState(ProcessState.RUNNING);
+            break;
+        case 'failed':
+            this.startTimestamp = null; // TODO: can we derive this from InvocationID?
+            if (this.terminated) {
+                /* terminating causes failure; reset that and do not announce it as failed */
+                this.systemdClient.call(O_SD_OBJ, I_SD_MGR, "ResetFailedUnit", [this.serviceName], { type: "s" });
+            } else {
+                this._setState(ProcessState.FAILED);
+            }
+            break;
+        case 'inactive':
+            this._setState(ProcessState.STOPPED);
+            break;
+        case 'deactivating':
+            /* ignore these transitions */
+            break;
+        default:
+            throw new Error(`unexpected state of unit ${this.serviceName}: ${activeState}`);
         }
     }
 

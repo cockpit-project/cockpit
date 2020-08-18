@@ -31,6 +31,7 @@ cockpit_tls_SOURCES =					\
 
 cockpit_tls_CFLAGS = 					\
 	-I$(top_srcdir)/src/tls				\
+	-pthread					\
 	$(COCKPIT_TLS_CFLAGS)				\
 	$(NULL)
 
@@ -94,10 +95,12 @@ test_tls_server_SOURCES = \
 	src/tls/test-server.c				\
 	$(NULL)
 
-test_tls_server_CFLAGS = $(TEST_CFLAGS)
+test_tls_server_CFLAGS = -pthread $(TEST_CFLAGS)
+test_tls_server_LDFLAGS = -pthread
 test_tls_server_LDADD = $(TEST_LDADD)
 
-socket_activation_helper_CFLAGS = $(TEST_CFLAGS)
+socket_activation_helper_CFLAGS = -pthread $(TEST_CFLAGS)
+socket_activation_helper_LDFLAGS = -pthread
 socket_activation_helper_SOURCES = \
 	src/tls/testing.h \
 	src/tls/socket-io.h \

@@ -555,9 +555,10 @@ OnCalendar=daily
         b.focus("#demo-file-ac input[type=text]")
         b.key_press(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "dir1/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "file1.txt")
-        b.key_press(["\r"])
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir1/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.click("#file-autocomplete-widget li:nth-of-type(2) button")
         b.wait_not_present("#file-autocomplete-widget li")
 
         # now update file1, check robustness with dynamic events
@@ -566,7 +567,7 @@ OnCalendar=daily
         time.sleep(1)
         b.key_press(["\b"]*5)
         # this should still be unique
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "file1.txt")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
 
         # add new file
         m.execute("touch %s/other" % stuff)
@@ -575,7 +576,7 @@ OnCalendar=daily
         b.key_press(["\b"])
         time.sleep(1)
         b.key_press("/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "other")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "other")
 
     @skipImage("No PCP available", "fedora-coreos")
     def testPlots(self):

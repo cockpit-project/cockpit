@@ -106,6 +106,14 @@ export class FileAutoComplete extends React.Component {
             path: (this.state.directory == '' ? '/' : this.state.directory) + file.path
         }));
 
+        const currentDir = this.state.value && this.state.directory === this.state.value.path;
+        if (this.state.directory && !error && !currentDir) {
+            listItems.unshift({
+                type: "directory",
+                path: this.state.directory
+            });
+        }
+
         this.setState({
             displayFiles: listItems,
             error: error,

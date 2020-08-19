@@ -99,4 +99,49 @@
 
     </section>
   </section>
+
+  <section id="2fa-auth">
+    <title>Enable two-factor authentication</title>
+
+    <para>As with any other <code>pam</pam> based service that supports it,
+      you can harden your Cockpit authentication by adding two-factor authentication.
+      This can be achieved by installing the <code>google-authenticator</code> package
+      and configuring <code>pam</code> to use it with Cockpit.</para>
+
+    <para>As the user you want to set up two-factor auth for, configure
+      <code>google-authenticator</code> as per its <ulink url="https://github.com/google/google-authenticator-libpam">documentation</ulink>.
+      Then, edit the <filename>/etc/pam.d/cockpit</filename> file and add the following:
+    </para>
+
+<programlisting>
+auth       required     pam_google_authenticator.so
+</programlisting>
+
+    <section>2fa-troubleshooting>
+      <title>Two-factor troubleshooting</title>
+
+      <para>
+        If your system is using SELinux, you may want to put the configuration file
+        in a specific directory instead of at the root of the users' <code>$HOME</code>
+        and to apply the correct SELinux context to this directory. Without this,
+        SELinux will prevent the Cockpit process to access those files.
+      </para>
+
+<programlisting>
+mkdir ~/.secrets
+mv .google_authenticator* .secrets/
+semanage fcontext -a -t cockpit_tmp_t "/home/<YOUR USER HERE>/.secrets(/.*)?"
+restorecon -R -v /home/<YOUR USER HERE>/.secrets
+</programlisting>
+
+      <para>Then in the <filename>/etc/pam.d/cockpit</filename> file change the line:</para>
+
+<programlisting>
+auth       required     pam_google_authenticator.so secret=/home/${USER}/.secrets/.google_authenticator
+</programlisting>
+
+    </section>
+  </section>
+
 </chapter>
+

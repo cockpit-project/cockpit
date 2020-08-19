@@ -26,6 +26,7 @@ job release-srpm
 job release-koji -k master
 job release-koji f31
 job release-koji f32
+job release-koji f33
 
 # Upload release to github, using tarball
 job release-github
@@ -39,6 +40,7 @@ job release-dockerhub cockpit-project/cockpit-container
 # Push out a Bodhi update
 job release-bodhi F31
 job release-bodhi F32
+job release-bodhi F33
 
 # Upload documentation
 job tools/release-guide dist/guide cockpit-project/cockpit-project.github.io

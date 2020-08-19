@@ -88,6 +88,19 @@ export function is_valid_mount_point(client, block, val) {
                               other_blocks.map(utils.block_name).join(", "));
 }
 
+export function get_cryptobacking_noauto(client, block) {
+    const crypto_backing = client.blocks[block.CryptoBackingDevice];
+    if (!crypto_backing)
+        return false;
+
+    const crypto_config = utils.array_find(crypto_backing.Configuration, function (c) { return c[0] == "crypttab" });
+    if (!crypto_config)
+        return false;
+
+    const crypto_options = utils.decode_filename(crypto_config[1].options.v).split(",");
+    return crypto_options.map(o => o.trim()).indexOf("noauto") >= 0;
+}
+
 export function check_mismounted_fsys(client, path, enter_warning) {
     const block = client.blocks[path];
     const block_fsys = client.blocks_fsys[path];
@@ -101,6 +114,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
     const opt_noauto = extract_option(split_options, "noauto");
     const is_mounted = mounted_at.indexOf(dir) >= 0;
     const other_mounts = mounted_at.filter(m => m != dir);
+    const crypto_backing_noauto = get_cryptobacking_noauto(client, block);
 
     let type;
     if (dir) {
@@ -109,9 +123,11 @@ export function check_mismounted_fsys(client, path, enter_warning) {
                 type = "change-mount-on-boot";
             else
                 type = "mounted-no-config";
-        } else if (!is_mounted && !opt_noauto)
+        } else if (crypto_backing_noauto && !opt_noauto)
+            type = "locked-on-boot-mount";
+        else if (!is_mounted && !opt_noauto)
             type = "mount-on-boot";
-        else if (is_mounted && opt_noauto)
+        else if (is_mounted && opt_noauto && !crypto_backing_noauto)
             type = "no-mount-on-boot";
     } else if (other_mounts.length > 0) {
         type = "mounted-no-config";
@@ -125,6 +141,7 @@ export function mounting_dialog(client, block, mode) {
     const block_fsys = client.blocks_fsys[block.path];
     var [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block);
     var options = old_config ? old_opts : initial_tab_options(client, block, true);
+    const crypto_backing_noauto = get_cryptobacking_noauto(client, block);
 
     var split_options = parse_options(options == "defaults" ? "" : options);
     var opt_noauto = extract_option(split_options, "noauto");
@@ -137,14 +154,12 @@ export function mounting_dialog(client, block, mode) {
         var new_config = null;
         var all_new_opts;
 
-        if (old_config) {
-            if (new_opts && old_parents)
-                all_new_opts = new_opts + "," + old_parents;
-            else if (new_opts)
-                all_new_opts = new_opts;
-            else
-                all_new_opts = old_parents;
-        }
+        if (new_opts && old_parents)
+            all_new_opts = new_opts + "," + old_parents;
+        else if (new_opts)
+            all_new_opts = new_opts;
+        else
+            all_new_opts = old_parents;
 
         if (new_dir != "") {
             if (new_dir[0] != "/")
@@ -295,7 +310,7 @@ export function mounting_dialog(client, block, mode) {
                     return do_unmount();
                 } else if (mode == "mount" || mode == "update") {
                     var opts = [];
-                    if (mode == "update" && opt_noauto)
+                    if ((mode == "update" && opt_noauto) || crypto_backing_noauto)
                         opts.push("noauto");
                     if (vals.mount_options.ro)
                         opts.push("ro");
@@ -400,7 +415,7 @@ export class FilesystemTab extends React.Component {
             const { type, other } = mismounted_fsys_warning;
 
             const opts = [];
-            if (type == "mount-on-boot")
+            if (type == "mount-on-boot" || type == "locked-on-boot-mount")
                 opts.push("noauto");
             if (opt_ro)
                 opts.push("ro");
@@ -469,6 +484,10 @@ export class FilesystemTab extends React.Component {
                 text = cockpit.format(_("The filesystem is currently mounted on $0 but will not be mounted after the next boot."), other);
                 fix_config_text = cockpit.format(_("Mount automatically on $0 on boot"), other);
                 fix_mount_text = _("Unmount now");
+            } else if (type == "locked-on-boot-mount") {
+                text = _("The filesystem is configured to be automatically mounted on boot but its encryption container will not be unlocked at that time.");
+                fix_config_text = _("Do not mount automatically on boot");
+                fix_mount_text = null;
             }
 
             mismounted_section = (
@@ -480,7 +499,7 @@ export class FilesystemTab extends React.Component {
                         {text}
                         <div className="storage_alert_action_buttons">
                             <StorageButton onClick={fix_config}>{fix_config_text}</StorageButton>
-                            <StorageButton onClick={fix_mount}>{fix_mount_text}</StorageButton>
+                            { fix_mount_text && <StorageButton onClick={fix_mount}>{fix_mount_text}</StorageButton> }
                         </div>
                     </Alert>
                 </>);

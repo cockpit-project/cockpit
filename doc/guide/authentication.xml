@@ -100,44 +100,70 @@
     </section>
   </section>
 
-  <section id="2fa-auth">
+  <section id="twofa-auth">
     <title>Enable two-factor authentication</title>
 
-    <para>As with any other <code>pam</pam> based service that supports it,
-      you can harden your Cockpit authentication by adding two-factor authentication.
+    <para>As with any other <code>pam</code> based service that supports it,
+      you can harden your Cockpit authentication by adding TOTP/HOTP second factor authentication.
       This can be achieved by installing the <code>google-authenticator</code> package
       and configuring <code>pam</code> to use it with Cockpit.</para>
 
+          <para>Fedora/CentOS</para>
+<programlisting>
+sudo dnf install google-authenticator
+</programlisting>
+
+          <para>openSUSE</para>
+<programlisting>
+sudo zypper install google-authenticator-libpam
+</programlisting>
+
+          <para>Debian based OS</para>
+<programlisting>
+sudo apt install libpam-google-authenticator
+</programlisting>
+
+          <para>Arch Linux</para>
+<programlisting>
+sudo pacman -S libpam-google-authenticator
+</programlisting>
+
     <para>As the user you want to set up two-factor auth for, configure
       <code>google-authenticator</code> as per its <ulink url="https://github.com/google/google-authenticator-libpam">documentation</ulink>.
-      Then, edit the <filename>/etc/pam.d/cockpit</filename> file and add the following:
+    </para>
+
+    <note><title>Configuration file path</title>
+      <para>By default, the configuration file will be created as
+        <code>$HOME/.google_authenticator</code>. You may want
+        to move it in a more convenient and standard place, such as
+        <code>$HOME/.config/google-authenticator/google_authenticator</code>.
+      </para>
+    </note>
+
+    <para>Then, edit the <filename>/etc/pam.d/cockpit</filename> file and
+      add the following after the <code>auth</code> lines and before the
+      <code>account</code> lines:
     </para>
 
 <programlisting>
-auth       required     pam_google_authenticator.so
+auth       required     pam_google_authenticator.so secret=${HOME}/.config/google-authenticator/google_authenticator
 </programlisting>
 
-    <section>2fa-troubleshooting>
+    <section id="twofa-troubleshooting">
       <title>Two-factor troubleshooting</title>
 
       <para>
         If your system is using SELinux, you may want to put the configuration file
-        in a specific directory instead of at the root of the users' <code>$HOME</code>
+        in a specific directory instead of directly in the user's <code>$HOME</code>
         and to apply the correct SELinux context to this directory. Without this,
-        SELinux will prevent the Cockpit process to access those files.
+        SELinux will prevent the Cockpit process from access those files.
       </para>
 
 <programlisting>
-mkdir ~/.secrets
-mv .google_authenticator* .secrets/
-semanage fcontext -a -t cockpit_tmp_t "/home/<YOUR USER HERE>/.secrets(/.*)?"
-restorecon -R -v /home/<YOUR USER HERE>/.secrets
-</programlisting>
-
-      <para>Then in the <filename>/etc/pam.d/cockpit</filename> file change the line:</para>
-
-<programlisting>
-auth       required     pam_google_authenticator.so secret=/home/${USER}/.secrets/.google_authenticator
+mkdir -p $HOME/.config/google-authenticator
+mv $HOME/.google_authenticator $HOME/.config/google-authenticator/google_authenticator
+semanage fcontext -a -t cockpit_tmp_t "$HOME/.config/google-authenticator(/.*)?"
+restorecon -R -v $HOME/.config/google-authenticator
 </programlisting>
 
     </section>

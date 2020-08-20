@@ -2,7 +2,12 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="feature-docker">
+
   <title>Docker</title>
+
+  <warning>
+  <para>Please note that <code>docker</code> support has been deprecated since <ulink url="https://cockpit-project.org/blog/cockpit-215.html">version 215</ulink> in favor of <ulink url="https://github.com/cockpit-project/cockpit-podman/"><code>cockpit-podman</code></ulink>, and will not be maintained upstream anymore.</para>
+  </warning>
 
   <para>Cockpit can manage containers via <ulink url="https://www.docker.com/">Docker</ulink>.
     This functionality is present in the Cockpit <emphasis>docker</emphasis> package.</para>
@@ -28,4 +33,5 @@
 $ <command>sudo docker run -ti fedora /bin/bash</command>
 [root@57625bc8787e /]#
 </programlisting>
+  
 </chapter>

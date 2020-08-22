@@ -1126,6 +1126,10 @@ class MachineCase(unittest.TestCase):
             # but we have to ignore that general header line
             self.allowed_messages.append('^Stack trace of.*')
 
+        if self.image == "fedora-33":
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1871351
+            self.allowed_messages.append('.*type=1400.*avc:  denied  { getattr } for .* comm="cockpit-session" name="/".*')
+
         all_found = True
         first = None
         for m in messages:

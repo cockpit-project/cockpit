@@ -26,7 +26,7 @@ from testlib import *
 @skipImage("No docker packaged", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
 @skipImage("Not supporting cockpit-docker on CoreOS", "fedora-coreos")
 @skipImage("Not supporting cockpit-docker on Debian and Ubuntu >= 20.04", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
-@skipImage("Docker not available", "fedora-31", "fedora-testing", "fedora-32") # https://github.com/cockpit-project/cockpit/issues/12670
+@skipImage("Docker not available", "fedora-31", "fedora-testing", "fedora-32", "fedora-33") # https://github.com/cockpit-project/cockpit/issues/12670
 class TestDocker(MachineCase):
 
     def setUp(self):

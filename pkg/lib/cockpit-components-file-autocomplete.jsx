@@ -121,7 +121,7 @@ export class FileAutoComplete extends React.Component {
     }
 
     onFilter(event) {
-        if (event.target.value == "" || event.target.value.slice(-1) == "/") {
+        if (event.target.value == "" || (event.target.value && event.target.value.slice(-1) == "/")) {
             this.setState({ directory: event.target.value || "/" });
             this.updateFiles(event.target.value || "/");
         }

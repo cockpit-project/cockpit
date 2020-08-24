@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import $ from "jquery";
 import { superuser } from "superuser";
 
-import '../../src/base1/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-cockpit.scss';
 
 const _ = cockpit.gettext;
 

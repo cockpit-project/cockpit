@@ -1,4 +1,4 @@
-import '../../src/base1/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-cockpit.scss';
 import $ from "jquery";
 import cockpit from "cockpit";
 import { docker } from "./docker";

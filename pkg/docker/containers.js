@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import '../../src/base1/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-cockpit.scss';
 
 import $ from "jquery";
 import cockpit from "cockpit";

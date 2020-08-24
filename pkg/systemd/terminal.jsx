@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import '../../src/base1/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-cockpit.scss';
 import { Terminal } from "cockpit-components-terminal.jsx";
 import { Select, SelectEntry } from "cockpit-components-select.jsx";
 

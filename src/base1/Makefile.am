@@ -55,7 +55,7 @@ dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 
 # PatternFly 3 with hacked CSS to look like PF4 plus the PF4 base
 dist/base1/patternfly.css.map: dist/base1/patternfly.css
-dist/base1/patternfly.css: src/base1/patternfly-cockpit.scss
+dist/base1/patternfly.css: $(srcdir)/pkg/lib/patternfly/patternfly-cockpit.scss
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
         $(SASS) $< $@ --source-map \
 			--source-map-urls absolute \
@@ -200,7 +200,6 @@ EXTRA_DIST += \
 	src/base1/cockpit.js \
 	src/base1/deprecated.js \
 	src/base1/manifest.json \
-	src/base1/patternfly-cockpit.scss \
 	src/base1/simple-tap.js \
 	src/base1/test-dbus-common.js \
 	$(base_DATA) \

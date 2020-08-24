@@ -1,7 +1,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import '../../src/base1/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 $(function() {

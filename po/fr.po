@@ -15,13 +15,14 @@
 # Anonymous <noreply@weblate.org>, 2020.
 # Sébastien POHER <sogal@member.fsf.org>, 2020.
 # Côme Borsoi <fedora@borsoi.fr>, 2020.
+# Sébastien Pascal-Poher <spoher@pm.me>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-31 09:12+0000\n"
-"PO-Revision-Date: 2020-08-08 06:29+0000\n"
-"Last-Translator: Sébastien POHER <sogal@member.fsf.org>\n"
+"POT-Creation-Date: 2020-08-17 05:30+0000\n"
+"PO-Revision-Date: 2020-08-22 08:29+0000\n"
+"Last-Translator: Sébastien Pascal-Poher <spoher@pm.me>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
 "master/fr/>\n"
 "Language: fr\n"
@@ -29,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1\n"
-"X-Generator: Weblate 4.1.1\n"
+"X-Generator: Weblate 4.2.1\n"
 
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
@@ -72,7 +73,7 @@ msgid_plural "$0 Packages"
 msgstr[0] "$0 paquet"
 msgstr[1] "$0 paquets"
 
-#: pkg/systemd/services/service-details.jsx:130
+#: pkg/systemd/services/service-details.jsx:134
 #: pkg/systemd/services/services.jsx:378
 msgid "$0 Template"
 msgstr "$0 Modèle"
@@ -616,7 +617,7 @@ msgstr "Ping ARP"
 msgid "About Web Console"
 msgstr "À propos de Console Web"
 
-#: pkg/lib/machine-info.js:254
+#: pkg/lib/machine-info.js:255
 msgid "Absent"
 msgstr "Absent"
 
@@ -643,7 +644,7 @@ msgstr "Comptes"
 msgid "Actions"
 msgstr "Actions"
 
-#: pkg/machines/components/networks/network.jsx:160
+#: pkg/machines/components/networks/network.jsx:159
 #: pkg/machines/components/storagePools/storagePool.jsx:161
 #: pkg/storaged/content-views.jsx:287
 msgid "Activate"
@@ -669,7 +670,7 @@ msgstr "Pages actives"
 msgid "Active since"
 msgstr "Actif depuis"
 
-#: pkg/systemd/services/service-details.jsx:436
+#: pkg/systemd/services/service-details.jsx:443
 msgid "Active since "
 msgstr "Actif depuis "
 
@@ -796,8 +797,8 @@ msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
 msgstr ""
-"Ajouter des ports personnalisés rechargera firewalld. Le chargement à "
-"nouveau entraînera la perte de la configuration en cours d’exécution !"
+"Ajouter des ports personnalisés rechargera firewalld. Le rechargement de la "
+"configuration entraînera la perte de celle en cours d’exécution !"
 
 #: pkg/users/authorized-keys.js:113
 msgid "Adding key"
@@ -819,7 +820,7 @@ msgstr "DNS supplémentaire $val"
 msgid "Additional DNS Search Domains $val"
 msgstr "Domaines de recherche DNS supplémentaires $val"
 
-#: pkg/systemd/services/service-details.jsx:285
+#: pkg/systemd/services/service-details.jsx:288
 msgid "Additional actions"
 msgstr "Actions supplémenaires"
 
@@ -886,7 +887,7 @@ msgstr "Mot de passe administrateur"
 msgid "Advanced TCA"
 msgstr "TCA avancé"
 
-#: pkg/systemd/services/service-details.jsx:512
+#: pkg/systemd/services/service-details.jsx:519
 msgid "After"
 msgstr "Après"
 
@@ -928,7 +929,7 @@ msgstr "Tout en un"
 msgid "All logs"
 msgstr "Tous les journaux"
 
-#: pkg/systemd/services/service-details.jsx:234
+#: pkg/systemd/services/service-details.jsx:238
 msgid "Allow running (unmask)"
 msgstr "Autoriser l’exécution (unmask)"
 
@@ -1101,7 +1102,7 @@ msgstr "Mises à jour automatiques"
 msgid "Automatically start libvirt on boot"
 msgstr "Lancement automatique de libvirt au démarrage"
 
-#: pkg/systemd/services/service-details.jsx:480
+#: pkg/systemd/services/service-details.jsx:487
 #: pkg/systemd/services/services-list.jsx:68
 msgid "Automatically starts"
 msgstr "Démarre automatiquement"
@@ -1170,11 +1171,11 @@ msgstr "Mauvaises données transmises pour le mécanisme passwd1"
 msgid "Balancer"
 msgstr "Équilibreur de charge"
 
-#: pkg/systemd/services/service-details.jsx:511
+#: pkg/systemd/services/service-details.jsx:518
 msgid "Before"
 msgstr "Avant"
 
-#: pkg/systemd/services/service-details.jsx:502
+#: pkg/systemd/services/service-details.jsx:509
 msgid "Binds To"
 msgstr "Liaison vers"
 
@@ -1225,7 +1226,7 @@ msgstr "Ordre d’amorçage"
 msgid "Boot order settings could not be saved"
 msgstr "Les paramètres d’ordre du démarrage n’ont pas pu être enregistrés"
 
-#: pkg/systemd/services/service-details.jsx:507
+#: pkg/systemd/services/service-details.jsx:514
 msgid "Bound By"
 msgstr "Liés par"
 
@@ -1369,7 +1370,7 @@ msgstr "Impossible de charger l’image"
 #: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:150
 #: pkg/sosreport/index.js:52 pkg/storaged/dialog.jsx:399
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:227
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
+#: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:191
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1377,7 +1378,7 @@ msgstr "Annuler"
 msgid "Cannot be enabled"
 msgstr "Ne peut pas être activé"
 
-#: pkg/shell/indexes.js:465
+#: pkg/shell/indexes.js:470
 msgid "Cannot connect to an unknown machine"
 msgstr "Impossible de se connecter à une machine inconnue"
 
@@ -1534,7 +1535,7 @@ msgstr "Classe"
 msgid "Cleaning up for $target"
 msgstr "Nettoyage pour $target"
 
-#: pkg/systemd/services/service-details.jsx:263
+#: pkg/systemd/services/service-details.jsx:267
 msgid "Clear 'Failed to start'"
 msgstr "Effacer «Echec du démarrage»"
 
@@ -1772,15 +1773,15 @@ msgstr "Compression"
 msgid "Computer OU"
 msgstr "Ordinateur OU"
 
-#: pkg/systemd/services/service-details.jsx:526
+#: pkg/systemd/services/service-details.jsx:533
 msgid "Condition $0=$1 was not met"
 msgstr "Condition $0 = $1 n’a pas été remplie"
 
-#: pkg/systemd/services/service-details.jsx:574
+#: pkg/systemd/services/service-details.jsx:581
 msgid "Condition failed"
 msgstr "Condition non remplie"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:273
+#: pkg/systemd/overview-cards/configurationCard.jsx:272
 msgid "Configuration"
 msgstr "Configuration"
 
@@ -1821,11 +1822,11 @@ msgstr "Confirmer la suppression avec la phrase de passe"
 msgid "Confirm this action"
 msgstr "Confirmer cette action"
 
-#: pkg/systemd/services/service-details.jsx:510
+#: pkg/systemd/services/service-details.jsx:517
 msgid "Conflicted By"
 msgstr "Conflit avec"
 
-#: pkg/systemd/services/service-details.jsx:509
+#: pkg/systemd/services/service-details.jsx:516
 msgid "Conflicts"
 msgstr "Conflits"
 
@@ -1870,7 +1871,7 @@ msgstr "Connexion au démon SETroubleshoot…"
 msgid "Connecting to Virtualization Service"
 msgstr "Connexion au service de virtualisation"
 
-#: pkg/shell/indexes.js:460
+#: pkg/shell/indexes.js:465
 msgid "Connecting to the machine"
 msgstr "Connexion à la machine"
 
@@ -1898,7 +1899,7 @@ msgstr "La connexion a expiré."
 msgid "Connection will be lost"
 msgstr "La connexion sera perdue"
 
-#: pkg/systemd/services/service-details.jsx:508
+#: pkg/systemd/services/service-details.jsx:515
 msgid "Consists Of"
 msgstr "Comprend"
 
@@ -2003,7 +2004,7 @@ msgstr "Impossible de modifier les groupes d’utilisateurs"
 msgid "Couldn't change user password"
 msgstr "Impossible de modifier le mot de passe utilisateur"
 
-#: pkg/shell/indexes.js:463
+#: pkg/shell/indexes.js:468
 msgid "Couldn't connect to the machine"
 msgstr "Impossible de se connecter à la machine"
 
@@ -2308,7 +2309,7 @@ msgstr "Tableau de bord"
 msgid "Data Used"
 msgstr "Données utilisées"
 
-#: pkg/machines/components/networks/network.jsx:156
+#: pkg/machines/components/networks/network.jsx:155
 #: pkg/machines/components/storagePools/storagePool.jsx:153
 #: pkg/storaged/content-views.jsx:285
 msgid "Deactivate"
@@ -2542,12 +2543,12 @@ msgid "Disable tuned"
 msgstr "Désactiver tuned"
 
 #: pkg/networkmanager/interfaces.js:1960
-#: pkg/systemd/services/service-details.jsx:413
+#: pkg/systemd/services/service-details.jsx:420
 #: pkg/systemd/services/services.jsx:533 pkg/systemd/services/services.jsx:698
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: pkg/systemd/services/service-details.jsx:267
+#: pkg/systemd/services/service-details.jsx:271
 msgid "Disallow running (mask)"
 msgstr "Empêcher l’exécution (mask)"
 
@@ -2637,7 +2638,7 @@ msgid "Does not automatically start"
 msgstr "Ne démarre pas automatiquement"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:291
+#: pkg/systemd/overview-cards/configurationCard.jsx:290
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domaine"
@@ -2723,7 +2724,7 @@ msgstr "Lecteur"
 msgid "Drives"
 msgstr "Lecteur"
 
-#: pkg/lib/machine-info.js:247
+#: pkg/lib/machine-info.js:248
 msgid "Dual Rank"
 msgstr "Double rang"
 
@@ -2793,7 +2794,7 @@ msgstr "Machine émulée"
 msgid "Enable Service"
 msgstr "Activer le service"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:325
+#: pkg/systemd/overview-cards/configurationCard.jsx:324
 msgid "Enable stored metrics"
 msgstr "Activer les métriques stockées"
 
@@ -2855,7 +2856,7 @@ msgstr "L’extrémité ne doit pas être vide"
 
 #: pkg/selinux/setroubleshoot-view.jsx:285
 msgid "Enforcing"
-msgstr "Faire exécuter"
+msgstr "Imposer les règles"
 
 #: pkg/packagekit/updates.jsx:867
 msgid "Enhancement Updates Available"
@@ -2913,7 +2914,7 @@ msgstr "Errata :"
 #: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:86
 #: pkg/storaged/storage-controls.jsx:163
-#: pkg/systemd/services/service-details.jsx:532
+#: pkg/systemd/services/service-details.jsx:539
 msgid "Error"
 msgstr "Erreur"
 
@@ -3064,7 +3065,7 @@ msgstr "Échec du chargement des clés autorisées."
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "Échec de l’envoi de la touche Ctrl+Alt+$0 à la VM $1"
 
-#: pkg/systemd/services/service-details.jsx:422
+#: pkg/systemd/services/service-details.jsx:429
 #: pkg/systemd/services/services.jsx:524
 msgid "Failed to start"
 msgstr "N’a pas pu démarrer"
@@ -3144,7 +3145,7 @@ msgstr "Version du micrologiciel"
 msgid "For legacy applications only. Reduces performance."
 msgstr "Pour les anciennes applications uniquement. Réduit les performances."
 
-#: pkg/systemd/services/service-details.jsx:404
+#: pkg/systemd/services/service-details.jsx:411
 #: pkg/systemd/services/services-list.jsx:72
 msgid "Forbidden from running"
 msgstr "Non autorisé à exécuter"
@@ -3378,7 +3379,7 @@ msgstr "Le nom de l’hôte ne devrait pas être changé dans un domaine"
 msgid "Host should not be empty"
 msgstr "Le nom d’hôte n’est peut-être pas vide"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:278
+#: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Hostname"
 msgstr "Nom d’hôte"
 
@@ -3691,11 +3692,11 @@ msgstr "Installation"
 msgid "Installing $0"
 msgstr "Installation de $0"
 
-#: pkg/systemd/services/service-details.jsx:569
+#: pkg/systemd/services/service-details.jsx:576
 msgid "Instance of template: "
 msgstr "Instance du modèle : "
 
-#: pkg/systemd/services/service-details.jsx:136
+#: pkg/systemd/services/service-details.jsx:140
 msgid "Instantiate"
 msgstr "Instancier"
 
@@ -3849,7 +3850,7 @@ msgstr "Rejoindre un domaine nécessite l’installation de realmd"
 msgid "Joining this domain is not supported"
 msgstr "Rejoindre ce domaine n’est pas pris en charge"
 
-#: pkg/systemd/services/service-details.jsx:518
+#: pkg/systemd/services/service-details.jsx:525
 msgid "Joins Namespace Of"
 msgstr "Rejoint l’espace de noms de"
 
@@ -4310,8 +4311,8 @@ msgstr "Vérifier manuellement avec SSH : "
 msgid "Marking $target as faulty"
 msgstr "Marquage de $target comme défectueux"
 
-#: pkg/systemd/services/service-details.jsx:274
-#: pkg/systemd/services/service-details.jsx:277
+#: pkg/systemd/services/service-details.jsx:278
+#: pkg/systemd/services/service-details.jsx:281
 msgid "Mask Service"
 msgstr "Service Masque"
 
@@ -4323,11 +4324,11 @@ msgstr "Masque ou Longueur du préfixe"
 msgid "Mask or Prefix Length should not be empty"
 msgstr "Le masque ou la longueur du préfixe ne doit pas être vide"
 
-#: pkg/systemd/services/service-details.jsx:403
+#: pkg/systemd/services/service-details.jsx:410
 msgid "Masked"
 msgstr "Masqué"
 
-#: pkg/systemd/services/service-details.jsx:275
+#: pkg/systemd/services/service-details.jsx:279
 msgid ""
 "Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
@@ -4722,11 +4723,11 @@ msgctxt "label"
 msgid "Network"
 msgstr "Réseau"
 
-#: pkg/machines/components/networks/network.jsx:116
+#: pkg/machines/components/networks/network.jsx:115
 msgid "Network $0 failed to get activated"
 msgstr "Échec de l’activation du réseau $0"
 
-#: pkg/machines/components/networks/network.jsx:128
+#: pkg/machines/components/networks/network.jsx:127
 msgid "Network $0 failed to get deactivated"
 msgstr "Échec de la désactivation du réseau $0"
 
@@ -5096,7 +5097,7 @@ msgstr "Aucune mise à jour en attente"
 msgid "No user name specified"
 msgstr "Aucun nom d’utilisateur n’est renseigné"
 
-#: pkg/machines/components/networks/network.jsx:166
+#: pkg/machines/components/networks/network.jsx:165
 msgid ""
 "Non-persistent network cannot be deleted. It ceases to exists when it's "
 "deactivated."
@@ -5170,7 +5171,7 @@ msgstr "Espace insuffisant pour propager."
 msgid "Not found"
 msgstr "Non trouvé"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:267
+#: pkg/systemd/overview-cards/configurationCard.jsx:266
 msgid "Not joined"
 msgstr "Non joint"
 
@@ -5183,7 +5184,7 @@ msgid "Not permitted to perform this action."
 msgstr "Non autorisé à effectuer cette action."
 
 #: pkg/storaged/mdraid-details.jsx:328
-#: pkg/systemd/services/service-details.jsx:443
+#: pkg/systemd/services/service-details.jsx:450
 #: pkg/systemd/services/services.jsx:526
 msgid "Not running"
 msgstr "Pas en cours d’exécution"
@@ -5192,7 +5193,7 @@ msgstr "Pas en cours d’exécution"
 msgid "Not synchronized"
 msgstr "Non synchronisé"
 
-#: pkg/systemd/services/service-details.jsx:532
+#: pkg/systemd/services/service-details.jsx:539
 msgid "Note"
 msgstr "Note"
 
@@ -5228,7 +5229,7 @@ msgstr "Ancienne phrase de passe"
 msgid "Old password not accepted"
 msgstr "Ancien mot de passe non accepté"
 
-#: pkg/docker/index.html:510 pkg/systemd/services/service-details.jsx:513
+#: pkg/docker/index.html:510 pkg/systemd/services/service-details.jsx:520
 msgid "On Failure"
 msgstr "En cas d’échec"
 
@@ -5348,7 +5349,7 @@ msgstr "Remplacer les données existantes par des zéros"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:322
+#: pkg/systemd/overview-cards/configurationCard.jsx:321
 msgid "PCP"
 msgstr "PCP"
 
@@ -5380,7 +5381,7 @@ msgstr "Parent $parent"
 msgid "Parent Snapshot"
 msgstr "Instantané parent"
 
-#: pkg/systemd/services/service-details.jsx:503
+#: pkg/systemd/services/service-details.jsx:510
 msgid "Part Of"
 msgstr "Fait partie de"
 
@@ -5466,7 +5467,7 @@ msgstr "Collez le contenu de votre clé publique SSH ici"
 
 #: pkg/machines/components/deleteDialog.jsx:46
 #: pkg/machines/components/diskEdit.jsx:39
-#: pkg/systemd/services/service-details.jsx:563
+#: pkg/systemd/services/service-details.jsx:570
 msgid "Path"
 msgstr "Chemin"
 
@@ -5511,7 +5512,7 @@ msgstr "Chemins"
 msgid "Pause"
 msgstr "Suspendre"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:296
+#: pkg/systemd/overview-cards/configurationCard.jsx:295
 msgid "Performance profile"
 msgstr "Profil de performance"
 
@@ -5728,7 +5729,7 @@ msgstr "Longueur du préfixe ou masque de réseau"
 msgid "Preparing"
 msgstr "Préparation en cours"
 
-#: pkg/lib/machine-info.js:254
+#: pkg/lib/machine-info.js:255
 msgid "Present"
 msgstr "Présent"
 
@@ -5810,7 +5811,7 @@ msgstr "L’invite via ssh-add a expiré"
 msgid "Prompting via ssh-keygen timed out"
 msgstr "L’invite via ssh-keygen a expiré"
 
-#: pkg/systemd/services/service-details.jsx:516
+#: pkg/systemd/services/service-details.jsx:523
 msgid "Propagates Reload To"
 msgstr "Recharger Propagation jusqu’à"
 
@@ -5935,7 +5936,7 @@ msgstr "En savoir plus…"
 
 #: pkg/machines/components/diskEdit.jsx:106
 #: pkg/machines/components/vmDisksTab.jsx:143
-#: pkg/systemd/services/service-details.jsx:470
+#: pkg/systemd/services/service-details.jsx:477
 msgid "Read-only"
 msgstr "Lecture seule"
 
@@ -5968,7 +5969,7 @@ msgstr "Prêt"
 msgid "Real Host Name"
 msgstr "Nom d’hôte réel"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:419
+#: pkg/systemd/overview-cards/configurationCard.jsx:418
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5976,7 +5977,7 @@ msgstr ""
 "Le nom d’hôte réel ne peut contenir que des caractères minuscules, des "
 "chiffres, des tirets et des points (avec des sous-domaines remplis)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:420
+#: pkg/systemd/overview-cards/configurationCard.jsx:419
 msgid "Real host name must be 64 characters or less"
 msgstr "Le nom d’hôte réel doit comporter 64 caractères ou moins"
 
@@ -6026,11 +6027,11 @@ msgstr "Connexion refusée. Hostkey est inconnu"
 msgid "Register…"
 msgstr "Enregistrement…"
 
-#: pkg/systemd/services/service-details.jsx:240
+#: pkg/systemd/services/service-details.jsx:244
 msgid "Reload"
 msgstr "Recharger"
 
-#: pkg/systemd/services/service-details.jsx:517
+#: pkg/systemd/services/service-details.jsx:524
 msgid "Reload Propagated From"
 msgstr "Recharger Propagation à partir de"
 
@@ -6219,27 +6220,27 @@ msgstr "Exiger un changement de mot de passe tous les $0 jours"
 msgid "Require password change on $0"
 msgstr "Exiger un changement de mot de passe sur $0"
 
-#: pkg/systemd/services/service-details.jsx:504
+#: pkg/systemd/services/service-details.jsx:511
 msgid "Required By"
 msgstr "Requis par"
 
-#: pkg/systemd/services/service-details.jsx:456
+#: pkg/systemd/services/service-details.jsx:463
 msgid "Required by "
 msgstr "Requis par "
 
-#: pkg/systemd/services/service-details.jsx:499
+#: pkg/systemd/services/service-details.jsx:506
 msgid "Requires"
 msgstr "Nécessite"
 
-#: pkg/systemd/services/service-details.jsx:471
+#: pkg/systemd/services/service-details.jsx:478
 msgid "Requires administration access to edit"
 msgstr "Nécessite un accès administrateur pour pouvoir modifier"
 
-#: pkg/systemd/services/service-details.jsx:500
+#: pkg/systemd/services/service-details.jsx:507
 msgid "Requisite"
 msgstr "Conditions requises"
 
-#: pkg/systemd/services/service-details.jsx:505
+#: pkg/systemd/services/service-details.jsx:512
 msgid "Requisite Of"
 msgstr "Requis par"
 
@@ -6266,7 +6267,7 @@ msgstr ""
 
 #: pkg/docker/index.html:131 pkg/docker/containers-view.jsx:320
 #: pkg/machines/components/vm/vmActions.jsx:104 pkg/systemd/overview.jsx:209
-#: pkg/systemd/overview.jsx:226 pkg/systemd/services/service-details.jsx:244
+#: pkg/systemd/overview.jsx:226 pkg/systemd/services/service-details.jsx:248
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Redémarrer"
@@ -6359,7 +6360,7 @@ msgid "Runner"
 msgstr "Runner"
 
 #: pkg/storaged/mdraid-details.jsx:328
-#: pkg/systemd/services/service-details.jsx:435
+#: pkg/systemd/services/service-details.jsx:442
 #: pkg/systemd/services/services.jsx:522
 msgid "Running"
 msgstr "En cours"
@@ -6495,7 +6496,7 @@ msgstr "Recherchez les journaux avec une combinaison de termes :"
 msgid "Seconds"
 msgstr "Secondes"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:301
+#: pkg/systemd/overview-cards/configurationCard.jsx:300
 msgid "Secure Shell keys"
 msgstr "Clés Secure Shell"
 
@@ -6634,7 +6635,7 @@ msgstr "Ensemble"
 msgid "Set DHCP Range"
 msgstr "Plage DHCP"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:254
+#: pkg/systemd/overview-cards/configurationCard.jsx:253
 msgid "Set Hostname"
 msgstr "Définir le nom d’hôte"
 
@@ -6733,7 +6734,7 @@ msgstr "Afficher toutes les images"
 msgid "Show filters"
 msgstr "Afficher les filtres"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:304
+#: pkg/systemd/overview-cards/configurationCard.jsx:303
 msgid "Show fingerprints"
 msgstr "Afficher les empreintes"
 
@@ -6767,7 +6768,7 @@ msgstr "Éteindre"
 msgid "Shutting down"
 msgstr "Éteindre"
 
-#: pkg/lib/machine-info.js:245
+#: pkg/lib/machine-info.js:246
 msgid "Single Rank"
 msgstr "Rang unique"
 
@@ -6939,7 +6940,7 @@ msgstr "Stable"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:236
 #: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:305
 #: pkg/storaged/vdo-details.jsx:258
-#: pkg/systemd/services/service-details.jsx:251
+#: pkg/systemd/services/service-details.jsx:255
 msgid "Start"
 msgstr "Démarrer"
 
@@ -6952,11 +6953,11 @@ msgid "Start Multipath"
 msgstr "Démarrer Multipath"
 
 #: pkg/networkmanager/index.html:47
-#: pkg/systemd/services/service-details.jsx:424
+#: pkg/systemd/services/service-details.jsx:431
 msgid "Start Service"
 msgstr "Démarrer le service"
 
-#: pkg/systemd/services/service-details.jsx:495
+#: pkg/systemd/services/service-details.jsx:502
 msgid "Start and Enable"
 msgstr "Démarrer et activer"
 
@@ -7002,13 +7003,13 @@ msgstr "État"
 msgid "State:"
 msgstr "État :"
 
-#: pkg/systemd/services/service-details.jsx:453
+#: pkg/systemd/services/service-details.jsx:460
 #: pkg/systemd/services/services.jsx:536 pkg/systemd/services/services.jsx:699
 msgid "Static"
 msgstr "Statique"
 
 #: pkg/networkmanager/interfaces.js:2617
-#: pkg/systemd/services/service-details.jsx:558
+#: pkg/systemd/services/service-details.jsx:565
 msgid "Status"
 msgstr "Statut"
 
@@ -7023,7 +7024,7 @@ msgstr "Sticky"
 #: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:315
 #: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:304
 #: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
-#: pkg/systemd/services/service-details.jsx:247
+#: pkg/systemd/services/service-details.jsx:251
 msgid "Stop"
 msgstr "Arrêter"
 
@@ -7031,7 +7032,7 @@ msgstr "Arrêter"
 msgid "Stop Device"
 msgstr "Arrêter le périphérique"
 
-#: pkg/systemd/services/service-details.jsx:495
+#: pkg/systemd/services/service-details.jsx:502
 msgid "Stop and Disable"
 msgstr "Arrêter et désactiver"
 
@@ -7120,7 +7121,7 @@ msgstr "Le stockage ne peut pas être géré sur ce système."
 msgid "Storage size must not be 0"
 msgstr "La taille de stockage ne doit pas être de 0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:310
+#: pkg/systemd/overview-cards/configurationCard.jsx:309
 msgid "Store metrics"
 msgstr "Stocker les métriques"
 
@@ -7256,7 +7257,7 @@ msgstr "Informations sur le système"
 msgid "System is up to date"
 msgstr "Le système est à jour"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:286
+#: pkg/systemd/overview-cards/configurationCard.jsx:285
 msgid "System time"
 msgstr "Heure système"
 
@@ -7587,7 +7588,7 @@ msgstr ""
 "L’utilisateur actuellement connecté n’est pas autorisé à voir les "
 "modifications système"
 
-#: pkg/shell/indexes.js:457
+#: pkg/shell/indexes.js:462
 msgid "The machine is restarting"
 msgstr "La machine redémarre"
 
@@ -7837,7 +7838,7 @@ msgstr ""
 "système à partir de ce système afin de les utiliser pour diagnostiquer les "
 "problèmes du système."
 
-#: pkg/systemd/services/service-details.jsx:375
+#: pkg/systemd/services/service-details.jsx:382
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Cette unité n’est pas conçue pour être activée explicitement."
 
@@ -7974,11 +7975,11 @@ msgstr ""
 "Les machines virtuelles temporaires ne permettent pas de modifier la "
 "configuration du micrologiciel"
 
-#: pkg/systemd/services/service-details.jsx:515
+#: pkg/systemd/services/service-details.jsx:522
 msgid "Triggered By"
 msgstr "Déclenché par"
 
-#: pkg/systemd/services/service-details.jsx:514
+#: pkg/systemd/services/service-details.jsx:521
 #: pkg/systemd/services/services-list.jsx:54
 msgid "Triggers"
 msgstr "Déclencheurs"
@@ -8151,7 +8152,7 @@ msgstr "Unité"
 msgid "Unix group: $0"
 msgstr "Groupe Unix : $0"
 
-#: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:241
+#: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
 #: pkg/machines/components/vmnetworktab.jsx:165
 #: pkg/networkmanager/interfaces.js:589 pkg/networkmanager/interfaces.js:1065
 #: pkg/networkmanager/interfaces.js:2537 pkg/networkmanager/interfaces.js:2539
@@ -8316,7 +8317,7 @@ msgstr "Mises à jour disponibles"
 msgid "Updating"
 msgstr "Mise à jour en cours"
 
-#: pkg/systemd/services/service-details.jsx:490
+#: pkg/systemd/services/service-details.jsx:497
 msgid "Updating status..."
 msgstr "Mise à jour du statut..."
 
@@ -8655,11 +8656,11 @@ msgstr "Attente de la fin des autres opérations de gestion du logiciel"
 msgid "Waiting to start…"
 msgstr "En attendant de commencer…"
 
-#: pkg/systemd/services/service-details.jsx:506
+#: pkg/systemd/services/service-details.jsx:513
 msgid "Wanted By"
 msgstr "Recherché par"
 
-#: pkg/systemd/services/service-details.jsx:501
+#: pkg/systemd/services/service-details.jsx:508
 msgid "Wants"
 msgstr "Recherches"
 
@@ -9036,7 +9037,7 @@ msgstr "par ex."
 msgid "e.g. \"$0\""
 msgstr "par ex. \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:254
+#: pkg/systemd/overview-cards/configurationCard.jsx:253
 msgid "edit"
 msgstr "modifier"
 
@@ -9072,7 +9073,7 @@ msgstr "tous les jours"
 msgid "extension"
 msgstr "extension"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:180
+#: pkg/systemd/overview-cards/configurationCard.jsx:179
 msgid "failed to list ssh host keys: $0"
 msgstr "échec de listage des clés de l’hôte ssh : $0"
 

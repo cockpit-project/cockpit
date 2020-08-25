@@ -311,6 +311,12 @@ class Browser:
         self.set_val(selector, value_id)
         self.wait_val(selector, value_id)
 
+    def select_PF4(self, selector, value):
+        self.click(selector + ':not([disabled])')
+        select_entry = "{0} + ul button:contains({1})".format(selector, value)
+        self.click(select_entry)
+        self.wait_text(selector + " .pf-c-select__toggle-text", value)
+
     def set_input_text(self, selector, val, append=False, value_check=True):
         self.focus(selector)
         if not append:

@@ -405,6 +405,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # triangle by status is gone
         b.wait_not_present("tbody tr[data-row-id=vm-subVmTest2-system] td span span.pficon-warning-triangle-o.machines-status-alert")
 
+        b.set_input_text("#text-search", "subVmTest2")
+        self.waitVmRow("subVmTest2")
+        self.waitVmRow("subVmTest1", "system", False)
+
         # Check correctness of the toast notifications list
         # We 'll create errors by starting to start domains when the default network in inactive
         self.startVm("subVmTest3")

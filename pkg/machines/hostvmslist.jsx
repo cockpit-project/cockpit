@@ -21,6 +21,11 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import {
+    Toolbar, ToolbarContent, ToolbarItem,
+    TextInput,
+} from '@patternfly/react-core';
+
+import {
     shutdownVm,
     pauseVm,
     resumeVm,
@@ -67,11 +72,14 @@ const _ = cockpit.gettext;
 class HostVmsList extends React.Component {
     constructor(props) {
         super(props);
+        this.state = { currentTextFilter: "" };
+
         this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
         this.client = cockpit.dbus("org.freedesktop.NetworkManager", {});
         this.deviceProxies = this.client.proxies("org.freedesktop.NetworkManager.Device");
         this.deviceProxies.addEventListener('changed', this.deviceProxyHandler);
         this.deviceProxies.addEventListener('removed', this.deviceProxyHandler);
+        this.onSearchInputChange = (currentTextFilter) => { this.setState({ currentTextFilter }) };
     }
 
     componentWillUnmount() {
@@ -85,21 +93,34 @@ class HostVmsList extends React.Component {
     render() {
         const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices, interfaces } = this.props;
         const combinedVms = [...vms, ...dummyVmsFilter(vms, ui.vms)];
+        const combinedVmsFiltered = combinedVms.filter(vm => vm.name.indexOf(this.state.currentTextFilter) != -1);
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
+        const toolBar = <Toolbar>
+            <ToolbarContent>
+                <ToolbarItem>
+                    <TextInput name="text-search" id="text-search" type="search"
+                        value={this.state.currentTextFilter}
+                        onChange={this.onSearchInputChange}
+                        placeholder={_("Filter by name")} />
+                </ToolbarItem>
+                <ToolbarItem variant="separator" />
+                <ToolbarItem>{actions}</ToolbarItem>
+            </ToolbarContent>
+        </Toolbar>;
 
         return (<div id='virtual-machines-listing' className='container-fluid'>
             <ListingTable caption={_("Virtual Machines")}
                 variant='compact'
-                emptyCaption={_("No VM is running or defined on this host")}
-                actions={actions}
+                emptyCaption={combinedVms == 0 ? _("No VM is running or defined on this host") : _("No results that match the filter criteria")}
+                actions={toolBar}
                 columns={[
                     { title: _("Name"), header: true },
                     { title: _("Connection") },
                     { title: _("State") },
                     { title: "" },
                 ]}
-                rows={ combinedVms
+                rows={ combinedVmsFiltered
                         .sort(sortFunction)
                         .map(vm => {
                             const connectionName = vm.connectionName;

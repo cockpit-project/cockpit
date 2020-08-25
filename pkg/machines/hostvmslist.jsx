@@ -23,6 +23,7 @@ import cockpit from 'cockpit';
 import {
     Toolbar, ToolbarContent, ToolbarItem,
     TextInput,
+    Select, SelectOption, SelectVariant,
 } from '@patternfly/react-core';
 
 import {
@@ -72,7 +73,7 @@ const _ = cockpit.gettext;
 class HostVmsList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { currentTextFilter: "" };
+        this.state = { currentTextFilter: "", statusSelected: { value: _("All"), toString: function() { return this.value } } };
 
         this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
         this.client = cockpit.dbus("org.freedesktop.NetworkManager", {});
@@ -93,7 +94,8 @@ class HostVmsList extends React.Component {
     render() {
         const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices, interfaces } = this.props;
         const combinedVms = [...vms, ...dummyVmsFilter(vms, ui.vms)];
-        const combinedVmsFiltered = combinedVms.filter(vm => vm.name.indexOf(this.state.currentTextFilter) != -1);
+        const combinedVmsFiltered = combinedVms
+                .filter(vm => vm.name.indexOf(this.state.currentTextFilter) != -1 && (!this.state.statusSelected.apiState || this.state.statusSelected.apiState == vm.state));
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
         const toolBar = <Toolbar>
@@ -103,6 +105,26 @@ class HostVmsList extends React.Component {
                         value={this.state.currentTextFilter}
                         onChange={this.onSearchInputChange}
                         placeholder={_("Filter by name")} />
+                </ToolbarItem>
+                <ToolbarItem variant="label" id="vm-state-select">
+                    {_("State")}
+                </ToolbarItem>
+                <ToolbarItem>
+                    <Select variant={SelectVariant.single}
+                            toggleId="vm-state-select-toggle"
+                            onToggle={statusIsExpanded => this.setState({ statusIsExpanded })}
+                            onSelect={(event, selection) => this.setState({ statusIsExpanded: false, statusSelected: selection })}
+                            selections={this.state.statusSelected}
+                            isOpen={this.state.statusIsExpanded}
+                            aria-labelledby="vm-state-select">
+                        {[
+                            { value: _("All"), },
+                            { value: _("Running"), apiState: "running" },
+                            { value: _("Shut off"), apiState: "shut off" }
+                        ].map((option, index) => (
+                            <SelectOption key={index} value={{ ...option, toString: function() { return this.value } }} />
+                        ))}
+                    </Select>
                 </ToolbarItem>
                 <ToolbarItem variant="separator" />
                 <ToolbarItem>{actions}</ToolbarItem>

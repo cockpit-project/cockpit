@@ -409,6 +409,22 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.waitVmRow("subVmTest2")
         self.waitVmRow("subVmTest1", "system", False)
 
+        b.select_PF4("#vm-state-select-toggle", "Running")
+        self.waitVmRow("subVmTest1", "system", False)
+        self.waitVmRow("subVmTest2")
+
+        b.set_input_text("#text-search", "")
+        self.waitVmRow("subVmTest1", "system", False)
+        self.waitVmRow("subVmTest2")
+
+        b.select_PF4("#vm-state-select-toggle", "Shut off")
+        self.waitVmRow("subVmTest1")
+        self.waitVmRow("subVmTest2", "system", False)
+
+        b.select_PF4("#vm-state-select-toggle", "All")
+        self.waitVmRow("subVmTest1")
+        self.waitVmRow("subVmTest2")
+
         # Check correctness of the toast notifications list
         # We 'll create errors by starting to start domains when the default network in inactive
         self.startVm("subVmTest3")

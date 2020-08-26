@@ -700,7 +700,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def add_disk(self):
                 b.click(".modal-footer button:contains(Add)")
-                b.wait_not_present("vm-{0}-disks-adddisk-dialog-modal-window".format(self.vm_name))
+                b.wait_not_present("#vm-{0}-disks-adddisk-dialog-modal-window".format(self.vm_name))
 
                 return self
 

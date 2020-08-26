@@ -68,6 +68,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.restore_dir("/var/lib/libvirt")
         self.restore_dir("/etc/libvirt")
 
+        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
+            # https://bugs.launchpad.net/ubuntu/+source/libvirt-dbus/+bug/1892757
+            m.execute("usermod -a -G libvirt libvirtdbus")
+
         # Cleanup pools
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
 

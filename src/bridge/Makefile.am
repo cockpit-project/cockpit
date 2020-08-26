@@ -22,6 +22,8 @@ libcockpit_bridge_METRICS = \
 	src/bridge/cockpitmountsamples.h \
 	src/bridge/cockpitnetworksamples.c \
 	src/bridge/cockpitnetworksamples.h \
+	src/bridge/cockpitschedsamples.c \
+	src/bridge/cockpitschedsamples.h \
 	src/bridge/cockpitsamples.c \
 	src/bridge/cockpitsamples.h \
 	$(NULL)

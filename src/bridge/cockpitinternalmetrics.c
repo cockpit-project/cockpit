@@ -32,6 +32,7 @@
 #include "cockpitmountsamples.h"
 #include "cockpitcgroupsamples.h"
 #include "cockpitdisksamples.h"
+#include "cockpitschedsamples.h"
 
 #include "common/cockpitjson.h"
 
@@ -53,7 +54,8 @@ typedef enum {
   NETWORK_SAMPLER = 1 << 3,
   MOUNT_SAMPLER = 1 << 4,
   CGROUP_SAMPLER = 1 << 5,
-  DISK_SAMPLER = 1 << 6
+  DISK_SAMPLER = 1 << 6,
+  SCHED_SAMPLER = 1 << 7,
 } SamplerSet;
 
 typedef struct {
@@ -95,6 +97,8 @@ static MetricDescription metric_descriptions[] = {
   { "cgroup.memory.sw-limit", "bytes",    "instant", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.usage",       "millisec", "counter", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.shares",      "count",    "instant", TRUE, CGROUP_SAMPLER },
+
+  { "sched.loadavg",             "count",    "instant", TRUE, SCHED_SAMPLER },
 
   { NULL }
 };
@@ -331,6 +335,8 @@ cockpit_internal_metrics_tick (CockpitMetrics *metrics,
     cockpit_cgroup_samples (COCKPIT_SAMPLES (self));
   if (self->samplers & DISK_SAMPLER)
     cockpit_disk_samples (COCKPIT_SAMPLES (self));
+  if (self->samplers & SCHED_SAMPLER)
+    cockpit_sched_samples (COCKPIT_SAMPLES (self));
 
   /* Check for disappeared instances
    */

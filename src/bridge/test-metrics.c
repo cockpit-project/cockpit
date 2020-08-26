@@ -719,6 +719,74 @@ test_deprecated_net_all (void)
   g_object_unref (transport);
 }
 
+static void
+test_sched_load (void)
+{
+  MockTransport *transport = mock_transport_new ();
+  CockpitChannel *channel;
+  JsonObject *options = json_obj ("{ 'metrics': [ { 'name': 'sched.loadavg' } ],"
+                                  "  'interval': 1000"
+                                  "}");
+  GBytes *msg;
+  JsonObject *res, *description;
+  JsonArray *metrics, *instances;
+  JsonArray *samples, *first_sample;
+
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+  channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+
+  cockpit_channel_prepare (channel);
+
+  /* receive meta information */
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  res = cockpit_json_parse_bytes (msg, NULL);
+  g_assert (res != NULL);
+  g_assert (json_object_has_member (res, "metrics"));
+
+  /* metrics should have the form [{"name":"sched.loadavg","instances":["1min", "5min", "15min"]}] */
+  metrics = json_object_get_array_member (res, "metrics");
+  g_assert_cmpint (json_array_get_length (metrics), ==, 1);
+  description = json_array_get_object_element (metrics, 0);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "sched.loadavg");
+
+  /* expected instances */
+  instances = json_object_get_array_member (description, "instances");
+  g_assert_cmpint (json_array_get_length (instances), ==, 3);
+  /* they don't have a predictable order, so don't pin down their array index */
+  g_assert (g_strcmp0 (json_array_get_string_element (instances, 0), "1min") == 0 ||
+            g_strcmp0 (json_array_get_string_element (instances, 1), "1min") == 0 ||
+            g_strcmp0 (json_array_get_string_element (instances, 2), "1min") == 0);
+
+  /* next message should have some actual values; looks like [[[28,56,26]]] */
+  samples = recv_array (transport);
+  g_assert_cmpint (json_array_get_length (samples), ==, 1);
+  g_assert_cmpint (json_array_get_length (json_array_get_array_element (samples, 0)), ==, 1);
+  first_sample = json_array_get_array_element (json_array_get_array_element (samples, 0), 0);
+  g_assert_cmpint (json_array_get_length (first_sample), ==, 3);
+  /* can't say too much about the number, but let's assume the load is < 100; values are (load * 100) to be integer */
+  g_assert_cmpint (json_array_get_int_element (first_sample, 0), >, 0);
+  g_assert_cmpint (json_array_get_int_element (first_sample, 0), <=, 10000);
+  g_assert_cmpint (json_array_get_int_element (first_sample, 1), >, 0);
+  g_assert_cmpint (json_array_get_int_element (first_sample, 1), <=, 10000);
+  g_assert_cmpint (json_array_get_int_element (first_sample, 2), >, 0);
+  g_assert_cmpint (json_array_get_int_element (first_sample, 2), <=, 10000);
+
+  json_array_unref (samples);
+
+  json_object_unref (res);
+  g_object_unref (channel);
+  json_object_unref (options);
+  g_object_unref (transport);
+}
+
+
 int
 main (int argc,
       char *argv[])
@@ -745,6 +813,7 @@ main (int argc,
   g_test_add_func ("/metrics/not-supported", test_not_supported);
 
   g_test_add_func ("/metrics/deprecated-net-all", test_deprecated_net_all);
+  g_test_add_func ("/metrics/sched-load", test_sched_load);
 
   return g_test_run ();
 }

@@ -189,6 +189,67 @@ test_local_channel (TestCase *tc,
 }
 
 static void
+test_local_channel_redirect (TestCase *tc,
+                             gconstpointer unused)
+{
+  CockpitRouter *router;
+  GBytes *sent;
+  JsonObject *control;
+
+  static CockpitPayloadType payload_types[] = {
+    { "echo", mock_echo_channel_get_type },
+    { NULL },
+  };
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), payload_types, NULL);
+
+  /* Open two channels, redirect the second to the first and send data on the second */
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"echo\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"echo\", \"redirect\": \"a\"}");
+  emit_string (tc, "b", "igen igen");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\"}");
+  control = NULL;
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"b\"}");
+  control = NULL;
+
+  /* Note: the second channel sends the message back, but its output is
+   * redirected, therefore it arrives on the first channel, which forwards it
+   * to the client */
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "igen igen", -1);
+
+  /* Now close the first channel and attempt to send data on the second */
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"a\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\"}");
+  control = NULL;
+
+  emit_string (tc, "b", "igen igen");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The second channel should close, because its redirect target was closed */
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"b\",\"problem\":\"redirect-target-closed\"}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
+static void
 test_external_bridge (TestCase *tc,
                       gconstpointer unused)
 {
@@ -262,6 +323,146 @@ test_external_bridge (TestCase *tc,
   g_object_unref (peer);
   g_object_unref (router);
   g_object_unref (shim_transport);
+}
+
+static void
+test_external_channel_redirect (TestCase *tc,
+                                gconstpointer unused)
+{
+  CockpitRouter *router;
+  GBytes *sent;
+  CockpitPeer *peer, *other_peer;
+  JsonObject *other_peer_config, *other_peer_match, *control;
+
+  static CockpitPayloadType payload_types[] = {
+    { "echo", mock_echo_channel_get_type },
+    { NULL },
+  };
+
+  /* Create configuration for second peer based on the mock config with --upper replaced with --lower */
+  other_peer_match = json_object_new ();
+  json_object_set_string_member (other_peer_match, "payload", "lower");
+  other_peer_config = json_object_new ();
+
+  GList *mock_config_members = json_object_get_members (tc->mock_config);
+  for (GList *elem = mock_config_members; elem; elem = elem->next)
+    {
+      const gchar *key = elem->data;
+      if (g_strcmp0 (key, "spawn") == 0)
+        {
+          JsonArray *old_argv = json_node_get_array (json_object_get_member (tc->mock_config, key));
+          JsonArray *new_argv = json_array_new ();
+          GList *old_argv_arr = json_array_get_elements (old_argv);
+          for (GList *arr_elem = old_argv_arr; arr_elem; arr_elem = arr_elem->next)
+          {
+            const gchar *arr_data = json_node_get_string (arr_elem->data);
+            if (g_strcmp0 (arr_data, "--upper") == 0)
+              json_array_add_string_element (new_argv, "--lower");
+            else
+              json_array_add_string_element (new_argv, arr_data);
+          }
+          g_list_free (old_argv_arr);
+          json_object_set_array_member (other_peer_config, key, new_argv);
+        }
+      else
+        json_object_set_member (other_peer_config, key, json_object_dup_member (tc->mock_config, key));
+    }
+  g_list_free (mock_config_members);
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), payload_types, NULL);
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
+  other_peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), other_peer_config);
+  cockpit_router_add_peer (router, tc->mock_match, peer);
+  cockpit_router_add_peer (router, other_peer_match, other_peer);
+
+  /* Test redirection from peer to local channel */
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"echo\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\"}");
+  control = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"upper\", \"redirect\": \"a\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"b\"}");
+  control = NULL;
+
+  emit_string (tc, "b", "oh marmalade");
+
+  /* Note: the second channel sends the message back, but its output is
+   * redirected, therefore it arrives on the first channel, which forwards it
+   * to the client */
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+  sent = NULL;
+
+  /* Test redirection from local channel to peer */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"upper\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"c\"}");
+  control = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"d\", \"payload\": \"echo\", \"redirect\": \"c\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"d\"}");
+  control = NULL;
+
+  emit_string (tc, "d", "oh marmalade");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "c")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+  sent = NULL;
+
+  /* Test redirection from peer to peer */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"e\", \"payload\": \"lower\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"e\"}");
+  control = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"f\", \"payload\": \"upper\", \"redirect\": \"e\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"f\"}");
+  control = NULL;
+
+  emit_string (tc, "f", "oH mArMalADE");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "e")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "oh marmalade", -1);
+  sent = NULL;
+
+  /* Now close the first channel and attempt to send data on the second */
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"e\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"e\"}");
+  control = NULL;
+
+  emit_string (tc, "f", "oH mArMalADE");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The second channel should close, because its redirect target was closed */
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"f\",\"problem\":\"redirect-target-closed\"}");
+  control = NULL;
+
+  g_object_unref (peer);
+  g_object_unref (other_peer);
+  g_object_unref (router);
+  json_object_unref (other_peer_config);
+  json_object_unref (other_peer_match);
 }
 
 static const TestFixture fixture_fail = {
@@ -861,8 +1062,12 @@ main (int argc,
 
   g_test_add ("/router/local-channel", TestCase, NULL,
               setup, test_local_channel, teardown);
+  g_test_add ("/router/local-channel-redirect", TestCase, NULL,
+              setup, test_local_channel_redirect, teardown);
   g_test_add ("/router/external-bridge", TestCase, NULL,
               setup, test_external_bridge, teardown);
+  g_test_add ("/router/external-channel-redirect", TestCase, NULL,
+              setup, test_external_channel_redirect, teardown);
   g_test_add ("/router/external-fail", TestCase, &fixture_fail,
               setup, test_external_fail, teardown);
   g_test_add ("/router/dynamic-bridge-fail", TestCase, &fixture_dyn_fail,

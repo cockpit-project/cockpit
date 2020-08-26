@@ -30,6 +30,7 @@
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitredirect.h"
 #include "common/cockpittemplate.h"
 #include "common/cockpithex.h"
 
@@ -66,6 +67,9 @@ struct _CockpitRouter {
 
   /* All local channels are tracked here, value may be null */
   GHashTable *channels;
+
+  /* Peers for non-local channels are tracked here for the purpose of redirecting */
+  GHashTable *channel_peers;
 
   /* Channel groups */
   GHashTable *groups;
@@ -410,6 +414,38 @@ process_init (CockpitRouter *self,
     }
 }
 
+static CockpitRedirect *
+get_redirect (CockpitRouter *self,
+              const gchar *channel_name)
+{
+  CockpitChannel *target_channel;
+  CockpitPeer *target_peer;
+
+  if (!channel_name)
+    return NULL;
+
+  if ((target_channel = g_hash_table_lookup (self->channels, (gpointer) channel_name)))
+    {
+      return g_object_new (COCKPIT_TYPE_CHANNEL_REDIRECT,
+                           "channel",
+                           target_channel,
+                           NULL);
+    }
+
+  if ((target_peer = g_hash_table_lookup (self->channel_peers, (gpointer) channel_name)))
+    {
+      CockpitTransport *target_transport = cockpit_peer_ensure (target_peer);
+      return g_object_new (COCKPIT_TYPE_PEER_REDIRECT,
+                           "channel",
+                           channel_name,
+                           "transport",
+                           target_transport,
+                           NULL);
+    }
+
+  return NULL;
+}
+
 static void
 on_channel_closed (CockpitChannel *local,
                    const gchar *problem,
@@ -450,10 +486,16 @@ create_channel (CockpitRouter *self,
 {
   CockpitChannel *local;
 
+  /* Handle local channel redirect */
+  const gchar *redirect_channel;
+  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
+  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+
   local = g_object_new (type,
                         "transport", self->transport,
                         "id", channel,
                         "options", options,
+                        "redirect_target", redirect_target,
                         NULL);
 
   /* This owns the local channel */
@@ -585,7 +627,16 @@ process_open_peer (CockpitRouter *self,
                    gpointer user_data)
 {
   CockpitPeer *peer = user_data;
-  return cockpit_peer_handle (peer, channel, options, data);
+
+  /* Track peer in hash table */
+  g_hash_table_insert (self->channel_peers, (gpointer)g_strdup (channel), peer);
+
+  /* Handle peer channel redirect */
+  const gchar *redirect_channel;
+  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
+  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+
+  return cockpit_peer_handle (peer, channel, options, redirect_target, data);
 }
 
 static GBytes *
@@ -703,8 +754,16 @@ process_open_dynamic_peer (CockpitRouter *self,
   if (config)
     json_object_unref (config);
 
+  /* Track peer in hash table */
+  g_hash_table_insert (self->channel_peers, (gpointer)g_strdup (channel), peer);
+
+  /* Handle dynamic peer channel redirect */
+  const gchar *redirect_channel;
+  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
+  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+
   g_list_free (names);
-  return cockpit_peer_handle (peer, channel, options, data);
+  return cockpit_peer_handle (peer, channel, options, redirect_target, data);
 }
 
 static gboolean
@@ -988,6 +1047,7 @@ cockpit_router_init (CockpitRouter *self)
 
   /* Owns the channels */
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, object_unref_if_not_null);
+  self->channel_peers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   self->groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   self->fences = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -1027,6 +1087,7 @@ cockpit_router_dispose (GObject *object)
     }
 
   g_hash_table_remove_all (self->channels);
+  g_hash_table_remove_all (self->channel_peers);
   g_hash_table_remove_all (self->groups);
   g_hash_table_remove_all (self->fences);
 
@@ -1047,6 +1108,7 @@ cockpit_router_finalize (GObject *object)
 
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);
+  g_hash_table_destroy (self->channel_peers);
   g_hash_table_destroy (self->groups);
   g_hash_table_destroy (self->fences);
 

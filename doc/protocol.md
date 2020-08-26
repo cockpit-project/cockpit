@@ -110,6 +110,8 @@ The following fields are defined:
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
  * "flow-control": Optional boolean whether the channel should throttle itself via flow control.
+ * "redirect": Optional, id of channel to whose input the channel's output will
+   be redirected to (like a Unix pipe).
 
 If "binary" is set to "raw" then this channel transfers binary messages.
 

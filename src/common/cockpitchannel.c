@@ -23,6 +23,7 @@
 
 #include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
+#include "common/cockpitredirect.h"
 #include "common/cockpitunicode.h"
 
 #include <json-glib/json-glib.h>
@@ -102,6 +103,9 @@ typedef struct {
     /* Binary options */
     gboolean binary_ok;
 
+    /* Channel or transport the output is redirected to */
+    CockpitRedirect *redirect_target;
+
     /* Other state */
     JsonObject *close_options;
 
@@ -126,6 +130,7 @@ enum {
     PROP_ID,
     PROP_OPTIONS,
     PROP_CAPABILITIES,
+    PROP_REDIRECT_TARGET
 };
 
 static guint cockpit_channel_sig_closed;
@@ -346,7 +351,18 @@ cockpit_channel_actual_send (CockpitChannel *self,
          payload = validated = cockpit_unicode_force_utf8 (payload);
     }
 
-  cockpit_transport_send (priv->transport, priv->id, payload);
+  if (priv->redirect_target)
+    {
+      if (!cockpit_redirect_send (priv->redirect_target, payload))
+        {
+          /* Can't write to redirect target - close the channel */
+          g_bytes_unref (payload);
+          cockpit_channel_close (self, "redirect-target-closed");
+          return;
+        }
+    }
+  else
+    cockpit_transport_send (priv->transport, priv->id, payload);
 
   /* A wraparound of our gint64 size? */
   if (priv->flow_control)
@@ -595,6 +611,9 @@ cockpit_channel_set_property (GObject *object,
       g_return_if_fail (priv->capabilities == NULL);
       priv->capabilities = g_value_dup_boxed (value);
       break;
+    case PROP_REDIRECT_TARGET:
+      priv->redirect_target = g_value_dup_object (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -656,6 +675,8 @@ cockpit_channel_finalize (GObject *object)
   CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
   g_object_unref (priv->transport);
+  if (priv->redirect_target)
+    g_object_unref (priv->redirect_target);
   if (priv->open_options)
     json_object_unref (priv->open_options);
   if (priv->close_options)
@@ -764,6 +785,19 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                                        "Channel Capabilities",
                                                        G_TYPE_STRV,
                                                        G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * CockpitChannel:redirect_target:
+   *
+   * The channel or transport that the output of this channel should be redirected to.
+   * (null when redirection is not used)
+   */
+   g_object_class_install_property (gobject_class, PROP_REDIRECT_TARGET,
+                                    g_param_spec_object ("redirect_target",
+                                                         "redirect_target",
+                                                         "redirect_target",
+                                                         COCKPIT_TYPE_REDIRECT,
+                                                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 
   /**
    * CockpitChannel::closed:
@@ -943,6 +977,20 @@ cockpit_channel_send (CockpitChannel *self,
 
   if (send_data != payload)
     g_bytes_unref (send_data);
+}
+
+/**
+ * cockpit_channel_internal_recv:
+ * @self: a channel
+ * @payload: the message payload to receive
+ *
+ * Used to emulate receiving data from the transport in channel redirection.
+ */
+void
+cockpit_channel_internal_recv (CockpitChannel *self,
+                               GBytes *payload)
+{
+  process_recv (self, payload);
 }
 
 /**

@@ -19,25 +19,62 @@
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
 
-/* Reply on the margin from the Card for spacing */
-#storage .pf-c-card .table {
-    margin-bottom: 0;
+#storage {
+    overflow: auto;
 }
 
-#storage .pf-c-page {
-    padding: var(--pf-global--gutter);
+.pf-c-page__main {
+    overflow: visible;
+}
+
+/* Rely on the margin from the Card for spacing */
+#storage .pf-c-card .table {
+    margin-bottom: 0;
 }
 
 #storage .pf-l-gallery {
     --pf-l-gallery--GridTemplateColumns: 1fr;
 }
 
+#storage .pf-c-card__body.contains-list {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: var(--pf-global--spacer--xs);
+}
+
+#storage .pf-c-card__body.contains-list > .pf-c-table > :last-child > tr:last-child {
+    border-bottom: none;
+}
+
+#main-storage.pf-c-page,
+#storage-detail .pf-c-page__main-section,
+#storage-detail .pf-c-page__main-nav {
+    padding: var(--pf-global--gutter);
+    overflow: auto;
+}
+
+#main-storage > .pf-c-page__main {
+    padding-bottom: var(--pf-global--spacer--md);
+}
+
+#detail-content, #detail-content .pf-c-card {
+    height: 100%;
+}
+
 #storage .pf-c-card__header > .pf-c-card__title {
   padding: 0;
+}
+
+#storage .pf-c-card__title {
   font-weight: normal;
 }
 
-#storage .empty-panel-text {
+#storage .pf-c-card__header {
+  padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
+}
+
+#storage .empty-panel-text,
+#storage .ct-table-empty td {
     text-align: center;
     margin: 5px;
     color: var(--color-gray-9);

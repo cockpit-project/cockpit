@@ -46,7 +46,7 @@ class TestStorageMdRaid(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .panel-heading button'),
+        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-c-card__header button'),
                                     expect=lambda: self.dialog_is_present('disks', name))
         self.dialog_set_val("disks", { name: True })
         self.dialog_apply_with_retry()
@@ -55,12 +55,12 @@ class TestStorageMdRaid(StorageCase):
         self.browser.click('#detail-sidebar tr:contains("%s") button.pf-m-secondary' % name)
 
     def raid_action(self, action):
-        self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
+        self.browser.click('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
 
     def raid_default_action(self, action):
         def do_click():
-            self.browser.wait_present('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
-            self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
+            self.browser.wait_present('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
+            self.browser.click('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
 
         do_click()
 
@@ -276,7 +276,7 @@ class TestStorageMdRaid(StorageCase):
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State"), "Not running")
 
-        b.wait_present('#detail-sidebar .panel-heading button:disabled')
+        b.wait_present('#detail-sidebar .pf-c-card__header button:disabled')
         b.wait_present('#detail-sidebar tr:contains(DISK1) button:disabled')
         b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
 
@@ -284,7 +284,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text(info_field("State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
-        b.wait_not_present('#detail-sidebar .panel-heading button:disabled')
+        b.wait_not_present('#detail-sidebar .pf-c-card__header button:disabled')
         b.wait_present('#detail-sidebar tr:contains(DISK1) button:disabled')
         b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
 

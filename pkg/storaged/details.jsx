@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Page, PageSection, PageSectionVariants, Grid, GridItem, Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
+
 import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
 import { DriveDetails } from "./drive-details.jsx";
@@ -35,36 +37,36 @@ export class StdDetailsLayout extends React.Component {
     render() {
         if (this.props.sidebar) {
             return (
-                <div>
-                    <div id="detail-header" className="col-md-12">
+                <>
+                    <GridItem id="detail-header" span={12}>
                         { this.props.alert }
                         { this.props.header }
-                    </div>
-                    <div id="detail-sidebar" className="col-md-4 col-lg-3 col-md-push-8 col-lg-push-9">
-                        { this.props.sidebar }
-                    </div>
-                    <div className="col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3">
+                    </GridItem>
+                    <GridItem md={8} lg={9}>
                         <div id="detail-content">
                             { this.props.content }
                         </div>
                         <JobsPanel client={this.props.client} />
-                    </div>
-                </div>
+                    </GridItem>
+                    <GridItem id="detail-sidebar" md={4} lg={3}>
+                        { this.props.sidebar }
+                    </GridItem>
+                </>
             );
         } else {
             return (
-                <div>
-                    <div id="detail-header" className="col-md-12">
+                <>
+                    <GridItem id="detail-header" md={12}>
                         { this.props.alert }
                         { this.props.header }
-                    </div>
-                    <div className="col-md-12">
-                        <div id="detail-content">
+                    </GridItem>
+                    <GridItem md={12}>
+                        <GridItem id="detail-content">
                             { this.props.content }
-                        </div>
+                        </GridItem>
                         <JobsPanel client={this.props.client} />
-                    </div>
-                </div>
+                    </GridItem>
+                </>
             );
         }
     }
@@ -118,18 +120,22 @@ export class Details extends React.Component {
         }
 
         if (!body)
-            body = <div className="col-md-12">{_("Not found")}</div>;
+            body = <GridItem span={12}>{_("Not found")}</GridItem>;
 
         return (
-            <div id="storage-detail">
-                <div className="col-md-12">
-                    <ol className="breadcrumb">
-                        <li><button role="link" className="link-button" onClick={go_up}>{_("Storage")}</button></li>
-                        <li className="active">{name}</li>
-                    </ol>
-                </div>
-                {body}
-            </div>
+            <Page id="storage-detail">
+                <PageSection variant={PageSectionVariants.light} type='nav'>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={go_up} to="#">{_("Storage")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{name}</BreadcrumbItem>
+                    </Breadcrumb>
+                </PageSection>
+                <PageSection>
+                    <Grid hasGutter>
+                        {body}
+                    </Grid>
+                </PageSection>
+            </Page>
         );
     }
 }

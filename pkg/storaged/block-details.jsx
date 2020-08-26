@@ -19,6 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { Card, CardBody, CardTitle, Text, TextVariants } from "@patternfly/react-core";
+
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import * as Content from "./content-views.jsx";
@@ -30,9 +33,9 @@ export class BlockDetails extends React.Component {
         var block = this.props.block;
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">{_("Block")}</div>
-                <div className="panel-body">
+            <Card>
+                <CardTitle><Text component={TextVariants.h2}>{_("Block")}</Text></CardTitle>
+                <CardBody>
                     <div className="ct-form">
                         <label className="control-label">{_("storage", "Capacity")}</label>
                         <div>{ utils.fmt_size_long(block.Size) }</div>
@@ -40,8 +43,8 @@ export class BlockDetails extends React.Component {
                         <label className="control-label">{_("storage", "Device File")}</label>
                         <div>{ utils.block_name(block) }</div>
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         var content = <Content.Block client={this.props.client} block={block} />;

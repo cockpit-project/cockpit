@@ -113,7 +113,7 @@ export class OptionalPanel extends React.Component {
                         { heading_right }
                     </CardActions>
                 </CardHeader>
-                <CardBody>
+                <CardBody className="contains-list">
                     { feature_enabled
                         ? this.props.children
                         : <div className="empty-panel-text">{not_installed_text}</div>

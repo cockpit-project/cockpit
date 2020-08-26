@@ -19,6 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants } from "@patternfly/react-core";
+
 import sha1 from "js-sha1";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
@@ -582,26 +585,27 @@ export class CryptoKeyslots extends React.Component {
         const remaining = this.state.max_slots - keys.length;
 
         return (
-            <div className="panel panel-default key-slot-panel">
-                <div className="panel-heading">
-                    <div className="pull-right">
+            <Card className="key-slot-panel">
+                <CardHeader>
+                    <CardActions>
                         <span className="key-slot-panel-remaining">
                             { remaining < 6 ? (remaining ? cockpit.format(_("$0 slots remain"), remaining) : _("No available slots")) : null }
                         </span>
-                        { "\n" }
                         <StorageButton onClick={() => add_dialog(client, block)}
                                        excuse={(keys.length == this.state.max_slots)
                                            ? _("No free key slots")
                                            : null}>
                             <span className="fa fa-plus" />
                         </StorageButton>
-                    </div>
-                    {_("Keys")}
-                </div>
-                <table className="table">
-                    <tbody>{ rows }</tbody>
-                </table>
-            </div>
+                    </CardActions>
+                    <CardTitle><Text component={TextVariants.h2}>{_("Keys")}</Text></CardTitle>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <table className="table">
+                        <tbody>{ rows }</tbody>
+                    </table>
+                </CardBody>
+            </Card>
         );
     }
 }

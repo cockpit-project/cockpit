@@ -2315,7 +2315,7 @@ PageNetworkInterface.prototype = {
                     disabled: pending || firewall.readonly,
                     onChange: onFirewallSwitchChange
                 }),
-                document.querySelector('#networking-firewall .pf-c-card__actions')
+                document.querySelector('#networking-firewall .firewall-switch')
             );
         }
 

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Card, CardTitle, CardBody, Text, TextVariants } from "@patternfly/react-core";
 
 import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
@@ -291,9 +291,9 @@ export class NFSDetails extends React.Component {
         }
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    {entry.fields[0]}
+            <Card>
+                <CardTitle>
+                    <Text component={TextVariants.h2}>{entry.fields[0]}</Text>
                     <span className="pull-right">
                         { entry.mounted
                             ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
@@ -308,8 +308,8 @@ export class NFSDetails extends React.Component {
                             ] : null
                         }
                     </span>
-                </div>
-                <div className="panel-body">
+                </CardTitle>
+                <CardBody>
                     <div className="ct-form">
                         <label className="control-label">{_("Server")}</label>
                         <div>{entry.fields[0]}</div>
@@ -323,8 +323,8 @@ export class NFSDetails extends React.Component {
                             : _("--")
                         }
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         return <StdDetailsLayout client={client} header={header} />;

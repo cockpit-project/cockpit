@@ -19,6 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { Card, CardBody, CardTitle, Text, TextVariants } from "@patternfly/react-core";
+
 import { StorageButton } from "./storage-controls.jsx";
 import { block_name, mdraid_name, lvol_name, format_delay } from "./utils.js";
 
@@ -182,14 +185,16 @@ export class JobsPanel extends React.Component {
         jobs = jobs.sort(cmp_job);
 
         return (
-            <div className="detail-jobs panel panel-default">
-                <div className="panel-heading">{_("Jobs")}</div>
-                <table className="table">
-                    <tbody>
-                        { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
-                    </tbody>
-                </table>
-            </div>
+            <Card className="detail-jobs">
+                <CardTitle><Text component={TextVariants.h2}>{_("Jobs")}</Text></CardTitle>
+                <CardBody className="contains-list">
+                    <table className="table">
+                        <tbody>
+                            { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
+                        </tbody>
+                    </table>
+                </CardBody>
+            </Card>
         );
     }
 }

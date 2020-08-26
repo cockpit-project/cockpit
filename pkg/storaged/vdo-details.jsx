@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Card, CardHeader, CardActions, CardTitle, CardBody, Text, TextVariants } from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
 import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
@@ -249,19 +249,19 @@ export class VDODetails extends React.Component {
         var stats = this.state.stats;
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    {cockpit.format(_("VDO Device $0"), vdo.name)}
-                    <span className="pull-right">
+            <Card>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO Device $0"), vdo.name)}</Text></CardTitle>
+                    <CardActions>
                         { block
                             ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                             : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                    </span>
-                </div>
-                <div className="panel-body">
+                    </CardActions>
+                </CardHeader>
+                <CardBody>
                     <div className="ct-form">
                         <label className="control-label">{_("Device File")}</label>
                         <div>{vdo.dev}</div>
@@ -312,8 +312,8 @@ export class VDODetails extends React.Component {
                                            onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
                         </div>
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         var content = <Block client={client} block={block} allow_partitions={false} />;

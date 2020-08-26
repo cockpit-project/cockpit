@@ -19,6 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { Card, CardBody, CardTitle, Text, TextVariants } from "@patternfly/react-core";
+
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
@@ -64,9 +67,9 @@ export class DriveDetails extends React.Component {
         }
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">{_("Drive")}</div>
-                <div className="panel-body">
+            <Card>
+                <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
+                <CardBody>
                     <div className="ct-form">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
                         <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
@@ -79,8 +82,8 @@ export class DriveDetails extends React.Component {
                             <DriveDetailsRow title={_("storage", "Multipathed Devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
                         )}
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         var content = <Block client={this.props.client} block={drive_block} />;

@@ -25,6 +25,7 @@ import {
 import * as utils from "./utils.js";
 
 import React from "react";
+import { Card, CardHeader, CardTitle, CardBody, CardActions, Text, TextVariants } from "@patternfly/react-core";
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
@@ -629,11 +630,17 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             </div>);
 
     return (
-        <Listing title={_("Content")}
-                 actions={format_disk_btn}
-                 emptyCaption="">
-            { block_rows(client, block) }
-        </Listing>
+        <Card>
+            <CardHeader>
+                <CardTitle><Text component={TextVariants.h2}>{_("Content")}</Text></CardTitle>
+                <CardActions>{format_disk_btn}</CardActions>
+            </CardHeader>
+            <CardBody className="contains-list">
+                <Listing emptyCaption="">
+                    { block_rows(client, block) }
+                </Listing>
+            </CardBody>
+        </Card>
     );
 };
 
@@ -792,11 +799,17 @@ export class VGroup extends React.Component {
             </div>);
 
         return (
-            <Listing title="Logical Volumes"
-                     actions={new_volume_link}
-                     emptyCaption={_("No Logical Volumes")}>
-                { vgroup_rows(self.props.client, vgroup) }
-            </Listing>
+            <Card>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{_("Logical Volumes")}</Text></CardTitle>
+                    <CardActions>{new_volume_link}</CardActions>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <Listing emptyCaption={_("No Logical Volumes")}>
+                        { vgroup_rows(self.props.client, vgroup) }
+                    </Listing>
+                </CardBody>
+            </Card>
         );
     }
 }

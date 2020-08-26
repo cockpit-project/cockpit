@@ -89,7 +89,7 @@ class TestStorageHidden(StorageCase):
         wait(lambda: "my-crypto-tag" in m.execute("%s dump | grep ChildConfiguration" % self.storagectl_cmd))
 
         # Deleting the volume group should still remove the fstab entry
-        b.click('.panel-heading:contains("Volume Group") button:contains("Delete")')
+        b.click('.pf-c-card__header:contains("Volume Group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_1), "")
@@ -130,7 +130,7 @@ class TestStorageHidden(StorageCase):
         # we need to wait for mdadm --monitor to stop using the device before delete
         m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)
 
-        self.browser.click('.panel-heading:contains("RAID Device") button:contains("Delete")')
+        self.browser.click('.pf-c-card__header:contains("RAID Device") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_2), "")

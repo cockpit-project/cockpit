@@ -183,7 +183,7 @@ class TestStorageLuks(StorageCase):
 
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
         tab = self.content_tab_expand(1, 1)
-        panel = tab + " .panel:contains(Keys) "
+        panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_present(panel)
         b.wait_in_text(panel + ".table tr:nth-child(1)", "Passphrase")
 
@@ -259,7 +259,7 @@ class TestStorageLuks(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
         # add one more passphrase
         tab = self.content_tab_expand(1, 1)
-        panel = tab + " .panel:contains(Keys) "
+        panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_present(panel)
         b.click(panel + ".fa-plus")
         self.dialog_wait_open()
@@ -315,11 +315,11 @@ class TestStorageLuks(StorageCase):
             # check if add button is inactive
             b.wait_present(panel + ":disabled")
             # check if edit button is inactive
-            slots_table = tab + " .panel table "
+            slots_table = tab + " .pf-c-card table "
             b.wait_present(slots_table + ":disabled")
 
         # remove one slot
-        slots_table = tab + " .panel table "
+        slots_table = tab + " .pf-c-card table "
         b.wait_present(slots_table + "tbody tr:last-child .fa-minus")
         b.click(slots_table + "tbody tr:last-child .fa-minus")
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")

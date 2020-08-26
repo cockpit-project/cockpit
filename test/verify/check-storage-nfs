@@ -127,6 +127,7 @@ class TestStorageNfs(StorageCase):
 
         # Remove /home/foo
         b.click("#detail-header button:contains(Remove)")
+        b.wait_not_present('#storage-detail')
         b.wait_visible("#storage")
         b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
         m.execute("! test -e /mnt")

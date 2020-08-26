@@ -43,7 +43,7 @@ export class Overview extends React.Component {
         var client = this.props.client;
 
         return (
-            <Page>
+            <Page id="main-storage">
                 <Grid hasGutter>
                     <GridItem md={8} lg={9}>
                         <Gallery hasGutter>

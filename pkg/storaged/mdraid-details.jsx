@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Card, CardTitle, CardHeader, CardActions, CardBody, Text, TextVariants } from "@patternfly/react-core";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
@@ -296,19 +296,19 @@ export class MDRaidDetails extends React.Component {
         }
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    { cockpit.format(_("RAID Device $0"), utils.mdraid_name(mdraid)) }
-                    <span className="pull-right">
+            <Card>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{ cockpit.format(_("RAID Device $0"), utils.mdraid_name(mdraid)) }</Text></CardTitle>
+                    <CardActions>
                         { running
                             ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                             : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
-                    </span>
-                </div>
-                <div className="panel-body">
+                    </CardActions>
+                </CardHeader>
+                <CardBody>
                     <div className="ct-form">
                         <label className="control-label">{_("storage", "Device")}</label>
                         <div>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</div>
@@ -327,8 +327,8 @@ export class MDRaidDetails extends React.Component {
                         <label className="control-label">{_("storage", "State")}</label>
                         <div>{ running ? _("Running") : _("Not running") }</div>
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         var sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid} />;

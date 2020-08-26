@@ -19,6 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants } from "@patternfly/react-core";
+
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { StdDetailsLayout } from "./details.jsx";
@@ -206,16 +209,16 @@ export class VGroupDetails extends React.Component {
         }
 
         var header = (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    <span>{fmt_to_fragments(_("Volume Group $0"), <b>{vgroup.Name}</b>)}</span>
-                    <span className="pull-right">
+            <Card>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{fmt_to_fragments(_("Volume Group $0"), <b>{vgroup.Name}</b>)}</Text></CardTitle>
+                    <CardActions>
                         <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                    </span>
-                </div>
-                <div className="panel-body">
+                    </CardActions>
+                </CardHeader>
+                <CardBody>
                     <div className="ct-form">
                         <label className="control-label">{_("storage", "UUID")}</label>
                         <div>{ vgroup.UUID }</div>
@@ -223,8 +226,8 @@ export class VGroupDetails extends React.Component {
                         <label className="control-label">{_("storage", "Capacity")}</label>
                         <div>{ utils.fmt_size_long(vgroup.Size) }</div>
                     </div>
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
 
         var sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;

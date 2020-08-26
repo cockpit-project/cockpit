@@ -88,7 +88,7 @@ class StoragePage extends React.Component {
             // we can throw this hack out.
             <>
                 <MultipathAlert client={client} />
-                <div hidden={!!detail}><Overview client={client} /></div>
+                {!detail && <Overview client={client} />}
                 {detail}
             </>
         );

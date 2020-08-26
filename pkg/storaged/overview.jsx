@@ -19,6 +19,8 @@
 
 import React from "react";
 
+import { Page, PageSection, Grid, GridItem } from "@patternfly/react-core";
+
 import { StoragePlots } from "./plot.jsx";
 
 import { FilesystemsPanel } from "./fsys-panel.jsx";
@@ -41,22 +43,29 @@ export class Overview extends React.Component {
         var client = this.props.client;
 
         return (
-            <div className="container-fluid">
-                <div className="col-md-8 col-lg-9">
-                    <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
-                    <br />
-                    <FilesystemsPanel client={client} />
-                    <NFSPanel client={client} />
-                    <JobsPanel client={client} />
-                    <StorageLogsPanel />
-                </div>
-                <div className="col-md-4 col-lg-3 storage-sidebar">
-                    <ThingsPanel client={client} />
-                    <DrivesPanel client={client} highlight={this.state.highlight} />
-                    <IscsiPanel client={client} />
-                    <OthersPanel client={client} />
-                </div>
-            </div>
+            <Page>
+                <Grid>
+                    <GridItem md={8} lg={9}>
+                        <PageSection>
+                            <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
+                        </PageSection>
+                        <PageSection>
+                            <FilesystemsPanel client={client} />
+                            <NFSPanel client={client} />
+                            <JobsPanel client={client} />
+                            <StorageLogsPanel />
+                        </PageSection>
+                    </GridItem>
+                    <GridItem md={4} lg={3} className="storage-sidebar">
+                        <PageSection>
+                            <ThingsPanel client={client} />
+                            <DrivesPanel client={client} highlight={this.state.highlight} />
+                            <IscsiPanel client={client} />
+                            <OthersPanel client={client} />
+                        </PageSection>
+                    </GridItem>
+                </Grid>
+            </Page>
         );
     }
 }

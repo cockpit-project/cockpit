@@ -623,18 +623,13 @@ class CreateVmModal extends React.Component {
                                 const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res.os);
 
                                 if (osEntry && osEntry[0]) {
-                                    this.setState({
-                                        autodetectOSInProgress: false,
-                                    });
                                     this.onValueChanged('os', osEntry[0]);
                                     this.onValueChanged('sourceMediaID', res.media);
                                 }
                             }, ex => {
                                 console.log("osinfo-detect command failed: ", ex.message);
-                                this.setState({
-                                    autodetectOSInProgress: false,
-                                });
-                            });
+                            })
+                            .always(() => this.setState({ autodetectOSInProgress: false }));
                 };
                 this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
             }

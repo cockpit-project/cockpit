@@ -93,32 +93,32 @@ setup (TestCase *tc,
 }
 
 static GBytes *
-recv_bytes (TestCase *tc)
+recv_bytes (MockTransport *transport)
 {
   GBytes *msg;
-  while ((msg = mock_transport_pop_channel (tc->transport, "1234")) == NULL)
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
     g_main_context_iteration (NULL, TRUE);
   return msg;
 }
 
 static JsonObject *
-recv_object (TestCase *tc)
+recv_object (MockTransport *transport)
 {
-  GBytes *msg = recv_bytes (tc);
+  GBytes *msg = recv_bytes (transport);
   JsonObject *res = cockpit_json_parse_bytes (msg, NULL);
   g_assert (res != NULL);
   return res;
 }
 
 static JsonArray *
-recv_array (TestCase *tc)
+recv_array (MockTransport *transport)
 {
   GBytes *msg;
   GError *error = NULL;
   JsonArray *array;
   JsonNode *node;
 
-  msg = recv_bytes (tc);
+  msg = recv_bytes (transport);
   node = cockpit_json_parse (g_bytes_get_data (msg, NULL), g_bytes_get_size (msg), &error);
   g_assert_no_error (error);
   g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_ARRAY);
@@ -154,7 +154,7 @@ assert_sample_msg (const char *domain,
                    TestCase *tc,
                    const gchar *json_str)
 {
-  JsonArray *array = recv_array (tc);
+  JsonArray *array = recv_array (tc->transport);
   _cockpit_assert_json_eq_msg (domain, file, line, func, array, json_str);
   json_array_unref (array);
 }
@@ -223,7 +223,7 @@ test_compression (TestCase *tc,
                                "  'interval': 1000"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,    0, 2, 0.0, 0.0);
   assert_sample (tc, "[[0,0]]");
@@ -253,7 +253,7 @@ test_compression_reset (TestCase *tc,
                                "  'interval': 1000"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,    0, 2, 0.0, 0.0);
   assert_sample (tc, "[[0,0]]");
@@ -261,7 +261,7 @@ test_compression_reset (TestCase *tc,
   assert_sample (tc, "[[]]");
 
   cockpit_metrics_send_meta (tc->channel, meta, TRUE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc, 2000, 2, 0.0, 0.0);
   assert_sample (tc, "[[0,0]]");
@@ -282,7 +282,7 @@ test_derive_delta (TestCase *tc,
                                "  'interval': 100"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,    0, 1, 0.0);
   assert_sample (tc, "[[false]]");
@@ -302,7 +302,7 @@ test_derive_delta (TestCase *tc,
   assert_sample (tc, "[[0]]");
 
   cockpit_metrics_send_meta (tc->channel, meta, TRUE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,  800, 1, 30.0);
   assert_sample (tc, "[[false]]");
@@ -331,7 +331,7 @@ test_derive_rate_no_interpolate (TestCase *tc,
                                "  'interval': 100"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,    0, 1, 0.0);
   assert_sample (tc, "[[false]]");
@@ -351,7 +351,7 @@ test_derive_rate_no_interpolate (TestCase *tc,
   assert_sample (tc, "[[0]]");
 
   cockpit_metrics_send_meta (tc->channel, meta, TRUE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_sample (tc,  800, 1, 30.0);
   assert_sample (tc, "[[false]]");
@@ -389,7 +389,7 @@ assert_2_approx_samples_msg (const char *domain,
                              double val1,
                              double val2)
 {
-  JsonArray *array = recv_array (tc);
+  JsonArray *array = recv_array (tc->transport);
   JsonArray *sub_array;
 
   if (json_array_get_length (array) != 1)
@@ -441,7 +441,7 @@ test_interpolate (TestCase *tc,
                                "  'interval': 100"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   // rising by 10 for every 100 ms, with non-equally spaced samples
 
@@ -472,7 +472,7 @@ test_instances (TestCase *tc,
                                "  'interval': 1000"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_instance_sample (tc,    0, 2, 0.0, 0.0);
   assert_sample (tc, "[[[0,0]]]");
@@ -502,7 +502,7 @@ test_dynamic_instances (TestCase *tc,
                                "  'interval': 100"
                                "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   send_instance_sample (tc,    0, 1, 0.0);
   assert_sample (tc, "[[[false]]]");
@@ -520,7 +520,7 @@ test_dynamic_instances (TestCase *tc,
                    "  'interval': 100"
                    "}");
   cockpit_metrics_send_meta (tc->channel, meta, FALSE);
-  json_object_unref (recv_object (tc));
+  json_object_unref (recv_object (tc->transport));
 
   /* Instance 'a' is now at a different index.  The 'delta' derivation
      should continue to work, but no compression should happen.

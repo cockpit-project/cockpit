@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Card, CardHeader, CardActions, CardTitle, CardBody } from '@patternfly/react-core';
+
 import { journal } from "journal";
 import "journal.css";
 import "cockpit-components-logs-panel.scss";
@@ -144,15 +146,15 @@ export class LogsPanel extends React.Component {
 
     render() {
         return (
-            <div className="panel panel-default cockpit-log-panel" role="table">
-                <div className="panel-heading">
-                    <h2 className="panel-title">{this.props.title}</h2>
-                    { this.props.goto_url && <button className="link-button" role="link" onClick={e => cockpit.jump(this.props.goto_url)}>{_("All logs")}</button> }
-                </div>
-                <div className={"panel-body " + ((!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "")} role="rowgroup">
+            <Card className="cockpit-log-panel">
+                <CardHeader>
+                    <CardTitle>{this.props.title}</CardTitle>
+                    { this.props.goto_url && <CardActions><button className="link-button" role="link" onClick={e => cockpit.jump(this.props.goto_url)}>{_("All logs")}</button></CardActions>}
+                </CardHeader>
+                <CardBody className={(!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "contains-list"}>
                     { this.state.logs.length ? this.state.logs : this.props.emptyMessage }
-                </div>
-            </div>
+                </CardBody>
+            </Card>
         );
     }
 }

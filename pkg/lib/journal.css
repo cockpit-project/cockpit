@@ -83,6 +83,11 @@
     border-top-width: 1px;
 }
 
+/* Don't show headers without content */
+.cockpit-log-panel .panel-heading:last-child {
+    display: none !important;
+}
+
 .cockpit-logmsg-reboot {
     font-style: italic;
 }

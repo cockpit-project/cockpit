@@ -256,10 +256,15 @@ Unit=test.service
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
-        b.wait_in_text('.cockpit-log-panel .panel-body', "START")
-        b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
+        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14513
+            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
+            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
+            b.click(".cockpit-log-panel .pf-c-card__header button")
+        else:
+            b.wait_in_text('.cockpit-log-panel .panel-body', "START")
+            b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
+            b.click(".cockpit-log-panel .panel-heading button")
 
-        b.click(".cockpit-log-panel .panel-heading button")
         b.enter_page("/system/logs")
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(3)", "START")
@@ -394,7 +399,10 @@ Unit=test.service
 
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
-        b.wait_text('.cockpit-log-panel .panel-body', "No log entries")
+        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14513
+            b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
+        else:
+            b.wait_text('.cockpit-log-panel .panel-body', "No log entries")
 
     def testApi(self):
         m = self.machine

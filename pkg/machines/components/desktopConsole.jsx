@@ -20,6 +20,8 @@ import React from "react";
 import cockpit from 'cockpit';
 import { vmId } from '../helpers.js';
 
+import { Button } from '@patternfly/react-core';
+
 import './consoles.css';
 
 const _ = cockpit.gettext;
@@ -122,16 +124,14 @@ const ConnectWithRemoteViewer = ({ vm, config, onDesktopConsole }) => {
     const onLaunch = () => onDesktopConsole(display);
 
     return (
-        <td className='machines-desktop-main-col'>
-            <p className='machines-desktop-viewer-block'>
-                <button onClick={onLaunch} id={`${vmId(vm.name)}-consoles-launch`}>
-                    {_("Launch Remote Viewer")}
-                </button>
-            </p>
+        <div className='machines-desktop-main-col'>
+            <Button variant="secondary" onClick={onLaunch} id={`${vmId(vm.name)}-consoles-launch`}>
+                {_("Launch Remote Viewer")}
+            </Button>
             <div className='machines-desktop-viewer-block'>
                 <MoreInformation vm={vm} config={config} />
             </div>
-        </td>
+        </div>
     );
 };
 
@@ -189,13 +189,13 @@ const ManualConnection = ({ displays, idPrefix }) => {
     }
 
     return (
-        <td className='machines-desktop-main-col'>
+        <div className='machines-desktop-main-col'>
             <h2>{_("Manual Connection")}</h2>
             <div className='machines-desktop-manual-block'>{msg}</div>
             <div className='machines-desktop-manual-block'>
                 <ManualConnectionDetails displays={displays} idPrefix={idPrefix} />
             </div>
-        </td>
+        </div>
     );
 };
 
@@ -203,14 +203,10 @@ const DesktopConsoleDownload = ({ children, vm, onDesktopConsole, config }) => {
     return (
         <div className="manual-connection">
             {children}
-            <table className='machines-desktop-main'>
-                <tbody>
-                    <tr>
-                        <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
-                        <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />
-                    </tr>
-                </tbody>
-            </table>
+            <div className='machines-desktop-main'>
+                <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
+                <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />
+            </div>
         </div>
     );
 };

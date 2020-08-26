@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Card, CardHeader, CardTitle, CardActions, CardBody, Text, TextVariants } from "@patternfly/react-core";
+
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 
@@ -104,18 +106,20 @@ export class OptionalPanel extends React.Component {
         }
 
         return (
-            <div className={"panel panel-default " + className} id={id}>
-                <div className="panel-heading">
-                    <h2 className="panel-title">{title}</h2>
-                    <div className="panel-actions">
+            <Card className={className} id={id}>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
+                    <CardActions>
                         { heading_right }
-                    </div>
-                </div>
-                { feature_enabled
-                    ? this.props.children
-                    : <div className="empty-panel-text">{not_installed_text}</div>
-                }
-            </div>
+                    </CardActions>
+                </CardHeader>
+                <CardBody>
+                    { feature_enabled
+                        ? this.props.children
+                        : <div className="empty-panel-text">{not_installed_text}</div>
+                    }
+                </CardBody>
+            </Card>
         );
     }
 }

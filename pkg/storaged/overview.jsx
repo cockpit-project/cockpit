@@ -19,7 +19,7 @@
 
 import React from "react";
 
-import { Page, PageSection, Grid, GridItem } from "@patternfly/react-core";
+import { Page, Grid, GridItem, Card, CardBody, Gallery } from "@patternfly/react-core";
 
 import { StoragePlots } from "./plot.jsx";
 
@@ -44,25 +44,27 @@ export class Overview extends React.Component {
 
         return (
             <Page>
-                <Grid>
+                <Grid hasGutter>
                     <GridItem md={8} lg={9}>
-                        <PageSection>
-                            <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
-                        </PageSection>
-                        <PageSection>
+                        <Gallery hasGutter>
+                            <Card>
+                                <CardBody>
+                                    <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
+                                </CardBody>
+                            </Card>
                             <FilesystemsPanel client={client} />
                             <NFSPanel client={client} />
                             <JobsPanel client={client} />
                             <StorageLogsPanel />
-                        </PageSection>
+                        </Gallery>
                     </GridItem>
                     <GridItem md={4} lg={3} className="storage-sidebar">
-                        <PageSection>
+                        <Gallery hasGutter>
                             <ThingsPanel client={client} />
                             <DrivesPanel client={client} highlight={this.state.highlight} />
                             <IscsiPanel client={client} />
                             <OthersPanel client={client} />
-                        </PageSection>
+                        </Gallery>
                     </GridItem>
                 </Grid>
             </Page>

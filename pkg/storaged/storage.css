@@ -17,10 +17,24 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+@import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
 
-#storage {
-    padding-left: 5px;
-    padding-right: 5px;
+/* Reply on the margin from the Card for spacing */
+#storage .pf-c-card .table {
+    margin-bottom: 0;
+}
+
+#storage .pf-c-page {
+    padding: var(--pf-global--gutter);
+}
+
+#storage .pf-l-gallery {
+    --pf-l-gallery--GridTemplateColumns: 1fr;
+}
+
+#storage .pf-c-card__header > .pf-c-card__title {
+  padding: 0;
+  font-weight: normal;
 }
 
 #storage .empty-panel-text {

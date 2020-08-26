@@ -523,6 +523,22 @@ getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
 getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 
 %post ws
+if firewall-cmd --state; then
+    firewall-cmd --zone public --add-service cockpit
+    firewall-cmd --zone home --add-service cockpit
+    firewall-cmd --zone work --add-service cockpit
+    firewall-cmd --zone internal --add-service cockpit
+    firewall-cmd --permanent --zone public --add-service cockpit
+    firewall-cmd --permanent --zone home --add-service cockpit
+    firewall-cmd --permanent --zone work --add-service cockpit
+    firewall-cmd --permanent --zone internal --add-service cockpit
+elif type firewall-offline-cmd; then
+    firewall-offline-cmd --zone public --add-service cockpit
+    firewall-offline-cmd --zone home --add-service cockpit
+    firewall-offline-cmd --zone work --add-service cockpit
+    firewall-offline-cmd --zone internal --add-service cockpit
+fi
+
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
@@ -531,6 +547,22 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 %systemd_preun cockpit.socket
 
 %postun ws
+if firewall-cmd --state; then
+    firewall-cmd --zone public --remove-service cockpit
+    firewall-cmd --zone home --remove-service cockpit
+    firewall-cmd --zone work --remove-service cockpit
+    firewall-cmd --zone internal --remove-service cockpit
+    firewall-cmd --permanent --zone public --remove-service cockpit
+    firewall-cmd --permanent --zone home --remove-service cockpit
+    firewall-cmd --permanent --zone work --remove-service cockpit
+    firewall-cmd --permanent --zone internal --remove-service cockpit
+elif type firewall-offline-cmd; then
+    firewall-offline-cmd --zone public --remove-service-from-zone cockpit
+    firewall-offline-cmd --zone home --remove-service-from-zone cockpit
+    firewall-offline-cmd --zone work --remove-service-from-zone cockpit
+    firewall-offline-cmd --zone internal --remove-service-from-zone cockpit
+fi
+
 %systemd_postun_with_restart cockpit.socket
 %systemd_postun_with_restart cockpit.service
 

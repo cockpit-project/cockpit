@@ -143,9 +143,10 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
         return null;
 
     return (
-        <div className="panel panel-default" id="account-authorized-keys">
-            <div className="panel-heading">
-                <div className="pull-right">
+        <div className="pf-c-card contains-list" id="account-authorized-keys">
+            <div className="pf-c-card__header">
+                <div className="pf-c-card__title"><h2>{_("Authorized Public SSH Keys")}</h2></div>
+                <div className="pf-c-card__actions">
                     { allow_mods &&
                     <Button onClick={() => add_authorized_key_dialog(manager)}
                         id="authorized-key-add">
@@ -153,10 +154,11 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                     </Button>
                     }
                 </div>
-                <span>{_("Authorized Public SSH Keys")}</span>
             </div>
-            <div className="list-group" id="account-authorized-keys-list">
-                { key_items }
+            <div className="pf-c-card__body">
+                <div className="list-group" id="account-authorized-keys-list">
+                    { key_items }
+                </div>
             </div>
         </div>);
 }

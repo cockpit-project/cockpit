@@ -24,6 +24,7 @@ import {
     Toolbar, ToolbarContent, ToolbarItem,
     TextInput,
     Select, SelectOption, SelectVariant,
+    Page, PageSection, PageSectionVariants,
 } from '@patternfly/react-core';
 
 import {
@@ -46,6 +47,7 @@ import { vmId, rephraseUI, dummyVmsFilter } from "./helpers.js";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { VmExpandedContent } from './components/vm/vmExpandedContent.jsx';
 import StateIcon from './components/vm/stateIcon.jsx';
+import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
 
 import "./hostvmslist.scss";
 
@@ -131,114 +133,119 @@ class HostVmsList extends React.Component {
             </ToolbarContent>
         </Toolbar>;
 
-        return (<div id='virtual-machines-listing' className='container-fluid'>
-            <ListingTable caption={_("Virtual Machines")}
-                variant='compact'
-                emptyCaption={combinedVms == 0 ? _("No VM is running or defined on this host") : _("No results that match the filter criteria")}
-                actions={toolBar}
-                columns={[
-                    { title: _("Name"), header: true },
-                    { title: _("Connection") },
-                    { title: _("State") },
-                    { title: "" },
-                ]}
-                rows={ combinedVmsFiltered
-                        .sort(sortFunction)
-                        .map(vm => {
-                            const connectionName = vm.connectionName;
-                            const vmActions = <VmActions
-                                vm={vm}
-                                config={config}
-                                dispatch={dispatch}
-                                storagePools={storagePools}
-                                onStart={() => dispatch(startVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to start"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onInstall={() => dispatch(installVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to get installed"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onReboot={() => dispatch(rebootVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to Reboot"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onForceReboot={() => dispatch(forceRebootVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to force Reboot"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onShutdown={() => dispatch(shutdownVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onPause={() => dispatch(pauseVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to pause"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onResume={() => dispatch(resumeVm(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to resume"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onForceoff={() => dispatch(forceVmOff(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                                onSendNMI={() => dispatch(sendNMI(vm)).catch(ex => {
-                                    this.props.onAddErrorNotification({
-                                        text: cockpit.format(_("VM $0 failed to send NMI"), vm.name),
-                                        detail: ex.message, resourceId: vm.id,
-                                    });
-                                })}
-                            />;
-                            const expandedContent = vm.isUi ? undefined : (
-                                <VmExpandedContent vm={vm} vms={vms} config={config}
-                                    libvirtVersion={this.props.libvirtVersion}
-                                    resourceHasError={this.props.resourceHasError}
-                                    onAddErrorNotification={this.props.onAddErrorNotification}
-                                    hostDevices={this.deviceProxies}
-                                    storagePools={storagePools.filter(pool => pool && pool.connectionName == connectionName)}
-                                    onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
-                                    onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+        return (<Page>
+            <PageSection id="virtual-machines-page-main-nav" type='nav'>
+                <AggregateStatusCards networks={networks} storagePools={storagePools} />
+            </PageSection>
+            <PageSection variant={PageSectionVariants.light} id='virtual-machines-listing'>
+                <ListingTable caption={_("Virtual Machines")}
+                    variant='compact'
+                    emptyCaption={_("No VM is running or defined on this host")}
+                    actions={toolBar}
+                    columns={[
+                        { title: _("Name"), header: true },
+                        { title: _("Connection") },
+                        { title: _("State") },
+                        { title: "" },
+                    ]}
+                    rows={ combinedVmsFiltered
+                            .sort(sortFunction)
+                            .map(vm => {
+                                const connectionName = vm.connectionName;
+                                const vmActions = <VmActions
+                                    vm={vm}
+                                    config={config}
                                     dispatch={dispatch}
-                                    interfaces={interfaces}
-                                    networks={networks.filter(network => network && network.connectionName == connectionName)}
-                                    nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
-                                    key={`${vmId(vm.name)}`}
-                                />
-                            );
+                                    storagePools={storagePools}
+                                    onStart={() => dispatch(startVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to start"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onInstall={() => dispatch(installVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to get installed"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onReboot={() => dispatch(rebootVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to Reboot"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onForceReboot={() => dispatch(forceRebootVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to force Reboot"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onShutdown={() => dispatch(shutdownVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onPause={() => dispatch(pauseVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to pause"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onResume={() => dispatch(resumeVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to resume"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onForceoff={() => dispatch(forceVmOff(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onSendNMI={() => dispatch(sendNMI(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to send NMI"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                />;
+                                const expandedContent = vm.isUi ? undefined : (
+                                    <VmExpandedContent vm={vm} vms={vms} config={config}
+                                        libvirtVersion={this.props.libvirtVersion}
+                                        resourceHasError={this.props.resourceHasError}
+                                        onAddErrorNotification={this.props.onAddErrorNotification}
+                                        hostDevices={this.deviceProxies}
+                                        storagePools={storagePools.filter(pool => pool && pool.connectionName == connectionName)}
+                                        onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
+                                        onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                                        dispatch={dispatch}
+                                        interfaces={interfaces}
+                                        networks={networks.filter(network => network && network.connectionName == connectionName)}
+                                        nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
+                                        key={`${vmId(vm.name)}`}
+                                    />
+                                );
 
-                            return {
-                                extraClasses: this.props.resourceHasError[vm.id] ? ['error'] : [],
-                                columns: [
-                                    { title: <span id={`${vmId(vm.name)}-${vm.connectionName}-name`}>{vm.name}</span> },
-                                    { title: rephraseUI('connections', vm.connectionName) },
-                                    { title: <VmState vm={vm} resourceHasError={this.props.resourceHasError} /> },
-                                    { title: !vm.isUi ? vmActions : null },
-                                ],
-                                rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
-                                props: { key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName) },
-                                initiallyExpanded: vm.ui ? vm.ui.initiallyExpanded : false,
-                                expandedContent: expandedContent,
-                            };
-                        }) }
-            />
-        </div>);
+                                return {
+                                    extraClasses: this.props.resourceHasError[vm.id] ? ['error'] : [],
+                                    columns: [
+                                        { title: <span id={`${vmId(vm.name)}-${vm.connectionName}-name`}>{vm.name}</span> },
+                                        { title: rephraseUI('connections', vm.connectionName) },
+                                        { title: <VmState vm={vm} resourceHasError={this.props.resourceHasError} /> },
+                                        { title: !vm.isUi ? vmActions : null },
+                                    ],
+                                    rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
+                                    props: { key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName) },
+                                    initiallyExpanded: vm.ui ? vm.ui.initiallyExpanded : false,
+                                    expandedContent: expandedContent,
+                                };
+                            }) }
+                />
+            </PageSection>
+        </Page>);
     }
 }
 

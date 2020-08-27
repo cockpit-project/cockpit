@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 
 import React from "react";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
-import { Button, Tooltip, TooltipPosition } from "@patternfly/react-core";
+import { Button, Tooltip, TooltipPosition, Page, PageSection, PageSectionVariants, Bullseye } from "@patternfly/react-core";
 
 import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -491,32 +491,36 @@ export class KdumpPage extends React.Component {
         }
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
         return (
-            <div className="container-fluid">
-                <form className="ct-form">
-                    <label className="control-label">{_("kdump status")}</label>
-                    <div role="group">
-                        <OnOffSwitch state={!!serviceRunning} onChange={this.props.onSetServiceState}
-                            disabled={this.props.stateChanging} />
-                        {serviceWaiting}
-                        {kdumpServiceDetails}
-                    </div>
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <Bullseye>
+                        <form className="ct-form">
+                            <label className="control-label">{_("kdump status")}</label>
+                            <div role="group">
+                                <OnOffSwitch state={!!serviceRunning} onChange={this.props.onSetServiceState}
+                                    disabled={this.props.stateChanging} />
+                                {serviceWaiting}
+                                {kdumpServiceDetails}
+                            </div>
 
-                    <label className="control-label">{_("Reserved memory")}</label>
-                    {reservedMemory}
+                            <label className="control-label">{_("Reserved memory")}</label>
+                            {reservedMemory}
 
-                    <label className="control-label">{_("Crash dump location")}</label>
-                    {settingsLink}
+                            <label className="control-label">{_("Crash dump location")}</label>
+                            {settingsLink}
 
-                    <div role="group">
-                        {testButton}
-                        <button className="popover-ct-kdump link-button">
-                            <Tooltip id="tip-test-info" content={tooltip_info}>
-                                <span className="fa fa-lg fa-info-circle" />
-                            </Tooltip>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                            <div role="group">
+                                {testButton}
+                                <button className="popover-ct-kdump link-button">
+                                    <Tooltip id="tip-test-info" content={tooltip_info}>
+                                        <span className="fa fa-lg fa-info-circle" />
+                                    </Tooltip>
+                                </button>
+                            </div>
+                        </form>
+                    </Bullseye>
+                </PageSection>
+            </Page>
         );
     }
 }

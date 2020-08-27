@@ -24,7 +24,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
@@ -193,11 +193,11 @@ const HeaderBar = ({ state, updates, timeSinceRefresh, onRefresh, unregistered, 
     }
 
     return (
-        <div className="content-header-extra">
+        <PageSection className="content-header-extra">
             <div id="state" className="content-header-extra--state">{state_str}</div>
             <div className="content-header-extra--updated">{lastChecked}</div>
             <div className="content-header-extra--action">{actionButton}</div>
-        </div>
+        </PageSection>
     );
 };
 
@@ -986,16 +986,16 @@ class OsUpdates extends React.Component {
 
     render() {
         return (
-            <>
+            <Page>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            unregistered={this.state.unregistered}
                            allowCancel={this.state.allowCancel}
                            onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
-                <div className="container-fluid">
+                <PageSection id="updates" variant={PageSectionVariants.light}>
                     {this.renderContent()}
-                </div>
-            </>
+                </PageSection>
+            </Page>
         );
     }
 }

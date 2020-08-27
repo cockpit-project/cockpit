@@ -1,3 +1,5 @@
+@import "~@patternfly/patternfly/components/Page/page.scss";
+
 .pk-updates--header {
     display: flex;
     flex-wrap: wrap;
@@ -183,9 +185,6 @@ tr.security.listing-ct-item {
 
 /* Hide changelog summaries in narrow widths */
 @media screen and (max-width: 80ch) {
-    .container-fluid {
-        overflow-x: hidden;
-    }
     table.listing-ct {
         /* Hide changelog header (there's no class) & data */
         thead th:last-child,
@@ -197,9 +196,9 @@ tr.security.listing-ct-item {
 /* Remove listing table margins in cramped space (mobile) */
 @media screen and (max-width: 640px) {
     table.listing-ct {
-        /* counteract .container-fluid */
-        margin-left: -20px;
-        margin-right: -20px;
+        /* counteract .pf-c-page__main-section padding */
+        margin-left: -1rem;
+        margin-right: -1rem;
 
         /* Mobile mode table should be full width */
         width: 100vw;

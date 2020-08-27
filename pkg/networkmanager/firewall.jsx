@@ -25,7 +25,7 @@ import {
     ListView,
     Modal,
 } from "patternfly-react";
-import { Alert, Button, Tooltip } from '@patternfly/react-core';
+import { Alert, Button, Tooltip, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
@@ -890,8 +890,8 @@ export class Firewall extends React.Component {
         }
 
         return (
-            <>
-                <div id="firewall-heading">
+            <Page>
+                <PageSection id="firewall-heading" variant={PageSectionVariants.light} type='nav'>
                     <ol className="breadcrumb">
                         <li><button role="link" className="link-button" onClick={go_up}>{_("Networking")}</button></li>
                         <li className="active">{_("Firewall")}</li>
@@ -903,8 +903,8 @@ export class Firewall extends React.Component {
                         </span>
                         { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                     </div>
-                </div>
-                <div id="zones-listing" className="container-fluid page-ct">
+                </PageSection>
+                <PageSection id="zones-listing">
                     { enabled && <>
                         {
                             zones.map(z => <ZoneSection key={z.id}
@@ -916,11 +916,11 @@ export class Firewall extends React.Component {
                             )
                         }
                     </> }
-                </div>
+                </PageSection>
                 { this.state.addServicesModal !== undefined && this.state.addServicesModal }
                 { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }
                 { this.state.showActivateZoneModal && <ActivateZoneModal close={this.close} /> }
-            </>
+            </Page>
         );
     }
 }

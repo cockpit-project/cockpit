@@ -26,7 +26,6 @@ import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
-import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
 import { isObjectEmpty, dummyVmsFilter } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 
@@ -131,9 +130,6 @@ class App extends React.Component {
 
         return (
             <>
-                { pathVms &&
-                <AggregateStatusCards networks={networks} storagePools={storagePools} />
-                }
                 {Object.keys(this.state.notifications).length > 0 &&
                 <section className="toast-notification-wrapper">
                     <ToastNotificationList>

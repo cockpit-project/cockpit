@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -41,7 +41,7 @@ export class StoragePoolList extends React.Component {
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
         return (
-            <>
+            <Page breadcrumb={
                 <Breadcrumb className='machines-listing-breadcrumb'>
                     <BreadcrumbItem to='#'>
                         {_("Virtual Machines")}
@@ -49,8 +49,8 @@ export class StoragePoolList extends React.Component {
                     <BreadcrumbItem isActive>
                         {_("Storage Pools")}
                     </BreadcrumbItem>
-                </Breadcrumb>
-                <div id='storage-pools-listing' className='container-fluid'>
+                </Breadcrumb>}>
+                <PageSection variant={PageSectionVariants.light} id='storage-pools-listing'>
                     <ListingTable caption={_("Storage Pools")}
                         variant='compact'
                         columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
@@ -65,8 +65,8 @@ export class StoragePoolList extends React.Component {
                                 })
                         }
                     />
-                </div>
-            </>
+                </PageSection>
+            </Page>
         );
     }
 }

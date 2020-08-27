@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -41,16 +41,16 @@ export class NetworkList extends React.Component {
         const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} />);
 
         return (
-            <>
-                <Breadcrumb className='machines-listing-breadcrumb'>
+            <Page breadcrumb={
+                <Breadcrumb variant={PageSectionVariants.light} className='machines-listing-breadcrumb'>
                     <BreadcrumbItem to='#'>
                         {_("Virtual Machines")}
                     </BreadcrumbItem>
                     <BreadcrumbItem isActive>
                         {_("Networks")}
                     </BreadcrumbItem>
-                </Breadcrumb>
-                <div id='networks-listing' className='container-fluid'>
+                </Breadcrumb>}>
+                <PageSection variant={PageSectionVariants.light} id='networks-listing'>
                     <ListingTable title={_("Networks")}
                         variant='compact'
                         columns={[{ title: _("Name"), header: true }, _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
@@ -60,8 +60,8 @@ export class NetworkList extends React.Component {
                                 .sort(sortFunction)
                                 .map(network => getNetworkRow({ dispatch, network, resourceHasError, onAddErrorNotification }))
                         } />
-                </div>
-            </>
+                </PageSection>
+            </Page>
         );
     }
 }

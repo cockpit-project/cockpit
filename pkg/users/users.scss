@@ -1,7 +1,43 @@
 @import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
 @import "../lib/page.scss";
 @import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "../lib/table.css";
+@import "../lib/ct-card.scss";
+
+#account .pf-c-card {
+    @extend .ct-card;
+
+    // Make the header properly wrap
+    &__header {
+        margin-bottom: var(--pf-global--spacer--lg);
+        flex-wrap: wrap;
+        // WebKit and older versions of Chrome have issues with "gap" on flex
+        // (but they'll just be a few pixels too close together)
+        gap: var(--pf-global--spacer--sm) 0;
+    }
+
+    // Remove the gap from the actions...
+    &__actions {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    // And add the gap to the title
+    &__title {
+        flex: auto;
+        margin-right: var(--pf-global--spacer--md);
+    }
+}
+
+#account .pf-l-gallery {
+    --pf-l-gallery--GridTemplateColumns: 1fr;
+}
+
+#account .pf-c-page__main-section,
+#account .pf-c-page__main-nav {
+    padding: var(--pf-global--gutter);
+}
 
 #accounts-list {
     --ct-account-pic-size: 3rem;
@@ -64,6 +100,10 @@
     }
 }
 
+#account-details, #account-authorized-keys {
+    overflow-x: auto;
+}
+
 .account-details .info-table-ct th,
 .account-details .info-table-ct td {
     overflow: visible;
@@ -86,6 +126,43 @@
     background: #d3d7cf;
     border-radius: 5px;
     cursor: pointer;
+}
+
+#account-authorized-keys {
+    .pf-c-data-list__item {
+        // Align text with heading
+        --pf-c-data-list__item-row--PaddingLeft: var(--pf-global--spacer--lg);
+
+        // Align - buttons with + button
+        --pf-c-data-list__item-row--PaddingRight: var(--pf-global--spacer--md);
+
+        // Add a border to the top item
+        &:first-child {
+            border-top: var(--pf-c-data-list__item--BorderBottomWidth) solid var(--pf-c-data-list__item--BorderBottomColor);
+        }
+
+        // Remove a border from the bottom item
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .pf-c-data-list__cell {
+        // Make cells stretchy
+        flex: auto;
+        // Align to center (when stretched wide)
+        align-self: center;
+
+        // Force the key hash to be wrappable
+        + .pf-c-data-list__cell {
+            word-break: break-all;
+        }
+    }
+}
+
+#account-authorized-keys-list {
+    border: none;
+    margin-bottom: 0;
 }
 
 #account-authorized-keys-list > .list-group-item {

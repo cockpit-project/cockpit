@@ -24,8 +24,8 @@ import { superuser } from "superuser";
 
 import {
     Button, Card, CardBody, CardHeader, CardTitle, CardActions,
-    Page, PageSection, PageSectionVariants,
-    Gallery, Text, TextVariant,
+    Page, PageSection,
+    Gallery, Text, TextVariant, Breadcrumb, BreadcrumbItem,
 } from '@patternfly/react-core';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
@@ -204,13 +204,9 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                     <i className="fa fa-exclamation-circle" />
                 </div>
                 <h1>{_("Account not available or cannot be edited.")}</h1>
-                <ol className="breadcrumb">
-                    <li>
-                        <Button variant="link" onClick={() => cockpit.location.go("/")}>
-                            {_("Back to Accounts")}
-                        </Button>
-                    </li>
-                </ol>
+                <Breadcrumb>
+                    <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to Accounts")}</BreadcrumbItem>
+                </Breadcrumb>
             </div>);
     }
 
@@ -234,13 +230,12 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         last_login = moment(details.logged.last).format('LLL');
 
     return (
-        <Page id="account">
-            <PageSection variant={PageSectionVariants.light} type='nav'>
-                <ol className="breadcrumb">
-                    <li><Button variant="link" onClick={() => cockpit.location.go("/")}>{_("Accounts")}</Button></li>
-                    <li className="active">{title_name}</li>
-                </ol>
-            </PageSection>
+        <Page id="account"
+              breadcrumb={
+                  <Breadcrumb>
+                      <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Accounts")}</BreadcrumbItem>
+                      <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
+                  </Breadcrumb>}>
             <PageSection>
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">

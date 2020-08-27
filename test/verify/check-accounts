@@ -99,8 +99,11 @@ class TestAccounts(MachineCase):
         b.set_checked("#account-locked", True)
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
-        # go back to accounts overview, check breadcrumb
-        b.click("#account .breadcrumb button")
+        # go back to accounts overview, check pf-c-breadcrumb
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.click("#account .pf-c-breadcrumb a")
+        else:
+            b.click("#account .breadcrumb button")
         b.wait_present("#accounts-create")
 
         # Create a user from the UI

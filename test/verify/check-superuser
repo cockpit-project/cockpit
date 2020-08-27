@@ -382,7 +382,7 @@ class TestSuperuserDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'access-denied')
 
         # Make sure sudo asks for a password
-        self.machines["machine2"].execute("rm /run/sudo/ts/admin")
+        self.machines["machine2"].execute("rm -f /run/sudo/ts/admin")
 
         b.leave_page()
         b.click("#super-user-indicator button")
@@ -442,7 +442,7 @@ class TestSuperuserOldDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'access-denied')
 
         # Make sure sudo asks for a password
-        self.machines["machine2"].execute("rm /run/sudo/ts/admin")
+        self.machines["machine2"].execute("rm -f /run/sudo/ts/admin")
 
         b.go("/@10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")

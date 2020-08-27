@@ -55,7 +55,7 @@ class TestTeam(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        if m.image not in ["fedora-coreos"]:
+        if m.image not in ["fedora-coreos", "fedora-33"]:
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
 
         # Check that the members are displayed

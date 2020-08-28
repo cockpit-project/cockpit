@@ -255,17 +255,17 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Manually")
-        b.set_input_text("#systime-date-input", "2020-01-24")
+        b.set_input_text("#systime-date-input", "2037-01-24")
         b.set_input_text("#systime-time-hours", "08")
         b.set_input_text("#systime-time-minutes", "03")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        b.wait_text("#system_information_systime_button", "Jan 24, 2020 8:03 AM")
+        b.wait_text("#system_information_systime_button", "Jan 24, 2037 8:03 AM")
 
         self.assertFalse(ntp_enabled())
-        self.assertIn("Fri Jan 24 08:03:", m.execute("date"))
-        self.assertIn("EET 2020\n", m.execute("date"))
+        self.assertIn("Sat Jan 24 08:03:", m.execute("date"))
+        self.assertIn("EET 2037\n", m.execute("date"))
 
         # Set to NTP
         b.click("#system_information_systime_button")

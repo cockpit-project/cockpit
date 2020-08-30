@@ -130,7 +130,7 @@ class SeleniumTest(Test):
         if len(args) > 0:
             suffix = sep.join(args)
         else:
-            datesuffix = str(time.clock())[2:]
+            datesuffix = str(time.process_time())[2:]
             if inspect and inspect.stack() and len(inspect.stack()) > 0:
                 stackinfo = [x[3] for x in inspect.stack() if x[3].startswith("test") or x[3] in ["tearDown", "setUp"]]
             else:

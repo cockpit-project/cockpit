@@ -70,7 +70,7 @@ export class DriveDetails extends React.Component {
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
                 <CardBody>
-                    <div className="ct-form">
+                    <div className="ct-form ct-form-info">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
                         <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
                         <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />

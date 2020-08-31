@@ -99,7 +99,11 @@ class TestFirewall(NetworkCase):
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
 
-        b.click(".breadcrumb li:first button")
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14537
+            b.click(".pf-c-breadcrumb li:first a")
+        else:
+            b.click(".breadcrumb li:first button")
+
         b.enter_page("/network")
 
         self.allow_authorize_journal_messages()

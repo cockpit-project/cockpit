@@ -12,19 +12,19 @@ Currently, these tests run on Fedora 31. Other images don't have selenium and
 avocado installed.
 
 ``` bash
-$ test/image-prepare fedora-31 # Install code to test
+$ test/image-prepare fedora-32 # Install code to test
 ```
 
 Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/run-tests) with appropriate parameters.
 
   - `bots/image-download services # Download a VM image with pre-installed selenium`
-  - `TEST_OS=fedora-31 test/selenium/run-tests --browser firefox -v`
+  - `TEST_OS=fedora-32 test/selenium/run-tests --browser firefox -v`
 
 Although this is the default way to run selenium tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
 
 ### Debugging tests:
 When running selenium tests with ``run-tests`` you can debug them in the following ways.
-  - Run just selected (one or more) tests via listing them on the command line, tests are relative to ``test/selenium/`` directory (for example: ``TEST_OS=fedora-31 test/selenium/run-tests --browser firefox -v selenium-base.py``) test filename is relative to ``test/selenium/`` directory
+  - Run just selected (one or more) tests via listing them on the command line, tests are relative to ``test/selenium/`` directory (for example: ``TEST_OS=fedora-32 test/selenium/run-tests --browser firefox -v selenium-base.py``) test filename is relative to ``test/selenium/`` directory
   - Pass ``--sit`` parameter to ``run-tests`` which will leave all test machines running after the tests finish.
   - Use own selenium grid via option ``--hub``
 

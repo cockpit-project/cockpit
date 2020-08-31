@@ -234,7 +234,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32", "fedora-33"]:
+        if m.image in ['rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'fedora-testing', "fedora-32", "fedora-33"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
             b.wait_present(".zone-section[data-id='public'] tbody.open .ct-listing-panel:contains(Included Services)")

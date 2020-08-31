@@ -140,13 +140,6 @@ Recommends: (cockpit-storaged if udisks2)
 Recommends: cockpit-packagekit
 Suggests: cockpit-pcp
 
-%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora} == 31 && 0%{?build_optional}
-%define build_docker 1
-Recommends: (cockpit-docker if /usr/bin/docker)
-%endif
-%endif
-
 %if 0%{?rhel} == 0
 Recommends: (cockpit-networkmanager if NetworkManager)
 Suggests: cockpit-selinux

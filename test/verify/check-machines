@@ -303,10 +303,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
-        b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(1) .usage-donut-caption", "256 MiB")
+        b.wait_in_text(".memory-usage-chart .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
         b.wait(lambda: get_usage("#chart-donut-0") > 0.0)
-        b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
+        b.wait_in_text(".vcpu-usage-chart .usage-donut-caption", "1 vCPU")
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
         b.wait_present("#chart-donut-1 .donut-title-big-pf")
         self.assertLessEqual(get_usage("#chart-donut-1"), 100.0)
@@ -2378,7 +2378,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 memory_text = "%.2f GiB" % (dialog.memory_size/1024)
             else:
                 memory_text = "{0} {1}".format(dialog.memory_size, dialog.memory_size_unit)
-            b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(1) .usage-donut-caption", memory_text)
+            b.wait_in_text(".memory-usage-chart .usage-donut-caption", memory_text)
 
             # check disks
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab

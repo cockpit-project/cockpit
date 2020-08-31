@@ -2220,7 +2220,7 @@ PageNetworkInterface.prototype = {
     setup: function () {
         var self = this;
 
-        $('#network-interface .breadcrumb a').on("click", function() {
+        $('#network-interface .pf-c-breadcrumb  li:first a').on("click", function() {
             cockpit.location.go('/');
         });
 
@@ -2357,7 +2357,7 @@ PageNetworkInterface.prototype = {
 
         self.dev_name = dev_name;
 
-        $('#network-interface .breadcrumb .active').text(self.dev_name);
+        $('#network-interface .pf-c-breadcrumb__item .pf-c-breadcrumb__link.pf-m-current').text(self.dev_name);
 
         self.rx_series.clear_instances();
         self.tx_series.clear_instances();

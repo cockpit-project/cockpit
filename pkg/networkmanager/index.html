@@ -398,84 +398,101 @@
     </form>
   </script>
 
-  <div id="network-interface" class="container-fluid" hidden>
-    <ol class="breadcrumb">
-      <li><a role="link" tabindex="0" translate="yes">Networking</a></li>
-      <li class="active"></li>
-    </ol>
-    <div class="row">
-      <div id="network-interface-graph-toolbar" class="zoom-controls standard-zoom-controls">
-        <div class="dropdown">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span></span>
-            <div class="caret"></div>
+  <div id="network-interface" class="pf-c-page" hidden>
+    <main  class="pf-c-page__main" tabIndex="-1">
+      <section class="pf-c-page__main-breadcrumb pf-m-light">
+          <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
+              <ol class="pf-c-breadcrumb__list">
+                <li class="pf-c-breadcrumb__item"><a class="pf-c-breadcrumb__link" role="link" tabindex="0" translate="yes">Networking</a></li>
+                <li class="pf-c-breadcrumb__item">
+                    <span class="pf-c-breadcrumb__item-divider">
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </span>
+                    <a class="pf-c-breadcrumb__link pf-m-current"></a>
+                </li>
+              </ol>
+          </nav>
+      </section>
+      <section class="pf-c-page__main-section pf-m-light">
+        <div id="network-interface-graph-toolbar" class="zoom-controls standard-zoom-controls">
+          <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span></span>
+              <div class="caret"></div>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
+              <li role="presentation" class="divider"></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
+              <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
+            </ul>
+          </div>
+          <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
+            <span class="glyphicon glyphicon-zoom-out"></span>
           </button>
-          <ul class="dropdown-menu" role="menu">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
-            <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
-          </ul>
+          <div class="btn-group">
+            <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
+                <span class="fa fa-angle-left" />
+            </button>
+            <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
+                <span class="fa fa-angle-right" />
+            </button>
+          </div>
         </div>
-        <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
-          <span class="glyphicon glyphicon-zoom-out"></span>
-        </button>
-        <div class="btn-group">
-          <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
-              <span class="fa fa-angle-left" />
-          </button>
-          <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
-              <span class="fa fa-angle-right" />
-          </button>
+        <div class="col-sm-6">
+          <div>
+            <span class="plot-unit" id="network-interface-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
+          </div>
+          <div id="network-interface-tx-graph"></div>
         </div>
-      </div>
-      <div class="col-sm-6">
-        <div>
-          <span class="plot-unit" id="network-interface-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
+        <div class="col-sm-6">
+          <div>
+            <span class="plot-unit" id="network-interface-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
+          </div>
+          <div id="network-interface-rx-graph"></div>
         </div>
-        <div id="network-interface-tx-graph"></div>
-      </div>
-      <div class="col-sm-6">
-        <div>
-          <span class="plot-unit" id="network-interface-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
-        </div>
-        <div id="network-interface-rx-graph"></div>
-      </div>
-    </div>
-    <div class="pf-c-card">
-      <div class="pf-c-card__header">
-        <div class="pf-c-card__title" id="network-interface-name"></div>
-        <span id="network-interface-hw"></span>
-        <span id="network-interface-mac"></span>
-        <div class="pf-c-card__actions">
-          <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
-          <span id="network-interface-delete-switch" class="network-privileged">
-          </span>
-        </div>
-      </div>
-      <div class="pf-c-card__body">
-        <table class="form-table-ct" id="network-interface-settings">
-        </table>
-      </div>
-    </div>
-    <div class="pf-c-card" id="network-interface-members">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th></th>
-            <th translate="yes" class="networking-speed">Sending</th>
-            <th translate="yes" class="networking-speed">Receiving</th>
-            <th class="networking-spacer"></th>
-            <th class="networking-action"></th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
+      </section>
+      <section class="pf-c-page__main-section">
+        <div class="pf-l-gallery pf-m-gutter">
+            <div class="pf-c-card">
+              <div class="pf-c-card__header">
+                <div class="pf-c-card__title">
+                  <span id="network-interface-name"></span>
+                  <span id="network-interface-hw"></span>
+                  <span id="network-interface-mac"></span>
+                </div>
+                <div class="pf-c-card__actions">
+                  <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
+                  <span id="network-interface-delete-switch" class="network-privileged">
+                  </span>
+                </div>
+              </div>
+              <div class="pf-c-card__body">
+                <table class="form-table-ct" id="network-interface-settings">
+                </table>
+              </div>
+            </div>
+            <div class="pf-c-card" id="network-interface-members">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th translate="yes" class="networking-speed">Sending</th>
+                    <th translate="yes" class="networking-speed">Receiving</th>
+                    <th class="networking-spacer"></th>
+                    <th class="networking-action"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+      </section>
+    </main>
   </div>
 
   <div class="modal" id="network-ip-settings-dialog"

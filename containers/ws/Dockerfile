@@ -1,4 +1,4 @@
-FROM fedora:31
+FROM fedora:32
 LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
 LABEL VERSION=master
 

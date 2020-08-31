@@ -30,7 +30,7 @@ from storagelib import StorageHelpers
 from machinesxmls import *
 from datetime import datetime
 
-distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-31", "fedora-32", "fedora-coreos", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-2004", "ubuntu-stable"]
+distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedora-coreos", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-2004", "ubuntu-stable"]
 
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
@@ -2695,7 +2695,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-31', 'fedora-testing', 'rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
+        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")

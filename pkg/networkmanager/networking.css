@@ -1,13 +1,16 @@
 @import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
 @import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+@import "../../node_modules/@patternfly/patternfly/components/Breadcrumb/breadcrumb.css";
 @import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.css";
 @import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
 @import "../../node_modules/@patternfly/patternfly/components/Table/table.css";
 @import "../../node_modules/@patternfly/patternfly/components/Table/table-grid.css";
 
-#networking .pf-l-gallery {
-    --pf-l-gallery--GridTemplateColumns: 1fr;
+#networking, #network-interface {
+  .pf-l-gallery {
+      --pf-l-gallery--GridTemplateColumns: 1fr;
+  }
 }
 
 .networking-page .firewall-switch {
@@ -19,6 +22,25 @@
     flex-wrap: wrap;
     button {
         margin-bottom: 0.5rem;
+    }
+}
+
+#network-interface {
+    section.pf-c-page__main-breadcrumb {
+        padding-bottom: var(--pf-global--spacer--xl);
+    }
+
+    .pf-c-card__header > .pf-c-card__title {
+        padding: 0;
+    }
+
+    .pf-c-card {
+        overflow-x: auto;
+    }
+
+    #network-interface-hw, #network-interface-mac {
+      font-size: var(--pf-global--FontSize--md);
+      font-weight: var(--pf-global--FontWeight--normal);
     }
 }
 
@@ -520,4 +542,8 @@ form.horizontal fieldset {
     td[data-label=Name] {
         font-weight: var(--pf-global--FontWeight--bold);
     }
+}
+
+#network-interface-members table {
+    margin-bottom: 0;
 }

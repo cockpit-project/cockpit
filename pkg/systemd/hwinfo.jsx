@@ -26,7 +26,11 @@ import React from "react";
 import ReactDOM from 'react-dom';
 
 import { ListView, Modal } from 'patternfly-react';
-import { Alert, AlertActionCloseButton, Button } from '@patternfly/react-core';
+import {
+    Alert, AlertActionCloseButton, Button,
+    Page, PageSection, PageSectionVariants,
+    Breadcrumb, BreadcrumbItem,
+} from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -279,24 +283,25 @@ class HardwareInfo extends React.Component {
         }
 
         return (
-            <div className="page-ct container-fluid">
+            <Page breadcrumb={
+                <Breadcrumb>
+                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__item" to="#">{ _("Overview") }</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{ _("Hardware Information") }</BreadcrumbItem>
+                </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
-                <ol className="breadcrumb">
-                    <li><Button variant="link" isInline onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</Button></li>
-                    <li className="active">{ _("Hardware Information") }</li>
-                </ol>
+                <PageSection variant={PageSectionVariants.light}>
+                    <h2>{ _("System Information") }</h2>
+                    <SystemInfo info={this.props.info.system}
+                                onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
 
-                <h2>{ _("System Information") }</h2>
-                <SystemInfo info={this.props.info.system}
-                            onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
-
-                <div id="pci-listing">
-                    { pci }
-                </div>
-                <div id="memory-listing">
-                    { memory }
-                </div>
-            </div>
+                    <div id="pci-listing">
+                        { pci }
+                    </div>
+                    <div id="memory-listing">
+                        { memory }
+                    </div>
+                </PageSection>
+            </Page>
         );
     }
 }

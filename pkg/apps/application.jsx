@@ -19,7 +19,10 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Button } from "@patternfly/react-core";
+import {
+    Button, Breadcrumb, BreadcrumbItem,
+    Page, PageSection, PageSectionVariants
+} from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -139,13 +142,15 @@ export class Application extends React.Component {
         }
 
         return (
-            <div>
-                <ol className="breadcrumb">
-                    <li><Button variant="link" onClick={left_click(navigate_up)}>{_("Applications")}</Button></li>
-                    <li className="active">{comp ? comp.name : this.props.id}</li>
-                </ol>
-                {render_comp()}
-            </div>
+            <Page breadcrumb={
+                <Breadcrumb>
+                    <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={left_click(navigate_up)} to="#">{_("Applications")}</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{comp ? comp.name : this.props.id}</BreadcrumbItem>
+                </Breadcrumb>}>
+                <PageSection variant={PageSectionVariants.light}>
+                    {render_comp()}
+                </PageSection>
+            </Page>
         );
     }
 }

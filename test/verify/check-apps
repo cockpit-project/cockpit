@@ -100,7 +100,7 @@ class TestApps(PackageCase):
         b.click(".app-list #app-1")
         b.wait_present('.app-links a[href="https://app-1.com"]')
         b.wait_present('.app img[src^="%s/cockpit/channel/"]' % urlroot)
-        b.click(".breadcrumb button:contains('Applications')")
+        b.click(".pf-c-breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
         b.wait_not_visible("#app-page")

@@ -71,8 +71,12 @@ class TestKeys(MachineCase):
 
         # no keys
         login("user", "foobar", "User")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        else:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         # add bad
         b.click('#authorized-key-add')
@@ -92,9 +96,14 @@ class TestKeys(MachineCase):
 
         # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
         if "ubuntu" not in m.image and "debian" not in m.image:
-            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child",
-                           "You do not have permission")
-            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
+            if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+                b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                               "You do not have permission")
+                b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+            else:
+                b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child",
+                                "You do not have permission")
+                b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         b.logout()
 
@@ -105,8 +114,12 @@ class TestKeys(MachineCase):
         # Log in as admin
         login("admin", "foobar", "Administrator")
         b.go("#/user")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        else:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         # Adding keys sets permissions properly
         b.wait_text("#account-user-name", "user")
@@ -122,24 +135,41 @@ class TestKeys(MachineCase):
 
         # Add invalid key directly
         m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 2)
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 2)
+        else:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 2)
 
         # Removing the key
-        b.click("#account-authorized-keys-list div.list-group-item:last-child button")
-        b.wait_not_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.click("#account-authorized-keys-list li.pf-c-data-list__item:last-child button")
+            b.wait_not_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        else:
+            b.click("#account-authorized-keys-list div.list-group-item:last-child button")
+            b.wait_not_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
         self.assertEqual(data, KEY + '\n')
         b.logout()
 
         # User can still see their keys
         login("user", "foobar", "User")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "test-name")
+        else:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
 
-        b.click("#account-authorized-keys-list div.list-group-item:first-child button")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
+            b.click("#account-authorized-keys-list li.pf-c-data-list__item:first-child button")
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        else:
+            b.click("#account-authorized-keys-list div.list-group-item:first-child button")
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()

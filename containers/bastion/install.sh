@@ -8,7 +8,7 @@ fi
 
 if [ -z "$OFFLINE" ]; then
     "$INSTALLER" -y update
-    "$INSTALLER" install -y python3 openssl
+    "$INSTALLER" install -y python3 openssl systemd
 fi
 
 /container/scripts/install-rpms.sh cockpit-ws

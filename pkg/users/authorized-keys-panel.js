@@ -97,53 +97,56 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
 
     if (state == "access-denied") {
         key_items = [
-            <div key={state} className="list-group-item">
-                <div className="fingerprint">
+            <li key={state} className="pf-c-data-list__item">
+                <div key={state} className="pf-c-data-list__item-row fingerprint">
                     <span>{_("You do not have permission to view the authorized public keys for this account.")}</span>
                 </div>
-            </div>
+            </li>
         ];
     } else if (state == "failed") {
         key_items = [
-            <div key={state} className="list-group-item">
-                <div className="fingerprint">
+            <li key={state} className="pf-c-data-list__item">
+                <div key={state} className="pf-c-data-list__item-row fingerprint">
                     <span>{_("Failed to load authorized keys.")}</span>
                 </div>
-            </div>
+            </li>
         ];
     } else if (state == "ready") {
         if (keys.length === 0) {
             key_items = [
-                <div key="empty" className="list-group-item">
-                    <div className="fingerprint">
+                <li key={state} className="pf-c-data-list__item">
+                    <div key="empty" className="pf-c-data-list__item-row fingerprint">
                         <span>{_("There are no authorized public keys for this account.")}</span>
                     </div>
-                </div>
+                </li>
             ];
         } else {
             key_items = keys.map(k =>
-                <div key={k.raw} className="list-group-item">
-                    <div className="comment">
-                        { k.comment || <em>{_("Unnamed")}</em> }
-                    </div>
-                    <div className="fingerprint">
-                        { k.fp || <span>{_("Invalid key")}</span> }
-                    </div>
-                    <div className="action">
+                <li key={k.raw} className="pf-c-data-list__item">
+                    <div className="pf-c-data-list__item-row">
+                        <div className="pf-c-data-list__item-content">
+                            <div className="pf-c-data-list__cell comment">
+                                { k.comment || <em>{_("Unnamed")}</em> }
+                            </div>
+                            <div className="pf-c-data-list__cell fingerprint">
+                                { k.fp || <span>{_("Invalid key")}</span> }
+                            </div>
+                        </div>
                         { allow_mods &&
-                        <Button variant="secondary" onClick={() => remove_key(k.raw)}
+                        <div className="pf-c-data-list__item-action">
+                            <Button variant="secondary" onClick={() => remove_key(k.raw)}
                                 className="account-remove-key">
-                            <span className="fa fa-minus" />
-                        </Button>
-                        }
+                                <span className="fa fa-minus" />
+                            </Button>
+                        </div> }
                     </div>
-                </div>);
+                </li>);
         }
     } else
         return null;
 
     return (
-        <div className="pf-c-card contains-list" id="account-authorized-keys">
+        <div className="pf-c-card" id="account-authorized-keys">
             <div className="pf-c-card__header">
                 <div className="pf-c-card__title"><h2>{_("Authorized Public SSH Keys")}</h2></div>
                 <div className="pf-c-card__actions">
@@ -155,10 +158,10 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                     }
                 </div>
             </div>
-            <div className="pf-c-card__body">
-                <div className="list-group" id="account-authorized-keys-list">
+            <div className="pf-c-card__body contains-list">
+                <ul className="pf-c-data-list pf-m-compact" id="account-authorized-keys-list">
                     { key_items }
-                </div>
+                </ul>
             </div>
         </div>);
 }

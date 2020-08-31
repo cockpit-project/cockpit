@@ -2,6 +2,7 @@
 @import "../lib/page.scss";
 @import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+@import "../../node_modules/@patternfly/patternfly/components/DataList/data-list.scss";
 @import "../lib/table.css";
 @import "../lib/ct-card.scss";
 
@@ -104,16 +105,6 @@
     }
 }
 
-#account-details, #account-authorized-keys {
-    overflow-x: auto;
-}
-
-.account-details .info-table-ct th,
-.account-details .info-table-ct td {
-    overflow: visible;
-    vertical-align: top;
-}
-
 #account-details div.checkbox:first-child {
 	margin-top: 0px;
 }
@@ -173,22 +164,6 @@
     display: flex;
     padding: 0.5rem 0.5rem 0.5rem 1rem;
     align-items: center;
-}
-
-#account-authorized-keys-list .comment {
-    flex: auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-}
-
-#account-authorized-keys-list .fingerprint {
-    width: calc(100% - 30px - 260px);
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
 }
 
 #authorized-key-add {

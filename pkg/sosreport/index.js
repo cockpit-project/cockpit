@@ -66,7 +66,7 @@ function sos_create() {
     var progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
     var finishing_regex = /Finishing plugins.*\[Running: (.*)\]/;
     var starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
-    var archive_regex = /Your sosreport has been generated and saved in:[ \r\n]+(\/[^\r\n]+)/;
+    var archive_regex = /Your sosreport has been generated and saved in:\s+(\/[^\r\n]+)/;
 
     task.stream(function (text) {
         if (sos_task == task) {

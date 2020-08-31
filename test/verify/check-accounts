@@ -55,14 +55,16 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-title", "anton")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
         b.set_input_text('#account-real-name', "Anton Arbitrary")
-        b.key_press("\r")
+        b.wait_present("#account-details")
+        b.wait_present("#account-details")
+        b.blur("#account-real-name")
         b.wait_present('#account-real-name:not([disabled])')
         b.wait_text("#account-title", "Anton Arbitrary")
         self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
 
         # Add some other GECOS fields
         b.set_input_text('#account-real-name', "Anton Arbitrary,1,123")
-        b.key_press("\r")
+        b.blur("#account-real-name")
         b.wait_present('#account-real-name:not([disabled])')
         self.assertIn(":Anton Arbitrary,1,123:", m.execute("grep anton /etc/passwd"))
         # Table title only shows real name, no other GECOS fields

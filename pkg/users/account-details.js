@@ -25,7 +25,8 @@ import { superuser } from "superuser";
 import {
     Button, Card, CardBody, CardHeader, CardTitle, CardActions,
     Page, PageSection,
-    Gallery, Text, TextVariant, Breadcrumb, BreadcrumbItem,
+    Gallery, Text, TextVariants, Breadcrumb, BreadcrumbItem,
+    Form, FormGroup, TextInput,
 } from '@patternfly/react-core';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
@@ -256,93 +257,82 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                             }
                         </CardHeader>
                         <CardBody>
-                            <table className="info-table-ct">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row"><label htmlFor="account-real-name">{_("Full Name")}</label></th>
-                                        <td id="account-real-name-wrapper">
-                                            { superuser.allowed
-                                                ? <input id="account-real-name" className="form-control"
-                                              disabled={committing_real_name || account.uid == 0}
-                                         value={edited_real_name || account.gecos}
-                                         onChange={event => set_edited_real_name(event.target.value)}
-                                         onBlur={event => change_real_name(event)}
-                                         onKeyPress={event => {
-                                             if (event.key == "Enter") {
-                                                 event.target.blur();
-                                             }
-                                         }} />
-                                                : <output id="account-real-name">{account.gecos}</output>
+                            <Form isHorizontal>
+                                <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full Name")}>
+                                    { superuser.allowed
+                                        ? <TextInput id="account-real-name"
+                                                     isDisabled={committing_real_name || account.uid == 0}
+                                                     value={edited_real_name || account.gecos}
+                                                     onKeyPress={event => {
+                                                         if (event.key == "Enter") {
+                                                             event.target.blur();
+                                                         }
+                                                     }}
+                                                     onChange={value => set_edited_real_name(value)}
+                                                     onBlur={event => change_real_name(event)} />
+                                        : <output id="account-real-name">{account.gecos}</output>}
+                                </FormGroup>
+                                <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User Name")}>
+                                    <output id="account-user-name">{account.name}</output>
+                                </FormGroup>
+                                { account.uid !== 0 &&
+                                <FormGroup fieldId="account-roles" hasNoPaddingTop label={_("Roles")}>
+                                    <div id="account-roles">
+                                        <div id="account-change-roles-roles">
+                                            <AccountRoles account={account} groups={groups}
+                                                currently_logged_in={details.logged.currently} />
+                                        </div>
+                                    </div>
+                                </FormGroup>
+                                }
+                                <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last Login")}>
+                                    <output id="account-last-login">{last_login}</output>
+                                </FormGroup>
+                                <FormGroup fieldId="account-locked" label={_("Access")}>
+                                    <div>
+                                        <div className="account-column-one">
+                                            <div className="checkbox" data-container="body">
+                                                <label>
+                                                    <input type="checkbox" id="account-locked"
+                                       disabled={!superuser.allowed || edited_locked != null}
+                                       checked={edited_locked != null ? edited_locked : details.locked}
+                                       onChange={event => change_locked(event.target.checked)} />
+                                                    <span>{_("Lock Account")}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <Button onClick={() => account_expiration_dialog(account, details.expiration.account_date)}
+                                          isDisabled={!superuser.allowed} variant="link" id="account-expiration-button">
+                                            {details.expiration.account_text}
+                                        </Button>
+                                    </div>
+                                </FormGroup>
+                                { self_mod_allowed &&
+                                <FormGroup fieldId="account-set-password" label={_("Password")}>
+                                    <div>
+                                        <div className="account-column-one">
+                                            { self_mod_allowed &&
+                                            <Button variant="secondary" id="account-set-password"
+                                      onClick={() => set_password_dialog(account, current_user)}>
+                                                {_("Set Password")}
+                                            </Button>
                                             }
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><label htmlFor="account-user-name">{_("User Name")}</label></th>
-                                        <td><output id="account-user-name">{account.name}</output></td>
-                                    </tr>
-                                    { account.uid !== 0 &&
-                                    <tr>
-                                        <th scope="row"><label>{_("Roles")}</label></th>
-                                        <td id="account-roles">
-                                            <div id="account-change-roles-roles">
-                                                <AccountRoles account={account} groups={groups}
-                                                    currently_logged_in={details.logged.currently} />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    }
-                                    <tr>
-                                        <th scope="row"><label htmlFor="account-last-login">{_("Last Login")}</label></th>
-                                        <td><output id="account-last-login">{last_login}</output></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><label htmlFor="account-locked">{_("Access")}</label></th>
-                                        <td>
-                                            <div className="account-column-one">
-                                                <div className="checkbox" data-container="body">
-                                                    <label>
-                                                        <input type="checkbox" id="account-locked"
-                                           disabled={!superuser.allowed || edited_locked != null}
-                                           checked={edited_locked != null ? edited_locked : details.locked}
-                                           onChange={event => change_locked(event.target.checked)} />
-                                                        <span>{_("Lock Account")}</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <Button onClick={() => account_expiration_dialog(account, details.expiration.account_date)}
-                                              isDisabled={!superuser.allowed} variant="link" id="account-expiration-button">
-                                                {details.expiration.account_text}
+                                            { "\n" }
+                                            { superuser.allowed &&
+                                            <Button variant="secondary" id="password-reset-button"
+                                              onClick={() => reset_password_dialog(account)}>
+                                                {_("Force Change")}
                                             </Button>
-                                        </td>
-                                    </tr>
-                                    { self_mod_allowed &&
-                                    <tr>
-                                        <th scope="row"><label htmlFor="account-set-password">{_("Password")}</label></th>
-                                        <td>
-                                            <div className="account-column-one">
-                                                { self_mod_allowed &&
-                                                <Button variant="secondary" id="account-set-password"
-                                          onClick={() => set_password_dialog(account, current_user)}>
-                                                    {_("Set Password")}
-                                                </Button>
-                                                }
-                                                { "\n" }
-                                                { superuser.allowed &&
-                                                <Button variant="secondary" id="password-reset-button"
-                                                  onClick={() => reset_password_dialog(account)}>
-                                                    {_("Force Change")}
-                                                </Button>
-                                                }
-                                            </div>
-                                            <Button onClick={() => password_expiration_dialog(account, details.expiration.password_days)}
-                                      isDisabled={!superuser.allowed} variant="link" id="password-expiration-button">
-                                                {details.expiration.password_text}
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                            }
+                                        </div>
+                                        <Button onClick={() => password_expiration_dialog(account, details.expiration.password_days)}
+                                  isDisabled={!superuser.allowed} variant="link" id="password-expiration-button">
+                                            {details.expiration.password_text}
+                                        </Button>
+                                    </div>
+                                </FormGroup>
+                                }
+                            </Form>
                         </CardBody>
                     </Card>
                     <AuthorizedKeys name={account.name} home={account.home} allow_mods={self_mod_allowed} />

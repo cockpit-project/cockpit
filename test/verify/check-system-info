@@ -400,7 +400,11 @@ class TestSystemInfo(MachineCase):
         b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
-        b.click('.breadcrumb button')
+        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14537
+            b.click('.pf-c-breadcrumb li:first a')
+        else:
+            b.click('.breadcrumb button')
+
         b.enter_page("/system")
 
         # now pretend this is a system without DMI

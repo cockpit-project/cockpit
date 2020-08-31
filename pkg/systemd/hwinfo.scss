@@ -1,3 +1,4 @@
+@import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "./system-global.scss";
 @import "../lib/table.css";
 
@@ -19,4 +20,8 @@ table.listing-ct thead th:last-child {
 
 tr.listing-ct-item td:last-child {
     text-align: left;
+}
+
+section.pf-c-page__main-breadcrumb {
+    padding-bottom: var(--pf-global--spacer--xl);
 }

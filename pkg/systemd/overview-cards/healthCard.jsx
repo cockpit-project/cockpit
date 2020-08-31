@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Card, CardBody, CardFooter, CardTitle, Text, TextVariants } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";
@@ -32,7 +32,7 @@ export class HealthCard extends React.Component {
     render() {
         return (
             <Card className="system-health">
-                <CardTitle>{_("Health")}</CardTitle>
+                <CardTitle><Text component={TextVariants.h2}>{_("Health")}</Text></CardTitle>
                 <CardBody>
                     <ul className="system-health-events">
                         <PageStatusNotifications />

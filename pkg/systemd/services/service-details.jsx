@@ -23,7 +23,8 @@ import PropTypes from "prop-types";
 import {
     Alert, Button,
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
-    Tooltip, TooltipPosition
+    Tooltip, TooltipPosition,
+    Card, CardBody, CardTitle, Text, TextVariants,
 } from "@patternfly/react-core";
 import { Modal } from 'patternfly-react';
 
@@ -126,9 +127,9 @@ export class ServiceTemplate extends React.Component {
 
     render() {
         return (
-            <>
-                {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
-                <div className="panel panel-default">
+            <Card>
+                <CardBody>
+                    {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
                     <div className="list-group">
                         <div className="list-group-item">
                             { cockpit.format(_("$0 Template"), this.props.template) }
@@ -141,8 +142,8 @@ export class ServiceTemplate extends React.Component {
                             {this.state.instantiateInProgress && <div className="spinner spinner-sm pull-right" />}
                         </div>
                     </div>
-                </div>
-            </>
+                </CardBody>
+            </Card>
         );
     }
 }
@@ -534,7 +535,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <>
+            <Card>
                 { (this.state.note || this.state.error) &&
                     <ServiceConfirmDialog title={ this.state.error ? _("Error") : _("Note") }
                                           message={ this.state.error || this.state.note }
@@ -546,8 +547,8 @@ export class ServiceDetails extends React.Component {
                         {loadError}
                     </Alert>
                     : <>
-                        <div className="service-top-panel">
-                            <h2 className="service-name">{this.props.unit.Description}</h2>
+                        <CardTitle className="service-top-panel">
+                            <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
                             { this.props.permitted &&
                                 <>
                                     { !masked && !isStatic &&
@@ -560,44 +561,46 @@ export class ServiceDetails extends React.Component {
                                     <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 </>
                             }
-                        </div>
-                        <form className="ct-form">
-                            <label className="control-label" htmlFor="statuses">{ _("Status") }</label>
-                            <div id="statuses" className="ct-validation-wrapper">
-                                { status }
-                            </div>
-                            <hr />
-                            <label className="control-label" htmlFor="path">{ _("Path") }</label>
-                            <span id="path">{this.props.unit.FragmentPath}</span>
-                            <hr />
-                            { this.props.originTemplate && this.props.isValid(this.props.originTemplate) &&
-                                <>
-                                    <div />
-                                    <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
-                                </>
-                            }
-                            { notMetConditions.length > 0 &&
-                                <>
-                                    <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
-                                    <div id="condition" className="ct-validation-wrapper">
-                                        {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
-                                    </div>
-                                </>
-                            }
-                            <hr />
-                            {relationships.map(rel =>
-                                rel.Units && rel.Units.length > 0 &&
-                                    <React.Fragment key={rel.Name.split().join("")}>
-                                        <label className="control-label closer-lines" htmlFor={rel.Name}>{rel.Name}</label>
-                                        <ul id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
-                                            {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
-                                        </ul>
-                                    </React.Fragment>
-                            )}
-                        </form>
+                        </CardTitle>
+                        <CardBody>
+                            <form className="ct-form">
+                                <label className="control-label" htmlFor="statuses">{ _("Status") }</label>
+                                <div id="statuses" className="ct-validation-wrapper">
+                                    { status }
+                                </div>
+                                <hr />
+                                <label className="control-label" htmlFor="path">{ _("Path") }</label>
+                                <span id="path">{this.props.unit.FragmentPath}</span>
+                                <hr />
+                                { this.props.originTemplate && this.props.isValid(this.props.originTemplate) &&
+                                    <>
+                                        <div />
+                                        <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
+                                    </>
+                                }
+                                { notMetConditions.length > 0 &&
+                                    <>
+                                        <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
+                                        <div id="condition" className="ct-validation-wrapper">
+                                            {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
+                                        </div>
+                                    </>
+                                }
+                                <hr />
+                                {relationships.map(rel =>
+                                    rel.Units && rel.Units.length > 0 &&
+                                        <React.Fragment key={rel.Name.split().join("")}>
+                                            <label className="control-label closer-lines" htmlFor={rel.Name}>{rel.Name}</label>
+                                            <ul id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
+                                                {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                            </ul>
+                                        </React.Fragment>
+                                )}
+                            </form>
+                        </CardBody>
                     </>
                 }
-            </>
+            </Card>
         );
     }
 }

@@ -31,3 +31,10 @@ ul.pf-c-select__menu {
     max-height: 20rem;
     overflow-y: auto;
 }
+
+/* Breadcrumb dividers have some inline style to align them
+ * https://github.com/patternfly/patternfly-react/issues/4767
+ */
+.pf-c-breadcrumb__item-divider > svg {
+    vertical-align: -0.125em;
+}

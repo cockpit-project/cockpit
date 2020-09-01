@@ -896,96 +896,183 @@ do_password_auth (CockpitSshData *data)
   return rc;
 }
 
+struct CockpitSshPromptData {
+  CockpitSshData *data;
+  const gchar *identity;
+  gboolean did_prompt;
+};
+
 /* We don't support unlocking identities within cockpit-ssh so fail here */
 static int
 prompt_for_identity_password (const char *prompt, char *buf, size_t len,
                               int echo, int verify, void *userdata)
 {
-  CockpitSshData *data = (CockpitSshData *) userdata;
-  gchar *identity = NULL;
-  if (ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity) == SSH_OK)
-    {
-      data->problem_error = g_strdup_printf ("locked identity: %s", identity);
-    }
-  if (identity)
-    ssh_string_free_char (identity);
+  struct CockpitSshPromptData *prompt_data = userdata;
+  prompt_data->data->problem_error = g_strdup_printf ("locked identity: %s", prompt_data->identity);
+  prompt_data->did_prompt = TRUE;
   return -1;
 }
 
 static int
-do_key_identity_auth (CockpitSshData *data)
+do_auto_auth (CockpitSshData *data)
 {
+  /* HACK: When prompting for a key passphrase, libssh doesn't provide
+     enough information to say which key it is for, but we need that
+     information since Cockpit will offer to load the key into the
+     agent in order to log in.
+
+     To get this information, we reimplement
+     ssh_userauth_publickey_auto here in a way that passes that
+     information to the callback.
+
+     We would like to iterate over all configured identities, the same
+     way that the real ssh_userauth_publickey does, but there is no
+     API to do that either.  So we hard code all the names, based on
+     what ssh-add would add to the agent.
+
+     This whole thing is meant to be replaced with something like this
+     eventually:
+
+     static int
+     intercept_prompt (const char *prompt, char *buf, size_t len,
+                       int echo, int verify, void *userdata)
+     {
+       CockpitSshData *data = userdata;
+       char *identity = NULL;
+       if (ssh_userauth_publickey_auto_get_current_identity (data->session, &identity) == SSH_OK)
+         {
+           data->problem_error = g_strdup_printf ("locked identity: %s", identity);
+           ssh_string_free_char (identity);
+         }
+       return -1;
+     }
+
+     static int
+     do_auto_auth (CockpitSshData *data)
+     {
+       struct ssh_callbacks_struct cb = { .userdata = data, .auth_function = intercept_prompt };
+       ssh_callbacks_init (&cb);
+       ssh_set_callbacks (data->session, &cb);
+       int rc = ssh_userauth_publickey_auto (data->session, NULL, NULL);
+       ssh_set_callbacks (data->session, NULL);
+       return rc;
+     }
+
+     See https://gitlab.com/libssh/libssh-mirror/-/merge_requests/134
+  */
+
   int rc;
-  ssh_key priv_key = NULL;
-  ssh_key pub_key = NULL;
-  gchar *identity = NULL;
-  g_autofree gchar *pub_key_path = NULL;
   const gchar *msg;
 
-  rc = ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity);
+  rc = ssh_userauth_agent (data->session, NULL);
+  if (rc == SSH_AUTH_SUCCESS ||
+      rc == SSH_AUTH_PARTIAL ||
+      rc == SSH_AUTH_AGAIN ) {
+    return rc;
+  }
+
+  /* See "man ssh-add" for the list of default identities.
+   */
+  gchar *libssh_identity = NULL;
+  gchar *default_identities[] = { "id_dsa", "id_ecdsa", "id_ecdsa_sk", "id_ed25519", "id_ed25519_sk", "id_rsa", NULL };
+
+  rc = ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &libssh_identity);
   if (rc != SSH_OK)
     {
       g_debug ("Unable to get identity from config");
       return rc;
     }
 
-  pub_key_path = g_strconcat (identity, ".pub", NULL);
-  rc = ssh_pki_import_pubkey_file (pub_key_path, &pub_key);
-  /* If the public key file exist and is readable, see if the identity is accepted by the server */
-  if (rc == SSH_OK)
+  for (int i = -1; i < 0 || default_identities[i]; i++)
     {
-      rc = ssh_userauth_try_publickey (data->session, NULL, pub_key);
-      if (rc != SSH_AUTH_SUCCESS)
+      g_autofree gchar *identity = NULL;
+      g_autofree gchar *pub_key_path = NULL;
+      ssh_key priv_key = NULL;
+      ssh_key pub_key = NULL;
+
+      if (i == -1)
+        identity = g_strdup (libssh_identity);
+      else
         {
-          g_debug ("%s isn't accepted by the server", identity);
-          goto out;
+          identity = g_strdup_printf ("%s/.ssh/%s", g_get_home_dir (), default_identities[i]);
+          // No need to try the libssh identity twice, and we need to
+          // be precious with our tries because when we run into
+          // MaxAuthTries, libssh will hang.
+          if (g_strcmp0 (identity, libssh_identity) == 0)
+            continue;
         }
-    }
-  else if (rc == SSH_EOF)
-    {
-      g_debug ("Public key file %s doesn't exist or isn't readable", pub_key_path);
-    }
-  else
-    {
-      msg = ssh_get_error (data->session);
-      g_warning ("Error importing public key %s: %s", pub_key_path, msg);
-    }
 
-  rc = ssh_pki_import_privkey_file (identity, NULL, prompt_for_identity_password, data, &priv_key);
-  if (rc != SSH_OK)
-    {
-      g_debug ("Unable to import identity %s", identity);
-      goto out;
-    }
+      pub_key_path = g_strconcat (identity, ".pub", NULL);
+      rc = ssh_pki_import_pubkey_file (pub_key_path, &pub_key);
+      /* If the public key file exist and is readable, see if the identity is accepted by the server */
+      if (rc == SSH_OK)
+        {
+          rc = ssh_userauth_try_publickey (data->session, NULL, pub_key);
+          if (rc != SSH_AUTH_SUCCESS)
+            {
+              g_debug ("%s isn't accepted by the server", identity);
+              ssh_key_free (pub_key);
+              continue;
+            }
+        }
+      else if (rc == SSH_EOF)
+        {
+          g_debug ("Public key file %s doesn't exist or isn't readable", pub_key_path);
+        }
+      else
+        {
+          msg = ssh_get_error (data->session);
+          g_warning ("Error importing public key %s: %s", pub_key_path, msg);
+        }
 
-  rc = ssh_userauth_publickey (data->session, NULL, priv_key);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: key auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: key auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: key auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: key auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-    }
+      struct CockpitSshPromptData pd = { data, identity, FALSE };
+      rc = ssh_pki_import_privkey_file (identity, NULL, prompt_for_identity_password, &pd, &priv_key);
+      if (rc == SSH_ERROR)
+        {
+          if (pd.did_prompt)
+            rc = SSH_AUTH_DENIED;
+        }
+      else if (rc == SSH_EOF)
+        {
+          rc = SSH_AUTH_DENIED;
+        }
+      else if (rc == SSH_OK)
+        {
+          rc = ssh_userauth_publickey (data->session, NULL, priv_key);
+          ssh_key_free (priv_key);
 
-out:
-  if (priv_key)
-      ssh_key_free (priv_key);
-  if (pub_key)
+          if (rc == SSH_AUTH_SUCCESS)
+            {
+              g_debug ("%s: key auth succeeded", data->logname);
+              ssh_key_free (pub_key);
+              break;
+            }
+          else
+            {
+              switch (rc)
+                {
+                case SSH_AUTH_DENIED:
+                  g_debug ("%s: key auth failed", data->logname);
+                  break;
+                case SSH_AUTH_PARTIAL:
+                  g_message ("%s: key auth worked, but server wants more authentication",
+                             data->logname);
+                  break;
+                case SSH_AUTH_AGAIN:
+                  g_message ("%s: key auth failed: server asked for retry",
+                             data->logname);
+                  break;
+                default:
+                  msg = ssh_get_error (data->session);
+                  g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+                }
+            }
+        }
+
       ssh_key_free (pub_key);
-  ssh_string_free_char (identity);
+    }
+
+  ssh_string_free_char (libssh_identity);
   return rc;
 }
 
@@ -997,7 +1084,7 @@ do_key_auth (CockpitSshData *data)
 
   g_assert (data->initial_auth_data != NULL);
 
-  rc = do_key_identity_auth (data);
+  rc = do_auto_auth (data);
   if (rc != SSH_AUTH_SUCCESS)
     {
       const gchar *key_data;
@@ -1039,49 +1126,6 @@ do_key_auth (CockpitSshData *data)
     default:
       msg = ssh_get_error (data->session);
       g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-    }
-
-  return rc;
-}
-
-static int
-do_agent_auth (CockpitSshData *data)
-{
-  int rc;
-  const gchar *msg;
-
-  rc = do_key_identity_auth (data);
-
-  if (rc != SSH_AUTH_SUCCESS)
-    rc = ssh_userauth_agent (data->session, NULL);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: agent auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: agent auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: agent auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: agent auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      /*
-        HACK: https://red.libssh.org/issues/201
-        libssh returns error instead of denied
-        when agent has no keys. For now treat as
-        denied.
-       */
-      if (strstr (msg, "Access denied"))
-        rc = SSH_AUTH_DENIED;
-      else
-        g_message ("%s: couldn't agent authenticate: %s", data->logname, msg);
     }
 
   return rc;
@@ -1188,7 +1232,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
             }
           else
             {
-              auth_func = do_agent_auth;
+              auth_func = do_auto_auth;
               has_creds = TRUE;
             }
         }

@@ -29,8 +29,9 @@
 #include <string.h>
 #include <unistd.h>
 
-const char *cockpit_cgroup_memory_root = "/sys/fs/cgroup/memory";
-const char *cockpit_cgroup_cpuacct_root = "/sys/fs/cgroup/cpuacct";
+const char *cockpit_cgroupv1_memory_root = "/sys/fs/cgroup/memory";
+const char *cockpit_cgroupv1_cpuacct_root = "/sys/fs/cgroup/cpuacct";
+const char *cockpit_cgroupv2_root = "/sys/fs/cgroup";
 
 static const char *
 read_file (int dirfd,
@@ -93,10 +94,48 @@ read_int64 (int dirfd,
   return atoll(contents);
 }
 
+static gint64
+read_keyed_int64 (int dirfd,
+                  const char *cgroup,
+                  const char *fname,
+                  const char *key)
+{
+  char buf[256];
+  const char *contents = read_file (dirfd, buf, sizeof buf, cgroup, fname);
+  const char *match;
+  size_t key_len = strlen (key);
+  char *endptr = NULL;
+  gint64 result;
+
+  if (contents == NULL)
+      return -1;
+
+  /* search for a word match of key */
+  match = contents;
+  for (;;)
+    {
+      match = strstr (match, key);
+      if (match == NULL)
+        return -1;
+      /* either matches at start of string, or after a line break */
+      if (match == contents || match[-1] == '\n')
+        break;
+      match += key_len;
+    }
+
+  result = strtoll (match + key_len, &endptr, 10);
+  if (!endptr || (*endptr != '\0' && *endptr != '\n'))
+    {
+      g_warning ("cgroupfs file %s/%s value '%s' is an invalid number", cgroup, fname, contents);
+      return -1;
+    }
+  return result;
+}
+
 static void
-collect_memory (CockpitSamples *samples,
-                int dirfd,
-                const char *cgroup)
+collect_memory_v1 (CockpitSamples *samples,
+                   int dirfd,
+                   const char *cgroup)
 {
   gint64 val;
 
@@ -120,9 +159,9 @@ collect_memory (CockpitSamples *samples,
 }
 
 static void
-collect_cpu (CockpitSamples *samples,
-             int dirfd,
-             const char *cgroup)
+collect_cpu_v1 (CockpitSamples *samples,
+                int dirfd,
+                const char *cgroup)
 {
   gint64 val;
 
@@ -133,6 +172,48 @@ collect_cpu (CockpitSamples *samples,
   val = read_int64 (dirfd, cgroup, "cpu.shares");
   if (val > 0 && val < G_MAXINT64)
     cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, val);
+}
+
+static void
+collect_v2 (CockpitSamples *samples,
+            int dirfd,
+            const char *cgroup)
+{
+  gint64 val;
+
+  /* memory.current: single unsigned value in bytes */
+  val = read_int64 (dirfd, cgroup, "memory.current");
+  if (val >= 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.usage", cgroup, val);
+
+  /* memory.max: literally says "max" if there is no limit set, which ends up as "0" after integer conversion;
+   * only create samples for actually limited cgroups */
+  val = read_int64 (dirfd, cgroup, "memory.max");
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.limit", cgroup, val);
+
+  /* same as above for swap */
+  val = read_int64 (dirfd, cgroup, "memory.swap.current");
+  if (val >= 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.sw-usage", cgroup, val);
+
+  val = read_int64 (dirfd, cgroup, "memory.swap.max");
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.sw-limit", cgroup, val);
+
+  /* cpu.weight: only exists if cpu controller is enabled; integer in range [1, 10000] */
+  val = read_int64 (dirfd, cgroup, "cpu.weight");
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, val);
+
+  /* cpu.stat: keyed file:
+     usage_usec 50000
+     user_usec 40000
+     system_usec 10000
+     */
+  val = read_keyed_int64 (dirfd, cgroup, "cpu.stat", "usage_usec ");
+  if (val >= 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, val/1000);
 }
 
 static void
@@ -177,13 +258,31 @@ notice_cgroups_in_hierarchy (CockpitSamples *samples,
 void
 cockpit_cgroup_samples (CockpitSamples *samples)
 {
-  /* We are looking for files like
+  static int cgroup_ver = 0; /* 0: uninitialized */
 
-     /sys/fs/cgroup/memory/.../memory.usage_in_bytes
-     /sys/fs/cgroup/memory/.../memory.limit_in_bytes
-     /sys/fs/cgroup/cpuacct/.../cpuacct.usage
-  */
+  /* do we have cgroupv2? initialize this just once */
+  if (cgroup_ver == 0)
+    {
+      cgroup_ver = (access ("/sys/fs/cgroup/cgroup.controllers", F_OK) == 0) ? 2 : 1;
+      g_debug ("cgroup samples: detected cgroup version: %i", cgroup_ver);
+    }
 
-  notice_cgroups_in_hierarchy (samples, cockpit_cgroup_memory_root, collect_memory);
-  notice_cgroups_in_hierarchy (samples, cockpit_cgroup_cpuacct_root, collect_cpu);
+  if (cgroup_ver == 2)
+    {
+      /* For cgroupv2, the groups are directly in /sys/fs/cgroup/<name>/.../.
+         Inside, we are looking for files "memory.current" or "cpu.stat".
+      */
+      notice_cgroups_in_hierarchy (samples, cockpit_cgroupv2_root, collect_v2);
+    }
+  else
+    {
+      /* For cgroupv1, we are looking for files like
+
+         /sys/fs/cgroup/memory/.../memory.usage_in_bytes
+         /sys/fs/cgroup/memory/.../memory.limit_in_bytes
+         /sys/fs/cgroup/cpuacct/.../cpuacct.usage
+      */
+      notice_cgroups_in_hierarchy (samples, cockpit_cgroupv1_memory_root, collect_memory_v1);
+      notice_cgroups_in_hierarchy (samples, cockpit_cgroupv1_cpuacct_root, collect_cpu_v1);
+    }
 }

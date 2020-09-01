@@ -72,6 +72,7 @@ typedef struct {
   GHashTable *auth_results;
   gchar *user_known_hosts;
   gint outfd;
+  gchar *last_key;
 
   gchar *problem_error;
 } CockpitSshData;
@@ -896,96 +897,71 @@ do_password_auth (CockpitSshData *data)
   return rc;
 }
 
-/* We don't support unlocking identities within cockpit-ssh so fail here */
-static int
-prompt_for_identity_password (const char *prompt, char *buf, size_t len,
-                              int echo, int verify, void *userdata)
+static void
+key_interception_hack_log_function (ssh_session session, int priority, const char *message, void *userdata)
 {
-  CockpitSshData *data = (CockpitSshData *) userdata;
-  gchar *identity = NULL;
-  if (ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity) == SSH_OK)
+  CockpitSshData *data = userdata;
+
+  gchar *key = NULL;
+  if (sscanf (message, "ssh_userauth_publickey_auto: Trying to authenticate with %ms", &key) == 1)
     {
-      data->problem_error = g_strdup_printf ("locked identity: %s", identity);
+      g_free (data->last_key);
+      data->last_key = key;
     }
-  if (identity)
-    ssh_string_free_char (identity);
+}
+
+static int
+key_interception_hack_auth_function (const char *prompt, char *buf, size_t len, int echo, int verify, void *userdata)
+{
+  CockpitSshData *data = userdata;
+
+  if (data->last_key)
+    data->problem_error = g_strdup_printf ("locked identity: %s", data->last_key);
   return -1;
 }
 
 static int
-do_key_identity_auth (CockpitSshData *data)
+do_auto_auth (CockpitSshData *data)
 {
   int rc;
-  ssh_key priv_key = NULL;
-  ssh_key pub_key = NULL;
-  gchar *identity = NULL;
-  g_autofree gchar *pub_key_path = NULL;
-  const gchar *msg;
 
-  rc = ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity);
-  if (rc != SSH_OK)
-    {
-      g_debug ("Unable to get identity from config");
-      return rc;
-    }
+  /* HACK: When prompting for a key passphrase, libssh doesn't include
+     enough information in the callback to say which key it is for,
+     but we need that information since Cockpit will offer to load the
+     key into the agent in order to log in.
 
-  pub_key_path = g_strconcat (identity, ".pub", NULL);
-  rc = ssh_pki_import_pubkey_file (pub_key_path, &pub_key);
-  /* If the public key file exist and is readable, see if the identity is accepted by the server */
-  if (rc == SSH_OK)
-    {
-      rc = ssh_userauth_try_publickey (data->session, NULL, pub_key);
-      if (rc != SSH_AUTH_SUCCESS)
-        {
-          g_debug ("%s isn't accepted by the server", identity);
-          goto out;
-        }
-    }
-  else if (rc == SSH_EOF)
-    {
-      g_debug ("Public key file %s doesn't exist or isn't readable", pub_key_path);
-    }
-  else
-    {
-      msg = ssh_get_error (data->session);
-      g_warning ("Error importing public key %s: %s", pub_key_path, msg);
-    }
+     To get that information, we listen to the debug output of libssh
+     and remember which key it is working on right now.
 
-  rc = ssh_pki_import_privkey_file (identity, NULL, prompt_for_identity_password, data, &priv_key);
-  if (rc != SSH_OK)
-    {
-      g_debug ("Unable to import identity %s", identity);
-      goto out;
-    }
+     This hack can be removed once a variant of
+     ssh_userauth_publickey_auto becomes available that exposes the
+     current identity to the auth_function callback, such as the one
+     proposed here:
 
-  rc = ssh_userauth_publickey (data->session, NULL, priv_key);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: key auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: key auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: key auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: key auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-    }
+        <link to awesome libssh patch>
 
-out:
-  if (priv_key)
-      ssh_key_free (priv_key);
-  if (pub_key)
-      ssh_key_free (pub_key);
-  ssh_string_free_char (identity);
+     XXX - this hack currently destroys all regular debug output,
+     sorry.
+  */
+
+  struct ssh_callbacks_struct cb = {
+    .userdata = data,
+    .log_function = key_interception_hack_log_function,
+    .auth_function = key_interception_hack_auth_function
+  };
+
+  ssh_callbacks_init (&cb);
+  ssh_set_callbacks (data->session, &cb);
+  int old_level = ssh_get_log_level ();
+  ssh_set_log_level (SSH_LOG_DEBUG);
+
+  rc = ssh_userauth_publickey_auto (data->session, NULL, NULL);
+
+  g_free (data->last_key);
+  data->last_key = NULL;
+
+  ssh_set_callbacks (data->session, NULL);
+  ssh_set_log_level (old_level);
   return rc;
 }
 
@@ -997,7 +973,7 @@ do_key_auth (CockpitSshData *data)
 
   g_assert (data->initial_auth_data != NULL);
 
-  rc = do_key_identity_auth (data);
+  rc = do_auto_auth (data);
   if (rc != SSH_AUTH_SUCCESS)
     {
       const gchar *key_data;
@@ -1039,49 +1015,6 @@ do_key_auth (CockpitSshData *data)
     default:
       msg = ssh_get_error (data->session);
       g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-    }
-
-  return rc;
-}
-
-static int
-do_agent_auth (CockpitSshData *data)
-{
-  int rc;
-  const gchar *msg;
-
-  rc = do_key_identity_auth (data);
-
-  if (rc != SSH_AUTH_SUCCESS)
-    rc = ssh_userauth_agent (data->session, NULL);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: agent auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: agent auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: agent auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: agent auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      /*
-        HACK: https://red.libssh.org/issues/201
-        libssh returns error instead of denied
-        when agent has no keys. For now treat as
-        denied.
-       */
-      if (strstr (msg, "Access denied"))
-        rc = SSH_AUTH_DENIED;
-      else
-        g_message ("%s: couldn't agent authenticate: %s", data->logname, msg);
     }
 
   return rc;
@@ -1188,7 +1121,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
             }
           else
             {
-              auth_func = do_agent_auth;
+              auth_func = do_auto_auth;
               has_creds = TRUE;
             }
         }

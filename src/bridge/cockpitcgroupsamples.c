@@ -29,14 +29,14 @@
 const gchar *cockpit_cgroup_memory_root = "/sys/fs/cgroup/memory";
 const gchar *cockpit_cgroup_cpuacct_root = "/sys/fs/cgroup/cpuacct";
 
-static double
-read_double (const gchar *prefix,
-             const gchar *suffix)
+static gint64
+read_int64 (const gchar *prefix,
+            const gchar *suffix)
 {
-  gchar *path = NULL;
-  gchar *file_contents = NULL;
-  GError *error = NULL;
-  double ret;
+  g_autofree gchar *path = NULL;
+  g_autofree gchar *file_contents = NULL;
+  g_autoptr(GError) error = NULL;
+  gint64 ret;
   gsize len;
 
   path = g_build_filename (prefix, suffix, NULL);
@@ -47,16 +47,12 @@ read_double (const gchar *prefix,
         g_debug ("samples file not found: %s", path);
       else
         g_message ("error loading file: %s: %s", path, error->message);
-      g_error_free (error);
       ret = -1;
     }
   else
     {
-      ret = g_ascii_strtod (file_contents, NULL);
+      ret = g_ascii_strtoll (file_contents, NULL, 10);
     }
-
-  g_free (file_contents);
-  g_free (path);
 
   return ret;
 }
@@ -66,24 +62,22 @@ collect_memory (CockpitSamples *samples,
                 const gchar *path,
                 const gchar *cgroup)
 {
-  double mem_usage_in_bytes;
-  double mem_limit_in_bytes;
-  double memsw_usage_in_bytes;
-  double memsw_limit_in_bytes;
+  gint64 mem_usage_in_bytes;
+  gint64 mem_limit_in_bytes;
+  gint64 memsw_usage_in_bytes;
+  gint64 memsw_limit_in_bytes;
 
   if (access (path, F_OK) == 0)
     {
-      mem_usage_in_bytes = read_double (path, "memory.usage_in_bytes");
-      mem_limit_in_bytes = read_double (path, "memory.limit_in_bytes");
-      memsw_usage_in_bytes = read_double (path, "memory.memsw.usage_in_bytes");
-      memsw_limit_in_bytes = read_double (path, "memory.memsw.limit_in_bytes");
+      mem_usage_in_bytes = read_int64 (path, "memory.usage_in_bytes");
+      mem_limit_in_bytes = read_int64 (path, "memory.limit_in_bytes");
+      memsw_usage_in_bytes = read_int64 (path, "memory.memsw.usage_in_bytes");
+      memsw_limit_in_bytes = read_int64 (path, "memory.memsw.limit_in_bytes");
 
       /* If at max for arch, then unlimited => zero */
-      if (mem_limit_in_bytes >= (double)G_MAXSIZE ||
-          mem_limit_in_bytes >= (double)G_MAXSSIZE)
+      if (mem_limit_in_bytes == G_MAXINT64)
         mem_limit_in_bytes = 0;
-      if (memsw_limit_in_bytes >= (double)G_MAXSIZE ||
-          memsw_limit_in_bytes >= (double)G_MAXSSIZE)
+      if (memsw_limit_in_bytes == G_MAXINT64)
         memsw_limit_in_bytes = 0;
 
       cockpit_samples_sample (samples, "cgroup.memory.usage", cgroup, mem_usage_in_bytes);
@@ -98,13 +92,13 @@ collect_cpu (CockpitSamples *samples,
              const gchar *path,
              const gchar *cgroup)
 {
-  double cpuacct_usage;
-  double cpu_shares;
+  gint64 cpuacct_usage;
+  gint64 cpu_shares;
 
   if (access (path, F_OK) == 0)
     {
-      cpuacct_usage = read_double (path, "cpuacct.usage");
-      cpu_shares = read_double (path, "cpu.shares");
+      cpuacct_usage = read_int64 (path, "cpuacct.usage");
+      cpu_shares = read_int64 (path, "cpu.shares");
 
       cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, cpuacct_usage/1000000);
       cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, cpu_shares);

@@ -3467,6 +3467,42 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         self.waitNetworkRow("test_network4", connectionName, False) # Check it's not present after deactivation
 
+    def testSnapshotRevert(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        # Check snapshot for running VM
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot1 --description 'Description of snapshot1'")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot2 --description 'Description of snapshot2'")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        self.waitVmRow("subVmTest1")
+        self.toggleVmRow("subVmTest1")
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
+        b.click("#vm-subVmTest1-snapshots")
+
+        b.wait_present("#vm-subVmTest1-snapshot-0-current")
+        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot2 | grep 'Current:' | awk '{print $2}'").strip())
+
+        b.click("#vm-subVmTest1-snapshot-1-revert")
+        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Revert to Snapshot snapshot1")
+        b.click('div.modal-footer button:contains("Revert")')
+
+        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
+        b.wait_present("#vm-subVmTest1-snapshot-1-current")
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot2 | grep 'Current:' | awk '{print $2}'").strip())
+
     def testSnapshots(self):
         # Checks if difference of @time1 and @time2 is not greater than @difference (in seconds)
         def checkTimeDiff(time1, time2, difference):
@@ -4749,14 +4785,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.startVm("subVmTest1")
 
-        snapshots_present = m.execute("gdbus introspect --xml --system --dest org.libvirt --object-path /org/libvirt/QEMU | grep snapshot || true")
-        if not snapshots_present.strip(): # libvirt-dbus doesn't have snapshot APIs
-            return
-
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
 
         self.toggleVmRow("subVmTest1")
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
         b.click("#vm-subVmTest1-snapshots") # open the Network Interfaces subtab
 
         # Shut off domain
@@ -4785,7 +4820,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     self.cleanup()
 
             def open(self):
-                b.click("#vm-subVmTest1-add-snapshot-button") # open the Network Interfaces subtab
+                b.click("#vm-subVmTest1-add-snapshot-button")
                 b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Snapshot")
 
             def fill(self):
@@ -4832,12 +4867,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     self.test_obj.assertEqual(self.state, m.execute(xmllint_element.format(prop='state')).strip())
 
             def cleanup(self):
-                m.execute("virsh -c qemu:///system snapshot-delete --domain {0} --snapshotname {1}".format("subVmTest1", self.name))
-                b.reload()
-                b.enter_page('/machines')
-                b.wait_in_text("body", "Virtual Machines")
-                self.test_obj.toggleVmRow("subVmTest1")
-                b.click("#vm-subVmTest1-snapshots")
+                b.click("#delete-vm-subVmTest1-snapshot-{0}".format(self.snap_num))
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Snapshot {0}".format(self.name))
+                b.click('div.modal-footer button:contains("Delete")')
+                b.wait_not_present("#vm-subVmTest1-snapshot-{0}-name:contains({1})".format(self.snap_num, self.name))
 
         # No Snapshots present
         b.wait_present("#vm-subVmTest1-add-snapshot-button")

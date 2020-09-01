@@ -20,7 +20,8 @@
 import React from "react";
 import {
     Breadcrumb, BreadcrumbItem,
-    Page, PageSection, PageSectionVariants,
+    Page, PageSection,
+    Gallery, GalleryItem,
 } from '@patternfly/react-core';
 
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
@@ -96,22 +97,22 @@ export class Service extends React.Component {
         const url = "/system/logs/#/?prio=debug&service=" + cur_unit_id;
 
         return (
-            <Page id="service-details">
-                <PageSection variant={PageSectionVariants.light}>
-                    <Breadcrumb>
-                        <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
-                        <BreadcrumbItem isActive>
-                            {this.props.unit.Id}
-                        </BreadcrumbItem>
-                    </Breadcrumb>
+            <Page id="service-details" breadcrumb={
+                <Breadcrumb>
+                    <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
+                    <BreadcrumbItem isActive>
+                        {this.props.unit.Id}
+                    </BreadcrumbItem>
+                </Breadcrumb>}>
+                <PageSection>
+                    <Gallery hasGutter>
+                        <GalleryItem>{serviceDetails}</GalleryItem>
+                        {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
+                        <GalleryItem>
+                            <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
+                        </GalleryItem>}
+                    </Gallery>
                 </PageSection>
-                <PageSection variant={PageSectionVariants.light}>
-                    {serviceDetails}
-                </PageSection>
-                {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
-                <PageSection variant={PageSectionVariants.light}>
-                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
-                </PageSection>}
             </Page>
         );
     }

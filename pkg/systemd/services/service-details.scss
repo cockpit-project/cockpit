@@ -1,5 +1,19 @@
 @import '../../lib/journal.css';
 
+#service-details .pf-l-gallery {
+    --pf-l-gallery--GridTemplateColumns: 1fr;
+}
+
+#service-details .pf-c-page__main-breadcrumb {
+    padding: var(--pf-global--gutter);
+}
+
+#service-details .pf-c-card__body.contains-list {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: var(--pf-global--spacer--xs);
+}
+
 .comma-list {
   display: inline;
   list-style: none;

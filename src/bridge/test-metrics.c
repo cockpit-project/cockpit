@@ -719,6 +719,69 @@ test_deprecated_net_all (void)
   g_object_unref (transport);
 }
 
+static void
+test_cgroup (void)
+{
+  MockTransport *transport = mock_transport_new ();
+  CockpitChannel *channel;
+  JsonObject *options = json_obj ("{ 'metrics': [ { 'name': 'cgroup.memory.usage' }, "
+                                  "               { 'name': 'cgroup.memory.limit' }, "
+                                  "               { 'name': 'cgroup.memory.sw-usage' }, "
+                                  "               { 'name': 'cgroup.memory.sw-limit' }, "
+                                  "               { 'name': 'cgroup.cpu.usage' }, "
+                                  "               { 'name': 'cgroup.cpu.shares' } ], "
+                                  "  'interval': 1000"
+                                  "}");
+  GBytes *msg;
+  JsonObject *res, *description;
+  JsonArray *metrics, *instances;
+  JsonArray *samples;
+  GError *error = NULL;
+
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+  channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+
+  cockpit_channel_prepare (channel);
+
+  /* receive meta information */
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  res = cockpit_json_parse_bytes (msg, &error);
+  g_assert_no_error (error);
+  g_assert (res != NULL);
+  g_assert (json_object_has_member (res, "metrics"));
+
+  /* metrics should have the form [{"name":"...","instances":["name1", ...]}] */
+  metrics = json_object_get_array_member (res, "metrics");
+  g_assert_cmpint (json_array_get_length (metrics), ==, 6);
+  description = json_array_get_object_element (metrics, 0);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "cgroup.memory.usage");
+  g_assert_cmpstr (json_object_get_string_member (description, "units"), ==, "bytes");
+
+  /* we can't assert any contents about instances and samples, as build environments may not even have
+   * any cgroup controller; just make sure that the data structure is as expected */
+  instances = json_object_get_array_member (description, "instances");
+  g_assert_cmpint (json_array_get_length (instances), >=, 0);
+
+  /* next message should have some actual values; looks like [[...],[...],...]]] */
+  samples = recv_array (transport);
+  g_assert_cmpint (json_array_get_length (samples), ==, 1);
+  g_assert_cmpint (json_array_get_length (json_array_get_array_element (samples, 0)), ==, 6);
+
+  json_array_unref (samples);
+
+  json_object_unref (res);
+  g_object_unref (channel);
+  json_object_unref (options);
+  g_object_unref (transport);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -745,6 +808,7 @@ main (int argc,
   g_test_add_func ("/metrics/not-supported", test_not_supported);
 
   g_test_add_func ("/metrics/deprecated-net-all", test_deprecated_net_all);
+  g_test_add_func ("/metrics/cgroup-memory", test_cgroup);
 
   return g_test_run ();
 }

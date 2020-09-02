@@ -535,6 +535,14 @@ class Browser:
         """Fills in the login dialog and clicks the button.
 
         This differs from login_and_go() by not expecting any particular result.
+
+        The "superuser" parameter determines wether the new session
+        will try to get Administrative Access.
+
+        The "legacy_authorized" parameter is or old versions of the
+        login dialog that still have the "[ ] Reuse my password for
+        magic things" checkbox.  Such a dialog is encountered when
+        testing against old bastion hosts, for example.
         """
         if user is None:
             user = self.default_user

@@ -175,9 +175,13 @@ function Keys() {
             key.name = parts[2];
     }
 
-    self.change = function change(name, old_pass, new_pass, two_pass) {
+    function ensure_ssh_directory(file) {
+        return cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [file]);
+    }
+
+    function run_keygen(file, new_type, old_pass, new_pass, two_pass) {
         var old_exps = [/.*Enter old passphrase: $/];
-        var new_exps = [/.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
+        var new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
         var bad_exps = [/.*failed: passphrase is too short.*/];
 
         var dfd = $.Deferred();
@@ -197,8 +201,16 @@ function Keys() {
             proc.close("terminated");
         }, 10 * 1000);
 
-        proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
-                             { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
+        // Exactly one of new_type or old_pass must be given
+        console.assert((new_type == null) != (old_pass == null));
+
+        var cmd = ["ssh-keygen", "-f", file];
+        if (new_type)
+            cmd.push("-t", new_type);
+        else
+            cmd.push("-p");
+
+        proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -212,12 +224,14 @@ function Keys() {
                 })
                 .stream(function(data) {
                     buffer += data;
-                    for (i = 0; i < old_exps.length; i++) {
-                        if (old_exps[i].test(buffer)) {
-                            buffer = "";
-                            failure = _("Old password not accepted");
-                            this.input(old_pass + "\n", true);
-                            return;
+                    if (old_pass) {
+                        for (i = 0; i < old_exps.length; i++) {
+                            if (old_exps[i].test(buffer)) {
+                                buffer = "";
+                                failure = _("Old password not accepted");
+                                this.input(old_pass + "\n", true);
+                                return;
+                            }
                         }
                     }
 
@@ -242,6 +256,19 @@ function Keys() {
                 });
 
         return dfd.promise();
+    }
+
+    self.change = function change(name, old_pass, new_pass, two_pass) {
+        return run_keygen(name, null, old_pass, new_pass, two_pass);
+    };
+
+    self.create = function create(name, type, new_pass, two_pass) {
+        return ensure_ssh_directory(name)
+                .then(() => run_keygen(name, type, null, new_pass, two_pass));
+    };
+
+    self.get_pubkey = function get_pubkey(name) {
+        return cockpit.file(name + ".pub").read();
     };
 
     self.load = function(name, password) {

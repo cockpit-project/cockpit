@@ -845,25 +845,13 @@ ExecStart=/bin/true
         b.go("/@x0.cockpit.lan/system/terminal")
         b.click("#machine-troubleshoot")
         b.wait_popup('troubleshoot-dialog')
-
-        b.set_val("#add-machine-address", "bad-user@x0.cockpit.lan")
         b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
         # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
             b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
-        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.click("#login-type button")
-        b.click("#login-type li[value=stored] a")
-        b.wait_in_text("#login-type button span", "Using available credentials")
-        b.wait_not_visible("#login-diff-password")
-        b.wait_not_in_text("#login-available", "Login Password")
-        b.wait_in_text("#login-available", "Kerberos Ticket")
-        b.wait_not_present("#login-available .empty")
-        b.set_val("#login-custom-user", "")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log In)')
-
         b.wait_popdown('troubleshoot-dialog')
+
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_visible(".terminal")
 

@@ -1,93 +1,77 @@
 <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal"
+    <button type="button" class="close"
         aria-hidden="true">&times;</button>
     <h4 class="modal-title" translate="yes">Log in to {{host}}</h4>
 </div>
 
 <div id="machine-change-auth" class="modal-body">
+    {{^loading}}
     {{^available}}
-    <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}.</p>
+    <p translate="yes">Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does not accept password login or any of your SSH keys.</p>
     {{/available}}
 
     {{#available}}
-    <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can change your authentication credentials below. {{#can_sync}}You may prefer to {{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}</p>
 
-    <div>
-        <table class="form-table-ct">
-            <tr>
-                <td translate="yes" class="top">User name</td>
-                <td>
-                    <input class="form-control" id="login-custom-user" type="text" value="{{machine_user}}" placeholder="{{ default_user }}"/>
-                </td>
-                <td>
-                    <a tabindex="0" role="button" data-toggle="popover"
-                        data-trigger="focus" data-placement="bottom" translate="data-content"
-                        data-content="Leave blank to connect to this machine as the currently logged in user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a different username, that user will always be used connecting to this machine.">
-                        <span class="fa fa-lg fa-info-circle"></span>
-                    </a>
-                </td>
-            </tr>
+    {{#only_password}}
+    <p translate="yes">Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key authentication. Please provide the password. You may want to set up your SSH keys for automatic login.</p>
+    {{/only_password}}
 
-            <tr>
-                <td translate="yes">Authentication</td>
-                <td>
-                    <div class="btn-group bootstrap-select dropdown form-control" id="login-type">
-                        <button class="btn btn-default dropdown-toggle" type="button"
-                            data-toggle="dropdown">
-                            <span class="pull-left" translate="yes"></span>
-                            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            {{#password}}
-                            <li value="password"><a role="link" tabindex="0" translate>Type a password</a></li>
-                            {{/password}}
-                            <li value="stored"><a role="link" tabindex="0" translate>Using available credentials</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
+    {{#only_key}}
+    <p>
+        <span>The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is protected by a password, and the host does not allow logging in with a password. Please provide the password of the key at {{#strong}}{{key}}{{/strong}}.</span>
+        <span translate="yes" class="password-change-advice">You may want to change the password of the key for automatic login.</span>
+    </p>
+    {{/only_key}}
 
-            {{#password}}
-            <tr id="login-diff-password">
-                <td translate="yes" class="top">Password</td>
-                <td>
-                    <input class="form-control" id="login-custom-password" type="password" />
-                </td>
-                <td>
-                    <a tabindex="0" role="button" data-toggle="popover"
-                        data-trigger="focus" data-placement="bottom" translate="data-content"
-                        data-content="Entering a different password here means you will need to retype it every time you reconnect to this machine">
-                        <span class="fa fa-lg fa-info-circle"></span>
-                    </a>
-                </td>
-            </tr>
-            {{/password}}
-            <tr id="login-available">
-                <td translate="yes" class="top">Available</td>
-                <td class="top">
-                        {{#show_password}}<div translate>Login Password</div>{{/show_password}}
-                        {{#show_ticket}}<div translate>Kerberos Ticket</div>{{/show_ticket}}
-                        {{^show_password}}{{^show_ticket}}<div class="empty hidden">No available credentials</div>{{/show_ticket}}{{/show_password}}
-                        {{#public-key}}<div class="keys"><div class='dialog-wait-ct pull-left'><div class='spinner spinner-sm'></div><span translate="yes">Checking for public keys</span></div></div>{{/public-key}}
-                </td>
-            </tr>
-            {{#show_locked_identity}}
-            <tr class="login-locked">
-                <td translate="yes" class="top">Locked</td>
-                <td class="top key-locked form-group">
-                    <div class="locked-identity"></div>
-                    <div translate="yes">Enter passphrase to add identity to ssh-agent</div>
-                    <input class="locked-identity-password" type="password" autocomplete="new-password"></input>
-                    <button class="pf-c-button pf-m-primary" translate="yes">Unlock</button>
-                </td>
-            </tr>
-            {{/show_locked_identity}}
-        </table>
-    </div>
+    {{#password_and_key}}
+    <p>
+        <span translate="yes">The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is protected. You can log in with either your login password or by providing the password of the key at {{#strong}}{{key}}{{/strong}}.</span>
+        <span translate="yes" class="password-change-advice">You may want to change the password of the key for automatic login.</span>
+    </p>
+    {{/password_and_key}}
+
+    <br/>
+
+    <form class="ct-form">
+        <label class="control-label" id="login-authentication">
+            <div translate="yes">Authentication</div>
+            <div translate="yes" class="widest-title">Key password</div>
+            <div translate="yes" class="widest-title">Automatic login</div>
+        </label>
+        <div class="radio radio-horizontal">
+            <label>
+                <input type="radio" name="auth" value="pass" checked/><span translate="yes">Password</span>
+            </label>
+            <label>
+                <input type="radio" name="auth" value="key"/><span id="login-authentication-key-label" translate="yes">SSH key</span>
+            </label>
+        </div>
+
+        <label translate="yes" class="control-label" id="login-diff-password">Password</label>
+        <input class="form-control" id="login-custom-password" type="password" />
+
+        <label translate="yes" class="control-label login-locked">Key password</label>
+        <input class="form-control locked-identity-password" type="password" autocomplete="new-password"></input>
+        <span class="help-block" translate="yes">The SSH key {{#strong}}{{key}}{{/strong}} will be made available for the remainder of the session and will be available for login to other hosts as well.</span>
+
+        <label translate="yes" class="control-label login-setup-auto">Automatic login</label>
+        <div class="login-setup-checkbox-wrapper">
+            <label class="checkbox-inline">
+                <input type="checkbox" id="login-setup-keys"/>
+                <p id="login-setup-text"/>
+            </label>
+        </div>
+
+        <div class="ct-form ct-form-box" id="login-setup-extra">
+        </div>
+    </form>
     {{/available}}
+    {{/loading}}
 </div>
 
 <div class="modal-footer">
-    <button class="pf-c-button pf-m-primary" translate="yes">Log In</button>
-    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
+    {{^loading}}
+    {{#available}}<button class="pf-c-button pf-m-primary" translate="yes">Log In</button>{{/available}}
+    <button class="pf-c-button pf-m-link" translate="yes">Cancel</button>
+    {{/loading}}
 </div>

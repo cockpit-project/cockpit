@@ -5,40 +5,36 @@
 </div>
 
 <div class="modal-body">
-    <div>
-        <table class="form-table-ct">
-            <tr>
-                <td class="top" translate="yes">Address</td>
-                <td>
-                <div class="dialog-wrapper error-keep">
-                    <input class="form-control" id="add-machine-address"
-                       type="text" value="{{ full_address }}"
-                       list="options"
-                       placeholder="{{ placeholder }}"/>
-                    <datalist id="options">
-                        {{#options}}
-                        <option value="{{.}}">
-                        {{/options}}
-                    </datalist>
-                </div>
-                </td>
-            </tr>
-            <tr>
-                <td translate="yes">Color</td>
-                <td id="add-machine-color-picker">
-                </td>
-            </tr>
-        </table>
-    </div>
+    <form class="ct-form">
+      <label translate="yes" class="control-label">Address</label>
+      <div class="dialog-wrapper error-keep">
+        <input class="form-control" id="add-machine-address"
+               type="text" value="{{ full_address }}"
+               list="options"
+               placeholder="{{ placeholder }}"/>
+        <datalist id="options">
+          {{#options}}
+          <option value="{{.}}">
+            {{/options}}
+        </datalist>
+      </div>
+
+      <label translate="yes" class="control-label">User name</label>
+      <input class="form-control" id="add-machine-user"
+             type="text""/>
+
+      <label translate="yes" class="control-label">Color</label>
+      <div id="add-machine-color-picker"/>
+    </form>
 </div>
 
 <div class="modal-footer">
-    <button class="pf-c-button pf-m-primary" translate="yes">Add</button>
-    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
     {{#nearlimit}}
-    <div class="alert alert-warning dialog-error dashboard-machine-warning">
-        <span class="pficon pficon-warning-triangle-o"></span>
-        <span translate="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
+    <div class="alert alert-warning dashboard-machine-warning">
+      <span class="pficon pficon-warning-triangle-o"></span>
+      <span translate="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
     </div>
     {{/nearlimit}}
+    <button class="pf-c-button pf-m-primary" translate="yes">Add</button>
+    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
 </div>

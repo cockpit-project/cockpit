@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
     {{#supported}}
-    <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. To use this machine with cockpit you will need to enable one of the following authentication methods in the sshd config on {{#strong}}{{host}}{{/strong}}:</p>
+    <p translate="yes">Unable to log in to {{#strong}}{{host}}{{/strong}}. To connect to this host you will need to enable one of the following authentication methods in the sshd config on {{#strong}}{{host}}{{/strong}}:</p>
     <ul>
         {{#password}}<li translate="yes">Password</li>{{/password}}
         {{#public-key}}<li translate="yes">Public Key</li>{{/public-key}}
@@ -12,7 +12,7 @@
     {{/supported}}
 
     {{^supported}}
-    <p translate="yes">Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/can_sync}} For more authentication options and troubleshooting support please upgrade cockpit-ws to a newer version.</p>
+    <p translate="yes">Unable to log in to {{#strong}}{{host}}{{/strong}}. For more authentication options and troubleshooting support please upgrade cockpit-ws to a newer version.</p>
     {{/supported}}
 
 </div>

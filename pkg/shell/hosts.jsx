@@ -131,13 +131,6 @@ export class CockpitHosts extends React.Component {
 
         this.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
 
-        document.getElementById("edit-host-sync-users").addEventListener("click", e => {
-            dlg.modal('hide');
-            this.mdialogs.render_dialog("sync-users",
-                                        "hosts_setup_server_dialog",
-                                        machine.address);
-        });
-
         // Remove all existing listeners so we don't change it multiple times
         const orig = document.getElementById("edit-host-apply");
         var copy = orig.cloneNode(true);

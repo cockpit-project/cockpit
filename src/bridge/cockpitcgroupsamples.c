@@ -21,113 +21,152 @@
 
 #include "cockpitcgroupsamples.h"
 
+#include <errno.h>
+#include <fcntl.h>
 #include <fts.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-const gchar *cockpit_cgroup_memory_root = "/sys/fs/cgroup/memory";
-const gchar *cockpit_cgroup_cpuacct_root = "/sys/fs/cgroup/cpuacct";
+const char *cockpit_cgroup_memory_root = "/sys/fs/cgroup/memory";
+const char *cockpit_cgroup_cpuacct_root = "/sys/fs/cgroup/cpuacct";
+
+static const char *
+read_file (int dirfd,
+           char *buf,
+           size_t bufsize,
+           const char *cgroup,
+           const char *fname)
+{
+  int fd = -1;
+  ssize_t len;
+  const char *ret = NULL;
+
+  fd = openat (dirfd, fname, O_RDONLY);
+  if (fd < 0)
+    {
+      if (errno == ENOENT || errno == ENODEV)
+        g_debug ("samples file not found: %s/%s", cgroup, fname);
+      else
+        g_message ("error opening file: %s/%s: %m", cgroup, fname);
+      return NULL;
+    }
+
+  /* don't do fancy retry/error handling here -- we know what cgroupfs attributes look like,
+   * it's a virtual file system (does not block/no multiple reads), and it's ok to miss
+   * one sample due to EINTR or some race condition */
+  len = read (fd, buf, bufsize);
+  if (len < 0)
+    {
+      g_message ("error loading file: %s/%s: %m", cgroup, fname);
+      goto out;
+    }
+  /* we really expect a much smaller read; if we get a full buffer, there's likely
+   * more data, and we are misinterpreting stuff */
+  if (len >= bufsize)
+    {
+      g_warning ("cgroupfs value %s/%s is too large", cgroup, fname);
+      goto out;
+    }
+  buf[len] = '\0';
+  ret = buf;
+
+out:
+  if (fd >= 0)
+    close (fd);
+  return ret;
+}
+
 
 static gint64
-read_int64 (const gchar *prefix,
-            const gchar *suffix)
+read_int64 (int dirfd,
+            const char *cgroup,
+            const char *fname)
 {
-  g_autofree gchar *path = NULL;
-  g_autofree gchar *file_contents = NULL;
-  g_autoptr(GError) error = NULL;
-  gint64 ret;
-  gsize len;
+  char buf[30];
+  const char *contents = read_file (dirfd, buf, sizeof buf, cgroup, fname);
 
-  path = g_build_filename (prefix, suffix, NULL);
-  if (!g_file_get_contents (path, &file_contents, &len, &error))
-    {
-      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
-          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NODEV))
-        g_debug ("samples file not found: %s", path);
-      else
-        g_message ("error loading file: %s: %s", path, error->message);
-      ret = -1;
-    }
-  else
-    {
-      ret = g_ascii_strtoll (file_contents, NULL, 10);
-    }
-
-  return ret;
+  if (contents == NULL)
+      return -1;
+  /* no error checking; these often have values like "max" which we want to treat as "invalid/absent" */
+  return atoll(contents);
 }
 
 static void
 collect_memory (CockpitSamples *samples,
-                const gchar *path,
-                const gchar *cgroup)
+                int dirfd,
+                const char *cgroup)
 {
-  gint64 mem_usage_in_bytes;
-  gint64 mem_limit_in_bytes;
-  gint64 memsw_usage_in_bytes;
-  gint64 memsw_limit_in_bytes;
+  gint64 val;
 
-  if (access (path, F_OK) == 0)
-    {
-      mem_usage_in_bytes = read_int64 (path, "memory.usage_in_bytes");
-      mem_limit_in_bytes = read_int64 (path, "memory.limit_in_bytes");
-      memsw_usage_in_bytes = read_int64 (path, "memory.memsw.usage_in_bytes");
-      memsw_limit_in_bytes = read_int64 (path, "memory.memsw.limit_in_bytes");
+  val = read_int64 (dirfd, cgroup, "memory.usage_in_bytes");
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.usage", cgroup, val);
 
-      /* If at max for arch, then unlimited => zero */
-      if (mem_limit_in_bytes == G_MAXINT64)
-        mem_limit_in_bytes = 0;
-      if (memsw_limit_in_bytes == G_MAXINT64)
-        memsw_limit_in_bytes = 0;
+  val = read_int64 (dirfd, cgroup, "memory.limit_in_bytes");
+  /* If at max for arch, then unlimited => zero */
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.memory.limit", cgroup, val);
 
-      cockpit_samples_sample (samples, "cgroup.memory.usage", cgroup, mem_usage_in_bytes);
-      cockpit_samples_sample (samples, "cgroup.memory.limit", cgroup, mem_limit_in_bytes);
-      cockpit_samples_sample (samples, "cgroup.memory.sw-usage", cgroup, memsw_usage_in_bytes);
-      cockpit_samples_sample (samples, "cgroup.memory.sw-limit", cgroup, memsw_limit_in_bytes);
-    }
+  val = read_int64 (dirfd, cgroup, "memory.memsw.usage_in_bytes");
+  if (val >= 0 && val < G_MAXINT64)
+      cockpit_samples_sample (samples, "cgroup.memory.sw-usage", cgroup, val);
+
+  val = read_int64 (dirfd, cgroup, "memory.memsw.limit_in_bytes");
+  /* If at max for arch, then unlimited => zero */
+  if (val > 0 && val < G_MAXINT64)
+      cockpit_samples_sample (samples, "cgroup.memory.sw-limit", cgroup, val);
 }
 
 static void
 collect_cpu (CockpitSamples *samples,
-             const gchar *path,
-             const gchar *cgroup)
+             int dirfd,
+             const char *cgroup)
 {
-  gint64 cpuacct_usage;
-  gint64 cpu_shares;
+  gint64 val;
 
-  if (access (path, F_OK) == 0)
-    {
-      cpuacct_usage = read_int64 (path, "cpuacct.usage");
-      cpu_shares = read_int64 (path, "cpu.shares");
+  val = read_int64 (dirfd, cgroup, "cpuacct.usage");
+  if (val >= 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, val/1000000);
 
-      cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, cpuacct_usage/1000000);
-      cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, cpu_shares);
-    }
+  val = read_int64 (dirfd, cgroup, "cpu.shares");
+  if (val > 0 && val < G_MAXINT64)
+    cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, val);
 }
 
 static void
 notice_cgroups_in_hierarchy (CockpitSamples *samples,
-                             const gchar *prefix,
-                             void (* collect) (CockpitSamples *, const gchar *, const gchar *))
+                             const char *root_dir,
+                             void (* collect) (CockpitSamples *, int, const char *))
 {
-  const gchar *paths[] = { prefix, NULL };
-  gsize prefix_len;
+  const char *paths[] = { root_dir, NULL };
+  gsize root_dir_len = strlen (root_dir);
   FTSENT *ent;
   FTS *fs;
 
-  prefix_len = strlen (prefix);
-
-  fs = fts_open ((gchar **)paths, FTS_NOCHDIR | FTS_COMFOLLOW, NULL);
+  fs = fts_open ((char **)paths, FTS_NOCHDIR | FTS_COMFOLLOW, NULL);
   if (fs)
     {
       while((ent = fts_read (fs)) != NULL)
         {
           if (ent->fts_info == FTS_D)
             {
-              const char *f = ent->fts_path + prefix_len;
+              const char *f = ent->fts_path + root_dir_len;
+              int dfd;
+
               if (*f == '/')
                 f++;
-              collect (samples, ent->fts_path, f);
+              dfd = open (ent->fts_path, O_PATH | O_DIRECTORY);
+              if (dfd >= 0)
+                {
+                  collect (samples, dfd, f);
+                  close (dfd);
+                }
+              else
+                {
+                  g_message ("error opening cgroup directory: %s: %m", ent->fts_path);
+                }
             }
         }
       fts_close (fs);

@@ -20,6 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
+import { Flex, FlexItem } from '@patternfly/react-core';
+
 import {
     logDebug,
     convertToUnit,
@@ -85,24 +87,20 @@ class VmUsageTab extends React.Component {
         };
 
         return (
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            <DonutChart data={memChartData} size={chartSize} width='8' tooltipText=' '
-                                    primaryTitle={toReadableNumber(convertToUnit(rssMem, units.KiB, units.GiB))}
-                                    secondaryTitle='GiB'
-                                    caption={`used from ${cockpit.format_bytes(memTotal * 1024)} memory`} />
-                        </td>
-
-                        <td>
-                            <DonutChart data={cpuChartData} size={chartSize} width='8' tooltipText=' '
-                                    primaryTitle={cpuUsage} secondaryTitle='%'
-                                    caption={`used from ${totalCpus} vCPUs`} />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>);
+            <Flex>
+                <FlexItem className="memory-usage-chart">
+                    <DonutChart data={memChartData} size={chartSize} width='8' tooltipText=' '
+                                primaryTitle={toReadableNumber(convertToUnit(rssMem, units.KiB, units.GiB))}
+                                secondaryTitle='GiB'
+                                caption={`used from ${cockpit.format_bytes(memTotal * 1024)} memory`} />
+                </FlexItem>
+                <FlexItem className="vcpu-usage-chart">
+                    <DonutChart data={cpuChartData} size={chartSize} width='8' tooltipText=' '
+                                primaryTitle={cpuUsage} secondaryTitle='%'
+                                caption={`used from ${totalCpus} vCPUs`} />
+                </FlexItem>
+            </Flex>
+        );
     }
 }
 

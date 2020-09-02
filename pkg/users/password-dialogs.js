@@ -129,7 +129,7 @@ export function passwd_change(user, new_pass) {
     });
 }
 
-export function password_quality(password) {
+export function password_quality(password, force) {
     return new Promise((resolve, reject) => {
         cockpit.spawn('/usr/bin/pwscore', { err: "message" })
                 .input(password)
@@ -148,7 +148,10 @@ export function password_quality(password) {
                     }
                 })
                 .fail(function(ex) {
-                    reject(new Error(ex.message || _("Password is not acceptable")));
+                    if (!force)
+                        reject(new Error(ex.message || _("Password is not acceptable")));
+                    else
+                        resolve("weak");
                 });
     });
 }
@@ -210,6 +213,7 @@ export function set_password_dialog(account, current_user) {
         password_confirm: "",
         password_strength: "",
         password_message: "",
+        confirm_weak: false,
     };
 
     let errors = { };
@@ -220,6 +224,7 @@ export function set_password_dialog(account, current_user) {
         state[field] = value;
 
         if (state.password != old_password) {
+            state.confirm_weak = false;
             old_password = state.password;
             if (state.password) {
                 password_quality(state.password)
@@ -241,15 +246,16 @@ export function set_password_dialog(account, current_user) {
         update();
     }
 
-    function validate() {
+    function validate(force) {
         errors = { };
 
         if (state.password != state.password_confirm)
             errors.password_confirm = _("The passwords do not match");
 
-        return password_quality(state.password)
+        return password_quality(state.password, force)
                 .catch(ex => {
-                    errors.password = ex.message || ex.toString();
+                    errors.password = (ex.message || ex.toString()).replace("\n", " ");
+                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set"));
                 })
                 .then(() => {
                     return !has_errors(errors);
@@ -269,7 +275,10 @@ export function set_password_dialog(account, current_user) {
                     caption: _("Set"),
                     style: "primary",
                     clicked: () => {
-                        return validate().then(valid => {
+                        const second_click = state.confirm_weak;
+                        state.confirm_weak = !state.confirm_weak;
+
+                        return validate(second_click).then(valid => {
                             if (valid) {
                                 if (change_self)
                                     return passwd_self(state.password_old, state.password);

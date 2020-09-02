@@ -1,4 +1,5 @@
 @import '../../lib/journal.css';
+@import '../../lib/ct-card.scss';
 
 #service-details .pf-l-gallery {
     --pf-l-gallery--GridTemplateColumns: 1fr;
@@ -8,10 +9,8 @@
     padding: var(--pf-global--gutter);
 }
 
-#service-details .pf-c-card__body.contains-list {
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: var(--pf-global--spacer--xs);
+#service-details .pf-c-card {
+    @extend .ct-card;
 }
 
 .comma-list {

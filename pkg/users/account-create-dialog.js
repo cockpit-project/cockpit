@@ -159,7 +159,8 @@ export function account_create_dialog(accounts) {
         password_confirm: "",
         password_strength: "",
         password_message: "",
-        locked: false
+        locked: false,
+        confirm_weak: false,
     };
     let errors = { };
 
@@ -177,6 +178,7 @@ export function account_create_dialog(accounts) {
             state.user_name = suggest_username(state.real_name);
 
         if (state.password != old_password) {
+            state.confirm_weak = false;
             old_password = state.password;
             if (state.password) {
                 password_quality(state.password)
@@ -198,7 +200,7 @@ export function account_create_dialog(accounts) {
         update();
     }
 
-    function validate() {
+    function validate(force) {
         errors = { };
 
         if (!state.real_name)
@@ -209,9 +211,10 @@ export function account_create_dialog(accounts) {
 
         errors.user_name = validate_username(state.user_name, accounts);
 
-        return password_quality(state.password)
+        return password_quality(state.password, force)
                 .catch(ex => {
-                    errors.password = ex.message || ex.toString();
+                    errors.password = (ex.message || ex.toString()).replace("\n", " ");
+                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Create"));
                 })
                 .then(() => !has_errors(errors));
     }
@@ -258,7 +261,9 @@ export function account_create_dialog(accounts) {
                     caption: _("Create"),
                     style: "primary",
                     clicked: () => {
-                        return validate().then(valid => {
+                        const second_click = state.confirm_weak;
+                        state.confirm_weak = !state.confirm_weak;
+                        return validate(second_click).then(valid => {
                             if (valid)
                                 return create();
                             else {

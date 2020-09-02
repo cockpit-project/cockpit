@@ -32,7 +32,7 @@ def wait_dashboard_addresses(b, expected):
         })""", expected)
 
 
-def add_machine(b, address):
+def add_machine(b, address, password):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#add-machine-address', address)
@@ -40,9 +40,14 @@ def add_machine(b, address):
     b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Add)')
     b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
     b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Connect)')
+    if password:
+        b.wait_in_text('#dashboard_setup_server_dialog', "Unable to log in")
+        b.set_val('#login-custom-password', password)
+        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Log In)')
     b.wait_popdown('dashboard_setup_server_dialog')
 
 
+@skipImage("Changed in #14344", "rhel-8-3-distropkg")
 class TestMultiOS(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
@@ -96,16 +101,17 @@ class TestMultiOS(MachineCase):
         stock_m.execute("hostnamectl set-hostname stock")
         stock_b = self.new_browser(stock_m)
 
-        stock_b.login_and_go("/dashboard")
+        stock_b.login_and_go("/dashboard", legacy_authorized=True)
         wait_dashboard_addresses(stock_b, ["localhost"])
+        stock_b.snapshot("YYY")
 
-        add_machine(stock_b, "10.111.113.1")
+        add_machine(stock_b, "10.111.113.1", password=None)
         wait_dashboard_addresses(stock_b, ["localhost", "10.111.113.1"])
 
         dev_b.switch_to_top()
         dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
-        add_machine(dev_b, "10.111.113.5")
+        add_machine(dev_b, "10.111.113.5", password="foobar")
         dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
@@ -137,7 +143,7 @@ class TestMultiOS(MachineCase):
         # Messages from previous versions of cockpit
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
 
-
+@skipImage("Changed in #14344", "rhel-8-3-distropkg")
 class TestMultiOSDirect(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
@@ -157,7 +163,7 @@ class TestMultiOSDirect(MachineCase):
         stock_m = self.machines['centos-7']
         stock_m.execute("hostnamectl set-hostname stock")
 
-        add_machine(b, "10.111.113.5")
+        add_machine(b, "10.111.113.5", password="foobar")
         dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses(b, dev_dashboard_addresses)
         b.logout()

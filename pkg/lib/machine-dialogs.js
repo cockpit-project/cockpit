@@ -33,10 +33,13 @@ import change_port_tmpl from "raw-loader!machine-change-port.html";
 import color_picker_tmpl from "raw-loader!machine-color-picker.html";
 import invalid_hostkey_tmpl from "raw-loader!machine-invalid-hostkey.html";
 import not_supported_tmpl from "raw-loader!machine-not-supported.html";
-import sync_users_tmpl from "raw-loader!machine-sync-users.html";
 import unknown_hosts_tmpl from "raw-loader!machine-unknown-hostkey.html";
 
+import ssh_show_default_key_sh from "raw-loader!ssh-show-default-key.sh";
+import ssh_add_key_sh from "raw-loader!ssh-add-key.sh";
+
 import "./machine-dialogs.scss";
+import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
@@ -50,8 +53,7 @@ var default_codes = {
     "unknown-hostkey": "unknown-hostkey",
     "invalid-hostkey": "invalid-hostkey",
     "not-found": "add-machine",
-    "unknown-host": "unknown-host",
-    "sync-users": "sync-users"
+    "unknown-host": "unknown-host"
 };
 
 function translate_and_init(tmpl) {
@@ -67,6 +69,28 @@ function translate_and_init(tmpl) {
     return tmpl;
 }
 
+function is_object(x) {
+    return x !== null && typeof x === 'object';
+}
+
+function fmt_to_array(fmt, args) {
+    const fmt_re = /(\$\{[^}]+\}|\$[a-zA-Z0-9_]+)/g;
+
+    if (arguments.length != 2 || !is_object(args) || args === null)
+        args = Array.prototype.slice.call(arguments, 1);
+
+    function replace(part) {
+        if (part.startsWith("${"))
+            return args[part.slice(2, -1)].clone();
+        else if (part.startsWith("$"))
+            return args[parseInt(part.slice(1))].clone();
+        else
+            return part;
+    }
+
+    return fmt.split(fmt_re).map(replace);
+}
+
 var templates = {
     "add-machine" : translate_and_init(add_tmpl),
     "auth-failed" : translate_and_init(auth_failed_tmpl),
@@ -75,7 +99,6 @@ var templates = {
     "color-picker" : translate_and_init(color_picker_tmpl),
     "invalid-hostkey" : translate_and_init(invalid_hostkey_tmpl),
     "not-supported" : translate_and_init(not_supported_tmpl),
-    "sync-users" : translate_and_init(sync_users_tmpl),
     "unknown-hostkey" : translate_and_init(unknown_hosts_tmpl),
     "unknown-host" : translate_and_init(unknown_hosts_tmpl)
 };
@@ -118,8 +141,6 @@ function Dialog(selector, address, machines_ins, codes) {
 
         if (template == "add-machine")
             current_instance = new AddMachine(self);
-        else if (template == "sync-users")
-            current_instance = new SyncUsers(self);
         else if (template == "unknown-hostkey" || template == "unknown-host")
             current_instance = new HostKey(self, template);
         else if (template == "invalid-hostkey")
@@ -187,8 +208,17 @@ function Dialog(selector, address, machines_ins, codes) {
     self.complete = function(val) {
         if (success_callback)
             success_callback(val);
-        else
+        else {
+            if (current_instance && current_instance.close)
+                current_instance.close();
             $(selector).modal('hide');
+        }
+    };
+
+    self.cancel = function() {
+        if (current_instance && current_instance.close)
+            current_instance.close();
+        $(selector).modal('hide');
     };
 
     self.render = function render(data, template) {
@@ -245,7 +275,7 @@ function Dialog(selector, address, machines_ins, codes) {
 
         function next(i) {
             promise_funcs[i]()
-                    .done(function(val) {
+                    .then(function(val) {
                         i = i + 1;
                         if (i < promise_funcs.length) {
                             next(i);
@@ -254,7 +284,7 @@ function Dialog(selector, address, machines_ins, codes) {
                             self.complete(val);
                         }
                     })
-                    .fail(function(ex) {
+                    .catch(function(ex) {
                         if (failure_callback)
                             failure_callback(ex);
                         else
@@ -336,9 +366,11 @@ function Simple(dialog) {
 
 function AddMachine(dialog) {
     var self = this;
-    var color = null;
     var selector = dialog.get_sel();
     var run_error = null;
+
+    var user_name_dirty = false;
+    var unused_color = dialog.machines_ins.unused_color();
 
     var invisible = dialog.machines_ins.addresses.filter(function(addr) {
         var m = dialog.machines_ins.lookup(addr);
@@ -361,6 +393,7 @@ function AddMachine(dialog) {
 
         var addr = $('#add-machine-address').val();
         var button = dialog.get_sel(".modal-footer>.pf-m-primary");
+
         if (addr === "") {
             disabled = true;
         } else if (!machines.allow_connection_string &&
@@ -371,7 +404,7 @@ function AddMachine(dialog) {
             if (!ex)
                 disabled = false;
         } else {
-            ex = new Error(_("The IP address or host name cannot contain whitespace."));
+            ex = new Error(_("The IP address or hostname cannot contain whitespace."));
         }
 
         if (ex)
@@ -382,21 +415,38 @@ function AddMachine(dialog) {
         else
             selector.dialog("failure", ex);
 
+        if (!user_name_dirty) {
+            var m = addr ? dialog.machines_ins.lookup(addr) : null;
+            if (m && m.user)
+                $('#add-machine-user').val(m.user);
+            if (m && m.color)
+                $('#add-machine-color-picker #host-edit-color').css('background-color', m.color);
+            else
+                $('#add-machine-color-picker #host-edit-color').css('background-color', unused_color);
+        }
+
         button.prop("disabled", disabled);
     }
 
     function add_machine() {
         run_error = null;
         dialog.address = $('#add-machine-address').val();
-        color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
+        var user = $('#add-machine-user').val();
+        if (user) {
+            var parts = dialog.machines_ins.split_connection_string(dialog.address);
+            parts.user = user;
+            dialog.address = dialog.machines_ins.generate_connection_string(user, parts.port, parts.address);
+        }
+
+        var color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
         if (existing_error(dialog.address))
             return;
 
         dialog.set_goal(function() {
             var dfp = $.Deferred();
             dialog.machines_ins.add(dialog.address, color)
-                    .done(dfp.resolve)
-                    .fail(function (ex) {
+                    .then(dfp.resolve)
+                    .catch(function (ex) {
                         var msg = cockpit.format(_("Failed to add machine: $0"),
                                                  cockpit.message(ex));
                         dfp.reject(msg);
@@ -414,7 +464,7 @@ function AddMachine(dialog) {
                     host_id_port = dialog.address + ":22";
                 else
                     port = host_id_port.substr(port_index + 1);
-                ex.message = cockpit.format(_("Cockpit could not contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
+                ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
                 ex = cockpit.message(ex);
                 run_error = ex;
             }
@@ -432,23 +482,16 @@ function AddMachine(dialog) {
         dialog.render({
             nearlimit : limit * 0.75 <= dialog.machines_ins.list.length,
             limit : limit,
-            placeholder : _("Enter IP address or host name"),
+            placeholder : _("Enter IP address or hostname"),
             options : invisible,
         });
 
         var button = dialog.get_sel(".modal-footer>.pf-m-primary");
         button.on("click", add_machine);
 
-        $("#add-machine-address").on("keyup", function (ev) {
-            if (ev.which === 13) {
-                var disabled = button.prop('disabled');
-                if (!disabled)
-                    add_machine();
-            }
-        });
-        $("#add-machine-address").on("input focus", check_address);
-        color_picker.render("#add-machine-color-picker", dialog.address, color);
-        $("#add-machine-address").focus();
+        $("#add-machine-address").on("input focus change", check_address);
+        $("#add-machine-user").on("input", function () { user_name_dirty = true });
+        color_picker.render("#add-machine-color-picker", null, unused_color);
     };
 }
 
@@ -465,20 +508,20 @@ function MachinePort(dialog) {
         function update_host(ex) {
             dialog.address = address;
             dialog.machines_ins.change(parts.address, { port: parts.port })
-                    .done(function () {
+                    .then(function () {
                     // We failed before so try to connect again
                     // now that the machine is saved.
                         if (ex) {
                             dialog.try_to_connect(address)
-                                    .done(dialog.complete)
-                                    .fail(function (e) {
+                                    .then(dialog.complete)
+                                    .catch(function (e) {
                                         dfp.reject(e);
                                     });
                         } else {
                             dfp.resolve();
                         }
                     })
-                    .fail(function (ex) {
+                    .catch(function (ex) {
                         var msg = cockpit.format(_("Failed to edit machine: $0"),
                                                  cockpit.message(ex));
                         dfp.reject(msg);
@@ -486,10 +529,10 @@ function MachinePort(dialog) {
         }
 
         dialog.try_to_connect(address)
-                .done(function () {
+                .then(function () {
                     update_host();
                 })
-                .fail(function (ex) {
+                .catch(function (ex) {
                 /* any other error means progress, so save */
                     if (ex.problem != 'no-host')
                         update_host(ex);
@@ -539,7 +582,7 @@ function HostKey(dialog, problem) {
         var promise = q.then(function () {
             var inner = dialog.try_to_connect(dialog.address);
 
-            inner.fail(function(ex) {
+            inner.catch(function(ex) {
                 if ((ex.problem == "invalid-hostkey" ||
                     ex.problem == "unknown-hostkey") &&
                     machine && !machine.on_disk) {
@@ -578,17 +621,18 @@ function HostKey(dialog, problem) {
             }
 
             promise = dialog.try_to_connect(dialog.address, options)
-                    .fail(function(ex) {
+                    .catch(function(ex) {
                         if (ex.problem != match_problem) {
                             dialog.render_error(ex);
                         } else {
                             error_options = ex;
                             render();
                         }
+                        return Promise.reject(ex);
                     })
 
             // Fixed already, just close
-                    .done(function (v) {
+                    .then(function (v) {
                         dialog.complete(v);
                     });
 
@@ -607,68 +651,174 @@ function HostKey(dialog, problem) {
 function ChangeAuth(dialog) {
     var self = this;
     var error_options = null;
+    var identity_path = null;
     var keys = null;
-    var have_ticket = null;
     var machine = dialog.machines_ins.lookup(dialog.address);
+    var default_ssh_key = null;
+
+    var offer_login_password;
+    var offer_key_password;
+    var use_login_password;
+    var use_key_password;
+
+    var offer_key_setup;
 
     self.user = { };
 
-    function update_available() {
-        var key_div = dialog.get_sel('.keys');
-        var key_locked_div = dialog.get_sel('.key-locked');
-        var have_keys = false;
+    function set_error_options(ex) {
+        error_options = ex;
+        identity_path = null;
+        if (error_options && error_options.error && error_options.error.startsWith("locked identity"))
+            identity_path = error_options.error.split(": ")[1];
+    }
 
-        if (key_div) {
-            key_div.empty();
-            for (var id in keys.items) {
-                var key = keys.items[id];
-                if (key.loaded) {
-                    have_keys = true;
-                    key_div.append($("<div>").text(key.name || key.comment));
-                }
-            }
+    var old_extra_state = null;
+
+    function update_key_setup() {
+        if (!default_ssh_key)
+            return;
+
+        if ($("#login-setup-text").length == 0)
+            return;
+
+        function bold(str) { return $('<b>').text(str) }
+
+        const lmach = dialog.machines_ins.lookup(null);
+
+        var params = {
+            key: bold(default_ssh_key.name),
+            luser: bold(self.user.name),
+            lhost: bold(lmach ? lmach.label || lmach.address : "localhost"),
+            afile: bold("~/.ssh/authorized_keys"),
+            ruser: bold(dialog.machines_ins.split_connection_string(dialog.address).user || self.user.name),
+            rhost: bold(dialog.machines_ins.split_connection_string(dialog.address).address),
+        };
+
+        default_ssh_key.unaligned_passphrase =
+            (default_ssh_key.encrypted && identity_path && identity_path == default_ssh_key.name);
+
+        var text, extra, state;
+        if (!default_ssh_key.exists) {
+            state = "create";
+            text = _("Create a new SSH key and authorize it.");
+            extra = [$('<p class="ct-form-full">').append(
+                fmt_to_array(_("A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will be added to the ${afile} file of ${ruser} on ${rhost}."), params)),
+            $('<label class="control-label">').text(_("Key password")),
+            $('<input type="password" class="form-control login-setup-new-key-password">'),
+            $('<label class="control-label">').text(_("Confirm key password")),
+            $('<input type="password" class="form-control login-setup-new-key-password2">'),
+            $('<p class="ct-form-full">').append(
+                fmt_to_array(_("In order to allow log in to ${rhost} as ${ruser} without password in the future, use the login password of ${luser} on ${lhost} as the key password, or leave the key password blank."), params))
+            ];
+        } else if (default_ssh_key.unaligned_passphrase) {
+            text = cockpit.format(_("Change the password of ${key}."), { key: default_ssh_key.name });
+            extra = [$('<p class="ct-form-full">').append(
+                fmt_to_array(_("By changing the password of the SSH key ${key} to the login password of ${luser} on ${lhost}, the key will be automatically made available and you can log in to ${rhost} without password in the future."), params)),
+            $('<label class="control-label">').text(_("New key password")),
+            $('<input type="password" class="form-control login-setup-login-password">'),
+            $('<label class="control-label">').text(_("Confirm new key password")),
+            $('<input type="password" class="form-control login-setup-login-password2">')
+            ];
+            state = "passchange";
+        } else {
+            text = _("Authorize SSH key.");
+            extra = [
+                $('<p class="ct-form-full">').append(
+                    fmt_to_array(_("The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} file of ${ruser} on ${rhost}."), params)),
+                $('<p class="ct-form-full">').append(
+                    fmt_to_array(_("This will allow you to log in without password in the future."), params))
+            ];
+            state = "auth";
         }
 
-        if (key_locked_div && error_options &&
-            error_options.error && error_options.error.startsWith("locked identity")) {
-            const identity_path = error_options.error.split(": ")[1];
-            key_locked_div.find(".locked-identity").text(identity_path);
-            key_locked_div.find(".pf-m-primary").on("click", () => {
-                key_locked_div.find(".pf-m-primary").attr("disabled", true);
-                keys.load(identity_path, key_locked_div.find(".locked-identity-password").val())
-                        .then(() => dialog.clear_error())
-                        .catch(ex => {
-                            dialog.render_error(ex);
-                            key_locked_div.find(".pf-m-primary").attr("disabled", false);
-                        });
-            });
+        if (old_extra_state == state)
+            return;
 
-            for (const id in keys.items) {
-                const key = keys.items[id];
-                if (key.name === identity_path.split("/").pop() && key.loaded)
-                    dialog.get_sel(".login-locked").empty();
-            }
+        old_extra_state = state;
+        $("#login-setup-text").text(text);
+        $("#login-setup-extra").empty()
+                .append(extra);
+    }
+
+    function update_auth() {
+        if (offer_login_password && offer_key_password) {
+            dialog.get_sel("#login-authentication, #login-authentication + *").show();
+            use_login_password = dialog.get_sel("#login-authentication + div input[value=pass]").prop('checked');
+        } else {
+            dialog.get_sel("#login-authentication, #login-authentication + *").hide();
+            use_login_password = offer_login_password;
         }
+        use_key_password = offer_key_password && !use_login_password;
 
-        var empty_div = dialog.get_sel('.empty');
-        if (empty_div)
-            empty_div.toggleClass("hidden", have_keys);
+        dialog.get_sel("#login-diff-password, #login-diff-password + *")
+                .toggle(use_login_password);
+
+        dialog.get_sel(".login-locked, .login-locked + *, .login-locked + * + *")
+                .toggle(use_key_password);
+
+        if (!default_ssh_key)
+            offer_key_setup = false;
+        else if (default_ssh_key.unaligned_passphrase)
+            offer_key_setup = use_key_password;
+        else if (identity_path) {
+            // This is a locked, non-default identity that will never
+            // be loaded into the agent, so there is no point in
+            // offering to change the passphrase.
+            dialog.get_sel(".password-change-advice").hide();
+            offer_key_setup = false;
+        } else
+            offer_key_setup = true;
+
+        dialog.get_sel(".login-setup-auto, .login-setup-auto + *").toggle(offer_key_setup);
+    }
+
+    function toggle_setup_extra() {
+        $("#login-setup-extra").toggle(offer_key_setup && $('#login-setup-keys').prop('checked'));
+    }
+
+    function update() {
+        update_key_setup();
+        update_auth();
+        toggle_setup_extra();
+    }
+
+    function show_error(message, target) {
+        const ex = new Error(message);
+        ex.target = target;
+        dialog.get_sel().dialog("failure", ex);
+    }
+
+    function change_passphrase(cur_passphrase, login_password) {
+        return keys.change(default_ssh_key.name, cur_passphrase, login_password, login_password);
+    }
+
+    function maybe_create_key(passphrase) {
+        if (!default_ssh_key.exists)
+            return keys.create(default_ssh_key.name, default_ssh_key.type, passphrase, passphrase);
+        else
+            return Promise.resolve();
+    }
+
+    function authorize_key(host) {
+        return keys.get_pubkey(default_ssh_key.name)
+                .then(data => cockpit.script(ssh_add_key_sh, [data.trim()], { host: host, err: "message" }));
+    }
+
+    function maybe_unlock_key() {
+        if (use_key_password) {
+            const cur_passphrase = dialog.get_sel(".locked-identity-password").val();
+            return keys.load(identity_path, cur_passphrase);
+        } else
+            return Promise.resolve();
     }
 
     function login() {
-        var address;
         var options = {};
-        var dfp = $.Deferred();
-        var user = $("#login-custom-user").val();
+        var user = dialog.machines_ins.split_connection_string(dialog.address).user || "";
+        var do_setup_keys = offer_key_setup && $("#login-setup-keys").prop('checked');
+        var do_key_password_change = do_setup_keys && default_ssh_key.unaligned_passphrase;
 
-        var parts = dialog.machines_ins.split_connection_string(dialog.address);
-        parts.user = user;
-
-        address = dialog.machines_ins.generate_connection_string(parts.user,
-                                                                 parts.port,
-                                                                 parts.address);
-
-        if ($("#login-type button").val() != 'stored') {
+        if (use_login_password) {
             options.password = $("#login-custom-password").val();
             options.session = 'shared';
             if (!user) {
@@ -682,29 +832,63 @@ function ChangeAuth(dialog) {
             }
         }
 
-        dialog.try_to_connect(address, options)
-                .done(function () {
-                    dialog.address = address;
-                    if (machine) {
-                        dialog.machines_ins.change(machine.address, { user : user })
-                                .done(dfp.resolve)
-                                .fail(dfp.reject);
-                    } else {
-                        dfp.resolve();
-                    }
-                })
-                .fail(dfp.reject);
+        var key_password = dialog.get_sel(".locked-identity-password").val();
 
-        dialog.run(dfp.promise());
+        if (use_key_password && !key_password) {
+            show_error(_("The key password can not be empty"), ".locked-identity-password");
+            return;
+        }
+
+        var setup_new_key_password = dialog.get_sel(".login-setup-new-key-password").val();
+        var setup_new_key_password2 = dialog.get_sel(".login-setup-new-key-password2").val();
+
+        if (do_setup_keys && !do_key_password_change && setup_new_key_password != setup_new_key_password2) {
+            show_error(_("The key passwords do not match"), ".login-setup-new-key-password2");
+            return;
+        }
+
+        var setup_login_password = dialog.get_sel(".login-setup-login-password").val();
+        var setup_login_password2 = dialog.get_sel(".login-setup-login-password2").val();
+
+        if (do_key_password_change && !setup_login_password) {
+            show_error(_("The new key password can not be empty"), ".login-setup-login-password");
+            return;
+        }
+
+        if (do_key_password_change && setup_login_password != setup_login_password2) {
+            show_error(_("The new key passwords do not match"), ".login-setup-login-password2");
+            return;
+        }
+
+        dialog.run(maybe_unlock_key()
+                .then(function () {
+                    return dialog.try_to_connect(dialog.address, options)
+                            .then(function () {
+                                if (machine) {
+                                    return dialog.machines_ins.change(machine.address, { user : user });
+                                } else {
+                                    return Promise.resolve();
+                                }
+                            })
+                            .then(function () {
+                                if (do_key_password_change) {
+                                    return change_passphrase(key_password, setup_login_password);
+                                } else if (do_setup_keys) {
+                                    return maybe_create_key(setup_new_key_password)
+                                            .then(() => authorize_key(dialog.address));
+                                } else
+                                    return Promise.resolve();
+                            });
+                })
+                .catch(function (ex) {
+                    set_error_options(ex);
+                    update();
+                    return Promise.reject(ex);
+                }));
     }
 
-    function change_login_type(value) {
-        var stored = value != 'password';
-        var text = $("#login-type li[value=" + value + "]").text();
-        $("#login-type button").val(value);
-        $("#login-type button span").text(text);
-        $("#login-available").toggle(stored);
-        $("#login-diff-password").toggle(!stored);
+    function cancel() {
+        dialog.cancel();
     }
 
     function render() {
@@ -713,21 +897,15 @@ function ChangeAuth(dialog) {
         if (!machines.allow_connection_string || !machines.has_auth_results)
             template = "auth-failed";
 
-        var no_password = false;
         var methods = null;
         var available = null;
         var locked_identity = false;
-
-        var machine_user = dialog.machines_ins.split_connection_string(dialog.address).user;
-        if (!machine_user && machine)
-            machine_user = machine.user;
 
         if (error_options && machines.has_auth_results) {
             available = {};
 
             methods = error_options["auth-method-results"];
             if (methods) {
-                no_password = methods.password === "not-provided";
                 for (var method in methods) {
                     if (is_method_supported(methods, method)) {
                         available[method] = true;
@@ -739,74 +917,84 @@ function ChangeAuth(dialog) {
                 template = "auth-failed";
 
             locked_identity = error_options.error && error_options.error.startsWith("locked identity");
-        }
 
-        dialog.render({
-            supported : methods,
-            available : available,
-            machine_user : machine_user,
-            default_user : self.user ? self.user.name : "",
-            show_password : available && available.password && !no_password,
-            show_ticket: available && available['gssapi-mic'] && have_ticket,
-            show_locked_identity: available && available['public-key'] && locked_identity,
-            can_sync: !!dialog.codes['sync-users'],
-            'machines.allow_connection_string' : machines.allow_connection_string,
-            sync_link : function() {
-                return function(text, render) {
-                    return '<a tabindex="0" id="do-sync-users">' + render(text) + "</a>";
-                };
-            }
-        }, template);
+            offer_login_password = !!available.password;
+            offer_key_password = locked_identity;
+        } else {
+            offer_login_password = true;
+            offer_key_password = false;
+        }
 
         if (methods === null && machines.has_auth_results) {
             promise = dialog.try_to_connect(dialog.address)
-                    .fail(function(ex) {
-                        error_options = ex;
-                        render();
+                    .catch(function(ex) {
+                        if (ex.problem && dialog.codes[ex.problem] != "change-auth") {
+                            dialog.render_error(ex);
+                        } else {
+                            set_error_options(ex);
+                            render();
+                        }
+                        return Promise.reject(ex);
                     })
 
             // Fixed already, just close
-                    .done(function (v) {
+                    .then(function (v) {
                         dialog.complete(v);
                     });
 
             dialog.get_sel().dialog("wait", promise);
         } else if (!$.isEmptyObject(available)) {
-            $("#login-type li").on('click', function() {
-                change_login_type($(this).attr("value"));
-            });
-            change_login_type($("#login-type li:first-child").attr("value"));
+            dialog.render({
+                available : offer_login_password || offer_key_password,
+                only_password: offer_login_password && !offer_key_password,
+                only_key: !offer_login_password && offer_key_password,
+                password_and_key: offer_login_password && offer_key_password,
+                key: identity_path
+            }, template);
+
             dialog.get_sel(".modal-footer>.pf-m-primary").on("click", login);
+            dialog.get_sel(".modal-header .close, .modal-footer>.pf-m-link").on("click", cancel);
             dialog.get_sel("a[data-content]").popover();
 
-            update_available();
-        }
+            $("#login-setup-keys").on('change', toggle_setup_extra);
+            dialog.get_sel("#login-authentication + div input").on('change', update);
+            update();
 
-        dialog.get_sel("#do-sync-users").on("click", function () {
-            dialog.render_template("sync-users");
-        });
+            dialog.get_sel(".modal-content input").on('change input', function () {
+                dialog.clear_error();
+            });
+        }
     }
 
     self.load = function(ex) {
-        error_options = ex;
+        set_error_options(ex);
         if (credentials) {
             keys = credentials.keys_instance();
-            $(keys).on("changed", update_available);
+            $(keys).on("changed", update);
         }
 
-        cockpit.spawn(["klist", "-s"])
-                .fail(function (ex) {
-                    have_ticket = false;
+        // When we get here, the dialog is already open and showing
+        // whatever was in itlast time. Make sure it shows something sensible
+        // while we asynchronously initialize our state.
+
+        dialog.render({
+            loading: true
+        }, "change-auth");
+
+        cockpit.user()
+                .then(function (user) {
+                    self.user = user;
                 })
-                .done(function (done) {
-                    have_ticket = true;
-                })
-                .always(function () {
-                    cockpit.user()
-                            .done(function (user) {
-                                self.user = user;
+                .always(function (user) {
+                    cockpit.script(ssh_show_default_key_sh, [], { })
+                            .then(function (data) {
+                                var info = data.split("\n");
+                                if (info[0])
+                                    default_ssh_key = { name: info[0], exists: true, encrypted: info[1] == "encrypted" };
+                                else
+                                    default_ssh_key = { name: self.user.home + "/.ssh/id_rsa", type: "rsa", exists: false };
                             })
-                            .always(function (user) {
+                            .always(function () {
                                 render();
                             });
                 });
@@ -818,214 +1006,6 @@ function ChangeAuth(dialog) {
             keys.close();
         }
         keys = null;
-    };
-}
-
-function SyncUsers(dialog) {
-    var self = this;
-    var users = {};
-
-    var needs_auth = false;
-    var needs_root = false;
-    var methods = null;
-    var remote_options = { superuser: true };
-
-    var perm_failed = null;
-
-    function load_users() {
-        var local = cockpit.dbus(null, {
-            bus: "internal",
-            host: "localhost",
-            superuser: true
-        });
-        $(local).on("close", function(event, options) {
-            perm_failed = options;
-            render();
-        });
-
-        var proxy = local.proxy("cockpit.Setup", "/setup");
-        proxy.wait(function () {
-            if (proxy.valid) {
-                var blank = {
-                    t : "(asas)",
-                    v : [[], []]
-                };
-
-                proxy.Transfer("passwd1", blank)
-                        .done(function(prepared) {
-                            var i, parts, name;
-                            var groups = prepared.v[1];
-
-                            for (i = 0; i < prepared.v[0].length; i++) {
-                                var raw = prepared.v[0][i];
-
-                                parts = raw.split(":");
-                                name = parts[0];
-
-                                users[name] = {
-                                    username : name,
-                                    name : parts[4] || name,
-                                    raw : raw,
-                                    groups : [],
-                                };
-                            }
-
-                            for (i = 0; i < groups.length; i++) {
-                                parts = groups[i].split(":");
-                                name = parts[0];
-                                var members = parts[parts.length - 1].split(",");
-                                for (var j = 0; j < members.length; j++) {
-                                    var u = members[j];
-                                    if (users[u])
-                                        users[u].groups.push(name);
-                                }
-                            }
-                        })
-                        .fail(function(ex) {
-                            ex.message = cockpit.gettext(ex.message);
-                            perm_failed = ex;
-                        })
-                        .always(function(ex) {
-                            $(local).off();
-                            local.close();
-                            render();
-                        });
-            }
-        });
-    }
-
-    function sync_users() {
-        var client = null;
-
-        var dfd = $.Deferred();
-        var promise = dfd.promise();
-
-        dialog.run(promise);
-
-        /* A successful sync should close the dialog */
-        dialog.set_on_success(null);
-
-        promise.always(function () {
-            if (client) {
-                $(client).off();
-                client.close();
-            }
-        });
-
-        var options = { bus: "internal" };
-        if (needs_auth) {
-            options.user = $("#sync-username").val();
-            options.password = $("#sync-password").val();
-        }
-        $.extend(options, remote_options, { host: dialog.address });
-        client = cockpit.dbus(null, options);
-        $(client).on("close", function(event, ex) {
-            dfd.reject(cockpit.message(ex));
-        });
-
-        var variant = {
-            t : "(asas)",
-            v : [[]],
-        };
-
-        var groups = {};
-        dialog.get_sel("input:checked").each(function() {
-            var u = users[$(this).attr("name")];
-            if (u) {
-                variant.v[0].push(u.raw);
-                for (var i = 0; i < u.groups.length; i++) {
-                    var group = u.groups[i];
-                    if (!groups[group])
-                        groups[group] = [];
-
-                    groups[group].push(u.username);
-                }
-            }
-        });
-        variant.v.push(Object.keys(groups).map(function(k) {
-            return k + ":::" + groups[k].join();
-        }));
-
-        /* We assume all cockpits support the 'passwd1' mechanism */
-        var proxy = client.proxy("cockpit.Setup", "/setup");
-        proxy.wait(function() {
-            if (proxy.valid) {
-                proxy.Commit("passwd1", variant)
-                        .fail(function(ex) {
-                            ex.message = cockpit.gettext(ex.message);
-                            dfd.reject(ex);
-                        })
-                        .done(dfd.resolve);
-            }
-        });
-    }
-
-    function toggle_button() {
-        var any = dialog.get_sel("input:checked").length > 0;
-        dialog.get_sel(".modal-footer>.pf-m-primary").prop("disabled", !any);
-    }
-
-    function render() {
-        function formatted_groups() {
-            if (this.groups)
-                return this.groups.join(", ");
-        }
-
-        /* assume password is allowed for backwards compatibility */
-        var allows_password = true;
-        var user_list = Object.keys(users).sort()
-                .map(function(v) {
-                    return users[v];
-                });
-
-        if (machines.has_auth_results && methods)
-            allows_password = is_method_supported(methods, 'password');
-
-        var text = dialog.render({
-            needs_auth : needs_auth,
-            needs_root : needs_root,
-            users : user_list,
-            perm_failed : perm_failed ? cockpit.message(perm_failed) : null,
-            allows_password : allows_password,
-            formatted_groups: formatted_groups,
-        });
-
-        dialog.get_sel(".modal-content").html(text);
-        dialog.get_sel(".modal-footer>.pf-m-primary").on("click", sync_users);
-        dialog.get_sel("input:checkbox").on("change", function() {
-            var name = $(this).attr("name");
-            users[name].checked = $(this).is(':checked');
-            toggle_button();
-        });
-        toggle_button();
-    }
-
-    self.load = function(error_options) {
-        if (error_options)
-            methods = error_options['auth-method-results'];
-
-        render();
-        dialog.try_to_connect(dialog.address, remote_options).fail(function(ex) {
-            needs_auth = true;
-            if (ex.problem == "access-denied") {
-                needs_root = true;
-                if (!methods && machines.has_auth_results)
-                    /* TODO: We need to know if password auth is
-                     * supported but we only get that when the transport
-                     * closes. Passing an invalid username should
-                     * open new transport that fails.
-                     */
-                    dialog.try_to_connect(dialog.address, { user : "1" })
-                            .fail(function(ex) {
-                                methods = ex['auth-method-results'];
-                            })
-                            .always(render);
-            } else {
-                methods = ex['auth-method-results'];
-                render();
-            }
-        });
-        load_users();
     };
 }
 

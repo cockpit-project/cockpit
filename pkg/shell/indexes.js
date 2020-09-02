@@ -466,9 +466,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 title = _("Connecting to the machine");
                 message = "";
             } else {
-                title = _("Couldn't connect to the machine");
+                title = _("Not connected to host");
                 if (machine.problem == "not-found") {
-                    message = _("Cannot connect to an unknown machine");
+                    message = _("Cannot connect to an unknown host");
                 } else {
                     var error = machine.problem || machine.state;
                     if (error)
@@ -478,20 +478,23 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 }
             }
 
+            var troubleshooting;
             if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
                 $("#machine-troubleshoot").off()
                         .on("click", function () {
                             mdialogs.troubleshoot("troubleshoot-dialog", machine);
                         });
+                troubleshooting = true;
                 $("#machine-troubleshoot").show();
             } else {
+                troubleshooting = false;
                 $("#machine-troubleshoot").hide();
             }
 
             restarting = !!machine.restarting;
             $(".curtains-ct").prop("hidden", false);
             $(".curtains-ct .spinner").prop("hidden", !connecting && !restarting);
-            $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found");
+            $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found" && !troubleshooting);
             $(".curtains-ct i").toggle(!connecting && !restarting);
             $(".curtains-ct h1").text(title);
             $(".curtains-ct p").text(message);

@@ -6,7 +6,7 @@
 
 <div class="modal-body">
     <p>
-        <span translate="yes">Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}.</span>
+        <span translate="yes">Unable to contact {{#strong}}{{host}}{{/strong}}.</span>
         {{^allow_connection_string}}
         <span translate="yes">To try a different port you will need to upgrade cockpit-ws to a newer version.</span>
         {{/allow_connection_string}}
@@ -17,21 +17,15 @@
     </p>
 
     {{#allow_connection_string}}
-    <div>
-        <table class="form-table-ct">
-            <tr>
-                <td class="top" translate="yes">Port</td>
-                <td>
-                <div class="dialog-wrapper error-keep">
-                    <input id="edit-machine-port" class="form-control"
-                       type="test" value="{{ port }}"
-                       list="options"
-                       placeholder="22"/>
-                </div>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <form class="ct-form">
+      <label class="control-label" translate="yes">Port</label>
+      <div class="dialog-wrapper error-keep">
+        <input id="edit-machine-port" class="form-control"
+               type="test" value="{{ port }}"
+               list="options"
+               placeholder="22"/>
+      </div>
+    </form>
     {{/allow_connection_string}}
 </div>
 

@@ -69,6 +69,7 @@ class TestShutdownRestart(MachineCase):
 
         m.wait_reboot()
 
+    @skipImage("Changed in #14344", "rhel-8-3-distropkg")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -115,6 +116,9 @@ class TestShutdownRestart(MachineCase):
         b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
         b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
+        b2.wait_in_text('#troubleshoot-dialog', "Unable to log in")
+        b2.set_val("#login-custom-password", "foobar")
+        b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b2.wait_popdown('troubleshoot-dialog')
         b2.enter_page("/system", host="10.111.113.1")
         b2.wait_text("#system_information_hostname_text", "machine1")
@@ -134,7 +138,14 @@ class TestShutdownRestart(MachineCase):
 
         m.wait_reboot()
 
-        b2.wait_not_visible(".curtains-ct")
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_popup('troubleshoot-dialog')
+        b2.wait_in_text('#troubleshoot-dialog', "Unable to log in")
+        b2.set_val("#login-custom-password", "foobar")
+        b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
+        b2.wait_popdown('troubleshoot-dialog')
+
         b2.enter_page("/system", host="10.111.113.1", reconnect=False)
 
         # Power off with invalid date

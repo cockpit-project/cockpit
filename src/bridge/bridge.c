@@ -559,7 +559,6 @@ run_bridge (const gchar *interactive,
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   cockpit_dbus_user_startup (pwd);
-  cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
   cockpit_dbus_machines_startup ();
   cockpit_dbus_config_startup ();

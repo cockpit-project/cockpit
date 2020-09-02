@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import subprocess
 
 import parent
 from testlib import *
@@ -72,6 +71,16 @@ class DashBoardHelpers:
             b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
+    def setup_ssh_auth(self):
+        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
+        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
+        pubkey = self.machine.execute("cat /home/admin/.ssh/id_rsa.pub")
+
+        for m in self.machines:
+            self.machines[m].execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+            self.machines[m].write("/home/admin/.ssh/authorized_keys", pubkey)
+            self.machines[m].execute("chown admin:admin /home/admin/.ssh/authorized_keys")
 
 @skipBrowser("Firefox looses track of contexts", "firefox")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
@@ -92,6 +101,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
             self.machines["machine2"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
+
+        self.setup_ssh_auth()
 
     def testBasic(self):
         b = self.browser
@@ -227,96 +238,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
 
-class TestDashboardSetup(MachineCase, DashBoardHelpers):
-    provision = {
-        'machine1': {"address": "10.111.113.1/20"},
-        'machine2': {"address": "10.111.113.2/20"},
-        'machine3': {"address": "10.111.113.3/20"}
-    }
-
-    def testSetup(self):
-        b = self.browser
-
-        m1 = self.machine
-        m2 = self.machines['machine2']
-
-        # lockout admin
-        m2.execute("echo admin:badpass | chpasswd")
-        # Logging in as root is no longer allowed by default by sshd
-        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
-        m2.execute("systemctl restart sshd")
-
-        # Create some users on m1 and m2.
-        m1.execute("getent group docker >/dev/null || groupadd docker")
-        m2.execute("getent group docker >/dev/null || groupadd docker")
-
-        m1.execute("useradd junior -G docker")
-        m1.execute("echo junior:foobar | chpasswd")
-        m1.execute("useradd nosync -G docker")
-        m1.execute("echo nosync:foobar | chpasswd")
-
-        m1.execute("useradd senior -G %s" % m1.get_admin_group())
-        m1.execute("echo senior:foobar | chpasswd")
-        m2.execute("useradd senior")
-        m2.execute("echo senior:barfoo | chpasswd")
-
-        # Sync them via Setup.
-
-        self.login_and_go("/dashboard")
-
-        self.wait_dashboard_addresses(b, ["localhost"])
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
-        b.set_val('#add-machine-address', "10.111.113.2")
-        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to")
-        b.click("#do-sync-users")
-
-        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Synchronize")
-        b.wait_in_text("#sync-users", "admin")
-        b.wait_present("#sync-username")
-
-        b.click('#sync-users input[name="admin"]')
-        b.click('#sync-users input[name="junior"]')
-        b.click('#sync-users input[name="senior"]')
-
-        b.set_val('#sync-username', "root")
-        b.set_val('#sync-password', "notthepassword")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
-        b.set_val('#sync-password', "foobar")
-
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('dashboard_setup_server_dialog')
-
-        # Check the result
-        def password_hash(machine, user):
-            return machine.execute("getent shadow %s | cut -d: -f2" % user)
-
-        def groups(machine, user):
-            return machine.execute("groups %s | cut -d: -f2" % user)
-
-        self.assertEqual(password_hash(m1, "junior"),
-                         password_hash(m2, "junior"))
-
-        self.assertEqual(password_hash(m1, "senior"),
-                         password_hash(m2, "senior"))
-
-        self.assertEqual(password_hash(m1, "admin"),
-                         password_hash(m2, "admin"))
-
-        self.assertIn("docker", groups(m2, "junior"))
-        self.assertIn(m2.get_admin_group(), groups(m2, "senior"))
-
-        self.assertRaises(subprocess.CalledProcessError, m2.execute, "id nosync")
-
-        m2.execute("ps aux | grep cockpit-bridge | grep admin")
-        self.allow_hostkey_messages()
-
-
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 
     def testEdit(self):
@@ -394,6 +315,9 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 class TestLocalDashboard(MachineCase, DashBoardHelpers):
     def testDashboard(self):
         b = self.browser
+
+        self.setup_ssh_auth()
+        self.allow_authorize_journal_messages()
 
         self.login_and_go("/dashboard")
 

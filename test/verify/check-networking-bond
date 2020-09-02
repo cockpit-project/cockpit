@@ -74,12 +74,16 @@ class TestBonding(NetworkCase):
         b.wait_present("#network-interface-members tr[data-interface='%s']" % iface2)
         self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
 
-        # Check that it has the expected mode
-        b.wait_in_text("#network-interface-settings", "Active Backup")
+        b.wait_text_not("#network-interface-mac", "")
+
+        # Check that link monitoring is correctly set up
+        b.click("#network-interface-settings a:contains('Active Backup')")
+        b.wait_val("#network-bond-settings-link-monitoring-select", "mii")
+        b.click("#network-bond-settings-dialog button:contains('Cancel')")
+        b.wait_not_present("network-bond-settings-dialog")
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        b.wait_text_not("#network-interface-mac", "")
         if m.image != "rhel-8-3-distropkg": # Changed in #14454
             self.wait_onoff(".pf-c-card__header:contains('tbond')", True)
             self.toggle_onoff(".pf-c-card__header:contains('tbond')")
@@ -165,6 +169,8 @@ class TestBonding(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-link-monitoring-select", "arp")
+        b.set_val("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
@@ -181,6 +187,15 @@ class TestBonding(NetworkCase):
 
         b.click("tr:contains('Bond') a")
         b.wait_popup("network-bond-settings-dialog")
+
+        # Check that link monitoring is correctly set up
+        if m.image != "rhel-8-3-distropkg": # Fixed in #14555
+            b.wait_val("#network-bond-settings-link-monitoring-select", "arp")
+            b.wait_val("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
+        else:
+            b.wait_val("#network-bond-settings-link-monitoring-select", "mii")
+            b.wait_val("#network-bond-settings-monitoring-targets-input", "")
+
         b.set_val("#network-bond-settings-interface-name-input", "tbond3000")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")

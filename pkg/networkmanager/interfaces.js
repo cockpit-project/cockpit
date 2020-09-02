@@ -3751,7 +3751,7 @@ PageNetworkBondSettings.prototype = {
             interface_name: self.settings.bond.interface_name,
             assigned_mac_address: mac,
             monitoring_interval: options.miimon || options.arp_interval || "100",
-            monitoring_targets: options.arp_ip_targets,
+            monitoring_target: options.arp_ip_target,
             link_up_delay: options.updelay || "0",
             link_down_delay: options.downdelay || "0"
         }));
@@ -3789,7 +3789,7 @@ PageNetworkBondSettings.prototype = {
         downdelay_input.change(change_monitoring);
 
         select_btn_select(mode_btn, options.mode);
-        select_btn_select(monitoring_btn, (options.miimon !== 0) ? "mii" : "arp");
+        select_btn_select(monitoring_btn, options.arp_interval ? "arp" : "mii");
         change_members();
         change_mode();
         change_monitoring();

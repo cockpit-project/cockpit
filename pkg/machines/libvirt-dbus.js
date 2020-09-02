@@ -841,7 +841,7 @@ const LIBVIRT_DBUS_PROVIDER = {
                                 return dispatch(updateDomainSnapshots({
                                     connectionName,
                                     domainPath,
-                                    snaps
+                                    snaps: snaps.sort((a, b) => a.creationTime - b.creationTime)
                                 }));
                             });
                 })

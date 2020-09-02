@@ -28,7 +28,6 @@
 
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
-#include "common/cockpitlog.h"
 #include "common/cockpittransport.h"
 
 #define POLKIT_AGENT_I_KNOW_API_IS_SUBJECT_TO_CHANGE 1
@@ -471,9 +470,6 @@ cockpit_polkit_agent_unregister (gpointer data)
   /* Explicitly cancel all pending operations */
   g_object_run_dispose (G_OBJECT (registered->listener));
   g_object_unref (registered->listener);
-
-  /* Everything is shutting down at this point, prevent polkit from complaining */
-  handler = g_log_set_handler (NULL, G_LOG_LEVEL_WARNING, cockpit_null_log_handler, NULL);
 
   /* Now unregister with polkit */
   polkit_agent_listener_unregister (registered->registration_handle);

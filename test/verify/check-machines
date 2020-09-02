@@ -305,6 +305,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-usage")
         b.wait_in_text(".memory-usage-chart .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
+        b.wait_in_text("#chart-donut-0", "MiB")
         b.wait(lambda: get_usage("#chart-donut-0") > 0.0)
         b.wait_in_text(".vcpu-usage-chart .usage-donut-caption", "1 vCPU")
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage

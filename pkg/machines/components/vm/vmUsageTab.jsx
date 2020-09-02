@@ -28,6 +28,7 @@ import {
     toReadableNumber,
     units,
     toFixedPrecision,
+    getBestUnit,
 } from "../../helpers.js";
 
 import DonutChart from "../../c3charts.jsx";
@@ -86,12 +87,14 @@ class VmUsageTab extends React.Component {
             height,
         };
 
+        const bestUnit = getBestUnit(memTotal, units.KiB);
+
         return (
             <Flex>
                 <FlexItem className="memory-usage-chart">
                     <DonutChart data={memChartData} size={chartSize} width='8' tooltipText=' '
-                                primaryTitle={toReadableNumber(convertToUnit(rssMem, units.KiB, units.GiB))}
-                                secondaryTitle='GiB'
+                                primaryTitle={toReadableNumber(convertToUnit(rssMem, units.KiB, bestUnit))}
+                                secondaryTitle={bestUnit.name}
                                 caption={`used from ${cockpit.format_bytes(memTotal * 1024)} memory`} />
                 </FlexItem>
                 <FlexItem className="vcpu-usage-chart">

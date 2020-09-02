@@ -18,6 +18,11 @@
  */
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
+@import "../lib/ct-card.scss";
+
+#storage .pf-c-card {
+    @extend .ct-card;
+}
 
 #storage {
     overflow: auto;
@@ -27,23 +32,8 @@
     overflow: visible;
 }
 
-/* Rely on the margin from the Card for spacing */
-#storage .pf-c-card .table {
-    margin-bottom: 0;
-}
-
 #storage .pf-l-gallery {
     --pf-l-gallery--GridTemplateColumns: 1fr;
-}
-
-#storage .pf-c-card__body.contains-list {
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: var(--pf-global--spacer--xs);
-}
-
-#storage .pf-c-card__body.contains-list > .pf-c-table > :last-child > tr:last-child {
-    border-bottom: none;
 }
 
 #main-storage.pf-c-page,
@@ -59,22 +49,6 @@
 
 #detail-content, #detail-content .pf-c-card {
     height: 100%;
-}
-
-#storage .pf-c-card__header > .pf-c-card__title {
-  padding: 0;
-}
-
-#storage .pf-c-card__title {
-  font-weight: normal;
-}
-
-#storage .pf-c-card__title > h2 {
-  font-size: var(--pf-global--FontSize--2xl);
-}
-
-#storage .pf-c-card__header {
-  padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
 }
 
 #storage .empty-panel-text,

@@ -35,7 +35,7 @@ import "page.scss";
 import "table.css";
 import "plot.css";
 import "journal.css";
-import "./storage.css";
+import "./storage.scss";
 
 const _ = cockpit.gettext;
 

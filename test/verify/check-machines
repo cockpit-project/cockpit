@@ -4235,6 +4235,21 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             ipv4_netmask="255.255.255.0",
         ).execute()
 
+        # Check "Address not within subnet"
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="open",
+            ip_conf="IPv4 only",
+            ipv4_address="192.168.100.1",
+            ipv4_netmask="64",
+            ipv4_dhcp_start="192.168.100.0",
+            ipv4_dhcp_end="191.168.100.255",
+            xfail=True,
+            xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end"],
+            xfail_error = "Address not within subnet",
+        ).execute()
+
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine

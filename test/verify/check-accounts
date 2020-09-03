@@ -114,7 +114,11 @@ class TestAccounts(MachineCase):
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "berta")
         b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
+        b.set_input_text('#accounts-create-pw1', "foo")
+        if m.image != "rhel-8-3-distropkg": # Fixed in #14559
+            b.wait_visible("#accounts-create-password-meter.weak")
         b.set_input_text('#accounts-create-pw1', good_password)
+        b.wait_visible("#accounts-create-password-meter.excellent")
 
         # wrong password confirmation
         b.set_input_text('#accounts-create-pw2', good_password + 'b')
@@ -216,6 +220,7 @@ class TestAccounts(MachineCase):
         # weak password
         b.set_input_text("#account-set-password-pw1", 'a')
         b.set_input_text("#account-set-password-pw2", 'a')
+        b.wait_visible("#account-set-password-meter.weak")
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "Password quality check failed:")
 
@@ -229,6 +234,7 @@ class TestAccounts(MachineCase):
         # Now set to something valid
         b.set_input_text("#account-set-password-pw1", good_password_2)
         b.set_input_text("#account-set-password-pw2", good_password_2)
+        b.wait_visible("#account-set-password-meter.excellent")
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 

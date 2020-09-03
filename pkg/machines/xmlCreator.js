@@ -85,6 +85,7 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
         forwardMode === 'open') {
         const domainElem = doc.createElement('domain');
         domainElem.setAttribute('name', name);
+        domainElem.setAttribute('localOnly', 'yes');
         networkElem.appendChild(domainElem);
     }
 

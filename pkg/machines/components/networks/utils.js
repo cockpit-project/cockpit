@@ -129,7 +129,7 @@ export function isIpv4InNetwork(network, netmask, ip) {
     netmask = ipv4ToNum(netmask);
     ip = ipv4ToNum(ip);
 
-    return (network & netmask) == (ip & netmask);
+    return (ip > network) && (ip < (network | ~netmask));
 }
 
 /**

@@ -180,7 +180,7 @@ export function account_create_dialog(accounts) {
             old_password = state.password;
             if (state.password) {
                 password_quality(state.password)
-                        .catch(ex => "")
+                        .catch(ex => "weak")
                         .then(strength => {
                             state.password_strength = strength;
                             if (strength == "excellent")

@@ -86,6 +86,10 @@ function getLogarithmOfBase1024(value) {
     return value > 0 ? (Math.floor(Math.log(value) / Math.log(1024))) : 0;
 }
 
+export function getBestUnit(input, inputUnit) {
+    return logUnitMap[getLogarithmOfBase1024(convertToUnitVerbose(input, inputUnit, units.B).value)];
+}
+
 export function convertToBestUnit(input, inputUnit) {
     return convertToUnitVerbose(input, inputUnit,
                                 logUnitMap[getLogarithmOfBase1024(convertToUnitVerbose(input, inputUnit, units.B).value)]);

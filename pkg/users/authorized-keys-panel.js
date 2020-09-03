@@ -115,8 +115,8 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
         if (keys.length === 0) {
             key_items = [
                 <li key={state} className="pf-c-data-list__item">
-                    <div key="empty" className="pf-c-data-list__item-row fingerprint">
-                        <span>{_("There are no authorized public keys for this account.")}</span>
+                    <div key="empty" className="pf-c-data-list__item-row no-keys">
+                        {_("There are no authorized public keys for this account.")}
                     </div>
                 </li>
             ];

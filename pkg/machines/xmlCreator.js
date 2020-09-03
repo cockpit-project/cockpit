@@ -90,6 +90,16 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
     }
 
     if (ipv4) {
+        const dnsElem = doc.createElement('dns');
+        const hostElem = doc.createElement('host');
+        hostElem.setAttribute('ip', ipv4);
+        const hostnameElem = doc.createElement('hostname');
+        const hostnameTextNode = doc.createTextNode('gateway');
+        hostnameElem.appendChild(hostnameTextNode);
+        hostElem.appendChild(hostnameElem);
+        dnsElem.appendChild(hostElem);
+        networkElem.appendChild(dnsElem);
+
         const ipElem = doc.createElement('ip');
         ipElem.setAttribute('address', ipv4);
         ipElem.setAttribute('netmask', netmask);

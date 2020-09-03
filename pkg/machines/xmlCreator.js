@@ -103,6 +103,7 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
         const ipElem = doc.createElement('ip');
         ipElem.setAttribute('address', ipv4);
         ipElem.setAttribute('netmask', netmask);
+        ipElem.setAttribute('localPtr', 'yes');
         networkElem.appendChild(ipElem);
 
         if (ipv4DhcpRangeStart) {

@@ -367,7 +367,7 @@ class CreateNetworkModal extends React.Component {
             forwardMode: 'nat',
             device: 'automatic',
             ip: 'IPv4 only',
-            ipv4: '192.168.100.0',
+            ipv4: '192.168.100.1',
             netmask: '24',
             ipv6: '',
             prefix: '',

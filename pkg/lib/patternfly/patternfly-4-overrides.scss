@@ -38,3 +38,10 @@ ul.pf-c-select__menu {
 .pf-c-breadcrumb__item-divider > svg {
     vertical-align: -0.125em;
 }
+
+// Patternfly horizontal lists should convert to vertical in small screens https://github.com/patternfly/patternfly-react/issues/4777
+@media (min-width: 640px) {
+    .pf-c-description-list {
+        --pf-c-description-list__group--GridTemplateColumns: var(--pf-c-description-list--m-horizontal__group--GridTemplateColumns);
+    }
+}

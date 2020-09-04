@@ -165,6 +165,13 @@ export class CockpitHosts extends React.Component {
 
     onRemove(event, machine) {
         event.preventDefault();
+
+        if (this.props.machine === machine) {
+            // Removing machine underneath ourself - jump to localhost
+            const addr = this.props.hostAddr({ host: "localhost" }, true);
+            this.props.jump(addr);
+        }
+
         if (this.props.machines.list.length <= 2)
             this.setState({ editing: false });
         this.props.machines.change(machine.key, { visible: false });
@@ -210,7 +217,7 @@ export class CockpitHosts extends React.Component {
                 className={m.state}
                 actions={[
                     <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={e => this.onHostEdit(e, m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>,
-                    <Button isDisabled={m === this.props.machine || m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger"><MinusIcon /></Button>
+                    <Button isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger"><MinusIcon /></Button>
                 ]}
         />;
         const label = this.props.machine.label || "";
@@ -257,4 +264,5 @@ CockpitHosts.propTypes = {
     machines: PropTypes.object.isRequired,
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
+    jump: PropTypes.func.isRequired,
 };

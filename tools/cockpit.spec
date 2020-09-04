@@ -105,7 +105,7 @@ BuildRequires: libxslt-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 
-BuildRequires: glib2-devel >= 2.37.4
+BuildRequires: glib2-devel >= 2.50.0
 # this is for runtimedir in the tls proxy ace21c8879
 BuildRequires: systemd-devel >= 235
 %if 0%{?suse_version}
@@ -450,7 +450,7 @@ This package contains the Cockpit shell and system configuration interfaces.
 Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
-Requires: glib2 >= 2.37.4
+Requires: glib2 >= 2.50.0
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos

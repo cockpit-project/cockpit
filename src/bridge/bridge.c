@@ -40,7 +40,6 @@
 #include "common/cockpitassets.h"
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
@@ -59,6 +58,7 @@
 #include <glib/gstdio.h>
 #include <gio/gunixsocketaddress.h>
 
+#include <systemd/sd-journal.h>
 
 /* This program is run on each managed server, with the credentials
    of the user that is logged into the Server Console.
@@ -487,8 +487,6 @@ run_bridge (const gchar *interactive,
       outfd = 1;
     }
 
-  cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
-
   /* Always set environment variables early */
   uid = geteuid();
   pwd = getpwuid_a (uid);
@@ -697,6 +695,27 @@ main (int argc,
   /* Debugging issues during testing */
   signal (SIGABRT, cockpit_test_signal_backtrace);
   signal (SIGSEGV, cockpit_test_signal_backtrace);
+
+  /* In case we are run via sshd and we have journald, make sure all
+   * logging output ends up in the journal on *this* machine, not sent
+   * back to the client.
+   */
+  if (g_getenv ("SSH_CONNECTION") && !g_log_writer_is_journald (2) && ! isatty(2))
+    {
+      int fd = sd_journal_stream_fd ("cockpit/ssh", LOG_WARNING, 0);
+
+      /* If it didn't work, then there's no journal.  That's OK: we'll
+       * just send the output back to the client after all.
+       *
+       * If it did work, rename the fd to 2 (stderr).
+       */
+      if (fd >= 0)
+        {
+          int r = dup2 (fd, 2);
+          g_assert (r == 2); /* that should really never fail */
+          close (fd);
+        }
+    }
 
   /*
    * We have to tell GLib about an alternate default location for XDG_DATA_DIRS

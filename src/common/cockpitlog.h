@@ -29,14 +29,6 @@ void     cockpit_null_log_handler       (const gchar *log_domain,
                                          const gchar *message,
                                          gpointer user_data);
 
-void     cockpit_journal_log_handler    (const gchar *log_domain,
-                                         GLogLevelFlags log_level,
-                                         const gchar *message,
-                                         gpointer user_data);
-
-void     cockpit_set_journal_logging    (const gchar *stderr_domain,
-                                         gboolean only);
-
 G_END_DECLS
 
 #endif /* __COCKPIT_LOG_H__ */

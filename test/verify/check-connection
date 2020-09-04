@@ -734,7 +734,11 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
             return False
         wait(check_wss_log)
 
-        wait(lambda: "received request from bad Origin" in m.execute("journalctl -b -t cockpit-ws"))
+        # our logging changed, but the distropkg still behaves the old way
+        if m.image in ['rhel-8-3-distropkg']:
+            wait(lambda: "received request from bad Origin" in m.execute("journalctl -b -t cockpit-ws"))
+        else:
+            wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
 
         # sanity check: unencrypted http through SSL proxy does not work
         m.execute("! curl http://localhost:9090")

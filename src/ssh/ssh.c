@@ -21,7 +21,6 @@
 
 #include <gio/gio.h>
 
-#include "common/cockpitlog.h"
 #include "common/cockpittest.h"
 
 #include "cockpitsshrelay.h"
@@ -82,8 +81,6 @@ main (int argc,
       ret = INTERNAL_ERROR;
       goto out;
     }
-
-  cockpit_set_journal_logging (NULL, FALSE);
 
   loop = g_main_loop_new (NULL, FALSE);
 

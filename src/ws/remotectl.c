@@ -21,8 +21,6 @@
 
 #include "remotectl.h"
 
-#include "common/cockpitlog.h"
-
 #include <glib-object.h>
 
 #include <unistd.h>
@@ -68,9 +66,6 @@ main (int argc,
   };
 
   signal (SIGPIPE, SIG_IGN);
-
-  /* Send a copy of everything to the journal */
-  cockpit_set_journal_logging (G_LOG_DOMAIN, FALSE);
 
   /* g_message in this domain becomes command output */
   g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,

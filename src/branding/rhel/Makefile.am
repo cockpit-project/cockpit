@@ -2,7 +2,6 @@ rhelbrandingdir = $(datadir)/cockpit/branding/rhel
 
 rhelbranding_DATA = \
 	src/branding/rhel/branding.css \
-	src/branding/rhel/bg-login.jpg \
 	$(NULL)
 
 EXTRA_DIST += $(rhelbranding_DATA)

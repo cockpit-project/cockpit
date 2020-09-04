@@ -366,6 +366,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 machines: machines,
                 selector: "nav-hosts",
                 hostAddr: index.href,
+                jump: index.jump,
             }),
             document.getElementById("hosts-sel"));
     }

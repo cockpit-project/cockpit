@@ -102,6 +102,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2.execute("useradd user -c 'User' || true", direct=True)
         self.machine2.execute(
             "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)", direct=True)
+        # HACK - Increase MaxAuthTries because of
+        # https://bugs.libssh.org/T233 and because we have a lot of
+        # keys and cockpit-ssh tries them all, and many of them twice.
+        self.machine2.execute("echo 'MaxAuthTries 100' >>/etc/ssh/sshd_config")
         self.machine2.execute(
             "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
@@ -292,10 +296,45 @@ Host 10.111.113.2
         b.click("#dashboard_setup_server_dialog .pf-m-primary")
         b.wait_in_text(".locked-identity", "/home/admin/.ssh/id_ed25519")
         b.wait_in_text(".keys", "id_rsa")
-        self.assertNotIn(b.text(".keys"), "id_ed25519")
+        self.assertNotIn("id_ed25519", b.text(".keys"))
         b.set_val(".locked-identity-password", "locked")
         b.click(".key-locked .pf-m-primary")
         b.wait_in_text(".keys", "id_ed25519")
+        b.click("#dashboard_setup_server_dialog .modal-footer>.pf-m-primary")
+        b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        self.allow_hostkey_messages()
+
+    @skipImage("Fixed in #14551", "rhel-8-3-distropkg")
+    def testLockedDefaultIdentity(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # Upload id_rsa and change its password to something else so
+        # that it is not automatically loaded into the agent.  id_rsa
+        # should be tried autoamtically without needing to configure
+        # it explicitly in ~/.ssh/config.
+
+        m1.execute("mkdir -p /home/admin/.ssh")
+        m1.upload(["verify/files/ssh/id_rsa", "verify/files/ssh/id_rsa.pub"],
+                  "/home/admin/.ssh/")
+        m1.execute("chmod 400 /home/admin/.ssh/*")
+        m1.execute("chown -R admin:admin /home/admin/.ssh")
+        m1.execute("ssh-keygen -p -f /home/admin/.ssh/id_rsa -P foobar -N foobarfoo")
+        authorize_user(m2, "admin", ["verify/files/ssh/id_rsa.pub"])
+
+        self.login_and_go("/dashboard")
+
+        b.click("#dashboard-add")
+        b.set_val("#add-machine-address", "10.111.113.2")
+        b.click("#dashboard_setup_server_dialog .pf-m-primary")
+        b.wait_in_text("#dashboard_setup_server_dialog", "Fingerprint")
+        b.click("#dashboard_setup_server_dialog .pf-m-primary")
+        b.wait_in_text(".locked-identity", "/home/admin/.ssh/id_rsa")
+        self.assertNotIn("id_rsa", b.text(".keys"))
+        b.set_val(".locked-identity-password", "foobarfoo")
+        b.click(".key-locked .pf-m-primary")
+        b.wait_in_text(".keys", "id_rsa")
         b.click("#dashboard_setup_server_dialog .modal-footer>.pf-m-primary")
         b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
         self.allow_hostkey_messages()

@@ -34,7 +34,6 @@
 
 #include "common/cockpitassets.h"
 #include "common/cockpitconf.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
@@ -183,8 +182,6 @@ main (int argc,
       g_printerr ("ws couldn't redirect stdout to stderr");
       goto out;
     }
-
-  cockpit_set_journal_logging (NULL, !isatty (2));
 
   if (opt_local_session || opt_no_tls)
     {

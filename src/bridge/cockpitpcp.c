@@ -25,7 +25,6 @@
 
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
-#include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitunixfd.h"
 
@@ -126,8 +125,6 @@ main (int argc,
       g_printerr ("cockpit-pcp: only run from cockpit-bridge\n");
       return 2;
     }
-
-  cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write

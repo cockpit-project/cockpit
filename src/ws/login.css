@@ -979,17 +979,6 @@ label.checkbox {
 
   /* Desktop-specific */
   @media (min-width: 1024px) {
-    .container::before {
-      background: rgba(0,0,0, 0.3);
-      content: "";
-      position: absolute;
-      height: 100%;
-      width: 370px;
-      top: 0;
-      left: 0;
-      z-index: -1;
-    }
-
     body.login-pf {
       grid-template-areas: ". alert alert ." ". . . ." ". login logo ." ". . . . ";
       grid-template-rows: auto 1fr minmax(min-content,max-content) 1fr;

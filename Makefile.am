@@ -429,6 +429,12 @@ distcheck-hook::
 bots:
 	tools/make-bots
 
+multi-word: po/cockpit.pot
+	$(MSGGREP) --no-wrap --msgid -e '\S\+\s' po/cockpit.pot | grep "^msgid " | cut -d " " -f2- | sort --reverse > titles
+
+title2sentence: multi-word
+	tools/title2sentence.py -i titles -o t2s.sh
+
 include po/Makefile.am
 include pkg/Makefile.am
 include src/base1/Makefile.am

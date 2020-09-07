@@ -727,11 +727,7 @@ label.checkbox {
   }
 
   .login-pf #badge {
-    max-width: 33vw;
-    margin: 3rem auto;
-    height: 8rem;
-    padding: 0;
-    background-position: 50% 100%;
+    max-width: calc(100vw - 2rem);
   }
 
   /* Brand container */
@@ -883,8 +879,7 @@ label.checkbox {
     color: #151515;
     display: grid;
     grid-template-areas: "alert" "login" "logo";
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(min-content, max-content);
+    grid-template-rows: auto auto 1fr;
     background-position: 0 0 !important;
     height: 100vh;
     grid-gap: 0 4rem;

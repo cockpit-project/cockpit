@@ -56,9 +56,11 @@ label[for=console-type-select],
 
 .terminal-control {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     width: 100%;
+    gap: var(--pf-global--spacer--sm);
 }
 
 .terminal-control > .btn {

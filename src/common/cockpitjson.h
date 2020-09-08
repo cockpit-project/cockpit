@@ -26,11 +26,6 @@
 
 G_BEGIN_DECLS
 
-#if !JSON_CHECK_VERSION(0, 99, 2)
-#define JSON_PARSER_ERROR_INVALID_DATA 700
-#define COCKPIT_JSON_GLIB_NEED_UTF8_VALIDATE 1
-#endif
-
 JsonNode *     cockpit_json_parse             (const char *data,
                                                gssize length,
                                                GError **error);

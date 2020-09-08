@@ -509,23 +509,6 @@ cockpit_json_parse (const gchar *data,
       g_private_set (&cached_parser, parser);
     }
 
-  /*
-   * HACK: Workaround for the fact that json-glib did not utf-8
-   * validate its data until 0.99.2
-   */
-#ifdef COCKPIT_JSON_GLIB_NEED_UTF8_VALIDATE
-  if (!g_utf8_validate (data, length, NULL))
-    {
-      GError *local_error = NULL;
-      g_set_error_literal (&local_error, JSON_PARSER_ERROR,
-                           JSON_PARSER_ERROR_INVALID_DATA,
-                           "JSON data must be UTF-8 encoded");
-      g_signal_emit_by_name (parser, "error", 0, error);
-      g_propagate_error (error, local_error);
-      return NULL;
-    }
-#endif
-
 
   if (json_parser_load_from_data (parser, data, length, error))
     {

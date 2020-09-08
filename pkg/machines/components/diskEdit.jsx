@@ -34,7 +34,7 @@ import 'form-layout.scss';
 const _ = cockpit.gettext;
 
 const NameRow = ({ idPrefix, name, diskType }) => {
-    let label = _("Id");
+    let label = _("ID");
     if (["file", "block", "dir"].includes(diskType))
         label = _("Path");
     else if (diskType === "network")

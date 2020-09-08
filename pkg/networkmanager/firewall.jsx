@@ -544,7 +544,7 @@ class AddServicesModal extends React.Component {
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
                                     <output className="has-error" htmlFor="udp-ports">{this.state.udp_error}</output>
 
-                                    <label className="control-label" htmlFor="service-name">{_("Id")}</label>
+                                    <label className="control-label" htmlFor="service-name">{_("ID")}</label>
                                     <input id="service-name" className="form-control" type="text" onChange={this.setId}
                                            placeholder={_("(Optional)")} value={this.state.custom_id} />
                                 </>

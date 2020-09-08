@@ -268,7 +268,7 @@ export function mounting_dialog(client, block, mode) {
             <>
                 {footer}
                 <div className="modal-footer-teardown">
-                    <p>{cockpit.format(_("The filesystem is already mounted at $0.  Proceeding will unmount it."),
+                    <p>{cockpit.format(_("The filesystem is already mounted at $0. Proceeding will unmount it."),
                                        utils.decode_filename(block_fsys.MountPoints[0]))}</p>
                 </div>
             </>);

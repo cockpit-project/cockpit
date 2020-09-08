@@ -500,7 +500,6 @@ cockpit_json_parse (const gchar *data,
   static GPrivate cached_parser = G_PRIVATE_INIT (g_object_unref);
   JsonParser *parser;
   JsonNode *root;
-  JsonNode *ret;
 
   parser = g_private_get (&cached_parser);
   if (parser == NULL)
@@ -509,39 +508,18 @@ cockpit_json_parse (const gchar *data,
       g_private_set (&cached_parser, parser);
     }
 
+  if (!json_parser_load_from_data (parser, data, length, error))
+    return NULL;
 
-  if (json_parser_load_from_data (parser, data, length, error))
+  root = json_parser_steal_root (parser);
+  if (root == NULL)
     {
-      root = json_parser_get_root (parser);
-      if (root == NULL)
-        {
-          g_set_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_PARSE,
-                       "JSON data was empty");
-          ret = NULL;
-        }
-      else
-        {
-          ret = json_node_copy (root);
-
-          /*
-           * HACK: JsonParser doesn't give us a way to clear the parser
-           * and remove memory sitting around until the next parse, so
-           * we clear it like this.
-           *
-           * https://bugzilla.gnome.org/show_bug.cgi?id=728951
-           */
-          if (JSON_NODE_HOLDS_OBJECT (root))
-            json_node_take_object (root, json_object_new ());
-          else if (JSON_NODE_HOLDS_ARRAY (root))
-            json_node_take_array (root, json_array_new ());
-        }
-    }
-  else
-    {
-      ret = NULL;
+      g_set_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_PARSE,
+                   "JSON data was empty");
+      return NULL;
     }
 
-  return ret;
+  return root;
 }
 
 /**

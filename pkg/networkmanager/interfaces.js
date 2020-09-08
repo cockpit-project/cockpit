@@ -2905,7 +2905,7 @@ PageNetworkInterface.prototype = {
                 }
 
                 add_row(_("Parent $parent"), options);
-                add_row(_("Id $id"), options);
+                add_row(_("ID $id"), options);
 
                 return render_settings_row(_("VLAN"), rows,
                                            configure_vlan_settings);

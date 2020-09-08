@@ -1958,7 +1958,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             b.wait_present("#create-vm-dialog")
             if self.sourceType == 'disk_image':
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import A Virtual Machine")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import a Virtual Machine")
             else:
                 b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 

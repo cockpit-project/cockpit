@@ -231,7 +231,7 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
     const vmsUsing = isVolumeUsed[volumeName].join(', ') + '.';
     let text = _("This volume is already used by: ") + vmsUsing;
     if (volume.format === "raw")
-        text += _(" Attaching it will make this disk shareable for every VM using it.");
+        text += _("Attaching it will make this disk shareable for every VM using it.");
 
     return <Alert isInline variant='warning' id={`${idPrefix}-vms-usage`} title={text} />;
 };

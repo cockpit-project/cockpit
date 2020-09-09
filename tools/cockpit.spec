@@ -43,9 +43,6 @@
 
 %define _hardened_build 1
 
-# define to build the dashboard
-%define build_dashboard 1
-
 # build basic packages like cockpit-bridge
 %define build_basic 1
 # build optional extensions like cockpit-docker
@@ -88,7 +85,7 @@ BuildRequires: autoconf automake
 BuildRequires: make
 BuildRequires: /usr/bin/python3
 BuildRequires: gettext >= 0.19.7
-%if %{defined build_dashboard}
+%if 0%{?build_optional}
 BuildRequires: libssh-devel >= 0.8.5
 %endif
 BuildRequires: openssl-devel
@@ -197,13 +194,8 @@ echo '%dir %{_datadir}/cockpit/ssh' >> base.list
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
-%if %{defined build_dashboard}
 echo '%dir %{_datadir}/cockpit/dashboard' >> dashboard.list
 find %{buildroot}%{_datadir}/cockpit/dashboard -type f >> dashboard.list
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/dashboard
-touch dashboard.list
-%endif
 
 echo '%dir %{_datadir}/cockpit/pcp' >> pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
@@ -680,7 +672,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %post -n cockpit-pcp
 systemctl reload-or-try-restart pmlogger
 
-%if %{defined build_dashboard}
 %package -n cockpit-dashboard
 Summary: Cockpit remote server dashboard
 BuildArch: noarch
@@ -691,8 +682,6 @@ Conflicts: cockpit-ws < 135
 Cockpit page for showing performance graphs for up to 20 remote servers.
 
 %files -n cockpit-dashboard -f dashboard.list
-
-%endif
 
 %if 0%{?build_docker}
 %package -n cockpit-docker

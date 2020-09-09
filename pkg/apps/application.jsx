@@ -68,7 +68,8 @@ export class Application extends React.Component {
                 if (url.type == 'homepage') {
                     return (<div className="app-links" key={url.link}>
                         <a href={url.link} target="_blank" rel="noopener noreferrer" data-linkedhost={url.link}>
-                            View Project Website <i className="fa fa-external-link" aria-hidden="true" />
+                            {_("View project website")}
+                            <i className="fa fa-external-link" aria-hidden="true" />
                         </a>
                     </div>);
                 }

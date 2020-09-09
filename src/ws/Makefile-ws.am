@@ -180,9 +180,6 @@ systemd_units_in = \
 nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
 dist_systemdunit_DATA += src/ws/system-cockpithttps.slice
 
-firewalldir = $(prefix)/lib/firewalld/services
-firewall_DATA = src/ws/cockpit.xml
-
 motddir = $(datadir)/$(PACKAGE)/motd/
 dist_motd_DATA = src/ws/inactive.motd
 dist_motd_SCRIPTS = src/ws/update-motd
@@ -231,7 +228,6 @@ cockpit-desktop: src/ws/cockpit-desktop.in
 EXTRA_DIST += \
 	$(systemd_units_in) \
 	src/ws/cockpit-desktop.in \
-	$(firewall_DATA) \
 	$(tempconf_in) \
 	$(NULL)
 

@@ -49,8 +49,5 @@ override_dh_install:
 	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
-	# all supported Debian/Ubuntu releases have firewalld >= 0.6 that ships cockpit service
-	if [ -d debian/cockpit-ws ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
-
 override_dh_gencontrol:
 	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

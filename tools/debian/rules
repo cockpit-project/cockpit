@@ -2,12 +2,6 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# only build deprecated cockpit-docker for stable releases (backports); Debian sid/testing has no VERSION_ID
-BUILD_DOCKER = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),18.04 19.10)
-ifeq ($(BUILD_DOCKER),)
-       export DH_OPTIONS = -Ncockpit-docker
-endif
-
 # this is an emulated architecture for now, and too slow to run expensive unit tests
 ifeq ($(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64)
 	export COCKPIT_SKIP_SLOW_TESTS=1

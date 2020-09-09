@@ -41,7 +41,7 @@
 
 # build basic packages like cockpit-bridge
 %define build_basic 1
-# build optional extensions like cockpit-docker
+# build optional extensions like cockpit-machines
 %define build_optional 1
 
 %define __lib lib
@@ -233,15 +233,6 @@ find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
-%if 0%{?build_docker}
-echo '%dir %{_datadir}/cockpit/docker' > docker.list
-find %{buildroot}%{_datadir}/cockpit/docker -type f >> docker.list
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/docker
-rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
-touch docker.list
-%endif
-
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users; do
@@ -265,7 +256,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard docker machines packagekit pcp playground storaged; do
+for pkg in apps dashboard machines packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
@@ -276,8 +267,6 @@ rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
-# files from -docker
-rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -674,22 +663,6 @@ Conflicts: cockpit-ws < 135
 Cockpit page for showing performance graphs for up to 20 remote servers.
 
 %files -n cockpit-dashboard -f dashboard.list
-
-%if 0%{?build_docker}
-%package -n cockpit-docker
-Summary: Cockpit user interface for Docker containers
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
-Requires: (docker or moby-engine or docker-ce)
-Requires: %{__python3}
-
-%description -n cockpit-docker
-The Cockpit components for interacting with Docker and user interface.
-This package is not yet complete.
-
-%files -n cockpit-docker -f docker.list
-%{_datadir}/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
-%endif
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

@@ -28,11 +28,13 @@ import {
 import {
     Alert, Button, Tooltip, Page, PageSection, PageSectionVariants,
     Breadcrumb, BreadcrumbItem,
+    Split, SplitItem,
 } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
 import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+import { ListingTable } from 'cockpit-components-table.jsx';
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -48,7 +50,7 @@ const _ = cockpit.gettext;
 
 superuser.reload_page_on_change();
 
-function ServiceRow(props) {
+function serviceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
@@ -70,14 +72,19 @@ function ServiceRow(props) {
     var deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
 
     var columns = [
-        { name: props.service.id, header: true },
-        <div key={props.service.id + "tcp"}>
-            { tcp.map(p => p.port).join(', ') }
-        </div>,
-        <div key={props.service.id + "udp"}>
-            { udp.map(p => p.port).join(', ') }
-        </div>,
-        null
+        {
+            title: props.service.id, header: true
+        },
+        {
+            title: <div key={props.service.id + "tcp"}>
+                { tcp.map(p => p.port).join(', ') }
+            </div>
+        },
+        {
+            title: <div key={props.service.id + "udp"}>
+                { udp.map(p => p.port).join(', ') }
+            </div>
+        },
     ];
 
     let description, includes;
@@ -93,31 +100,43 @@ function ServiceRow(props) {
                     return <li key={service.id}><strong>{service.id}</strong>: {service.description}</li>;
             })} </ul></>;
     }
-    const simpleBody = <>{description}{includes}</>;
+    const simpleBody = <Split>
+        <SplitItem key="description" isFilled>{description}{includes}</SplitItem>
+        {!props.readonly && <SplitItem key="actions">{deleteButton}</SplitItem>}
+    </Split>;
 
-    return <ListingRow key={props.service.id}
-                       rowId={props.service.id}
-                       columns={columns}
-                       simpleBody={simpleBody}
-                       listingActions={!props.readonly && deleteButton} />;
+    return ({
+        props: { key: props.service.id },
+        rowId: props.service.id,
+        columns,
+        hasPadding: true,
+        expandedContent: simpleBody,
+    });
 }
 
-function PortRow(props) {
+function portRow(props) {
     const columns = [
-        <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>,
-        props.zone.ports
-                .filter(p => p.protocol === "tcp")
-                .map(p => p.port)
-                .join(", "),
-        props.zone.ports
-                .filter(p => p.protocol === "udp")
-                .map(p => p.port)
-                .join(", "),
-        null
+        {
+            title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
+        },
+        {
+            title: props.zone.ports
+                    .filter(p => p.protocol === "tcp")
+                    .map(p => p.port)
+                    .join(", ")
+        },
+        {
+            title: props.zone.ports
+                    .filter(p => p.protocol === "udp")
+                    .map(p => p.port)
+                    .join(", ")
+        },
     ];
-    return <ListingRow key={props.zone.id + "-ports"}
-                       rowId={props.zone.id + "-ports"}
-                       columns={columns} />;
+    return ({
+        props: { key: props.zone.id + "-ports" },
+        rowId: props.zone.id + "-ports",
+        columns
+    });
 }
 
 function ZoneSection(props) {
@@ -160,23 +179,29 @@ function ZoneSection(props) {
             { !firewall.readonly && <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div> }
         </div>
         {props.zone.services.length > 0 &&
-        <Listing columnTitles={[_("Service"), _("TCP"), _("UDP"), ""]}
-                     emptyCaption={_("There are no active services in this zone")}>
-            { props.zone.services.map(s => {
-                if (s in firewall.services)
-                    return <ServiceRow key={firewall.services[s].id}
-                                       service={firewall.services[s]}
-                                       onRemoveService={service => props.onRemoveService(props.zone.id, service)}
-                                       readonly={firewall.readonly} />;
-            })
-            }
-            { props.zone.ports.length > 0 &&
-            <PortRow key={props.zone.id + "-ports"}
-                     zone={props.zone}
-                     readonly={firewall.readonly} />}
+        <ListingTable columns={[{ title: _("Service"), transforms: [cellWidth(40)] }, { title: _("TCP"), transforms: [cellWidth(30)] }, { title: _("UDP"), transforms: [cellWidth(30)] }]}
+                      aria-label={props.zone.id}
+                      variant="compact"
+                      emptyCaption={_("There are no active services in this zone")}
+                      rows={
+                          props.zone.services.map(s => {
+                              if (s in firewall.services)
+                                  return serviceRow({
+                                      key: firewall.services[s].id,
+                                      service: firewall.services[s],
+                                      onRemoveService: service => props.onRemoveService(props.zone.id, service),
+                                      readonly: firewall.readonly
+                                  });
+                          }).concat(
+                              props.zone.ports.length > 0
+                                  ? portRow({
+                                      key: props.zone.id + "-ports",
+                                      zone: props.zone,
+                                      readonly: firewall.readonly
+                                  }) : [])
+                                  .filter(Boolean)}
 
-        </Listing>
-        }
+        />}
     </div>;
 }
 

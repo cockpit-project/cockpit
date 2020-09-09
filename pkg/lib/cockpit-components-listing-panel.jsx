@@ -31,8 +31,6 @@ import './cockpit-components-listing-panel.scss';
  *         - 'onlyActive' the tab is only rendered when active
  *         - 'loadOnDemand' the tab is first rendered when it becomes active, then follows 'always' behavior
  * listingActions optional: buttons that are presented as actions for the expanded item
- * simpleBody optional: if set the expansion will just contain this simple body without tabs,
- *                      this does not work well with tabRenderers.
  */
 export class ListingPanel extends React.Component {
     constructor(props) {
@@ -117,34 +115,22 @@ export class ListingPanel extends React.Component {
             );
         }
 
-        let simpleBody, heading;
-        if (this.props.simpleBody) {
-            heading =
-                <div className="ct-listing-panel-actions ct-listing-panel-simplebody-actions">
-                    {this.props.listingActions}
-                </div>;
-            simpleBody =
-                <div className="ct-listing-panel-body" key="simplebody">
-                    {this.props.simpleBody}
-                </div>;
-        } else {
-            heading = (<div className="ct-listing-panel-head">
-                {links.length && <Nav variant="tertiary" onSelect={this.handleTabClick}>
-                    <NavList>
-                        {links}
-                    </NavList>
-                </Nav>}
-                <div className="ct-listing-panel-actions">
-                    {listingDetail}
-                    {this.props.listingActions}
-                </div>
-            </div>);
-        }
+        const heading = (<div className="ct-listing-panel-head">
+            {links.length && <Nav variant="tertiary" onSelect={this.handleTabClick}>
+                <NavList>
+                    {links}
+                </NavList>
+            </Nav>}
+            <div className="ct-listing-panel-actions">
+                {listingDetail}
+                {this.props.listingActions}
+            </div>
+        </div>);
 
         return (
             <>
                 {heading}
-                {simpleBody || tabs}
+                {tabs}
             </>
         );
     }
@@ -158,5 +144,4 @@ ListingPanel.propTypes = {
     listingDetail: PropTypes.node,
     listingActions: PropTypes.node,
     initiallyActiveTab: PropTypes.number,
-    simpleBody: PropTypes.node,
 };

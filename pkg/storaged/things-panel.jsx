@@ -63,10 +63,10 @@ export class ThingsPanel extends React.Component {
         };
 
         const actions = (
-            <StorageBarMenu id="devices-menu" label={_("Create Devices")}>
-                { menu_item(null, _("Create RAID Device"), () => create_mdraid(client)) }
-                { menu_item(lvm2_feature, _("Create Volume Group"), () => create_vgroup(client)) }
-                { menu_item(vdo_feature(client), _("Create VDO Device"), () => create_vdo(client)) }
+            <StorageBarMenu id="devices-menu" label={_("Create devices")}>
+                { menu_item(null, _("Create RAID device"), () => create_mdraid(client)) }
+                { menu_item(lvm2_feature, _("Create volume group"), () => create_vgroup(client)) }
+                { menu_item(vdo_feature(client), _("Create VDO device"), () => create_vdo(client)) }
             </StorageBarMenu>);
 
         var devices = [].concat(
@@ -78,7 +78,7 @@ export class ThingsPanel extends React.Component {
             <SidePanel id="devices"
                        title={_("Devices")}
                        actions={actions}
-                       empty_text={_("No Devices")}
+                       empty_text={_("No devices")}
                        show_all_text={cockpit.format(_("Show all $0 devices"), devices.length)}
                        client={client}>
                 { devices }

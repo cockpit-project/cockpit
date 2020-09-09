@@ -49,7 +49,7 @@ class TestStorageVDO(StorageCase):
 
         # Create VDO
 
-        self.devices_dropdown("Create VDO Device")
+        self.devices_dropdown("Create VDO device")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vdo0")
         self.dialog_set_val("space", {"/dev/vdo_vgroup/lvol": True})
@@ -73,16 +73,16 @@ class TestStorageVDO(StorageCase):
 
         # Make a filesystem on it
 
-        self.content_row_wait_in_col(1, 1, "Unrecognized Data")
+        self.content_row_wait_in_col(1, 1, "Unrecognized data")
         self.content_head_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "xfs File System")
+        self.content_row_wait_in_col(1, 1, "xfs file system")
         # _netdev etc should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "_netdev")
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "x-systemd.device-timeout=0")
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "x-systemd.requires=vdo.service")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
         self.content_tab_wait_in_info(1, 1, "Used", "of 4.99 GiB", "of 5.0 GiB")
 
         # Grow physical
@@ -287,13 +287,13 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 
         self.login_and_go("/storage")
 
-        self.devices_dropdown("Create VDO Device")
+        self.devices_dropdown("Create VDO device")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "The vdo package must be installed")
         b.wait_in_text("#dialog", "Total size:")
         self.dialog_apply()
         # A new dialog opens immediately
-        b.wait_in_text("#dialog", "Create VDO Device")
+        b.wait_in_text("#dialog", "Create VDO device")
 
 if __name__ == '__main__':
     test_main()

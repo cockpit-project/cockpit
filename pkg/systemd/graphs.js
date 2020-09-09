@@ -72,7 +72,7 @@ GraphServer.prototype = {
 
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));
-        set_page_link("#link-network", "network", _("Network Traffic"));
+        set_page_link("#link-network", "network", _("Network traffic"));
 
         $("#link-memory, #link-memory-and-swap").on("click", function() {
             cockpit.location.go(["memory"]);
@@ -255,7 +255,7 @@ PageCpuStatus.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "CPU Status");
+        return C_("page-title", "CPU status");
     },
 
     enter: function() {
@@ -294,7 +294,7 @@ PageCpuStatus.prototype = {
         ];
 
         var series = [
-            { color: "#cc0000", label: _("I/O Wait") },
+            { color: "#cc0000", label: _("I/O wait") },
             { color: "#f5c12e", label: _("Kernel") },
             { color: "#8461f7", label: _("User") },
             { color: "#6eb664", label: _("Nice") },
@@ -408,7 +408,7 @@ PageMemoryStatus.prototype = {
                     }
                 });
                 metrics.push({ name: "memory.swap-used" });
-                series.push({ color: "#e41a1c", label: _("Swap Used"), offset: info.memory, factor: 0.25 });
+                series.push({ color: "#e41a1c", label: _("Swap used"), offset: info.memory, factor: 0.25 });
             } else {
                 $("#memory_status .memory-swap").prop("hidden", true);
             }
@@ -438,7 +438,7 @@ PageMemoryStatus.prototype = {
     show: function() {
         var self = this;
 
-        $("#memory_status_title").text(_("Memory & Swap Usage"));
+        $("#memory_status_title").text(_("Memory & swap usage"));
 
         if (self.setupPromise) {
             self.setupPromise.done(function() {
@@ -486,13 +486,13 @@ $(function() {
             page_hide(memory_page);
             page_show(cpu_page);
             $('#complicated_graphs').removeAttr("hidden");
-            $("#complicated_graph_current_breadcrumb").text(_("CPU Graph"));
+            $("#complicated_graph_current_breadcrumb").text(_("CPU graph"));
         } else if (path.length === 1 && path[0] == 'memory') {
             page_hide(server_page);
             page_hide(cpu_page);
             page_show(memory_page);
             $('#complicated_graphs').removeAttr("hidden");
-            $("#complicated_graph_current_breadcrumb").text(_("Memory Graph"));
+            $("#complicated_graph_current_breadcrumb").text(_("Memory graph"));
         } else { /* redirect */
             console.warn("not a system location: " + path);
             cockpit.location = '';

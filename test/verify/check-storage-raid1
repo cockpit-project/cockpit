@@ -37,7 +37,7 @@ class TestStorageRaid1(StorageCase):
         b.wait_in_text("#drives", "DISK1")
         b.wait_in_text("#drives", "DISK2")
 
-        self.devices_dropdown('Create RAID Device')
+        self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid1")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})

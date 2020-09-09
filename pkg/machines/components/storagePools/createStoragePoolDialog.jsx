@@ -45,7 +45,7 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
             <FormGroup validationState={validationState} controlId='name'>
                 <input id='storage-pool-dialog-name'
                        type='text'
-                       placeholder={_("Storage Pool Name")}
+                       placeholder={_("Storage pool name")}
                        value={dialogValues.name || ''}
                        onChange={e => onValueChanged('name', e.target.value)}
                        className='form-control' />
@@ -60,15 +60,15 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
 
 const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) => {
     const poolTypes = [
-        { type: 'dir', detail: _("Filesystem Directory") },
-        { type: 'netfs', detail:_("Network File System") },
-        { type: 'iscsi', detail: _("iSCSI Target") },
-        { type: 'disk', detail: _("Physical Disk Device") },
-        { type: 'logical', detail: _("LVM Volume Group") },
+        { type: 'dir', detail: _("Filesystem directory") },
+        { type: 'netfs', detail:_("Network file system") },
+        { type: 'iscsi', detail: _("iSCSI target") },
+        { type: 'disk', detail: _("Physical disk device") },
+        { type: 'logical', detail: _("LVM volume group") },
     ];
     // iscsi-direct exists since 4.7.0
     if (libvirtVersion && libvirtVersion >= 4007000)
-        poolTypes.push({ type: 'iscsi-direct', detail: _("iSCSI direct Target") });
+        poolTypes.push({ type: 'iscsi-direct', detail: _("iSCSI direct target") });
 
     /* TODO
         { type: 'fs', detail _("Pre-formatted Block Device") },
@@ -109,7 +109,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
         return (
             <>
                 <label htmlFor='storage-pool-dialog-target' className='control-label'>
-                    {_("Target Path")}
+                    {_("Target path")}
                 </label>
                 <FormGroup validationState={validationState} controlId='target'>
                     <FileAutoComplete id='storage-pool-dialog-target'
@@ -140,7 +140,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                 <FormGroup validationState={validationState} controlId='host'>
                     <input id='storage-pool-dialog-host'
                            type='text'
-                           placeholder={_("Host Name")}
+                           placeholder={_("Host name")}
                            value={dialogValues.source.host || ''}
                            onChange={e => onValueChanged('source', { host: e.target.value })}
                            className='form-control' />
@@ -167,7 +167,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
                 <FormGroup validationState={validationState} controlId='initiator'>
                     <input id='storage-pool-dialog-initiator'
                            type='text'
-                           placeholder={_("iSCSI Initiator IQN")}
+                           placeholder={_("iSCSI initiator IQN")}
                            value={dialogValues.source.initiator || ''}
                            onChange={e => onValueChanged('source', { initiator: e.target.value })}
                            className='form-control' />
@@ -198,14 +198,14 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
         placeholder = _("Physical disk device on host");
     } else if (dialogValues.type == 'logical') {
         validationState = dialogValues.source.name && dialogValues.validationFailed.source ? 'error' : undefined;
-        placeholder = _("Volume Group name");
+        placeholder = _("Volume group name");
     }
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
             <>
                 <label className='control-label'>
-                    {_("Source Path")}
+                    {_("Source path")}
                 </label>
                 <FormGroup validationState={validationState} controlId='source'>
                     <input id='storage-pool-dialog-source'
@@ -232,7 +232,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
         return (
             <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
-                    {_("Source Path")}
+                    {_("Source path")}
                 </label>
                 <FormGroup className='ct-form-split'
                            validationState={validationState}
@@ -270,7 +270,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
         return (
             <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
-                    {_("Source Volume Group")}
+                    {_("Source volume group")}
                 </label>
                 <FormGroup validationState={validationState} controlId='source'>
                     <input id='storage-pool-dialog-source'
@@ -282,7 +282,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
-                        <p className="text-danger">{_("Volume Group name should not be empty")}</p>
+                        <p className="text-danger">{_("Volume group name should not be empty")}</p>
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
@@ -459,7 +459,7 @@ class CreateStoragePoolModal extends React.Component {
             dispatch(createStoragePool(this.state))
                     .fail(exc => {
                         this.setState({ createInProgress: false });
-                        this.dialogErrorSet(_("Storage Pool failed to be created"), exc.message);
+                        this.dialogErrorSet(_("Storage pool failed to be created"), exc.message);
                     })
                     .then(() => {
                         this.props.close();
@@ -500,7 +500,7 @@ class CreateStoragePoolModal extends React.Component {
             <Modal id='create-storage-pool-dialog' className='pool-create' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title>{_("Create Storage Pool")}</Modal.Title>
+                    <Modal.Title>{_("Create storage pool")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}
@@ -546,7 +546,7 @@ export class CreateStoragePoolAction extends React.Component {
         return (
             <>
                 <Button className='pull-right' id='create-storage-pool' variant='secondary' onClick={this.open}>
-                    {_("Create Storage Pool")}
+                    {_("Create storage pool")}
                 </Button>
                 { this.state.showModal &&
                 <CreateStoragePoolModal

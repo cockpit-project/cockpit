@@ -20,10 +20,10 @@
 /* NOTIFICATIONS
 
 A page can broadcast notifications to the rest of Cockpit.  For
-example, the "Software Updates" page can send out a notification when
+example, the "Software updates" page can send out a notification when
 it detects that software updates are available.  The shell will then
-highlight the menu entry for "Software Updates" and the "System"
-overview page will also mention it in its "Operating System" section.
+highlight the menu entry for "Software updates" and the "System"
+overview page will also mention it in its "Operating system" section.
 
 The details are all still experimental and subject to change.
 

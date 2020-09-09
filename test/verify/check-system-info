@@ -68,7 +68,7 @@ Memory Device
 	Form Factor: SODIMM
 	Locator: ChannelB-DIMM0
 	Bank Locator: BANK 2
-	Memory Technology: Awesome
+	Memory technology: Awesome
 	Type: DDR3
 	Speed: 1600 MT/s
 	Manufacturer: Samsung
@@ -218,9 +218,9 @@ class TestSystemInfo(MachineCase):
 
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
-        b.click("#system_information_change_systime label:contains('Set Time') + div button")
-        b.click("#system_information_change_systime label:contains('Set Time') + div ul button:contains('%s')" % mode)
-        b.wait_in_text("#system_information_change_systime label:contains('Set Time') + div button", mode)
+        b.click("#system_information_change_systime label:contains('Set time') + div button")
+        b.click("#system_information_change_systime label:contains('Set time') + div ul button:contains('%s')" % mode)
+        b.wait_in_text("#system_information_change_systime label:contains('Set time') + div button", mode)
 
     def testTime(self):
         m = self.machine
@@ -462,13 +462,13 @@ class TestSystemInfo(MachineCase):
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GB")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
-            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory Technology"]', "Unknown")
+            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
             b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
             # second DIMM has known technology and rank
             b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
-            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
-            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
+            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Awesome")
+            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
 
     @nondestructive
     def testCPUSecurityMitigationsDetect(self):
@@ -492,7 +492,7 @@ class TestSystemInfo(MachineCase):
 
             if not expect_link_present:
                 b.wait_present('#hwinfo th:contains(CPU)')
-                b.wait_not_present('#hwinfo th:contains(CPU Security)')
+                b.wait_not_present('#hwinfo th:contains(CPU security)')
             else:
                 b.click('#hwinfo button:contains(Mitigations)')
 
@@ -705,7 +705,7 @@ class TestPcp(packagelib.PackageCase):
         b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
         b.click("#system-configuration-enable-pcp-link")
         b.click(".modal-footer button:contains('Install')")
-        b.wait_not_present(".modal-dialog:contains('Install Software')")
+        b.wait_not_present(".modal-dialog:contains('Install software')")
 
 
         b.wait_visible("#server-pmlogger-switch")

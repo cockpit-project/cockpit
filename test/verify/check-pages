@@ -467,14 +467,14 @@ OnCalendar=daily
         b.wait_val(filter_sel, "")
         b.wait_present("#host-apps li a:contains('Services')")
 
-        # Check that clicking on `Clear Search` cleans the search
+        # Check that clicking on `Clear search` cleans the search
         b.key_press("logs")
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_present("#host-apps li a:contains('Logs')")
-        b.click("button:contains('Clear Search')")
+        b.click("button:contains('Clear search')")
         b.key_press("\b\b\b\b")
         b.wait_present("#host-apps li a:contains('Services')")
-        b.wait_not_present("button:contains('Clear Search')")
+        b.wait_not_present("button:contains('Clear search')")
 
         # Check that arrows navigate the menu
         b.focus(filter_sel)

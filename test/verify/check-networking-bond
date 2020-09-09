@@ -43,11 +43,11 @@ class TestBonding(NetworkCase):
         self.wait_for_iface(iface2)
 
         # Bond them
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.click("#network-bond-settings-dialog .close.pficon-close")
         b.wait_popdown("network-bond-settings-dialog")
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.click("#network-bond-settings-dialog .close.pficon-help")
         b.wait_visible(".popover .popover-title:contains('Network bond')")
@@ -77,7 +77,7 @@ class TestBonding(NetworkCase):
         b.wait_text_not("#network-interface-mac", "")
 
         # Check that link monitoring is correctly set up
-        b.click("#network-interface-settings a:contains('Active Backup')")
+        b.click("#network-interface-settings a:contains('Active backup')")
         b.wait_val("#network-bond-settings-link-monitoring-select", "mii")
         b.click("#network-bond-settings-dialog button:contains('Cancel')")
         b.wait_not_present("network-bond-settings-dialog")
@@ -141,7 +141,7 @@ class TestBonding(NetworkCase):
         b.wait_not_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "10.111.")
         b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
 
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
@@ -167,7 +167,7 @@ class TestBonding(NetworkCase):
         # Make a simple bond without any members.  This is enough to
         # test the renaming.
 
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-link-monitoring-select", "arp")
         b.set_val("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
@@ -216,7 +216,7 @@ class TestBonding(NetworkCase):
         # Put an active interface into a bond.  The bond should get
         # the same IP as the active interface.
 
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
@@ -287,7 +287,7 @@ class TestBondingVirt(NetworkCase):
         self.wait_for_iface(iface)
 
         # Put the main interface into a bond.  Everything should keep working.
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
@@ -328,7 +328,7 @@ class TestBondingVirt(NetworkCase):
         # working since checkpoints are not used and thus no rollback
         # is actually triggered.
 
-        b.click("button:contains('Add Bond')")
+        b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)

@@ -39,9 +39,9 @@ export class IscsiPanel extends React.Component {
 
         function iscsi_discover() {
             dialog_open({
-                Title: _("Add iSCSI Portal"),
+                Title: _("Add iSCSI portal"),
                 Fields: [
-                    TextInput("address", _("Server Address"),
+                    TextInput("address", _("Server address"),
                               { validate: val => val === "" ? _("Server address cannot be empty.") : null, }),
                     TextInput("username", _("Username"), { }),
                     PassInput("password", _("Password"), { })
@@ -180,7 +180,7 @@ export class IscsiPanel extends React.Component {
                     .done(function (results) {
                         var name = results[0];
                         dialog_open({
-                            Title: _("Change iSCSI Initiator Name"),
+                            Title: _("Change iSCSI initiator name"),
                             Fields: [
                                 TextInput("name", _("Name"), { value: name })
                             ],
@@ -265,7 +265,7 @@ export class IscsiPanel extends React.Component {
 
         return (
             <SidePanel id="iscsi-sessions"
-                       title={_("iSCSI Targets")}
+                       title={_("iSCSI targets")}
                        empty_text={_("No iSCSI targets set up")}
                        hover={false}
                        actions={actions}

@@ -49,7 +49,7 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
         if (vm.displays.vnc) {
             entries.push(
                 <Select.SelectEntry data="vnc-browser" key='vnc-browser'>
-                    {_("Graphics Console (VNC)")}
+                    {_("Graphics console (VNC)")}
                 </Select.SelectEntry>
             );
             isDesktop = true;
@@ -58,7 +58,7 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
         if (isDesktop || vm.displays.spice) {
             entries.push(
                 <Select.SelectEntry data="desktop" key='desktop'>
-                    {_("Graphics Console in Desktop Viewer")}
+                    {_("Graphics console in desktop viewer")}
                 </Select.SelectEntry>
             );
         }
@@ -67,14 +67,14 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
     if (isSerialConsole) {
         entries.push(
             <Select.SelectEntry data="serial-browser" key='serial-browser'>
-                {_("Serial Console")}
+                {_("Serial console")}
             </Select.SelectEntry>
         );
     }
 
     return (
         <>
-            <label htmlFor="console-type-select">{_("Console Type")}</label>
+            <label htmlFor="console-type-select">{_("Console type")}</label>
             <Select.StatelessSelect id="console-type-select"
                                     selected={selected}
                                     onChange={onChange}>

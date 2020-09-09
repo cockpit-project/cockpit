@@ -215,7 +215,7 @@ export class VDODetails extends React.Component {
             dialog_open({
                 Title: cockpit.format(_("Grow logical size of $0"), vdo.name),
                 Fields: [
-                    SizeSlider("lsize", _("Logical Size"),
+                    SizeSlider("lsize", _("Logical size"),
                                {
                                    max: 5 * vdo.logical_size,
                                    min: vdo.logical_size,
@@ -251,7 +251,7 @@ export class VDODetails extends React.Component {
         var header = (
             <Card>
                 <CardHeader>
-                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO Device $0"), vdo.name)}</Text></CardTitle>
+                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO device $0"), vdo.name)}</Text></CardTitle>
                     <CardActions>
                         { block
                             ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
@@ -263,10 +263,10 @@ export class VDODetails extends React.Component {
                 </CardHeader>
                 <CardBody>
                     <div className="ct-form">
-                        <label className="control-label">{_("Device File")}</label>
+                        <label className="control-label">{_("Device file")}</label>
                         <div>{vdo.dev}</div>
 
-                        <label className="control-label">{_("Backing Device")}</label>
+                        <label className="control-label">{_("Backing device")}</label>
                         <div>
                             { backing_block ? <StorageBlockNavLink client={client} block={backing_block} />
                                 : vdo.backing_dev
@@ -297,7 +297,7 @@ export class VDODetails extends React.Component {
                             &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
                         </div>
 
-                        <label className="control-label">{_("Index Memory")}</label>
+                        <label className="control-label">{_("Index memory")}</label>
                         <div>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</div>
 
                         <label className="control-label">{_("Compression")}</label>

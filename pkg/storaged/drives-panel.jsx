@@ -69,11 +69,11 @@ export class DrivesPanel extends React.Component {
             var desc;
             if (classification == "removable") {
                 if (drive.Size === 0)
-                    desc = C_("storage", "Removable Drive");
+                    desc = C_("storage", "Removable drive");
                 else
-                    desc = size_str + " " + C_("storage", "Removable Drive");
+                    desc = size_str + " " + C_("storage", "Removable drive");
             } else if (classification == "optical") {
-                desc = C_("storage", "Optical Drive");
+                desc = C_("storage", "Optical drive");
             } else {
                 if (drive.Size === 0)
                     desc = C_("Drive");

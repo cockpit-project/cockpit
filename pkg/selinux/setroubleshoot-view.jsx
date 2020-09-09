@@ -287,7 +287,7 @@ class SELinuxStatus extends React.Component {
         return (
             <div className="selinux-policy-ct">
                 <div className="selinux-state">
-                    <h2>{_("SELinux Policy")}</h2>
+                    <h2>{_("SELinux policy")}</h2>
                     <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
                     <span className="status">{ statusMsg }</span>
                 </div>
@@ -354,7 +354,7 @@ export class SETroubleshootPage extends React.Component {
         var entries;
         var troubleshooting;
         var modifications;
-        var title = _("SELinux Access Control Errors");
+        var title = _("SELinux access control errors");
         var emptyCaption = _("No SELinux alerts.");
         if (!this.props.connected) {
             if (this.props.connecting) {
@@ -450,7 +450,7 @@ export class SETroubleshootPage extends React.Component {
 
         modifications = (
             <Modifications
-                title={ _("System Modifications") }
+                title={ _("System modifications") }
                 permitted={ this.props.selinuxStatus.permitted }
                 shell={ "semanage import <<EOF\n" + this.props.selinuxStatus.shell.trim() + "\nEOF" }
                 ansible={ this.props.selinuxStatus.ansible }

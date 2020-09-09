@@ -77,7 +77,7 @@ class CreateStorageVolumeModal extends React.Component {
             <Modal id={`${idPrefix}-modal`} className='volume-create' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title>{_("Create Storage Volume")}</Modal.Title>
+                    <Modal.Title>{_("Create storage volume")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className='ct-form'>
@@ -133,7 +133,7 @@ export class StorageVolumeCreate extends React.Component {
                         variant='secondary'
                         className='pull-right'
                         onClick={this.open}>
-                        {_("Create Volume")}
+                        {_("Create volume")}
                     </Button>
                 );
             } else {
@@ -144,7 +144,7 @@ export class StorageVolumeCreate extends React.Component {
                             <Button id={`${idPrefix}-button`}
                                     variant='secondary'
                                     isDisabled>
-                                {_("Create Volume")}
+                                {_("Create volume")}
                             </Button>
                         </span>
                     </Tooltip>

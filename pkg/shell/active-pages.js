@@ -92,7 +92,7 @@ export function showDialog (frames) {
                ((a.displayName < b.displayName) ? -1 : 0) + ((b.displayName < a.displayName) ? 1 : 0);
     });
     dataStore.dialogProps = {
-        title: _("Active Pages"),
+        title: _("Active pages"),
         id: "active-pages-dialog",
         body: React.createElement(ActivePagesDialogBody, { iframes: iframes, selectionChanged: selectionChanged }),
     };
@@ -101,7 +101,7 @@ export function showDialog (frames) {
         actions: [
             {
                 clicked: dataStore.closePage,
-                caption: _("Close Selected Pages"),
+                caption: _("Close selected pages"),
                 style: 'primary',
             }
         ],

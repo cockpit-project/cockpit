@@ -204,7 +204,7 @@ const transform = {
         'shut off': _("shut off"),
         crashed: _("crashed"),
         dying: _("dying"),
-        pmsuspended: _("suspended (PM)"),
+        pmsuspended: _("Suspended (PM)"),
     },
     bootableDisk: {
         disk: _("disk"),
@@ -233,7 +233,7 @@ const transform = {
     networkForward: {
         open: _("Open"),
         nat: "NAT",
-        none: _("None (Isolated Network)"),
+        none: _("None (isolated network)"),
         route: "Routed",
         bridge: "Bridge",
         private: _("Private"),

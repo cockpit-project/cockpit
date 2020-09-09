@@ -34,7 +34,7 @@ function DeleteAccountDialogBody({ state, change }) {
                 <label>
                     <input type="checkbox" id="account-confirm-delete-files"
                    checked={delete_files} onChange={event => change("delete_files", event.target.checked)} />
-                    <span>{_("Delete Files")}</span>
+                    <span>{_("Delete files")}</span>
                 </label>
             </div>
         </Modal.Body>);

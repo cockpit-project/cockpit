@@ -144,7 +144,7 @@ function ZoneSection(props) {
 
     const addServiceAction = (
         <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
-            {_("Add Services")}
+            {_("Add services")}
         </Button>
     );
 
@@ -469,7 +469,7 @@ class AddServicesModal extends React.Component {
         if (services)
             services = services.filter(s => firewall.zones[this.props.zoneId].services.indexOf(s.id) === -1);
 
-        const addText = this.state.custom ? _("Add Ports") : _("Add Services");
+        const addText = this.state.custom ? _("Add ports") : _("Add services");
         const titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
         return (
             <Modal id="add-services-dialog" show onHide={this.props.close}>
@@ -489,7 +489,7 @@ class AddServicesModal extends React.Component {
                                         <fieldset>
                                             <div className="ct-form">
                                                 <label htmlFor="filter-services-input" className="control-label">
-                                                    {_("Filter Services")}
+                                                    {_("Filter services")}
                                                 </label>
                                                 <SearchInput id="filter-services-input"
                                                     value={this.state.filter}
@@ -520,7 +520,7 @@ class AddServicesModal extends React.Component {
                             }
                             <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
-                                {_("Custom Ports")}
+                                {_("Custom ports")}
                             </label>
                             { !this.state.custom ||
                                 <>
@@ -641,7 +641,7 @@ class ActivateZoneModal extends React.Component {
         return (
             <Modal id="add-zone-dialog" show onHide={this.props.close}>
                 <Modal.Header>
-                    <Modal.Title>{ _("Add Zone") }</Modal.Title>
+                    <Modal.Title>{ _("Add zone") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body id="add-zone-dialog-body">
                     <form className="ct-form">
@@ -693,7 +693,7 @@ class ActivateZoneModal extends React.Component {
                                 </label>) }
                         </fieldset>
 
-                        <label htmlFor="add-zone-ip" className="control-label">{ _("Allowed Addresses") }</label>
+                        <label htmlFor="add-zone-ip" className="control-label">{ _("Allowed addresses") }</label>
                         <label className="radio" key="ip-entire-subnet">
                             <input type="radio" name="add-zone-ip" value="ip-entire-subnet" onChange={e => this.onChange("ipRange", e.target.value)} defaultChecked />
                             { _("Entire subnet") }
@@ -866,7 +866,7 @@ export class Firewall extends React.Component {
 
         var addZoneAction = (
             <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
-                {_("Add Zone")}
+                {_("Add zone")}
             </Button>
         );
 

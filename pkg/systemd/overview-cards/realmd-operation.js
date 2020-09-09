@@ -114,7 +114,7 @@ function instance(realmd, mode, realm, state) {
 
     var title, label;
     if (mode == 'join') {
-        title = _("page-title", _("Join a Domain"));
+        title = _("page-title", _("Join a domain"));
         label = _("Join");
         $(".realms-op-join-only").show();
         $(".realms-op-leave-only-row").hide();
@@ -332,9 +332,9 @@ function instance(realmd, mode, realm, state) {
         }
 
         list.empty();
-        add_choice('administrator', "password", _("Administrator Password"));
-        add_choice('user', "password", _("User Password"));
-        add_choice(null, "secret", _("One Time Password"));
+        add_choice('administrator', "password", _("Administrator password"));
+        add_choice('user', "password", _("User password"));
+        add_choice(null, "secret", _("One time password"));
         add_choice(null, "automatic", _("Automatic"));
         $("#realms-op-auth").toggle(count > 1);
         $("#realms-op-auth").prev()
@@ -599,7 +599,7 @@ export function setup() {
         }
 
         if (!joined || !joined.length) {
-            text = _("Join Domain");
+            text = _("Join domain");
             self.hostname_button_disabled = false;
             self.hostname_button_tooltip = null;
         } else {

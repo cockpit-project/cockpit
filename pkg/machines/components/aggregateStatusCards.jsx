@@ -44,7 +44,7 @@ export class AggregateStatusCards extends React.Component {
                                 { this.props.storagePools.length }
                             </AggregateStatusCount>
                             <span className="card-pf-title-link">
-                                {cockpit.ngettext("Storage Pool", "Storage Pools", this.props.storagePools.length)}
+                                {cockpit.ngettext("Storage pool", "Storage pools", this.props.storagePools.length)}
                             </span>
                         </button>
                     </CardTitle>

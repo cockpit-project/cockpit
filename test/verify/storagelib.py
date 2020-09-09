@@ -421,7 +421,7 @@ class StorageHelpers:
         wait(lambda: mount_point not in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))
 
     def wait_mounted(self, row, col):
-        self.content_tab_wait_in_info(row, col, "Mount Point",
+        self.content_tab_wait_in_info(row, col, "Mount point",
                                       cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
 
 

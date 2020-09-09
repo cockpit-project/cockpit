@@ -180,7 +180,7 @@ function setup() {
         function create_dialog(profiles, active_profile, primary_disabled, static_error) {
             dialog_selected = active_profile;
             var dialog_props = {
-                title: _("Change Performance Profile"),
+                title: _("Change performance profile"),
                 body: React.createElement(TunedDialogBody, {
                     active_profile: active_profile,
                     change_selected: update_selected_item,
@@ -190,7 +190,7 @@ function setup() {
             var footer_props = {
                 actions: [{
                     clicked: set_profile,
-                    caption: _("Change Profile"),
+                    caption: _("Change profile"),
                     style: 'primary',
                 }
                 ],

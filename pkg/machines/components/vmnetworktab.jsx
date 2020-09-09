@@ -154,9 +154,9 @@ class VmNetworkTab extends React.Component {
                     );
                 }
             },
-            { name: _("MAC Address"), value: 'mac' },
+            { name: _("MAC address"), value: 'mac' },
             {
-                name: _("IP Address"), value: (network) => {
+                name: _("IP address"), value: (network) => {
                     const iface = this.state.interfaceAddress.find(iface => iface[1] == network.mac);
                     const ips = (iface && iface[2]) ? iface[2] : undefined;
 
@@ -279,7 +279,7 @@ class VmNetworkTab extends React.Component {
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
                 {this.state.editNICDialogProps && <EditNICModal {...this.state.editNICDialogProps } />}
                 <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
-                    {_("Add Network Interface")}
+                    {_("Add network interface")}
                 </Button>
 
                 {this.state.showAddNICModal && this.state.networkDevices !== undefined &&

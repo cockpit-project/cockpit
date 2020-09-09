@@ -97,15 +97,15 @@ function getVirtualNetworkDescription(virtualNetwork) {
             if (dev)
                 return cockpit.format(_("Route to $0"), dev);
             else
-                return _("Routed Network");
+                return _("Routed network");
         } else {
             if (dev)
                 return cockpit.format('$0 to $1', mode, dev);
             else
-                return cockpit.format(_("$0 Network"), mode.toUpperCase());
+                return cockpit.format(_("$0 network"), mode.toUpperCase());
         }
     } else {
-        return _("Isolated Network");
+        return _("Isolated network");
     }
 }
 
@@ -158,7 +158,7 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
 
         return (
             <Select.SelectEntry data={data} key={data}>
-                {cockpit.format("$0 $1: $2", _("Virtual Network"), network.name, getVirtualNetworkDescription(network))}
+                {cockpit.format("$0 $1: $2", _("Virtual network"), network.name, getVirtualNetworkDescription(network))}
             </Select.SelectEntry>
         );
     });
@@ -169,7 +169,7 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
 
         return (
             <Select.SelectEntry data={data} key={data}>
-                {cockpit.format("$0 $1: macvtap", _("Host Device"), iface)}
+                {cockpit.format("$0 $1: macvtap", _("Host device"), iface)}
             </Select.SelectEntry>
         );
     });

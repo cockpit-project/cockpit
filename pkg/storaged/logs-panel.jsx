@@ -36,6 +36,6 @@ export class StorageLogsPanel extends React.Component {
 
         const search_options = { prio: "debug", _SYSTEMD_UNIT: "storaged.service,udisks2.service,dm-event.service,smartd.service,multipathd.service" };
         const url = "/system/logs/#/?prio=debug&_SYSTEMD_UNIT=storaged.service,udisks2.service,dm-event.service,smartd.service,multipathd.service";
-        return <LogsPanel title={_("Storage Logs")} match={match} max={10} search_options={search_options} goto_url={url} className="contains-list" />;
+        return <LogsPanel title={_("Storage logs")} match={match} max={10} search_options={search_options} goto_url={url} className="contains-list" />;
     }
 }

@@ -63,10 +63,10 @@ class TestNetworkingBasic(NetworkCase):
             b.wait_present("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
 
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
-        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.0.8")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.0.8")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_text_not("#network-ip-settings-error h4", "")
-        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.192.0")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
         if m.image != "rhel-8-3-distropkg": # Changed in #14454
@@ -100,7 +100,7 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_popup("network-ip-settings-dialog")
         self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", True)
         self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
-        # The "DNS Search Domains" setting should follow suit
+        # The "DNS search domains" setting should follow suit
         self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", False)
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")

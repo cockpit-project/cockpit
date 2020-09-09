@@ -189,7 +189,7 @@ const HeaderBar = ({ state, updates, timeSinceRefresh, onRefresh, unregistered, 
     let actionButton;
     if (state == "uptodate" || state == "available") {
         if (!unregistered)
-            actionButton = <Button variant="secondary" onClick={onRefresh}>{_("Check for Updates")}</Button>;
+            actionButton = <Button variant="secondary" onClick={onRefresh}>{_("Check for updates")}</Button>;
         if (timeSinceRefresh !== null)
             lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - timeSinceRefresh * 1000).fromNow());
     } else if (state == "applying") {
@@ -475,7 +475,7 @@ class ApplyUpdates extends React.Component {
                 </div>
 
                 <div className="update-log">
-                    <Expander title={_("Update Log")} onExpand={() => {
+                    <Expander title={_("Update log")} onExpand={() => {
                         // always scroll down on expansion
                         const log = document.getElementById("update-log");
                         log.scrollTop = log.scrollHeight;
@@ -496,9 +496,9 @@ class ApplyUpdates extends React.Component {
 
 const AskRestart = ({ onIgnore, onRestart, history }) => <>
     <EmptyStatePanel icon={RebootingIcon}
-                     title={ _("Restart Recommended") }
+                     title={ _("Restart recommended") }
                      paragraph={ _("Updated packages may require a restart to take effect.") }
-                     action={ _("Restart Now") }
+                     action={ _("Restart now") }
                      onAction={ onRestart}
                      secondary={ <Button variant="link" onClick={onIgnore}>{_("Ignore")}</Button> } />
 
@@ -792,7 +792,7 @@ class OsUpdates extends React.Component {
 
             page_status.set_own({
                 type: "warning",
-                title: _("Not Registered"),
+                title: _("Not registered"),
                 details: {
                     link: "subscriptions",
                     icon: "fa fa-exclamation-triangle"
@@ -841,24 +841,24 @@ class OsUpdates extends React.Component {
                 applyAll = (
                     <Button variant="primary" className="pk-update--all" onClick={ () => this.applyUpdates(false) }>
                         { num_updates == num_security_updates
-                            ? _("Install Security Updates") : _("Install All Updates") }
+                            ? _("Install security updates") : _("Install all updates") }
                     </Button>);
 
                 if (num_security_updates > 0 && num_updates > num_security_updates) {
                     applySecurity = (
                         <Button variant="secondary" className="pk-update--security" onClick={ () => this.applyUpdates(true) }>
-                            {_("Install Security Updates")}
+                            {_("Install security updates")}
                         </Button>);
                 }
 
                 if (highest_severity == PK.Enum.INFO_SECURITY)
-                    text = _("Security Updates Available");
+                    text = _("Security updates available");
                 else if (highest_severity >= PK.Enum.INFO_NORMAL)
-                    text = _("Bug Fix Updates Available");
+                    text = _("Bug fix updates available");
                 else if (highest_severity >= PK.Enum.INFO_LOW)
-                    text = _("Enhancement Updates Available");
+                    text = _("Enhancement updates available");
                 else
-                    text = _("Updates Available");
+                    text = _("Updates available");
 
                 page_status.set_own({
                     type: num_security_updates > 0 ? "warning" : "info",
@@ -874,7 +874,7 @@ class OsUpdates extends React.Component {
                     {unregisteredWarning}
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
                     <div id="available" className="pk-updates--header">
-                        <h3 className="pk-updates--header--heading">{_("Available Updates")}</h3>
+                        <h3 className="pk-updates--header--heading">{_("Available updates")}</h3>
                         <div className="pk-updates--header--actions">
                             {applySecurity}
                             {applyAll}
@@ -918,7 +918,7 @@ class OsUpdates extends React.Component {
         case "updateSuccess":
             page_status.set_own({
                 type: "warning",
-                title: _("Restart Recommended")
+                title: _("Restart recommended")
             });
 
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;

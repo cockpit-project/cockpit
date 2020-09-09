@@ -138,7 +138,7 @@ class KdumpTargetBody extends React.Component {
         }
 
         var targetDescription = {
-            local: _("Local Filesystem"),
+            local: _("Local filesystem"),
             nfs: _("Remote over NFS"),
             ssh: _("Remote over SSH"),
         };
@@ -481,7 +481,7 @@ export class KdumpPage extends React.Component {
         if (serviceRunning) {
             testButton = (
                 <Button variant="secondary" onClick={this.handleTestSettingsClick}>
-                    {_("Test Configuration")}
+                    {_("Test configuration")}
                 </Button>
             );
         } else {
@@ -489,7 +489,7 @@ export class KdumpPage extends React.Component {
             testButton = (
                 <Tooltip id="tip-test" content={tooltip}>
                     <Button variant="secondary" isDisabled>
-                        {_("Test Configuration")}
+                        {_("Test configuration")}
                     </Button>
                 </Tooltip>
             );

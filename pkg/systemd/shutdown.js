@@ -93,8 +93,8 @@ export function shutdown_modal_setup() {
         });
 
         if (operation == 'shutdown') {
-            $('#shutdown-dialog .modal-title').text(_("Shut Down"));
-            $("#shutdown-dialog .pf-m-danger").text(_("Shut Down"));
+            $('#shutdown-dialog .modal-title').text(_("Shut down"));
+            $("#shutdown-dialog .pf-m-danger").text(_("Shut down"));
         } else {
             $('#shutdown-dialog .modal-title').text(_("Restart"));
             $("#shutdown-dialog .pf-m-danger").text(_("Restart"));

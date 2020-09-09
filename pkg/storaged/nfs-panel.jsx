@@ -87,20 +87,20 @@ export class NFSPanel extends React.Component {
         return (
             <OptionalPanel className="storage-mounts" id="nfs-mounts"
                        client={client}
-                       title={_("NFS Mounts")}
+                       title={_("NFS mounts")}
                        actions={actions}
                        feature={nfs_feature}
-                       not_installed_text={_("NFS Support not installed")}
-                       install_title={_("Install NFS Support")}>
+                       not_installed_text={_("NFS support not installed")}
+                       install_title={_("Install NFS support")}>
                 <ListingTable variant='compact'
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
-                    aria-label={_("NFS Mounts")}
+                    aria-label={_("NFS mounts")}
                     onRowClick={onRowClick}
                     className='table-hover'
                     emptyCaption={_("No NFS mounts set up")}
                     columns={[
                         { title: _("Server"), transforms: [cellWidth(30)], sortable: true },
-                        { title: _("Mount Point"), transforms: [cellWidth(33)], sortable: true },
+                        { title: _("Mount point"), transforms: [cellWidth(33)], sortable: true },
                         { title:  _("Size"), transforms: [cellWidth(40)] }
                     ]}
                     rows={mounts} />

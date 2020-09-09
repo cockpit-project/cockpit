@@ -38,7 +38,7 @@ const NetworkMacRow = ({ idPrefix, dialogValues, onValueChanged }) => {
         <>
             <>
                 <label className='control-label' htmlFor={`${idPrefix}-generate-mac`}>
-                    {_("MAC Address")}
+                    {_("MAC address")}
                 </label>
                 <label className='checkbox-inline'>
                     <input id={`${idPrefix}-generate-mac`}
@@ -189,7 +189,7 @@ export class AddNIC extends React.Component {
             <Modal id={`${idPrefix}-dialog`} onHide={this.props.close} className='nic-add' show>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{_("Add Virtual Network Interface")}</Modal.Title>
+                    <Modal.Title>{_("Add virtual network interface")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}

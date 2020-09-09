@@ -92,9 +92,9 @@ class TestStorageLvm2(StorageCase):
         m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
         self.content_row_wait_in_col(2, 2, "/dev/TEST1/thin")
         m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
-        self.content_tab_wait_in_info(1, 1, "Data Used", "50%")
+        self.content_tab_wait_in_info(1, 1, "Data used", "50%")
         m.execute("until lvremove -f TEST1/thin; do sleep 5; done")
-        self.content_tab_wait_in_info(1, 1, "Data Used", "0%")
+        self.content_tab_wait_in_info(1, 1, "Data used", "0%")
 
         # remove the volume group
         b.go("#/")
@@ -104,7 +104,7 @@ class TestStorageLvm2(StorageCase):
 
         # create volume group in the UI
 
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Volume Group"),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create volume group"),
                                expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                self.dialog_is_present('disks', dev_2) and
                                                self.dialog_check({"name": "vgroup0"})),
@@ -116,7 +116,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_in_text("#devices", "vgroup0")
 
         # Check that the next name is "vgroup1"
-        self.devices_dropdown("Create Volume Group")
+        self.devices_dropdown("Create volume group")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vgroup1")
         self.dialog_cancel()
@@ -126,14 +126,14 @@ class TestStorageLvm2(StorageCase):
         b.wait_present('#storage-detail')
 
         # create a logical volume
-        b.click("button:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new logical volume)")
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "size": 20})
         self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
 
         # check that the next default name is "lvol1"
-        b.click("button:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new logical volume)")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "lvol1")
         self.dialog_cancel()
@@ -147,13 +147,13 @@ class TestStorageLvm2(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
         self.wait_in_storaged_configuration(mount_point_one)
-        self.content_tab_wait_in_info(1, 2, "Mount Point", mount_point_one)
+        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
         # unmount it
         self.content_dropdown_action(1, "Unmount")
-        self.content_tab_wait_in_info(1, 2, "Mount Point", "The filesystem is not mounted.")
+        self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted.")
 
         # shrink it, this time with a filesystem.
         self.content_tab_action(1, 1, "Shrink")
@@ -172,14 +172,14 @@ class TestStorageLvm2(StorageCase):
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
-        b.click("button:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new logical volume)")
         self.dialog(expect={"size": 48},
                     values={"purpose": "pool",
                             "name": "pool",
                             "size": 38})
         self.content_row_wait_in_col(1, 2, "pool")
 
-        self.content_row_action(1, "Create Thin Volume")
+        self.content_row_action(1, "Create thin volume")
         self.dialog(expect={"name": "lvol0"},
                     values={"name": "thin",
                             "size": 50})
@@ -208,11 +208,11 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"erase": "zero",
                      "type": "ext4",
                      "mount_point": mount_point_thin})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         self.wait_in_storaged_configuration(mount_point_thin)
 
         # remove volume group
-        b.click('.pf-c-card__header:contains("Volume Group") button:contains("Delete")')
+        b.click('.pf-c-card__header:contains("Volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
@@ -234,7 +234,7 @@ class TestStorageLvm2(StorageCase):
         m.execute('parted -s %s mktable gpt' % disk2)
 
         # Create a volume group out of disk1
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create Volume Group'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
                                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
                                values={"disks": {disk1: True}})
@@ -289,7 +289,7 @@ class TestStorageLvm2(StorageCase):
 
         # Take a snapshot of the thin volume and check that it appears
 
-        self.content_dropdown_action(3, "Create Snapshot")
+        self.content_dropdown_action(3, "Create snapshot")
         self.dialog({"name": "mysnapshot"})
         self.content_row_wait_in_col(3, 2, "mysnapshot")
 

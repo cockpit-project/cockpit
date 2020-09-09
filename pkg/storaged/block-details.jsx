@@ -40,7 +40,7 @@ export class BlockDetails extends React.Component {
                         <label className="control-label">{_("storage", "Capacity")}</label>
                         <div>{ utils.fmt_size_long(block.Size) }</div>
 
-                        <label className="control-label">{_("storage", "Device File")}</label>
+                        <label className="control-label">{_("storage", "Device file")}</label>
                         <div>{ utils.block_name(block) }</div>
                     </div>
                 </CardBody>

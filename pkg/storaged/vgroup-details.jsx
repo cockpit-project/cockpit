@@ -54,7 +54,7 @@ class VGroupSidebar extends React.Component {
 
         function add_disk() {
             dialog_open({
-                Title: _("Add Disks"),
+                Title: _("Add disks"),
                 Fields: [
                     SelectSpaces("disks", _("Disks"),
                                  {
@@ -118,7 +118,7 @@ class VGroupSidebar extends React.Component {
         }
 
         return (
-            <SidePanel title={_("Physical Volumes")}
+            <SidePanel title={_("Physical volumes")}
                        actions={<StorageButton onClick={add_disk}><span className="fa fa-plus" /></StorageButton>}>
                 { pvols.map(render_pvol) }
             </SidePanel>
@@ -155,7 +155,7 @@ export class VGroupDetails extends React.Component {
             var location = cockpit.location;
 
             dialog_open({
-                Title: _("Rename Volume Group"),
+                Title: _("Rename volume group"),
                 Fields: [
                     TextInput("name", _("Name"),
                               {
@@ -211,7 +211,7 @@ export class VGroupDetails extends React.Component {
         var header = (
             <Card>
                 <CardHeader>
-                    <CardTitle><Text component={TextVariants.h2}>{fmt_to_fragments(_("Volume Group $0"), <b>{vgroup.Name}</b>)}</Text></CardTitle>
+                    <CardTitle><Text component={TextVariants.h2}>{fmt_to_fragments(_("Volume group $0"), <b>{vgroup.Name}</b>)}</Text></CardTitle>
                     <CardActions>
                         <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
                         { "\n" }

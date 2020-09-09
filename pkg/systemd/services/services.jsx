@@ -176,14 +176,14 @@ class ServicesPage extends React.Component {
     }
 
     componentDidMount() {
-        /* Listen for permission changes for "Create Timer" button */
+        /* Listen for permission changes for "Create timer" button */
         superuser.addEventListener("changed", this.onPermissionChanged);
         this.onPermissionChanged();
 
         cockpit.addEventListener("locationchanged", this.on_navigate);
         this.on_navigate();
 
-        /* Prepare the "Create Timer" dialog - TODO: this needs to be rewritten in React */
+        /* Prepare the "Create timer" dialog - TODO: this needs to be rewritten in React */
         timerDialogSetup();
 
         this.systemd_subscription = systemd_client.call(SD_OBJ, SD_MANAGER, "Subscribe", null)
@@ -375,7 +375,7 @@ class ServicesPage extends React.Component {
                                         // A template, create a fake unit for it
                                         this.updateProperties({
                                             Id: cockpit.variant("s", unit_id),
-                                            Description: cockpit.variant("s", cockpit.format(_("$0 Template"), unit_id)),
+                                            Description: cockpit.variant("s", cockpit.format(_("$0 template"), unit_id)),
                                             UnitFileState: cockpit.variant("s", unitFileState)
                                         }, unit_id, true);
                                         this.seenPaths.add(unit_id);
@@ -756,7 +756,7 @@ class ServicesPage extends React.Component {
                 <ToolbarItem>
                     { this.state.privileged && <Button key='create-timer-action' variant="secondary"
                                                        id="create-timer"
-                                                       onClick={onCreateTimer}>{_("Create Timer")}</Button>
+                                                       onClick={onCreateTimer}>{_("Create timer")}</Button>
                     }
                 </ToolbarItem>
             </>}

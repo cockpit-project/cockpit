@@ -76,10 +76,10 @@ class LibvirtSlate extends React.Component {
         const name = this.props.libvirtService.name;
 
         if (name && this.props.libvirtService.activeState === 'unknown')
-            return <EmptyStatePanel title={ _("Connecting to Virtualization Service") } loading />;
+            return <EmptyStatePanel title={ _("Connecting to virtualization service") } loading />;
 
         if (this.props.loadingResources)
-            return <EmptyStatePanel title={ _("Loading Resources") } loading />;
+            return <EmptyStatePanel title={ _("Loading resources") } loading />;
 
         this.checkStatus();
         // TODO: Convert to PF4-React Checkbox, but this is badly aligned
@@ -102,7 +102,7 @@ class LibvirtSlate extends React.Component {
             </Button>);
 
         return <EmptyStatePanel icon={ ExclamationCircleIcon }
-                                title={ _("Virtualization Service (libvirt) is Not Active") }
+                                title={ _("Virtualization service (libvirt) is not active") }
                                 paragraph={ detail }
                                 action={ name ? _("Start libvirt") : null }
                                 onAction={ mouseClick(this.startService) }

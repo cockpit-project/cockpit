@@ -67,28 +67,28 @@ const chassis_types = [
     _("Other"),
     _("Unknown"),
     _("Desktop"),
-    _("Low Profile Desktop"),
-    _("Pizza Box"),
-    _("Mini Tower"),
+    _("Low profile desktop"),
+    _("Pizza box"),
+    _("Mini tower"),
     _("Tower"),
     _("Portable"),
     _("Laptop"),
     _("Notebook"),
     _("Handheld"),
-    _("Docking Station"),
+    _("Docking station"),
     _("All-in-one"),
     _("Sub-Notebook"),
-    _("Space-saving Computer"),
-    _("Lunch Box"), /* 0x10 */
-    _("Main Server Chassis"),
-    _("Expansion Chassis"),
+    _("Space-saving computer"),
+    _("Lunch box"), /* 0x10 */
+    _("Main server chassis"),
+    _("Expansion chassis"),
     _("Sub-Chassis"),
-    _("Bus Expansion Chassis"),
-    _("Peripheral Chassis"),
-    _("RAID Chassis"),
-    _("Rack Mount Chassis"),
+    _("Bus expansion chassis"),
+    _("Peripheral chassis"),
+    _("RAID chassis"),
+    _("Rack mount chassis"),
     _("Sealed-case PC"),
-    _("Multi-system Chassis"),
+    _("Multi-system chassis"),
     _("Compact PCI"), /* 0x1A */
     _("Advanced TCA"),
     _("Blade"),
@@ -96,7 +96,7 @@ const chassis_types = [
     _("Tablet"),
     _("Convertible"),
     _("Detachable"), /* 0x20 */
-    _("IoT Gateway"),
+    _("IoT gateway"),
     _("Embedded PC"),
     _("Mini PC"),
     _("Stick PC"),
@@ -237,15 +237,15 @@ function processMemory(info) {
             memorySize = memorySizeValue / 1024 + " GB";
         }
 
-        let memoryTechnology = memoryProperty["Memory Technology"];
+        let memoryTechnology = memoryProperty["Memory technology"];
         if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
             memoryTechnology = _("Unknown");
 
         let memoryRank = memoryProperty.Rank;
         if (memoryRank == 1)
-            memoryRank = _("Single Rank");
+            memoryRank = _("Single rank");
         if (memoryRank == 2)
-            memoryRank = _("Dual Rank");
+            memoryRank = _("Dual rank");
 
         memoryArray.push({
             locator: memoryProperty.Locator,

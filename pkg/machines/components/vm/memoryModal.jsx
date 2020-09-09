@@ -107,7 +107,7 @@ export class MemoryModal extends React.Component {
         const defaultBody = (
             <div id='memory-config-dialog' className='ct-form'>
                 <label className='control-label'>
-                    {_("Current Allocation")}
+                    {_("Current allocation")}
                 </label>
                 <MemorySelectRow id={`${idPrefix}-memory`}
                     value={Math.floor(convertToUnit(this.state.memory, 'KiB', this.state.memoryUnit))}
@@ -119,7 +119,7 @@ export class MemoryModal extends React.Component {
                 <hr />
 
                 <label className='control-label'>
-                    {_("Maximum Allocation")}
+                    {_("Maximum allocation")}
                 </label>
                 <div className='form-group ct-validation-wrapper'>
                     <MemorySelectRow id={`${idPrefix}-max-memory`}

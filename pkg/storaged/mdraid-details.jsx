@@ -44,7 +44,7 @@ class MDRaidSidebar extends React.Component {
 
         function add_disk() {
             dialog_open({
-                Title: _("Add Disks"),
+                Title: _("Add disks"),
                 Fields: [
                     SelectSpaces("disks", _("Disks"),
                                  {
@@ -93,7 +93,7 @@ class MDRaidSidebar extends React.Component {
             function state_text(state) {
                 return {
                     faulty:       _("FAILED"),
-                    in_sync:      _("In Sync"),
+                    in_sync:      _("In sync"),
                     spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
                     write_mostly: _("Write-mostly"),
                     blocked:      _("Blocked")
@@ -175,9 +175,9 @@ export class MDRaidDetails extends React.Component {
 
         var level = format_level(mdraid.Level);
         if (mdraid.NumDevices > 0)
-            level += ", " + cockpit.format(_("$0 Disks"), mdraid.NumDevices);
+            level += ", " + cockpit.format(_("$0 disks"), mdraid.NumDevices);
         if (mdraid.ChunkSize > 0)
-            level += ", " + cockpit.format(_("$0 Chunk Size"), utils.fmt_size(mdraid.ChunkSize));
+            level += ", " + cockpit.format(_("$0 chunk size"), utils.fmt_size(mdraid.ChunkSize));
 
         function toggle_bitmap(val) {
             return mdraid.SetBitmapLocation(utils.encode_filename(val ? 'internal' : 'none'), {});
@@ -201,7 +201,7 @@ export class MDRaidDetails extends React.Component {
                 mdraid.Degraded
             );
             degraded_message = (
-                <Alert isInline variant="danger" title={_("The RAID Array is in a degraded state")}> {text} </Alert>
+                <Alert isInline variant="danger" title={_("The RAID array is in a degraded state")}> {text} </Alert>
             );
         }
 
@@ -231,7 +231,7 @@ export class MDRaidDetails extends React.Component {
                                           utils.mdraid_name(mdraid)),
                     Footer: TeardownMessage(usage),
                     Action: {
-                        Title: _("Stop Device"),
+                        Title: _("Stop device"),
                         action: function () {
                             return utils.teardown_active_usage(client, usage)
                                     .then(function () {
@@ -298,7 +298,7 @@ export class MDRaidDetails extends React.Component {
         var header = (
             <Card>
                 <CardHeader>
-                    <CardTitle><Text component={TextVariants.h2}>{ cockpit.format(_("RAID Device $0"), utils.mdraid_name(mdraid)) }</Text></CardTitle>
+                    <CardTitle><Text component={TextVariants.h2}>{ cockpit.format(_("RAID device $0"), utils.mdraid_name(mdraid)) }</Text></CardTitle>
                     <CardActions>
                         { running
                             ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
@@ -319,7 +319,7 @@ export class MDRaidDetails extends React.Component {
                         <label className="control-label">{_("storage", "Capacity")}</label>
                         <div>{ utils.fmt_size_long(mdraid.Size) }</div>
 
-                        <label className="control-label">{_("storage", "RAID Level")}</label>
+                        <label className="control-label">{_("storage", "RAID level")}</label>
                         <div>{ level }</div>
 
                         { bitmap }

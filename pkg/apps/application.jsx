@@ -100,7 +100,7 @@ export class Application extends React.Component {
         function render_comp() {
             if (!comp) {
                 if (metainfo_db.ready)
-                    return <div>{_("Unknown Application")}</div>;
+                    return <div>{_("Unknown application")}</div>;
                 else
                     return <div className="spinner" />;
             }
@@ -110,7 +110,7 @@ export class Application extends React.Component {
                 progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress} />;
                 button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
-                progress_or_launch = <Button variant="link" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</Button>;
+                progress_or_launch = <Button variant="link" onClick={left_click(() => launch(comp))}>{_("Go to application")}</Button>;
                 button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
                 progress_or_launch = null;

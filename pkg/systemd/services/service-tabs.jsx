@@ -26,7 +26,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 export const service_tabs_suffixes = {
-    service: _("System Services"),
+    service: _("System services"),
     target: _("Targets"),
     socket: _("Sockets"),
     timer: _("Timers"),

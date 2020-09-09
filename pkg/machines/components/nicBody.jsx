@@ -109,9 +109,9 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
             });
         } else {
             if (dialogValues.networkType === "network")
-                defaultNetworkSource = _("No Virtual Networks");
+                defaultNetworkSource = _("No virtual networks");
             else
-                defaultNetworkSource = _("No Network Devices");
+                defaultNetworkSource = _("No network devices");
 
             networkSourcesContent = (
                 <Select.SelectEntry data='empty-list' key='empty-list'>
@@ -125,7 +125,7 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
     return (
         <>
             <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
-                {_("Interface Type")}
+                {_("Interface type")}
             </label>
             <Select.Select id={`${idPrefix}-select-type`}
                            onChange={value => onValueChanged('networkType', value)}

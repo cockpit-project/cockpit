@@ -101,7 +101,7 @@ class MoreInformation extends React.Component {
             return (
                 <button className="link-button" onClick={this.onClick}>
                     <span className='fa fa-angle-right' />&nbsp;
-                    {_("More Information")}
+                    {_("More information")}
                 </button>);
         }
 
@@ -109,7 +109,7 @@ class MoreInformation extends React.Component {
             <div className='machines-desktop-more-info-container'>
                 <button className="link-button" onClick={this.onClick}>
                     <span className='fa fa-angle-down' />&nbsp;
-                    {_("More Information")}
+                    {_("More information")}
                 </button>
                 {this.getContent()}
             </div>);
@@ -153,22 +153,22 @@ const ManualConnectionDetails = ({ displays, idPrefix }) => {
             {singleAddress && (<dt>{_("Address:")}</dt>)}
             {singleAddress && (<dd id={`${idPrefix}-address`}>{singleAddress}</dd>)}
 
-            {(!singleAddress && spiceAddress) && (<dt>{_("SPICE Address:")}</dt>)}
+            {(!singleAddress && spiceAddress) && (<dt>{_("SPICE address:")}</dt>)}
             {(!singleAddress && spiceAddress) && (<dd id={`${idPrefix}-address-spice`}>{spiceAddress}</dd>)}
 
-            {(!singleAddress && vncAddress) && (<dt>{_("VNC Address:")}</dt>)}
+            {(!singleAddress && vncAddress) && (<dt>{_("VNC address:")}</dt>)}
             {(!singleAddress && vncAddress) && (<dd id={`${idPrefix}-address-vnc`}>{vncAddress}</dd>)}
 
-            {spicePort && (<dt>{_("SPICE Port:")}</dt>)}
+            {spicePort && (<dt>{_("SPICE port:")}</dt>)}
             {spicePort && (<dd id={`${idPrefix}-port-spice`}>{spicePort}</dd>)}
 
-            {spiceTlsPort && (<dt>{_("SPICE TLS Port:")}</dt>)}
+            {spiceTlsPort && (<dt>{_("SPICE TLS port:")}</dt>)}
             {spiceTlsPort && (<dd id={`${idPrefix}-port-spice-tls`}>{spiceTlsPort}</dd>)}
 
-            {vncPort && (<dt>{_("VNC Port:")}</dt>)}
+            {vncPort && (<dt>{_("VNC port:")}</dt>)}
             {vncPort && (<dd id={`${idPrefix}-port-vnc`}>{vncPort}</dd>)}
 
-            {vncTlsPort && (<dt>{_("VNC TLS Port:")}</dt>)}
+            {vncTlsPort && (<dt>{_("VNC TLS port:")}</dt>)}
             {vncTlsPort && (<dd id={`${idPrefix}-port-vnc-tls`}>{vncTlsPort}</dd>)}
         </dl>
     );
@@ -190,7 +190,7 @@ const ManualConnection = ({ displays, idPrefix }) => {
 
     return (
         <div className='machines-desktop-main-col'>
-            <h2>{_("Manual Connection")}</h2>
+            <h2>{_("Manual connection")}</h2>
             <div className='machines-desktop-manual-block'>{msg}</div>
             <div className='machines-desktop-manual-block'>
                 <ManualConnectionDetails displays={displays} idPrefix={idPrefix} />

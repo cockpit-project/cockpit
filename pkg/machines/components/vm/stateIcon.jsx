@@ -46,8 +46,8 @@ const StateIcon = ({ state, valueId, extra }) => {
             className: 'pficon pficon-ok icon-1x-vms',
             title: _("The VM is suspended by guest power management."),
         },
-        'creating VM': { className: 'pficon pficon-pending icon-1x-vms' },
-        'creating VM installation': { className: 'pficon pficon-pending icon-1x-vms' },
+        'Creating VM': { className: 'pficon pficon-pending icon-1x-vms' },
+        'Creating VM installation': { className: 'pficon pficon-pending icon-1x-vms' },
     };
 
     if (stateMap[state]) {

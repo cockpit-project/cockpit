@@ -131,10 +131,10 @@ export function nfs_fstab_dialog(client, entry) {
         }
 
         const dlg = dialog_open({
-            Title: entry ? _("NFS Mount") : _("New NFS Mount"),
+            Title: entry ? _("NFS mount") : _("New NFS mount"),
             Body: alert,
             Fields: [
-                TextInput("server", _("Server Address"),
+                TextInput("server", _("Server address"),
                           {
                               value: entry ? entry.fields[0].split(":")[0] : "",
                               validate: function (val) {
@@ -143,7 +143,7 @@ export function nfs_fstab_dialog(client, entry) {
                               },
                               disabled: busy
                           }),
-                ComboBox("remote", _("Path on Server"),
+                ComboBox("remote", _("Path on server"),
                          {
                              value: entry ? entry.fields[0].split(":")[1] : "",
                              validate: function (val) {
@@ -155,7 +155,7 @@ export function nfs_fstab_dialog(client, entry) {
                              disabled: busy,
                              choices: [],
                          }),
-                TextInput("dir", _("Local Mount Point"),
+                TextInput("dir", _("Local mount point"),
                           {
                               value: entry ? entry.fields[1] : "",
                               validate: function (val) {
@@ -166,7 +166,7 @@ export function nfs_fstab_dialog(client, entry) {
                               },
                               disabled: busy
                           }),
-                CheckBoxes("mount_options", _("Mount Options"),
+                CheckBoxes("mount_options", _("Mount options"),
                            {
                                fields: [
                                    { title: _("Mount at boot"), tag: "auto" },
@@ -255,7 +255,7 @@ export class NFSDetails extends React.Component {
                         nfs_busy_dialog(client,
                                         _("Unable to unmount filesystem"),
                                         entry, error,
-                                        _("Stop and Unmount"),
+                                        _("Stop and unmount"),
                                         function (users) {
                                             return client.nfs.stop_and_unmount_entry(users, entry)
                                                     .done(function () {
@@ -314,7 +314,7 @@ export class NFSDetails extends React.Component {
                         <label className="control-label">{_("Server")}</label>
                         <div>{entry.fields[0]}</div>
 
-                        <label className="control-label">{_("Mount Point")}</label>
+                        <label className="control-label">{_("Mount point")}</label>
                         <div>{entry.fields[1]}</div>
 
                         <label className="control-label">{_("Size")}</label>

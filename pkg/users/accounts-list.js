@@ -71,7 +71,7 @@ export function AccountsList({ accounts, current_user }) {
         <div id="accounts" className="container-fluid">
             { superuser.allowed &&
             <Button id="accounts-create" onClick={() => account_create_dialog(accounts)}>
-                {_("Create New Account")}
+                {_("Create new account")}
             </Button>
             }
             <ul id="accounts-list">

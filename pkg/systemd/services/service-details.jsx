@@ -132,7 +132,7 @@ export class ServiceTemplate extends React.Component {
                     {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
                     <div className="list-group">
                         <div className="list-group-item">
-                            { cockpit.format(_("$0 Template"), this.props.template) }
+                            { cockpit.format(_("$0 template"), this.props.template) }
                         </div>
                         <div className="list-group-item">
                             <input type="text" onChange={ this.handleChange } />
@@ -276,10 +276,10 @@ class ServiceActions extends React.Component {
         return (
             <>
                 { this.state.dialogMaskedOpened &&
-                    <ServiceConfirmDialog id="mask-service" title={ _("Mask Service") }
+                    <ServiceConfirmDialog id="mask-service" title={ _("Mask service") }
                                           message={ _("Masking service prevents all dependent units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
                                           close={() => this.setState({ dialogMaskedOpened: false }) }
-                                          confirmText={ _("Mask Service") }
+                                          confirmText={ _("Mask service") }
                                           confirmAction={() => {
                                               this.props.fileActionCallback("MaskUnitFiles", false);
                                               this.props.actionCallback("ResetFailedUnit", []);
@@ -429,7 +429,7 @@ export class ServiceDetails extends React.Component {
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
                     { this.props.permitted &&
-                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</Button>
+                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
                     }
                 </div>
             );
@@ -500,30 +500,30 @@ export class ServiceDetails extends React.Component {
             ];
         }
 
-        const tooltipMessage = enabled ? _("Stop and Disable") : _("Start and Enable");
+        const tooltipMessage = enabled ? _("Stop and disable") : _("Start and enable");
         const hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
         const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
         const relationships = [
             { Name: _("Requires"), Units: this.props.unit.Requires },
             { Name: _("Requisite"), Units: this.props.unit.Requisite },
             { Name: _("Wants"), Units: this.props.unit.Wants },
-            { Name: _("Binds To"), Units: this.props.unit.BindsTo },
-            { Name: _("Part Of"), Units: this.props.unit.PartOf },
-            { Name: _("Required By"), Units: this.props.unit.RequiredBy },
-            { Name: _("Requisite Of"), Units: this.props.unit.RequisiteOf },
-            { Name: _("Wanted By"), Units: this.props.unit.WantedBy },
-            { Name: _("Bound By"), Units: this.props.unit.BoundBy },
-            { Name: _("Consists Of"), Units: this.props.unit.ConsistsOf },
+            { Name: _("Binds to"), Units: this.props.unit.BindsTo },
+            { Name: _("Part of"), Units: this.props.unit.PartOf },
+            { Name: _("Required by"), Units: this.props.unit.RequiredBy },
+            { Name: _("Requisite of"), Units: this.props.unit.RequisiteOf },
+            { Name: _("Wanted by"), Units: this.props.unit.WantedBy },
+            { Name: _("Bound by"), Units: this.props.unit.BoundBy },
+            { Name: _("Consists of"), Units: this.props.unit.ConsistsOf },
             { Name: _("Conflicts"), Units: this.props.unit.Conflicts },
-            { Name: _("Conflicted By"), Units: this.props.unit.ConflictedBy },
+            { Name: _("Conflicted by"), Units: this.props.unit.ConflictedBy },
             { Name: _("Before"), Units: this.props.unit.Before },
             { Name: _("After"), Units: this.props.unit.After },
-            { Name: _("On Failure"), Units: this.props.unit.OnFailure },
+            { Name: _("On failure"), Units: this.props.unit.OnFailure },
             { Name: _("Triggers"), Units: this.props.unit.Triggers },
-            { Name: _("Triggered By"), Units: this.props.unit.TriggeredBy },
-            { Name: _("Propagates Reload To"), Units: this.props.unit.PropagatesReloadTo },
-            { Name: _("Reload Propagated From"), Units: this.props.unit.ReloadPropagatedFrom },
-            { Name: _("Joins Namespace Of"), Units: this.props.unit.JoinsNamespaceOf }
+            { Name: _("Triggered by"), Units: this.props.unit.TriggeredBy },
+            { Name: _("Propagates reload to"), Units: this.props.unit.PropagatesReloadTo },
+            { Name: _("Reload propagated from"), Units: this.props.unit.ReloadPropagatedFrom },
+            { Name: _("Joins namespace of"), Units: this.props.unit.JoinsNamespaceOf }
         ];
 
         const conditions = this.props.unit.Conditions;

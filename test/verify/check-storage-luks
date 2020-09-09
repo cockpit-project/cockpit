@@ -38,14 +38,14 @@ class TestStorageLuks(StorageCase):
         b.wait_in_text("#drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
-        b.click('button:contains(Create Partition Table)')
+        b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
 
         # Format it with luks
-        self.content_row_action(1, "Create Partition")
+        self.content_row_action(1, "Create partition")
         self.dialog_wait_open()
         self.dialog_set_val("size", 17)
         self.dialog_set_val("type", "ext4")
@@ -60,7 +60,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         self.wait_in_storaged_configuration(mount_point_secret)
         self.wait_in_storaged_configuration("crypto,options")
@@ -71,11 +71,11 @@ class TestStorageLuks(StorageCase):
 
         # Lock it
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
 
         # Unlock, this uses the stored passphrase
         self.content_head_action(1, "Unlock")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # Change options.  We keep trying until the stack has synched
         # up with crypttab and we see the old options.
@@ -103,18 +103,18 @@ class TestStorageLuks(StorageCase):
 
         # Lock it
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
 
         # Unlock, this asks for a passphrase
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # Delete the partition.
         self.content_dropdown_action(1, "Delete")
         self.confirm()
-        self.content_row_wait_in_col(1, 1, "Free Space")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "Free space")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
         # luksmeta-monitor-hack.py races with the partition deletion
         self.allow_journal_messages('Unknown device .*: No such file or directory')
 
@@ -174,12 +174,12 @@ class TestStorageLuks(StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # Lock the disk
         #
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
 
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
         tab = self.content_tab_expand(1, 1)
@@ -206,7 +206,7 @@ class TestStorageLuks(StorageCase):
         # Unlock it.  This should succeed without prompting.
         #
         self.content_head_action(1, "Unlock")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # Edit the key, without providing an existing passphrase
         #
@@ -255,7 +255,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
         # add one more passphrase
         tab = self.content_tab_expand(1, 1)
@@ -272,16 +272,16 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_close()
         # unlock with first passphrase
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         # unlock with second passphrase
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         # delete second key slot by providing passphrase
         b.click(panel + "tr:nth-child(2) .fa-minus")
         self.dialog_wait_open()
@@ -290,7 +290,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_close()
         # check that it is not possible to unlock with deleted passphrase
         self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
         self.content_head_action(1, "Unlock")
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
@@ -354,7 +354,7 @@ class TestStorageLuks(StorageCase):
         # unlock volume with the newly created passphrase
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
 
     def testNoFsys(self):
@@ -375,7 +375,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "Unrecognized Data")
+        self.content_row_wait_in_col(2, 1, "Unrecognized data")
 
     def testNoauto(self):
         m = self.machine
@@ -400,7 +400,7 @@ class TestStorageLuks(StorageCase):
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_tab_wait_in_info(1, 1, "Options", "noauto")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # The filesystem should be mounted but have the "noauto" option
         self.wait_mounted(2,1)
@@ -408,7 +408,7 @@ class TestStorageLuks(StorageCase):
 
         # Unmounting should keep the noauto option, as always
         self.content_dropdown_action(2, "Unmount")
-        self.content_tab_wait_in_info(2, 1, "Mount Point", "The filesystem is not mounted")
+        self.content_tab_wait_in_info(2, 1, "Mount point", "The filesystem is not mounted")
         self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
 
         # Mounting should also keep the "noauto", but it should not show up in the extra options
@@ -419,7 +419,7 @@ class TestStorageLuks(StorageCase):
         self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
 
         # As should updating the mount information
-        self.content_tab_info_action(2, 1, "Mount Point", wrapped=True)
+        self.content_tab_info_action(2, 1, "Mount point", wrapped=True)
         self.dialog_check({ "mount_options.extra": False })
         self.dialog_apply()
         self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))

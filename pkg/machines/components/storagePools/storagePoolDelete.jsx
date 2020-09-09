@@ -123,11 +123,11 @@ export class StoragePoolDelete extends React.Component {
             Promise.all(volumes.map(volume => storageVolumeDelete(storagePool.connectionName, storagePool.name, volume.name)))
                     .then(() => storagePoolDeactivateAndUndefine(storagePool))
                     .then(() => this.close,
-                          exc => this.dialogErrorSet(_("The Storage Pool could not be deleted"), exc.message));
+                          exc => this.dialogErrorSet(_("The storage pool could not be deleted"), exc.message));
         } else {
             storagePoolDeactivateAndUndefine(storagePool)
                     .then(() => this.close,
-                          exc => this.dialogErrorSet(_("The Storage Pool could not be deleted"), exc.message));
+                          exc => this.dialogErrorSet(_("The storage pool could not be deleted"), exc.message));
         }
     }
 
@@ -161,7 +161,7 @@ export class StoragePoolDelete extends React.Component {
                 <div className='ct-form'>
                     { storagePool.active && volumes.length > 0 && <>
                         <label className='control-label'>
-                            {_("Delete Content")}
+                            {_("Delete content")}
                         </label>
                         <div role="group">
                             <label className='checkbox-inline'>
@@ -169,11 +169,11 @@ export class StoragePoolDelete extends React.Component {
                                     type='checkbox'
                                     checked={this.state.deleteVolumes}
                                     onChange={e => this.onValueChanged('deleteVolumes', e.target.checked)} />
-                                {_("Delete the Volumes inside this Pool")}
+                                {_("Delete the volumes inside this pool")}
                             </label>
                         </div>
                     </>}
-                    { !storagePool.active && _("Deleting an inactive Storage Pool will only undefine the Pool. Its content will not be deleted.")}
+                    { !storagePool.active && _("Deleting an inactive storage pool will only undefine the pool. Its content will not be deleted.")}
                 </div>
                 { storagePool.active && showWarning() }
             </>
@@ -221,7 +221,7 @@ export class StoragePoolDelete extends React.Component {
                 <Modal show={this.state.showModal} onHide={this.close}>
                     <Modal.Header>
                         <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title> {cockpit.format(_("Delete Storage Pool $0"), storagePool.name)} </Modal.Title>
+                        <Modal.Title> {cockpit.format(_("Delete storage pool $0"), storagePool.name)} </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {defaultBody}

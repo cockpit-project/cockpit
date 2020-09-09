@@ -166,7 +166,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
         <Modal.Body>
             <form className="ct-form">
                 { need_old && <>
-                    <label className="control-label" htmlFor="account-set-password-old" translate="yes">Old Password</label>
+                    <label className="control-label" htmlFor="account-set-password-old" translate="yes">Old password</label>
                     <Validated errors={errors} error_key="password_old">
                         <input className="form-control check-passwords" type="password" id="account-set-password-old"
         value={password_old} onChange={event => change("password_old", event.target.value)} />
@@ -174,7 +174,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
                 </>
                 }
 
-                <label className="control-label" htmlFor="account-set-password-pw1" translate="yes">New Password</label>
+                <label className="control-label" htmlFor="account-set-password-pw1" translate="yes">New password</label>
                 <Validated errors={errors} error_key="password">
                     <input className="form-control check-passwords" type="password" id="account-set-password-pw1"
         value={password} onChange={event => change("password", event.target.value)} />
@@ -265,7 +265,7 @@ export function set_password_dialog(account, current_user) {
     function update() {
         const props = {
             id: "account-set-password-dialog",
-            title: _("Set Password"),
+            title: _("Set password"),
             body: <SetPasswordDialogBody state={state} errors={errors} change={change} />
         };
 

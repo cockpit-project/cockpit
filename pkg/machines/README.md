@@ -16,7 +16,7 @@ In the vagrant:
         virt-install -r 128 --pxe --force --nographics --noautoconsole \
         -f ${NAME}.img -n ${NAME}   # to create and start a dummy VM
 
-Log into Cockpit as the 'root' user (pwd 'foobar') and follow `Virtual Machines` from the left-side menu.
+Log into Cockpit as the 'root' user (pwd 'foobar') and follow `Virtual machines` from the left-side menu.
 
 
 Please note, the created VM is for the plugin testing only, it provides no real OS.

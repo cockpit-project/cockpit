@@ -78,7 +78,7 @@ class VmSnapshotsTab extends React.Component {
 
         let detailMap = [
             {
-                name: _("Creation Time"), value: (snap, snapId) => {
+                name: _("Creation time"), value: (snap, snapId) => {
                     const date = prettyTime(snap.creationTime);
                     return (<div className="snap-creation-time">
                         <div id={`${id}-snapshot-${snapId}-date`}>
@@ -113,7 +113,7 @@ class VmSnapshotsTab extends React.Component {
                 }
             },
             {
-                name: _("VM State"), value: (snap, snapId) => {
+                name: _("VM state"), value: (snap, snapId) => {
                     const statesMap = {
                         shutoff: "shut off",
                         "disk-snapshot": <span className="snap-greyed-out">{_("no state saved")}</span>,
@@ -143,7 +143,7 @@ class VmSnapshotsTab extends React.Component {
                 }
             },
             {
-                name: _("Parent Snapshot"), value: (snap, snapId) => {
+                name: _("Parent snapshot"), value: (snap, snapId) => {
                     const parentName = snap.parentName || (<span className="snap-greyed-out">{_("No parent")}</span>);
 
                     return (
@@ -223,7 +223,7 @@ class VmSnapshotsTab extends React.Component {
         return (
             <div className="snapshots-list">
                 <Button id={`${id}-add-snapshot-button`} variant="secondary" className="pull-right" onClick={this.openCreateSnapshot}>
-                    {_("Create Snapshot")}
+                    {_("Create snapshot")}
                 </Button>
 
                 {this.state.showCreateSnapshotModal &&

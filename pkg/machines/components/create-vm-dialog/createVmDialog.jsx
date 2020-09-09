@@ -130,7 +130,7 @@ function validateParams(vmParams) {
         validationFailed.vmName = cockpit.format(_("VM $0 already exists"), vmParams.vmName);
 
     if (vmParams.os == undefined)
-        validationFailed.os = _("You need to select the most closely matching Operating System");
+        validationFailed.os = _("You need to select the most closely matching operating system");
 
     const source = vmParams.source ? vmParams.source.trim() : null;
 
@@ -154,7 +154,7 @@ function validateParams(vmParams) {
             break;
         }
     } else if (vmParams.sourceType != DOWNLOAD_AN_OS) {
-        validationFailed.source = _("Installation Source must not be empty");
+        validationFailed.source = _("Installation source must not be empty");
     }
 
     if (vmParams.memorySize === 0) {
@@ -165,7 +165,7 @@ function validateParams(vmParams) {
             (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < vmParams.os.minimumResources.ram)) {
             validationFailed.memory = (
                 cockpit.format(
-                    _("The selected Operating System has minimum memory requirement of $0 $1"),
+                    _("The selected operating system has minimum memory requirement of $0 $1"),
                     convertToUnit(vmParams.os.minimumResources.ram, units.B, vmParams.memorySizeUnit),
                     vmParams.memorySizeUnit)
             );
@@ -180,7 +180,7 @@ function validateParams(vmParams) {
                    (convertToUnit(vmParams.storageSize, vmParams.storageSizeUnit, units.B) < vmParams.os.minimumResources.storage)) {
             validationFailed.storage = (
                 cockpit.format(
-                    _("The selected Operating System has minimum storage size requirement of $0 $1"),
+                    _("The selected operating system has minimum storage size requirement of $0 $1"),
                     convertToUnit(vmParams.os.minimumResources.storage, units.B, vmParams.storageSizeUnit),
                     vmParams.storageSizeUnit)
             );
@@ -250,7 +250,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                                                    networks);
 
             if (!netObj || !getVirtualNetworkPXESupport(netObj))
-                installationSourceWarning = _("Network Selection does not support PXE.");
+                installationSourceWarning = _("Network selection does not support PXE.");
         }
 
         installationSource = (
@@ -288,7 +288,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
             {sourceType != EXISTING_DISK_IMAGE_SOURCE &&
             <>
                 <label className="control-label" htmlFor="source-type">
-                    {_("Installation Type")}
+                    {_("Installation type")}
                 </label>
                 <CockpitSelect.Select id="source-type"
                     initial={sourceType}
@@ -296,12 +296,12 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                     {downloadOSSupported ? <CockpitSelect.SelectEntry data={DOWNLOAD_AN_OS}
                         key={DOWNLOAD_AN_OS}>{_("Download an OS")}</CockpitSelect.SelectEntry> : null}
                     <CockpitSelect.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</CockpitSelect.SelectEntry>
+                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local install media")}</CockpitSelect.SelectEntry>
                     <CockpitSelect.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
+                    <CockpitSelect.SelectEntry title={connectionName == 'session' ? _("Network boot is available only when using system connection") : null}
                         disabled={connectionName == 'session'}
                         data={PXE_SOURCE}
-                        key={PXE_SOURCE}>{_("Network Boot (PXE)")}
+                        key={PXE_SOURCE}>{_("Network boot (PXE)")}
                     </CockpitSelect.SelectEntry>
                 </CockpitSelect.Select>
             </>}
@@ -309,7 +309,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
             {sourceType != DOWNLOAD_AN_OS
                 ? <>
                     <label className="control-label" htmlFor={installationSourceId}>
-                        {_("Installation Source")}
+                        {_("Installation source")}
                     </label>
                     <FormGroup validationState={validationStateSource} controlId='source'>
                         {installationSource}
@@ -368,7 +368,7 @@ class OSRow extends React.Component {
         return (
             <>
                 <label className="control-label" htmlFor='os-select'>
-                    {_("Operating System")}
+                    {_("Operating system")}
                 </label>
                 <FormGroup validationState={validationStateOS} bsClass='form-group ct-validation-wrapper'>
                     <PFSelect
@@ -417,7 +417,7 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
     );
     if (unattendedDisabled) {
         unattendedInstallationCheckbox = (
-            <Tooltip id='os-unattended-installation-tooltip' content={_("The selected Operating System does not support unattended installation")} position={TooltipPosition.left}>
+            <Tooltip id='os-unattended-installation-tooltip' content={_("The selected operating system does not support unattended installation")} position={TooltipPosition.left}>
                 {unattendedInstallationCheckbox}
             </Tooltip>
         );
@@ -449,7 +449,7 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                     </CockpitSelect.Select>
                 </>}
                 <label htmlFor='root-password' className='control-label'>
-                    {_("Root Password")}
+                    {_("Root password")}
                 </label>
                 <FormGroup validationState={validationStatePassword} bsClass='form-group ct-validation-wrapper' controlId='root-password'>
                     <Password id='root-password' onValueChanged={(value) => onValueChanged('rootPassword', value)} />
@@ -511,10 +511,10 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
             <CockpitSelect.Select id="storage-pool-select"
                            initial={storagePoolName}
                            onChange={e => onValueChanged('storagePool', e)}>
-                <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">{_("Create New Volume")}</CockpitSelect.SelectEntry>
-                <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">{_("No Storage")}</CockpitSelect.SelectEntry>
+                <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">{_("Create new volume")}</CockpitSelect.SelectEntry>
+                <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">{_("No storage")}</CockpitSelect.SelectEntry>
                 <CockpitSelect.SelectDivider />
-                <optgroup key="Storage Pools" label="Storage Pools">
+                <optgroup key="Storage pools" label="Storage pools">
                     { storagePools.map(pool => {
                         if (pool.volumes && pool.volumes.length)
                             return <CockpitSelect.SelectEntry data={pool.name} key={pool.name}>{pool.name}</CockpitSelect.SelectEntry>;
@@ -814,7 +814,7 @@ class CreateVmModal extends React.Component {
                     checked={this.state.startVm}
                     disabled={this.state.unattendedInstallation}
                     onChange={e => this.onValueChanged('startVm', e.target.checked)} />
-                {_("Immediately Start VM")}
+                {_("Immediately start VM")}
             </label>
         );
         if (this.state.unattendedInstallation) {
@@ -928,7 +928,7 @@ class CreateVmModal extends React.Component {
             <Modal id='create-vm-dialog' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {this.props.mode == 'create' ? _("Create New Virtual Machine") : _("Import a Virtual Machine")} </Modal.Title>
+                    <Modal.Title> {this.props.mode == 'create' ? _("Create new virtual machine") : _("Import a virtual machine")} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {dialogBody}

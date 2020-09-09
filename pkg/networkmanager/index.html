@@ -45,11 +45,11 @@
           <span class="pficon pficon-error-circle-o"></span>
         </div>
         <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
-        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start Service</button>
+        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start service</button>
       </div>
 
       <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
-        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable Service</button>
+        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable service</button>
         <div class="pf-c-alert__icon">
           <span class="pficon pficon-info"></span>
         </div>
@@ -117,9 +117,9 @@
             <div class="pf-c-card__header">
               <div class="pf-c-card__title" translate="yes">Interfaces</div>
               <div class="pf-c-card__actions">
-                <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add Bond</button>
-                <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add Team</button>
-                <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add Bridge</button>
+                <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add bond</button>
+                <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add team</button>
+                <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add bridge</button>
                 <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
               </div>
             </div>
@@ -127,7 +127,7 @@
               <thead>
                 <tr role="row">
                   <th role="columnheader" scope="col" translate="yes">Name</th>
-                  <th role="columnheader" scope="col" translate="yes">IP Address</th>
+                  <th role="columnheader" scope="col" translate="yes">IP address</th>
                   <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
                   <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
                 </tr>
@@ -138,13 +138,13 @@
           </article>
           <article class="pf-c-card" id="networking-unmanaged-interfaces">
             <div class="pf-c-card__header">
-              <div class="pf-c-card__title" translate="yes">Unmanaged Interfaces</div>
+              <div class="pf-c-card__title" translate="yes">Unmanaged interfaces</div>
             </div>
             <table class="pf-c-table pf-m-compact pf-m-grid-md" role="grid">
               <thead>
                 <tr role="row">
                   <th role="columnheader" scope="col" translate="yes">Name</th>
-                  <th role="columnheader" scope="col" translate="yes">IP Address</th>
+                  <th role="columnheader" scope="col" translate="yes">IP address</th>
                   <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
                   <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
                 </tr>
@@ -155,7 +155,7 @@
           </article>
           <article class="pf-c-card cockpit-log-panel" aria-labelledby="networking-log-header">
             <div class="pf-c-card__header">
-                <div class="pf-c-card__title" id="networking-log-header" translate>Networking Logs</div>
+                <div class="pf-c-card__title" id="networking-log-header" translate>Networking logs</div>
                 <div class="pf-c-card__actions">
                   <button class="link-button" role="link" id="goto-networking-logs" translate>All logs</button>
                 </div>
@@ -231,25 +231,25 @@
         {{! member interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Spanning Tree Protocol (STP)</label>
+      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Spanning tree protocol (STP)</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
           {{#stp_checked}}checked{{/stp_checked}}/>
       </label>
 
-      <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP Priority</label>
+      <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP priority</label>
       <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
              value="{{stp_priority}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP Forward delay</label>
+      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP forward delay</label>
       <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
              value="{{stp_forward_delay}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP Hello time</label>
+      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP hello time</label>
       <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
              value="{{stp_hello_time}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP Maximum message age</label>
+      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP maximum message age</label>
       <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
              value="{{stp_max_age}}"/>
     </form>
@@ -265,7 +265,7 @@
       <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{path_cost}}"/>
 
-      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translate="yes">Hair Pin mode</label>
+      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translate="yes">Hair pin mode</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
                {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
@@ -307,16 +307,16 @@
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-bond-settings-link-monitoring-select" translate="yes">Link Monitoring</label>
+      <label class="control-label" for="network-bond-settings-link-monitoring-select" translate="yes">Link monitoring</label>
       <div id="network-bond-settings-link-monitoring-select">
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translate="yes">Monitoring Interval</label>
+      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translate="yes">Monitoring interval</label>
       <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{monitoring_interval}}"/>
 
-      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translate="yes">Monitoring Targets</label>
+      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translate="yes">Monitoring targets</label>
       <input id="network-bond-settings-monitoring-targets-input" class="form-control"
              type="text" value="{{monitoring_target}}"/>
 
@@ -351,16 +351,16 @@
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-team-settings-link-watch-select" translate="yes">Link Watch</label>
+      <label class="control-label" for="network-team-settings-link-watch-select" translate="yes">Link watch</label>
       <div id="network-team-settings-link-watch-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-team-settings-ping-interval-input" translate="yes">Ping Interval</label>
+      <label class="control-label" for="network-team-settings-ping-interval-input" translate="yes">Ping interval</label>
       <input id="network-team-settings-ping-interval-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
 
-      <label class="control-label" for="network-team-settings-ping-target-input" translate="yes">Ping Target</label>
+      <label class="control-label" for="network-team-settings-ping-target-input" translate="yes">Ping target</label>
       <input id="network-team-settings-ping-target-input" class="form-control"
              type="text" value="{{config.link_watch.target_host}}"/>
 
@@ -390,7 +390,7 @@
       <input id="network-team-port-settings-lacp-prio-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_prio}}"/>
 
-      <label class="control-label" for="network-team-port-settings-lacp-key-input" translate="yes">LACP Key</label>
+      <label class="control-label" for="network-team-port-settings-lacp-key-input" translate="yes">LACP key</label>
       <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_key}}"/>
     </form>
@@ -499,7 +499,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">IP Settings</h4>
+          <h4 class="modal-title" translate="yes">IP settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -526,7 +526,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bond Settings</h4>
+          <h4 class="modal-title" translate="yes">Bond settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
           <button id="bond-help-popup-button" class="close pficon pficon-help" data-toggle="popover">
         </div>
@@ -554,7 +554,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Team Settings</h4>
+          <h4 class="modal-title" translate="yes">Team settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -581,7 +581,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Team Port Settings</h4>
+          <h4 class="modal-title" translate="yes">Team port settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -608,7 +608,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bridge Settings</h4>
+          <h4 class="modal-title" translate="yes">Bridge settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -635,7 +635,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bridge Port Settings</h4>
+          <h4 class="modal-title" translate="yes">Bridge port settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -662,7 +662,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translate="yes">VLAN Settings</h4>
+          <h4 class="modal-title" translate="yes">VLAN settings</h4>
           <button class="close pficon pficon-close" data-dismiss="modal"></button>
         </div>
         <div class="modal-body">

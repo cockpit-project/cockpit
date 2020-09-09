@@ -41,7 +41,7 @@ export function vdo_feature(client) {
         },
 
         dialog_options: {
-            title: _("Install VDO Support"),
+            title: _("Install VDO support"),
             text: _("The $0 package must be installed to create VDO devices.")
         }
     };
@@ -54,7 +54,7 @@ const VDORow = ({ client, vdo }) => {
                       kind="array"
                       name={vdo.name}
                       devname={vdo.dev}
-                      detail={fmt_size(vdo.logical_size) + " " + _("VDO Device")}
+                      detail={fmt_size(vdo.logical_size) + " " + _("VDO device")}
                       go={() => cockpit.location.go(["vdo", vdo.name])}
                       job_path={block && block.path} />
     );
@@ -77,7 +77,7 @@ export function create_vdo(client) {
     }
 
     dialog_open({
-        Title: _("Create VDO Device"),
+        Title: _("Create VDO device"),
         Fields: [
             TextInput("name", _("Name"),
                       {
@@ -96,14 +96,14 @@ export function create_vdo(client) {
                             },
                             spaces: get_available_spaces(client)
                         }),
-            SizeSlider("lsize", _("Logical Size"),
+            SizeSlider("lsize", _("Logical size"),
                        {
                            max: 3 * 1024 * 1024 * 1024 * 1024,
                            round: 512,
                            value: 1024 * 1024 * 1024 * 1024,
                            allow_infinite: true
                        }),
-            SizeSlider("index_mem", _("Index Memory"),
+            SizeSlider("index_mem", _("Index memory"),
                        {
                            max: 2 * 1024 * 1024 * 1024,
                            round: function (val) {
@@ -125,7 +125,7 @@ export function create_vdo(client) {
                                    tooltip: _("Save space by storing identical data blocks just once")
                                },
                                {
-                                   tag: "emulate_512", title: _("Use 512 Byte emulation"),
+                                   tag: "emulate_512", title: _("Use 512 byte emulation"),
                                    tooltip: _("For legacy applications only. Reduces performance.")
                                }
                            ],

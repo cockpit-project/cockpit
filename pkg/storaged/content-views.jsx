@@ -111,7 +111,7 @@ function create_tabs(client, target, is_partition) {
             return;
 
         dialog_open({
-            Title: _("Create Thin Volume"),
+            Title: _("Create thin volume"),
             Fields: [
                 TextInput("name", _("Name"),
                           {
@@ -138,7 +138,7 @@ function create_tabs(client, target, is_partition) {
     if (lvol) {
         if (lvol.Type == "pool") {
             add_tab(_("Pool"), PoolVolTab);
-            row_action = <StorageButton onClick={create_thin}>{_("Create Thin Volume")}</StorageButton>;
+            row_action = <StorageButton onClick={create_thin}>{_("Create thin volume")}</StorageButton>;
         } else {
             add_tab(_("Volume"), BlockVolTab, ["unused-space"]);
         }
@@ -156,17 +156,17 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Encryption"), CryptoTab);
     } else if ((block && block.IdUsage == "raid" && block.IdType == "LVM2_member") ||
                (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
-        add_tab(_("Physical Volume"), PVolTab);
+        add_tab(_("Physical volume"), PVolTab);
     } else if ((block && block.IdUsage == "raid") ||
                (block && client.mdraids[block.MDRaidMember])) {
-        add_tab(_("RAID Member"), MDRaidMemberTab);
+        add_tab(_("RAID member"), MDRaidMemberTab);
     } else if (block && client.vdo_overlay.find_by_backing_block(block)) {
-        add_tab(_("VDO Backing"), VDOBackingTab);
+        add_tab(_("VDO backing"), VDOBackingTab);
     } else if (block && block.IdUsage == "other" && block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
         is_unrecognized = true;
-        add_tab(_("Unrecognized Data"), UnrecognizedTab);
+        add_tab(_("Unrecognized data"), UnrecognizedTab);
     }
 
     var tab_actions = [];
@@ -267,7 +267,7 @@ function create_tabs(client, target, is_partition) {
 
     function create_snapshot() {
         dialog_open({
-            Title: _("Create Snapshot"),
+            Title: _("Create snapshot"),
             Fields: [
                 TextInput("name", _("Name"),
                           { validate: utils.validate_lvm2_name }),
@@ -288,7 +288,7 @@ function create_tabs(client, target, is_partition) {
             add_action(_("Activate"), activate);
         }
         if (client.lvols[lvol.ThinPool]) {
-            add_menu_action(_("Create Snapshot"), create_snapshot);
+            add_menu_action(_("Create snapshot"), create_snapshot);
         }
     }
 
@@ -389,31 +389,31 @@ function block_description(client, block) {
     var block_pvol = client.blocks_pvol[block.path];
 
     if (block.IdUsage == "filesystem") {
-        usage = cockpit.format(C_("storage-id-desc", "$0 File System"), block.IdType);
+        usage = cockpit.format(C_("storage-id-desc", "$0 file system"), block.IdType);
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
             var vgroup = client.vgroups[block_pvol.VolumeGroup];
             usage = cockpit.format(_("Physical volume of $0"), vgroup.Name);
         } else if (client.mdraids[block.MDRaidMember]) {
             var mdraid = client.mdraids[block.MDRaidMember];
-            usage = cockpit.format(_("Member of RAID Device $0"), utils.mdraid_name(mdraid));
+            usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
         } else if (block.IdType == "LVM2_member") {
-            usage = _("Physical Volume");
+            usage = _("Physical volume");
         } else {
-            usage = _("Member of RAID Device");
+            usage = _("Member of RAID device");
         }
     } else if (block.IdUsage == "crypto") {
         usage = C_("storage-id-desc", "Encrypted data");
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
-            usage = C_("storage-id-desc", "Swap Space");
+            usage = C_("storage-id-desc", "Swap space");
         } else {
-            usage = C_("storage-id-desc", "Other Data");
+            usage = C_("storage-id-desc", "Other data");
         }
     } else if (client.vdo_overlay.find_by_backing_block(block)) {
-        usage = C_("storage-id-desc", "VDO Backing");
+        usage = C_("storage-id-desc", "VDO backing");
     } else {
-        usage = C_("storage-id-desc", "Unrecognized Data");
+        usage = C_("storage-id-desc", "Unrecognized data");
     }
 
     return {
@@ -499,13 +499,13 @@ function append_partitions(client, rows, level, block) {
 
         var btn = (
             <StorageButton onClick={create_partition}>
-                {_("Create Partition")}
+                {_("Create partition")}
             </StorageButton>
         );
 
         var cols = [
             <span key={start.toString() + size.toString()} className={"content-level-" + level}>
-                {utils.format_size_and_text(size, _("Free Space"))}
+                {utils.format_size_and_text(size, _("Free space"))}
             </span>,
             "",
             { element: btn, tight: true }
@@ -519,7 +519,7 @@ function append_partitions(client, rows, level, block) {
     function append_extended_partition(level, partition) {
         var desc = {
             size: partition.size,
-            text: _("Extended Partition")
+            text: _("Extended partition")
         };
         var tabs = create_tabs(client, partition.block, true);
         append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
@@ -578,7 +578,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         }
 
         dialog_open({
-            Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
+            Title: cockpit.format(_("Format disk $0"), utils.block_name(block)),
             Footer: TeardownMessage(usage),
             Fields: [
                 SelectOne("erase", _("Erase"),
@@ -625,7 +625,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         format_disk_btn = (
             <div className="pull-right">
                 <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
-                    {_("Create Partition Table")}
+                    {_("Create partition table")}
                 </StorageButton>
             </div>);
 
@@ -673,7 +673,7 @@ function append_logical_volume(client, rows, level, lvol) {
     if (lvol.Type == "pool") {
         desc = {
             size: lvol.Size,
-            text: _("Pool for Thin Volumes")
+            text: _("Pool for thin volumes")
         };
         tabs = create_tabs(client, lvol, false);
         append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
@@ -719,7 +719,7 @@ export class VGroup extends React.Component {
                 return;
 
             dialog_open({
-                Title: _("Create Logical Volume"),
+                Title: _("Create logical volume"),
                 Fields: [
                     TextInput("name", _("Name"),
                               {
@@ -794,18 +794,18 @@ export class VGroup extends React.Component {
                              excuse={excuse}>
                     <span className="pficon pficon-add-circle-o" />
                     {" "}
-                    {_("Create new Logical Volume")}
+                    {_("Create new logical volume")}
                 </StorageLink>
             </div>);
 
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle><Text component={TextVariants.h2}>{_("Logical Volumes")}</Text></CardTitle>
+                    <CardTitle><Text component={TextVariants.h2}>{_("Logical volumes")}</Text></CardTitle>
                     <CardActions>{new_volume_link}</CardActions>
                 </CardHeader>
                 <CardBody className="contains-list">
-                    <Listing emptyCaption={_("No Logical Volumes")}>
+                    <Listing emptyCaption={_("No logical volumes")}>
                         { vgroup_rows(self.props.client, vgroup) }
                     </Listing>
                 </CardBody>

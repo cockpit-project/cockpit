@@ -250,7 +250,7 @@ export class ConfigurationCard extends React.Component {
                 <Button id="system_information_hostname_button" variant="link"
                         onClick={ () => $('#system_information_change_hostname').modal('show') }
                         isInline aria-label="edit hostname">
-                    {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
+                    {this.props.hostname !== "" ? _("edit") : _("Set hostname")}
                 </Button>);
 
         const domain_tooltip = superuser.allowed && this.realmd.button_tooltip;
@@ -297,7 +297,7 @@ export class ConfigurationCard extends React.Component {
                             </tr>
 
                             <tr>
-                                <th scope="row">{_("Secure Shell keys")}</th>
+                                <th scope="row">{_("Secure shell keys")}</th>
                                 <td>
                                     <Button variant="link" isInline id="system-ssh-keys-link" data-toggle="modal" onClick={this.host_keys_show}
                                         data-target="#system_information_ssh_keys">{_("Show fingerprints")}</Button>

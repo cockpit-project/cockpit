@@ -341,7 +341,7 @@ class TestSuperuserDashboard(MachineCase):
         b.click('#troubleshoot-dialog button:contains("Connect")')
         b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
         b.set_val("#login-custom-password", "foobar")
-        b.click('#troubleshoot-dialog button:contains("Log In")')
+        b.click('#troubleshoot-dialog button:contains("Log in")')
         b.wait_popdown('troubleshoot-dialog')
 
         # There should be no superuser indicator in the Overview
@@ -461,7 +461,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         b.click('#troubleshoot-dialog button:contains("Connect")')
         b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
         b.set_val("#login-custom-password", "foobar")
-        b.click('#troubleshoot-dialog button:contains("Log In")')
+        b.click('#troubleshoot-dialog button:contains("Log in")')
         b.wait_popdown('troubleshoot-dialog')
 
         # Since user and password are the same on machine2, we should

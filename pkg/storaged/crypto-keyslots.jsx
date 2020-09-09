@@ -202,7 +202,7 @@ function add_dialog(client, block) {
     let recovered_passphrase;
 
     const dlg = dialog_open({
-        Title: _("Add Key"),
+        Title: _("Add key"),
         Fields: [
             SelectOneRadio("type", _("Key source"),
                            {

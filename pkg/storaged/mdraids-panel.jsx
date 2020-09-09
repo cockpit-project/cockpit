@@ -38,7 +38,7 @@ const MDRaidRow = ({ client, path }) => {
                       kind="array"
                       name={mdraid_name(mdraid)}
                       devname={block && block_name(block)}
-                      detail={fmt_size(mdraid.Size) + " " + _("RAID Device")}
+                      detail={fmt_size(mdraid.Size) + " " + _("RAID device")}
                       go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
                       job_path={path} />
     );
@@ -56,40 +56,40 @@ export function mdraid_rows(client) {
 
 export function create_mdraid(client) {
     dialog_open({
-        Title: _("Create RAID Device"),
+        Title: _("Create RAID device"),
         Fields: [
             TextInput("name", _("Name"), { }),
-            SelectOne("level", _("RAID Level"),
+            SelectOne("level", _("RAID level"),
                       {
                           value: "raid5",
                           choices: [
                               {
                                   value: "raid0",
-                                  title: _("RAID 0 (Stripe)")
+                                  title: _("RAID 0 (stripe)")
                               },
                               {
                                   value: "raid1",
-                                  title: _("RAID 1 (Mirror)")
+                                  title: _("RAID 1 (mirror)")
                               },
                               {
                                   value: "raid4",
-                                  title: _("RAID 4 (Dedicated Parity)")
+                                  title: _("RAID 4 (dedicated parity)")
                               },
                               {
                                   value: "raid5",
-                                  title: _("RAID 5 (Distributed Parity)")
+                                  title: _("RAID 5 (distributed parity)")
                               },
                               {
                                   value: "raid6",
-                                  title: _("RAID 6 (Double Distributed Parity)")
+                                  title: _("RAID 6 (double distributed parity)")
                               },
                               {
                                   value: "raid10",
-                                  title: _("RAID 10 (Stripe of Mirrors)")
+                                  title: _("RAID 10 (stripe of mirrors)")
                               }
                           ]
                       }),
-            SelectOne("chunk", _("Chunk Size"),
+            SelectOne("chunk", _("Chunk size"),
                       {
                           value: "512",
                           visible: function (vals) {

@@ -166,7 +166,7 @@ $(function() {
 
         function didnt_reach_start(first) {
             manage_start_box(false, no_logs,
-                             no_logs ? _("No Logs Found") : "",
+                             no_logs ? _("No logs found") : "",
                              no_logs ? _("You may try to load older entries.") : "",
                              _("Load earlier entries"),
                              () => {
@@ -188,7 +188,7 @@ $(function() {
                                          })
                                          .done(function() {
                                              if (no_logs)
-                                                 manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                                                 manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
                                              else if (count < query_more)
                                                  ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                                          }));
@@ -307,7 +307,7 @@ $(function() {
                 })
                 .done(function() {
                     if (no_logs)
-                        manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                        manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
                     else if (count < query_count)
                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                     if (!last) {
@@ -547,7 +547,7 @@ $(function() {
         }
 
         const heading = document.createElement("h3");
-        heading.appendChild(document.createTextNode(_("Extended Information")));
+        heading.appendChild(document.createTextNode(_("Extended information")));
 
         const caption = document.createElement("caption");
         caption.appendChild(heading);

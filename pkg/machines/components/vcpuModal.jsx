@@ -185,7 +185,7 @@ export class VCPUModal extends React.Component {
             <div className="vcpu-modal-grid">
                 <div className="ct-form">
                     <label className="control-label" htmlFor="vcpu-count">
-                        {_("vCPU Count")}
+                        {_("vCPU count")}
                     </label>
                     <div controlid="vcpu-count" role="group">
                         <input id="machines-vcpu-count-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />
@@ -197,7 +197,7 @@ export class VCPUModal extends React.Component {
                     </div>
 
                     <label className="control-label" htmlFor="vcpu-maximum">
-                        {_("vCPU Maximum")}
+                        {_("vCPU maximum")}
                     </label>
                     <div controlid="vcpu-maximum" role="group">
                         <input id="machines-vcpu-max-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />

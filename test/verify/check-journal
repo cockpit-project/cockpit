@@ -72,7 +72,7 @@ class TestJournal(MachineCase):
 
     def select_priority(self, value):
         prio_map = {
-            "Only Emergency": "emerg",
+            "Only emergency": "emerg",
             "Alert and above": "alert",
             "Critical and above": "crit",
             "Error and above": "err",
@@ -159,7 +159,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""", expected)
 
         def wait_journal_empty():
-            wait_log_lines(["No Logs FoundCan not find any logs using the current combination of filters."])
+            wait_log_lines(["No logs foundCan not find any logs using the current combination of filters."])
 
         b.go("#/?prio=debug&service=log123.service")
         wait_journal_empty()
@@ -503,7 +503,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
-        self.select_priority("Only Emergency")
+        self.select_priority("Only emergency")
         b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))

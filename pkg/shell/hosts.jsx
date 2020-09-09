@@ -206,7 +206,7 @@ export class CockpitHosts extends React.Component {
                 key={m.key}
                 name={m.label}
                 header={(m.user ? m.user : this.state.current_user) + " @"}
-                status={m.state === "failed" ? { type: "error", title: _("Connection Error") } : null}
+                status={m.state === "failed" ? { type: "error", title: _("Connection error") } : null}
                 className={m.state}
                 actions={[
                     <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={e => this.onHostEdit(e, m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>,

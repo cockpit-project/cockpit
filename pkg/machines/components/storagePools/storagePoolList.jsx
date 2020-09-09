@@ -44,14 +44,14 @@ export class StoragePoolList extends React.Component {
             <Page breadcrumb={
                 <Breadcrumb className='machines-listing-breadcrumb'>
                     <BreadcrumbItem to='#'>
-                        {_("Virtual Machines")}
+                        {_("Virtual machines")}
                     </BreadcrumbItem>
                     <BreadcrumbItem isActive>
-                        {_("Storage Pools")}
+                        {_("Storage pools")}
                     </BreadcrumbItem>
                 </Breadcrumb>}>
                 <PageSection variant={PageSectionVariants.light} id='storage-pools-listing'>
-                    <ListingTable caption={_("Storage Pools")}
+                    <ListingTable caption={_("Storage pools")}
                         variant='compact'
                         columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
                         emptyCaption={_("No storage pool is defined on this host")}

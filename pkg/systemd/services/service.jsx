@@ -24,7 +24,7 @@ import {
     Gallery, GalleryItem,
 } from '@patternfly/react-core';
 
-import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
+import { ServiceDetails } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { superuser } from 'superuser';
 
@@ -36,8 +36,6 @@ export class Service extends React.Component {
     constructor(props) {
         super(props);
 
-        this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
-        this.getCurrentUnitTemplate();
         this.state = {
             error: undefined,
             /* The initial load of the Services page will not call GetAll for units Properties
@@ -46,7 +44,7 @@ export class Service extends React.Component {
              * If it's the first time to open this service's details page we need to fetch
              * the unit properties by calling getUnitByPath.
              */
-            shouldFetchProps: (!this.cur_unit_is_template && props.unit.Names === undefined)
+            shouldFetchProps: props.unit.Names === undefined,
         };
     }
 
@@ -55,38 +53,14 @@ export class Service extends React.Component {
             this.props.getUnitByPath(this.props.unit.path).finally(() => this.setState({ shouldFetchProps: false }));
     }
 
-    getCurrentUnitTemplate() {
-        const cur_unit_id = this.props.unit.Id;
-        const tp = cur_unit_id.indexOf("@");
-        const sp = cur_unit_id.lastIndexOf(".");
-
-        this.cur_unit_is_template = (tp != -1 && (tp + 1 == sp || tp + 1 == cur_unit_id.length));
-
-        if (tp != -1 && !this.cur_unit_is_template) {
-            this.cur_unit_template = cur_unit_id.substring(0, tp + 1);
-            if (sp != -1)
-                this.cur_unit_template = this.cur_unit_template + cur_unit_id.substring(sp);
-        }
-    }
-
     render() {
-        if (this.state.shouldFetchProps || (!this.cur_unit_is_template && this.props.unit.Names === undefined))
+        if (this.state.shouldFetchProps || this.props.unit.Names === undefined)
             return null;
 
-        let serviceDetails;
-        if (this.cur_unit_is_template) {
-            serviceDetails = (
-                <ServiceTemplate template={this.props.unit.Id} />
-            );
-        } else {
-            serviceDetails = (
-                <ServiceDetails unit={this.props.unit}
-                                originTemplate={this.cur_unit_template}
+        const serviceDetails = <ServiceDetails unit={this.props.unit}
                                 permitted={superuser.allowed}
                                 loadingUnits={this.props.loadingUnits}
-                                isValid={this.props.unitIsValid} />
-            );
-        }
+                                isValid={this.props.unitIsValid} />;
 
         const cur_unit_id = this.props.unit.Id;
         const match = [
@@ -107,7 +81,7 @@ export class Service extends React.Component {
                 <PageSection>
                     <Gallery hasGutter>
                         <GalleryItem>{serviceDetails}</GalleryItem>
-                        {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
+                        {(this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                         <GalleryItem>
                             <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
                         </GalleryItem>}

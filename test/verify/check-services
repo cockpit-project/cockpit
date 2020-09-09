@@ -144,14 +144,6 @@ ExecStart=/usr/bin/false
 [Install]
 WantedBy=default.target
 """)
-        self.write_file("/etc/systemd/system/test-template@.service",
-                """
-[Unit]
-Description=Test Template for %I
-
-[Service]
-ExecStart=/usr/local/bin/test-service %I
-""")
         self.write_file("/etc/systemd/system/test.timer",
                 """
 [Unit]
@@ -334,20 +326,6 @@ Unit=test.service
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
         self.do_action("Allow running (unmask)")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
-
-
-        # Instantiate a template
-        b.go("#/")
-        self.wait_service_present("test-template@.service")
-        b.click(self.svc_sel("test-template@.service"))
-        b.set_input_text("#service-details input", "//param-f//o//o//")
-        b.click("#service-details button")
-        b.wait_text(".service-name", "Test Template for param-f/o/o")
-        self.check_service_details(["Static", "Failed to start"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], False, onoff=False)
-        b.wait_in_text("#service-details", "Instance of template: test-template@.service")
-        b.click("#service-details .ct-form a:contains('test-template@.service')")
-        b.wait_visible("#service-details input")
 
         def wait_service_not_present(service):
             b.wait_not_present(self.svc_sel(service))

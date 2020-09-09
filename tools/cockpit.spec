@@ -39,11 +39,6 @@
 
 %define _hardened_build 1
 
-# build basic packages like cockpit-bridge
-%define build_basic 1
-# build optional extensions like cockpit-machines
-%define build_optional 1
-
 %define __lib lib
 
 %if 0%{?rhel}
@@ -69,6 +64,23 @@ Source0:        cockpit-%{version}.tar.gz
 %else
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
+%endif
+
+# in RHEL the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
+# and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
+%if 0%{?rhel}
+
+%if "%{name}" == "cockpit"
+%define build_basic 1
+%define build_optional 0
+%else
+%define build_basic 0
+%define build_optional 1
+%endif
+
+%else
+%define build_basic 1
+%define build_optional 1
 %endif
 
 BuildRequires: gcc

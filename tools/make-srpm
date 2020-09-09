@@ -53,15 +53,27 @@ sed -e "/^Version:.*/d" -e "1i\
 tmpdir=$(mktemp -d $PWD/srpm-build.XXXXXX)
 tar xaf "$source" -O cockpit-$version/tools/cockpit.spec | modify_spec > $tmpdir/cockpit.spec
 
-rpmbuild -bs \
-         --quiet \
-         --define "_sourcedir $(dirname $source)" \
-         --define "_specdir $tmpdir" \
-         --define "_builddir $tmpdir" \
-         --define "_srcrpmdir `pwd`" \
-         --define "_rpmdir $tmpdir" \
-         --define "_buildrootdir $tmpdir/.build" \
-         $tmpdir/cockpit.spec
+# on RHEL/CentOS, cockpit is delivered as two mostly identical source packages.
+# "cockpit" with build_basic=1, and "cockpit-appstream" with build_optional=1
+# the spec has proper build_* defaults depending on the Name:
+if grep -qE '^ID=.*(rhel|centos)' /etc/os-release; then
+    sed '/^Name:/ s/$/-appstream/' < $tmpdir/cockpit.spec > $tmpdir/cockpit-appstream.spec
+fi
 
-rpm --qf '%{Name}-%{Version}-%{Release}.src.rpm\n' -q --specfile $tmpdir/cockpit.spec | head -n1
+RPMNAMES=""
+
+for spec in $tmpdir/*.spec; do
+    rpmbuild -bs \
+             --quiet \
+             --define "_sourcedir $(dirname $source)" \
+             --define "_specdir $tmpdir" \
+             --define "_builddir $tmpdir" \
+             --define "_srcrpmdir `pwd`" \
+             --define "_rpmdir $tmpdir" \
+             --define "_buildrootdir $tmpdir/.build" \
+             $spec
+     RPMNAMES="$RPMNAMES $(rpm --qf '%{Name}-%{Version}-%{Release}.src.rpm\n' -q --specfile $spec | head -n1)"
+done
+
 rm -rf $tmpdir
+echo "$RPMNAMES"

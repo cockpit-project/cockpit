@@ -37,10 +37,6 @@
 %define rhel %{centos}
 %endif
 
-%if "%{!?__python3:1}"
-%define __python3 /usr/bin/python3
-%endif
-
 %define _hardened_build 1
 
 # build basic packages like cockpit-bridge

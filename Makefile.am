@@ -259,7 +259,6 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
-	-DPACKAGE_LOCALSTATE_DIR=\""$(localstatedir)/lib/cockpit"\" \
 	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
 	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
 	$(NULL)
@@ -303,11 +302,6 @@ recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
-
-install-data-hook::
-	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
-	chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit || true
-	chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
 FONTSDIR = dist/static/fonts
 

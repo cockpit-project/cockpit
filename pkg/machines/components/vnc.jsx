@@ -159,6 +159,7 @@ class Vnc extends React.Component {
                         port={window.location.port || (encrypt ? '443' : '80')}
                         path={path}
                         encrypt={encrypt}
+                        shared='true'
                         credentials={credentials}
                         vncLogging='warn'
                         onDisconnected={this.onDisconnected}

@@ -155,7 +155,6 @@ SUBST_RULE = \
 WEBPACK_PACKAGES = \
 	apps \
 	dashboard \
-	docker \
 	kdump \
 	machines \
 	networkmanager \

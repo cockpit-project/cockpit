@@ -381,47 +381,6 @@ prompt_with_authorize (CockpitSshData *data,
   return result;
 }
 
-/*
- * HACK: SELinux prevents us from writing to the directories we want to
- * write to, so we have to try multiple locations.
- *
- * https://bugzilla.redhat.com/show_bug.cgi?id=1279430
- */
-static gchar *
-create_knownhosts_temp (void)
-{
-  const gchar *directories[] = {
-      "/tmp",
-      PACKAGE_LOCALSTATE_DIR,
-      NULL,
-  };
-
-  gchar *name;
-  int i, fd, err;
-
-  for (i = 0; directories[i] != NULL; i++)
-    {
-      name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
-      fd = g_mkstemp (name);
-      err = errno;
-
-      if (fd >= 0)
-        {
-          close (fd);
-          return name;
-        }
-      g_free (name);
-
-      if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
-        continue;
-
-      g_warning ("couldn't make temporary file for knownhosts line in %s: %m", directories[i]);
-      break;
-    }
-
-  return NULL;
-}
-
 static const gchar *
 prompt_for_host_key (CockpitSshData *data)
 {
@@ -477,35 +436,29 @@ write_tmp_knownhosts_file (CockpitSshData *data,
                            const gchar *content,
                            const gchar **problem)
 {
-  FILE *fp = NULL;
+  int fd;
+  g_autoptr(GError) error = NULL;
 
-  tmp_knownhost_file = create_knownhosts_temp ();
-  if (!tmp_knownhost_file)
-    {
-      *problem = "internal-error";
-      return FALSE;
-    }
-  atexit (cleanup_knownhosts_file);
-
-  fp = fopen (tmp_knownhost_file, "a");
-  if (fp == NULL)
+  fd = g_file_open_tmp ("known-hosts.XXXXXX", &tmp_knownhost_file, &error);
+  if (fd < 0)
     {
       g_warning ("%s: couldn't open temporary known host file for data: %s",
-                 data->logname, tmp_knownhost_file);
+                 data->logname, error->message);
       *problem = "internal-error";
       return FALSE;
     }
+  /* now we own the file; let g_file_set_contents() do the safe writing, instead of bothering with a write() loop */
+  close (fd);
 
-  if (fputs (content, fp) < 0)
+  atexit (cleanup_knownhosts_file);
+
+  if (!g_file_set_contents (tmp_knownhost_file, content, -1, &error))
     {
-      g_warning ("%s: couldn't write data to temporary known host file: %s",
-                 data->logname, g_strerror (errno));
-      fclose (fp);
+      g_warning ("%s: couldn't write data to temporary known host file %s: %s", data->logname, tmp_knownhost_file, error->message);
       *problem = "internal-error";
       return FALSE;
     }
 
-  fclose (fp);
   return TRUE;
 }
 

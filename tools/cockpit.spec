@@ -684,10 +684,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
 
 %post -n cockpit-pcp
-# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185764
-# We can't use "systemctl reload-or-try-restart" since systemctl might
-# be out of sync with reality.
-/usr/share/pcp/lib/pmlogger condrestart
+systemctl reload-or-try-restart pmlogger
 
 %if %{defined build_dashboard}
 %package -n cockpit-dashboard

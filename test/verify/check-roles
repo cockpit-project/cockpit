@@ -107,10 +107,10 @@ class TestRoles(MachineCase):
         self.login_and_go("/users")
         b.go("#/admin")
 
-        b.wait_in_text("#account-change-roles-roles", "Container Administrator")
+        b.wait_in_text("#account-change-roles-roles", "Container administrator")
 
         m.execute("groupdel docker")
-        b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
+        b.wait_not_in_text("#account-change-roles-roles", "Container administrator")
 
 
 if __name__ == '__main__':

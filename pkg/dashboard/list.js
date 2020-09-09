@@ -408,7 +408,7 @@ PageDashboard.prototype = {
 
             function alt_text() {
                 if (this.state == "failed")
-                    return _("Connection Error");
+                    return _("Connection error");
                 else
                     return "";
             }

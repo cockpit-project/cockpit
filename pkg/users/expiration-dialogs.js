@@ -102,7 +102,7 @@ export function account_expiration_dialog(account, expire_date) {
     function update() {
         const props = {
             id: "account-expiration",
-            title: _("Account Expiration"),
+            title: _("Account expiration"),
             body: <AccountExpirationDialogBody state={state} errors={errors} change={change} />
         };
 
@@ -216,7 +216,7 @@ export function password_expiration_dialog(account, expire_days) {
     function update() {
         const props = {
             id: "password-expiration",
-            title: _("Password Expiration"),
+            title: _("Password expiration"),
             body: <PasswordExpirationDialogBody state={state} errors={errors} change={change} />
         };
 

@@ -55,12 +55,12 @@ class TestStorageMdRaid(StorageCase):
         self.browser.click('#detail-sidebar tr:contains("%s") button.pf-m-secondary' % name)
 
     def raid_action(self, action):
-        self.browser.click('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
+        self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
 
     def raid_default_action(self, action):
         def do_click():
-            self.browser.wait_present('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
-            self.browser.click('.pf-c-card__header:contains("RAID Device") button:contains(%s)' % action)
+            self.browser.wait_present('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
+            self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
 
         do_click()
 
@@ -100,7 +100,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text("#drives", "DISK3")
         b.wait_in_text("#drives", "DISK4")
 
-        self.devices_dropdown('Create RAID Device')
+        self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
@@ -121,14 +121,14 @@ class TestStorageMdRaid(StorageCase):
         b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In Sync",
-                          "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In sync",
+                          "QEMU QEMU HARDDISK (DISK3)": "In sync"})
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".pf-c-alert h4"
             if is_degraded:
-                b.wait_in_text(degraded_selector, 'The RAID Array is in a degraded state')
+                b.wait_in_text(degraded_selector, 'The RAID array is in a degraded state')
             else:
                 b.wait_not_present(degraded_selector)
 
@@ -149,9 +149,9 @@ class TestStorageMdRaid(StorageCase):
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         self.raid_add_disk("DISK1")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In Sync",
-                          "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In sync",
+                          "QEMU QEMU HARDDISK (DISK3)": "In sync"})
 
         wait_degraded_state(False)
 
@@ -182,32 +182,32 @@ class TestStorageMdRaid(StorageCase):
             part_prefix = dev + "p"
 
         # Create Partition Table
-        b.click('button:contains(Create Partition Table)')
+        b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
         # Create first partition
-        self.content_row_action(1, "Create Partition")
+        self.content_row_action(1, "Create partition")
         self.dialog({"size": 20,
                      "type": "ext4",
                      "mount_point": "/foo1",
                      "mount_options.auto": False,
                      "name": "One"})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
         self.content_row_wait_in_col(1, 2, part_prefix + "1")
 
         # Create second partition
-        self.content_row_action(2, "Create Partition")
+        self.content_row_action(2, "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
                      "mount_options.auto": False,
                      "name": "Two"})
 
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         self.content_row_wait_in_col(2, 2, part_prefix + "2")
-        b.wait_not_in_text("#detail-content", "Free Space")
+        b.wait_not_in_text("#detail-content", "Free space")
 
-        # Replace a disk by adding a spare and then removing a "In Sync" disk
+        # Replace a disk by adding a spare and then removing a "In sync" disk
 
         # Add a spare
         self.raid_add_disk("DISK4")
@@ -216,7 +216,7 @@ class TestStorageMdRaid(StorageCase):
         # Remove DISK1.  The spare takes over.
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "In Sync"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "In sync"})
 
         # Stop the array, destroy a disk, and start the array
         self.raid_default_action("Stop")
@@ -256,7 +256,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text("#drives", "DISK2")
         b.wait_in_text("#drives", "DISK3")
 
-        self.devices_dropdown('Create RAID Device')
+        self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid5")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
@@ -268,8 +268,8 @@ class TestStorageMdRaid(StorageCase):
         b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In Sync"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In sync"})
 
         # All buttons should be disabled when the array is stopped
 

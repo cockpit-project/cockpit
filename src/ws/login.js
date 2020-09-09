@@ -304,8 +304,8 @@
             id("login").style.display = 'none';
             if (logout_intent) {
                 build_oauth_redirect_to();
-                id("login-again").textContent = _("Login Again");
-                fatal(_("Logout Successful"));
+                id("login-again").textContent = _("Login again");
+                fatal(_("Logout successful"));
             } else {
                 oauth_auto_login();
             }
@@ -512,7 +512,7 @@
         id("user-group").style.display = in_conversation ? "none" : "block";
         id("password-group").style.display = in_conversation ? "none" : "block";
         id("conversation-group").style.display = in_conversation ? "block" : "none";
-        id("login-button-text").textContent = _("Log In");
+        id("login-button-text").textContent = _("Log in");
         id("login-password-input").value = '';
 
         if (need_host()) {
@@ -662,7 +662,7 @@
                     if (prompt_data)
                         show_converse(prompt_data);
                     else
-                        fatal(_("Internal Error: Invalid challenge header"));
+                        fatal(_("Internal error: Invalid challenge header"));
                 } else {
                     if (window.console)
                         console.log(xhr.statusText);
@@ -670,7 +670,7 @@
                         var user = trim(id("login-user-input").value);
                         fatal(format(_("The server refused to authenticate '$0' using password authentication, and no other supported authentication methods are available."), user));
                     } else if (xhr.statusText.indexOf("terminated") > -1) {
-                        login_failure(_("Authentication Failed: Server closed connection"));
+                        login_failure(_("Authentication failed: Server closed connection"));
                     } else if (xhr.statusText.indexOf("no-host") > -1) {
                         host_failure(_("Unable to connect to that address"));
                     } else if (xhr.statusText.indexOf("unknown-hostkey") > -1) {

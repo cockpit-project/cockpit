@@ -249,7 +249,7 @@ class TestKeys(MachineCase):
         else:
             self.assertEqual(text, old_rsa[5:])
 
-        b.click("tbody[data-name=id_rsa] li:contains('Public Key') a")
+        b.click("tbody[data-name=id_rsa] li:contains('Public key') a")
         assert b.is_visible("tbody[data-name=id_rsa] textarea")
         self.assertEqual(b.text("tbody[data-name=id_rsa] textarea"),
                          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP" +
@@ -356,7 +356,7 @@ class TestKeys(MachineCase):
         assert b.is_present(new_key_tbody + " li.active:contains('Details')")
         self.assertEqual(b.text(new_key_tbody + " .credential-type"), "RSA")
         b.wait_text_not(new_key_tbody + " .credential-fingerprint", "")
-        b.click(new_key_tbody + " li:contains('Public Key') a")
+        b.click(new_key_tbody + " li:contains('Public key') a")
         assert b.is_visible(new_key_tbody + " textarea")
         self.assertTrue(b.text(new_key_tbody + " textarea").startswith(new_pk))
 

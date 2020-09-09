@@ -73,7 +73,7 @@ class SerialConsoleCockpit extends React.Component {
              parentId={pid}
             />;
         } else if (this.state.channel === null) {
-            t = <span>{_("Disconnected from serial console. Click the Connect button.")}</span>;
+            t = <span>{_("Disconnected from serial console. Click the connect button.")}</span>;
         }
 
         return (

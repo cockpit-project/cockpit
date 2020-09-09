@@ -300,7 +300,7 @@ function set_boot_or_calendar(value) {
         repeat_options(0);
         $("span", $("#drop-repeat"))
                 .first()
-                .text(_("Don't Repeat"));
+                .text(_("Don't repeat"));
         timer_unit.Calendar_or_Boot = "Calendar";
     }
 }

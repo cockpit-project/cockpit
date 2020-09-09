@@ -36,7 +36,7 @@ const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
                    className="form-control"
                    type="text"
                    minLength={1}
-                   placeholder={_("New Volume Name")}
+                   placeholder={_("New volume name")}
                    value={volumeName || ""}
                    onChange={e => onValueChanged('volumeName', e.target.value)} />
         </>

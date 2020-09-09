@@ -97,14 +97,14 @@ class TestStorageISCSI(StorageCase):
 
         b.click('#drives tr:contains("LIO-ORG test")')
         b.wait_present('#storage-detail')
-        self.content_row_wait_in_col(1, 1, "Unrecognized Data")
+        self.content_row_wait_in_col(1, 1, "Unrecognized data")
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mount_point": "/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
         # _netdev should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
 
         # Add the target a second time, just to check that the sorting function works
         b.click('#storage-detail a.pf-c-breadcrumb__link')

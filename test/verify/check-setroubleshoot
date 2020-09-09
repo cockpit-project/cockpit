@@ -255,7 +255,7 @@ class TestSelinux(MachineCase):
         self.assertEqual(local, se_after)
 
         # Check the content of clipboard by pasting the clipboard to the terminal
-        b.click("button:contains('Shell Script')")
+        b.click("button:contains('Shell script')")
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.click(".automation-script-modal .fa-clipboard")
         b.go("/system/terminal")
@@ -275,7 +275,7 @@ class TestSelinux(MachineCase):
         b.enter_page("/selinux/setroubleshoot")
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
-        b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "No System Modifications")
+        b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "No system modifications")
         b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
@@ -294,7 +294,7 @@ class TestSelinux(MachineCase):
 
         #########################################################
         # wait for the page to be present
-        b.wait_in_text("body", "SELinux Policy")
+        b.wait_in_text("body", "SELinux policy")
 
         def assertEnforce(active):
             b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))

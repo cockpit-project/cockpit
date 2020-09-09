@@ -55,9 +55,9 @@ const VmState = ({ vm, resourceHasError }) => {
     let state = null;
 
     if (vm.installInProgress) {
-        state = _("creating VM installation");
+        state = _("Creating VM installation");
     } else if (vm.createInProgress) {
-        state = _("creating VM");
+        state = _("Creating VM");
     } else {
         state = vm.state;
     }
@@ -138,7 +138,7 @@ class HostVmsList extends React.Component {
                 <AggregateStatusCards networks={networks} storagePools={storagePools} />
             </PageSection>
             <PageSection variant={PageSectionVariants.light} id='virtual-machines-listing'>
-                <ListingTable caption={_("Virtual Machines")}
+                <ListingTable caption={_("Virtual machines")}
                     variant='compact'
                     emptyCaption={_("No VM is running or defined on this host")}
                     actions={toolBar}
@@ -171,13 +171,13 @@ class HostVmsList extends React.Component {
                                     })}
                                     onReboot={() => dispatch(rebootVm(vm)).catch(ex => {
                                         this.props.onAddErrorNotification({
-                                            text: cockpit.format(_("VM $0 failed to Reboot"), vm.name),
+                                            text: cockpit.format(_("VM $0 failed to reboot"), vm.name),
                                             detail: ex.message, resourceId: vm.id,
                                         });
                                     })}
                                     onForceReboot={() => dispatch(forceRebootVm(vm)).catch(ex => {
                                         this.props.onAddErrorNotification({
-                                            text: cockpit.format(_("VM $0 failed to force Reboot"), vm.name),
+                                            text: cockpit.format(_("VM $0 failed to force reboot"), vm.name),
                                             detail: ex.message, resourceId: vm.id,
                                         });
                                     })}

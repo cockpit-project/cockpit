@@ -318,7 +318,7 @@ Unit=test.service
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
-        b.click(".action-button:contains('Start Service')")
+        b.click(".action-button:contains('Start service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
         self.wait_service_state("test-fail.service", "failed")
@@ -556,8 +556,8 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service c
         b.wait_js_cond('window.location.hash === "#/test-c.service"')
         b.wait_visible(rel_sel("Conflicts", "test-a.service"))
-        b.wait_visible(rel_sel("Part Of", "test-b.service"))
-        b.click(rel_sel("Part Of", "test-b.service"))
+        b.wait_visible(rel_sel("Part of", "test-b.service"))
+        b.click(rel_sel("Part of", "test-b.service"))
 
         # service b
         b.wait_js_cond('window.location.hash === "#/test-b.service"')
@@ -692,7 +692,7 @@ ExecStart=/usr/bin/false
 
         # Services tab should have icon
         # Aab-fail should be at the top, and have failed
-        b.wait_present('a:contains("System Services") .fa-exclamation-circle')
+        b.wait_present('a:contains("System services") .fa-exclamation-circle')
         b.wait_present('li[data-goto-unit="aab-fail.service"]')
         b.wait_present('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
@@ -719,7 +719,7 @@ ExecStart=/usr/bin/false
 
         if self.count_failures() == 0:
             # Services tab should not have icon
-            b.wait_not_present('a:contains("System Services") .fa-exclamation-circle')
+            b.wait_not_present('a:contains("System services") .fa-exclamation-circle')
 
             # Nav link should not have icon
             b.switch_to_top()

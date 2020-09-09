@@ -69,11 +69,11 @@ class ModificationsExportDialog extends React.Component {
         return (
             <Modal show={this.props.show} className="automation-script-modal">
                 <Modal.Header>
-                    <Modal.Title>{ _("Automation Script") }</Modal.Title>
+                    <Modal.Title>{ _("Automation script") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
-                        <Tab eventKey="shell" title={_("Shell Script")}>
+                        <Tab eventKey="shell" title={_("Shell script")}>
                             <pre>
                                 {this.props.shell.trim()}
                             </pre>
@@ -135,7 +135,7 @@ export class Modifications extends React.Component {
 
     render() {
         let emptyRow = null;
-        let fail_message = this.props.permitted ? _("No System Modifications") : _("The logged in user is not permitted to view system modifications");
+        let fail_message = this.props.permitted ? _("No system modifications") : _("The logged in user is not permitted to view system modifications");
         fail_message = this.props.failed ? _("Error running semanage to discover system modifications") : fail_message;
         if (this.props.entries === null) {
             emptyRow = <thead className="listing-ct-empty">

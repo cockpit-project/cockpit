@@ -85,7 +85,7 @@ export class History extends React.Component {
             const pkgcount = (
                 <div className="list-view-pf-additional-info-item">
                     <span className="pficon pficon-bundle" />
-                    { cockpit.format(cockpit.ngettext("$0 Package", "$0 Packages", update.num_packages), update.num_packages) }
+                    { cockpit.format(cockpit.ngettext("$0 package", "$0 Packages", update.num_packages), update.num_packages) }
                 </div>);
 
             const expandedContent = (
@@ -105,11 +105,11 @@ export class History extends React.Component {
         });
 
         return (
-            <ListingTable caption={_("Update History")}
-                          aria-label={_("Updates History")}
+            <ListingTable caption={_("Update history")}
+                          aria-label={_("Updates history")}
                           showHeader={false}
                           className="updates-history"
-                          columns={[_("Time"), _("History Package Count")]}
+                          columns={[_("Time"), _("History package count")]}
                           rows={rows} />
         );
     }

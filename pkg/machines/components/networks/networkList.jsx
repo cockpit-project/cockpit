@@ -44,7 +44,7 @@ export class NetworkList extends React.Component {
             <Page breadcrumb={
                 <Breadcrumb variant={PageSectionVariants.light} className='machines-listing-breadcrumb'>
                     <BreadcrumbItem to='#'>
-                        {_("Virtual Machines")}
+                        {_("Virtual machines")}
                     </BreadcrumbItem>
                     <BreadcrumbItem isActive>
                         {_("Networks")}

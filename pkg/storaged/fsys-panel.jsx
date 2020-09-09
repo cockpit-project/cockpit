@@ -92,7 +92,7 @@ export class FilesystemsPanel extends React.Component {
                     onRowClick={onRowClick}
                     columns={[
                         { title: _("Name"), transforms: [cellWidth(30)], sortable: true },
-                        { title: _("Mount Point"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Mount point"), transforms: [cellWidth(30)], sortable: true },
                         { title:  _("Size"), transforms: [cellWidth(40)] }
                     ]}
                     rows={mounts} />

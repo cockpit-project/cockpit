@@ -38,7 +38,7 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_text("Target", cond=clickable))
         self.wait_id("services-list")
         self.wait_text("reboot.target")
-        self.click(self.wait_text("System Services", cond=clickable))
+        self.click(self.wait_text("System services", cond=clickable))
         self.wait_id("services-list")
         self.wait_text("sshd")
         self.mainframe()

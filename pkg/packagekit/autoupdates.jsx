@@ -341,7 +341,7 @@ export default class AutoUpdates extends React.Component {
 
         return (
             <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
-                <h2 className="pk-updates--header--heading">{_("Automatic Updates")}</h2>
+                <h2 className="pk-updates--header--heading">{_("Automatic updates")}</h2>
                 <div className="pk-updates--header--actions">
                     <OnOffSwitch state={onOffState} disabled={!enabled}
                                  onChange={e => {

@@ -111,8 +111,8 @@ export class StoragePoolVolumesTab extends React.Component {
                     onDismiss={() => this.setState({ deleteError: undefined }) } /> }
                 <ListingTable variant='compact'
                     actions={actions}
-                    aria-label={`Storage Pool ${storagePool.name} Volumes`}
-                    emptyCaption={_("No Storage Volumes defined for this Storage Pool")}
+                    aria-label={`Storage pool ${storagePool.name} Volumes`}
+                    emptyCaption={_("No storage volumes defined for this storage pool")}
                     columns={columnTitles}
                     onSelect={this.onSelect}
                     rows={rows} />

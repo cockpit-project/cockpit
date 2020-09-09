@@ -55,12 +55,12 @@ function validateParams(dialogValues) {
 
     if (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv4.trim()))
-            validationFailed.ipv4 = _("IPv4 Network should not be empty");
+            validationFailed.ipv4 = _("IPv4 network should not be empty");
         else if (!utils.validateIpv4(dialogValues.ipv4))
             validationFailed.ipv4 = _("Invalid IPv4 address");
 
         if (isEmpty(dialogValues.netmask.trim()))
-            validationFailed.netmask = _("Mask or Prefix Length should not be empty");
+            validationFailed.netmask = _("Mask or prefix length should not be empty");
         else if (!utils.validateNetmask(dialogValues.netmask))
             validationFailed.netmask = _("Invalid IPv4 mask or prefix length");
 
@@ -83,12 +83,12 @@ function validateParams(dialogValues) {
 
     if (dialogValues.ip === "IPv6 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv6.trim()))
-            validationFailed.ipv6 = _("IPv6 Network should not be empty");
+            validationFailed.ipv6 = _("IPv6 network should not be empty");
         else if (!utils.validateIpv6(dialogValues.ipv6))
             validationFailed.ipv6 = _("Invalid IPv6 address");
 
         if (isEmpty(dialogValues.prefix.trim()))
-            validationFailed.prefix = _("Prefix Length should not be empty");
+            validationFailed.prefix = _("Prefix length should not be empty");
         else if (!utils.validateIpv6Prefix(dialogValues.prefix))
             validationFailed.prefix = _("Invalid IPv6 prefix");
 
@@ -124,7 +124,7 @@ const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
                 <input
                    id='create-network-name'
                    type='text'
-                   placeholder={_("Unique Network Name")}
+                   placeholder={_("Unique network name")}
                    value={dialogValues.name}
                    onChange={e => onValueChanged('name', e.target.value)}
                    className='form-control' />
@@ -143,7 +143,7 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
     return (
         <>
             <label className='control-label' htmlFor='create-network-forward-mode'>
-                {_("Forward Mode")}
+                {_("Forward mode")}
             </label>
             <Select.Select id='create-network-forward-mode'
                            initial={dialogValues.forwardMode}
@@ -193,7 +193,7 @@ const IpRow = ({ onValueChanged, dialogValues }) => {
     return (
         <>
             <label className='control-label' htmlFor='create-network-ip-configuration'>
-                {_("IP Configuration")}
+                {_("IP configuration")}
             </label>
             <Select.Select id='create-network-ip-configuration'
                            initial={dialogValues.ip}
@@ -227,7 +227,7 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
                     type='checkbox'
                     checked={expanded}
                     onChange={e => onValueChanged('ipv' + ipVersion + 'DhcpEnabled', !expanded)} />
-                {_("Set DHCP Range")}
+                {_("Set DHCP range")}
             </label>
 
             {expanded && <>
@@ -275,7 +275,7 @@ const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
     return (
         <>
             <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv4-address'> {_("IPv4 Network")} </label>
+                <label className='control-label' htmlFor='network-ipv4-address'> {_("IPv4 network")} </label>
                 <FormGroup validationState={validationAddress} controlId='ipv4-address'>
                     <input id='network-ipv4-address'
                        type='text'
@@ -289,7 +289,7 @@ const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
                 </FormGroup>
             </div>
             <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv4-netmask'> {_("Mask or Prefix Length")} </label>
+                <label className='control-label' htmlFor='network-ipv4-netmask'> {_("Mask or prefix length")} </label>
                 <FormGroup validationState={validationNetmask} controlId='ipv4-netmask'>
                     <input id='network-ipv4-netmask'
                        type='text'
@@ -319,7 +319,7 @@ const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
     return (
         <>
             <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv6-address'> {_("IPv6 Network")} </label>
+                <label className='control-label' htmlFor='network-ipv6-address'> {_("IPv6 network")} </label>
                 <FormGroup validationState={validationAddress} controlId='ipv6-address'>
                     <input id='network-ipv6-address'
                        type='text'
@@ -333,7 +333,7 @@ const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
                 </FormGroup>
             </div>
             <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv6-prefix'> {_("Prefix Length")} </label>
+                <label className='control-label' htmlFor='network-ipv6-prefix'> {_("Prefix length")} </label>
                 <FormGroup validationState={validationPrefix} controlId='ipv6-prefix'>
                     <input id='network-ipv6-prefix'
                        type='text'
@@ -423,7 +423,7 @@ class CreateNetworkModal extends React.Component {
             })
                     .fail(exc => {
                         this.setState({ createInProgress: false });
-                        this.dialogErrorSet(_("Virtual Network failed to be created"), exc.message);
+                        this.dialogErrorSet(_("Virtual network failed to be created"), exc.message);
                     })
                     .then(() => this.props.close());
         }
@@ -476,7 +476,7 @@ class CreateNetworkModal extends React.Component {
             <Modal id='create-network-dialog' className='network-create' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {_("Create Virtual Network")} </Modal.Title>
+                    <Modal.Title> {_("Create virtual network")} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {body}
@@ -523,7 +523,7 @@ export class CreateNetworkAction extends React.Component {
             <>
                 <Button className='pull-right' id='create-network'
                         variant='secondary' onClick={this.open}>
-                    {_("Create Virtual Network")}
+                    {_("Create virtual network")}
                 </Button>
                 { this.state.showModal &&
                 <CreateNetworkModal

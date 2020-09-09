@@ -54,7 +54,7 @@ export class OthersPanel extends React.Component {
                               kind={false}
                               testkey={dev}
                               devname={block_name(block)}
-                              detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
+                              detail={cockpit.format(_("$0 block device"), fmt_size(block.Size))}
                               go={() => cockpit.location.go([dev])}
                               job_path={path}
                               key={path} />
@@ -68,7 +68,7 @@ export class OthersPanel extends React.Component {
         if (others.length > 0)
             return (
                 <SidePanel id="others"
-                           title={_("Other Devices")}>
+                           title={_("Other devices")}>
                     { others }
                 </SidePanel>
             );

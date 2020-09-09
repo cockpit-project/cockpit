@@ -161,12 +161,12 @@ class TestUpdates(NoSubManCase):
         self.enableRepo()
 
         # check again
-        b.wait_in_text(".content-header-extra button", "Check for Updates")
+        b.wait_in_text(".content-header-extra button", "Check for updates")
         b.click(".content-header-extra button")
 
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
 
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_in_text("table.available", "vanilla")
@@ -177,7 +177,7 @@ class TestUpdates(NoSubManCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        b.wait_text(self.update_text, "Bug Fix Updates Available")
+        b.wait_text(self.update_text, "Bug fix updates available")
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
         # should be a link, click on it to go to /updates
         b.click(self.update_text_action)
@@ -190,7 +190,7 @@ class TestUpdates(NoSubManCase):
         self.assertFalse(b.is_present("table.updates-history"))
 
         # should only have one button (no security updates)
-        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install all updates")
         b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#state", "Applying updates")
@@ -214,8 +214,8 @@ class TestUpdates(NoSubManCase):
         m.execute("touch {0}".format(install_lockfile))
 
         # update should succeed and show restart page; cancel
-        b.wait_in_text("#app #updates h1", "Restart Recommended")
-        self.assertEqual(b.text("#app #updates button.pf-m-primary"), "Restart Now")
+        b.wait_in_text("#app #updates h1", "Restart recommended")
+        self.assertEqual(b.text("#app #updates button.pf-m-primary"), "Restart now")
         b.click("#app #updates button.pf-m-link:contains('Ignore')")
 
         # should go back to updates overview, nothing pending any more
@@ -272,7 +272,7 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
         self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
 
         b.wait_in_text("table.available", "sevcritical")
@@ -334,7 +334,7 @@ class TestUpdates(NoSubManCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        b.wait_text(self.update_text, "Security Updates Available")
+        b.wait_text(self.update_text, "Security updates available")
         self.assertIn("security", b.attr(self.update_icon, "class"))
 
         # should be a link, click on it to go to back to /updates
@@ -342,14 +342,14 @@ class TestUpdates(NoSubManCase):
         b.enter_page("/updates")
 
         # install only security updates
-        self.assertEqual(b.text("#app #updates button.pf-m-secondary"), "Install Security Updates")
+        self.assertEqual(b.text("#app #updates button.pf-m-secondary"), "Install security updates")
         b.click("#app #updates button.pf-m-secondary")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
         # should have succeeded and show restart page
-        b.wait_in_text("#app #updates h1", "Restart Recommended")
+        b.wait_in_text("#app #updates h1", "Restart recommended")
 
         def assertHistory(path, updates):
             selector = path + " li:nth-child({0})"
@@ -367,7 +367,7 @@ class TestUpdates(NoSubManCase):
 
         # should have succeeded; 3 non-security updates left
         b.wait_in_text("#state", "3 updates")
-        b.wait_in_text("#updates #available h3", "Available Updates")
+        b.wait_in_text("#updates #available h3", "Available updates")
         b.wait_in_text("table.available", "norefs-doc")
         self.assertIn("buggy", b.text("table.available"))
         self.assertNotIn("secdeclare", b.text("table.available"))
@@ -385,14 +385,14 @@ class TestUpdates(NoSubManCase):
         m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
 
         # should now only have one button (no security updates left)
-        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install all updates")
         b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
         # should have succeeded and show restart
-        b.wait_in_text("#app #updates h1", "Restart Recommended")
+        b.wait_in_text("#app #updates h1", "Restart recommended")
         b.wait_present("#app #updates button.pf-m-link:Contains('Ignore')")
 
         # new versions are now installed
@@ -439,11 +439,11 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
         self.assertEqual(b.text("#state"), "1 security fix")
 
         # should only have one button (only security updates)
-        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install Security Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install security updates")
 
         # security fix without CVE URLs
         # PackageKit's dnf backend does not recognize this (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
@@ -453,9 +453,9 @@ class TestUpdates(NoSubManCase):
             self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
             self.enableRepo()
             # check for updates
-            b.wait_in_text(".content-header-extra button", "Check for Updates")
+            b.wait_in_text(".content-header-extra button", "Check for updates")
             b.click(".content-header-extra button")
-            b.wait_in_text("#available h3", "Available Updates")
+            b.wait_in_text("#available h3", "Available updates")
             b.wait_in_text("#state", "2")
 
             b.wait_in_text("table.available", "secnocve")
@@ -531,7 +531,7 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#updates h3", "Available Updates")
+        b.wait_in_text("#updates h3", "Available updates")
         self.assertEqual(b.text("#state"), "1 update")
 
         b.click(".pk-updates--header--actions button")
@@ -613,7 +613,7 @@ class TestUpdates(NoSubManCase):
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
         b.wait_text("#state", "1 update")
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
         b.click(".pk-updates--header--actions button")
@@ -632,13 +632,13 @@ class TestUpdates(NoSubManCase):
         # page adjusts automatically to privilege change
         b.switch_to_frame("cockpit1:localhost/updates")
         b.wait_text("#state", "1 update")
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
 
         # applying updates works now
         b.click(".pk-updates--header--actions button")
 
-        b.wait_in_text("#app #updates h1", "Restart Recommended")
-        self.assertEqual(b.text("#app #updates button.pf-m-primary"), "Restart Now")
+        b.wait_in_text("#app #updates h1", "Restart recommended")
+        self.assertEqual(b.text("#app #updates button.pf-m-primary"), "Restart now")
         b.click("#app #updates button.pf-m-link:contains('Ignore')")
 
         # should go back to updates overview, nothing pending any more
@@ -682,7 +682,7 @@ class TestWsUpdate(NoSubManCase):
         m.execute("touch {0}".format(install_lockfile))
 
         # should have succeeded and show restart page; cancel
-        b.wait_in_text("#app #updates h1", "Restart Recommended")
+        b.wait_in_text("#app #updates h1", "Restart recommended")
         b.click("#app #updates button.pf-m-link:contains('Ignore')")
         b.wait_in_text("#state", "No updates pending")
 
@@ -693,10 +693,10 @@ class TestWsUpdate(NoSubManCase):
         self.createPackage("cockpit-dashboard", "999", "1")
         m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
-        b.wait_in_text(".content-header-extra button", "Check for Updates")
+        b.wait_in_text(".content-header-extra button", "Check for updates")
         b.click(".content-header-extra button")
 
-        b.wait_in_text("#updates #available h3", "Available Updates")
+        b.wait_in_text("#updates #available h3", "Available updates")
         self.assertEqual(b.text("#state"), "3 updates")
         b.wait_in_text("table.available", "cockpit-ws")
         b.wait_in_text("table.available", "cockpit-dashboard")
@@ -756,7 +756,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
         b.login_and_go("/system")
         # show unregistered status on system front page
-        b.wait_in_text(self.update_text, "Not Registered")
+        b.wait_in_text(self.update_text, "Not registered")
         self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
@@ -800,7 +800,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
-        b.wait_in_text(self.update_text, "Not Registered")
+        b.wait_in_text(self.update_text, "Not registered")
         self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
@@ -823,18 +823,18 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_not_present("#updates .pf-c-empty-state")
-        b.wait_in_text("#available h3", "Available Updates")
+        b.wait_in_text("#available h3", "Available updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 
         # has action buttons
         b.wait_present(".content-header-extra button")
-        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install all updates")
 
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        b.wait_text(self.update_text, "Bug Fix Updates Available")
+        b.wait_text(self.update_text, "Bug fix updates available")
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 

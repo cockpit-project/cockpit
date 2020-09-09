@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
 
 export const ServicesList = ({ units, isTimer }) => {
     return (
-        <DataList aria-label={_("Systemd Units")}
+        <DataList aria-label={_("Systemd units")}
                   id="services-list"
                   onSelectDataListItem={id => cockpit.location.go([id])}
                   className="services-list">

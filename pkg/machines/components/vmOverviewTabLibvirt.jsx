@@ -267,9 +267,9 @@ class VmOverviewTabLibvirt extends React.Component {
                         {memoryLink}
                         <label className='control-label' htmlFor={`${idPrefix}-vcpus-count`}>{_("vCPUs")}</label>
                         {vcpuLink}
-                        <label className='control-label' htmlFor={`${idPrefix}-cpu-model`}>{_("CPU Type")}</label>
+                        <label className='control-label' htmlFor={`${idPrefix}-cpu-model`}>{_("CPU type")}</label>
                         <div id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</div>
-                        <label className='control-label' htmlFor={`${idPrefix}-boot-order`}>{_("Boot Order")}</label>
+                        <label className='control-label' htmlFor={`${idPrefix}-boot-order`}>{_("Boot order")}</label>
                         {bootOrder}
                         {vm.persistent && <>
                             <label className='control-label' htmlFor={`${idPrefix}-autostart-checkbox`}>{_("Autostart")}</label>
@@ -278,9 +278,9 @@ class VmOverviewTabLibvirt extends React.Component {
                     </div>
                     <div className="ct-form ct-form-info">
                         <Text component={TextVariants.h4} className='ct-form-full'>
-                            {_("Hypervisor Details")}
+                            {_("Hypervisor details")}
                         </Text>
-                        <label className='control-label' htmlFor={`${idPrefix}-emulated-machine`}>{_("Emulated Machine")}</label>
+                        <label className='control-label' htmlFor={`${idPrefix}-emulated-machine`}>{_("Emulated machine")}</label>
                         <div id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</div>
                         {firmwareLinkWrapper ? <label className='control-label' htmlFor={`${idPrefix}-firmware`}>{_("Firmware")}</label> : null}
                         {firmwareLinkWrapper}

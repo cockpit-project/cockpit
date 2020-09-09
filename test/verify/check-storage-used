@@ -62,13 +62,13 @@ class TestStorageUsed(StorageCase):
 
         # No go ahead and let the automatic teardown take care of the mount
 
-        b.click('button:contains(Create Partition Table)')
+        b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
 
 if __name__ == '__main__':

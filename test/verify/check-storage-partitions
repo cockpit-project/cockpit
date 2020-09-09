@@ -51,19 +51,19 @@ class TestStoragePartitions(StorageCase):
         b.click('tr:contains("%s")' % dev)
         b.wait_present('#storage-detail')
 
-        b.click('button:contains(Create Partition Table)')
+        b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
-        self.content_row_action(1, "Create Partition")
+        self.content_row_action(1, "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo",
                      "mount_options.auto": False})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
 
         self.content_dropdown_action(1, "Delete")
         self.confirm()
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
     def testSizeSlider(self):
         m = self.machine
@@ -76,11 +76,11 @@ class TestStoragePartitions(StorageCase):
         b.click('#drives tr:contains("%s")' % disk)
         b.wait_present('#storage-detail')
 
-        b.click('button:contains(Create Partition Table)')
+        b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free space")
 
-        self.content_row_action(1, "Create Partition")
+        self.content_row_action(1, "Create partition")
         self.dialog_wait_open()
         self.dialog_set_val("type", "empty")
 

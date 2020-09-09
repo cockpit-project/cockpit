@@ -129,7 +129,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 
     var title;
     if (create_partition)
-        title = cockpit.format(_("Create Partition on $0"), utils.block_name(block));
+        title = cockpit.format(_("Create partition on $0"), utils.block_name(block));
     else
         title = cockpit.format(_("Format $0"), utils.block_name(block));
 
@@ -153,9 +153,9 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
-    add_fsys(true, { value: "empty", title: _("No Filesystem") });
+    add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
-        add_fsys(true, { value: "dos-extended", title: _("Extended Partition") });
+        add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
 
     var usage = utils.get_active_usage(client, create_partition ? null : path);
 
@@ -227,13 +227,13 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               visible: is_encrypted
                           })
             ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true)),
-            TextInput("mount_point", _("Mount Point"),
+            TextInput("mount_point", _("Mount point"),
                       {
                           visible: is_filesystem,
                           value: old_dir || "",
                           validate: val => is_valid_mount_point(client, block, val)
                       }),
-            CheckBoxes("mount_options", _("Mount Options"),
+            CheckBoxes("mount_options", _("Mount options"),
                        {
                            visible: is_filesystem,
                            value: {
@@ -256,7 +256,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 dlg.set_nested_values("crypto_options", { ro: false });
         },
         Action: {
-            Title: create_partition ? _("Create Partition") : _("Format"),
+            Title: create_partition ? _("Create partition") : _("Format"),
             Danger: (create_partition
                 ? null : _("Formatting a storage device will erase all data on it.")),
             action: function (vals) {

@@ -136,7 +136,7 @@ export class CreateSnapshotModal extends React.Component {
             <Modal id={`${idPrefix}-modal`} onHide={onClose} show>
                 <Modal.Header>
                     <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{_("Create Snapshot")} </Modal.Title>
+                    <Modal.Title>{_("Create snapshot")} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {body}

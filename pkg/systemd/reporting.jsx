@@ -469,7 +469,7 @@ class ReportingTable extends React.Component {
         return (
             <table className="panel panel-default reporting-table table">
                 <caption>
-                    <h3>{_("Crash Reporting")}</h3>
+                    <h3>{_("Crash reporting")}</h3>
                 </caption>
                 <tbody>
                     <FAFWorkflowRow problem={this.props.problem} />

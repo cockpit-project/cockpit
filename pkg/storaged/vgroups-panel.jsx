@@ -37,7 +37,7 @@ const VGroupRow = ({ client, path }) => {
                       kind="array"
                       name={vgroup.Name}
                       devname={"/dev/" + vgroup.Name + "/"}
-                      detail={fmt_size(vgroup.Size) + " " + _("Volume Group")}
+                      detail={fmt_size(vgroup.Size) + " " + _("Volume group")}
                       go={() => cockpit.location.go(["vg", vgroup.Name])}
                       job_path={path} />
     );
@@ -69,7 +69,7 @@ export function create_vgroup(client) {
     }
 
     dialog_open({
-        Title: _("Create Volume Group"),
+        Title: _("Create volume group"),
         Fields: [
             TextInput("name", _("Name"),
                       {

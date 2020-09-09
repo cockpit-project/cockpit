@@ -119,19 +119,19 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
             <Select.Select id={`${idPrefix}-select-pool`}
                            enabled={vmStoragePools.length > 0}
                            onChange={value => onValueChanged('storagePoolName', value)}
-                           initial={storagePoolName || _("No Storage Pools available")}
+                           initial={storagePoolName || _("No storage pools available")}
                            extraClass="form-control">
                 {vmStoragePools.length > 0 ? vmStoragePools
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map(pool => {
                             return (
-                                <Select.SelectEntry disabled={pool.disabled} title={pool.disabled ? _("This pool type does not support Storage Volume creation") : null} data={pool.name} key={pool.name}>
+                                <Select.SelectEntry disabled={pool.disabled} title={pool.disabled ? _("This pool type does not support storage volume creation") : null} data={pool.name} key={pool.name}>
                                     {pool.name}
                                 </Select.SelectEntry>
                             );
                         })
                     : [<Select.SelectEntry data='no-resource' key='no-resource'>
-                        {_("No Storage Pools available")}
+                        {_("No storage pools available")}
                     </Select.SelectEntry>]}
             </Select.Select>
         </>
@@ -154,7 +154,7 @@ class AdditionalOptions extends React.Component {
                     <div className='expand-collapse-pf-link-container'>
                         <button className='pf-c-button pf-m-inline pf-m-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
                             { this.state.expanded ? <span className='fa fa-angle-down' /> : <span className='fa fa-angle-right' /> }
-                            { this.state.expanded ? _("Hide Additional Options") : _("Show Additional Options")}
+                            { this.state.expanded ? _("Hide additional options") : _("Show additional options")}
                         </button>
                         <span className="expand-collapse-pf-separator bordered" />
                     </div>
@@ -492,7 +492,7 @@ export class AddDiskModalBody extends React.Component {
                                    checked={this.state.mode === CREATE_NEW}
                                    onChange={e => this.onValueChanged('mode', CREATE_NEW)}
                                    className={this.state.mode === CREATE_NEW ? "active" : ''} />
-                            {_("Create New")}
+                            {_("Create new")}
                         </label>
                         <label>
                             <input id={`${idPrefix}-useexisting`}
@@ -501,7 +501,7 @@ export class AddDiskModalBody extends React.Component {
                                    checked={this.state.mode === USE_EXISTING}
                                    onChange={e => this.onValueChanged('mode', USE_EXISTING)}
                                    className={this.state.mode === USE_EXISTING ? "active" : ''} />
-                            {_("Use Existing")}
+                            {_("Use existing")}
                         </label>
                     </div>
                 </fieldset>
@@ -537,7 +537,7 @@ export class AddDiskModalBody extends React.Component {
             <Modal id={`${idPrefix}-dialog-modal-window`} show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{_("Add Disk")}</Modal.Title>
+                    <Modal.Title>{_("Add disk")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}

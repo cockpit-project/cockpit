@@ -102,7 +102,7 @@ export function install_dialog(pkg, options) {
 
         const body = {
             id: "dialog",
-            title: options.title || _("Install Software"),
+            title: options.title || _("Install software"),
             body: (
                 <div className="modal-body scroll">
                     <p>{ format_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>

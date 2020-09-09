@@ -32,7 +32,7 @@ export class PVolTab extends React.Component {
         return (
             <div>
                 <div className="ct-form">
-                    <label className="control-label">{_("Volume Group")}</label>
+                    <label className="control-label">{_("Volume group")}</label>
                     <div>{vgroup
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
                             {vgroup.Name}
@@ -56,7 +56,7 @@ export class MDRaidMemberTab extends React.Component {
         return (
             <div>
                 <div className="ct-form">
-                    <label className="control-label">{_("RAID Device")}</label>
+                    <label className="control-label">{_("RAID device")}</label>
                     <div>{mdraid
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["mdraid", mdraid.UUID])}>
                             {utils.mdraid_name(mdraid)}
@@ -77,7 +77,7 @@ export class VDOBackingTab extends React.Component {
         return (
             <div>
                 <div className="ct-form">
-                    <label className="control-label">{_("VDO Device")}</label>
+                    <label className="control-label">{_("VDO device")}</label>
                     <div>{vdo
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vdo", vdo.name])}>
                             {vdo.name}

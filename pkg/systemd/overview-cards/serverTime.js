@@ -488,7 +488,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                 { custom_ntp.servers.map((s, i) => (
                     <tr key={i}>
                         <td style={{ width: "100%" }}>
-                            <input type="text" className="form-control" value={s} placeholder={_("NTP Server")}
+                            <input type="text" className="form-control" value={s} placeholder={_("NTP server")}
                 onChange={event => change_server(event, i, event.target.value)} />
                         </td>
                         <td>
@@ -509,7 +509,7 @@ function ChangeSystimeBody({ state, errors, change }) {
 
     return (
         <div className="modal-body ct-form">
-            <label htmlFor="systime-timezones" className="control-label">{_("Time Zone")}</label>
+            <label htmlFor="systime-timezones" className="control-label">{_("Time zone")}</label>
             <Validated errors={errors} error_key="time_zone">
                 <Select id="systime-timezones" variant={SelectVariant.typeahead}
                         isOpen={zonesOpen} onToggle={setZonesOpen}
@@ -518,7 +518,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                     { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
                 </Select>
             </Validated>
-            <label className="control-label" htmlFor="change_systime">{_("Set Time")}</label>
+            <label className="control-label" htmlFor="change_systime">{_("Set time")}</label>
             <Select id="change_systime"
                     isOpen={modeOpen} onToggle={setModeOpen}
                     selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}>
@@ -673,7 +673,7 @@ function change_systime_dialog(server_time, timezone) {
     function update() {
         const props = {
             id: "system_information_change_systime",
-            title: _("Change System Time"),
+            title: _("Change system time"),
             body: <ChangeSystimeBody state={state} errors={errors} change={change} />
         };
 

@@ -37,13 +37,13 @@ function AccountCreateBody({ state, errors, change }) {
     return (
         <Modal.Body>
             <form className="ct-form">
-                <label className="control-label" htmlFor="accounts-create-real-name">{_("Full Name")}</label>
+                <label className="control-label" htmlFor="accounts-create-real-name">{_("Full name")}</label>
                 <Validated errors={errors} error_key="real_name">
                     <input className="form-control" type="text" id="accounts-create-real-name"
                      value={real_name} onChange={event => change("real_name", event.target.value)} />
                 </Validated>
 
-                <label className="control-label" htmlFor="accounts-create-user-name">{_("User Name")}</label>
+                <label className="control-label" htmlFor="accounts-create-user-name">{_("User name")}</label>
                 <Validated errors={errors} error_key="user_name">
                     <input className="form-control" type="text" id="accounts-create-user-name"
                      value={user_name} onChange={event => change("user_name", event.target.value)} />
@@ -76,7 +76,7 @@ function AccountCreateBody({ state, errors, change }) {
                 <label className="checkbox-inline">
                     <input type="checkbox" id="accounts-create-locked"
                      value={locked} onChange={event => change("locked", event.target.checked)} />
-                    <span>{_("Lock Account")}</span>
+                    <span>{_("Lock account")}</span>
                 </label>
             </form>
         </Modal.Body>);
@@ -251,7 +251,7 @@ export function account_create_dialog(accounts) {
     function update() {
         const props = {
             id: "accounts-create-dialog",
-            title: _("Create New Account"),
+            title: _("Create new account"),
             body: <AccountCreateBody state={state} errors={errors} change={change} />
         };
 

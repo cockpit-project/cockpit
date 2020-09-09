@@ -40,7 +40,7 @@ const NameRow = ({ idPrefix, name, diskType }) => {
     else if (diskType === "network")
         label = _("Url");
     else if (diskType === "volume")
-        label = _("Storage Volume");
+        label = _("Storage volume");
 
     return (
         <>

@@ -61,7 +61,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b.click("#shutdown-dialog .dropdown button")
-        b.click("a:contains('No Delay')")
+        b.click("a:contains('No delay')")
         b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 
@@ -86,7 +86,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b.click("#shutdown-dialog .dropdown button")
-        b.click("a:contains('No Delay')")
+        b.click("a:contains('No delay')")
         b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 
@@ -128,7 +128,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_popup("shutdown-dialog")
         b2.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b2.click("#shutdown-dialog .dropdown button")
-        b2.click("a:contains('No Delay')")
+        b2.click("a:contains('No delay')")
         b2.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b2.switch_to_top()
 
@@ -155,7 +155,7 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")
-        b.click("a:contains('Specific Time')")
+        b.click("a:contains('Specific time')")
         b.wait_not_val("#shutdown-dialog input.shutdown-hours", "")
         old = b.val("#shutdown-dialog input.shutdown-hours")
         b.set_val("#shutdown-dialog input.shutdown-hours", "blah")

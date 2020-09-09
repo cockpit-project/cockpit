@@ -44,7 +44,7 @@ class TestTeam(NetworkCase):
         self.wait_for_iface(iface2)
 
         # team them
-        b.click("button:contains('Add Team')")
+        b.click("button:contains('Add team')")
         b.wait_popup("network-team-settings-dialog")
         b.set_val("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface1, True)
@@ -108,7 +108,7 @@ class TestTeam(NetworkCase):
         # Put an active interface into a team. We can't select/copy the MAC, so we can't expect to
         # get the same IP as the active interface, but it should get a valid DHCP IP.
 
-        b.click("button:contains('Add Team')")
+        b.click("button:contains('Add team')")
         b.wait_popup("network-team-settings-dialog")
         b.set_val("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface, True)

@@ -1616,7 +1616,7 @@ PageNetworking.prototype = {
         $("#networking-add-bridge").syn_click(self.model, $.proxy(this, "add_bridge"));
         $("#networking-add-vlan").syn_click(self.model, $.proxy(this, "add_vlan"));
 
-        /* HACK - hide "Add Team" if it doesn't work due to missing bits
+        /* HACK - hide "Add team" if it doesn't work due to missing bits
          * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
          */
 
@@ -1799,7 +1799,7 @@ PageNetworking.prototype = {
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
                     .append($('<td data-label="Name" translate="data-label" role="cell">').text(iface.Name),
-                            $('<td data-label="IP Address" translate="data-label" role="cell">').html(render_active_connection(dev, false, true)),
+                            $('<td data-label="IP address" translate="data-label" role="cell">').html(render_active_connection(dev, false, true)),
                             (show_traffic
                                 ? [$('<td data-label="Sending" translate="data-label" role="cell">').text(""), $('<td data-label="Receiving" translate="data-label" role=cell">').text("")]
                                 : $('<td data-label="Sending" translate="data-label" role="cell" colspan="2">').text(device_state_text(dev))));
@@ -1971,8 +1971,8 @@ var ipv6_method_choices =
 
 var bond_mode_choices =
     [
-        { choice: 'balance-rr', title: _("Round Robin") },
-        { choice: 'active-backup', title: _("Active Backup") },
+        { choice: 'balance-rr', title: _("Round robin") },
+        { choice: 'active-backup', title: _("Active backup") },
         { choice: 'balance-xor', title: _("XOR") },
         { choice: 'broadcast', title: _("Broadcast") },
         { choice: '802.3ad', title: _("802.3ad") },
@@ -1982,15 +1982,15 @@ var bond_mode_choices =
 
 var bond_monitoring_choices =
     [
-        { choice: 'mii', title: _("MII (Recommended)") },
+        { choice: 'mii', title: _("MII (recommended)") },
         { choice: 'arp', title: _("ARP") }
     ];
 
 var team_runner_choices =
     [
-        { choice: 'roundrobin', title: _("Round Robin") },
-        { choice: 'activebackup', title: _("Active Backup") },
-        { choice: 'loadbalance', title: _("Load Balancing") },
+        { choice: 'roundrobin', title: _("Round robin") },
+        { choice: 'activebackup', title: _("Active backup") },
+        { choice: 'loadbalance', title: _("Load balancing") },
         { choice: 'broadcast', title: _("Broadcast") },
         { choice: 'lacp', title: _("802.3ad LACP") },
     ];
@@ -2004,8 +2004,8 @@ var team_balancer_choices =
 var team_watch_choices =
     [
         { choice: 'ethtool', title: _("Ethtool") },
-        { choice: 'arp-ping', title: _("ARP Ping") },
-        { choice: 'nsna-ping', title: _("NSNA Ping") }
+        { choice: 'arp-ping', title: _("ARP ping") },
+        { choice: 'nsna-ping', title: _("NSNA ping") }
     ];
 
 function choice_title(choices, choice, def) {
@@ -2336,7 +2336,7 @@ PageNetworkInterface.prototype = {
             $('#networking-firewall').prop('hidden', false);
             renderFirewallState();
 
-            const summary = cockpit.format(cockpit.ngettext(_("$0 Active Zone"), _("$0 Active Zones"), firewall.activeZones.size), firewall.activeZones.size);
+            const summary = cockpit.format(cockpit.ngettext(_("$0 active zone"), _("$0 active zones"), firewall.activeZones.size), firewall.activeZones.size);
 
             $('#networking-firewall-summary').text(summary);
         }
@@ -2660,7 +2660,7 @@ PageNetworkInterface.prototype = {
                     parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
                                               { val: params.dns.join(", ") }));
                 if (params.dns_search.length > 0)
-                    parts.push(cockpit.format(dns_is_extra ? _("Additional DNS Search Domains $val") : _("DNS Search Domains $val"),
+                    parts.push(cockpit.format(dns_is_extra ? _("Additional DNS search domains $val") : _("DNS search domains $val"),
                                               { val: params.dns_search.join(", ") }));
 
                 return parts;
@@ -2787,7 +2787,7 @@ PageNetworkInterface.prototype = {
 
                 parts.push(choice_title(bond_mode_choices, options.mode, options.mode));
                 if (options.arp_interval)
-                    parts.push(_("ARP Monitoring"));
+                    parts.push(_("ARP monitoring"));
 
                 if (parts.length > 0)
                     rows.push(parts.join(", "));
@@ -2843,7 +2843,7 @@ PageNetworkInterface.prototype = {
 
                 if (parts.length > 0)
                     rows.push(parts.join(", "));
-                return render_settings_row(_("Team Port"), rows, configure_team_port_settings);
+                return render_settings_row(_("Team port"), rows, configure_team_port_settings);
             }
 
             function render_bridge_settings_row() {
@@ -2858,7 +2858,7 @@ PageNetworkInterface.prototype = {
                 }
 
                 if (options.stp) {
-                    add_row(_("Spanning Tree Protocol"));
+                    add_row(_("Spanning tree protocol"));
                     if (options.priority != 32768)
                         add_row(_("Priority $priority"), options);
                     if (options.forward_delay != 15)
@@ -3317,7 +3317,7 @@ PageNetworkIpSettings.prototype = {
         }
 
         function render_ip_settings() {
-            var prefix_text = (topic == "ipv4") ? _("Prefix length or Netmask") : _("Prefix length");
+            var prefix_text = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
             var body =
                 $('<div>').append(
                     addresses_table = tablebox(_("Addresses"), "addresses", ["Address", prefix_text, "Gateway"],
@@ -3331,7 +3331,7 @@ PageNetworkIpSettings.prototype = {
                                  auto_dns_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")),
                     $('<br>'),
                     dns_search_table =
-                        tablebox(_("DNS Search Domains"), "dns_search", "Search Domain", "",
+                        tablebox(_("DNS search domains"), "dns_search", "Search Domain", "",
                                  auto_dns_search_btn = inverted_switchbox(_("Automatic"),
                                                                           "ignore_auto_dns")),
                     $('<br>'),
@@ -3370,7 +3370,7 @@ PageNetworkIpSettings.prototype = {
         }
 
         $('#network-ip-settings-dialog .modal-title').text(
-            (topic == "ipv4") ? _("IPv4 Settings") : _("IPv6 Settings"));
+            (topic == "ipv4") ? _("IPv4 settings") : _("IPv6 settings"));
         $('#network-ip-settings-body').html(render_ip_settings());
 
         // The auto_*_btns only make sense when the address method

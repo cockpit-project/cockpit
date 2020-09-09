@@ -54,7 +54,7 @@ export class FirmwareModal extends React.Component {
             <Modal show onHide={this.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.close} />
-                    <Modal.Title> {_("Change Firmware")} </Modal.Title>
+                    <Modal.Title> {_("Change firmware")} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Select.Select

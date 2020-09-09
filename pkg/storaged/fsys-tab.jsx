@@ -240,12 +240,12 @@ export function mounting_dialog(client, block, mode) {
     let fields = null;
     if (mode == "mount" || mode == "update")
         fields = [
-            TextInput("mount_point", _("Mount Point"),
+            TextInput("mount_point", _("Mount point"),
                       {
                           value: old_dir,
                           validate: val => is_valid_mount_point(client, block, val)
                       }),
-            CheckBoxes("mount_options", _("Mount Options"),
+            CheckBoxes("mount_options", _("Mount options"),
                        {
                            value: {
                                ro: opt_ro,
@@ -274,9 +274,9 @@ export function mounting_dialog(client, block, mode) {
             </>);
 
     const mode_title = {
-        mount: _("Mount Filesystem"),
-        unmount: _("Unmount Filesystem"),
-        update: _("Mount Configuration")
+        mount: _("Mount filesystem"),
+        unmount: _("Unmount filesystem"),
+        update: _("Mount configuration")
     };
 
     const mode_action = {
@@ -350,7 +350,7 @@ export class FilesystemTab extends React.Component {
 
         function rename_dialog() {
             dialog_open({
-                Title: _("Filesystem Name"),
+                Title: _("Filesystem name"),
                 Fields: [
                     TextInput("name", _("Name"),
                               {
@@ -512,7 +512,7 @@ export class FilesystemTab extends React.Component {
                     <StorageLink onClick={rename_dialog}>
                         {this.props.block.IdLabel || "-"}
                     </StorageLink>
-                    <label className="control-label">{_("Mount Point")}</label>
+                    <label className="control-label">{_("Mount point")}</label>
                     <div>
                         { mount_point_text &&
                         <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update")}>

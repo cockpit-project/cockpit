@@ -63,24 +63,24 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", mount_point_foo)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         self.wait_in_storaged_configuration(mount_point_foo)
 
-        self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
+        self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_foo)
 
         self.content_dropdown_action(1, "Unmount")
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "The filesystem is not mounted")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 
         self.content_tab_info_action(1, 1, "Name")
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
-        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
+        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount point", wrapped=True),
                                expect={"mount_point": mount_point_foo},
                                values={"mount_point": mount_point_bar})
         self.wait_in_storaged_configuration(mount_point_bar)
-        self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_bar)
+        self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_bar)
 
         self.content_head_action(1, "Mount")
         self.confirm()
@@ -113,7 +113,7 @@ class TestStorageMounting(StorageCase):
         def wait_info_field_value(name, value):
             return b.wait_text('#detail-header label:contains("%s") + div' % name, value)
 
-        wait_info_field_value("Serial Number", "MYDISK")
+        wait_info_field_value("Serial number", "MYDISK")
 
     def testMountOptions(self):
         m = self.machine
@@ -170,7 +170,7 @@ class TestStorageMounting(StorageCase):
         self.dialog_wait_close()
 
         self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
         self.wait_in_storaged_configuration("/data")
         self.wait_mounted(2, 1)
 
@@ -199,9 +199,9 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
-        self.content_tab_wait_in_info(1, 1, "Mount Point", "/run/foo")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "/run/foo")
 
         fsys_tab = self.content_tab_expand(1, 1)
 
@@ -266,8 +266,8 @@ class TestStorageMounting(StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
-        self.content_tab_wait_in_info(2, 1, "Mount Point", "/run/data")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
+        self.content_tab_wait_in_info(2, 1, "Mount point", "/run/data")
 
         # Format the second and also try to use /run/data as the mount point
         self.content_head_action(3, "Format")
@@ -284,8 +284,8 @@ class TestStorageMounting(StorageCase):
         self.content_dropdown_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
-        self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
+        self.content_tab_wait_in_info(1, 2, "Mount point", "/run/data")
 
     def testFirstMount(self):
         m = self.machine
@@ -298,7 +298,7 @@ class TestStorageMounting(StorageCase):
         b.wait_visible("#storage-detail")
 
         m.execute("mkfs.ext4 /dev/sda")
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
 
         m.execute("! grep /run/data /etc/fstab")
         self.content_head_action(1, "Mount")

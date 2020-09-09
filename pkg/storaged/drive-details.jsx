@@ -72,14 +72,14 @@ export class DriveDetails extends React.Component {
                 <CardBody>
                     <div className="ct-form ct-form-info">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
-                        <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
-                        <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />
-                        <DriveDetailsRow title={_("storage", "World Wide Name")} value={drive.WWN} />
+                        <DriveDetailsRow title={_("storage", "Firmware version")} value={drive.Revision} />
+                        <DriveDetailsRow title={_("storage", "Serial number")} value={drive.Serial} />
+                        <DriveDetailsRow title={_("storage", "World wide name")} value={drive.WWN} />
                         <DriveDetailsRow title={_("storage", "Capacity")} value={drive.Size ? utils.fmt_size_long(drive.Size) : _("No media inserted")} />
                         { assessment }
-                        <DriveDetailsRow title={_("storage", "Device File")} value={drive_block ? utils.block_name(drive_block) : "-"} />
+                        <DriveDetailsRow title={_("storage", "Device file")} value={drive_block ? utils.block_name(drive_block) : "-"} />
                         {multipath_blocks.length > 0 && (
-                            <DriveDetailsRow title={_("storage", "Multipathed Devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
+                            <DriveDetailsRow title={_("storage", "Multipathed devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
                         )}
                     </div>
                 </CardBody>

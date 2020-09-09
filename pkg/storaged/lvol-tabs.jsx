@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
 
 function lvol_rename(lvol) {
     dialog_open({
-        Title: _("Rename Logical Volume"),
+        Title: _("Rename logical volume"),
         Fields: [
             TextInput("name", _("Name"),
                       { value: lvol.Name })
@@ -233,7 +233,7 @@ function lvol_grow(client, lvol, info, to_fit) {
     }
 
     const dlg = dialog_open({
-        Title: _("Grow Logical Volume"),
+        Title: _("Grow logical volume"),
         Footer: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
@@ -318,7 +318,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
     }
 
     const dlg = dialog_open({
-        Title: _("Shrink Logical Volume"),
+        Title: _("Shrink logical volume"),
         Footer: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
@@ -402,8 +402,8 @@ export class BlockVolTab extends React.Component {
                                         utils.fmt_size(unused_space_warning.volume_size),
                                         utils.fmt_size(unused_space_warning.content_size))}
                         <div className='storage_alert_action_buttons'>
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
+                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink volume")}</StorageButton>
+                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow content")}</StorageButton>
                         </div>
                     </Alert>
                 </>
@@ -442,10 +442,10 @@ export class PoolVolTab extends React.Component {
                     </div>
                 </div>
 
-                <label className="control-label">{_("Data Used")}</label>
+                <label className="control-label">{_("Data used")}</label>
                 <div>{perc(this.props.lvol.DataAllocatedRatio)}</div>
 
-                <label className="control-label">{_("Metadata Used")}</label>
+                <label className="control-label">{_("Metadata used")}</label>
                 <div>{perc(this.props.lvol.MetadataAllocatedRatio)}</div>
             </div>
         );

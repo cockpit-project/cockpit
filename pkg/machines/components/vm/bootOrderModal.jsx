@@ -304,7 +304,7 @@ export class BootOrderModal extends React.Component {
             </div>
         );
 
-        const title = _("Boot Order");
+        const title = _("Boot order");
 
         return (
             <Modal id={`${idPrefix}-window`} show onHide={this.close} className='boot-order'>

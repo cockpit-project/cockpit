@@ -43,7 +43,7 @@ def add_machine(b, address, password):
     if password:
         b.wait_in_text('#dashboard_setup_server_dialog', "Unable to log in")
         b.set_val('#login-custom-password', password)
-        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Log In)')
+        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Log in)')
     b.wait_popdown('dashboard_setup_server_dialog')
 
 

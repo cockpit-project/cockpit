@@ -84,9 +84,9 @@ class CommonTests:
 
         def wait_number_domains(n):
             if n == 0:
-                b.wait_text(self.domain_sel, "Join Domain")
+                b.wait_text(self.domain_sel, "Join domain")
             else:
-                b.wait_text_not(self.domain_sel, "Join Domain")
+                b.wait_text_not(self.domain_sel, "Join domain")
             b.wait_not_attr(self.domain_sel, "disabled", "disabled")
 
         wait_number_domains(0)
@@ -307,7 +307,7 @@ class CommonTests:
 
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")
-        b.click("a:contains('No Delay')")
+        b.click("a:contains('No delay')")
         b.click("#shutdown-dialog .modal-footer button:contains(Restart)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -916,7 +916,7 @@ class TestPackageInstall(packagelib.PackageCase):
         # case 1: disable PackageKit
         m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
         self.login_and_go("/system")
-        b.wait_text(self.domain_sel, "Join Domain")
+        b.wait_text(self.domain_sel, "Join domain")
         b.wait_present(self.domain_sel + "[disabled]")
         self.waitTooltip("realmd is not available on this system")
         b.logout()
@@ -925,14 +925,14 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl unmask packagekit")
         self.login_and_go("/system")
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join Domain")
+        b.wait_text(self.domain_sel, "Join domain")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
-        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button:contains(Install):disabled")
-        b.click(".modal-dialog:contains('Install Software') .modal-footer button.cancel")
-        b.wait_not_present(".modal-dialog:contains('Install Software')")
+        b.wait_in_text(".modal-dialog:contains('Install software')", "realmd is not available")
+        b.wait_present(".modal-dialog:contains('Install software') .modal-footer button:contains(Install):disabled")
+        b.click(".modal-dialog:contains('Install software') .modal-footer button.cancel")
+        b.wait_not_present(".modal-dialog:contains('Install software')")
         b.logout()
 
         # case 3: provide an available realmd package
@@ -943,12 +943,12 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join Domain")
+        b.wait_text(self.domain_sel, "Join domain")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.click(".modal-dialog:contains('Install Software') .modal-footer button:contains(Install)")
-        b.wait_not_present(".modal-dialog:contains('Install Software')")
+        b.click(".modal-dialog:contains('Install software') .modal-footer button:contains(Install)")
+        b.wait_not_present(".modal-dialog:contains('Install software')")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join
         # domain" dialog won't ever appear; just check that it was installed
@@ -966,14 +966,14 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join Domain")
+        b.wait_text(self.domain_sel, "Join domain")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
         # restore realmd service, to pretend that package install completed
         m.execute("systemctl unmask realmd")
         b.click(".modal-dialog .modal-footer button:contains('Install')")
-        b.wait_not_present(".modal-dialog:contains('Install Software')")
+        b.wait_not_present(".modal-dialog:contains('Install software')")
 
         # should continue straight to join dialog
         b.wait_present("#realms-op")

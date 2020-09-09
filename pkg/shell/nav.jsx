@@ -123,7 +123,7 @@ export class CockpitNav extends React.Component {
                         </section>
                     )}
                     { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
-                    { this.state.search !== "" && <span className="non-menu-item"><button onClick={this.clearSearch} className="link-button hint">{_("Clear Search")}</button></span> }
+                    { this.state.search !== "" && <span className="non-menu-item"><button onClick={this.clearSearch} className="link-button hint">{_("Clear search")}</button></span> }
                 </Nav>
             </>
         );

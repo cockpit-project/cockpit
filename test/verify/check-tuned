@@ -67,9 +67,9 @@ class TestTuned(MachineCase):
         # Switch the profile
 
         b.click('#system-info-performance .action-trigger')
-        title_selector = "h4.modal-title:contains('Change Performance Profile')"
+        title_selector = "h4.modal-title:contains('Change performance profile')"
         b.wait_present(title_selector)
-        body_selector = ".modal-dialog:contains('Change Performance Profile')"
+        body_selector = ".modal-dialog:contains('Change performance profile')"
         b.wait_present("{0} .list-group-item.active p".format(body_selector))
 
         # Make sure we see the recommended profile and its badge

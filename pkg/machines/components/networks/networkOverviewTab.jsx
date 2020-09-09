@@ -95,14 +95,14 @@ export class NetworkOverviewTab extends React.Component {
                         </>}
 
                         { network.mtu && <>
-                            <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum Transmission Unit")} </label>
+                            <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum transmission unit")} </label>
                             <div id={`${idPrefix}-mtu`}> {network.mtu} </div>
                         </> }
                     </div>
 
                     <div className="ct-form ct-form-info">
                         { ip[0] && <>
-                            <label className='control-label label-title'> {_("IPv4 Address")} </label>
+                            <label className='control-label label-title'> {_("IPv4 address")} </label>
                             <span />
 
                             { ip[0].address && <>
@@ -116,7 +116,7 @@ export class NetworkOverviewTab extends React.Component {
                             </> }
 
                             { ip[0].dhcp.range.start && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP Range")} </label>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP range")} </label>
                                 <div id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </div>
                             </> }
 
@@ -125,7 +125,7 @@ export class NetworkOverviewTab extends React.Component {
 
                         { ip[1] && <>
                             <hr />
-                            <label className='control-label label-title'> {_("IPv6 Address")} </label>
+                            <label className='control-label label-title'> {_("IPv6 address")} </label>
                             <span />
 
                             { ip[1].address && <>
@@ -139,7 +139,7 @@ export class NetworkOverviewTab extends React.Component {
                             </> }
 
                             { ip[1].dhcp.range.start && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP Range")} </label>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP range")} </label>
                                 <div id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </div>
                             </> }
 

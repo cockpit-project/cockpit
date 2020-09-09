@@ -70,7 +70,7 @@ class TestStorageMultipath(StorageCase):
         b.wait_in_text("#drives", "MYSERIAL")
         b.click('tr:contains("MYSERIAL")')
         b.wait_present('#storage-detail')
-        wait_detail_row(5, "Device File")
+        wait_detail_row(5, "Device file")
         b.wait_in_text(detail_row_value(5), "/dev/sda")
 
         # Add another disk with the same serial, which fools
@@ -81,13 +81,13 @@ class TestStorageMultipath(StorageCase):
         # devices should be listed.
         m.add_disk("10M", serial="MYSERIAL")
         b.wait_text_not(detail_row_value(5), "/dev/sda")
-        wait_detail_row(6, "Multipathed Devices")
+        wait_detail_row(6, "Multipathed devices")
         b.wait_in_text(detail_row_value(6), "/dev/sda")
         b.wait_in_text(detail_row_value(6), "/dev/sdb")
 
         # Check that neither is offered as a free block device
         b.go("#/")
-        self.devices_dropdown('Create Volume Group')
+        self.devices_dropdown('Create volume group')
         self.dialog_wait_open()
         check_free_block_devices([])
         self.dialog_cancel()
@@ -99,13 +99,13 @@ class TestStorageMultipath(StorageCase):
         # Switch on multipathd.  A primary device should appear.
 
         b.wait_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
-        b.click('button:contains(Start Multipath)')
+        b.click('button:contains(Start multipath)')
         b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
         b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
 
         # Check that (exactly) the primary device is offered as free
         b.go("#/")
-        self.devices_dropdown('Create Volume Group')
+        self.devices_dropdown('Create volume group')
         self.dialog_wait_open()
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()

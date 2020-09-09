@@ -66,7 +66,7 @@ export const getStoragePoolRow = ({ storagePool, vms, resourceHasError, onAddErr
     );
     const storageVolsTabName = (
         <div id={`${idPrefix}-storage-volumes`}>
-            {_("Storage Volumes")}
+            {_("Storage volumes")}
         </div>
     );
     const tabRenderers = [
@@ -121,7 +121,7 @@ class StoragePoolActions extends React.Component {
         storagePoolActivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
                     this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Storage Pool $0 failed to get activated"), storagePool.name),
+                        text: cockpit.format(_("Storage pool $0 failed to get activated"), storagePool.name),
                         detail: exc.message, resourceId: storagePool.id,
                     });
                 })
@@ -135,7 +135,7 @@ class StoragePoolActions extends React.Component {
         storagePoolDeactivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
                     this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Storage Pool $0 failed to get deactivated"), storagePool.name),
+                        text: cockpit.format(_("Storage pool $0 failed to get deactivated"), storagePool.name),
                         detail: exc.message, resourceId: storagePool.id,
                     });
                 })

@@ -41,14 +41,14 @@ class NeworkTestSuite(SeleniumTest):
 
     def testSanityBridge(self):
         self.click(self.wait_id("networking-add-bridge", cond=clickable))
-        self.wait_text("Bridge Settings")
+        self.wait_text("Bridge settings")
         self.click(self.wait_id(
             "network-bridge-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
 
     def testSanityBond(self):
         self.click(self.wait_id("networking-add-bond", cond=clickable))
-        self.wait_text("Bond Settings")
+        self.wait_text("Bond settings")
         self.click(self.wait_id("network-bond-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
 

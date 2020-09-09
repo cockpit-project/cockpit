@@ -41,7 +41,7 @@ export class StorageVolumeDelete extends React.Component {
             storageVolumeDelete(storagePool.connectionName, storagePool.name, volume.name)
         ))
                 .catch(exc => {
-                    this.props.deleteErrorHandler(_("Storage Volumes could not be deleted"), exc.message);
+                    this.props.deleteErrorHandler(_("Storage volumes could not be deleted"), exc.message);
                 })
                 .then(() => {
                     storagePoolRefresh(storagePool.connectionName, storagePool.id);

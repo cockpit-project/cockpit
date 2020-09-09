@@ -107,7 +107,7 @@ class SystemInfo extends React.Component {
                         </tr>
                         { onSecurityClick !== undefined &&
                         <tr>
-                            <th>{ _("CPU Security") }</th>
+                            <th>{ _("CPU security") }</th>
                             <td>{ mitigations }</td>
                         </tr>
                         }
@@ -211,7 +211,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
         return (
             <Modal show={this.props.show} id="cpu-mitigations-dialog">
                 <Modal.Header>
-                    <Modal.Title>{ _("CPU Security Toggles") }</Modal.Title>
+                    <Modal.Title>{ _("CPU security toggles") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
@@ -274,7 +274,7 @@ class HardwareInfo extends React.Component {
         if (this.props.info.memory.length > 0) {
             memory = (
                 <ListingTable caption={ _("Memory") }
-                    columns={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
+                    columns={ [_("ID"), _("Memory technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
                     rows={ this.props.info.memory.map(dimm => ({
                         props: { key: dimm.locator },
                         columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
@@ -286,11 +286,11 @@ class HardwareInfo extends React.Component {
             <Page breadcrumb={
                 <Breadcrumb>
                     <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__item" to="#">{ _("Overview") }</BreadcrumbItem>
-                    <BreadcrumbItem isActive>{ _("Hardware Information") }</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                 </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <PageSection variant={PageSectionVariants.light}>
-                    <h2>{ _("System Information") }</h2>
+                    <h2>{ _("System information") }</h2>
                     <SystemInfo info={this.props.info.system}
                                 onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
 

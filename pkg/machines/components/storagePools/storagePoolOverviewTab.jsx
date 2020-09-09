@@ -39,12 +39,12 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
             </> }
 
             { storagePool.source && storagePool.source.device && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source Path")} </label>
+                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source path")} </label>
                 <div id={`${idPrefix}-source-path`}> {storagePool.source.device.path} </div>
             </> }
 
             { storagePool.source && storagePool.source.dir && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source Path")} </label>
+                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source path")} </label>
                 <div id={`${idPrefix}-source-path`}> {storagePool.source.dir.path} </div>
             </> }
 
@@ -54,12 +54,12 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
             </> }
 
             { storagePool.source && storagePool.source.format && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-format`}> {_("Source Format")} </label>
+                <label className='control-label' htmlFor={`${idPrefix}-source-format`}> {_("Source format")} </label>
                 <div id={`${idPrefix}-source-format`}> {storagePool.source.format.type} </div>
             </> }
 
             { storagePool.target && storagePool.target.path && <>
-                <label className='control-label' htmlFor={`${idPrefix}-target-path`}> {_("Target Path")} </label>
+                <label className='control-label' htmlFor={`${idPrefix}-target-path`}> {_("Target path")} </label>
                 <div id={`${idPrefix}-target-path`}> {storagePool.target.path} </div>
             </> }
 

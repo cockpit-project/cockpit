@@ -69,20 +69,20 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
 
     if (LibvirtDBus.canShutdown(state)) {
         shutdown = (<Button key='action-shutdown' variant='secondary' onClick={() => onShutdown()} id={`${id}-shutdown-button`}>
-            {_("Shut Down")}
+            {_("Shut down")}
         </Button>);
         dropdownItems.push(
             <DropdownItem key={`${id}-off`}
                           id={`${id}-off`}
                           onClick={() => onShutdown()}>
-                {_("Shut Down")}
+                {_("Shut down")}
             </DropdownItem>
         );
         dropdownItems.push(
             <DropdownItem key={`${id}-forceOff`}
                           id={`${id}-forceOff`}
                           onClick={() => onForceoff()}>
-                {_("Force Shut Down")}
+                {_("Force shut down")}
             </DropdownItem>
         );
         dropdownItems.push(<DropdownSeparator key="separator-shutdown" />);
@@ -90,7 +90,7 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
             <DropdownItem key={`${id}-sendNMI`}
                           id={`${id}-sendNMI`}
                           onClick={() => onSendNMI()}>
-                {_("Send Non-Maskable Interrupt")}
+                {_("Send non-maskable interrupt")}
             </DropdownItem>
         );
         dropdownItems.push(<DropdownSeparator key="separator-sendnmi" />);
@@ -108,7 +108,7 @@ const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, o
             <DropdownItem key={`${id}-forceReboot`}
                           id={`${id}-forceReboot`}
                           onClick={() => onForceReboot()}>
-                {_("Force Restart")}
+                {_("Force restart")}
             </DropdownItem>
         );
         dropdownItems.push(<DropdownSeparator key="separator-reset" />);

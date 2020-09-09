@@ -63,7 +63,7 @@ export class RevertSnapshotModal extends React.Component {
             <Modal id={`${idPrefix}-snapshot-${snap.name}-modal`} show onHide={onClose}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{ cockpit.format(_("Revert to Snapshot $0"), snap.name) }</Modal.Title>
+                    <Modal.Title>{ cockpit.format(_("Revert to snapshot $0"), snap.name) }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     { cockpit.format(_("Reverting to this snapshot will take the VM back to the time of the snapshot and the current state will be lost, along with any data not captured in a snapshot")) }

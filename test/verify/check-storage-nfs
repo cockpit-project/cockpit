@@ -74,7 +74,7 @@ class TestStorageNfs(StorageCase):
         b.mousedown("#nfs-mounts tr:contains(/home/bar)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/bar")
-        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/bar")
+        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/bar")
 
         # Change mount point of /home/bar
         b.click('#detail-header button:contains("Edit")')
@@ -83,7 +83,7 @@ class TestStorageNfs(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/barbar")
+        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/barbar")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
@@ -118,7 +118,7 @@ class TestStorageNfs(StorageCase):
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mnt")
+        b.wait_text('#detail-header label:contains("Mount point") + div', "/mnt")
 
         # Unmount and remount /home/foo
         b.click("#detail-header button:contains(Unmount)")
@@ -205,7 +205,7 @@ class TestStorageNfs(StorageCase):
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/foo")
+        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/foo")
 
         m.spawn("cd /mounts/foo; sleep infinity", "busy")
         b.click('#detail-header button:contains("Edit")')
@@ -246,7 +246,7 @@ class TestStoragePackagesNFS(PackageCase, StorageHelpers):
 
         # The fake-nfs-utils package is not available yet
 
-        b.click("button:contains('Install NFS Support')")
+        b.click("button:contains('Install NFS support')")
 
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "fake-nfs-utils is not available from any repository.")
@@ -272,7 +272,7 @@ class TestStoragePackagesNFS(PackageCase, StorageHelpers):
 
         b.reload()
         b.enter_page("/storage")
-        b.click("button:contains('Install NFS Support')")
+        b.click("button:contains('Install NFS support')")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "fake-nfs-utils will be installed")
         b.wait_in_text("#dialog", "fake-libnfs")

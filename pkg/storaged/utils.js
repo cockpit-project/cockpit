@@ -189,13 +189,13 @@ export function mdraid_name(mdraid) {
 export function lvol_name(lvol) {
     var type;
     if (lvol.Type == "pool")
-        type = _("Pool for Thin Logical Volumes");
+        type = _("Pool for thin logical volumes");
     else if (lvol.ThinPool != "/")
-        type = _("Thin Logical Volume");
+        type = _("Thin logical volume");
     else if (lvol.Origin != "/")
-        type = _("Logical Volume (Snapshot)");
+        type = _("Logical volume (snapshot)");
     else
-        type = _("Logical Volume");
+        type = _("Logical volume");
     return cockpit.format('$0 "$1"', type, lvol.Name);
 }
 
@@ -239,18 +239,18 @@ export function get_block_link_parts(client, path) {
     var location, link;
     if (client.mdraids[block.MDRaid]) {
         location = ["mdraid", client.mdraids[block.MDRaid].UUID];
-        link = cockpit.format(_("RAID Device $0"), mdraid_name(client.mdraids[block.MDRaid]));
+        link = cockpit.format(_("RAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
         var target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
         location = ["vg", target];
-        link = cockpit.format(_("Volume Group $0"), target);
+        link = cockpit.format(_("Volume group $0"), target);
     } else {
         var vdo = client.vdo_overlay.find_by_block(block);
         if (vdo) {
             location = ["vdo", vdo.name];
-            link = cockpit.format(_("VDO Device $0"), vdo.name);
+            link = cockpit.format(_("VDO device $0"), vdo.name);
         } else {
             location = [block_name(block).replace(/^\/dev\//, "")];
             if (client.drives[block.Drive])
@@ -263,11 +263,11 @@ export function get_block_link_parts(client, path) {
     // Partitions of logical volumes are shown as just logical volumes.
     var format;
     if (is_lvol && is_crypt)
-        format = _("Encrypted Logical Volume of $0");
+        format = _("Encrypted logical volume of $0");
     else if (is_part && is_crypt)
-        format = _("Encrypted Partition of $0");
+        format = _("Encrypted partition of $0");
     else if (is_lvol)
-        format = _("Logical Volume of $0");
+        format = _("Logical volume of $0");
     else if (is_part)
         format = _("Partition of $0");
     else if (is_crypt)

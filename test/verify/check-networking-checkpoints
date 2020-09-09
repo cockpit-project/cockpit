@@ -60,7 +60,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.wait_popup("network-ip-settings-dialog")
             b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
             b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
-            b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+            b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "24")
             b.click("#network-ip-settings-dialog button:contains('Apply')")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 

@@ -148,7 +148,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
     return (
         <div className="pf-c-card" id="account-authorized-keys">
             <div className="pf-c-card__header">
-                <div className="pf-c-card__title"><h2>{_("Authorized Public SSH Keys")}</h2></div>
+                <div className="pf-c-card__title"><h2>{_("Authorized public SSH keys")}</h2></div>
                 <div className="pf-c-card__actions">
                     { allow_mods &&
                     <Button onClick={() => add_authorized_key_dialog(manager)}

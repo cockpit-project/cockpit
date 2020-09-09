@@ -206,7 +206,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                 </div>
                 <h1>{_("Account not available or cannot be edited.")}</h1>
                 <Breadcrumb>
-                    <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to Accounts")}</BreadcrumbItem>
+                    <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to accounts")}</BreadcrumbItem>
                 </Breadcrumb>
             </div>);
     }
@@ -224,7 +224,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
 
     var last_login;
     if (details.logged.currently)
-        last_login = _("Logged In");
+        last_login = _("Logged in");
     else if (!details.logged.last)
         last_login = _("Never");
     else
@@ -246,7 +246,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                             <CardActions>
                                 <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
                                   isDisabled={!details.logged.currently || account.uid == 0}>
-                                    {_("Terminate Session")}
+                                    {_("Terminate session")}
                                 </Button>
                                 { "\n" }
                                 <Button isDisabled={account.uid == 0} variant="danger" id="account-delete"
@@ -258,7 +258,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                         </CardHeader>
                         <CardBody>
                             <Form isHorizontal>
-                                <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full Name")}>
+                                <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"
                                                      isDisabled={committing_real_name || account.uid == 0}
@@ -272,7 +272,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                                      onBlur={event => change_real_name(event)} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
-                                <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User Name")}>
+                                <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
                                 { account.uid !== 0 &&
@@ -285,7 +285,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     </div>
                                 </FormGroup>
                                 }
-                                <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last Login")}>
+                                <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
                                 <FormGroup fieldId="account-locked" label={_("Access")}>
@@ -297,7 +297,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                        disabled={!superuser.allowed || edited_locked != null}
                                        checked={edited_locked != null ? edited_locked : details.locked}
                                        onChange={event => change_locked(event.target.checked)} />
-                                                    <span>{_("Lock Account")}</span>
+                                                    <span>{_("Lock account")}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -314,14 +314,14 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                             { self_mod_allowed &&
                                             <Button variant="secondary" id="account-set-password"
                                       onClick={() => set_password_dialog(account, current_user)}>
-                                                {_("Set Password")}
+                                                {_("Set password")}
                                             </Button>
                                             }
                                             { "\n" }
                                             { superuser.allowed &&
                                             <Button variant="secondary" id="password-reset-button"
                                               onClick={() => reset_password_dialog(account)}>
-                                                {_("Force Change")}
+                                                {_("Force change")}
                                             </Button>
                                             }
                                         </div>

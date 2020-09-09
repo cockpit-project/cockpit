@@ -38,7 +38,7 @@ const NetworkMacRow = ({ network }) => {
     return (
         <>
             <label className='control-label' htmlFor='mac'>
-                {_("MAC Address")}
+                {_("MAC address")}
             </label>
             <samp id='mac'>
                 {network.mac}

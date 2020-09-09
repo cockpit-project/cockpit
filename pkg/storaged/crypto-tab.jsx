@@ -65,9 +65,9 @@ export class CryptoTab extends React.Component {
         function edit_stored_passphrase() {
             edit_config(function (config, commit) {
                 dialog_open({
-                    Title: _("Stored Passphrase"),
+                    Title: _("Stored passphrase"),
                     Fields: [
-                        PassInput("passphrase", _("Stored Passphrase"),
+                        PassInput("passphrase", _("Stored passphrase"),
                                   {
                                       value: (config && config['passphrase-contents']
                                           ? decode_filename(config['passphrase-contents'].v)
@@ -102,7 +102,7 @@ export class CryptoTab extends React.Component {
         function edit_options() {
             edit_config(function (config, commit) {
                 dialog_open({
-                    Title: _("Encryption Options"),
+                    Title: _("Encryption options"),
                     Fields: crypto_options_dialog_fields(old_options),
                     Action: {
                         Title: _("Apply"),

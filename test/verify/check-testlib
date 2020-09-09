@@ -29,6 +29,7 @@ dirname = os.path.dirname(__file__)
 run_tests = os.path.join(TEST_DIR, "common", "run-tests")
 VERIFY_DIR = os.path.join(TEST_DIR, "verify")
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
@@ -73,6 +74,7 @@ class TestRunTestListing(unittest.TestCase):
 
 # This can't be @nondestructive, as we run our own @nondestructive test nested inside this test. This will already call the
 # cleanup handlers, and the outside cleanup would then fail to do that again.
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestRunTest(MachineCase):
     def testExistingMachine(self):
         env = os.environ.copy()
@@ -102,6 +104,7 @@ class TestRunTest(MachineCase):
         self.assertNotIn(b"TestExample", out)
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestTestlib(MachineCase):
     @nondestructive
     def testRestoreAPI(self):

@@ -25,6 +25,7 @@ from testlib import *
 @skipImage("NetworkManager-team not installed", "fedora-coreos")
 @skipImage("Changed in #14322", "rhel-8-3-distropkg")
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestTeam(NetworkCase):
     def testBasic(self):
         b = self.browser

@@ -21,6 +21,7 @@ import parent
 from testlib import *
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestTerminal(MachineCase):
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")

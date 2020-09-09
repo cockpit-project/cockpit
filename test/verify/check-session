@@ -21,6 +21,7 @@ import parent
 from testlib import *
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSession(MachineCase):
 
     def testBasic(self):

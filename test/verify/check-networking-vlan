@@ -23,6 +23,7 @@ from testlib import *
 
 
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestNetworkingVLAN(NetworkCase):
     def testVlan(self):
         b = self.browser

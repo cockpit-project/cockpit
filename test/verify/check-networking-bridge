@@ -24,6 +24,7 @@ from testlib import *
 
 @nondestructive
 @skipImage("Changed in #14322", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestBridge(NetworkCase):
     def testBasic(self):
         b = self.browser

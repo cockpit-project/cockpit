@@ -37,6 +37,7 @@ def read_mem_info(machine):
     return info
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestMetrics(MachineCase, StorageHelpers):
     provision = {
         "0": {"forward": {"2000": 2000}},

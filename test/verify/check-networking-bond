@@ -26,6 +26,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipImage("Changed in #14322", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -270,6 +271,7 @@ class TestBonding(NetworkCase):
 
 
 @skipImage("Changed in #14322", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestBondingVirt(NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},

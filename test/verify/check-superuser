@@ -20,6 +20,7 @@
 import parent
 from testlib import *
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuser(MachineCase):
 
     def testBasic(self):
@@ -195,6 +196,7 @@ session include system-auth
         b.wait_not_present(".modal-dialog:contains('Administrative access')")
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuserOldShell(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },
@@ -232,6 +234,7 @@ class TestSuperuserOldShell(MachineCase):
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
@@ -321,6 +324,7 @@ class TestSuperuserOldWebserver(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 @skipImage("Changed in #14344", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuserDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },
@@ -382,6 +386,7 @@ class TestSuperuserDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuserOldDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
@@ -442,6 +447,7 @@ class TestSuperuserOldDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 @skipImage("Changed in #14344", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSuperuserDashboardOldMachine(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },

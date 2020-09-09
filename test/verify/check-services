@@ -23,6 +23,7 @@ from testlib import *
 
 
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestServices(MachineCase):
 
     def setUp(self):
@@ -767,6 +768,7 @@ Where=/fail
         self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestTimers(MachineCase):
     def svc_sel(self, service):
         return 'li[data-goto-unit="%s"]' % service

@@ -24,6 +24,7 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestNetworkingMTU(NetworkCase):
     provision = {
         "machine1": {},

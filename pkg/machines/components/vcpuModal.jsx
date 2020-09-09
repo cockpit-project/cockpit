@@ -240,7 +240,7 @@ export class VCPUModal extends React.Component {
             <Modal id='machines-vcpu-modal-dialog' show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title> {`${vm.name} VCPU details`} </Modal.Title>
+                    <Modal.Title>{cockpit.format(_("$0 vCPU details"), vm.name)}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     { caution }

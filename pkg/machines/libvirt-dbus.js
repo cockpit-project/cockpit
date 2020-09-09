@@ -534,7 +534,16 @@ const LIBVIRT_DBUS_PROVIDER = {
 
         if (connectionName) {
             return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], { timeout, type: 'ssssu' })
-                    .done((capsXML) => {
+                    .then((capsXML) => {
+                        const arch_args = {
+                            /* emulatorbin, arch, machine, virttype, 0 */
+                            aarch64: ['', 'aarch64', 'virt', '', 0]
+                        };
+                        const arch = getHostArch(capsXML[0]);
+                        const args = arch_args[arch] || ['', '', '', '', 0];
+                        return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', args, { timeout, type: 'ssssu' });
+                    })
+                    .then((capsXML) => {
                         const count = getDomainMaxVCPU(capsXML[0]);
                         dispatch(setHypervisorMaxVCPU({ count, connectionName }));
                     })
@@ -974,6 +983,22 @@ const LIBVIRT_DBUS_PROVIDER = {
         }));
     },
 };
+
+function getHostArch(capsXML) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(capsXML, "application/xml");
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse capabilities xml, input: "${capsXML}"`);
+        return;
+    }
+
+    const domainCapsElem = xmlDoc.getElementsByTagName("domainCapabilities")[0];
+    const archElem = domainCapsElem.getElementsByTagName("arch")[0];
+    const arch = archElem.childNodes[0].nodeValue;
+
+    return arch;
+}
 
 function getDomainMaxVCPU(capsXML) {
     const parser = new DOMParser();

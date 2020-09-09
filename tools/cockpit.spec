@@ -41,12 +41,6 @@
 %define __python3 /usr/bin/python3
 %endif
 
-# for testing this already gets set in fedora.install, as we want the target
-# VERSION_ID, not the mock chroot's one
-%if "%{!?os_version_id:1}"
-%define os_version_id %(. /etc/os-release; echo $VERSION_ID)
-%endif
-
 %define _hardened_build 1
 
 # define to build the dashboard

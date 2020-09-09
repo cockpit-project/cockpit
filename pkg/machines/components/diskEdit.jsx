@@ -200,7 +200,7 @@ class EditDiskModalBody extends React.Component {
             <Modal id={`${idPrefix}-dialog`} show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title> {'Edit ' + getDiskPrettyName(vm.disks[disk.target]) + ' Attributes'} </Modal.Title>
+                    <Modal.Title>{cockpit.format(_("Edit $0 attributes"), getDiskPrettyName(vm.disks[disk.target]))} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     { showWarning() }

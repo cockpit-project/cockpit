@@ -141,7 +141,7 @@ export class MemoryModal extends React.Component {
             <Modal id='vm-memory-modal' show onHide={this.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.close} />
-                    <Modal.Title> {`${vm.name} Memory Adjustment`} </Modal.Title>
+                    <Modal.Title>{cockpit.format(_("$0 memory adjustment"), vm.name)}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}

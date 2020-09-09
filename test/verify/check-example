@@ -26,6 +26,7 @@ from testlib import *
 
 
 @skipPackage("example")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestExample(MachineCase):
 
     @unittest.expectedFailure
@@ -50,6 +51,7 @@ class TestExample(MachineCase):
 
 
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestNondestructiveExample(MachineCase):
 
     def testOne(self):
@@ -59,6 +61,7 @@ class TestNondestructiveExample(MachineCase):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSimple(unittest.TestCase):
 
     def testOne(self):

@@ -23,6 +23,7 @@ from testlib import *
 
 
 @skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-stable")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestNetworkingCheckpoints(NetworkCase):
 
     def testCheckpoint(self):

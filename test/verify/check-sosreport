@@ -28,6 +28,7 @@ from testlib import *
 
 @skipImage("No sosreport", "fedora-coreos")
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSOS(MachineCase):
 
     def testBasic(self, urlroot=""):

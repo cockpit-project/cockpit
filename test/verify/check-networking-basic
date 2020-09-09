@@ -22,6 +22,7 @@ from netlib import *
 from testlib import *
 
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestNetworkingBasic(NetworkCase):
     def testBasic(self):
         b = self.browser

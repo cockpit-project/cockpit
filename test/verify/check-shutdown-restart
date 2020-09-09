@@ -22,6 +22,7 @@ from testlib import *
 
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestShutdownRestart(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},

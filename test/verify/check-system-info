@@ -92,6 +92,7 @@ def ssh_reconnect(machine, timeout_sec=120):
     raise error
 
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestSystemInfo(MachineCase):
     def setUp(self):
         super().setUp()
@@ -673,6 +674,7 @@ insecure_connection=True
         b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestPcp(packagelib.PackageCase):
 
     @skipImage("cockpit-system doesn't have the install-on-demand feature")

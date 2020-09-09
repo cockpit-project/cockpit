@@ -24,6 +24,7 @@ from testlib import *
 
 
 @nondestructive
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestAccounts(MachineCase):
 
     def tearDown(self):

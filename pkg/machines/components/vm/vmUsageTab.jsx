@@ -20,79 +20,57 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { Flex, FlexItem } from '@patternfly/react-core';
+import {
+    Flex, FlexItem,
+    Progress, ProgressVariant,
+} from '@patternfly/react-core';
 
 import {
     logDebug,
-    convertToUnit,
-    toReadableNumber,
     units,
     toFixedPrecision,
-    getBestUnit,
+    convertToBestUnit,
+    convertToUnit,
 } from "../../helpers.js";
-
-import DonutChart from "../../c3charts.jsx";
 
 const _ = cockpit.gettext;
 
 class VmUsageTab extends React.Component {
     render() {
         const vm = this.props.vm;
-        const width = 220;
-        const height = 170;
 
         const rssMem = vm.rssMemory ? vm.rssMemory : 0; // in KiB
         const memTotal = vm.currentMemory ? vm.currentMemory : 0; // in KiB
-        let available = memTotal - rssMem; // in KiB
-        available = available < 0 ? 0 : available;
+        const memRssBest = convertToBestUnit(rssMem, units.KiB);
+        const memTotalBest = convertToBestUnit(memTotal, units.KiB);
 
         const totalCpus = vm.vcpus && vm.vcpus.count > 0 ? vm.vcpus.count : 0;
         let cpuUsage = isNaN(vm.cpuUsage) ? 0 : vm.cpuUsage;
         cpuUsage = toFixedPrecision(cpuUsage, 1);
+        const totalCpusStr = cockpit.format(cockpit.ngettext("$0 vCPU", "$0 vCPUs", totalCpus), totalCpus);
 
-        logDebug(`VmUsageTab.render(): rssMem: ${rssMem} KiB, memTotal: ${memTotal} KiB, available: ${available} KiB, totalCpus: ${totalCpus}, cpuUsage: ${cpuUsage}`);
-
-        const memChartData = {
-            columns: [
-                [_("Used"), toReadableNumber(convertToUnit(rssMem, units.KiB, units.GiB))],
-                [_("Available"), toReadableNumber(convertToUnit(available, units.KiB, units.GiB))],
-            ],
-            groups: [
-                ["used", "available"],
-            ],
-            order: null,
-        };
-
-        const cpuChartData = {
-            columns: [
-                [_("Used"), cpuUsage],
-                [_("Available"), 100.0 - cpuUsage],
-            ],
-            groups: [
-                ["used", "available"],
-            ],
-            order: null,
-        };
-
-        const chartSize = {
-            width, // keep the .usage-donut-caption CSS in sync
-            height,
-        };
-
-        const bestUnit = getBestUnit(memTotal, units.KiB);
+        logDebug(`VmUsageTab.render(): rssMem: ${rssMem} KiB, memTotal: ${memTotal} KiB, totalCpus: ${totalCpus}, cpuUsage: ${cpuUsage}`);
 
         return (
-            <Flex>
+            <Flex direction={{ default: 'column' }}>
                 <FlexItem className="memory-usage-chart">
-                    <DonutChart data={memChartData} size={chartSize} width='8' tooltipText=' '
-                                primaryTitle={toReadableNumber(convertToUnit(rssMem, units.KiB, bestUnit))}
-                                secondaryTitle={bestUnit.name}
-                                caption={`used from ${cockpit.format_bytes(memTotal * 1024)} memory`} />
+                    <Progress value={rssMem}
+                        className="pf-m-sm"
+                        min={0} max={memTotal}
+                        variant={(rssMem / memTotal * 100) > 90 ? ProgressVariant.danger : ProgressVariant.info}
+                        title={_("Memory")}
+                        label={cockpit.format("$0 / $1 $2",
+                                              toFixedPrecision(memRssBest.value, 1),
+                                              memRssBest.value != 0 ? convertToUnit(memTotal, units.KiB, memRssBest.unit) : toFixedPrecision(memTotalBest.value, 1),
+                                              memRssBest.value != 0 ? memRssBest.unit : memTotalBest.unit)} />
                 </FlexItem>
                 <FlexItem className="vcpu-usage-chart">
-                    <DonutChart data={cpuChartData} size={chartSize} width='8' tooltipText=' '
-                                primaryTitle={cpuUsage} secondaryTitle='%'
-                                caption={`used from ${totalCpus} vCPUs`} />
+                    <Progress value={cpuUsage}
+                        className="pf-m-sm"
+                        min={0} max={100}
+                        variant={cpuUsage > 90 ? ProgressVariant.danger : ProgressVariant.info}
+                        title={_("CPU")}
+                        label={cockpit.format("$0% of $1", cpuUsage, totalCpusStr)} />
                 </FlexItem>
             </Flex>
         );

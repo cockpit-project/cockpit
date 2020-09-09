@@ -58,26 +58,23 @@ export const VmExpandedContent = ({
     }, []);
 
     if (cockpit.location.path[1] == "console") {
-        return (<>
+        return (<Page breadcrumb={
             <Breadcrumb className='machines-listing-breadcrumb'>
                 <BreadcrumbItem to='#'>
                     {_("Virtual machines")}
                 </BreadcrumbItem>
-                <BreadcrumbItem to="#" onClick={() => cockpit.location.go(["vm"], Object.assign(cockpit.location.options, { name: vm.name, connection: vm.connectionName }))}>
-                    {vm.name}
+                <BreadcrumbItem onClick={() => cockpit.location.go(["vm"], Object.assign(cockpit.location.options, { name: vm.name, connection: vm.connectionName }))}>
+                    <a className="pf-c-breadcrumb__link">{vm.name}</a>
                 </BreadcrumbItem>
                 <BreadcrumbItem isActive>
                     {_("Console")}
                 </BreadcrumbItem>
-            </Breadcrumb>
-            <Card>
-                <CardBody>
-                    <Consoles vm={vm} config={config} dispatch={dispatch}
-                             onAddErrorNotification={onAddErrorNotification} />;
-                </CardBody>
-                <CardFooter />
-            </Card>
-        </>);
+            </Breadcrumb>}>
+            <PageSection variant={PageSectionVariants.light}>
+                <Consoles vm={vm} config={config} dispatch={dispatch}
+                          onAddErrorNotification={onAddErrorNotification} />
+            </PageSection>
+        </Page>);
     }
 
     const cardContents = [

@@ -51,8 +51,6 @@ import { ListingPanel } from './cockpit-components-listing-panel.jsx';
  * addCheckbox optional: if set a checkbox will appear in the start of the row and the selectChanged
  *                       callback can be used to track row's checked status. Note that rows with checkboxes can't
  *                       be selected outside of the checkbox.
- * simpleBody optional: if set the expansion will just contain this simple body without tabs,
- *                      this does not work well with tabRenderers.
  */
 export class ListingRow extends React.Component {
     constructor(props) {
@@ -79,7 +77,7 @@ export class ListingRow extends React.Component {
         if (!e || e.button !== 0)
             return;
 
-        const willBeExpanded = !this.state.expanded && (this.props.tabRenderers.length > 0 || this.props.simpleBody);
+        const willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
         this.setState({ expanded: willBeExpanded });
 
         this.props.expandChanged && this.props.expandChanged(willBeExpanded);
@@ -121,7 +119,7 @@ export class ListingRow extends React.Component {
                 return (<td key={index}>{itm.name}</td>);
         });
 
-        const allowExpand = (this.props.tabRenderers.length > 0 || this.props.simpleBody);
+        const allowExpand = this.props.tabRenderers.length > 0;
         let expandToggle;
         if (allowExpand) {
             expandToggle = <td key="expandToggle" className="listing-ct-toggle">
@@ -177,7 +175,6 @@ export class ListingRow extends React.Component {
                 <tr className="ct-listing-panel">
                     <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
                         {this.state.expanded && <ListingPanel tabRenderers={this.props.tabRenderers}
-                                                              simpleBody={this.props.simpleBody}
                                                               initiallyActiveTab={this.props.initiallyActiveTab}
                                                               listingActions={this.props.listingActions}
                                                               listingDetail={this.props.listingDetail} />}
@@ -209,7 +206,6 @@ ListingRow.propTypes = {
     expandChanged: PropTypes.func,
     initiallyActiveTab: PropTypes.number,
     extraClasses: PropTypes.array,
-    simpleBody: PropTypes.node,
 };
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/v3/pattern-library/content-views/list-view/index.html

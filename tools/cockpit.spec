@@ -247,7 +247,7 @@ done
 for data in doc locale man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
-for lib in systemd tmpfiles.d firewalld; do
+for lib in systemd tmpfiles.d; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-desktop; do

@@ -40,10 +40,6 @@ mkdir -p /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
 chmod 755 /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
 chown root:root /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
 
-mkdir -p /host/var/lib/cockpit
-chmod 775 /host/var/lib/cockpit
-chown root:wheel /host/var/lib/cockpit
-
 # For sharing ssh's known hosts with container
 mkdir -p /etc/ssh
 

@@ -459,7 +459,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # not allowed to restricted users
         self.allow_journal_messages("sudo:.* Operation not permitted")
         self.allow_journal_messages("sudo:.* Permission denied")
-        self.allow_journal_messages(".*/var/lib/cockpit/machines.json.*Permission denied")
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
         if m.image in ["centos-8-stream"]:

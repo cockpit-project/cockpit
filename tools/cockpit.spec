@@ -472,7 +472,6 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-tls
 %{_libexecdir}/cockpit-desktop
 %attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
-%attr(775, -, wheel) %{_localstatedir}/lib/cockpit
 %{_datadir}/cockpit/static
 %{_datadir}/cockpit/branding
 

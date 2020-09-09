@@ -300,23 +300,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         emulated_machine = b.text("#vm-subVmTest1-emulated-machine")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
-        def get_usage(selector):
-            i = 0
-            content = b.text(selector)
-            while content[i].isdigit() or content[i] == ".":
-                i += 1
-            return float(content[:i])
-
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
-        b.wait_in_text(".memory-usage-chart .usage-donut-caption", "256 MiB")
-        b.wait_present("#chart-donut-0 .donut-title-big-pf")
-        b.wait_in_text("#chart-donut-0", "MiB")
-        b.wait(lambda: get_usage("#chart-donut-0") > 0.0)
-        b.wait_in_text(".vcpu-usage-chart .usage-donut-caption", "1 vCPU")
+        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "256 MiB")
+        usage = b.text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure").split("/ 256 MiB")[0]
+        wait(lambda: float(usage) > 0.0, delay=3)
+
+        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "1 vCPU")
+        usage = b.text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure").split("% of 1 vCPU")[0]
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
-        b.wait_present("#chart-donut-1 .donut-title-big-pf")
-        self.assertLessEqual(get_usage("#chart-donut-1"), 100.0)
+        wait(lambda: float(usage) <= 100.0, delay=3)
 
         # suspend/resume
         m.execute("virsh suspend subVmTest1")
@@ -364,8 +357,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # continue shut off validation - usage should drop to zero
-        b.wait(lambda: get_usage("#chart-donut-0") == 0.0)
-        b.wait(lambda: get_usage("#chart-donut-1") == 0.0)
+        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0.0 /")
+        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0.0%" )
 
         self.goToMainPage()
 
@@ -2430,10 +2423,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
             # the host has (less or more than 1 GiB), and thus needs to be dynamic
             if dialog.memory_size >= 1024 and dialog.memory_size_unit == "MiB":
-                memory_text = "%.2f GiB" % (dialog.memory_size/1024)
+                memory_text = "/ %.1f GiB" % (dialog.memory_size/1024)
             else:
-                memory_text = "{0} {1}".format(dialog.memory_size, dialog.memory_size_unit)
-            b.wait_in_text(".memory-usage-chart .usage-donut-caption", memory_text)
+                memory_text = "/ {0:.1f} {1}".format(dialog.memory_size, dialog.memory_size_unit)
+            b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", memory_text)
 
             # check disks
             # Test disk got imported/created

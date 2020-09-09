@@ -1366,6 +1366,29 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                     ".*Connection reset by peer")
         self.allow_browser_errors("Disconnection timed out.")
 
+    def testSwitchConsoleFromSerialToGraphical(self):
+        b = self.browser
+        name = "vmForSwitching"
+
+        self.startVm(name, graphics="vnc", ptyconsole=True)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        self.waitVmRow(name)
+        self.toggleVmRow(name)
+        b.wait_in_text("#vm-{0}-state".format(name), "running")
+
+        b.click("#vm-{0}-consoles".format(name))
+        b.wait_present("div.vnc-console canvas")
+        b.select_from_dropdown("#console-type-select", "Serial Console")
+        b.wait_not_present("div.vnc-console canvas")
+        b.wait_present("#{}-terminal".format(name))
+
+        b.wait_not_present("#navbar-oops")
+
+        self.allowed_messages.append("connection unexpectedly closed by peer")
+
     # This test contains basic form validation of the Create VM dialog
     # None of the sub-tests will actually call virt-install
     def testCreateBasicValidation(self):

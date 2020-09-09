@@ -362,23 +362,15 @@ class ServicesPage extends React.Component {
                                     if (!this.isUnitHandled(unit_id))
                                         return;
 
+                                    if (this.isTemplate(unit_id))
+                                        return;
+
                                     if (this.seenPaths.has(this.path_by_id[unit_id])) {
                                         this.updateProperties(
                                             {
                                                 Id: cockpit.variant("s", unit_id),
                                                 UnitFileState: cockpit.variant("s", unitFileState)
                                             }, this.path_by_id[unit_id], true);
-                                        return;
-                                    }
-
-                                    if (this.isTemplate(unit_id)) {
-                                        // A template, create a fake unit for it
-                                        this.updateProperties({
-                                            Id: cockpit.variant("s", unit_id),
-                                            Description: cockpit.variant("s", cockpit.format(_("$0 template"), unit_id)),
-                                            UnitFileState: cockpit.variant("s", unitFileState)
-                                        }, unit_id, true);
-                                        this.seenPaths.add(unit_id);
                                         return;
                                     }
 
@@ -567,7 +559,6 @@ class ServicesPage extends React.Component {
         };
 
         prop("Id");
-        const isTemplate = unitNew.Id && this.isTemplate(unitNew.Id);
         prop("Description");
         prop("Names");
         prop("LoadState");
@@ -604,12 +595,11 @@ class ServicesPage extends React.Component {
 
         prop("ActiveEnterTimestamp");
 
-        if (!isTemplate)
-            this.updateComputedProperties(unitNew);
+        this.updateComputedProperties(unitNew);
 
         if (unitNew.Id.slice(-5) == "timer") {
             unitNew.is_timer = true;
-            if (unitNew.ActiveState == "active" && !isTemplate) {
+            if (unitNew.ActiveState == "active") {
                 const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
                 timer_unit.wait(() => {
                     if (timer_unit.valid)

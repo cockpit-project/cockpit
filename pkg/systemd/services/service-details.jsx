@@ -37,127 +37,6 @@ import './service-details.scss';
 const _ = cockpit.gettext;
 
 /*
- * React template for instantiating service templates
- * Required props:
- *  - template:
- *      Name of the template
- *  - instantiateCallback
- *      Method for calling unit file methods like `EnableUnitFiles`
- */
-export class ServiceTemplate extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            inputText: "",
-            error: undefined,
-            instantiateInProgress: false,
-        };
-        this.handleChange = this.handleChange.bind(this);
-        this.unitInstantiate = this.unitInstantiate.bind(this);
-    }
-
-    handleChange(e) {
-        this.setState({ inputText: e.target.value });
-    }
-
-    /* See systemd-escape(1), used for instantiating templates.
-     */
-    systemd_escape(str) {
-        function name_esc(str) {
-            var validchars = /[0-9a-zA-Z:-_.\\]/;
-            var res = "";
-            var i;
-
-            for (i = 0; i < str.length; i++) {
-                var c = str[i];
-                if (c == "/")
-                    res += "-";
-                else if (c == "-" || c == "\\" || !validchars.test(c)) {
-                    res += "\\x";
-                    var h = c.charCodeAt(0).toString(16);
-                    while (h.length < 2)
-                        h = "0" + h;
-                    res += h;
-                } else
-                    res += c;
-            }
-            return res;
-        }
-
-        function kill_slashes(str) {
-            str = str.replace(/\/+/g, "/");
-            if (str.length > 1)
-                str = str.replace(/\/$/, "").replace(/^\//, "");
-            return str;
-        }
-
-        function path_esc(str) {
-            str = kill_slashes(str);
-            if (str == "/")
-                return "-";
-            else
-                return name_esc(str);
-        }
-
-        if (str.length > 0 && str[0] == "/")
-            return path_esc(str);
-        else
-            return name_esc(str);
-    }
-
-    unitInstantiate(param) {
-        const cur_unit_id = this.props.template;
-
-        if (cur_unit_id) {
-            const tp = cur_unit_id.indexOf("@");
-            const sp = cur_unit_id.lastIndexOf(".");
-            if (tp != -1) {
-                let s = cur_unit_id.substring(0, tp + 1);
-                s = s + this.systemd_escape(param);
-                if (sp != -1)
-                    s = s + cur_unit_id.substring(sp);
-
-                this.setState({ instantiateInProgress: true });
-                systemd_client.call(SD_OBJ, SD_MANAGER, "StartUnit", [s, "fail"])
-                        .then(() => setTimeout(() => cockpit.location.go([s]), 2000))
-                        .catch(error => this.setState({ error: error.toString(), instantiateInProgress: false }));
-            }
-        }
-    }
-
-    render() {
-        return (
-            <Card>
-                <CardBody>
-                    {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
-                    <div className="list-group">
-                        <div className="list-group-item">
-                            { cockpit.format(_("$0 template"), this.props.template) }
-                        </div>
-                        <div className="list-group-item">
-                            <input type="text" onChange={ this.handleChange } />
-                        </div>
-                        <div className="list-group-item">
-                            <Button variant="primary" isDisabled={this.state.instantiateInProgress} onClick={() => this.unitInstantiate(this.state.inputText)}>{ _("Instantiate") }</Button>
-                            {this.state.instantiateInProgress && <div className="spinner spinner-sm pull-right" />}
-                        </div>
-                    </div>
-                </CardBody>
-            </Card>
-        );
-    }
-}
-ServiceTemplate.propTypes = {
-    template: PropTypes.string.isRequired,
-};
-/*
- * Note:
-<p translate="yes">This unit is not designed to be enabled explicitly.</p>
-    Error:
-    error.toString()
-*/
-
-/*
  * React template for showing basic dialog for confirming action
  * Required props:
  *  - title
@@ -320,9 +199,6 @@ ServiceActions.propTypes = {
  *      Callback for displaying errors
  *  -  isValid
  *      Method for finding if unit is valid
- * Optional props:
- *  -  originTemplate
- *      Template name, from which this unit has been initialized
  */
 export class ServiceDetails extends React.Component {
     constructor(props) {
@@ -572,12 +448,6 @@ export class ServiceDetails extends React.Component {
                                 <label className="control-label" htmlFor="path">{ _("Path") }</label>
                                 <span id="path">{this.props.unit.FragmentPath}</span>
                                 <hr />
-                                { this.props.originTemplate && this.props.isValid(this.props.originTemplate) &&
-                                    <>
-                                        <div />
-                                        <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
-                                    </>
-                                }
                                 { notMetConditions.length > 0 &&
                                     <>
                                         <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
@@ -606,7 +476,6 @@ export class ServiceDetails extends React.Component {
 }
 ServiceDetails.propTypes = {
     unit: PropTypes.object.isRequired,
-    originTemplate: PropTypes.string,
     permitted: PropTypes.bool.isRequired,
     isValid: PropTypes.func.isRequired,
 };

@@ -176,8 +176,6 @@ make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
-# shipped in firewalld since 0.6, everywhere in Fedora/RHEL 8
-rm -f %{buildroot}/%{_prefix}/%{__lib}/firewalld/services/cockpit.xml
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 # Build the package lists for resource packages

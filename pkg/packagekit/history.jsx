@@ -23,7 +23,6 @@ import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { ListingPanel } from "cockpit-components-listing-panel.jsx";
 
 import cockpit from "cockpit";
 
@@ -88,10 +87,7 @@ export class History extends React.Component {
                     { cockpit.format(cockpit.ngettext("$0 package", "$0 packages", update.num_packages), update.num_packages) }
                 </div>);
 
-            const expandedContent = (
-                <ListingPanel colSpan="3"
-                              simpleBody={<PackageList packages={update.packages} />} />
-            );
+            const expandedContent = <PackageList packages={update.packages} />;
 
             return ({
                 props: { key: index },
@@ -100,6 +96,7 @@ export class History extends React.Component {
                     { title: pkgcount, props: { className: "history-pkgcount" } },
                 ],
                 initiallyExpanded: index == 0,
+                hasPadding: true,
                 expandedContent
             });
         });

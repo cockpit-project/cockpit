@@ -1125,9 +1125,11 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1835909
             self.allowed_messages.append('.*type=1400.*avc:  denied  { read write } .* comm="qemu-kvm" path="/dev/mapper/control".*')
 
-        if self.image in ['debian-testing']:
+        if self.image in ['debian-testing', 'ubuntu-stable']:
             # HACK: https://bugs.debian.org/951477
             self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')
+            self.allowed_messages.append('Process .* \(iptables-restor\) of user 0 dumped core.*')
+            self.allowed_messages.append('Process .* \(ip6tables-resto\) of user 0 dumped core.*')
             self.allowed_messages.append('Process .* \(ebtables\) of user 0 dumped core.*')
             # don't ignore all stack traces
             self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')

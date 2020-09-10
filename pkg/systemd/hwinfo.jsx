@@ -34,6 +34,8 @@ import {
     DataListItemRow,
     DataListItemCells,
     DataListAction,
+    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    Flex, FlexItem,
     Gallery,
     Page, PageSection,
     Text, TextVariants,
@@ -73,56 +75,54 @@ class SystemInfo extends React.Component {
         );
 
         return (
-            <table className="info-table-ct wide-split-table-ct">
-                { info.type &&
-                <tbody>
-                    <tr>
-                        <th>{ _("Type") }</th>
-                        <td>{ info.type }</td>
-                    </tr>
-                    <tr>
-                        <th>{ _("Name") }</th>
-                        <td>{ info.name }</td>
-                    </tr>
-                    <tr>
-                        <th>{ _("Version") }</th>
-                        <td>{ info.version }</td>
-                    </tr>
-                </tbody>
-                }
-                <tbody>
-                    { info.bios_vendor &&
-                    <>
-                        <tr>
-                            <th>{ _("BIOS") }</th>
-                            <td>{ info.bios_vendor }</td>
-                        </tr>
-                        <tr>
-                            <th>{ _("BIOS version") }</th>
-                            <td>{ info.bios_version }</td>
-                        </tr>
-                        <tr>
-                            <th>{ _("BIOS date") }</th>
-                            <td>{ moment(info.bios_date, "MM/DD/YYYY").isValid() ? moment(info.bios_date, "MM/DD/YYYY").format('L') : info.bios_date }</td>
-                        </tr>
-                    </>
-                    }
-                    { info.nproc !== undefined &&
-                    <>
-                        <tr>
-                            <th>{ _("CPU") }</th>
-                            <td>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</td>
-                        </tr>
-                        { onSecurityClick !== undefined &&
-                        <tr>
-                            <th>{ _("CPU security") }</th>
-                            <td>{ mitigations }</td>
-                        </tr>
-                        }
-                    </>
-                    }
-                </tbody>
-            </table>
+            <Flex id="hwinfo-system-info-list" direction={{ default: 'column', sm: 'row' }}>
+                <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
+                    <DescriptionList className="pf-m-horizontal-on-md">
+                        { info.type && <>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Type") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ info.type }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Name") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ info.name }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Version") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ info.version }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                        </> }
+                    </DescriptionList>
+                </FlexItem>
+                <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
+                    <DescriptionList className="pf-m-horizontal-on-md">
+                        { info.bios_vendor && <>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("BIOS") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ info.bios_vendor }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("BIOS version") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ info.bios_version }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("BIOS date") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ moment(info.bios_date, "MM/DD/YYYY").isValid() ? moment(info.bios_date, "MM/DD/YYYY").format('L') : info.bios_date }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                        </> }
+                        { info.nproc !== undefined && <>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("CPU") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            { onSecurityClick !== undefined && <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("CPU security") }</DescriptionListTerm>
+                                <DescriptionListDescription>{ mitigations }</DescriptionListDescription>
+                            </DescriptionListGroup>}
+                        </> }
+                    </DescriptionList>
+                </FlexItem>
+            </Flex>
         );
     }
 }

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "cockpitcontrolmessages.h"
+
 #include <json-glib/json-glib.h>
 #include <glib.h>
 
@@ -35,3 +37,7 @@ cockpit_memfd_read_from_envvar (gchar **result,
 JsonObject *
 cockpit_memfd_read_json (gint fd,
                          GError **error);
+
+JsonObject *
+cockpit_memfd_read_json_from_control_messages (CockpitControlMessages *ccm,
+                                               GError **error);

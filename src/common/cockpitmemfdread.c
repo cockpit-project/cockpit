@@ -158,3 +158,18 @@ cockpit_memfd_read_json (gint fd,
 
   return cockpit_json_parse_object (content, -1, error);
 }
+
+JsonObject *
+cockpit_memfd_read_json_from_control_messages (CockpitControlMessages  *ccm,
+                                               GError                 **error)
+{
+  if (ccm->n_messages == 0)
+    return NULL;
+
+  gint peeked_fd = cockpit_control_messages_peek_single_fd (ccm, error);
+
+  if (peeked_fd == -1)
+    return NULL;
+
+  return cockpit_memfd_read_json (peeked_fd, error);
+}

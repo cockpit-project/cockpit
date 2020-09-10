@@ -85,7 +85,7 @@ export class History extends React.Component {
             const pkgcount = (
                 <div className="list-view-pf-additional-info-item">
                     <span className="pficon pficon-bundle" />
-                    { cockpit.format(cockpit.ngettext("$0 package", "$0 Packages", update.num_packages), update.num_packages) }
+                    { cockpit.format(cockpit.ngettext("$0 package", "$0 packages", update.num_packages), update.num_packages) }
                 </div>);
 
             const expandedContent = (

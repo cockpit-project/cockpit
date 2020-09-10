@@ -482,7 +482,6 @@ function AddMachine(dialog) {
         dialog.render({
             nearlimit : limit * 0.75 <= dialog.machines_ins.list.length,
             limit : limit,
-            placeholder : _("Enter IP address or hostname"),
             options : invisible,
         });
 

@@ -421,11 +421,7 @@ Requires: glib2 >= 2.50.0
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
-Requires: systemd >= 235
 Suggests: sssd-dbus
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.

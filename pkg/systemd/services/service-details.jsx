@@ -166,11 +166,10 @@ class ServiceActions extends React.Component {
                                           }} />
                 }
                 <Dropdown id="service-actions" title={ _("Additional actions") }
-                          toggle={<KebabToggle onToggle={isActionOpen => this.setState({ isActionOpen })} />}
+                          toggle={<KebabToggle isDisabled={this.props.disabled} onToggle={isActionOpen => this.setState({ isActionOpen })} />}
                           isOpen={this.state.isActionOpen}
                           isPlain
                           onSelect={() => this.setState({ isActionOpen: !this.state.isActionOpen })}
-                          isDisabled={this.props.disabled}
                           dropdownItems={actions} />
             </>
         );

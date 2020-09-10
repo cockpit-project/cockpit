@@ -70,10 +70,6 @@ int closefd (void *data, int fd);
 void utmp_log (int login, const char *rhost, FILE *messages);
 void btmp_log (const char *username, const char *rhost);
 
-bool json_print_string_property (FILE *stream, const char *key, const char *value, ssize_t maxlen);
-bool json_print_bool_property (FILE *stream, const char *key, bool value);
-bool json_print_integer_property (FILE *stream, const char *key, uint64_t value);
-
 char* read_authorize_response (const char *what);
 void write_authorize_begin (void);
 void write_control_string (const char *field, const char *str);
@@ -89,9 +85,6 @@ GNUC_NORETURN void exit_init_problem (int result_code);
 #endif
 
 int open_session (pam_handle_t *pamh);
-
-FILE *open_memfd (const char *name);
-int seal_memfd (FILE **memfd);
 
 int
 spawn_and_wait (const char **argv,

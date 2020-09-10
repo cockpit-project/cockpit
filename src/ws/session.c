@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include "common/cockpitjsonprint.h"
+
 #include "session-utils.h"
 
 #include <gssapi/gssapi.h>
@@ -713,15 +715,11 @@ main (int argc,
       signal (SIGINT, pass_to_child);
       signal (SIGQUIT, pass_to_child);
 
-      FILE *login_messages = open_memfd ("cockpit login messages");
-
-      fprintf (login_messages, "{\"version\": 1");
+      FILE *login_messages = cockpit_json_print_open_memfd ("cockpit login messages", 1);
 
       utmp_log (1, rhost, login_messages);
 
-      fprintf (login_messages, "}");
-
-      int login_messages_fd = seal_memfd (&login_messages);
+      int login_messages_fd = cockpit_json_print_finish_memfd (&login_messages);
 
       if (creds != GSS_C_NO_CREDENTIAL)
         store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);

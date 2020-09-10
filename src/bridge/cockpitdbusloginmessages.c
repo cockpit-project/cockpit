@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include "common/cockpitmemfdread.h"
+
 #include "cockpitdbusinternal.h"
 
 #include <errno.h>
@@ -37,74 +39,6 @@
   "</node>"
 
 static gchar *login_messages;
-
-static void
-login_messages_init (void)
-{
-  const gchar *cockpit_login_messages_memfd = g_getenv ("COCKPIT_LOGIN_MESSAGES_MEMFD");
-
-  if (cockpit_login_messages_memfd == NULL)
-    return;
-
-  char *end;
-  long value = strtol (cockpit_login_messages_memfd, &end, 10);
-  if (*end || value < 0 || value >= INT_MAX)
-    {
-      g_warning ("Invalid value for COCKPIT_LOGIN_MESSAGES_MEMFD environment variable: %s",
-                 cockpit_login_messages_memfd);
-      return;
-    }
-  int fd = (int) value;
-  g_unsetenv ("COCKPIT_LOGIN_MESSAGES_MEMFD");
-
-  int seals = fcntl (fd, F_GET_SEALS);
-  if (seals == -1)
-    {
-      g_warning ("Could not query seals on fd %d: not memfd?: %m", fd);
-      goto out;
-    }
-
-  const guint expected_seals = F_SEAL_WRITE | F_SEAL_GROW | F_SEAL_SHRINK;
-  if ((seals & expected_seals) != expected_seals)
-    {
-      g_warning ("memfd fd %d has incorrect seals set: %u (instead of %u)\n",
-                 fd, seals & expected_seals, expected_seals);
-      goto out;
-    }
-
-  struct stat buf;
-  if (fstat (fd, &buf) != 0)
-    {
-      g_critical ("Failed to stat memfd %d: %m", fd);
-      goto out;
-    }
-
-  if (buf.st_size < 1)
-    {
-      g_warning ("memfd %d must not be empty", fd);
-      goto out;
-    }
-
-  login_messages = g_malloc (buf.st_size + 1);
-  gssize s = pread (fd, login_messages, buf.st_size, 0);
-  if (s != buf.st_size)
-    {
-      if (s < 0)
-        g_critical ("Failed to read memfd %d: %m", fd);
-      else
-        g_critical ("Incomplete read on memfd %d: %zu of %zu bytes", fd, s, (gssize) buf.st_size);
-
-      g_free (login_messages);
-      login_messages = NULL;
-
-      goto out;
-    }
-
-  login_messages[s] = '\0';
-
-out:
-  close (fd);
-}
 
 static void
 login_messages_method_call (GDBusConnection       *connection,
@@ -139,9 +73,16 @@ cockpit_dbus_login_messages_startup (void)
     .method_call = login_messages_method_call
   };
 
-  login_messages_init ();
-
   g_autoptr(GError) error = NULL;
+
+  /* If we fail to read the messages, log the failure, but otherwise
+   * continue to register the service.  We'll return '{}' in that case.
+   */
+  if (!cockpit_memfd_read_from_envvar (&login_messages, "COCKPIT_LOGIN_MESSAGES_MEMFD", &error))
+    {
+      g_warning ("Unable to read login messages data: %s", error->message);
+      g_clear_error (&error);
+    }
 
   g_autoptr(GDBusConnection) connection = cockpit_dbus_internal_server ();
   g_return_if_fail (connection != NULL);

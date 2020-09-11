@@ -480,6 +480,7 @@ function instance(realmd, mode, realm, state) {
         unique += 1;
         busy(id);
         $(".realms-op-error").prop("hidden", true);
+        $(".realms-op-cancel").prop('disabled', true);
 
         ensure()
                 .fail(function() {
@@ -544,6 +545,7 @@ function instance(realmd, mode, realm, state) {
                             })
                             .always(function() {
                                 sub.remove();
+                                $(".realms-op-cancel").prop('disabled', false);
                             });
                 });
     }

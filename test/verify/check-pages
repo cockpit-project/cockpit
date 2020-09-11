@@ -549,8 +549,6 @@ OnCalendar=daily
         m.execute("mkdir -p {0}/dir1; touch {0}/file1.txt".format(stuff))
 
         self.login_and_go("/playground/react-patterns")
-        # "initially expanded" entry in demo listing
-        b.wait_text("#demo-listing tbody.open th", "initially expanded")
 
         # test file completion widget
         b.focus("#demo-file-ac input[type=text]")

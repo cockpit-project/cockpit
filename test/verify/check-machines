@@ -1417,6 +1417,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                       os_name=config.FEDORA_28,
                                                       start_vm=False))
 
+        # OS input check
+        runner.checkOsInputTest(TestMachines.VmDialog(self))
+
         # Test OS autodetection from URL tree media
         runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                       location=config.TREE_URL,
@@ -1976,6 +1979,32 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             return self
 
+        def checkOsInput(self):
+            b = self.browser
+
+            # select "Installation Type" for more complete OS list
+            b.select_from_dropdown("#source-type", "Local Install Media")
+            # input an OS and check there is no Ooops
+            b.set_input_text("label[for=\"os-select\"] + div input", self.os_name)
+            b.click("#os-select li button:contains('{}')".format(self.os_name))
+            b.wait_attr_contains("label[for=\"os-select\"] + div input", "value", self.os_name)
+            b.wait_not_present("#navbar-oops")
+
+            # re-input an OS which is "Fedora 28"
+            # need to click the extend button to show the OS list
+            b.click("label[for=\"os-select\"] + div button[aria-label=\"Options menu\"]")
+            b.set_input_text("label[for=\"os-select\"] + div input", "Fedora")
+            b.click("#os-select li button:contains('Fedora 28')")
+            b.wait_attr_contains("label[for=\"os-select\"] + div input", "value", "Fedora 28")
+            b.wait_not_present("#navbar-oops")
+
+            # click the 'X' button to clear the OS input and check there is no Ooops
+            b.click("label[for=\"os-select\"] + div button[aria-label=\"Clear all\"]")
+            b.wait_attr("label[for=\"os-select\"] + div input", "value", "")
+            b.wait_not_present("#navbar-oops")
+
+            return self
+
         def checkOsFiltered(self):
             b = self.browser
 
@@ -2474,6 +2503,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self
+
+        def checkOsInputTest(self, dialog):
+            dialog.open().checkOsInput().cancel(True)
+
+            self._assertScriptFinished().checkEnvIsEmpty()
 
         # Many of testCreate* tests use these helpers - let's keep them here to avoid repetition
         def checkDialogFormValidationTest(self, dialog, errors):

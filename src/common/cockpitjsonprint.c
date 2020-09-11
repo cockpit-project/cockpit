@@ -28,19 +28,22 @@
 #include <fcntl.h>
 
 static bool
-char_needs_json_escape (char c)
+char_needs_json_escape (signed char c)
 {
+  /* signed comparison: `c < ' '` will also catch all non-ascii characters */
   return c < ' ' || c == '\\' || c == '"';
 }
 
 static bool
 json_escape_char (FILE *stream,
-                  char c)
+                  signed char c)
 {
   if (c == '\\')
     return fputs ("\\\\", stream) >= 0;
   else if (c == '"')
     return fputs ("\\\"", stream) >= 0;
+  else if (c < 0) /* non-ascii */
+    return fputc ('?', stream) >= 0;
   else
     return fprintf (stream, "\\u%04x", c) == 6;
 }
@@ -87,8 +90,12 @@ json_escape_string (FILE       *stream,
  * @value: the string value to write
  * @maxlen: the maximum length of @value
  *
- * Adds a string key/value pair to a JSON object.  The string is
- * escaped, if necessary.
+ * Adds a string key/value pair to a JSON object.
+ *
+ * @key and @value should both be plain ASCII.  @key is copied directly
+ * to the stream and must not contain any characters that would require
+ * escapes.  @value is escaped, if necessary (including replacing
+ * non-ASCII characters with '?').
  *
  * @maxlen can be -1 if @value is nul-terminated.  Otherwise, @maxlen is
  * a maximum: the actual number of characters escaped and written is the

@@ -281,6 +281,14 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 }
                 return current_best;
             }
+
+            // Don't show the Cockpit Dashboard for remote machines.
+            // Cockpit can only make SSH connection from localhost,
+            // and only the shell and the localhost dashboard should be making those.
+            //
+            if (machine.address !== "localhost" && item.section == "dashboard" && item.path == "dashboard")
+                return null;
+
             const new_item = Object.assign({}, item);
             new_item.keyword = { score:-1 };
             if (!term)

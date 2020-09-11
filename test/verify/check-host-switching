@@ -252,6 +252,9 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')
 
+        # localhost should have the dashboard
+        b.wait_in_text("#nav-system", "Dashboard")
+
         b.click("#hosts-sel button")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
@@ -259,6 +262,10 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#hosts-sel button")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+
+        # remote hosts should not have the dashboard, since #14590
+        if m.image != "rhel-8-3-distropkg": # Introduced in #14567
+            b.wait_not_in_text("#nav-system", "Dashboard")
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")

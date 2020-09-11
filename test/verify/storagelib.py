@@ -89,18 +89,18 @@ class StorageHelpers:
     # Content
 
     def content_row_tbody(self, index):
-        return "#detail-content section > table > tbody:nth-of-type(%d)" % index
+        return "#detail-content > article > div > table > tbody:nth-of-type(%d)" % index
 
     def content_row_expand(self, index):
         b = self.browser
         tbody = self.content_row_tbody(index)
         b.wait_present(tbody)
-        if "open" not in (b.attr(tbody, "class") or ""):
-            b.click(tbody + " tr.listing-ct-item")
-            b.wait_present(tbody + ".open")
+        if "pf-m-expanded" not in (b.attr(tbody, "class") or ""):
+            b.click(tbody + " tr td.pf-c-table__toggle button")
+            b.wait_present(tbody + ".pf-m-expanded")
 
     def content_row_action(self, index, title):
-        btn = self.content_row_tbody(index) + " .listing-ct-item .listing-ct-actions button:contains(%s)" % title
+        btn = self.content_row_tbody(index) + " tr td:last-child button:contains(%s)" % title
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
@@ -108,8 +108,8 @@ class StorageHelpers:
     # temporarily disappearing element, so we use self.retry.
 
     def content_row_wait_in_col(self, row_index, col_index, val):
-        col = self.content_row_tbody(row_index) + " .listing-ct-item > :nth-child(%d)" % (col_index + 1)
-        self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
+        col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
+        wait(lambda: self.browser.is_present(col) and val in self.browser.text(col))
 
     def content_head_action(self, index, title):
         self.content_row_expand(index)
@@ -162,16 +162,16 @@ class StorageHelpers:
 
         def check():
             row = self.content_row_tbody(row_index)
-            row_item = row + " tr.listing-ct-item"
+            row_item = row + " tr td.pf-c-table__toggle button"
             tab_btn = row + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
             tab = row + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
             cell = tab + " dt:contains(%s) + *" % title
 
-            if not b.is_present(row + ".open"):
+            if not b.is_present(row + ".pf-m-expanded"):
                 if not b.is_present(row_item):
                     return False
                 b.click(row_item)
-                if not b.is_present(row + ".open"):
+                if not b.is_present(row + ".pf-m-expanded"):
                     return False
 
             if not b.is_present(tab) or not b.is_visible(tab):

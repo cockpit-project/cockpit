@@ -68,7 +68,7 @@ class TestStorageUsed(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_row_wait_in_col(1, 1, "Free space")
+        self.content_row_wait_in_col(1, 0, "Free space")
 
 
 if __name__ == '__main__':

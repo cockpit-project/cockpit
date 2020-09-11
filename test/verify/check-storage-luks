@@ -45,7 +45,7 @@ class TestStorageLuks(StorageCase):
         b.wait_visible("#storage-detail")
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free space")
+        self.content_row_wait_in_col(1, 0, "Free space")
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
 
@@ -124,7 +124,7 @@ class TestStorageLuks(StorageCase):
         # Delete the partition.
         self.content_dropdown_action(1, "Delete")
         self.confirm()
-        self.content_row_wait_in_col(1, 1, "Free space")
+        self.content_row_wait_in_col(1, 0, "Free space")
         b.wait_not_in_text("#detail-content", "ext4 file system")
         # luksmeta-monitor-hack.py races with the partition deletion
         self.allow_journal_messages('Unknown device .*: No such file or directory')

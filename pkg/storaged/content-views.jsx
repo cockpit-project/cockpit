@@ -27,7 +27,8 @@ import * as utils from "./utils.js";
 import React from "react";
 import { Card, CardHeader, CardTitle, CardBody, CardActions, Text, TextVariants } from "@patternfly/react-core";
 
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { format_dialog } from "./format-dialog.jsx";
 
@@ -445,11 +446,13 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     }
 
     var cols = [
-        <span key={name} className={"content-level-" + level}>
-            {utils.format_size_and_text(desc.size, desc.text)}
-        </span>,
-        { name: name, header: true },
-        { name: last_column, tight: true },
+        {
+            title: <span key={name} className={"content-level-" + level}>
+                {utils.format_size_and_text(desc.size, desc.text)}
+            </span>
+        },
+        { title: name },
+        { title: last_column },
     ];
 
     function menuitem(action) {
@@ -462,12 +465,12 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
 
     var actions = <>{tabs.actions}{menu}</>;
 
-    rows.push(
-        <ListingRow key={key}
-                    columns={cols}
-                    tabRenderers={tabs.renderers}
-                    listingActions={actions} />
-    );
+    rows.push({
+        props: { key },
+        columns: cols,
+        expandedContent: <ListingPanel tabRenderers={tabs.renderers}
+                                       listingActions={actions} />
+    });
 }
 
 function append_non_partitioned_block(client, rows, level, block, is_partition) {
@@ -504,16 +507,18 @@ function append_partitions(client, rows, level, block) {
         );
 
         var cols = [
-            <span key={start.toString() + size.toString()} className={"content-level-" + level}>
-                {utils.format_size_and_text(size, _("Free space"))}
-            </span>,
-            "",
-            { element: btn, tight: true }
+            {
+                title: <span key={start.toString() + size.toString()} className={"content-level-" + level}>
+                    {utils.format_size_and_text(size, _("Free space"))}
+                </span>
+            },
+            { title : btn }
         ];
 
-        rows.push(
-            <ListingRow columns={cols} key={"free-space-" + rows.length.toString()} />
-        );
+        rows.push({
+            columns: cols,
+            props: { key: "free-space-" + rows.length.toString() }
+        });
     }
 
     function append_extended_partition(level, partition) {
@@ -636,9 +641,11 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <CardActions>{format_disk_btn}</CardActions>
             </CardHeader>
             <CardBody className="contains-list">
-                <Listing emptyCaption="">
-                    { block_rows(client, block) }
-                </Listing>
+                <ListingTable rows={ block_rows(client, block) }
+                              aria-label={_("Content")}
+                              variant="compact"
+                              columns={[_("Content"), _("Name"), _("Actions")]}
+                              showHeader={false} />
             </CardBody>
         </Card>
     );
@@ -805,9 +812,12 @@ export class VGroup extends React.Component {
                     <CardActions>{new_volume_link}</CardActions>
                 </CardHeader>
                 <CardBody className="contains-list">
-                    <Listing emptyCaption={_("No logical volumes")}>
-                        { vgroup_rows(self.props.client, vgroup) }
-                    </Listing>
+                    <ListingTable emptyCaption={_("No logical volumes")}
+                                  aria-label={_("Logical volumes")}
+                                  columns={[_("Content"), { title: _("Name"), header: true }, _("Actions")]}
+                                  showHeader={false}
+                                  variant="compact"
+                                  rows={vgroup_rows(self.props.client, vgroup)} />
                 </CardBody>
             </Card>
         );

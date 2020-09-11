@@ -210,6 +210,8 @@ export class MDRaidDetails extends React.Component {
         if (running === undefined)
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
+        console.log("RUNNING", JSON.stringify(running), block && block.path, mdraid.ActiveDevices && mdraid.ActiveDevices.length);
+
         function start() {
             return mdraid.Start({ "start-degraded": { t: 'b', v: true } });
         }

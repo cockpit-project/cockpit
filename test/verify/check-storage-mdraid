@@ -163,6 +163,7 @@ class TestStorageMdRaid(StorageCase):
         # Turn it off and on again
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State", m.image), "Not running")
+        b.snapshot("XXX")
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State", m.image), "Running")
 

@@ -763,3 +763,49 @@ cockpit_test_skip_slow (void)
 
   return FALSE;
 }
+
+void
+cockpit_assertion_message_error_matches (const char     *domain,
+                                         const char     *file,
+                                         int             line,
+                                         const char     *func,
+                                         const char     *expr,
+                                         const GError   *error,
+                                         GQuark          error_domain,
+                                         int             error_code,
+                                         const char     *message_pattern)
+{
+  /* loosely based on g_assertion_message_error() */
+  g_autoptr(GString) gstring = g_string_new ("assertion failed ");
+
+  g_string_append_printf (gstring, "%s =~ GError(", expr);
+
+  if (error_domain)
+    g_string_append_printf (gstring, "domain=%s", g_quark_to_string (error_domain));
+  else
+    g_string_append (gstring, "domain=any");
+
+  g_string_append (gstring, ", ");
+
+  if (error_code != -1)
+    g_string_append_printf (gstring, "code=%d", error_code);
+  else
+    g_string_append (gstring, "code=any");
+
+  g_string_append (gstring, ", ");
+
+  if (message_pattern)
+    g_string_append_printf (gstring, "message=~'%s'", message_pattern);
+  else
+    g_string_append (gstring, "message=any");
+
+  g_string_append (gstring, ")): ");
+
+  if (error)
+      g_string_append_printf (gstring, "%s (%s, %d)", error->message,
+                              g_quark_to_string (error->domain), error->code);
+  else
+    g_string_append_printf (gstring, "%s is NULL", expr);
+
+  g_assertion_message (domain, file, line, func, gstring->str);
+}

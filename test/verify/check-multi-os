@@ -47,7 +47,6 @@ def add_machine(b, address, password):
     b.wait_popdown('dashboard_setup_server_dialog')
 
 
-@skipImage("Changed in #14344", "rhel-8-3-distropkg")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestMultiOS(MachineCase):
     provision = {
@@ -144,7 +143,6 @@ class TestMultiOS(MachineCase):
         # Messages from previous versions of cockpit
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
 
-@skipImage("Changed in #14344", "rhel-8-3-distropkg")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestMultiOSDirect(MachineCase):
     provision = {

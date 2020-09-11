@@ -244,7 +244,6 @@ class TestMultiMachineAdd(MachineCase):
         b.wait_attr("#dashboard-hosts a[data-address='m3'] img", 'src', '../shell/images/server-small.png')
 
 
-@skipImage("Changed in #14344", "rhel-8-3-distropkg")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestMultiMachine(MachineCase):
     provision = {

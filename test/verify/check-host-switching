@@ -264,8 +264,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
 
         # remote hosts should not have the dashboard, since #14590
-        if m.image != "rhel-8-3-distropkg": # Introduced in #14567
-            b.wait_not_in_text("#nav-system", "Dashboard")
+        b.wait_not_in_text("#nav-system", "Dashboard")
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
@@ -275,14 +274,13 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.enter_page("/network", "10.111.113.3")
 
         # Remove host underneath ourselves
-        if m.image != "rhel-8-3-distropkg": # Introduced in #14567
-            b.switch_to_top()
-            b.click("#hosts-sel button")
-            b.click("button:contains('Edit hosts')")
-            b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-danger")
-            b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
-            b.wait_js_cond('window.location.pathname == "/system"')
-            b.enter_page("/system", "localhost")
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-danger")
+        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+        b.enter_page("/system", "localhost")
 
         # removing machines interrupts channels
         self.allow_restart_journal_messages()

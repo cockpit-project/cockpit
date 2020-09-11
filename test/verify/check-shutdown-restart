@@ -70,7 +70,6 @@ class TestShutdownRestart(MachineCase):
 
         m.wait_reboot()
 
-    @skipImage("Changed in #14344", "rhel-8-3-distropkg")
     def testBasic(self):
         m = self.machine
         b = self.browser

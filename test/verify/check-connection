@@ -674,24 +674,23 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                 # should clean up processes
                 self.assertEqual(m.execute("! pgrep -a cockpit-ws && ! pgrep -a cockpit-bridge"), "")
 
-        if m.image != "rhel-8-3-distropkg":  # fixed in PR #14324
-            # cockpit-desktop can start a privileged bridge through polkit
-            # we don't have an agent, so just allow the privilege without interactive authentication
-            m.write("/etc/polkit-1/localauthority/50-local.d/test.pkla", r"""
+        # cockpit-desktop can start a privileged bridge through polkit
+        # we don't have an agent, so just allow the privilege without interactive authentication
+        m.write("/etc/polkit-1/localauthority/50-local.d/test.pkla", r"""
 [Testing without an agent]
 Identity=unix-user:admin
 Action=org.cockpit-project.cockpit.root-bridge
 ResultAny=yes
 ResultInactive=yes
 ResultActive=yes""")
-            m.write(r"/tmp/browser.sh", """#!/bin/sh -e
+        m.write(r"/tmp/browser.sh", """#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
 until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
 """)
-            m.execute("chmod 755 /tmp/browser.sh")
-            m.execute("su - -c 'BROWSER=/tmp/browser.sh %s system' admin" % cockpit_desktop)
-            self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
+        m.execute("chmod 755 /tmp/browser.sh")
+        m.execute("su - -c 'BROWSER=/tmp/browser.sh %s system' admin" % cockpit_desktop)
+        self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
 
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
@@ -735,11 +734,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
             return False
         wait(check_wss_log)
 
-        # our logging changed, but the distropkg still behaves the old way
-        if m.image in ['rhel-8-3-distropkg']:
-            wait(lambda: "received request from bad Origin" in m.execute("journalctl -b -t cockpit-ws"))
-        else:
-            wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
+        wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
 
         # sanity check: unencrypted http through SSL proxy does not work
         m.execute("! curl http://localhost:9090")

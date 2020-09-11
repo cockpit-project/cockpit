@@ -100,10 +100,7 @@ class TestFirewall(NetworkCase):
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
 
-        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14537
-            b.click(".pf-c-breadcrumb li:first a")
-        else:
-            b.click(".breadcrumb li:first button")
+        b.click(".pf-c-breadcrumb li:first a")
 
         b.enter_page("/network")
 

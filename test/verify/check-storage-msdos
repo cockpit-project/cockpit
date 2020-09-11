@@ -39,7 +39,7 @@ class TestStorageMsDOS(StorageCase):
         # Format it with a DOS partition table
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "dos"})
-        self.content_row_wait_in_col(1, 1, "Free space")
+        self.content_row_wait_in_col(1, 0, "Free space")
 
         # Create a primary partition
         self.content_row_action(1, "Create partition")
@@ -84,7 +84,7 @@ class TestStorageMsDOS(StorageCase):
         self.content_dropdown_action(2, "Delete")
         self.confirm()
 
-        self.content_row_wait_in_col(2, 1, "Free space")
+        self.content_row_wait_in_col(2, 0, "Free space")
 
 
 if __name__ == '__main__':

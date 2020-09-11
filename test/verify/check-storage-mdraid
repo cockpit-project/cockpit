@@ -187,7 +187,7 @@ class TestStorageMdRaid(StorageCase):
         # Create Partition Table
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 1, "Free space")
+        self.content_row_wait_in_col(1, 0, "Free space")
 
         # Create first partition
         self.content_row_action(1, "Create partition")

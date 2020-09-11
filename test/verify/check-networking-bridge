@@ -58,8 +58,18 @@ class TestBridge(NetworkCase):
         if "ubuntu" not in m.image and "debian" not in m.image and m.image not in ["fedora-coreos", "fedora-33"]:
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
-        # Delete the bridge
+        # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
+        b.wait_visible("#network-interface")
+        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface1, True)
+        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
+
+        b.wait_text_not("#network-interface-mac", "")
+        b.click("#network-interface-settings a:contains('Configure')")
+        b.click("#network-bridge-settings-dialog button:contains('Cancel')")
+        b.wait_not_present("network-bridge-settings-dialog")
+
+        # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")

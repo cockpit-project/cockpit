@@ -90,6 +90,14 @@ cockpit_memfd_read (int      fd,
       return NULL;
     }
 
+  for (gint i = 0; i < buf.st_size; i++)
+    if (((signed char) content[i]) <= 0)
+      {
+        g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
+                     "memfd %d contains %s character", fd, content[i] ? "non-ASCII" : "nul");
+        return NULL;
+      }
+
   content[buf.st_size] = '\0';
 
   return g_steal_pointer (&content);

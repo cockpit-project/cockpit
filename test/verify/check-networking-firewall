@@ -90,10 +90,25 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 
         # toggle the service from CLI, page should react
-        m.execute("systemctl start firewalld")
+        try:
+            m.execute("systemctl start firewalld")
+            wait_unit_state(m, "firewalld", "active")
+        except Error:
+            print("====== firewalld.service =======")
+            print(m.execute("systemctl status firewalld"))
+            raise
+
         self.wait_onoff("#networking-firewall-switch", True)
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
-        m.execute("systemctl stop firewalld")
+
+        try:
+            m.execute("systemctl stop firewalld")
+            wait_unit_state(m, "firewalld", "inactive")
+        except Error:
+            print("====== firewalld.service =======")
+            print(m.execute("systemctl status firewalld"))
+            raise
+
         self.wait_onoff("#networking-firewall-switch", False)
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 

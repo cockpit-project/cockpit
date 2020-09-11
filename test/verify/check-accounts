@@ -103,10 +103,7 @@ class TestAccounts(MachineCase):
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
         # go back to accounts overview, check pf-c-breadcrumb
-        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14517
-            b.click("#account .pf-c-breadcrumb a")
-        else:
-            b.click("#account .breadcrumb button")
+        b.click("#account .pf-c-breadcrumb a")
         b.wait_present("#accounts-create")
 
         # Create a user from the UI
@@ -116,8 +113,7 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-user-name', "berta")
         b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
         b.set_input_text('#accounts-create-pw1', "foo")
-        if m.image != "rhel-8-3-distropkg": # Fixed in #14559
-            b.wait_visible("#accounts-create-password-meter.weak")
+        b.wait_visible("#accounts-create-password-meter.weak")
         b.set_input_text('#accounts-create-pw1', good_password)
         b.wait_visible("#accounts-create-password-meter.excellent")
 
@@ -159,8 +155,7 @@ class TestAccounts(MachineCase):
 
         # Password is weak, lets change it to another weak - this should still not accept
         b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Password quality check failed:")
-        if m.image != "rhel-8-3-distropkg": # Introduced in #14557
-            b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Click Create again to use the password anyway.")
+        b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Click Create again to use the password anyway.")
         b.set_input_text('#accounts-create-pw1', "bar")
         b.set_input_text('#accounts-create-pw2', "bar")
         b.wait_not_present("#accounts-create-dialog .dialog-error.help-block")
@@ -168,11 +163,7 @@ class TestAccounts(MachineCase):
 
         # Lets confirm the weak password now
         b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Password quality check failed:")
-        if m.image != "rhel-8-3-distropkg": # Introduced in #14557
-            b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Click Create again to use the password anyway.")
-        else: # On distropkg we need to use a good password to create account
-            b.set_input_text('#accounts-create-pw1', good_password)
-            b.set_input_text('#accounts-create-pw2', good_password)
+        b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "Click Create again to use the password anyway.")
 
         b.click('#accounts-create-dialog button.apply')
 
@@ -207,7 +198,7 @@ class TestAccounts(MachineCase):
 
         # Login as jussi and change role admin for itself
         b.logout()
-        b.login_and_go("/users", user="jussi", password="bar" if m.image != "rhel-8-3-distropkg" else good_password)
+        b.login_and_go("/users", user="jussi", password="bar")
 
         # There is only one badge and it is for jussi
         b.wait_text('.cockpit-account-badge', 'Your account')
@@ -244,8 +235,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#account-set-password-meter.weak")
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "Password quality check failed:")
-        if m.image != "rhel-8-3-distropkg": # Introduced in #14557
-            b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "Click Set again to use the password anyway.")
+        b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "Click Set again to use the password anyway.")
 
         # password mismatch
         b.set_input_text("#account-set-password-pw1", good_password + 'a')

@@ -57,11 +57,10 @@ class TestNetworkingBasic(NetworkCase):
         b.click("tr:contains('IPv4') a")
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
-        # Manual mode  disables automatic switches (fixed in PR #14291)
-        if m.image not in ["rhel-8-3-distropkg"]:
-            b.wait_present("#network-ip-settings-dialog [data-field='dns'] .onoff-ct :disabled")
-            b.wait_present("#network-ip-settings-dialog [data-field='dns_search'] .onoff-ct :disabled")
-            b.wait_present("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
+        # Manual mode  disables automatic switches
+        b.wait_present("#network-ip-settings-dialog [data-field='dns'] .onoff-ct :disabled")
+        b.wait_present("#network-ip-settings-dialog [data-field='dns_search'] .onoff-ct :disabled")
+        b.wait_present("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
 
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.0.8")
@@ -70,20 +69,13 @@ class TestNetworkingBasic(NetworkCase):
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        if m.image != "rhel-8-3-distropkg": # Changed in #14454
-            b.wait_in_text("#network-interface .pf-c-card:contains('%s')" % iface, "1.2.3.4/18")
-        else:
-            b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
+        b.wait_in_text("#network-interface .pf-c-card:contains('%s')" % iface, "1.2.3.4/18")
 
         con_id = wait(lambda: self.iface_con_id(iface))
 
         # Disconnect
-        if m.image != "rhel-8-3-distropkg": # Changed in #14454
-            self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
-            self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        else:
-            self.wait_onoff(".panel-heading:contains('%s')" % iface, True)
-            self.toggle_onoff(".panel-heading:contains('%s')" % iface)
+        self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
+        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Switch it back to "auto" from the command line and bring it
@@ -155,12 +147,8 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Network Manager")
-        if m.image != "rhel-8-3-distropkg": # Changed in #14459
-            b.click(".service-top-panel .pf-c-dropdown button")
-            b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Start')")
-        else:
-            b.click(".service-top-panel .dropdown-kebab-pf button")
-            b.click(".service-top-panel .dropdown-menu a:contains('Start')")
+        b.click(".service-top-panel .pf-c-dropdown button")
+        b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Start')")
         b.wait_in_text("#statuses", "Running")
 
         # networking page should notice start from Services page

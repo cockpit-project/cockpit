@@ -49,12 +49,8 @@ class TestServices(MachineCase):
         self.browser.click(".service-top-panel .onoff-ct input")
 
     def do_action(self, action):
-        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14459
-            self.browser.click(".service-top-panel .pf-c-dropdown button")
-            self.browser.click(".service-top-panel .pf-c-dropdown__menu a:contains('{0}')".format(action))
-        else:
-            self.browser.click(".service-top-panel .dropdown-kebab-pf button")
-            self.browser.click(".service-top-panel .dropdown-menu a:contains('{0}')".format(action))
+        self.browser.click(".service-top-panel .pf-c-dropdown button")
+        self.browser.click(".service-top-panel .pf-c-dropdown__menu a:contains('{0}')".format(action))
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         self.browser.wait_collected_text("#statuses .status", "".join(statuses))
@@ -63,22 +59,13 @@ class TestServices(MachineCase):
         else:
             self.browser.wait_not_present(".service-top-panel .onoff-ct")
 
-        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14459
-            if kebab:
-                self.browser.click(".service-top-panel .pf-c-dropdown button")
-                self.browser.wait_text(".service-top-panel .pf-c-dropdown__menu", "".join(actions))
-                # Click away to close the pf-c-dropdown__menu
-                self.browser.click(".service-top-panel .pf-c-dropdown button")
-            else:
-                self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
+        if kebab:
+            self.browser.click(".service-top-panel .pf-c-dropdown button")
+            self.browser.wait_text(".service-top-panel .pf-c-dropdown__menu", "".join(actions))
+            # Click away to close the pf-c-dropdown__menu
+            self.browser.click(".service-top-panel .pf-c-dropdown button")
         else:
-            if kebab:
-                self.browser.click(".service-top-panel .dropdown-kebab-pf button")
-                self.browser.wait_text(".service-top-panel .dropdown-menu", "".join(actions))
-                # Click away to close the dropdown-menu
-                self.browser.click(".service-top-panel .dropdown-kebab-pf button")
-            else:
-                self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
+            self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
 
     def svc_sel(self, service):
         return 'li[data-goto-unit="%s"]' % service
@@ -249,14 +236,9 @@ Unit=test.service
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
-        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14513
-            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
-            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
-            b.click(".cockpit-log-panel .pf-c-card__header button")
-        else:
-            b.wait_in_text('.cockpit-log-panel .panel-body', "START")
-            b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
-            b.click(".cockpit-log-panel .panel-heading button")
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
+        b.click(".cockpit-log-panel .pf-c-card__header button")
 
         b.enter_page("/system/logs")
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
@@ -378,10 +360,7 @@ Unit=test.service
 
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
-        if self.machine.image != "rhel-8-3-distropkg": # Changed in #14513
-            b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
-        else:
-            b.wait_text('.cockpit-log-panel .panel-body', "No log entries")
+        b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
 
     def testApi(self):
         m = self.machine

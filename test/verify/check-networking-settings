@@ -66,10 +66,7 @@ class TestNetworkingSettings(NetworkCase):
 
         # The interface will be activated. Deactivate it.
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
-        if m.image != "rhel-8-3-distropkg": # Changed in #14454
-            self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        else:
-            self.toggle_onoff(".panel-heading:contains('%s')" % iface)
+        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Delete the connection settings again and wait for the ghost
@@ -78,10 +75,7 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_in_text("tr:contains('IPv4')", "Automatic")
 
         # Activate with ghost settings
-        if m.image != "rhel-8-3-distropkg": # Changed in #14454
-            self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        else:
-            self.toggle_onoff(".panel-heading:contains('%s')" % iface)
+        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Check again that we now have connection settings

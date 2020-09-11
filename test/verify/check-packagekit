@@ -229,7 +229,7 @@ class TestUpdates(NoSubManCase):
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
         # history shows the two packages, expanded by default
-        b.wait_text("table.updates-history tbody.pf-m-expanded td.history-pkgcount", "2 Packages")
+        b.wait_text("table.updates-history tbody.pf-m-expanded td.history-pkgcount", "2 packages")
         b.wait_in_text("table.updates-history tr.pf-m-expanded", "chocolate")
         b.wait_in_text("table.updates-history tr.pf-m-expanded", "vanilla")
 

@@ -383,7 +383,7 @@ const UpdatesList = ({ updates }) => {
 
     return (
         <ListingTable className="available"
-                aria-label={_("Available Updates")}
+                aria-label={_("Available updates")}
                 columns={[
                     { title: _("Name") },
                     { title: _("Version") },

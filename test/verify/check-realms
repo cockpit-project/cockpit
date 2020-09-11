@@ -103,6 +103,8 @@ class CommonTests:
         b.set_val(self.op_admin_password, self.admin_password)
         b.wait_not_visible(".realms-op-leave-only-row")
         b.click(".realms-op-apply")
+        # running operation cannot be cancelled any more
+        b.wait_visible(".realms-op-cancel:disabled")
         with b.wait_timeout(300):
             b.wait_popdown("realms-op")
 
@@ -227,18 +229,6 @@ class CommonTests:
         b.set_val(self.op_address, "NOPE")
         b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
         b.wait_not_visible(".realms-op-address-spinner")
-        b.click(".realms-op-cancel")
-        b.wait_popdown("realms-op")
-
-        # Cancel a join
-        b.click(self.domain_sel)
-        b.wait_popup("realms-op")
-        b.set_val(self.op_address, "cockpit.lan")
-        b.wait_attr(self.op_admin, "placeholder", 'e.g. "%s"' % self.admin_user)
-        b.set_val(self.op_admin, self.admin_user)
-        b.set_val(self.op_admin_password, self.admin_password)
-        b.click(".realms-op-apply")
-        b.wait_visible(".realms-op-spinner")
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 

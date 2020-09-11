@@ -806,6 +806,47 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
                 not_expected=["crsf-token"])
         m.execute("systemctl unmask sssd-ifp")
 
+    def testServer(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user")
+        m.execute("echo user:foobar | chpasswd")
+        m.start_cockpit()
+
+        def check_server(server, expect_fp_ack):
+            b.open('/')
+            b.wait_visible("#login")
+            b.set_val('#login-user-input', "user")
+            b.set_val('#login-password-input', "foobar")
+            b.click("#show-other-login-options")
+            b.set_val("#server-field", server)
+            b.click("#login-button")
+
+            if expect_fp_ack:
+                b.wait_in_text("#conversation-prompt", "Fingerprint")
+                b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+                b.click("#login-button")
+
+            b.expect_load()
+            b.wait_visible('#content')
+            b.enter_page('/system')
+            b.wait_visible('.system-information')
+            b.logout()
+
+        # by name
+        check_server("localhost", True)
+        # by name and port
+        check_server("localhost:22", True)
+        # by IPv4 address; 127.0.0.1 is treated specially as ignore_hostkey fallback, and does not require FP
+        check_server("127.0.0.1", False)
+        # by IPv4 address and port
+        check_server("127.0.0.1:22", False)
+        # by IPv6 address
+        check_server("::1", True)
+        # by IPv6 address and port
+        check_server("[::1]:22", True)
+
 
 if __name__ == '__main__':
     test_main()

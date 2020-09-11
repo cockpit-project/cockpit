@@ -1320,61 +1320,61 @@ send_auth_reply (CockpitSshData *data,
   return ret;
 }
 
-static void
+static gboolean
 parse_host (const gchar *host,
             gchar **hostname,
             gchar **username,
             guint *port)
 {
-  gchar *user_arg = NULL;
-  gchar *host_arg = NULL;
-  gchar *tmp = NULL;
-  gchar *end = NULL;
+  GError *error = NULL;
+  g_autoptr (GRegex) regex = g_regex_new ("^"
+         "(?:(.+)@)?"         /* optional username */
+         "(?|"                /* one of... */
+           "\\[([^]@]+)\\]"     /* hostname in square brackets, no @ */
+           "(?::([1-9][0-9]*))?"     /* optional port number */
+         "|"                  /* or */
+           "([^@:]+)"           /* hostname with no : or @ */
+           "(?::([1-9][0-9]*))?"     /* optional port number */
+         "|"                  /* or */
+           "([^@]+)"            /* hostname with no @ but : (IPv6 address), and no port */
+         ")"                  /* . */
+       "$",
+       0, 0, &error);
+  g_assert_no_error (error);
 
-  guint64 tmp_num;
+  g_autoptr(GMatchInfo) info = NULL;
 
-  gsize host_offset = 0;
-  gsize host_length = strlen (host);
-
-  tmp = strrchr (host, '@');
-  if (tmp)
+  if (g_regex_match (regex, host, 0, &info))
     {
-      if (tmp[0] != host[0])
+      g_autofree gchar *port_str = g_match_info_fetch (info, 3);
+      /* regexp makes sure that it's a positive number, so don't need much error checking */
+      guint value = atoi (port_str ?: "");
+      if (value < 65536)
         {
-          user_arg = g_strndup (host, tmp - host);
-          host_offset = strlen (user_arg) + 1;
-          host_length = host_length - host_offset;
+          *port = value;
         }
       else
         {
-          g_message ("ignoring blank user in %s", host);
+          g_message ("invalid port: %s", port_str);
+          return FALSE;
         }
-    }
 
-  tmp = strrchr (host, ':');
-  if (tmp)
+      *hostname = g_match_info_fetch (info, 2);
+
+      *username = g_match_info_fetch (info, 1);
+      if ((*username)[0] == '\0')
+        {
+          g_free (*username);
+          *username = g_strdup (g_get_user_name ());
+        }
+
+      return TRUE;
+    }
+  else
     {
-      tmp_num = g_ascii_strtoull (tmp + 1, &end, 10);
-      if (end[0] == '\0' && tmp_num > 0 && tmp_num < G_MAXUSHORT)
-        {
-          *port = (guint) tmp_num;
-          host_length = host_length - strlen (tmp);
-        }
-      else
-        {
-          g_message ("ignoring invalid port in %s", host);
-        }
+      g_message ("invalid host: %s", host);
+      return FALSE;
     }
-
-  if (!user_arg || user_arg[0] == '\0')
-    user_arg = (gchar *) g_get_user_name ();
-
-  host_arg = g_strndup (host + host_offset, host_length);
-  *hostname = g_strdup (host_arg);
-  *username = g_strdup (user_arg);
-
-  g_free (host_arg);
-  g_free (user_arg);
 }
 
 static gchar *
@@ -1403,12 +1403,17 @@ cockpit_ssh_connect (CockpitSshData *data,
   g_autofree gchar *username = NULL;
 
   guint port = 0;
-  gchar *host;
+  gchar *host = NULL;
 
   ssh_channel channel;
   int rc;
 
-  parse_host (host_arg, &host, &data->username, &port);
+  if (!parse_host (host_arg, &host, &data->username, &port))
+    {
+      problem = "no-host";
+      goto out;
+    }
+  g_debug ("%s: host argument '%s', host '%s', username '%s', port '%u'", data->logname, host_arg, host, data->username, port);
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
   g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);

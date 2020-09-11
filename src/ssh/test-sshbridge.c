@@ -28,6 +28,7 @@
 
 #include <sys/wait.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/prctl.h>
@@ -78,6 +79,23 @@ typedef struct {
     enum { USER_NONE = 0, USER_INVALID, USER_INVALID_HOST_PRIORITY, USER_ME } ssh_config_user;
     enum { PORT_VALID = 0, PORT_INVALID_HOST_PRIORITY } ssh_config_port;
 } TestFixture;
+
+/* check if /proc/net/if_inet6 is non-empty, otherwise there is no IPv6 support */
+static gboolean
+have_ipv6 (void)
+{
+  int fd;
+  gboolean avail = FALSE;
+
+  fd = open ("/proc/net/if_inet6", O_RDONLY);
+  if (fd >= 0)
+    {
+      char c;
+      avail = read (fd, &c, 1) == 1;
+      close (fd);
+    }
+  return avail;
+}
 
 static GString *
 read_all_into_string (int fd)
@@ -177,6 +195,11 @@ static const TestFixture fixture_cat = {
   .ssh_command =  SRCDIR "/src/ws/mock-cat-with-init"
 };
 
+static const TestFixture fixture_ipv6_address = {
+  .ssh_command = BUILDDIR "/mock-echo",
+  .hostname = "::1",
+};
+
 static gchar **
 setup_env (const TestFixture *fix)
 {
@@ -257,7 +280,9 @@ setup (TestCase *tc,
   env = setup_env (fixture);
   setup_mock_sshd (tc, data);
 
-  if (tc->ssh_port)
+  if (tc->ssh_port && strchr (hostname, ':') != NULL)  /* bracket IPv6 addresses */
+    host = g_strdup_printf ("[%s]:%d", hostname, tc->ssh_port);
+  else if (tc->ssh_port)
     host = g_strdup_printf ("%s:%d", hostname, tc->ssh_port);
   else
     host = g_strdup (hostname);
@@ -1448,6 +1473,12 @@ main (int argc,
               setup, test_echo_queue, teardown);
   g_test_add ("/ssh-bridge/echo-large", TestCase, &fixture_cat,
               setup, test_echo_large, teardown);
+
+  if (have_ipv6 ())
+    g_test_add ("/ssh-bridge/ipv6-address", TestCase, &fixture_ipv6_address,
+                setup, test_echo_and_close, teardown);
+  else
+    g_message ("No IPv6 support, skipping IPv6 tests");
 
   g_test_add ("/ssh-bridge/bad-command", TestCase, &fixture_bad_command,
               setup, test_problem, teardown);

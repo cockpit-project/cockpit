@@ -26,7 +26,6 @@ import "table.css";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { PatternDialogBody } from "./react-demo-dialog.jsx";
-import { showListingDemo } from "./react-demo-listing.jsx";
 import { showOnOffDemo } from "./react-demo-onoff.jsx";
 import { showCardsDemo } from "./react-demo-cards.jsx";
 import { showFileAcDemo } from "./react-demo-file-autocomplete.jsx";
@@ -123,11 +122,6 @@ document.addEventListener("DOMContentLoaded", function() {
       Listing Pattern
       -----------------------------------------------------------------------------
      */
-    // create the listing
-    showListingDemo(document.getElementById('demo-listing'),
-                    document.getElementById('demo-listing-selectable'),
-                    document.getElementById('demo-listing-empty'));
-
     // OnOff
     showOnOffDemo(document.getElementById('demo-onoff'));
 

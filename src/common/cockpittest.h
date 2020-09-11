@@ -126,6 +126,25 @@ void             cockpit_test_reset_warnings           (void);
 
 gboolean         cockpit_test_skip_slow                (void);
 
+void             cockpit_assertion_message_error_matches (const char     *domain,
+                                                          const char     *file,
+                                                          int             line,
+                                                          const char     *func,
+                                                          const char     *expr,
+                                                          const GError   *error,
+                                                          GQuark          error_domain,
+                                                          int             error_code,
+                                                          const char     *error_pattern);
+#define  cockpit_assert_error_matches(err, dom, c, message_pattern) \
+  G_STMT_START { \
+    if ((err) == NULL || \
+        (dom != 0 && (error)->domain != dom) || \
+        (c != -1 && (error)->code != c) || \
+        (message_pattern && !g_pattern_match_simple (message_pattern, (err)->message))) \
+    cockpit_assertion_message_error_matches (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+                                             #err, err, dom, c, message_pattern); \
+  } G_STMT_END
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

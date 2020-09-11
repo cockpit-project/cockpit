@@ -20,19 +20,14 @@
 #include "session-utils.h"
 
 #include "common/cockpitframe.h"
+#include "common/cockpitjsonprint.h"
 
-#include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <inttypes.h>
-#include <sched.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <stdnoreturn.h>
-#include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/resource.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <utmp.h>
 
@@ -51,92 +46,6 @@ static size_t auth_prefix_size = 0;
 static char *auth_msg = NULL;
 static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
-
-
-static bool
-char_needs_json_escape (char c)
-{
-  return c < ' ' || c == '\\' || c == '"';
-}
-
-static bool
-json_escape_char (FILE *stream,
-                  char c)
-{
-  if (c == '\\')
-    return fputs ("\\\\", stream) >= 0;
-  else if (c == '"')
-    return fputs ("\\\"", stream) >= 0;
-  else
-    return fprintf (stream, "\\u%04x", c) == 6;
-}
-
-static bool
-json_escape_string (FILE       *stream,
-                    const char *str,
-                    size_t      maxlen)
-{
-  size_t offset = 0;
-
-  while (offset < maxlen && str[offset])
-    {
-      size_t start = offset;
-
-      while (offset < maxlen && str[offset] && !char_needs_json_escape (str[offset]))
-        offset++;
-
-      /* print the non-escaped prefix, if there is one */
-      if (offset != start)
-        {
-          size_t length = offset - start;
-          if (fwrite (str + start, 1, length, stream) != length)
-            return false;
-        }
-
-      /* print the escaped character, if there is one */
-      if (offset < maxlen && str[offset])
-        {
-          if (!json_escape_char (stream, str[offset]))
-            return false;
-
-          offset++;
-        }
-    }
-
-  return true;
-}
-
-bool
-json_print_string_property (FILE       *stream,
-                            const char *key,
-                            const char *value,
-                            ssize_t     maxlen)
-{
-  size_t expected = strlen (key) + 7;
-
-  return fprintf (stream, ", \"%s\": \"", key) == expected &&
-         json_escape_string (stream, value, maxlen) &&
-         fputc ('"', stream) >= 0;
-}
-
-bool
-json_print_bool_property (FILE       *stream,
-                          const char *key,
-                          bool        value)
-{
-  size_t expected = 6 + strlen (key) + (value ? 4 : 5); /* "true" or "false" */
-
-  return fprintf (stream, ", \"%s\": %s", key, value ? "true" : "false") == expected;
-}
-
-bool
-json_print_integer_property (FILE       *stream,
-                             const char *key,
-                             uint64_t    value)
-{
-  /* too much effort to figure out the expected length exactly */
-  return fprintf (stream, ", \"%s\": %"PRIu64, key, value) > 6;
-}
 
 char *
 read_authorize_response (const char *what)
@@ -177,14 +86,14 @@ void
 write_control_string (const char *field,
                       const char *str)
 {
-  json_print_string_property (authf, field, str, -1);
+  cockpit_json_print_string_property (authf, field, str, -1);
 }
 
 void
 write_control_bool (const char *field,
                     bool        val)
 {
-  json_print_bool_property (authf, field, val);
+  cockpit_json_print_bool_property (authf, field, val);
 }
 
 void
@@ -430,9 +339,9 @@ do_lastlog (uid_t                 uid,
        * can also extend to the full length of the field without
        * nul-termination.  use the maxlen parameter to help with that.
        */
-      if (!json_print_integer_property (messages, "last-login-time", entry.ll_time) ||
-          !json_print_string_property (messages, "last-login-host", entry.ll_host, UT_HOSTSIZE) ||
-          !json_print_string_property (messages, "last-login-line", entry.ll_line, UT_LINESIZE))
+      if (!cockpit_json_print_integer_property (messages, "last-login-time", entry.ll_time) ||
+          !cockpit_json_print_string_property (messages, "last-login-host", entry.ll_host, UT_HOSTSIZE) ||
+          !cockpit_json_print_string_property (messages, "last-login-line", entry.ll_line, UT_LINESIZE))
         {
           warnx ("failed to print last-login details to messages memfd");
           goto out;
@@ -575,10 +484,10 @@ scan_btmp (const char *username,
     }
 
   /* only print messages if we actually have failures */
-  success = json_print_integer_property (messages, "fail-count", fail_count) &&
-            json_print_integer_property (messages, "last-fail-time", last.ut_tv.tv_sec) &&
-            json_print_string_property (messages, "last-fail-host", last.ut_host, UT_HOSTSIZE) &&
-            json_print_string_property (messages, "last-fail-line", last.ut_line, UT_LINESIZE);
+  success = cockpit_json_print_integer_property (messages, "fail-count", fail_count) &&
+            cockpit_json_print_integer_property (messages, "last-fail-time", last.ut_tv.tv_sec) &&
+            cockpit_json_print_string_property (messages, "last-fail-host", last.ut_host, UT_HOSTSIZE) &&
+            cockpit_json_print_string_property (messages, "last-fail-line", last.ut_line, UT_LINESIZE);
 
 out:
   if (fd > -1)
@@ -822,44 +731,6 @@ void
 authorize_logger (const char *data)
 {
   warnx ("%s", data);
-}
-
-FILE *
-open_memfd (const char *name)
-{
-  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC);
-
-  if (fd == -1)
-    return NULL;
-
-  return fdopen (fd, "w");
-}
-
-int
-seal_memfd (FILE **memfd)
-{
-  char fd_name[] = "/proc/self/fd/xxxxxx";
-  int fd;
-
-  if (fflush (*memfd) != 0)
-    return -1;
-
-  fd = fileno (*memfd);
-
-  const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
-  if (fcntl (fd, F_ADD_SEALS, seals) != 0)
-    return -1;
-
-  int r = snprintf (fd_name, sizeof fd_name, "/proc/self/fd/%d", fd);
-  assert (r < sizeof fd_name);
-
-  int readonly_fd = open (fd_name, O_RDONLY);
-  assert (readonly_fd != -1);
-
-  fclose (*memfd);
-  *memfd = NULL;
-
-  return readonly_fd;
 }
 
 /* signal- and after-fork()-safe function to format a string, print it

@@ -21,7 +21,7 @@ import React from "react";
 
 import cockpit from "cockpit";
 
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 
 const _ = cockpit.gettext;
 
@@ -31,32 +31,39 @@ const _ = cockpit.gettext;
  *  - selectionChanged callback when the select state changed, parameters: frame object, new value
  */
 export class ActivePagesDialogBody extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = { iframes: this.props.iframes };
+    }
+
     render() {
         var self = this;
-        var frames = self.props.iframes.map(function(frame) {
-            var badge;
-            if (frame.visible)
-                badge = <span className="badge pull-right">{_("active")}</span>;
-            var columns = [
-                { name: frame.displayName, header: frame.visible },
-                badge,
-            ];
-            var selectCallback;
-            if (self.props.selectionChanged)
-                selectCallback = self.props.selectionChanged.bind(self, frame);
-            return (
-                <ListingRow key={frame.name} columns={columns}
-                    rowId={frame.name}
-                    selected={frame.selected}
-                    selectChanged={selectCallback}
-                />
-            );
+        var frames = self.state.iframes.map(function(frame) {
+            var columns = [{
+                title: <>{frame.displayName}{frame.visible && <span className="badge active pull-right">{_("active")}</span>}</>,
+            }];
+            return ({
+                props: { key: frame.name, frame },
+                columns,
+                rowId: frame.name,
+                selected: frame.selected,
+            });
         });
 
         return (
-            <Listing emptyCaption={ _("There are currently no active pages") }>
-                {frames}
-            </Listing>
+            <ListingTable showHeader={false}
+                          columns={[{ title: _("Page name") }]}
+                          aria-label={_("Active pages")}
+                          emptyCaption={ _("There are currently no active pages") }
+                          onSelect={(_event, isSelected, rowIndex, rowData) => {
+                              const frame = rowData.props.frame;
+                              const iframes = [...this.state.iframes];
+                              iframes[rowIndex].selected = isSelected;
+                              this.setState({ iframes });
+                              self.props.selectionChanged(frame, isSelected);
+                          }}
+                          rows={frames} />
         );
     }
 }

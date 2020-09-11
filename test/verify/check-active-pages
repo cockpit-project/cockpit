@@ -49,7 +49,7 @@ class TestActivePages(MachineCase):
             b.mouse("#navbar-dropdown", "click", altKey=True)
             b.click("#active-pages")
             b.wait_present("#active-pages-dialog")
-            b.wait_js_func("ph_count_check", "#active-pages-dialog tbody", count)
+            b.wait_js_func("ph_count_check", "#active-pages-dialog tr", count)
 
         # Initially we have /system and maybe /playground/preloaded
         showPagesAssertCount(1 + n_extra_preloaded)
@@ -90,9 +90,9 @@ class TestActivePages(MachineCase):
         showPagesAssertCount(3 + n_extra_preloaded)
 
         # click on the other page as well
-        b.click('tr[data-row-id="cockpit1:localhost/system"]')
+        b.click('tr[data-row-id="cockpit1:localhost/system"] input[type=checkbox]')
         # wait until it's highlighted
-        b.wait_present('tr.listing-ct-selected[data-row-id="cockpit1:localhost/system"]')
+        b.wait_present('tr[data-row-id="cockpit1:localhost/system"] input[type=checkbox]:checked')
         # close
         b.click("#active-pages-dialog button.pf-m-primary")
         b.wait_not_present("#active-pages-dialog")

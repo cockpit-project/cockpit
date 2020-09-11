@@ -22,6 +22,7 @@
 #include "cockpitmemfdread.h"
 
 #include <errno.h>
+#include <inttypes.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -59,6 +60,18 @@ cockpit_memfd_read (int      fd,
     {
       g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
                    "memfd %d must not be empty", fd);
+      return NULL;
+    }
+
+  /* This number is completely arbitrary: it's much larger than anything
+   * we're ever going to receive, but it's much smaller than any value
+   * that would ever cause us problems (with integer overflow, or malloc
+   * failing).
+   */
+  if (buf.st_size > 10000)
+    {
+      g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
+                   "memfd %d is unreasonably large (%"PRId64" bytes)", fd, (gint64) buf.st_size);
       return NULL;
     }
 

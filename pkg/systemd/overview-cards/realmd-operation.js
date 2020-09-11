@@ -8,13 +8,13 @@ import operation_html from "raw-loader!./realmd-operation.html";
 
 const _ = cockpit.gettext;
 
-var MANAGER = "/org/freedesktop/realmd";
+const MANAGER = "/org/freedesktop/realmd";
 
-var SERVICE = "org.freedesktop.realmd.Service";
-var PROVIDER = "org.freedesktop.realmd.Provider";
-var KERBEROS = "org.freedesktop.realmd.Kerberos";
-var KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
-var REALM = "org.freedesktop.realmd.Realm";
+const SERVICE = "org.freedesktop.realmd.Service";
+const PROVIDER = "org.freedesktop.realmd.Provider";
+const KERBEROS = "org.freedesktop.realmd.Kerberos";
+const KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
+const REALM = "org.freedesktop.realmd.Realm";
 
 function instance(realmd, mode, realm, state) {
     var dialog = jQuery.parseHTML(operation_html)[0];

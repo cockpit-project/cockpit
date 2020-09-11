@@ -72,7 +72,7 @@
     text-overflow: ellipsis;
 }
 
-#storage .storage-sidebar .table {
+#storage .storage-sidebar table {
     table-layout:fixed;
 }
 
@@ -80,7 +80,7 @@
     font-weight: var(--pf-global--FontWeight--bold);
 }
 
-#storage .storage-sidebar .table td {
+#storage .storage-sidebar table td {
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top;
@@ -653,7 +653,7 @@ td.storage-action {
 
 /* Overview side panels */
 
-#storage .storage-sidebar .table {
+#storage .storage-sidebar table {
     table-layout: fixed;
 }
 
@@ -666,8 +666,8 @@ td.storage-action {
     margin-right: 0.5em;
 }
 
-.sidepanel-row-body {
-    flex: auto;
+.sidepanel-row-name {
+    font-size: var(--pf-global--FontSize--md);
 }
 
 .sidepanel-row-info {
@@ -677,10 +677,9 @@ td.storage-action {
     justify-content: space-between;
 }
 
-.sidepanel-row-decoration {
-    align-self: center;
-    white-space: nowrap;
-    margin-left: 1em;
+.pf-c-table tbody > tr > td.sidepanel-row-decoration {
+    --pf-c-table--cell--Width: 10%;
+    width: var(--pf-c-table--cell--Width);
 }
 
 .sidepanel-row .spinner {

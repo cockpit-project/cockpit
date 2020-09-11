@@ -23,6 +23,8 @@ import React from "react";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
 
+import { Spinner } from '@patternfly/react-core';
+
 const _ = cockpit.gettext;
 
 export class SidePanel extends React.Component {
@@ -56,12 +58,13 @@ export class SidePanel extends React.Component {
                            not_installed_text={this.props.not_installed_text}
                            install_title={this.props.install_title}>
                 { this.props.children.length > 0
-                    ? <table className={"table" + (this.props.hover !== false ? " table-hover" : "")}>
+                    ? <table className={"pf-c-table pf-m-compact" + (this.props.hover !== false ? " table-hover" : "")}>
                         <tbody>
                             { children }
                             { show_all_button }
                         </tbody>
                     </table>
+
                     : <div className="empty-panel-text">{this.props.empty_text}</div>
                 }
             </OptionalPanel>
@@ -97,16 +100,15 @@ export class SidePanelRow extends React.Component {
         let decoration = null;
         if (this.props.actions)
             decoration = (
-                <div className="sidepanel-row-decoration"
-                     role="presentation"
+                <div role="presentation"
                      onClick={eat_event}
                      onKeyPress={eat_event}>
                     {this.props.actions}
                 </div>);
         else if (client.path_jobs[job_path])
-            decoration = <div className="sidepanel-row-decoration spinner spinner-sm" />;
+            decoration = <Spinner size="sm" />;
         else if (client.path_warnings[job_path])
-            decoration = <div className="sidepanel-row-decoration pficon pficon-warning-triangle-o" />;
+            decoration = <div className="pficon pficon-warning-triangle-o" />;
 
         return (
             <tr data-testkey={this.props.testkey}
@@ -121,6 +123,8 @@ export class SidePanelRow extends React.Component {
                             <div className="sidepanel-row-devname">{this.props.devname}</div>
                         </div>
                     </div>
+                </td>
+                <td className="sidepanel-row-decoration">
                     {decoration}
                 </td>
             </tr>

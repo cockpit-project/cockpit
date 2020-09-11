@@ -84,7 +84,7 @@ class TestStorageMsDOS(StorageCase):
         self.content_dropdown_action(2, "Delete")
         self.confirm()
 
-        self.content_row_wait_in_col(2, 0, "Free space")
+        self.content_row_wait_in_col(2, 1, "Free space")
 
 
 if __name__ == '__main__':

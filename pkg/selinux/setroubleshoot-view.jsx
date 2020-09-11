@@ -26,10 +26,11 @@ import {
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
-import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 
 const _ = cockpit.gettext;
 
@@ -420,35 +421,34 @@ export class SETroubleshootPage extends React.Component {
                 if (itm.details && 'level' in itm.details && itm.details.level == "red")
                     criticalAlert = <span className="fa fa-exclamation-triangle" />;
                 var columns = [
-                    criticalAlert,
-                    { name: itm.description, header: true }
+                    { title: criticalAlert },
+                    { title: itm.description }
                 ];
                 var title;
                 if (itm.count > 1) {
                     title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
                                            itm.count);
-                    columns.push(<span className="badge" title={title}>{itm.count}</span>);
+                    columns.push({ title: <span className="badge" title={title}>{itm.count}</span> });
                 } else {
-                    columns.push(<span />);
+                    columns.push({ title: <span /> });
                 }
-                return (
-                    <cockpitListing.ListingRow
-                        key={itm.details ? itm.details.localId : index}
-                        columns={columns}
-                        tabRenderers={tabRenderers}
-                        listingDetail={listingDetail}
-                        listingActions={dismissAction} />
-                );
+                return ({
+                    props: { key: itm.details ? itm.details.localId : index },
+                    columns,
+                    expandedContent: <ListingPanel tabRenderers={tabRenderers}
+                                                   listingDetail={listingDetail}
+                                                   listingActions={dismissAction} />
+                });
             });
         }
 
         troubleshooting = (
-            <cockpitListing.Listing
-                    title={ title }
-                    emptyCaption={ emptyCaption }
-            >
-                {entries}
-            </cockpitListing.Listing>
+            <ListingTable caption={ title }
+                          emptyCaption={ emptyCaption }
+                          columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
+                          showHeader={false}
+                          variant="compact"
+                          rows={entries} />
         );
 
         modifications = (

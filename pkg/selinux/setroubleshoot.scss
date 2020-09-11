@@ -19,6 +19,10 @@
 
 @import "../lib/page.scss";
 
+#app .ct-listing {
+    margin-bottom: var(--pf-global--spacer--lg);
+}
+
 .setroubleshoot-log {
     font-family: monospace;
 }
@@ -37,22 +41,10 @@
 }
 
 /* warning icon for critical (level "red") setroubleshoot alerts */
-.listing-ct-item .fa-exclamation-triangle {
+.ct-table tr .fa-exclamation-triangle {
     color: #c00;
     vertical-align: middle;
     font-size: 150%;
-}
-
-/* make sure the other columns don't spread out too much
- * the warning icon might not even be present at all
- */
-.listing-ct-item > th {
-    width: 100%;
-}
-
-/* remove padding from warning icon column */
-.listing-ct-item :nth-child(2) {
-    padding: 0;
 }
 
 /* if we have an error at the top of the page, give it some space */
@@ -103,23 +95,4 @@
 
 .selinux-policy-ct .pficon-info {
     padding-right: 0.5rem;
-}
-
-.listing-ct-body .list-group {
-    margin-bottom: 0px;
-    border-top: none;
-}
-
-.listing-ct-body .list-group-item {
-    padding-left: 0px;
-    padding-right: 0px;
-}
-
-.listing-ct-body .list-group-item:first-child {
-    padding-top: 0px;
-}
-
-.listing-ct-body .list-group-item:last-child {
-    padding-bottom: 0px;
-    border-bottom: none;
 }

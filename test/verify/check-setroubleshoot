@@ -113,13 +113,13 @@ class TestSelinux(MachineCase):
         b.wait_present(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .listing-ct-toggle"
+        toggle_selector = row_selector + " .pf-c-table__toggle button"
         b.click(toggle_selector)
 
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
         # b.wait_in_text(row_selector, "2 occurrences")
 
-        panel_selector = row_selector + " tr.ct-listing-panel"
+        panel_selector = row_selector + " tr.pf-m-expanded .ct-listing-panel-body"
         sebool_selector1 = panel_selector + " .selinux-details:nth-of-type(1)"
         sebool_selector2 = panel_selector + " .selinux-details:nth-of-type(2)"
         fallback_selector1 = panel_selector + " .selinux-details:nth-of-type(3)"
@@ -130,15 +130,6 @@ class TestSelinux(MachineCase):
 
         # an automatic default solution is present for sebool
         b.wait_in_text(sebool_selector1, "by enabling the 'httpd_enable_homedirs' boolean.")
-
-        # collapse again
-        b.click(toggle_selector)
-
-        # wait until it is collapsed
-        b.wait_not_in_text(row_selector, "httpd_enable_homedirs")
-
-        # now expand again so we can apply the solution
-        b.click(toggle_selector)
 
         b.click(sebool_selector1 + " button" + self.default_btn_class)
         b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
@@ -163,12 +154,12 @@ class TestSelinux(MachineCase):
         b.wait_present(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .listing-ct-toggle"
+        toggle_selector = row_selector + " .pf-c-table__toggle button"
         b.click(toggle_selector)
 
         try:
             # a solution is present
-            b.wait_in_text(row_selector + " tr.ct-listing-panel", "you can run restorecon")
+            b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
 
             # and it can be applied
             btn_sel = "div.list-group-item:contains('you can run restorecon') button{}".format(self.default_btn_class)

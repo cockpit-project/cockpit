@@ -21,7 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
 import {
-    Alert, Card, CardTitle, CardBody, Text, TextVariants,
+    Alert,
+    Card, CardHeader, CardTitle, CardBody, CardActions,
+    Text, TextVariants,
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
@@ -297,23 +299,27 @@ export class NFSDetails extends React.Component {
 
         var header = (
             <Card>
-                <CardTitle>
-                    <Text component={TextVariants.h2}>{entry.fields[0]}</Text>
-                    <span className="pull-right">
-                        { entry.mounted
-                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                        }
-                        { "\n" }
-                        { entry.fstab
-                            ? [
-                                <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
-                                "\n",
-                                <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
-                            ] : null
-                        }
-                    </span>
-                </CardTitle>
+                <CardHeader>
+                    <CardTitle>
+                        <Text component={TextVariants.h2}>{entry.fields[0]}</Text>
+                    </CardTitle>
+                    <CardActions>
+                        <>
+                            { entry.mounted
+                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                            }
+                            { "\n" }
+                            { entry.fstab
+                                ? [
+                                    <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
+                                    "\n",
+                                    <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
+                                ] : null
+                            }
+                        </>
+                    </CardActions>
+                </CardHeader>
                 <CardBody>
                     <DescriptionList isHorizontal>
                         <DescriptionListGroup>

@@ -628,11 +628,10 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     var format_disk_btn = null;
     if (allow_partitions)
         format_disk_btn = (
-            <div className="pull-right">
-                <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
-                    {_("Create partition table")}
-                </StorageButton>
-            </div>);
+            <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
+                {_("Create partition table")}
+            </StorageButton>
+        );
 
     return (
         <Card>
@@ -796,14 +795,13 @@ export class VGroup extends React.Component {
         var excuse = vgroup.FreeSize == 0 && _("No free space");
 
         var new_volume_link = (
-            <div className="pull-right">
-                <StorageLink onClick={create_logical_volume}
-                             excuse={excuse}>
-                    <span className="pficon pficon-add-circle-o" />
-                    {" "}
-                    {_("Create new logical volume")}
-                </StorageLink>
-            </div>);
+            <StorageLink onClick={create_logical_volume}
+                         excuse={excuse}>
+                <span className="pficon pficon-add-circle-o" />
+                {" "}
+                {_("Create new logical volume")}
+            </StorageLink>
+        );
 
         return (
             <Card>

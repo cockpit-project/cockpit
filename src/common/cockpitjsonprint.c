@@ -28,21 +28,27 @@
 #include <fcntl.h>
 
 static bool
-char_needs_json_escape (signed char c)
+char_needs_json_escape (unsigned char c)
 {
-  /* signed comparison: `c < ' '` will also catch all non-ascii characters */
-  return c < ' ' || c == '\\' || c == '"';
+  /* we escape:
+   *   - ascii controls
+   *   - backslash
+   *   - double quote
+   *   - ascii del
+   *   - all non-ascii
+   */
+  return c < ' ' || c == '\\' || c == '"' || c >= 0x7f;
 }
 
 static bool
 json_escape_char (FILE *stream,
-                  signed char c)
+                  unsigned char c)
 {
   if (c == '\\')
     return fputs ("\\\\", stream) >= 0;
   else if (c == '"')
     return fputs ("\\\"", stream) >= 0;
-  else if (c < 0) /* non-ascii */
+  else if (c >= 0x80) /* non-ascii */
     return fputc ('?', stream) >= 0;
   else
     return fprintf (stream, "\\u%04x", c) == 6;

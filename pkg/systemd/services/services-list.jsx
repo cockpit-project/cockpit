@@ -100,7 +100,7 @@ class ServicesRow extends React.PureComponent {
                             {HasFailed && <span className='fa fa-exclamation-circle' />}
                             {CombinedState}
                         </span>}
-                        <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip>
+                        {tooltipMessage ? <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip> : unitFileState}
                     </DataListAction>
                 </DataListItemRow>
             </DataListItem>

@@ -210,8 +210,8 @@ div.changelog {
 }
 
 .flow-list {
+    margin: 0 1rem 1rem;
     padding: 0;
-    max-width: 110rem;
     text-align: left;
     box-sizing: border-box;
 
@@ -224,7 +224,6 @@ div.changelog {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-weight: 600;
     }
 }
 
@@ -280,6 +279,23 @@ table.header-buttons {
 
 .pf-c-content ul {
     list-style-type: none;
+}
+
+.updates-history {
+    // Constrain  time's width
+    .history-time {
+        width: 0;
+        white-space: nowrap;
+    }
+
+    // Fix alignment of the package count's icon
+    .list-view-pf-additional-info-item {
+        align-items: baseline;
+
+        > .pficon {
+            align-self: center;
+        }
+    }
 }
 
 .updates-success-table {

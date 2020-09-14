@@ -92,7 +92,7 @@ export class History extends React.Component {
             return ({
                 props: { key: index },
                 columns: [
-                    { title: time },
+                    { title: time, props: { className: "history-time" } },
                     { title: pkgcount, props: { className: "history-pkgcount" } },
                 ],
                 initiallyExpanded: index == 0,

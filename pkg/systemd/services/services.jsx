@@ -668,7 +668,7 @@ class ServicesPage extends React.Component {
         /* Perform navigation */
         if (path.length == 1) {
             const unit_id = path[0];
-            const get_unit_path = (unit_id) => Object.keys(this.state.unit_by_path).find(path => this.state.unit_by_path[path].Id == unit_id);
+            const get_unit_path = (unit_id) => this.path_by_id[unit_id];
             const unit_path = get_unit_path(unit_id);
 
             if (unit_path === undefined)

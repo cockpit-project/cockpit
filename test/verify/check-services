@@ -329,11 +329,22 @@ Unit=test.service
         wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
-        # Filter by description
+        # Filter by description capital letters included
         init_filter_state()
-        b.set_input_text("#services-text-filter", "failing")
+        b.set_input_text("#services-text-filter", "Test Service")
+        self.wait_service_present("test.service")
+        self.wait_service_present("test-fail.service")
+
+        # Filter by description capitalization not matching the unit description
+        init_filter_state()
+        b.set_input_text("#services-text-filter", "failing test service")
         wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
+
+        # Filter by Id capitalization not matching the unit Id
+        init_filter_state()
+        b.set_input_text("#services-text-filter", "networkmanager")
+        self.wait_service_present("NetworkManager.service")
 
         # Select only static services
         init_filter_state()

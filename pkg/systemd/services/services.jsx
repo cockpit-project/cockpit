@@ -704,8 +704,8 @@ class ServicesPage extends React.Component {
                     if (unit.LoadState == "not-found")
                         return false;
 
-                    if (currentTextFilter && unit.Description && unit.Description.toLowerCase().indexOf(currentTextFilter) == -1 &&
-                        unit.Id.indexOf(currentTextFilter) == -1)
+                    if (currentTextFilter && !((unit.Description && unit.Description.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1) ||
+                        unit_id.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1))
                         return false;
 
                     if (currentTypeFilter.key !== 'all' && currentTypeFilter.key !== unit.AutomaticStartupKey)

@@ -30,7 +30,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static gchar *
+gchar *
 cockpit_memfd_read (int      fd,
                     GError **error)
 {
@@ -145,4 +145,16 @@ cockpit_memfd_read_from_envvar (gchar      **result,
 
   *result = content;
   return TRUE;
+}
+
+JsonObject *
+cockpit_memfd_read_json (gint fd,
+                         GError **error)
+{
+  g_autofree gchar *content = cockpit_memfd_read (fd, error);
+
+  if (content == NULL)
+    return NULL;
+
+  return cockpit_json_parse_object (content, -1, error);
 }

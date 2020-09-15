@@ -24,7 +24,7 @@ import { Button } from '@patternfly/react-core';
 
 import { convertToUnit, diskPropertyChanged, toReadableNumber, units, vmId } from "../helpers.js";
 import { AddDiskModalBody } from './diskAdd.jsx';
-import { getAllStoragePools, getVm, detachDisk } from '../actions/provider-actions.js';
+import { getVm, detachDisk } from '../actions/provider-actions.js';
 import { EditDiskAction } from './diskEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -77,13 +77,7 @@ export class VmDisksActions extends React.Component {
     }
 
     open() {
-        // Refresh storage volume list before displaying the dialog.
-        // There are recently no Libvirt events for storage volumes and polling is ugly.
-        // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
-        this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
-                .then(() => {
-                    this.setState({ showAddDiskModal: true });
-                });
+        this.setState({ showAddDiskModal: true });
     }
 
     render() {

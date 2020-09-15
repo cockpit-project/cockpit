@@ -18,13 +18,13 @@
  */
 import React from 'react';
 import { Modal } from 'patternfly-react';
-import { Button, Alert } from '@patternfly/react-core';
+import { Button, Alert, Spinner } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
-import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-actions.js';
+import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
 import LibvirtDBus, { updateDiskAttributes } from '../libvirt-dbus.js';
 
@@ -266,7 +266,7 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
 export class AddDiskModalBody extends React.Component {
     constructor(props) {
         super(props);
-        this.state = this.initialState;
+        this.state = { ...this.initialState, dialogLoading: true };
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
@@ -302,6 +302,15 @@ export class AddDiskModalBody extends React.Component {
             busType: defaultBus,
             updateDisks: false,
         };
+    }
+
+    componentDidMount() {
+        // Refresh storage volume list before displaying the dialog.
+        // There are recently no Libvirt events for storage volumes and polling is ugly.
+        // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
+        this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
+                .fail(exc => this.dialogErrorSet(_("Disk settings could not be saved"), exc.message))
+                .then(() => this.setState({ dialogLoading: false }));
     }
 
     existingVolumeNameDelta(value, poolName) {
@@ -427,6 +436,7 @@ export class AddDiskModalBody extends React.Component {
         if (!this.state.existingVolumeName)
             return this.dialogErrorSet(_("Please choose a volume"));
 
+        this.setState({ addDiskInProgress: true });
         const storagePool = storagePools.find(pool => pool.name === this.state.storagePoolName);
         const volume = storagePool.volumes.find(vol => vol.name === this.state.existingVolumeName);
         const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
@@ -451,7 +461,6 @@ export class AddDiskModalBody extends React.Component {
                 })
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     const promises = [];
-
                     if (volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
                         isVolumeUsed[this.state.existingVolumeName].forEach(vmName => {
                             const vm = vms.find(vm => vm.name === vmName);
@@ -477,60 +486,65 @@ export class AddDiskModalBody extends React.Component {
         const { vm, storagePools, vms } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
 
-        const defaultBody = (
-            <div className='ct-form'>
-                <label className='control-label' htmlFor={`${idPrefix}-source`}>
-                    {_("Source")}
-                </label>
-                <fieldset className='form-inline'>
-                    <div className='radio'>
-                        <label>
-                            <input id={`${idPrefix}-createnew`}
-                                   type="radio"
-                                   name="source"
-                                   checked={this.state.mode === CREATE_NEW}
-                                   onChange={e => this.onValueChanged('mode', CREATE_NEW)}
-                                   className={this.state.mode === CREATE_NEW ? "active" : ''} />
-                            {_("Create new")}
-                        </label>
-                        <label>
-                            <input id={`${idPrefix}-useexisting`}
-                                   type="radio"
-                                   name="source"
-                                   checked={this.state.mode === USE_EXISTING}
-                                   onChange={e => this.onValueChanged('mode', USE_EXISTING)}
-                                   className={this.state.mode === USE_EXISTING ? "active" : ''} />
-                            {_("Use existing")}
-                        </label>
-                    </div>
-                </fieldset>
-                {this.state.mode === CREATE_NEW && (
-                    <CreateNewDisk idPrefix={`${idPrefix}-new`}
-                                   onValueChanged={this.onValueChanged}
-                                   dialogValues={this.state}
-                                   vmStoragePools={storagePools}
-                                   vm={vm} />
-                )}
-                {this.state.mode === USE_EXISTING && (
-                    <UseExistingDisk idPrefix={`${idPrefix}-existing`}
-                                     onValueChanged={this.onValueChanged}
-                                     dialogValues={this.state}
-                                     vmStoragePools={storagePools}
-                                     vms={vms}
-                                     vm={vm} />
-                )}
-                {vm.persistent && <>
-                    <hr />
-                    <PermanentChange idPrefix={idPrefix}
-                                     permanent={this.state.permanent}
-                                     onValueChanged={this.onValueChanged}
-                                     vm={vm} />
-                </>}
-                <AdditionalOptions cacheMode={this.state.cacheMode}
-                                   onValueChanged={this.onValueChanged}
-                                   busType={this.state.busType} />
-            </div>
-        );
+        let defaultBody;
+        if (this.state.dialogLoading) {
+            defaultBody = <Spinner />;
+        } else {
+            defaultBody = (
+                <div className='ct-form'>
+                    <label className='control-label' htmlFor={`${idPrefix}-source`}>
+                        {_("Source")}
+                    </label>
+                    <fieldset className='form-inline'>
+                        <div className='radio'>
+                            <label>
+                                <input id={`${idPrefix}-createnew`}
+                                       type="radio"
+                                       name="source"
+                                       checked={this.state.mode === CREATE_NEW}
+                                       onChange={e => this.onValueChanged('mode', CREATE_NEW)}
+                                       className={this.state.mode === CREATE_NEW ? "active" : ''} />
+                                {_("Create new")}
+                            </label>
+                            <label>
+                                <input id={`${idPrefix}-useexisting`}
+                                       type="radio"
+                                       name="source"
+                                       checked={this.state.mode === USE_EXISTING}
+                                       onChange={e => this.onValueChanged('mode', USE_EXISTING)}
+                                       className={this.state.mode === USE_EXISTING ? "active" : ''} />
+                                {_("Use existing")}
+                            </label>
+                        </div>
+                    </fieldset>
+                    {this.state.mode === CREATE_NEW && (
+                        <CreateNewDisk idPrefix={`${idPrefix}-new`}
+                                       onValueChanged={this.onValueChanged}
+                                       dialogValues={this.state}
+                                       vmStoragePools={storagePools}
+                                       vm={vm} />
+                    )}
+                    {this.state.mode === USE_EXISTING && (
+                        <UseExistingDisk idPrefix={`${idPrefix}-existing`}
+                                         onValueChanged={this.onValueChanged}
+                                         dialogValues={this.state}
+                                         vmStoragePools={storagePools}
+                                         vms={vms}
+                                         vm={vm} />
+                    )}
+                    {vm.persistent && <>
+                        <hr />
+                        <PermanentChange idPrefix={idPrefix}
+                                         permanent={this.state.permanent}
+                                         onValueChanged={this.onValueChanged}
+                                         vm={vm} />
+                    </>}
+                    <AdditionalOptions cacheMode={this.state.cacheMode}
+                                       onValueChanged={this.onValueChanged}
+                                       busType={this.state.busType} />
+                </div>
+            );
+        }
 
         return (
             <Modal id={`${idPrefix}-dialog-modal-window`} show onHide={this.props.close}>
@@ -543,7 +557,7 @@ export class AddDiskModalBody extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-dialog-add`} variant='primary' isDisabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
+                    <Button id={`${idPrefix}-dialog-add`} variant='primary' isDisabled={this.state.addDiskInProgress || storagePools.length == 0 || this.state.dialogLoading} onClick={this.onAddClicked}>
                         {_("Add")}
                     </Button>
                     <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>

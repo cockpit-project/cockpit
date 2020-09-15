@@ -2,6 +2,9 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
+# only ship deprecated PatternFly API for stable releases (backports); Debian sid/testing has no VERSION_ID
+SHIP_PF_API = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),10 20.04)
+
 # this is an emulated architecture for now, and too slow to run expensive unit tests
 ifeq ($(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64)
 	export COCKPIT_SKIP_SLOW_TESTS=1
@@ -30,6 +33,9 @@ override_dh_install:
 	# Debian/Ubuntu PAM config
 	mkdir -p debian/tmp/etc/pam.d
 	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
+ifeq ($(SHIP_PF_API),)
+	rm debian/tmp/usr/share/cockpit/base1/patternfly.css
+endif
 
 	# don't ship broken branding symlinks
 	for d in rhel fedora centos scientific; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done

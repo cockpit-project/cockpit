@@ -178,6 +178,11 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
+# only ship deprecated PatternFly API for stable releases
+%if 0%{?fedora} > 33 || 0%{?rhel} > 8
+    rm %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css
+%endif
+
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/cockpit/base1' > base.list
 echo '%dir %{_datadir}/cockpit/base1/fonts' >> base.list

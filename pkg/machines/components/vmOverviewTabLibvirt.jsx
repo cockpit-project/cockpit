@@ -38,6 +38,7 @@ import { FirmwareModal } from './vm/firmwareModal.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
 import LibvirtDBus, { getDomainCapabilities } from '../libvirt-dbus.js';
+import { getDomainCapLoader, getDomainCapMaxVCPU } from '../libvirt-common.js';
 
 import './overviewTab.css';
 
@@ -85,19 +86,13 @@ class VmOverviewTabLibvirt extends React.Component {
 
     componentDidMount() {
         this._isMounted = true;
-        getDomainCapabilities(this.props.vm.connectionName)
+        getDomainCapabilities(this.props.vm.connectionName, this.props.vm.arch, this.props.vm.emulatedMachine)
                 .done(domCaps => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(domCaps, "application/xml");
-                    if (!xmlDoc)
-                        return;
-
-                    const domainCapabilities = xmlDoc.getElementsByTagName("domainCapabilities")[0];
-                    const osElem = domainCapabilities.getElementsByTagName("os") && domainCapabilities.getElementsByTagName("os")[0];
-                    const loaderElems = osElem && osElem.getElementsByTagName("loader");
+                    const loaderElems = getDomainCapLoader(domCaps);
+                    const maxVcpu = getDomainCapMaxVCPU(domCaps);
 
                     if (this._isMounted)
-                        this.setState({ loaderElems });
+                        this.setState({ loaderElems, maxVcpu: Number(maxVcpu) });
                 })
                 .fail(() => console.warn("getDomainCapabilities failed"));
     }
@@ -289,7 +284,7 @@ class VmOverviewTabLibvirt extends React.Component {
                 { this.state.showBootOrderModal && <BootOrderModal close={this.close} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} /> }
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
                 { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }
-                { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
+                { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} maxVcpu={this.state.maxVcpu} /> }
             </>
         );
     }

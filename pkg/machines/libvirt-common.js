@@ -15,7 +15,6 @@ import {
 
 import {
     getApiData,
-    getHypervisorMaxVCPU,
     getLoggedInUser,
     getOsInfoList
 } from './actions/provider-actions.js';
@@ -142,6 +141,18 @@ export function getElem(xml) {
     }
 
     return xmlDoc.firstElementChild;
+}
+
+export function getDomainCapMaxVCPU(capsXML) {
+    const domainCapsElem = getElem(capsXML);
+    const vcpuElem = domainCapsElem.getElementsByTagName("vcpu") && domainCapsElem.getElementsByTagName("vcpu")[0];
+    return vcpuElem && vcpuElem.getAttribute('max');
+}
+
+export function getDomainCapLoader(capsXML) {
+    const domainCapsElem = getElem(capsXML);
+    const osElem = domainCapsElem.getElementsByTagName("os") && domainCapsElem.getElementsByTagName("os")[0];
+    return osElem && osElem.getElementsByTagName("loader");
 }
 
 export function getSingleOptionalElem(parent, name) {
@@ -1337,7 +1348,6 @@ export function INIT_DATA_RETRIEVAL () {
                     } else {
                         console.error("initialize failed: getting libvirt service name failed");
                     }
-                    dispatch(getHypervisorMaxVCPU());
                 })
                 .fail((exception, data) => {
                     dispatch(updateLibvirtState({ name: null }));

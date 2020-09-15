@@ -68,7 +68,7 @@ export class VCPUModal extends React.Component {
     }
 
     onMaxChange (e) {
-        const maxHypervisor = parseInt(this.props.config.hypervisorMaxVCPU[this.props.vm.connectionName]);
+        const maxHypervisor = parseInt(this.props.maxVcpu);
         let maxValue = parseInt(e.target.value);
 
         // Check new value for limits
@@ -202,9 +202,11 @@ export class VCPUModal extends React.Component {
                     <div controlid="vcpu-maximum" role="group">
                         <input id="machines-vcpu-max-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />
                         <div className="info-circle">
-                            <Tooltip entryDelay={0} content={cockpit.format(
-                                _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
-                                parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName]))}>
+                            <Tooltip entryDelay={0}
+                                content={this.props.maxVcpu
+                                    ? cockpit.format(_("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"), parseInt(this.props.maxVcpu))
+                                    : _("Maximum number of virtual CPUs allocated for the guest OS")
+                                }>
                                 <InfoAltIcon />
                             </Tooltip>
                         </div>
@@ -262,6 +264,6 @@ export class VCPUModal extends React.Component {
 VCPUModal.propTypes = {
     dispatch: PropTypes.func.isRequired,
     vm: PropTypes.object.isRequired,
-    config: PropTypes.object.isRequired,
+    maxVcpu: PropTypes.number.isRequired,
     close: PropTypes.func.isRequired,
 };

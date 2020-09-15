@@ -42,7 +42,6 @@ import {
     GET_ALL_STORAGE_POOLS,
     GET_ALL_VMS,
     GET_API_DATA,
-    GET_HYPERVISOR_MAX_VCPU,
     GET_INTERFACE,
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
@@ -166,10 +165,6 @@ export function getAllVms(connectionName) {
  */
 export function getApiData(connectionName, libvirtServiceName) {
     return virt(GET_API_DATA, { connectionName, libvirtServiceName });
-}
-
-export function getHypervisorMaxVCPU(connectionName) {
-    return virt(GET_HYPERVISOR_MAX_VCPU, { connectionName });
 }
 
 export function getLoggedInUser() {

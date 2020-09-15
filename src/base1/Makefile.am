@@ -23,9 +23,19 @@ basedebug_DATA = \
 
 AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XDG_CACHE_HOME=$$(mktemp -d) ; export XDG_RUNTIME_DIR=$$XDG_CACHE_HOME ;
 
-dist/base1/cockpit.min.css: src/base1/cockpit.css
+PATTERNFLY_CSS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --inline none --source-map --source-map-inline-sources $^
+        $(SASS) $< $@ --source-map \
+			--source-map-urls absolute \
+			--style compressed \
+			--load-path=$(srcdir)/node_modules \
+			--load-path=$(srcdir)/node_modules/patternfly/dist/sass \
+			--load-path=$(srcdir)/node_modules/bootstrap-sass/assets/stylesheets \
+			--load-path=$(srcdir)/node_modules/font-awesome-sass/assets/stylesheets && \
+	sed -i -f $(srcdir)/tools/patternfly.sed $@
+
+dist/base1/cockpit.min.css: src/base1/cockpit.scss
+	$(PATTERNFLY_CSS_RULE)
 dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
@@ -56,15 +66,7 @@ dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 # PatternFly 3 with hacked CSS to look like PF4 plus the PF4 base
 dist/base1/patternfly.css.map: dist/base1/patternfly.css
 dist/base1/patternfly.css: $(srcdir)/pkg/lib/patternfly/patternfly-cockpit.scss
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-        $(SASS) $< $@ --source-map \
-			--source-map-urls absolute \
-			--style compressed \
-			--load-path=$(srcdir)/node_modules \
-			--load-path=$(srcdir)/node_modules/patternfly/dist/sass \
-			--load-path=$(srcdir)/node_modules/bootstrap-sass/assets/stylesheets \
-			--load-path=$(srcdir)/node_modules/font-awesome-sass/assets/stylesheets && \
-	sed -i -f $(srcdir)/tools/patternfly.sed $@
+	$(PATTERNFLY_CSS_RULE)
 
 dist/base1/fonts/fontawesome.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
@@ -196,7 +198,7 @@ EXTRA_DIST += \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
 	dist/base1/simple-tap.js \
-	src/base1/cockpit.css \
+	src/base1/cockpit.scss \
 	src/base1/cockpit.js \
 	src/base1/deprecated.js \
 	src/base1/manifest.json \

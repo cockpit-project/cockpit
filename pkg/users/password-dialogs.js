@@ -166,7 +166,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
         <Modal.Body>
             <form className="ct-form">
                 { need_old && <>
-                    <label className="control-label" htmlFor="account-set-password-old" translate="yes">Old password</label>
+                    <label className="control-label" htmlFor="account-set-password-old">{_("Old password")}</label>
                     <Validated errors={errors} error_key="password_old">
                         <input className="form-control check-passwords" type="password" id="account-set-password-old"
         value={password_old} onChange={event => change("password_old", event.target.value)} />
@@ -174,13 +174,13 @@ function SetPasswordDialogBody({ state, errors, change }) {
                 </>
                 }
 
-                <label className="control-label" htmlFor="account-set-password-pw1" translate="yes">New password</label>
+                <label className="control-label" htmlFor="account-set-password-pw1">{_("New password")}</label>
                 <Validated errors={errors} error_key="password">
                     <input className="form-control check-passwords" type="password" id="account-set-password-pw1"
         value={password} onChange={event => change("password", event.target.value)} />
                 </Validated>
 
-                <label className="control-label" htmlFor="account-set-password-pw2" translate="yes">Confirm New Password</label>
+                <label className="control-label" htmlFor="account-set-password-pw2">{_("Confirm new password")}</label>
                 <div className="check-passwords dialog-wrapper">
                     <Validated errors={errors} error_key="password_confirm">
                         <input className="form-control" type="password" id="account-set-password-pw2"

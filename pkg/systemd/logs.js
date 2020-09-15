@@ -552,9 +552,9 @@ $(function() {
         const caption = document.createElement("caption");
         caption.appendChild(heading);
 
-        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("General"))));
-        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem info"))));
-        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem details"))));
+        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span>').text(_("General"))));
+        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span>').text(_("Problem info"))));
+        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span>').text(_("Problem details"))));
 
         var ge = $('<tbody>').addClass('tab');
         var pi = $('<tbody>').addClass('tab');

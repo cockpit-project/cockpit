@@ -353,7 +353,6 @@ info.tests.forEach(function(test) {
 });
 
 var aliases = {
-    "d3": "d3/d3.js",
     "moment": "moment/moment.js",
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };

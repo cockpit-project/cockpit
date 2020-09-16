@@ -30,9 +30,222 @@ import * as base_index from "./base_index";
 
 const _ = cockpit.gettext;
 
-function MachinesIndex(index_options, machines, loader, mdialogs) {
+function MachinesIndex(index_options, machines_db, mdialogs) {
     if (!index_options)
         index_options = {};
+
+    /* We keep our own state for each visible entry in machines_db,
+     * with these fields:
+     *
+     * - address
+     * - key
+     * - color
+     * - state
+     * - label
+     * - problem
+     * - manifests
+     * - restarting
+     *
+     * These are understood by CockpitHosts et al.
+     */
+
+    var machines = { };
+
+    function update_machines_from_db() {
+        for (const addr in machines_db.entries) {
+            const e = machines_db.entries[addr];
+            const m = machines[addr];
+
+            if (m) {
+                m.color = e.color;
+            } else {
+                m = {
+                    address: addr,
+                    color: e.color,
+                    label: addr
+                }
+                machines[addr] = m;
+            }
+        }
+
+        for (const addr in machines) {
+            if (!machines_db.entries[addr]) {
+                index.frames.remove(machine);
+                delete machines[addr];
+            }
+        }
+
+        console.log("MACHINES", machines);
+
+        machines_changed();
+    }
+
+    function machines_changed() {
+        update_machines();
+        preload_frames();
+        if (ready)
+            navigate();
+    }
+
+    function lookup_machine(address) {
+        return machines[address];
+    }
+
+    var channels = { };
+
+    function connect_machine(address) {
+        console.log("CONNECT", address);
+
+        var machine = lookup_machine(address);
+        if (!machine)
+            return;
+
+        var channel = channels[address];
+        if (channel)
+            return;
+
+        var options = {
+            host: address,
+            payload: "echo",
+            "init-superuser": get_host_superuser_value(address)
+        };
+
+        channel = cockpit.channel(options);
+        channels[address] = channel;
+
+        var local = (address === "localhost");
+
+        var request = null;
+        var open = local;
+        var problem = null;
+
+        var url;
+        if (!machine.manifests) {
+            url = "../../@" + encodeURI(address) + "/manifests.json";
+        }
+
+        function whirl() {
+            if (!request && open)
+                state(host, "connected", null);
+            else if (!problem)
+                state(host, "connecting", null);
+        }
+
+        /* Here we load the machine manifests, and expect them before going to "connected" */
+        function request_manifest() {
+            request = $.ajax({ url: url, dataType: "json", cache: true })
+                    .done(function(manifests) {
+                        var overlay = { manifests: manifests };
+                        var etag = request.getResponseHeader("ETag");
+                        if (etag) /* and remove quotes */
+                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
+                        machine.manifests = manifests;
+                        machine.checksum = checksum;
+                        machines_changed();
+                    })
+                    .fail(function(ex) {
+                        console.warn("failed to load manifests from " + address + ": " + ex);
+                    })
+                    .always(function() {
+                        request = null;
+                        whirl();
+                    });
+        }
+
+        /* Try to get change notifications via the internal
+           /packages D-Bus interface of the bridge.  Not all
+           bridges support this API, so we still get the first
+           version of the manifests via HTTP in request_manifest.
+        */
+
+        function watch_manifests() {
+            var dbus = cockpit.dbus(null, {
+                bus: "internal",
+                host: address
+            });
+            bridge_dbus[host] = dbus;
+            dbus.subscribe({
+                path: "/packages",
+                interface: "org.freedesktop.DBus.Properties",
+                member: "PropertiesChanged"
+            },
+                           function (path, iface, mamber, args) {
+                               if (args[0] == "cockpit.Packages") {
+                                   if (args[1].Manifests) {
+                                       var manifests = JSON.parse(args[1].Manifests.v);
+                                       machines.overlay(host, { manifests: manifests });
+                                   }
+                               }
+                           });
+
+            /* Tell the bridge to reload the packages, but only if
+               it hasn't just started.  Thus, nothing happens on
+               the first login, but if you reload the shell, we
+               will also reload the packages.
+            */
+            dbus.call("/packages", "cockpit.Packages", "ReloadHint", []);
+        }
+
+        function request_hostname() {
+            if (!machine.static_hostname) {
+                var proxy = cockpit.dbus("org.freedesktop.hostname1",
+                                         { host: machine.connection_string }).proxy();
+                proxies[host] = proxy;
+                proxy.wait(function() {
+                    $(proxy).on("changed", function() {
+                        updated(null, null, host);
+                    });
+                    updated(null, null, host);
+                });
+            }
+        }
+
+        /* Send a message to the server and get back a message once connected */
+        if (!local) {
+            channel.send("x");
+
+            $(channel)
+                    .on("message", function() {
+                        open = true;
+                        if (url)
+                            request_manifest();
+                        // XXX watch_manifests();
+                        // XXX request_hostname();
+                        whirl();
+                    })
+                    .on("close", function(ev, options) {
+                        var m = machines.lookup(host);
+                        open = false;
+                        // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
+                        if (!options.problem && m && !m.visible)
+                            state(host, null, null);
+                        else
+                            state(host, "failed", options.problem || "disconnected");
+                        if (m && m.restarting) {
+                            window.setTimeout(function() {
+                                self.connect(host);
+                            }, 10000);
+                        }
+                        self.disconnect(host);
+                    });
+        } else {
+            if (url)
+                request_manifest();
+            // XXX watch_manifests();
+            // XXX request_hostname();
+        }
+
+        /* In case already ready, for example when local */
+        whirl();
+    }
+
+    function disconnect_machine(address) {
+        console.log("DISCONNECT", address);
+    }
+
+    function machine_needs_troubleshoot(machine) {
+        return machine && machine.problem;
+    }
 
     var page_status = { };
     sessionStorage.removeItem("cockpit:page_status");
@@ -47,15 +260,20 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             page_status[host][page] = data.page_status;
             sessionStorage.setItem("cockpit:page_status", JSON.stringify(page_status));
             // Just for triggering an "updated" event
-            machines.overlay(host, { });
+            machines_db.set(host, { });
         }
     };
 
     var index = base_index.new_index_from_proto(index_options);
 
+    machines_db.addEventListener("changed", update_machines_from_db);
+    update_machines_from_db();
+
     /* Restarts */
     $(index).on("expect_restart", function (ev, host) {
-        loader.expect_restart(host);
+        const m = lookup_machine(address);
+        if (m)
+            m.restarting = true;
     });
 
     /* Disconnection Dialog */
@@ -114,31 +332,11 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function preload_frames () {
-        for (const m of machines.list)
-            index.preload_frames(m, m.manifests);
+        for (const m in machines)
+            index.preload_frames(machines[m], machines[m].manifests);
     }
 
-    /* When the machine list is ready we start processing navigation */
-    $(machines)
-            .on("ready", on_ready)
-            .on("added updated", function(ev, machine) {
-                if (!machine.visible)
-                    index.frames.remove(machine);
-                else if (machine.problem)
-                    index.frames.remove(machine);
-
-                update_machines();
-                preload_frames();
-                if (ready)
-                    navigate();
-            })
-            .on("removed", function(ev, machine) {
-                index.frames.remove(machine);
-                update_machines();
-            });
-
-    if (machines.ready)
-        on_ready();
+    on_ready(); // XXX
 
     function show_disconnected() {
         if (!ready) {
@@ -179,7 +377,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         if (!state)
             state = index.retrieve_state();
-        machine = machines.lookup(state.host);
+        machine = lookup_machine(state.host);
 
         /* No such machine */
         if (!machine) {
@@ -192,11 +390,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             };
 
         /* Asked to reconnect to the machine */
-        } else if (!machine.visible) {
-            machine.state = "failed";
-            machine.problem = "not-found";
         } else if (reconnect && machine.state !== "connected") {
-            loader.connect(state.host);
+            connect_machine(state.host);
         }
 
         var compiled = compile(machine);
@@ -226,7 +421,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             state = index.retrieve_state();
 
         if (!machine)
-            machine = machines.lookup(state.host);
+            machine = lookup_machine(state.host);
 
         if (!compiled)
             compiled = compile(machine);
@@ -366,12 +561,13 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             state = index.retrieve_state();
 
         if (!machine)
-            machine = machines.lookup(state.host);
+            machine = lookup_machine(state.host);
 
         ReactDOM.render(
             React.createElement(CockpitHosts, {
                 machine: machine || {},
                 machines: machines,
+                mdialogs: mdialogs,
                 selector: "nav-hosts",
                 hostAddr: index.href,
                 jump: index.jump,
@@ -426,9 +622,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
     function update_superuser(machine, state, compiled) {
         if (machine.state == "connected") {
-            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.address }),
                             document.getElementById('super-user-indicator'));
-            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.address }),
                             document.getElementById('super-user-indicator-mobile'));
         } else {
             ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));
@@ -487,10 +683,10 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             }
 
             var troubleshooting;
-            if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
+            if (!machine.restarting && machine_needs_troubleshoot(machine)) {
                 $("#machine-troubleshoot").off()
                         .on("click", function () {
-                            mdialogs.troubleshoot("troubleshoot-dialog", machine);
+                            mdialogs.troubleshoot("troubleshoot-dialog", machine.address);
                         });
                 troubleshooting = true;
                 $("#machine-troubleshoot").show();
@@ -531,7 +727,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         var frame;
         if (component)
-            frame = index.frames.lookup(machine, component, hash);
+            frame = index.frames.lookup(machine.address, component, hash, machine.manifests);
         if (frame != current_frame) {
             $(current_frame).css('display', 'none');
             if (current_frame)
@@ -624,6 +820,6 @@ if (document.documentElement.getAttribute("class") === "index-page") {
     window.addEventListener("message", message_queue, false);
 }
 
-export function machines_index(options, machines_ins, loader, mdialogs) {
-    return new MachinesIndex(options, machines_ins, loader, mdialogs);
+export function machines_index(options, machines_db, mdialogs) {
+    return new MachinesIndex(options, machines_db, mdialogs);
 }

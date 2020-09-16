@@ -45,12 +45,7 @@ function Frames(index, setupIdleResetTimers) {
         $(frame).remove();
     }
 
-    self.remove = function remove(machine, component) {
-        var address;
-        if (typeof machine == "string")
-            address = machine;
-        else if (machine)
-            address = machine.address;
+    self.remove = function remove(address, component) {
         if (!address)
             address = "localhost";
         var list = self.iframes[address] || { };
@@ -100,28 +95,14 @@ function Frames(index, setupIdleResetTimers) {
         }
     }
 
-    self.lookup = function lookup(machine, component, hash) {
-        var host;
-        var address;
+    self.lookup = function lookup(address, component, hash) {
         var new_frame = false;
-
-        if (typeof machine == "string") {
-            address = host = machine;
-        } else if (machine) {
-            host = machine.connection_string;
-            address = machine.address;
-        }
-
-        if (!host)
-            host = "localhost";
-        if (!address)
-            address = host;
 
         var list = self.iframes[address];
         if (!list)
             self.iframes[address] = list = { };
 
-        var name = "cockpit1:" + host + "/" + component;
+        var name = "cockpit1:" + address + "/" + component;
         var frame = list[component];
         if (frame && frame.getAttribute("name") != name) {
             remove_frame(frame);
@@ -148,7 +129,7 @@ function Frames(index, setupIdleResetTimers) {
             frame = document.createElement("iframe");
             frame.setAttribute("class", "container-frame");
             frame.setAttribute("name", name);
-            frame.setAttribute("data-host", host);
+            frame.setAttribute("data-host", address);
             frame.style.display = "none";
 
             var base, checksum;
@@ -159,8 +140,8 @@ function Frames(index, setupIdleResetTimers) {
                     checksum = machine.checksum;
             }
 
-            if (checksum && checksum == component_checksum(machine, component)) {
-                if (host === "localhost")
+            if (checksum && checksum == component_checksum(machine, component)) { // XXX
+                if (address === "localhost")
                     base = "..";
                 else
                     base = "../../" + checksum;
@@ -175,7 +156,7 @@ function Frames(index, setupIdleResetTimers) {
 
                    TODO - make it possible to use $<component-checksum>.
                 */
-                base = "../../@" + host;
+                base = "../../@" + address;
             }
 
             frame.url = base + "/" + component;
@@ -260,7 +241,7 @@ function Router(index) {
     function perform_track(child) {
         var hash;
         var current_frame = index.current_frame();
-        /* Note that we ignore tracknig for old shell code */
+        /* Note that we ignore tracking for old shell code */
         if (current_frame && current_frame.contentWindow === child &&
             child.name && child.name.indexOf("/shell/shell") === -1) {
             hash = child.location.hash;

@@ -10,8 +10,7 @@ import 'polyfills';
 import { superuser } from "superuser";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 
-import { machines } from "machines";
-import { new_machine_dialog_manager } from "machine-dialogs";
+import { allow_connection_string } from "machines";
 
 import "../../node_modules/@patternfly/patternfly/components/Select/select.scss";
 
@@ -69,8 +68,6 @@ export class CockpitHosts extends React.Component {
         this.onEditHosts = this.onEditHosts.bind(this);
         this.onHostEdit = this.onHostEdit.bind(this);
         this.onRemove = this.onRemove.bind(this);
-
-        this.mdialogs = new_machine_dialog_manager(this.props.machines);
     }
 
     componentDidMount() {
@@ -109,7 +106,7 @@ export class CockpitHosts extends React.Component {
     }
 
     onAddNewHost() {
-        this.mdialogs.render_dialog("add-machine", "hosts_setup_server_dialog");
+        this.props.mdialogs.render_dialog("add-machine", "hosts_setup_server_dialog");
     }
 
     onHostEdit(event, machine) {
@@ -129,7 +126,7 @@ export class CockpitHosts extends React.Component {
             $("#edit-host-dialog a[data-content]").popover();
         }
 
-        this.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
+        this.props.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
 
         // Remove all existing listeners so we don't change it multiple times
         const orig = document.getElementById("edit-host-apply");
@@ -143,10 +140,10 @@ export class CockpitHosts extends React.Component {
                 label: name.value,
             };
 
-            if (can_change_user && machines.allow_connection_string)
+            if (can_change_user && allow_connection_string)
                 values.user = user.value;
 
-            const promise = this.props.machines.change(machine.key, values);
+            const promise = this.props.machines_db.set(machine.address, values);
             dlg.dialog('promise', promise);
         });
         dlg.modal('show');

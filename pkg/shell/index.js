@@ -19,13 +19,12 @@
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 
-import { machines } from "machines";
+import { Machines } from "machines";
 import { new_machine_dialog_manager } from "machine-dialogs";
 import * as credentials from "./credentials";
 import * as indexes from "./indexes";
 
-var machines_inst = machines.instance();
-var loader = machines.loader(machines_inst);
+var machines_inst = new Machines();
 var dialogs = new_machine_dialog_manager(machines_inst);
 
 credentials.setup();
@@ -51,4 +50,4 @@ var options = {
     default_title: "Cockpit",
 };
 
-indexes.machines_index(options, machines_inst, loader, dialogs);
+indexes.machines_index(options, machines_inst, null, dialogs);

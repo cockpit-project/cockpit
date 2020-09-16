@@ -22,7 +22,9 @@ import cockpit from "cockpit";
 
 import { mustache } from "mustache";
 
-import { machines, get_host_superuser_value } from "machines";
+import { allow_connection_string, has_auth_results,
+         machine_colors, parse_color,
+         get_host_superuser_value } from "machines";
 import * as credentials from "credentials";
 import "patterns";
 
@@ -327,8 +329,8 @@ function MachineColorPicker(machines_ins) {
 
         var part;
         var colors = [];
-        for (var i = 0; i < machines.colors.length; i += 6) {
-            part = machines.colors.slice(i, i + 6);
+        for (var i = 0; i < machine_colors.length; i += 6) {
+            part = machine_colors.slice(i, i + 6);
             colors.push({ list : part });
         }
 
@@ -337,7 +339,7 @@ function MachineColorPicker(machines_ins) {
 
         $("#host-edit-color", selector).css("background-color", selected_color);
         $(".color-cell", selector).each(function(index) {
-            $(this).css("background-color", machines.colors[index]);
+            $(this).css("background-color", machine_colors[index]);
         });
 
         $('#host-edit-color-popover .popover-content .color-cell', selector)
@@ -396,7 +398,7 @@ function AddMachine(dialog) {
 
         if (addr === "") {
             disabled = true;
-        } else if (!machines.allow_connection_string &&
+        } else if (!allow_connection_string &&
                    (addr.indexOf('@') > -1 || addr.indexOf(':') > -1)) {
             ex = new Error(_("This version of cockpit-ws does not support connecting to a host with an alternate user or port"));
         } else if (addr.search(/\s+/) === -1) {
@@ -438,7 +440,7 @@ function AddMachine(dialog) {
             dialog.address = dialog.machines_ins.generate_connection_string(user, parts.port, parts.address);
         }
 
-        var color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
+        var color = parse_color($('#add-machine-color-picker #host-edit-color').css('background-color'));
         if (existing_error(dialog.address))
             return;
 
@@ -552,9 +554,9 @@ function MachinePort(dialog) {
 
         dialog.render({
             port : machine.port,
-            allow_connection_string : machines.allow_connection_string
+            allow_connection_string : allow_connection_string
         });
-        if (machines.allow_connection_string)
+        if (allow_connection_string)
             dialog.get_sel(".modal-footer>.pf-m-primary").on("click", change_port);
     };
 }
@@ -894,14 +896,14 @@ function ChangeAuth(dialog) {
     function render() {
         var promise = null;
         var template = "change-auth";
-        if (!machines.allow_connection_string || !machines.has_auth_results)
+        if (!allow_connection_string || !has_auth_results)
             template = "auth-failed";
 
         var methods = null;
         var available = null;
         var locked_identity = false;
 
-        if (error_options && machines.has_auth_results) {
+        if (error_options && has_auth_results) {
             available = {};
 
             methods = error_options["auth-method-results"];
@@ -925,7 +927,7 @@ function ChangeAuth(dialog) {
             offer_key_password = false;
         }
 
-        if (methods === null && machines.has_auth_results) {
+        if (methods === null && has_auth_results) {
             promise = dialog.try_to_connect(dialog.address)
                     .catch(function(ex) {
                         if (ex.problem && dialog.codes[ex.problem] != "change-auth") {
@@ -1029,16 +1031,6 @@ function MachineDialogManager(machines_ins, codes) {
         var dialog = new Dialog(selector, machine.address, machines_ins, codes);
         dialog.render_template(template);
         dialog.show();
-    };
-
-    self.needs_troubleshoot = function (machine) {
-        if (!machine || !machine.problem)
-            return false;
-
-        if (machine.problem == "no-host")
-            return true;
-
-        return !!codes[machine.problem];
     };
 
     self.render_dialog = function (template, target_id, address) {

@@ -28,6 +28,7 @@ import { superuser } from 'superuser';
 import firewall from './firewall-client.js';
 import * as utils from './utils';
 import * as service from 'service';
+import { v4 as uuidv4 } from 'uuid';
 
 import { mustache } from 'mustache';
 import * as plot from 'plot.js';
@@ -49,14 +50,6 @@ var C_ = cockpit.gettext;
 function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
         console.debug.apply(console, arguments);
-}
-
-function generate_uuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0;
-        var v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
 }
 
 function show_unexpected_error(error) {
@@ -1556,7 +1549,7 @@ function complete_settings(settings, device) {
     }
 
     settings.connection.id = device.Interface;
-    settings.connection.uuid = generate_uuid();
+    settings.connection.uuid = uuidv4();
 
     if (device.DeviceType == 'ethernet') {
         settings.connection.type = '802-3-ethernet';
@@ -1818,7 +1811,7 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
-        uuid = generate_uuid();
+        uuid = uuidv4();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
             if (!this.model.find_interface(iface))
@@ -1852,7 +1845,7 @@ PageNetworking.prototype = {
     add_team: function () {
         var iface, i, uuid;
 
-        uuid = generate_uuid();
+        uuid = uuidv4();
         for (i = 0; i < 100; i++) {
             iface = "team" + i;
             if (!this.model.find_interface(iface))
@@ -1884,7 +1877,7 @@ PageNetworking.prototype = {
     add_bridge: function () {
         var iface, i, uuid;
 
-        uuid = generate_uuid();
+        uuid = uuidv4();
         for (i = 0; i < 100; i++) {
             iface = "bridge" + i;
             if (!this.model.find_interface(iface))
@@ -1921,7 +1914,7 @@ PageNetworking.prototype = {
     add_vlan: function () {
         var uuid;
 
-        uuid = generate_uuid();
+        uuid = uuidv4();
 
         PageNetworkVlanSettings.model = this.model;
         PageNetworkVlanSettings.done = null;

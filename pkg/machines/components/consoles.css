@@ -48,6 +48,11 @@ label[for=console-type-select],
     float: none;
 }
 
+/* WebKit applies inline styling including flex, causing unneeded padding. */
+.vnc-console > .toolbar-pf-results .col-sm-12 > div > div[style] {
+    align-items: center;
+}
+
 /* Make the VNC canvas scale down to available width */
 .vnc-console canvas {
     max-width: 100%;

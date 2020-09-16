@@ -217,8 +217,8 @@ export class VmSnapshotsTab extends React.Component {
 
                     return (
                         <div className='machines-listing-actions'>
-                            { revertSnapshotHelper() }
                             { deleteSnapshotHelper() }
+                            { revertSnapshotHelper() }
                         </div>
                     );
                 }

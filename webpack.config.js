@@ -233,6 +233,8 @@ var externals = {
  * Implementation
  */
 
+process.traceDeprecation = true;
+
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var html = require('html-webpack-plugin');

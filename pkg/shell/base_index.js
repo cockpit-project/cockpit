@@ -924,7 +924,9 @@ function CompiledComponents() {
                 };
 
                 // Always first keyword should be page name
-                item.keywords[0].matches.unshift(item.label.toLowerCase());
+                const page_name = item.label.toLowerCase();
+                if (item.keywords[0].matches.indexOf(page_name) < 0)
+                    item.keywords[0].matches.unshift(page_name);
 
                 // Keywords from manifest have different defaults than are usual
                 item.keywords.forEach(i => {

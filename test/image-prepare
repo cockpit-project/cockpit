@@ -101,6 +101,7 @@ def main():
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
     machine.upload([os.path.join(testvm.SCRIPTS_DIR, "lib")], "/var/lib/testvm")
+    machine.upload([os.path.join(BASE, "tools", "make-srpm")], "/var/lib/testvm")
     machine.upload([os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image)], "/var/tmp")
     machine.upload([os.path.join(BASE, "containers")], "/var/tmp")
 

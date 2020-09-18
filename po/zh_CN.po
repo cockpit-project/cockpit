@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-11 04:54+0000\n"
-"PO-Revision-Date: 2020-08-03 14:29+0000\n"
-"Last-Translator: Charles Lee <lchopn@gmail.com>\n"
+"POT-Creation-Date: 2020-09-11 08:08+0000\n"
+"PO-Revision-Date: 2020-09-16 10:29+0000\n"
+"Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/master/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.1.1\n"
+"X-Generator: Weblate 4.2.2\n"
 
 #: pkg/networkmanager/interfaces.js:2339
 msgid "$0 active zone"
@@ -98,7 +98,7 @@ msgstr[0] "$0 磁盘无法找到"
 msgid "$0 disks"
 msgstr "$0 磁盘"
 
-#: pkg/shell/indexes.js:398
+#: pkg/shell/indexes.js:406
 msgid "$0 documentation"
 msgstr "$0 文档"
 
@@ -215,7 +215,7 @@ msgstr "$1 的 $0"
 #: pkg/systemd/overview.jsx:101
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
-msgstr "$0 于 $1"
+msgstr "$1 于 $0"
 
 #: pkg/packagekit/history.jsx:88
 #, fuzzy
@@ -226,7 +226,7 @@ msgstr[0] "$0 软件包"
 #: pkg/systemd/services/services.jsx:652
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] "$0 服务失败"
+msgstr[0] "$0 个服务失败"
 
 #: pkg/storaged/crypto-keyslots.jsx:592
 msgid "$0 slots remain"
@@ -584,7 +584,7 @@ msgstr "ARP 监控"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/index.html:147 pkg/shell/indexes.js:412
+#: pkg/shell/index.html:147 pkg/shell/indexes.js:420
 msgid "About Web Console"
 msgstr "关于 Web 控制台"
 
@@ -876,7 +876,7 @@ msgstr "系统启动后"
 
 #: pkg/systemd/logs.html:52
 msgid "Alert and above"
-msgstr "警报及以上级别"
+msgstr "Alert 及更高级别"
 
 #: pkg/machines/hostvmslist.jsx:78 pkg/machines/hostvmslist.jsx:123
 #: pkg/systemd/logs.js:219 pkg/systemd/services/services.jsx:686
@@ -961,7 +961,7 @@ msgstr "正在应用更新"
 msgid "Applying updates failed"
 msgstr "应用更新失败"
 
-#: pkg/shell/indexes.js:328
+#: pkg/shell/indexes.js:336
 msgid "Apps"
 msgstr "应用"
 
@@ -1332,7 +1332,7 @@ msgstr "取消"
 msgid "Cannot be enabled"
 msgstr "无法被启用"
 
-#: pkg/shell/indexes.js:471
+#: pkg/shell/indexes.js:479
 #, fuzzy
 msgid "Cannot connect to an unknown host"
 msgstr "不能连接至未知主机"
@@ -1726,7 +1726,7 @@ msgstr "不支持同时连接到超过 {{ limit }} 主机。"
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "连接到 SETroubleshoot 守护进程..."
 
-#: pkg/shell/indexes.js:466
+#: pkg/shell/indexes.js:474
 msgid "Connecting to the machine"
 msgstr "正在连接至主机"
 
@@ -2032,7 +2032,7 @@ msgstr "创建时间"
 
 #: pkg/systemd/logs.html:53
 msgid "Critical and above"
-msgstr "关键及以上级别"
+msgstr "Critical 及更高级别"
 
 #: pkg/machines/components/vnc.jsx:134
 msgid "Ctrl+Alt+$0"
@@ -2129,7 +2129,7 @@ msgstr "取消激活 $target"
 
 #: pkg/systemd/logs.html:58
 msgid "Debug and above"
-msgstr "Debug 及以上"
+msgstr "Debug 及更高级别"
 
 #: pkg/storaged/vdo-details.jsx:309 pkg/storaged/vdos-panel.jsx:124
 msgid "Deduplication"
@@ -2295,7 +2295,6 @@ msgid "Devices"
 msgstr "设备"
 
 #: pkg/sosreport/manifest.json.in
-#, fuzzy
 msgid "Diagnostic Reports"
 msgstr "诊断报告"
 
@@ -2466,7 +2465,7 @@ msgstr "下载一个 OS"
 
 #: pkg/sosreport/index.html:61
 msgid "Download report"
-msgstr "下载报表"
+msgstr "下载报告"
 
 #: pkg/machines/components/desktopConsole.jsx:60
 msgid "Download the MSI from $0"
@@ -2497,7 +2496,7 @@ msgid "Dual rank"
 msgstr "Dual rank"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:340
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:348
 #: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
 msgstr "编辑"
@@ -2668,7 +2667,7 @@ msgstr "错误"
 
 #: pkg/systemd/logs.html:54
 msgid "Error and above"
-msgstr "错误及以上级别"
+msgstr "Error 及更高级别"
 
 #: pkg/lib/cockpit-components-modifications.jsx:139
 msgid "Error running semanage to discover system modifications"
@@ -2902,7 +2901,7 @@ msgstr "格式化"
 
 #: pkg/storaged/format-dialog.jsx:134
 msgid "Format $0"
-msgstr "格式 $0"
+msgstr "格式化 $0"
 
 #: pkg/storaged/content-views.jsx:581
 msgid "Format disk $0"
@@ -3284,7 +3283,7 @@ msgstr "索引内存"
 
 #: pkg/systemd/logs.html:57
 msgid "Info and above"
-msgstr "Info 及以上级别"
+msgstr "Info 及更高级别"
 
 #: pkg/packagekit/updates.jsx:460
 msgid "Initializing..."
@@ -3537,7 +3536,6 @@ msgid "Kernel"
 msgstr "内核"
 
 #: pkg/kdump/manifest.json.in
-#, fuzzy
 msgid "Kernel Dump"
 msgstr "内核转储"
 
@@ -3636,7 +3634,7 @@ msgstr "离开域"
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
 msgid ""
 "Leave the password blank if you do not wish to have a root account created"
-msgstr "如果你不希望创建一个 root 账号，则将密码留空"
+msgstr "如果您不希望创建一个 root 账号，则将密码留空"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:249
 msgid ""
@@ -3649,7 +3647,7 @@ msgstr "Libvirt 或虚拟机管理器不支持 UEFI"
 
 #: pkg/shell/index.html:155
 msgid "Licensed under:"
-msgstr "授权为："
+msgstr "许可证："
 
 #: pkg/systemd/terminal.jsx:98
 msgid "Light"
@@ -3749,7 +3747,7 @@ msgstr "锁定账户"
 
 #: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:70
 msgid "Lock account on $0"
-msgstr "锁定 $0 上的账号"
+msgstr "于 $0 锁定账号"
 
 #: pkg/storaged/jobs-panel.jsx:41
 msgid "Locking $target"
@@ -4027,7 +4025,7 @@ msgstr "内存拓扑"
 
 #: pkg/systemd/shutdown.js:83
 msgid "Message to logged in users"
-msgstr "登录用户的信息"
+msgstr "发送给登录用户的信息"
 
 #: pkg/shell/index.html:432
 msgid "Messages related to the failure might be found in the journal:"
@@ -4708,7 +4706,7 @@ msgstr "未连接"
 msgid "Not connected to Insights"
 msgstr "没有连接到 Insights"
 
-#: pkg/shell/indexes.js:469
+#: pkg/shell/indexes.js:477
 #, fuzzy
 msgid "Not connected to host"
 msgstr "没有连接到 Insights"
@@ -4761,7 +4759,7 @@ msgstr "笔记本"
 
 #: pkg/systemd/logs.html:56
 msgid "Notice and above"
-msgstr "Notice 及以上"
+msgstr "Notice 及更高级别"
 
 #: pkg/selinux/setroubleshoot-view.jsx:387
 msgid "Occurred $0"
@@ -5065,7 +5063,7 @@ msgstr "暂停"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:295
 msgid "Performance profile"
-msgstr "性能配置档案"
+msgstr "性能配置集"
 
 #: pkg/lib/machine-info.js:87
 msgid "Peripheral chassis"
@@ -5276,7 +5274,7 @@ msgstr "好主机名"
 
 #: pkg/systemd/logs.html:42
 msgid "Previous boot"
-msgstr "以前的引导"
+msgstr "以前启动"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:76
 msgid ""
@@ -5320,7 +5318,7 @@ msgstr "产品"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:432
 msgid "Profile"
-msgstr "配置"
+msgstr "配置集"
 
 #: pkg/shell/index.html:151
 msgid "Project website"
@@ -5700,7 +5698,7 @@ msgstr "每年重复"
 
 #: pkg/systemd/reporting.jsx:429
 msgid "Report"
-msgstr "报表"
+msgstr "报告"
 
 #: pkg/systemd/reporting.jsx:153
 msgid "Report to ABRT Analytics"
@@ -6315,7 +6313,6 @@ msgid "Sockets"
 msgstr "套接字"
 
 #: pkg/packagekit/manifest.json.in
-#, fuzzy
 msgid "Software Updates"
 msgstr "软件更新"
 
@@ -6593,13 +6590,8 @@ msgstr "存储口令"
 
 #: pkg/storaged/crypto-tab.jsx:68 pkg/storaged/crypto-tab.jsx:70
 #: pkg/storaged/crypto-tab.jsx:127
-#, fuzzy
 msgid "Stored passphrase"
-msgstr ""
-"#-#-#-#-#  zh_CN.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"已存储的口令\n"
-"#-#-#-#-#  zh_CN.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"保存的密码"
+msgstr "保存的密码"
 
 #: pkg/lib/machine-info.js:85
 #, fuzzy
@@ -6692,7 +6684,7 @@ msgstr "同步 RAID 设备 $target"
 
 #: pkg/shell/index.html:23
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:331
+#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:339
 msgid "System"
 msgstr "系统"
 
@@ -6715,7 +6707,7 @@ msgstr "系统服务"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:285
 msgid "System time"
-msgstr "系统类型"
+msgstr "系统时间"
 
 #: pkg/systemd/services/services-list.jsx:33
 msgid "Systemd units"
@@ -7023,7 +7015,7 @@ msgstr "不能删除一个卷组的最后一个物理卷。"
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "登陆的用户没有权限查看系统改变"
 
-#: pkg/shell/indexes.js:463
+#: pkg/shell/indexes.js:471
 msgid "The machine is restarting"
 msgstr "正在重启主机"
 
@@ -7146,7 +7138,7 @@ msgstr "此 VDO 设备不使用其所有后台设备。"
 
 #: pkg/machines/components/vm/vmActions.jsx:135
 msgid "This VM is transient. Shut it down if you wish to delete it."
-msgstr "此 VM 是瞬态的。如果你希望删除它，请将其关机。"
+msgstr "此 VM 是瞬态的。如果希望删除它，请将其关机。"
 
 #: pkg/systemd/services/timer-dialog.js:147
 msgid ""
@@ -7358,7 +7350,7 @@ msgstr "切换会话设置"
 msgid "Too much data"
 msgstr "太多数据"
 
-#: pkg/shell/indexes.js:334
+#: pkg/shell/indexes.js:342
 msgid "Tools"
 msgstr "工具"
 
@@ -7982,7 +7974,6 @@ msgid "View report"
 msgstr "查看报告"
 
 #: pkg/machines/manifest.json.in
-#, fuzzy
 msgid "Virtual Machines"
 msgstr "虚拟机"
 
@@ -8081,9 +8072,9 @@ msgstr "需要"
 
 #: pkg/systemd/logs.html:55
 msgid "Warning and above"
-msgstr "Warning 及以上"
+msgstr "Warning 及更高级别"
 
-#: pkg/shell/indexes.js:400
+#: pkg/shell/indexes.js:408
 msgid "Web Console"
 msgstr "Web 控制台"
 
@@ -8165,7 +8156,7 @@ msgstr "您无权修改防火墙。"
 
 #: pkg/shell/superuser.jsx:223
 msgid "You can not gain administrative access."
-msgstr "你不能获取管理员权限。"
+msgstr "您不能获取管理员权限。"
 
 #: pkg/users/authorized-keys-panel.js:102
 msgid ""
@@ -8201,7 +8192,7 @@ msgstr "你需要切换到“管理员权限”以创建报告。"
 
 #: pkg/shell/superuser.jsx:281
 msgid "You now have administrative access."
-msgstr "你已经获取了管理员权限。"
+msgstr "您已经获取了管理员权限。"
 
 #: pkg/shell/base_index.js:529
 msgid "You will be logged out in $0 seconds."
@@ -8209,7 +8200,7 @@ msgstr "您将在$0秒钟后登出。"
 
 #: pkg/users/accounts-list.js:49
 msgid "Your account"
-msgstr "你的账户"
+msgstr "您的账户"
 
 #: pkg/packagekit/updates.jsx:889
 msgid ""
@@ -8221,13 +8212,13 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:132
 msgid "Your browser will remember your access level across sessions."
-msgstr "你的浏览器将会在不同会话之间记住你的访问级别。"
+msgstr "您的浏览器将会在不同会话之间记住您的访问级别。"
 
 #: pkg/packagekit/updates.jsx:929
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
-msgstr "您的服务器将要关闭连接。你可以在其重启后，重新连接。"
+msgstr "您的服务器将要关闭连接。您可以在其重启后，重新连接。sh"
 
 #: src/base1/cockpit.js:4037
 msgid "Your session has been terminated."

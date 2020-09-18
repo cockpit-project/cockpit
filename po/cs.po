@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-11 04:54+0000\n"
-"PO-Revision-Date: 2020-09-11 08:05+0000\n"
-"Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
+"POT-Creation-Date: 2020-09-11 08:08+0000\n"
+"PO-Revision-Date: 2020-09-16 10:29+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "master/cs/>\n"
 "Language: cs\n"
@@ -105,7 +105,7 @@ msgstr[2] "$0 disků chybí"
 msgid "$0 disks"
 msgstr "$0 Disky"
 
-#: pkg/shell/indexes.js:398
+#: pkg/shell/indexes.js:406
 msgid "$0 documentation"
 msgstr "Dokumentace k $0"
 
@@ -274,9 +274,8 @@ msgid "$0 vCPU details"
 msgstr "$0 podrobnosti virt. procesoru"
 
 #: pkg/machines/components/nicEdit.jsx:162
-#, fuzzy
 msgid "$0 virtual network interface settings"
-msgstr "Přidat virtuální síťové rozhraní"
+msgstr "Nastavení virtuálního síťového rozhraní $0"
 
 #: pkg/lib/plot.js:968
 msgid "$0 week"
@@ -608,6 +607,8 @@ msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
 msgstr ""
+"Bude vytvořen nový SSH klíč ${key} pro uživatele ${luser} na ${lhost} a bude "
+"přidán do souboru ${afile} uživatele ${ruser} na ${rhost}."
 
 #: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
@@ -625,7 +626,7 @@ msgstr "ARP monitorování"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/index.html:147 pkg/shell/indexes.js:412
+#: pkg/shell/index.html:147 pkg/shell/indexes.js:420
 msgid "About Web Console"
 msgstr "O webové konzole"
 
@@ -913,7 +914,7 @@ msgstr "Po"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:178
 msgid "After deleting the snapshot, all its captured content will be lost."
-msgstr ""
+msgstr "Smazáním zachyceného stavu bude veškerý jím zachycovaný obsah ztracen."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:27
 msgid ""
@@ -1020,7 +1021,7 @@ msgstr "Aplikují se aktualizace"
 msgid "Applying updates failed"
 msgstr "Aplikace aktualizací se nezdařila"
 
-#: pkg/shell/indexes.js:328
+#: pkg/shell/indexes.js:336
 msgid "Apps"
 msgstr "Aplikace"
 
@@ -1314,6 +1315,9 @@ msgid ""
 "${luser} on ${lhost}, the key will be automatically made available and you "
 "can log in to ${rhost} without password in the future."
 msgstr ""
+"Změnou hesla k SSH klíči ${key} na přihlašovací heslo uživatele ${luser} na "
+"${lhost}, bude klíč automaticky zpřístupněn a na ${rhost} se příště "
+"přihlásíte už bez hesla."
 
 #: pkg/dashboard/index.html:73 pkg/systemd/hwinfo.jsx:105
 #: pkg/systemd/overview-cards/usageCard.jsx:121
@@ -1343,7 +1347,7 @@ msgstr "Typ procesoru"
 
 #: pkg/packagekit/updates.jsx:319
 msgid "CVE"
-msgstr ""
+msgstr "CVE"
 
 #: pkg/machines/components/diskAdd.jsx:165
 #: pkg/machines/components/vmDiskColumns.jsx:75
@@ -1407,10 +1411,9 @@ msgstr "Storno"
 msgid "Cannot be enabled"
 msgstr "Není možné zapnout"
 
-#: pkg/shell/indexes.js:471
-#, fuzzy
+#: pkg/shell/indexes.js:479
 msgid "Cannot connect to an unknown host"
-msgstr "Nelze se připojit k neznámému stroji"
+msgstr "Nelze se připojit k neznámému hostiteli"
 
 #: src/base1/cockpit.js:4059
 msgid "Cannot forward login credentials"
@@ -1481,9 +1484,8 @@ msgid "Change system time"
 msgstr "Změnit systémový čas"
 
 #: pkg/lib/machine-dialogs.js:714
-#, fuzzy
 msgid "Change the password of ${key}."
-msgstr "Změnit heslo"
+msgstr "Změnit heslo klíče ${key}."
 
 #: pkg/networkmanager/interfaces.js:3165
 msgid "Change the settings"
@@ -1578,7 +1580,7 @@ msgstr "Vyčistit vyhledávání"
 
 #: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:258
 msgid "Click $0 again to use the password anyway."
-msgstr ""
+msgstr "Pokud chcete heslo použít i tak, klikněte znovu na $0."
 
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
@@ -1771,14 +1773,12 @@ msgid "Confirm"
 msgstr "Potvrdit"
 
 #: pkg/lib/machine-dialogs.js:708
-#, fuzzy
 msgid "Confirm key password"
-msgstr "Potvrdit nové heslo"
+msgstr "Potvrdit heslo ke klíči"
 
 #: pkg/lib/machine-dialogs.js:719
-#, fuzzy
 msgid "Confirm new key password"
-msgstr "Potvrdit nové heslo"
+msgstr "Potvrdit nové heslo ke klíči"
 
 #: pkg/networkmanager/firewall.jsx:740
 msgid "Confirm removal of $0"
@@ -1832,7 +1832,7 @@ msgstr "Souběžné spojení s více než {{ limit }} stroji není podporováno.
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Připojování k procesu služby SETroubleshoot…"
 
-#: pkg/shell/indexes.js:466
+#: pkg/shell/indexes.js:474
 msgid "Connecting to the machine"
 msgstr "Připojování ke stroji"
 
@@ -1933,9 +1933,8 @@ msgid "Could not contact {{host}}"
 msgstr "Nedaří se kontaktovat {{host}}"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:51
-#, fuzzy
 msgid "Could not revert to snapshot"
-msgstr "Nedaří se resetovat fond úložiště"
+msgstr "Nedaří se vrátit do podoby ze zachyceného stavu"
 
 #: pkg/kdump/kdump-view.jsx:343 pkg/kdump/kdump-view.jsx:523
 msgid "Crash dump location"
@@ -1976,7 +1975,7 @@ msgstr "Vytvořit virt. stroj"
 
 #: pkg/lib/machine-dialogs.js:703
 msgid "Create a new SSH key and authorize it."
-msgstr ""
+msgstr "Vytvořit nový SSH klíč a autorizovat ho."
 
 #: pkg/storaged/things-panel.jsx:66
 msgid "Create devices"
@@ -2163,9 +2162,8 @@ msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:87
-#, fuzzy
 msgid "Current"
-msgstr "Od tohoto spuštění systému"
+msgstr "Stávající"
 
 #: pkg/machines/components/vm/memoryModal.jsx:110
 msgid "Current allocation"
@@ -2347,7 +2345,6 @@ msgid "Deleting a volume group will erase all data on it."
 msgstr "Smazání skupiny svazků vymaže veškerá data v ní."
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:176
-#, fuzzy
 msgid ""
 "Deleting an inactive storage pool will only undefine the pool. Its content "
 "will not be deleted."
@@ -2655,14 +2652,14 @@ msgstr "Dual rank"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:340
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:348
 #: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
 msgstr "Upravit"
 
 #: pkg/machines/components/diskEdit.jsx:203
 msgid "Edit $0 attributes"
-msgstr ""
+msgstr "Upravit atributy $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:279
 msgid "Edit Tang keyserver"
@@ -2680,7 +2677,7 @@ msgstr "Upravit hostitele"
 
 #: pkg/networkmanager/index.html:110
 msgid "Edit rules and zones"
-msgstr ""
+msgstr "Upravit pravidla a zóny"
 
 #: pkg/dashboard/index.html:141
 msgid "Edit server"
@@ -3231,7 +3228,6 @@ msgid "Hairpin mode"
 msgstr "Hair Pin režim"
 
 #: pkg/lib/machine-info.js:77
-#, fuzzy
 msgid "Handheld"
 msgstr "Pro držení v rukou"
 
@@ -3260,9 +3256,8 @@ msgid "Hide filters"
 msgstr "Skrýt filtry"
 
 #: pkg/packagekit/history.jsx:112
-#, fuzzy
 msgid "History package count"
-msgstr "Váš účet"
+msgstr "Počet historie balíčku"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
@@ -3341,7 +3336,6 @@ msgid "ID"
 msgstr "Identif."
 
 #: pkg/networkmanager/interfaces.js:2908
-#, fuzzy
 msgid "ID $id"
 msgstr "Identif. $id"
 
@@ -3470,6 +3464,9 @@ msgid ""
 "future, use the login password of ${luser} on ${lhost} as the key password, "
 "or leave the key password blank."
 msgstr ""
+"Aby se napříště bylo možné přihlašovat k ${rhost} jako ${ruser} bez hesla, "
+"použijte přihlašovací heslo uživatele ${luser} na ${lhost} jako heslo ke "
+"klíči, nebo heslo ke klíči nevyplňujte."
 
 #: pkg/storaged/mdraid-details.jsx:96
 msgid "In sync"
@@ -3789,9 +3786,8 @@ msgstr "Výpis paměti jádra"
 
 #: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
 #: pkg/lib/machine-dialogs.js:706
-#, fuzzy
 msgid "Key password"
-msgstr "Nové heslo"
+msgstr "Heslo ke klíči"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Key slots with unknown types can not be edited here"
@@ -4056,9 +4052,8 @@ msgid "Logical volume of $0"
 msgstr "Logický svazek na $0"
 
 #: pkg/storaged/content-views.jsx:804
-#, fuzzy
 msgid "Logical volumes"
-msgstr "Logický svazek"
+msgstr "Logické svazky"
 
 #: src/ws/login.js:307
 msgid "Login again"
@@ -4705,9 +4700,8 @@ msgid "New NFS mount"
 msgstr "Nové NFS připojení"
 
 #: pkg/lib/machine-dialogs.js:717
-#, fuzzy
 msgid "New key password"
-msgstr "Nové heslo"
+msgstr "Nové heslo ke klíči"
 
 #: pkg/storaged/crypto-keyslots.jsx:217 pkg/storaged/crypto-keyslots.jsx:263
 msgid "New passphrase"
@@ -5017,10 +5011,9 @@ msgstr "Nepřipojeno"
 msgid "Not connected to Insights"
 msgstr "Nepřipojeno k Insights"
 
-#: pkg/shell/indexes.js:469
-#, fuzzy
+#: pkg/shell/indexes.js:477
 msgid "Not connected to host"
-msgstr "Nepřipojeno k Insights"
+msgstr "Nepřipojeno k hostiteli"
 
 #: pkg/storaged/lvol-tabs.jsx:362
 msgid "Not enough space to grow."
@@ -5238,9 +5231,8 @@ msgid "PackageKit reported error code $0"
 msgstr "PackageKit ohlásilo chybový kód $0"
 
 #: pkg/packagekit/updates.jsx:315
-#, fuzzy
 msgid "Packages"
-msgstr "balíček"
+msgstr "Balíčky"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
@@ -6179,14 +6171,12 @@ msgstr "Obnovit chod"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:74
 #: pkg/machines/components/vmSnapshotsTab.jsx:169
-#, fuzzy
 msgid "Revert"
-msgstr "Nikdy"
+msgstr "Vrátit zpět"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:66
-#, fuzzy
 msgid "Revert to snapshot $0"
-msgstr "Pořídit zachycený stav"
+msgstr "Vrátit zpět do podoby v zachyceném stavu $0"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:69
 msgid ""
@@ -6194,6 +6184,9 @@ msgid ""
 "and the current state will be lost, along with any data not captured in a "
 "snapshot"
 msgstr ""
+"Vrácení zpět do podoby v tomto zachyceném stavu vezme virt. stroj zpět do "
+"okamžiku pořízení zachyceného stavu a stávající stav bude ztracen, včetně "
+"všech dat, která se nenacházejí v zachyceném stavu"
 
 #: pkg/systemd/manifest.json.in
 msgid "Reviewing logs"
@@ -6643,9 +6636,8 @@ msgstr "Vypnout"
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
 #: pkg/machines/hostvmslist.jsx:125
-#, fuzzy
 msgid "Shut off"
-msgstr "vypnuto"
+msgstr "Vypnout"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:230
 msgid "Shut off the VM in order to edit firmware configuration"
@@ -6730,7 +6722,6 @@ msgid "Sockets"
 msgstr "Sokety"
 
 #: pkg/packagekit/manifest.json.in
-#, fuzzy
 msgid "Software Updates"
 msgstr "Aktualizace software"
 
@@ -6970,20 +6961,11 @@ msgid "Storage logs"
 msgstr "Záznamy událostí úložiště"
 
 #: pkg/machines/components/aggregateStatusCards.jsx:47
-#, fuzzy
 msgid "Storage pool"
 msgid_plural "Storage pools"
-msgstr[0] ""
-"#-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Fond úložiště\n"
-"#-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Fond úložiště"
-msgstr[1] ""
-"#-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Fondy úložiště"
-msgstr[2] ""
-"#-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Fondů úložiště"
+msgstr[0] "Fond úložiště"
+msgstr[1] "Fondy úložiště"
+msgstr[2] "Fondů úložiště"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:124
 msgid "Storage pool $0 failed to get activated"
@@ -7036,12 +7018,10 @@ msgid "Stored passphrase"
 msgstr "Uložená heslová fráze"
 
 #: pkg/lib/machine-info.js:85
-#, fuzzy
 msgid "Sub-Chassis"
 msgstr "Dílčí skříň"
 
 #: pkg/lib/machine-info.js:80
-#, fuzzy
 msgid "Sub-Notebook"
 msgstr "Zmenšený notebook"
 
@@ -7138,7 +7118,7 @@ msgstr "Synchronizuje se RAID zařízení $target"
 # version: master, DocId: policycoreutils
 #: pkg/shell/index.html:23
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:331
+#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:339
 msgid "System"
 msgstr "Systém"
 
@@ -7256,7 +7236,6 @@ msgid "The $0 package must be installed to create VDO devices."
 msgstr "Pro vytváření VDO zařízení je třeba, aby byl nainstalovaný balíček $0."
 
 #: pkg/lib/machine-dialogs.js:407
-#, fuzzy
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP adresa nebo název stroje nemůže obsahovat prázdný znak."
 
@@ -7280,6 +7259,8 @@ msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
 msgstr ""
+"SSH klíč ${key} uživatele ${luser} na ${lhost} bude přidán do souboru "
+"${afile} uživatele ${ruser} na ${rhost}."
 
 #: pkg/lib/machine-change-auth.html:28
 msgid ""
@@ -7287,6 +7268,9 @@ msgid ""
 "protected. You can log in with either your login password or by providing "
 "the password of the key at {{#strong}}{{key}}{{/strong}}."
 msgstr ""
+"SSH klíč pro přihlašování se k {{#strong}}{{full_address}}{{/strong}} je "
+"chráněn. Můžete se buď přihlásit svým přihlašovacím heslem nebo zadáním "
+"hesla ke klíči na {{#strong}}{{key}}{{/strong}}."
 
 #: pkg/lib/machine-change-auth.html:55
 msgid ""
@@ -7294,6 +7278,8 @@ msgid ""
 "remainder of the session and will be available for login to other hosts as "
 "well."
 msgstr ""
+"SSH klíč {{#strong}}{{key}}{{/strong}} bude zpřístupněn po celou relaci a "
+"bude k dispozici také pro přihlašování se k ostatním strojům."
 
 #: pkg/machines/components/vm/stateIcon.jsx:40
 msgid "The VM crashed."
@@ -7381,19 +7367,17 @@ msgid "The filesystem has no permanent mount point."
 msgstr "Souborový systém nemá trvalý přípojný bod."
 
 #: pkg/storaged/fsys-tab.jsx:271
-#, fuzzy
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
 msgstr ""
 "Souborový systém už je připojený do $0. Pokračováním ho odtamtud odpojíte."
 
 #: pkg/storaged/fsys-tab.jsx:488
-#, fuzzy
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
 msgstr ""
-"Souborový systém je nyní připojený v $0, ale po příštím startu systému už "
-"nebude připojený vůbec."
+"Souborový systém je nastavený tak, aby byl automaticky připojován při startu "
+"systému, ale šifrovaný kontejner s ním v tu dobu nebude odemčený."
 
 #: pkg/storaged/fsys-tab.jsx:480
 msgid ""
@@ -7468,14 +7452,12 @@ msgstr ""
 "pokouší zaútočit na vaše spojení s tímto strojem."
 
 #: pkg/lib/machine-dialogs.js:838
-#, fuzzy
 msgid "The key password can not be empty"
-msgstr "Tuto kolonku je třeba vyplnit."
+msgstr "Heslo ke klíči je třeba vyplnit"
 
 #: pkg/lib/machine-dialogs.js:846
-#, fuzzy
 msgid "The key passwords do not match"
-msgstr "Zadání hesla se neshodují"
+msgstr "Zadání hesla ke klíči se neshodují"
 
 #: pkg/users/authorized-keys.js:124
 msgid "The key you provided was not valid."
@@ -7497,19 +7479,17 @@ msgstr "Poslední zbývající fyzický svazek skupiny svazků není možné ode
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Přihlášený uživatel není oprávněn zobrazovat modifikace systému"
 
-#: pkg/shell/indexes.js:463
+#: pkg/shell/indexes.js:471
 msgid "The machine is restarting"
 msgstr "Stroj se restartuje"
 
 #: pkg/lib/machine-dialogs.js:854
-#, fuzzy
 msgid "The new key password can not be empty"
-msgstr "Poslední zbývající slot klíče není možné odebrat"
+msgstr "Nové heslo ke klíči je třeba vyplnit"
 
 #: pkg/lib/machine-dialogs.js:859
-#, fuzzy
 msgid "The new key passwords do not match"
-msgstr "Zadání hesla se neshodují"
+msgstr "Zadání nového hesla ke klíči se neshodují"
 
 #: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:253
 msgid "The passwords do not match"
@@ -7783,7 +7763,7 @@ msgstr "Tato webová konzole bude aktualizována."
 
 #: pkg/lib/machine-dialogs.js:729
 msgid "This will allow you to log in without password in the future."
-msgstr ""
+msgstr "Toto vám umožní se napříště přihlašovat bez hesla."
 
 #: pkg/kdump/kdump-view.jsx:301
 msgid ""
@@ -7868,7 +7848,7 @@ msgstr "Vyp/zap. nastavení relace"
 msgid "Too much data"
 msgstr "Příliš mnoho dat"
 
-#: pkg/shell/indexes.js:334
+#: pkg/shell/indexes.js:342
 msgid "Tools"
 msgstr "Nástroje"
 
@@ -8007,18 +7987,16 @@ msgid "Unable to connect to that address"
 msgstr "K této adrese se nedaří připojit"
 
 #: pkg/lib/machine-dialogs.js:467
-#, fuzzy
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
 msgstr ""
-"Cockpit se nepodařilo kontaktovat uvedený stroj $0. Ověřte, že je ssh "
-"spuštěno na portu $1 nebo v jeho adrese zadejte jiný port."
+"Nepodařilo se kontaktovat uvedený stroj $0. Ověřte, že je ssh spuštěno na "
+"portu $1 nebo v jeho adrese zadejte jiný port."
 
 #: pkg/lib/machine-change-port.html:9
-#, fuzzy
 msgid "Unable to contact {{#strong}}{{host}}{{/strong}}."
-msgstr "Cockpit se nepodařilo spojit s {{#strong}}{{host}}{{/strong}}."
+msgstr "Nepodařilo se spojit s {{#strong}}{{host}}{{/strong}}."
 
 #: pkg/selinux/setroubleshoot-view.jsx:75
 #: pkg/selinux/setroubleshoot-view.jsx:208
@@ -8035,35 +8013,37 @@ msgid ""
 "authentication. Please provide the password. You may want to set up your SSH "
 "keys for automatic login."
 msgstr ""
+"Nepodařilo se přihlásit k {{#strong}}{{full_address}}{{/strong}} pomocí "
+"ověření se SSH klíčem. Prosím zadejte heslo. Pokud se chcete přihlašovat "
+"automaticky, nastavte SSH klíče."
 
 #: pkg/lib/machine-change-auth.html:10
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
 "not accept password login or any of your SSH keys."
 msgstr ""
+"Nedaří se přihlásit k {{#strong}}{{full_address}}{{/strong}}. Hostitel "
+"nepřijímá přihlášení heslem nebo žádný z vašich SSH klíčů."
 
 #: pkg/lib/machine-auth-failed.html:15
-#, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. For more authentication "
 "options and troubleshooting support please upgrade cockpit-ws to a newer "
 "version."
 msgstr ""
-"Cockpit se nepodařilo přihlásit k {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}Můžete vyzkoušet {{#sync_link}}synchronizovat uživatele{{/"
-"sync_link}}.{{/can_sync}} Pro více možností ověřování a podporu řešení "
-"problémů přejděte na novější verzi součásti cockpit-ws."
+"Nepodařilo se přihlásit k {{#strong}}{{host}}{{/strong}}. Pro více možností "
+"ověřování se a podporu řešení problémů přejděte na novější verzi součásti "
+"cockpit-ws."
 
 #: pkg/lib/machine-auth-failed.html:6
-#, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. To connect to this host "
 "you will need to enable one of the following authentication methods in the "
 "sshd config on {{#strong}}{{host}}{{/strong}}:"
 msgstr ""
-"Cockpit se nepodařilo přihlásit k {{#strong}}{{host}}{{/strong}}. Aby bylo "
-"možné tento stroj používat s cockpit je třeba zapnout následující metody "
-"ověřování v nastavení sshd na {{#strong}}{{host}}{{/strong}}:"
+"Nepodařilo se přihlásit k {{#strong}}{{host}}{{/strong}}. Aby bylo možné se "
+"připojit k tomuto stroji, je třeba zapnout následující metody ověřování v "
+"nastavení sshd na {{#strong}}{{host}}{{/strong}}:"
 
 #: pkg/storaged/iscsi-panel.jsx:88
 msgid "Unable to reach server"
@@ -8269,7 +8249,6 @@ msgid "Updates available"
 msgstr "Jsou k dispozici aktualizace"
 
 #: pkg/packagekit/history.jsx:109
-#, fuzzy
 msgid "Updates history"
 msgstr "Historie aktualizací"
 
@@ -8399,9 +8378,8 @@ msgid "VLAN"
 msgstr "VLAN"
 
 #: pkg/networkmanager/index.html:177
-#, fuzzy
 msgid "VLAN ID"
-msgstr "Identifikátor VLAN"
+msgstr "Identif. VLAN"
 
 #: pkg/networkmanager/index.html:665
 msgid "VLAN settings"
@@ -8532,7 +8510,6 @@ msgid "View hardware details"
 msgstr "Zobrazit podrobnosti o hardware"
 
 #: pkg/apps/application.jsx:71
-#, fuzzy
 msgid "View project website"
 msgstr "Webové stránky projektu"
 
@@ -8541,7 +8518,6 @@ msgid "View report"
 msgstr "Zobrazit hlášení"
 
 #: pkg/machines/manifest.json.in
-#, fuzzy
 msgid "Virtual Machines"
 msgstr "Virtuální stroje"
 
@@ -8646,7 +8622,7 @@ msgstr "Vyžaduje"
 msgid "Warning and above"
 msgstr "Varování a závažnější"
 
-#: pkg/shell/indexes.js:400
+#: pkg/shell/indexes.js:408
 msgid "Web Console"
 msgstr "Webová konzole"
 
@@ -8754,6 +8730,7 @@ msgstr "Můžete zkusit načíst starší položky."
 #: pkg/lib/machine-change-auth.html:22 pkg/lib/machine-change-auth.html:29
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
+"Pro automatické přihlašování se nejspíš bude třeba změnit heslo ke klíči."
 
 #: pkg/users/password-dialogs.js:85
 msgid "You must wait longer to change your password"
@@ -8764,7 +8741,6 @@ msgid "You need to select the most closely matching operating system"
 msgstr "Je třeba vybrat co nejvíce odpovídající operační systém"
 
 #: pkg/sosreport/index.html:35
-#, fuzzy
 msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr ""

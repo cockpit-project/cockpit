@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-11 04:54+0000\n"
-"PO-Revision-Date: 2020-07-08 04:42+0000\n"
+"POT-Creation-Date: 2020-09-11 08:08+0000\n"
+"PO-Revision-Date: 2020-09-16 10:29+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/master/ja/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.1.1\n"
+"X-Generator: Weblate 4.2.2\n"
 
 #: pkg/networkmanager/interfaces.js:2339
 msgid "$0 active zone"
@@ -91,7 +91,7 @@ msgstr[0] "$0 本のディスクがありません"
 msgid "$0 disks"
 msgstr "$0 ディスク"
 
-#: pkg/shell/indexes.js:398
+#: pkg/shell/indexes.js:406
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
@@ -219,7 +219,7 @@ msgstr[0] "$0 パッケージ"
 #: pkg/systemd/services/services.jsx:652
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] "$0 サービスは失敗しました"
+msgstr[0] "失敗したサービスの数 ($0)"
 
 #: pkg/storaged/crypto-keyslots.jsx:592
 msgid "$0 slots remain"
@@ -583,7 +583,7 @@ msgstr "ARP 監視"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/index.html:147 pkg/shell/indexes.js:412
+#: pkg/shell/index.html:147 pkg/shell/indexes.js:420
 msgid "About Web Console"
 msgstr "Webコンソールについて"
 
@@ -919,7 +919,7 @@ msgstr "Ansible ロールのドキュメント"
 
 #: pkg/systemd/terminal.jsx:91
 msgid "Appearance:"
-msgstr "Appearance:"
+msgstr "外観:"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
 #: pkg/apps/application.jsx:148 pkg/apps/manifest.json.in
@@ -966,7 +966,7 @@ msgstr "アップデートの適用中"
 msgid "Applying updates failed"
 msgstr "アップデートの適用に失敗しました"
 
-#: pkg/shell/indexes.js:328
+#: pkg/shell/indexes.js:336
 msgid "Apps"
 msgstr "アプリ"
 
@@ -1340,7 +1340,7 @@ msgstr "取り消し"
 msgid "Cannot be enabled"
 msgstr "有効にできません"
 
-#: pkg/shell/indexes.js:471
+#: pkg/shell/indexes.js:479
 #, fuzzy
 msgid "Cannot connect to an unknown host"
 msgstr "不明なマシンには接続できません"
@@ -1742,7 +1742,7 @@ msgstr "{{ limit }} 台を超えるマシンへの同時接続はサポートさ
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "SETroubleshoot デーモンへ接続中 ..."
 
-#: pkg/shell/indexes.js:466
+#: pkg/shell/indexes.js:474
 msgid "Connecting to the machine"
 msgstr "マシンへ接続中"
 
@@ -2329,7 +2329,6 @@ msgid "Devices"
 msgstr "デバイス"
 
 #: pkg/sosreport/manifest.json.in
-#, fuzzy
 msgid "Diagnostic Reports"
 msgstr "診断レポート"
 
@@ -2447,7 +2446,7 @@ msgstr "自動起動しません"
 #: pkg/systemd/overview-cards/configurationCard.jsx:290
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
-msgstr "Domain"
+msgstr "ドメイン"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:193
 msgid "Domain $0 could not be contacted"
@@ -2479,7 +2478,7 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:587 pkg/storaged/format-dialog.jsx:195
 msgid "Don't overwrite existing data"
-msgstr "既存のデータを上書きしないでください"
+msgstr "既存のデータを上書きしない"
 
 #: pkg/systemd/services.html:242 pkg/systemd/services.html:246
 #: pkg/systemd/services/timer-dialog.js:303
@@ -2531,7 +2530,7 @@ msgid "Dual rank"
 msgstr "デュアルランク"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:340
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:348
 #: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
 msgstr "編集"
@@ -3584,7 +3583,6 @@ msgid "Kernel"
 msgstr "カーネル"
 
 #: pkg/kdump/manifest.json.in
-#, fuzzy
 msgid "Kernel Dump"
 msgstr "カーネルダンプ"
 
@@ -4774,7 +4772,7 @@ msgstr "接続していません"
 msgid "Not connected to Insights"
 msgstr "Insights に接続されていません"
 
-#: pkg/shell/indexes.js:469
+#: pkg/shell/indexes.js:477
 #, fuzzy
 msgid "Not connected to host"
 msgstr "Insights に接続されていません"
@@ -5540,7 +5538,7 @@ msgstr "読み取り専用"
 
 #: pkg/storaged/plot.jsx:312
 msgid "Reading"
-msgstr "読み取り中"
+msgstr "読み取り"
 
 #: pkg/kdump/kdump-view.jsx:421
 msgid "Reading..."
@@ -6112,7 +6110,7 @@ msgstr "マスク不可割り込みを送信します"
 #: pkg/networkmanager/index.html:148 pkg/networkmanager/index.html:445
 #: pkg/networkmanager/index.html:481
 msgid "Sending"
-msgstr "送信中"
+msgstr "送信"
 
 #: pkg/machines/components/consoles.jsx:70
 msgid "Serial console"
@@ -6347,7 +6345,7 @@ msgstr "シングルランク"
 #: pkg/storaged/nfs-details.jsx:320 pkg/storaged/nfs-panel.jsx:104
 #: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:277
 msgid "Size"
-msgstr "Size"
+msgstr "サイズ"
 
 #: pkg/storaged/dialog.jsx:897
 msgid "Size cannot be negative"
@@ -6401,7 +6399,6 @@ msgid "Sockets"
 msgstr "ソケット"
 
 #: pkg/packagekit/manifest.json.in
-#, fuzzy
 msgid "Software Updates"
 msgstr "ソフトウェア更新"
 
@@ -6781,7 +6778,7 @@ msgstr "RAID デバイス $target の同期"
 
 #: pkg/shell/index.html:23
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:331
+#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:339
 msgid "System"
 msgstr "システム"
 
@@ -7139,7 +7136,7 @@ msgstr "ボリュームグループの最後の物理ボリュームは削除で
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "ログインしているユーザーには、システム変更を表示する権限がありません"
 
-#: pkg/shell/indexes.js:463
+#: pkg/shell/indexes.js:471
 msgid "The machine is restarting"
 msgstr "マシンが再起動中です"
 
@@ -7507,7 +7504,7 @@ msgstr "セッション設定を切り替える"
 msgid "Too much data"
 msgstr "データが多すぎます"
 
-#: pkg/shell/indexes.js:334
+#: pkg/shell/indexes.js:342
 msgid "Tools"
 msgstr "ツール"
 
@@ -7910,7 +7907,7 @@ msgstr "URL"
 #: pkg/storaged/unrecognized-tab.jsx:30
 #: pkg/systemd/overview-cards/usageCard.jsx:116
 msgid "Usage"
-msgstr "使用法"
+msgstr "使用率"
 
 #: pkg/systemd/graphs.html:29 pkg/systemd/graphs.html:112
 msgid "Usage graphs"
@@ -7938,7 +7935,7 @@ msgstr "他のシステムに対して認証する場合は次の鍵を使用し
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:523
 #: pkg/storaged/swap-tab.jsx:63 pkg/systemd/graphs.js:393
 msgid "Used"
-msgstr "Used"
+msgstr "使用済み"
 
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 msgid "Used by"
@@ -8133,7 +8130,6 @@ msgid "View report"
 msgstr "レポートの表示"
 
 #: pkg/machines/manifest.json.in
-#, fuzzy
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
@@ -8235,7 +8231,7 @@ msgstr "望む"
 msgid "Warning and above"
 msgstr "警告以上のレベル"
 
-#: pkg/shell/indexes.js:400
+#: pkg/shell/indexes.js:408
 msgid "Web Console"
 msgstr "Webコンソール"
 
@@ -8822,7 +8818,7 @@ msgstr "なし"
 #: pkg/systemd/graphs.js:144 pkg/systemd/overview-cards/usageCard.jsx:112
 msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
-msgstr[0] "$0 CPU の"
+msgstr[0] "CPU 数 ($0)"
 
 #: pkg/systemd/manifest.json.in
 msgid "operating system"

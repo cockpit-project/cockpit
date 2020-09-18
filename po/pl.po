@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-11 04:54+0000\n"
-"PO-Revision-Date: 2020-07-31 20:27+0000\n"
+"POT-Creation-Date: 2020-09-11 08:08+0000\n"
+"PO-Revision-Date: 2020-09-12 13:31+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
 "master/pl/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.1.1\n"
+"X-Generator: Weblate 4.2.2\n"
 
 #: pkg/networkmanager/interfaces.js:2339
 msgid "$0 active zone"
@@ -105,7 +105,7 @@ msgstr[2] "Brak $0 dysków"
 msgid "$0 disks"
 msgstr "Dyski: $0"
 
-#: pkg/shell/indexes.js:398
+#: pkg/shell/indexes.js:406
 msgid "$0 documentation"
 msgstr "dokumentacja $0"
 
@@ -195,7 +195,7 @@ msgstr[2] "$0 trafień o niskiej ważności"
 
 #: pkg/machines/components/vm/memoryModal.jsx:144
 msgid "$0 memory adjustment"
-msgstr ""
+msgstr "Dostosowanie pamięci $0"
 
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
@@ -239,7 +239,6 @@ msgid "$0 on $1"
 msgstr "$0 na $1"
 
 #: pkg/packagekit/history.jsx:88
-#, fuzzy
 msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 pakiet"
@@ -269,14 +268,12 @@ msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 używanych z $1 ($2 zapisano)"
 
 #: pkg/machines/components/vcpuModal.jsx:243
-#, fuzzy
 msgid "$0 vCPU details"
-msgstr "Informacje o problemie"
+msgstr "Informacje o wirtualnym procesorze $0"
 
 #: pkg/machines/components/nicEdit.jsx:162
-#, fuzzy
 msgid "$0 virtual network interface settings"
-msgstr "Dodaj wirtualny interfejs sieciowy"
+msgstr "Ustawienia wirtualnego interfejsu sieciowego $0"
 
 #: pkg/lib/plot.js:968
 msgid "$0 week"
@@ -607,6 +604,9 @@ msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
 msgstr ""
+"Nowy klucz SSH w ${key} zostanie utworzony dla użytkownika ${luser} na "
+"komputerze ${lhost} i zostanie dodany do pliku ${afile} użytkownika ${ruser} "
+"na komputerze ${rhost}."
 
 #: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
@@ -624,7 +624,7 @@ msgstr "Monitorowanie ARP"
 msgid "ARP ping"
 msgstr "Ping ARP"
 
-#: pkg/shell/index.html:147 pkg/shell/indexes.js:412
+#: pkg/shell/index.html:147 pkg/shell/indexes.js:420
 msgid "About Web Console"
 msgstr "O programie"
 
@@ -903,7 +903,7 @@ msgstr "Po"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:178
 msgid "After deleting the snapshot, all its captured content will be lost."
-msgstr ""
+msgstr "Po usunięciu migawki cała jej treść zostanie utracona."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:27
 msgid ""
@@ -937,7 +937,7 @@ msgstr "Wszystkie dzienniki"
 
 #: pkg/lib/machine-info.js:79
 msgid "All-in-one"
-msgstr ""
+msgstr "Wszystko w jednym"
 
 #: pkg/systemd/services/service-details.jsx:118
 msgid "Allow running (unmask)"
@@ -1008,7 +1008,7 @@ msgstr "Zastosowywanie aktualizacji"
 msgid "Applying updates failed"
 msgstr "Zastosowanie aktualizacji się nie powiodło"
 
-#: pkg/shell/indexes.js:328
+#: pkg/shell/indexes.js:336
 msgid "Apps"
 msgstr "Aplikacje"
 
@@ -1035,10 +1035,9 @@ msgid "At specific time"
 msgstr "O podanym czasie"
 
 #: pkg/machines/components/diskAdd.jsx:234
-#, fuzzy
 msgid "Attaching it will make this disk shareable for every VM using it."
 msgstr ""
-" Podłączenie spowoduje, że ten dysk będzie udostępniany każdej używającej go "
+"Podłączenie spowoduje, że ten dysk będzie udostępniany każdej używającej go "
 "maszynie wirtualnej."
 
 #: pkg/selinux/setroubleshoot-view.jsx:410
@@ -1079,9 +1078,8 @@ msgid "Authentication required"
 msgstr "Wymagane jest uwierzytelnienie"
 
 #: pkg/lib/machine-dialogs.js:724
-#, fuzzy
 msgid "Authorize SSH key."
-msgstr "Upoważnione publiczne klucze SSH"
+msgstr "Upoważnij klucz SSH."
 
 #: pkg/users/authorized-keys-panel.js:151
 msgid "Authorized public SSH keys"
@@ -1105,9 +1103,8 @@ msgid "Automatic (DHCP)"
 msgstr "Automatyczne (DHCP)"
 
 #: pkg/lib/machine-change-auth.html:39 pkg/lib/machine-change-auth.html:57
-#, fuzzy
 msgid "Automatic login"
-msgstr "Automatyczne"
+msgstr "Automatyczne logowanie"
 
 #: pkg/packagekit/autoupdates.jsx:344
 msgid "Automatic updates"
@@ -1270,9 +1267,8 @@ msgid "Bug fix updates available"
 msgstr "Dostępne są aktualizacje naprawiające błędy"
 
 #: pkg/packagekit/updates.jsx:331
-#, fuzzy
 msgid "Bugs"
-msgstr "Błędy:"
+msgstr "Błędy"
 
 #: pkg/machines/components/diskAdd.jsx:181
 #: pkg/machines/components/diskEdit.jsx:63
@@ -1292,6 +1288,9 @@ msgid ""
 "${luser} on ${lhost}, the key will be automatically made available and you "
 "can log in to ${rhost} without password in the future."
 msgstr ""
+"Zmieniając hasło klucza SSH ${key} na hasło logowania użytkownika ${luser} "
+"na komputerze ${lhost}, klucz automatycznie stanie się dostępny i w "
+"przyszłości będzie można logować się na komputerze ${rhost} bez hasła."
 
 #: pkg/dashboard/index.html:73 pkg/systemd/hwinfo.jsx:105
 #: pkg/systemd/overview-cards/usageCard.jsx:121
@@ -1321,7 +1320,7 @@ msgstr "Typ procesora"
 
 #: pkg/packagekit/updates.jsx:319
 msgid "CVE"
-msgstr ""
+msgstr "CVE"
 
 #: pkg/machines/components/diskAdd.jsx:165
 #: pkg/machines/components/vmDiskColumns.jsx:75
@@ -1384,10 +1383,9 @@ msgstr "Anuluj"
 msgid "Cannot be enabled"
 msgstr "Nie można włączyć"
 
-#: pkg/shell/indexes.js:471
-#, fuzzy
+#: pkg/shell/indexes.js:479
 msgid "Cannot connect to an unknown host"
-msgstr "Nie można połączyć z nieznanym komputerem"
+msgstr "Nie można połączyć się z nieznanym komputerem"
 
 #: src/base1/cockpit.js:4059
 msgid "Cannot forward login credentials"
@@ -1456,9 +1454,8 @@ msgid "Change system time"
 msgstr "Zmień czas systemu"
 
 #: pkg/lib/machine-dialogs.js:714
-#, fuzzy
 msgid "Change the password of ${key}."
-msgstr "Zmień hasło"
+msgstr "Zmień hasło klucza ${key}."
 
 #: pkg/networkmanager/interfaces.js:3165
 msgid "Change the settings"
@@ -1551,7 +1548,7 @@ msgstr "Wyczyść wyszukiwanie"
 
 #: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:258
 msgid "Click $0 again to use the password anyway."
-msgstr ""
+msgstr "Kliknij $0 ponownie, aby użyć hasła mimo to."
 
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
@@ -1729,14 +1726,12 @@ msgid "Confirm"
 msgstr "Potwierdź"
 
 #: pkg/lib/machine-dialogs.js:708
-#, fuzzy
 msgid "Confirm key password"
-msgstr "Potwierdź nowe hasło"
+msgstr "Potwierdź hasło klucza"
 
 #: pkg/lib/machine-dialogs.js:719
-#, fuzzy
 msgid "Confirm new key password"
-msgstr "Potwierdź nowe hasło"
+msgstr "Potwierdź nowe hasło klucza"
 
 #: pkg/networkmanager/firewall.jsx:740
 msgid "Confirm removal of $0"
@@ -1790,7 +1785,7 @@ msgstr ""
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Łączenie z usługą SETroubleshoot…"
 
-#: pkg/shell/indexes.js:466
+#: pkg/shell/indexes.js:474
 msgid "Connecting to the machine"
 msgstr "Łączenie z komputerem"
 
@@ -1887,9 +1882,8 @@ msgid "Could not contact {{host}}"
 msgstr "Nie można skontaktować się z {{host}}"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:51
-#, fuzzy
 msgid "Could not revert to snapshot"
-msgstr "Nie można przywrócić puli urządzeń do przechowywania danych"
+msgstr "Nie można przywrócić do migawki"
 
 #: pkg/kdump/kdump-view.jsx:343 pkg/kdump/kdump-view.jsx:523
 msgid "Crash dump location"
@@ -1930,7 +1924,7 @@ msgstr "Utwórz maszynę wirtualną"
 
 #: pkg/lib/machine-dialogs.js:703
 msgid "Create a new SSH key and authorize it."
-msgstr ""
+msgstr "Utwórz nowy klucz SSH i go upoważnij."
 
 #: pkg/storaged/things-panel.jsx:66
 msgid "Create devices"
@@ -2115,9 +2109,8 @@ msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:87
-#, fuzzy
 msgid "Current"
-msgstr "Obecne uruchomienie"
+msgstr "Obecne"
 
 #: pkg/machines/components/vm/memoryModal.jsx:110
 msgid "Current allocation"
@@ -2296,7 +2289,6 @@ msgid "Deleting a volume group will erase all data on it."
 msgstr "Usunięcie grupy woluminów usunie wszystkie znajdujące się w niej dane."
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:176
-#, fuzzy
 msgid ""
 "Deleting an inactive storage pool will only undefine the pool. Its content "
 "will not be deleted."
@@ -2375,7 +2367,6 @@ msgid "Devices"
 msgstr "Urządzenia"
 
 #: pkg/sosreport/manifest.json.in
-#, fuzzy
 msgid "Diagnostic Reports"
 msgstr "Raporty diagnostyczne"
 
@@ -2577,14 +2568,14 @@ msgid "Dual rank"
 msgstr "Podwójny stopień"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:340
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:348
 #: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
 msgstr "Modyfikuj"
 
 #: pkg/machines/components/diskEdit.jsx:203
 msgid "Edit $0 attributes"
-msgstr ""
+msgstr "Modyfikuj atrybuty $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:279
 msgid "Edit Tang keyserver"
@@ -2600,7 +2591,7 @@ msgstr "Modyfikuj komputery"
 
 #: pkg/networkmanager/index.html:110
 msgid "Edit rules and zones"
-msgstr ""
+msgstr "Modyfikuj reguły i strefy"
 
 #: pkg/dashboard/index.html:141
 msgid "Edit server"
@@ -2709,7 +2700,6 @@ msgid "Enhancement updates available"
 msgstr "Dostępne są aktualizacje z ulepszeniami"
 
 #: pkg/lib/machine-dialogs.js:485
-#, fuzzy
 msgid "Enter IP address or hostname"
 msgstr "Adres IP lub nazwa komputera"
 
@@ -2734,9 +2724,8 @@ msgid "Erasing $target"
 msgstr "Czyszczenie $target"
 
 #: pkg/packagekit/updates.jsx:327
-#, fuzzy
 msgid "Errata"
-msgstr "Poprawka:"
+msgstr "Poprawka"
 
 #: pkg/playground/translate.html:99 pkg/playground/translate.html:104
 #: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:298
@@ -2913,9 +2902,8 @@ msgid "Filter"
 msgstr "Filtruj"
 
 #: pkg/machines/hostvmslist.jsx:109
-#, fuzzy
 msgid "Filter by name"
-msgstr "Filtrowanie według nazwy lub opisu"
+msgstr "Filtrowanie według nazwy"
 
 #: pkg/systemd/services/services.jsx:729
 msgid "Filter by name or description"
@@ -3118,7 +3106,6 @@ msgid "Hairpin mode"
 msgstr "Tryb Hairpin"
 
 #: pkg/lib/machine-info.js:77
-#, fuzzy
 msgid "Handheld"
 msgstr "Przenośny"
 
@@ -3147,9 +3134,8 @@ msgid "Hide filters"
 msgstr "Ukryj filtry"
 
 #: pkg/packagekit/history.jsx:112
-#, fuzzy
 msgid "History package count"
-msgstr "Twoje konto"
+msgstr "Liczba pakietów w historii"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
@@ -3218,7 +3204,6 @@ msgid "ID"
 msgstr "Identyfikator"
 
 #: pkg/networkmanager/interfaces.js:2908
-#, fuzzy
 msgid "ID $id"
 msgstr "Identyfikator $id"
 
@@ -3324,7 +3309,6 @@ msgid "Import VM"
 msgstr "Zaimportuj maszynę wirtualną"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:931
-#, fuzzy
 msgid "Import a virtual machine"
 msgstr "Zaimportuj maszynę wirtualną"
 
@@ -3342,6 +3326,9 @@ msgid ""
 "future, use the login password of ${luser} on ${lhost} as the key password, "
 "or leave the key password blank."
 msgstr ""
+"Aby umożliwić w przyszłości logowanie na komputerze ${rhost} jako użytkownik "
+"${ruser} bez hasła, należy użyć hasła logowania użytkownika ${luser} na "
+"komputerze ${lhost} jako hasło klucza lub pozostawić hasło klucza puste."
 
 #: pkg/storaged/mdraid-details.jsx:96
 msgid "In sync"
@@ -3631,7 +3618,6 @@ msgid "Kernel"
 msgstr "Jądro"
 
 #: pkg/kdump/manifest.json.in
-#, fuzzy
 msgid "Kernel Dump"
 msgstr "Zrzut jądra"
 
@@ -3641,9 +3627,8 @@ msgstr "Zrzut jądra"
 
 #: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
 #: pkg/lib/machine-dialogs.js:706
-#, fuzzy
 msgid "Key password"
-msgstr "Nowe hasło"
+msgstr "Hasło klucza"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Key slots with unknown types can not be edited here"
@@ -3901,9 +3886,8 @@ msgid "Logical volume of $0"
 msgstr "Wolumin logiczny $0"
 
 #: pkg/storaged/content-views.jsx:804
-#, fuzzy
 msgid "Logical volumes"
-msgstr "Wolumin logiczny"
+msgstr "Woluminy logiczne"
 
 #: src/ws/login.js:307
 msgid "Login again"
@@ -4517,9 +4501,8 @@ msgid "New NFS mount"
 msgstr "Nowy punkt montowania NFS"
 
 #: pkg/lib/machine-dialogs.js:717
-#, fuzzy
 msgid "New key password"
-msgstr "Nowe hasło"
+msgstr "Nowe hasło klucza"
 
 #: pkg/storaged/crypto-keyslots.jsx:217 pkg/storaged/crypto-keyslots.jsx:263
 msgid "New passphrase"
@@ -4828,10 +4811,9 @@ msgstr "Nie połączono"
 msgid "Not connected to Insights"
 msgstr "Nie połączono z Insights"
 
-#: pkg/shell/indexes.js:469
-#, fuzzy
+#: pkg/shell/indexes.js:477
 msgid "Not connected to host"
-msgstr "Nie połączono z Insights"
+msgstr "Nie połączono z komputerem"
 
 #: pkg/storaged/lvol-tabs.jsx:362
 msgid "Not enough space to grow."
@@ -5040,9 +5022,8 @@ msgid "PackageKit reported error code $0"
 msgstr "Usługa PackageKit zgłosiła kod błędu $0"
 
 #: pkg/packagekit/updates.jsx:315
-#, fuzzy
 msgid "Packages"
-msgstr "pakiet"
+msgstr "Pakiety"
 
 #: pkg/networkmanager/index.html:172
 msgid "Parent"
@@ -5934,14 +5915,12 @@ msgstr "Wznów"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:74
 #: pkg/machines/components/vmSnapshotsTab.jsx:169
-#, fuzzy
 msgid "Revert"
-msgstr "Nigdy"
+msgstr "Przywróć"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:66
-#, fuzzy
 msgid "Revert to snapshot $0"
-msgstr "Utwórz migawkę"
+msgstr "Przywróć do migawki $0"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:69
 msgid ""
@@ -5949,6 +5928,9 @@ msgid ""
 "and the current state will be lost, along with any data not captured in a "
 "snapshot"
 msgstr ""
+"Przywrócenie do tej migawki przeniesie maszynę wirtualną do czasu migawki i "
+"jej obecny stan zostanie utracony, razem ze wszelkimi danymi nieujętymi w "
+"migawce"
 
 #: pkg/systemd/manifest.json.in
 msgid "Reviewing logs"
@@ -6050,9 +6032,8 @@ msgid "SPICE port:"
 msgstr "Port SPICE:"
 
 #: pkg/lib/machine-change-auth.html:46
-#, fuzzy
 msgid "SSH key"
-msgstr "Klucze SSH"
+msgstr "Klucz SSH"
 
 #: pkg/shell/index.html:79 pkg/shell/index.html:230
 msgid "SSH keys"
@@ -6373,9 +6354,8 @@ msgid "Shut down"
 msgstr "Wyłącz"
 
 #: pkg/machines/hostvmslist.jsx:125
-#, fuzzy
 msgid "Shut off"
-msgstr "wyłącz"
+msgstr "Wyłącz"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:230
 msgid "Shut off the VM in order to edit firmware configuration"
@@ -6458,7 +6438,6 @@ msgid "Sockets"
 msgstr "Gniazda"
 
 #: pkg/packagekit/manifest.json.in
-#, fuzzy
 msgid "Software Updates"
 msgstr "Aktualizacje oprogramowania"
 
@@ -6687,20 +6666,11 @@ msgid "Storage logs"
 msgstr "Dzienniki urządzeń do przechowywania danych"
 
 #: pkg/machines/components/aggregateStatusCards.jsx:47
-#, fuzzy
 msgid "Storage pool"
 msgid_plural "Storage pools"
-msgstr[0] ""
-"#-#-#-#-#  pl.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Pula urządzeń do przechowywania danych\n"
-"#-#-#-#-#  pl.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Pula urządzeń do przechowywania danych"
-msgstr[1] ""
-"#-#-#-#-#  pl.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Pule urządzeń do przechowywania danych"
-msgstr[2] ""
-"#-#-#-#-#  pl.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Pule urządzeń do przechowywania danych"
+msgstr[0] "Pula urządzeń do przechowywania danych"
+msgstr[1] "Pule urządzeń do przechowywania danych"
+msgstr[2] "Pule urządzeń do przechowywania danych"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:124
 msgid "Storage pool $0 failed to get activated"
@@ -6754,14 +6724,12 @@ msgid "Stored passphrase"
 msgstr "Zachowane hasło"
 
 #: pkg/lib/machine-info.js:85
-#, fuzzy
 msgid "Sub-Chassis"
 msgstr "Obudowa podrzędna"
 
 #: pkg/lib/machine-info.js:80
-#, fuzzy
 msgid "Sub-Notebook"
-msgstr "Sub Notebook"
+msgstr "Sub-Notebook"
 
 #: pkg/systemd/services.html:59
 msgid "Sunday"
@@ -6850,7 +6818,7 @@ msgstr "Synchronizowanie urządzenia RAID $target"
 
 #: pkg/shell/index.html:23
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:331
+#: pkg/machines/helpers.js:196 pkg/shell/indexes.js:339
 msgid "System"
 msgstr "System"
 
@@ -6962,7 +6930,6 @@ msgid "The $0 package must be installed to create VDO devices."
 msgstr "Pakiet $0 musi być zainstalowany, aby tworzyć urządzenia VDO."
 
 #: pkg/lib/machine-dialogs.js:407
-#, fuzzy
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "Adres IP lub nazwa komputera nie może zawierać spacji."
 
@@ -6983,6 +6950,8 @@ msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
 msgstr ""
+"Klucz SSH ${key} użytkownika ${luser} na komputerze ${lhost} zostanie dodany "
+"do pliku ${afile} użytkownika ${ruser} na komputerze ${rhost}."
 
 #: pkg/lib/machine-change-auth.html:28
 msgid ""
@@ -6990,6 +6959,9 @@ msgid ""
 "protected. You can log in with either your login password or by providing "
 "the password of the key at {{#strong}}{{key}}{{/strong}}."
 msgstr ""
+"Klucz SSH do logowania w {{#strong}}{{full_address}}{{/strong}} jest "
+"chroniony. Można zalogować się za pomocą hasła logowania lub podając hasło "
+"klucza w {{#strong}}{{key}}{{/strong}}."
 
 #: pkg/lib/machine-change-auth.html:55
 msgid ""
@@ -6997,6 +6969,8 @@ msgid ""
 "remainder of the session and will be available for login to other hosts as "
 "well."
 msgstr ""
+"Klucz SSH {{#strong}}{{key}}{{/strong}} stanie się dostępny przez pozostały "
+"czas sesji i będzie dostępny do logowania także na innych komputerach."
 
 #: pkg/machines/components/vm/stateIcon.jsx:40
 msgid "The VM crashed."
@@ -7094,20 +7068,18 @@ msgid "The filesystem has no permanent mount point."
 msgstr "System plików nie ma trwałego punktu montowania."
 
 #: pkg/storaged/fsys-tab.jsx:271
-#, fuzzy
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
 msgstr ""
-"System plików jest już zamontowany w $0.  Kontynuowanie spowoduje jego "
+"System plików jest już zamontowany w $0. Kontynuowanie spowoduje jego "
 "odmontowanie."
 
 #: pkg/storaged/fsys-tab.jsx:488
-#, fuzzy
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
 msgstr ""
-"System plików jest obecnie zamontowany na $0, ale nie będzie zamontowany po "
-"następnym uruchomieniu."
+"System plików jest skonfigurowany do automatycznego montowania podczas "
+"uruchamiania, ale jego kontener szyfrowania nie będzie wtedy odblokowywany."
 
 #: pkg/storaged/fsys-tab.jsx:480
 msgid ""
@@ -7184,14 +7156,12 @@ msgstr ""
 "próbę ataku na połączenie z tym komputerem."
 
 #: pkg/lib/machine-dialogs.js:838
-#, fuzzy
 msgid "The key password can not be empty"
-msgstr "To pole nie może być puste."
+msgstr "Hasło klucza nie może być puste"
 
 #: pkg/lib/machine-dialogs.js:846
-#, fuzzy
 msgid "The key passwords do not match"
-msgstr "Hasła się nie zgadzają"
+msgstr "Hasła klucza się nie zgadzają"
 
 #: pkg/users/authorized-keys.js:124
 msgid "The key you provided was not valid."
@@ -7214,19 +7184,17 @@ msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 "Zalogowany użytkownik nie ma zezwolenia na wyświetlanie modyfikacji systemu"
 
-#: pkg/shell/indexes.js:463
+#: pkg/shell/indexes.js:471
 msgid "The machine is restarting"
 msgstr "Komputer jest ponownie uruchamiany"
 
 #: pkg/lib/machine-dialogs.js:854
-#, fuzzy
 msgid "The new key password can not be empty"
-msgstr "Nie można usunąć ostatniego gniazda na klucz"
+msgstr "Nowe hasło klucza nie może być puste"
 
 #: pkg/lib/machine-dialogs.js:859
-#, fuzzy
 msgid "The new key passwords do not match"
-msgstr "Hasła się nie zgadzają"
+msgstr "Nowe hasła klucza się nie zgadzają"
 
 #: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:253
 msgid "The passwords do not match"
@@ -7508,7 +7476,7 @@ msgstr "Ta konsola internetowa zostanie zaktualizowana."
 
 #: pkg/lib/machine-dialogs.js:729
 msgid "This will allow you to log in without password in the future."
-msgstr ""
+msgstr "Umożliwi to logowanie bez hasła w przyszłości."
 
 #: pkg/kdump/kdump-view.jsx:301
 msgid ""
@@ -7593,7 +7561,7 @@ msgstr "Przełącz ustawienia sesji"
 msgid "Too much data"
 msgstr "Za dużo danych"
 
-#: pkg/shell/indexes.js:334
+#: pkg/shell/indexes.js:342
 msgid "Tools"
 msgstr "Narzędzia"
 
@@ -7722,19 +7690,16 @@ msgid "Unable to connect to that address"
 msgstr "Nie można połączyć z tym adresem"
 
 #: pkg/lib/machine-dialogs.js:467
-#, fuzzy
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
 msgstr ""
-"Cockpit nie może skontaktować się z podanym komputerem $0. Proszę się "
-"upewnić, że ma on uruchomioną usługę ssh na porcie $1 lub podać inny port "
-"w adresie."
+"Nie można skontaktować się z podanym komputerem $0. Proszę się upewnić, że "
+"ma on uruchomioną usługę ssh na porcie $1 lub podać inny port w adresie."
 
 #: pkg/lib/machine-change-port.html:9
-#, fuzzy
 msgid "Unable to contact {{#strong}}{{host}}{{/strong}}."
-msgstr "Cockpit nie może skontaktować się z {{#strong}}{{host}}{{/strong}}."
+msgstr "Nie można skontaktować się z {{#strong}}{{host}}{{/strong}}."
 
 #: pkg/selinux/setroubleshoot-view.jsx:75
 #: pkg/selinux/setroubleshoot-view.jsx:208
@@ -7751,36 +7716,37 @@ msgid ""
 "authentication. Please provide the password. You may want to set up your SSH "
 "keys for automatic login."
 msgstr ""
+"Nie można zalogować się w {{#strong}}{{full_address}}{{/strong}} za pomocą "
+"uwierzytelniania kluczem SSH. Proszę podać hasło. Można później "
+"skonfigurować klucze SSH do automatycznego logowania."
 
 #: pkg/lib/machine-change-auth.html:10
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
 "not accept password login or any of your SSH keys."
 msgstr ""
+"Nie można zalogować się w {{#strong}}{{full_address}}{{/strong}}. Komputer "
+"nie przyjmuje logowania hasłem ani żadnego z kluczy SSH użytkownika."
 
 #: pkg/lib/machine-auth-failed.html:15
-#, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. For more authentication "
 "options and troubleshooting support please upgrade cockpit-ws to a newer "
 "version."
 msgstr ""
-"Cockpit nie może zalogować do {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
-"Można spróbować {{#sync_link}}synchronizować użytkowników{{/sync_link}}.{{/"
-"can_sync}} Zaktualizowanie cockpit-ws do nowszej wersji udostępni więcej "
-"opcji uwierzytelniania i pomocy w rozwiązywaniu problemów."
+"Nie można zalogować się w {{#strong}}{{host}}{{/strong}}. Zaktualizowanie "
+"cockpit-ws do nowszej wersji udostępni więcej opcji uwierzytelniania i "
+"pomocy w rozwiązywaniu problemów."
 
 #: pkg/lib/machine-auth-failed.html:6
-#, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. To connect to this host "
 "you will need to enable one of the following authentication methods in the "
 "sshd config on {{#strong}}{{host}}{{/strong}}:"
 msgstr ""
-"Cockpit nie może zalogować się do {{#strong}}{{host}}{{/strong}}. Aby używać "
-"tego komputera za pomocą programu Cockpit, należy włączyć jedną z poniższych "
-"metod uwierzytelniania w konfiguracji usługi sshd w {{#strong}}{{host}}{{/"
-"strong}}:"
+"Nie można zalogować się w {{#strong}}{{host}}{{/strong}}. Aby połączyć się z "
+"tym komputerem, należy włączyć jedną z poniższych metod uwierzytelniania w "
+"konfiguracji usługi sshd w {{#strong}}{{host}}{{/strong}}:"
 
 #: pkg/storaged/iscsi-panel.jsx:88
 msgid "Unable to reach server"
@@ -7976,7 +7942,6 @@ msgid "Updates available"
 msgstr "Dostępne są aktualizacje"
 
 #: pkg/packagekit/history.jsx:109
-#, fuzzy
 msgid "Updates history"
 msgstr "Historia aktualizacji"
 
@@ -8092,7 +8057,6 @@ msgid "VLAN"
 msgstr "VLAN"
 
 #: pkg/networkmanager/index.html:177
-#, fuzzy
 msgid "VLAN ID"
 msgstr "Identyfikator VLAN"
 
@@ -8216,7 +8180,6 @@ msgid "View hardware details"
 msgstr "Wyświetl informacje o sprzęcie"
 
 #: pkg/apps/application.jsx:71
-#, fuzzy
 msgid "View project website"
 msgstr "Strona projektu"
 
@@ -8225,7 +8188,6 @@ msgid "View report"
 msgstr "Wyświetl zgłoszenie"
 
 #: pkg/machines/manifest.json.in
-#, fuzzy
 msgid "Virtual Machines"
 msgstr "Maszyny wirtualne"
 
@@ -8327,7 +8289,7 @@ msgstr "Chce"
 msgid "Warning and above"
 msgstr "Ostrzeżenia i powyżej"
 
-#: pkg/shell/indexes.js:400
+#: pkg/shell/indexes.js:408
 msgid "Web Console"
 msgstr "Konsola internetowa"
 
@@ -8429,7 +8391,7 @@ msgstr "Można spróbować wczytać starsze wpisy."
 
 #: pkg/lib/machine-change-auth.html:22 pkg/lib/machine-change-auth.html:29
 msgid "You may want to change the password of the key for automatic login."
-msgstr ""
+msgstr "Można zmienić hasło klucza do automatycznego logowania."
 
 #: pkg/users/password-dialogs.js:85
 msgid "You must wait longer to change your password"
@@ -8440,7 +8402,6 @@ msgid "You need to select the most closely matching operating system"
 msgstr "Należy wybrać najlepiej pasujący system operacyjny"
 
 #: pkg/sosreport/index.html:35
-#, fuzzy
 msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr ""

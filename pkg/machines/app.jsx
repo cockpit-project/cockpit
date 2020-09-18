@@ -19,6 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ToastNotificationList } from 'patternfly-react';
+import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
 
 import HostVmsList from "./hostvmslist.jsx";
@@ -29,7 +30,7 @@ import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx
 import { isObjectEmpty, dummyVmsFilter } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 
-var permission = cockpit.permission({ admin: true });
+superuser.reload_page_on_change();
 
 class App extends React.Component {
     constructor(props) {
@@ -44,21 +45,21 @@ class App extends React.Component {
         this.onAddErrorNotification = this.onAddErrorNotification.bind(this);
         this.onDismissErrorNotification = this.onDismissErrorNotification.bind(this);
         this.onNavigate = () => this.setState({ path: cockpit.location.path });
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
+        this.onSuperuserChanged = this.onSuperuserChanged.bind(this);
     }
 
     componentDidMount() {
         cockpit.addEventListener("locationchanged", this.onNavigate);
-        permission.addEventListener("changed", this.onPermissionChanged);
+        superuser.addEventListener("changed", this.onSuperuserChanged);
     }
 
     componentWillUnmount() {
         cockpit.removeEventListener("locationchanged", this.onNavigate);
-        permission.removeEventListener("changed", this.onPermissionChanged);
+        superuser.removeEventListener("changed", this.onSuperuserChanged);
     }
 
-    onPermissionChanged() {
-        this.setState({ allowed: !!permission.allowed });
+    onSuperuserChanged() {
+        this.setState({ allowed: !!superuser.allowed });
     }
 
     /*

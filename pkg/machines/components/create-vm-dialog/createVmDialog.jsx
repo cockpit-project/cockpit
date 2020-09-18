@@ -69,8 +69,6 @@ const DOWNLOAD_AN_OS = 'os';
 const EXISTING_DISK_IMAGE_SOURCE = 'disk_image';
 const PXE_SOURCE = 'pxe';
 
-const permission = cockpit.permission({ admin: true });
-
 /* Returns pool's available space
  * Pool needs to be referenced by it's name or path.
  *
@@ -105,6 +103,10 @@ function getPoolSpaceAvailable({ storagePools, poolName, poolPath, connectionNam
  * @param {string} connectionName
  * @returns {number}
  */
+
+let current_user = null;
+cockpit.user().then(user => { current_user = user });
+
 function getSpaceAvailable(storagePools, connectionName) {
     let space = getPoolSpaceAvailable({ storagePools, poolName: "default", connectionName });
 
@@ -112,8 +114,8 @@ function getSpaceAvailable(storagePools, connectionName) {
         let poolPath;
         if (connectionName === LIBVIRT_SYSTEM_CONNECTION)
             poolPath = "/var/lib/libvirt/images";
-        else if (permission.user)
-            poolPath = permission.user.home + "/.local/share/libvirt/images";
+        else if (current_user)
+            poolPath = current_user.home + "/.local/share/libvirt/images";
 
         space = getPoolSpaceAvailable({ storagePools, poolPath, connectionName });
     }

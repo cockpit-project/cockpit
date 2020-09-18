@@ -1420,6 +1420,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # OS input check
         runner.checkOsInputTest(TestMachines.VmDialog(self))
 
+        # OS input check when import
+        runner.checkOsInputTest(TestMachines.VmDialog(self, sourceType="disk_image"))
+
         # Test OS autodetection from URL tree media
         runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                       location=config.TREE_URL,
@@ -1983,7 +1986,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b = self.browser
 
             # select "Installation Type" for more complete OS list
-            b.select_from_dropdown("#source-type", "Local Install Media")
+            if self.sourceType != "disk_image":
+                b.select_from_dropdown("#source-type", "Local install media")
             # input an OS and check there is no Ooops
             b.set_input_text("label[for=\"os-select\"] + div input", self.os_name)
             b.click("#os-select li button:contains('{}')".format(self.os_name))

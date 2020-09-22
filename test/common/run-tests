@@ -236,7 +236,7 @@ def run(opts, image):
                 # most tests should take much less than 10mins, so default to that;
                 # longer tests can be annotated with @timeout(seconds)
                 # check the test function first, fall back to the class'es timeout
-                test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
+                test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 30))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
                 if test_str in opts.exclude:

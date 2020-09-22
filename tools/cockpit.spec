@@ -257,6 +257,7 @@ find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
+    rm -rf %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
 for data in doc locale man pixmaps polkit-1; do
@@ -277,7 +278,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
 for pkg in apps dashboard machines packagekit pcp playground storaged; do
-    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
+    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
 rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets

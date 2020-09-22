@@ -28,7 +28,7 @@ usage()
 quiet="--quiet"
 check=""
 
-args=$(getopt -o "h,v" -l "help,quick,verbose" -- "$@")
+args=$(getopt -o "h,q,v" -l "help,quick,verbose" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in

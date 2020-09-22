@@ -324,17 +324,15 @@ cockpit_auth_nonce (CockpitAuth *self)
 static gchar *
 get_remote_address (GIOStream *io)
 {
-  GSocketAddress *remote = NULL;
-  GSocketConnection *connection = NULL;
-  GIOStream *base;
+  g_autoptr(GSocketConnection) connection = NULL;
   gchar *result = NULL;
 
   if (G_IS_TLS_CONNECTION (io))
     {
+      g_autoptr(GIOStream) base = NULL;
       g_object_get (io, "base-io-stream", &base, NULL);
       if (G_IS_SOCKET_CONNECTION (base))
         connection = g_object_ref (base);
-      g_object_unref (base);
     }
   else if (G_IS_SOCKET_CONNECTION (io))
     {
@@ -342,14 +340,26 @@ get_remote_address (GIOStream *io)
     }
 
   if (connection)
-    remote = g_socket_connection_get_remote_address (connection, NULL);
-  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+    {
+      JsonObject *metadata = g_object_get_qdata (G_OBJECT (connection),
+                                                 g_quark_from_static_string ("metadata"));
 
-  if (remote)
-    g_object_unref (remote);
-  if (connection)
-    g_object_unref (connection);
+      if (metadata)
+          {
+            const gchar *tmp;
+
+            if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
+              result = g_strdup (tmp);
+          }
+
+      if (result == NULL)
+        {
+          g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (connection, NULL);
+
+          if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+            result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+        }
+    }
 
   return result;
 }

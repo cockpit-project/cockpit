@@ -728,6 +728,8 @@ class MachineCase(unittest.TestCase):
 
     @classmethod
     def get_global_machine(klass, restrict=True, id="1"):
+        sys.stdout.write("GET GLOBAL %s\n" % id)
+        sys.stdout.flush()
         if id not in klass.global_machines:
             klass.global_machines[id] = m = klass.new_machine(klass, restrict=restrict, cleanup=False)
             if opts.trace:
@@ -737,7 +739,11 @@ class MachineCase(unittest.TestCase):
 
     @classmethod
     def kill_global_machine(klass, id):
+        sys.stdout.write("KILL GLOBAL %s\n" % id)
+        sys.stdout.flush()
         if klass.network:
+            sys.stdout.write("KILL GLOBAL NETWORK\n")
+            sys.stdout.flush()
             klass.network.kill()
             klass.network = None
         klass.global_machines[id].kill()
@@ -745,6 +751,8 @@ class MachineCase(unittest.TestCase):
 
     @classmethod
     def kill_global_machines(klass):
+        sys.stdout.write("KILL ALL GLOBAL\n")
+        sys.stdout.flush()
         for id in list(klass.global_machines):
             klass.kill_global_machine(id)
 

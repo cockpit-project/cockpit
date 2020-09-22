@@ -63,9 +63,7 @@ static GIOStream *
 create_io_stream_for_unix_socket (gint fd)
 {
   g_autoptr(GError) error = NULL;
-  g_autoptr(GSocket) socket;
-
-  socket = g_socket_new_from_fd (fd, &error);
+  g_autoptr(GSocket) socket = g_socket_new_from_fd (fd, &error);
   g_assert_no_error (error);
 
   return G_IO_STREAM (g_socket_connection_factory_create_connection (socket));

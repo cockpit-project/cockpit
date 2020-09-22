@@ -24,6 +24,7 @@
 #include "cockpithash.h"
 #include "cockpitmemory.h"
 #include "cockpitwebresponse.h"
+#include "cockpitmemfdread.h"
 
 #include "websocket/websocket.h"
 
@@ -1136,16 +1137,18 @@ on_socket_input (GSocket *socket,
   GError *error = NULL;
   GIOStream *tls_stream;
   gssize num_read;
+  g_auto(CockpitControlMessages) ccm;
 
   num_read = g_socket_receive_message (socket,
                                        NULL, /* out GSocketAddress */
                                        vector,
                                        1,
-                                       NULL, /* out GSocketControlMessage */
-                                       NULL, /* out num_messages */
+                                       &ccm.messages,
+                                       &ccm.n_messages,
                                        &flags,
                                        NULL, /* GCancellable* */
                                        &error);
+
   if (num_read < 0)
     {
       /* Just wait and try again */
@@ -1163,12 +1166,33 @@ on_socket_input (GSocket *socket,
       return FALSE;
     }
 
+  JsonObject *metadata = cockpit_memfd_read_json_from_control_messages (&ccm, &error);
+  if (metadata)
+    {
+      g_assert (G_IS_SOCKET_CONNECTION (request->io));
+      g_object_set_qdata_full (G_OBJECT (request->io),
+                               g_quark_from_static_string ("metadata"),
+                               metadata, (GDestroyNotify) json_object_unref);
+    }
+  else if (error != NULL)
+    {
+      g_warning ("Failed while reading metadata from new connection: %s", error->message);
+      g_clear_error (&error);
+    }
+
   /*
    * TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
    * from regular HTTP requests
    */
   if (first_byte == 22 || first_byte == 0x80)
     {
+      if (request->web_server->certificate == NULL)
+        {
+          g_warning ("Received unexpected TLS connection and no certificate was configured");
+          cockpit_request_finish (request);
+          return FALSE;
+        }
+
       tls_stream = g_tls_server_connection_new (request->io,
                                                 request->web_server->certificate,
                                                 &error);
@@ -1191,9 +1215,12 @@ on_socket_input (GSocket *socket,
     }
   else
     {
-      /* non-TLS stream; defer redirection check until after header parsing */
-      if (cockpit_web_server_get_flags (request->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
-        request->check_tls_redirect = TRUE;
+      if (request->web_server->certificate || request->web_server->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS)
+        {
+          /* non-TLS stream; defer redirection check until after header parsing */
+          if (cockpit_web_server_get_flags (request->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
+            request->check_tls_redirect = TRUE;
+        }
     }
 
   start_request_input (request);
@@ -1221,7 +1248,6 @@ cockpit_request_start (CockpitWebServer *self,
 {
   GSocketConnection *connection;
   CockpitRequest *request;
-  gboolean input = TRUE;
   GSocket *socket;
 
   request = g_new0 (CockpitRequest, 1);
@@ -1242,24 +1268,16 @@ cockpit_request_start (CockpitWebServer *self,
       socket = g_socket_connection_get_socket (connection);
       g_socket_set_blocking (socket, FALSE);
 
-      if (self->certificate || self->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS)
-        {
-          request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
-                                                    G_IO_IN, NULL);
-          g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
-          g_source_attach (request->source, self->main_context);
-
-          /* Wait on reading input */
-          input = FALSE;
-        }
-
+      request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
+                                                G_IO_IN, NULL);
+      g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
+      g_source_attach (request->source, self->main_context);
     }
+  else
+    start_request_input (request);
 
   /* Owns the request */
   g_hash_table_add (self->requests, request);
-
-  if (input)
-    start_request_input (request);
 }
 
 static gboolean

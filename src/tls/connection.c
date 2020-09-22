@@ -23,10 +23,12 @@
 
 #include "connection.h"
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <net/if.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -44,8 +46,10 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#include <common/cockpitwebcertificate.h>
+#include <common/cockpitjsonprint.h>
 #include <common/cockpitmemory.h>
+#include <common/cockpitwebcertificate.h>
+
 #include "certfile.h"
 #include "socket-io.h"
 #include "utils.h"
@@ -83,6 +87,7 @@ typedef struct {
 
   Fingerprint fingerprint;
   int certfile_fd;
+  int metadata_fd;
 } Connection;
 
 #define BUFFER_SIZE (sizeof ((Buffer *) 0)->buffer)
@@ -209,9 +214,48 @@ get_iovecs (struct iovec *iov,
 }
 
 static void
-buffer_write_to_fd (Buffer *self,
-                    int     fd)
+fd_send_prepare (const int      *fd_to_send,
+                 struct msghdr  *msg,
+                 struct cmsghdr *cmsg,
+                 size_t          cmsgsize)
 {
+  if (fd_to_send == NULL || *fd_to_send == -1)
+   return;
+
+  assert (CMSG_SPACE(sizeof *fd_to_send) <= cmsgsize);
+
+  /* we have an fd to send: create an SCM_RIGHTS cmsg. */
+  cmsg->cmsg_len = CMSG_LEN(sizeof *fd_to_send);
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  memcpy (CMSG_DATA(cmsg), fd_to_send, sizeof *fd_to_send);
+
+  /* attach it to the msghdr */
+  msg->msg_control = cmsg;
+  msg->msg_controllen = CMSG_LEN(sizeof *fd_to_send);
+}
+
+static void
+fd_send_complete (int     *fd_to_send,
+                  ssize_t  result)
+{
+  if (fd_to_send == NULL || *fd_to_send == -1)
+   return;
+
+  if (result != -1)
+    {
+      /* we sent it! */
+      close (*fd_to_send);
+      *fd_to_send = -1;
+    }
+}
+
+static void
+buffer_write_to_fd (Buffer *self,
+                    int     fd,
+                    int    *fd_to_send)
+{
+  struct cmsghdr cmsg[2];
   struct iovec iov[2];
   ssize_t s;
 
@@ -219,13 +263,18 @@ buffer_write_to_fd (Buffer *self,
 
   struct msghdr msg = { .msg_iov = iov };
   msg.msg_iovlen = get_iovecs (iov, 2, self->buffer, self->start, self->end);
+
   if (msg.msg_iovlen)
     {
+      fd_send_prepare (fd_to_send, &msg, cmsg, sizeof cmsg);
+
       do
         s = sendmsg (fd, &msg, MSG_NOSIGNAL | MSG_DONTWAIT);
       while (s == -1 && errno == EINTR);
 
       debug (BUFFER, "  sendmsg returns %zi %s", s, (s == -1) ? strerror (errno) : "");
+
+      fd_send_complete (fd_to_send, s);
 
       if (s == -1)
         {
@@ -655,21 +704,89 @@ connection_thread_loop (Connection *self)
             buffer_read_from_fd (&self->client_to_ws_buffer, self->client_fd);
 
           if (client_revents & POLLOUT)
-            buffer_write_to_fd (&self->ws_to_client_buffer, self->client_fd);
+            buffer_write_to_fd (&self->ws_to_client_buffer, self->client_fd, NULL);
         }
 
       if (ws_revents & POLLIN)
         buffer_read_from_fd (&self->ws_to_client_buffer, self->ws_fd);
 
       if (ws_revents & POLLOUT)
-        buffer_write_to_fd (&self->client_to_ws_buffer, self->ws_fd);
+        buffer_write_to_fd (&self->client_to_ws_buffer, self->ws_fd, &self->metadata_fd);
     }
+}
+
+static int
+create_metadata (int sockfd)
+{
+  struct sockaddr_storage addr;
+  socklen_t addrsize = sizeof addr;
+  if (getpeername (sockfd, (struct sockaddr *) &addr, &addrsize))
+    {
+      debug (CONNECTION, "getpeername(%i) failed: %m.  Disconnecting.", sockfd);
+      return -1;
+    }
+
+  /* maximum we're going to see */
+  char ip[INET6_ADDRSTRLEN + 1 + IF_NAMESIZE + 1];
+  in_port_t port;
+
+  switch (addr.ss_family)
+    {
+    case AF_INET:
+      {
+        struct sockaddr_in *in_addr = (struct sockaddr_in *) &addr;
+
+        port = in_addr->sin_port;
+        const char *r = inet_ntop (AF_INET, &in_addr->sin_addr, ip, sizeof ip);
+        assert (r != NULL);
+      }
+      break;
+
+    case AF_INET6:
+      {
+        struct sockaddr_in6 *in6_addr = (struct sockaddr_in6 *) &addr;
+
+        port = in6_addr->sin6_port;
+        const char *r = inet_ntop (AF_INET6, &in6_addr->sin6_addr, ip, sizeof ip);
+        assert (r != NULL);
+
+        if (in6_addr->sin6_scope_id)
+          {
+            size_t iplen = strlen (ip);
+
+            ip[iplen++] = '%';
+
+            assert (IF_NAMESIZE < sizeof ip - iplen);
+            if (!if_indextoname (in6_addr->sin6_scope_id, ip + iplen))
+              {
+                /* fallback: just write the index */
+                int r = snprintf (ip + iplen, IF_NAMESIZE, "%u", in6_addr->sin6_scope_id);
+                assert (r < IF_NAMESIZE);
+              }
+
+            /* both snprintf() and if_indextoname() will have added a nul. */
+          }
+      }
+      break;
+
+    default:
+      debug (CONNECTION, "Connection fd %i had unknown peer address family %d.  Disconnecting.",
+             sockfd, (int) addr.ss_family);
+      return -1;
+    }
+
+  debug (CONNECTION, "Connection fd %i is from %s:%d", sockfd, ip, port);
+
+  FILE *stream = cockpit_json_print_open_memfd ("cockpit-tls metadata", 1);
+  cockpit_json_print_string_property (stream, "origin-ip", ip, -1);
+  cockpit_json_print_integer_property (stream, "origin-port", port);
+  return cockpit_json_print_finish_memfd (&stream);
 }
 
 void
 connection_thread_main (int fd)
 {
-  Connection self = { .client_fd = fd, .ws_fd = -1, .certfile_fd = -1 };
+  Connection self = { .client_fd = fd, .ws_fd = -1, .certfile_fd = -1, .metadata_fd = -1 };
 
   assert (!buffer_can_write (&self.client_to_ws_buffer));
   assert (!buffer_can_write (&self.ws_to_client_buffer));
@@ -681,6 +798,8 @@ connection_thread_main (int fd)
 #endif
 
   debug (CONNECTION, "New thread for fd %i", fd);
+
+  self.metadata_fd = create_metadata (fd);
 
   if (connection_handshake (&self) && connection_connect_to_wsinstance (&self))
     connection_thread_loop (&self);

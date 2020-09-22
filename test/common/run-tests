@@ -324,6 +324,8 @@ def run(opts, image):
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
                     if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
+                        sys.stdout.write("RESTART GLOBAL %s\n" % test.serial_machine)
+                        sys.stdout.flush()
                         # try hard to keep the test output consistent
                         testlib.MachineCase.kill_global_machine(test.serial_machine)
                         # FIXME: May change the ports when a parallel run-tests is running

@@ -93,7 +93,7 @@ BuildRequires: autoconf automake
 BuildRequires: make
 BuildRequires: /usr/bin/python3
 BuildRequires: gettext >= 0.19.7
-%if 0%{?build_optional}
+%if 0%{?build_basic}
 BuildRequires: libssh-devel >= 0.8.5
 %endif
 BuildRequires: openssl-devel
@@ -163,6 +163,9 @@ exec 2>&1
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
+%if 0%{?build_basic} == 0
+    --disable-ssh \
+%endif
     %{?vdo_on_demand:--with-vdo-package='"vdo"'}
 make -j4 %{?extra_flags} all
 

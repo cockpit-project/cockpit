@@ -751,13 +751,13 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
 
-        # We can accept the key
+        # We can accept the host key
         b.click("#troubleshoot-dialog .btn-primary")
         b.wait_in_text("#troubleshoot-dialog", 'log into')
         b.click("#troubleshoot-dialog .modal-footer .btn-primary")
-        b.wait_in_text(".curtains-ct", "Login failed")
+        b.wait_in_text("#troubleshoot-dialog", "Login failed")
 
-        # Refreshing keeps our key
+        # Reloading remembers that we have accepted the host key
         b.reload()
         b.wait_visible("#machine-troubleshoot")
         b.wait_in_text(".curtains-ct", "Login failed")

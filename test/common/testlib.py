@@ -714,7 +714,6 @@ class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
-    global_machines = {}
     machines = {}
     machine_class = None
     browser = None
@@ -726,27 +725,22 @@ class MachineCase(unittest.TestCase):
     # These will be instantiated during setUp, and replaced with machine objects
     provision = None
 
-    @classmethod
-    def get_global_machine(klass, restrict=True, id="1"):
-        if id not in klass.global_machines:
-            klass.global_machines[id] = m = klass.new_machine(klass, restrict=restrict, cleanup=False)
-            if opts.trace:
-                print("Starting global machine {0}: {1}".format(id, m.label))
-            m.start()
-        return klass.global_machines[id]
+    global_machine = None
 
     @classmethod
-    def kill_global_machine(klass, id):
-        if klass.network:
-            klass.network.kill()
-            klass.network = None
-        klass.global_machines[id].kill()
-        del klass.global_machines[id]
+    def get_global_machine(klass):
+        if klass.global_machine:
+            return klass.global_machine
+        klass.global_machine = klass.new_machine(klass, restrict=True, cleanup=False)
+        if opts.trace:
+            print("Starting global machine {0}".format(klass.global_machine.label))
+        klass.global_machine.start()
+        return klass.global_machine
 
     @classmethod
-    def kill_global_machines(klass):
-        for id in list(klass.global_machines):
-            klass.kill_global_machine(id)
+    def kill_global_machine(klass):
+        if klass.global_machine:
+            klass.global_machine.kill()
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
@@ -834,7 +828,7 @@ class MachineCase(unittest.TestCase):
         if self.is_nondestructive() and not opts.address:
             if self.provision:
                 raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
-            self.machine = self.machines['machine1'] = MachineCase.get_global_machine(restrict=restrict)
+            self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
         else:
             self.machine = None
             # First create all machines, wait for them later
@@ -1534,7 +1528,7 @@ class TapRunner:
         hostname = socket.gethostname().split(".")[0]
         details = "[{0}s on {1}]".format(duration, hostname)
 
-        MachineCase.kill_global_machines()
+        MachineCase.kill_global_machine()
 
         # Return 77 if all tests were skipped
         if len(skips) == test_count:

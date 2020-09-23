@@ -35,6 +35,8 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
+        # TODO - Sos 4 has moved config to /etc/sos/sos.conf and uses a different format.
+        # But we can't use that because of https://bugzilla.redhat.com/show_bug.cgi?id=1882015
         self.restore_file("/etc/sos.conf")
         m.write("/etc/sos.conf",
                 """
@@ -42,6 +44,11 @@ class TestSOS(MachineCase):
 only-plugins=release,date,host,cgroups,networking
 threads=1
 """)
+
+        # Sos 4 is very slow to start without Internet, but killing
+        # the repos fixes that.
+        self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
+        self.machine.execute("rm -rf /etc/yum.repos.d/*")
 
         if urlroot != "":
             m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)

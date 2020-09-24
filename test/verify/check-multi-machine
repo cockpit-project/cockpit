@@ -483,7 +483,7 @@ class TestMultiMachine(MachineCase):
                 grubby --update-kernel=$(grubby --default-kernel) --args=fips=1
                 uuid=$(findmnt -no uuid /boot)
                 [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}
-            fi''')
+            fi''', timeout=300)
         self.machine.spawn('sync && sync && sync && sleep 0.1 && reboot', 'reboot')
         self.machine.wait_reboot()
         # ensure it's really enabled

@@ -73,7 +73,8 @@ import {
 } from './selectors.js';
 
 import {
-    logDebug
+    logDebug,
+    DOMAINSTATE
 } from './helpers.js';
 
 import {
@@ -746,16 +747,6 @@ const LIBVIRT_DBUS_PROVIDER = {
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'GetState', [0], { timeout, type: 'u' });
                     })
                     .then(state => {
-                        const DOMAINSTATE = [
-                            "no state",
-                            "running",
-                            "blocked",
-                            "paused",
-                            "shutdown",
-                            "shut off",
-                            "crashed",
-                            "pmsuspended",
-                        ];
                         const stateStr = DOMAINSTATE[state[0][0]];
                         props = Object.assign(props, {
                             connectionName,

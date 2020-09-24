@@ -25,6 +25,11 @@ case $TEST_SCENARIO in
         test/image-prepare --quick --containers --verbose $TEST_OS
         test/containers/run-tests --container ${TEST_SCENARIO#*-}
         ;;
+    dnf-copr*)
+        test/image-prepare --verbose $TEST_OS
+        bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y update' $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        ;;
     *)
         echo "Unknown test scenario: $TEST_SCENARIO"
         exit 1

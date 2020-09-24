@@ -21,16 +21,15 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import {
-    Button,
+    Button, Divider, TextInput,
     Toolbar, ToolbarContent, ToolbarItem,
-    TextInput,
     Select, SelectOption, SelectVariant,
     Page, PageSection, PageSectionVariants,
 } from '@patternfly/react-core';
 
 import VmActions from './components/vm/vmActions.jsx';
 
-import { vmId, rephraseUI, dummyVmsFilter } from "./helpers.js";
+import { vmId, rephraseUI, dummyVmsFilter, DOMAINSTATE } from "./helpers.js";
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import StateIcon from './components/vm/stateIcon.jsx';
@@ -68,6 +67,20 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
             .filter(vm => vm.name.indexOf(currentTextFilter) != -1 && (!statusSelected.apiState || statusSelected.apiState == vm.state));
 
     const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
+
+    let domainStates = DOMAINSTATE.filter(state => vms.some(vm => vm.state === state));
+    const prioritySorting = { // Put running, shut off and divider at top of the list. The lower the value, the bigger priority it has
+        running: -3,
+        "shut off": -2,
+        _divider: -1,
+    };
+    if (domainStates.some(e => ["running", "shut off"].includes(e)) && domainStates.some(e => !["running", "shut off"].includes(e)))
+        domainStates = domainStates.concat(["_divider"]);
+    const sortOptions = [{ value: _("All") }]
+            .concat(domainStates
+                    .map(state => { return { value: rephraseUI('vmStates', state), apiState: state } })
+                    .sort((a, b) => (prioritySorting[a.apiState] || 0) - (prioritySorting[b.apiState] || 0) || a.value.localeCompare(b.value)));
+
     const toolBar = <Toolbar>
         <ToolbarContent>
             <ToolbarItem>
@@ -76,26 +89,26 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                     onChange={currentTextFilter => setCurrentTextFilter(currentTextFilter)}
                     placeholder={_("Filter by name")} />
             </ToolbarItem>
-            <ToolbarItem variant="label" id="vm-state-select">
-                {_("State")}
-            </ToolbarItem>
-            <ToolbarItem>
-                <Select variant={SelectVariant.single}
-                        toggleId="vm-state-select-toggle"
-                        onToggle={statusIsExpanded => setStatusIsExpanded(statusIsExpanded)}
-                        onSelect={(event, selection) => { setStatusIsExpanded(false); setStatusSelected(selection) }}
-                        selections={statusSelected}
-                        isOpen={statusIsExpanded}
-                        aria-labelledby="vm-state-select">
-                    {[
-                        { value: _("All"), },
-                        { value: _("Running"), apiState: "running" },
-                        { value: _("Shut off"), apiState: "shut off" }
-                    ].map((option, index) => (
-                        <SelectOption key={index} value={{ ...option, toString: function() { return this.value } }} />
-                    ))}
-                </Select>
-            </ToolbarItem>
+            {domainStates.length > 1 && <>
+                <ToolbarItem variant="label" id="vm-state-select">
+                    {_("State")}
+                </ToolbarItem>
+                <ToolbarItem>
+                    <Select variant={SelectVariant.single}
+                            toggleId="vm-state-select-toggle"
+                            onToggle={statusIsExpanded => setStatusIsExpanded(statusIsExpanded)}
+                            onSelect={(event, selection) => { setStatusIsExpanded(false); setStatusSelected(selection) }}
+                            selections={statusSelected}
+                            isOpen={statusIsExpanded}
+                            aria-labelledby="vm-state-select">
+                        {sortOptions.map((option, index) => (
+                            option.apiState === "_divider"
+                                ? <Divider component="li" key={index} />
+                                : <SelectOption key={index} value={{ ...option, toString: function() { return this.value } }} />
+                        ))}
+                    </Select>
+                </ToolbarItem>
+            </>}
             <ToolbarItem variant="separator" />
             <ToolbarItem>{actions}</ToolbarItem>
         </ToolbarContent>

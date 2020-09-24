@@ -187,6 +187,17 @@ export function getTodayYearShifted(yearDifference) {
     return result;
 }
 
+export const DOMAINSTATE = [
+    "no state",
+    "running",
+    "blocked",
+    "paused",
+    "shutdown",
+    "shut off",
+    "crashed",
+    "pmsuspended",
+];
+
 const transform = {
     autostart: {
         false: _("disabled"),

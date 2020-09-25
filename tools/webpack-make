@@ -164,6 +164,7 @@ function generateDeps(makefile, stats) {
         var install = output;
 	if (!endsWith(output, "manifest.json") &&
             !endsWith(output, "override.json") &&
+            // COMPAT: Support older cockpit-ws binaries. See #14673
             !endsWith(output, "shell/index.html") &&
             !endsWith(output, ".png") &&
             !endsWith(output, ".map") &&

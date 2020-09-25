@@ -32,7 +32,6 @@ import {
     getAllStoragePools,
     getAllVms,
     getApiData,
-    getHypervisorMaxVCPU,
     getInterface,
     getNetwork,
     getNodeDevice,
@@ -57,7 +56,6 @@ import {
     updateOrAddStoragePool,
     updateStorageVolumes,
     updateVm,
-    setHypervisorMaxVCPU,
     setNodeMaxMemory,
 } from './actions/store-actions.js';
 
@@ -510,7 +508,6 @@ const LIBVIRT_DBUS_PROVIDER = {
                 getAllInterfaces(dispatch, connectionName);
                 dispatch(getAllNetworks(connectionName));
                 dispatch(getAllNodeDevices(connectionName));
-                dispatch(getHypervisorMaxVCPU(connectionName));
                 dispatch(getNodeMaxMemory(connectionName));
                 dispatch(getLibvirtVersion(connectionName));
             };
@@ -527,21 +524,6 @@ const LIBVIRT_DBUS_PROVIDER = {
             /* Load resource for all of the connections */
             dispatch(unknownConnectionName(getApiData, libvirtServiceName));
         };
-    },
-
-    GET_HYPERVISOR_MAX_VCPU({ connectionName }) {
-        logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU: connection: ${connectionName}`);
-
-        if (connectionName) {
-            return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], { timeout, type: 'ssssu' })
-                    .done((capsXML) => {
-                        const count = getDomainMaxVCPU(capsXML[0]);
-                        dispatch(setHypervisorMaxVCPU({ count, connectionName }));
-                    })
-                    .catch(ex => console.warn("GetDomainCapabilities failed: %s", ex.toString()));
-        }
-
-        return unknownConnectionName(setHypervisorMaxVCPU);
     },
 
     /*
@@ -974,22 +956,6 @@ const LIBVIRT_DBUS_PROVIDER = {
         }));
     },
 };
-
-function getDomainMaxVCPU(capsXML) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(capsXML, "application/xml");
-
-    if (!xmlDoc) {
-        console.warn(`Can't parse capabilities xml, input: "${capsXML}"`);
-        return;
-    }
-
-    const domainCapsElem = xmlDoc.getElementsByTagName("domainCapabilities")[0];
-    const vcpuElem = domainCapsElem.getElementsByTagName("vcpu")[0];
-    const vcpuMaxAttr = vcpuElem.getAttribute('max');
-
-    return vcpuMaxAttr;
-}
 
 /**
  * Calculates disk statistics.
@@ -1542,8 +1508,8 @@ export function getAllInterfaces(dispatch, connectionName) {
             .catch(ex => console.warn('getAllInterfaces action failed:', ex.toString()));
 }
 
-export function getDomainCapabilities(connectionName) {
-    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], { timeout, type: 'ssssu' });
+export function getDomainCapabilities(connectionName, arch, model) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', arch, model, '', 0], { timeout, type: 'ssssu' });
 }
 
 function initResource(connectionName, method, updateOrAddMethod, flags) {

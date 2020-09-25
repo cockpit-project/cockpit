@@ -20,7 +20,6 @@ import {
     ADD_UI_VM,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
-    SET_HYPERVISOR_MAX_VCPU,
     SET_NODE_MAX_MEMORY,
     SET_LOGGED_IN_USER,
     UNDEFINE_NETWORK,
@@ -69,16 +68,6 @@ export function deleteUnlistedVMs(connectionName, vmNames, vmIds) {
         vmNames,
         vmIds,
         connectionName,
-    };
-}
-
-export function setHypervisorMaxVCPU({ count, connectionName }) {
-    return {
-        type: SET_HYPERVISOR_MAX_VCPU,
-        payload: {
-            count,
-            connectionName,
-        }
     };
 }
 

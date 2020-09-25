@@ -62,11 +62,6 @@ function config(state, action) {
     };
 
     switch (action.type) {
-    case 'SET_HYPERVISOR_MAX_VCPU': {
-        const newState = Object.assign({}, state);
-        newState.hypervisorMaxVCPU = Object.assign({}, newState.hypervisorMaxVCPU, { [action.payload.connectionName]: action.payload.count });
-        return newState;
-    }
     case SET_NODE_MAX_MEMORY: {
         const newState = Object.assign({}, state);
         newState.nodeMaxMemory = action.payload.memory;

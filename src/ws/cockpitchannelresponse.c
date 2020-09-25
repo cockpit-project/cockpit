@@ -572,6 +572,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   CockpitChannelResponse *self = NULL;
   CockpitTransport *transport = NULL;
   CockpitCacheType cache_type = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE;
+  const gchar *injecting_base_path = NULL;
   const gchar *host = NULL;
   const gchar *pragma;
   gchar *quoted_etag = NULL;
@@ -687,12 +688,20 @@ cockpit_channel_response_serve (CockpitWebService *service,
   json_object_set_string_member (heads, "X-Forwarded-Proto", protocol);
   json_object_set_string_member (heads, "X-Forwarded-Host", http_host);
 
+  /* We only inject a <base> if root level request */
+  injecting_base_path = where ? NULL : path;
+  if (injecting_base_path)
+    {
+      /* If we are injecting a <base> element, then we don't allow gzip compression */
+      json_object_set_string_member (heads, "Accept-Encoding", "identity");
+    }
+
   json_object_set_object_member (object, "headers", heads);
 
   self = cockpit_channel_response_new (service, response, transport,
                                        out_headers, object);
 
-  self->inject = cockpit_channel_inject_new (service, where ? NULL : path, host);
+  self->inject = cockpit_channel_inject_new (service, injecting_base_path, host);
   handled = TRUE;
 
   /* Unref when the channel closes */

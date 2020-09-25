@@ -20,9 +20,21 @@
 import parent
 from testlib import *
 
+def line_sel(i):
+    return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestTerminal(MachineCase):
+    def setUp(self):
+        super().setUp()
+
+        self.allow_journal_messages(".*external channel failed: terminated")
+
+        # Make sure we get what we expect
+        self.write_file("/home/admin/.bashrc", """
+PS1="\\u@\\h \\W]\$ "
+PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
+""", append=True)
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
     @nondestructive
@@ -31,21 +43,9 @@ class TestTerminal(MachineCase):
         m = self.machine
         b.default_user = "admin"
 
-        self.allow_journal_messages(".*external channel failed: terminated")
-
-        # Make sure we get what we expect
-        m.write("/tmp/bashrc-extra", """
-PS1="\\u@\\h \\W]\$ "
-PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
-""")
-        m.execute("cat /tmp/bashrc-extra >>/home/admin/.bashrc")
-
         self.login_and_go("/system/terminal")
 
         blank_state = ' '
-
-        def line_sel(i):
-            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_line(i, t):
             b.wait_text(line_sel(i), t)
@@ -193,6 +193,28 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.wait_present('.terminal')
         b.wait_attr(".xterm-viewport", "style", white_style)
 
+    @nondestructive
+    def testOnlyTerminal(self):
+        b = self.browser
+        m = self.machine
+
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nShell = /system/terminal.html\n")
+        m.start_cockpit()
+        b.open("/")
+
+        b.try_login("admin", "foobar")
+        b.expect_load()
+        b.wait_present("#terminal")
+
+        # wait until first line is not empty
+        n = 1
+        b.wait_present(".terminal .xterm-accessibility-tree")
+        b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ' '})", line_sel(n))
+
+        # execute a command we can see the effect of
+        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
+        b.key_press("id\r")
+        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
 
 if __name__ == '__main__':
     test_main()

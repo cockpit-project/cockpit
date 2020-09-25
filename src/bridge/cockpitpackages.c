@@ -914,6 +914,7 @@ package_content (CockpitPackages *packages,
                  const gchar *name,
                  const gchar *path,
                  const gchar *language,
+                 const gchar **encodings,
                  const gchar *self_origin,
                  GHashTable *headers)
 {
@@ -927,6 +928,7 @@ package_content (CockpitPackages *packages,
   gchar *chosen = NULL;
   gboolean globbing;
   gboolean gzipped;
+  gboolean allow_gzipped = FALSE;
   const gchar *type;
   gchar *policy;
 
@@ -935,9 +937,24 @@ package_content (CockpitPackages *packages,
 
   globbing = g_str_equal (name, "*");
   if (globbing)
-    names = g_hash_table_get_keys (packages->listing);
+    {
+      names = g_hash_table_get_keys (packages->listing);
+
+      /* When globbing files together no gzip encoding is possible */
+      allow_gzipped = FALSE;
+    }
   else
-    names = g_list_append (names, (gchar *)name);
+    {
+      names = g_list_append (names, (gchar *)name);
+
+      /* Check if client allows us to send gzipped content */
+      for (gint i = 0; encodings[i] != NULL; i++)
+        {
+          if (g_strcmp0 (encodings[i], "*") == 0 ||
+              g_strcmp0 (encodings[i], "gzip") == 0)
+            allow_gzipped = TRUE;
+        }
+    }
 
   names = g_list_sort (names, (GCompareFunc)g_strcmp0);
 
@@ -1008,10 +1025,9 @@ package_content (CockpitPackages *packages,
             }
         }
 
+      /* Do we need to decompress this content? */
       gzipped = chosen && g_str_has_suffix (chosen, ".gz");
-
-      /* If globbing, we need to uncompress these */
-      if (gzipped && globbing)
+      if (gzipped && !allow_gzipped)
         {
           g_clear_error (&error);
           uncompressed = cockpit_web_response_gunzip (bytes, &error);
@@ -1078,6 +1094,7 @@ handle_packages (CockpitWebServer *server,
   const gchar *path;
   GHashTable *out_headers = NULL;
   gchar **languages = NULL;
+  gchar **encodings = NULL;
   gchar *origin = NULL;
   const gchar *protocol;
   const gchar *accept;
@@ -1121,12 +1138,19 @@ handle_packages (CockpitWebServer *server,
   if (origin)
     g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), origin);
 
-  package_content (packages, response, name, path, languages[0], origin, out_headers);
+  accept = g_hash_table_lookup (headers, "Accept-Encoding");
+  if (!accept)
+    accept = "*";
+  encodings = cockpit_web_server_parse_accept_list (accept, NULL);
+
+  package_content (packages, response, name, path, languages[0],
+                   (const gchar **)encodings, origin, out_headers);
 
 out:
   if (out_headers)
     g_hash_table_unref (out_headers);
   g_strfreev (languages);
+  g_strfreev (encodings);
   g_free (name);
   return TRUE;
 }

@@ -38,6 +38,7 @@
  * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
 #define CHECKSUM_GLOB           "f5d1bfe84c378dee517cea3e0f0380ad2c9201f6be021fbae877a89d4cb51859"
+#define CHECKSUM_GZIP           "13adcb9aae2f22850ec7fa43229428c6bba4450bd6ef4fd06eeea27b41dbf911"
 #define CHECKSUM_BADPACKAGE     "86ae6170eb6245c5c80dbcbcc0ba12beddee2e1d807cfdb705440e944b177fbc"
 #define CHECKSUM_RELOAD_OLD     "53264dd51401b6f6de0ba63180397919697155653855848dee0f6f71c6e93f40"
 #define CHECKSUM_RELOAD_NEW     "eae62ca12c4a92b4ae7f6b0d2f41cb20be0005a6fc62466fccda1ebe0532cc23"
@@ -67,6 +68,7 @@ typedef struct {
   const gchar *expect;
   const gchar *headers[8];
   gboolean cacheable;
+  gboolean binary;
   gboolean no_packages_init;
 } Fixture;
 
@@ -126,6 +128,9 @@ setup (TestCase *tc,
   json_object_set_string_member (options, "payload", "http-stream1");
   json_object_set_string_member (options, "method", "GET");
   json_object_set_string_member (options, "path", fixture->path);
+
+  if (fixture->binary)
+    json_object_set_string_member (options, "binary", "raw");
 
   headers = json_object_new ();
   if (fixture->accept[0])
@@ -773,6 +778,68 @@ test_glob (TestCase *tc,
   cockpit_assert_bytes_eq (message, "b\n", 2);
 }
 
+static const Fixture fixture_with_gzip = {
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/gzip", NULL },
+    .path = "/package/file.txt",
+    .binary = TRUE,
+    .headers = { "Accept-Encoding", "*" },
+};
+
+static void
+test_with_gzip (TestCase *tc,
+                gconstpointer fixture)
+{
+  GError *error = NULL;
+  GBytes *message;
+  JsonObject *object;
+  GBytes *data;
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (message, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GZIP "\",\"Content-Encoding\":\"gzip\",\"Content-Type\":\"text/plain\"}}");
+  json_object_unref (object);
+
+  data = mock_transport_combine_output (tc->transport, "444", NULL);
+  g_assert_cmpint (g_bytes_get_size (data), ==, 9377);
+  g_bytes_unref (data);
+}
+
+static const Fixture fixture_no_gzip = {
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/gzip", NULL },
+    .path = "/package/file.txt",
+    .binary = TRUE,
+    .headers = { "Accept-Encoding", "identity" },
+};
+
+static void
+test_no_gzip (TestCase *tc,
+              gconstpointer fixture)
+{
+  GError *error = NULL;
+  GBytes *message;
+  JsonObject *object;
+  GBytes *data;
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (message, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GZIP "\",\"Content-Type\":\"text/plain\"}}");
+  json_object_unref (object);
+
+  data = mock_transport_combine_output (tc->transport, "444", NULL);
+  g_assert_cmpint (g_bytes_get_size (data), ==, 26530);
+  g_bytes_unref (data);
+}
+
 static void
 setup_basic (TestCase *tc,
              gconstpointer data)
@@ -1178,6 +1245,10 @@ main (int argc,
 
   g_test_add ("/packages/glob", TestCase, &fixture_glob,
               setup, test_glob, teardown);
+  g_test_add ("/packages/with-gzip", TestCase, &fixture_with_gzip,
+              setup, test_with_gzip, teardown);
+  g_test_add ("/packages/no-gzip", TestCase, &fixture_no_gzip,
+              setup, test_no_gzip, teardown);
 
   g_test_add ("/packages/resolve/simple", TestCase, NULL,
               setup_basic, test_resolve, teardown_basic);

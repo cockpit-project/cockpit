@@ -381,6 +381,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *url_bytes = NULL;
   CockpitWebFilter *filter2 = NULL;
   const gchar *url_root = NULL;
+  const gchar *accept = NULL;
   gchar *content_security_policy = NULL;
   gchar *cookie_line = NULL;
   gchar *base;
@@ -415,7 +416,8 @@ send_login_html (CockpitWebResponse *response,
       language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
       if (!language)
         {
-          languages = cockpit_web_server_parse_languages (headers, NULL);
+          accept = g_hash_table_lookup (headers, "Accept-Language");
+          languages = cockpit_web_server_parse_accept_list (accept, NULL);
           language = languages[0];
         }
 

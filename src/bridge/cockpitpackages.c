@@ -1080,6 +1080,7 @@ handle_packages (CockpitWebServer *server,
   gchar **languages = NULL;
   gchar *origin = NULL;
   const gchar *protocol;
+  const gchar *accept;
   const gchar *host;
 
   name = cockpit_web_response_pop_path (response);
@@ -1093,7 +1094,8 @@ handle_packages (CockpitWebServer *server,
 
   out_headers = cockpit_web_server_new_table ();
 
-  languages = cockpit_web_server_parse_languages (headers, NULL);
+  accept = g_hash_table_lookup (headers, "Accept-Language");
+  languages = cockpit_web_server_parse_accept_list (accept, NULL);
 
   /*
    * This is how we find out about the frontends cockpitlang

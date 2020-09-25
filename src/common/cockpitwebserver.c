@@ -584,10 +584,9 @@ sort_qvalue (gconstpointer a,
 }
 
 gchar **
-cockpit_web_server_parse_languages (GHashTable *headers,
-                                    const gchar *defawlt)
+cockpit_web_server_parse_accept_list (const gchar *accept,
+                                      const gchar *defawlt)
 {
-  const gchar *accept;
   Language *lang;
   GPtrArray *langs;
   GPtrArray *ret;
@@ -606,8 +605,6 @@ cockpit_web_server_parse_languages (GHashTable *headers,
       lang->value = defawlt;
       g_ptr_array_add (langs, lang);
     }
-
-  accept = g_hash_table_lookup (headers, "Accept-Language");
 
   /* First build up an array we can sort */
   accept = copy = g_strdup (accept);

@@ -513,6 +513,7 @@ parse_host_and_etag (CockpitWebService *service,
                      const gchar **host,
                      gchar **etag)
 {
+  const gchar *accept = NULL;
   gchar **languages = NULL;
   gboolean translatable;
   gchar *language;
@@ -548,7 +549,8 @@ parse_host_and_etag (CockpitWebService *service,
   /* The ETag contains the language setting */
   if (translatable)
     {
-      languages = cockpit_web_server_parse_languages (headers, "C");
+      accept = g_hash_table_lookup (headers, "Accept-Language");
+      languages = cockpit_web_server_parse_accept_list (accept, "C");
       *etag = g_strdup_printf ("\"%s-%s\"", where, languages[0]);
       g_strfreev (languages);
     }

@@ -259,15 +259,12 @@ test_cookie_decode_bad (void)
 }
 
 static void
-test_languages_simple (void)
+test_accept_list_simple (void)
 {
-  GHashTable *table = cockpit_web_server_new_table ();
   gchar **result;
   gchar *string;
 
-  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("en-us,en, de"));
-
-  result = cockpit_web_server_parse_languages (table, NULL);
+  result = cockpit_web_server_parse_accept_list ("en-us,en, de", NULL);
   g_assert (result != NULL);
 
   string = g_strjoinv (", ", result);
@@ -275,19 +272,15 @@ test_languages_simple (void)
 
   g_free (string);
   g_strfreev (result);
-  g_hash_table_unref (table);
 }
 
 static void
-test_languages_cookie (void)
+test_accept_list_cookie (void)
 {
-  GHashTable *table = cockpit_web_server_new_table ();
   gchar **result;
   gchar *string;
 
-  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("en-us,en, de"));
-
-  result = cockpit_web_server_parse_languages (table, "pig");
+  result = cockpit_web_server_parse_accept_list ("en-us,en, de", "pig");
   g_assert (result != NULL);
 
   string = g_strjoinv (", ", result);
@@ -295,33 +288,27 @@ test_languages_cookie (void)
 
   g_free (string);
   g_strfreev (result);
-  g_hash_table_unref (table);
 }
 
 static void
-test_languages_no_header (void)
+test_accept_list_no_header (void)
 {
-  GHashTable *table = cockpit_web_server_new_table ();
   gchar **result;
 
-  result = cockpit_web_server_parse_languages (table, NULL);
+  result = cockpit_web_server_parse_accept_list (NULL, NULL);
   g_assert (result != NULL);
   g_assert (result[0] == NULL);
 
   g_strfreev (result);
-  g_hash_table_unref (table);
 }
 
 static void
-test_languages_order (void)
+test_accept_list_order (void)
 {
-  GHashTable *table = cockpit_web_server_new_table ();
   gchar **result;
   gchar *string;
 
-  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("de;q=xx, en-us;q=0.1,en;q=1,in;q=5"));
-
-  result = cockpit_web_server_parse_languages (table, NULL);
+  result = cockpit_web_server_parse_accept_list ("de;q=xx, en-us;q=0.1,en;q=1,in;q=5", NULL);
   g_assert (result != NULL);
 
   string = g_strjoinv (", ", result);
@@ -329,7 +316,6 @@ test_languages_order (void)
 
   g_free (string);
   g_strfreev (result);
-  g_hash_table_unref (table);
 }
 
 static void
@@ -1084,10 +1070,10 @@ main (int argc,
   g_test_add_func ("/web-server/cookie/decode", test_cookie_decode);
   g_test_add_func ("/web-server/cookie/decode-bad", test_cookie_decode_bad);
 
-  g_test_add_func ("/web-server/languages/simple", test_languages_simple);
-  g_test_add_func ("/web-server/languages/cookie", test_languages_cookie);
-  g_test_add_func ("/web-server/languages/no-header", test_languages_no_header);
-  g_test_add_func ("/web-server/languages/order", test_languages_order);
+  g_test_add_func ("/web-server/accept-list/simple", test_accept_list_simple);
+  g_test_add_func ("/web-server/accept-listlanguages/cookie", test_accept_list_cookie);
+  g_test_add_func ("/web-server/accept-list/no-header", test_accept_list_no_header);
+  g_test_add_func ("/web-server/accept-list/order", test_accept_list_order);
 
   g_test_add ("/web-server/query-string", TestCase, NULL,
               setup, test_with_query_string, teardown);

@@ -58,8 +58,8 @@ GHashTable *       cockpit_web_server_new_table     (void);
 gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
                                                        const gchar *name);
 
-gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
-                                                       const gchar *first);
+gchar **           cockpit_web_server_parse_accept_list   (const gchar *accept,
+                                                           const gchar *first);
 
 gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
 

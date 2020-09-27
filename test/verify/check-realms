@@ -408,7 +408,7 @@ class TestRealms(MachineCase):
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
 
 
-@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
+@skipImage("freeipa not currently available", "debian-testing")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
@@ -423,7 +423,7 @@ class TestIPA(TestRealms, CommonTests):
         wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
         # HACK: ipa-client-install fails on restarting absent chronyd.service: https://launchpad.net/bugs/1890786
-        if self.machine.image in ["ubuntu-stable"]:
+        if self.machine.image in ["ubuntu-2004", "ubuntu-stable"]:
             self.write_file("/run/systemd/system/chronyd.service", """
 [Service]
 Type=oneshot
@@ -530,7 +530,7 @@ ExecStart=/bin/true
 
         # now try 2FA with OTP
         # This does not yet work with sssd < 2.2.2-1 on Debian/Ubuntu
-        if m.image in ["ubuntu-stable", "debian-stable"]:
+        if m.image in ["ubuntu-2004", "ubuntu-stable", "debian-stable"]:
             return
 
         # normal b.login_and_go() doesn't support 2FA
@@ -739,7 +739,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
+@skipImage("freeipa not currently available", "debian-testing")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestKerberos(MachineCase):
     provision = {
@@ -750,7 +750,7 @@ class TestKerberos(MachineCase):
     def setUp(self):
         super().setUp()
         # HACK: ipa-client-install fails on restarting absent chronyd.service: https://launchpad.net/bugs/1890786
-        if self.machine.image in ["ubuntu-stable"]:
+        if self.machine.image in ["ubuntu-2004", "ubuntu-stable"]:
             self.write_file("/run/systemd/system/chronyd.service", """
 [Service]
 Type=oneshot

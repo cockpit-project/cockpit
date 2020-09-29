@@ -230,10 +230,11 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        b.click(".system-usage a")  # View graphs
-        b.enter_page("/system/graphs", "10.111.113.3")
-        b.click("#link-network a")
-        b.enter_page("/network", "10.111.113.3")
+        if m.image != "rhel-8-3-distropkg":
+            b.click(".system-information a")  # View hardware details
+            b.enter_page("/system/hwinfo", "10.111.113.3")
+            b.click(".pf-c-breadcrumb li:first-child a")
+            b.enter_page("/system", "10.111.113.3")
 
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")

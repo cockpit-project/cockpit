@@ -30,6 +30,12 @@ var info = {
             "machines/machines.scss",
         ],
 
+        // do *not* call this metrics/metrics -- uBlock origin etc. like to block metrics.{css,js}
+        "metrics/index": [
+            "metrics/index.js",
+            "metrics/metrics.scss",
+        ],
+
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/utils.js"
@@ -126,11 +132,6 @@ var info = {
             "systemd/hwinfo.jsx",
             "systemd/hwinfo.scss",
         ],
-        "systemd/graphs": [
-            "systemd/graphs.js",
-            "systemd/graphs.scss",
-        ],
-
         "tuned/performance": [
             "tuned/dialog.js",
         ],
@@ -176,6 +177,8 @@ var info = {
 
         "machines/index.html",
 
+        "metrics/index.html",
+
         "networkmanager/index.html",
         "networkmanager/firewall.html",
         "networkmanager/manifest.json",
@@ -214,7 +217,6 @@ var info = {
         "storaged/images/storage-disk.png",
 
         "systemd/index.html",
-        "systemd/graphs.html",
         "systemd/logs.html",
         "systemd/services.html",
         "systemd/terminal.html",

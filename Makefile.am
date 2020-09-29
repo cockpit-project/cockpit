@@ -157,6 +157,7 @@ WEBPACK_PACKAGES = \
 	dashboard \
 	kdump \
 	machines \
+	metrics \
 	networkmanager \
 	pcp \
 	packagekit \

@@ -1,367 +1,572 @@
 #!/usr/bin/python3
+# Run this with --help to see available options for tracing and debugging
+# See https://github.com/cockpit-project/cockpit/blob/master/test/common/testlib.py
+# "class Browser" and "class MachineCase" for the available API.
 
-# This file is part of Cockpit.
-#
-# Copyright (C) 2016 Red Hat, Inc.
-#
-# Cockpit is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
-#
-# Cockpit is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
-
-import subprocess
-import time
 import re
+import time
 
+# import Cockpit's machinery for test VMs and its browser test API
 import parent
 from testlib import *
-from storagelib import StorageHelpers
 
 
-def read_mem_info(machine):
-    info = {}
-    for l in machine.execute("cat /proc/meminfo").splitlines():
-        (name, value) = l.strip().split(":")
-        if value.endswith("kB"):
-            info[name] = int(value[:-2]) * 1024
-        else:
-            info[name] = int(value)
-    return info
+def getMaximumSpike(browser, g_type, saturation, hour, minute):
+    # only for minutes with events, which have SVG graphs
+    sel = "#metrics-hour-{0} div.metrics-data-{1}[style='--metrics-minute:{2};'] polygon".format(hour, g_type, minute)
+    if saturation:
+        sel += ":nth-child(2)"
+    else:
+        sel += ":first-child"
 
+    points = browser.attr(sel, "points")
+    assert "NaN" not in points, points
+    xs = [float(x.split(",")[0]) for x in points.split()]
+
+    return max(xs)
+
+
+def getCompressedMinuteValue(browser, g_type, saturation, hour, minute):
+    # only for minutes without events, which only have bars
+
+    sel = "#metrics-hour-{0} div.metrics-data-{1}[style='--metrics-minute:{2};'] .compressed".format(hour, g_type, minute)
+    m = re.search("--%s:([0-9.]+);" % (saturation and "saturation" or "utilization"), browser.attr(sel, "style"))
+    assert m
+    return float(m.group(1))
+
+
+def prepareArchive(machine, name, time):
+    machine.upload(["verify/files/metrics-archives/{0}".format(name)], "/tmp/")
+    machine.execute("""timedatectl set-ntp off
+                       systemctl stop pmlogger
+                       hostnamectl set-hostname localhost.localdomain
+                       rm -rf /var/log/pcp/pmlogger/*
+                       tar -C / -xzvf /tmp/{0}
+                       timedatectl set-time @{1}""".format(name, time))
+
+def login(self):
+    # HACK: Ubuntu and Debian need some time until metrics channel is available
+    # Really no idea what it needs to wait for, so let's just try channel until it succeeds
+    if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
+        self.login_and_go("/system")
+        self.browser.wait(lambda: self.browser.call_js_func("""(function() {
+            return new Promise((resolve, reject) => {
+                cockpit.spawn(["date", "+%s"])
+                    .then(out => {
+                        const now = parseInt(out.trim()) * 1000;
+                        const current_hour = Math.floor(now / 3600000) * 3600000;
+                        const metrics_channel = cockpit.channel({ payload: "metrics1", source: "pcp-archive",
+                            interval: 5000, metrics: [{ name: "kernel.all.cpu.nice", derive: "rate" }],
+                            timestamp: current_hour, limit: 10 });
+                        metrics_channel.addEventListener("close", (ev, error) => {
+                            if (error.problem) {
+                                console.log("Channel is not ready:", error.problem);
+                                resolve(0);
+                            } else
+                                resolve(1);
+                        });
+                    });
+                });
+            })"""))
+        self.browser.click("a:contains('View details and history')")
+        self.browser.enter_page("/metrics")
+    else:
+        self.login_and_go("/metrics")
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
-class TestMetrics(MachineCase, StorageHelpers):
-    provision = {
-        "0": {"forward": {"2000": 2000}},
-    }
+class TestMetrics(MachineCase):
 
-    def check_host_metrics(self):
+    def waitStream(self, current_max):
+        # should only have at most <current_max> valid minutes, the rest should be empty
+        valid_start = self.browser.call_js_func("ph_count", ".metrics-data-cpu.valid-data")
+        self.assertLessEqual(valid_start, current_max)
+        # leave one minute wiggle room, in case the page updates between these two checks
+        self.assertGreaterEqual(self.browser.call_js_func("ph_count", ".metrics-data-cpu.empty-data"), 59 - valid_start)
+        # page auto-updates every minute
+        with self.browser.wait_timeout(90):
+            self.browser.wait_js_func("(exp => ph_count('.metrics-data-cpu.valid-data') == exp)", valid_start + 1)
+
+    @skipImage("no PCP support", "fedora-coreos")
+    def testBasic(self):
         b = self.browser
         m = self.machine
 
-        b.inject_js("""
-          ph_plot_timestamp = function (sel) {
-            var data = $(sel).data("flot_data")[0]['data'];
-            return data[data.length-1][0];
-          }
-        """)
+        # clean slate, to avoid seeing the data from preparing the VM
+        m.execute("systemctl stop pmlogger; rm -rf /var/log/pcp/pmlogger/*; systemctl start pmlogger")
 
-        b.inject_js("""
-          ph_plot_timestamp_is = function (sel, ts) {
-            return ph_plot_timestamp(sel, 0) >= ts;
-          }
-        """)
+        login(self)
+        # eventually finishes data loading and shows heading
+        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_present(".metrics-hour .metrics-data-cpu")
 
-        def wait_for_plot(sel, seconds):
-            now = b.call_js_func("ph_plot_timestamp", sel)
-            b.wait_js_func("ph_plot_timestamp_is", sel, now + 20 * 1000)
+        # only shows current hour
+        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
 
-        # When checking whether the plots show the expected results,
-        # we look for a segment of the data of a certain duration
-        # whose average is in a certain range.  Otherwise any short
-        # outlier will make us miss the expected plateau.  Such
-        # outliers happen frequently with the CPU plot.
+        # VM just started, we don't have 12 hours of data
+        b.wait_in_text(".metrics .pf-c-alert", "No data available between")
+        # initial data gap is < 24 hours, does not show date
+        year = m.execute("date +%Y").strip()
+        self.assertNotIn(year, b.text(".metrics .pf-c-alert"))
 
-        b.inject_js("""
-          ph_plateau = function (data, min, max, duration, label) {
-              var i, j;
-              var sum;  // sum of data[i..j]
+        # can try to load earlier data; only updates "no data" alert as there is no data
+        b.wait_text(".bottom-panel button", "Load earlier data")
+        b.click(".bottom-panel button")
+        # now the gap is > 24 hours, does show date
+        b.wait_in_text(".metrics .pf-c-alert", year)
+        # still only one hour
+        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
 
-              sum = 0;
-              i = 0;
-              for (j = 0; j < data.length; j++) {
-                  sum += data[j][1];
-                  while (i < j && (data[j][0] - data[i][0]) > duration * 1000) {
-                      avg = sum / (j - i + 1);
-                      if ((min === null || avg >= min) && (max === null || avg <= max))
-                          return true;
-                      sum -= data[i][1];
-                      i++;
-                  }
-              }
-            return false;
-          }
-        """)
+        self.waitStream(3)
 
-        b.inject_js("""
-          ph_flot_data_plateau = function (sel, min, max, duration, label) {
-            return ph_plateau($(sel).data("flot_data")[0]['data'], min, max, duration, label);
-          }
-        """)
+        # Change date to yesterday, should be empty
+        b.click(".pf-c-select__toggle-arrow")
+        b.click(".pf-c-select__menu-wrapper:nth-child(2) button")
+        b.wait_text(".pf-c-empty-state", "No data available")
 
-        # CPU.  We have to measure the actual percentage independently
-        # and check whether the plot matches it.  This is because we
-        # can not reliably create 100% load in a virtual machine since
-        # we only get as much as the qemu process itself gets.
-        if m.image not in ["fedora-coreos"]:  # no python there
-            m.upload(["verify/files/measure-cpu"], "/var/lib/testvm/")
-            cmd = "$(which python3 || which python2) /var/lib/testvm/measure-cpu"
-
-            cpu_start = m.execute(cmd + " start")
-            cpu_pid = m.spawn("while true; do true; done", "cpu-load.log")
-            wait_for_plot("#server_cpu_graph", 20)
-            m.execute("kill %d" % cpu_pid)
-            cpu_percentage = float(m.execute("%s stop '%s'" % (cmd, cpu_start)))
-
-            print("Measured CPU", cpu_percentage)
-            self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",
-                                           cpu_percentage * 0.50, cpu_percentage * 1.50, 15, "cpu"))
-
-        # Memory.  We assume that the machine has had a reasonably
-        # stable memory situation for the last 20 seconds and we just
-        # check whether we see that in the plot.
-        #
-        meminfo = read_mem_info(m)
-        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
-        print("Measured Memory", mem_used)
-        b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used * 0.95, mem_used * 1.05, 15, "mem")
-
-        # Disk.  Anything above 100 kiB/s is good for now.
-        #
-        dev = self.add_ram_disk()
-        disk_pid = m.spawn("while true; do dd if={0} of={0}; done".format(dev), "load-disk.log")
-        b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100 * 1024, None, 5, "disk io")
-        m.execute("kill %d" % disk_pid)
-
-        # Network traffic through Ethernet.  Anything above 300 kb/s is good for now.
-        #
-        ifaces = m.execute(r"ip -o a | awk '{print $2}'")
-        iface = None
-        for i in ifaces.split('\n'):
-            if i.startswith("eth") or i.startswith("ens"):
-                iface = i
-                break
-
-        if not iface:
-            raise Exception("Couldn't find interface to sample")
-
-        m.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
-
-        (eth_before, lo_before) = m.execute(r"grep -E '\b" + iface + r":' /proc/net/dev | awk '{print $2 + $10}'; "
-                                            r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-        time_before = time.time()
-
-        net_pid = m.spawn("socat TCP-LISTEN:2000 PIPE", "load-net.log")
-
-        # might take several attempts until server-side is listening
-        (host, port) = m.forward["2000"].split(":")
-        client = subprocess.Popen(
-            "for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)
-
-        try:
-            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300 * 1000, None, 5, "net io")
-        finally:
-            time_after = time.time()
-            (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "
-                                              r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-            print(("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
-                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface)))
-
-            client.terminate()
-            client.wait()
-
-        m.execute("kill %d" % net_pid)
-
-        el_width = "(function (sel) { return ph_find(sel).offsetWidth; })"
-        el_height = "(function (sel) { return ph_find(sel).offsetHeight; })"
-
-        # CPU graph page
-        b.click("#link-cpu")
-        b.wait_not_visible(".ct-graph-memory")
-        b.wait_visible("#cpu_status_title")
-        b.wait_visible("#cpu_status_graph")
-        self.assertGreater(b.call_js_func(el_width, "#cpu_status_graph"), 500)
-        self.assertGreater(b.call_js_func(el_height, "#cpu_status_graph"), 300)
-        b.wait_visible(".server-graph-legend .cpu-kernel")
-
-        # go back to graphs overview
-        b.click(".graphs-link")
-        b.wait_visible(".ct-graph-memory")
-        b.wait_visible(".ct-graph-cpu")
-
-        # memory graph page; not all images have swap
-        if m.execute("swapon --show").strip():
-            b.wait_not_visible("#link-memory")
-            b.click("#link-memory-and-swap")
-        else:
-            # no swap on these
-            b.wait_not_visible("#link-memory-and-swap")
-            b.click("#link-memory")
-        b.wait_not_visible(".ct-graph-cpu")
-        b.wait_visible("#memory_status_title")
-        b.wait_visible("#memory_status_graph")
-        self.assertGreater(b.call_js_func(el_width, "#memory_status_graph"), 500)
-        self.assertGreater(b.call_js_func(el_height, "#memory_status_graph"), 300)
-        b.wait_visible(".server-graph-legend .memory-used")
-
-        # go back to overview
-        b.click("#complicated_graphs .system-link")
-        b.wait_not_visible("#memory_status_graph")
+        # Breadcrumb back to Overview page
+        b.click(".pf-c-breadcrumb li:first-child a")
         b.enter_page("/system")
-        b.wait_visible(".ct-overview-header-hostname")
+        b.wait_visible('.system-information')
 
-    @skipImage("No PCP available", "fedora-coreos")
-    def testPcp(self):
-        m = self.machine
-
-        self.login_and_go("/system/graphs")
-
-        self.check_host_metrics()
-        m.execute("pgrep cockpit-pcp")
-
-    def testInternal(self):
-        m = self.machine
-
-        m.execute("! [ -f /usr/libexec/cockpit-pcp ] || rm /usr/libexec/cockpit-pcp")
-        m.execute("! [ -f /usr/lib/cockpit/cockpit-pcp ] || rm /usr/lib/cockpit/cockpit-pcp")
-
-        self.login_and_go("/system/graphs")
-
-        self.check_host_metrics()
-        m.execute("! pgrep cockpit-pcp")
-
-    @skipImage("No PCP available", "fedora-coreos")
-    def testPcpHistory(self):
-        m = self.machine
+    @skipImage("no PCP support", "fedora-coreos")
+    def testEvents(self):
         b = self.browser
-
-        out = m.execute("""set -eu
-        # reset PCP logs
-        systemctl stop pmcd pmie pmlogger
-        rm -rf /var/log/pcp/pmlogger/*
-
-        # time travel to yesterday
-        timedatectl set-ntp off
-        # this is async; wait until timesyncd stops
-        while systemctl is-active systemd-timesyncd; do sleep 1; done
-        NOW=$(date +%s)
-        timedatectl set-time "@$(( $(date +%s) - 86400 ))"
-
-        systemctl start pmcd pmlogger
-        DAY=$(date +%Y%m%d)
-        SPIKETIME=$(date +%s)
-
-        # generate 90s memory usage spike (shorter ones don't appear in archives)
-        sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep 90'
-
-        # travel back to the present
-        systemctl stop pmcd pmlogger
-        timedatectl set-time "@$NOW"
-        systemctl start pmcd pmlogger
-
-        echo "$DAY"
-        echo "$SPIKETIME"
-        """, timeout=300)
-
-        (day, spiketime) = out.strip().splitlines()[-2:]
-        spiketime = int(spiketime)
-
-        # force PCP to archive/pack the whole day
-        if m.image in ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable"]:
-            # handled via cronjob
-            # sometimes gets stuck on async pmlogger.service not being ready yet, so retry a few times
-            m.execute("for i in `seq 5`; do /usr/lib/pcp/bin/pmlogger_daily -p && break; sleep 5; done")
-        else:
-            # handled via systemd timer
-            m.execute("systemctl start pmlogger_daily")
-
-        # should now have an archive for yesterday
-        self.assertIn(day + ".index", m.execute("ls /var/log/pcp/pmlogger/$(hostname)"))
-
-        # test setup sanity check: PCP should have memory data
-        # looks like this:
-        # 09:29:43.201               808068
-        # 09:29:45.201  No values available
-        out = m.execute("pmval -t 2sec -f3 mem.util.available -a /var/log/pcp/pmlogger/$(hostname)/" + day)
-        self.assertRegex(out, r"\n\d\d:\d\d:[0-9.]+\s+\d{6,}.*\n")
-
-        self.login_and_go("/system/graphs")
-        b.wait_visible("#server_memory_graph")
-
-        b.click("#server-graph-toolbar .dropdown .dropdown-toggle")
-        b.click("#server-graph-toolbar .dropdown a:contains('6 hours')")
-        # scroll left until the graph contains the spike time
-        laststart = None
-        for i in range(60):
-            b.click('#server-graph-toolbar [data-action="scroll-left"]')
-
-            # wait until it redraws with new data
-            for _ in range(60):
-                data = b.eval_js('$("#server_memory_graph").data("flot_data")[0]["data"]')
-                if data[0][0] != laststart:
-                    break
-                time.sleep(0.1)
-            else:
-                raise Error("timed out waiting for graph to update")
-            laststart = data[0][0]
-
-            # check if the graph contains the spike interval, plus 5s margin
-            if data[0][0] < (spiketime - 5) * 1000 and data[-1][0] > (spiketime + 65) * 1000:
-                break
-        else:
-            raise Error("did not reach interval containing the spike in 60 clicks")
-
-        # search for spike
-        for (t, v) in data:
-            # don't be too strict here: we formally expect > 300M, but it gets averaged out a bit
-            # the fact that we have anything non-zero is sufficient
-            if v > 150000000:
-                break
-        else:
-            raise Error("did not find spike in data")
-
-    def testOverview(self):
         m = self.machine
+
+        def events_at(hour, minute):
+            return b.text("#metrics-hour-{0} .metrics-events[style='--metrics-minute:{1};']".format(hour, minute))
+
+        #
+        # Disks
+        #
+
+        # disable swap, so that we can test current metrics without swap
+        m.execute('''systemctl stop "*.swap" "swap-create@*" || true
+                     systemctl mask "swap-create@"
+                     swapoff --all
+                     while [ -n "$(swapon --show)" ]; do sleep 1; done''')
+
+        prepareArchive(m, "disk.tar.gz", 1597672800)
+
+        login(self)
+        # eventually finishes data loading and shows heading
+        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_present(".metrics-hour .metrics-data-cpu")
+
+        # Big spike lasting 3 minutes
+        self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 25), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 26), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 27), 0.9)
+
+        # Smaller spike lasting 2 minutes
+        self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 28), 0.4)
+        self.assertLessEqual(getMaximumSpike(b, "disks", False, 1597662000000, 28), 0.6)
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 29), 0.4)
+        # recognized as event
+        self.assertIn("Disk I/O spike", events_at(1597662000000, 28))
+
+        # No visible activity after that
+        self.assertLessEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 30), 0.01)
+
+        # swap usage is not shown if there is no swap
+        b.wait_present("#current-memory-usage")
+        self.assertFalse(b.is_present("#current-swap-usage"))
+        b.logout()
+
+        #
+        # Network and CPU
+        #
+
+        prepareArchive(m, "cpu_network.tar.gz", 1598918400)
+
+        login(self)
+        # eventually finishes data loading and shows heading
+        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_present(".metrics-hour .metrics-data-cpu")
+
+        # Test network - Big spike lasting 2 minutes
+        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 3), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 4), 0.5)
+        # recognized as event
+        self.assertIn("Network I/O spike", events_at(1598950800000, 3))
+        # but it's not a new event in minute 4
+        self.assertNotIn("Network I/O spike", events_at(1598950800000, 4))
+
+        # Followed by smaller spike
+        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 5), 0.35)
+        self.assertLessEqual(getMaximumSpike(b, "network", False, 1598950800000, 5), 0.5)
+        # still not a new spike
+        self.assertNotIn("Network I/O spike", events_at(1598950800000, 5))
+
+        # Followed by virtually no data
+        self.assertLessEqual(getCompressedMinuteValue(b, "network", False, 1598950800000, 6), 0.01)
+
+        # Test CPU load - big - small - big spikes
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 3), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 4), 0.5)
+        self.assertLessEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 4), 0.55)
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 5), 0.9)
+        self.assertIn("CPU spike", events_at(1598950800000, 2))
+        self.assertIn("CPU spike", events_at(1598950800000, 5))
+
+        # Test CPU saturation - 3 spikes, each 2 minutes (medium, big, small)
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 3), 0.5)
+        self.assertLessEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 3), 0.6)
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 4), 0.5)
+        self.assertLessEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 4), 0.6)
+
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 5), 0.8)
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 6), 0.8)
+
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 7), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 7), 0.4)
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 8), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 8), 0.4)
+
+        self.assertNotIn("Load spike", events_at(1598950800000, 2))
+        self.assertIn("Load spike", events_at(1598950800000, 3))
+        self.assertNotIn("Load spike", events_at(1598950800000, 4))
+        self.assertIn("Load spike", events_at(1598950800000, 5))
+
+        b.logout()
+
+        #
+        # Memory
+        #
+
+        prepareArchive(m, "memory.tar.gz", 1600248000)
+        login(self)
+        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_present(".metrics-hour .metrics-data-cpu")
+
+        # basic RAM consumption after boot; it's still a network spike, thus event+SVG
+        self.assertLessEqual(getMaximumSpike(b, "memory", False, 1600236000000, 44), 0.3)
+        self.assertAlmostEqual(getMaximumSpike(b, "memory", True, 1600236000000, 44), 0)
+        self.assertNotIn("Memory spike", events_at(1600236000000, 44))
+        self.assertNotIn("Swap", events_at(1600236000000, 44))
+
+        # swap event from :46 to :47
+        self.assertGreater(getMaximumSpike(b, "memory", True, 1600236000000, 46), 0.9)
+        self.assertIn("Swap", events_at(1600236000000, 46))
+        # continuous, no new Swap event, but still a Memory+Network event
+        self.assertGreater(getMaximumSpike(b, "memory", True, 1600236000000, 47), 0.9)
+        self.assertNotIn("Swap", events_at(1600236000000, 47))
+
+        # memory spike in :47
+        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 47), 0.6)
+        self.assertIn("Memory spike", events_at(1600236000000, 47))
+
+        # bigger memory spike in :53
+        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 53), 0.8)
+        self.assertIn("Memory spike", events_at(1600236000000, 53))
+
+        # continued memory spike in :54, but no new events
+        self.assertGreater(getCompressedMinuteValue(b, "memory", False, 1600236000000, 54), 0.8)
+        self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 54), 0.0)
+
+        # everything is quiet in :55
+        self.assertLess(getCompressedMinuteValue(b, "memory", False, 1600236000000, 55), 0.4)
+        self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 55), 0.0)
+
+        b.logout()
+
+        #
+        # Check changing of time
+        #
+
+        m.execute("timedatectl set-time @1600550674")
+        login(self)
+        # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
+        b.wait_text(".pf-c-select__toggle-text", "Today")
+
+        b.select_PF4("#date-picker-select-toggle", "Wednesday, Sep 16, 2020")
+        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 53), 0.8)
+        self.assertIn("Memory spike", events_at(1600236000000, 53))
+
+        b.click(".pf-c-select__toggle")
+        b.click(".pf-c-select__menu-item:contains('Today')")
+        b.wait_text(".pf-c-select__toggle-text", "Today")
+        # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
+
+    @nondestructive
+    @skipImage("no PCP support", "fedora-coreos")
+    def testNoData(self):
         b = self.browser
+        m = self.machine
 
-        # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
-        m.execute("systemctl mask packagekit")
+        m.execute("systemctl stop pmlogger && mount -t tmpfs tmpfs /var/log/pcp/pmlogger")
+        self.addCleanup(m.execute, "umount /var/log/pcp/pmlogger")
 
-        def progressValue(number):
-            sel = ".system-usage tr:nth-child(%i) .pf-c-progress__indicator" % number
+        self.login_and_go("/metrics")
+
+        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        # Troubleshoot
+        b.click(".pf-c-empty-state button.pf-m-link")
+        b.enter_page("/system/services")
+        b.wait_in_text("#service-details", "pmlogger.service")
+
+    @nondestructive
+    def testNoCockpitPcp(self):
+        b = self.browser
+        m = self.machine
+
+        if m.image not in ["fedora-coreos"]:
+            m.execute("mount -t tmpfs tmpfs /usr/share/cockpit/pcp")
+            self.addCleanup(m.execute, "umount /usr/share/cockpit/pcp")
+
+        self.login_and_go("/metrics")
+        b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
+        b.click(".pf-c-empty-state button.pf-m-primary")
+        # this button does not yet do anything; also, on ostree the button should not exist at all
+
+    @nondestructive
+    def testCurrentMetrics(self):
+        b = self.browser
+        m = self.machine
+
+        # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
+        m.execute("systemctl mask packagekit && killall -9 /usr/libexec/packagekitd && killall -9 dnf || true")
+        self.addCleanup(m.execute, "systemctl unmask packagekit")
+
+        login(self)
+
+        def progressValue(progress_bar_sel):
+            sel = progress_bar_sel + " .pf-c-progress__indicator"
             b.wait_present(sel)
             b.wait_attr_contains(sel, "style", "width:")
             style = b.attr(sel, "style")
             m = re.search("width: (\d+)%;", style)
             return int(m.group(1))
 
-        self.login_and_go("/system")
+        def topServiceValue(aria_label, col_label, row):
+            sel = "table[aria-label='%s'] tbody tr:nth-of-type(%d) td[data-label='%s']" % (aria_label, row, col_label)
+            # split off unit, like "12 MB"
+            return float(b.text(sel).split(' ')[0])
 
         # CPU
-        # first wait until system settles down
-        wait(lambda: progressValue(1) < 20)
-        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
-        wait(lambda: progressValue(1) > 75)
-        m.execute("pkill -e -f cat.*urandom")
-        # should go back to idle usage
-        wait(lambda: progressValue(1) < 20)
 
-        # memory: our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
-        b.wait_in_text(".system-usage tr:nth-child(2)", " GiB")
-        initial_usage = progressValue(2)
+        nproc = m.execute("nproc").strip()
+        b.wait_in_text("#current-cpu-usage", nproc + " CPU")
+        # make sure to clean up our test resource consumers on failures
+        self.addCleanup(m.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")
+        # wait until system settles down
+        b.wait(lambda: progressValue("#current-cpu-usage") < 20)
+        m.execute("systemd-run --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
+        b.wait(lambda: progressValue("#current-cpu-usage") > 75)
+        # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
+        b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
+        b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(2) td[data-label='Service']", "cpu-piglet")
+
+        # There might be some other processes which take more resources
+        # Keep this logging so we can easily debug which ones we might need to cleanup
+        try:
+            b.wait(lambda: topServiceValue("Top 5 CPU services", "%", 1) > 50)
+            b.wait(lambda: topServiceValue("Top 5 CPU services", "%", 1) < 70)
+            b.wait(lambda: topServiceValue("Top 5 CPU services", "%", 2) > 20)
+            b.wait(lambda: topServiceValue("Top 5 CPU services", "%", 2) < 40)
+        except:
+            print(m.execute("top -b -n 1"))
+            raise
+
+        m.execute("systemctl stop cpu-hog cpu-piglet")
+        # should go back to idle usage
+        b.wait(lambda: progressValue("#current-cpu-usage") < 20)
+        # it could be that the table disappears completely if no service has a noticeable CPU usage;
+        # so don't assume the table exists
+        b.wait_not_in_text("#current-metrics-card-cpu", "cpu-hog")
+        b.wait_not_in_text("#current-metrics-card-cpu", "cpu-piglet")
+
+        # Load looks like "1 min: 1.41, 5 min: 1.47, 15 min: 2.30"
+        b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) < 5)
+
+        # HACK: debian-stable does not update load when done though systemd-run
+        if m.image != "debian-stable":
+            m.execute("systemd-run --slice cockpittest --unit load-hog sh -ec "
+                      "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
+            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
+            m.execute("systemctl stop load-hog 2>/dev/null || true") # ok to fail, as the command exits by itself
+        else:
+            load_hog = m.spawn("for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done", "load-hog.log")
+            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
+            m.execute("kill %d 2>/dev/null || true" % load_hog) # ok to fail, as the command exits by itself
+
+        # this settles down slowly, don't wait for becoming really quiet
+        with b.wait_timeout(180):
+            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) < 10)
+
+        # Memory
+
+        # our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
+        b.wait_in_text("#current-memory-usage", " GiB")
+        initial_usage = progressValue("#current-memory-usage")
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
         # allocate an extra 300 MB; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity", "mem_hog.log")
+        m.execute("systemd-run --slice cockpittest --unit mem-hog sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity'")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
-        # bars update every 5s
+        # bars update every 3s
         time.sleep(8)
-        hog_usage = progressValue(2)
-        self.assertGreater(hog_usage, initial_usage + 10)
+        hog_usage = progressValue("#current-memory-usage")
+        self.assertGreater(hog_usage, initial_usage + 8)
 
-        m.execute("kill %d" % mem_hog)
-        # should go back to initial_usage; often below, due to paged out stuff
-        wait(lambda: progressValue(2) <= initial_usage)
-        self.assertGreater(progressValue(2), 10)
+        b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", "mem-hog")
+        b.wait(lambda: topServiceValue("Top 5 memory services", "Used", 1) > 300)
+        b.wait(lambda: topServiceValue("Top 5 memory services", "Used", 1) < 350)
+
+        # total memory is shown as tooltip
+        b.mouse("#current-memory-usage", "mouseenter")
+        b.wait_in_text(".pf-c-tooltip", "GiB total")
+        b.mouse("#current-memory-usage", "mouseleave")
+
+        # table entries are links to Services page
+        b.click("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service'] a span")
+        b.enter_page("/system/services")
+        b.wait_in_text("#path", "/mem-hog.service")
+        b.wait_in_text(".service-name", "MEMBLOB=")
+
+        b.go("/metrics")
+        b.enter_page("/metrics")
+        b.wait_present("table[aria-label='Top 5 memory services']")
+
+        # some images don't have swap
+        if m.image not in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "fedora-coreos", "centos-8-stream"]:
+            # use even more memory to trigger swap
+            m.execute("systemd-run --slice cockpittest --unit mem-hog2 sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep infinity'")
+            b.wait(lambda: progressValue("#current-swap-usage") > 0)
+
+            m.execute("systemctl stop mem-hog mem-hog2")
+
+            # should go back to initial_usage; often below, due to paged out stuff
+            b.wait(lambda: progressValue("#current-memory-usage") <= initial_usage)
+            self.assertGreater(progressValue("#current-memory-usage"), 10)
+            b.wait_not_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-hog")
+
+            # total swap is shown as tooltip
+            b.mouse("#current-swap-usage", "mouseenter")
+            b.wait_in_text(".pf-c-tooltip", "GiB total")
+            b.mouse("#current-swap-usage", "mouseleave")
+
+        # Disk I/O
+
+        # test env should be quiet enough to not transmit MB/s
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-read")))
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-write")))
+        # reading lots of data
+        m.execute("systemd-run --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
+        b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-read")))
+        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-write")))  # this should stay calm
+        m.execute("systemctl stop disk-read-hog")
+        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-read")))  # back to quiet
+        # writing lots of data
+        m.execute("systemd-run --slice cockpittest --unit disk-write-hog sh -ec "
+                  " 'while true; do dd if=/dev/zero of=/var/tmp/blob bs=1M count=100; done'")
+        self.addCleanup(self.machine.execute, "rm -f /var/tmp/blob")
+        b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-write")))
+        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-read")))  # this should stay calm
+        m.execute("systemctl stop disk-write-hog")
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-write")))
+
+        # Disk usage
+
+        # add 50 MB loopback disk
+        m.execute("""set -e
+                  F=$(mktemp /var/tmp/loop.XXXX)
+                  dd if=/dev/zero of=$F bs=1M count=50
+                  mkfs -t ext3 $F
+                  mkdir -p /var/cockpittest
+                  mount -o loop $F /var/cockpittest
+                  rm $F
+                  """)
+        self.addCleanup(self.machine.execute, "umount /var/cockpittest")
+        self.assertLess(progressValue(".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
+        progress_sel = ".pf-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-c-progress__status"
+        # free size is anything between 40 and 50 MB
+        self.assertRegex(b.text(progress_sel), "^4\d\.\d MB free$")
+        # total size is shown in tooltip
+        b.mouse(progress_sel, "mouseenter")
+        b.wait_in_text(".pf-c-tooltip", "total")
+        # total size is anything between 40 and 50 MB
+        self.assertRegex(b.text(".pf-c-tooltip"), "^4\d\.\d MB total$")
+        b.mouse(progress_sel, "mouseleave")
+
+        m.execute("dd if=/dev/zero of=/var/cockpittest/blob bs=1M count=40")
+        b.wait(lambda: progressValue(".pf-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
+
+        # clicking on progress leads to the storage page
+        if m.image != "fedora-coreos":
+            self.assertTrue(b.is_present("#current-disks-usage button"))
+            b.click(progress_sel)
+            b.enter_page("/storage")
+            # weird -- storage page does not show transient mount points, only permanent ones; so check for the device
+            dev = m.execute("findmnt --noheadings -o SOURCE /var/cockpittest").strip()
+            b.wait_in_text("#mounts", dev)
+
+            b.go("/metrics")
+            b.enter_page("/metrics")
+            b.wait_present(progress_sel)
+            b.logout()
+
+            # without cockpit-storaged, mounts are not links
+            self.restore_file("/usr/share/cockpit/storaged/manifest.json")
+            m.write("/usr/share/cockpit/storaged/manifest.json", "")
+            self.allow_journal_messages("storaged: couldn't read manifest.json: JSON data was empty")
+            login(self)
+        b.wait_present(progress_sel)
+        self.assertFalse(b.is_present("#current-disks-usage button"))
+
+        # Network usage
+
+        # add synthetic veth which is guaranteed quiet
+        m.execute("ip link add name cockpittest1 type veth peer name vcockpittest1")
+        self.addCleanup(m.execute, "ip link del dev cockpittest1")
+
+        # has expected interfaces
+        b.wait_in_text("[aria-label='Network usage'] [data-interface='cockpittest1']", "cockpittest1")
+        b.wait_in_text("[aria-label='Network usage'] [data-interface='lo']", "lo")
+
+        def rateMatches(label, regexp):
+            text = b.text("[aria-label='Network usage'] [data-interface='lo'] td[data-label='%s']" % label)
+            return re.match(regexp, text) is not None
+
+        # loopback is quiet enough to not transmit MB/s
+        b.wait(lambda: rateMatches("In", r'^(0|[0-9.]+ (KiB|B)/s)$'))
+        b.wait(lambda: rateMatches("Out", r'^(0|[0-9.]+ (KiB|B)/s)$'))
+        # pipe lots of data through lo
+        m.execute("systemd-run --slice cockpittest --unit lo-hog sh -ec "
+                  " 'nc -l 2000 > /dev/null & nc localhost 2000 </dev/zero'")
+        b.wait(lambda: rateMatches("In", r'^[0-9.]+ (MiB|GiB)/s$'))
+        b.wait(lambda: rateMatches("Out", r'^[0-9.]+ (MiB|GiB)/s$'))
+        m.execute("systemctl stop lo-hog")
+
+        # nothing happens on cockpittest1
+        b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='In']", "0")
+        b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
+
+
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+class TestMultiCPU(MachineCase):
+
+    provision = {
+        "0": {"cpus": 2}
+    }
+
+    @skipImage("no PCP support", "fedora-coreos")
+    def testCPUUsage(self):
+        b = self.browser
+        m = self.machine
+
+        prepareArchive(m, "2corescpu.tar.gz", 1598971635)
+        login(self)
+
+        # one core is busy, the other idle -- that should be 50% total usage
+        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", False, 1598968800000, 44), 0.2)
+        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", False, 1598968800000, 44), 0.55)
+
+        # next minute, both cores are busy
+        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 0.5)
+        self.assertLessEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 1.0)
 
 
 if __name__ == '__main__':

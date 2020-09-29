@@ -488,8 +488,45 @@ module.exports = {
                 ]
             },
             {
+                test: /patternfly-4-cockpit.scss$/,
+                use: [
+                    miniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true,
+                            url: false,
+                        },
+                    },
+                    {
+                        loader: 'string-replace-loader',
+                        options: {
+                            multiple: [
+                                {
+                                    search: /src:url\("patternfly-icons-fake-path\/pficon[^}]*/g,
+                                    replace: "src:url('fonts/patternfly.woff')format('woff');",
+                                },
+                                {
+                                    search: /@font-face[^}]*patternfly-fonts-fake-path[^}]*}/g,
+                                    replace: '',
+                                },
+                            ]
+                        },
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sassOptions: {
+                                outputStyle: 'compressed',
+                            },
+                            sourceMap: true,
+                        },
+                    },
+                ]
+            },
+            {
                 test: /\.s?css$/,
-                exclude: /patternfly-cockpit.scss/,
+                exclude: /patternfly-(4-)?cockpit.scss/,
                 use: [
                     miniCssExtractPlugin.loader,
                     {

@@ -56,6 +56,7 @@ def readFile(name):
 # rmmod kvm-intel && modprobe kvm-intel || true
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
+@noretry
 class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     created_pool = False
 

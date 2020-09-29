@@ -27,14 +27,16 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 class Test:
     process = None
     retries = 0
+    max_retries = 2
     output = b""
 
-    def __init__(self, test_id, command, timeout, nondestructive):
+    def __init__(self, test_id, command, timeout, nondestructive, max_retries):
         self.test_id = test_id
         self.command = command
         self.timeout = timeout
         self.nondestructive = nondestructive
         self.serial_machine = None
+        self.max_retries = max_retries
 
 
 def test_name(test):
@@ -86,7 +88,7 @@ def finish_test(opts, test, affected_tests):
     affected = test.command[0] in affected_tests
 
     # Try affected tests 3 times
-    if test.process.returncode == 0 and affected and test.retries < 2:
+    if test.process.returncode == 0 and affected and test.retries < test.max_retries:
         retry_reason = b"test affected tests 3 times"
         test.retries += 1
         test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
@@ -123,11 +125,11 @@ def finish_test(opts, test, affected_tests):
     elif affected: # Don't retry affected failed tests
         retry_reason = None
     else:
-        # HACK: many tests are unstable, always retry them 3 times
+        # HACK: many tests are unstable, always retry them 3 times, unless marked with @noretry
         retry_reason = b"be robust against unstable tests"
 
     unexpected_message = b"Test completed, but found unexpected" in test.output
-    if test.retries < 2 and not unexpected_message and retry_reason:
+    if test.retries < test.max_retries and not unexpected_message and retry_reason:
         test.retries += 1
         test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
         print_test(test, print_tap=opts.thorough)
@@ -241,7 +243,8 @@ def run(opts, image):
                 if test_str in opts.exclude:
                     continue
                 nd = getattr(test_method, "_testlib__non_destructive", False)
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd)
+                mr = getattr(test_method, "_testlib__max_retries", 2)
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, mr)
                 if nd:
                     serial_tests.append(test)
                 else:

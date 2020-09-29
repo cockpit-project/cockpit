@@ -52,6 +52,7 @@ __all__ = (
     'Browser',
     'MachineCase',
     'nondestructive',
+    'noretry',
     'skipImage',
     'skipBrowser',
     'skipPackage',
@@ -1416,13 +1417,16 @@ def skipPackage(*args):
     return lambda func: func
 
 
+def is_test_function(member):
+    return inspect.isfunction(member) and member.__name__.startswith("test")
+
+
 def nondestructive(testEntity):
     """Tests decorated as nondestructive will all run against the same VM
 
     Can be used on test classes and individual test methods.
     """
-    def is_test_function(member):
-        return inspect.isfunction(member) and member.__name__.startswith("test")
+
     if inspect.isclass(testEntity) and issubclass(testEntity, MachineCase):
         for test_function in inspect.getmembers(testEntity, is_test_function):
             test_function[1]._testlib__non_destructive = True
@@ -1430,6 +1434,22 @@ def nondestructive(testEntity):
         testEntity._testlib__non_destructive = True
     else:
         raise Error("The nondestructive decorator can only be used on test classes and test methods")
+    return testEntity
+
+
+def noretry(testEntity):
+    """Tests decorated with noretry will only run once
+
+    Can be used on test classes and individual methods.
+    """
+
+    if inspect.isclass(testEntity) and issubclass(testEntity, unittest.TestCase):
+        for test_function in inspect.getmembers(testEntity, is_test_function):
+            test_function[1]._testlib__max_retries = 0
+    elif is_test_function(testEntity):
+        testEntity._testlib__max_retries = 0
+    else:
+        raise Error("The noretry decorator can only be used on test classes and test methods")
     return testEntity
 
 

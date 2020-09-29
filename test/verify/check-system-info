@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import re
 import time
 
 import parent
@@ -670,10 +671,54 @@ insecure_connection=True
         b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
 
+    def testOverview(self):
+        m = self.machine
+        b = self.browser
+
+        # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
+        m.execute("systemctl mask packagekit")
+
+        def progressValue(number):
+            sel = ".system-usage tr:nth-child(%i) .pf-c-progress__indicator" % number
+            b.wait_present(sel)
+            b.wait_attr_contains(sel, "style", "width:")
+            style = b.attr(sel, "style")
+            m = re.search("width: (\d+)%;", style)
+            return int(m.group(1))
+
+        self.login_and_go("/system")
+
+        # CPU
+        # first wait until system settles down
+        wait(lambda: progressValue(1) < 20)
+        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
+        wait(lambda: progressValue(1) > 75)
+        m.execute("pkill -e -f cat.*urandom")
+        # should go back to idle usage
+        wait(lambda: progressValue(1) < 20)
+
+        # memory: our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
+        b.wait_in_text(".system-usage tr:nth-child(2)", " GiB")
+        initial_usage = progressValue(2)
+        self.assertGreater(initial_usage, 10)
+        self.assertLess(initial_usage, 80)
+        # allocate an extra 300 MB; this may cause other stuff to get unmapped,
+        # thus not exact addition, but usage should go up
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity", "mem_hog.log")
+        m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
+        # bars update every 5s
+        time.sleep(8)
+        hog_usage = progressValue(2)
+        self.assertGreater(hog_usage, initial_usage + 10)
+
+        m.execute("kill %d" % mem_hog)
+        # should go back to initial_usage; often below, due to paged out stuff
+        wait(lambda: progressValue(2) <= initial_usage)
+        self.assertGreater(progressValue(2), 10)
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestPcp(packagelib.PackageCase):
 
-    @skipImage("cockpit-system doesn't have the install-on-demand feature")
     def testEnablePcpLink(self):
         m = self.machine
         b = self.browser

@@ -226,6 +226,9 @@ find %{buildroot}%{_datadir}/cockpit/systemd -type f >> system.list
 echo '%dir %{_datadir}/cockpit/users' >> system.list
 find %{buildroot}%{_datadir}/cockpit/users -type f >> system.list
 
+echo '%dir %{_datadir}/cockpit/metrics' >> system.list
+find %{buildroot}%{_datadir}/cockpit/metrics -type f >> system.list
+
 echo '%dir %{_datadir}/cockpit/kdump' >> kdump.list
 find %{buildroot}%{_datadir}/cockpit/kdump -type f >> kdump.list
 
@@ -255,7 +258,7 @@ find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
-for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users; do
+for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users metrics; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -rf %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml

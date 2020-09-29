@@ -315,6 +315,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 @nondestructive
 class TestLocalDashboard(MachineCase, DashBoardHelpers):
     def testDashboard(self):
+        self.restore_file("/etc/ssh/ssh_known_hosts")
         b = self.browser
 
         self.setup_ssh_auth()

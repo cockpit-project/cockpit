@@ -95,6 +95,10 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
         addOptional(additionalInfo, device.device.source.volume, _("Volume"));
         addOptional(additionalInfo, device.device.source.host.name, _("Host"));
         addOptional(additionalInfo, device.device.source.host.port, _("Port"));
+        if (device.device.device === "cdrom") {
+            addOptional(additionalInfo, device.device.device, _("Device"));
+            addOptional(additionalInfo, device.device.bus, _("Bus"));
+        }
         break;
     }
     case "network": {

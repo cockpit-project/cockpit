@@ -1378,7 +1378,7 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(self.machine.execute, "rm -rf %s" % path)
 
     def write_file(self, path, content, append=False, owner=None, perm=None):
-        '''Write a new file on primary machine
+        '''Write a file on primary machine
 
         This is safe for @nondestructive tests, the file will be removed during cleanup.
 
@@ -1387,10 +1387,8 @@ class MachineCase(unittest.TestCase):
         @perm is the desired file permission as chmod shell string (e.g. "0600")
         '''
         m = self.machine
+        self.restore_file(path)
         m.write(path, content, append=append, owner=owner, perm=perm)
-
-        if self.is_nondestructive():
-            self.addCleanup(m.execute, "rm -f {0}".format(path))
 
 
 def jsquote(str):

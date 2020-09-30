@@ -1367,6 +1367,9 @@ class MachineCase(unittest.TestCase):
 
         If path does not currently exist, it will be removed again on cleanup.
         '''
+        if not self.is_nondestructive():
+            return  # skip for efficiency reasons
+
         exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
         if exists:
             backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))

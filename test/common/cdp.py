@@ -174,7 +174,7 @@ class CDP:
             return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
-                    "--window-size=1920x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"]
+                    "--v=0", "--window-size=1920x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"]
         elif self.browser == "firefox":
             subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
             profile = glob.glob(os.path.join(self._browser_home, ".mozilla/firefox/*.blank"))[0]

@@ -870,18 +870,18 @@ class MachineCase(unittest.TestCase):
                 machine.dhcp_server()
 
         if self.machine:
-            # Pages with debug enabled are huge and loading/executing them is heavy for browsers
-            # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
-            # Only "TEST_OS_DEFAULT" has debug build enabled, see `build_and_install()` in `test/image-prepare`
-            if self.machine.image == testvm.TEST_OS_DEFAULT:
-                self.disable_preload("packagekit", "systemd")
-
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
             # fail tests on criticals
             self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
             if self.is_nondestructive():
                 self.nonDestructiveSetup()
+
+            # Pages with debug enabled are huge and loading/executing them is heavy for browsers
+            # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
+            # Only "TEST_OS_DEFAULT" has debug build enabled, see `build_and_install()` in `test/image-prepare`
+            if self.machine.image == testvm.TEST_OS_DEFAULT:
+                self.disable_preload("packagekit", "systemd")
 
     def nonDestructiveSetup(self):
         '''generic setUp/tearDown for @nondestructive tests'''

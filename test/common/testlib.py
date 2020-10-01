@@ -1029,6 +1029,10 @@ class MachineCase(unittest.TestCase):
         "#1\) Respect the privacy of others.",
         "#2\) Think before you type.",
         "#3\) With great power comes great responsibility.",
+
+        # Segfault in console-login-helper-messages on fedora-coreos
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1884236
+        "Process.*\\(gensnippet_if\\) of user 0 dumped core.",
     ]
 
     allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

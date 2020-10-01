@@ -394,7 +394,9 @@ embed or extend Cockpit.
 Summary: Cockpit admin interface package for configuring and troubleshooting a system
 BuildArch: noarch
 Requires: cockpit-bridge >= %{version}-%{release}
+%if !0%{?suse_version}
 Requires: shadow-utils
+%endif
 Requires: grep
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date

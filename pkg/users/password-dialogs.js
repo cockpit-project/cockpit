@@ -30,6 +30,7 @@ const _ = cockpit.gettext;
 function passwd_self(old_pass, new_pass) {
     var old_exps = [
         /Current password: $/,
+        /Current Password: $/,
         /.*\(current\) UNIX password: $/,
     ];
     var new_exps = [
@@ -54,7 +55,7 @@ function passwd_self(old_pass, new_pass) {
         var proc;
         var timeout = window.setTimeout(function() {
             failure = _("Prompting via passwd timed out");
-            proc.close("terminated");
+            proc.close("timeout");
         }, 10 * 1000);
 
         proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
@@ -65,25 +66,31 @@ function passwd_self(old_pass, new_pass) {
                     resolve();
                 })
                 .fail(function(ex) {
-                    if (ex.exit_status)
+                    if (ex.exit_status || ex.problem == "timeout")
                         ex = new Error(failure);
                     reject(ex);
                 })
                 .stream(function(data) {
                     buffer += data;
+
+                    for (i = 0; i < too_new_exps.length; i++) {
+                        if (too_new_exps[i].test(buffer)) {
+                            failure = _("You must wait longer to change your password");
+                        }
+                    }
+
+                    if (sent_new) {
+                        for (i = 0; i < bad_exps.length; i++) {
+                            if (bad_exps[i].test(buffer)) {
+                                failure = _("New password was not accepted");
+                            }
+                        }
+                    }
+
                     for (i = 0; i < old_exps.length; i++) {
                         if (old_exps[i].test(buffer)) {
                             buffer = "";
                             this.input(old_pass + "\n", true);
-                            return;
-                        }
-                    }
-
-                    for (i = 0; i < too_new_exps.length; i++) {
-                        if (too_new_exps[i].test(buffer)) {
-                            buffer = "";
-                            failure = _("You must wait longer to change your password");
-                            this.input("\n", true);
                             return;
                         }
                     }
@@ -97,14 +104,6 @@ function passwd_self(old_pass, new_pass) {
                             return;
                         }
                     }
-
-                    if (sent_new)
-                        for (i = 0; i < bad_exps.length; i++) {
-                            if (bad_exps[i].test(buffer)) {
-                                failure = _("New password was not accepted");
-                                return;
-                            }
-                        }
                 });
     });
 }

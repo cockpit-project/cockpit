@@ -358,8 +358,8 @@ class CurrentMetrics extends React.Component {
     }
 
     render() {
-        const memUsedFraction = this.state.memUsed / memTotal;
-        const memAvail = Number(memTotal - this.state.memUsed).toFixed(1);
+        const memUsedFraction = this.state.memUsed / memTotal || 0;
+        const memAvail = Number((memTotal - this.state.memUsed) || 0).toFixed(1);
         const num_cpu_str = cockpit.format(cockpit.ngettext("$0 CPU", "$0 CPUs", numCpu), numCpu);
         const have_storage = cockpit.manifests && cockpit.manifests.storage;
 

@@ -59,7 +59,7 @@ fi
 
 # prepare virt-install parameters
 if [ "$SOURCE_TYPE" = "disk_image" ]; then
-    DISK_OPTIONS="$SOURCE,device=disk"
+    DISK_OPTIONS="'$SOURCE',device=disk"
 else
     if [ "$STORAGE_POOL" = "NoStorage" ]; then
         # default to no disk if size 0
@@ -91,9 +91,9 @@ elif [ "$START_VM" = "true" ]; then
     if [ "$SOURCE_TYPE" = "disk_image" ]; then
         INSTALL_METHOD="--import"
     elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
-        INSTALL_METHOD="--cdrom $SOURCE"
+        INSTALL_METHOD="--cdrom '$SOURCE'"
     else
-        INSTALL_METHOD="--location $SOURCE"
+        INSTALL_METHOD="--location '$SOURCE'"
     fi
 else
     # prevents creating duplicate cdroms if start vm is false
@@ -128,18 +128,18 @@ else
     CHECK_PARAM=""
 fi
 
-virt-install \
+eval virt-install \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
     --os-variant "$OS" \
     --memory "$MEMORY_SIZE" \
     --quiet \
     --disk  "$DISK_OPTIONS" \
-    $CHECK_PARAM \
-    $STARTUP_PARAMS \
-    $INSTALL_METHOD \
-    $GRAPHICS_PARAM \
-    $UNATTENDED_PARAMS \
+    "$CHECK_PARAM" \
+    "$STARTUP_PARAMS" \
+    "$INSTALL_METHOD" \
+    "$GRAPHICS_PARAM" \
+    "$UNATTENDED_PARAMS" \
 > "$XMLS_FILE" || handleFailure $?
 
 # The VM got deleted while being installed

@@ -24,6 +24,7 @@ import { Page, Grid, GridItem, Card, CardBody, Gallery } from "@patternfly/react
 import { StoragePlots } from "./plot.jsx";
 
 import { FilesystemsPanel } from "./fsys-panel.jsx";
+import { LockedCryptoPanel } from "./crypto-panel.jsx";
 import { NFSPanel } from "./nfs-panel.jsx";
 import { ThingsPanel } from "./things-panel.jsx";
 import { IscsiPanel } from "./iscsi-panel.jsx";
@@ -53,6 +54,7 @@ export class Overview extends React.Component {
                                 </CardBody>
                             </Card>
                             <FilesystemsPanel client={client} />
+                            <LockedCryptoPanel client={client} />
                             <NFSPanel client={client} />
                             <JobsPanel client={client} />
                             <StorageLogsPanel />

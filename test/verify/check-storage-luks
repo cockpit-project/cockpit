@@ -78,6 +78,12 @@ class TestStorageLuks(StorageCase):
         self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 file system")
 
+        # It should be listed on the Overview. Click it to come back
+        # here.
+        b.go("#/")
+        b.mousedown("#locked-cryptos tr:contains(MYDISK)")
+        b.wait_visible("#storage-detail")
+
         # Unlock, this uses the stored passphrase
         self.content_head_action(1, "Unlock")
         self.content_row_wait_in_col(2, 1, "ext4 file system")

@@ -243,7 +243,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow(name)
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
@@ -292,7 +292,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "1")
 
@@ -313,10 +313,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # suspend/resume
         m.execute("virsh suspend subVmTest1")
-        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        b.wait_in_text("#vm-subVmTest1-state", "Paused")
         # resume sometimes fails with "unable to execute QEMU command 'cont': Resetting the Virtual Machine is required"
         m.execute('virsh resume subVmTest1 || { virsh destroy subVmTest1 && virsh start subVmTest1; }')
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Wait for the system to completely start
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -330,31 +330,31 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # pause
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-pause")
-        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        b.wait_in_text("#vm-subVmTest1-state", "Paused")
 
         # resume
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-resume")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-reboot")
         wait(lambda: "reboot: Power down" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # force reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceReboot")
         wait(lambda: "Initializing cgroup subsys" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # shut off
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0.0 /")
@@ -364,7 +364,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        b.wait_in_text("#vm-subVmTest2-state", "running")
+        b.wait_in_text("#vm-subVmTest2-state", "Running")
         self.goToVmPage("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
         b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
@@ -381,13 +381,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text("body", "Virtual machines")
             self.waitVmRow("subVmTest1")
             self.waitVmRow("subVmTest2")
-            b.wait_in_text("#vm-subVmTest1-state", "shut off")
-            b.wait_in_text("#vm-subVmTest2-state", "running")
+            b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+            b.wait_in_text("#vm-subVmTest2-state", "Running")
 
         # stop second VM, event handling should still work
         b.click("#vm-subVmTest2-action-kebab button")
         b.click("#vm-subVmTest2-forceOff")
-        b.wait_in_text("#vm-subVmTest2-state", "shut off")
+        b.wait_in_text("#vm-subVmTest2-state", "Shut off")
 
         # test VM error messages
         b.click("#vm-subVmTest2-run")
@@ -566,7 +566,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         self.goToVmPage("subVmTest1")
 
@@ -819,7 +819,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         VMAddDiskDialog(
@@ -936,7 +936,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # shut off
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check if the just added non-permanent disks are gone
         b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
@@ -961,7 +961,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if "debian" not in m.image and "ubuntu" not in m.image:
             # Run VM
             b.click("#vm-subVmTest1-run")
-            b.wait_in_text("#vm-subVmTest1-state", "running")
+            b.wait_in_text("#vm-subVmTest1-state", "Running")
             # Test disk attachment to non-persistent VM
             m.execute("virsh undefine subVmTest1")
             VMAddDiskDialog(
@@ -1034,7 +1034,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Wait for the dynamic IP address to be assigned before logging in
         # If the IP will change or get assigned after fetching the domain data the user will not see any
@@ -1069,7 +1069,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
@@ -1100,7 +1100,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Make sure warning is gone after shut off
         b.wait_not_present("#vcpus-tooltip")
@@ -1111,7 +1111,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Check after boot
         # Run VM
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Check VCPU count
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
@@ -1135,7 +1135,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off VM
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
@@ -1159,7 +1159,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Run VM - this ensures that the internal state is updated before we move on.
         # We need this here because we can't wait for UI updates after we open the modal dialog.
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Wait for the VCPUs link to get new values before opening the dialog
         b.wait_visible("#vm-subVmTest1-vcpus-count")
@@ -1194,7 +1194,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
+        b.wait_in_text("#vm-subVmTest1-state", "Running") # running or paused
         self.goToVmPage("subVmTest1")
 
         # since VNC is not defined for this VM, the view for "Desktop Viewer" is rendered by default
@@ -1223,7 +1223,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
+        b.wait_in_text("#vm-subVmTest1-state", "Running") # running or paused
         self.goToVmPage("subVmTest1")
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
@@ -1309,7 +1309,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
-        b.wait_in_text("#vm-{0}-state".format(name), "paused")
+        b.wait_in_text("#vm-{0}-state".format(name), "Paused")
         b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
         self.browser.reload()
@@ -1343,7 +1343,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.waitVmRow(name)
 
         self.goToVmPage(name)
-        b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
+        b.wait_in_text("#vm-{0}-state".format(name), "Running") # running or paused
 
         b.set_val("#console-type-select", "serial-browser")
         b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
@@ -1370,7 +1370,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.waitVmRow(name)
         self.goToVmPage(name)
-        b.wait_in_text("#vm-{0}-state".format(name), "running")
+        b.wait_in_text("#vm-{0}-state".format(name), "Running")
 
         b.wait_present("#vm-{0}-consoles".format(name))
         b.wait_present("div.vnc-console canvas")
@@ -2344,7 +2344,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             else:
                 b.click(".modal-footer button:contains(Create)")
             init_state = "Creating VM installation" if dialog.start_vm else "Creating VM"
-            second_state = "running" if dialog.start_vm else "shut off"
+            second_state = "Running" if dialog.start_vm else "Shut off"
 
             self._assertVmStates(dialog.name, init_state, second_state)
             b.wait_not_present("#create-vm-dialog")
@@ -2375,7 +2375,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.test_obj.waitVmRow(name)
             b.click("#vm-{0}-install".format(name))
 
-            b.wait_in_text("#vm-{}-state".format(name), "running")
+            b.wait_in_text("#vm-{}-state".format(name), "Running")
             self._assertCorrectConfiguration(dialog)
 
             # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
@@ -2574,7 +2574,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
 
@@ -2613,7 +2613,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         # Wait for the edit button
@@ -2640,7 +2640,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Check boot order has changed and no warning is shown
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
@@ -2668,7 +2668,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Run VM
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable boot order
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-boot-order:disabled")
@@ -2806,7 +2806,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             wait(lambda: "char device" in self.machine.execute("cat {0}".format(logfile)), delay=3)
             b.click("#vm-VmNotInstalled-action-kebab button")
             b.click("#vm-VmNotInstalled-forceOff")
-        b.wait_in_text("#vm-VmNotInstalled-state", "shut off")
+        b.wait_in_text("#vm-VmNotInstalled-state", "Shut off")
         wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1) # Wait until memory parameters get adjusted after shutting the VM
 
         # Check configuration changes survived installation
@@ -2872,7 +2872,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         self.goToVmPage("subVmTest1")
 
@@ -2907,7 +2907,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off VM and see state has changed
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         # Check change has been applied after shutoff
         b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Read-only")
         # See tooltip no longer present in disk listing table
@@ -2942,7 +2942,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Start Vm
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Test disk's bus cannot be changed on running VM
         b.click("#vm-subVmTest1-disks-sda-edit")
@@ -2963,7 +2963,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         # Wait for the edit link
@@ -2996,7 +2996,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-action-kebab button")
         b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
 
         # Click for the edit link
@@ -3018,7 +3018,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Run VM
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable memory
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-memory-count:disabled")
@@ -3052,7 +3052,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching non permanent disk of a running domain
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
@@ -3072,7 +3072,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # inactive configuration as well
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
         # Test detaching permanent disk of a stopped domain
@@ -3089,7 +3089,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Make sure that the VM booted normally before attempting to suspend it
         wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
         m.execute("virsh suspend subVmTest1")
-        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        b.wait_in_text("#vm-subVmTest1-state", "Paused")
         b.wait_attr("#delete-subVmTest1-disk-vde", "disabled", "")
         m.execute("virsh resume subVmTest1")
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -3113,7 +3113,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         # Change Boot Order setting
@@ -3135,7 +3135,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Check both changes have been applied
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
@@ -3157,7 +3157,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Make sure that the Networks are loaded into the global state
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
@@ -3201,7 +3201,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         b.wait_in_text("#vm-subVmTest1-network-1-model", "e1000e")
         b.wait_not_present("#vm-subVmTest1-network-1-model-tooltip")
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
@@ -3324,7 +3324,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # First shut of the VM otherwise the interface will not be the same in the live and config XML https://www.redhat.com/archives/libvir-list/2019-August/msg01034.html
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Try to edit the interface changing the source to a non deleted network
         b.click("#vm-subVmTest1-network-1-edit-dialog")
@@ -3567,7 +3567,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         self.goToVmPage("subVmTest1")
         if m.image in distrosWithoutSnapshot:
@@ -3585,7 +3585,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot1")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot1")
@@ -3597,7 +3597,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Check snapshot for shutoff VM
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         time1 = datetime.now().strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot2 --description 'Description of snapshot2'")
@@ -3657,7 +3657,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # disks later
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Click on Storage pools card
         b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
@@ -4622,7 +4622,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         self.goToVmPage("subVmTest1")
 
@@ -4732,7 +4732,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     vm_state = b.text("#vm-subVmTest1-state")
                     b.click(".modal-footer button:contains(Delete)")
                     # On a running VM detaching NIC takes longer and we can see the spinner
-                    if vm_state == "running":
+                    if vm_state == "Running":
                         b.wait_present(".modal-footer .spinner")
 
                     # Check NIC is no longer in list
@@ -4770,7 +4770,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Start vm and wait until kernel is booted
         m.execute("> {0}".format(args["logfile"])) # clear logfile
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
         wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test permanent attachment to running VM
@@ -4795,7 +4795,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         NICAddDialog(
             self,
@@ -4834,7 +4834,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         class SnapshotCreateDialog(object):
             def __init__(
@@ -4926,7 +4926,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
 
         b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Test snapshot creation on running VM
         SnapshotCreateDialog(

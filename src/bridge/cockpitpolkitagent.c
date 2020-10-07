@@ -462,7 +462,6 @@ void
 cockpit_polkit_agent_unregister (gpointer data)
 {
   CockpitPolkitRegistered *registered = data;
-  guint handler = 0;
 
   if (!registered)
     return;
@@ -473,8 +472,6 @@ cockpit_polkit_agent_unregister (gpointer data)
 
   /* Now unregister with polkit */
   polkit_agent_listener_unregister (registered->registration_handle);
-
-  g_log_remove_handler (NULL, handler);
 
   g_free (registered);
 }

@@ -214,7 +214,7 @@ function getBackend(forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            cockpit.spawn(["bash", "-ec", "command -v dnf apt | head -n1 | xargs basename"], [], { err: "message" })
+            cockpit.spawn(["bash", "-ec", "command -v zypper dnf apt | head -n1 | xargs --no-run-if-empty basename"], [], { err: "message" })
                     .then(output => {
                         output = output.trim();
                         debug("getBackend(): detection finished, output", output);

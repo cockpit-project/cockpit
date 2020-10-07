@@ -496,10 +496,7 @@ session_has_known_host_in_file (const gchar *file,
                                 const gchar *host,
                                 const guint port)
 {
-  /* HACK: https://bugs.libssh.org/T108 */
-  if (!file)
-    g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == 0);
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS, file) == 0);
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == 0);
   return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
 }
 

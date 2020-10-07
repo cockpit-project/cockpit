@@ -166,16 +166,13 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
             .hide();
     $('#host-edit-name').val(machine.label);
     $('#host-edit-name').prop('disabled', machine.state == "failed");
-    $('#host-edit-user-row').toggle(machines.allow_connection_string);
 
-    if (machines.allow_connection_string) {
-        cockpit.user().done(function (user) {
-            $('#host-edit-user').attr('placeholder', user.name);
-        });
-        $('#host-edit-user').prop('disabled', !can_change_user);
-        $('#host-edit-user').val(machine.user);
-        $("#host-edit-dialog a[data-content]").popover();
-    }
+    cockpit.user().done(function (user) {
+        $('#host-edit-user').attr('placeholder', user.name);
+    });
+    $('#host-edit-user').prop('disabled', !can_change_user);
+    $('#host-edit-user').val(machine.user);
+    $("#host-edit-dialog a[data-content]").popover();
 
     machine_dialogs.render_color_picker("#host-edit-colorpicker", machine.address);
     $('#host-edit-sync-users').off('click');
@@ -195,7 +192,7 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
             label: $('#host-edit-name').val(),
         };
 
-        if (can_change_user && machines.allow_connection_string)
+        if (can_change_user)
             values.user = $('#host-edit-user').val();
 
         var promise = machine_manager.change(machine.key, values);

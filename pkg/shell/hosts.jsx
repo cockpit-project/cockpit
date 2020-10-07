@@ -120,14 +120,11 @@ export class CockpitHosts extends React.Component {
         name.disabled = machine.state == "failed";
         name.value = machine.label;
 
-        document.getElementById("edit-host-user-row").hidden = !machines.allow_connection_string;
         const user = document.getElementById("edit-host-user");
-        if (machines.allow_connection_string) {
-            user.placeholder = this.state.current_user;
-            user.disabled = !can_change_user;
-            user.value = machine.user || "";
-            $("#edit-host-dialog a[data-content]").popover();
-        }
+        user.placeholder = this.state.current_user;
+        user.disabled = !can_change_user;
+        user.value = machine.user || "";
+        $("#edit-host-dialog a[data-content]").popover();
 
         this.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
 
@@ -143,7 +140,7 @@ export class CockpitHosts extends React.Component {
                 label: name.value,
             };
 
-            if (can_change_user && machines.allow_connection_string)
+            if (can_change_user)
                 values.user = user.value;
 
             const promise = this.props.machines.change(machine.key, values);

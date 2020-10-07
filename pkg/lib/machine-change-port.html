@@ -7,16 +7,9 @@
 <div class="modal-body">
     <p>
         <span translate="yes">Unable to contact {{#strong}}{{host}}{{/strong}}.</span>
-        {{^allow_connection_string}}
-        <span translate="yes">To try a different port you will need to upgrade cockpit-ws to a newer version.</span>
-        {{/allow_connection_string}}
-
-        {{#allow_connection_string}}
         <span translate="yes">Is sshd running on a different port?</span>
-        {{/allow_connection_string}}
     </p>
 
-    {{#allow_connection_string}}
     <form class="ct-form">
       <label class="control-label" translate="yes">Port</label>
       <div class="dialog-wrapper error-keep">
@@ -26,16 +19,9 @@
                placeholder="22"/>
       </div>
     </form>
-    {{/allow_connection_string}}
 </div>
 
 <div class="modal-footer">
-    {{#allow_connection_string}}
     <button class="pf-c-button pf-m-primary" translate="yes">Update</button>
     <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-    {{/allow_connection_string}}
-
-    {{^allow_connection_string}}
-    <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Close</button>
-    {{/allow_connection_string}}
 </div>

@@ -795,22 +795,4 @@ mod.colors.parse = function parse_color(input) {
     return style.getPropertyValue("color") || div.style.color;
 };
 
-mod.known_hosts_path = known_hosts_path;
-
-cockpit.transport.wait(function() {
-    var caps = cockpit.transport.options.capabilities || [];
-    /* If cockpit-ws is handling ssh, check for each capability. Otherwise
-     * the version is new enough that is has them all */
-    if ($.inArray("ssh", caps) > -1) {
-        mod.allow_connection_string = $.inArray("connection-string", caps) != -1;
-        mod.has_auth_results = $.inArray("auth-method-results", caps) != -1;
-        known_hosts_path = "/var/lib/cockpit/known_hosts";
-        mod.known_hosts_path = known_hosts_path;
-        console.debug("Running against legacy ws with ssh, using legacy file", known_hosts_path);
-    } else {
-        mod.allow_connection_string = true;
-        mod.has_auth_results = true;
-    }
-});
-
 export const machines = mod;

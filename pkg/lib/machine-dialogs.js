@@ -396,9 +396,6 @@ function AddMachine(dialog) {
 
         if (addr === "") {
             disabled = true;
-        } else if (!machines.allow_connection_string &&
-                   (addr.indexOf('@') > -1 || addr.indexOf(':') > -1)) {
-            ex = new Error(_("This version of cockpit-ws does not support connecting to a host with an alternate user or port"));
         } else if (addr.search(/\s+/) === -1) {
             ex = existing_error(addr);
             if (!ex)
@@ -552,10 +549,8 @@ function MachinePort(dialog) {
 
         dialog.render({
             port : machine.port,
-            allow_connection_string : machines.allow_connection_string
         });
-        if (machines.allow_connection_string)
-            dialog.get_sel(".modal-footer>.pf-m-primary").on("click", change_port);
+        dialog.get_sel(".modal-footer>.pf-m-primary").on("click", change_port);
     };
 }
 
@@ -894,14 +889,11 @@ function ChangeAuth(dialog) {
     function render() {
         var promise = null;
         var template = "change-auth";
-        if (!machines.allow_connection_string || !machines.has_auth_results)
-            template = "auth-failed";
-
         var methods = null;
         var available = null;
         var locked_identity = false;
 
-        if (error_options && machines.has_auth_results) {
+        if (error_options) {
             available = {};
 
             methods = error_options["auth-method-results"];
@@ -925,7 +917,7 @@ function ChangeAuth(dialog) {
             offer_key_password = false;
         }
 
-        if (methods === null && machines.has_auth_results) {
+        if (methods === null) {
             promise = dialog.try_to_connect(dialog.address)
                     .catch(function(ex) {
                         if (ex.problem && dialog.codes[ex.problem] != "change-auth") {

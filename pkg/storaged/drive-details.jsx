@@ -20,7 +20,13 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardTitle, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Card, CardBody, CardTitle, Text, TextVariants,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
@@ -40,19 +46,19 @@ export class DriveDetails extends React.Component {
             if (!value)
                 return null;
             return (
-                <>
-                    <label className="control-label">{title}</label>
-                    <div>{value}</div>
-                </>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{title}</DescriptionListTerm>
+                    <DescriptionListDescription>{value}</DescriptionListDescription>
+                </DescriptionListGroup>
             );
         };
 
         var assessment = null;
         if (drive_ata) {
             assessment = (
-                <>
-                    <label className="control-label">{_("storage", "Assessment")}</label>
-                    <div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("storage", "Assessment")}</DescriptionListTerm>
+                    <DescriptionListDescription>
                         { drive_ata.SmartFailing
                             ? <span className="cockpit-disk-failing">{_("DISK IS FAILING")}</span>
                             : <span>{_("Disk is OK")}</span>
@@ -61,8 +67,8 @@ export class DriveDetails extends React.Component {
                             ? <span>({utils.format_temperature(drive_ata.SmartTemperature)})</span>
                             : null
                         }
-                    </div>
-                </>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
             );
         }
 
@@ -70,7 +76,7 @@ export class DriveDetails extends React.Component {
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
                 <CardBody>
-                    <div className="ct-form ct-form-info">
+                    <DescriptionList isHorizontal>
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
                         <DriveDetailsRow title={_("storage", "Firmware version")} value={drive.Revision} />
                         <DriveDetailsRow title={_("storage", "Serial number")} value={drive.Serial} />
@@ -81,7 +87,7 @@ export class DriveDetails extends React.Component {
                         {multipath_blocks.length > 0 && (
                             <DriveDetailsRow title={_("storage", "Multipathed devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
                         )}
-                    </div>
+                    </DescriptionList>
                 </CardBody>
             </Card>
         );

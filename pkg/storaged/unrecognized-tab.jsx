@@ -18,6 +18,13 @@
  */
 
 import React from "react";
+import {
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
+
 import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
@@ -25,15 +32,16 @@ const _ = cockpit.gettext;
 export class UnrecognizedTab extends React.Component {
     render() {
         return (
-            <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Usage")}</label>
-                    <div>{this.props.block.IdUsage || "-"}</div>
-
-                    <label className="control-label">{_("Type")}</label>
-                    <div>{this.props.block.IdType || "-"}</div>
-                </div>
-            </div>
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Usage")}</DescriptionListTerm>
+                    <DescriptionListDescription>{this.props.block.IdUsage || "-"}</DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
+                    <DescriptionListDescription>{this.props.block.IdType || "-"}</DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }

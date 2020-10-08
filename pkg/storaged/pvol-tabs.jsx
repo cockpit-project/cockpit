@@ -18,6 +18,12 @@
  */
 
 import React from "react";
+import {
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
@@ -30,21 +36,22 @@ export class PVolTab extends React.Component {
         var vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
 
         return (
-            <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Volume group")}</label>
-                    <div>{vgroup
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Volume group")}</DescriptionListTerm>
+                    <DescriptionListDescription>{vgroup
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
                             {vgroup.Name}
                         </button>
                         : "-"
                     }
-                    </div>
-
-                    <label className="control-label">{_("Free")}</label>
-                    <div>{block_pvol ? utils.fmt_size(block_pvol.FreeSize) : "-"}</div>
-                </div>
-            </div>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Free")}</DescriptionListTerm>
+                    <DescriptionListDescription>{block_pvol ? utils.fmt_size(block_pvol.FreeSize) : "-"}</DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }
@@ -54,18 +61,18 @@ export class MDRaidMemberTab extends React.Component {
         var mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
 
         return (
-            <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("RAID device")}</label>
-                    <div>{mdraid
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("RAID device")}</DescriptionListTerm>
+                    <DescriptionListDescription>{mdraid
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["mdraid", mdraid.UUID])}>
                             {utils.mdraid_name(mdraid)}
                         </button>
                         : "-"
                     }
-                    </div>
-                </div>
-            </div>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }
@@ -75,18 +82,18 @@ export class VDOBackingTab extends React.Component {
         var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
 
         return (
-            <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("VDO device")}</label>
-                    <div>{vdo
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("VDO device")}</DescriptionListTerm>
+                    <DescriptionListDescription>{vdo
                         ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vdo", vdo.name])}>
                             {vdo.name}
                         </button>
                         : "-"
                     }
-                    </div>
-                </div>
-            </div>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }

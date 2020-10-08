@@ -20,8 +20,13 @@
 import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
-import { Alert, Card, CardTitle, CardBody, Text, TextVariants } from "@patternfly/react-core";
-
+import {
+    Alert, Card, CardTitle, CardBody, Text, TextVariants,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
 
@@ -310,19 +315,27 @@ export class NFSDetails extends React.Component {
                     </span>
                 </CardTitle>
                 <CardBody>
-                    <div className="ct-form">
-                        <label className="control-label">{_("Server")}</label>
-                        <div>{entry.fields[0]}</div>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm className="control-DescriptionListTerm">{_("Server")}</DescriptionListTerm>
+                            <DescriptionListDescription>{entry.fields[0]}</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Mount point")}</label>
-                        <div>{entry.fields[1]}</div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm className="control-DescriptionListTerm">{_("Mount point")}</DescriptionListTerm>
+                            <DescriptionListDescription>{entry.fields[1]}</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Size")}</label>
-                        { entry.mounted
-                            ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                            : _("--")
-                        }
-                    </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm className="control-DescriptionListTerm">{_("Size")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                { entry.mounted
+                                    ? <StorageUsageBar stats={fsys_size} critical={0.95} />
+                                    : _("--")
+                                }
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </DescriptionList>
                 </CardBody>
             </Card>
         );

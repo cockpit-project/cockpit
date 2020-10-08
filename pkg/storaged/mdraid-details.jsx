@@ -19,7 +19,14 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, Card, CardTitle, CardHeader, CardActions, CardBody, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Alert, Card, CardTitle, CardHeader, CardActions, CardBody,
+    Text, TextVariants,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
@@ -187,10 +194,12 @@ export class MDRaidDetails extends React.Component {
         if (mdraid.BitmapLocation) {
             var value = utils.decode_filename(mdraid.BitmapLocation) != "none";
             bitmap = (
-                <>
-                    <label className="control-label">{_("storage", "Bitmap")}</label>
-                    <StorageOnOff state={value} onChange={toggle_bitmap} />
-                </>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("storage", "Bitmap")}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        <StorageOnOff state={value} onChange={toggle_bitmap} />
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
             );
         }
 
@@ -309,24 +318,34 @@ export class MDRaidDetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <div className="ct-form">
-                        <label className="control-label">{_("storage", "Device")}</label>
-                        <div>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</div>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "Device")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("storage", "UUID")}</label>
-                        <div>{ mdraid.UUID }</div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "UUID")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ mdraid.UUID }</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("storage", "Capacity")}</label>
-                        <div>{ utils.fmt_size_long(mdraid.Size) }</div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "Capacity")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ utils.fmt_size_long(mdraid.Size) }</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("storage", "RAID level")}</label>
-                        <div>{ level }</div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "RAID level")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ level }</DescriptionListDescription>
+                        </DescriptionListGroup>
 
                         { bitmap }
 
-                        <label className="control-label">{_("storage", "State")}</label>
-                        <div>{ running ? _("Running") : _("Not running") }</div>
-                    </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "State")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ running ? _("Running") : _("Not running") }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </DescriptionList>
                 </CardBody>
             </Card>
         );

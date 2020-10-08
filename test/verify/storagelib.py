@@ -165,7 +165,7 @@ class StorageHelpers:
             row_item = row + " tr.listing-ct-item"
             tab_btn = row + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
             tab = row + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
-            cell = tab + " div.ct-form label:contains(%s) + *" % title
+            cell = tab + " dt:contains(%s) + *" % title
 
             if not b.is_present(row + ".open"):
                 if not b.is_present(row_item):
@@ -197,14 +197,11 @@ class StorageHelpers:
 
     def content_tab_info_label(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        return tab + " div.ct-form label:contains(%s)" % title
+        return tab + " dt:contains(%s)" % title
 
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)
-        if wrapped:
-            link = label + " + div button.pf-m-link"
-        else:
-            link = label + " + button.pf-m-link"
+        link = label + " + dd button.pf-m-link"
         self.browser.click(link)
 
     # Dialogs

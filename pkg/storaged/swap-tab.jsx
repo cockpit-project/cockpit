@@ -18,6 +18,13 @@
  */
 
 import React from "react";
+import {
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
+
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
@@ -58,12 +65,12 @@ export class SwapTab extends React.Component {
         }
 
         return (
-            <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Used")}</label>
-                    <div>{used}</div>
-                </div>
-            </div>
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Used")}</DescriptionListTerm>
+                    <DescriptionListDescription>{used}</DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }

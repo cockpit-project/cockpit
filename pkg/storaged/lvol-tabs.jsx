@@ -21,7 +21,13 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import React from "react";
-import { Alert } from "@patternfly/react-core";
+import {
+    Alert,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { existing_passphrase_fields, get_existing_passphrase } from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
@@ -376,22 +382,26 @@ export class BlockVolTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Name")}</label>
-                    <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
                     { !unused_space &&
-                    <>
-                        <label className="control-label">{_("Size")}</label>
-                        <div>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
+                        <DescriptionListDescription>
                             {utils.fmt_size(this.props.lvol.Size)}
                             <div className="tab-row-actions">
                                 <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
                                 <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
                             </div>
-                        </div>
-                    </>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
                     }
-                </div>
+                </DescriptionList>
                 { unused_space &&
                 <>
                     <br />
@@ -430,24 +440,34 @@ export class PoolVolTab extends React.Component {
         }
 
         return (
-            <div className="ct-form">
-                <label className="control-label">{_("Name")}</label>
-                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+            <DescriptionList>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("Size")}</label>
-                <div>
-                    {utils.fmt_size(this.props.lvol.Size)}
-                    <div className="tab-row-actions">
-                        <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
-                    </div>
-                </div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {utils.fmt_size(this.props.lvol.Size)}
+                        <DescriptionListDescription className="tab-row-actions">
+                            <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                        </DescriptionListDescription>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("Data used")}</label>
-                <div>{perc(this.props.lvol.DataAllocatedRatio)}</div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Data used")}</DescriptionListTerm>
+                    <DescriptionListDescription>{perc(this.props.lvol.DataAllocatedRatio)}</DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("Metadata used")}</label>
-                <div>{perc(this.props.lvol.MetadataAllocatedRatio)}</div>
-            </div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Metadata used")}</DescriptionListTerm>
+                    <DescriptionListDescription>{perc(this.props.lvol.MetadataAllocatedRatio)}</DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }

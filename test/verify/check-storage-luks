@@ -98,7 +98,7 @@ class TestStorageLuks(StorageCase):
         self.wait_in_storaged_configuration("weird,options")
 
         # Change passphrase
-        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
+        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + dd button"
         self.dialog_with_retry(trigger=lambda: b.click(edit_button),
                                expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
                                values={"passphrase": "wrong-passphrase"})
@@ -106,7 +106,7 @@ class TestStorageLuks(StorageCase):
         assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
         # Remove passphrase
-        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
+        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + dd button"
         self.dialog_with_retry(trigger=lambda: b.click(edit_button),
                                expect={"passphrase": "wrong-passphrase"},
                                values={"passphrase": ""})

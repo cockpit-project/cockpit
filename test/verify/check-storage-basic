@@ -51,7 +51,7 @@ class TestStorageBasic(StorageCase):
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
 
         def info_field_value(name):
-            return b.text('#detail-header label:contains("%s") + div' % name)
+            return b.text('#detail-header dt:contains("%s") + dd' % name)
 
         self.assertEqual(self.inode(info_field_value("Device file")), self.inode(disk))
 

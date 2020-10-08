@@ -17,6 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import {
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 import cockpit from "cockpit";
 import { dialog_open, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename } from "./utils.js";
@@ -123,14 +129,20 @@ export class CryptoTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Stored passphrase")}</label>
-                    <div className="ct-form-stretch">
-                        <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
-                    </div>
-                    <label className="control-label">{_("Options")}</label>
-                    <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
-                </div>
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Stored passphrase")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Options")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
                 <br />
                 <CryptoKeyslots client={client} block={block} />
             </div>

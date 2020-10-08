@@ -18,7 +18,13 @@
  */
 
 import React from "react";
-import { Alert } from "@patternfly/react-core";
+import {
+    Alert,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
@@ -507,22 +513,30 @@ export class FilesystemTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form">
-                    <label className="control-label">{_("Name")}</label>
-                    <StorageLink onClick={rename_dialog}>
-                        {this.props.block.IdLabel || "-"}
-                    </StorageLink>
-                    <label className="control-label">{_("Mount point")}</label>
-                    <div>
-                        { mount_point_text &&
-                        <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update")}>
-                            { mount_point_text }
-                        </StorageLink> }
-                        { extra_text }
-                    </div>
-                    <label className="control-label">{_("Used")}</label>
-                    <div>{used}</div>
-                </div>
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <StorageLink onClick={rename_dialog}>
+                                {this.props.block.IdLabel || "-"}
+                            </StorageLink>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Mount point")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            { mount_point_text &&
+                            <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update")}>
+                                { mount_point_text }
+                            </StorageLink> }
+                            { extra_text }
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Used")}</DescriptionListTerm>
+                        <DescriptionListDescription>{used}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
                 { mismounted_section }
             </div>
         );

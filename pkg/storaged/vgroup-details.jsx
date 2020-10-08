@@ -20,7 +20,13 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
@@ -219,13 +225,17 @@ export class VGroupDetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <div className="ct-form">
-                        <label className="control-label">{_("storage", "UUID")}</label>
-                        <div>{ vgroup.UUID }</div>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "UUID")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ vgroup.UUID }</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("storage", "Capacity")}</label>
-                        <div>{ utils.fmt_size_long(vgroup.Size) }</div>
-                    </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("storage", "Capacity")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ utils.fmt_size_long(vgroup.Size) }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </DescriptionList>
                 </CardBody>
             </Card>
         );

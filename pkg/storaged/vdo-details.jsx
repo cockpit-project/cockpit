@@ -19,7 +19,14 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, Card, CardHeader, CardActions, CardTitle, CardBody, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Alert, Card, CardHeader, CardActions, CardTitle, CardBody,
+    Text, TextVariants,
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
 import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
@@ -262,56 +269,70 @@ export class VDODetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <div className="ct-form">
-                        <label className="control-label">{_("Device file")}</label>
-                        <div>{vdo.dev}</div>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Device file")}</DescriptionListTerm>
+                            <DescriptionListDescription>{vdo.dev}</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Backing device")}</label>
-                        <div>
-                            { backing_block ? <StorageBlockNavLink client={client} block={backing_block} />
-                                : vdo.backing_dev
-                            }
-                        </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Backing device")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                { backing_block ? <StorageBlockNavLink client={client} block={backing_block} />
+                                    : vdo.backing_dev
+                                }
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Physical")}</label>
-                        <div>
-                            { stats
-                                ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
-                                                 fmt_size(stats.dataBlocksUsed * stats.blockSize),
-                                                 fmt_size(stats.overheadBlocksUsed * stats.blockSize),
-                                                 fmt_size(vdo.physical_size),
-                                                 fmt_perc(stats.usedPercent))
-                                : fmt_size(vdo.physical_size)
-                            }
-                        </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Physical")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                { stats
+                                    ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
+                                                     fmt_size(stats.dataBlocksUsed * stats.blockSize),
+                                                     fmt_size(stats.overheadBlocksUsed * stats.blockSize),
+                                                     fmt_size(vdo.physical_size),
+                                                     fmt_perc(stats.usedPercent))
+                                    : fmt_size(vdo.physical_size)
+                                }
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Logical")}</label>
-                        <div>
-                            { stats
-                                ? cockpit.format(_("$0 used of $1 ($2 saved)"),
-                                                 fmt_size(stats.logicalBlocksUsed * stats.blockSize),
-                                                 fmt_size(vdo.logical_size),
-                                                 fmt_perc(stats.savingPercent))
-                                : fmt_size(vdo.logical_size)
-                            }
-                            &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
-                        </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Logical")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                { stats
+                                    ? cockpit.format(_("$0 used of $1 ($2 saved)"),
+                                                     fmt_size(stats.logicalBlocksUsed * stats.blockSize),
+                                                     fmt_size(vdo.logical_size),
+                                                     fmt_perc(stats.savingPercent))
+                                    : fmt_size(vdo.logical_size)
+                                }
+                                &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Index memory")}</label>
-                        <div>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Index memory")}</DescriptionListTerm>
+                            <DescriptionListDescription>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Compression")}</label>
-                        <div>
-                            <StorageOnOff state={vdo.compression}
-                                          onChange={() => vdo.set_compression(!vdo.compression)} />
-                        </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Compression")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                <StorageOnOff state={vdo.compression}
+                                              onChange={() => vdo.set_compression(!vdo.compression)} />
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        <label className="control-label">{_("Deduplication")}</label>
-                        <div>
-                            <StorageOnOff state={vdo.deduplication}
-                                           onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
-                        </div>
-                    </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Deduplication")}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                <StorageOnOff state={vdo.deduplication}
+                                               onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </DescriptionList>
                 </CardBody>
             </Card>
         );

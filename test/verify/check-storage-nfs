@@ -73,8 +73,8 @@ class TestStorageNfs(StorageCase):
         # Go to details of /home/bar
         b.mousedown("#nfs-mounts tr:contains(/home/bar)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/bar")
-        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/bar")
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/bar")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/bar")
 
         # Change mount point of /home/bar
         b.click('#detail-header button:contains("Edit")')
@@ -83,7 +83,7 @@ class TestStorageNfs(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/barbar")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/barbar")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
@@ -117,8 +117,8 @@ class TestStorageNfs(StorageCase):
         b.wait_visible("#storage")
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header label:contains("Mount point") + div', "/mnt")
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mnt")
 
         # Unmount and remount /home/foo
         b.click("#detail-header button:contains(Unmount)")
@@ -204,8 +204,8 @@ class TestStorageNfs(StorageCase):
         b.wait_visible("#storage")
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header label:contains("Mount point") + div', "/mounts/foo")
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")
 
         m.spawn("cd /mounts/foo; sleep infinity", "busy")
         b.click('#detail-header button:contains("Edit")')

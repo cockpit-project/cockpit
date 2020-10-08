@@ -18,6 +18,12 @@
  */
 
 import React from "react";
+import {
+    DescriptionList,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionListDescription
+} from "@patternfly/react-core";
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
@@ -29,19 +35,27 @@ export class PartitionTab extends React.Component {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
-            <div className="ct-form">
-                <label className="control-label">{_("Name")}</label>
-                <div>{block_part.Name || "-"}</div>
+            <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                    <DescriptionListDescription>{block_part.Name || "-"}</DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("Size")}</label>
-                <div>{utils.fmt_size(block_part.Size)}</div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
+                    <DescriptionListDescription>{utils.fmt_size(block_part.Size)}</DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("UUID")}</label>
-                <div>{block_part.UUID}</div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("UUID")}</DescriptionListTerm>
+                    <DescriptionListDescription>{block_part.UUID}</DescriptionListDescription>
+                </DescriptionListGroup>
 
-                <label className="control-label">{_("Type")}</label>
-                <div>{block_part.Type}</div>
-            </div>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
+                    <DescriptionListDescription>{block_part.Type}</DescriptionListDescription>
+                </DescriptionListGroup>
+            </DescriptionList>
         );
     }
 }

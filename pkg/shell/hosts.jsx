@@ -115,17 +115,6 @@ export class CockpitHosts extends React.Component {
     onHostEdit(event, machine) {
         const dlg = $("#edit-host-dialog");
 
-        const can_change_user = machine.address != "localhost";
-        const name = document.getElementById("edit-host-name");
-        name.disabled = machine.state == "failed";
-        name.value = machine.label;
-
-        const user = document.getElementById("edit-host-user");
-        user.placeholder = this.state.current_user;
-        user.disabled = !can_change_user;
-        user.value = machine.user || "";
-        $("#edit-host-dialog a[data-content]").popover();
-
         this.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
 
         // Remove all existing listeners so we don't change it multiple times
@@ -137,11 +126,7 @@ export class CockpitHosts extends React.Component {
             dlg.dialog('failure', null);
             const values = {
                 color: machines.colors.parse(document.querySelector('#edit-host-colorpicker #host-edit-color').style["background-color"]),
-                label: name.value,
             };
-
-            if (can_change_user)
-                values.user = user.value;
 
             const promise = this.props.machines.change(machine.key, values);
             dlg.dialog('promise', promise);

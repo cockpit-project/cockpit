@@ -159,29 +159,13 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
     if (!machine)
         return;
 
-    var can_change_user = machine.address != "localhost";
     var dlg = $("#host-edit-dialog");
     $('#host-edit-fail')
             .text("")
             .hide();
-    $('#host-edit-name').val(machine.label);
-    $('#host-edit-name').prop('disabled', machine.state == "failed");
-
-    cockpit.user().done(function (user) {
-        $('#host-edit-user').attr('placeholder', user.name);
-    });
-    $('#host-edit-user').prop('disabled', !can_change_user);
-    $('#host-edit-user').val(machine.user);
     $("#host-edit-dialog a[data-content]").popover();
 
     machine_dialogs.render_color_picker("#host-edit-colorpicker", machine.address);
-    $('#host-edit-sync-users').off('click');
-    $("#host-edit-sync-users").on('click', function () {
-        $("#host-edit-dialog").modal('hide');
-        machine_dialogs.render_dialog("sync-users",
-                                      "dashboard_setup_server_dialog",
-                                      machine.address);
-    });
 
     $('#host-edit-apply').off('click');
     $('#host-edit-apply').on('click', function () {
@@ -189,11 +173,7 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
         var values = {
             avatar: avatar_editor.changed ? avatar_editor.get_data(128, 128, "image/png") : null,
             color: machines.colors.parse($('#host-edit-colorpicker #host-edit-color').css('background-color')),
-            label: $('#host-edit-name').val(),
         };
-
-        if (can_change_user)
-            values.user = $('#host-edit-user').val();
 
         var promise = machine_manager.change(machine.key, values);
         dlg.dialog('promise', promise);

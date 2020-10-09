@@ -244,7 +244,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 
     def testEdit(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/dashboard")
         self.wait_dashboard_addresses(b, ["localhost"])
@@ -257,7 +256,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
 
         b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-name', "Horst")
         b.click('#host-edit-color')
         b.wait_visible('#host-edit-color-popover')
         b.wait_visible('#host-edit-user[disabled]')
@@ -266,9 +264,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
 
-        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
         b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
-        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
     def testLimits(self):
         b = self.browser

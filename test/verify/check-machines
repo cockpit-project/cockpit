@@ -743,7 +743,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     goToVmPage("subVmTest1")
 
                 # Detect volume format
-                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '{2}' -"
+                volume_xml = m.execute("virsh vol-dumpxml {0} {1} ".format(self.volume_name, self.pool_name))
+                detect_format_cmd = "echo \"{0}\" | xmllint --xpath '{1}' -"
 
                 b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
                 if self.cache_mode:
@@ -761,10 +762,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
                     m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")
                 else:
-                    self.test_obj.assertEqual(
-                        m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
-                        '<format type="{0}"/>'.format(self.volume_format or expected_format)
-                    )
+                    vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip();
+                    self.test_obj.assertEqual(vol_xml, '<format type="{0}"/>'.format(self.volume_format or expected_format))
                 return self
 
         used_targets = ['vda']

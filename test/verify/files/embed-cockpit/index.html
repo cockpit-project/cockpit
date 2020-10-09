@@ -32,90 +32,134 @@
 <body id="content" class="cards-pf">
 
     <!-- BOILERPLATE: Makes this look like another app -->
-    <div class="container-fluid container-cards-pf">
-        <div class="row row-cards-pf">
-            <div id="embed-links" class="col-xs-3 col-sm-3 col-md-2">
-                <div class="row row-cards-pf">
-                    <input id="embed-address" class="form-control" value="http://127.0.0.1"/>
-                </div>
-                <div class="card-pf card-pf-accented card-pf-aggregate-status">
-                    <h2 class="card-pf-title">
-                        <a id="embed-full" href="/cockpit/@localhost/system/index.html">
-                            <span class="fa fa-server"></span>Full Server
-                        </a>
-                    </h2>
-                    <div class="card-pf-body">
-                        <p class="card-pf-aggregate-status-notifications">
-                            <span class="card-pf-aggregate-status-notification">
-                                <span class="pficon pficon-add-circle-o"></span></span>
-                        </p>
+    <main class="pf-c-page__main" tabindex="-1">
+        <section class="pf-c-page__main-section pf-m-light container-cards-pf">
+            <div class="row row-cards-pf">
+                <div id="embed-links" class="col-xs-3 col-sm-3 col-md-2">
+                    <div class="row row-cards-pf">
+                        <input id="embed-address" class="form-control" value="http://127.0.0.1"/>
                     </div>
-                </div>
-                <div class="card-pf card-pf-accented card-pf-aggregate-status card-pf-with-action">
-                    <h2 class="card-pf-title">
-                        <a id="embed-terminal" href="/cockpit/@localhost/system/terminal.html">
-                            <span class="fa fa-terminal"></span>Server Terminal</a>
-                    </h2>
-                    <div class="card-pf-body">
-                        <p class="card-pf-aggregate-status-notifications">
-                            <span class="card-pf-aggregate-status-notification"><span
-                                    class="pficon pficon-error-circle-o"></span>4</span>
-                            <span class="card-pf-aggregate-status-notification"><span
-                                    class="pficon pficon-warning-triangle-o"></span>1</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="card-pf card-pf-accented card-pf-aggregate-status">
-                    <h2 class="card-pf-title">
-                        <a id="embed-network" href="/cockpit/@localhost/network/index.html">
-                            <span class="fa fa-plug"></span>Server Networking</a>
-                    </h2>
-                    <div class="card-pf-body">
-                        <p class="card-pf-aggregate-status-notifications">
-                        <span class="card-pf-aggregate-status-notification"><span
-                                    class="pficon pficon-error-circle-o"></span>1</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="card-pf card-pf-accented card-pf-aggregate-status">
-                    <h2 class="card-pf-title">
-                        <a id="embed-storage" href="/cockpit/@localhost/storage/index.html">
-                            <span class="fa fa-hdd-o"></span>Server Storage</a>
-                    </h2>
-                    <div class="card-pf-body">
-                        <p class="card-pf-aggregate-status-notifications">
-                        <span class="card-pf-aggregate-status-notification"><span
-                                    class="pficon pficon-error-circle-o"></span>1</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="card-pf card-pf-accented card-pf-aggregate-status">
-                    <h2 class="card-pf-title">
-                        <a id="embed-auth" href="/cockpit+app/@localhost/shell/index.html">
-                            <span class="fa fa-lock"></span>Separate Auth
-                        </a>
-                    </h2>
-                    <div class="card-pf-body">
-                        <p class="card-pf-aggregate-status-notifications">
-                        <span class="card-pf-aggregate-status-notification"><span
-                                    class="pficon pficon-error-circle-o"></span>1</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-9 col-sm-9 col-md-10">
-                <div class="card-pf">
-                    <div class="card-pf-heading">
-                        <h2 id="embed-title" class="card-pf-title">
-                            Embedded Cockpit Here
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-full" href="/cockpit/@localhost/system/index.html">
+                                <span class="fa fa-server"></span>Full Server
+                            </a>
                         </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                                <span class="card-pf-aggregate-status-notification">
+                                    <span class="pficon pficon-add-circle-o"></span></span>
+                            </p>
+                        </div>
                     </div>
-                    <div id="embed-here" class="card-pf-body">
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status card-pf-with-action">
+                        <h2 class="card-pf-title">
+                            <a id="embed-terminal" href="/cockpit/@localhost/system/terminal.html">
+                                <span class="fa fa-terminal"></span>Server Terminal</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                                <span class="card-pf-aggregate-status-notification"><span
+                                        class="pficon pficon-error-circle-o"></span>4</span>
+                                <span class="card-pf-aggregate-status-notification"><span
+                                        class="pficon pficon-warning-triangle-o"></span>1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-network" href="/cockpit/@localhost/network/index.html">
+                                <span class="fa fa-plug"></span>Server Networking</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"><span
+                                        class="pficon pficon-error-circle-o"></span>1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-storage" href="/cockpit/@localhost/storage/index.html">
+                                <span class="fa fa-hdd-o"></span>Server Storage</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"><span
+                                        class="pficon pficon-error-circle-o"></span>1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-auth" href="/cockpit+app/@localhost/shell/index.html">
+                                <span class="fa fa-lock"></span>Separate Auth
+                            </a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"><span
+                                        class="pficon pficon-error-circle-o"></span>1</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
+                <div class="col-xs-9 col-sm-9 col-md-10">
+                    <div class="card-pf">
+                        <div class="card-pf-heading">
+                            <h2 id="embed-title" class="card-pf-title">
+                                Embedded Cockpit Here
+                            </h2>
+                        </div>
+                        <div id="embed-here" class="card-pf-body">
+                        </div>
+                    </div>
+                </div>
+<<<<<<< HEAD:test/verify/files/embed-cockpit/index.html
             </div>
         </div><!-- /row -->
     </div><!-- /container -->
+=======
+            </div><!-- /row -->
+        </section>
+    </main>
+
+    <script>
+        var frames = { };
+
+        function click(ev) {
+            var href = ev.target.getAttribute("href");
+            ev.preventDefault();
+
+            var address = document.getElementById("embed-address").value;
+            if (address.indexOf(":") === -1)
+                address += ":9090";
+            var url = address + href;
+
+            var frame = frames[url];
+            if (!frame) {
+                frame = frames[url] = document.createElement("iframe");
+                frame.setAttribute("src", url)
+                frame.setAttribute("name", ev.target.getAttribute("id"));
+                document.getElementById("embed-here").appendChild(frame);
+                frame.addEventListener("load", function(ev) {
+                    ev.target.setAttribute("loaded", "1");
+                });
+            }
+
+            var i, iframes = document.querySelectorAll("iframe");
+            for (i = 0; i < iframes.length; i++)
+                iframes[i].setAttribute("hidden", "hidden");
+            frame.removeAttribute("hidden");
+            document.getElementById("embed-title").innerText = ev.target.innerText;
+            return false;
+        }
+
+        var x, links = document.querySelectorAll("#embed-links a[href]");
+        for (x = 0; x < links.length; x++)
+            links[x].addEventListener("click", click);
+    </script>
+>>>>>>> b64ab575d... Replace all usages of container-fluid class:test/verify/files/embed-cockpit.html
     <div id="embed-loaded">
     </div>
 </body>

@@ -452,8 +452,7 @@ small {
 // Bump content away from cards
 .content,
 .page-ct,
-.container,
-.container-fluid {
+.container {
   --container-padding-x: var(--pf-global--spacer--md);
   --container-padding-y: var(--pf-global--spacer--lg);
   --container-padding: var(--container-padding-y) var(--container-padding-x);
@@ -468,8 +467,7 @@ small {
   // Add PF4 padding to desktop mode
   .content,
   .page-ct,
-  .container,
-  .container-fluid {
+  .container {
     --container-padding-x: var(--pf-global--spacer--lg);
     --container-padding-y: var(--pf-global--spacer--xl);
 
@@ -481,7 +479,7 @@ small {
 
   // Rely on page-ct padding; don't duplicate
   .page-ct .container,
-  .page-ct .container-fluid {
+  .page-ct {
     padding: 0;
   }
 
@@ -494,8 +492,7 @@ small {
 // Bump content away from cards
 .content,
 .page-ct,
-.container,
-.container-fluid {
+.container {
   .cards-pf + & {
     padding-top: 1rem;
   }

@@ -32,9 +32,9 @@
 </head>
 <body class="pf-m-redhat-font" hidden>
 
-    <div id="dashboard" class="container-fluid page-ct">
-        <div class="row" role="presentation">
-            <div class="col-md-12">
+    <div id="dashboard" class="pf-c-page">
+        <main class="pf-c-page__main">
+            <section class="pf-c-page__main-section pf-m-light">
                 <div id="dashboard-toolbar" class="pull-right zoom-controls">
                     <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -80,10 +80,8 @@
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-1"></div>
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-2"></div>
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-3"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
+            </section>
+            <section class="pf-c-page__main-section pf-m-light">
                 <div class="panel panel-default" id="dashboard-hosts">
                     <div class="panel-heading">
                         <h2 class="panel-title" translate>Servers</h2>
@@ -101,90 +99,90 @@
                     <div class="list-group">
                     </div>
                 </div>
+            </section>
+        </main>
+
+        <script id="dashboard-hosts-tmpl" type="x-template/mustache">
+            {{#machines}}
+                {{! state can be 'failed' or 'connected' }}
+                <a data-address="{{address}}" class="list-group-item {{state}}"
+                    data-color="{{ color }}" target="_parent" href="/@{{address}}">
+                    <button class="pf-c-button pf-m-danger delete-button servers-privileged delete-{{address}} btn-sm">
+                        <span class='pficon pficon-delete' />
+                    </button>
+                    <button class="pf-c-button pf-m-secondary edit-button servers-privileged btn-sm">
+                        <span class="pficon pficon-edit" />
+                    </button>
+                    <img class="host-avatar {{avatar_display}}" role="{{aria_role}}" alt="{{alt_text}}" title="{{alt_text}}" src="{{render_avatar}}">
+                    <div class="spinner {{connecting_display}}"></div>
+                    <div class="os">{{os}}</div>
+                    <span class="host-label">{{label}}
+                        <span class="reconnecting {{connecting_display}}"
+                            translate="yes">Lost connection. Trying to reconnect</span></span>
+                </a>
+            {{/machines}}
+        </script>
+
+        <div class="modal" id="dashboard_setup_server_dialog" tabindex="-1" role="dialog"
+            data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                </div>
             </div>
         </div>
-    </div>
 
-    <script id="dashboard-hosts-tmpl" type="x-template/mustache">
-        {{#machines}}
-            {{! state can be 'failed' or 'connected' }}
-            <a data-address="{{address}}" class="list-group-item {{state}}"
-                data-color="{{ color }}" target="_parent" href="/@{{address}}">
-                <button class="pf-c-button pf-m-danger delete-button servers-privileged delete-{{address}} btn-sm">
-                    <span class='pficon pficon-delete' />
-                </button>
-                <button class="pf-c-button pf-m-secondary edit-button servers-privileged btn-sm">
-                    <span class="pficon pficon-edit" />
-                </button>
-                <img class="host-avatar {{avatar_display}}" role="{{aria_role}}" alt="{{alt_text}}" title="{{alt_text}}" src="{{render_avatar}}">
-                <div class="spinner {{connecting_display}}"></div>
-                <div class="os">{{os}}</div>
-                <span class="host-label">{{label}}
-                    <span class="reconnecting {{connecting_display}}"
-                        translate="yes">Lost connection. Trying to reconnect</span></span>
-            </a>
-        {{/machines}}
-    </script>
-
-    <div class="modal" id="dashboard_setup_server_dialog" tabindex="-1" role="dialog"
-        data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="host-edit-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" translate>Edit server</h4>
-                </div>
-                <div class="modal-body">
-                <div>
-                    <input data-role="none" type="file" id="host-edit-file-input" hidden/>
-                    <table class="form-table-ct">
-                        <tr>
-                            <td class="top" translate="yes">Host name</td>
-                            <td>
-                                <input class="form-control" id="host-edit-name"/>
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr id="host-edit-user-row">
-                            <td class="top" translate="yes">User</td>
-                            <td>
-                                <input class="form-control" id="host-edit-user"/>
-                            </td>
-                            <td>
-                                <a tabindex="0" role="button" data-toggle="popover"
-                                    data-trigger="focus" data-placement="bottom" translate="data-content"
-                                    data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
-                                    <span class="fa fa-lg fa-info-circle"></span>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td translate="yes">Color</td>
-                            <td id="host-edit-colorpicker">
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td class="top" translate="yes">Avatar</td>
-                            <td>
-                                <div id="host-edit-avatar"></div>
-                                <div id="host-edit-fail"></div>
-                            </td>
-                            <td></td>
-                        </tr>
-                    </table>
-                </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="pf-c-button pf-m-primary" id="host-edit-apply" translate="yes">Set</button>
-                    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-                    <div class="pull-right"><a role="link" tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
+        <div class="modal" id="host-edit-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" translate>Edit server</h4>
+                    </div>
+                    <div class="modal-body">
+                    <div>
+                        <input data-role="none" type="file" id="host-edit-file-input" hidden/>
+                        <table class="form-table-ct">
+                            <tr>
+                                <td class="top" translate="yes">Host name</td>
+                                <td>
+                                    <input class="form-control" id="host-edit-name"/>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr id="host-edit-user-row">
+                                <td class="top" translate="yes">User</td>
+                                <td>
+                                    <input class="form-control" id="host-edit-user"/>
+                                </td>
+                                <td>
+                                    <a tabindex="0" role="button" data-toggle="popover"
+                                        data-trigger="focus" data-placement="bottom" translate="data-content"
+                                        data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
+                                        <span class="fa fa-lg fa-info-circle"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td translate="yes">Color</td>
+                                <td id="host-edit-colorpicker">
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="top" translate="yes">Avatar</td>
+                                <td>
+                                    <div id="host-edit-avatar"></div>
+                                    <div id="host-edit-fail"></div>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="pf-c-button pf-m-primary" id="host-edit-apply" translate="yes">Set</button>
+                        <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
+                        <div class="pull-right"><a role="link" tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
+                    </div>
                 </div>
             </div>
         </div>

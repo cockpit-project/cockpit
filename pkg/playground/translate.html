@@ -8,164 +8,168 @@
     <script src="../base1/cockpit.js"></script>
 </head>
 <body class="pf-m-redhat-font" hidden>
-    <div id="internal" class="container-fluid">
-        <h2>HTML translations</h2>
+   <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section id="internal" class="pf-c-page__main-section pf-m-light">
+                <h2>HTML translations</h2>
 
-        <p>For translating HTML use these forms:<p>
+                <p>For translating HTML use these forms:<p>
 
-        <p>
-            <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
-            = <span translate id="translate-html">Ready</span>
-        </p>
+                <p>
+                    <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
+                    = <span translate id="translate-html">Ready</span>
+                </p>
 
-        <p>
-            <code>&lt;span translate translate-context="verb"&gt;Ready&lt;/span&gt;</code>
-            = <span translate translate-context="verb" id="translate-html-context">Ready</span>
-        </p>
+                <p>
+                    <code>&lt;span translate translate-context="verb"&gt;Ready&lt;/span&gt;</code>
+                    = <span translate translate-context="verb" id="translate-html-context">Ready</span>
+                </p>
 
-        <p>
-            <code>&lt;span translate="yes"&gt;Not ready&lt;/span&gt;</code>
-            = <span translate="yes" id="translate-html-yes">Not ready</span>
-        </p>
+                <p>
+                    <code>&lt;span translate="yes"&gt;Not ready&lt;/span&gt;</code>
+                    = <span translate="yes" id="translate-html-yes">Not ready</span>
+                </p>
 
-        <p>
-            <code>&lt;span translate="title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
-            = <span translate="title" title="Unavailable" id="translate-html-title">Cancel</span>
-        </p>
+                <p>
+                    <code>&lt;span translate="title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
+                    = <span translate="title" title="Unavailable" id="translate-html-title">Cancel</span>
+                </p>
 
-        <p>
-            <code>&lt;span translate="yes title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
-            = <span translate="yes title" title="Unavailable" id="translate-html-yes-title">Cancel</span>
-        </p>
+                <p>
+                    <code>&lt;span translate="yes title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
+                    = <span translate="yes title" title="Unavailable" id="translate-html-yes-title">Cancel</span>
+                </p>
 
-        <p>Note that we do <b>not support</b>:<p>
-        <ul>
-            <li>Interpolation of variables.</li>
-            <li>Pluralization</li>
-            <li>The <code>&lt;translate&gt;</code> element</li>
-        </ul>
+                <p>Note that we do <b>not support</b>:<p>
+                <ul>
+                    <li>Interpolation of variables.</li>
+                    <li>Pluralization</li>
+                    <li>The <code>&lt;translate&gt;</code> element</li>
+                </ul>
 
-        <hr>
+                <hr>
 
-        <h2>Old Glade style</h2>
+                <h2>Old Glade style</h2>
 
-        <p>The old Glade style is not recommended:<p>
+                <p>The old Glade style is not recommended:<p>
 
-        <p>
-            <code>&lt;span translate="yes"&gt;Empty&lt;/span&gt;</code>
-            = <span translate="yes" id="translatable-glade">Empty</span>
-        </p>
+                <p>
+                    <code>&lt;span translate="yes"&gt;Empty&lt;/span&gt;</code>
+                    = <span translate="yes" id="translatable-glade">Empty</span>
+                </p>
 
-        <p>
-            <code>&lt;span translate="yes" context="verb"&gt;Empty&lt;/span&gt;</code>
-            = <span translate="yes" context="verb" id="translatable-glade-context">Empty</span>
-        </p>
+                <p>
+                    <code>&lt;span translate="yes" context="verb"&gt;Empty&lt;/span&gt;</code>
+                    = <span translate="yes" context="verb" id="translatable-glade-context">Empty</span>
+                </p>
 
-        <p>Note that we do <b>not support</b>:<p>
-        <ul>
-            <li>Interpolation of variables.</li>
-            <li>Translatable attributes.</li>
-            <li>Pluralization</li>
-            <li>The <code>&lt;translate&gt;</code> element</li>
-        </ul>
+                <p>Note that we do <b>not support</b>:<p>
+                <ul>
+                    <li>Interpolation of variables.</li>
+                    <li>Translatable attributes.</li>
+                    <li>Pluralization</li>
+                    <li>The <code>&lt;translate&gt;</code> element</li>
+                </ul>
 
-        <hr>
+                <hr>
 
-        <h2>Mustache translations</h2>
+                <h2>Mustache translations</h2>
 
-        <p>For translating Mustache use these forms:<p>
+                <p>For translating Mustache use these forms:<p>
 
-        <div id="mustache-output">
-        </div>
+                <div id="mustache-output">
+                </div>
 
-        <script id="mustache-input" type="x-template/mustache">
-            <p>
-                <code>&lt;span translate="yes"&gt;User&lt;/span&gt;</code>
-                = <span translate="yes" id="translatable-mustache">User</span>
-            </p>
+                <script id="mustache-input" type="x-template/mustache">
+                    <p>
+                        <code>&lt;span translate="yes"&gt;User&lt;/span&gt;</code>
+                        = <span translate="yes" id="translatable-mustache">User</span>
+                    </p>
 
-            <p>
-                <code>&lt;span translate&gt;Memory&lt;/span&gt;</code>
-                = <span translate id="translate-mustache">Memory</span>
-            </p>
+                    <p>
+                        <code>&lt;span translate&gt;Memory&lt;/span&gt;</code>
+                        = <span translate id="translate-mustache">Memory</span>
+                    </p>
 
-            <p>
-                <code>&lt;span translate="yes"&gt;Accounts&lt;/span&gt;</code>
-                = <span translate="yes" id="translate-mustache-yes">Accounts</span>
-            </p>
+                    <p>
+                        <code>&lt;span translate="yes"&gt;Accounts&lt;/span&gt;</code>
+                        = <span translate="yes" id="translate-mustache-yes">Accounts</span>
+                    </p>
 
-            <p>
-                <code>&lt;span translate="title" title="Error"&gt;User&lt;/span&gt;</code>
-                = <span translate="title" title="Error" id="translate-mustache-title">User</span>
-            </p>
+                    <p>
+                        <code>&lt;span translate="title" title="Error"&gt;User&lt;/span&gt;</code>
+                        = <span translate="title" title="Error" id="translate-mustache-title">User</span>
+                    </p>
 
-            <p>
-                <code>&lt;span translate="yes title" title="Error"&gt;User&lt;/span&gt;</code>
-                = <span translate="yes title" title="Error" id="translate-mustache-yes-title">User</span>
-            </p>
-        </script>
+                    <p>
+                        <code>&lt;span translate="yes title" title="Error"&gt;User&lt;/span&gt;</code>
+                        = <span translate="yes title" title="Error" id="translate-mustache-yes-title">User</span>
+                    </p>
+                </script>
 
-        <p>Note that we do <b>not support</b>:<p>
-        <ul>
-            <li>Interpolation of variables.</li>
-            <li>Pluralization</li>
-            <li>The <code>&lt;translate&gt;</code> element</li>
-        </ul>
-        <hr>
+                <p>Note that we do <b>not support</b>:<p>
+                <ul>
+                    <li>Interpolation of variables.</li>
+                    <li>Pluralization</li>
+                    <li>The <code>&lt;translate&gt;</code> element</li>
+                </ul>
+                <hr>
 
-        <h2>Code Translations</h2>
+                <h2>Code Translations</h2>
 
-        <p>For translating in javascript code, use these forms:</p>
+                <p>For translating in javascript code, use these forms:</p>
 
-        <p>
-            <code>_("Empty")</code>
-            = <span id="underscore-empty"></span>
-        </p>
+                <p>
+                    <code>_("Empty")</code>
+                    = <span id="underscore-empty"></span>
+                </p>
 
-        <p>
-            <code>_("verb", "Empty")</code>
-            = <span id="underscore-context-empty"></span>
-        </p>
+                <p>
+                    <code>_("verb", "Empty")</code>
+                    = <span id="underscore-context-empty"></span>
+                </p>
 
-        <p>
-            <code>C_("verb", "Empty")</code>
-            = <span id="cunderscore-context-empty"></span>
-        </p>
+                <p>
+                    <code>C_("verb", "Empty")</code>
+                    = <span id="cunderscore-context-empty"></span>
+                </p>
 
-        <p>
-            <code>cockpit.gettext("Control")</code>
-            = <span id="gettext-control"></span>
-        </p>
+                <p>
+                    <code>cockpit.gettext("Control")</code>
+                    = <span id="gettext-control"></span>
+                </p>
 
-        <p>
-            <code>cockpit.gettext("key", "Control")</code>
-            = <span id="gettext-context-control"></span>
-        </p>
+                <p>
+                    <code>cockpit.gettext("key", "Control")</code>
+                    = <span id="gettext-context-control"></span>
+                </p>
 
-        <p>
-            <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 1)</code>
-            = <span id="ngettext-disks-1"></span>
-        </p>
+                <p>
+                    <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 1)</code>
+                    = <span id="ngettext-disks-1"></span>
+                </p>
 
-        <p>
-            <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 2)</code>
-            = <span id="ngettext-disks-2"></span>
-        </p>
+                <p>
+                    <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 2)</code>
+                    = <span id="ngettext-disks-2"></span>
+                </p>
 
-        <p>
-            <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 1)</code>
-            = <span id="ngettext-context-disks-1"></span>
-        </p>
+                <p>
+                    <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 1)</code>
+                    = <span id="ngettext-context-disks-1"></span>
+                </p>
 
-        <p>
-            <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 2)</code>
-            = <span id="ngettext-context-disks-2"></span>
-        </p>
+                <p>
+                    <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 2)</code>
+                    = <span id="ngettext-context-disks-2"></span>
+                </p>
 
-        <p>Note that we do <b>not support</b>:<p>
-        <ul>
-            <li>Extraction of single quoted strings.</li>
-        </ul>
+                <p>Note that we do <b>not support</b>:<p>
+                <ul>
+                    <li>Extraction of single quoted strings.</li>
+                </ul>
+            </section>
+        </main>
     </div>
     <script src="translate.js"></script>
     <!-- Bring in initial translations -->

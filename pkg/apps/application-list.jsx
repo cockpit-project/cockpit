@@ -24,6 +24,7 @@ import {
     DataList, DataListItem, DataListItemRow, DataListCell,
     DataListAction,
     DataListItemCells,
+    Page, PageSection, PageSectionVariants,
 } from "@patternfly/react-core";
 import { RebootingIcon } from "@patternfly/react-icons";
 
@@ -162,20 +163,22 @@ export class ApplicationList extends React.Component {
         }
 
         return (
-            <>
-                <header className='ct-table-header'>
-                    <h2 className='ct-table-heading'>{_("Applications")}</h2>
-                    <div className='ct-table-actions'>
-                        <div className="right-menu">
-                            {refresh_progress}
-                            {refresh_button}
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <header className='ct-table-header'>
+                        <h2 className='ct-table-heading'>{_("Applications")}</h2>
+                        <div className='ct-table-actions'>
+                            <div className="right-menu">
+                                {refresh_progress}
+                                {refresh_button}
+                            </div>
                         </div>
-                    </div>
-                </header>
-                <DataList aria-label={_("Applications list")}>
-                    { tbody }
-                </DataList>
-            </>
+                    </header>
+                    <DataList aria-label={_("Applications list")}>
+                        { tbody }
+                    </DataList>
+                </PageSection>
+            </Page>
         );
     }
 }

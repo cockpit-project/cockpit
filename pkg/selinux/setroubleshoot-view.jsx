@@ -20,7 +20,10 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Alert, AlertActionCloseButton, Button } from "@patternfly/react-core";
+import {
+    Alert, AlertActionCloseButton, Button,
+    Page, PageSection, PageSectionVariants
+} from "@patternfly/react-core";
 import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
@@ -469,17 +472,19 @@ export class SETroubleshootPage extends React.Component {
         }
 
         return (
-            <div className="container-fluid">
-                <SELinuxStatus
-                    selinuxStatus={this.props.selinuxStatus}
-                    selinuxStatusError={this.props.selinuxStatusError}
-                    changeSelinuxMode={this.props.changeSelinuxMode}
-                    dismissError={this.props.dismissStatusError}
-                />
-                {errorMessage}
-                {modifications}
-                {troubleshooting}
-            </div>
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <SELinuxStatus
+                        selinuxStatus={this.props.selinuxStatus}
+                        selinuxStatusError={this.props.selinuxStatusError}
+                        changeSelinuxMode={this.props.changeSelinuxMode}
+                        dismissError={this.props.dismissStatusError}
+                    />
+                    {errorMessage}
+                    {modifications}
+                    {troubleshooting}
+                </PageSection>
+            </Page>
         );
     }
 }

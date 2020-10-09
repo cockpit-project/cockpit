@@ -23,9 +23,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-18 09:32+0000\n"
-"PO-Revision-Date: 2020-09-07 14:29+0000\n"
-"Last-Translator: Emilio Herrera <ehespinosa57@gmail.com>\n"
+"POT-Creation-Date: 2020-09-25 16:54+0000\n"
+"PO-Revision-Date: 2020-09-27 09:29+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/cockpit/"
 "master/es/>\n"
 "Language: es\n"
@@ -107,11 +107,11 @@ msgstr[1] "Faltan $0 discos"
 
 #: pkg/storaged/mdraid-details.jsx:178
 msgid "$0 disks"
-msgstr "$0 Discos"
+msgstr "$0 discos"
 
 #: pkg/shell/indexes.js:406
 msgid "$0 documentation"
-msgstr "$0 documentación"
+msgstr "Documentación $0"
 
 #: src/ws/login.js:333 src/ws/login.js:693
 msgid "$0 error"
@@ -128,19 +128,19 @@ msgstr "$0 falló"
 #: pkg/storaged/content-views.jsx:392
 msgctxt "storage-id-desc"
 msgid "$0 file system"
-msgstr "$0 Sistema de archivos"
+msgstr "Sistema de archivos $0"
 
 #: pkg/storaged/lvol-tabs.jsx:161
 msgid "$0 filesystems can not be made larger."
-msgstr "$0 los sistemas de archivos no se pueden hacer más grandes."
+msgstr "$0 sistemas de archivos no se pueden agrandar."
 
 #: pkg/storaged/lvol-tabs.jsx:158
 msgid "$0 filesystems can not be made smaller."
-msgstr "$0 los sistemas de archivos no se pueden hacer más pequeños."
+msgstr "$0 sistemas de archivos no se pueden reducir."
 
 #: pkg/storaged/lvol-tabs.jsx:154
 msgid "$0 filesystems can not be resized here."
-msgstr "$0 a los sistemas de archivos no se les puede cambiar el tamaño aquí."
+msgstr "$0 sistemas de archivos no se pueden redimensionar aquí."
 
 #: pkg/systemd/overview.jsx:99
 msgctxt "<date> from <host>"
@@ -169,8 +169,8 @@ msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
 msgstr ""
-"$0 está disponible para muchos sistemas operativos. Para instalarlo, búscalo "
-"en \"GNOME Software\" o ejecuta el siguiente comando:"
+"$0 está disponible en la mayoría de los sistemas operativos. Para "
+"instalarlo, búsquelo en Software de GNOME o ejecute la orden siguiente:"
 
 #: pkg/storaged/content-views.jsx:334 pkg/storaged/content-views.jsx:574
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
@@ -178,7 +178,7 @@ msgstr ""
 #: pkg/storaged/mdraid-details.jsx:274 pkg/storaged/vdo-details.jsx:128
 #: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:184
 msgid "$0 is in active use"
-msgstr "$0 se está utilizando"
+msgstr "$0 está en uso activo"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
@@ -198,7 +198,7 @@ msgstr[1] "$0 bajo con golpes severos"
 
 #: pkg/machines/components/vm/memoryModal.jsx:144
 msgid "$0 memory adjustment"
-msgstr ""
+msgstr "$0 ajuste de memoria"
 
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
@@ -238,17 +238,16 @@ msgid "$0 on $1"
 msgstr "$0 en $1"
 
 #: pkg/packagekit/history.jsx:87
-#, fuzzy
 msgid "$0 package"
 msgid_plural "$0 packages"
-msgstr[0] "$0 Paquete"
-msgstr[1] "$0 Paquetes"
+msgstr[0] "$0 paquete"
+msgstr[1] "$0 paquetes"
 
 #: pkg/systemd/services/services.jsx:652
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] "El servicio $0 ha fallado"
-msgstr[1] "Los servicios $0 han fallado"
+msgstr[0] "Falló $0 servicio"
+msgstr[1] "Fallaron $0 servicios"
 
 #: pkg/storaged/crypto-keyslots.jsx:592
 msgid "$0 slots remain"
@@ -264,15 +263,13 @@ msgstr[1] "$0 actualizaciones"
 msgid "$0 used of $1 ($2 saved)"
 msgstr "usado $0 de $1 (el $2 guardado)"
 
-#: pkg/machines/components/vcpuModal.jsx:243
-#, fuzzy
+#: pkg/machines/components/vcpuModal.jsx:245
 msgid "$0 vCPU details"
-msgstr "Detalles del problema"
+msgstr "$0 detalles de vCPU"
 
 #: pkg/machines/components/nicEdit.jsx:162
-#, fuzzy
 msgid "$0 virtual network interface settings"
-msgstr "Añadir una interfaz de red virtual"
+msgstr "$0 configuraciones de interfaz de red virtual"
 
 #: pkg/lib/plot.js:968
 msgid "$0 week"
@@ -982,7 +979,7 @@ msgstr "Lista de aplicaciones"
 #: pkg/networkmanager/index.html:625 pkg/networkmanager/index.html:652
 #: pkg/networkmanager/index.html:679 pkg/networkmanager/index.html:706
 #: pkg/networkmanager/index.html:733 pkg/kdump/kdump-view.jsx:360
-#: pkg/machines/components/vcpuModal.jsx:252 pkg/storaged/crypto-tab.jsx:78
+#: pkg/machines/components/vcpuModal.jsx:254 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:285
 #: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/nfs-details.jsx:189
 msgid "Apply"
@@ -1062,13 +1059,8 @@ msgid "Authentication"
 msgstr "Autenticación"
 
 #: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:683
-#, fuzzy
 msgid "Authentication failed"
-msgstr ""
-"#-#-#-#-#  es.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Autenticación fallida\n"
-"#-#-#-#-#  es.po (PACKAGE VERSION)  #-#-#-#-#\n"
-"Autenticación Fallida"
+msgstr "Falló la autenticación"
 
 #: src/ws/login.js:673
 msgid "Authentication failed: Server closed connection"
@@ -1084,16 +1076,15 @@ msgstr ""
 
 #: pkg/storaged/iscsi-panel.jsx:153
 msgid "Authentication required"
-msgstr "Autentificación requerida"
+msgstr "Se necesita autenticación."
 
 #: pkg/lib/machine-dialogs.js:724
-#, fuzzy
 msgid "Authorize SSH key."
-msgstr "Llaves SSH públicas y autorizadas"
+msgstr "Autorice la clave SSH."
 
 #: pkg/users/authorized-keys-panel.js:151
 msgid "Authorized public SSH keys"
-msgstr "Llaves SSH públicas y autorizadas"
+msgstr "Claves SSH públicas autorizadas"
 
 #: pkg/networkmanager/index.html:192
 #: pkg/machines/components/networks/createNetworkDialog.jsx:175
@@ -1113,9 +1104,8 @@ msgid "Automatic (DHCP)"
 msgstr "Automático (DHCP)"
 
 #: pkg/lib/machine-change-auth.html:39 pkg/lib/machine-change-auth.html:57
-#, fuzzy
 msgid "Automatic login"
-msgstr "Automático"
+msgstr "Acceso automático"
 
 #: pkg/packagekit/autoupdates.jsx:344
 msgid "Automatic updates"
@@ -1140,13 +1130,13 @@ msgstr "Utilizando automáticamente servidores NTP específicos"
 
 #: pkg/lib/cockpit-components-modifications.jsx:72
 msgid "Automation script"
-msgstr "Script de automatización"
+msgstr "Secuencia de automatización"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:87
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:275
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:270
 msgid "Autostart"
-msgstr "Autoinicio"
+msgstr "Inicio automático"
 
 #: pkg/machines/components/vm/vmUsageTab.jsx:66
 #: pkg/machines/components/vm/vmUsageTab.jsx:77
@@ -1187,7 +1177,7 @@ msgstr "Dispositivo de respaldo"
 
 #: pkg/networkmanager/index.html:349
 msgid "Balancer"
-msgstr "Balanceador"
+msgstr "Equilibrador"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
@@ -1240,7 +1230,7 @@ msgid "Bond settings"
 msgstr "Configuración del balanceo"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:307
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:272
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:267
 msgid "Boot order"
 msgstr "Orden de arranque"
 
@@ -1304,6 +1294,9 @@ msgid ""
 "${luser} on ${lhost}, the key will be automatically made available and you "
 "can log in to ${rhost} without password in the future."
 msgstr ""
+"Al cambiar la contraseña de la clave SSH ${key} a la contraseña de acceso de "
+"${luser} en ${lhost}, la clave quedará disponible automáticamente y podrá "
+"acceder a ${rhost} sin contraseña en el futuro."
 
 #: pkg/dashboard/index.html:73 pkg/systemd/hwinfo.jsx:105
 #: pkg/systemd/overview-cards/usageCard.jsx:121
@@ -1320,34 +1313,34 @@ msgstr "Seguridad de CPU"
 
 #: pkg/systemd/hwinfo.jsx:214
 msgid "CPU security toggles"
-msgstr "Alternar la seguridad de CPU"
+msgstr "Configuración de seguridad de la CPU"
 
 #: pkg/systemd/graphs.js:258
 msgctxt "page-title"
 msgid "CPU status"
-msgstr "Estado del CPU"
+msgstr "Estado de la CPU"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:270
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:265
 msgid "CPU type"
 msgstr "Tipo de CPU"
 
 #: pkg/packagekit/updates.jsx:319
 msgid "CVE"
-msgstr ""
+msgstr "CVE"
 
 #: pkg/machines/components/diskAdd.jsx:165
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
-msgstr "Caché"
+msgstr "Antememoria"
 
 #: pkg/systemd/graphs.html:159 pkg/systemd/graphs.js:394
 msgid "Cached"
-msgstr "Cacheado"
+msgstr "Prealmacenado"
 
 #: pkg/systemd/logs.js:191 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
-"No se pudo encontrar ningún registro utilizando la combinación de filtros "
+"No se pudo encontrar ningún registro mediante la combinación de filtros "
 "actuales."
 
 #: pkg/dashboard/list.js:221
@@ -1367,7 +1360,7 @@ msgstr "No se puede cargar la imagen"
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:943
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:945
 #: pkg/machines/components/deleteDialog.jsx:144
 #: pkg/machines/components/deleteResource.jsx:74
 #: pkg/machines/components/diskAdd.jsx:551
@@ -1378,7 +1371,7 @@ msgstr "No se puede cargar la imagen"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
-#: pkg/machines/components/vcpuModal.jsx:255
+#: pkg/machines/components/vcpuModal.jsx:257
 #: pkg/machines/components/vm/bootOrderModal.jsx:325
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
@@ -1395,16 +1388,15 @@ msgstr "Cancelar"
 
 #: pkg/systemd/services/services-list.jsx:74
 msgid "Cannot be enabled"
-msgstr "No se puede habilitar"
+msgstr "No se puede activar"
 
 #: pkg/shell/indexes.js:479
-#, fuzzy
 msgid "Cannot connect to an unknown host"
-msgstr "No se puede conectar a una máquina desconocida"
+msgstr "No se puede conectar con un anfitrión desconocido"
 
 #: src/base1/cockpit.js:4059
 msgid "Cannot forward login credentials"
-msgstr "No se pueden re-enviar las credenciales de acceso"
+msgstr "No se pueden transferir los datos de acceso"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:633
 msgid "Cannot join a domain because realmd is not available on this system"
@@ -1531,8 +1523,8 @@ msgstr "Comprobando si hay actualizaciones de paquetes..."
 msgid "Checking installed software"
 msgstr "Comprobando el software instalado"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:380
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:381
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:382
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:383
 msgid "Choose an operating system"
 msgstr "Escoge un sistema operativo"
 
@@ -1915,7 +1907,7 @@ msgstr "Copiar al portapapeles"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.6, DocId:
 # cockpit
-#: pkg/machines/components/vcpuModal.jsx:227
+#: pkg/machines/components/vcpuModal.jsx:229
 msgid "Cores per socket"
 msgstr "Núcleos por socket"
 
@@ -1940,7 +1932,7 @@ msgstr "Reporte de fallos"
 msgid "Crash system"
 msgstr "Error del sistema"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:940
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:942
 #: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
@@ -1961,7 +1953,7 @@ msgstr "Crear un dispositivo RAID"
 msgid "Create VDO device"
 msgstr "Crear un dispositivo VDO"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1010
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1012
 msgid "Create VM"
 msgstr "Crear una MV"
 
@@ -2004,11 +1996,11 @@ msgstr "Crear un volumen lógico"
 msgid "Create new task file with this content."
 msgstr "Crear un archivo de tarea con este contenido."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:931
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:933
 msgid "Create new virtual machine"
 msgstr "Crear una máquina virtual"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:514
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:516
 msgid "Create new volume"
 msgstr "Crear un volumen"
 
@@ -2135,7 +2127,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Creando un grupo de volumen en $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:800
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:802
 msgid "Creation of VM $0 failed"
 msgstr "La creación de la MV $0 falló"
 
@@ -2172,7 +2164,7 @@ msgstr "Arranque actual"
 msgid "Custom encryption options"
 msgstr "Opciones de encriptación personalizadas"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:206
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:201
 msgid "Custom firmware: $0"
 msgstr "Firmware específico: $0"
 
@@ -2596,7 +2588,7 @@ msgstr "¡Hecho!"
 msgid "Download a new browser for free"
 msgstr "Descargar un navegador libre"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:299
 msgid "Download an OS"
 msgstr "Descargar un SO"
 
@@ -2692,7 +2684,7 @@ msgstr "Vacío"
 msgid "Emptying $target"
 msgstr "Eliminando el contenido de $target"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:283
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:278
 msgid "Emulated machine"
 msgstr "Máquina emulada"
 
@@ -2854,7 +2846,7 @@ msgstr "Ejemplo: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "Contraseña excelente"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:241
 msgid "Existing disk image on host's file system"
 msgstr "Existe una imagen de disco en el sistema de archivos del anfitrión"
 
@@ -3001,7 +2993,7 @@ msgstr "Cortafuegos"
 msgid "Firewall is not available"
 msgstr "El cortafuegos no está disponible"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:285
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:280
 msgid "Firmware"
 msgstr "Firmware"
 
@@ -3104,7 +3096,7 @@ msgid "Full name"
 msgstr "Nombre completo"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:264
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:259
 #: pkg/networkmanager/interfaces.js:2700 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "General"
@@ -3267,7 +3259,7 @@ msgstr "Horas"
 msgid "Hours must be a number between 0 and 23"
 msgstr "La hora tiene que tener un número entre 0 y 23"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:281
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:276
 msgid "Hypervisor details"
 msgstr "Detalles del hipervisor"
 
@@ -3376,24 +3368,24 @@ msgstr "Ignorar"
 msgid "Image builder"
 msgstr "Constructor de imágenes"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:817
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:819
 msgid "Immediately start VM"
 msgstr "Iniciar inmediatamente la MV"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:940
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:942
 msgid "Import"
 msgstr "Importar"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1010
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1012
 msgid "Import VM"
 msgstr "Importar una MV"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:931
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:933
 #, fuzzy
 msgid "Import a virtual machine"
 msgstr "Importar una máquina virtual"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:247
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:249
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3493,15 +3485,15 @@ msgstr ""
 msgid "Install software"
 msgstr "Instalar software"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:312
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:314
 msgid "Installation source"
 msgstr "Fuente de la instalación"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:157
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:159
 msgid "Installation source must not be empty"
 msgstr "La instalación del código no debería estar vacío"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:291
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:293
 msgid "Installation type"
 msgstr "Tipo de instalación"
 
@@ -3582,7 +3574,7 @@ msgstr "Fecha de expiración invalida"
 msgid "Invalid file permissions"
 msgstr "Permisos de archivo invalidos"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:144
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:146
 msgid "Invalid filename"
 msgstr "Nombre de fichero no válido"
 
@@ -3807,20 +3799,20 @@ msgstr ""
 msgid "Leave domain"
 msgstr "Abandonar el dominio"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:460
 msgid ""
 "Leave the password blank if you do not wish to have a root account created"
 msgstr ""
 "Deje la contraseña en blanco si no quiere crear una cuenta de usuario root"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:249
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:244
 msgid ""
 "Libvirt did not detect any UEFI/OVMF firmware image installed on the host"
 msgstr ""
 "Libvirt no detecta ninguna imagen de firmware de UEFI/OVMF instalada en el "
 "anfitrión"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:243
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:238
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr "Libvirt o el hipervisor no soportan UEFI"
 
@@ -3906,7 +3898,7 @@ msgstr "Cuentas locales"
 msgid "Local filesystem"
 msgstr "Sistema de archivos local"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:299
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:301
 msgid "Local install media"
 msgstr "Instalar desde un medio local"
 
@@ -4153,7 +4145,17 @@ msgstr "Tiempo máximo del mensaje $max_age"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/machines/components/vcpuModal.jsx:206
+#: pkg/machines/components/vcpuModal.jsx:208
+#, fuzzy
+#| msgid ""
+#| "Maximum number of virtual CPUs allocated for the guest OS, which must be "
+#| "between 1 and $0"
+msgid "Maximum number of virtual CPUs allocated for the guest OS"
+msgstr "Número máximo de CPU virtuales asignadas al SO invitado, entre 1 y $0"
+
+# auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
+# cockpit
+#: pkg/machines/components/vcpuModal.jsx:207
 msgid ""
 "Maximum number of virtual CPUs allocated for the guest OS, which must be "
 "between 1 and $0"
@@ -4173,8 +4175,8 @@ msgstr "Miembro de un dispositivo RAID $0"
 
 #: pkg/dashboard/index.html:74 pkg/playground/translate.html:89
 #: pkg/systemd/graphs.html:79
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:472
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:266
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:474
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:261
 #: pkg/systemd/hwinfo.jsx:276 pkg/systemd/overview-cards/usageCard.jsx:132
 msgid "Memory"
 msgstr "Memoria"
@@ -4201,7 +4203,7 @@ msgstr "La memoria no se pudo guardar"
 msgid "Memory graph"
 msgstr "Gráfico de memoria"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:161
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:163
 msgid "Memory must not be 0"
 msgstr "La memoria no debe ser 0"
 
@@ -4421,7 +4423,7 @@ msgstr "Servidor NTP"
 #: pkg/networkmanager/index.html:129 pkg/networkmanager/index.html:146
 #: pkg/networkmanager/index.html:181 pkg/networkmanager/index.html:225
 #: pkg/networkmanager/index.html:278 pkg/networkmanager/index.html:335
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:201
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:203
 #: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
@@ -4480,7 +4482,7 @@ msgstr "El nombre contiene caracteres no válidos"
 msgid "Name input text"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:130
 msgid "Name must not be empty"
 msgstr "Nombre no debe estar vacío"
 
@@ -4524,11 +4526,11 @@ msgstr "Falló al activarse la red $0"
 msgid "Network bond"
 msgstr "Red balanceada"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:304
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:306
 msgid "Network boot (PXE)"
 msgstr "Arranque vía red (PXE)"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:301
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:303
 msgid "Network boot is available only when using system connection"
 msgstr ""
 "El arranque por red solo está disponible cuando se usa una conexión de "
@@ -4551,7 +4553,7 @@ msgstr "No se pudo guardar la configuración de la interfaz de red"
 msgid "Network interfaces"
 msgstr "Interfaces de red"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:253
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:255
 msgid "Network selection does not support PXE."
 msgstr "La selección de la red no soporta PXE."
 
@@ -4662,7 +4664,7 @@ msgstr "El archivo no se ha creado."
 msgid "No available slots"
 msgstr "No hay ranuras disponibles"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:53
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:54
 msgid "No boot device found"
 msgstr "No se ha encontrado un dispositivo de arranque"
 
@@ -4819,7 +4821,7 @@ msgstr "No hay reglas de golpeo"
 msgid "No snapshots"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:515
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:517
 msgid "No storage"
 msgstr "No hay almacenamiento"
 
@@ -5051,7 +5053,7 @@ msgstr "Ooops!"
 msgid "Open"
 msgstr "Abrir"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:371
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:373
 msgid "Operating system"
 msgstr "Sistema operativo"
 
@@ -5263,7 +5265,7 @@ msgstr "La ruta en el servidor no puede estar vacía."
 msgid "Path on server must start with \"/\"."
 msgstr "La ruta en el servidor debe empezar con \"/\"."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:230
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:232
 msgid "Path to ISO file on host's file system"
 msgstr "Ruta hacia la imagen ISO en el sistema de archivos del anfitrión"
 
@@ -5389,7 +5391,7 @@ msgstr "Introduzca el nuevo tamaño del volumen"
 msgid "Please install the $0 package"
 msgstr "Por favor instale el $0 paquete"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:190
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:192
 #, fuzzy
 msgid "Please set a root password"
 msgstr "Por favor, asigne una contraseña al usuario root o a otro usuario"
@@ -5461,7 +5463,7 @@ msgstr "Portable"
 msgid "Ports"
 msgstr "Puertos"
 
-#: pkg/machines/components/vcpuModal.jsx:220
+#: pkg/machines/components/vcpuModal.jsx:222
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Número preferido de sockets para exponerle al huésped."
 
@@ -5547,7 +5549,7 @@ msgstr "Proceso"
 msgid "Product"
 msgstr "Producto"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:432
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:434
 msgid "Profile"
 msgstr "Perfil"
 
@@ -5783,7 +5785,7 @@ msgstr "Recargar"
 msgid "Reload propagated from"
 msgstr "Recargar la propagación desde"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:277
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:279
 msgid "Remote URL"
 msgstr "URL remota"
 
@@ -6079,7 +6081,7 @@ msgstr "Revisión de registros"
 msgid "Roles"
 msgstr "Roles"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:452
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:454
 msgid "Root password"
 msgstr "Contraseña del usuario root"
 
@@ -6103,12 +6105,12 @@ msgstr "Rutas"
 msgid "Run"
 msgstr "Ejecutar"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:415
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:417
 msgid "Run unattended installation"
 msgstr "Ejecutar la instalación desatendida"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:93
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:172
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:167
 msgid "Run when host boots"
 msgstr "Ejecutar cuando el anfitrión arranque"
 
@@ -6424,7 +6426,7 @@ msgstr ""
 "Los ajustes se desvían del estado configurado y serán revertidos en el "
 "próximo arranque."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:824
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:826
 msgid ""
 "Setting the user passwords for unattended installation requires starting the "
 "VM when creating it"
@@ -6503,7 +6505,7 @@ msgstr "Apagar"
 msgid "Shut off"
 msgstr "apagar"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:230
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:225
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr "Apague la MV para editar la configuración del firmware"
 
@@ -6520,7 +6522,7 @@ msgstr "Apagar"
 msgid "Single rank"
 msgstr "Rango único"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:548
 #: pkg/machines/components/storagePools/storagePoolList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
@@ -6579,7 +6581,7 @@ msgstr "El disco no se pudo crear"
 msgid "Snapshots"
 msgstr "Crear una instantánea"
 
-#: pkg/machines/components/vcpuModal.jsx:215
+#: pkg/machines/components/vcpuModal.jsx:217
 #: pkg/systemd/services/service-tabs.jsx:31
 msgid "Sockets"
 msgstr "Sockets"
@@ -6654,7 +6656,7 @@ msgstr "Dirección de origen"
 msgid "Source path should not be empty"
 msgstr "La ruta de origen no debe estar vacía"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:152
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:154
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "La fuente debería empezar con http, ftp o protocolo nfs"
 
@@ -6803,7 +6805,7 @@ msgid "Stopping swapspace $target"
 msgstr "Deteniendo el espacio del área de intercambio $target"
 
 #: pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:509
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:511
 #: pkg/storaged/details.jsx:129 pkg/storaged/manifest.json.in
 msgid "Storage"
 msgstr "Almacenamiento"
@@ -6850,7 +6852,7 @@ msgstr "Nombre del grupo de almacenamiento"
 msgid "Storage pools"
 msgstr "Grupos de almacenamiento"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:177
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:179
 msgid "Storage size must not be 0"
 msgstr "El tamaño del almacenamiento no debe ser 0"
 
@@ -7381,17 +7383,17 @@ msgstr "Las contraseñas no coinciden."
 msgid "The pool is empty"
 msgstr "El grupo está vacío"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:420
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:422
 msgid "The selected operating system does not support unattended installation"
 msgstr ""
 "El sistema operativo seleccionado no soporta una instalación desatendida"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:168
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:170
 msgid "The selected operating system has minimum memory requirement of $0 $1"
 msgstr ""
 "El sistema operativo seleccionado tiene una memoria mínima necesaria de $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:183
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:185
 msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
 msgstr ""
@@ -7555,7 +7557,7 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:290
 msgid "This didn't work, please try again"
-msgstr ""
+msgstr "Esto no ha funcionado; inténtelo de nuevo"
 
 #: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
@@ -7600,11 +7602,11 @@ msgstr "Este sistema no está registrado"
 
 #: pkg/tuned/dialog.js:99
 msgid "This system is using a custom profile"
-msgstr "El sistema esta usando un perfil personalizado"
+msgstr "El sistema utiliza un perfil personalizado"
 
 #: pkg/tuned/dialog.js:97
 msgid "This system is using the recommended profile"
-msgstr "El sistema esta usando el perfil recomendado"
+msgstr "El sistema utiliza el perfil recomendado"
 
 #: pkg/sosreport/index.html:33
 msgid ""
@@ -7627,16 +7629,16 @@ msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
 msgstr ""
-"Esta versión de cockpit-ws no soporta conexiones a un servidor con un "
+"Esta versión de cockpit-ws no admite conexiones con un servidor mediante un "
 "usuario o puerto alterno"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:539
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:541
 msgid "This volume is already used by another VM."
-msgstr "Este volumen está utilizándose por otra MV."
+msgstr "Otra MV ya utiliza este volumen."
 
 #: pkg/machines/components/diskAdd.jsx:232
 msgid "This volume is already used by: "
-msgstr "Este volumen está utilizándose por: "
+msgstr "Este volumen ya lo utiliza: "
 
 #: pkg/storaged/lvol-tabs.jsx:188
 msgid "This volume needs to be activated before it can be resized."
@@ -7677,7 +7679,7 @@ msgstr ""
 "Esta zona contiene un servicio cockpit. Estese seguro de que esta zona no se "
 "aplica en su conexión con la consola web actual."
 
-#: pkg/machines/components/vcpuModal.jsx:232
+#: pkg/machines/components/vcpuModal.jsx:234
 msgid "Threads per core"
 msgstr "Hilos por núcleo"
 
@@ -7690,13 +7692,12 @@ msgid "Thursdays"
 msgstr "Los jueves"
 
 #: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:109
-#, fuzzy
 msgid "Time"
-msgstr "Temporizadores"
+msgstr "Hora"
 
 #: pkg/systemd/overview-cards/serverTime.js:512
 msgid "Time zone"
-msgstr "Zona horaria"
+msgstr "Huso horario"
 
 #: pkg/systemd/services/service-tabs.jsx:32
 msgid "Timers"
@@ -7754,7 +7755,7 @@ msgstr "Tamaño total: $0"
 msgid "Tower"
 msgstr "Torre"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:236
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:231
 msgid "Transient VMs don't support editing firmware configuration"
 msgstr ""
 "Las MVs que son temporales no tienen soporte para editar la configuración "
@@ -7853,7 +7854,7 @@ msgstr "Escribe para filtrar…"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:300
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:302
 msgid "URL"
 msgstr "URL"
 
@@ -7970,7 +7971,7 @@ msgstr "Error inesperado"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:208
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:210
 msgid "Unique name"
 msgstr "Nombre único"
 
@@ -8011,7 +8012,7 @@ msgstr "Aplicación desconocida"
 msgid "Unknown configuration"
 msgstr "Configuración desconocida"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:208
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:203
 msgid "Unknown firmware"
 msgstr "Firmware desconocido"
 
@@ -8266,7 +8267,7 @@ msgstr "VLAN Id"
 msgid "VLAN settings"
 msgstr "Configuración VLAN"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:130
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:132
 msgid "VM $0 already exists"
 msgstr "La MV $0 ya existe"
 
@@ -8282,7 +8283,7 @@ msgstr "La MV $0 falló al forzar un apagado"
 msgid "VM $0 failed to get deleted"
 msgstr "La MV $0 falló al eliminarse"
 
-#: pkg/machines/hostvmslist.jsx:168 pkg/machines/libvirt-common.js:1378
+#: pkg/machines/hostvmslist.jsx:168 pkg/machines/libvirt-common.js:1388
 msgid "VM $0 failed to get installed"
 msgstr "La MV $0 falló al instalarse"
 
@@ -8419,7 +8420,7 @@ msgstr "La red virtual falló al crearse"
 msgid "Virtualization service (libvirt) is not active"
 msgstr "Servicio de virtualización (libvirt) no está activo"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:529
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:531
 #: pkg/machines/components/deleteDialog.jsx:51
 #: pkg/machines/components/diskAdd.jsx:80
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
@@ -8605,7 +8606,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Debe esperar más tiempo para cambiar su contraseña"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:133
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:135
 msgid "You need to select the most closely matching operating system"
 msgstr "Debe seleccionar el sistema operativo que mejor se ajuste"
 
@@ -9372,7 +9373,7 @@ msgstr "Número de vCPU"
 msgid "vCPU maximum"
 msgstr "vCPU máximo"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:268
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:263
 msgid "vCPUs"
 msgstr "vCPUs"
 
@@ -9388,7 +9389,7 @@ msgstr "versión"
 msgid "vhostuser"
 msgstr "vhostuser"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1016
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1018
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"

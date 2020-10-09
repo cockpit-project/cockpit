@@ -18,13 +18,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    Flex, FlexItem,
+    Text, TextVariants,
+} from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { networkId } from '../../helpers.js';
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
 
 import '../overviewTab.css';
-import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 
@@ -74,80 +78,88 @@ export class NetworkOverviewTab extends React.Component {
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
 
         return (
-            <>
-                <div className="overview-tab-grid">
-                    <div className='ct-form ct-form-info'>
-                        <label className='control-label label-title'> {_("General")} </label>
-                        <span />
+            <Flex className="overview-tab">
+                <FlexItem>
+                    <DescriptionList>
+                        <Text component={TextVariants.h4}>
+                            {_("General")}
+                        </Text>
 
-                        <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
-                        <div id={`${idPrefix}-persistent`}> {network.persistent ? _("yes") : _("no")} </div>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Persistent")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-persistent`}> {network.persistent ? _("yes") : _("no")} </DescriptionListDescription>
+                        </DescriptionListGroup>
 
-                        {network.persistent && <>
-                            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
-                            <label className='checkbox-inline'>
-                                <input id={`${idPrefix}-autostart-checkbox`}
-                                       type="checkbox"
-                                       checked={network.autostart}
-                                       onChange={this.onAutostartChanged} />
-                                {_("Run when host boots")}
-                            </label>
-                        </>}
+                        {network.persistent && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Autostart")} </DescriptionListTerm>
+                            <DescriptionListDescription>
+                                <div className='checkbox-inline'>
+                                    <input id={`${idPrefix}-autostart-checkbox`}
+                                           type="checkbox"
+                                           checked={network.autostart}
+                                           onChange={this.onAutostartChanged} />
+                                    {_("Run when host boots")}
+                                </div>
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>}
 
-                        { network.mtu && <>
-                            <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum transmission unit")} </label>
-                            <div id={`${idPrefix}-mtu`}> {network.mtu} </div>
-                        </> }
-                    </div>
+                        { network.mtu && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Maximum transmission unit")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-mtu`}> {network.mtu} </DescriptionListDescription>
+                        </DescriptionListGroup> }
+                    </DescriptionList>
+                </FlexItem>
 
-                    <div className="ct-form ct-form-info">
-                        { ip[0] && <>
-                            <label className='control-label label-title'> {_("IPv4 address")} </label>
-                            <span />
+                { ip[0] && <FlexItem>
+                    <DescriptionList>
+                        <Text component={TextVariants.h4}>
+                            {_("IPv4 address")}
+                        </Text>
 
-                            { ip[0].address && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-address`}> {_("Address")} </label>
-                                <div id={`${idPrefix}-ipv4-address`}> {ip[0].address} </div>
-                            </> }
+                        { ip[0].address && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Address")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv4-address`}> {ip[0].address} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[0].netmask && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-netmask`}> {_("Netmask")} </label>
-                                <div id={`${idPrefix}-ipv4-netmask`}> {ip[0].netmask} </div>
-                            </> }
+                        { ip[0].netmask && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Netmask")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv4-netmask`}> {ip[0].netmask} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[0].dhcp.range.start && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP range")} </label>
-                                <div id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </div>
-                            </> }
+                        { ip[0].dhcp.range.start && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("DHCP range")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[0].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[0].family, idPrefix))}
-                        </> }
+                        { ip[0].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[0].family, idPrefix))}
+                    </DescriptionList>
+                </FlexItem>}
 
-                        { ip[1] && <>
-                            <hr />
-                            <label className='control-label label-title'> {_("IPv6 address")} </label>
-                            <span />
+                { ip[1] && <FlexItem>
+                    <DescriptionList>
+                        <Text component={TextVariants.h4}>
+                            {_("IPv6 address")}
+                        </Text>
 
-                            { ip[1].address && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-address`}> {_("Address")} </label>
-                                <div id={`${idPrefix}-ipv6-address`}> {ip[1].address} </div>
-                            </> }
+                        { ip[1].address && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Address")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv6-address`}> {ip[1].address} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[1].prefix && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-prefix`}> {_("Prefix")} </label>
-                                <div id={`${idPrefix}-ipv6-prefix`}> {ip[1].prefix} </div>
-                            </> }
+                        { ip[1].prefix && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Prefix")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv6-prefix`}> {ip[1].prefix} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[1].dhcp.range.start && <>
-                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP range")} </label>
-                                <div id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </div>
-                            </> }
+                        { ip[1].dhcp.range.start && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("DHCP range")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
-                            { ip[1].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[1].family, idPrefix))}
-                        </> }
-                    </div>
-                </div>
-            </>
+                        { ip[1].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[1].family, idPrefix))}
+                    </DescriptionList>
+                </FlexItem>}
+            </Flex>
         );
     }
 }

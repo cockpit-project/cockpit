@@ -5,15 +5,19 @@
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
-        <h2>Docker Daemon Info</h2>
-        <ul>
-            <li>Total Memory: <span id="docker-memory">?</span></li>
-            <li>Go Routines: <span id="docker-routines">?</span></li>
-            <li>File Descriptors: <span id="docker-files">?</span></li>
-            <li>Containers: <span id="docker-containers">?</span></li>
-            <li>Images: <span id="docker-images">?</span></li>
-        </ul>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <h2>Docker Daemon Info</h2>
+                <ul>
+                    <li>Total Memory: <span id="docker-memory">?</span></li>
+                    <li>Go Routines: <span id="docker-routines">?</span></li>
+                    <li>File Descriptors: <span id="docker-files">?</span></li>
+                    <li>Containers: <span id="docker-containers">?</span></li>
+                    <li>Images: <span id="docker-images">?</span></li>
+                </ul>
+            </section>
+        </main>
     </div>
 
     <script>

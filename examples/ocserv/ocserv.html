@@ -28,48 +28,49 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 </head>
 <body hidden>
-
-    <div class="curtain-ocserv blank-slate-pf" hidden>
-      <div class="blank-slate-pf-icon">
-        <div class="fa fa-exclamation-circle"></div>
-      </div>
-      <h1>Couldn't connect to OpenConnect Server</h1>
-      <p></p>
-    </div>
-
-    <div id="status-info" class="container-fluid page-ct">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-               <span id="head">Server status</span>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <div class="curtain-ocserv blank-slate-pf" hidden>
+              <div class="blank-slate-pf-icon">
+                <div class="fa fa-exclamation-circle"></div>
+              </div>
+              <h1>Couldn't connect to OpenConnect Server</h1>
+              <p></p>
             </div>
-            <table class="info-table-ct" id="status-table">
-            </table>
-        </div>
+
+            <section id="status-info" class="pf-c-page__main-section pf-m-light">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                       <span id="head">Server status</span>
+                    </div>
+                    <table class="info-table-ct" id="status-table">
+                    </table>
+                </div>
+            </section>
+
+            <section id="users-info" class="pf-c-page__main-section pf-m-light">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span id="head">Connected users</span>
+                    </div>
+                    <table class="table table-hover" id="users-table">
+                        <thead>
+                            <tr>
+                                <th class="ocserv-users-id">ID</th>
+                                <th class="ocserv-users-name">Username</th>
+                                <th class="ocserv-users-remote-ip">Remote IP</th>
+                                <th class="ocserv-users-ip">VPN IP</th>
+                                <th class="ocserv-users-since">Since</th>
+                                <th class="ocserv-users-state">State</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-tbody">
+                        </tbody>
+                        </table>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <div id="users-info" class="container-fluid">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span id="head">Connected users</span>
-            </div>
-            <table class="table table-hover" id="users-table">
-                <thead>
-                    <tr>
-                        <th class="ocserv-users-id">ID</th>
-                        <th class="ocserv-users-name">Username</th>
-                        <th class="ocserv-users-remote-ip">Remote IP</th>
-                        <th class="ocserv-users-ip">VPN IP</th>
-                        <th class="ocserv-users-since">Since</th>
-                        <th class="ocserv-users-state">State</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table-tbody">
-                </tbody>
-                </table>
-        </div>
-    </div>
-
-
 <script>
 var raw;
 var status_raw;

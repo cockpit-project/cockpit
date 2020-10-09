@@ -6,42 +6,46 @@
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
-        <h2>Example: Simple Package</h2>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <h2>Example: Simple Package</h2>
 
-        <p>This example is an installable cockpit package that runs a simple command
-            to ping a remote address.</p>
+                <p>This example is an installable cockpit package that runs a simple command
+                    to ping a remote address.</p>
 
-        <p>Link the package into your home directory:</p>
-        <ol>
-            <li>Make sure Cockpit works on the local machine.</li>
-            <li>Link this directory into your home directory:
-<pre>$ mkdir -p ~/.local/share/cockpit
-$ ln -snf $(pwd) ~/.local/share/cockpit/playground
-$ sudo systemctl restart cockpit</pre>
-</li>
-            <li>Log into cockpit using your web browser, with the same account as the above.</li>
-            <li>Choose this item from the sidebar menu</li>
-            <li>Feel free to edit this file and refresh in the browser.</li>
-        </ol>
-    </div>
+                <p>Link the package into your home directory:</p>
+                <ol>
+                    <li>Make sure Cockpit works on the local machine.</li>
+                    <li>Link this directory into your home directory:
+        <pre>$ mkdir -p ~/.local/share/cockpit
+        $ ln -snf $(pwd) ~/.local/share/cockpit/playground
+        $ sudo systemctl restart cockpit</pre>
+        </li>
+                    <li>Log into cockpit using your web browser, with the same account as the above.</li>
+                    <li>Choose this item from the sidebar menu</li>
+                    <li>Feel free to edit this file and refresh in the browser.</li>
+                </ol>
+            </section>
 
-    <div class="container-fluid">
-        <table class="form-table-ct">
-            <tr>
-                <td><label class="control-label" for="address">URL</label></td>
-                <td><input class="form-control" id="address" value="8.8.8.8"></td>
-            </tr>
-            <tr>
-                <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="ping">Ping</button></td>
-                <td><button class="pf-c-button pf-m-secondary pf-m-danger" disabled id="stop">Stop</button></td>
-            </tr>
-        </table>
-        <p>
-            <pre id="output" style="display: none;">
-            </pre>
-        </p>
-        <p id="failure" class="warning"></p>
+            <section class="pf-c-page__main-section pf-m-light">
+                <table class="form-table-ct">
+                    <tr>
+                        <td><label class="control-label" for="address">URL</label></td>
+                        <td><input class="form-control" id="address" value="8.8.8.8"></td>
+                    </tr>
+                    <tr>
+                        <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="ping">Ping</button></td>
+                        <td><button class="pf-c-button pf-m-secondary pf-m-danger" disabled id="stop">Stop</button></td>
+                    </tr>
+                </table>
+                <p>
+                    <pre id="output" style="display: none;">
+                    </pre>
+                </p>
+                <p id="failure" class="warning"></p>
+            </section>
+        </main>
     </div>
 
     <script>

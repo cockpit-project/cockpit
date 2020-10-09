@@ -19,7 +19,10 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, Button } from "@patternfly/react-core";
+import {
+    Alert, Button,
+    Page, PageSection
+} from "@patternfly/react-core";
 
 import { get_multipathd_service } from "./utils.js";
 import { dialog_open } from "./dialog.jsx";
@@ -63,16 +66,18 @@ export class MultipathAlert extends React.Component {
 
         if (multipath_broken && !multipathd_running) {
             return (
-                <div className="container-fluid page-ct">
-                    <Alert isInline variant='danger' title={
-                        <>
-                            <Button onClick={activate} variant="secondary" className="pull-right">{_("Start multipath")}</Button>
-                            <span className="alert-message">
-                                {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
-                            </span>
-                        </>
-                    } />
-                </div>
+                <Page>
+                    <PageSection>
+                        <Alert isInline variant='danger' title={
+                            <>
+                                <Button onClick={activate} variant="secondary" className="pull-right">{_("Start multipath")}</Button>
+                                <span className="alert-message">
+                                    {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
+                                </span>
+                            </>
+                        } />
+                    </PageSection>
+                </Page>
             );
         } else
             return null;

@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { superuser } from "superuser";
 
-import { Button, Badge } from '@patternfly/react-core';
+import { Button, Badge, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { account_create_dialog } from "./account-create-dialog.js";
 
 const _ = cockpit.gettext;
@@ -68,14 +68,16 @@ export function AccountsList({ accounts, current_user }) {
     });
 
     return (
-        <div id="accounts" className="container-fluid">
-            { superuser.allowed &&
-            <Button id="accounts-create" onClick={() => account_create_dialog(accounts)}>
-                {_("Create new account")}
-            </Button>
-            }
-            <ul id="accounts-list">
-                { filtered_accounts.map(a => <AccountItem key={a.name} account={a} current={current_user == a.name} />) }
-            </ul>
-        </div>);
+        <Page id="accounts">
+            <PageSection variant={PageSectionVariants.light}>
+                { superuser.allowed &&
+                <Button id="accounts-create" onClick={() => account_create_dialog(accounts)}>
+                    {_("Create new account")}
+                </Button>
+                }
+                <ul id="accounts-list">
+                    { filtered_accounts.map(a => <AccountItem key={a.name} account={a} current={current_user == a.name} />) }
+                </ul>
+            </PageSection>
+        </Page>);
 }

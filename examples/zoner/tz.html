@@ -5,21 +5,25 @@
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
-    <div class="container-fluid" style='max-width: 400px'>
-        <table class="form-table-ct">
-            <tr>
-                <td><label class="control-label">Time Zone</label></td>
-                <td><span id="current"></span></td>
-            </tr>
-            <tr>
-                <td><label class="control-label" for="new">New Zone</label></td>
-                <td><input class="form-control" id="new" value="UTC"></td>
-            </tr>
-            <tr>
-                <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="change">Change</button></td>
-		<td><span id="failure"></span></td>
-            </tr>
-        </table>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <table class="form-table-ct">
+                    <tr>
+                        <td><label class="control-label">Time Zone</label></td>
+                        <td><span id="current"></span></td>
+                    </tr>
+                    <tr>
+                        <td><label class="control-label" for="new">New Zone</label></td>
+                        <td><input class="form-control" id="new" value="UTC"></td>
+                    </tr>
+                    <tr>
+                        <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="change">Change</button></td>
+                        <td><span id="failure"></span></td>
+                    </tr>
+                </table>
+            </section>
+        </main>
     </div>
 
     <script>

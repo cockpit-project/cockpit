@@ -7,27 +7,30 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
-        <h2>Proof of Concept: CIM Access</h2>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <h2>Proof of Concept: CIM Access</h2>
 
-        <p>This is a proof of concept for accessing CIM data via Pegasus in Cockpit.</p>
+                <p>This is a proof of concept for accessing CIM data via Pegasus in Cockpit.</p>
 
-        <p><button class="pf-c-button pf-m-secondary pf-m-primary" id="process">Process List</button>
-        <span id="message" class="warning" hidden></span></p>
+                <p><button class="pf-c-button pf-m-secondary pf-m-primary" id="process">Process List</button>
+                <span id="message" class="warning" hidden></span></p>
 
-        <table class="table table-hover" style="font-size: 11px" hidden>
-            <thead>
-                <tr>
-                    <td>PID</td>
-                    <td>Name</td>
-                    <td>UID</td>
-                    <td>Priority</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-
+                <table class="table table-hover" style="font-size: 11px" hidden>
+                    <thead>
+                        <tr>
+                            <td>PID</td>
+                            <td>Name</td>
+                            <td>UID</td>
+                            <td>Priority</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+        </main>
     </div>
 
     <script>

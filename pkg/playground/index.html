@@ -10,16 +10,20 @@
     <script src="index.js"></script>
 </head>
 <body class="pf-m-redhat-font">
-  <section class="container-fluid">
-    <h2>Development Playground</h2>
-    <ul id="nav"></ul>
-  </section>
-  <section class="container-fluid">
-    <h2>Page Status</h2>
-    <label>Type <input id="type"></label>
-    <label>Title <input id="title"></label>
-    <button id="set-status">Set</button>
-    <button id="clear-status">Clear</button>
-  </section>
+  <div class="pf-c-page">
+    <main class="pf-c-page__main" tabindex="-1">
+        <section class="pf-c-page__main-section pf-m-light">
+          <h2>Development Playground</h2>
+          <ul id="nav"></ul>
+        </section>
+        <section class="pf-c-page__main-section pf-m-light">
+          <h2>Page Status</h2>
+          <label>Type <input id="type"></label>
+          <label>Title <input id="title"></label>
+          <button id="set-status">Set</button>
+          <button id="clear-status">Clear</button>
+        </section>
+    </main>
+  </div>
 </body>
 </html>

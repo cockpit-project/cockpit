@@ -4,15 +4,15 @@
     <title>Embed Example</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="../dist/img/favicon.ico">
-    <link href="../../../dist/base1/patternfly.min.css" rel="stylesheet" media="screen, print">
-    <link href="../../../dist/base1/patternfly-additions.css" rel="stylesheet" media="screen, print">
+    <script type="text/javascript" src="embed.js"></script>
     <style>
         #embed-links .card-pf-body {
             opacity: 0.3;
         }
         #embed-here {
-            height: 550px;
+            display: block;
+            width: 1024px;
+            height: 768px;
         }
         #embed-address {
             display: block;
@@ -24,25 +24,12 @@
         iframe {
             display: block;
             width: 100%;
-            height: 500px;
+            height: 100%;
             border: 1px solid #ddd;
         }
     </style>
 </head>
-<body class="cards-pf">
-
-    <!-- BOILERPLATE: Makes this look like another app -->
-    <nav class="navbar navbar-default navbar-pf" role="navigation">
-        <div class="navbar-header"><a class="navbar-brand"><img src="../dist/img/brand.svg"/></a></div>
-        <ul class="nav navbar-nav navbar-utility">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <span class="pficon pficon-user"></span> Brian Johnson <b class="caret"></b></a>
-                <ul class="dropdown-menu"><li><a href="#">Link</a></li></ul>
-            </li>
-        </ul>
-      </div>
-    </nav>
+<body id="content" class="cards-pf">
 
     <!-- BOILERPLATE: Makes this look like another app -->
     <div class="container-fluid container-cards-pf">
@@ -53,7 +40,7 @@
                 </div>
                 <div class="card-pf card-pf-accented card-pf-aggregate-status">
                     <h2 class="card-pf-title">
-                        <a id="embed-full" href="/cockpit/@localhost/shell/index.html">
+                        <a id="embed-full" href="/cockpit/@localhost/system/index.html">
                             <span class="fa fa-server"></span>Full Server
                         </a>
                     </h2>
@@ -142,41 +129,6 @@
             </div>
         </div><!-- /row -->
     </div><!-- /container -->
-    <script>
-        var frames = { };
-
-        function click(ev) {
-            var href = ev.target.getAttribute("href");
-            ev.preventDefault();
-
-            var address = document.getElementById("embed-address").value;
-            if (address.indexOf(":") === -1)
-                address += ":9090";
-            var url = address + href;
-
-            var frame = frames[url];
-            if (!frame) {
-                frame = frames[url] = document.createElement("iframe");
-                frame.setAttribute("src", url)
-                frame.setAttribute("name", ev.target.getAttribute("id"));
-                document.getElementById("embed-here").appendChild(frame);
-                frame.addEventListener("load", function(ev) {
-                    ev.target.setAttribute("loaded", "1");
-                });
-            }
-
-            var i, iframes = document.querySelectorAll("iframe");
-            for (i = 0; i < iframes.length; i++)
-                iframes[i].setAttribute("hidden", "hidden");
-            frame.removeAttribute("hidden");
-            document.getElementById("embed-title").innerText = ev.target.innerText;
-            return false;
-        }
-
-        var x, links = document.querySelectorAll("#embed-links a[href]");
-        for (x = 0; x < links.length; x++)
-            links[x].addEventListener("click", click);
-    </script>
     <div id="embed-loaded">
     </div>
 </body>

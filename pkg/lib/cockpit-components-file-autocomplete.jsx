@@ -152,13 +152,20 @@ export class FileAutoComplete extends React.Component {
 
     render() {
         const placeholder = this.props.placeholder || _("Path to file");
+        let noResultsFoundText = _("No such file or directory");
+        if (this.state.value && this.state.value.type === 'directory') {
+            if (this.state.displayFiles.length === 0)
+                noResultsFoundText = _("This directory is empty");
+            else
+                noResultsFoundText = cockpit.format(_("No such file found in directory '$0'"), this.state.value.path);
+        }
 
         return (
             <Select
                 variant={SelectVariant.typeahead}
                 id={this.props.id}
                 placeholderText={placeholder}
-                noResultsFoundText={cockpit.format(_("No such file or directory '$0'"), this.state.value)}
+                noResultsFoundText={noResultsFoundText}
                 onFilter={this.onFilter}
                 selections={this.state.value}
                 onSelect={(event, value) => {

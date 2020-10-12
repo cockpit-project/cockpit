@@ -8,6 +8,7 @@ import time
 
 # import Cockpit's machinery for test VMs and its browser test API
 import parent
+import packagelib
 from testlib import *
 
 
@@ -306,20 +307,6 @@ class TestMetrics(MachineCase):
         b.wait_in_text("#service-details", "pmlogger.service")
 
     @nondestructive
-    def testNoCockpitPcp(self):
-        b = self.browser
-        m = self.machine
-
-        if m.image not in ["fedora-coreos"]:
-            m.execute("mount -t tmpfs tmpfs /usr/share/cockpit/pcp")
-            self.addCleanup(m.execute, "umount /usr/share/cockpit/pcp")
-
-        self.login_and_go("/metrics")
-        b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
-        b.click(".pf-c-empty-state button.pf-m-primary")
-        # this button does not yet do anything; also, on ostree the button should not exist at all
-
-    @nondestructive
     def testCurrentMetrics(self):
         b = self.browser
         m = self.machine
@@ -544,6 +531,48 @@ class TestMetrics(MachineCase):
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='In']", "0")
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
 
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+class TestCockpitPcp(packagelib.PackageCase):
+    def testNoCockpitPcp(self):
+        b = self.browser
+        m = self.machine
+
+        if m.image in ["fedora-coreos"]:
+            self.login_and_go("/metrics")
+            b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
+            b.wait_not_present(".pf-c-empty-state button.pf-m-primary")
+            return
+
+        m.execute("mount -t tmpfs tmpfs /usr/share/cockpit/pcp")
+        self.addCleanup(m.execute, "umount /usr/share/cockpit/pcp")
+
+        m.execute("pkcon remove -y pcp")
+
+        cpcp = {
+            "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "134.x"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
+            "/usr/libexec/cockpit-pcp": "true",
+        }
+
+        self.createPackage("cockpit-pcp", "999", "1", content=cpcp,
+                           postinst="chmod +x /usr/libexec/cockpit-pcp")
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        self.login_and_go("/metrics")
+        b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
+        b.click(".pf-c-empty-state button.pf-m-primary")
+        b.click("#dialog button:contains('Install')")
+        b.wait_not_present("#dialog")
+        b.click("button:contains('Log out')")
+        b.leave_page()
+        b.click("button:contains('Reconnect')")
+        b.expect_load()
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/metrics")
+        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestMultiCPU(MachineCase):

@@ -36,6 +36,8 @@ import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, Table
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import * as machine_info from "../lib/machine-info.js";
+import * as packagekit from "packagekit.js";
+import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
 const MSEC_PER_H = 3600000;
 const INTERVAL = 5000;
@@ -696,11 +698,14 @@ class MetricsHistory extends React.Component {
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
+            packagekitExists: false,
+            needsLogout: false,
         };
 
         this.handleMoreData = this.handleMoreData.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
+        this.handleInstall = this.handleInstall.bind(this);
 
         // load and render the last 24 hours (plus current one) initially; this needs numCpu initialized for correct scaling
         // FIXME: load less up-front, load more when scrolling
@@ -716,6 +721,12 @@ class MetricsHistory extends React.Component {
                         });
                     })
                     .catch(ex => this.setState({ error: ex.toString() }));
+        });
+    }
+
+    componentDidMount() {
+        packagekit.detect().then(exists => {
+            this.setState({ packagekitExists: exists });
         });
     }
 
@@ -741,6 +752,13 @@ class MetricsHistory extends React.Component {
             isDatepickerOpened: false,
             hours: [],
         }, () => this.load_data(sel, sel === this.today_midnight ? undefined : 24 * SAMPLES_PER_H, true));
+    }
+
+    handleInstall() {
+        install_dialog("cockpit-pcp")
+                .then(() => {
+                    this.setState({ needsLogout: true });
+                });
     }
 
     load_data(load_timestamp, limit, show_spinner) {
@@ -859,11 +877,17 @@ class MetricsHistory extends React.Component {
     }
 
     render() {
+        if (this.state.needsLogout)
+            return <EmptyStatePanel
+                        icon={ExclamationCircleIcon}
+                        title={_("You need to relogin to be able to see metrics")}
+                        action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>} />;
+
         if (cockpit.manifests && !cockpit.manifests.pcp)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}
-                        action={<Button onClick={() => console.log("Installing cockpit-pcp...")}>{_("Install cockpit-pcp")}</Button>} />;
+                        action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null} />;
 
         if (!this.state.metricsAvailable)
             return <EmptyStatePanel

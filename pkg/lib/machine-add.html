@@ -1,12 +1,16 @@
 <div class="modal-header">
     <button class="close" data-dismiss="modal"
         aria-hidden="true">&times;</button>
-    <h4 class="modal-title" translate="yes">Add a new host</h4>
+    <h4 class="modal-title" translate="yes">Add new host</h4>
 </div>
 
 <div class="modal-body">
+    <p>
+      <span translate="yes">Specify the host and the login user account for the host that you want to add.</span><br/>
+      <span translate="yes">For the host, either specify the hostname, IP address, an alias name or a unique resource identifier for the SSH destination.</span>
+    </p><br/>
     <form class="ct-form">
-      <label translate="yes" class="control-label">Address</label>
+      <label translate="yes" class="control-label">Host</label>
       <div class="dialog-wrapper error-keep">
         <input class="form-control" id="add-machine-address"
                type="text" value="{{ full_address }}"

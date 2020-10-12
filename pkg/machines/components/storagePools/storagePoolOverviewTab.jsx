@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription } from '@patternfly/react-core';
 
 import { storagePoolId } from '../../helpers.js';
 import cockpit from 'cockpit';
@@ -30,50 +31,54 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
 
     return (
-        <div className='ct-form'>
-            { storagePool.source && storagePool.source.host && <>
-                <label className='control-label' htmlFor={`${idPrefix}-host`}> {_("Host")} </label>
-                <div id={`${idPrefix}-host`}>
+        <DescriptionList isHorizontal>
+            { storagePool.source && storagePool.source.host && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Host")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-host`}>
                     {storagePool.source.host.name}
-                </div>
-            </> }
+                </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            { storagePool.source && storagePool.source.device && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source path")} </label>
-                <div id={`${idPrefix}-source-path`}> {storagePool.source.device.path} </div>
-            </> }
+            { storagePool.source && storagePool.source.device && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Source path")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-source-path`}> {storagePool.source.device.path} </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            { storagePool.source && storagePool.source.dir && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source path")} </label>
-                <div id={`${idPrefix}-source-path`}> {storagePool.source.dir.path} </div>
-            </> }
+            { storagePool.source && storagePool.source.dir && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Source path")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-source-path`}> {storagePool.source.dir.path} </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            { storagePool.source && storagePool.source.name && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source")} </label>
-                <div id={`${idPrefix}-source-path`}> {storagePool.source.name} </div>
-            </> }
+            { storagePool.source && storagePool.source.name && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Source")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-source-path`}> {storagePool.source.name} </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            { storagePool.source && storagePool.source.format && <>
-                <label className='control-label' htmlFor={`${idPrefix}-source-format`}> {_("Source format")} </label>
-                <div id={`${idPrefix}-source-format`}> {storagePool.source.format.type} </div>
-            </> }
+            { storagePool.source && storagePool.source.format && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Source format")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-source-format`}> {storagePool.source.format.type} </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            { storagePool.target && storagePool.target.path && <>
-                <label className='control-label' htmlFor={`${idPrefix}-target-path`}> {_("Target path")} </label>
-                <div id={`${idPrefix}-target-path`}> {storagePool.target.path} </div>
-            </> }
+            { storagePool.target && storagePool.target.path && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Target path")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-target-path`}> {storagePool.target.path} </DescriptionListDescription>
+            </DescriptionListGroup> }
 
-            <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
-            <div id={`${idPrefix}-persistent`}> {storagePool.persistent ? _("yes") : _("no")} </div>
+            <DescriptionListGroup>
+                <DescriptionListTerm> {_("Persistent")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-persistent`}> {storagePool.persistent ? _("yes") : _("no")} </DescriptionListDescription>
+            </DescriptionListGroup>
 
-            {storagePool.persistent && <>
-                <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
-                <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? _("yes") : _("no")} </div>
-            </>}
+            {storagePool.persistent && <DescriptionListGroup>
+                <DescriptionListTerm> {_("Autostart")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-autostart`}> {storagePool.autostart ? _("yes") : _("no")} </DescriptionListDescription>
+            </DescriptionListGroup>}
 
-            <label className='control-label' htmlFor={`${idPrefix}-type`}> {_("Type")} </label>
-            <div id={`${idPrefix}-type`}> {storagePool.type} </div>
-        </div>
+            <DescriptionListGroup>
+                <DescriptionListTerm> {_("Type")} </DescriptionListTerm>
+                <DescriptionListDescription id={`${idPrefix}-type`}> {storagePool.type} </DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>
     );
 };
 StoragePoolOverviewTab.propTypes = {

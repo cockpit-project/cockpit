@@ -19,7 +19,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Button, Text, TextVariants, Tooltip } from "@patternfly/react-core";
+import {
+    Button, Text, TextVariants, Tooltip,
+    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    Flex, FlexItem
+} from "@patternfly/react-core";
 
 import { VCPUModal } from './vcpuModal.jsx';
 import MemoryModal from './vm/memoryModal.jsx';
@@ -159,34 +163,36 @@ class VmOverviewTabLibvirt extends React.Component {
                              (vm.cpu.cores !== vm.inactiveXML.cpu.cores);
 
         const autostart = (
-            <label className='checkbox-inline'>
-                <input id={`${idPrefix}-autostart-checkbox`}
-                    type="checkbox"
-                    checked={vm.autostart}
-                    onChange={this.onAutostartChanged} />
-                {_("Run when host boots")}
-            </label>
+            <DescriptionListDescription>
+                <label className='checkbox-inline'>
+                    <input id={`${idPrefix}-autostart-checkbox`}
+                        type="checkbox"
+                        checked={vm.autostart}
+                        onChange={this.onAutostartChanged} />
+                    {_("Run when host boots")}
+                </label>
+            </DescriptionListDescription>
         );
         const bootOrder = (
-            <div>
+            <DescriptionListDescription>
                 <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
                     {getBootOrder(vm)}
                 </Button>
                 { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
-            </div>
+            </DescriptionListDescription>
         );
         const memoryLink = (
-            <div>
+            <DescriptionListDescription>
                 <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
                     {cockpit.format_bytes(vm.currentMemory * 1024)}
                 </Button>
-            </div>
+            </DescriptionListDescription>
         );
         const vcpuLink = (
-            <div>
+            <DescriptionListDescription>
                 { <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button> }
                 { vm.persistent && vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
-            </div>
+            </DescriptionListDescription>
         );
 
         let firmwareLinkWrapper;
@@ -253,34 +259,57 @@ class VmOverviewTabLibvirt extends React.Component {
 
         return (
             <>
-                <div className="overview-tab-grid">
-                    <div className='ct-form ct-form-info'>
-                        <Text component={TextVariants.h4} className='ct-form-full'>
-                            {_("General")}
-                        </Text>
-                        <label className='control-label' htmlFor={`${idPrefix}-memory-count`}>{_("Memory")}</label>
-                        {memoryLink}
-                        <label className='control-label' htmlFor={`${idPrefix}-vcpus-count`}>{_("vCPUs")}</label>
-                        {vcpuLink}
-                        <label className='control-label' htmlFor={`${idPrefix}-cpu-model`}>{_("CPU type")}</label>
-                        <div id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</div>
-                        <label className='control-label' htmlFor={`${idPrefix}-boot-order`}>{_("Boot order")}</label>
-                        {bootOrder}
-                        {vm.persistent && <>
-                            <label className='control-label' htmlFor={`${idPrefix}-autostart-checkbox`}>{_("Autostart")}</label>
-                            {autostart}
-                        </>}
-                    </div>
-                    <div className="ct-form ct-form-info">
-                        <Text component={TextVariants.h4} className='ct-form-full'>
-                            {_("Hypervisor details")}
-                        </Text>
-                        <label className='control-label' htmlFor={`${idPrefix}-emulated-machine`}>{_("Emulated machine")}</label>
-                        <div id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</div>
-                        {firmwareLinkWrapper ? <label className='control-label' htmlFor={`${idPrefix}-firmware`}>{_("Firmware")}</label> : null}
-                        {firmwareLinkWrapper}
-                    </div>
-                </div>
+                <Flex className="overview-tab">
+                    <FlexItem>
+                        <DescriptionList>
+                            <Text component={TextVariants.h4}>
+                                {_("General")}
+                            </Text>
+
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{_("Memory")}</DescriptionListTerm>
+                                {memoryLink}
+                            </DescriptionListGroup>
+
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{_("vCPUs")}</DescriptionListTerm>
+                                {vcpuLink}
+                            </DescriptionListGroup>
+
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{_("CPU type")}</DescriptionListTerm>
+                                <DescriptionListDescription id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</DescriptionListDescription>
+                            </DescriptionListGroup>
+
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{_("Boot order")}</DescriptionListTerm>
+                                {bootOrder}
+                            </DescriptionListGroup>
+
+                            {vm.persistent && <DescriptionListGroup>
+                                <DescriptionListTerm>{_("Autostart")}</DescriptionListTerm>
+                                {autostart}
+                            </DescriptionListGroup>}
+                        </DescriptionList>
+                    </FlexItem>
+                    <FlexItem>
+                        <DescriptionList>
+                            <Text component={TextVariants.h4}>
+                                {_("Hypervisor details")}
+                            </Text>
+
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{_("Emulated machine")}</DescriptionListTerm>
+                                <DescriptionListDescription id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</DescriptionListDescription>
+                            </DescriptionListGroup>
+
+                            {firmwareLinkWrapper && <DescriptionListGroup>
+                                <DescriptionListTerm>{_("Firmware")}</DescriptionListTerm>
+                                {firmwareLinkWrapper}
+                            </DescriptionListGroup>}
+                        </DescriptionList>
+                    </FlexItem>
+                </Flex>
                 { this.state.showBootOrderModal && <BootOrderModal close={this.close} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} /> }
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
                 { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }

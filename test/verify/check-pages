@@ -560,6 +560,16 @@ OnCalendar=daily
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir1/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
         b.click("#file-autocomplete-widget li:nth-of-type(2) button")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "This directory is empty")
+
+        # clear the file completion widget
+        b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
+        b.wait_not_present("#file-autocomplete-widget li")
+        b.focus("#demo-file-ac input[type=text]")
+        b.key_press(stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.click("#file-autocomplete-widget li:nth-of-type(3) button")
         b.wait_not_present("#file-autocomplete-widget li")
 
         # now update file1, check robustness with dynamic events
@@ -567,7 +577,10 @@ OnCalendar=daily
         b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
         b.key_press(["\b"]*5)
-        # this should still be unique
+        # input is now $stuff/file
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "file1.txt")
+        b.key_press(["\b"]*4)
+        # input is now $stuff/, so all listings should be available
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
 
         # add new file

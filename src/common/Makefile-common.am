@@ -124,6 +124,7 @@ COCKPIT_CHECKS = \
 	test-hash \
 	test-hex \
 	test-json \
+	test-jsonfds \
 	test-locale \
 	test-pipe \
 	test-transport \
@@ -167,6 +168,10 @@ test_hex_LDADD = libretest.a $(libcockpit_common_a_LIBS)
 test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_json_SOURCES = src/common/test-json.c
 test_json_LDADD = $(libcockpit_common_a_LIBS)
+
+test_jsonfds_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_jsonfds_SOURCES = src/common/test-jsonfds.c
+test_jsonfds_LDADD = $(libcockpit_common_a_LIBS)
 
 test_locale_PO = \
 	src/common/mock-locale/de_DE/LC_MESSAGES/test.po \

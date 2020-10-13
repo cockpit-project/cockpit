@@ -480,6 +480,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
 
+        b.click('.pf-c-breadcrumb li:first a')
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
+
     @nondestructive
     def testNoMessage(self):
         b = self.browser

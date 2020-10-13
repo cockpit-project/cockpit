@@ -1,7 +1,11 @@
 # This is a script run to release Cockpit
 #
-# This script is run in the cockpit/release container
+# This script is run in a cockpit/release container:
 # https://github.com/cockpit-project/cockpituous/tree/master/release
+#
+# This gets triggered on pushing a signed release tag, through a GitHub action:
+#
+#   .github/workflows/release.yml
 #
 # Anything that start with 'job' may run in a way that it SIGSTOP's
 # itself when preliminary preparition and then gets a SIGCONT in

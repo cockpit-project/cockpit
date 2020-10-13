@@ -1,0 +1,34 @@
+name: release
+on:
+  push:
+    tags:
+      # this is a glob, not a regexp
+      - '[0-9]*'
+jobs:
+  cockpituous:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/cockpit/release
+    steps:
+      - name: Set up configuration and secrets
+        run: |
+          # override GitHub's bind mount from host, we don't want anything from there and it interferes with ssh
+          export HOME=$(getent passwd $(id -u) | cut -f6 -d:)
+
+          # This uses the shared cockpit-project organization secrets:
+          # https://github.com/organizations/cockpit-project/settings/secrets
+          echo '${{ secrets.SSH_KNOWN_HOSTS }}' > ~/.ssh/known_hosts
+          echo '${{ secrets.FEDPKG_SSH_PUBLIC }}' > ~/.ssh/id_rsa.pub
+          echo '${{ secrets.FEDPKG_SSH_PRIVATE }}' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo 'cockpit' > ~/.config/bodhi-user
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
+          echo '${{ secrets.COPR_TOKEN }}' > ~/.config/copr
+          echo '${{ secrets.COCKPIT_FEDORA_PASSWORD }}' > ~/.fedora-password
+
+      - name: Run cockpituous
+        run: |
+          # override GitHub's bind mount from host, we don't want anything from there and it interferes with ssh
+          export HOME=$(getent passwd $(id -u) | cut -f6 -d:)
+          cd /build
+          release-runner -r https://github.com/$GITHUB_REPOSITORY -t $(basename $GITHUB_REF) tools/cockpituous-release

@@ -648,12 +648,12 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         test_user = 'correcthorsebatterystaple'
 
         for purpose in ['text', 'password']:
-            b.wait_visible(".modal-content input[type='%s']" % (purpose))
-            b.set_val(".modal-content input", test_user)
-            b.click(".modal-footer button:contains('Send')")
+            b.wait_visible(".pf-c-modal-box__body input[type='%s']" % (purpose))
+            b.set_val(".pf-c-modal-box__body input", test_user)
+            b.click(".pf-c-modal-box__footer button:contains('Send')")
 
-        b.wait_not_present(".modal-content p:contains('Password')")
-        b.click(".modal-footer button:contains('No')")
+        b.wait_not_present(".pf-c-modal-box__body p:contains('Password')")
+        b.click(".pf-c-modal-box__footer button:contains('No')")
         b.wait_present("table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",

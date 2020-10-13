@@ -32,8 +32,8 @@ class TestSuperuser(MachineCase):
 
         # Drop privileges
         b.click("#super-user-indicator button")
-        b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
         # Check they are still gone after logout
@@ -43,10 +43,10 @@ class TestSuperuser(MachineCase):
 
         # Get them back
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
 
         # Check we still have them after logout
@@ -65,9 +65,9 @@ class TestSuperuser(MachineCase):
         # Give us password-less sudo and use it
         m.write("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "You now have administrative access")
-        b.click(".modal-dialog:contains('Administrative access') button:contains('Close')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
+        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
 
     def testTwoPasswds(self):
@@ -96,13 +96,13 @@ session include system-auth
 """)
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "universe and everything")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "42")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "universe and everything")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "42")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
 
     def testWrongPasswd(self):
@@ -115,18 +115,18 @@ session include system-auth
         b.wait_text("#super-user-indicator", "Limited access")
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wrong")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wronger")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wrongest")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "This didn't work")
-        b.click(".modal-dialog:contains('Administrative access') button:contains('Cancel')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wrong")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wronger")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wrongest")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "This didn't work")
+        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Cancel')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
     def testNotAdmin(self):
@@ -147,9 +147,9 @@ session include system-auth
         b.wait_text("#super-user-indicator", "Limited access")
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "You can not gain administrative access")
-        b.click(".modal-dialog:contains('Administrative access') button:contains('Close')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You can not gain administrative access")
+        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
 
     def testBrokenBridgeConfig(self):
         b = self.browser
@@ -178,10 +178,10 @@ session include system-auth
         b.wait_text("#super-user-indicator", "Limited access")
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Something went wrong")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "internal-error")
-        b.click(".modal-dialog:contains('Administrative access') button:contains('Close')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Something went wrong")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "internal-error")
+        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
     def testOverview(self):
@@ -190,10 +190,10 @@ session include system-auth
         self.login_and_go("/system", superuser=False)
         b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
         b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
@@ -312,10 +312,10 @@ class TestSuperuserOldWebserver(MachineCase):
 
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
         b.go("/playground/test")
         b.enter_page("/playground/test")
@@ -366,8 +366,8 @@ class TestSuperuserDashboard(MachineCase):
 
         b.leave_page()
         b.click("#super-user-indicator button")
-        b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
         b.wait_text("#super-user-indicator", "Limited access")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -375,10 +375,10 @@ class TestSuperuserDashboard(MachineCase):
 
         b.leave_page()
         b.click("#super-user-indicator button")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -423,8 +423,8 @@ class TestSuperuserOldDashboard(MachineCase):
 
         b.enter_page("/system", host="10.111.113.2")
         b.click(".ct-overview-header-actions button:contains('Administrative access')")
-        b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
         b.wait_present(".ct-overview-header-actions button:contains('Limited access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
@@ -434,10 +434,10 @@ class TestSuperuserOldDashboard(MachineCase):
         b.go("/@10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")
         b.click(".ct-overview-header-actions button:contains('Limited access')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_present(".ct-overview-header-actions button:contains('Administrative access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")

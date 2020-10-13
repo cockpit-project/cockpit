@@ -26,8 +26,8 @@ import {
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
+    Modal
 } from "@patternfly/react-core";
-import { Modal } from 'patternfly-react';
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -55,23 +55,23 @@ const _ = cockpit.gettext;
 class ServiceConfirmDialog extends React.Component {
     render() {
         return (
-            <Modal id={this.props.id} show>
-                <Modal.Header>
-                    <Modal.Title>{this.props.title}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {this.props.message}
-                </Modal.Body>
-                <Modal.Footer>
-                    { this.props.confirmText && this.props.confirmAction &&
-                        <Button variant='danger' onClick={this.props.confirmAction}>
-                            {this.props.confirmText}
-                        </Button>
-                    }
-                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
-                        { _("Cancel") }
-                    </Button>
-                </Modal.Footer>
+            <Modal id={this.props.id} isOpen
+                   position="top" variant="medium"
+                   onClose={this.props.close}
+                   title={this.props.title}
+                   footer={
+                       <>
+                           { this.props.confirmText && this.props.confirmAction &&
+                               <Button variant='danger' onClick={this.props.confirmAction}>
+                                   {this.props.confirmText}
+                               </Button>
+                           }
+                           <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                               { _("Cancel") }
+                           </Button>
+                       </>
+                   }>
+                {this.props.message}
             </Modal>
         );
     }

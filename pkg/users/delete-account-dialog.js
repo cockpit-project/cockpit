@@ -20,7 +20,6 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Modal } from 'patternfly-react';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -29,15 +28,14 @@ function DeleteAccountDialogBody({ state, change }) {
     const { delete_files } = state;
 
     return (
-        <Modal.Body>
-            <div className="checkbox">
-                <label>
-                    <input type="checkbox" id="account-confirm-delete-files"
-                   checked={delete_files} onChange={event => change("delete_files", event.target.checked)} />
-                    <span>{_("Delete files")}</span>
-                </label>
-            </div>
-        </Modal.Body>);
+        <div className="checkbox">
+            <label>
+                <input type="checkbox" id="account-confirm-delete-files"
+               checked={delete_files} onChange={event => change("delete_files", event.target.checked)} />
+                <span>{_("Delete files")}</span>
+            </label>
+        </div>
+    );
 }
 
 export function delete_account_dialog(account) {

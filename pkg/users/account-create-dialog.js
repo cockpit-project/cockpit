@@ -20,7 +20,6 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Modal } from 'patternfly-react';
 import { Validated, has_errors } from "./dialog-utils.js";
 import { password_quality, passwd_change } from "./password-dialogs.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -35,51 +34,50 @@ function AccountCreateBody({ state, errors, change }) {
     } = state;
 
     return (
-        <Modal.Body>
-            <form className="ct-form">
-                <label className="control-label" htmlFor="accounts-create-real-name">{_("Full name")}</label>
-                <Validated errors={errors} error_key="real_name">
-                    <input className="form-control" type="text" id="accounts-create-real-name"
-                     value={real_name} onChange={event => change("real_name", event.target.value)} />
-                </Validated>
+        <form className="ct-form">
+            <label className="control-label" htmlFor="accounts-create-real-name">{_("Full name")}</label>
+            <Validated errors={errors} error_key="real_name">
+                <input className="form-control" type="text" id="accounts-create-real-name"
+                       value={real_name} onChange={event => change("real_name", event.target.value)} />
+            </Validated>
 
-                <label className="control-label" htmlFor="accounts-create-user-name">{_("User name")}</label>
-                <Validated errors={errors} error_key="user_name">
-                    <input className="form-control" type="text" id="accounts-create-user-name"
-                     value={user_name} onChange={event => change("user_name", event.target.value)} />
-                </Validated>
+            <label className="control-label" htmlFor="accounts-create-user-name">{_("User name")}</label>
+            <Validated errors={errors} error_key="user_name">
+                <input className="form-control" type="text" id="accounts-create-user-name"
+                       value={user_name} onChange={event => change("user_name", event.target.value)} />
+            </Validated>
 
-                <label className="control-label" htmlFor="accounts-create-pw1">{_("Password")}</label>
-                <Validated errors={errors} error_key="password">
-                    <input className="form-control" type="password" id="accounts-create-pw1"
-                     value={password} onChange={event => change("password", event.target.value)} />
-                </Validated>
+            <label className="control-label" htmlFor="accounts-create-pw1">{_("Password")}</label>
+            <Validated errors={errors} error_key="password">
+                <input className="form-control" type="password" id="accounts-create-pw1"
+                       value={password} onChange={event => change("password", event.target.value)} />
+            </Validated>
 
-                <label className="control-label" htmlFor="accounts-create-pw2">{_("Confirm")}</label>
-                <div className="dialog-wrapper">
-                    <Validated errors={errors} error_key="password_confirm">
-                        <input className="form-control" type="password" id="accounts-create-pw2"
-                       value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
-                    </Validated>
-                    <div id="accounts-create-password-meter" className={"progress password-strength-meter " + password_strength}>
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                    </div>
-                    <div>
-                        <span id="accounts-create-password-meter-message" className="help-block">{password_message}</span>
-                    </div>
+            <label className="control-label" htmlFor="accounts-create-pw2">{_("Confirm")}</label>
+            <div className="dialog-wrapper">
+                <Validated errors={errors} error_key="password_confirm">
+                    <input className="form-control" type="password" id="accounts-create-pw2"
+                           value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
+                </Validated>
+                <div id="accounts-create-password-meter" className={"progress password-strength-meter " + password_strength}>
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
                 </div>
+                <div>
+                    <span id="accounts-create-password-meter-message" className="help-block">{password_message}</span>
+                </div>
+            </div>
 
-                <label className="control-label">{_("Access")}</label>
-                <label className="checkbox-inline">
-                    <input type="checkbox" id="accounts-create-locked"
-                     value={locked} onChange={event => change("locked", event.target.checked)} />
-                    <span>{_("Lock account")}</span>
-                </label>
-            </form>
-        </Modal.Body>);
+            <label className="control-label">{_("Access")}</label>
+            <label className="checkbox-inline">
+                <input type="checkbox" id="accounts-create-locked"
+                       value={locked} onChange={event => change("locked", event.target.checked)} />
+                <span>{_("Lock account")}</span>
+            </label>
+        </form>
+    );
 }
 
 function is_valid_char_username(c) {

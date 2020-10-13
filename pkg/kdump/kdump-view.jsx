@@ -145,29 +145,27 @@ class KdumpTargetBody extends React.Component {
         // we don't support all known storage options currently
         var storageDest = this.state.storeDest;
         return (
-            <div className="modal-body">
-                <form className="ct-form">
-                    <label className="control-label" htmlFor="kdump-settings-location">{_("Location")}</label>
-                    <Select.Select key="location" onChange={this.changeLocation}
-                                   id="kdump-settings-location" initial={storageDest}>
-                        <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
-                        <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
-                        <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
-                    </Select.Select>
+            <form className="ct-form">
+                <label className="control-label" htmlFor="kdump-settings-location">{_("Location")}</label>
+                <Select.Select key="location" onChange={this.changeLocation}
+                               id="kdump-settings-location" initial={storageDest}>
+                    <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
+                    <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
+                    <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
+                </Select.Select>
 
-                    {detailRows}
-                    <hr />
+                {detailRows}
+                <hr />
 
-                    <label className="control-label">{_("Compression")}</label>
-                    <label className="checkbox-inline" key="compression">
-                        <input id="kdump-settings-compression" type="checkbox"
-                               checked={this.props.compressionEnabled}
-                               onChange={this.handleCompressionClick.bind(this)}
-                               enabled={compressionPossible.toString()} />
-                        {_("Compress crash dumps to save space")}
-                    </label>
-                </form>
-            </div>
+                <label className="control-label">{_("Compression")}</label>
+                <label className="checkbox-inline" key="compression">
+                    <input id="kdump-settings-compression" type="checkbox"
+                           checked={this.props.compressionEnabled}
+                           onChange={this.handleCompressionClick.bind(this)}
+                           enabled={compressionPossible.toString()} />
+                    {_("Compress crash dumps to save space")}
+                </label>
+            </form>
         );
     }
 }
@@ -297,9 +295,7 @@ export class KdumpPage extends React.Component {
         var dialogProps = {
             title: _("Test kdump settings"),
             body: (
-                <div className="modal-body">
-                    <span>{_("This will test kdump settings by crashing the kernel and thereby the system. Depending on the settings, the system may not automatically reboot and the process may take a while.")}</span>
-                </div>
+                <span>{_("This will test kdump settings by crashing the kernel and thereby the system. Depending on the settings, the system may not automatically reboot and the process may take a while.")}</span>
             )
         };
         // also test modifying properties in subsequent render calls

@@ -21,7 +21,6 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { superuser } from "superuser";
 
-import { Modal } from 'patternfly-react';
 import { Validated, has_errors } from "./dialog-utils.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -162,41 +161,39 @@ function SetPasswordDialogBody({ state, errors, change }) {
     } = state;
 
     return (
-        <Modal.Body>
-            <form className="ct-form">
-                { need_old && <>
-                    <label className="control-label" htmlFor="account-set-password-old">{_("Old password")}</label>
-                    <Validated errors={errors} error_key="password_old">
-                        <input className="form-control check-passwords" type="password" id="account-set-password-old"
-        value={password_old} onChange={event => change("password_old", event.target.value)} />
-                    </Validated>
-                </>
-                }
-
-                <label className="control-label" htmlFor="account-set-password-pw1">{_("New password")}</label>
-                <Validated errors={errors} error_key="password">
-                    <input className="form-control check-passwords" type="password" id="account-set-password-pw1"
-        value={password} onChange={event => change("password", event.target.value)} />
+        <form className="ct-form">
+            { need_old && <>
+                <label className="control-label" htmlFor="account-set-password-old">{_("Old password")}</label>
+                <Validated errors={errors} error_key="password_old">
+                    <input className="form-control check-passwords" type="password" id="account-set-password-old"
+                           value={password_old} onChange={event => change("password_old", event.target.value)} />
                 </Validated>
+            </>
+            }
 
-                <label className="control-label" htmlFor="account-set-password-pw2">{_("Confirm new password")}</label>
-                <div className="check-passwords dialog-wrapper">
-                    <Validated errors={errors} error_key="password_confirm">
-                        <input className="form-control" type="password" id="account-set-password-pw2"
-            value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
-                    </Validated>
-                    <div id="account-set-password-meter" className={"progress password-strength-meter " + password_strength}>
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                    </div>
-                    <div>
-                        <span id="account-set-password-meter-message" className="help-block">{password_message}</span>
-                    </div>
+            <label className="control-label" htmlFor="account-set-password-pw1">{_("New password")}</label>
+            <Validated errors={errors} error_key="password">
+                <input className="form-control check-passwords" type="password" id="account-set-password-pw1"
+                       value={password} onChange={event => change("password", event.target.value)} />
+            </Validated>
+
+            <label className="control-label" htmlFor="account-set-password-pw2">{_("Confirm new password")}</label>
+            <div className="check-passwords dialog-wrapper">
+                <Validated errors={errors} error_key="password_confirm">
+                    <input className="form-control" type="password" id="account-set-password-pw2"
+                           value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
+                </Validated>
+                <div id="account-set-password-meter" className={"progress password-strength-meter " + password_strength}>
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
+                    <div className="progress-bar" />
                 </div>
-            </form>
-        </Modal.Body>
+                <div>
+                    <span id="account-set-password-meter-message" className="help-block">{password_message}</span>
+                </div>
+            </div>
+        </form>
     );
 }
 
@@ -311,7 +308,7 @@ export function reset_password_dialog(account) {
     const props = {
         id: "password-reset",
         title: _("Force password change"),
-        body: <Modal.Body><p>{msg}</p></Modal.Body>
+        body: <p>{msg}</p>
     };
 
     const footer = {

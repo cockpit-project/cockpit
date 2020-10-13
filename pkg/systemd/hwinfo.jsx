@@ -25,11 +25,12 @@ import moment from 'moment';
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { ListView, Modal } from 'patternfly-react';
+import { ListView } from 'patternfly-react';
 import {
     Alert, AlertActionCloseButton, Button,
     Page, PageSection, PageSectionVariants,
     Breadcrumb, BreadcrumbItem,
+    Modal,
 } from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -208,12 +209,24 @@ class CPUSecurityMitigationsDialog extends React.Component {
                                </div> } />
             ));
 
+        const footer = (
+            <>
+                <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
+                    { _("Save and reboot") }
+                </Button>
+                <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
+                    { _("Cancel") }
+                </Button>
+            </>
+        );
+
         return (
-            <Modal show={this.props.show} id="cpu-mitigations-dialog">
-                <Modal.Header>
-                    <Modal.Title>{ _("CPU security toggles") }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal isOpen={this.props.show} id="cpu-mitigations-dialog"
+                   position="top" variant="medium"
+                   footer={footer}
+                   onClose={this.props.onClose}
+                   title={ _("CPU security toggles") }>
+                <>
                     { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
                     <ListView>
                         { rows }
@@ -222,15 +235,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                     <Alert variant="danger"
                         actionClose={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}
                         title={this.state.alert} />}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
-                        { _("Save and reboot") }
-                    </Button>
-                    <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
-                        { _("Cancel") }
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

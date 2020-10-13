@@ -55,3 +55,16 @@ ul.pf-c-select__menu {
         border-top: none;
     }
 }
+
+.pf-c-modal-box.pf-m-align-top {
+    // We utilize custom footers in dialogs
+    // Make sure that the buttons always appear in the next line from the inline alerts
+    .pf-c-modal-box__footer {
+        flex-wrap: wrap;
+        gap: var(--pf-global--spacer--sm);
+
+        div:not(.pf-c-button), .pf-c-alert {
+            flex: 0 0 100%;
+        }
+    }
+}

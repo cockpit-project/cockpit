@@ -57,8 +57,8 @@ class TestReauthorize(MachineCase):
         # Deauthorize user
         b.leave_page()
         b.click("#super-user-indicator button")
-        b.click(".modal-dialog:contains('Limit access') button:contains('Limit access')")
-        b.wait_not_present(".modal-dialog:contains('Limit access')")
+        b.click(".pf-c-modal-box:contains('Limit access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Limit access')")
 
         b.enter_page("/playground/test")
 
@@ -82,8 +82,8 @@ class TestReauthorize(MachineCase):
         # Deauthorize
         b.leave_page()
         b.click("#super-user-indicator button")
-        b.click(".modal-dialog:contains('Limit access') button:contains('Limit access')")
-        b.wait_not_present(".modal-dialog:contains('Limit access')")
+        b.click(".pf-c-modal-box:contains('Limit access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Limit access')")
 
         b.enter_page("/playground/test")
         b.click(".super-channel button")

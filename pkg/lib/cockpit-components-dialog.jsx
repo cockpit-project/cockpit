@@ -21,8 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert, Button } from "@patternfly/react-core";
-import { Modal } from 'patternfly-react';
+import { Alert, Button, Modal } from "@patternfly/react-core";
 
 import "page.scss";
 import "cockpit-components-dialog.css";
@@ -205,13 +204,13 @@ export class DialogFooter extends React.Component {
         if (error_message)
             error_element = <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() } />;
         return (
-            <Modal.Footer>
+            <>
                 { error_element }
                 { this.props.extra_element }
                 { action_buttons }
                 <Button variant="link" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
                 { wait_element }
-            </Modal.Footer>
+            </>
         );
     }
 }
@@ -239,6 +238,11 @@ DialogFooter.propTypes = {
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  */
 export class Dialog extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { isOpen: true };
+    }
+
     componentDidMount() {
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)
@@ -247,12 +251,11 @@ export class Dialog extends React.Component {
 
     render() {
         return (
-            <Modal id={this.props.id} show animation={false}>
-                <Modal.Header>
-                    <Modal.Title>{ this.props.title }</Modal.Title>
-                </Modal.Header>
+            <Modal position="top" variant="medium"
+                   id={this.props.id}
+                   isOpen={this.state.isOpen} onClose={() => this.setState({ isOpen: false })}
+                   footer={this.props.footer} title={this.props.title}>
                 { this.props.body }
-                { this.props.footer }
             </Modal>
         );
     }
@@ -296,7 +299,7 @@ export function show_modal_dialog(props, footerProps) {
     };
 
     var dialogObj = { };
-    dialogObj.props = null;
+    dialogObj.props = props;
     dialogObj.footerProps = null;
     dialogObj.render = function() {
         dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;

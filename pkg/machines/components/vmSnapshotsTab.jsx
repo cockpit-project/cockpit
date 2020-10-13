@@ -204,7 +204,7 @@ class VmSnapshotsTab extends React.Component {
         const columnTitles = detailMap.map(target => target.name);
         let rows = [];
         if (vm.snapshots) {
-            rows = vm.snapshots.sort((a, b) => b.creationTime - a.creationTime).map((target, snapId) => {
+            rows = vm.snapshots.sort((a, b) => ((b.creationTime - a.creationTime) || (a.name.localeCompare(b.name)))).map((target, snapId) => {
                 const columns = detailMap.map(d => {
                     let column = null;
                     if (typeof d.value === 'string') {

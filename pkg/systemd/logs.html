@@ -114,10 +114,24 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <div id="journal-entry" class="pf-c-page" hidden>
     <main role="main" class="pf-c-page__main" tabindex="-1">
       <section id="journal-box" class="pf-c-page__main-breadcrumb">
-        <ol class="breadcrumb">
-          <li><a role="link" tabindex="0" id="journal-navigate-home" translate="yes">Logs</a></li>
-          <li id="journal-entry-crumb" class="active" translate="yes">Entry</li>
-        </ol>
+        <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
+          <ol class="pf-c-breadcrumb__list">
+            <li class="pf-c-breadcrumb__item">
+              <a role="link" tabindex="0" id="journal-navigate-home" translate="yes">Logs</a>
+            </li>
+            <li class="pf-c-breadcrumb__item">
+              <span class="pf-c-breadcrumb__item-divider">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+              </span>
+              <a href="#" class="pf-c-breadcrumb__link pf-m-current"
+                 aria-current="page"
+                 id="journal-entry-crumb"
+                 translate='yes'>
+                Entry
+              </a>
+            </li>
+          </ol>
+        </nav>
       </section>
       <section class="pf-c-page__main-section pf-m-light">
         <h2 id="journal-entry-heading"></h2>

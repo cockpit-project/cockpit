@@ -304,10 +304,10 @@ const Body = ({ body, fields, values, errors, onChange }) => {
     }
 
     return (
-        <div className="modal-body">
+        <>
             { body || null }
             { make_rows(fields) }
-        </div>
+        </>
     );
 };
 

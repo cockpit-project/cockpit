@@ -19,8 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Modal } from 'patternfly-react';
-import { Button, Tabs, Tab } from '@patternfly/react-core';
+import { Button, Modal, Tabs, Tab } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import './listing.scss';
@@ -66,43 +65,44 @@ class ModificationsExportDialog extends React.Component {
     }
 
     render() {
+        const footer = (
+            <>
+                <Button variant='secondary' onClick={this.copyToClipboard}>
+                    { this.state.copied ? <span className="fa fa-check fa-xs green-icon" /> : <span className="fa fa-clipboard fa-xs" /> }
+                    <span>{ _("Copy to clipboard") }</span>
+                </Button>
+                <Button variant='secondary' className='btn-cancel' onClick={this.props.onClose}>
+                    { _("Close") }
+                </Button>
+            </>
+        );
         return (
-            <Modal show={this.props.show} className="automation-script-modal">
-                <Modal.Header>
-                    <Modal.Title>{ _("Automation script") }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
-                        <Tab eventKey="shell" title={_("Shell script")}>
-                            <pre>
-                                {this.props.shell.trim()}
-                            </pre>
-                        </Tab>
-                        <Tab eventKey="ansible" title={_("Ansible")}>
-                            <pre>
-                                {this.props.ansible.trim()}
-                            </pre>
-                            <div>
-                                <span className="fa fa-question-circle fa-xs" />
-                                { _("Create new task file with this content.") }
-                                <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
-                                    target="_blank" rel="noopener noreferrer">
-                                    <i className="fa fa-external-link fa-xs" />
-                                    { _("Ansible roles documentation") }
-                                </a>
-                            </div>
-                        </Tab>
-                    </Tabs>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='secondary' onClick={this.copyToClipboard}>
-                        { this.state.copied ? <span className="fa fa-check fa-xs green-icon" /> : <span className="fa fa-clipboard fa-xs" /> }
-                        <span>{ _("Copy to clipboard") }</span>
-                    </Button>
-                    <Button variant='secondary' className='btn-cancel' onClick={this.props.onClose}>
-                        { _("Close") }
-                    </Button>
-                </Modal.Footer>
+            <Modal isOpen={this.props.show} className="automation-script-modal"
+                   position="top" variant="medium"
+                   onClose={this.props.onClose}
+                   footer={footer}
+                   title={_("Automation script") }>
+                <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
+                    <Tab eventKey="shell" title={_("Shell script")}>
+                        <pre>
+                            {this.props.shell.trim()}
+                        </pre>
+                    </Tab>
+                    <Tab eventKey="ansible" title={_("Ansible")}>
+                        <pre>
+                            {this.props.ansible.trim()}
+                        </pre>
+                        <div>
+                            <span className="fa fa-question-circle fa-xs" />
+                            { _("Create new task file with this content.") }
+                            <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
+                                target="_blank" rel="noopener noreferrer">
+                                <i className="fa fa-external-link fa-xs" />
+                                { _("Ansible roles documentation") }
+                            </a>
+                        </div>
+                    </Tab>
+                </Tabs>
             </Modal>
         );
     }

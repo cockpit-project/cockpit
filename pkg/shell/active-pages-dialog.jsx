@@ -54,11 +54,9 @@ export class ActivePagesDialogBody extends React.Component {
         });
 
         return (
-            <div className="modal-body">
-                <Listing emptyCaption={ _("There are currently no active pages") }>
-                    {frames}
-                </Listing>
-            </div>
+            <Listing emptyCaption={ _("There are currently no active pages") }>
+                {frames}
+            </Listing>
         );
     }
 }

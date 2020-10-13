@@ -246,10 +246,10 @@ class TestSystemInfo(MachineCase):
 
         # Gain admin access
         b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-        b.click(".modal-dialog button:contains('Authenticate')")
-        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # Change the date
@@ -702,8 +702,8 @@ class TestPcp(packagelib.PackageCase):
         b.wait_not_present("#server-pmlogger-switch")
         b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
         b.click("#system-configuration-enable-pcp-link")
-        b.click(".modal-footer button:contains('Install')")
-        b.wait_not_present(".modal-dialog:contains('Install software')")
+        b.click(".pf-c-modal-box__footer button:contains('Install')")
+        b.wait_not_present(".pf-c-modal-box:contains('Install software')")
 
 
         b.wait_visible("#server-pmlogger-switch")

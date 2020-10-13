@@ -95,9 +95,7 @@ export const show_error = ex => {
         {
             title: _("Error"),
             body: (
-                <div className="modal-body">
-                    <p>{ex.detail || ex}</p>
-                </div>
+                <p>{ex.detail || ex}</p>
             )
         },
         {

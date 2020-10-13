@@ -19,8 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Modal } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { StatelessSelect, SelectEntry } from 'cockpit-components-select.jsx';
 import { host_superuser_storage_key } from 'machines';
@@ -66,26 +65,26 @@ class UnlockDialog extends React.Component {
         else if (state.message)
             body = <p>{state.message}</p>;
 
+        const footer = (
+            <>
+                { state.error && <ModalError dialogError={state.error} />}
+                { !state.message &&
+                <Button variant='primary' onClick={state.apply} disabled={state.busy}>
+                    {_("Authenticate")}
+                </Button>
+                }
+                <Button variant='link' className='btn-cancel' onClick={state.cancel} disabled={!state.cancel}>
+                    {state.message ? _("Close") : _("Cancel")}
+                </Button>
+                { state.busy && <div className="spinner pull-right" /> }
+            </>
+        );
         return (
-            <Modal show={!state.closed} animation={false}>
-                <Modal.Header>
-                    <Modal.Title>{_("Administrative access")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    { state.error && <ModalError dialogError={state.error} />}
-                    { !state.message &&
-                        <Button variant='primary' onClick={state.apply} disabled={state.busy}>
-                            {_("Authenticate")}
-                        </Button>
-                    }
-                    <Button variant='link' className='btn-cancel' onClick={state.cancel} disabled={!state.cancel}>
-                        {state.message ? _("Close") : _("Cancel")}
-                    </Button>
-                    { state.busy && <div className="spinner pull-right" /> }
-                </Modal.Footer>
+            <Modal isOpen={!state.closed} position="top" variant="medium"
+                onClose={this.props.onClose}
+                title={_("Administrative access")}
+                footer={footer}>
+                {body}
             </Modal>);
     }
 }
@@ -121,25 +120,27 @@ class LockDialog extends React.Component {
                         this.setState({ error: err.toString() });
                     });
         };
+        const footer = (
+            <>
+                {this.state.error && <ModalError dialogError={this.state.error} />}
+                <Button variant='primary' onClick={apply}>
+                    {_("Limit access")}
+                </Button>
+                <Button variant='link' className='btn-cancel' onClick={close}>
+                    {_("Cancel")}
+                </Button>
+            </>
+        );
 
         return (
-            <Modal show={this.props.show} animation={false}>
-                <Modal.Header>
-                    <Modal.Title>{_("Switch to limited access")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal isOpen={this.props.show} position="top" variant="medium"
+                onClose={close}
+                footer={footer}
+                title={_("Switch to limited access")}>
+                <>
                     <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
                     <p>{_("Your browser will remember your access level across sessions.")}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    { this.state.error && <ModalError dialogError={this.state.error} />}
-                    <Button variant='primary' onClick={apply}>
-                        {_("Limit access")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>);
     }
 }
@@ -316,7 +317,8 @@ export class SuperuserDialogs extends React.Component {
                 {trigger}
 
                 <UnlockDialog proxy={this.superuser}
-                              state={this.state.unlock_dialog_state} />
+                              state={this.state.unlock_dialog_state}
+                              onclose={() => this.setState({ show_lock_dialog: false })} />
 
                 <LockDialog proxy={this.superuser}
                             host={this.props.host}

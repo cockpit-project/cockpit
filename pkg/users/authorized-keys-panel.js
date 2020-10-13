@@ -21,7 +21,6 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { useObject, useEvent } from 'hooks.js';
 
-import { Modal } from 'patternfly-react';
 import { Button } from '@patternfly/react-core';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { show_unexpected_error } from "./dialog-utils.js";
@@ -33,12 +32,11 @@ function AddAuthorizedKeyDialogBody({ state, change }) {
     const { text } = state;
 
     return (
-        <Modal.Body>
-            <textarea id="authorized-keys-text"
-                      placeholder={_("Paste the contents of your public SSH key file here")}
-                      className="form-control"
-                      value={text} onChange={event => change("text", event.target.value)} />
-        </Modal.Body>);
+        <textarea id="authorized-keys-text"
+                  placeholder={_("Paste the contents of your public SSH key file here")}
+                  className="form-control"
+                  value={text} onChange={event => change("text", event.target.value)} />
+    );
 }
 
 function add_authorized_key_dialog(keys) {

@@ -917,10 +917,10 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.wait_in_text(".modal-dialog:contains('Install software')", "realmd is not available")
-        b.wait_present(".modal-dialog:contains('Install software') .modal-footer button:contains(Install):disabled")
-        b.click(".modal-dialog:contains('Install software') .modal-footer button.cancel")
-        b.wait_not_present(".modal-dialog:contains('Install software')")
+        b.wait_in_text(".pf-c-modal-box:contains('Install software')", "realmd is not available")
+        b.wait_present(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button:contains(Install):disabled")
+        b.click(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button.cancel")
+        b.wait_not_present(".pf-c-modal-box:contains('Install software')")
         b.logout()
 
         # case 3: provide an available realmd package
@@ -935,8 +935,8 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.click(".modal-dialog:contains('Install software') .modal-footer button:contains(Install)")
-        b.wait_not_present(".modal-dialog:contains('Install software')")
+        b.click(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button:contains(Install)")
+        b.wait_not_present(".pf-c-modal-box:contains('Install software')")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join
         # domain" dialog won't ever appear; just check that it was installed
@@ -960,8 +960,8 @@ class TestPackageInstall(packagelib.PackageCase):
         b.click(self.domain_sel)
         # restore realmd service, to pretend that package install completed
         m.execute("systemctl unmask realmd")
-        b.click(".modal-dialog .modal-footer button:contains('Install')")
-        b.wait_not_present(".modal-dialog:contains('Install software')")
+        b.click(".pf-c-modal-box .pf-c-modal-box__footer button:contains('Install')")
+        b.wait_not_present(".pf-c-modal-box:contains('Install software')")
 
         # should continue straight to join dialog
         b.wait_present("#realms-op")

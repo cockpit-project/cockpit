@@ -104,7 +104,7 @@ export function install_dialog(pkg, options) {
             id: "dialog",
             title: options.title || _("Install software"),
             body: (
-                <div className="modal-body scroll">
+                <div className="scroll">
                     <p>{ format_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }

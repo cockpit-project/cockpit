@@ -20,7 +20,6 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Modal } from 'patternfly-react';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import 'form-layout.scss';
@@ -53,7 +52,7 @@ function show_error_dialog(title, message) {
     const props = {
         id: "error-popup",
         title: title,
-        body: <Modal.Body><p>{message}</p></Modal.Body>
+        body: <p>{message}</p>
     };
 
     const footer = {

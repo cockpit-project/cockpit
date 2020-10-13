@@ -93,10 +93,8 @@ export class TunedDialogBody extends React.Component {
             return <TunedDialogProfile key={itm.name} { ...itm } />;
         });
         return (
-            <div className="modal-body">
-                <div className="list-group dialog-list-ct">
-                    { profiles }
-                </div>
+            <div className="list-group dialog-list-ct">
+                { profiles }
             </div>
         );
     }

@@ -300,7 +300,7 @@ QUnit.test("stream large output", function (assert) {
     assert.expect(4);
 
     var lastblock = null;
-    cockpit.spawn(["/bin/seq", "10000000"])
+    cockpit.spawn(["seq", "10000000"])
             .stream(function(resp) {
                 if (lastblock === null)
                     assert.equal(resp.slice(0, 4), "1\n2\n", "stream data starts with first numbers");

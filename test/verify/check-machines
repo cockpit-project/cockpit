@@ -51,6 +51,18 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+
+def get_next_free_target(used_targets):
+    i = 0
+    while ("vd" + chr(97 + i) in used_targets):
+        i += 1
+
+    used_targets.append("vd" + chr(97 + i))
+    return used_targets
+
+def release_target(used_targets, target):
+    used_targets.remove(target)
+
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
@@ -609,175 +621,310 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
-    # Test Add Disk via dialog
-    @timeout(900)
-    def testAddDisk(self):
+    class VMAddDiskDialog(object):
+        def __init__(
+            self, test_obj, pool_name=None, volume_name=None,
+            vm_name='subVmTest1',
+            volume_size=1, volume_size_unit='GiB',
+            use_existing_volume=False,
+            expected_target='vda', permanent=False, cache_mode=None,
+            bus_type='virtio', verify=True, pool_type=None,
+            volume_format=None,
+            persistent_vm=True,
+        ):
+            print(pool_name, volume_name)
+            self.test_obj = test_obj
+            self.vm_name = vm_name
+            self.pool_name = pool_name
+            self.use_existing_volume = use_existing_volume
+            self.volume_name = volume_name
+            self.volume_size = volume_size
+            self.volume_size_unit = volume_size_unit
+            self.expected_target = expected_target
+            self.permanent = permanent
+            self.cache_mode = cache_mode
+            self.bus_type = bus_type
+            self.verify = verify
+            self.pool_type = pool_type
+            self.volume_format = volume_format
+            self.persistent_vm = persistent_vm
+
+        def execute(self):
+            self.open()
+            self.fill()
+            if self.verify:
+                self.add_disk()
+                self.verify_disk_added()
+
+        def open(self):
+            b = self.test_obj.browser
+            b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
+            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Add disk")
+
+            b.wait_present("label:contains(Create new)")
+            if self.use_existing_volume:
+                b.click("label:contains(Use existing)")
+
+            return self
+
+        def fill(self):
+            b = self.test_obj.browser
+            if not self.use_existing_volume:
+                # Choose storage pool
+                if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
+                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
+                else:
+                    b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
+                    b.wait_present(".modal-dialog option[data-value={0}]:disabled".format(self.pool_name))
+                    return self
+
+                # Insert name for the new volume
+                b.set_input_text("#vm-{0}-disks-adddisk-new-name".format(self.vm_name), self.volume_name)
+                # Insert size for the new volume
+                b.set_input_text("#vm-{0}-disks-adddisk-new-size".format(self.vm_name), str(self.volume_size))
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-new-unit".format(self.vm_name), self.volume_size_unit)
+
+                if self.volume_format:
+                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
+
+                # Configure persistency - by default the check box in unchecked for running VMs
+                if self.permanent:
+                    b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
+            else:
+                # Choose storage pool
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
+                # Select from the available volumes
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-volume".format(self.vm_name), self.volume_name)
+
+                # Configure persistency - by default the check box in unchecked for running VMs
+                if self.permanent:
+                    b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
+
+            # Check non-persistent VM cannot have permanent disk attached
+            if not self.persistent_vm:
+                b.wait_not_present("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
+
+            # Configure performance options
+            if self.cache_mode:
+                b.click("div.modal-dialog button:contains(Show additional options)")
+                b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
+                b.click("div.modal-dialog button:contains(Hide additional options)")
+            else:
+                b.wait_not_present("#div.modal-dialog #cache-mode")
+
+            # Configure bus type
+            if self.bus_type != "virtio":
+                b.click("div.modal-dialog button:contains(Show additional options)")
+                b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
+                b.click("div.modal-dialog button:contains(Hide additional options)")
+            else:
+                b.wait_not_present("#div.modal-dialog #cache-mode")
+
+            return self
+
+        def add_disk(self):
+            b = self.test_obj.browser
+            b.click(".modal-footer button:contains(Add)")
+            b.wait_not_present("#vm-{0}-disks-adddisk-dialog-modal-window".format(self.vm_name))
+
+            return self
+
+        def verify_disk_added(self):
+            b = self.test_obj.browser
+            m = self.test_obj.machine
+            b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), self.bus_type)
+            b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
+
+            # Check volume was added to pool's volume list
+            if not self.use_existing_volume:
+                self.test_obj.goToMainPage()
+                b.click(".pf-c-card .pf-c-card__header button:contains(Storage pool)")
+
+                self.test_obj.waitPoolRow(self.pool_name)
+                self.test_obj.togglePoolRow(self.pool_name)
+
+                b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
+                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
+                b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
+
+                b.click(".machines-listing-breadcrumb li a:contains(Virtual machines)")
+                self.test_obj.goToVmPage("subVmTest1")
+
+            # Detect volume format
+            volume_xml = m.execute("virsh vol-dumpxml {0} {1} ".format(self.volume_name, self.pool_name))
+            detect_format_cmd = "echo \"{0}\" | xmllint --xpath '{1}' -"
+
+            b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
+            if self.cache_mode:
+                b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
+            # Guess by the name of the pool it's format to avoid passing more parameters
+            if self.pool_type == 'iscsi':
+                expected_format = 'unknown'
+            else:
+                expected_format = 'qcow2'
+
+            if self.pool_type == 'disk':
+                expected_format = 'none'
+
+            # Unknown pool format isn't present in xml anymore
+            if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
+                m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")
+            else:
+                vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip();
+                self.test_obj.assertEqual(vol_xml, '<format type="{0}"/>'.format(self.volume_format or expected_format))
+            return self
+
+    def testAddDiskSCSI(self):
         b = self.browser
         m = self.machine
-        goToVmPage = self.goToVmPage
-
-        dev = self.add_ram_disk()
-
-        class VMAddDiskDialog(object):
-            def __init__(
-                self, test_obj, pool_name=None, volume_name=None,
-                vm_name='subVmTest1',
-                volume_size=1, volume_size_unit='GiB',
-                use_existing_volume=False,
-                expected_target='vda', permanent=False, cache_mode=None,
-                bus_type='virtio', verify=True, pool_type=None,
-                volume_format=None,
-                persistent_vm=True,
-            ):
-                print(pool_name, volume_name)
-                self.test_obj = test_obj
-                self.vm_name = vm_name
-                self.pool_name = pool_name
-                self.use_existing_volume = use_existing_volume
-                self.volume_name = volume_name
-                self.volume_size = volume_size
-                self.volume_size_unit = volume_size_unit
-                self.expected_target = expected_target
-                self.permanent = permanent
-                self.cache_mode = cache_mode
-                self.bus_type = bus_type
-                self.verify = verify
-                self.pool_type = pool_type
-                self.volume_format = volume_format
-                self.persistent_vm = persistent_vm
-
-            def execute(self):
-                self.open()
-                self.fill()
-                if self.verify:
-                    self.add_disk()
-                    self.verify_disk_added()
-
-            def open(self):
-                b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Add disk")
-
-                b.wait_present("label:contains(Create new)")
-                if self.use_existing_volume:
-                    b.click("label:contains(Use existing)")
-
-                return self
-
-            def fill(self):
-                if not self.use_existing_volume:
-                    # Choose storage pool
-                    if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
-                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
-                    else:
-                        b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
-                        b.wait_present(".modal-dialog option[data-value={0}]:disabled".format(self.pool_name))
-                        return self
-
-                    # Insert name for the new volume
-                    b.set_input_text("#vm-{0}-disks-adddisk-new-name".format(self.vm_name), self.volume_name)
-                    # Insert size for the new volume
-                    b.set_input_text("#vm-{0}-disks-adddisk-new-size".format(self.vm_name), str(self.volume_size))
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-unit".format(self.vm_name), self.volume_size_unit)
-
-                    if self.volume_format:
-                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
-
-                    # Configure persistency - by default the check box in unchecked for running VMs
-                    if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
-                else:
-                    # Choose storage pool
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
-                    # Select from the available volumes
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-volume".format(self.vm_name), self.volume_name)
-
-                    # Configure persistency - by default the check box in unchecked for running VMs
-                    if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
-
-                # Check non-persistent VM cannot have permanent disk attached
-                if not self.persistent_vm:
-                    b.wait_not_present("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
-
-                # Configure performance options
-                if self.cache_mode:
-                    b.click("div.modal-dialog button:contains(Show additional options)")
-                    b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
-                    b.click("div.modal-dialog button:contains(Hide additional options)")
-                else:
-                    b.wait_not_present("#div.modal-dialog #cache-mode")
-
-                # Configure bus type
-                if self.bus_type != "virtio":
-                    b.click("div.modal-dialog button:contains(Show additional options)")
-                    b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
-                    b.click("div.modal-dialog button:contains(Hide additional options)")
-                else:
-                    b.wait_not_present("#div.modal-dialog #cache-mode")
-
-                return self
-
-            def add_disk(self):
-                b.click(".modal-footer button:contains(Add)")
-                b.wait_not_present("#vm-{0}-disks-adddisk-dialog-modal-window".format(self.vm_name))
-
-                return self
-
-            def verify_disk_added(self):
-                b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), self.bus_type)
-                b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
-
-                # Check volume was added to pool's volume list
-                if not self.use_existing_volume:
-                    self.test_obj.goToMainPage()
-                    b.click(".pf-c-card .pf-c-card__header button:contains(Storage pool)")
-
-                    self.test_obj.waitPoolRow(self.pool_name)
-                    self.test_obj.togglePoolRow(self.pool_name)
-
-                    b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
-                    b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
-                    b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
-
-                    b.click(".machines-listing-breadcrumb li a:contains(Virtual machines)")
-                    goToVmPage("subVmTest1")
-
-                # Detect volume format
-                volume_xml = m.execute("virsh vol-dumpxml {0} {1} ".format(self.volume_name, self.pool_name))
-                detect_format_cmd = "echo \"{0}\" | xmllint --xpath '{1}' -"
-
-                b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
-                if self.cache_mode:
-                    b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
-                # Guess by the name of the pool it's format to avoid passing more parameters
-                if self.pool_type == 'iscsi':
-                    expected_format = 'unknown'
-                else:
-                    expected_format = 'qcow2'
-
-                if self.pool_type == 'disk':
-                    expected_format = 'none'
-
-                # Unknown pool format isn't present in xml anymore
-                if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
-                    m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")
-                else:
-                    vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip();
-                    self.test_obj.assertEqual(vol_xml, '<format type="{0}"/>'.format(self.volume_format or expected_format))
-                return self
 
         used_targets = ['vda']
 
-        def get_next_free_target():
-            i = 0
-            while ("vd" + chr(97 + i) in used_targets):
-                i += 1
+        # Prepare an iscsi pool
+        # Debian images' -cloud kernel don't have target-cli-mod kmod
+        if "debian" not in m.image:
+            # Preparations for testing ISCSI pools
 
-            used_targets.append("vd" + chr(97 + i))
-            return "vd" + chr(97 + i)
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            self.prepareStorageDeviceOnISCSI(target_iqn)
 
-        def release_target(target):
-            used_targets.remove(target)
+            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
+            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
+
+        args = self.startVm("subVmTest1")
+
+        # Wait for the system to completely start
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # ISCSI driver does not support virStorageVolCreate API
+            self.VMAddDiskDialog(
+                self,
+                pool_name='iscsi-pool',
+                pool_type='iscsi',
+                verify=False
+            ).execute()
+
+            self.VMAddDiskDialog(
+                self,
+                pool_name='iscsi-pool',
+                pool_type='iscsi',
+                volume_name='unit:0:0:0',
+                expected_target=get_next_free_target(used_targets)[-1],
+                use_existing_volume='True',
+            ).execute()
+
+        # avoid error noise about resources getting cleaned up
+        b.logout()
+
+        # AppArmor doesn't like the non-standard path for our storage pools
+        if m.image in ["debian-testing"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
+
+    def testAddDiskNFS(self):
+        b = self.browser
+        m = self.machine
+
+        used_targets = ['vda']
+
+        # Prepare a local NFS pool
+        self.restore_file("/etc/exports")
+        nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
+        mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
+        m.execute("systemctl restart nfs-server")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        # And create a volume on it in order to test use existing volume dialog
+        m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
+
+        args = self.startVm("subVmTest1")
+
+        # Wait for the system to completely start
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        self.VMAddDiskDialog(
+            self,
+            pool_name='nfs-pool',
+            volume_name='nfs-volume-0',
+            use_existing_volume=True,
+            volume_size=1,
+            volume_size_unit='MiB',
+            expected_target=get_next_free_target(used_targets)[-1],
+        ).execute()
+
+        self.VMAddDiskDialog(
+            self,
+            pool_name='nfs-pool',
+            volume_name='nfs-volume-1',
+            volume_size=1,
+            volume_size_unit='MiB',
+            expected_target=get_next_free_target(used_targets)[-1],
+        ).execute()
+
+        # AppArmor doesn't like the non-standard path for our storage pools
+        if m.image in ["debian-testing"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
+
+    def testAddDiskPool(self):
+        b = self.browser
+        m = self.machine
+
+        dev = self.add_ram_disk()
+        used_targets = ['vda']
+
+        args = self.startVm("subVmTest1")
+
+        # Wait for the system to completely start
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        cmds = [
+            "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
+            "virsh pool-build pool-disk --overwrite",
+            "virsh pool-start pool-disk",
+        ]
+        self.machine.execute(" && ".join(cmds))
+        partition = os.path.basename(dev) + "1"
+        self.VMAddDiskDialog(
+            self,
+            pool_name='pool-disk',
+            pool_type='disk',
+            volume_name=partition,
+            volume_size=10,
+            volume_size_unit='MiB',
+            expected_target=get_next_free_target(used_targets)[-1],
+        ).execute()
+
+        # avoid error noise about resources getting cleaned up
+        b.logout()
+
+        # AppArmor doesn't like the non-standard path for our storage pools
+        if m.image in ["debian-testing"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
+
+    @timeout(900)
+    def testAddDiskDirPool(self):
+        b = self.browser
+        m = self.machine
+
+        used_targets = ['vda']
 
         # prepare libvirt storage pools
         v1 = os.path.join(self.vm_tmpdir, "vm_one")
@@ -793,27 +940,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
-        # Prepare a local NFS pool
-        self.restore_file("/etc/exports")
-        nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
-        mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
-        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
-        m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
-        # And create a volume on it in order to test use existing volume dialog
-        m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
-
-        # Prepare an iscsi pool
-        # Debian images' -cloud kernel don't have target-cli-mod kmod
-        if "debian" not in m.image:
-            # Preparations for testing ISCSI pools
-
-            target_iqn = "iqn.2019-09.cockpit.lan"
-            self.prepareStorageDeviceOnISCSI(target_iqn)
-
-            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
-            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
-
         self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
@@ -822,7 +948,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             volume_name='mydiskofpoolone_temporary',
@@ -830,10 +956,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             volume_size=2048,
             volume_size_unit='MiB',
             permanent=False,
-            expected_target=get_next_free_target(),
+            expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
 
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             volume_name='mydiskofpoolone_permanent',
@@ -841,10 +967,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             volume_size=2,
             permanent=True,
             cache_mode='writeback',
-            expected_target=get_next_free_target(),
+            expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
 
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             use_existing_volume=True,
@@ -856,66 +982,29 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
 
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolTwo',
             volume_name='mydiskofpooltwo_permanent',
             volume_size=2,
             permanent=True,
             use_existing_volume=True,
-            expected_target=get_next_free_target(),
+            expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
 
         # check the autoselected options
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='default_tmp',
             volume_name='defaultVol',
             use_existing_volume=True,
-            expected_target=get_next_free_target(),
+            expected_target=get_next_free_target(used_targets)[-1],
             volume_format='raw',
         ).open().add_disk().verify_disk_added()
 
-        VMAddDiskDialog(
-            self,
-            pool_name='nfs-pool',
-            volume_name='nfs-volume-0',
-            use_existing_volume=True,
-            volume_size=1,
-            volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
-        ).execute()
-
-        VMAddDiskDialog(
-            self,
-            pool_name='nfs-pool',
-            volume_name='nfs-volume-1',
-            volume_size=1,
-            volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
-        ).execute()
-
-        if "debian" not in m.image and "ubuntu" not in m.image:
-            # ISCSI driver does not support virStorageVolCreate API
-            VMAddDiskDialog(
-                self,
-                pool_name='iscsi-pool',
-                pool_type='iscsi',
-                verify=False
-            ).execute()
-
-            VMAddDiskDialog(
-                self,
-                pool_name='iscsi-pool',
-                pool_type='iscsi',
-                volume_name='unit:0:0:0',
-                expected_target=get_next_free_target(),
-                use_existing_volume='True',
-            ).execute()
-
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             volume_name='scsi_bus_disk',
@@ -924,7 +1013,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             expected_target='sda',
         ).execute()
 
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             volume_name='usb_bus_disk',
@@ -941,13 +1030,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # check if the just added non-permanent disks are gone
         b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
         b.wait_not_present("#vm-subVmTest1-disks-vde-device")
-        release_target("vdb")
-        release_target("vde")
+        release_target(used_targets, "vdb")
+        release_target(used_targets, "vde")
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
 
         # testing sata disk after VM shutoff because sata disk cannot be hotplugged
-        VMAddDiskDialog(
+        self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
             volume_name='sata_bus_disk',
@@ -964,13 +1053,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text("#vm-subVmTest1-state", "Running")
             # Test disk attachment to non-persistent VM
             m.execute("virsh undefine subVmTest1")
-            VMAddDiskDialog(
+            self.VMAddDiskDialog(
                 self,
                 pool_name='myPoolOne',
                 volume_name='non-peristent-vm-disk',
                 permanent=False,
                 persistent_vm=False,
-                expected_target=get_next_free_target(),
+                expected_target=get_next_free_target(used_targets)[-1],
             ).execute()
 
         self.goToMainPage()
@@ -999,23 +1088,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         # Check that usage information can't be fetched since the pool is inactive
         b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
-
-        cmds = [
-            "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
-            "virsh pool-build pool-disk --overwrite",
-            "virsh pool-start pool-disk",
-        ]
-        self.machine.execute(" && ".join(cmds))
-        partition = os.path.basename(dev) + "1"
-        VMAddDiskDialog(
-            self,
-            pool_name='pool-disk',
-            pool_type='disk',
-            volume_name=partition,
-            volume_size=10,
-            volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
-        ).execute()
 
         # avoid error noise about resources getting cleaned up
         b.logout()

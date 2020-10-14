@@ -24,9 +24,8 @@ import {
     Icon,
     ListView,
     ListViewItem,
-    Modal
 } from 'patternfly-react';
-import { Button, Alert } from '@patternfly/react-core';
+import { Button, Alert, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
@@ -307,24 +306,23 @@ export class BootOrderModal extends React.Component {
         const title = _("Boot order");
 
         return (
-            <Modal id={`${idPrefix}-window`} show onHide={this.close} className='boot-order'>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.close} />
-                    <Modal.Title> {`${vm.name} ${title}`} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" id={`${idPrefix}-window`} isOpen onClose={this.close} className='boot-order'
+                   title={`${vm.name} ${title}`}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>
+                               {_("Save")}
+                           </Button>
+                           <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     {showWarning()}
                     {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>
-                        {_("Save")}
-                    </Button>
-                    <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

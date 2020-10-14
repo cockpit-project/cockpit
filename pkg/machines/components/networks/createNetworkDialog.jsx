@@ -20,8 +20,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { FormGroup, HelpBlock } from 'patternfly-react';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { networkCreate } from '../../libvirt-dbus.js';
@@ -473,26 +473,23 @@ class CreateNetworkModal extends React.Component {
         );
 
         return (
-            <Modal id='create-network-dialog' className='network-create' show onHide={ this.props.close }>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {_("Create virtual network")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='primary'
-                        isDisabled={ this.state.createInProgress || Object.getOwnPropertyNames(validationFailed).length > 0 }
-                        onClick={ this.onCreate }>
-                        {_("Create")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.createInProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id='create-network-dialog' className='network-create' isOpen onClose={ this.props.close }
+                   title={_("Create virtual network")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='primary'
+                                   isLoading={ this.state.createInProgress }
+                                   isDisabled={ this.state.createInProgress || Object.getOwnPropertyNames(validationFailed).length > 0 }
+                                   onClick={ this.onCreate }>
+                               {_("Create")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {body}
             </Modal>
         );
     }

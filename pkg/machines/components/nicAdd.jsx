@@ -19,8 +19,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -186,26 +185,23 @@ export class AddNIC extends React.Component {
         );
 
         return (
-            <Modal id={`${idPrefix}-dialog`} onHide={this.props.close} className='nic-add' show>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{_("Add virtual network interface")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button isDisabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
-                            id={`${idPrefix}-add`}
-                            variant='primary'
-                            onClick={this.add}>
-                        {_("Add")}
-                    </Button>
-                    <Button id={`${idPrefix}-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id={`${idPrefix}-dialog`} isOpen onClose={this.props.close} className='nic-add'
+                title={_("Add virtual network interface")}
+                footer={
+                    <>
+                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                        <Button isDisabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
+                                id={`${idPrefix}-add`}
+                                variant='primary'
+                                onClick={this.add}>
+                            {_("Add")}
+                        </Button>
+                        <Button id={`${idPrefix}-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                            {_("Cancel")}
+                        </Button>
+                    </>
+                }>
+                {defaultBody}
             </Modal>
         );
     }

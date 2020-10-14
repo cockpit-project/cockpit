@@ -18,8 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Modal, Tooltip } from '@patternfly/react-core';
 
 import { getStorageVolumesUsage, storagePoolId } from '../../helpers.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -218,25 +217,22 @@ export class StoragePoolDelete extends React.Component {
             <>
                 {deleteButton()}
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header>
-                        <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title> {cockpit.format(_("Delete storage pool $0"), storagePool.name)} </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {defaultBody}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='danger'
-                            onClick={this.delete}
-                            isDisabled={canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes}>
-                            {_("Delete")}
-                        </Button>
-                        <Button variant='link' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                    </Modal.Footer>
+                <Modal position="top" variant="medium" isOpen={this.state.showModal} onClose={this.close}
+                       title={cockpit.format(_("Delete storage pool $0"), storagePool.name)}
+                       footer={
+                           <>
+                               {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                               <Button variant='danger'
+                                   onClick={this.delete}
+                                   isDisabled={canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes}>
+                                   {_("Delete")}
+                               </Button>
+                               <Button variant='link' className='btn-cancel' onClick={this.close}>
+                                   {_("Cancel")}
+                               </Button>
+                           </>
+                       }>
+                    {defaultBody}
                 </Modal>
             </>
         );

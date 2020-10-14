@@ -19,8 +19,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button, Alert } from '@patternfly/react-core';
+import { Button, Alert, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -156,24 +155,23 @@ export class EditNICModal extends React.Component {
         };
 
         return (
-            <Modal id={`${idPrefix}-edit-dialog-modal-window`} onHide={this.props.onClose} className='nic-edit' show>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.onClose} />
-                    <Modal.Title>{cockpit.format(_("$0 virtual network interface settings"), network.mac)}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" id={`${idPrefix}-edit-dialog-modal-window`} isOpen onClose={this.props.onClose} className='nic-edit'
+                   title={cockpit.format(_("$0 virtual network interface settings"), network.mac)}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button isDisabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} variant='primary' onClick={this.save}>
+                               {_("Save")}
+                           </Button>
+                           <Button id={`${idPrefix}-edit-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.onClose}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     { showWarning() }
                     {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button isDisabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} variant='primary' onClick={this.save}>
-                        {_("Save")}
-                    </Button>
-                    <Button id={`${idPrefix}-edit-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.onClose}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

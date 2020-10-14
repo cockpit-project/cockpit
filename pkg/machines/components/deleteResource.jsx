@@ -19,8 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Modal, Tooltip } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -57,24 +56,20 @@ export class DeleteResourceModal extends React.Component {
         const { objectName, objectType, actionName, actionDescription, onClose } = this.props;
 
         return (
-            <Modal show onHide={onClose}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{ (actionName || _("Delete")) + cockpit.format((" $0 $1"), objectType, objectName) }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    { actionDescription || cockpit.format(_("Confirm this action")) }
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>
-                        {actionName || _("Delete")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={onClose}>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+            <Modal position="top" variant="medium" isOpen onClose={onClose}
+                   title={ (actionName || _("Delete")) + cockpit.format((" $0 $1"), objectType, objectName) }
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='danger' isLoading={this.state.inProgress} isDisabled={this.state.inProgress} onClick={this.delete}>
+                               {actionName || _("Delete")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={onClose}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                { actionDescription || cockpit.format(_("Confirm this action")) }
             </Modal>
         );
     }

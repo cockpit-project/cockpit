@@ -19,8 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as Select from "cockpit-components-select.jsx";
@@ -51,12 +50,20 @@ export class FirmwareModal extends React.Component {
 
     render() {
         return (
-            <Modal show onHide={this.close}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.close} />
-                    <Modal.Title> {_("Change firmware")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" isOpen onClose={this.close}
+                   title={_("Change firmware")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='primary' id="firmware-dialog-apply" onClick={this.save}>
+                               {_("Save")}
+                           </Button>
+                           <Button variant='link' onClick={this.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     <Select.Select
                                    onChange={value => this.setState({ firmware: value })}
                                    initial={this.props.firmware == 'efi' ? this.props.firmware : 'bios' }
@@ -68,16 +75,7 @@ export class FirmwareModal extends React.Component {
                             UEFI
                         </Select.SelectEntry>
                     </Select.Select>
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='primary' id="firmware-dialog-apply" onClick={this.save}>
-                        {_("Save")}
-                    </Button>
-                    <Button variant='link' onClick={this.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

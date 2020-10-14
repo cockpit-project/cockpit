@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Alert, Button, Tooltip } from '@patternfly/react-core';
+import { Alert, Button, Modal, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -239,24 +238,23 @@ export class VCPUModal extends React.Component {
         );
 
         return (
-            <Modal id='machines-vcpu-modal-dialog' show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{cockpit.format(_("$0 vCPU details"), vm.name)}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" id='machines-vcpu-modal-dialog' isOpen onClose={this.props.close}
+                   title={cockpit.format(_("$0 vCPU details"), vm.name)}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button id='machines-vcpu-modal-dialog-apply' variant='primary' onClick={this.save}>
+                               {_("Apply")}
+                           </Button>
+                           <Button id='machines-vcpu-modal-dialog-cancel' variant='link' className='btn-cancel' onClick={this.props.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     { caution }
                     { defaultBody }
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id='machines-vcpu-modal-dialog-apply' variant='primary' onClick={this.save}>
-                        {_("Apply")}
-                    </Button>
-                    <Button id='machines-vcpu-modal-dialog-cancel' variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

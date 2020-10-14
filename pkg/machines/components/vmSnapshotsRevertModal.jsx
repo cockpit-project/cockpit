@@ -19,8 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Modal } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -60,24 +59,22 @@ export class RevertSnapshotModal extends React.Component {
         const { idPrefix, snap, onClose } = this.props;
 
         return (
-            <Modal id={`${idPrefix}-snapshot-${snap.name}-modal`} show onHide={onClose}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{ cockpit.format(_("Revert to snapshot $0"), snap.name) }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" id={`${idPrefix}-snapshot-${snap.name}-modal`} isOpen onClose={onClose}
+                   title={cockpit.format(_("Revert to snapshot $0"), snap.name)}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='primary' isLoading={this.state.inProgress} isDisabled={this.state.inProgress} onClick={this.revert}>
+                               {_("Revert")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={onClose}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     { cockpit.format(_("Reverting to this snapshot will take the VM back to the time of the snapshot and the current state will be lost, along with any data not captured in a snapshot")) }
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='primary' isDisabled={this.state.inProgress} onClick={this.revert}>
-                        {_("Revert")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={onClose}>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

@@ -18,9 +18,8 @@
  */
 
 import React from 'react';
-import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Button, Tooltip, Alert, Radio } from '@patternfly/react-core';
+import { Button, Tooltip, Alert, Modal, Radio } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import * as Select from 'cockpit-components-select.jsx';
@@ -185,24 +184,23 @@ class EditDiskModalBody extends React.Component {
         };
 
         return (
-            <Modal id={`${idPrefix}-dialog`} show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{cockpit.format(_("Edit $0 attributes"), getDiskPrettyName(vm.disks[disk.target]))} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <Modal position="top" variant="medium" id={`${idPrefix}-dialog`} isOpen onClose={this.props.close}
+                   title={cockpit.format(_("Edit $0 attributes"), getDiskPrettyName(vm.disks[disk.target]))}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
+                               {_("Save")}
+                           </Button>
+                           <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <>
                     { showWarning() }
                     {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
-                        {_("Save")}
-                    </Button>
-                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </>
             </Modal>
         );
     }

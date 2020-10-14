@@ -659,7 +659,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def open(self):
             b = self.test_obj.browser
             b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
-            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Add disk")
+            b.wait_in_text(".pf-c-modal-box__title", "Add disk")
 
             b.wait_present("label:contains(Create new)")
             if self.use_existing_volume:
@@ -675,7 +675,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
                 else:
                     b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
-                    b.wait_present(".modal-dialog option[data-value={0}]:disabled".format(self.pool_name))
+                    b.wait_present(".pf-c-modal-box option[data-value={0}]:disabled".format(self.pool_name))
                     return self
 
                 # Insert name for the new volume
@@ -706,25 +706,25 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # Configure performance options
             if self.cache_mode:
-                b.click("div.modal-dialog button:contains(Show additional options)")
-                b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
-                b.click("div.modal-dialog button:contains(Hide additional options)")
+                b.click("div.pf-c-modal-box button:contains(Show additional options)")
+                b.select_from_dropdown("div.pf-c-modal-box #cache-mode", self.cache_mode)
+                b.click("div.pf-c-modal-box button:contains(Hide additional options)")
             else:
-                b.wait_not_present("#div.modal-dialog #cache-mode")
+                b.wait_not_present("#div.pf-c-modal-box #cache-mode")
 
             # Configure bus type
             if self.bus_type != "virtio":
-                b.click("div.modal-dialog button:contains(Show additional options)")
-                b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
-                b.click("div.modal-dialog button:contains(Hide additional options)")
+                b.click("div.pf-c-modal-box button:contains(Show additional options)")
+                b.select_from_dropdown("div.pf-c-modal-box #bus-type", self.bus_type)
+                b.click("div.pf-c-modal-box button:contains(Hide additional options)")
             else:
-                b.wait_not_present("#div.modal-dialog #cache-mode")
+                b.wait_not_present("#div.pf-c-modal-box #cache-mode")
 
             return self
 
         def add_disk(self):
             b = self.test_obj.browser
-            b.click(".modal-footer button:contains(Add)")
+            b.click(".pf-c-modal-box__footer button:contains(Add)")
             b.wait_not_present("#vm-{0}-disks-adddisk-dialog-modal-window".format(self.vm_name))
 
             return self
@@ -1083,7 +1083,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
         b.click("label:contains(Use existing)")
         b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
-        b.click(".modal-footer button:contains(Cancel)")
+        b.click(".pf-c-modal-box__footer button:contains(Cancel)")
 
         # Make sure that trying to inspect the Disks tab will just show the fields that are available when a pool is inactive
         b.reload()
@@ -1149,7 +1149,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
 
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
 
         # Test basic vCPU properties
         b.wait_val("#machines-vcpu-count-field", "1")
@@ -1167,7 +1167,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Save
         b.click("#machines-vcpu-modal-dialog-apply")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Make sure warning next to vcpus appears
         b.wait_present("#vcpus-tooltip")
@@ -1193,7 +1193,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Open dialog window
         b.click("#vm-subVmTest1-vcpus-count")
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
 
         # Check basic values
         b.wait_val("#machines-vcpu-count-field", "3")
@@ -1215,7 +1215,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
 
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
 
         b.set_input_text("#machines-vcpu-count-field", "2")
 
@@ -1243,7 +1243,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
 
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
 
         # Set new socket value
         b.wait_val("#coresSelect", "2")
@@ -2036,9 +2036,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             b.wait_present("#create-vm-dialog")
             if self.sourceType == 'disk_image':
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import a virtual machine")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Import a virtual machine")
             else:
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create new virtual machine")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create new virtual machine")
 
             if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI
@@ -2097,7 +2097,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             return self
 
         def createAndVerifyVirtInstallArgs(self):
-            self.browser.click(".modal-footer button:contains(Create)")
+            self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
             self.browser.wait_not_present("#create-vm-dialog")
 
             virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
@@ -2223,7 +2223,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def cancel(self, force=False):
             b = self.browser
             if b.is_present("#create-vm-dialog"):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-vm-dialog")
             elif force:
                 raise Exception("There is no dialog to cancel")
@@ -2233,20 +2233,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b = self.browser
 
             if self.sourceType == 'disk_image':
-                b.click(".modal-footer button:contains(Import)")
+                b.click(".pf-c-modal-box__footer button:contains(Import)")
             else:
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
 
             for error, error_msg in errors.items():
-                error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
+                error_location = ".pf-c-modal-box__body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
                 b.wait_visible(error_location)
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)
 
             if self.sourceType == 'disk_image':
-                b.wait_present(".modal-footer button:contains(Import):disabled")
+                b.wait_present(".pf-c-modal-box__footer button:contains(Import):disabled")
             else:
-                b.wait_present(".modal-footer button:contains(Create):disabled")
+                b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
 
             return self
 
@@ -2263,12 +2263,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
                         ', '.join(errors), b.text(error_location)))
 
-            b.click(".modal-footer button:contains(Create)")
+            b.click(".pf-c-modal-box__footer button:contains(Create)")
 
-            error_location = ".modal-footer div.pf-c-alert"
+            error_location = ".pf-c-modal-box__footer div.pf-c-alert"
 
-            b.wait_present(".modal-footer .spinner")
-            b.wait_not_present(".modal-footer .spinner")
+            b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
+            b.wait_not_present(".pf-c-modal-box__footer button.pf-m-in-progress")
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
@@ -2416,9 +2416,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def _create(self, dialog):
             b = self.browser
             if dialog.sourceType == 'disk_image':
-                b.click(".modal-footer button:contains(Import)")
+                b.click(".pf-c-modal-box__footer button:contains(Import)")
             else:
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
             init_state = "Creating VM installation" if dialog.start_vm else "Creating VM"
             second_state = "Running" if dialog.start_vm else "Shut off"
 
@@ -2774,7 +2774,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         dialog.open() \
                 .fill() \
 
-        b.click(".modal-footer button:contains(Create)")
+        b.click(".pf-c-modal-box__footer button:contains(Create)")
         b.wait_not_present("#create-vm-dialog")
 
         self.waitVmRow("VmNotInstalled")
@@ -2792,11 +2792,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.set_input_text("#vm-VmNotInstalled-memory-modal-memory", "300")
         b.blur("#vm-VmNotInstalled-memory-modal-memory")
         b.click("#vm-VmNotInstalled-memory-modal-save")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Change vCPUs setting
         b.click("#vm-VmNotInstalled-vcpus-count")
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "8")
         b.blur("#machines-vcpu-max-field")
         b.set_input_text("#machines-vcpu-count-field", "2")
@@ -2805,16 +2805,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.select_from_dropdown("#coresSelect", "2")
         b.select_from_dropdown("#threadsSelect", "2")
         b.click("#machines-vcpu-modal-dialog-apply")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Change Boot Order setting
         bootOrder = b.text("#vm-VmNotInstalled-boot-order")
         b.click("#vm-VmNotInstalled-boot-order")
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
         b.set_checked("#vm-VmNotInstalled-order-modal-device-row-1-checkbox", True)
         b.click("#vm-VmNotInstalled-order-modal-device-row-0 #vm-VmNotInstalled-order-modal-down")
         b.click("#vm-VmNotInstalled-order-modal-save")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Attach some interface
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
@@ -2824,10 +2824,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
-            b.wait_present(".modal-body")
+            b.wait_present(".pf-c-modal-box__body")
             b.select_from_dropdown("select", "UEFI")
             b.click("#firmware-dialog-apply")
-            b.wait_not_present(".modal-body")
+            b.wait_not_present(".pf-c-modal-box__body")
             b.wait_in_text("#vm-VmNotInstalled-firmware", "UEFI")
 
             # Temporarily delete the OVMF binary and check the firmware options again
@@ -2892,18 +2892,18 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_val("#vm-VmNotInstalled-memory-modal-max-memory", "400")
         b.wait_val("#vm-VmNotInstalled-memory-modal-memory", "300")
         b.click("#vm-VmNotInstalled-memory-modal-cancel")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Check vCPU settings have persisted
         b.click("#vm-VmNotInstalled-vcpus-count")
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
         b.wait_val("#machines-vcpu-max-field", "8")
         b.wait_val("#machines-vcpu-count-field", "2")
         b.wait_val("#socketsSelect", "2")
         b.wait_val("#coresSelect", "2")
         b.wait_val("#threadsSelect", "2")
         b.click("#machines-vcpu-modal-dialog-cancel")
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Check changed boot order have persisted
         b.wait_text_not("#vm-VmNotInstalled-boot-order", bootOrder)
@@ -3133,16 +3133,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
-        b.wait_present(".modal-dialog")
-        b.click(".modal-footer button:contains(Remove)")
-        b.wait_present(".modal-footer .spinner")
+        b.wait_present(".pf-c-modal-box")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
+        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
         # When live-detaching disks the guest OS needs to cooperate so that we can
         # see the disk getting detached in the UI.
         # Wait until we see the login prompt before attempting operation that need
         # the OS for fully respond
         with b.wait_timeout(180):
             b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
-        b.wait_not_present(".modal-dialog")
+        b.wait_not_present(".pf-c-modal-box")
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
@@ -3154,10 +3154,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Test detaching permanent disk of a stopped domain
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
         b.click("#delete-subVmTest1-disk-vdd")
-        b.wait_present(".modal-dialog")
-        b.click(".modal-footer button:contains(Remove)")
+        b.wait_present(".pf-c-modal-box")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
-        b.wait_not_present(".modal-dialog")
+        b.wait_not_present(".pf-c-modal-box")
 
         # Test detaching disk of a paused domain
         m.execute("> {0}".format(args["logfile"])) # clear logfile
@@ -3175,10 +3175,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
-        b.wait_present(".modal-dialog")
-        b.click(".modal-footer button:contains(Remove)")
+        b.wait_present(".pf-c-modal-box")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
-        b.wait_not_present(".modal-dialog")
+        b.wait_not_present(".pf-c-modal-box")
 
     def testMultipleSettings(self):
         b = self.browser
@@ -3195,18 +3195,18 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Change Boot Order setting
         bootOrder = b.text("#vm-subVmTest1-boot-order")
         b.click("#vm-subVmTest1-boot-order") # Open dialog
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
         b.click("#vm-subVmTest1-order-modal-save") # Save
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Change vCPUs setting
         b.click("#vm-subVmTest1-vcpus-count") # Open dialog
-        b.wait_present(".modal-body")
+        b.wait_present(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "3") # Change values
         b.set_input_text("#machines-vcpu-count-field", "3")
         b.click("#machines-vcpu-modal-dialog-apply") # Save
-        b.wait_not_present(".modal-body")
+        b.wait_not_present(".pf-c-modal-box__body")
 
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
@@ -3387,7 +3387,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-save:disabled")
-        b.click(".modal-footer button:contains(Cancel)")
+        b.click(".pf-c-modal-box__footer button:contains(Cancel)")
 
         # Ensure that when the source of a NIC was removed we can still change it
 
@@ -3497,7 +3497,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Delete an inactive network
         b.click('#delete-network-test_network2-{0}'.format(connectionName))
-        b.click(".modal-footer button:contains(Delete)")
+        b.click(".pf-c-modal-box__footer button:contains(Delete)")
         self.waitNetworkRow("test_network2", connectionName, False)
 
         # Delete an active network
@@ -3505,7 +3505,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "active")
         self.toggleNetworkRow("test_network2", connectionName)
         b.click('#delete-network-test_network2-{0}'.format(connectionName))
-        b.click(".modal-footer button:contains(Delete)")
+        b.click(".pf-c-modal-box__footer button:contains(Delete)")
         self.waitNetworkRow("test_network2", connectionName, False)
 
     def testNetworks(self):
@@ -3614,8 +3614,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
 
         b.click("#vm-subVmTest1-snapshot-1-revert")
-        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Revert to snapshot snapshot1")
-        b.click('div.modal-footer button:contains("Revert")')
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Revert to snapshot snapshot1")
+        b.click('.pf-c-modal-box__footer button:contains("Revert")')
 
         b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
         b.wait_present("#vm-subVmTest1-snapshot-1-current")
@@ -3812,9 +3812,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Delete an inactive Pool. It's volumes won't be deleted
         b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
-        b.wait_in_text("div.modal-dialog div.modal-body div.ct-form", "Its content will not be deleted.")
-        b.click('div.modal-footer button:contains("Delete")')
-        b.wait_not_present("div.modal-dialog")
+        b.wait_in_text("div.pf-c-modal-box div.pf-c-modal-box__body div.ct-form", "Its content will not be deleted.")
+        b.click('.pf-c-modal-box__footer button:contains("Delete")')
+        b.wait_not_present("div.pf-c-modal-box")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
         self.assertNotEqual(m.execute("ls -A {0}".format(p2)), "")
 
@@ -3829,10 +3829,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Delete and active Pool and also its volumes
         b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
-        b.wait_present("div.modal-dialog")
+        b.wait_present("div.pf-c-modal-box")
         b.set_checked("input#storage-pool-delete-volumes", True)
-        b.click('div.modal-footer button:contains("Delete")')
-        b.wait_not_present("div.modal-dialog")
+        b.click('.pf-c-modal-box__footer button:contains("Delete")')
+        b.wait_not_present("div.pf-c-modal-box")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
         self.assertEqual(m.execute("ls -A {0}".format(p2)), "")
         self.waitPoolRow("myPoolTwo", connectionName, False)
@@ -3928,7 +3928,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def open(self):
                 b.click("#create-network")
                 b.wait_present("#create-network-dialog")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create virtual network")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create virtual network")
 
             def fill(self):
                 b.set_input_text("#create-network-name", self.name)
@@ -3959,34 +3959,34 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                             b.set_input_text("#network-ipv6-dhcp-range-end", self.ipv6_dhcp_end)
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-network-dialog")
 
             def create(self):
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
 
                 if (self.xfail):
                     # Check incomplete dialog
                     if "name" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #create-network-name + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #create-network-name + span p", self.xfail_error)
                     if "ipv4_address" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-address + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv4-address + span p", self.xfail_error)
                     if "ipv4_netmask" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-netmask + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv4-netmask + span p", self.xfail_error)
                     if "ipv4_dhcp_start" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-dhcp-range-start + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv4-dhcp-range-start + span p", self.xfail_error)
                     if "ipv4_dhcp_end" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-dhcp-range-end + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv4-dhcp-range-end + span p", self.xfail_error)
                     if "ipv6_address" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-address + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv6-address + span p", self.xfail_error)
                     if "ipv6_prefix" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-prefix + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv6-prefix + span p", self.xfail_error)
                     if "ipv6_dhcp_start" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-dhcp-range-start + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv6-dhcp-range-start + span p", self.xfail_error)
                     if "ipv6_dhcp_end" in self.xfail_objects:
-                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-dhcp-range-end + span p", self.xfail_error)
+                        b.wait_in_text("#create-network-dialog .pf-c-modal-box__body form div.has-error #network-ipv6-dhcp-range-end + span p", self.xfail_error)
                     if "footer" in self.xfail_objects:
-                        error_location = "#create-network-dialog .modal-footer .pf-m-danger"
+                        error_location = "#create-network-dialog .pf-c-modal-box__footer .pf-m-danger"
                         b.wait_present(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)
@@ -4280,7 +4280,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def open(self):
                 b.click("#create-storage-pool")
                 b.wait_present("#create-storage-pool-dialog")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create storage pool")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
 
             def fill(self):
                 b.set_input_text("#storage-pool-dialog-name", self.name)
@@ -4310,24 +4310,24 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.click("storage-pool-dialog-autostart")
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-storage-pool-dialog")
 
             def create(self):
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
 
                 if not self.xfail:
                     b.wait_not_present("#create-storage-pool-dialog")
                 else:
                     # Check incomplete dialog
                     if (not self.name):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-name")
+                        b.wait_present("#create-storage-pool-dialog .pf-c-modal-box__body form div.has-error #storage-pool-dialog-name")
 
                     if (not self.target):
-                        b.wait_present("#create-storage-pool-dialog .modal-body label:contains(Target) + div.has-error")
+                        b.wait_present("#create-storage-pool-dialog .pf-c-modal-box__body label:contains(Target) + div.has-error")
                     # Check errors from backend
                     if self.xfail_error:
-                        error_location = "#create-storage-pool-dialog .modal-footer .pf-m-danger"
+                        error_location = "#create-storage-pool-dialog .pf-c-modal-box__footer .pf-m-danger"
                         b.wait_present(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)
@@ -4485,10 +4485,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 # Ensure that iscsi-direct is absent from the types dropdown
                 b.click("#create-storage-pool")
                 b.wait_present("#create-storage-pool-dialog")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create storage pool")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
                 b.click("#storage-pool-dialog-type")
                 b.wait_not_present("#storage-pool-dialog-type option[value*='isci-direct']")
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-storage-pool-dialog")
 
         # Prepare a Volume Group to be used as source for the LVM pool
@@ -4569,7 +4569,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage volumes" subtab
 
                 b.wait_present("#create-volume-dialog-modal")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create storage volume")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage volume")
 
             def fill(self):
                 b.set_input_text("#create-volume-dialog-name", self.vol_name)
@@ -4584,17 +4584,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.select_from_dropdown("#create-volume-dialog-format", self.format)
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-storage-pool-dialog")
 
             def create(self):
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
 
                 if (not self.xfail):
                     # Creation of volumes might take longer for some pool types
                     if self.pool_type  in ["disk", "netfs"]:
-                        b.wait_present(".modal-footer div.spinner")
-                        b.wait_present(".modal-footer button:contains(Create):disabled")
+                        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
+                        b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
                     b.wait_not_present("#create-volume-dialog-modal")
 
             def verify(self):
@@ -4725,7 +4725,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def open(self):
                 b.click("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Add virtual network interface")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Add virtual network interface")
 
             def fill(self):
                 b.select_from_dropdown("#vm-subVmTest1-add-iface-select-type", self.source_type)
@@ -4745,11 +4745,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_not_present("#vm-subVmTest1-add-iface-permanent")
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
 
             def create(self):
-                b.click(".modal-footer button:contains(Add)")
+                b.click(".pf-c-modal-box__footer button:contains(Add)")
 
                 b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
 
@@ -4800,16 +4800,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     b.click("#delete-vm-subVmTest1-iface-{0}".format(self.nic_num))
                     # Confirm in confirmation window
-                    b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
+                    b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Network Interface")
                     vm_state = b.text("#vm-subVmTest1-state")
-                    b.click(".modal-footer button:contains(Delete)")
+                    b.click(".pf-c-modal-box__footer button:contains(Delete)")
                     # On a running VM detaching NIC takes longer and we can see the spinner
                     if vm_state == "Running":
-                        b.wait_present(".modal-footer .spinner")
+                        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
 
                     # Check NIC is no longer in list
                     b.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))
-                    b.wait_not_present(".modal-dialog")
+                    b.wait_not_present(".pf-c-modal-box")
 
         # No NICs present
         b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
@@ -4882,11 +4882,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Now there are three NICs present - try to delete the second one and make sure that it's deleted and the dialog is not present anymore
         b.wait_present("#vm-subVmTest1-network-3-mac")
         b.click("#delete-vm-subVmTest1-iface-2")
-        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
-        b.click(".modal-footer button:contains(Delete)")
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Network Interface")
+        b.click(".pf-c-modal-box__footer button:contains(Delete)")
         # Check NIC is no longer in list
         b.wait_not_present("#vm-subVmTest1-network-3-mac")
-        b.wait_not_present(".modal-dialog")
+        b.wait_not_present(".pf-c-modal-box")
 
     def testSnapshotCreate(self):
         b = self.browser
@@ -4930,7 +4930,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def open(self):
                 b.click("#vm-subVmTest1-add-snapshot-button")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create snapshot")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create snapshot")
 
             def fill(self):
                 if self.name:
@@ -4939,11 +4939,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.set_input_text("#description", self.description)
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
 
             def create(self):
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
                 b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
 
             def verify_frontend(self):
@@ -4977,8 +4977,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def cleanup(self):
                 b.click("#delete-vm-subVmTest1-snapshot-{0}".format(self.snap_num))
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Snapshot {0}".format(self.name))
-                b.click('div.modal-footer button:contains("Delete")')
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Snapshot {0}".format(self.name))
+                b.click('.pf-c-modal-box__footer button:contains("Delete")')
                 b.wait_not_present("#vm-subVmTest1-snapshot-{0}-name:contains({1})".format(self.snap_num, self.name))
 
         # No Snapshots present

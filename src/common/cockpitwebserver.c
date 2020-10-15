@@ -1304,19 +1304,6 @@ cockpit_web_server_initable_init (GInitable *initable,
         {
           GSocket *s = NULL;
           gboolean b;
-          int type;
-          socklen_t l = sizeof (type);
-
-          /*
-           * HACK: Workaround g_error() happy code in GSocket
-           * https://bugzilla.gnome.org/show_bug.cgi?id=746339
-           */
-          if (getsockopt (fd, SOL_SOCKET, SO_TYPE, &type, &l) < 0)
-            {
-              g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                           "invalid socket passed via systemd activation: %d: %s", fd, g_strerror (errno));
-              goto out;
-            }
 
           s = g_socket_new_from_fd (fd, error);
           if (s == NULL)

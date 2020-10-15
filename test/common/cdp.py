@@ -189,6 +189,7 @@ class CDP:
                     user_pref("dom.disable_beforeunload", true);
                     user_pref("browser.download.dir", "{0}");
                     user_pref("browser.download.folderList", 2);
+                    user_pref("signon.rememberSignons", false);
                     """.format(self.download_dir))
 
             with open(os.path.join(profile, "handlers.json"), "w") as f:

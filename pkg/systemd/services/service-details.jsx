@@ -22,6 +22,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import {
     Alert, Button,
+    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
@@ -438,34 +439,38 @@ export class ServiceDetails extends React.Component {
                             }
                         </CardTitle>
                         <CardBody>
-                            <form className="ct-form">
-                                <label className="control-label" htmlFor="statuses">{ _("Status") }</label>
-                                <div id="statuses" className="ct-validation-wrapper">
-                                    { status }
-                                </div>
+                            <DescriptionList>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="statuses">
+                                        { status }
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
                                 <hr />
-                                <label className="control-label" htmlFor="path">{ _("Path") }</label>
-                                <span id="path">{this.props.unit.FragmentPath}</span>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
+                                </DescriptionListGroup>
                                 <hr />
                                 { notMetConditions.length > 0 &&
-                                    <>
-                                        <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
-                                        <div id="condition" className="ct-validation-wrapper">
+                                    <DescriptionListGroup>
+                                        <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
+                                        <DescriptionListDescription id="condition">
                                             {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
-                                        </div>
-                                    </>
+                                        </DescriptionListDescription>
+                                    </DescriptionListGroup>
                                 }
                                 <hr />
                                 {relationships.map(rel =>
                                     rel.Units && rel.Units.length > 0 &&
-                                        <React.Fragment key={rel.Name.split().join("")}>
-                                            <label className="control-label closer-lines" htmlFor={rel.Name}>{rel.Name}</label>
-                                            <ul id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
+                                        <DescriptionListGroup key={rel.Name.split().join("")}>
+                                            <DescriptionListTerm className="closer-lines">{rel.Name}</DescriptionListTerm>
+                                            <DescriptionListDescription id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
                                                 {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
-                                            </ul>
-                                        </React.Fragment>
+                                            </DescriptionListDescription>
+                                        </DescriptionListGroup>
                                 )}
-                            </form>
+                            </DescriptionList>
                         </CardBody>
                     </>
                 }

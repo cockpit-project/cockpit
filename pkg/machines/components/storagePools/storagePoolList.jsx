@@ -23,6 +23,7 @@ import {
     Card, CardActions, CardHeader, CardTitle, CardBody,
     Page, PageSection, Text, TextVariants,
 } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -67,7 +68,12 @@ export class StoragePoolList extends React.Component {
                         <CardBody className="contains-list">
                             <ListingTable aria-label={_("Storage pools")}
                                 variant='compact'
-                                columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
+                                columns={[
+                                    { title: _("Name"), header: true, transforms: [cellWidth(20)] },
+                                    { title: _("Size"), transforms: [cellWidth(40)] },
+                                    { title: _("Connection"), transforms: [cellWidth(20)] },
+                                    { title: _("State"), transforms: [cellWidth(20)] },
+                                ]}
                                 emptyCaption={_("No storage pool is defined on this host")}
                                 rows={storagePools
                                         .sort(sortFunction)

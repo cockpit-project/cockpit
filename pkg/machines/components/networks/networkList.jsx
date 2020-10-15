@@ -24,6 +24,7 @@ import {
     Page, PageSection, PageSectionVariants,
     Text, TextVariants,
 } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -70,7 +71,13 @@ export class NetworkList extends React.Component {
                         <CardBody className="contains-list">
                             <ListingTable aria-label={_("Networks")}
                                 variant='compact'
-                                columns={[{ title: _("Name"), header: true }, _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
+                                columns={[
+                                    { title: _("Name"), header: true, transforms: [cellWidth(20)] },
+                                    { title: _("Device"), transforms: [cellWidth(20)] },
+                                    { title: _("Connection"), transforms: [cellWidth(20)] },
+                                    { title: _("Forwarding mode"), transforms: [cellWidth(20)] },
+                                    { title: _("State"), transforms: [cellWidth(20)] },
+                                ]}
                                 emptyCaption={_("No network is defined on this host")}
                                 rows={networks
                                         .sort(sortFunction)

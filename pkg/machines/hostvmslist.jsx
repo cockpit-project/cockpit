@@ -27,6 +27,7 @@ import {
     Select, SelectOption, SelectVariant,
     Page, PageSection, Text, TextVariants,
 } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
 
 import VmActions from './components/vm/vmActions.jsx';
 
@@ -132,13 +133,13 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                 <CardBody className="contains-list">
                     <ListingTable aria-label={_("Virtual machines")}
                         variant='compact'
-                        emptyCaption={_("No VM is running or defined on this host")}
                         columns={[
-                            { title: _("Name"), header: true },
-                            { title: _("Connection") },
-                            { title: _("State") },
-                            { title: _("") },
+                            { title: _("Name"), header: true, transforms: [cellWidth(25)] },
+                            { title: _("Connection"), transforms: [cellWidth(25)] },
+                            { title: _("State"), transforms: [cellWidth(25)] },
+                            { title: _(""), transforms: [cellWidth(25)] },
                         ]}
+                        emptyCaption={_("No VM is running or defined on this host")}
                         rows={ combinedVmsFiltered
                                 .sort(sortFunction)
                                 .map(vm => {

@@ -39,11 +39,31 @@ svg {
     }
 }
 
-// When using horizontal ruler inside description list it's just for the spacing - don't show it
+// Override the description list to use smaller spacing and subgrid (where available)
 .pf-c-description-list {
-    // The default gap between the rows is too large
-    --pf-c-description-list--RowGap: 1rem;
+    // Decrease the vertical spacing between lines
+    --pf-c-description-list--RowGap: var(--pf-global--spacer--sm);
 
+    // In browsers that support subgrid, shrink labels to longest
+    // This should be considered for upstreaming to PF4's description list
+    // or at least consider applying across Cockpit (opt-in or by default)
+    @supports (grid-template-columns: subgrid) {
+        grid-template-columns: auto 1fr;
+
+        > * {
+            grid-column: 1 / -1;
+        }
+
+        &__group {
+            grid-template-columns: subgrid;
+        }
+
+        &__term {
+            max-width: var(--pf-c-description-list--m-horizontal__term--width);
+        }
+    }
+
+    // When using horizontal ruler inside description list it's just for the spacing - don't show it
     > hr {
         border-top: none;
     }

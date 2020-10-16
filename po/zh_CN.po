@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-25 16:54+0000\n"
+"POT-Creation-Date: 2020-10-09 10:57+0000\n"
 "PO-Revision-Date: 2020-09-20 17:29+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -559,7 +559,7 @@ msgid ""
 "interface with higher throughput or redundancy."
 msgstr "网络绑定将多个网络接口组合成一个逻辑接口以提高吞吐量或冗余度。"
 
-#: pkg/lib/machine-dialogs.js:705
+#: pkg/lib/machine-dialogs.js:700
 msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
@@ -706,7 +706,7 @@ msgstr "添加密钥"
 msgid "Add network interface"
 msgstr "添加网络接口"
 
-#: pkg/shell/hosts.jsx:243
+#: pkg/shell/hosts.jsx:240
 msgid "Add new host"
 msgstr "添加新主机"
 
@@ -1025,7 +1025,7 @@ msgstr "通过Cockpit Web Console进行验证后才能执行特权操作"
 msgid "Authentication required"
 msgstr "需要验证"
 
-#: pkg/lib/machine-dialogs.js:724
+#: pkg/lib/machine-dialogs.js:719
 msgid "Authorize SSH key."
 msgstr "授权 SSH 密钥。"
 
@@ -1230,7 +1230,7 @@ msgstr "总线"
 msgid "Bus expansion chassis"
 msgstr "总线扩展机箱"
 
-#: pkg/lib/machine-dialogs.js:716
+#: pkg/lib/machine-dialogs.js:711
 msgid ""
 "By changing the password of the SSH key ${key} to the login password of "
 "${luser} on ${lhost}, the key will be automatically made available and you "
@@ -1282,12 +1282,12 @@ msgstr "已缓存"
 msgid "Can not find any logs using the current combination of filters."
 msgstr "使用当前的过滤器组合找不到任何日志。"
 
-#: pkg/dashboard/list.js:221
+#: pkg/dashboard/list.js:218
 msgid "Can't load image"
 msgstr "无法加载镜像"
 
 #: pkg/dashboard/index.html:186 pkg/lib/machine-add.html:39
-#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-change-port.html:35
+#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-change-port.html:26
 #: pkg/lib/machine-unknown-hostkey.html:21 pkg/networkmanager/index.html:517
 #: pkg/networkmanager/index.html:545 pkg/networkmanager/index.html:572
 #: pkg/networkmanager/index.html:599 pkg/networkmanager/index.html:626
@@ -1397,7 +1397,7 @@ msgstr "变更配置"
 msgid "Change system time"
 msgstr "修改系统时间"
 
-#: pkg/lib/machine-dialogs.js:714
+#: pkg/lib/machine-dialogs.js:709
 msgid "Change the password of ${key}."
 msgstr "更改 ${key} 的密码。"
 
@@ -1488,7 +1488,7 @@ msgstr "清除挂载点配置"
 msgid "Clear search"
 msgstr "清除搜寻"
 
-#: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:258
+#: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:257
 msgid "Click $0 again to use the password anyway."
 msgstr "再次点 $0 以使用该密码。"
 
@@ -1501,14 +1501,13 @@ msgstr "点击 \"启动 Remote Viewer\" 将下载一个 .vv 文件并加载 $0�
 msgid "Client software"
 msgstr "客户端软件"
 
-#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:39
-#: pkg/lib/machine-invalid-hostkey.html:12 pkg/lib/machine-not-supported.html:8
-#: pkg/networkmanager/index.html:753 pkg/shell/index.html:161
-#: pkg/shell/index.html:220 pkg/shell/index.html:402 pkg/systemd/index.html:55
-#: pkg/apps/utils.jsx:104 pkg/lib/cockpit-components-modifications.jsx:103
-#: pkg/shell/superuser.jsx:85 pkg/sosreport/index.js:46
-#: pkg/sosreport/index.js:128 pkg/storaged/dialog.jsx:399
-#: pkg/users/dialog-utils.js:61
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-invalid-hostkey.html:12
+#: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:753
+#: pkg/shell/index.html:161 pkg/shell/index.html:220 pkg/shell/index.html:402
+#: pkg/systemd/index.html:55 pkg/apps/utils.jsx:104
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:85
+#: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
+#: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
 msgstr "关闭"
 
@@ -1661,15 +1660,15 @@ msgstr "配置系统设置"
 msgid "Confirm"
 msgstr "确认"
 
-#: pkg/lib/machine-dialogs.js:708
+#: pkg/lib/machine-dialogs.js:703
 msgid "Confirm key password"
 msgstr "确认密钥密码"
 
-#: pkg/lib/machine-dialogs.js:719
+#: pkg/lib/machine-dialogs.js:714
 msgid "Confirm new key password"
 msgstr "确认新的密钥密码"
 
-#: pkg/users/password-dialogs.js:183
+#: pkg/users/password-dialogs.js:182
 #, fuzzy
 #| msgid "Confirm new key password"
 msgid "Confirm new password"
@@ -1741,7 +1740,7 @@ msgstr "连接虚拟化服务"
 msgid "Connection"
 msgstr "连接"
 
-#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:408 pkg/shell/hosts.jsx:206
 msgid "Connection error"
 msgstr "连接错误"
 
@@ -1862,7 +1861,7 @@ msgstr "创建 VDO 设备"
 msgid "Create VM"
 msgstr "创建虚拟机"
 
-#: pkg/lib/machine-dialogs.js:703
+#: pkg/lib/machine-dialogs.js:698
 msgid "Create a new SSH key and authorize it."
 msgstr "创建一个新的 SSH 密钥，并对其进行授权。"
 
@@ -2263,7 +2262,7 @@ msgstr "开发"
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:102
+#: pkg/machines/components/vmDisksTab.jsx:102 pkg/storaged/crypto-panel.jsx:80
 msgid "Device"
 msgstr "设备"
 
@@ -2508,7 +2507,7 @@ msgstr "编辑Tang keyserver"
 msgid "Edit host"
 msgstr "编辑主机"
 
-#: pkg/shell/hosts.jsx:242
+#: pkg/shell/hosts.jsx:239
 msgid "Edit hosts"
 msgstr "编辑多个主机"
 
@@ -2622,7 +2621,7 @@ msgstr "强制"
 msgid "Enhancement updates available"
 msgstr "可用的功能增强更新"
 
-#: pkg/lib/machine-dialogs.js:485
+#: pkg/lib/machine-dialogs.js:482
 msgid "Enter IP address or hostname"
 msgstr "输入 IP 地址或主机名"
 
@@ -2698,7 +2697,7 @@ msgstr "例如: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "例如: 88,2019,nfs,rsync"
 
-#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:235
+#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:234
 msgid "Excellent password"
 msgstr "密码强度良好"
 
@@ -2726,7 +2725,7 @@ msgstr "失败"
 msgid "Failed"
 msgstr "已失败"
 
-#: pkg/lib/machine-dialogs.js:450
+#: pkg/lib/machine-dialogs.js:447
 msgid "Failed to add machine: $0"
 msgstr "添加主机失败: $0"
 
@@ -2746,8 +2745,8 @@ msgstr "添加区域失败"
 msgid "Failed to change firmware"
 msgstr "修改固件失败"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:95
-#: pkg/users/password-dialogs.js:125
+#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:102
+#: pkg/users/password-dialogs.js:124
 msgid "Failed to change password"
 msgstr "修改密码失败"
 
@@ -2763,7 +2762,7 @@ msgstr "禁用 tuned 失败"
 msgid "Failed to disable tuned profile"
 msgstr "禁用 tuned 配置集失败"
 
-#: pkg/lib/machine-dialogs.js:525
+#: pkg/lib/machine-dialogs.js:522
 msgid "Failed to edit machine: $0"
 msgstr "编辑主机失败: $0"
 
@@ -2868,7 +2867,7 @@ msgstr "禁止运行"
 msgid "Force change"
 msgstr "强制变更"
 
-#: pkg/users/password-dialogs.js:314
+#: pkg/users/password-dialogs.js:313
 msgid "Force password change"
 msgstr "强制密码变更"
 
@@ -3056,7 +3055,7 @@ msgstr "历史软件包数量"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:229
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:226
 msgid "Host"
 msgstr "主机"
 
@@ -3085,7 +3084,7 @@ msgstr "主机不能为空"
 msgid "Hostname"
 msgstr "主机名"
 
-#: pkg/shell/hosts.jsx:198
+#: pkg/shell/hosts.jsx:195
 msgid "Hosts"
 msgstr "主机"
 
@@ -3233,7 +3232,7 @@ msgid ""
 "communication."
 msgstr "在多数配置中，macvtap 不能为主机到客户机的网络通信工作。"
 
-#: pkg/lib/machine-dialogs.js:711
+#: pkg/lib/machine-dialogs.js:706
 msgid ""
 "In order to allow log in to ${rhost} as ${ruser} without password in the "
 "future, use the login password of ${luser} on ${lhost} as the key password, "
@@ -3460,7 +3459,7 @@ msgstr "无效的用户名或密码"
 msgid "IoT gateway"
 msgstr "IoT 网关"
 
-#: pkg/lib/machine-change-port.html:15
+#: pkg/lib/machine-change-port.html:10
 msgid "Is sshd running on a different port?"
 msgstr "sshd 是否在一个不同的端口上运行？"
 
@@ -3534,7 +3533,7 @@ msgid "Kernel dump"
 msgstr "内核转储"
 
 #: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
-#: pkg/lib/machine-dialogs.js:706
+#: pkg/lib/machine-dialogs.js:701
 msgid "Key password"
 msgstr "钥匙密码"
 
@@ -3737,6 +3736,12 @@ msgstr "锁定账户"
 #: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:70
 msgid "Lock account on $0"
 msgstr "于 $0 锁定账号"
+
+#: pkg/storaged/crypto-panel.jsx:72 pkg/storaged/crypto-panel.jsx:75
+#, fuzzy
+#| msgid "No devices"
+msgid "Locked devices"
+msgstr "无设备"
 
 #: pkg/storaged/jobs-panel.jsx:41
 msgid "Locking $target"
@@ -4238,15 +4243,15 @@ msgstr "NTP 服务器"
 #: pkg/machines/components/vmSnapshotsTab.jsx:94
 #: pkg/machines/hostvmslist.jsx:146 pkg/packagekit/updates.jsx:388
 #: pkg/storaged/content-views.jsx:116 pkg/storaged/content-views.jsx:272
-#: pkg/storaged/content-views.jsx:724 pkg/storaged/format-dialog.jsx:201
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:355
-#: pkg/storaged/fsys-tab.jsx:511 pkg/storaged/iscsi-panel.jsx:128
-#: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/lvol-tabs.jsx:35
-#: pkg/storaged/lvol-tabs.jsx:380 pkg/storaged/lvol-tabs.jsx:434
-#: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:160
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:76
-#: pkg/systemd/services/services-list.jsx:52
+#: pkg/storaged/content-views.jsx:724 pkg/storaged/crypto-panel.jsx:79
+#: pkg/storaged/format-dialog.jsx:201 pkg/storaged/fsys-panel.jsx:94
+#: pkg/storaged/fsys-tab.jsx:355 pkg/storaged/fsys-tab.jsx:511
+#: pkg/storaged/iscsi-panel.jsx:128 pkg/storaged/iscsi-panel.jsx:185
+#: pkg/storaged/lvol-tabs.jsx:35 pkg/storaged/lvol-tabs.jsx:380
+#: pkg/storaged/lvol-tabs.jsx:434 pkg/storaged/mdraids-panel.jsx:61
+#: pkg/storaged/part-tab.jsx:33 pkg/storaged/vdos-panel.jsx:82
+#: pkg/storaged/vgroup-details.jsx:160 pkg/storaged/vgroups-panel.jsx:74
+#: pkg/systemd/hwinfo.jsx:76 pkg/systemd/services/services-list.jsx:52
 msgid "Name"
 msgstr "名称"
 
@@ -4401,7 +4406,7 @@ msgstr "账号从不锁定"
 msgid "New NFS mount"
 msgstr "新的 NFS 挂载"
 
-#: pkg/lib/machine-dialogs.js:717
+#: pkg/lib/machine-dialogs.js:712
 msgid "New key password"
 msgstr "新密钥密码"
 
@@ -4409,11 +4414,11 @@ msgstr "新密钥密码"
 msgid "New passphrase"
 msgstr "新口令"
 
-#: pkg/shell/index.html:365 pkg/users/password-dialogs.js:177
+#: pkg/shell/index.html:365 pkg/users/password-dialogs.js:176
 msgid "New password"
 msgstr "新密码"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:104
+#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:85
 msgid "New password was not accepted"
 msgstr "新密码不被接受"
 
@@ -4771,11 +4776,11 @@ msgstr "确认"
 msgid "Old passphrase"
 msgstr "旧密码口令"
 
-#: pkg/shell/index.html:356 pkg/users/password-dialogs.js:169
+#: pkg/shell/index.html:356 pkg/users/password-dialogs.js:168
 msgid "Old password"
 msgstr "旧密码"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:51
+#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:52
 msgid "Old password not accepted"
 msgstr "旧密码不被接受"
 
@@ -4982,12 +4987,12 @@ msgid "Password expiration"
 msgstr "密码过期"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:13
-#: pkg/users/password-dialogs.js:152
+#: pkg/users/password-dialogs.js:151
 msgid "Password is not acceptable"
 msgstr "不接受该密码"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:12
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:138
 msgid "Password is too weak"
 msgstr "密码太弱"
 
@@ -5206,7 +5211,7 @@ msgstr "池类型不支持创建卷"
 msgid "Pool's volumes are used by VMs "
 msgstr "池的卷被 VM 使用 "
 
-#: pkg/lib/machine-change-port.html:21
+#: pkg/lib/machine-change-port.html:14
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
 #: pkg/machines/components/vm/bootOrderModal.jsx:110
 #: pkg/machines/components/vmDiskColumns.jsx:48
@@ -5317,7 +5322,7 @@ msgstr "配置集"
 msgid "Project website"
 msgstr "项目网站"
 
-#: pkg/users/password-dialogs.js:56
+#: pkg/users/password-dialogs.js:57
 msgid "Prompting via passwd timed out"
 msgstr "通过密码提示已超时"
 
@@ -5749,7 +5754,7 @@ msgstr "必备的"
 msgid "Reserved memory"
 msgstr "保留内存"
 
-#: pkg/systemd/terminal.jsx:103 pkg/users/password-dialogs.js:321
+#: pkg/systemd/terminal.jsx:103 pkg/users/password-dialogs.js:320
 msgid "Reset"
 msgstr "重置"
 
@@ -6112,7 +6117,7 @@ msgid "Session is about to expire"
 msgstr "会话即将到期"
 
 #: pkg/dashboard/index.html:185 pkg/shell/index.html:136
-#: pkg/users/password-dialogs.js:258 pkg/users/password-dialogs.js:275
+#: pkg/users/password-dialogs.js:257 pkg/users/password-dialogs.js:274
 msgid "Set"
 msgstr "设置"
 
@@ -6128,7 +6133,7 @@ msgstr "设置主机名"
 msgid "Set manually"
 msgstr "手工设置"
 
-#: pkg/users/account-details.js:317 pkg/users/password-dialogs.js:268
+#: pkg/users/account-details.js:317 pkg/users/password-dialogs.js:267
 msgid "Set password"
 msgstr "设置密码"
 
@@ -6503,7 +6508,7 @@ msgstr "停止并卸载"
 msgid "Stop device"
 msgstr "停止设备"
 
-#: pkg/shell/hosts.jsx:242
+#: pkg/shell/hosts.jsx:239
 msgid "Stop editing hosts"
 msgstr "停止编辑主机"
 
@@ -6784,7 +6789,7 @@ msgstr "$0 无法被删除"
 msgid "The $0 package must be installed to create VDO devices."
 msgstr "$0 软件包必须被安装才能创建 VDO 设备。"
 
-#: pkg/lib/machine-dialogs.js:407
+#: pkg/lib/machine-dialogs.js:404
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP 地址或主机名不能包含空格。"
 
@@ -6800,7 +6805,7 @@ msgstr "为了添加备用的磁盘，RAID 设备必须在运行。"
 msgid "The RAID device must be running in order to remove disks."
 msgstr "为了移除磁盘，RAID 设备必须在运行。"
 
-#: pkg/lib/machine-dialogs.js:727
+#: pkg/lib/machine-dialogs.js:722
 msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
@@ -6867,7 +6872,7 @@ msgstr "虚拟机已被客户机电源管理暂停。"
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr "虚拟机需要运行或关闭才能分离该设备"
 
-#: pkg/users/password-dialogs.js:309
+#: pkg/users/password-dialogs.js:308
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "账号 '$0' 将在下次登录时被强制变更其密码"
 
@@ -6977,11 +6982,11 @@ msgstr ""
 "{{#strong}}{{host}}{{/strong}} 的密钥与之前使用的不匹配。除非该主机最近被替"
 "换，否则可能有人正在攻击与该主机的连接。"
 
-#: pkg/lib/machine-dialogs.js:838
+#: pkg/lib/machine-dialogs.js:833
 msgid "The key password can not be empty"
 msgstr "密钥密码不能为空"
 
-#: pkg/lib/machine-dialogs.js:846
+#: pkg/lib/machine-dialogs.js:841
 msgid "The key passwords do not match"
 msgstr "密钥密码不匹配。"
 
@@ -7009,15 +7014,15 @@ msgstr "登陆的用户没有权限查看系统改变"
 msgid "The machine is restarting"
 msgstr "正在重启主机"
 
-#: pkg/lib/machine-dialogs.js:854
+#: pkg/lib/machine-dialogs.js:849
 msgid "The new key password can not be empty"
 msgstr "新的密钥密码不能为空"
 
-#: pkg/lib/machine-dialogs.js:859
+#: pkg/lib/machine-dialogs.js:854
 msgid "The new key passwords do not match"
 msgstr "新的密钥密码不匹配。"
 
-#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:253
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:252
 msgid "The passwords do not match"
 msgstr "密码不匹配"
 
@@ -7233,12 +7238,6 @@ msgstr "该单元没有设计为需要明确启用。"
 msgid "This user name already exists"
 msgstr "用户名已存在"
 
-#: pkg/lib/machine-dialogs.js:401
-msgid ""
-"This version of cockpit-ws does not support connecting to a host with an "
-"alternate user or port"
-msgstr "该版本的 cockpit-ws 不支持连接到有交替的用户或端口的主机"
-
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:541
 msgid "This volume is already used by another VM."
 msgstr "这个卷已被另外一个虚拟机使用。"
@@ -7259,7 +7258,7 @@ msgstr "浏览器太老，不能运行 Cockpit （缺少 $0）"
 msgid "This web console will be updated."
 msgstr "此 Web 控制台将会被更新。"
 
-#: pkg/lib/machine-dialogs.js:729
+#: pkg/lib/machine-dialogs.js:724
 msgid "This will allow you to log in without password in the future."
 msgstr "这样以后登陆时将不需要密码。"
 
@@ -7319,12 +7318,6 @@ msgid ""
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
 "为了获取软件更新，该系统需要通过红帽客户门户网站或本地订阅服务器注册到红帽。"
-
-#: pkg/lib/machine-change-port.html:11
-msgid ""
-"To try a different port you will need to upgrade cockpit-ws to a newer "
-"version."
-msgstr "为了尝试一个不同的端口，需要把 cockpit-ws 升级到一个新版本。"
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:39
 msgid "Today"
@@ -7464,7 +7457,7 @@ msgstr "无法自动应用该方案"
 msgid "Unable to connect to that address"
 msgstr "无法连接至该地址"
 
-#: pkg/lib/machine-dialogs.js:467
+#: pkg/lib/machine-dialogs.js:464
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7685,7 +7678,7 @@ msgstr "不支持的卷"
 msgid "Untrusted host"
 msgstr "不可信的主机"
 
-#: pkg/lib/machine-change-port.html:34
+#: pkg/lib/machine-change-port.html:25
 msgid "Update"
 msgstr "更新"
 
@@ -8128,7 +8121,7 @@ msgstr "是"
 msgid "Yesterday"
 msgstr "昨天"
 
-#: pkg/dashboard/list.js:445
+#: pkg/dashboard/list.js:442
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "您当前已直接连接到该服务器。您不能删除它。"
@@ -8159,7 +8152,7 @@ msgstr "您可以尝试加载较早的条目。"
 msgid "You may want to change the password of the key for automatic login."
 msgstr "您可能需要更改自动登录的密钥密码。"
 
-#: pkg/users/password-dialogs.js:85
+#: pkg/users/password-dialogs.js:78
 msgid "You must wait longer to change your password"
 msgstr "您需要等待更长时间来修改您的密码"
 
@@ -8970,6 +8963,16 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "区"
+
+#~ msgid ""
+#~ "This version of cockpit-ws does not support connecting to a host with an "
+#~ "alternate user or port"
+#~ msgstr "该版本的 cockpit-ws 不支持连接到有交替的用户或端口的主机"
+
+#~ msgid ""
+#~ "To try a different port you will need to upgrade cockpit-ws to a newer "
+#~ "version."
+#~ msgstr "为了尝试一个不同的端口，需要把 cockpit-ws 升级到一个新版本。"
 
 #~ msgid "$0 template"
 #~ msgstr "$0 模板"

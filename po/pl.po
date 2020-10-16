@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-25 16:54+0000\n"
+"POT-Creation-Date: 2020-10-09 10:57+0000\n"
 "PO-Revision-Date: 2020-09-27 09:29+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -599,7 +599,7 @@ msgstr ""
 "Wiązanie sieciowe łączy wiele interfejsów sieciowych w jeden interfejs "
 "logiczny o wyższej przepustowości lub redundancji."
 
-#: pkg/lib/machine-dialogs.js:705
+#: pkg/lib/machine-dialogs.js:700
 msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
@@ -747,7 +747,7 @@ msgstr "Dodaj klucz"
 msgid "Add network interface"
 msgstr "Dodaj interfejs sieciowy"
 
-#: pkg/shell/hosts.jsx:243
+#: pkg/shell/hosts.jsx:240
 msgid "Add new host"
 msgstr "Dodaj nowy komputer"
 
@@ -1077,7 +1077,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Wymagane jest uwierzytelnienie"
 
-#: pkg/lib/machine-dialogs.js:724
+#: pkg/lib/machine-dialogs.js:719
 msgid "Authorize SSH key."
 msgstr "Upoważnij klucz SSH."
 
@@ -1282,7 +1282,7 @@ msgstr "Magistrala"
 msgid "Bus expansion chassis"
 msgstr "Obudowa rozszerzenia magistrali"
 
-#: pkg/lib/machine-dialogs.js:716
+#: pkg/lib/machine-dialogs.js:711
 msgid ""
 "By changing the password of the SSH key ${key} to the login password of "
 "${luser} on ${lhost}, the key will be automatically made available and you "
@@ -1336,12 +1336,12 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Nie można odnaleźć żadnych dzienników za pomocą obecnego połączenia filtrów."
 
-#: pkg/dashboard/list.js:221
+#: pkg/dashboard/list.js:218
 msgid "Can't load image"
 msgstr "Nie można wczytać obrazu"
 
 #: pkg/dashboard/index.html:186 pkg/lib/machine-add.html:39
-#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-change-port.html:35
+#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-change-port.html:26
 #: pkg/lib/machine-unknown-hostkey.html:21 pkg/networkmanager/index.html:517
 #: pkg/networkmanager/index.html:545 pkg/networkmanager/index.html:572
 #: pkg/networkmanager/index.html:599 pkg/networkmanager/index.html:626
@@ -1453,7 +1453,7 @@ msgstr "Zmień profil"
 msgid "Change system time"
 msgstr "Zmień czas systemu"
 
-#: pkg/lib/machine-dialogs.js:714
+#: pkg/lib/machine-dialogs.js:709
 msgid "Change the password of ${key}."
 msgstr "Zmień hasło klucza ${key}."
 
@@ -1546,7 +1546,7 @@ msgstr "Wyczyść konfigurację punktu montowania"
 msgid "Clear search"
 msgstr "Wyczyść wyszukiwanie"
 
-#: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:258
+#: pkg/users/account-create-dialog.js:217 pkg/users/password-dialogs.js:257
 msgid "Click $0 again to use the password anyway."
 msgstr "Kliknij $0 ponownie, aby użyć hasła mimo to."
 
@@ -1560,14 +1560,13 @@ msgstr ""
 msgid "Client software"
 msgstr "Oprogramowanie klienta"
 
-#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:39
-#: pkg/lib/machine-invalid-hostkey.html:12 pkg/lib/machine-not-supported.html:8
-#: pkg/networkmanager/index.html:753 pkg/shell/index.html:161
-#: pkg/shell/index.html:220 pkg/shell/index.html:402 pkg/systemd/index.html:55
-#: pkg/apps/utils.jsx:104 pkg/lib/cockpit-components-modifications.jsx:103
-#: pkg/shell/superuser.jsx:85 pkg/sosreport/index.js:46
-#: pkg/sosreport/index.js:128 pkg/storaged/dialog.jsx:399
-#: pkg/users/dialog-utils.js:61
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-invalid-hostkey.html:12
+#: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:753
+#: pkg/shell/index.html:161 pkg/shell/index.html:220 pkg/shell/index.html:402
+#: pkg/systemd/index.html:55 pkg/apps/utils.jsx:104
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:85
+#: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
+#: pkg/storaged/dialog.jsx:399 pkg/users/dialog-utils.js:61
 msgid "Close"
 msgstr "Zamknij"
 
@@ -1725,15 +1724,15 @@ msgstr "Konfigurowanie ustawień systemu"
 msgid "Confirm"
 msgstr "Potwierdź"
 
-#: pkg/lib/machine-dialogs.js:708
+#: pkg/lib/machine-dialogs.js:703
 msgid "Confirm key password"
 msgstr "Potwierdź hasło klucza"
 
-#: pkg/lib/machine-dialogs.js:719
+#: pkg/lib/machine-dialogs.js:714
 msgid "Confirm new key password"
 msgstr "Potwierdź nowe hasło klucza"
 
-#: pkg/users/password-dialogs.js:183
+#: pkg/users/password-dialogs.js:182
 #, fuzzy
 #| msgid "Confirm new key password"
 msgid "Confirm new password"
@@ -1807,7 +1806,7 @@ msgstr "Łączenie z usługą wirtualizacji"
 msgid "Connection"
 msgstr "Połączenie"
 
-#: pkg/dashboard/list.js:411 pkg/shell/hosts.jsx:209
+#: pkg/dashboard/list.js:408 pkg/shell/hosts.jsx:206
 msgid "Connection error"
 msgstr "Błąd połączenia"
 
@@ -1928,7 +1927,7 @@ msgstr "Utwórz urządzenie VDO"
 msgid "Create VM"
 msgstr "Utwórz maszynę wirtualną"
 
-#: pkg/lib/machine-dialogs.js:703
+#: pkg/lib/machine-dialogs.js:698
 msgid "Create a new SSH key and authorize it."
 msgstr "Utwórz nowy klucz SSH i go upoważnij."
 
@@ -2346,7 +2345,7 @@ msgstr "Rozwój"
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:102
+#: pkg/machines/components/vmDisksTab.jsx:102 pkg/storaged/crypto-panel.jsx:80
 msgid "Device"
 msgstr "Urządzenie"
 
@@ -2591,7 +2590,7 @@ msgstr "Modyfikuj serwer kluczy Tang"
 msgid "Edit host"
 msgstr "Modyfikuj komputer"
 
-#: pkg/shell/hosts.jsx:242
+#: pkg/shell/hosts.jsx:239
 msgid "Edit hosts"
 msgstr "Modyfikuj komputery"
 
@@ -2705,7 +2704,7 @@ msgstr "Wymuszanie"
 msgid "Enhancement updates available"
 msgstr "Dostępne są aktualizacje z ulepszeniami"
 
-#: pkg/lib/machine-dialogs.js:485
+#: pkg/lib/machine-dialogs.js:482
 msgid "Enter IP address or hostname"
 msgstr "Adres IP lub nazwa komputera"
 
@@ -2782,7 +2781,7 @@ msgstr "Przykład: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Przykład: 88,2019,nfs,rsync"
 
-#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:235
+#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:234
 msgid "Excellent password"
 msgstr "Doskonałe hasło"
 
@@ -2810,7 +2809,7 @@ msgstr "NIEPOWODZENIE"
 msgid "Failed"
 msgstr "Niepowodzenie"
 
-#: pkg/lib/machine-dialogs.js:450
+#: pkg/lib/machine-dialogs.js:447
 msgid "Failed to add machine: $0"
 msgstr "Dodanie komputera się nie powiodło: $0"
 
@@ -2830,8 +2829,8 @@ msgstr "Dodanie strefy się nie powiodło"
 msgid "Failed to change firmware"
 msgstr "Zmiana oprogramowania sprzętowego się nie powiodła"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:95
-#: pkg/users/password-dialogs.js:125
+#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:102
+#: pkg/users/password-dialogs.js:124
 msgid "Failed to change password"
 msgstr "Zmiana hasła się nie powiodła"
 
@@ -2847,7 +2846,7 @@ msgstr "Wyłączenie tuned się nie powiodło"
 msgid "Failed to disable tuned profile"
 msgstr "Wyłączenie profilu tuned się nie powiodło"
 
-#: pkg/lib/machine-dialogs.js:525
+#: pkg/lib/machine-dialogs.js:522
 msgid "Failed to edit machine: $0"
 msgstr "Modyfikacja komputera się nie powiodła: $0"
 
@@ -2954,7 +2953,7 @@ msgstr "Zabronione uruchamianie"
 msgid "Force change"
 msgstr "Wymuś zmianę"
 
-#: pkg/users/password-dialogs.js:314
+#: pkg/users/password-dialogs.js:313
 msgid "Force password change"
 msgstr "Wymuszenie zmiany hasła"
 
@@ -3146,7 +3145,7 @@ msgstr "Liczba pakietów w historii"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:229
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:226
 msgid "Host"
 msgstr "Gospodarz"
 
@@ -3175,7 +3174,7 @@ msgstr "Gospodarz nie może być pusty"
 msgid "Hostname"
 msgstr "Nazwa komputera"
 
-#: pkg/shell/hosts.jsx:198
+#: pkg/shell/hosts.jsx:195
 msgid "Hosts"
 msgstr "Komputery"
 
@@ -3326,7 +3325,7 @@ msgstr ""
 "W przypadku większości konfiguracji, macvtap nie działa dla gospodarza "
 "w celu komunikacji sieciowej gościa."
 
-#: pkg/lib/machine-dialogs.js:711
+#: pkg/lib/machine-dialogs.js:706
 msgid ""
 "In order to allow log in to ${rhost} as ${ruser} without password in the "
 "future, use the login password of ${luser} on ${lhost} as the key password, "
@@ -3556,7 +3555,7 @@ msgstr "Nieprawidłowa nazwa użytkownika lub hasło"
 msgid "IoT gateway"
 msgstr "Brama IoT"
 
-#: pkg/lib/machine-change-port.html:15
+#: pkg/lib/machine-change-port.html:10
 msgid "Is sshd running on a different port?"
 msgstr "Czy sshd jest uruchomione na innym porcie?"
 
@@ -3632,7 +3631,7 @@ msgid "Kernel dump"
 msgstr "Zrzut jądra"
 
 #: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
-#: pkg/lib/machine-dialogs.js:706
+#: pkg/lib/machine-dialogs.js:701
 msgid "Key password"
 msgstr "Hasło klucza"
 
@@ -3841,6 +3840,12 @@ msgstr "Zablokuj konto"
 #: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:70
 msgid "Lock account on $0"
 msgstr "Zablokowanie konta w dniu $0"
+
+#: pkg/storaged/crypto-panel.jsx:72 pkg/storaged/crypto-panel.jsx:75
+#, fuzzy
+#| msgid "No devices"
+msgid "Locked devices"
+msgstr "Brak urządzeń"
 
 #: pkg/storaged/jobs-panel.jsx:41
 msgid "Locking $target"
@@ -4349,15 +4354,15 @@ msgstr "Serwer NTP"
 #: pkg/machines/components/vmSnapshotsTab.jsx:94
 #: pkg/machines/hostvmslist.jsx:146 pkg/packagekit/updates.jsx:388
 #: pkg/storaged/content-views.jsx:116 pkg/storaged/content-views.jsx:272
-#: pkg/storaged/content-views.jsx:724 pkg/storaged/format-dialog.jsx:201
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:355
-#: pkg/storaged/fsys-tab.jsx:511 pkg/storaged/iscsi-panel.jsx:128
-#: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/lvol-tabs.jsx:35
-#: pkg/storaged/lvol-tabs.jsx:380 pkg/storaged/lvol-tabs.jsx:434
-#: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:160
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:76
-#: pkg/systemd/services/services-list.jsx:52
+#: pkg/storaged/content-views.jsx:724 pkg/storaged/crypto-panel.jsx:79
+#: pkg/storaged/format-dialog.jsx:201 pkg/storaged/fsys-panel.jsx:94
+#: pkg/storaged/fsys-tab.jsx:355 pkg/storaged/fsys-tab.jsx:511
+#: pkg/storaged/iscsi-panel.jsx:128 pkg/storaged/iscsi-panel.jsx:185
+#: pkg/storaged/lvol-tabs.jsx:35 pkg/storaged/lvol-tabs.jsx:380
+#: pkg/storaged/lvol-tabs.jsx:434 pkg/storaged/mdraids-panel.jsx:61
+#: pkg/storaged/part-tab.jsx:33 pkg/storaged/vdos-panel.jsx:82
+#: pkg/storaged/vgroup-details.jsx:160 pkg/storaged/vgroups-panel.jsx:74
+#: pkg/systemd/hwinfo.jsx:76 pkg/systemd/services/services-list.jsx:52
 msgid "Name"
 msgstr "Nazwa"
 
@@ -4516,7 +4521,7 @@ msgstr "Bez blokowania konta"
 msgid "New NFS mount"
 msgstr "Nowy punkt montowania NFS"
 
-#: pkg/lib/machine-dialogs.js:717
+#: pkg/lib/machine-dialogs.js:712
 msgid "New key password"
 msgstr "Nowe hasło klucza"
 
@@ -4524,11 +4529,11 @@ msgstr "Nowe hasło klucza"
 msgid "New passphrase"
 msgstr "Nowe hasło"
 
-#: pkg/shell/index.html:365 pkg/users/password-dialogs.js:177
+#: pkg/shell/index.html:365 pkg/users/password-dialogs.js:176
 msgid "New password"
 msgstr "Nowe hasło"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:104
+#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:85
 msgid "New password was not accepted"
 msgstr "Nie przyjęto nowego hasła"
 
@@ -4897,11 +4902,11 @@ msgstr "OK"
 msgid "Old passphrase"
 msgstr "Poprzednie hasło"
 
-#: pkg/shell/index.html:356 pkg/users/password-dialogs.js:169
+#: pkg/shell/index.html:356 pkg/users/password-dialogs.js:168
 msgid "Old password"
 msgstr "Poprzednie hasło"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:51
+#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:52
 msgid "Old password not accepted"
 msgstr "Nie przyjęto poprzedniego hasła"
 
@@ -5111,12 +5116,12 @@ msgid "Password expiration"
 msgstr "Wygasanie hasła"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:13
-#: pkg/users/password-dialogs.js:152
+#: pkg/users/password-dialogs.js:151
 msgid "Password is not acceptable"
 msgstr "Hasło jest do przyjęcia"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:12
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:138
 msgid "Password is too weak"
 msgstr "Hasło jest za słabe"
 
@@ -5335,7 +5340,7 @@ msgstr "Typ puli nie obsługuje tworzenia woluminów"
 msgid "Pool's volumes are used by VMs "
 msgstr "Woluminy puli są używane przez maszyny wirtualne "
 
-#: pkg/lib/machine-change-port.html:21
+#: pkg/lib/machine-change-port.html:14
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
 #: pkg/machines/components/vm/bootOrderModal.jsx:110
 #: pkg/machines/components/vmDiskColumns.jsx:48
@@ -5448,7 +5453,7 @@ msgstr "Profil"
 msgid "Project website"
 msgstr "Strona projektu"
 
-#: pkg/users/password-dialogs.js:56
+#: pkg/users/password-dialogs.js:57
 msgid "Prompting via passwd timed out"
 msgstr "Pytanie przez passwd przekroczyło czas oczekiwania"
 
@@ -5885,7 +5890,7 @@ msgstr "Potrzebne dla"
 msgid "Reserved memory"
 msgstr "Zastrzeżona pamięć"
 
-#: pkg/systemd/terminal.jsx:103 pkg/users/password-dialogs.js:321
+#: pkg/systemd/terminal.jsx:103 pkg/users/password-dialogs.js:320
 msgid "Reset"
 msgstr "Przywróć"
 
@@ -6256,7 +6261,7 @@ msgid "Session is about to expire"
 msgstr "Sesja zaraz wygaśnie"
 
 #: pkg/dashboard/index.html:185 pkg/shell/index.html:136
-#: pkg/users/password-dialogs.js:258 pkg/users/password-dialogs.js:275
+#: pkg/users/password-dialogs.js:257 pkg/users/password-dialogs.js:274
 msgid "Set"
 msgstr "Ustaw"
 
@@ -6272,7 +6277,7 @@ msgstr "Ustaw nazwę komputera"
 msgid "Set manually"
 msgstr "Ustaw ręcznie"
 
-#: pkg/users/account-details.js:317 pkg/users/password-dialogs.js:268
+#: pkg/users/account-details.js:317 pkg/users/password-dialogs.js:267
 msgid "Set password"
 msgstr "Ustaw hasło"
 
@@ -6654,7 +6659,7 @@ msgstr "Zatrzymaj i odmontuj"
 msgid "Stop device"
 msgstr "Zatrzymaj urządzenie"
 
-#: pkg/shell/hosts.jsx:242
+#: pkg/shell/hosts.jsx:239
 msgid "Stop editing hosts"
 msgstr "Zatrzymaj modyfikowanie komputerów"
 
@@ -6945,7 +6950,7 @@ msgstr "Nie można usunąć $0"
 msgid "The $0 package must be installed to create VDO devices."
 msgstr "Pakiet $0 musi być zainstalowany, aby tworzyć urządzenia VDO."
 
-#: pkg/lib/machine-dialogs.js:407
+#: pkg/lib/machine-dialogs.js:404
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "Adres IP lub nazwa komputera nie może zawierać spacji."
 
@@ -6961,7 +6966,7 @@ msgstr "Urządzenie RAID musi być uruchomione, aby dodać zapasowe dyski."
 msgid "The RAID device must be running in order to remove disks."
 msgstr "Urządzenie RAID musi być uruchomione, aby usunąć dyski."
 
-#: pkg/lib/machine-dialogs.js:727
+#: pkg/lib/machine-dialogs.js:722
 msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
@@ -7035,7 +7040,7 @@ msgstr ""
 "Maszyna wirtualna musi być uruchomiona lub wyłączona, aby odłączyć to "
 "urządzenie"
 
-#: pkg/users/password-dialogs.js:309
+#: pkg/users/password-dialogs.js:308
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Konto „$0” będzie zmuszone do zmiany hasła podczas następnego logowania"
@@ -7171,11 +7176,11 @@ msgstr ""
 "klucza. Jeśli ten komputer nie został niedawno wymieniany, może to oznaczać "
 "próbę ataku na połączenie z tym komputerem."
 
-#: pkg/lib/machine-dialogs.js:838
+#: pkg/lib/machine-dialogs.js:833
 msgid "The key password can not be empty"
 msgstr "Hasło klucza nie może być puste"
 
-#: pkg/lib/machine-dialogs.js:846
+#: pkg/lib/machine-dialogs.js:841
 msgid "The key passwords do not match"
 msgstr "Hasła klucza się nie zgadzają"
 
@@ -7204,15 +7209,15 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Komputer jest ponownie uruchamiany"
 
-#: pkg/lib/machine-dialogs.js:854
+#: pkg/lib/machine-dialogs.js:849
 msgid "The new key password can not be empty"
 msgstr "Nowe hasło klucza nie może być puste"
 
-#: pkg/lib/machine-dialogs.js:859
+#: pkg/lib/machine-dialogs.js:854
 msgid "The new key passwords do not match"
 msgstr "Nowe hasła klucza się nie zgadzają"
 
-#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:253
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:252
 msgid "The passwords do not match"
 msgstr "Hasła się nie zgadzają"
 
@@ -7462,14 +7467,6 @@ msgstr "Ta jednostka nie została zaprojektowana do bezpośredniego włączania.
 msgid "This user name already exists"
 msgstr "Ta nazwa użytkownika już istnieje"
 
-#: pkg/lib/machine-dialogs.js:401
-msgid ""
-"This version of cockpit-ws does not support connecting to a host with an "
-"alternate user or port"
-msgstr ""
-"Ta wersja cockpit-ws nie obsługuje łączenia z komputerem z alternatywnym "
-"użytkownikiem lub portem"
-
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:541
 msgid "This volume is already used by another VM."
 msgstr "Ten wolumin jest już używany przez inną maszynę wirtualną."
@@ -7490,7 +7487,7 @@ msgstr "Ta przeglądarka jest za stara, aby uruchomić Cockpit (brak $0)"
 msgid "This web console will be updated."
 msgstr "Ta konsola internetowa zostanie zaktualizowana."
 
-#: pkg/lib/machine-dialogs.js:729
+#: pkg/lib/machine-dialogs.js:724
 msgid "This will allow you to log in without password in the future."
 msgstr "Umożliwi to logowanie bez hasła w przyszłości."
 
@@ -7556,14 +7553,6 @@ msgstr ""
 "Aby otrzymywać aktualizacje oprogramowania, ten system musi zostać "
 "zarejestrowany w firmie Red Hat za pomocą serwisu Red Hat Customer Portal "
 "lub lokalnego serwera subskrypcji."
-
-#: pkg/lib/machine-change-port.html:11
-msgid ""
-"To try a different port you will need to upgrade cockpit-ws to a newer "
-"version."
-msgstr ""
-"Należy zaktualizować cockpit-ws do nowszej wersji, aby spróbować innego "
-"portu."
 
 #: pkg/machines/components/vmSnapshotsTab.jsx:39
 msgid "Today"
@@ -7705,7 +7694,7 @@ msgstr "Nie można automatycznie zastosować tego rozwiązania"
 msgid "Unable to connect to that address"
 msgstr "Nie można połączyć z tym adresem"
 
-#: pkg/lib/machine-dialogs.js:467
+#: pkg/lib/machine-dialogs.js:464
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7929,7 +7918,7 @@ msgstr "Nieobsługiwany wolumin"
 msgid "Untrusted host"
 msgstr "Niezaufany komputer"
 
-#: pkg/lib/machine-change-port.html:34
+#: pkg/lib/machine-change-port.html:25
 msgid "Update"
 msgstr "Zaktualizuj"
 
@@ -8376,7 +8365,7 @@ msgstr "Tak"
 msgid "Yesterday"
 msgstr "Wczoraj"
 
-#: pkg/dashboard/list.js:445
+#: pkg/dashboard/list.js:442
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "Obecnie połączono bezpośrednio z tym serwerem. Nie można go usunąć."
@@ -8409,7 +8398,7 @@ msgstr "Można spróbować wczytać starsze wpisy."
 msgid "You may want to change the password of the key for automatic login."
 msgstr "Można zmienić hasło klucza do automatycznego logowania."
 
-#: pkg/users/password-dialogs.js:85
+#: pkg/users/password-dialogs.js:78
 msgid "You must wait longer to change your password"
 msgstr "Należy poczekać dłużej na zmianę hasła"
 
@@ -9229,6 +9218,20 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "strefa"
+
+#~ msgid ""
+#~ "This version of cockpit-ws does not support connecting to a host with an "
+#~ "alternate user or port"
+#~ msgstr ""
+#~ "Ta wersja cockpit-ws nie obsługuje łączenia z komputerem z alternatywnym "
+#~ "użytkownikiem lub portem"
+
+#~ msgid ""
+#~ "To try a different port you will need to upgrade cockpit-ws to a newer "
+#~ "version."
+#~ msgstr ""
+#~ "Należy zaktualizować cockpit-ws do nowszej wersji, aby spróbować innego "
+#~ "portu."
 
 #~ msgid "$0 template"
 #~ msgstr "Szablon $0"

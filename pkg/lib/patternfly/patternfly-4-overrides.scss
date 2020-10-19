@@ -45,3 +45,13 @@ ul.pf-c-select__menu {
         --pf-c-description-list__group--GridTemplateColumns: var(--pf-c-description-list--m-horizontal__group--GridTemplateColumns);
     }
 }
+
+// When using horizontal ruler inside description list it's just for the spacing - don't show it
+.pf-c-description-list {
+    // The default gap between the rows is too large
+    --pf-c-description-list--RowGap: 1rem;
+
+    > hr {
+        border-top: none;
+    }
+}

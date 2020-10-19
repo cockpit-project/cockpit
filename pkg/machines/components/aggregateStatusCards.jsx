@@ -21,70 +21,58 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import {
-    Card,
-    CardTitle,
-    CardBody,
-    AggregateStatusCount,
-    AggregateStatusNotifications,
-    AggregateStatusNotification,
-    Icon,
-} from 'patternfly-react';
+    Button,
+    Card, CardHeader,
+    Divider,
+    Flex, FlexItem,
+} from '@patternfly/react-core';
+import { ServerIcon, NetworkIcon, ArrowCircleUpIcon, ArrowCircleDownIcon } from '@patternfly/react-icons';
 
 import './aggregateStatusCards.css';
 
 export class AggregateStatusCards extends React.Component {
     render() {
         return (
-            <div className='cards-pf grid-cards-ct cards-ct-hybrid'>
-                <Card accented aggregated id='card-pf-storage-pools'>
-                    <CardTitle onClick={ () => cockpit.location.go(['storages']) }>
-                        <button role="link" className="link-button">
-                            <Icon type='pf' name='server' />
-                            <AggregateStatusCount>
-                                { this.props.storagePools.length }
-                            </AggregateStatusCount>
+            <div className='grid-cards-ct'>
+                <Card id='card-pf-storage-pools'>
+                    <CardHeader>
+                        <Button onClick={() => cockpit.location.go(['storages'])} variant="link" icon={<ServerIcon />}>
                             <span className="card-pf-title-link">
-                                {cockpit.ngettext("Storage pool", "Storage pools", this.props.storagePools.length)}
+                                {cockpit.format(cockpit.ngettext("$0 Storage pool", "$0 Storage pools", this.props.storagePools.length), this.props.storagePools.length)}
                             </span>
-                        </button>
-                    </CardTitle>
-                    <CardBody>
-                        <AggregateStatusNotifications>
-                            <AggregateStatusNotification>
-                                <Icon type='fa' name='arrow-circle-o-up' />
+                        </Button>
+                        <Flex>
+                            <FlexItem className="active-resources">
+                                <ArrowCircleUpIcon />
                                 { this.props.storagePools.filter(pool => pool && pool.active).length }
-                            </AggregateStatusNotification>
-                            <AggregateStatusNotification>
-                                <Icon type='fa' name='arrow-circle-o-down' />
+                            </FlexItem>
+                            <Divider isVertical />
+                            <FlexItem className="active-resources">
+                                <ArrowCircleDownIcon />
                                 { this.props.storagePools.filter(pool => pool && !pool.active).length }
-                            </AggregateStatusNotification>
-                        </AggregateStatusNotifications>
-                    </CardBody>
+                            </FlexItem>
+                        </Flex>
+                    </CardHeader>
                 </Card>
-                <Card accented aggregated id='card-pf-networks'>
-                    <CardTitle onClick={ () => cockpit.location.go(['networks']) }>
-                        <button role="link" className="link-button">
-                            <Icon type='pf' name='network' />
-                            <AggregateStatusCount>
-                                { this.props.networks.length }
-                            </AggregateStatusCount>
+                <Card id='card-pf-networks'>
+                    <CardHeader>
+                        <Button onClick={() => cockpit.location.go(['networks'])} variant="link" icon={<NetworkIcon />}>
                             <span className="card-pf-title-link">
-                                {cockpit.ngettext("Network", "Networks", this.props.networks.length)}
+                                {cockpit.format(cockpit.ngettext("$0 Network", "$0 Networks", this.props.networks.length), this.props.networks.length)}
                             </span>
-                        </button>
-                    </CardTitle>
-                    <CardBody>
-                        <AggregateStatusNotifications>
-                            <AggregateStatusNotification>
-                                <Icon type='fa' name='arrow-circle-o-up' />
+                        </Button>
+                        <Flex>
+                            <FlexItem className="active-resources">
+                                <ArrowCircleUpIcon />
                                 { this.props.networks.filter(network => network && network.active).length }
-                            </AggregateStatusNotification>
-                            <AggregateStatusNotification>
-                                <Icon type='fa' name='arrow-circle-o-down' />
+                            </FlexItem>
+                            <Divider isVertical />
+                            <FlexItem className="active-resources">
+                                <ArrowCircleDownIcon />
                                 { this.props.networks.filter(network => network && !network.active).length }
-                            </AggregateStatusNotification>
-                        </AggregateStatusNotifications>
-                    </CardBody>
+                            </FlexItem>
+                        </Flex>
+                    </CardHeader>
                 </Card>
             </div>
         );

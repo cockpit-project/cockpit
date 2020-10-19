@@ -45,7 +45,7 @@ import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification }) => {
+const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetailsPage }) => {
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [showDeleteDialog, toggleDeleteModal] = useState(false);
 
@@ -134,9 +134,13 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification }) => {
     }
 
     if (LibvirtDBus.canShutdown(state)) {
-        shutdown = (<Button key='action-shutdown' variant='secondary' onClick={() => onShutdown()} id={`${id}-shutdown-button`}>
-            {_("Shut down")}
-        </Button>);
+        shutdown = (
+            <Button key='action-shutdown'
+                    variant={isDetailsPage ? 'primary' : 'secondary'}
+                    onClick={() => onShutdown()} id={`${id}-shutdown-button`}>
+                {_("Shut down")}
+            </Button>
+        );
         dropdownItems.push(
             <DropdownItem key={`${id}-off`}
                           id={`${id}-off`}
@@ -182,9 +186,13 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification }) => {
 
     let run = null;
     if (LibvirtDBus.canRun(state, hasInstallPhase)) {
-        run = (<Button key='action-run' variant="secondary" onClick={() => onStart()} id={`${id}-run`}>
-            {_("Run")}
-        </Button>);
+        run = (
+            <Button key='action-run'
+                    variant={isDetailsPage ? 'primary' : 'secondary'}
+                    onClick={() => onStart()} id={`${id}-run`}>
+                {_("Run")}
+            </Button>
+        );
     }
 
     let install = null;

@@ -171,7 +171,8 @@ export const VmExpandedContent = ({
                                config={config}
                                dispatch={dispatch}
                                storagePools={storagePools}
-                               onAddErrorNotification={onAddErrorNotification} />
+                               onAddErrorNotification={onAddErrorNotification}
+                               isDetailsPage />
                 </div>
                 {notifications && <div className="vm-notifications">{notifications}</div>}
             </PageSection>

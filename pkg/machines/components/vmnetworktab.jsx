@@ -84,7 +84,7 @@ export class VmNetworkActions extends React.Component {
                     availableSources={availableSources}
                     interfaces={interfaces}
                     close={this.close} />}
-            <Button id={`${id}-add-iface-button`} onClick={this.open}>
+            <Button id={`${id}-add-iface-button`} variant="secondary" onClick={this.open}>
                 {_("Add network interface")}
             </Button>
         </>);

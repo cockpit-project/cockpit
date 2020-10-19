@@ -1,0 +1,41 @@
+name: unit-tests
+on: [push, pull_request]
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      #- name: interactive SSH debug session
+      #  uses: mxschmitt/action-tmate@v3
+
+      - name: Run unit-tests container
+        run: containers/unit-tests/start
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Run unit-tests container
+        run: containers/unit-tests/start CC=clang
+
+  i386:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Run unit-tests container
+        run: containers/unit-tests/start :i386

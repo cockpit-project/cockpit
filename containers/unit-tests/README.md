@@ -48,7 +48,7 @@ Some examples:
 
 For interactive debugging, run a shell in the container:
 
-    $ ./start shell     # start an interactive shell on i386
+    $ ./start shell     # start an interactive shell in default container
 
 You will find the cockpit source tree (from the host) mounted at `/source` in
 the container.

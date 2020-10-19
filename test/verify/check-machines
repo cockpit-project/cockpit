@@ -1822,13 +1822,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 location=config.VALID_URL,
                                                 memory_size=512, memory_size_unit='MiB',
                                                 storage_pool="No storage",
-                                                os_name=config.MICROSOFT_SERVER_2016))
+                                                os_name=config.FEDORA_28))
 
         runner.createTest(TestMachines.VmDialog(self, sourceType='url',
                                                 location=config.VALID_URL,
                                                 memory_size=512, memory_size_unit='MiB',
                                                 storage_pool="No storage",
-                                                os_name=config.MICROSOFT_SERVER_2016,
+                                                os_name=config.FEDORA_28,
                                                 start_vm=False))
 
         runner.createTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1878,8 +1878,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
         TREE_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os'
-
-        MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 
         # LINUX can be filtered if 3 years old
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'

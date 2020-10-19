@@ -190,6 +190,7 @@ class CDP:
                     user_pref("browser.download.dir", "{0}");
                     user_pref("browser.download.folderList", 2);
                     user_pref("signon.rememberSignons", false);
+                    user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
                     """.format(self.download_dir))
 
             with open(os.path.join(profile, "handlers.json"), "w") as f:

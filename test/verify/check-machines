@@ -1689,6 +1689,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
         self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
+        runner.checkEnvIsEmpty()
 
         # Check that host network devices are appearing in the options for PXE boot sources
         runner.createTest(TestMachines.VmDialog(self, sourceType='pxe',

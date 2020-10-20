@@ -86,7 +86,7 @@ export class VmDisksActions extends React.Component {
 
         return (
             <>
-                <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open}>
+                <Button id={`${idPrefix}-adddisk`} variant='secondary' onClick={this.open}>
                     {_("Add disk")}
                 </Button>
                 {this.state.showAddDiskModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} />}

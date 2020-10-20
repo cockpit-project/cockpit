@@ -3771,14 +3771,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Delete Storage Volume that is not used by any VM
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
-        b.click("tbody input[aria-labelledby=simple-node1]")
+        b.click("tbody input[aria-label='Select row 1']")
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
         b.click("#storage-volumes-delete")
         b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
 
         # Try to Delete Storage Volume which is used by a VM
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
-        b.click("tbody input[aria-labelledby=simple-node0]")
+        b.click("tbody input[aria-label='Select row 0']")
         b.wait_present("#storage-volumes-delete:disabled")
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
 

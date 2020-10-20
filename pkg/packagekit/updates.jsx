@@ -25,8 +25,10 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import {
-    Button, Tooltip, Page, PageSection, PageSectionVariants,
+    Button, Grid, GridItem, Tooltip,
+    Card, CardTitle, CardActions, CardHeader, CardBody, CardFooter,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
+    Page, PageSection, PageSectionVariants,
 } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
@@ -159,13 +161,14 @@ function find_highest_severity(updates) {
     return max;
 }
 
+// TODO get rid of HeaderBar when whole redesign is completed
 const HeaderBar = ({ state, updates, timeSinceRefresh, onRefresh, unregistered, allowCancel, onCancel }) => {
     const num_updates = Object.keys(updates).length;
     let num_security = 0;
     let state_str;
 
     // unregistered & no available updates → blank slate, no header bar
-    if (unregistered && state == "uptodate")
+    if ((unregistered && state == "uptodate") || state == "available")
         return null;
 
     if (state == "available") {
@@ -784,7 +787,7 @@ class OsUpdates extends React.Component {
     }
 
     renderContent() {
-        var applySecurity, applyAll, unregisteredWarning;
+        var applySecurity, applyAll;
 
         if (this.state.unregistered) {
             // always show empty state pattern, even if there are some
@@ -832,73 +835,106 @@ class OsUpdates extends React.Component {
                 return <EmptyStatePanel loading />;
 
         case "available":
-            {
-                const num_updates = Object.keys(this.state.updates).length;
-                const num_security_updates = count_security_updates(this.state.updates);
-                const highest_severity = find_highest_severity(this.state.updates);
-                let text;
+        {
+            const num_updates = Object.keys(this.state.updates).length;
+            const num_security_updates = count_security_updates(this.state.updates);
+            const highest_severity = find_highest_severity(this.state.updates);
+            let text;
 
-                applyAll = (
-                    <Button variant="primary" className="pk-update--all" onClick={ () => this.applyUpdates(false) }>
-                        { num_updates == num_security_updates
-                            ? _("Install security updates") : _("Install all updates") }
+            applyAll = (
+                <Button variant="primary" onClick={ () => this.applyUpdates(false) }>
+                    { num_updates == num_security_updates
+                        ? _("Install security updates") : _("Install all updates") }
+                </Button>);
+
+            if (num_security_updates > 0 && num_updates > num_security_updates) {
+                applySecurity = (
+                    <Button variant="secondary" onClick={ () => this.applyUpdates(true) }>
+                        {_("Install security updates")}
                     </Button>);
+            }
 
-                if (num_security_updates > 0 && num_updates > num_security_updates) {
-                    applySecurity = (
-                        <Button variant="secondary" className="pk-update--security" onClick={ () => this.applyUpdates(true) }>
-                            {_("Install security updates")}
-                        </Button>);
+            if (highest_severity == PK.Enum.INFO_SECURITY)
+                text = _("Security updates available");
+            else if (highest_severity >= PK.Enum.INFO_NORMAL)
+                text = _("Bug fix updates available");
+            else if (highest_severity >= PK.Enum.INFO_LOW)
+                text = _("Enhancement updates available");
+            else
+                text = _("Updates available");
+
+            page_status.set_own({
+                type: num_security_updates > 0 ? "warning" : "info",
+                title: text,
+                details: {
+                    icon: PK.getSeverityIcon(highest_severity)
                 }
+            });
 
-                if (highest_severity == PK.Enum.INFO_SECURITY)
-                    text = _("Security updates available");
-                else if (highest_severity >= PK.Enum.INFO_NORMAL)
-                    text = _("Bug fix updates available");
-                else if (highest_severity >= PK.Enum.INFO_LOW)
-                    text = _("Enhancement updates available");
-                else
-                    text = _("Updates available");
+            const cardContents = [
+                {
+                    id: "status",
+                    span: 6,
+                    title: _("Status"),
+                    actions: (<Tooltip content={_("Check for updates")}>
+                        <Button variant="secondary" onClick={this.handleRefresh}><i className="fa fa-refresh" /></Button>
+                    </Tooltip>),
+                },
+                {
+                    span: 6,
+                    id: "automatic-updates",
+                    body: <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
+                },
+                {
+                    id: "available-updates",
+                    title: _("Available updates"),
+                    actions: (<div className="pk-updates--header--actions">
+                        {applySecurity}
+                        {applyAll}
+                    </div>),
+                    body: <UpdatesList updates={this.state.updates} />
+                },
+            ];
 
-                page_status.set_own({
-                    type: num_security_updates > 0 ? "warning" : "info",
-                    title: text,
-                    details: {
-                        icon: PK.getSeverityIcon(highest_severity)
-                    }
+            if (this.state.autoUpdatesEnabled !== undefined) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+                cardContents.push({
+                    id: "update-history",
+                    title: _("Update history"),
+                    body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
                 });
             }
 
-            return (
-                <div className="pk-updates">
-                    {unregisteredWarning}
-                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
-                    <div id="available" className="pk-updates--header">
-                        <h3 className="pk-updates--header--heading">{_("Available updates")}</h3>
-                        <div className="pk-updates--header--actions">
-                            {applySecurity}
-                            {applyAll}
-                        </div>
-                    </div>
-                    { this.state.cockpitUpdate
-                        ? <div className="alert alert-warning">
-                            <span className="pficon pficon-warning-triangle-o" />
-                            <span>
-                                <strong>{_("This web console will be updated.")}</strong>
-                                    &nbsp;
-                                {_("Your browser will disconnect, but this does not affect the update process. You can reconnect in a few moments to continue watching the progress.")}
-                            </span>
-                        </div>
-                        : null
-                    }
-                    <UpdatesList updates={this.state.updates} />
+            const cards = cardContents.map(card => {
+                return (
+                    <GridItem key={card.id} span={card.span}>
+                        <Card className={card.className}
+                              id={card.id}>
+                            <CardHeader>
+                                <CardTitle><h2>{card.title}</h2></CardTitle>
+                                {card.actions && <CardActions>{card.actions}</CardActions>}
+                            </CardHeader>
+                            <CardBody>
+                                {card.body}
+                            </CardBody>
+                            <CardFooter />
+                        </Card>
+                    </GridItem>
+                );
+            });
 
-                    { // automatic updates are not tracked by PackageKit, hide history when they are enabled
-                        (this.state.autoUpdatesEnabled !== undefined) &&
-                            <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
-                    }
-                </div>
+            return (
+                <>
+                    <PageSection variant={PageSectionVariants.light}>
+                        <h2 id="page-title">{_("Software updates")}</h2>
+                    </PageSection>
+                    <PageSection>
+                        <Grid hasGutter>
+                            {cards}
+                        </Grid>
+                    </PageSection>
+                </>
             );
+        }
 
         case "loadError":
         case "updateError":
@@ -929,6 +965,7 @@ class OsUpdates extends React.Component {
                                     paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") } />;
 
         case "uptodate":
+        {
             page_status.set_own({
                 title: _("System is up to date"),
                 details: {
@@ -937,16 +974,64 @@ class OsUpdates extends React.Component {
                 }
             });
 
+            const cardContents = [
+                {
+                    id: "status",
+                    span: 6,
+                    title: _("Status"),
+                    actions: (<Tooltip content={_("Check for updates")}>
+                        <Button variant="secondary" onClick={this.handleRefresh}><i className="fa fa-refresh" /></Button>
+                    </Tooltip>),
+                    body: <StatusCard updates={this.state.updates}
+                                      timeSinceRefresh={this.state.timeSinceRefresh} />
+                },
+                {
+                    span: 6,
+                    id: "automatic-updates",
+                    title: _("Automatic updates"),
+                    actions: (<AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />),
+                },
+            ];
+
+            if (this.state.autoUpdatesEnabled !== undefined) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+                cardContents.push({
+                    id: "update-history",
+                    title: _("Update history"),
+                    body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
+                });
+            }
+
+            const cards = cardContents.map(card => {
+                return (
+                    <GridItem key={card.id} span={card.span}>
+                        <Card className={card.className}
+                              id={card.id}>
+                            <CardHeader>
+                                <CardTitle><h2>{card.title}</h2></CardTitle>
+                                {card.actions && <CardActions>{card.actions}</CardActions>}
+                            </CardHeader>
+                            <CardBody>
+                                {card.body}
+                            </CardBody>
+                            <CardFooter />
+                        </Card>
+                    </GridItem>
+                );
+            });
+
             return (
                 <>
-                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
-                    <EmptyStatePanel icon={CheckIcon} title={ _("System is up to date") } />
-
-                    { // automatic updates are not tracked by PackageKit, hide history when they are enabled
-                        (this.state.autoUpdatesEnabled !== undefined) &&
-                            <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
-                    }
-                </>);
+                    <PageSection variant={PageSectionVariants.light}>
+                        <h2 id="page-title">{_("Software updates")}</h2>
+                    </PageSection>
+                    <PageSection>
+                        <Grid hasGutter>
+                            {cards}
+                        </Grid>
+                    </PageSection>
+                </>
+            );
+        }
 
         default:
             page_status.set_own(null);
@@ -977,6 +1062,10 @@ class OsUpdates extends React.Component {
     }
 
     render() {
+        let content = this.renderContent();
+        if (!["available", "uptodate"].includes(this.state.state))
+            content = <PageSection variant={PageSectionVariants.light}>{content}</PageSection>;
+
         return (
             <Page>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
@@ -984,9 +1073,7 @@ class OsUpdates extends React.Component {
                            unregistered={this.state.unregistered}
                            allowCancel={this.state.allowCancel}
                            onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
-                <PageSection id="updates" variant={PageSectionVariants.light}>
-                    {this.renderContent()}
-                </PageSection>
+                {content}
             </Page>
         );
     }

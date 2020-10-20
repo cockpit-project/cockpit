@@ -103,7 +103,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
 
-        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
+        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml || true")
 
     def goToVmPage(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
@@ -151,7 +151,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("until virsh list; do sleep 1; done")
 
         # Wait for the network 'default' to become active
-        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml")
+        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml || true")
         m.execute("virsh net-start default || true")
         m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 

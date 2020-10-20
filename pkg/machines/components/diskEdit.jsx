@@ -20,7 +20,7 @@
 import React from 'react';
 import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Button, Tooltip, Alert } from '@patternfly/react-core';
+import { Button, Tooltip, Alert, Radio } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import * as Select from 'cockpit-components-select.jsx';
@@ -93,43 +93,31 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
             <label className='control-label' htmlFor={`${idPrefix}-access`}>
                 {_("Access")}
             </label>
-            <label className="radio">
-                <input id={`${idPrefix}-readonly`}
-                       type="radio"
-                       name="readonly"
-                       checked={dialogValues.readonly}
-                       onChange={e => {
-                           onValueChanged('readonly', true);
-                           onValueChanged('shareable', false);
-                       }}
-                       className={dialogValues.readonly ? "active" : ''} />
-                {_("Read-only")}
-            </label>
-            <label className="radio">
-                <input id={`${idPrefix}-writable`}
-                       type="radio"
-                       name="writable"
-                       checked={!dialogValues.readonly && !dialogValues.shareable}
-                       onChange={e => {
-                           onValueChanged('readonly', false);
-                           onValueChanged('shareable', false);
-                       }}
-                       className={!dialogValues.readonly && !dialogValues.shareable ? "active" : ''} />
-                {_("Writeable")}
-            </label>
+            <Radio id={`${idPrefix}-readonly`}
+                   name="access"
+                   isChecked={dialogValues.readonly}
+                   onChange={e => {
+                       onValueChanged('readonly', true);
+                       onValueChanged('shareable', false);
+                   }}
+                   label={_("Read-only")} />
+            <Radio id={`${idPrefix}-writable`}
+                   name="access"
+                   isChecked={!dialogValues.readonly && !dialogValues.shareable}
+                   onChange={e => {
+                       onValueChanged('readonly', false);
+                       onValueChanged('shareable', false);
+                   }}
+                   label={_("Writeable")} />
             {(driverType === "raw") &&
-            <label className="radio">
-                <input id={`${idPrefix}-writable-shareable`}
-                       type="radio"
-                       name="writable-shareable"
-                       checked={dialogValues.shareable}
-                       onChange={e => {
-                           onValueChanged('readonly', false);
-                           onValueChanged('shareable', true);
-                       }}
-                       className={dialogValues.shareable ? "active" : ''} />
-                {_("Writeable and shared")}
-            </label>}
+            <Radio id={`${idPrefix}-writable-shareable`}
+                   name="access"
+                   isChecked={dialogValues.shareable}
+                   onChange={e => {
+                       onValueChanged('readonly', false);
+                       onValueChanged('shareable', true);
+                   }}
+                   label={_("Writeable and shared")} />}
         </>
     );
 };

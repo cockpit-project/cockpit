@@ -1518,6 +1518,8 @@ class TapRunner:
         elif result.wasSuccessful():
             print("# Result {0} succeeded".format(test))
         else:
+            for failure in result.failures:
+                print(failure[1])
             for error in result.errors:
                 print(error[1])
             print("# Result {0} failed".format(test))

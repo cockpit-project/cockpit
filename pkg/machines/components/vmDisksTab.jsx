@@ -137,7 +137,9 @@ export class VmDisksTabLibvirt extends React.Component {
             const pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
             const volumes = pool ? pool.volumes : [];
             const volumeName = disk.source.volume;
-            const volume = volumes.filter(vol => vol.name == volumeName)[0];
+            let volume;
+            if (volumes)
+                volume = volumes.filter(vol => vol.name == volumeName)[0];
 
             if (volume) {
                 capacity = volume.capacity;

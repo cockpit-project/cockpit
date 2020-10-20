@@ -493,285 +493,307 @@
     </main>
   </div>
 
-  <div class="modal" id="network-ip-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">IP settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-ip-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-ip-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+  <div hidden aria-hidden="true" id="network-ip-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-ip-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">IP settings</h4>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-ip-settings-body">
             </div>
-            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-ip-settings-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="network-bond-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bond settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-          <button id="bond-help-popup-button" class="close pficon pficon-help" data-toggle="popover">
-        </div>
-        <div class="modal-body">
-          <div id="network-bond-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            </div>
-            <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-bond-settings-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="network-team-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Team settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-team-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            </div>
-            <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-team-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-team-settings-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="network-teamport-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Team port settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-teamport-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-teamport-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            </div>
-            <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="network-bridge-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bridge settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-bridge-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-ip-settings-error">
               <div class="pf-c-alert__icon">
                   <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-ip-settings-cancel">Cancel</button>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="network-bridgeport-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Bridge port settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-bridgeport-settings-body">
+  <div hidden aria-hidden="true" id="network-bond-settings-dialog">
+   <div class="pf-c-backdrop">
+     <div class="pf-l-bullseye">
+       <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+         <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bond-settings-close-button" translate="aria-label">
+           <i class="fa fa-times" aria-hidden="true"></i>
+         </button>
+         <header class="pf-c-modal-box__header pf-m-help">
+           <div class="pf-c-modal-box__header-main">
+             <h1 class="pf-c-modal-box__title" translate="yes">Bond settings</h4>
+           </div>
+           <div class="pf-c-modal-box__header-help">
+             <button id="bond-help-popup-button" class="pf-c-button pf-m-plain" type="button" aria-label="Help" tranlate="aria-label">
+               <i class="pficon pficon-help" aria-hidden="true" data-toggle="popover"></i>
+             </button>
+           </div>
+         </header>
+         <div class="pf-c-modal-box__body">
+           <div id="network-bond-settings-body">
+           </div>
+         </div>
+         <footer class="pf-c-modal-box__footer">
+           <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
+             <div class="pf-c-alert__icon">
+                 <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+             </div>
+             <h4 class="pf-c-alert__title"></h4>
+           </div>
+           <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
+           <button class="pf-c-button pf-m-link" translate="yes" id="network-bond-settings-cancel">Cancel</button>
+         </footer>
+       </div>
+     </div>
+   </div>
+  </div>
+
+  <div hidden aria-hidden="true" id="network-team-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-team-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Team settings</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-team-settings-body">
+            </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
               <div class="pf-c-alert__icon">
                   <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-team-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-team-settings-cancel">Cancel</button>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="network-vlan-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">VLAN settings</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-vlan-settings-body">
+  <div hidden aria-hidden="true" id="network-teamport-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-teamport-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Team port settings</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-teamport-settings-body">
+            </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-vlan-settings-error">
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-teamport-settings-error">
               <div class="pf-c-alert__icon">
                   <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="network-mtu-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Ethernet MTU</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-mtu-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mtu-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
             </div>
-            <h4 class="pf-c-alert__title"></h4>
-          </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-mtu-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-mtu-settings-cancel">Cancel</button>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="network-mac-settings-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Ethernet MAC</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div id="network-mac-settings-body">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mac-settings-error">
-            <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+  <div hidden aria-hidden="true" id="network-bridge-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bridge-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Bridge settings</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-bridge-settings-body">
             </div>
-            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="pf-c-button pf-m-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
-          <button class="pf-c-button pf-m-link" translate="yes" id="network-mac-settings-cancel">Cancel</button>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
+                <div class="pf-c-alert__icon">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+                <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="error-popup"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Unexpected error</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p id="error-popup-message"></p>
-        </div>
-        <div class="modal-footer">
-          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Close</button>
+  <div hidden aria-hidden="true" id="network-bridgeport-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bridgeport-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Bridge port settings</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-bridgeport-settings-body">
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
+                <div class="pf-c-alert__icon">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+                <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="confirm-breaking-change-popup"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translate="yes">Connection will be lost</h4>
-          <button class="close pficon pficon-close" data-dismiss="modal"></button>
+  <div hidden aria-hidden="true" id="network-vlan-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-vlan-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">VLAN settings</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-vlan-settings-body">
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-vlan-settings-error">
+                <div class="pf-c-alert__icon">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+                <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
+          </footer>
         </div>
-        <div class="modal-body">
-          <div class="pficon pficon-warning-triangle-o"></div>
-          <div id="confirm-breaking-change-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true" id="network-mtu-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-mtu-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Ethernet MTU</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-mtu-settings-body">
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mtu-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-mtu-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-mtu-settings-cancel">Cancel</button>
+          </footer>
         </div>
-        <div class="modal-footer">
-          <button class="pf-c-button pf-m-danger"></button>
-          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Keep connection</button>
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true" id="network-mac-settings-dialog">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-mac-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Ethernet MAC</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-mac-settings-body">
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mac-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-mac-settings-cancel">Cancel</button>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true" id="error-popup">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Unexpected error</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <p id="error-popup-message"></p>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <button class="pf-c-button pf-m-primary" id="error-popup-cancel" translate>Close</button>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true" id="confirm-breaking-change-popup">
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" translate="yes">Connection will be lost</h1>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div class="pficon pficon-warning-triangle-o"></div>
+            <div id="confirm-breaking-change-text"></div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <button class="pf-c-button pf-m-danger"></button>
+            <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Keep connection</button>
+          </footer>
         </div>
       </div>
     </div>

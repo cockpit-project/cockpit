@@ -45,13 +45,13 @@ class TestBonding(NetworkCase):
         # Bond them
         b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.click("#network-bond-settings-dialog .close.pficon-close")
+        b.click("#network-bond-settings-dialog #network-bond-settings-close-button")
         b.wait_popdown("network-bond-settings-dialog")
         b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.click("#network-bond-settings-dialog .close.pficon-help")
+        b.click("#network-bond-settings-dialog #bond-help-popup-button")
         b.wait_visible(".popover .popover-title:contains('Network bond')")
-        b.click("#network-bond-settings-dialog .close.pficon-help")
+        b.click("#network-bond-settings-dialog #bond-help-popup-button")
         b.wait_not_present(".popover .popover-title:contains('Network bond')")
 
         b.set_val("#network-bond-settings-interface-name-input", "tbond")

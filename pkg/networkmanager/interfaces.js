@@ -56,8 +56,8 @@ function show_unexpected_error(error) {
     var msg = error.message || error || "???";
     console.warn(msg);
     $("#error-popup-message").text(msg);
-    $('.modal[role="dialog"]').modal('hide');
-    $('#error-popup').modal('show');
+    $('#error-popup').prop('hidden', false);
+    $('#error-popup-cancel').click(() => $('#error-popup').prop('hidden', true));
 }
 
 function select_btn(func, spec, klass) {
@@ -1839,7 +1839,7 @@ PageNetworking.prototype = {
                 }
             };
 
-        $('#network-bond-settings-dialog').modal('show');
+        $('#network-bond-settings-dialog').trigger('show');
     },
 
     add_team: function () {
@@ -1871,7 +1871,7 @@ PageNetworking.prototype = {
                 }
             };
 
-        $('#network-team-settings-dialog').modal('show');
+        $('#network-team-settings-dialog').trigger('show');
     },
 
     add_bridge: function () {
@@ -1908,7 +1908,7 @@ PageNetworking.prototype = {
                 }
             };
 
-        $('#network-bridge-settings-dialog').modal('show');
+        $('#network-bridge-settings-dialog').trigger('show');
     },
 
     add_vlan: function () {
@@ -1935,7 +1935,7 @@ PageNetworking.prototype = {
                 }
             };
 
-        $('#network-vlan-settings-dialog').modal('show');
+        $('#network-vlan-settings-dialog').trigger('show');
     }
 
 };
@@ -2168,14 +2168,14 @@ function with_checkpoint(model, modify, options) {
                                         .always(hide_curtain)
                                         .fail(function () {
                                             dialog.find('#confirm-breaking-change-text').html(options.fail_text);
-                                            dialog.find('.modal-footer button.pf-m-danger')
+                                            dialog.find('.pf-c-modal-box__footer button.pf-m-danger')
                                                     .off('click')
                                                     .text(options.anyway_text)
                                                     .syn_click(model, function () {
-                                                        dialog.modal('hide');
+                                                        dialog.prop('hidden', true);
                                                         modify();
                                                     });
-                                            dialog.modal('show');
+                                            dialog.prop('hidden', false);
                                         });
                             }, settle_time * 1000);
                         })
@@ -2393,7 +2393,7 @@ PageNetworkInterface.prototype = {
         dialog.ghost_settings = self.ghost_settings;
         dialog.apply_settings = settings_applier(self.model, self.dev, con);
         dialog.done = reactivate_connection;
-        $(id).modal('show');
+        $(id).trigger('show');
     },
 
     set_mac: function() {
@@ -3182,6 +3182,7 @@ PageNetworkIpSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-ip-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-ip-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-ip-settings-apply').click($.proxy(this, "apply"));
     },
@@ -3362,7 +3363,7 @@ PageNetworkIpSettings.prototype = {
             params.routes = [];
         }
 
-        $('#network-ip-settings-dialog .modal-title').text(
+        $('#network-ip-settings-dialog .pf-c-modal-box__title').text(
             (topic == "ipv4") ? _("IPv4 settings") : _("IPv6 settings"));
         $('#network-ip-settings-body').html(render_ip_settings());
 
@@ -3381,7 +3382,7 @@ PageNetworkIpSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-ip-settings-dialog').modal('hide');
+        $('#network-ip-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -3390,7 +3391,7 @@ PageNetworkIpSettings.prototype = {
         function modify() {
             return PageNetworkIpSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-ip-settings-dialog').modal('hide');
+                        $('#network-ip-settings-dialog').trigger('hide');
                         if (PageNetworkIpSettings.done)
                             return PageNetworkIpSettings.done();
                     })
@@ -3652,6 +3653,7 @@ PageNetworkBondSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-bond-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-bond-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bond-settings-apply').click($.proxy(this, "apply"));
     },
@@ -3793,7 +3795,7 @@ PageNetworkBondSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-bond-settings-dialog').modal('hide');
+        $('#network-bond-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -3807,7 +3809,7 @@ PageNetworkBondSettings.prototype = {
                                       self.settings,
                                       "bond")
                     .then(function() {
-                        $('#network-bond-settings-dialog').modal('hide');
+                        $('#network-bond-settings-dialog').trigger('hide');
                         if (PageNetworkBondSettings.connection)
                             cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkBondSettings.done)
@@ -3853,6 +3855,7 @@ PageNetworkTeamSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-team-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-team-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-team-settings-apply').click($.proxy(this, "apply"));
     },
@@ -3996,7 +3999,7 @@ PageNetworkTeamSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-team-settings-dialog').modal('hide');
+        $('#network-team-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -4010,7 +4013,7 @@ PageNetworkTeamSettings.prototype = {
                                       self.settings,
                                       "team")
                     .then(function() {
-                        $('#network-team-settings-dialog').modal('hide');
+                        $('#network-team-settings-dialog').trigger('hide');
                         if (PageNetworkTeamSettings.connection)
                             cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkTeamSettings.done)
@@ -4056,6 +4059,7 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-teamport-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-teamport-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-teamport-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4119,7 +4123,7 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-teamport-settings-dialog').modal('hide');
+        $('#network-teamport-settings-dialog').prop('hidden', true);
     },
 
     apply: function() {
@@ -4129,7 +4133,7 @@ PageNetworkTeamPortSettings.prototype = {
         function modify () {
             return PageNetworkTeamPortSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-teamport-settings-dialog').modal('hide');
+                        $('#network-teamport-settings-dialog').trigger('hide');
                         if (PageNetworkTeamPortSettings.done)
                             return PageNetworkTeamPortSettings.done();
                     })
@@ -4155,6 +4159,7 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-bridge-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-bridge-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridge-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4249,7 +4254,7 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-bridge-settings-dialog').modal('hide');
+        $('#network-bridge-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -4263,7 +4268,7 @@ PageNetworkBridgeSettings.prototype = {
                                       self.settings,
                                       "bridge")
                     .then(function() {
-                        $('#network-bridge-settings-dialog').modal('hide');
+                        $('#network-bridge-settings-dialog').trigger('hide');
                         if (PageNetworkBridgeSettings.connection)
                             cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkBridgeSettings.done)
@@ -4311,6 +4316,7 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-bridgeport-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-bridgeport-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridgeport-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4356,7 +4362,7 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-bridgeport-settings-dialog').modal('hide');
+        $('#network-bridgeport-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -4366,7 +4372,7 @@ PageNetworkBridgePortSettings.prototype = {
         function modify () {
             return PageNetworkBridgePortSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-bridgeport-settings-dialog').modal('hide');
+                        $('#network-bridgeport-settings-dialog').trigger('hide');
                         if (PageNetworkBridgePortSettings.done)
                             return PageNetworkBridgePortSettings.done();
                     })
@@ -4393,6 +4399,7 @@ PageNetworkVlanSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-vlan-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-vlan-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-vlan-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4467,7 +4474,7 @@ PageNetworkVlanSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-vlan-settings-dialog').modal('hide');
+        $('#network-vlan-settings-dialog').prop('hidden', true);
     },
 
     apply: function() {
@@ -4477,7 +4484,7 @@ PageNetworkVlanSettings.prototype = {
         function modify () {
             return PageNetworkVlanSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-vlan-settings-dialog').modal('hide');
+                        $('#network-vlan-settings-dialog').trigger('hide');
                         if (PageNetworkVlanSettings.connection)
                             cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkVlanSettings.done)
@@ -4515,6 +4522,7 @@ PageNetworkMtuSettings.prototype = {
     },
 
     setup: function () {
+        $('#network-mtu-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-mtu-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-mtu-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4543,7 +4551,7 @@ PageNetworkMtuSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-mtu-settings-dialog').modal('hide');
+        $('#network-mtu-settings-dialog').trigger('hide');
     },
 
     apply: function() {
@@ -4569,7 +4577,7 @@ PageNetworkMtuSettings.prototype = {
         function modify () {
             return PageNetworkMtuSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-mtu-settings-dialog').modal('hide');
+                        $('#network-mtu-settings-dialog').trigger('hide');
                         if (PageNetworkMtuSettings.done)
                             return PageNetworkMtuSettings.done();
                     })
@@ -4594,6 +4602,7 @@ PageNetworkMacSettings.prototype = {
     },
 
     setup: function () {
+        $('#networl-mac-settings-close-button').click($.proxy(this, "cancel"));
         $('#network-mac-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-mac-settings-apply').click($.proxy(this, "apply"));
     },
@@ -4623,7 +4632,7 @@ PageNetworkMacSettings.prototype = {
     },
 
     cancel: function() {
-        $('#network-mac-settings-dialog').modal('hide');
+        $('#network-mac-settings-dialog').prop('hidden', true);
     },
 
     apply: function() {
@@ -4641,7 +4650,7 @@ PageNetworkMacSettings.prototype = {
         function modify () {
             return PageNetworkMacSettings.apply_settings(self.settings)
                     .then(function () {
-                        $('#network-mac-settings-dialog').modal('hide');
+                        $('#network-mac-settings-dialog').prop('hidden', true);
                         if (PageNetworkMacSettings.done)
                             return PageNetworkMacSettings.done();
                     })
@@ -4671,9 +4680,15 @@ function PageNetworkMacSettings() {
 function dialog_setup(d) {
     d.setup();
     $('#' + d.id)
-            .on('show.bs.modal', function () { d.enter() })
-            .on('shown.bs.modal', function () { d.show() })
-            .on('hidden.bs.modal', function () { d.leave() });
+            .on('show', function () {
+                $('#' + d.id).prop('hidden', false);
+                d.enter();
+                d.show();
+            })
+            .on('hide', function () {
+                $('#' + d.id).prop('hidden', true);
+                d.leave();
+            });
 }
 
 function page_show(p, arg) {

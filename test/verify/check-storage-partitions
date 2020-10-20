@@ -93,14 +93,17 @@ class TestStoragePartitions(StorageCase):
 
         b.mouse(slider, "mousedown", about_half_way, 0)
         b.mouse(slider, "mouseup", about_half_way, 0)
-        self.dialog_wait_val("size", 25.1)
+        if b.cdp.browser == "firefox":
+            self.dialog_wait_val("size", 25.0)
+        else:
+            self.dialog_wait_val("size", 25.1)
 
         self.dialog_apply()
         self.dialog_wait_close()
 
         # With old Udisks2 versions, the partition will end up being
         # 25.1M while newer versions give us 26M.
-        wait(lambda: m.execute("lsblk -no SIZE %s1" % disk).strip() in ["25.1M", "26M"])
+        wait(lambda: m.execute("lsblk -no SIZE %s1" % disk).strip() in ["25.0", "25.1M", "26M"])
 
 
 if __name__ == '__main__':

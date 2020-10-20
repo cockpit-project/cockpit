@@ -3400,6 +3400,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Try to edit the interface changing the source to a non deleted network
         b.click("#vm-subVmTest1-network-1-edit-dialog")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")

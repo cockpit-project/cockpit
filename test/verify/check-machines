@@ -936,8 +936,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0} && virsh pool-start myPoolTwo".format(v2))
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
-        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
-        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 50M --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 50M --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
         self.startVm("subVmTest1")

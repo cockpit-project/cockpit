@@ -117,22 +117,6 @@
         transform: translateY(3px) rotate(var(--pf-c-table__toggle--c-button--m-expanded__toggle-icon--Rotate));
     }
 
-    // Shrink buttons down a little
-    td:not(.pf-c-table__toggle) {
-        > .pf-c-button,
-        > .pf-c-input-group > .pf-c-button,
-        > .btn-group > .pf-c-button {
-            padding: 0.25rem 0.75rem;
-        }
-
-        > .pf-m-link {
-            &:only-child {
-                width: 100%;
-                text-align: left;
-            }
-        }
-    }
-
     // Remove excess PF4 nested compact paddings
     // (as PF4 has different assumptions)
     .pf-c-table.pf-m-compact tr {

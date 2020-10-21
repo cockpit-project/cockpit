@@ -419,24 +419,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # test VM error messages
         b.click("#vm-subVmTest2-run")
-        b.click("#vm-subVmTest2-run") # make use of slow processing - the button is still present; will cause error
-        # triangle by status
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest2-system] td span span.pficon-warning-triangle-o.machines-status-alert")
-        # inline notification with error
-        b.wait_in_text("div.pf-c-alert.pf-m-danger .pf-c-alert__title", "VM subVmTest2 failed to start")
-
-        message = "domain is already running"
-
-        b.wait_in_text("button.alert-link.more-button", "show more") # more/less button
-        b.click("button.alert-link.more-button")
-        b.wait_in_text(".pf-c-alert__description", message)
-        b.wait_in_text("button.alert-link.more-button", "show less")
-
-        b.click("div.pf-c-alert.pf-m-danger button.pf-c-button") # close button
-        # inline notification is gone
-        b.wait_not_present("div.pf-c-alert.pf-m-danger")
-        # triangle by status is gone
-        b.wait_not_present("tbody tr[data-row-id=vm-subVmTest2-system] td span span.pficon-warning-triangle-o.machines-status-alert")
 
         b.set_input_text("#text-search", "subVmTest2")
         self.waitVmRow("subVmTest2")

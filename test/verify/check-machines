@@ -817,8 +817,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 pool_type='iscsi',
                 volume_name='unit:0:0:0',
                 expected_target=get_next_free_target(used_targets)[-1],
-                use_existing_volume='True',
+                use_existing_volume=True,
             ).execute()
+
+            # Detach the iscsi disk before reaching teardown because shutting of the domains would sometimes hang when iscsi disks are attached
+            m.execute("virsh detach-disk subVmTest1 --target vdb")
 
         # avoid error noise about resources getting cleaned up
         b.logout()

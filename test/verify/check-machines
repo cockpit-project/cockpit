@@ -625,7 +625,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def __init__(
             self, test_obj, pool_name=None, volume_name=None,
             vm_name='subVmTest1',
-            volume_size=1, volume_size_unit='GiB',
+            volume_size=10, volume_size_unit='MiB',
             use_existing_volume=False,
             expected_target='vda', permanent=False, cache_mode=None,
             bus_type='virtio', verify=True, pool_type=None,

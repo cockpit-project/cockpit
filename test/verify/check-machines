@@ -3695,7 +3695,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "1 Network")
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "1 Storage pool")
         b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pool")
 
         # prepare libvirt storage pools

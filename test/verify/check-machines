@@ -730,7 +730,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 # Check volume was added to pool's volume list
                 if not self.use_existing_volume:
                     self.test_obj.goToMainPage()
-                    b.click(".cards-pf .card-pf-title span:contains(Storage pool)")
+                    b.click(".pf-c-card .pf-c-card__header button:contains(Storage pool)")
 
                     self.test_obj.waitPoolRow(self.pool_name)
                     self.test_obj.togglePoolRow(self.pool_name)
@@ -980,11 +980,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         print(active_pools)
         for pool in active_pools:
             m.execute("virsh pool-destroy {0}".format(pool))
-        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
+        b.wait_in_text("#card-pf-storage-pools .active-resources:nth-of-type(1)", "0")
         inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name").split('\n'))
         for pool in inactive_pools:
             m.execute("virsh pool-undefine {0}".format(pool))
-        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
+        b.wait_in_text("#card-pf-storage-pools .active-resources:nth-of-type(2)", "0")
 
         self.goToVmPage('subVmTest1')
         b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
@@ -3160,7 +3160,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Make sure that the Networks are loaded into the global state
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
+        b.wait_in_text("#card-pf-networks .card-pf-title-link", "2 Networks")
 
         self.goToVmPage("subVmTest1")
 
@@ -3219,8 +3219,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.goToMainPage()
 
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
+        b.wait_in_text("#card-pf-networks .card-pf-title-link", "2 Networks")
         self.waitVmRow("subVmTest1")
         self.goToVmPage("subVmTest1")
 
@@ -3288,10 +3287,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.goToMainPage()
 
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
+        b.wait_in_text("#card-pf-networks .active-resources:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
+        b.wait_in_text("#card-pf-networks .active-resources:nth-of-type(2)", "0")
+        b.wait_in_text("#card-pf-networks .card-pf-title-link", "0 Networks")
 
         self.goToVmPage("subVmTest1")
 
@@ -3349,8 +3348,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
-        b.click(".cards-pf .card-pf-title span:contains(Network)")
+        b.wait_in_text("#card-pf-networks .pf-c-card__header button", "Network")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Network)")
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
@@ -3395,8 +3394,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
-        b.click(".cards-pf .card-pf-title span:contains(Network)")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Network)")
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
@@ -3442,18 +3440,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "1")
+        b.wait_in_text("#card-pf-networks .card-pf-title-link", "1 Network")
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "2")
+        b.wait_in_text("#card-pf-networks .card-pf-title-link", "2 Networks")
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML))
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK4_XML))
 
         # Click on Networks card
-        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Networks)")
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
@@ -3622,8 +3618,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "1")
-        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pool")
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "1 Network")
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pool")
 
         # prepare libvirt storage pools
         p1 = os.path.join(self.vm_tmpdir, "vm_one")
@@ -3634,8 +3630,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
         m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
 
-        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "3")
-        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pools")
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "3 Storage pools")
 
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
@@ -3660,7 +3655,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Click on Storage pools card
-        b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
 
         # Check that all defined pools are there
         b.wait_in_text("body", "Storage pools")
@@ -3815,8 +3810,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
-        b.click(".cards-pf .card-pf-title span:contains(Network)")
+        b.wait_in_text("#card-pf-networks .pf-c-card__header button", "Network")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Network)")
 
         class NetworkCreateDialog(object):
             def __init__(
@@ -4177,8 +4172,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         # Click on Storage pools card
-        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pools")
-        b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pools")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
 
         class StoragePoolCreateDialog(object):
             def __init__(
@@ -4462,8 +4457,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
 
         # Click on Storage pools card
-        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage pools")
-        b.click(".cards-pf .card-pf-title span:contains(Storage pools)")
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pools")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
 
         class StorageVolumeCreateDialog(object):
             def __init__(

@@ -1,0 +1,48 @@
+:root {
+  --cards-gutter-y: 1.5rem;
+  --cards-gutter-x: 2rem;
+  --cards-min: 22rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --cards-gutter-y: 1rem;
+    --cards-gutter-x: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  :root {
+    --cards-min: 15rem;
+  }
+}
+
+/* Organize cards in a grid instead of BootStrap */
+.grid-cards-ct {
+  display: grid;
+  grid-gap: var(--cards-gutter-y) var(--cards-gutter-x);
+  grid-template-columns: repeat(auto-fit, minmax(var(--cards-min), 1fr));
+  padding: var(--cards-gutter-y) var(--cards-gutter-x);
+
+  > div {
+    /* No funky negative margins are needed for grid */
+    margin: 0;
+  }
+
+  .pf-c-card__header {
+      padding: var(--pf-global--spacer--md);
+      justify-content: space-between;
+      flex-wrap: wrap;
+
+      .active-resources > svg {
+          margin-right: var(--pf-global--spacer--xs);
+      }
+  }
+}
+
+@media screen and (min-width: 60rem) {
+  /* Make a single card no longer than half the width */
+  .grid-cards-ct > div:first-child:last-child {
+    /* Remove 1/2 grid-gap to keep width the same */
+    max-width: calc(50% - 10px);
+  }
+}

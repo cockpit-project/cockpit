@@ -117,7 +117,7 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
     // table-hover class is needed till PF4 Table has proper support for clickable rows
     // https://github.com/patternfly/patternfly-react/issues/3267
     return (<Page>
-        <PageSection id="virtual-machines-page-main-nav" type='nav'>
+        <PageSection id="virtual-machines-page-main-nav">
             <AggregateStatusCards networks={networks} storagePools={storagePools} />
         </PageSection>
         <PageSection variant={PageSectionVariants.light} id='virtual-machines-listing'>

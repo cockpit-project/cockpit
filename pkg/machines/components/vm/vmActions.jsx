@@ -48,6 +48,13 @@ const _ = cockpit.gettext;
 const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetailsPage }) => {
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [showDeleteDialog, toggleDeleteModal] = useState(false);
+    const [operationInProgress, setOperationInProgress] = useState(false);
+    const [prevVmState, setPrevVmState] = useState(vm.state);
+
+    if (vm.state !== prevVmState) {
+        setPrevVmState(vm.state);
+        setOperationInProgress(false);
+    }
 
     const id = vmId(vm.name);
     const state = vm.state;
@@ -59,6 +66,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             text: cockpit.format(_("VM $0 failed to start"), vm.name),
             detail: ex.message, resourceId: vm.id,
         });
+        setOperationInProgress(false);
     });
     const onInstall = () => dispatch(installVm(vm)).catch(ex => {
         onAddErrorNotification({
@@ -83,6 +91,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
             detail: ex.message, resourceId: vm.id,
         });
+        setOperationInProgress(false);
     });
     const onPause = () => dispatch(pauseVm(vm)).catch(ex => {
         onAddErrorNotification({
@@ -136,8 +145,11 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
     if (LibvirtDBus.canShutdown(state)) {
         shutdown = (
             <Button key='action-shutdown'
+                    isSmall
                     variant={isDetailsPage ? 'primary' : 'secondary'}
-                    onClick={() => onShutdown()} id={`${id}-shutdown-button`}>
+                    isLoading={operationInProgress}
+                    isDisabled={operationInProgress}
+                    onClick={() => { setOperationInProgress(true); onShutdown() }} id={`${id}-shutdown-button`}>
                 {_("Shut down")}
             </Button>
         );
@@ -188,8 +200,11 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
     if (LibvirtDBus.canRun(state, hasInstallPhase)) {
         run = (
             <Button key='action-run'
+                    isSmall
                     variant={isDetailsPage ? 'primary' : 'secondary'}
-                    onClick={() => onStart()} id={`${id}-run`}>
+                    isLoading={operationInProgress}
+                    isDisabled={operationInProgress}
+                    onClick={() => { setOperationInProgress(true); onStart() }} id={`${id}-run`}>
                 {_("Run")}
             </Button>
         );

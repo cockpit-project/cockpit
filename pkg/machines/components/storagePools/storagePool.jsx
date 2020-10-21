@@ -148,6 +148,7 @@ class StoragePoolActions extends React.Component {
         let deactivateButton = (
             <Button id={`deactivate-${id}`}
                 variant='secondary'
+                isLoading={this.state.operationInProgress}
                 isDisabled={this.state.operationInProgress}
                 onClick={this.onDeactivate}>
                 {_("Deactivate")}
@@ -156,6 +157,7 @@ class StoragePoolActions extends React.Component {
         let activateButton = (
             <Button id={`activate-${id}`}
                 variant='secondary'
+                isLoading={this.state.operationInProgress}
                 isDisabled={this.state.operationInProgress}
                 onClick={this.onActivate}>
                 {_("Activate")}

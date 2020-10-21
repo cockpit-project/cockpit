@@ -101,7 +101,7 @@ export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorN
 class NetworkActions extends React.Component {
     constructor() {
         super();
-        this.state = { deleteDialogProps: undefined };
+        this.state = { deleteDialogProps: undefined, operationInProgress: false };
         this.onActivate = this.onActivate.bind(this);
         this.onDeactivate = this.onDeactivate.bind(this);
     }
@@ -115,7 +115,8 @@ class NetworkActions extends React.Component {
                         text: cockpit.format(_("Network $0 failed to get activated"), network.name),
                         detail: exc.message, resourceId: network.id,
                     });
-                });
+                })
+                .always(() => this.setState({ operationInProgress: false }));
     }
 
     onDeactivate() {
@@ -127,7 +128,8 @@ class NetworkActions extends React.Component {
                         text: cockpit.format(_("Network $0 failed to get deactivated"), network.name),
                         detail: exc.message, resourceId: network.id,
                     });
-                });
+                })
+                .always(() => this.setState({ operationInProgress: false }));
     }
 
     render() {
@@ -151,11 +153,11 @@ class NetworkActions extends React.Component {
         return (
             <>
                 { network.active &&
-                <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
+                <Button id={`deactivate-${id}`} isLoading={this.state.operationInProgress} isDisabled={this.state.operationInProgress} onClick={this.onDeactivate}>
                     {_("Deactivate")}
                 </Button> }
                 { !network.active &&
-                <Button id={`activate-${id}`} onClick={this.onActivate}>
+                <Button id={`activate-${id}`} isLoading={this.state.operationInProgress} isDisabled={this.state.operationInProgress} onClick={this.onActivate}>
                     {_("Activate")}
                 </Button>
                 }

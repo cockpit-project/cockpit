@@ -86,6 +86,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("usermod -a -G libvirt libvirtdbus")
 
         # Cleanup pools
+        active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name || true").split('\n'))
+        for pool in active_pools:
+            m.execute("virsh pool-destroy {0} || true".format(pool))
+        inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name || true").split('\n'))
+        for pool in inactive_pools:
+            m.execute("virsh pool-undefine {0} || true".format(pool))
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
 
         # Cleanup networks
@@ -899,7 +905,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage("subVmTest1")
 
         cmds = [
-            "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
+            "virsh pool-define-as pool-disk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
             "virsh pool-build pool-disk --overwrite",
             "virsh pool-start pool-disk",
         ]
@@ -4524,7 +4530,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Prepare disk/block pool
         dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as disk-pool disk - - %s - /tmp/poolDiskImages" % dev,
+            "virsh pool-define-as disk-pool disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
             "virsh pool-build disk-pool --overwrite",
             "virsh pool-start disk-pool",
         ]

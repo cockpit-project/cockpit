@@ -53,6 +53,9 @@ AC_PROG_LN_S
 AC_CHECK_SIZEOF([void *])
 AM_CONDITIONAL([VALGRIND_MINADDR_HACK], [test "$ac_cv_sizeof_void_p" -eq 8])
 
+# Unrelated to above: enable more valgrind workarounds for other problems.
+AC_CHECK_HEADERS([valgrind/valgrind.h])
+
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_MSG_CHECKING([whether to install to prefix only])

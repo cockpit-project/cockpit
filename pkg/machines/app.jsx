@@ -160,13 +160,13 @@ class App extends React.Component {
                                 })
                         : undefined}
                     onAddErrorNotification={this.onAddErrorNotification}
-                    storagePools={storagePools.filter(pool => pool && pool.connectionName == connectionName)}
+                    storagePools={(storagePools || []).filter(pool => pool && pool.connectionName == connectionName)}
                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
                     dispatch={dispatch}
-                    interfaces={interfaces}
-                    networks={networks.filter(network => network && network.connectionName == connectionName)}
-                    nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
+                    interfaces={interfaces || []}
+                    networks={(networks || []).filter(network => network && network.connectionName == connectionName)}
+                    nodeDevices={(nodeDevices || []).filter(device => device && device.connectionName == connectionName)}
                     key={vmId(vm.name)}
                 />
             );

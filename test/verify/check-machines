@@ -1723,11 +1723,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         config = TestMachines.TestCreateConfig
 
         dev = self.add_ram_disk()
+        partition = dev.split('/')[2] + "1"
         cmds = [
             "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
             "virsh pool-build poolDisk --overwrite",
             "virsh pool-start poolDisk",
-            "virsh vol-create-as poolDisk sda1 1024"
+            "virsh vol-create-as poolDisk {0} 1024".format(partition)
         ]
         self.machine.execute(" && ".join(cmds))
 
@@ -1740,7 +1741,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                            location=config.NOVELL_MOCKUP_ISO_PATH,
                                                            memory_size=256, memory_size_unit='MiB',
                                                            storage_pool="poolDisk",
-                                                           storage_volume="sda1"))
+                                                           storage_volume=partition))
 
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
             # Test create VM with disk of type "network"

@@ -1750,7 +1750,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             cmds = [
                 "virsh pool-define-as --name poolIscsi --type iscsi --source-host 127.0.0.1 --source-dev {0} --target /dev/disk/by-path/".format(target_iqn),
-                "virsh pool-build poolIscsi",
                 "virsh pool-start poolIscsi",
                 "virsh pool-refresh poolIscsi", # pool-start takes too long, libvirt's pool-refresh might not catch all volumes, so we do pool-refresh separately
             ]

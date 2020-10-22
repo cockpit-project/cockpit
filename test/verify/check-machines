@@ -797,6 +797,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
 
+            self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
+
         args = self.startVm("subVmTest1")
 
         # Wait for the system to completely start
@@ -1744,17 +1746,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                            storage_volume=partition))
 
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
-            # Test create VM with disk of type "network"
             target_iqn = "iqn.2019-09.cockpit.lan"
             self.prepareStorageDeviceOnISCSI(target_iqn)
 
-            cmds = [
-                "virsh pool-define-as --name poolIscsi --type iscsi --source-host 127.0.0.1 --source-dev {0} --target /dev/disk/by-path/".format(target_iqn),
-                "virsh pool-start poolIscsi",
-                "virsh pool-refresh poolIscsi", # pool-start takes too long, libvirt's pool-refresh might not catch all volumes, so we do pool-refresh separately
-            ]
-            self.machine.execute(" && ".join(cmds))
-            self.addCleanup(self.machine.execute, "virsh pool-destroy poolIscsi; virsh pool-delete pool-delete; virsh pool-undefine poolIscsi")
+            print(self.machine.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && ls -la /dev/disk/by-path && virsh pool-start iscsi-pool".format(target_iqn)))
+            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
+
+            self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
 
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1764,7 +1762,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             runner.createThenInstallTest(TestMachines.VmDialog(self, sourceType='file',
                                                                location=config.NOVELL_MOCKUP_ISO_PATH,
                                                                memory_size=256, memory_size_unit='MiB',
-                                                               storage_pool="poolIscsi",
+                                                               storage_pool="iscsi-pool",
                                                                storage_volume="unit:0:0:0"))
 
     def testCreateFileSource(self):

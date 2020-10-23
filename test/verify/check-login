@@ -104,7 +104,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*172.27.0.2")
 
         # reload, which should log us in with the cookie
         b.reload()
@@ -112,7 +112,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*172.27.0.2")
 
         b.go("/users#/admin")
         b.enter_page("/users")
@@ -183,9 +183,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                 b.wait_present('#login-messages')
                 b.wait_present('#last-login')
                 b.wait_in_text('#last-login', "Last login")
+                b.wait_in_text('#last-login', "172.27.0.2")
 
                 if n_fail:
                     b.wait_present('#last-failed-login')
+                    b.wait_in_text('#last-failed-login', "172.27.0.2")
                     b.wait_in_text('#login-messages', 'There were {} failed'.format(n_fail))
                 else:
                     self.assertFalse(b.is_present('#last-failed-login'))

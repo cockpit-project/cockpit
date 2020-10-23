@@ -295,7 +295,7 @@ perform_basic (const char *rhost,
   if (res == PAM_SUCCESS)
     res = open_session (pamh);
   else
-    btmp_log (user, "");
+    btmp_log (user, rhost);
 
   free (user);
   if (password)
@@ -501,7 +501,7 @@ perform_gssapi (const char *rhost,
   res = open_session (pamh);
   if (res != PAM_SUCCESS)
     {
-      btmp_log (str, "");
+      btmp_log (str, rhost);
       goto out;
     }
 

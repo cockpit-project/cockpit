@@ -1,6 +1,6 @@
 import React from 'react';
-import { HelpBlock, Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { HelpBlock } from 'patternfly-react';
+import { Button, Modal } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
 
 import cockpit from 'cockpit';
@@ -138,23 +138,20 @@ export class MemoryModal extends React.Component {
         );
 
         return (
-            <Modal id='vm-memory-modal' show onHide={this.close}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.close} />
-                    <Modal.Title>{cockpit.format(_("$0 memory adjustment"), vm.name)}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>
-                        {_("Save")}
-                    </Button>
-                    <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id='vm-memory-modal' isOpen onClose={this.close}
+                   title={cockpit.format(_("$0 memory adjustment"), vm.name)}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>
+                               {_("Save")}
+                           </Button>
+                           <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {defaultBody}
             </Modal>
         );
     }

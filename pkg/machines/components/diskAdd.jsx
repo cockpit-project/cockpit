@@ -17,8 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Modal } from 'patternfly-react';
-import { Button, Alert, Spinner } from '@patternfly/react-core';
+import { Button, Alert, Modal, Spinner } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -547,24 +546,20 @@ export class AddDiskModalBody extends React.Component {
         }
 
         return (
-            <Modal id={`${idPrefix}-dialog-modal-window`} show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title>{_("Add disk")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-dialog-add`} variant='primary' isDisabled={this.state.addDiskInProgress || storagePools.length == 0 || this.state.dialogLoading} onClick={this.onAddClicked}>
-                        {_("Add")}
-                    </Button>
-                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.addDiskInProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id={`${idPrefix}-dialog-modal-window`} isOpen onClose={this.props.close}
+                   title={_("Add disk")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button id={`${idPrefix}-dialog-add`} variant='primary' isLoading={this.state.addDiskInProgress} isDisabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
+                               {_("Add")}
+                           </Button>
+                           <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {defaultBody}
             </Modal>
         );
     }

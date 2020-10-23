@@ -19,8 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
@@ -129,22 +128,20 @@ export class DeleteDialog extends React.Component {
     render() {
         const id = vmId(this.props.vm.name);
         return (
-            <Modal id={`${id}-delete-modal-dialog`} show onHide={this.props.toggleModal}>
-                <Modal.Header>
-                    <Modal.Title> {`Confirm deletion of ${this.props.vm.name}`} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='danger' onClick={this.delete}>
-                        {_("Delete")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={this.props.toggleModal}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id={`${id}-delete-modal-dialog`} isOpen onClose={this.props.toggleModal}
+                title={`Confirm deletion of ${this.props.vm.name}`}
+                footer={
+                    <>
+                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                        <Button variant='danger' onClick={this.delete}>
+                            {_("Delete")}
+                        </Button>
+                        <Button variant='link' className='btn-cancel' onClick={this.props.toggleModal}>
+                            {_("Cancel")}
+                        </Button>
+                    </>
+                }>
+                <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
             </Modal>
         );
     }

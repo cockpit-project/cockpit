@@ -19,8 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'patternfly-react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Modal, Tooltip } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -74,29 +73,25 @@ class CreateStorageVolumeModal extends React.Component {
         const idPrefix = `${this.props.idPrefix}-dialog`;
 
         return (
-            <Modal id={`${idPrefix}-modal`} className='volume-create' show onHide={ this.props.close }>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title>{_("Create storage volume")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className='ct-form'>
-                        <VolumeCreateBody idPrefix={idPrefix}
-                                          storagePool={this.props.storagePool}
-                                          dialogValues={this.state}
-                                          onValueChanged={this.onValueChanged} />
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant="primary" onClick={this.onCreateClicked} isDisabled={this.state.createInProgress}>
-                        {_("Create")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.createInProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id={`${idPrefix}-modal`} className='volume-create' isOpen onClose={this.props.close}
+                   title={_("Create storage volume")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant="primary" onClick={this.onCreateClicked} isLoading={this.state.createInProgress} isDisabled={this.state.createInProgress}>
+                               {_("Create")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                <div className='ct-form'>
+                    <VolumeCreateBody idPrefix={idPrefix}
+                                      storagePool={this.props.storagePool}
+                                      dialogValues={this.state}
+                                      onValueChanged={this.onValueChanged} />
+                </div>
             </Modal>
         );
     }

@@ -19,8 +19,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { FormGroup, HelpBlock } from 'patternfly-react';
 import {
+    Modal,
     Select as PFSelect, SelectOption, SelectVariant,
     Button, Tooltip, TooltipPosition
 } from '@patternfly/react-core';
@@ -927,25 +928,23 @@ class CreateVmModal extends React.Component {
         );
 
         return (
-            <Modal id='create-vm-dialog' show onHide={ this.props.close }>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {this.props.mode == 'create' ? _("Create new virtual machine") : _("Import a virtual machine")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {dialogBody}
-                </Modal.Body>
-                <Modal.Footer>
+            <Modal position="top" variant="medium" id='create-vm-dialog' isOpen onClose={ this.props.close }
+                title={this.props.mode == 'create' ? _("Create new virtual machine") : _("Import a virtual machine")}
+                actions={[
                     <Button variant="primary"
-                            isDisabled={Object.getOwnPropertyNames(validationFailed).length > 0}
+                            key="primary-button"
+                            isLoading={this.state.inProgress}
+                            isDisabled={this.state.inProgress || Object.getOwnPropertyNames(validationFailed).length > 0}
                             onClick={this.onCreateClicked}>
                         {this.props.mode == 'create' ? _("Create") : _("Import")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                    </Button>,
+                    <Button variant='link'
+                            key="cancel-button"
+                            className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+                ]}>
+                {dialogBody}
             </Modal>
         );
     }

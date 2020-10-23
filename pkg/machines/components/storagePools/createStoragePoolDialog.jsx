@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { FormGroup, HelpBlock } from 'patternfly-react';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -497,24 +497,20 @@ class CreateStoragePoolModal extends React.Component {
         );
 
         return (
-            <Modal id='create-storage-pool-dialog' className='pool-create' show onHide={ this.props.close }>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title>{_("Create storage pool")}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {defaultBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='primary' isDisabled={this.state.createInProgress} onClick={this.onCreateClicked}>
-                        {_("Create")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id='create-storage-pool-dialog' className='pool-create' isOpen onClose={ this.props.close }
+                   title={_("Create storage pool")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='primary' isLoading={this.state.createInProgress} isDisabled={this.state.createInProgress} onClick={this.onCreateClicked}>
+                               {_("Create")}
+                           </Button>
+                           <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {defaultBody}
             </Modal>
         );
     }

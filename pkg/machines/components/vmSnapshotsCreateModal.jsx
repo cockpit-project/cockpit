@@ -20,10 +20,10 @@ import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
 
-import { Modal } from "patternfly-react";
 import {
     Button,
     FormGroup,
+    Modal,
     TextArea,
     TextInput
 } from "@patternfly/react-core";
@@ -133,23 +133,20 @@ export class CreateSnapshotModal extends React.Component {
         );
 
         return (
-            <Modal id={`${idPrefix}-modal`} onHide={onClose} show>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{_("Create snapshot")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant="primary" onClick={this.onCreate}>
-                        {_("Create")}
-                    </Button>
-                    <Button variant="link" className="btn-cancel" onClick={onClose}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal position="top" variant="medium" id={`${idPrefix}-modal`} isOpen onClose={onClose}
+                   title={_("Create snapshot")}
+                   footer={
+                       <>
+                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant="primary" onClick={this.onCreate}>
+                               {_("Create")}
+                           </Button>
+                           <Button variant="link" className="btn-cancel" onClick={onClose}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {body}
             </Modal>
         );
     }

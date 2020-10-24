@@ -175,13 +175,6 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
     $("#host-edit-dialog a[data-content]").popover();
 
     machine_dialogs.render_color_picker("#host-edit-colorpicker", machine.address);
-    $('#host-edit-sync-users').off('click');
-    $("#host-edit-sync-users").on('click', function () {
-        $("#host-edit-dialog").modal('hide');
-        machine_dialogs.render_dialog("sync-users",
-                                      "dashboard_setup_server_dialog",
-                                      machine.address);
-    });
 
     $('#host-edit-apply').off('click');
     $('#host-edit-apply').on('click', function () {

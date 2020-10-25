@@ -25,10 +25,16 @@ import moment from 'moment';
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { ListView } from 'patternfly-react';
 import {
     Alert, AlertActionCloseButton, Button,
+    DataList,
+    DataListItem,
+    DataListCell,
+    DataListItemRow,
+    DataListItemCells,
+    DataListAction,
     Page, PageSection, PageSectionVariants,
+    Text, TextVariants,
     Breadcrumb, BreadcrumbItem,
     Modal,
 } from '@patternfly/react-core';
@@ -198,16 +204,31 @@ class CPUSecurityMitigationsDialog extends React.Component {
     render() {
         const rows = [];
         if (this.state.nosmt !== undefined)
-            rows.push((
-                <ListView.Item key="nosmt" heading={ <span>{ _("Disable simultaneous multithreading") } (nosmt)<small>
-                    <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
-                        <i className="fa fa-external-link" aria-hidden="true" /> { _("Read more...") }
-                    </a>
-                </small></span> }
-                               actions={ <div id="nosmt-switch">
-                                   <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
-                               </div> } />
-            ));
+            rows.push(
+                <DataListItem key="nosmt">
+                    <DataListItemRow>
+                        <DataListItemCells
+                            dataListCells={[
+                                <DataListCell key="primary content">
+                                    <span>
+                                        <div className='nosmt-heading'>{ _("Disable simultaneous multithreading") } (nosmt)</div>
+                                        <small className='nosmt-read-more-link'>
+                                            <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
+                                                <i className="fa fa-external-link" aria-hidden="true" /> { _("Read more...") }
+                                            </a>
+                                        </small>
+                                    </span>
+                                </DataListCell>,
+                            ]}
+                        />
+                        <DataListAction>
+                            <div id="nosmt-switch">
+                                <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
+                            </div>
+                        </DataListAction>
+                    </DataListItemRow>
+                </DataListItem>
+            );
 
         const footer = (
             <>
@@ -227,10 +248,12 @@ class CPUSecurityMitigationsDialog extends React.Component {
                    onClose={this.props.onClose}
                    title={ _("CPU security toggles") }>
                 <>
-                    { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
-                    <ListView>
+                    <Text className='cpu-mitigations-dialog-info' component={TextVariants.p}>
+                        { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
+                    </Text>
+                    <DataList>
                         { rows }
-                    </ListView>
+                    </DataList>
                     { this.state.alert !== undefined &&
                     <Alert variant="danger"
                         actionClose={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}

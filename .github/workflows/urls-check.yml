@@ -1,0 +1,21 @@
+name: urls-check
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  urls-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up configuration and secrets
+        run: |
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Run urls-check action
+        run: |
+          tools/make-bots
+          tools/urls-check

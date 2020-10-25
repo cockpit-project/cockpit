@@ -250,6 +250,59 @@ test_local_channel_redirect (TestCase *tc,
 }
 
 static void
+test_local_channel_redirect_fail (TestCase *tc,
+                                  gconstpointer unused)
+{
+  CockpitRouter *router;
+  JsonObject *control;
+
+  static CockpitPayloadType payload_types[] = {
+    { "echo", mock_echo_channel_get_type },
+    { NULL },
+  };
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), payload_types, NULL);
+
+  /* Open two channels, redirect to an invalid channel */
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"echo\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"echo\", \"redirect\": \"bad\"}");
+  emit_string (tc, "b", "igen igen");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\"}");
+  control = NULL;
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The second channel should close, because its redirect target was never open */
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"b\",\"problem\":\"redirect-closed\"}");
+  control = NULL;
+
+  /* Now close channel a and then try to redirect to it */
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"a\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"echo\", \"redirect\": \"a\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\"}");
+  control = NULL;
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The third channel should close, because its redirect target was closed */
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"c\",\"problem\":\"redirect-closed\"}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
+static void
 test_external_bridge (TestCase *tc,
                       gconstpointer unused)
 {
@@ -1064,6 +1117,8 @@ main (int argc,
               setup, test_local_channel, teardown);
   g_test_add ("/router/local-channel-redirect", TestCase, NULL,
               setup, test_local_channel_redirect, teardown);
+  g_test_add ("/router/local-channel-redirect-fail", TestCase, NULL,
+              setup, test_local_channel_redirect_fail, teardown);
   g_test_add ("/router/external-bridge", TestCase, NULL,
               setup, test_external_bridge, teardown);
   g_test_add ("/router/external-channel-redirect", TestCase, NULL,

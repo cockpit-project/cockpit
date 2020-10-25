@@ -105,6 +105,8 @@ enum {
 static void superuser_init (CockpitRouter *self, JsonObject *options);
 static void superuser_legacy_init (CockpitRouter *self);
 
+static void process_open_redirect_closed (CockpitRouter *self, const gchar *channel);
+
 typedef struct {
   gchar **argv;
   gchar **environ;
@@ -414,36 +416,44 @@ process_init (CockpitRouter *self,
     }
 }
 
-static CockpitRedirect *
-get_redirect (CockpitRouter *self,
-              const gchar *channel_name)
+static gboolean
+handle_redirect (CockpitRouter *self,
+		 JsonObject *options,
+		 CockpitRedirect **redirect)
 {
+  const gchar *channel_name;
   CockpitChannel *target_channel;
   CockpitPeer *target_peer;
 
-  if (!channel_name)
-    return NULL;
+  g_assert (redirect != NULL);
+  g_assert (*redirect == NULL);
 
+  cockpit_json_get_string (options, "redirect", NULL, &channel_name);
+  if (!channel_name)
+    return TRUE;
+
+  /* A local channel for this router */
   if ((target_channel = g_hash_table_lookup (self->channels, (gpointer) channel_name)))
     {
-      return g_object_new (COCKPIT_TYPE_CHANNEL_REDIRECT,
-                           "channel",
-                           target_channel,
-                           NULL);
+      *redirect = g_object_new (COCKPIT_TYPE_CHANNEL_REDIRECT,
+                                "channel", target_channel,
+                                NULL);
+      return TRUE;
     }
 
+  /* A channel being handled by a peer */
   if ((target_peer = g_hash_table_lookup (self->channel_peers, (gpointer) channel_name)))
     {
       CockpitTransport *target_transport = cockpit_peer_ensure (target_peer);
-      return g_object_new (COCKPIT_TYPE_PEER_REDIRECT,
-                           "channel",
-                           channel_name,
-                           "transport",
-                           target_transport,
-                           NULL);
+      *redirect = g_object_new (COCKPIT_TYPE_PEER_REDIRECT,
+		                "channel", channel_name,
+                                "transport", target_transport,
+                                NULL);
+      return TRUE;
     }
 
-  return NULL;
+  /* We must know about the channel to redirect to */
+  return FALSE;
 }
 
 static void
@@ -487,15 +497,18 @@ create_channel (CockpitRouter *self,
   CockpitChannel *local;
 
   /* Handle local channel redirect */
-  const gchar *redirect_channel;
-  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
-  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+  g_autoptr(CockpitRedirect) redirect = NULL;
+  if (!handle_redirect (self, options, &redirect))
+    {
+       process_open_redirect_closed (self, channel);
+       return;
+    }
 
   local = g_object_new (type,
                         "transport", self->transport,
                         "id", channel,
                         "options", options,
-                        "redirect_target", redirect_target,
+                        "redirect_target", redirect,
                         NULL);
 
   /* This owns the local channel */
@@ -626,17 +639,20 @@ process_open_peer (CockpitRouter *self,
                    GBytes *data,
                    gpointer user_data)
 {
+  g_autoptr(CockpitRedirect) redirect = NULL;
   CockpitPeer *peer = user_data;
 
   /* Track peer in hash table */
   g_hash_table_insert (self->channel_peers, (gpointer)g_strdup (channel), peer);
 
   /* Handle peer channel redirect */
-  const gchar *redirect_channel;
-  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
-  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+  if (!handle_redirect (self, options, &redirect))
+    {
+      process_open_redirect_closed (self, channel);
+      return TRUE;
+    }
 
-  return cockpit_peer_handle (peer, channel, options, redirect_target, data);
+  return cockpit_peer_handle (peer, channel, options, redirect, data);
 }
 
 static GBytes *
@@ -758,12 +774,15 @@ process_open_dynamic_peer (CockpitRouter *self,
   g_hash_table_insert (self->channel_peers, (gpointer)g_strdup (channel), peer);
 
   /* Handle dynamic peer channel redirect */
-  const gchar *redirect_channel;
-  cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
-  g_autoptr(CockpitRedirect) redirect_target = get_redirect (self, redirect_channel);
+  g_autoptr(CockpitRedirect) redirect = NULL;
+  if (!handle_redirect (self, options, &redirect))
+    {
+      process_open_redirect_closed (self, channel);
+      return TRUE;
+    }
 
   g_list_free (names);
-  return cockpit_peer_handle (peer, channel, options, redirect_target, data);
+  return cockpit_peer_handle (peer, channel, options, redirect, data);
 }
 
 static gboolean
@@ -794,6 +813,18 @@ process_open_access_denied (CockpitRouter *self,
   GBytes *control = cockpit_transport_build_control ("command", "close",
                                                      "channel", channel,
                                                      "problem", "access-denied",
+                                                     NULL);
+  cockpit_transport_send (self->transport, NULL, control);
+  g_bytes_unref (control);
+}
+
+static void
+process_open_redirect_closed (CockpitRouter *self,
+                              const gchar *channel)
+{
+  GBytes *control = cockpit_transport_build_control ("command", "close",
+                                                     "channel", channel,
+                                                     "problem", "redirect-closed",
                                                      NULL);
   cockpit_transport_send (self->transport, NULL, control);
   g_bytes_unref (control);

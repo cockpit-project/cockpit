@@ -269,9 +269,9 @@ class VmOverviewTabLibvirt extends React.Component {
 
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{_("State")}</DescriptionListTerm>
-                                <DescriptionListGroup>
+                                <DescriptionListDescription>
                                     <StateIcon state={vm.state} valueId={`${idPrefix}-state`} showIcon />
-                                </DescriptionListGroup>
+                                </DescriptionListDescription>
                             </DescriptionListGroup>
 
                             <DescriptionListGroup>

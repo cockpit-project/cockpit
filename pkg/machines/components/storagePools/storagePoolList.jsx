@@ -18,7 +18,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BreadcrumbItem, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import {
+    Breadcrumb, BreadcrumbItem,
+    Card, CardActions, CardHeader, CardTitle, CardBody,
+    Page, PageSection, Text, TextVariants,
+} from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -50,21 +54,32 @@ export class StoragePoolList extends React.Component {
                         {_("Storage pools")}
                     </BreadcrumbItem>
                 </Breadcrumb>}>
-                <PageSection variant={PageSectionVariants.light} id='storage-pools-listing'>
-                    <ListingTable caption={_("Storage pools")}
-                        variant='compact'
-                        columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
-                        emptyCaption={_("No storage pool is defined on this host")}
-                        actions={actions}
-                        rows={storagePools
-                                .sort(sortFunction)
-                                .map(storagePool => {
-                                    const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
+                <PageSection id='storage-pools-listing'>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>
+                                <Text component={TextVariants.h2}>{_("Storage pools")}</Text>
+                            </CardTitle>
+                            <CardActions>
+                                {actions}
+                            </CardActions>
+                        </CardHeader>
+                        <CardBody className="contains-list">
+                            <ListingTable aria-label={_("Storage pools")}
+                                variant='compact'
+                                columns={[{ title: _("Name"), header: true }, _("Size"), _("Connection"), _("State")]}
+                                emptyCaption={_("No storage pool is defined on this host")}
+                                rows={storagePools
+                                        .sort(sortFunction)
+                                        .map(storagePool => {
+                                            const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
 
-                                    return getStoragePoolRow({ storagePool, vms: filterVmsByConnection, resourceHasError, onAddErrorNotification });
-                                })
-                        }
-                    />
+                                            return getStoragePoolRow({ storagePool, vms: filterVmsByConnection, resourceHasError, onAddErrorNotification });
+                                        })
+                                }
+                            />
+                        </CardBody>
+                    </Card>
                 </PageSection>
             </Page>
         );

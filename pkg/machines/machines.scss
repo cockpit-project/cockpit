@@ -2,6 +2,12 @@
 @import "../lib/table.css";
 
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+@import "../lib/ct-card.scss";
+
+/* Style the list cards as ct-cards */
+.pf-c-page__main-section > .pf-c-card {
+    @extend .ct-card;
+}
 
 .icon-2x-vms {
     font-size: 2em;
@@ -341,10 +347,6 @@ $toast-anim-speed: 200ms;
             }
         }
     }
-}
-
-#virtual-machines-listing .listing-ct-body {
-    overflow: visible;
 }
 
 @keyframes toast-fade-in {

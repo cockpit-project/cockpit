@@ -171,7 +171,7 @@ export const VmExpandedContent = ({
     });
 
     return (
-        <Page id="vm-details" breadcrumb={
+        <Page id="vm-details" className="vm-details" breadcrumb={
             <Breadcrumb className='machines-listing-breadcrumb'>
                 <BreadcrumbItem to='#'>
                     {_("Virtual machines")}

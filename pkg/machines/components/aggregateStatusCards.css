@@ -18,10 +18,10 @@
 
 /* Organize cards in a grid instead of BootStrap */
 .grid-cards-ct {
+  padding-bottom: var(--cards-gutter-y);
   display: grid;
   grid-gap: var(--cards-gutter-y) var(--cards-gutter-x);
   grid-template-columns: repeat(auto-fit, minmax(var(--cards-min), 1fr));
-  padding: var(--cards-gutter-y) var(--cards-gutter-x);
 
   > div {
     /* No funky negative margins are needed for grid */

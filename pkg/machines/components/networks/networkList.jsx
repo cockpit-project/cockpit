@@ -18,13 +18,20 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BreadcrumbItem, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import {
+    Breadcrumb, BreadcrumbItem,
+    Card, CardActions, CardHeader, CardTitle, CardBody,
+    Page, PageSection, PageSectionVariants,
+    Text, TextVariants,
+} from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { getNetworkRow } from './network.jsx';
 import { getNetworkDevices } from '../../helpers.js';
 import { CreateNetworkAction } from './createNetworkDialog.jsx';
+
+import './networkList.scss';
 
 const _ = cockpit.gettext;
 
@@ -50,16 +57,27 @@ export class NetworkList extends React.Component {
                         {_("Networks")}
                     </BreadcrumbItem>
                 </Breadcrumb>}>
-                <PageSection variant={PageSectionVariants.light} id='networks-listing'>
-                    <ListingTable title={_("Networks")}
-                        variant='compact'
-                        columns={[{ title: _("Name"), header: true }, _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
-                        emptyCaption={_("No network is defined on this host")}
-                        actions={actions}
-                        rows={networks
-                                .sort(sortFunction)
-                                .map(network => getNetworkRow({ dispatch, network, resourceHasError, onAddErrorNotification }))
-                        } />
+                <PageSection id='networks-listing'>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>
+                                <Text component={TextVariants.h2}>{_("Networks")}</Text>
+                            </CardTitle>
+                            <CardActions>
+                                {actions}
+                            </CardActions>
+                        </CardHeader>
+                        <CardBody className="contains-list">
+                            <ListingTable aria-label={_("Networks")}
+                                variant='compact'
+                                columns={[{ title: _("Name"), header: true }, _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
+                                emptyCaption={_("No network is defined on this host")}
+                                rows={networks
+                                        .sort(sortFunction)
+                                        .map(network => getNetworkRow({ dispatch, network, resourceHasError, onAddErrorNotification }))
+                                } />
+                        </CardBody>
+                    </Card>
                 </PageSection>
             </Page>
         );

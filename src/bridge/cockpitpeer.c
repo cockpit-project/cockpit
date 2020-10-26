@@ -949,6 +949,7 @@ cockpit_peer_handle (CockpitPeer *self,
   const gchar *host = NULL;
   const gchar *host_key = NULL;
   const gchar *superuser = NULL;
+  g_autoptr(GBytes) new_payload = NULL;
 
   g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
   g_return_val_if_fail (channel != NULL, FALSE);
@@ -1025,7 +1026,25 @@ cockpit_peer_handle (CockpitPeer *self,
 
   g_hash_table_add (self->channels, g_strdup (channel));
   if (redirect_target)
-    g_hash_table_insert (self->channel_redirects, g_strdup (channel), g_object_ref (redirect_target));
+    {
+      g_hash_table_insert (self->channel_redirects, g_strdup (channel), g_object_ref (redirect_target));
+
+      // Check if the redirect channel exists on the peer. If not, modify the open message so it doesn't include the
+      // redirect option, which would otherwise cause an error.
+      const gchar *redirect_channel = NULL;
+      cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
+      g_assert (redirect_channel != NULL);
+
+      if (!g_hash_table_lookup (self->channel_redirects, redirect_channel))
+        {
+          JsonObject *open_command = cockpit_json_parse_bytes (data, NULL);
+          g_assert (open_command != NULL);
+          json_object_remove_member (open_command, "redirect");
+
+          new_payload = cockpit_json_write_bytes (open_command);
+          json_object_unref (open_command);
+        }
+    }
 
   if (self->timeout)
     {
@@ -1037,7 +1056,7 @@ cockpit_peer_handle (CockpitPeer *self,
   if (self->inited)
     {
       g_debug ("%s: handling channel \"%s\" on peer", self->name, channel);
-      on_transport_control (self->transport, "open", channel, options, data, self);
+      on_transport_control (self->transport, "open", channel, options, new_payload ? new_payload : data, self);
     }
 
   /* Not yet inited, so freeze this channel and push back into the queue */
@@ -1048,7 +1067,7 @@ cockpit_peer_handle (CockpitPeer *self,
         self->frozen = g_queue_new ();
       g_queue_push_tail (self->frozen, g_strdup (channel));
       cockpit_transport_freeze (self->transport, channel);
-      cockpit_transport_emit_recv (self->transport, NULL, data);
+      cockpit_transport_emit_recv (self->transport, NULL, new_payload ? new_payload : data);
     }
 
   return TRUE;

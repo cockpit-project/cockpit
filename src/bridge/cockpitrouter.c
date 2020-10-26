@@ -418,8 +418,8 @@ process_init (CockpitRouter *self,
 
 static gboolean
 handle_redirect (CockpitRouter *self,
-		 JsonObject *options,
-		 CockpitRedirect **redirect)
+                 JsonObject *options,
+                 CockpitRedirect **redirect)
 {
   const gchar *channel_name;
   CockpitChannel *target_channel;
@@ -446,7 +446,7 @@ handle_redirect (CockpitRouter *self,
     {
       CockpitTransport *target_transport = cockpit_peer_ensure (target_peer);
       *redirect = g_object_new (COCKPIT_TYPE_PEER_REDIRECT,
-		                "channel", channel_name,
+		                            "channel", channel_name,
                                 "transport", target_transport,
                                 NULL);
       return TRUE;

@@ -183,7 +183,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh net-start default || true")
         m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 
-    def startVm(self, name, graphics='spice', ptyconsole=False):
+    def startVm(self, name, graphics='spice', ptyconsole=False, running=True):
         m = self.machine
 
         image_file = m.pull("cirros")
@@ -221,10 +221,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.created_pool = True
 
         xml = DOMAIN_XML.format(**args)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml{1}".format(xml,
+                                                                               " && virsh start {}".format(name) if running else ""))
 
-        m.execute('[ "$(virsh domstate {0})" = running ] || '
-                  '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
+        m.execute('[ "$(virsh domstate {0})" = {1} ] || {{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name,
+                                                                                                                                            "running" if running else "\"shut off\""))
 
         # TODO check if kernel is booted
         # Ideally we would like to check guest agent event for that
@@ -2658,40 +2659,45 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
-
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
-        self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
-        self.goToVmPage("subVmTest1")
+        def checkAutostart(vm_name, running):
+            self.startVm(vm_name, running=running)
+            self.waitVmRow(vm_name)
+            b.wait_in_text("#vm-{}-state".format(vm_name), "Running" if running else "Shut off")
+            self.goToVmPage(vm_name)
 
+            # set checkbox state and check state of checkbox
+            b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True) # don't know the initial state of checkbox, so set it to checked
+            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
 
-        # set checkbox state and check state of checkbox
-        b.set_checked("#vm-subVmTest1-autostart-checkbox", True) # don't know the initial state of checkbox, so set it to checked
-        b.wait_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "enable")
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_not_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "disable")
 
-        # change checkbox state and check state of checkbox
-        b.click("#vm-subVmTest1-autostart-checkbox")
-        b.wait_not_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "disable")
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
 
-        # change checkbox state and check state of checkbox
-        b.click("#vm-subVmTest1-autostart-checkbox")
-        b.wait_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "enable")
+            # non-persistent VM doesn't have autostart
+            if running:
+                m.execute("virsh undefine {}".format(vm_name))
+                b.wait_not_present("#vm-{}-autostart-checkbox".format(vm_name))
 
-        # non-persistent VM doesn't have autostart
-        m.execute("virsh undefine subVmTest1")
-        b.wait_not_present("#vm-subVmTest1-autostart-checkbox")
+            self.goToMainPage()
+
+        checkAutostart("subVmTest1", True)
+        checkAutostart("subVmTest2", False)
 
     def testBootOrder(self):
         b = self.browser

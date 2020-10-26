@@ -3610,6 +3610,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot0 --description 'Description of snapshot0'")
+        time.sleep(1)
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot1 --description 'Description of snapshot1'")
         # snapshot1 is the current snapshot
         m.execute("virsh snapshot-current --domain subVmTest1 --snapshotname snapshot0")
@@ -3622,17 +3623,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
 
-        b.wait_present("#vm-subVmTest1-snapshot-0-current")
-        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
         self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot0 | grep 'Current:' | awk '{print $2}'").strip())
         self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
 
-        b.click("#vm-subVmTest1-snapshot-1-revert")
+        b.click("#vm-subVmTest1-snapshot-0-revert")
         b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Revert to snapshot snapshot1")
         b.click('.pf-c-modal-box__footer button:contains("Revert")')
 
-        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
-        b.wait_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_present("#vm-subVmTest1-snapshot-0-current")
         self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot0 | grep 'Current:' | awk '{print $2}'").strip())
         self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
 

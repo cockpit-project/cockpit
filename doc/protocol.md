@@ -722,6 +722,9 @@ You may also specify these options:
 
  * "connection": A stable connection identifier.
  * "tls": Set to a object to use an https connection.
+ * "body-length": Set the length of the request body. If not present
+   the body will be stored in memory and sent together with the HTTP
+   header at once.
 
 The TLS object can have the following options:
 

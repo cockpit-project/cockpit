@@ -57,6 +57,21 @@ export const VmExpandedContent = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const vmActionsPageSection = (
+        <PageSection variant={PageSectionVariants.light}>
+            <div className="vm-top-panel">
+                <h2 className="vm-name">{vm.name}</h2>
+                <VmActions vm={vm}
+                           config={config}
+                           dispatch={dispatch}
+                           storagePools={storagePools}
+                           onAddErrorNotification={onAddErrorNotification}
+                           isDetailsPage />
+            </div>
+            {notifications && <div className="vm-notifications">{notifications}</div>}
+        </PageSection>
+    );
+
     if (cockpit.location.path[1] == "console") {
         return (<Page breadcrumb={
             <Breadcrumb className='machines-listing-breadcrumb'>
@@ -70,6 +85,7 @@ export const VmExpandedContent = ({
                     {_("Console")}
                 </BreadcrumbItem>
             </Breadcrumb>}>
+            {vmActionsPageSection}
             <PageSection variant={PageSectionVariants.light}>
                 <Consoles vm={vm} config={config} dispatch={dispatch}
                           onAddErrorNotification={onAddErrorNotification} />
@@ -164,18 +180,7 @@ export const VmExpandedContent = ({
                     {vm.name}
                 </BreadcrumbItem>
             </Breadcrumb>}>
-            <PageSection variant={PageSectionVariants.light}>
-                <div className="vm-top-panel">
-                    <h2 className="vm-name">{vm.name}</h2>
-                    <VmActions vm={vm}
-                               config={config}
-                               dispatch={dispatch}
-                               storagePools={storagePools}
-                               onAddErrorNotification={onAddErrorNotification}
-                               isDetailsPage />
-                </div>
-                {notifications && <div className="vm-notifications">{notifications}</div>}
-            </PageSection>
+            {vmActionsPageSection}
             <PageSection>
                 <Gallery className='ct-vm-overview' hasGutter>
                     {cards}

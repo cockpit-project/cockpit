@@ -19,8 +19,9 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
+import { Form, FormGroup, FormHelperText, Radio, TextInput } from '@patternfly/react-core';
 
-import { Validated, has_errors } from "./dialog-utils.js";
+import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -29,35 +30,27 @@ function AccountExpirationDialogBody({ state, errors, change }) {
     const { mode, before, after, date } = state;
 
     return (
-        <form className="expiration-modal">
-            <table className="form-table-ct">
-                <tbody>
-                    <tr>
-                        <td>
-                            <label>
-                                <input type="radio" id="account-expiration-never" name="mode" value="never"
-                                       checked={mode == "never"} onChange={event => change("mode", "never")} />
-                                <span>{_("Never lock account")}</span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label className="dialog-wrapper">
-                                <Validated errors={errors} error_key="date">
-                                    <input type="radio" id="account-expiration-expires" name="mode" value="expires"
-                                           checked={mode == "expires"} onChange={event => change("mode", "expires")} />
-                                    <span id="account-expiration-before">{before}</span>
-                                    <input type='text' className="form-control size-text-ct" id="account-expiration-input"
-                                           value={date} onChange={event => change("date", event.target.value)} disabled={mode != "expires"} />
-                                    <span id="account-expiration-after">{after}</span>
-                                </Validated>
-                            </label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
+        <Form className="expiration-modal">
+            <FormGroup>
+                <Radio id="account-expiration-never" name="mode" value="never"
+                       label={_("Never lock account")}
+                       isChecked={mode == "never"} onChange={() => change("mode", "never")} />
+                <Radio id="account-expiration-expires" name="mode" value="expires"
+                       label={<>
+                           <span id="account-expiration-before">{before}</span>
+                           <TextInput className="size-text-ct" id="account-expiration-input"
+                                      validated={(errors && errors.date) ? "error" : "default"}
+                                      value={date} onChange={value => change("date", value)} isDisabled={mode != "expires"} />
+                           <span id="account-expiration-after">{after}</span>
+
+                       </>}
+                       isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
+                {errors && errors.date &&
+                <FormHelperText isError isHidden={false}>
+                    {errors.date}
+                </FormHelperText>}
+            </FormGroup>
+        </Form>
     );
 }
 
@@ -143,35 +136,26 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
     const { mode, before, after, days } = state;
 
     return (
-        <form className="expiration-modal">
-            <table className="form-table-ct">
-                <tbody>
-                    <tr>
-                        <td>
-                            <label>
-                                <input type="radio" id="password-expiration-never" name="mode" value="never"
-                                       checked={mode == "never"} onChange={event => change("mode", "never")} />
-                                <span>{_("Never expire password")}</span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label className="dialog-wrapper">
-                                <Validated errors={errors} error_key="days">
-                                    <input type="radio" id="password-expiration-expires" name="mode" value="expires"
-                                           checked={mode == "expires"} onChange={event => change("mode", "expires")} />
-                                    <span id="password-expiration-before">{before}</span>
-                                    <input type='text' className="form-control size-text-ct" id="password-expiration-input"
-                                           value={days} onChange={event => change("days", event.target.value)} disabled={mode != "expires"} />
-                                    <span id="password-expiration-after">{after}</span>
-                                </Validated>
-                            </label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>);
+        <Form className="expiration-modal">
+            <FormGroup>
+                <Radio id="password-expiration-never" name="mode" value="never"
+                       label={_("Never expire password")}
+                       isChecked={mode == "never"} onChange={() => change("mode", "never")} />
+                <Radio id="password-expiration-expires" name="mode" value="expires"
+                       label={<>
+                           <span id="password-expiration-before">{before}</span>
+                           <TextInput className="size-text-ct" id="password-expiration-input"
+                                  validated={(errors && errors.days) ? "error" : "default"}
+                                  value={days} onChange={value => change("days", value)} isDisabled={mode != "expires"} />
+                           <span id="password-expiration-after">{after}</span>
+                       </>}
+                       isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
+                {(errors && errors.days) &&
+                <FormHelperText isError isHidden={false}>
+                    {errors.days}
+                </FormHelperText>}
+            </FormGroup>
+        </Form>);
 }
 
 export function password_expiration_dialog(account, expire_days) {

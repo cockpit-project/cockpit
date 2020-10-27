@@ -23,11 +23,15 @@ import moment from "moment";
 import { superuser } from "superuser";
 
 import {
-    Button, Card, CardBody, CardHeader, CardTitle, CardActions,
+    Button, Checkbox,
+    Card, CardBody, CardHeader, CardTitle, CardActions,
+    EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateSecondaryActions,
     Page, PageSection,
     Gallery, Text, TextVariants, Breadcrumb, BreadcrumbItem,
     Form, FormGroup, TextInput,
+    Title,
 } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -200,15 +204,18 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
 
     if (!account) {
         return (
-            <div id="account-failure" className="curtains-ct blank-slate-pf">
-                <div className="blank-slate-pf-icon">
-                    <i className="fa fa-exclamation-circle" />
-                </div>
-                <h1>{_("Account not available or cannot be edited.")}</h1>
-                <Breadcrumb>
-                    <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to accounts")}</BreadcrumbItem>
-                </Breadcrumb>
-            </div>);
+            <EmptyState variant={EmptyStateVariant.small} id="account-failure">
+                <EmptyStateIcon icon={ExclamationCircleIcon} />
+                <Title headingLevel="h1" size="lg">
+                    {_("Account not available or cannot be edited.")}
+                </Title>
+                <EmptyStateSecondaryActions>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to accounts")}</BreadcrumbItem>
+                    </Breadcrumb>
+                </EmptyStateSecondaryActions>
+            </EmptyState>
+        );
     }
 
     if (!details)
@@ -276,7 +283,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
                                 { account.uid !== 0 &&
-                                <FormGroup fieldId="account-roles" hasNoPaddingTop label={_("Roles")}>
+                                <FormGroup fieldId="account-roles" isInline label={_("Roles")}>
                                     <div id="account-roles">
                                         <div id="account-change-roles-roles">
                                             <AccountRoles account={account} groups={groups}
@@ -291,15 +298,11 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 <FormGroup fieldId="account-locked" label={_("Access")}>
                                     <div>
                                         <div className="account-column-one">
-                                            <div className="checkbox" data-container="body">
-                                                <label>
-                                                    <input type="checkbox" id="account-locked"
-                                       disabled={!superuser.allowed || edited_locked != null}
-                                       checked={edited_locked != null ? edited_locked : details.locked}
-                                       onChange={event => change_locked(event.target.checked)} />
-                                                    <span>{_("Lock account")}</span>
-                                                </label>
-                                            </div>
+                                            <Checkbox id="account-locked"
+                                                      isDisabled={!superuser.allowed || edited_locked != null}
+                                                      isChecked={edited_locked != null ? edited_locked : details.locked}
+                                                      label={_("Lock account")}
+                                                      onChange={checked => change_locked(checked)} />
                                         </div>
                                         <Button onClick={() => account_expiration_dialog(account, details.expiration.account_date)}
                                           isDisabled={!superuser.allowed} variant="link" id="account-expiration-button">

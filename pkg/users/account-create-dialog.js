@@ -20,7 +20,8 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Validated, has_errors } from "./dialog-utils.js";
+import { Checkbox, Form, FormGroup, TextInput } from '@patternfly/react-core';
+import { has_errors } from "./dialog-utils.js";
 import { password_quality, passwd_change } from "./password-dialogs.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -34,31 +35,41 @@ function AccountCreateBody({ state, errors, change }) {
     } = state;
 
     return (
-        <form className="ct-form">
-            <label className="control-label" htmlFor="accounts-create-real-name">{_("Full name")}</label>
-            <Validated errors={errors} error_key="real_name">
-                <input className="form-control" type="text" id="accounts-create-real-name"
-                       value={real_name} onChange={event => change("real_name", event.target.value)} />
-            </Validated>
+        <Form isHorizontal>
+            <FormGroup label={_("Full name")}
+                       helperTextInvalid={errors && errors.real_name}
+                       validated={(errors && errors.real_name) ? "error" : "default"}
+                       fieldId="accounts-create-real-name">
+                <TextInput id="accounts-create-real-name"
+                           validated={(errors && errors.real_name) ? "error" : "default"}
+                           value={real_name} onChange={value => change("real_name", value)} />
+            </FormGroup>
 
-            <label className="control-label" htmlFor="accounts-create-user-name">{_("User name")}</label>
-            <Validated errors={errors} error_key="user_name">
-                <input className="form-control" type="text" id="accounts-create-user-name"
-                       value={user_name} onChange={event => change("user_name", event.target.value)} />
-            </Validated>
+            <FormGroup label={_("User name")}
+                       helperTextInvalid={errors && errors.user_name}
+                       validated={(errors && errors.user_name) ? "error" : "default"}
+                       fieldId="accounts-create-user-name">
+                <TextInput id="accounts-create-user-name"
+                           validated={(errors && errors.user_name) ? "error" : "default"}
+                           value={user_name} onChange={value => change("user_name", value)} />
+            </FormGroup>
 
-            <label className="control-label" htmlFor="accounts-create-pw1">{_("Password")}</label>
-            <Validated errors={errors} error_key="password">
-                <input className="form-control" type="password" id="accounts-create-pw1"
-                       value={password} onChange={event => change("password", event.target.value)} />
-            </Validated>
+            <FormGroup label={_("Password")}
+                       helperTextInvalid={errors && errors.password}
+                       validated={(errors && errors.password) ? "error" : "default"}
+                       fieldId="accounts-create-pw1">
+                <TextInput type="password" id="accounts-create-pw1"
+                           validated={(errors && errors.password) ? "error" : "default"}
+                           value={password} onChange={value => change("password", value)} />
+            </FormGroup>
 
-            <label className="control-label" htmlFor="accounts-create-pw2">{_("Confirm")}</label>
-            <div className="dialog-wrapper">
-                <Validated errors={errors} error_key="password_confirm">
-                    <input className="form-control" type="password" id="accounts-create-pw2"
-                           value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
-                </Validated>
+            <FormGroup label={_("Confirm")}
+                       helperTextInvalid={errors && errors.password_confirm}
+                       validated={(errors && errors.password_confirm) ? "error" : "default"}
+                       fieldId="accounts-create-pw2">
+                <TextInput type="password" id="accounts-create-pw2"
+                           validated={(errors && errors.password_confirm) ? "error" : "default"}
+                           value={password_confirm} onChange={value => change("password_confirm", value)} />
                 <div id="accounts-create-password-meter" className={"progress password-strength-meter " + password_strength}>
                     <div className="progress-bar" />
                     <div className="progress-bar" />
@@ -68,15 +79,14 @@ function AccountCreateBody({ state, errors, change }) {
                 <div>
                     <span id="accounts-create-password-meter-message" className="help-block">{password_message}</span>
                 </div>
-            </div>
+            </FormGroup>
 
-            <label className="control-label">{_("Access")}</label>
-            <label className="checkbox-inline">
-                <input type="checkbox" id="accounts-create-locked"
-                       value={locked} onChange={event => change("locked", event.target.checked)} />
-                <span>{_("Lock account")}</span>
-            </label>
-        </form>
+            <FormGroup label={_("Access")} fieldId="accounts-create-locked" isInline>
+                <Checkbox id="accounts-create-locked"
+                          label={_("Lock account")}
+                          isChecked={locked} onChange={checked => change("locked", checked)} />
+            </FormGroup>
+        </Form>
     );
 }
 

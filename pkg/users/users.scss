@@ -1,10 +1,10 @@
-@import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
 @import "../lib/page.scss";
-@import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
-@import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "../../node_modules/@patternfly/patternfly/components/DataList/data-list.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Form/form.scss";
 @import "../lib/table.css";
 @import "../lib/ct-card.scss";
+@import "./password.scss";
+
 
 #account .pf-c-card {
     @extend .ct-card;
@@ -223,51 +223,8 @@
     align-items: center;
 }
 
-#authorized-key-add {
-    min-width: 28px;
-    min-height: 28px;
-}
-
-#authorized-keys-text {
-    height: 200px;
-    resize: none;
-    margin-bottom: 10px;
-}
-
 .align-top {
     vertical-align: top;
-}
-
-.password-strength-meter {
-    height: 5px;
-    margin-top: 5px;
-    margin-bottom: 0;
-}
-
-.password-strength-meter div {
-    width: 25%;
-    border-right: 3px solid var(--color-bg);
-    background-color: transparent;
-}
-
-.password-strength-meter div:last-child {
-    border-right: none;
-}
-
-.password-strength-meter.weak div:first-child {
-    background-color: #C00;
-}
-
-.password-strength-meter.okay div:nth-child(-n+2) {
-    background-color: #EC7A08;
-}
-
-.password-strength-meter.good div:nth-child(-n+3) {
-    background-color: var(--color-alert-success-text);
-}
-
-.password-strength-meter.excellent div:nth-child(-n+4) {
-    background-color: var(--color-alert-success-text);
 }
 
 .size-text-ct {
@@ -288,15 +245,14 @@
     display: inline-block;
 }
 
-.expiration-modal .form-table-ct td:first-child {
-    text-align: left;
-}
-
-.expiration-modal label input[type=text] {
-    position: relative;
-    top: -5px;
+.expiration-modal .pf-c-form__group-control .pf-c-radio:first-child {
+    padding-bottom: var(--pf-global--spacer--sm);
 }
 
 .help-block {
     white-space: pre-wrap;
+}
+
+.outline-question-circle-icon {
+    margin-left: var(--pf-global--spacer--sm);
 }

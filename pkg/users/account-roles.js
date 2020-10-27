@@ -19,7 +19,8 @@
 
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
-import { Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { Alert, Checkbox, Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { superuser } from "superuser";
 
 import { show_unexpected_error } from "./dialog-utils.js";
@@ -69,29 +70,30 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
     groups.forEach(group => {
         if (role_groups[group.name]) {
             roles.push(
-                <div key={group.name} className="checkbox">
-                    <Tooltip id={ "tooltip-unix-group-" + group.name } position={ TooltipPosition.right }
-                             content={ cockpit.format(_("Unix group: $0"), group.name) }>
-                        <label>
-                            <input type="checkbox" disabled={!superuser.allowed || !!changing}
-                            onChange={event => change_role(group, event.target.checked)}
-                checked={changing && changing.group == group.name ? changing.to : is_user_in_group(account.name, group)}
-                data-name={group.name} />
-                            {role_groups[group.name]}
-                        </label>
-                    </Tooltip>
-                </div>);
+                <Checkbox isDisabled={!superuser.allowed || !!changing}
+                          onChange={checked => change_role(group, checked)}
+                          isChecked={changing && changing.group == group.name ? changing.to : is_user_in_group(account.name, group)}
+                          key={group.name}
+                          id={group.name}
+                          data-name={group.name}
+                          label={
+                              <>
+                                  {role_groups[group.name]}
+                                  <Tooltip key={ group.name } id={ "tooltip-unix-group-" + group.name } position={ TooltipPosition.right }
+                                           content={ cockpit.format(_("Unix group: $0"), group.name) }>
+                                      <OutlinedQuestionCircleIcon className="outline-question-circle-icon" />
+                                  </Tooltip>
+                              </>
+                          } />
+            );
         }
     });
 
     if (changed && currently_logged_in) {
         roles.push(
-            <div key="alert" className="pf-c-alert pf-m-info pf-m-inline" aria-label="inline info alert">
-                <div className="pf-c-alert__icon">
-                    <i className="fa fa-info-circle" aria-hidden="true" />
-                </div>
-                <h4 className="pf-c-alert__title">{_("The user must log out and log back in to fully change roles.")}</h4>
-            </div>);
+            <Alert variant="info" key='alert' isInline
+                   title={_("The user must log out and log back in to fully change roles.")} />
+        );
     }
 
     return roles;

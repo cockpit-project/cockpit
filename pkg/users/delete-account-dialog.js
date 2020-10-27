@@ -19,6 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
+import { Checkbox } from '@patternfly/react-core';
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -28,13 +29,9 @@ function DeleteAccountDialogBody({ state, change }) {
     const { delete_files } = state;
 
     return (
-        <div className="checkbox">
-            <label>
-                <input type="checkbox" id="account-confirm-delete-files"
-               checked={delete_files} onChange={event => change("delete_files", event.target.checked)} />
-                <span>{_("Delete files")}</span>
-            </label>
-        </div>
+        <Checkbox id="account-confirm-delete-files"
+                  label={_("Delete files")}
+                  isChecked={delete_files} onChange={checked => change("delete_files", checked)} />
     );
 }
 

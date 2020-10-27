@@ -20,8 +20,9 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import { superuser } from "superuser";
+import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
-import { Validated, has_errors } from "./dialog-utils.js";
+import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -161,39 +162,43 @@ function SetPasswordDialogBody({ state, errors, change }) {
     } = state;
 
     return (
-        <form className="ct-form">
-            { need_old && <>
-                <label className="control-label" htmlFor="account-set-password-old">{_("Old password")}</label>
-                <Validated errors={errors} error_key="password_old">
-                    <input className="form-control check-passwords" type="password" id="account-set-password-old"
-                           value={password_old} onChange={event => change("password_old", event.target.value)} />
-                </Validated>
-            </>
-            }
+        <Form isHorizontal>
+            { need_old &&
+            <FormGroup label={_("Old password")}
+                       helperTextInvalid={errors && errors.password_old}
+                       validated={(errors && errors.password_old) ? "error" : "default"}
+                       fieldId="account-set-password-old">
+                <TextInput className="check-passwords" type="password" id="account-set-password-old"
+                           value={password_old} onChange={value => change("password_old", value)} />
+            </FormGroup> }
 
-            <label className="control-label" htmlFor="account-set-password-pw1">{_("New password")}</label>
-            <Validated errors={errors} error_key="password">
-                <input className="form-control check-passwords" type="password" id="account-set-password-pw1"
-                       value={password} onChange={event => change("password", event.target.value)} />
-            </Validated>
+            <FormGroup label={_("New password")}
+                       helperTextInvalid={errors && errors.password}
+                       validated={(errors && errors.password) ? "error" : "default"}
+                       fieldId="account-set-password-pw1">
+                <TextInput className="check-passwords" type="password" id="account-set-password-pw1"
+                           value={password} onChange={value => change("password", value)} />
+            </FormGroup>
 
-            <label className="control-label" htmlFor="account-set-password-pw2">{_("Confirm new password")}</label>
-            <div className="check-passwords dialog-wrapper">
-                <Validated errors={errors} error_key="password_confirm">
-                    <input className="form-control" type="password" id="account-set-password-pw2"
-                           value={password_confirm} onChange={event => change("password_confirm", event.target.value)} />
-                </Validated>
-                <div id="account-set-password-meter" className={"progress password-strength-meter " + password_strength}>
-                    <div className="progress-bar" />
-                    <div className="progress-bar" />
-                    <div className="progress-bar" />
-                    <div className="progress-bar" />
-                </div>
+            <FormGroup label={_("Confirm new password")}
+                       helperTextInvalid={errors && errors.password_confirm}
+                       validated={(errors && errors.password_confirm) ? "error" : "default"}
+                       fieldId="account-set-password-pw2">
+                <TextInput type="password" id="account-set-password-pw2"
+                           value={password_confirm} onChange={value => change("password_confirm", value)} />
                 <div>
-                    <span id="account-set-password-meter-message" className="help-block">{password_message}</span>
+                    <div id="account-set-password-meter" className={"progress password-strength-meter " + password_strength}>
+                        <div className="progress-bar" />
+                        <div className="progress-bar" />
+                        <div className="progress-bar" />
+                        <div className="progress-bar" />
+                    </div>
+                    <div>
+                        <span id="account-set-password-meter-message" className="help-block">{password_message}</span>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </FormGroup>
+        </Form>
     );
 }
 

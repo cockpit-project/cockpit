@@ -22,6 +22,7 @@ import React from 'react';
 import { superuser } from "superuser";
 
 import { Button, Badge, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { UserIcon } from '@patternfly/react-icons';
 import { account_create_dialog } from "./account-create-dialog.js";
 
 const _ = cockpit.gettext;
@@ -42,7 +43,7 @@ function AccountItem({ account, current }) {
 
     return (
         <li className="cockpit-account" role="presentation" onClick={click} onKeyPress={click}>
-            <div className="cockpit-account-pic pficon pficon-user" />
+            <UserIcon className="cockpit-account-pic" />
             <div className="cockpit-account-real-name">{account.gecos.split(',')[0]}</div>
             <div className="cockpit-account-user-name">
                 <a href={"#/" + account.name}>{account.name}</a>

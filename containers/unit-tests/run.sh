@@ -13,6 +13,18 @@ set -eux
 export LANG=C.UTF-8
 export MAKEFLAGS="-j $(nproc)"
 
+# Running the tests normally takes under half an hour.  Sometimes the build or
+# (more usually) the tests will wedge.  After 50 minutes, print out some
+# information about the running processes in order to give us a better chance
+# of tracking down problems.
+( set +x
+  sleep 50m
+  echo ===== 50 mins ====================
+  ps auxwfe
+  echo
+  top -b -n1
+  echo ===== 50 mins ====================
+)&
 
 # HACK: Something invoked by our build system is setting stdio to non-blocking.
 # Validate that this isn't the surrounding context. See more below.

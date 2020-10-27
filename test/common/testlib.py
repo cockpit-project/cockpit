@@ -52,7 +52,7 @@ __all__ = (
     'Browser',
     'MachineCase',
     'nondestructive',
-    'noretry',
+    'no_retry_when_changed',
     'skipImage',
     'skipBrowser',
     'skipPackage',
@@ -1444,19 +1444,21 @@ def nondestructive(testEntity):
     return testEntity
 
 
-def noretry(testEntity):
-    """Tests decorated with noretry will only run once
+def no_retry_when_changed(testEntity):
+    """Tests decorated with no_retry_when_changed will only run once if they've been changed
 
-    Can be used on test classes and individual methods.
+    Tests that have been changed are expected to succeed 3 times, if the test
+    takes a long time, this prevents timeouts. Can be used on test classes and
+    individual methods.
     """
 
     if inspect.isclass(testEntity) and issubclass(testEntity, unittest.TestCase):
         for test_function in inspect.getmembers(testEntity, is_test_function):
-            test_function[1]._testlib__max_retries = 0
+            test_function[1]._testlib__retry_when_affected = False
     elif is_test_function(testEntity):
-        testEntity._testlib__max_retries = 0
+        testEntity._testlib__retry_when_affected = False
     else:
-        raise Error("The noretry decorator can only be used on test classes and test methods")
+        raise Error("The no_retry_when_changed decorator can only be used on test classes and test methods")
     return testEntity
 
 

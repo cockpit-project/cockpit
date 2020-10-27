@@ -3609,10 +3609,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot0 --description 'Description of snapshot0'")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot1 --description 'Description of snapshot1'")
-        # snapshot1 is the current snapshot
-        m.execute("virsh snapshot-current --domain subVmTest1 --snapshotname snapshot0")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotA --description 'Description of snapshotA'")
+        time.sleep(1)
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB'")
+        # snapshotB is the current snapshot
+        m.execute("virsh snapshot-current --domain subVmTest1 --snapshotname snapshotA")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -3622,19 +3623,19 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
 
-        b.wait_present("#vm-subVmTest1-snapshot-0-current")
-        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
-        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot0 | grep 'Current:' | awk '{print $2}'").strip())
-        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
+        b.wait_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
 
-        b.click("#vm-subVmTest1-snapshot-1-revert")
-        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Revert to snapshot snapshot1")
+        b.click("#vm-subVmTest1-snapshot-0-revert")
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Revert to snapshot snapshotB")
         b.click('.pf-c-modal-box__footer button:contains("Revert")')
 
-        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
-        b.wait_present("#vm-subVmTest1-snapshot-1-current")
-        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot0 | grep 'Current:' | awk '{print $2}'").strip())
-        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshot1 | grep 'Current:' | awk '{print $2}'").strip())
+        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_present("#vm-subVmTest1-snapshot-0-current")
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
 
     def testSnapshots(self):
         # Checks if difference of @time1 and @time2 is not greater than @difference (in seconds)
@@ -3668,14 +3669,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
         time1 = datetime.now().strftime("%H:%M:%S")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot1 --description 'Description of snapshot1' --disk-only")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB' --disk-only")
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
-        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot1")
-        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot1")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshotB")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshotB")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "no state saved")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "No parent")
         time2 = b.text("#vm-subVmTest1-snapshot-0-date")
@@ -3687,15 +3688,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         time1 = datetime.now().strftime("%H:%M:%S")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot2 --description 'Description of snapshot2'")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
 
-        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot2")
-        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot2")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshotC")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshotC")
         b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "shut off")
-        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "snapshot1")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "snapshotB")
         time2 = b.text("#vm-subVmTest1-snapshot-0-date")
         self.assertTrue(checkTimeDiff(time1, time2, 60))
 

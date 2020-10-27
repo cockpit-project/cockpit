@@ -433,6 +433,10 @@ ExecStart=/bin/true
 """)
             self.machine.execute("ln -s /bin/true /usr/bin/chronyc")
 
+            # HACK: It now expects chrony.service and not chronyd.service: https://bugs.debian.org/968428
+            # Not to be attached to a specific version of a testing image, support both for now
+            self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
+
         # wait until FreeIPA started up
         self.machines['services'].execute("""docker exec -i freeipa sh -ec '
             while ! echo %s | kinit -f %s; do sleep 5; done
@@ -761,6 +765,10 @@ Type=oneshot
 ExecStart=/bin/true
 """)
             self.machine.execute("ln -s /bin/true /usr/bin/chronyc")
+
+            # HACK: It now expects chrony.service and not chronyd.service: https://bugs.debian.org/968428
+            # Not to be attached to a specific version of a testing image, support both for now
+            self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
 
     def configure_kerberos(self, keytab):
         self.machines["services"].execute("/run-freeipa")

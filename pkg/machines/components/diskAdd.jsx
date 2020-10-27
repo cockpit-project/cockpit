@@ -116,7 +116,7 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
                 {_("Pool")}
             </label>
             <Select.Select id={`${idPrefix}-select-pool`}
-                           enabled={vmStoragePools.length > 0}
+                           enabled={vmStoragePools.length > 0 && vmStoragePools.every(pool => pool.volumes !== undefined)}
                            onChange={value => onValueChanged('storagePoolName', value)}
                            initial={storagePoolName || _("No storage pools available")}
                            extraClass="form-control">

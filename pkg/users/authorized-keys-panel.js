@@ -21,7 +21,8 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { useObject, useEvent } from 'hooks.js';
 
-import { Button } from '@patternfly/react-core';
+import { Button, TextArea } from '@patternfly/react-core';
+import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { show_unexpected_error } from "./dialog-utils.js";
 import * as authorized_keys from './authorized-keys.js';
@@ -32,10 +33,10 @@ function AddAuthorizedKeyDialogBody({ state, change }) {
     const { text } = state;
 
     return (
-        <textarea id="authorized-keys-text"
+        <TextArea id="authorized-keys-text"
                   placeholder={_("Paste the contents of your public SSH key file here")}
                   className="form-control"
-                  value={text} onChange={event => change("text", event.target.value)} />
+                  value={text} onChange={value => change("text", value)} />
     );
 }
 
@@ -133,9 +134,9 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                         { allow_mods &&
                         <div className="pf-c-data-list__item-action">
                             <Button variant="secondary" onClick={() => remove_key(k.raw)}
-                                className="account-remove-key">
-                                <span className="fa fa-minus" />
-                            </Button>
+                                    isSmall
+                                    className="account-remove-key"
+                                    icon={<MinusIcon />} />
                         </div> }
                     </div>
                 </li>);
@@ -147,14 +148,11 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
         <div className="pf-c-card" id="account-authorized-keys">
             <div className="pf-c-card__header">
                 <div className="pf-c-card__title"><h2>{_("Authorized public SSH keys")}</h2></div>
-                <div className="pf-c-card__actions">
-                    { allow_mods &&
-                    <Button onClick={() => add_authorized_key_dialog(manager)}
-                        id="authorized-key-add">
-                        <span className="fa fa-plus" />
-                    </Button>
-                    }
-                </div>
+                { allow_mods &&
+                <Button onClick={() => add_authorized_key_dialog(manager)}
+                        isSmall
+                        id="authorized-key-add"
+                        icon={<PlusIcon />} />}
             </div>
             <div className="pf-c-card__body contains-list">
                 <ul className="pf-c-data-list pf-m-compact" id="account-authorized-keys-list">

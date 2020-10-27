@@ -22,8 +22,6 @@ import React from 'react';
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
-import 'form-layout.scss';
-
 const _ = cockpit.gettext;
 
 export function Validated({ errors, error_key, children }) {

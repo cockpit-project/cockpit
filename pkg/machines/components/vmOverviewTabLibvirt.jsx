@@ -199,7 +199,7 @@ class VmOverviewTabLibvirt extends React.Component {
         let firmwareLinkWrapper;
         // <os firmware=[bios/efi]' settings is available only for libvirt version >= 5.2. Before that version it silently ignores this attribute in the XML
         if (this.state.loaderElems && libvirtVersion >= 5002000) {
-            const hasInstallPhase = vm.metadata.hasInstallPhase;
+            const hasInstallPhase = vm.metadata && vm.metadata.hasInstallPhase;
             const labelForFirmware = labelForFirmwarePath(vm.loader, vm.arch);
             let currentFirmware;
             if (vm.firmware == "efi" || labelForFirmware == "efi")

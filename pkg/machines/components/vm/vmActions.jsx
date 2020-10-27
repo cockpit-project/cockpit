@@ -51,7 +51,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
 
     const id = vmId(vm.name);
     const state = vm.state;
-    const hasInstallPhase = vm.metadata.hasInstallPhase;
+    const hasInstallPhase = vm.metadata && vm.metadata.hasInstallPhase;
     const dropdownItems = [];
 
     const onStart = () => dispatch(startVm(vm)).catch(ex => {

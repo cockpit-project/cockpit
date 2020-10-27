@@ -88,7 +88,7 @@ def finish_test(opts, test, affected_tests):
     affected = test.command[0] in affected_tests
 
     # Try affected tests 3 times
-    if test.process.returncode == 0 and affected and test.retry_when_affected:
+    if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
         retry_reason = b"test affected tests 3 times"
         test.retries += 1
         test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)

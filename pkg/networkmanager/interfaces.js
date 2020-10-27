@@ -2608,7 +2608,7 @@ PageNetworkInterface.prototype = {
 
             return $('<tr>').append(
                 $('<td>').text(_("Status")),
-                $('<td>').append(
+                $('<td>', { class: "network-interface-status" }).append(
                     render_active_connection(dev, true, false),
                     " ",
                     state ? $('<span>').text(state) : null));

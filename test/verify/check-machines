@@ -688,6 +688,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if not self.use_existing_volume:
                 # Choose storage pool
                 if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
+                    b.wait_present("#vm-{0}-disks-adddisk-new-select-pool:enabled".format(self.vm_name))
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
                 else:
                     b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
@@ -707,6 +708,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if self.permanent:
                     b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
             else:
+                b.wait_present("#vm-{0}-disks-adddisk-existing-select-pool:enabled".format(self.vm_name))
                 # Choose storage pool
                 b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
                 # Select from the available volumes

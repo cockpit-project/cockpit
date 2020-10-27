@@ -68,7 +68,7 @@ def release_target(used_targets, target):
 # rmmod kvm-intel && modprobe kvm-intel || true
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
-@noretry
+@no_retry_when_changed
 class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     created_pool = False
 

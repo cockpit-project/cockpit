@@ -96,7 +96,7 @@ class HostSwitcherHelpers:
         for m in self.machines:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
 
-@noretry
+@no_retry_when_changed
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {

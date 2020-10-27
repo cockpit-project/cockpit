@@ -82,7 +82,7 @@ class DashBoardHelpers:
             self.machines[m].write("/home/admin/.ssh/authorized_keys", pubkey)
             self.machines[m].execute("chown admin:admin /home/admin/.ssh/authorized_keys")
 
-@noretry
+@no_retry_when_changed
 @skipBrowser("Firefox looses track of contexts", "firefox")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     provision = {

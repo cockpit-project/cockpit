@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cockpit from "cockpit";
-import { FormGroup } from "patternfly-react";
+import { FormGroup, TextInput } from '@patternfly/react-core';
 import { debounce } from 'throttle-debounce';
 
 import './password.css';
@@ -99,13 +99,11 @@ export class Password extends React.Component {
 
         return (
             <>
-                <FormGroup validationState={passwordInvalid ? "error" : undefined}>
-                    <input
-                        id={this.props.id}
-                        type="password"
-                        className="form-control"
-                        onChange={e => this.handleChangePassword(e.target.value)}
-                        onBlur={() => this.handleWarnings()}
+                <FormGroup validationState={passwordInvalid ? "error" : "default"}>
+                    <TextInput id={this.props.id}
+                               type="password"
+                               onChange={e => this.handleChangePassword(e.target.value)}
+                               onBlur={() => this.handleWarnings()}
                     />
                 </FormGroup>
                 {this.state.pwscoreAvailable && <>

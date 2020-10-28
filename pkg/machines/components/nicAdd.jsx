@@ -19,7 +19,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Checkbox, Form, FormGroup, Modal, Radio, TextInput } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -28,64 +28,40 @@ import LibvirtDBus, { attachIface } from '../libvirt-dbus.js';
 import { getNetworkDevices } from '../helpers.js';
 
 import './nic.css';
-import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 
 const NetworkMacRow = ({ idPrefix, dialogValues, onValueChanged }) => {
     return (
-        <>
-            <>
-                <label className='control-label' htmlFor={`${idPrefix}-generate-mac`}>
-                    {_("MAC address")}
-                </label>
-                <label className='checkbox-inline'>
-                    <input id={`${idPrefix}-generate-mac`}
-                        type="radio"
-                        name="generate-mac"
-                        checked={!dialogValues.setNetworkMac}
-                        onChange={e => onValueChanged('setNetworkMac', false)}
-                        className={!dialogValues.setNetworkMac ? "active" : ''} />
-                    {_("Generate automatically")}
-                </label>
-            </>
-            <div className='mac-grid'>
-                <label className='checkbox-inline'>
-                    <input id={`${idPrefix}-set-mac`}
-                        type="radio"
-                        name="set-mac"
-                        checked={dialogValues.setNetworkMac}
-                        onChange={e => onValueChanged('setNetworkMac', true)}
-                        className={dialogValues.setNetworkMac ? "active" : ''} />
-                    {_("Set manually")}
-                </label>
-                <input id={`${idPrefix}-mac`}
-                    className='form-control'
-                    type='text'
-                    disabled={!dialogValues.setNetworkMac}
-                    value={dialogValues.networkMac}
-                    onChange={e => onValueChanged('networkMac', e.target.value)} />
-            </div>
-        </>
+        <FormGroup fieldId={`${idPrefix}-generate-mac`} label={_("MAC address")} hasNoPaddingTop isInline>
+            <Radio id={`${idPrefix}-generate-mac`}
+                   name="mac-setting"
+                   isChecked={!dialogValues.setNetworkMac}
+                   label={_("Generate automatically")}
+                   onChange={() => onValueChanged('setNetworkMac', false)} />
+            <Radio id={`${idPrefix}-set-mac`}
+                   name="mac-setting"
+                   isChecked={dialogValues.setNetworkMac}
+                   label={_("Set manually")}
+                   onChange={() => onValueChanged('setNetworkMac', true)} />
+            <TextInput id={`${idPrefix}-mac`}
+                       className="nic-add-mac-setting-manual"
+                       isDisabled={!dialogValues.setNetworkMac}
+                       value={dialogValues.networkMac}
+                       onChange={value => onValueChanged('networkMac', value)} />
+        </FormGroup>
     );
 };
 
 const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, vm }) => {
     // By default for a running VM, the iface is attached until shut down only. Enable permanent change of the domain.xml
-    if (!LibvirtDBus.isRunning(vm.state))
-        return null;
-
     return (
-        <>
-            <label className="control-label"> {_("Persistence")} </label>
-            <label className='checkbox-inline'>
-                <input id={`${idPrefix}-permanent`}
-                       type="checkbox"
-                       checked={dialogValues.permanent}
-                       onChange={e => onValueChanged('permanent', e.target.checked)} />
-                {_("Always attach")}
-            </label>
-        </>
+        <FormGroup label={_("Persistence")} fieldId={`${idPrefix}-permanent`} hasNoPaddingTop>
+            <Checkbox id={`${idPrefix}-permanent`}
+                      isChecked={dialogValues.permanent}
+                      label={_("Always attach")}
+                      onChange={checked => onValueChanged('permanent', checked)} />
+        </FormGroup>
     );
 };
 
@@ -158,30 +134,29 @@ export class AddNIC extends React.Component {
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
-            <form className='ct-form'>
+            <Form isHorizontal>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
                                          networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
-                <hr />
+
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
                                  osTypeArch={vm.arch}
                                  osTypeMachine={vm.emulatedMachine} />
-                <hr />
+
                 <NetworkMacRow idPrefix={idPrefix}
                                dialogValues={this.state}
                                onValueChanged={this.onValueChanged} />
-                {vm.persistent && <>
-                    <hr />
-                    <PermanentChange idPrefix={idPrefix}
-                                     dialogValues={this.state}
-                                     onValueChanged={this.onValueChanged}
-                                     vm={vm} />
-                </>}
-            </form>
+
+                {LibvirtDBus.isRunning(vm.state) && vm.persistent &&
+                <PermanentChange idPrefix={idPrefix}
+                                 dialogValues={this.state}
+                                 onValueChanged={this.onValueChanged}
+                                 vm={vm} />}
+            </Form>
         );
 
         return (

@@ -17,7 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Button, Alert, Modal, Spinner } from '@patternfly/react-core';
+import {
+    Alert, Button, Checkbox,
+    ExpandableSection, Form, FormGroup, FormSection,
+    Modal, Radio, Spinner,
+} from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -74,18 +78,15 @@ const SelectExistingVolume = ({ idPrefix, storagePoolName, existingVolumeName, o
     }
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-volume`}>
-                {_("Volume")}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-select-volume`} label={_("Volume")}>
             <Select.Select id={`${idPrefix}-select-volume`}
                            onChange={value => onValueChanged('existingVolumeName', value)}
                            initial={initiallySelected}
                            enabled={filteredVolumes.length > 0}
-                           extraClass='form-control'>
+                           extraClass='pf-c-form-control'>
                 {content}
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
@@ -96,30 +97,24 @@ const PermanentChange = ({ idPrefix, onValueChanged, permanent, vm }) => {
     }
 
     return (
-        <>
-            <label className="control-label"> {_("Persistence")} </label>
-            <label className='checkbox-inline'>
-                <input id={`${idPrefix}-permanent`}
-                       type="checkbox"
-                       checked={permanent}
-                       onChange={e => onValueChanged('permanent', e.target.checked)} />
-                {_("Always attach")}
-            </label>
-        </>
+        <FormGroup fieldId={`${idPrefix}-permanent`} label={_("Persistence")} isInline>
+            <Checkbox id={`${idPrefix}-permanent`}
+                      isChecked={permanent}
+                      label={_("Always attach")}
+                      onChange={checked => onValueChanged('permanent', checked)} />
+        </FormGroup>
     );
 };
 
 const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) => {
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-pool`}>
-                {_("Pool")}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-select-pool`}
+                   label={_("Pool")}>
             <Select.Select id={`${idPrefix}-select-pool`}
                            enabled={vmStoragePools.length > 0 && vmStoragePools.every(pool => pool.volumes !== undefined)}
                            onChange={value => onValueChanged('storagePoolName', value)}
                            initial={storagePoolName || _("No storage pools available")}
-                           extraClass="form-control">
+                           extraClass="pf-c-form-control">
                 {vmStoragePools.length > 0 ? vmStoragePools
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map(pool => {
@@ -133,7 +128,7 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
                         {_("No storage pools available")}
                     </Select.SelectEntry>]}
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
@@ -148,51 +143,40 @@ class AdditionalOptions extends React.Component {
         const busTypes = ['sata', 'scsi', 'usb', 'virtio'];
 
         return (
-            <>
-                <div className='expand-collapse-pf' id='expand-collapse-button'>
-                    <div className='expand-collapse-pf-link-container'>
-                        <button className='pf-c-button pf-m-inline pf-m-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
-                            { this.state.expanded ? <span className='fa fa-angle-down' /> : <span className='fa fa-angle-right' /> }
-                            { this.state.expanded ? _("Hide additional options") : _("Show additional options")}
-                        </button>
-                        <span className="expand-collapse-pf-separator bordered" />
-                    </div>
-                </div>
+            <ExpandableSection toggleText={ this.state.expanded ? _("Hide additional options") : _("Show additional options")}
+                               onToggle={() => this.setState({ expanded: !this.state.expanded })} isExpanded={this.state.expanded} className="add-disk-additional-options">
+                <FormSection className="ct-form-split">
+                    <FormGroup fieldId='cache-mode' label={_("Cache")}>
+                        <Select.Select id='cache-mode'
+                            onChange={value => this.props.onValueChanged('cacheMode', value)}
+                            initial={this.props.cacheMode}
+                            extraClass='pf-c-form-control ct-form-split'>
+                            {cacheModes.map(cacheMode => {
+                                return (
+                                    <Select.SelectEntry data={cacheMode} key={cacheMode}>
+                                        {cacheMode}
+                                    </Select.SelectEntry>
+                                );
+                            })}
+                        </Select.Select>
+                    </FormGroup>
 
-                {this.state.expanded && <>
-                    <label className='control-label' htmlFor='cache-mode'>
-                        {_("Cache")}
-                    </label>
-                    <Select.Select id='cache-mode'
-                        onChange={value => this.props.onValueChanged('cacheMode', value)}
-                        initial={this.props.cacheMode}
-                        extraClass='form-control ct-form-split'>
-                        {cacheModes.map(cacheMode => {
-                            return (
-                                <Select.SelectEntry data={cacheMode} key={cacheMode}>
-                                    {cacheMode}
-                                </Select.SelectEntry>
-                            );
-                        })}
-                    </Select.Select>
-
-                    <label className='control-label' htmlFor='bus-type'>
-                        {_("Bus")}
-                    </label>
-                    <Select.Select id='bus-type'
-                        onChange={value => this.props.onValueChanged('busType', value)}
-                        initial={this.props.busType}
-                        extraClass='form-control ct-form-split'>
-                        {busTypes.map(busType => {
-                            return (
-                                <Select.SelectEntry data={busType} key={busType}>
-                                    {busType}
-                                </Select.SelectEntry>
-                            );
-                        })}
-                    </Select.Select>
-                </>}
-            </>
+                    <FormGroup fieldId='bus-type' label={_("Bus")}>
+                        <Select.Select id='bus-type'
+                            onChange={value => this.props.onValueChanged('busType', value)}
+                            initial={this.props.busType}
+                            extraClass='pf-c-form-control ct-form-split'>
+                            {busTypes.map(busType => {
+                                return (
+                                    <Select.SelectEntry data={busType} key={busType}>
+                                        {busType}
+                                    </Select.SelectEntry>
+                                );
+                            })}
+                        </Select.Select>
+                    </FormGroup>
+                </FormSection>
+            </ExpandableSection>
         );
     }
 }
@@ -203,19 +187,15 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
 
     return (
         <>
-            <hr />
             <PoolRow idPrefix={idPrefix}
                      storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools.map(pool => ({ ...pool, disabled: poolTypesNotSupportingVolumeCreation.includes(pool.type) }))} />
             {storagePool &&
-            <>
-                <hr />
-                <VolumeCreateBody idPrefix={idPrefix}
-                                  storagePool={storagePool}
-                                  dialogValues={dialogValues}
-                                  onValueChanged={onValueChanged} />
-            </>}
+            <VolumeCreateBody idPrefix={idPrefix}
+                              storagePool={storagePool}
+                              dialogValues={dialogValues}
+                              onValueChanged={onValueChanged} />}
         </>
     );
 };
@@ -238,14 +218,11 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
 const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm, vms }) => {
     return (
         <>
-            <hr />
             <PoolRow idPrefix={idPrefix}
                      storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
-            <hr />
-            {vmStoragePools.length > 0 &&
-            <>
+            {vmStoragePools.length > 0 && <>
                 <SelectExistingVolume idPrefix={idPrefix}
                                       storagePoolName={dialogValues.storagePoolName}
                                       existingVolumeName={dialogValues.existingVolumeName}
@@ -490,32 +467,20 @@ export class AddDiskModalBody extends React.Component {
             defaultBody = <Spinner />;
         } else {
             defaultBody = (
-                <div className='ct-form'>
-                    <label className='control-label' htmlFor={`${idPrefix}-source`}>
-                        {_("Source")}
-                    </label>
-                    <fieldset className='form-inline'>
-                        <div className='radio'>
-                            <label>
-                                <input id={`${idPrefix}-createnew`}
-                                       type="radio"
-                                       name="source"
-                                       checked={this.state.mode === CREATE_NEW}
-                                       onChange={e => this.onValueChanged('mode', CREATE_NEW)}
-                                       className={this.state.mode === CREATE_NEW ? "active" : ''} />
-                                {_("Create new")}
-                            </label>
-                            <label>
-                                <input id={`${idPrefix}-useexisting`}
-                                       type="radio"
-                                       name="source"
-                                       checked={this.state.mode === USE_EXISTING}
-                                       onChange={e => this.onValueChanged('mode', USE_EXISTING)}
-                                       className={this.state.mode === USE_EXISTING ? "active" : ''} />
-                                {_("Use existing")}
-                            </label>
-                        </div>
-                    </fieldset>
+                <Form isHorizontal>
+                    <FormGroup fieldId={`${idPrefix}-source`}
+                               label={_("Source")} isInline>
+                        <Radio id={`${idPrefix}-createnew`}
+                               name="source"
+                               label={_("Create new")}
+                               isChecked={this.state.mode === CREATE_NEW}
+                               onChange={() => this.onValueChanged('mode', CREATE_NEW)} />
+                        <Radio id={`${idPrefix}-useexisting`}
+                               name="source"
+                               label={_("Use existing")}
+                               isChecked={this.state.mode === USE_EXISTING}
+                               onChange={e => this.onValueChanged('mode', USE_EXISTING)} />
+                    </FormGroup>
                     {this.state.mode === CREATE_NEW && (
                         <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                        onValueChanged={this.onValueChanged}
@@ -531,17 +496,15 @@ export class AddDiskModalBody extends React.Component {
                                          vms={vms}
                                          vm={vm} />
                     )}
-                    {vm.persistent && <>
-                        <hr />
-                        <PermanentChange idPrefix={idPrefix}
-                                         permanent={this.state.permanent}
-                                         onValueChanged={this.onValueChanged}
-                                         vm={vm} />
-                    </>}
+                    {vm.persistent &&
+                    <PermanentChange idPrefix={idPrefix}
+                                     permanent={this.state.permanent}
+                                     onValueChanged={this.onValueChanged}
+                                     vm={vm} />}
                     <AdditionalOptions cacheMode={this.state.cacheMode}
                                        onValueChanged={this.onValueChanged}
                                        busType={this.state.busType} />
-                </div>
+                </Form>
             );
         }
 

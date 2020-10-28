@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Alert, Button, Modal, Tooltip } from '@patternfly/react-core';
+import { Alert, Button, Form, FormGroup, Modal, Popover, TextInput } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
 import { setVCPUSettings } from "../actions/provider-actions.js";
+import { digitFilter } from "../helpers.js";
 
 import './vcpuModal.css';
 
@@ -66,9 +67,9 @@ export class VCPUModal extends React.Component {
         this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
-    onMaxChange (e) {
+    onMaxChange (value) {
         const maxHypervisor = parseInt(this.props.maxVcpu);
-        let maxValue = parseInt(e.target.value);
+        let maxValue = parseInt(value);
 
         // Check new value for limits
         maxValue = clamp(maxValue, maxHypervisor, 1);
@@ -101,10 +102,9 @@ export class VCPUModal extends React.Component {
         this.setState(state);
     }
 
-    onCountSelect (e) {
-        let value = parseInt(e.target.value);
-        value = clamp(value, this.state.max, 1);
-        this.setState({ count: parseInt(value) });
+    onCountSelect (value) {
+        const newValue = clamp(value, this.state.max, 1);
+        this.setState({ count: parseInt(newValue) });
     }
 
     onSocketChange (value) {
@@ -182,58 +182,54 @@ export class VCPUModal extends React.Component {
 
         const defaultBody = (
             <div className="vcpu-modal-grid">
-                <div className="ct-form">
-                    <label className="control-label" htmlFor="vcpu-count">
-                        {_("vCPU count")}
-                    </label>
-                    <div controlid="vcpu-count" role="group">
-                        <input id="machines-vcpu-count-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />
-                        <div className="info-circle">
-                            <Tooltip entryDelay={0} content={_("Fewer than the maximum number of virtual CPUs should be enabled.")}>
-                                <InfoAltIcon />
-                            </Tooltip>
-                        </div>
-                    </div>
+                <Form isHorizontal>
+                    <FormGroup fieldId="machines-vcpu-count-field" label={_("vCPU count")}
+                               labelIcon={
+                                   <Popover bodyContent={_("Fewer than the maximum number of virtual CPUs should be enabled.")}>
+                                       <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                                           <InfoAltIcon noVerticalAlign />
+                                       </button>
+                                   </Popover>}>
+                        <TextInput id="machines-vcpu-count-field"
+                                   type="number" inputMode="numeric" pattern="[0-9]*" value={this.state.count}
+                                   onKeyPress={digitFilter}
+                                   onChange={this.onCountSelect} />
+                    </FormGroup>
 
-                    <label className="control-label" htmlFor="vcpu-maximum">
-                        {_("vCPU maximum")}
-                    </label>
-                    <div controlid="vcpu-maximum" role="group">
-                        <input id="machines-vcpu-max-field" type="text" inputMode="numeric" pattern="[0-9]*" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />
-                        <div className="info-circle">
-                            <Tooltip entryDelay={0}
-                                content={this.props.maxVcpu
-                                    ? cockpit.format(_("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"), parseInt(this.props.maxVcpu))
-                                    : _("Maximum number of virtual CPUs allocated for the guest OS")
-                                }>
-                                <InfoAltIcon />
-                            </Tooltip>
-                        </div>
-                    </div>
-                </div>
-                <div className="ct-form">
-                    <label className="control-label" htmlFor="sockets">
-                        {_("Sockets")}
-                    </label>
-                    <div controlid="sockets" role="group">
-                        <Select extraClass="ct-form-stretch" id="socketsSelect" value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                        <div className="info-circle">
-                            <Tooltip entryDelay={0} content={_("Preferred number of sockets to expose to the guest.")}>
-                                <InfoAltIcon />
-                            </Tooltip>
-                        </div>
-                    </div>
+                    <FormGroup fieldId="machines-vcpu-max-field" label={_("vCPU maximum")}
+                               labelIcon={
+                                   <Popover bodyContent={this.props.maxVcpu
+                                       ? cockpit.format(_("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"), parseInt(this.props.maxVcpu))
+                                       : _("Maximum number of virtual CPUs allocated for the guest OS")}>
+                                       <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                                           <InfoAltIcon noVerticalAlign />
+                                       </button>
+                                   </Popover>}>
+                        <TextInput id="machines-vcpu-max-field"
+                                   type="number" inputMode="numeric" pattern="[0-9]*"
+                                   onKeyPress={digitFilter}
+                                   onChange={this.onMaxChange} value={this.state.max} />
+                    </FormGroup>
+                </Form>
+                <Form isHorizontal>
+                    <FormGroup fieldId="sockets" label={_("Sockets")}
+                               labelIcon={
+                                   <Popover bodyContent={_("Preferred number of sockets to expose to the guest.")}>
+                                       <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                                           <InfoAltIcon noVerticalAlign />
+                                       </button>
+                                   </Popover>}>
+                        <Select extraClass="pf-c-form-control" id="socketsSelect" value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    </FormGroup>
 
-                    <label className="control-label" htmlFor="coresSelect">
-                        {_("Cores per socket")}
-                    </label>
-                    <Select extraClass="ct-form-stretch" id="coresSelect" value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    <FormGroup fieldId="coresSelect" label={_("Cores per socket")}>
+                        <Select extraClass="pf-c-form-control" id="coresSelect" value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    </FormGroup>
 
-                    <label className="control-label" htmlFor="threadsSelect">
-                        {_("Threads per core")}
-                    </label>
-                    <Select extraClass="ct-form-stretch" id="threadsSelect" value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                </div>
+                    <FormGroup fieldId="threadsSelect" label={_("Threads per core")}>
+                        <Select extraClass="pf-c-form-control" id="threadsSelect" value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    </FormGroup>
+                </Form>
             </div>
         );
 

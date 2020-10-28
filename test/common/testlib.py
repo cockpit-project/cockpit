@@ -330,24 +330,24 @@ class Browser:
         if value_check:
             self.wait_val(selector, val)
 
-    def set_file_autocomplete_val(self, identifier, location):
-        file_item_selector_template = "#{0} li button:contains({1})"
+    def set_file_autocomplete_val(self, group_identifier, location):
+        file_item_selector_template = "{0} li button:contains({1})"
 
         path = ''
         index = 0
-        self.click("label[for={0}] + div button".format(identifier))
-        self.wait_present("#" + identifier)
+        self.click("{0} > div button".format(group_identifier))
+        self.wait_present(group_identifier + " .pf-c-select__menu")
         for path_part in filter(None, location.split('/')):
             path += '/' + path_part
-            file_item_selector = file_item_selector_template.format(identifier, path)
+            file_item_selector = file_item_selector_template.format(group_identifier, path)
             self.click(file_item_selector)
             if index != len(list(filter(None, location.split('/')))) - 1 or location[-1] == '/':
-                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path + '/')
+                self.wait_val("{0} > div input[type=text]".format(group_identifier), path + '/')
             else:
-                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path)
+                self.wait_val("{0} > div input[type=text]".format(group_identifier), path)
             index += 1
 
-        self.wait_val("label[for={0}] + div input[type=text]".format(identifier), location)
+        self.wait_val("{0} > div input[type=text]".format(group_identifier), location)
 
     def wait_timeout(self, timeout):
         browser = self

@@ -226,10 +226,6 @@ virtual-machines-listing .listing-ct-body {
     overflow: visible;
 }
 
-.info-circle {
-    padding: .5rem
-}
-
 .pf-c-dropdown__menu-item.pf-m-danger {
     color: var(--pf-global--danger-color--200);
 }
@@ -243,5 +239,26 @@ virtual-machines-listing .listing-ct-body {
         // vertical: compensate for padding; fixing alignment
         // horizontal: add some needed padding
         margin:  -0.25rem 0.25rem;
+    }
+}
+
+.machines-connection-selector > .pf-c-radio:first-child {
+    padding-right: var(--pf-global--spacer--md);
+}
+
+.pf-c-form__section.ct-form-split {
+    margin-top: 0;
+    grid-template-columns: 1fr 1fr;
+}
+
+.pf-c-form__section.ct-form-split-2-1 {
+    margin-top: 0;
+    grid-template-columns: 2fr 1fr;
+}
+
+// Add some spacing to nested form groups
+.pf-c-form__group-control {
+    > .pf-c-form__group, .pf-c-form__section {
+        padding-top: var(--pf-global--spacer--md);
     }
 }

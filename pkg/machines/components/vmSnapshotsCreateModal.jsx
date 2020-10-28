@@ -22,7 +22,7 @@ import moment from "moment";
 
 import {
     Button,
-    FormGroup,
+    Form, FormGroup,
     Modal,
     TextArea,
     TextInput
@@ -36,37 +36,30 @@ const _ = cockpit.gettext;
 
 const NameRow = ({ onValueChanged, dialogValues, onValidate }) => {
     return (
-        <>
-            <label className="control-label" htmlFor="name">
-                {_("Name")}
-            </label>
-            <FormGroup validated={dialogValues.validationError.name ? "error" : "default"}
-                fieldId="name"
-                helperText={dialogValues.validationError.name}>
-                <TextInput value={dialogValues.name}
-                    id="name"
-                    type="text"
-                    onChange={(value) => onValueChanged("name", value)}
-                    aria-label={_("Name input text")}
-                />
-            </FormGroup>
-        </>
+        <FormGroup validated={dialogValues.validationError.name ? "error" : "default"}
+            label={_("Name")}
+            fieldId="name"
+            helperText={dialogValues.validationError.name}>
+            <TextInput value={dialogValues.name}
+                validated={dialogValues.validationError.name ? "error" : "default"}
+                id="name"
+                type="text"
+                onChange={(value) => onValueChanged("name", value)}
+                aria-label={_("Name input text")} />
+        </FormGroup>
     );
 };
 
 const DescriptionRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <>
-            <label className="control-label" htmlFor="description">
-                {_("Description")}
-            </label>
+        <FormGroup fieldId="description" label={_("Description")}>
             <TextArea value={dialogValues.description}
                 id="description"
                 onChange={(value) => onValueChanged("description", value)}
                 resizeOrientation="vertical"
                 aria-label={_("Description input text")}
             />
-        </>
+        </FormGroup>
     );
 };
 
@@ -126,10 +119,10 @@ export class CreateSnapshotModal extends React.Component {
         const { idPrefix, onClose } = this.props;
 
         const body = (
-            <form className="ct-form">
+            <Form isHorizontal>
                 <NameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                 <DescriptionRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-            </form>
+            </Form>
         );
 
         return (

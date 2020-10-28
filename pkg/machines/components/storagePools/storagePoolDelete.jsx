@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, Tooltip } from '@patternfly/react-core';
+import { Button, Checkbox, Form, FormGroup, Modal, Tooltip } from '@patternfly/react-core';
 
 import { getStorageVolumesUsage, storagePoolId } from '../../helpers.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -157,23 +157,16 @@ export class StoragePoolDelete extends React.Component {
 
         const defaultBody = (
             <>
-                <div className='ct-form'>
-                    { storagePool.active && volumes.length > 0 && <>
-                        <label className='control-label'>
-                            {_("Delete content")}
-                        </label>
-                        <div role="group">
-                            <label className='checkbox-inline'>
-                                <input id='storage-pool-delete-volumes'
-                                    type='checkbox'
-                                    checked={this.state.deleteVolumes}
-                                    onChange={e => this.onValueChanged('deleteVolumes', e.target.checked)} />
-                                {_("Delete the volumes inside this pool")}
-                            </label>
-                        </div>
-                    </>}
+                <Form isHorizontal>
+                    { storagePool.active && volumes.length > 0 &&
+                    <FormGroup label={_("Delete content")} fieldId='storage-pool-delete-volumes' hasNoPaddingTop>
+                        <Checkbox id='storage-pool-delete-volumes'
+                                  isChecked={this.state.deleteVolumes}
+                                  label={_("Delete the volumes inside this pool")}
+                                  onChange={checked => this.onValueChanged('deleteVolumes', checked)} />
+                    </FormGroup>}
                     { !storagePool.active && _("Deleting an inactive storage pool will only undefine the pool. Its content will not be deleted.")}
-                </div>
+                </Form>
                 { storagePool.active && showWarning() }
             </>
         );

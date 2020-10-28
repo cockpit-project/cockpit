@@ -19,6 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FormGroup } from '@patternfly/react-core';
 
 import * as Select from "cockpit-components-select.jsx";
 import cockpit from 'cockpit';
@@ -39,14 +40,11 @@ export const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, osType
         availableModelTypes.push({ name: 'spapr-vlan' });
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-model`}>
-                {_("Model")}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-select-model`} label={_("Model")}>
             <Select.Select id={`${idPrefix}-select-model`}
                            onChange={value => onValueChanged('networkModel', value)}
                            initial={defaultModelType}
-                           extraClass='form-control'>
+                           extraClass='pf-c-form-control'>
                 {availableModelTypes
                         .map(networkModel => {
                             return (
@@ -56,7 +54,7 @@ export const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, osType
                             );
                         })}
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
@@ -123,14 +121,11 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
     }
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
-                {_("Interface type")}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-select-type`} label={_("Interface type")}>
             <Select.Select id={`${idPrefix}-select-type`}
                            onChange={value => onValueChanged('networkType', value)}
                            initial={defaultNetworkType}
-                           extraClass='form-control'>
+                           extraClass='pf-c-form-control'>
                 {availableNetworkTypes
                         .map(networkType => {
                             return (
@@ -141,20 +136,17 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
                         })}
             </Select.Select>
             {["network", "direct", "bridge"].includes(dialogValues.networkType) && (
-                <div className='ct-form'>
-                    <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
-                        {_("Source")}
-                    </label>
+                <FormGroup fieldId={`${idPrefix}-select-source`} label={_("Source")}>
                     <Select.Select id={`${idPrefix}-select-source`}
                                    onChange={value => onValueChanged('networkSource', value)}
                                    enabled={networkSourceEnabled}
                                    initial={defaultNetworkSource}
-                                   extraClass='form-control'>
+                                   extraClass='pf-c-form-control'>
                         {networkSourcesContent}
                     </Select.Select>
-                </div>
+                </FormGroup>
             )}
-        </>
+        </FormGroup>
     );
 };
 

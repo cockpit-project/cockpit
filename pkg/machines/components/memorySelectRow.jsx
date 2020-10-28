@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
+import { FormHelperText } from '@patternfly/react-core';
 import { Slider } from 'patternfly-react';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -41,7 +42,7 @@ class MemorySelectRow extends React.Component {
     }
 
     render() {
-        const { id, value, minValue, maxValue, initialUnit, onValueChange, onUnitChange, readOnly } = this.props;
+        const { id, value, minValue, maxValue, initialUnit, onValueChange, onUnitChange, readOnly, helperText } = this.props;
         /* We have the weird key attribute in the Slider because of
          * https://github.com/patternfly/patternfly-react/issues/3186
          * https://github.com/patternfly/patternfly-react/issues/3179
@@ -49,44 +50,47 @@ class MemorySelectRow extends React.Component {
          * https://github.com/patternfly/patternfly-react/issues/3191
          */
         return (
-            <div className={'slider-input-group' + (readOnly ? ' disabled' : '')}
-                 key={[id, "slider", minValue, maxValue].join("-")}>
-                { (minValue != undefined && maxValue != undefined && value >= minValue) ? <Slider id={id + "-slider"}
-                    type="range"
-                    min={minValue}
-                    max={maxValue}
-                    value={value}
-                    showBoundaries
-                    title={value}
-                    ref={slider => { this.slider = slider }}
-                    focus={() => { this.slider.current.focus() }}
-                    onSlide={onValueChange} /> : null}
-                <div role="group" className="form-group">
-                    <input id={id} className="form-control"
-                        type="text" inputMode="numeric" pattern="[0-9]*"
+            <>
+                <div className={'slider-input-group' + (readOnly ? ' disabled' : '')}
+                     key={[id, "slider", minValue, maxValue].join("-")}>
+                    { (minValue != undefined && maxValue != undefined && value >= minValue) ? <Slider id={id + "-slider"}
+                        type="range"
                         min={minValue}
                         max={maxValue}
-                        value={this.state.memory}
-                        onKeyPress={digitFilter}
-                        step={1}
-                        disabled={readOnly}
-                        onFocus={ () => this.setState({ inputHasFocus: true }) }
-                        onBlur={e => { onValueChange(e.target.value); this.setState({ inputHasFocus: false }) } }
-                        onClick={e => onValueChange(e.target.value)}
-                        onChange={e => this.setState({ memory: e.target.value })} />
-                    <Select.Select id={id + "-unit-select"}
-                                initial={initialUnit}
-                                enabled={!readOnly}
-                                onChange={onUnitChange}>
-                        <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                            {_("MiB")}
-                        </Select.SelectEntry>
-                        <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                            {_("GiB")}
-                        </Select.SelectEntry>
-                    </Select.Select>
+                        value={value}
+                        showBoundaries
+                        title={value}
+                        ref={slider => { this.slider = slider }}
+                        focus={() => { this.slider.current.focus() }}
+                        onSlide={onValueChange} /> : null}
+                    <div role="group" className="form-group">
+                        <input id={id} className="form-control"
+                            type="text" inputMode="numeric" pattern="[0-9]*"
+                            min={minValue}
+                            max={maxValue}
+                            value={this.state.memory}
+                            onKeyPress={digitFilter}
+                            step={1}
+                            disabled={readOnly}
+                            onFocus={ () => this.setState({ inputHasFocus: true }) }
+                            onBlur={e => { onValueChange(e.target.value); this.setState({ inputHasFocus: false }) } }
+                            onClick={e => onValueChange(e.target.value)}
+                            onChange={e => this.setState({ memory: e.target.value })} />
+                        <Select.Select id={id + "-unit-select"}
+                                    initial={initialUnit}
+                                    enabled={!readOnly}
+                                    onChange={onUnitChange}>
+                            <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
+                                {_("MiB")}
+                            </Select.SelectEntry>
+                            <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
+                                {_("GiB")}
+                            </Select.SelectEntry>
+                        </Select.Select>
+                    </div>
                 </div>
-            </div>
+                {helperText && <FormHelperText isHidden={false}>{helperText}</FormHelperText>}
+            </>
         );
     }
 }

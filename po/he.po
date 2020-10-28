@@ -20,11 +20,12 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
+#: pkg/machines/hostvmslist.jsx:119
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-09 10:57+0000\n"
+"POT-Creation-Date: 2020-10-16 21:46+0000\n"
 "PO-Revision-Date: 2020-10-08 22:04+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -36,6 +37,10 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
 "X-Generator: Weblate 4.2.2\n"
+
+#: pkg/systemd/logs.html:126
+msgid "                Entry              "
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2332
 msgid "$0 active zone"
@@ -76,7 +81,7 @@ msgstr[1] "$0 בתים"
 msgstr[2] "$0 בתים"
 msgstr[3] "$0 בתים"
 
-#: pkg/storaged/mdraid-details.jsx:180
+#: pkg/storaged/mdraid-details.jsx:187
 msgid "$0 chunk size"
 msgstr "גודל נתח $0"
 
@@ -88,7 +93,7 @@ msgstr[1] "$0 פגיעות, כולל חמורות"
 msgstr[2] "$0 פגיעות, כולל חמורות"
 msgstr[3] "$0 פגיעות, כולל חמורות"
 
-#: pkg/storaged/vdo-details.jsx:279
+#: pkg/storaged/vdo-details.jsx:291
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 נתונים + $1 תוספת מנוצלים מתוך $2 ($3)"
 
@@ -102,7 +107,7 @@ msgstr[3] "$0 ימים"
 
 #: src/base1/test-locale.js:65 src/base1/test-locale.js:66
 #: src/base1/test-locale.js:67 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31 pkg/storaged/mdraid-details.jsx:200
+#: pkg/playground/translate.js:31 pkg/storaged/mdraid-details.jsx:209
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "כונן אחד חסר"
@@ -121,7 +126,7 @@ msgstr[1] "$0 כוננים חסרים"
 msgstr[2] "$0 כוננים חסרים"
 msgstr[3] "$0 כוננים חסרים"
 
-#: pkg/storaged/mdraid-details.jsx:178
+#: pkg/storaged/mdraid-details.jsx:185
 msgid "$0 disks"
 msgstr "$0 כוננים"
 
@@ -146,15 +151,15 @@ msgctxt "storage-id-desc"
 msgid "$0 file system"
 msgstr "מערכת קבצים $0"
 
-#: pkg/storaged/lvol-tabs.jsx:161
+#: pkg/storaged/lvol-tabs.jsx:167
 msgid "$0 filesystems can not be made larger."
 msgstr "אי אפשר להגדיל $0 ממערכות הקבצים."
 
-#: pkg/storaged/lvol-tabs.jsx:158
+#: pkg/storaged/lvol-tabs.jsx:164
 msgid "$0 filesystems can not be made smaller."
 msgstr "אי אפשר להקטין $0 ממערכות הקבצים."
 
-#: pkg/storaged/lvol-tabs.jsx:154
+#: pkg/storaged/lvol-tabs.jsx:160
 msgid "$0 filesystems can not be resized here."
 msgstr "אי אפשר לשנות כאן גודל של $0 ממערכות הקבצים."
 
@@ -193,10 +198,10 @@ msgstr ""
 "או להריץ את הפקודה הבאה:"
 
 #: pkg/storaged/content-views.jsx:334 pkg/storaged/content-views.jsx:574
-#: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
-#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:222
-#: pkg/storaged/mdraid-details.jsx:274 pkg/storaged/vdo-details.jsx:128
-#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:184
+#: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:209
+#: pkg/storaged/lvol-tabs.jsx:271 pkg/storaged/mdraid-details.jsx:231
+#: pkg/storaged/mdraid-details.jsx:283 pkg/storaged/vdo-details.jsx:135
+#: pkg/storaged/vdo-details.jsx:166 pkg/storaged/vgroup-details.jsx:190
 msgid "$0 is in active use"
 msgstr "$0 בשימוש פעיל"
 
@@ -248,7 +253,7 @@ msgstr[3] "$0 חודשים"
 msgid "$0 network"
 msgstr "רשת $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:425
+#: pkg/selinux/setroubleshoot-view.jsx:428
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
 msgstr[0] "מופע אחד"
@@ -256,7 +261,7 @@ msgstr[1] "$0 מופעים"
 msgstr[2] "$0 מופעים"
 msgstr[3] "$0 מופעים"
 
-#: pkg/storaged/fsys-tab.jsx:380
+#: pkg/storaged/fsys-tab.jsx:386
 msgid "$0 of $1"
 msgstr "$0 מתוך $1"
 
@@ -293,9 +298,19 @@ msgstr[1] "$0 עדכונים"
 msgstr[2] "$0 עדכונים"
 msgstr[3] "$0 עדכונים"
 
-#: pkg/storaged/vdo-details.jsx:291
+#: pkg/storaged/vdo-details.jsx:305
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 בשימוש מתוך $1 ($2 נחסכו)"
+
+#: pkg/machines/components/vm/vmUsageTab.jsx:50
+#, fuzzy
+#| msgid "vCPUs"
+msgid "$0 vCPU"
+msgid_plural "$0 vCPUs"
+msgstr[0] "מעבדים וירטואליים"
+msgstr[1] "מעבדים וירטואליים"
+msgstr[2] "מעבדים וירטואליים"
+msgstr[3] "מעבדים וירטואליים"
 
 #: pkg/machines/components/vcpuModal.jsx:245
 msgid "$0 vCPU details"
@@ -329,7 +344,7 @@ msgstr[3] "$0 שנים"
 msgid "$0 zone"
 msgstr "אזור $0"
 
-#: pkg/storaged/vgroup-details.jsx:111
+#: pkg/storaged/vgroup-details.jsx:117
 msgid "$0, $1 free"
 msgstr "$0,‏ $1 פנויים"
 
@@ -357,7 +372,7 @@ msgstr "${size} ${desc}"
 msgid "(Optional)"
 msgstr "(רשות)"
 
-#: pkg/storaged/crypto-tab.jsx:132
+#: pkg/storaged/crypto-tab.jsx:142
 msgid "(none)"
 msgstr "(אין)"
 
@@ -369,7 +384,7 @@ msgstr[1] ", כולל $0 תיקוני אבטחה"
 msgstr[2] ", כולל $0 תיקוני אבטחה"
 msgstr[3] ", כולל $0 תיקוני אבטחה"
 
-#: pkg/storaged/nfs-details.jsx:323
+#: pkg/storaged/nfs-details.jsx:334
 msgid "--"
 msgstr "--"
 
@@ -629,7 +644,7 @@ msgid ""
 msgstr ""
 "מאגד רשת משלב מספר מנשקי רשת למנשק לוגי אחד עם קצב העברה גבוה יותר או יתירות."
 
-#: pkg/lib/machine-dialogs.js:700
+#: pkg/lib/machine-dialogs.js:699
 msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
@@ -637,7 +652,7 @@ msgstr ""
 "מפתח SSH חדש תחת ${key} ייווצר עבור ${luser} על גבי ${lhost} והוא יתווסף "
 "לקובץ ${afile} של ${ruser} על גבי ${rhost}."
 
-#: pkg/storaged/mdraid-details.jsx:118
+#: pkg/storaged/mdraid-details.jsx:125
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "יש להוסיף כונן חלופי לפני שניתן יהיה להסיר את הכונן הזה."
 
@@ -662,7 +677,7 @@ msgid "Absent"
 msgstr "חסר"
 
 #: pkg/machines/components/diskEdit.jsx:94
-#: pkg/machines/components/vmDisksTab.jsx:115
+#: pkg/machines/components/vmDisksTab.jsx:226
 #: pkg/users/account-create-dialog.js:75 pkg/users/account-details.js:291
 msgid "Access"
 msgstr "גישה"
@@ -675,12 +690,12 @@ msgstr "תפוגת תוקף חשבון"
 msgid "Account not available or cannot be edited."
 msgstr "החשבון לא זמין או שאין אפשרות לערוך אותו."
 
-#: pkg/playground/translate.html:94 pkg/users/account-details.js:237
+#: pkg/playground/translate.html:96 pkg/users/account-details.js:237
 #: pkg/users/manifest.json.in
 msgid "Accounts"
 msgstr "חשבונות"
 
-#: pkg/apps/application-list.jsx:109
+#: pkg/apps/application-list.jsx:110
 msgid "Actions"
 msgstr "פעולות"
 
@@ -722,12 +737,12 @@ msgstr "איזון עומס מסתגל"
 msgid "Adaptive transmit load balancing"
 msgstr "איזון עומס העברה מסתגל"
 
-#: pkg/lib/machine-add.html:38 pkg/shell/index.html:248
-#: pkg/machines/components/diskAdd.jsx:548
+#: pkg/lib/machine-add.html:42 pkg/shell/index.html:248
+#: pkg/machines/components/diskAdd.jsx:561
 #: pkg/machines/components/nicAdd.jsx:203 pkg/storaged/crypto-keyslots.jsx:238
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
-#: pkg/storaged/mdraid-details.jsx:60 pkg/storaged/nfs-details.jsx:189
-#: pkg/storaged/vgroup-details.jsx:70 pkg/users/authorized-keys-panel.js:65
+#: pkg/storaged/mdraid-details.jsx:67 pkg/storaged/nfs-details.jsx:194
+#: pkg/storaged/vgroup-details.jsx:76 pkg/users/authorized-keys-panel.js:65
 msgid "Add"
 msgstr "הוספה"
 
@@ -738,10 +753,6 @@ msgstr "הוספת $0"
 #: pkg/networkmanager/index.html:123
 msgid "Add VLAN"
 msgstr "הוספת VLAN"
-
-#: pkg/lib/machine-add.html:4
-msgid "Add a new host"
-msgstr "הוספת מארח חדש"
 
 #: pkg/networkmanager/firewall.jsx:893
 msgid "Add a new zone"
@@ -755,12 +766,12 @@ msgstr "הוספת מאגד"
 msgid "Add bridge"
 msgstr "הוספת גשר"
 
-#: pkg/machines/components/diskAdd.jsx:540
-#: pkg/machines/components/vmDisksTab.jsx:93
+#: pkg/machines/components/diskAdd.jsx:553
+#: pkg/machines/components/vmDisksTab.jsx:90
 msgid "Add disk"
 msgstr "הוספת כונן"
 
-#: pkg/storaged/mdraid-details.jsx:47 pkg/storaged/vgroup-details.jsx:57
+#: pkg/storaged/mdraid-details.jsx:54 pkg/storaged/vgroup-details.jsx:63
 msgid "Add disks"
 msgstr "הוספת כוננים"
 
@@ -772,11 +783,11 @@ msgstr "הוספת שער גישה ל־iSCSI"
 msgid "Add key"
 msgstr "הוספת מפתח"
 
-#: pkg/machines/components/vmnetworktab.jsx:282
+#: pkg/machines/components/vmnetworktab.jsx:88
 msgid "Add network interface"
 msgstr "הוספת מנשק רשת"
 
-#: pkg/shell/hosts.jsx:240
+#: pkg/lib/machine-add.html:4 pkg/shell/hosts.jsx:240
 msgid "Add new host"
 msgstr "הוספת מארח חדש"
 
@@ -840,7 +851,7 @@ msgstr "נוסף מפתח"
 msgid "Adding physical volume to $target"
 msgstr "הוספת כרך פיזי אל $target"
 
-#: pkg/machines/components/vmDisksTab.jsx:119
+#: pkg/machines/components/vmDisksTab.jsx:230
 msgid "Additional"
 msgstr "נוסף"
 
@@ -868,10 +879,9 @@ msgstr "חבילות נוספות:"
 msgid "Additional ports"
 msgstr "פתחות נוספות"
 
-#: pkg/lib/machine-add.html:9
-#: pkg/machines/components/networks/networkOverviewTab.jsx:109
-#: pkg/machines/components/networks/networkOverviewTab.jsx:132
-#: pkg/machines/components/vmnetworktab.jsx:128
+#: pkg/machines/components/networks/networkOverviewTab.jsx:120
+#: pkg/machines/components/networks/networkOverviewTab.jsx:145
+#: pkg/machines/components/vmnetworktab.jsx:191
 #: pkg/storaged/iscsi-panel.jsx:128
 msgid "Address"
 msgstr "כתובת"
@@ -928,7 +938,7 @@ msgctxt "time-delay"
 msgid "After"
 msgstr "אחרי"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:178
+#: pkg/machines/components/vmSnapshotsTab.jsx:204
 msgid "After deleting the snapshot, all its captured content will be lost."
 msgstr "לאחר מחיקת תמונת המצב, כל התוכן שנלכד בה יאבד."
 
@@ -947,11 +957,11 @@ msgstr ""
 msgid "After system boot"
 msgstr "לאחר עליית המערכת"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.html:53
 msgid "Alert and above"
 msgstr "אזעקה ומעלה"
 
-#: pkg/machines/hostvmslist.jsx:78 pkg/machines/hostvmslist.jsx:123
+#: pkg/machines/hostvmslist.jsx:63 pkg/machines/hostvmslist.jsx:91
 #: pkg/systemd/logs.js:219 pkg/systemd/services/services.jsx:686
 msgid "All"
 msgstr "הכול"
@@ -990,12 +1000,12 @@ msgstr "תיעוד תפקידים של Ansible"
 msgid "Appearance:"
 msgstr "מראה:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:167
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
 #: pkg/apps/application.jsx:148 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "יישומים"
 
-#: pkg/apps/application-list.jsx:175
+#: pkg/apps/application-list.jsx:177
 msgid "Applications list"
 msgstr "רשימת יישומים"
 
@@ -1004,9 +1014,9 @@ msgstr "רשימת יישומים"
 #: pkg/networkmanager/index.html:625 pkg/networkmanager/index.html:652
 #: pkg/networkmanager/index.html:679 pkg/networkmanager/index.html:706
 #: pkg/networkmanager/index.html:733 pkg/kdump/kdump-view.jsx:360
-#: pkg/machines/components/vcpuModal.jsx:254 pkg/storaged/crypto-tab.jsx:78
-#: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:285
-#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/nfs-details.jsx:189
+#: pkg/machines/components/vcpuModal.jsx:254 pkg/storaged/crypto-tab.jsx:84
+#: pkg/storaged/crypto-tab.jsx:114 pkg/storaged/fsys-tab.jsx:291
+#: pkg/storaged/fsys-tab.jsx:368 pkg/storaged/nfs-details.jsx:194
 msgid "Apply"
 msgstr "החלה"
 
@@ -1018,11 +1028,11 @@ msgstr "החלת כל העדכונים"
 msgid "Apply security updates"
 msgstr "החלת עדכוני אבטחה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:121
+#: pkg/selinux/setroubleshoot-view.jsx:124
 msgid "Apply this solution"
 msgstr "החלת הפתרון הזה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:98
+#: pkg/selinux/setroubleshoot-view.jsx:101
 msgid "Applying solution..."
 msgstr "הפתרון חל…"
 
@@ -1038,7 +1048,7 @@ msgstr "החלת העדכונים נכשלה"
 msgid "Apps"
 msgstr "יישומים"
 
-#: pkg/storaged/drive-details.jsx:54
+#: pkg/storaged/drive-details.jsx:60
 msgctxt "storage"
 msgid "Assessment"
 msgstr "הערכה"
@@ -1051,7 +1061,7 @@ msgstr "תג נכס"
 msgid "At least $0 disks are needed."
 msgstr "נדרשים $0 כוננים לפחות."
 
-#: pkg/storaged/mdraid-details.jsx:54 pkg/storaged/vgroup-details.jsx:64
+#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/vgroup-details.jsx:70
 #: pkg/storaged/vgroups-panel.jsx:84
 msgid "At least one disk is needed."
 msgstr "נדרש כונן אחד לפחות."
@@ -1064,7 +1074,7 @@ msgstr "במועד מסוים"
 msgid "Attaching it will make this disk shareable for every VM using it."
 msgstr "חיבורו יהפוך את הכונן למשותף לכל מכונה וירטואלית שמשתמשת בו."
 
-#: pkg/selinux/setroubleshoot-view.jsx:410
+#: pkg/selinux/setroubleshoot-view.jsx:413
 msgid "Audit log"
 msgstr "יומן פיקוח"
 
@@ -1099,7 +1109,7 @@ msgstr "נדרש אימות כדי לבצע משימות שדורשות השרא
 msgid "Authentication required"
 msgstr "נדרש אימות"
 
-#: pkg/lib/machine-dialogs.js:719
+#: pkg/lib/machine-dialogs.js:718
 msgid "Authorize SSH key."
 msgstr "אישור מפתח SSH."
 
@@ -1153,16 +1163,11 @@ msgstr "אוטומטית באמצעות שרתי NTP מסוימים"
 msgid "Automation script"
 msgstr "סקריפט אוטומטי"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:87
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:270
+#: pkg/machines/components/networks/networkOverviewTab.jsx:94
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:73
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:298
 msgid "Autostart"
 msgstr "התחלה אוטומטית"
-
-#: pkg/machines/components/vm/vmUsageTab.jsx:66
-#: pkg/machines/components/vm/vmUsageTab.jsx:77
-msgid "Available"
-msgstr "זמין"
 
 #: pkg/storaged/iscsi-panel.jsx:125
 msgid "Available targets on $0"
@@ -1172,7 +1177,7 @@ msgstr "יעדים זמינים על $0"
 msgid "Available updates"
 msgstr "עדכונים זמינים"
 
-#: pkg/dashboard/index.html:174
+#: pkg/dashboard/index.html:171
 msgid "Avatar"
 msgstr "תמונת משתמש"
 
@@ -1192,7 +1197,7 @@ msgstr "גרסת BIOS"
 msgid "Back to accounts"
 msgstr "חזרה לחשבונות"
 
-#: pkg/storaged/vdo-details.jsx:269
+#: pkg/storaged/vdo-details.jsx:279
 msgid "Backing device"
 msgstr "התקן גיבוי"
 
@@ -1208,7 +1213,7 @@ msgstr "לפני"
 msgid "Binds to"
 msgstr "מתאגד אל"
 
-#: pkg/storaged/mdraid-details.jsx:191
+#: pkg/storaged/mdraid-details.jsx:198
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "מפת סיביות"
@@ -1225,7 +1230,7 @@ msgstr "בלייד"
 msgid "Blade enclosure"
 msgstr "אריזת בלייד"
 
-#: pkg/storaged/block-details.jsx:37
+#: pkg/storaged/block-details.jsx:44
 msgid "Block"
 msgstr "בלוק"
 
@@ -1233,7 +1238,7 @@ msgstr "בלוק"
 msgid "Block device for filesystems"
 msgstr "התקן בלוק למערכות הפעלה"
 
-#: pkg/storaged/mdraid-details.jsx:99
+#: pkg/storaged/mdraid-details.jsx:106
 msgid "Blocked"
 msgstr "חסום"
 
@@ -1247,7 +1252,7 @@ msgid "Bond settings"
 msgstr "הגדרות מאגד"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:307
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:267
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:293
 msgid "Boot order"
 msgstr "סדר עלייה"
 
@@ -1296,7 +1301,7 @@ msgstr "תקלות"
 #: pkg/machines/components/diskEdit.jsx:63
 #: pkg/machines/components/vm/bootOrderModal.jsx:109
 #: pkg/machines/components/vm/bootOrderModal.jsx:132
-#: pkg/machines/components/vmDisksTab.jsx:113
+#: pkg/machines/components/vmDisksTab.jsx:224
 msgid "Bus"
 msgstr "אפיק"
 
@@ -1304,7 +1309,7 @@ msgstr "אפיק"
 msgid "Bus expansion chassis"
 msgstr "שלדת הרחבת אפיקים"
 
-#: pkg/lib/machine-dialogs.js:711
+#: pkg/lib/machine-dialogs.js:710
 msgid ""
 "By changing the password of the SSH key ${key} to the login password of "
 "${luser} on ${lhost}, the key will be automatically made available and you "
@@ -1314,8 +1319,8 @@ msgstr ""
 "לכך שהמפתח אוטומטית יהיה זמין ותהיה לך אפשרות להיכנס אל ${rhost} ללא ססמה "
 "בעתיד."
 
-#: pkg/dashboard/index.html:73 pkg/systemd/hwinfo.jsx:105
-#: pkg/systemd/overview-cards/usageCard.jsx:121
+#: pkg/dashboard/index.html:73 pkg/machines/components/vm/vmUsageTab.jsx:72
+#: pkg/systemd/hwinfo.jsx:105 pkg/systemd/overview-cards/usageCard.jsx:121
 msgid "CPU"
 msgstr "מעבד"
 
@@ -1336,7 +1341,7 @@ msgctxt "page-title"
 msgid "CPU status"
 msgstr "מצב מעבד"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:265
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:288
 msgid "CPU type"
 msgstr "סוג מעבד"
 
@@ -1361,23 +1366,23 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 msgid "Can't load image"
 msgstr "לא ניתן לטעון תמונה"
 
-#: pkg/dashboard/index.html:186 pkg/lib/machine-add.html:39
+#: pkg/dashboard/index.html:183 pkg/lib/machine-add.html:43
 #: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-change-port.html:26
 #: pkg/lib/machine-unknown-hostkey.html:21 pkg/networkmanager/index.html:517
 #: pkg/networkmanager/index.html:545 pkg/networkmanager/index.html:572
 #: pkg/networkmanager/index.html:599 pkg/networkmanager/index.html:626
 #: pkg/networkmanager/index.html:653 pkg/networkmanager/index.html:680
 #: pkg/networkmanager/index.html:707 pkg/networkmanager/index.html:734
-#: pkg/playground/translate.html:38 pkg/shell/index.html:137
+#: pkg/playground/translate.html:40 pkg/shell/index.html:137
 #: pkg/shell/index.html:188 pkg/systemd/index.html:98
 #: pkg/systemd/index.html:152
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:282 pkg/apps/utils.jsx:84
 #: pkg/lib/cockpit-components-dialog.jsx:158
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:945
-#: pkg/machines/components/deleteDialog.jsx:144
+#: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteResource.jsx:74
-#: pkg/machines/components/diskAdd.jsx:551
+#: pkg/machines/components/diskAdd.jsx:564
 #: pkg/machines/components/diskEdit.jsx:215
 #: pkg/machines/components/networks/createNetworkDialog.jsx:492
 #: pkg/machines/components/nicAdd.jsx:206
@@ -1420,12 +1425,12 @@ msgstr "לא ניתן להצטרף לשם תחום כיוון ש־realmd לא ז
 msgid "Cannot schedule event in the past"
 msgstr "לא ניתן לתזמן אירוע לעבר"
 
-#: pkg/machines/components/vmDisksTab.jsx:111
+#: pkg/machines/components/vmDisksTab.jsx:222
 msgid "Capacity"
 msgstr "קיבולת"
 
-#: pkg/storaged/block-details.jsx:40 pkg/storaged/drive-details.jsx:78
-#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/vgroup-details.jsx:226
+#: pkg/storaged/block-details.jsx:48 pkg/storaged/drive-details.jsx:84
+#: pkg/storaged/mdraid-details.jsx:333 pkg/storaged/vgroup-details.jsx:235
 msgctxt "storage"
 msgid "Capacity"
 msgstr "קיבולת"
@@ -1472,7 +1477,7 @@ msgstr "החלפת פרופיל"
 msgid "Change system time"
 msgstr "החלפת שעון המערכת"
 
-#: pkg/lib/machine-dialogs.js:709
+#: pkg/lib/machine-dialogs.js:708
 msgid "Change the password of ${key}."
 msgstr "החלפת הססמה של ${key}."
 
@@ -1514,7 +1519,7 @@ msgstr "התקן ה־RAID‏ $target נבדק"
 msgid "Checking and repairing RAID device $target"
 msgstr "התקן ה־RAID‏ $target נבדק ומתוקן"
 
-#: pkg/apps/application-list.jsx:143
+#: pkg/apps/application-list.jsx:144
 msgid "Checking for new applications"
 msgstr "מתבצע איתור של יישומים חדשים"
 
@@ -1555,7 +1560,7 @@ msgstr "לנקות ‚התחלה נכשלה’"
 msgid "Clear all filters"
 msgstr "ניקוי כל המסננים"
 
-#: pkg/storaged/fsys-tab.jsx:265
+#: pkg/storaged/fsys-tab.jsx:271
 msgid "Clear mount point configuration"
 msgstr "ניקוי הגדרות נקודות עגינה"
 
@@ -1654,7 +1659,7 @@ msgstr ""
 "אחר מספר שרתים בו־זמנית. כל שעליך לעשות הוא להוסיף אותם בלחיצה בודדת "
 "והמכונות שלך תדאגנה לחברותיהן."
 
-#: pkg/dashboard/index.html:168 pkg/lib/machine-add.html:26
+#: pkg/dashboard/index.html:165 pkg/lib/machine-add.html:30
 #: pkg/shell/index.html:127
 msgid "Color"
 msgstr "צבע"
@@ -1691,7 +1696,7 @@ msgstr "תואם למערכות ולכוננים חדישים > 2 ט״ב (GPT)"
 msgid "Compress crash dumps to save space"
 msgstr "דחיסת היטלי קריסה כדי לחסוך במקום"
 
-#: pkg/kdump/kdump-view.jsx:161 pkg/storaged/vdo-details.jsx:303
+#: pkg/kdump/kdump-view.jsx:161 pkg/storaged/vdo-details.jsx:321
 #: pkg/storaged/vdos-panel.jsx:120
 msgid "Compression"
 msgstr "דחיסה"
@@ -1737,11 +1742,11 @@ msgstr "הגדרות המערכת מוגדרות"
 msgid "Confirm"
 msgstr "אישור"
 
-#: pkg/lib/machine-dialogs.js:703
+#: pkg/lib/machine-dialogs.js:702
 msgid "Confirm key password"
 msgstr "אישור ססמת מפתח"
 
-#: pkg/lib/machine-dialogs.js:714
+#: pkg/lib/machine-dialogs.js:713
 msgid "Confirm new key password"
 msgstr "אישור ססמה חדשה למפתח"
 
@@ -1791,12 +1796,12 @@ msgstr "ניתן להתחבר עם כל יישום שמציג $0."
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "ניתן להתחבר עם כל יישום שמציג SPICE או VNC."
 
-#: pkg/lib/machine-add.html:35
+#: pkg/lib/machine-add.html:39
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr "אין תמיכה בהתחברות במקביל ליותר מ־{{ limit }} מכונות."
 
-#: pkg/selinux/setroubleshoot-view.jsx:364
+#: pkg/selinux/setroubleshoot-view.jsx:367
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "מתבצעת התחברות לסוכן SETroubleshoot…"
 
@@ -1812,7 +1817,7 @@ msgstr "מתבצעת התחברות לשירות וירטואליזציה"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolList.jsx:56
-#: pkg/machines/hostvmslist.jsx:147
+#: pkg/machines/hostvmslist.jsx:117
 msgid "Connection"
 msgstr "התחברות"
 
@@ -1836,14 +1841,16 @@ msgstr "החיבור יאבד"
 msgid "Consists of"
 msgstr "מורכב מ־"
 
+#: pkg/machines/components/vm/vmExpandedContent.jsx:70
+#: pkg/machines/components/vm/vmExpandedContent.jsx:96
+#, fuzzy
+#| msgid "Consoles"
+msgid "Console"
+msgstr "מסופים"
+
 #: pkg/machines/components/consoles.jsx:77
 msgid "Console type"
 msgstr "סוג מסוף"
-
-#: pkg/machines/components/vm/vmExpandedContent.jsx:47
-#: pkg/machines/components/vm/vmExpandedContent.jsx:54
-msgid "Consoles"
-msgstr "מסופים"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:275
 msgid "Contacted domain"
@@ -1937,7 +1944,7 @@ msgstr "יצירת התקן VDO"
 msgid "Create VM"
 msgstr "יצירת מכונה וירטואלית"
 
-#: pkg/lib/machine-dialogs.js:698
+#: pkg/lib/machine-dialogs.js:697
 msgid "Create a new SSH key and authorize it."
 msgstr "ליצור מפתח SSH חדש ולאשר אותו."
 
@@ -1958,11 +1965,11 @@ msgstr "ליצור אותו"
 msgid "Create logical volume"
 msgstr "יצירת כרך לוגי"
 
-#: pkg/machines/components/diskAdd.jsx:495
+#: pkg/machines/components/diskAdd.jsx:507
 msgid "Create new"
 msgstr "יצירת חדש"
 
-#: pkg/users/account-create-dialog.js:254 pkg/users/accounts-list.js:74
+#: pkg/users/account-create-dialog.js:254 pkg/users/accounts-list.js:75
 msgid "Create new account"
 msgstr "יצירת חשבון חדש"
 
@@ -1999,7 +2006,7 @@ msgid "Create report"
 msgstr "יצירת דוח"
 
 #: pkg/machines/components/vmSnapshotsCreateModal.jsx:139
-#: pkg/machines/components/vmSnapshotsTab.jsx:226
+#: pkg/machines/components/vmSnapshotsTab.jsx:77
 #: pkg/storaged/content-views.jsx:270 pkg/storaged/content-views.jsx:291
 msgid "Create snapshot"
 msgstr "יצירת תמונת מצב"
@@ -2043,11 +2050,11 @@ msgstr "יצירת קבוצת כרכים"
 msgid "Creating RAID device $target"
 msgstr "נוצר התקן RAID‏ $target"
 
-#: pkg/machines/hostvmslist.jsx:60
+#: pkg/machines/hostvmslist.jsx:47
 msgid "Creating VM"
 msgstr "יצירת מכונה וירטואלית"
 
-#: pkg/machines/hostvmslist.jsx:58
+#: pkg/machines/hostvmslist.jsx:45
 msgid "Creating VM installation"
 msgstr "יצירת התקנת מכונה וירטואלית"
 
@@ -2099,11 +2106,11 @@ msgstr "קבוצת הכרכים $target נוצרת"
 msgid "Creation of VM $0 failed"
 msgstr "היצירה של המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:81
+#: pkg/machines/components/vmSnapshotsTab.jsx:107
 msgid "Creation time"
 msgstr "זמן יצירה"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.html:54
 msgid "Critical and above"
 msgstr "חמור ומעלה"
 
@@ -2115,7 +2122,7 @@ msgstr "Ctrl+Alt+$0"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:87
+#: pkg/machines/components/vmSnapshotsTab.jsx:113
 msgid "Current"
 msgstr "נוכחית"
 
@@ -2123,7 +2130,7 @@ msgstr "נוכחית"
 msgid "Current allocation"
 msgstr "ההקצאה הנוכחית"
 
-#: pkg/systemd/logs.html:41
+#: pkg/systemd/logs.html:42
 msgid "Current boot"
 msgstr "עלייה נוכחית"
 
@@ -2131,12 +2138,12 @@ msgstr "עלייה נוכחית"
 msgid "Custom encryption options"
 msgstr "אפשרויות הצפנה מותאמות אישית"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:201
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:208
 msgid "Custom firmware: $0"
 msgstr "קושחה מותאמת אישית: $0"
 
-#: pkg/storaged/format-dialog.jsx:247 pkg/storaged/fsys-tab.jsx:256
-#: pkg/storaged/nfs-details.jsx:174
+#: pkg/storaged/format-dialog.jsx:247 pkg/storaged/fsys-tab.jsx:262
+#: pkg/storaged/nfs-details.jsx:179
 msgid "Custom mount options"
 msgstr "אפשרויות עיגון מותאמות אישית"
 
@@ -2148,12 +2155,12 @@ msgstr "פתחות מותאמות אישית"
 msgid "Custom zones"
 msgstr "אזורים מותאמים אישית"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:119
-#: pkg/machines/components/networks/networkOverviewTab.jsx:142
+#: pkg/machines/components/networks/networkOverviewTab.jsx:130
+#: pkg/machines/components/networks/networkOverviewTab.jsx:155
 msgid "DHCP range"
 msgstr "טווח DHCP"
 
-#: pkg/storaged/drive-details.jsx:57
+#: pkg/storaged/drive-details.jsx:63
 msgid "DISK IS FAILING"
 msgstr "הכונן כושל"
 
@@ -2181,7 +2188,7 @@ msgstr "כהה"
 msgid "Dashboard"
 msgstr "לוח מחוונים"
 
-#: pkg/storaged/lvol-tabs.jsx:445
+#: pkg/storaged/lvol-tabs.jsx:462
 msgid "Data used"
 msgstr "נתונים בשימוש"
 
@@ -2199,11 +2206,11 @@ msgstr "מתבצעת השבתה"
 msgid "Deactivating $target"
 msgstr "מתבצעת השבתה של $target"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.html:59
 msgid "Debug and above"
 msgstr "ניפוי שגיאות ומעלה"
 
-#: pkg/storaged/vdo-details.jsx:309 pkg/storaged/vdos-panel.jsx:124
+#: pkg/storaged/vdo-details.jsx:329 pkg/storaged/vdos-panel.jsx:124
 msgid "Deduplication"
 msgstr "הסרת כפילות"
 
@@ -2212,7 +2219,7 @@ msgid "Delay"
 msgstr "השהיה"
 
 #: pkg/networkmanager/index.html:466
-#: pkg/machines/components/deleteDialog.jsx:141
+#: pkg/machines/components/deleteDialog.jsx:142
 #: pkg/machines/components/deleteResource.jsx:63
 #: pkg/machines/components/deleteResource.jsx:71
 #: pkg/machines/components/deleteResource.jsx:99
@@ -2220,13 +2227,13 @@ msgstr "השהיה"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:201
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:211
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:234
-#: pkg/machines/components/vm/vmActions.jsx:140
-#: pkg/machines/components/vm/vmActions.jsx:147
+#: pkg/machines/components/vm/vmActions.jsx:205
+#: pkg/machines/components/vm/vmActions.jsx:212
 #: pkg/networkmanager/firewall.jsx:766 pkg/storaged/content-views.jsx:345
-#: pkg/storaged/content-views.jsx:361 pkg/storaged/mdraid-details.jsx:285
-#: pkg/storaged/mdraid-details.jsx:308 pkg/storaged/vdo-details.jsx:198
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:196
-#: pkg/storaged/vgroup-details.jsx:218 pkg/users/account-details.js:254
+#: pkg/storaged/content-views.jsx:361 pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:317 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:268 pkg/storaged/vgroup-details.jsx:202
+#: pkg/storaged/vgroup-details.jsx:224 pkg/users/account-details.js:254
 #: pkg/users/delete-account-dialog.js:65
 msgid "Delete"
 msgstr "מחיקה"
@@ -2273,11 +2280,11 @@ msgid ""
 "the administration UI unavailable."
 msgstr "מחיקת <b>$0</b> תקטע את החיבור לשרת ותמנע את הגישה למנשק הניהול."
 
-#: pkg/storaged/mdraid-details.jsx:286
+#: pkg/storaged/mdraid-details.jsx:295
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "מחיקת התקן RAID תמחק את כל הנתונים שעליו."
 
-#: pkg/storaged/vdo-details.jsx:199
+#: pkg/storaged/vdo-details.jsx:206
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "מחיקת התקן VDO תמחק את כל הנתונים שעליו."
 
@@ -2289,7 +2296,7 @@ msgstr "מחיקת כרך לוגי תמחק את כל הנתונים שבו."
 msgid "Deleting a partition will delete all data in it."
 msgstr "מחיקת מחיצה תמחק את כל הנתונים שבה."
 
-#: pkg/storaged/vgroup-details.jsx:195
+#: pkg/storaged/vgroup-details.jsx:201
 msgid "Deleting a volume group will erase all data on it."
 msgstr "מחיקת קבוצת כרכים תמחק את כל הנתונים שעליה."
 
@@ -2305,7 +2312,7 @@ msgstr "קבוצת הכרכים $target נמחקת"
 
 #: pkg/systemd/services.html:172
 #: pkg/machines/components/vmSnapshotsCreateModal.jsx:61
-#: pkg/machines/components/vmSnapshotsTab.jsx:103
+#: pkg/machines/components/vmSnapshotsTab.jsx:129
 #: pkg/networkmanager/firewall.jsx:696
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
@@ -2343,20 +2350,20 @@ msgstr "פיתוח"
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:102 pkg/storaged/crypto-panel.jsx:80
+#: pkg/machines/components/vmDisksTab.jsx:213 pkg/storaged/crypto-panel.jsx:80
 msgid "Device"
 msgstr "התקן"
 
-#: pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/mdraid-details.jsx:323
 msgctxt "storage"
 msgid "Device"
 msgstr "התקן"
 
-#: pkg/storaged/vdo-details.jsx:266
+#: pkg/storaged/vdo-details.jsx:274
 msgid "Device file"
 msgstr "קובץ התקן"
 
-#: pkg/storaged/block-details.jsx:43 pkg/storaged/drive-details.jsx:80
+#: pkg/storaged/block-details.jsx:52 pkg/storaged/drive-details.jsx:86
 msgctxt "storage"
 msgid "Device file"
 msgstr "קובץ התקן"
@@ -2423,7 +2430,7 @@ msgstr "מנותק מהמסוף הטורי. יש ללחוץ על כפתור הח
 msgid "Disk"
 msgstr "כונן"
 
-#: pkg/machines/components/vmDisksTab.jsx:160
+#: pkg/machines/components/vmDisksTab.jsx:271
 msgid "Disk $0 fail to get detached from VM $1"
 msgstr "ניתוק הכונן $0 מהמכונה הווירטואלית $1 נכשל"
 
@@ -2431,15 +2438,15 @@ msgstr "ניתוק הכונן $0 מהמכונה הווירטואלית $1 נכש
 msgid "Disk I/O"
 msgstr "קלט/פלט של כונן"
 
-#: pkg/machines/components/diskAdd.jsx:451
+#: pkg/machines/components/diskAdd.jsx:460
 msgid "Disk failed to be attached"
 msgstr "חיבור הכונן נכשל"
 
-#: pkg/machines/components/diskAdd.jsx:419
+#: pkg/machines/components/diskAdd.jsx:427
 msgid "Disk failed to be created"
 msgstr "יצירת הכונן נכשלה"
 
-#: pkg/storaged/drive-details.jsx:58
+#: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "הכונן תקין"
 
@@ -2447,23 +2454,24 @@ msgstr "הכונן תקין"
 msgid "Disk passphrase"
 msgstr "מילת צופן לכונן"
 
-#: pkg/machines/components/diskAdd.jsx:463
+#: pkg/machines/components/diskAdd.jsx:312
+#: pkg/machines/components/diskAdd.jsx:471
 #: pkg/machines/components/diskEdit.jsx:165
 msgid "Disk settings could not be saved"
 msgstr "לא ניתן לשמור את הגדרות הכונן"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:125
+#: pkg/machines/components/vmSnapshotsTab.jsx:151
 msgid "Disk-only snapshot"
 msgstr "תמונת מצב בכונן בלבד"
 
-#: pkg/machines/components/vm/vmExpandedContent.jsx:45
-#: pkg/storaged/mdraid-details.jsx:49 pkg/storaged/mdraid-details.jsx:153
-#: pkg/storaged/mdraids-panel.jsx:110 pkg/storaged/vgroup-details.jsx:59
+#: pkg/machines/components/vm/vmExpandedContent.jsx:111
+#: pkg/storaged/mdraid-details.jsx:56 pkg/storaged/mdraid-details.jsx:160
+#: pkg/storaged/mdraids-panel.jsx:110 pkg/storaged/vgroup-details.jsx:65
 #: pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "כוננים"
 
-#: pkg/selinux/setroubleshoot-view.jsx:397
+#: pkg/selinux/setroubleshoot-view.jsx:400
 msgid "Dismiss"
 msgstr "התעלמות"
 
@@ -2471,7 +2479,7 @@ msgstr "התעלמות"
 msgid "Display language"
 msgstr "שפת התצוגה"
 
-#: pkg/storaged/fsys-tab.jsx:477 pkg/storaged/fsys-tab.jsx:489
+#: pkg/storaged/fsys-tab.jsx:483 pkg/storaged/fsys-tab.jsx:495
 msgid "Do not mount automatically on boot"
 msgstr "לא לעגן אוטומטית עם העלייה"
 
@@ -2509,11 +2517,11 @@ msgstr "שם מנהל שם תחום"
 msgid "Domain administrator password"
 msgstr "ססמת מנהל שם תחום"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:127
+#: pkg/machines/components/vmSnapshotsTab.jsx:153
 msgid "Domain has crashed"
 msgstr "שם התחום קרס"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:126
+#: pkg/machines/components/vmSnapshotsTab.jsx:152
 msgid "Domain is blocked on resource"
 msgstr "שם התחום חסום במשאב"
 
@@ -2558,7 +2566,7 @@ msgstr "בהורדה"
 msgid "Downloading $0"
 msgstr "$0 בהורדה"
 
-#: pkg/storaged/drive-details.jsx:71
+#: pkg/storaged/drive-details.jsx:77
 msgid "Drive"
 msgstr "כונן"
 
@@ -2571,8 +2579,8 @@ msgid "Dual rank"
 msgstr "דו־צדדי"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:348
-#: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
+#: pkg/machines/components/vmnetworktab.jsx:287 pkg/shell/indexes.js:348
+#: pkg/storaged/crypto-tab.jsx:136 pkg/storaged/nfs-details.jsx:310
 msgid "Edit"
 msgstr "עריכה"
 
@@ -2596,7 +2604,7 @@ msgstr "עריכת מארחים"
 msgid "Edit rules and zones"
 msgstr "עריכת כללים ואזורים"
 
-#: pkg/dashboard/index.html:141
+#: pkg/dashboard/index.html:138
 msgid "Edit server"
 msgstr "עריכת שרת"
 
@@ -2612,12 +2620,12 @@ msgstr "$target נשלף כעת"
 msgid "Embedded PC"
 msgstr "מחשב משובץ"
 
-#: pkg/playground/translate.html:56 src/base1/test-locale.js:47
+#: pkg/playground/translate.html:58 src/base1/test-locale.js:47
 #: src/base1/test-locale.js:57 pkg/playground/translate.js:13
 msgid "Empty"
 msgstr "ריק"
 
-#: pkg/playground/translate.html:61 src/base1/test-locale.js:48
+#: pkg/playground/translate.html:63 src/base1/test-locale.js:48
 #: src/base1/test-locale.js:59 pkg/playground/translate.js:16
 #: pkg/playground/translate.js:19
 msgctxt "verb"
@@ -2628,7 +2636,7 @@ msgstr "לרוקן"
 msgid "Emptying $target"
 msgstr "$target מתרוקן"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:278
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:310
 msgid "Emulated machine"
 msgstr "מכונה מדומה"
 
@@ -2669,11 +2677,11 @@ msgstr "כרך לוגי מוצפן בגודל $0"
 msgid "Encrypted partition of $0"
 msgstr "מחיצה מוצפנת בגודל $0"
 
-#: pkg/storaged/lvol-tabs.jsx:142
+#: pkg/storaged/lvol-tabs.jsx:148
 msgid "Encrypted volumes can not be resized here."
 msgstr "לא ניתן לשנות גודל של כרכים מוצפנים מכאן."
 
-#: pkg/storaged/lvol-tabs.jsx:145
+#: pkg/storaged/lvol-tabs.jsx:151
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr "יש לשחרר כרכים מוצפנים לפני שניתן יהיה לשנות את גודלם."
 
@@ -2681,7 +2689,7 @@ msgstr "יש לשחרר כרכים מוצפנים לפני שניתן יהיה �
 msgid "Encryption"
 msgstr "הצפנה"
 
-#: pkg/storaged/crypto-tab.jsx:105
+#: pkg/storaged/crypto-tab.jsx:111
 msgid "Encryption options"
 msgstr "אפשרויות הצפנה"
 
@@ -2694,7 +2702,7 @@ msgstr "סוף"
 msgid "End should not be empty"
 msgstr "הסוף אמור להיות ריק"
 
-#: pkg/selinux/setroubleshoot-view.jsx:285
+#: pkg/selinux/setroubleshoot-view.jsx:288
 msgid "Enforcing"
 msgstr "נאכף"
 
@@ -2702,17 +2710,9 @@ msgstr "נאכף"
 msgid "Enhancement updates available"
 msgstr "קיימים עדכוני שיפורים"
 
-#: pkg/lib/machine-dialogs.js:482
-msgid "Enter IP address or hostname"
-msgstr "נא למלא כתובת IP או שם מארח"
-
 #: pkg/networkmanager/firewall.jsx:724
 msgid "Entire subnet"
 msgstr "כל תת־הרשת"
-
-#: pkg/systemd/logs.html:116
-msgid "Entry"
-msgstr "רשומה"
 
 #: pkg/systemd/logs.js:466
 msgid "Entry at $0"
@@ -2730,15 +2730,15 @@ msgstr "$target נמחק"
 msgid "Errata"
 msgstr "טעויות ידועות"
 
-#: pkg/playground/translate.html:99 pkg/playground/translate.html:104
-#: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:298
-#: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:86
+#: pkg/playground/translate.html:101 pkg/playground/translate.html:106
+#: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:304
+#: pkg/storaged/multipath.jsx:61 pkg/storaged/storage-controls.jsx:86
 #: pkg/storaged/storage-controls.jsx:163
 #: pkg/systemd/services/service-details.jsx:415
 msgid "Error"
 msgstr "שגיאה"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.html:55
 msgid "Error and above"
 msgstr "שגיאה ומעלה"
 
@@ -2786,6 +2786,10 @@ msgstr "ססמה מצוינת"
 msgid "Existing disk image on host's file system"
 msgstr "תמונת כונן קיימת במערכת הקבצים של המארח"
 
+#: pkg/machines/components/vm/vmExpandedContent.jsx:104
+msgid "Expand"
+msgstr ""
+
 #: pkg/lib/machine-info.js:84
 msgid "Expansion chassis"
 msgstr "שלדת הרחבה"
@@ -2798,7 +2802,7 @@ msgstr "פירוט מורחב"
 msgid "Extended partition"
 msgstr "מחיצה מורחבת"
 
-#: pkg/storaged/mdraid-details.jsx:95
+#: pkg/storaged/mdraid-details.jsx:102
 msgid "FAILED"
 msgstr "נכשל"
 
@@ -2843,7 +2847,7 @@ msgstr "ההשבתה של tuned נכשלה"
 msgid "Failed to disable tuned profile"
 msgstr "השבתת פרופיל ה־tuned נכשלה"
 
-#: pkg/lib/machine-dialogs.js:522
+#: pkg/lib/machine-dialogs.js:521
 msgid "Failed to edit machine: $0"
 msgstr "עריכת המכונה נכשלה: $0"
 
@@ -2851,7 +2855,7 @@ msgstr "עריכת המכונה נכשלה: $0"
 msgid "Failed to enable tuned"
 msgstr "ההפעלה של tuned נכשלה"
 
-#: pkg/machines/components/vmnetworktab.jsx:76
+#: pkg/machines/components/vmnetworktab.jsx:135
 msgid "Failed to fetch the IP addresses of the interfaces present in $0"
 msgstr "קבלת כתובות ה־IP של המנשקים שקיימים תחת $0 נכשלה"
 
@@ -2889,7 +2893,7 @@ msgstr "מערכת קבצים"
 msgid "Filesystem directory"
 msgstr "תיקיית מערכת קבצים"
 
-#: pkg/storaged/fsys-tab.jsx:353
+#: pkg/storaged/fsys-tab.jsx:359
 msgid "Filesystem name"
 msgstr "שם מערכת קבצים"
 
@@ -2901,7 +2905,7 @@ msgstr "מערכות קבצים"
 msgid "Filter"
 msgstr "מסנן"
 
-#: pkg/machines/hostvmslist.jsx:109
+#: pkg/machines/hostvmslist.jsx:77
 msgid "Filter by name"
 msgstr "סינון לפי שם"
 
@@ -2926,11 +2930,11 @@ msgstr "חומת אש"
 msgid "Firewall is not available"
 msgstr "חומת האש אינה זמינה"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:280
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:315
 msgid "Firmware"
 msgstr "קושחה"
 
-#: pkg/storaged/drive-details.jsx:75
+#: pkg/storaged/drive-details.jsx:81
 msgctxt "storage"
 msgid "Firmware version"
 msgstr "גרסת קושחה"
@@ -2938,6 +2942,12 @@ msgstr "גרסת קושחה"
 #: pkg/storaged/vdos-panel.jsx:129
 msgid "For legacy applications only. Reduces performance."
 msgstr "ליישומים מיושנים בלבד. פוגע בביצועים."
+
+#: pkg/lib/machine-add.html:10
+msgid ""
+"For the host, either specify the hostname, IP address, an alias name or a "
+"unique resource identifier for the SSH destination."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:287
 #: pkg/systemd/services/services-list.jsx:72
@@ -2956,11 +2966,11 @@ msgstr "לאלץ החלפת ססמה"
 msgid "Force remove passphrase in $0"
 msgstr "אילוץ הסרת מילת צופן מ־$0"
 
-#: pkg/machines/components/vm/vmActions.jsx:111
+#: pkg/machines/components/vm/vmActions.jsx:177
 msgid "Force restart"
 msgstr "לאלץ הפעלה מחדש"
 
-#: pkg/machines/components/vm/vmActions.jsx:85
+#: pkg/machines/components/vm/vmActions.jsx:151
 msgid "Force shut down"
 msgstr "לאלץ כיבוי"
 
@@ -2999,7 +3009,7 @@ msgstr "מצב העברה"
 msgid "Forwarding mode"
 msgstr "מצב העברה"
 
-#: pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/pvol-tabs.jsx:51
 msgid "Free"
 msgstr "פנוי"
 
@@ -3007,7 +3017,7 @@ msgstr "פנוי"
 msgid "Free space"
 msgstr "מקום פנוי"
 
-#: pkg/storaged/lvol-tabs.jsx:364
+#: pkg/storaged/lvol-tabs.jsx:370
 msgid ""
 "Free up space in this group: Shrink or delete other logical volumes or add "
 "another physical volume."
@@ -3027,8 +3037,8 @@ msgstr "ימי שישי"
 msgid "Full name"
 msgstr "שם מלא"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:80
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:259
+#: pkg/machines/components/networks/networkOverviewTab.jsx:85
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:267
 #: pkg/networkmanager/interfaces.js:2700 pkg/systemd/logs.js:555
 msgid "General"
 msgstr "כללי"
@@ -3043,7 +3053,7 @@ msgstr "נוצר דוח"
 
 #: pkg/machines/components/memorySelectRow.jsx:85
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:98
-#: pkg/machines/components/vmDisksTab.jsx:50
+#: pkg/machines/components/vmDisksTab.jsx:51
 msgid "GiB"
 msgstr "GiB"
 
@@ -3073,25 +3083,25 @@ msgstr "תרשימים"
 msgid "Group"
 msgstr "קבוצה"
 
-#: pkg/storaged/lvol-tabs.jsx:240 pkg/storaged/lvol-tabs.jsx:389
-#: pkg/storaged/lvol-tabs.jsx:441 pkg/storaged/vdo-details.jsx:228
-#: pkg/storaged/vdo-details.jsx:297
+#: pkg/storaged/lvol-tabs.jsx:246 pkg/storaged/lvol-tabs.jsx:399
+#: pkg/storaged/lvol-tabs.jsx:456 pkg/storaged/vdo-details.jsx:235
+#: pkg/storaged/vdo-details.jsx:311
 msgid "Grow"
 msgstr "הגדלה"
 
-#: pkg/storaged/lvol-tabs.jsx:406
+#: pkg/storaged/lvol-tabs.jsx:416
 msgid "Grow content"
 msgstr "הגדלת התוכן"
 
-#: pkg/storaged/vdo-details.jsx:216
+#: pkg/storaged/vdo-details.jsx:223
 msgid "Grow logical size of $0"
 msgstr "להגדיל לגודל לוגי של $0"
 
-#: pkg/storaged/lvol-tabs.jsx:236
+#: pkg/storaged/lvol-tabs.jsx:242
 msgid "Grow logical volume"
 msgstr "הגדלת הכרך הלוגי"
 
-#: pkg/storaged/vdo-details.jsx:113
+#: pkg/storaged/vdo-details.jsx:120
 msgid "Grow to take all space"
 msgstr "להגדיל על חשבון כל המקום הפנוי"
 
@@ -3135,8 +3145,9 @@ msgstr "הסתרת מסננים"
 msgid "History package count"
 msgstr "ספירת חבילות היסטורית"
 
+#: pkg/lib/machine-add.html:13
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:36
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
 #: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:226
 msgid "Host"
@@ -3150,7 +3161,7 @@ msgstr "התקן מארח"
 msgid "Host key is incorrect"
 msgstr "מפתח המארח שגוי"
 
-#: pkg/dashboard/index.html:148 pkg/shell/index.html:107
+#: pkg/dashboard/index.html:145 pkg/shell/index.html:107
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:143
 msgid "Host name"
 msgstr "שם מארח"
@@ -3188,7 +3199,7 @@ msgstr "שעות"
 msgid "Hours must be a number between 0 and 23"
 msgstr "שעה חייבת להיות ערך בין 0 ל־23"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:276
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:306
 msgid "Hypervisor details"
 msgstr "פרטי Hypervisor"
 
@@ -3206,7 +3217,7 @@ msgid "ID $id"
 msgstr "מזהה $id"
 
 #: pkg/networkmanager/index.html:130 pkg/networkmanager/index.html:147
-#: pkg/machines/components/vmnetworktab.jsx:159
+#: pkg/machines/components/vmnetworktab.jsx:222
 msgid "IP address"
 msgstr "כתובת IP"
 
@@ -3230,7 +3241,7 @@ msgstr "הגדרות IP"
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:105
+#: pkg/machines/components/networks/networkOverviewTab.jsx:116
 msgid "IPv4 address"
 msgstr "כתובת IPv4"
 
@@ -3258,7 +3269,7 @@ msgstr "הגדרות IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:128
+#: pkg/machines/components/networks/networkOverviewTab.jsx:141
 msgid "IPv6 address"
 msgstr "כתובת IPv6"
 
@@ -3278,7 +3289,7 @@ msgstr "IPv6 בלבד"
 msgid "IPv6 settings"
 msgstr "הגדרות IPv6"
 
-#: pkg/systemd/logs.html:63
+#: pkg/systemd/logs.html:64
 msgid "Identifier"
 msgstr "מזהה"
 
@@ -3316,7 +3327,7 @@ msgid ""
 "communication."
 msgstr "ברוב אפשרויות ההגדרה, macvtap לא עובד לטובת תקשורת רשת בין מארח לאורח."
 
-#: pkg/lib/machine-dialogs.js:706
+#: pkg/lib/machine-dialogs.js:705
 msgid ""
 "In order to allow log in to ${rhost} as ${ruser} without password in the "
 "future, use the login password of ${luser} on ${lhost} as the key password, "
@@ -3325,7 +3336,7 @@ msgstr ""
 "כדי לאפשר כניסה אל ${rhost} בתור ${ruser} ללא ססמה בעתיד, עליך להשתמש בססמת "
 "הכניסה של ${luser} על גבי ${lhost} כססמת המפתח או להשאיר את ססמת המפתח ריקה."
 
-#: pkg/storaged/mdraid-details.jsx:96
+#: pkg/storaged/mdraid-details.jsx:103
 msgid "In sync"
 msgstr "בסנכרון"
 
@@ -3342,7 +3353,7 @@ msgstr "כרך לא פעיל"
 msgid "Included services"
 msgstr "שירותים כלולים"
 
-#: pkg/storaged/fsys-tab.jsx:498
+#: pkg/storaged/fsys-tab.jsx:504
 msgid "Inconsistent filesystem mount"
 msgstr "עיגון בלתי אחיד של מערכת קבצים"
 
@@ -3350,11 +3361,11 @@ msgstr "עיגון בלתי אחיד של מערכת קבצים"
 msgid "Incorrect host key"
 msgstr "מפתח המארח שגוי"
 
-#: pkg/storaged/vdo-details.jsx:300 pkg/storaged/vdos-panel.jsx:106
+#: pkg/storaged/vdo-details.jsx:316 pkg/storaged/vdos-panel.jsx:106
 msgid "Index memory"
 msgstr "זיכרון אינדקס"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.html:58
 msgid "Info and above"
 msgstr "מידע ומעלה"
 
@@ -3374,9 +3385,9 @@ msgstr "ה־IQN של המפעיל לא אמור להיות ריק"
 msgid "Insights: "
 msgstr "תובנות: "
 
-#: pkg/apps/application-list.jsx:89 pkg/apps/application.jsx:117
+#: pkg/apps/application-list.jsx:90 pkg/apps/application.jsx:117
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
-#: pkg/machines/components/vm/vmActions.jsx:127
+#: pkg/machines/components/vm/vmActions.jsx:193
 msgid "Install"
 msgstr "התקנה"
 
@@ -3396,7 +3407,7 @@ msgstr "התקנת כל העדכונים"
 msgid "Install security updates"
 msgstr "התקנת עדכוני אבטחה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:372
+#: pkg/selinux/setroubleshoot-view.jsx:375
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "יש להתקין את setroubleshoot-server כי לטפל באירועי SELinux."
 
@@ -3420,7 +3431,7 @@ msgstr "סוג התקנה"
 msgid "Installed"
 msgstr "מותקן"
 
-#: pkg/apps/application-list.jsx:54 pkg/apps/application.jsx:59
+#: pkg/apps/application-list.jsx:55 pkg/apps/application.jsx:59
 #: pkg/packagekit/updates.jsx:67
 msgid "Installing"
 msgstr "בהתקנה"
@@ -3617,7 +3628,7 @@ msgid "Kernel dump"
 msgstr "היטל ליבה"
 
 #: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
-#: pkg/lib/machine-dialogs.js:701
+#: pkg/lib/machine-dialogs.js:700
 msgid "Key password"
 msgstr "ססמת מפתח"
 
@@ -3657,11 +3668,11 @@ msgstr "קבוצת כרכים LVM"
 msgid "Laptop"
 msgstr "מחשב נייד"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.html:44
 msgid "Last 24 hours"
 msgstr "24 השעות האחרונות"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.html:45
 msgid "Last 7 days"
 msgstr "7 הימים האחרונים"
 
@@ -3685,11 +3696,11 @@ msgstr "כניסה אחרונה:"
 msgid "Launch Remote Viewer"
 msgstr "הפעלת מציג מרוחק"
 
-#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1715
+#: pkg/systemd/logs.html:86 pkg/networkmanager/interfaces.js:1715
 msgid "Learn more"
 msgstr "מידע נוסף"
 
-#: pkg/dashboard/index.html:160 pkg/shell/index.html:119
+#: pkg/dashboard/index.html:157 pkg/shell/index.html:119
 msgid ""
 "Leave blank to connect to this machine as the currently logged in user. If "
 "you enter a different username, that user will always be used when "
@@ -3708,12 +3719,12 @@ msgid ""
 "Leave the password blank if you do not wish to have a root account created"
 msgstr "ניתן להשאיר את הססמה ריקה אם בחירתך היא שלא ליצור חשבון על (root)"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:244
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:251
 msgid ""
 "Libvirt did not detect any UEFI/OVMF firmware image installed on the host"
 msgstr "Libvirt לא זיהה תמונת קושחה מסוג UEFI/OVMF מותקנת על המארח"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:238
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:245
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr "Libvirt או ה־hypervisor לא תומכים ב־UEFI"
 
@@ -3803,7 +3814,7 @@ msgstr "מערכת קבצים מקומית"
 msgid "Local install media"
 msgstr "אמצעי התקנה מקומי"
 
-#: pkg/storaged/nfs-details.jsx:158
+#: pkg/storaged/nfs-details.jsx:163
 msgid "Local mount point"
 msgstr "נקודת עגינה מקומית"
 
@@ -3858,11 +3869,11 @@ msgstr "יציאה"
 msgid "Logged in"
 msgstr "נכנסת"
 
-#: pkg/storaged/vdo-details.jsx:288
+#: pkg/storaged/vdo-details.jsx:302
 msgid "Logical"
 msgstr "לוגי"
 
-#: pkg/storaged/vdo-details.jsx:218 pkg/storaged/vdos-panel.jsx:99
+#: pkg/storaged/vdo-details.jsx:225 pkg/storaged/vdos-panel.jsx:99
 msgid "Logical size"
 msgstr "גודל לוגי"
 
@@ -3898,11 +3909,11 @@ msgstr "תצורת כניסה"
 msgid "Logout successful"
 msgstr "היציאה הצליחה"
 
-#: pkg/systemd/logs.html:115 pkg/systemd/manifest.json.in
+#: pkg/systemd/logs.html:120 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "יומנים"
 
-#: pkg/dashboard/index.html:123
+#: pkg/dashboard/index.html:120
 msgid "Lost connection. Trying to reconnect"
 msgstr "החיבור אבד. מתבצע ניסיון חיבור מחדש"
 
@@ -3920,7 +3931,7 @@ msgid "MAC"
 msgstr "MAC"
 
 #: pkg/machines/components/nicAdd.jsx:41 pkg/machines/components/nicEdit.jsx:41
-#: pkg/machines/components/vmnetworktab.jsx:157
+#: pkg/machines/components/vmnetworktab.jsx:220
 msgid "MAC address"
 msgstr "כתובת MAC"
 
@@ -4064,7 +4075,7 @@ msgstr ""
 "כמות המעבדים הווירטואליים המרבית שמוקצת למערכת ההפעלה האורחת, שחייבת להיות "
 "בין 1 ל־$0"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:98
+#: pkg/machines/components/networks/networkOverviewTab.jsx:107
 msgid "Maximum transmission unit"
 msgstr "יחידת העברה מרבית"
 
@@ -4076,10 +4087,11 @@ msgstr "חבר בהתקן RAID"
 msgid "Member of RAID device $0"
 msgstr "חבר בהתקן ה־RAID‏ $0"
 
-#: pkg/dashboard/index.html:74 pkg/playground/translate.html:89
+#: pkg/dashboard/index.html:74 pkg/playground/translate.html:91
 #: pkg/systemd/graphs.html:79
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:474
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:261
+#: pkg/machines/components/vm/vmUsageTab.jsx:61
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:278
 #: pkg/systemd/hwinfo.jsx:276 pkg/systemd/overview-cards/usageCard.jsx:132
 msgid "Memory"
 msgstr "זיכרון"
@@ -4122,7 +4134,7 @@ msgstr "הודעה למשתמשים שנמצאים במערכת"
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "ניתן למצוא הודעות שקשורות בכשל בז׳ורנל:"
 
-#: pkg/storaged/lvol-tabs.jsx:448
+#: pkg/storaged/lvol-tabs.jsx:467
 msgid "Metadata used"
 msgstr "נתוני על בשימוש"
 
@@ -4170,12 +4182,12 @@ msgstr "מצב"
 msgid "Model"
 msgstr "דגם"
 
-#: pkg/storaged/drive-details.jsx:74
+#: pkg/storaged/drive-details.jsx:80
 msgctxt "storage"
 msgid "Model"
 msgstr "דגם"
 
-#: pkg/machines/components/vmnetworktab.jsx:147
+#: pkg/machines/components/vmnetworktab.jsx:210
 msgid "Model type"
 msgstr "סוג דגם"
 
@@ -4214,67 +4226,67 @@ msgid "More information"
 msgstr "מידע נוסף"
 
 #: pkg/kdump/kdump-view.jsx:104 pkg/storaged/content-views.jsx:375
-#: pkg/storaged/fsys-tab.jsx:283 pkg/storaged/nfs-details.jsx:300
+#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/nfs-details.jsx:305
 msgid "Mount"
 msgstr "עיגון"
 
-#: pkg/storaged/fsys-tab.jsx:481
+#: pkg/storaged/fsys-tab.jsx:487
 msgid "Mount also automatically on boot"
 msgstr "לעגן אוטומטית גם עם העלייה"
 
-#: pkg/storaged/nfs-details.jsx:172
+#: pkg/storaged/nfs-details.jsx:177
 msgid "Mount at boot"
 msgstr "לעגן בעלייה"
 
-#: pkg/storaged/fsys-tab.jsx:473 pkg/storaged/fsys-tab.jsx:485
+#: pkg/storaged/fsys-tab.jsx:479 pkg/storaged/fsys-tab.jsx:491
 msgid "Mount automatically on $0 on boot"
 msgstr "לעגן אוטומטית אל $0 בזמן העלייה"
 
-#: pkg/storaged/fsys-tab.jsx:279
+#: pkg/storaged/fsys-tab.jsx:285
 msgid "Mount configuration"
 msgstr "הגדרות עיגון"
 
-#: pkg/storaged/fsys-tab.jsx:277
+#: pkg/storaged/fsys-tab.jsx:283
 msgid "Mount filesystem"
 msgstr "עיגון מערכת קבצים"
 
-#: pkg/storaged/format-dialog.jsx:245 pkg/storaged/fsys-tab.jsx:478
+#: pkg/storaged/format-dialog.jsx:245 pkg/storaged/fsys-tab.jsx:484
 msgid "Mount now"
 msgstr "לעגן כעת"
 
-#: pkg/storaged/fsys-tab.jsx:474
+#: pkg/storaged/fsys-tab.jsx:480
 msgid "Mount on $0 now"
 msgstr "לעגן אל $0 כעת"
 
-#: pkg/storaged/format-dialog.jsx:236 pkg/storaged/fsys-tab.jsx:248
-#: pkg/storaged/nfs-details.jsx:169
+#: pkg/storaged/format-dialog.jsx:236 pkg/storaged/fsys-tab.jsx:254
+#: pkg/storaged/nfs-details.jsx:174
 msgid "Mount options"
 msgstr "אפשרויות עיגון"
 
 #: pkg/storaged/format-dialog.jsx:230 pkg/storaged/fsys-panel.jsx:95
-#: pkg/storaged/fsys-tab.jsx:243 pkg/storaged/fsys-tab.jsx:515
-#: pkg/storaged/nfs-details.jsx:317 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/fsys-tab.jsx:249 pkg/storaged/fsys-tab.jsx:526
+#: pkg/storaged/nfs-details.jsx:325 pkg/storaged/nfs-panel.jsx:103
 msgid "Mount point"
 msgstr "נקודת עיגון"
 
-#: pkg/storaged/fsys-tab.jsx:83
+#: pkg/storaged/fsys-tab.jsx:89
 msgid "Mount point cannot be empty"
 msgstr "נקודת העיגון לא יכולה להיות ריקה"
 
-#: pkg/storaged/nfs-details.jsx:163
+#: pkg/storaged/nfs-details.jsx:168
 msgid "Mount point cannot be empty."
 msgstr "נקודת העיגון לא יכולה להיות ריקה."
 
-#: pkg/storaged/fsys-tab.jsx:87
+#: pkg/storaged/fsys-tab.jsx:93
 msgid "Mount point is already used for $0"
 msgstr "נקודת העיגון כבר משמשת לטובת $0"
 
-#: pkg/storaged/nfs-details.jsx:165
+#: pkg/storaged/nfs-details.jsx:170
 msgid "Mount point must start with \"/\"."
 msgstr "נקודת העיגון חייבת להתחיל ב־„/”."
 
-#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:255
-#: pkg/storaged/nfs-details.jsx:173
+#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:261
+#: pkg/storaged/nfs-details.jsx:178
 msgid "Mount read only"
 msgstr "עיגון לקריאה בלבד"
 
@@ -4286,7 +4298,7 @@ msgstr "מתבצע עיגון של $target"
 msgid "Multi-system chassis"
 msgstr "שלדה למגוון מערכות"
 
-#: pkg/storaged/drive-details.jsx:82
+#: pkg/storaged/drive-details.jsx:88
 msgctxt "storage"
 msgid "Multipathed devices"
 msgstr "התקנים מרובי־נתיבים"
@@ -4295,7 +4307,7 @@ msgstr "התקנים מרובי־נתיבים"
 msgid "NAT to $0"
 msgstr "NAT אל $0"
 
-#: pkg/storaged/nfs-details.jsx:134
+#: pkg/storaged/nfs-details.jsx:139
 msgid "NFS mount"
 msgstr "עיגון NFS"
 
@@ -4307,7 +4319,7 @@ msgstr "עיגוני NFS"
 msgid "NFS support not installed"
 msgstr "לא מותקנת תמיכה ב־NFS"
 
-#: pkg/machines/components/vmnetworktab.jsx:118
+#: pkg/machines/components/vmnetworktab.jsx:181
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr "החלפת מצב מתאם הרשת $0 של המכונה הווירטואלית $0 נכשלה"
 
@@ -4330,17 +4342,17 @@ msgstr "שרת NTP"
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
 #: pkg/machines/components/vmSnapshotsCreateModal.jsx:41
-#: pkg/machines/components/vmSnapshotsTab.jsx:94
-#: pkg/machines/hostvmslist.jsx:146 pkg/packagekit/updates.jsx:388
+#: pkg/machines/components/vmSnapshotsTab.jsx:120
+#: pkg/machines/hostvmslist.jsx:116 pkg/packagekit/updates.jsx:388
 #: pkg/storaged/content-views.jsx:116 pkg/storaged/content-views.jsx:272
 #: pkg/storaged/content-views.jsx:724 pkg/storaged/crypto-panel.jsx:79
 #: pkg/storaged/format-dialog.jsx:201 pkg/storaged/fsys-panel.jsx:94
-#: pkg/storaged/fsys-tab.jsx:355 pkg/storaged/fsys-tab.jsx:511
+#: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
 #: pkg/storaged/iscsi-panel.jsx:128 pkg/storaged/iscsi-panel.jsx:185
-#: pkg/storaged/lvol-tabs.jsx:35 pkg/storaged/lvol-tabs.jsx:380
-#: pkg/storaged/lvol-tabs.jsx:434 pkg/storaged/mdraids-panel.jsx:61
-#: pkg/storaged/part-tab.jsx:33 pkg/storaged/vdos-panel.jsx:82
-#: pkg/storaged/vgroup-details.jsx:160 pkg/storaged/vgroups-panel.jsx:74
+#: pkg/storaged/lvol-tabs.jsx:41 pkg/storaged/lvol-tabs.jsx:387
+#: pkg/storaged/lvol-tabs.jsx:445 pkg/storaged/mdraids-panel.jsx:61
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/vdos-panel.jsx:82
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/vgroups-panel.jsx:74
 #: pkg/systemd/hwinfo.jsx:76 pkg/systemd/services/services-list.jsx:52
 msgid "Name"
 msgstr "שם"
@@ -4390,7 +4402,7 @@ msgstr "השם לא יכול להישאר ריק"
 msgid "Name should not be empty"
 msgstr "השם לא אמור להיות ריק"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:36
+#: pkg/machines/components/networks/networkOverviewTab.jsx:40
 msgid "Name: "
 msgstr "שם: "
 
@@ -4398,7 +4410,7 @@ msgstr "שם: "
 msgid "Need at least one NTP server"
 msgstr "נדרש שרת NTP אחד לפחות"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:114
+#: pkg/machines/components/networks/networkOverviewTab.jsx:125
 msgid "Netmask"
 msgstr "מסכת רשת"
 
@@ -4448,10 +4460,6 @@ msgstr "מערכת קבצים רשתית"
 msgid "Network interface settings could not be saved"
 msgstr "לא ניתן לשמור את הגדרות מנשק הרשת"
 
-#: pkg/machines/components/vm/vmExpandedContent.jsx:46
-msgid "Network interfaces"
-msgstr "מנשקי רשת"
-
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:255
 msgid "Network selection does not support PXE."
 msgstr "בחירת הרשת לא תומכת ב־PXE."
@@ -4480,6 +4488,7 @@ msgstr "יומני תקשורת"
 
 #: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/networks/networkList.jsx:54
+#: pkg/machines/components/vm/vmExpandedContent.jsx:120
 msgid "Networks"
 msgstr "רשתות"
 
@@ -4495,11 +4504,11 @@ msgstr "הססמה לא תפוג לעולם"
 msgid "Never lock account"
 msgstr "לעולם לא לנעול את החשבון"
 
-#: pkg/storaged/nfs-details.jsx:134
+#: pkg/storaged/nfs-details.jsx:139
 msgid "New NFS mount"
 msgstr "עיגון NFS חדש"
 
-#: pkg/lib/machine-dialogs.js:712
+#: pkg/lib/machine-dialogs.js:711
 msgid "New key password"
 msgstr "ססמה חדשה למפתח"
 
@@ -4536,15 +4545,15 @@ msgstr "לא"
 msgid "No NFS mounts set up"
 msgstr "לא הוקמו עיגוני NFS"
 
-#: pkg/selinux/setroubleshoot-view.jsx:358
+#: pkg/selinux/setroubleshoot-view.jsx:361
 msgid "No SELinux alerts."
 msgstr "אין אזעקות SELinux."
 
-#: pkg/machines/hostvmslist.jsx:143
+#: pkg/machines/hostvmslist.jsx:113
 msgid "No VM is running or defined on this host"
 msgstr "אף מכונה וירטואלית לא מופעלת או מוגדרת על המארח הזה"
 
-#: pkg/apps/application-list.jsx:156
+#: pkg/apps/application-list.jsx:157
 msgid "No applications installed or available"
 msgstr "אף יישום לא מותקן או זמין"
 
@@ -4556,7 +4565,7 @@ msgstr "לא נוצר אף ארכיון."
 msgid "No available slots"
 msgstr "אין משבצות פנויות"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:54
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:59
 msgid "No boot device found"
 msgstr "לא נמצא התקן עלייה"
 
@@ -4576,7 +4585,7 @@ msgstr "לא מוגדר מסוף למכונה הווירטואלית הזאת."
 msgid "No delay"
 msgstr "אין השהיה"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:106
+#: pkg/machines/components/vmSnapshotsTab.jsx:132
 msgid "No description"
 msgstr "אין תיאור"
 
@@ -4592,13 +4601,13 @@ msgstr "לא סופק תיאור."
 msgid "No devices"
 msgstr "אין התקנים"
 
-#: pkg/storaged/mdraid-details.jsx:51 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:61
+#: pkg/storaged/mdraid-details.jsx:58 pkg/storaged/mdraids-panel.jsx:112
+#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:67
 #: pkg/storaged/vgroups-panel.jsx:81
 msgid "No disks are available."
 msgstr "אין כוננים זמינים."
 
-#: pkg/machines/components/vmDisksTab.jsx:199
+#: pkg/machines/components/vmDisksTab.jsx:309
 msgid "No disks defined for this VM"
 msgstr "לא מוגדרים כוננים למכונה הווירטואלית הזאת"
 
@@ -4650,7 +4659,7 @@ msgstr "לא נמצאו יומנים"
 msgid "No matching results"
 msgstr "אין כללים תואמים"
 
-#: pkg/storaged/drive-details.jsx:78
+#: pkg/storaged/drive-details.jsx:84
 msgid "No media inserted"
 msgstr "לא הוכנס אמצעי מדיה"
 
@@ -4668,7 +4677,7 @@ msgstr ""
 msgid "No network devices"
 msgstr "אין התקני רשת"
 
-#: pkg/machines/components/vmnetworktab.jsx:297
+#: pkg/machines/components/vmnetworktab.jsx:347
 msgid "No network interfaces defined for this VM"
 msgstr "לא הוגדרו מנשקי רשת למכונה הווירטואלית הזאת"
 
@@ -4680,7 +4689,7 @@ msgstr "לא הוגדרה רשת למארח הזה"
 msgid "No networks available"
 msgstr "אין רשתות זמינות"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:147
+#: pkg/machines/components/vmSnapshotsTab.jsx:173
 msgid "No parent"
 msgstr "אין הורה"
 
@@ -4705,7 +4714,7 @@ msgstr "לא נמצאו תוצאות לתנאי המסנן. יש לנקות את
 msgid "No rule hits"
 msgstr "אין פגיעות בכללים"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:75
+#: pkg/machines/components/vmSnapshotsTab.jsx:101
 msgid "No snapshots"
 msgstr "אין תמונות מצב"
 
@@ -4726,13 +4735,16 @@ msgstr "אין מאגרי אחסון זמינים"
 msgid "No storage volumes defined for this storage pool"
 msgstr "לא הוגדרו כרכי אחסון למאגר האחסון הזה"
 
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:160
+#, fuzzy
+#| msgid "No such file or directory '$0'"
+msgid "No such file found in directory '$0'"
+msgstr "אין קובץ או תיקייה בשם ‚$0’"
+
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:155
 #: pkg/lib/credentials.js:190
 msgid "No such file or directory"
 msgstr "אין קובץ או תיקייה בשם הזה"
-
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:161
-msgid "No such file or directory '$0'"
-msgstr "אין קובץ או תיקייה בשם ‚$0’"
 
 #: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "No system modifications"
@@ -4806,7 +4818,7 @@ msgstr "לא מחובר לתובנות"
 msgid "Not connected to host"
 msgstr "לא מחובר למארח"
 
-#: pkg/storaged/lvol-tabs.jsx:362
+#: pkg/storaged/lvol-tabs.jsx:368
 msgid "Not enough space to grow."
 msgstr "אין מספיק מקום כדי לגדול."
 
@@ -4826,7 +4838,7 @@ msgstr "לא מעוגן"
 msgid "Not permitted to perform this action."
 msgstr "לא מורשה לבצע את הפעולה הזאת."
 
-#: pkg/playground/translate.html:28
+#: pkg/playground/translate.html:30
 msgid "Not ready"
 msgstr "לא מוכן"
 
@@ -4834,7 +4846,7 @@ msgstr "לא מוכן"
 msgid "Not registered"
 msgstr "לא רשום"
 
-#: pkg/storaged/mdraid-details.jsx:328
+#: pkg/storaged/mdraid-details.jsx:346
 #: pkg/systemd/services/service-details.jsx:326
 #: pkg/systemd/services/services.jsx:518
 msgid "Not running"
@@ -4852,15 +4864,15 @@ msgstr "הערה"
 msgid "Notebook"
 msgstr "מחברת"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.html:57
 msgid "Notice and above"
 msgstr "הודעה ומעלה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:387
+#: pkg/selinux/setroubleshoot-view.jsx:390
 msgid "Occurred $0"
 msgstr "התרחש ב־$0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:382
+#: pkg/selinux/setroubleshoot-view.jsx:385
 msgid "Occurred between $0 and $1"
 msgstr "התרחש בין $0 ל־$1"
 
@@ -4909,7 +4921,7 @@ msgstr ""
 msgid "One time password"
 msgstr "ססמה חד־פעמית"
 
-#: pkg/storaged/vdo-details.jsx:117
+#: pkg/storaged/vdo-details.jsx:124
 msgid "Only $0 of $1 are used."
 msgstr "רק $0 מתוך $1 מנוצלים."
 
@@ -4921,7 +4933,7 @@ msgstr "מותר רק אותיות באנגלית, מספרים, : , _ , . , @ ,
 msgid "Only editable when the guest is shut off"
 msgstr "ניתן לעריכה רק כאשר האורח כבוי"
 
-#: pkg/systemd/logs.html:51
+#: pkg/systemd/logs.html:52
 msgid "Only emergency"
 msgstr "חירום בלבד"
 
@@ -4951,7 +4963,7 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "כונן אופטי"
 
-#: pkg/storaged/crypto-tab.jsx:131 pkg/storaged/vdos-panel.jsx:116
+#: pkg/storaged/crypto-tab.jsx:140 pkg/storaged/vdos-panel.jsx:116
 msgid "Options"
 msgstr "אפשרויות"
 
@@ -4979,7 +4991,7 @@ msgstr "אפשרויות אחרות"
 #: pkg/systemd/graphs.html:23 pkg/systemd/graphs.html:106
 #: pkg/machines/components/networks/network.jsx:70
 #: pkg/machines/components/storagePools/storagePool.jsx:64
-#: pkg/machines/components/vm/vmExpandedContent.jsx:43
+#: pkg/machines/components/vm/vmExpandedContent.jsx:83
 #: pkg/systemd/hwinfo.jsx:288 pkg/systemd/manifest.json.in
 msgid "Overview"
 msgstr "סקירה"
@@ -5024,7 +5036,7 @@ msgstr "הורה"
 msgid "Parent $parent"
 msgstr "$parent הורה"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:146
+#: pkg/machines/components/vmSnapshotsTab.jsx:172
 msgid "Parent snapshot"
 msgstr "תמונת מצב הורה"
 
@@ -5129,15 +5141,15 @@ msgstr "עלות הנתיב $path_cost"
 msgid "Path on host's filesystem"
 msgstr "הנתיב במערכת הקבצים של המארח"
 
-#: pkg/storaged/nfs-details.jsx:146
+#: pkg/storaged/nfs-details.jsx:151
 msgid "Path on server"
 msgstr "נתיב בשרת"
 
-#: pkg/storaged/nfs-details.jsx:151
+#: pkg/storaged/nfs-details.jsx:156
 msgid "Path on server cannot be empty."
 msgstr "הנתיב בשרת לא יכול להיות ריק."
 
-#: pkg/storaged/nfs-details.jsx:153
+#: pkg/storaged/nfs-details.jsx:158
 msgid "Path on server must start with \"/\"."
 msgstr "הנתיב בשרת חייב להתחיל ב־„/”."
 
@@ -5153,7 +5165,7 @@ msgstr "הנתיב לקובץ"
 msgid "Paths"
 msgstr "נתיבים"
 
-#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:53
+#: pkg/systemd/logs.html:107 pkg/machines/components/vm/vmActions.jsx:119
 #: pkg/systemd/logs.js:385 pkg/systemd/logs.js:1055
 msgid "Pause"
 msgstr "השהיה"
@@ -5174,7 +5186,7 @@ msgstr "קבוע"
 msgid "Permission denied"
 msgstr "ההרשאה נדחתה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:285
+#: pkg/selinux/setroubleshoot-view.jsx:288
 msgid "Permissive"
 msgstr "מתירני"
 
@@ -5183,12 +5195,12 @@ msgstr "מתירני"
 msgid "Persistence"
 msgstr "עקביות"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:83
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:66
+#: pkg/machines/components/networks/networkOverviewTab.jsx:89
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:68
 msgid "Persistent"
 msgstr "עקבי"
 
-#: pkg/storaged/vdo-details.jsx:276
+#: pkg/storaged/vdo-details.jsx:288
 msgid "Physical"
 msgstr "פיזי"
 
@@ -5208,11 +5220,11 @@ msgstr "כרך פיזי"
 msgid "Physical volume of $0"
 msgstr "כרך פיזי בגודל $0"
 
-#: pkg/storaged/vgroup-details.jsx:121
+#: pkg/storaged/vgroup-details.jsx:127
 msgid "Physical volumes"
 msgstr "כרכים פיזיים"
 
-#: pkg/storaged/lvol-tabs.jsx:166
+#: pkg/storaged/lvol-tabs.jsx:172
 msgid "Physical volumes can not be resized here."
 msgstr "כאן ניתן לשנות גודל של כרכים פיזיים."
 
@@ -5232,28 +5244,28 @@ msgstr "קופסת פיצה"
 msgid "Please authenticate to gain administrative access"
 msgstr "נא לעבור אימות כדי לקבל גישת ניהול"
 
-#: pkg/machines/components/diskAdd.jsx:390
+#: pkg/machines/components/diskAdd.jsx:398
 msgid "Please choose a storage pool"
 msgstr "נא לבחור מאגר אחסון"
 
-#: pkg/machines/components/diskAdd.jsx:429
+#: pkg/machines/components/diskAdd.jsx:437
 msgid "Please choose a volume"
 msgstr "נא לבחור כרך"
 
-#: pkg/storaged/content-views.jsx:341 pkg/storaged/mdraid-details.jsx:281
-#: pkg/storaged/vdo-details.jsx:194 pkg/storaged/vgroup-details.jsx:192
+#: pkg/storaged/content-views.jsx:341 pkg/storaged/mdraid-details.jsx:290
+#: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vgroup-details.jsx:198
 msgid "Please confirm deletion of $0"
 msgstr "נא לאשר את המחיקה של $0"
 
-#: pkg/storaged/mdraid-details.jsx:230 pkg/storaged/vdo-details.jsx:136
+#: pkg/storaged/mdraid-details.jsx:239 pkg/storaged/vdo-details.jsx:143
 msgid "Please confirm stopping of $0"
 msgstr "נא לאשר את עצירת $0"
 
-#: pkg/machines/components/diskAdd.jsx:395
+#: pkg/machines/components/diskAdd.jsx:403
 msgid "Please enter new volume name"
 msgstr "נא להקליד את שם הכרך החדש"
 
-#: pkg/machines/components/diskAdd.jsx:398
+#: pkg/machines/components/diskAdd.jsx:406
 msgid "Please enter new volume size"
 msgstr "נא להקליד את גודל הכרך החדש"
 
@@ -5277,7 +5289,7 @@ msgstr "נא לציין את המארח לחיבור"
 msgid "Please start the virtual machine to access its console."
 msgstr "נא להפעיל את המכונה הווירטואלית כדי לגשת למסוף שלה."
 
-#: pkg/machines/components/vmnetworktab.jsx:245
+#: pkg/machines/components/vmnetworktab.jsx:309
 msgid "Plug"
 msgstr "חיבור"
 
@@ -5314,7 +5326,7 @@ msgstr "כרכי המאגר משמשים מכונות וירטואליות "
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
 #: pkg/machines/components/vm/bootOrderModal.jsx:110
 #: pkg/machines/components/vmDiskColumns.jsx:48
-#: pkg/machines/components/vmnetworktab.jsx:129
+#: pkg/machines/components/vmnetworktab.jsx:192
 #: pkg/storaged/iscsi-panel.jsx:128
 msgid "Port"
 msgstr "פתחה"
@@ -5336,7 +5348,7 @@ msgstr "פתחות"
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "מספר השקעים המועדף לחשיפה לאורח."
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:137
+#: pkg/machines/components/networks/networkOverviewTab.jsx:150
 msgid "Prefix"
 msgstr "קידומת"
 
@@ -5369,11 +5381,11 @@ msgstr "שימור"
 msgid "Pretty host name"
 msgstr "שם מארח יפה"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.html:43
 msgid "Previous boot"
 msgstr "עלייה קודמת"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:76
+#: pkg/machines/components/vmSnapshotsTab.jsx:102
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -5384,7 +5396,7 @@ msgid "Primary"
 msgstr "עיקרי"
 
 #: pkg/networkmanager/index.html:260 pkg/networkmanager/index.html:379
-#: pkg/networkmanager/index.html:389 pkg/systemd/logs.html:49
+#: pkg/networkmanager/index.html:389 pkg/systemd/logs.html:50
 msgid "Priority"
 msgstr "עדיפות"
 
@@ -5451,11 +5463,11 @@ msgstr "מפתח ציבורי"
 msgid "Purpose"
 msgstr "תכלית"
 
-#: pkg/storaged/mdraid-details.jsx:173
+#: pkg/storaged/mdraid-details.jsx:180
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid-details.jsx:167
+#: pkg/storaged/mdraid-details.jsx:174
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -5463,7 +5475,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (stripe)"
 msgstr "RAID 0 (פיזור נתונים)"
 
-#: pkg/storaged/mdraid-details.jsx:168
+#: pkg/storaged/mdraid-details.jsx:175
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -5471,7 +5483,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (mirror)"
 msgstr "RAID 1 (שכפול)"
 
-#: pkg/storaged/mdraid-details.jsx:172
+#: pkg/storaged/mdraid-details.jsx:179
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -5479,7 +5491,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (stripe of mirrors)"
 msgstr "RAID 10 (פיזור נתונים משוכפלים)"
 
-#: pkg/storaged/mdraid-details.jsx:169
+#: pkg/storaged/mdraid-details.jsx:176
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -5487,7 +5499,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (dedicated parity)"
 msgstr "RAID 4 (פיזור עם זוגיות בכונן ייעודי)"
 
-#: pkg/storaged/mdraid-details.jsx:170
+#: pkg/storaged/mdraid-details.jsx:177
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -5495,7 +5507,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (distributed parity)"
 msgstr "RAID 5 (פיזור עם זוגיות מפוזרת)"
 
-#: pkg/storaged/mdraid-details.jsx:171
+#: pkg/storaged/mdraid-details.jsx:178
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -5507,11 +5519,11 @@ msgstr "RAID 6 (פיזור עם קוד ריד-סולומון)"
 msgid "RAID chassis"
 msgstr "שלדת RAID"
 
-#: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/pvol-tabs.jsx:59
+#: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/pvol-tabs.jsx:66
 msgid "RAID device"
 msgstr "התקן RAID"
 
-#: pkg/storaged/mdraid-details.jsx:301 pkg/storaged/utils.js:242
+#: pkg/storaged/mdraid-details.jsx:310 pkg/storaged/utils.js:242
 msgid "RAID device $0"
 msgstr "התקן RAID‏ $0"
 
@@ -5519,7 +5531,7 @@ msgstr "התקן RAID‏ $0"
 msgid "RAID level"
 msgstr "רמת RAID"
 
-#: pkg/storaged/mdraid-details.jsx:322
+#: pkg/storaged/mdraid-details.jsx:338
 msgctxt "storage"
 msgid "RAID level"
 msgstr "רמת RAID"
@@ -5557,7 +5569,7 @@ msgid "Read more..."
 msgstr "מידע נוסף…"
 
 #: pkg/machines/components/diskEdit.jsx:106
-#: pkg/machines/components/vmDisksTab.jsx:143
+#: pkg/machines/components/vmDisksTab.jsx:254
 #: pkg/systemd/services/service-details.jsx:353
 msgid "Read-only"
 msgstr "קריאה בלבד"
@@ -5570,11 +5582,11 @@ msgstr "מתבצעת קריאה"
 msgid "Reading..."
 msgstr "מתבצעת קריאה…"
 
-#: pkg/playground/translate.html:18
+#: pkg/playground/translate.html:20
 msgid "Ready"
 msgstr "מוכן"
 
-#: pkg/playground/translate.html:23
+#: pkg/playground/translate.html:25
 msgctxt "verb"
 msgid "Ready"
 msgstr "מוכן"
@@ -5613,7 +5625,7 @@ msgstr "בררת מחדל מומלצת"
 msgid "Reconnect"
 msgstr "התחברות מחדש"
 
-#: pkg/storaged/mdraid-details.jsx:97
+#: pkg/storaged/mdraid-details.jsx:104
 msgid "Recovering"
 msgstr "מתבצע שיקום"
 
@@ -5670,11 +5682,11 @@ msgstr "כונן נתיק"
 msgid "Removals:"
 msgstr "הסרות:"
 
-#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:114
-#: pkg/machines/components/vmDisksTab.jsx:171
-#: pkg/machines/components/vmDisksTab.jsx:181
+#: pkg/apps/application-list.jsx:88 pkg/apps/application.jsx:114
+#: pkg/machines/components/vmDisksTab.jsx:282
+#: pkg/machines/components/vmDisksTab.jsx:292
 #: pkg/storaged/crypto-keyslots.jsx:405 pkg/storaged/crypto-keyslots.jsx:442
-#: pkg/storaged/nfs-details.jsx:307
+#: pkg/storaged/nfs-details.jsx:312
 msgid "Remove"
 msgstr "הסרה"
 
@@ -5694,7 +5706,7 @@ msgstr "להסיר את $0?"
 msgid "Remove Tang keyserver"
 msgstr "הסרת שרת המפתחות Tang"
 
-#: pkg/storaged/vdo-details.jsx:100
+#: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "הסרת התקן"
 
@@ -5714,7 +5726,7 @@ msgstr "הסרת השירות $0"
 msgid "Remove zone $0"
 msgstr "הסרת האזור $0"
 
-#: pkg/apps/application-list.jsx:58 pkg/apps/application.jsx:63
+#: pkg/apps/application-list.jsx:59 pkg/apps/application.jsx:63
 msgid "Removing"
 msgstr "בהסרה"
 
@@ -5749,16 +5761,16 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "הסרת האזור תסיר את כל השירותים שבו."
 
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:167
-#: pkg/storaged/vgroup-details.jsx:216
+#: pkg/storaged/lvol-tabs.jsx:45 pkg/storaged/vgroup-details.jsx:173
+#: pkg/storaged/vgroup-details.jsx:222
 msgid "Rename"
 msgstr "שינוי שם"
 
-#: pkg/storaged/lvol-tabs.jsx:33
+#: pkg/storaged/lvol-tabs.jsx:39
 msgid "Rename logical volume"
 msgstr "שינוי שם של כרך פיזי"
 
-#: pkg/storaged/vgroup-details.jsx:158
+#: pkg/storaged/vgroup-details.jsx:164
 msgid "Rename volume group"
 msgstr "שינוי שם של קבוצת כרכים"
 
@@ -5864,7 +5876,7 @@ msgstr "איפוס"
 msgid "Resizing $target"
 msgstr "הגודל של $target משתנה"
 
-#: pkg/storaged/lvol-tabs.jsx:229 pkg/storaged/lvol-tabs.jsx:314
+#: pkg/storaged/lvol-tabs.jsx:235 pkg/storaged/lvol-tabs.jsx:320
 msgid ""
 "Resizing an encrypted filesystem requires unlocking the disk. Please provide "
 "a current disk passphrase."
@@ -5872,7 +5884,7 @@ msgstr ""
 "שינוי גודל של מערכת קבצים מוצפנת דורשת את שחרור הכונן. נא לספק את מילת הצופן "
 "הנוכחית של הכונן."
 
-#: pkg/machines/components/vm/vmActions.jsx:104 pkg/systemd/overview.jsx:209
+#: pkg/machines/components/vm/vmActions.jsx:170 pkg/systemd/overview.jsx:209
 #: pkg/systemd/overview.jsx:226 pkg/systemd/services/service-details.jsx:128
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
@@ -5894,13 +5906,13 @@ msgstr "מתבצעת הפעלה מחדש"
 msgid "Restoring connection"
 msgstr "החיבור משוחזר"
 
-#: pkg/machines/components/vm/vmActions.jsx:64 pkg/systemd/logs.js:388
+#: pkg/machines/components/vm/vmActions.jsx:130 pkg/systemd/logs.js:388
 #: pkg/systemd/logs.js:1051
 msgid "Resume"
 msgstr "המשך"
 
 #: pkg/machines/components/vmSnapshotsRevertModal.jsx:74
-#: pkg/machines/components/vmSnapshotsTab.jsx:169
+#: pkg/machines/components/vmSnapshotsTab.jsx:195
 msgid "Revert"
 msgstr "החזרה אחורה"
 
@@ -5945,7 +5957,7 @@ msgstr "רשת מנותבת"
 msgid "Routes"
 msgstr "ניתובים"
 
-#: pkg/systemd/services.html:200 pkg/machines/components/vm/vmActions.jsx:120
+#: pkg/systemd/services.html:200 pkg/machines/components/vm/vmActions.jsx:186
 msgid "Run"
 msgstr "הפעלה"
 
@@ -5953,8 +5965,8 @@ msgstr "הפעלה"
 msgid "Run unattended installation"
 msgstr "הפעלת התקנה ללא מגע"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:93
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:167
+#: pkg/machines/components/networks/networkOverviewTab.jsx:101
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:173
 msgid "Run when host boots"
 msgstr "הפעלה עם עליית המארח"
 
@@ -5962,7 +5974,7 @@ msgstr "הפעלה עם עליית המארח"
 msgid "Runner"
 msgstr "שליח"
 
-#: pkg/machines/hostvmslist.jsx:124 pkg/storaged/mdraid-details.jsx:328
+#: pkg/machines/hostvmslist.jsx:92 pkg/storaged/mdraid-details.jsx:346
 #: pkg/systemd/services/service-details.jsx:318
 #: pkg/systemd/services/services.jsx:514
 msgid "Running"
@@ -5972,23 +5984,23 @@ msgstr "פועל"
 msgid "SELinux"
 msgstr "SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:357
+#: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "SELinux access control errors"
 msgstr "שגיאות בקרת גישה מ־SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:351
+#: pkg/selinux/setroubleshoot-view.jsx:354
 msgid "SELinux is disabled on the system"
 msgstr "SELinux מושבת במערכת"
 
-#: pkg/selinux/setroubleshoot-view.jsx:274
+#: pkg/selinux/setroubleshoot-view.jsx:277
 msgid "SELinux is disabled on the system."
 msgstr "SELinux מושבת במערכת."
 
-#: pkg/selinux/setroubleshoot-view.jsx:290
+#: pkg/selinux/setroubleshoot-view.jsx:293
 msgid "SELinux policy"
 msgstr "מדיניות SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:266
+#: pkg/selinux/setroubleshoot-view.jsx:269
 msgid "SELinux system status is unknown."
 msgstr "המצב של SELinux אינו ידוע."
 
@@ -6091,7 +6103,7 @@ msgstr "מחשב במארז אטום"
 msgid "Search"
 msgstr "חיפוש"
 
-#: pkg/systemd/logs.html:78
+#: pkg/systemd/logs.html:79
 msgid "Search the logs with a combination of terms:"
 msgstr "חיפוש ביומנים עם שילוב של הביטויים:"
 
@@ -6124,7 +6136,7 @@ msgstr "שליחה"
 msgid "Send key"
 msgstr "שליחת מקש"
 
-#: pkg/machines/components/vm/vmActions.jsx:93
+#: pkg/machines/components/vm/vmActions.jsx:159
 msgid "Send non-maskable interrupt"
 msgstr "שליחת פסיקה שלא ניתן למסך"
 
@@ -6138,17 +6150,17 @@ msgstr "שליחה"
 msgid "Serial console"
 msgstr "מסוף טורי"
 
-#: pkg/storaged/drive-details.jsx:76
+#: pkg/storaged/drive-details.jsx:82
 msgctxt "storage"
 msgid "Serial number"
 msgstr "מספר סידורי"
 
 #: src/ws/login.html:88 pkg/kdump/kdump-view.jsx:121
-#: pkg/storaged/nfs-details.jsx:314 pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/nfs-details.jsx:320 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "שרת"
 
-#: pkg/storaged/iscsi-panel.jsx:44 pkg/storaged/nfs-details.jsx:137
+#: pkg/storaged/iscsi-panel.jsx:44 pkg/storaged/nfs-details.jsx:142
 msgid "Server address"
 msgstr "כתובת השרת"
 
@@ -6160,7 +6172,7 @@ msgstr "כתובת השרת לא יכולה להיות ריקה."
 msgid "Server administrator"
 msgstr "הנהלת השרת"
 
-#: pkg/storaged/nfs-details.jsx:142
+#: pkg/storaged/nfs-details.jsx:147
 msgid "Server cannot be empty."
 msgstr "השרת לא יכול להיות ריק."
 
@@ -6172,7 +6184,7 @@ msgstr "השרת סגר את החיבור."
 msgid "Server software"
 msgstr "התכנה בשרת"
 
-#: pkg/dashboard/index.html:89
+#: pkg/dashboard/index.html:87
 msgid "Servers"
 msgstr "שרתים"
 
@@ -6222,7 +6234,7 @@ msgstr "הפעלה"
 msgid "Session is about to expire"
 msgstr "תוקף ההפעלה עומד לפוג"
 
-#: pkg/dashboard/index.html:185 pkg/shell/index.html:136
+#: pkg/dashboard/index.html:182 pkg/shell/index.html:136
 #: pkg/users/password-dialogs.js:257 pkg/users/password-dialogs.js:274
 msgid "Set"
 msgstr "הגדרה"
@@ -6255,7 +6267,7 @@ msgstr "הגדרה לכדי"
 msgid "Set up"
 msgstr "הקמה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:283
+#: pkg/selinux/setroubleshoot-view.jsx:286
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr "ההגדרה חורגת מהמצב המוגדר ותוחזר למצבה המקורי עם העלייה הבאה."
@@ -6307,7 +6319,7 @@ msgstr "להציג את כל $0 המכשירים"
 msgid "Show all $0 drives"
 msgstr "להציג את כל $0 הכוננים"
 
-#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
+#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:936 pkg/systemd/logs.js:1083
 msgid "Show filters"
 msgstr "הצגת מסננים"
 
@@ -6315,29 +6327,29 @@ msgstr "הצגת מסננים"
 msgid "Show fingerprints"
 msgstr "הצגת טביעות אצבע"
 
-#: pkg/storaged/lvol-tabs.jsx:325 pkg/storaged/lvol-tabs.jsx:388
+#: pkg/storaged/lvol-tabs.jsx:331 pkg/storaged/lvol-tabs.jsx:398
 msgid "Shrink"
 msgstr "כיווץ"
 
-#: pkg/storaged/lvol-tabs.jsx:321
+#: pkg/storaged/lvol-tabs.jsx:327
 msgid "Shrink logical volume"
 msgstr "כיווץ הכרך הלוגי"
 
-#: pkg/storaged/lvol-tabs.jsx:405
+#: pkg/storaged/lvol-tabs.jsx:415
 msgid "Shrink volume"
 msgstr "כיווץ כרך"
 
-#: pkg/machines/components/vm/vmActions.jsx:72
-#: pkg/machines/components/vm/vmActions.jsx:78 pkg/systemd/shutdown.js:96
+#: pkg/machines/components/vm/vmActions.jsx:138
+#: pkg/machines/components/vm/vmActions.jsx:144 pkg/systemd/shutdown.js:96
 #: pkg/systemd/shutdown.js:97
 msgid "Shut down"
 msgstr "כיבוי"
 
-#: pkg/machines/hostvmslist.jsx:125
+#: pkg/machines/hostvmslist.jsx:93
 msgid "Shut off"
 msgstr "לכבות"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:225
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:232
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr "יש לכבות את המכונה הווירטואלית כדי לערוך הגדרות קושחה"
 
@@ -6345,7 +6357,7 @@ msgstr "יש לכבות את המכונה הווירטואלית כדי לערו
 msgid "Shutdown"
 msgstr "כיבוי"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:124
+#: pkg/machines/components/vmSnapshotsTab.jsx:150
 msgid "Shutting down"
 msgstr "מתבצע כיבוי"
 
@@ -6359,10 +6371,10 @@ msgstr "שורה אחת"
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
 #: pkg/storaged/content-views.jsx:121 pkg/storaged/content-views.jsx:771
 #: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-panel.jsx:96
-#: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
-#: pkg/storaged/lvol-tabs.jsx:384 pkg/storaged/lvol-tabs.jsx:437
-#: pkg/storaged/nfs-details.jsx:320 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:277
+#: pkg/storaged/lvol-tabs.jsx:219 pkg/storaged/lvol-tabs.jsx:281
+#: pkg/storaged/lvol-tabs.jsx:394 pkg/storaged/lvol-tabs.jsx:452
+#: pkg/storaged/nfs-details.jsx:330 pkg/storaged/nfs-panel.jsx:104
+#: pkg/storaged/part-tab.jsx:45 pkg/systemd/hwinfo.jsx:277
 msgid "Size"
 msgstr "גודל"
 
@@ -6398,7 +6410,7 @@ msgstr "דילוג לתוכן"
 msgid "Slot"
 msgstr "משבצת"
 
-#: pkg/storaged/crypto-keyslots.jsx:547 pkg/storaged/mdraid-details.jsx:107
+#: pkg/storaged/crypto-keyslots.jsx:547 pkg/storaged/mdraid-details.jsx:114
 msgid "Slot $0"
 msgstr "משבצת $0"
 
@@ -6406,7 +6418,7 @@ msgstr "משבצת $0"
 msgid "Snapshot failed to be created"
 msgstr "יצירת תמונת המצב נכשלה"
 
-#: pkg/machines/components/vm/vmExpandedContent.jsx:50
+#: pkg/machines/components/vm/vmExpandedContent.jsx:133
 msgid "Snapshots"
 msgstr "תמונות מצב"
 
@@ -6432,15 +6444,15 @@ msgstr ""
 "מעקפי תכנה מסייעים למנוע תקלות אבטחה במעבד. לאפחותים אלו יש השפעות לוואי "
 "בדמות הפחתת ביצועים. שינוי ההגדרות האלו הוא על אחריותך בלבד."
 
-#: pkg/selinux/setroubleshoot-view.jsx:104
+#: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Solution applied successfully"
 msgstr "הפתרון חל בהצלחה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:110
+#: pkg/selinux/setroubleshoot-view.jsx:113
 msgid "Solution failed"
 msgstr "הפתרון נכשל"
 
-#: pkg/selinux/setroubleshoot-view.jsx:405
+#: pkg/selinux/setroubleshoot-view.jsx:408
 msgid "Solutions"
 msgstr "פתרונות"
 
@@ -6457,22 +6469,22 @@ msgstr "משהו השתבש"
 msgid "Sorted from least trusted to most trusted"
 msgstr "מסודר מהכי מהימן להכי פחות מהימן"
 
-#: pkg/machines/components/diskAdd.jsx:484
+#: pkg/machines/components/diskAdd.jsx:496
 #: pkg/machines/components/nicBody.jsx:146
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
-#: pkg/machines/components/vmDisksTab.jsx:117
-#: pkg/machines/components/vmnetworktab.jsx:176
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:53
+#: pkg/machines/components/vmDisksTab.jsx:228
+#: pkg/machines/components/vmnetworktab.jsx:239
 msgid "Source"
 msgstr "מקור"
 
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:57
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:58
 msgid "Source format"
 msgstr "תצורת מקור"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:208
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:235
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:42
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:47
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:43
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:48
 msgid "Source path"
 msgstr "נתיב מקור"
 
@@ -6501,13 +6513,19 @@ msgstr "פרוטוקול העץ הפורש"
 msgid "Spanning tree protocol (STP)"
 msgstr "פרוטוקול העץ הפורש (STP)"
 
-#: pkg/storaged/mdraid-details.jsx:97
+#: pkg/storaged/mdraid-details.jsx:104
 msgid "Spare"
 msgstr "עודף"
 
 #: pkg/systemd/index.html:85
 msgid "Specific time"
 msgstr "זמן מסוים"
+
+#: pkg/lib/machine-add.html:9
+msgid ""
+"Specify the host and the login user account for the host that you want to "
+"add."
+msgstr ""
 
 #: pkg/systemd/hwinfo.jsx:277
 msgid "Speed"
@@ -6518,8 +6536,8 @@ msgid "Stable"
 msgstr "יציב"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:236
-#: pkg/storaged/content-views.jsx:307 pkg/storaged/mdraid-details.jsx:305
-#: pkg/storaged/vdo-details.jsx:258
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/mdraid-details.jsx:314
+#: pkg/storaged/vdo-details.jsx:265
 #: pkg/systemd/services/service-details.jsx:135
 msgid "Start"
 msgstr "התחלה"
@@ -6532,7 +6550,7 @@ msgstr "התחלה והפעלה"
 msgid "Start libvirt"
 msgstr "הפעלת libvirt"
 
-#: pkg/storaged/multipath.jsx:69
+#: pkg/storaged/multipath.jsx:73
 msgid "Start multipath"
 msgstr "הפעלת רב נתיבי"
 
@@ -6564,13 +6582,14 @@ msgstr "בהתחלה"
 
 #: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/storagePools/storagePoolList.jsx:56
-#: pkg/machines/components/vmnetworktab.jsx:202
-#: pkg/machines/hostvmslist.jsx:112 pkg/machines/hostvmslist.jsx:148
-#: pkg/systemd/hwinfo.jsx:277 pkg/systemd/services/services-list.jsx:98
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:271
+#: pkg/machines/components/vmnetworktab.jsx:265 pkg/machines/hostvmslist.jsx:80
+#: pkg/machines/hostvmslist.jsx:118 pkg/systemd/hwinfo.jsx:277
+#: pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "מצב"
 
-#: pkg/storaged/mdraid-details.jsx:327
+#: pkg/storaged/mdraid-details.jsx:345
 msgctxt "storage"
 msgid "State"
 msgstr "מצב"
@@ -6593,8 +6612,8 @@ msgstr "מחשב מקלון"
 msgid "Sticky"
 msgstr "דביק"
 
-#: pkg/storaged/content-views.jsx:305 pkg/storaged/mdraid-details.jsx:304
-#: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
+#: pkg/storaged/content-views.jsx:305 pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/vdo-details.jsx:147 pkg/storaged/vdo-details.jsx:264
 #: pkg/systemd/services/service-details.jsx:131
 msgid "Stop"
 msgstr "עצירה"
@@ -6603,15 +6622,15 @@ msgstr "עצירה"
 msgid "Stop and disable"
 msgstr "עצירה והשבתה"
 
-#: pkg/storaged/nfs-details.jsx:283
+#: pkg/storaged/nfs-details.jsx:288
 msgid "Stop and remove"
 msgstr "עצירה והסרה"
 
-#: pkg/storaged/nfs-details.jsx:258
+#: pkg/storaged/nfs-details.jsx:263
 msgid "Stop and unmount"
 msgstr "עצירה וניתוק"
 
-#: pkg/storaged/mdraid-details.jsx:234
+#: pkg/storaged/mdraid-details.jsx:243
 msgid "Stop device"
 msgstr "עצירת התקן"
 
@@ -6694,8 +6713,8 @@ msgstr "אחסון מדדים"
 msgid "Store passphrase"
 msgstr "אחסון מילת צופן"
 
-#: pkg/storaged/crypto-tab.jsx:68 pkg/storaged/crypto-tab.jsx:70
-#: pkg/storaged/crypto-tab.jsx:127
+#: pkg/storaged/crypto-tab.jsx:74 pkg/storaged/crypto-tab.jsx:76
+#: pkg/storaged/crypto-tab.jsx:134
 msgid "Stored passphrase"
 msgstr "מילת צופן מאוחסנת"
 
@@ -6769,7 +6788,7 @@ msgid ""
 msgstr ""
 "הפעלת <b>$0</b> תקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/dashboard/index.html:187
+#: pkg/dashboard/index.html:184
 msgid "Synchronize users"
 msgstr "סנכרון משתמשים"
 
@@ -6804,7 +6823,7 @@ msgstr "פרטי המערכת"
 msgid "System is up to date"
 msgstr "המערכת עדכנית"
 
-#: pkg/selinux/setroubleshoot-view.jsx:453
+#: pkg/selinux/setroubleshoot-view.jsx:456
 msgid "System modifications"
 msgstr "שינויים במערכת"
 
@@ -6837,7 +6856,7 @@ msgid "Target"
 msgstr "יעד"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:112
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:63
 msgid "Target path"
 msgstr "נתיב יעד"
 
@@ -6890,7 +6909,7 @@ msgstr "בדיקת הגדרות kdump"
 msgid "Testing connection"
 msgstr "החיבור נבדק"
 
-#: pkg/systemd/logs.html:70
+#: pkg/systemd/logs.html:71
 msgid "Text"
 msgstr "טקסט"
 
@@ -6906,19 +6925,19 @@ msgstr "החבילה $0 חייבת להיות מותקנת כדי ליצור ה�
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "כתובת ה־IP או שם המארח לא יכולים להכיל רווח."
 
-#: pkg/storaged/mdraid-details.jsx:204
+#: pkg/storaged/mdraid-details.jsx:213
 msgid "The RAID array is in a degraded state"
 msgstr "מערך ה־RAID נמצא במצב ירוד"
 
-#: pkg/storaged/mdraid-details.jsx:143
+#: pkg/storaged/mdraid-details.jsx:150
 msgid "The RAID device must be running in order to add spare disks."
 msgstr "התקן ה־RAID חייב לפעול כדי להוסיף כוננים עודפים."
 
-#: pkg/storaged/mdraid-details.jsx:114
+#: pkg/storaged/mdraid-details.jsx:121
 msgid "The RAID device must be running in order to remove disks."
 msgstr "התקן ה־RAID חייב לפעול כדי להסיר כוננים."
 
-#: pkg/lib/machine-dialogs.js:722
+#: pkg/lib/machine-dialogs.js:721
 msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
@@ -6945,27 +6964,27 @@ msgstr ""
 "מפתח ה־SSH‏ {{#strong}}{{key}}{{/strong}} יהפוך לזמין עד ליציאה מהמערכת ויהיה "
 "זמין לכניסה למארחים אחרים גם כן."
 
-#: pkg/machines/components/vm/stateIcon.jsx:40
+#: pkg/machines/components/vm/stateIcon.jsx:42
 msgid "The VM crashed."
 msgstr "המכונה הווירטואלית קרסה."
 
-#: pkg/machines/components/vm/stateIcon.jsx:39
+#: pkg/machines/components/vm/stateIcon.jsx:41
 msgid "The VM is down."
 msgstr "המכונה הווירטואלית כבויה."
 
-#: pkg/machines/components/vm/stateIcon.jsx:38
+#: pkg/machines/components/vm/stateIcon.jsx:40
 msgid "The VM is going down."
 msgstr "המכונה הווירטואליות בהליכי כיבוי."
 
-#: pkg/machines/components/vm/stateIcon.jsx:36
+#: pkg/machines/components/vm/stateIcon.jsx:38
 msgid "The VM is idle."
 msgstr "המכונה הווירטואלית ממתינה."
 
-#: pkg/machines/components/vm/stateIcon.jsx:43
+#: pkg/machines/components/vm/stateIcon.jsx:45
 msgid "The VM is in process of dying (shut down or crash is not completed)."
 msgstr "המכונה הווירטואלית בתהליכי גסיסה (כיבוי או קריסה שלא הושלמה)."
 
-#: pkg/machines/components/vm/stateIcon.jsx:37
+#: pkg/machines/components/vm/stateIcon.jsx:39
 msgid "The VM is paused."
 msgstr "המכונה הווירטואלית הופסקה."
 
@@ -6973,16 +6992,16 @@ msgstr "המכונה הווירטואלית הופסקה."
 msgid "The VM is running and will be forced off before deletion."
 msgstr "המכונה הווירטואלית פועלת ויהיה עליך לכבות אותה לפני המחיקה."
 
-#: pkg/machines/components/vm/stateIcon.jsx:35
+#: pkg/machines/components/vm/stateIcon.jsx:37
 msgid "The VM is running."
 msgstr "המכונה הווירטואלית פועלת."
 
-#: pkg/machines/components/vm/stateIcon.jsx:47
+#: pkg/machines/components/vm/stateIcon.jsx:49
 msgid "The VM is suspended by guest power management."
 msgstr "המכונה הווירטואלית מושהית על ידי ניהול צריכת החשמל של האורח."
 
-#: pkg/machines/components/vmDisksTab.jsx:180
-#: pkg/machines/components/vmnetworktab.jsx:240
+#: pkg/machines/components/vmDisksTab.jsx:291
+#: pkg/machines/components/vmnetworktab.jsx:303
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr "על המכונה הווירטואלית להיות פעילה או כבויה כדי לנתק את ההתקן הזה"
 
@@ -7005,11 +7024,11 @@ msgstr "שירות ה־cockpit נכלל אוטומטית"
 msgid "The collected information will be stored locally on the system."
 msgstr "המידע שנאסף יאוחסן מקומית על המערכת."
 
-#: pkg/selinux/setroubleshoot-view.jsx:281
+#: pkg/selinux/setroubleshoot-view.jsx:284
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr "המצב שמוגדר אינו ידוע, זה עשוי להשתנות בעלייה הבאה של המערכת."
 
-#: pkg/storaged/vdo-details.jsx:101
+#: pkg/storaged/vdo-details.jsx:108
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
 msgstr "יצירת התקן ה־VDO הזה לא הסתיימה ולא ניתן להשתמש בהתקן."
@@ -7023,15 +7042,15 @@ msgstr "המשתמש שמחובר כרגע אינו מורשה לצפות במי
 msgid "The directory on the server being exported"
 msgstr "התיקייה על השרת שמיוצא"
 
-#: pkg/storaged/fsys-tab.jsx:407
+#: pkg/storaged/fsys-tab.jsx:413
 msgid "The filesystem has no permanent mount point."
 msgstr "למערכת הקבצים אין נקודת עגינה קבועה."
 
-#: pkg/storaged/fsys-tab.jsx:271
+#: pkg/storaged/fsys-tab.jsx:277
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
 msgstr "מערכת הקבצים כבר מעוגנת תחת $0. המשך הפעולה ינתק את העיגון."
 
-#: pkg/storaged/fsys-tab.jsx:488
+#: pkg/storaged/fsys-tab.jsx:494
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -7039,26 +7058,26 @@ msgstr ""
 "מערכת הקבצים מוגדרת להתעגן אוטומטית עם הפעלת המערכת אבל מכולת ההצפנה שלה לא "
 "תשוחרר באותו הזמן."
 
-#: pkg/storaged/fsys-tab.jsx:480
+#: pkg/storaged/fsys-tab.jsx:486
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr "מערכת הקבצים מעוגנת כעת אך העיגון ינותק לאחר העלייה הבאה של המערכת."
 
-#: pkg/storaged/fsys-tab.jsx:472
+#: pkg/storaged/fsys-tab.jsx:478
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr ""
 "מערכת הקבצים מעוגנת למיקום $0 אך תעוגן למיקום $1 עם העלייה הבאה של המערכת."
 
-#: pkg/storaged/fsys-tab.jsx:484
+#: pkg/storaged/fsys-tab.jsx:490
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr "מערכת הקבצים מעוגנת למיקום $0 אך לא תעוגן עם העלייה הבאה של המערכת."
 
-#: pkg/storaged/fsys-tab.jsx:476
+#: pkg/storaged/fsys-tab.jsx:482
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr "מערכת הקבצים אינה מעוגנת כעת אך היא תעוגן עם ההפעלה הבאה של המערכת."
@@ -7080,7 +7099,7 @@ msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr "מערכת הקבצים בשימוש על ידי שירותי מערכת. המשך הפעילות תעצור אותם."
 
-#: pkg/storaged/fsys-tab.jsx:409
+#: pkg/storaged/fsys-tab.jsx:415
 msgid "The filesystem is not mounted."
 msgstr "מערכת הקבצים אינה מעוגנת."
 
@@ -7103,11 +7122,11 @@ msgstr ""
 "אלמלא המכונה הזאת הוחלפה לאחרונה, כנראה שמישהו מנסה לתקוף את החיבור שלך "
 "למכונה הזאת."
 
-#: pkg/lib/machine-dialogs.js:833
+#: pkg/lib/machine-dialogs.js:832
 msgid "The key password can not be empty"
 msgstr "ססמת המפתח לא יכולה להישאר ריקה"
 
-#: pkg/lib/machine-dialogs.js:841
+#: pkg/lib/machine-dialogs.js:840
 msgid "The key passwords do not match"
 msgstr "ססמאות המפתח אינן תואמות"
 
@@ -7115,7 +7134,7 @@ msgstr "ססמאות המפתח אינן תואמות"
 msgid "The key you provided was not valid."
 msgstr "המפתח שסיפקת אינו תקף."
 
-#: pkg/storaged/mdraid-details.jsx:120
+#: pkg/storaged/mdraid-details.jsx:127
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "לא ניתן להסיר את הכונן האחרון של התקן ה־RAID."
 
@@ -7123,7 +7142,7 @@ msgstr "לא ניתן להסיר את הכונן האחרון של התקן ה־
 msgid "The last key slot can not be removed"
 msgstr "לא ניתן להסיר את משבצת המפתח האחרונה"
 
-#: pkg/storaged/vgroup-details.jsx:95
+#: pkg/storaged/vgroup-details.jsx:101
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "לא ניתן להסיר את הכרך הפיזי האחרון של קבוצת כרכים."
 
@@ -7135,11 +7154,11 @@ msgstr "המשתמש הנוכחי שנכנס למערכת אינו מורשה ל
 msgid "The machine is restarting"
 msgstr "המכונה מופעלת מחדש"
 
-#: pkg/lib/machine-dialogs.js:849
+#: pkg/lib/machine-dialogs.js:848
 msgid "The new key password can not be empty"
 msgstr "ססמת המפתח החדשה לא יכולה להישאר ריקה"
 
-#: pkg/lib/machine-dialogs.js:854
+#: pkg/lib/machine-dialogs.js:853
 msgid "The new key passwords do not match"
 msgstr "ססמאות המפתח החדשות אינן תואמות"
 
@@ -7208,7 +7227,7 @@ msgstr "הגדרות הדפדפן מונעות מ־Cockpit לפעול ($0 בלת
 msgid "There are currently no active pages"
 msgstr "אין דפים פעילים כרגע"
 
-#: pkg/storaged/multipath.jsx:71
+#: pkg/storaged/multipath.jsx:75
 msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
@@ -7222,7 +7241,7 @@ msgstr "אין שירותים פעילים באזור הזה"
 msgid "There are no authorized public keys for this account."
 msgstr "אין מפתחות ציבוריים מורשים לחשבון זה."
 
-#: pkg/storaged/vgroup-details.jsx:101
+#: pkg/storaged/vgroup-details.jsx:107
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -7247,15 +7266,15 @@ msgstr "הייתה שגיאה בלתי צפויה בעת ההתחברות למכ
 msgid "Thin logical volume"
 msgstr "כרך לוגי צר"
 
-#: pkg/storaged/nfs-details.jsx:114
+#: pkg/storaged/nfs-details.jsx:119
 msgid "This NFS mount is in use and only its options can be changed."
 msgstr "עיגון NFS זה נמצא בשימוש ואפשר לשנות רק את האפשרויות שלו."
 
-#: pkg/storaged/vdo-details.jsx:115
+#: pkg/storaged/vdo-details.jsx:122
 msgid "This VDO device does not use all of its backing device."
 msgstr "התקן VDO זה אינו משתמש בכל ההתקן המגבה שלו."
 
-#: pkg/machines/components/vm/vmActions.jsx:135
+#: pkg/machines/components/vm/vmActions.jsx:201
 msgid "This VM is transient. Shut it down if you wish to delete it."
 msgstr "זו מכונה וירטואלית זמנית. ניתן לכבות אותה אם ברצונך למחוק אותה."
 
@@ -7309,7 +7328,13 @@ msgstr ""
 msgid "This didn't work, please try again"
 msgstr "זה לא עבד, נא לנסות שוב"
 
-#: pkg/storaged/mdraid-details.jsx:116
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:158
+#, fuzzy
+#| msgid "ssh server is empty"
+msgid "This directory is empty"
+msgstr "שרת ה־ssh ריק"
+
+#: pkg/storaged/mdraid-details.jsx:123
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "לא ניתן להסיר את הכונן הזה בזמן שההתקן משתקם."
 
@@ -7319,7 +7344,7 @@ msgstr "לא ניתן להסיר את הכונן הזה בזמן שההתקן מ
 msgid "This field cannot be empty."
 msgstr "שדה זה לא יכול להישאר ריק."
 
-#: pkg/storaged/lvol-tabs.jsx:400
+#: pkg/storaged/lvol-tabs.jsx:410
 msgid "This logical volume is not completely used by its content."
 msgstr "בכרך לוגי זה לא נעשה שימוש מלא על ידי התוכן שלו."
 
@@ -7380,7 +7405,7 @@ msgstr "כרך זה כבר בשימוש על ידי מכונה וירטואלי�
 msgid "This volume is already used by: "
 msgstr "כרך זה כבר בשימוש על ידי: "
 
-#: pkg/storaged/lvol-tabs.jsx:188
+#: pkg/storaged/lvol-tabs.jsx:194
 msgid "This volume needs to be activated before it can be resized."
 msgstr "יש להפעיל את הכרך הזה לפני שיתאפשר לשנות את גודלו."
 
@@ -7392,7 +7417,7 @@ msgstr "דפדפן זה מיושן מכדי להריץ את Cockpit (חסר $0)"
 msgid "This web console will be updated."
 msgstr "מסוף מקוון זה יעודכן."
 
-#: pkg/lib/machine-dialogs.js:724
+#: pkg/lib/machine-dialogs.js:723
 msgid "This will allow you to log in without password in the future."
 msgstr "הגדרה זו תאפשר לך להיכנס ללא ססמה בעתיד."
 
@@ -7429,7 +7454,7 @@ msgstr "יום חמישי"
 msgid "Thursdays"
 msgstr "ימי חמישי"
 
-#: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:109
+#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:109
 msgid "Time"
 msgstr "שעה"
 
@@ -7481,7 +7506,7 @@ msgstr "גודל כולל: $0"
 msgid "Tower"
 msgstr "מארז גבוה"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:231
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:238
 msgid "Transient VMs don't support editing firmware configuration"
 msgstr "מכונות וירטואליות זמניות לא תומכות בעריכת הגדרות קושחה"
 
@@ -7544,16 +7569,16 @@ msgstr "הפעלת גישה ניהולית"
 
 #: pkg/shell/index.html:340
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:78
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
 #: pkg/machines/components/vm/bootOrderModal.jsx:119
 #: pkg/machines/components/vm/bootOrderModal.jsx:125
 #: pkg/machines/components/vm/bootOrderModal.jsx:131
 #: pkg/machines/components/vm/bootOrderModal.jsx:138
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
-#: pkg/machines/components/vmnetworktab.jsx:136
-#: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:72
+#: pkg/machines/components/vmnetworktab.jsx:199
+#: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:55
+#: pkg/storaged/unrecognized-tab.jsx:41 pkg/systemd/hwinfo.jsx:72
 #: pkg/systemd/hwinfo.jsx:277
 msgid "Type"
 msgstr "סוג"
@@ -7562,7 +7587,7 @@ msgstr "סוג"
 msgid "Type ID"
 msgstr "מזהה סוג"
 
-#: pkg/systemd/logs.html:72
+#: pkg/systemd/logs.html:73
 msgid "Type to filter"
 msgstr "יש להקליד כדי לסנן"
 
@@ -7574,11 +7599,11 @@ msgstr "UDP"
 msgid "URL"
 msgstr "כתובת"
 
-#: pkg/storaged/part-tab.jsx:39
+#: pkg/storaged/part-tab.jsx:50
 msgid "UUID"
 msgstr "מזהה ייחודי"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vgroup-details.jsx:223
+#: pkg/storaged/mdraid-details.jsx:328 pkg/storaged/vgroup-details.jsx:230
 msgctxt "storage"
 msgid "UUID"
 msgstr "מזהה ייחודי"
@@ -7587,7 +7612,7 @@ msgstr "מזהה ייחודי"
 msgid "Unable to apply settings: $0"
 msgstr "לא ניתן להחיל את ההגדרות: $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:129
+#: pkg/selinux/setroubleshoot-view.jsx:132
 msgid "Unable to apply this solution automatically"
 msgstr "לא ניתן להחיל את הפתרון הזה אוטומטית"
 
@@ -7607,8 +7632,8 @@ msgstr ""
 msgid "Unable to contact {{#strong}}{{host}}{{/strong}}."
 msgstr "לא ניתן ליצור קשר עם {{#strong}}{{host}}{{/strong}}."
 
-#: pkg/selinux/setroubleshoot-view.jsx:75
-#: pkg/selinux/setroubleshoot-view.jsx:208
+#: pkg/selinux/setroubleshoot-view.jsx:78
+#: pkg/selinux/setroubleshoot-view.jsx:211
 msgid "Unable to get alert details."
 msgstr "לא ניתן לקבל פרטי אזעקה."
 
@@ -7657,7 +7682,7 @@ msgstr ""
 msgid "Unable to reach server"
 msgstr "לא ניתן להגיע לשרת"
 
-#: pkg/storaged/nfs-details.jsx:281
+#: pkg/storaged/nfs-details.jsx:286
 msgid "Unable to remove mount"
 msgstr "לא ניתן להסיר עיגון"
 
@@ -7669,11 +7694,11 @@ msgstr "לא ניתן להפעיל תיקון: %0"
 msgid "Unable to start setroubleshootd"
 msgstr "לא ניתן להפעיל את setroubleshootd"
 
-#: pkg/storaged/nfs-details.jsx:256
+#: pkg/storaged/nfs-details.jsx:261
 msgid "Unable to unmount filesystem"
 msgstr "לא ניתן לנתק את מערכת הקבצים"
 
-#: pkg/playground/translate.html:33 pkg/playground/translate.html:38
+#: pkg/playground/translate.html:35 pkg/playground/translate.html:40
 msgid "Unavailable"
 msgstr "לא זמין"
 
@@ -7700,10 +7725,10 @@ msgid "Unix group: $0"
 msgstr "קבוצת יוניקס: $0"
 
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
-#: pkg/machines/components/vmnetworktab.jsx:165
+#: pkg/machines/components/vmnetworktab.jsx:228
 #: pkg/networkmanager/interfaces.js:582 pkg/networkmanager/interfaces.js:1058
 #: pkg/networkmanager/interfaces.js:2530 pkg/networkmanager/interfaces.js:2532
-#: pkg/storaged/fsys-tab.jsx:384 pkg/storaged/swap-tab.jsx:55
+#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
 msgid "Unknown"
 msgstr "לא ידוע"
 
@@ -7711,7 +7736,7 @@ msgstr "לא ידוע"
 msgid "Unknown \"$0\""
 msgstr "„$0” לא ידוע"
 
-#: pkg/storaged/mdraid-details.jsx:100
+#: pkg/storaged/mdraid-details.jsx:107
 msgid "Unknown ($0)"
 msgstr "לא ידוע ($0)"
 
@@ -7723,7 +7748,7 @@ msgstr "יישום לא ידוע"
 msgid "Unknown configuration"
 msgstr "הגדרות לא ידועות"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:203
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:210
 msgid "Unknown firmware"
 msgstr "קושחה לא ידועה"
 
@@ -7772,16 +7797,16 @@ msgstr "הכונן משוחרר…"
 msgid "Unmanaged interfaces"
 msgstr "מנשקים לא מנוהלים"
 
-#: pkg/storaged/content-views.jsx:373 pkg/storaged/fsys-tab.jsx:284
-#: pkg/storaged/nfs-details.jsx:299
+#: pkg/storaged/content-views.jsx:373 pkg/storaged/fsys-tab.jsx:290
+#: pkg/storaged/nfs-details.jsx:304
 msgid "Unmount"
 msgstr "ניתוק"
 
-#: pkg/storaged/fsys-tab.jsx:278
+#: pkg/storaged/fsys-tab.jsx:284
 msgid "Unmount filesystem"
 msgstr "ניתוק מערכת קבצים"
 
-#: pkg/storaged/fsys-tab.jsx:482 pkg/storaged/fsys-tab.jsx:486
+#: pkg/storaged/fsys-tab.jsx:488 pkg/storaged/fsys-tab.jsx:492
 msgid "Unmount now"
 msgstr "לנתק כעת"
 
@@ -7793,7 +7818,7 @@ msgstr "$target מנותק"
 msgid "Unnamed"
 msgstr "ללא שם"
 
-#: pkg/machines/components/vmnetworktab.jsx:245
+#: pkg/machines/components/vmnetworktab.jsx:309
 msgid "Unplug"
 msgstr "הוצאה מהשקע"
 
@@ -7806,7 +7831,7 @@ msgctxt "storage-id-desc"
 msgid "Unrecognized data"
 msgstr "נתונים לא מזוהים"
 
-#: pkg/storaged/lvol-tabs.jsx:91 pkg/storaged/lvol-tabs.jsx:180
+#: pkg/storaged/lvol-tabs.jsx:97 pkg/storaged/lvol-tabs.jsx:186
 msgid "Unrecognized data can not be made smaller here."
 msgstr "לא ניתן להקטין כאן נתונים בלתי מזוהים."
 
@@ -7830,7 +7855,7 @@ msgstr "היסטוריית עדכונים"
 msgid "Update log"
 msgstr "יומן עדכונים"
 
-#: pkg/apps/application-list.jsx:148
+#: pkg/apps/application-list.jsx:149
 msgid "Update package information"
 msgstr "פרטי חבילת עדכון"
 
@@ -7866,8 +7891,8 @@ msgstr "זמן פעילות"
 msgid "Url"
 msgstr "כתובת"
 
-#: pkg/machines/components/vm/vmExpandedContent.jsx:44
-#: pkg/storaged/unrecognized-tab.jsx:30
+#: pkg/machines/components/vm/vmExpandedContent.jsx:90
+#: pkg/storaged/unrecognized-tab.jsx:37
 #: pkg/systemd/overview-cards/usageCard.jsx:116
 msgid "Usage"
 msgstr "שימוש"
@@ -7888,7 +7913,7 @@ msgstr[3] "שימוש מתוך $0 ליבות מעבד"
 msgid "Use 512 byte emulation"
 msgstr "להשתמש בהדמיית 512 בתים"
 
-#: pkg/machines/components/diskAdd.jsx:504
+#: pkg/machines/components/diskAdd.jsx:516
 msgid "Use existing"
 msgstr "להשתמש בקיים"
 
@@ -7896,10 +7921,9 @@ msgstr "להשתמש בקיים"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "להשתמש במפתחות הבאים כדי להתאמת מול שרתים אחרים"
 
-#: pkg/systemd/graphs.html:163 pkg/machines/components/vm/vmUsageTab.jsx:65
-#: pkg/machines/components/vm/vmUsageTab.jsx:76
-#: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:523
-#: pkg/storaged/swap-tab.jsx:63 pkg/systemd/graphs.js:393
+#: pkg/systemd/graphs.html:163 pkg/machines/components/vmDisksTab.jsx:220
+#: pkg/storaged/fsys-tab.jsx:536 pkg/storaged/swap-tab.jsx:70
+#: pkg/systemd/graphs.js:393
 msgid "Used"
 msgstr "בשימוש"
 
@@ -7907,13 +7931,13 @@ msgstr "בשימוש"
 msgid "Used by"
 msgstr "בשימוש על ידי"
 
-#: pkg/dashboard/index.html:155 pkg/playground/translate.html:84
-#: pkg/playground/translate.html:104 pkg/shell/index.html:114
+#: pkg/dashboard/index.html:152 pkg/playground/translate.html:86
+#: pkg/playground/translate.html:106 pkg/shell/index.html:114
 #: pkg/systemd/graphs.html:136 pkg/systemd/graphs.js:299
 msgid "User"
 msgstr "משתמש"
 
-#: pkg/lib/machine-add.html:22
+#: pkg/lib/machine-add.html:26
 #: pkg/systemd/overview-cards/realmd-operation.html:56 src/ws/login.html:50
 #: pkg/users/account-create-dialog.js:46 pkg/users/account-details.js:275
 msgid "User name"
@@ -7945,15 +7969,15 @@ msgctxt "storage-id-desc"
 msgid "VDO backing"
 msgstr "גיבוי VDO"
 
-#: pkg/storaged/lvol-tabs.jsx:86 pkg/storaged/lvol-tabs.jsx:173
+#: pkg/storaged/lvol-tabs.jsx:92 pkg/storaged/lvol-tabs.jsx:179
 msgid "VDO backing devices can not be made smaller"
 msgstr "אין אפשרות להקטין התקני גיבוי VDO"
 
-#: pkg/storaged/pvol-tabs.jsx:80 pkg/storaged/vdos-panel.jsx:57
+#: pkg/storaged/pvol-tabs.jsx:87 pkg/storaged/vdos-panel.jsx:57
 msgid "VDO device"
 msgstr "התקן VDO"
 
-#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:254
+#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:261
 msgid "VDO device $0"
 msgstr "התקן VDO‏ $0"
 
@@ -7974,47 +7998,48 @@ msgstr "הגדרות VLAN"
 msgid "VM $0 already exists"
 msgstr "המכונה הווירטואלית $0 כבר קיימת"
 
-#: pkg/machines/hostvmslist.jsx:180
+#: pkg/machines/components/vm/vmActions.jsx:77
 msgid "VM $0 failed to force reboot"
 msgstr "הפעלת המכונה הווירטואלית $0 מחדש בכוח נכשלה"
 
-#: pkg/machines/hostvmslist.jsx:204
+#: pkg/machines/components/vm/vmActions.jsx:101
 msgid "VM $0 failed to force shutdown"
 msgstr "כיבוי המכונה הווירטואלית $0 בכוח נכשל"
 
-#: pkg/machines/components/deleteDialog.jsx:124
+#: pkg/machines/components/deleteDialog.jsx:125
 msgid "VM $0 failed to get deleted"
 msgstr "מחיקת המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/hostvmslist.jsx:168 pkg/machines/libvirt-common.js:1388
+#: pkg/machines/components/vm/vmActions.jsx:65
+#: pkg/machines/libvirt-common.js:1388
 msgid "VM $0 failed to get installed"
 msgstr "התקנת המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/hostvmslist.jsx:192
+#: pkg/machines/components/vm/vmActions.jsx:89
 msgid "VM $0 failed to pause"
 msgstr "השהיית המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/hostvmslist.jsx:174
+#: pkg/machines/components/vm/vmActions.jsx:71
 msgid "VM $0 failed to reboot"
 msgstr "הפעלת המכונה הווירטואלית $0 מחדש נכשלה"
 
-#: pkg/machines/hostvmslist.jsx:198
+#: pkg/machines/components/vm/vmActions.jsx:95
 msgid "VM $0 failed to resume"
 msgstr "המשך המכונה הווירטואלית $0 נכשל"
 
-#: pkg/machines/hostvmslist.jsx:210
+#: pkg/machines/components/vm/vmActions.jsx:107
 msgid "VM $0 failed to send NMI"
 msgstr "המכונה הווירטואלית $0 נכשלה בשליחת פסיקה ללא אפשרות מיסוך (NMI)"
 
-#: pkg/machines/hostvmslist.jsx:186
+#: pkg/machines/components/vm/vmActions.jsx:83
 msgid "VM $0 failed to shutdown"
 msgstr "כיבוי המכונה הווירטואלית $0 נכשל"
 
-#: pkg/machines/hostvmslist.jsx:162
+#: pkg/machines/components/vm/vmActions.jsx:59
 msgid "VM $0 failed to start"
 msgstr "הפעלת המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:116
+#: pkg/machines/components/vmSnapshotsTab.jsx:142
 msgid "VM state"
 msgstr "מצב מכונה וירטואלית"
 
@@ -8098,7 +8123,9 @@ msgstr "מכונות וירטואליות"
 
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/storagePoolList.jsx:47
-#: pkg/machines/hostvmslist.jsx:141
+#: pkg/machines/components/vm/vmExpandedContent.jsx:64
+#: pkg/machines/components/vm/vmExpandedContent.jsx:161
+#: pkg/machines/hostvmslist.jsx:111
 msgid "Virtual machines"
 msgstr "מכונות וירטואליות"
 
@@ -8131,11 +8158,11 @@ msgstr "כרך"
 msgid "Volume failed to be created"
 msgstr "יצירת הכרך נכשלה"
 
-#: pkg/storaged/pvol-tabs.jsx:35 pkg/storaged/vgroups-panel.jsx:40
+#: pkg/storaged/pvol-tabs.jsx:41 pkg/storaged/vgroups-panel.jsx:40
 msgid "Volume group"
 msgstr "קבוצת כרכים"
 
-#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:214
+#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:220
 msgid "Volume group $0"
 msgstr "קבוצת כרכים $0"
 
@@ -8147,7 +8174,7 @@ msgstr "שם קבוצת הכרכים"
 msgid "Volume group name should not be empty"
 msgstr "שם קבוצת הכרכים לא אמור להיות ריק"
 
-#: pkg/storaged/lvol-tabs.jsx:401
+#: pkg/storaged/lvol-tabs.jsx:411
 msgid "Volume size is $0. Content size is $1."
 msgstr "גודל הכרך הוא $0. גודל התוכן הוא $1."
 
@@ -8159,8 +8186,8 @@ msgstr "WWPN"
 msgid "Waiting"
 msgstr "בהמתנה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:73
-#: pkg/selinux/setroubleshoot-view.jsx:206
+#: pkg/selinux/setroubleshoot-view.jsx:76
+#: pkg/selinux/setroubleshoot-view.jsx:209
 msgid "Waiting for details..."
 msgstr "בהמתנה לפרטים…"
 
@@ -8189,7 +8216,7 @@ msgstr "נדרש על ידי"
 msgid "Wants"
 msgstr "דורש"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.html:56
 msgid "Warning and above"
 msgstr "אזהרה ומעלה"
 
@@ -8225,22 +8252,22 @@ msgstr "מה אם tang-show-keys אינו זמין?"
 msgid "White"
 msgstr "לבן"
 
-#: pkg/storaged/drive-details.jsx:77
+#: pkg/storaged/drive-details.jsx:83
 msgctxt "storage"
 msgid "World wide name"
 msgstr "שם בינלאומי (WWN)"
 
-#: pkg/storaged/mdraid-details.jsx:98
+#: pkg/storaged/mdraid-details.jsx:105
 msgid "Write-mostly"
 msgstr "בעיקר כתיבה"
 
 #: pkg/machines/components/diskEdit.jsx:118
-#: pkg/machines/components/vmDisksTab.jsx:143
+#: pkg/machines/components/vmDisksTab.jsx:254
 msgid "Writeable"
 msgstr "ניתן לכתיבה"
 
 #: pkg/machines/components/diskEdit.jsx:131
-#: pkg/machines/components/vmDisksTab.jsx:143
+#: pkg/machines/components/vmDisksTab.jsx:254
 msgid "Writeable and shared"
 msgstr "ניתן לכתיבה ומשותף"
 
@@ -8385,7 +8412,7 @@ msgstr "תוספת"
 msgid "and restart the machine automatically."
 msgstr "ולהפעיל את המכונה מחדש אוטומטית."
 
-#: pkg/systemd/logs.html:82
+#: pkg/systemd/logs.html:83
 msgid "any free-form string as regular expression"
 msgstr "כל מחרוזת חופשית כביטוי רגולרי"
 
@@ -8519,7 +8546,7 @@ msgstr "כונן"
 msgid "dying"
 msgstr "גוסס"
 
-#: pkg/systemd/logs.html:80 pkg/systemd/logs.html:81
+#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
 msgid "e.g."
 msgstr "למשל:"
 
@@ -8669,7 +8696,7 @@ msgstr "iso"
 msgid "journal"
 msgstr "ז׳ורנל"
 
-#: pkg/systemd/logs.html:86
+#: pkg/systemd/logs.html:87
 msgid "journalctl manpage"
 msgstr "מדריך השימוש ב־journalctl"
 
@@ -8697,7 +8724,7 @@ msgstr "libvirt"
 msgid "locally in $0"
 msgstr "מקומית ב־$0"
 
-#: pkg/systemd/logs.html:81
+#: pkg/systemd/logs.html:82
 msgid "log fields"
 msgstr "שדות יומן"
 
@@ -8762,14 +8789,14 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "יעד היטל ה־nfs אינו כתוב בצורה server:path"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:84
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:71
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/helpers.js:246
 msgid "no"
 msgstr "לא"
 
-#: pkg/machines/components/vmSnapshotsTab.jsx:119
+#: pkg/machines/components/vmSnapshotsTab.jsx:145
 msgid "no state saved"
 msgstr "לא נשמר מצב"
 
@@ -8849,7 +8876,7 @@ msgstr "qcow2"
 msgid "qemu"
 msgstr "qemu"
 
-#: pkg/systemd/logs.html:80
+#: pkg/systemd/logs.html:81
 msgid "qualifiers"
 msgstr "קטגוריות"
 
@@ -8861,7 +8888,7 @@ msgstr "raid"
 msgid "ram"
 msgstr "זיכרון"
 
-#: pkg/storaged/fsys-tab.jsx:394
+#: pkg/storaged/fsys-tab.jsx:400
 msgid "read only"
 msgstr "קריאה בלבד"
 
@@ -8941,7 +8968,7 @@ msgstr "לכבות"
 msgid "socket"
 msgstr "שקע"
 
-#: pkg/selinux/setroubleshoot-view.jsx:162
+#: pkg/selinux/setroubleshoot-view.jsx:165
 msgid "solution details"
 msgstr "פרטי הפתרון"
 
@@ -9058,7 +9085,7 @@ msgstr "כמות מעבדים וירטואליים"
 msgid "vCPU maximum"
 msgstr "מעבד וירטואלי מרבי"
 
-#: pkg/machines/components/vmOverviewTabLibvirt.jsx:263
+#: pkg/machines/components/vmOverviewTabLibvirt.jsx:283
 msgid "vCPUs"
 msgstr "מעבדים וירטואליים"
 
@@ -9097,9 +9124,9 @@ msgstr "כרך"
 msgid "warning"
 msgstr "אזהרה"
 
-#: pkg/machines/components/networks/networkOverviewTab.jsx:84
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:71
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/helpers.js:245
 msgid "yes"
 msgstr "כן"
@@ -9111,6 +9138,21 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "אזור"
+
+#~ msgid "Add a new host"
+#~ msgstr "הוספת מארח חדש"
+
+#~ msgid "Available"
+#~ msgstr "זמין"
+
+#~ msgid "Enter IP address or hostname"
+#~ msgstr "נא למלא כתובת IP או שם מארח"
+
+#~ msgid "Entry"
+#~ msgstr "רשומה"
+
+#~ msgid "Network interfaces"
+#~ msgstr "מנשקי רשת"
 
 #~ msgid ""
 #~ "This version of cockpit-ws does not support connecting to a host with an "

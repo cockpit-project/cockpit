@@ -87,10 +87,10 @@ export function install_dialog(pkg, options) {
 
         if (progress_message)
             footer_message = (
-                <div>
-                    <div className="spinner spinner-sm" />
+                <>
                     <span>{ progress_message }</span>
-                </div>
+                    <div className="spinner spinner-sm" />
+                </>
             );
         else if (data && data.download_size) {
             footer_message = (

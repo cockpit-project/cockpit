@@ -63,7 +63,7 @@ svg {
         flex-wrap: wrap;
         gap: var(--pf-global--spacer--sm);
 
-        div:not(.pf-c-button), .pf-c-alert {
+        > div:not(.pf-c-button):not(.dialog-wait-ct) {
             flex: 0 0 100%;
         }
     }

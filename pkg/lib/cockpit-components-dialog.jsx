@@ -167,12 +167,12 @@ export class DialogFooter extends React.Component {
             actions_disabled = true;
             if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
                 cancel_disabled = true;
-            wait_element = <div className="dialog-wait-ct pull-right">
+            wait_element = <div className="dialog-wait-ct">
                 <span>{ this.state.action_progress_message }</span>
                 <div className="spinner spinner-sm" />
             </div>;
         } else if (this.props.idle_message) {
-            wait_element = <div className="dialog-wait-ct pull-right">
+            wait_element = <div className="dialog-wait-ct">
                 { this.props.idle_message }
             </div>;
         }

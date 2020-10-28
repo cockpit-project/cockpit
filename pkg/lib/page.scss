@@ -155,10 +155,14 @@ a.disabled:hover {
 
 .dialog-wait-ct {
     margin-top: 3px;
+    /* Right align footer idle messages after the buttons */
+    margin-left: auto;
 }
 
 .dialog-wait-ct .spinner {
     display: inline-block;
+    /* Add spacing betweem possible messages and the spinner */
+    margin-left: var(--pf-global--spacer--md);
 }
 
 .dialog-wait-ct span {

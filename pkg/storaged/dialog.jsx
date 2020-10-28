@@ -391,7 +391,8 @@ export const dialog_open = (def) => {
         return {
             idle_message: (running_promise
                 ? <>
-                    <div className="spinner spinner-sm" /><span>{running_title}</span>
+                    <span>{running_title}</span>
+                    <div className="spinner spinner-sm" />
                 </>
                 : null),
             extra_element: extra,

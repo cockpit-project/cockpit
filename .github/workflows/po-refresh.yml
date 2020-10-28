@@ -8,10 +8,14 @@ on:
   workflow_dispatch:
 jobs:
   po-refresh:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Set up dependencies
-        run: sudo apt-get install -y --no-install-recommends npm make gettext
+        run: |
+          sudo apt-get install -y --no-install-recommends npm make gettext pkg-config \
+              libpolkit-agent-1-dev libpolkit-gobject-1-dev libsystemd-dev libjson-glib-dev \
+              libgnutls28-dev libkrb5-dev libssh-dev libpam0g-dev libpcp3-dev libpcp-import1-dev libpcp-pmda3-dev \
+              xsltproc xmlto
 
       - name: Set up configuration and secrets
         run: |

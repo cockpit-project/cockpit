@@ -20,6 +20,7 @@
 import React from 'react';
 
 import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../helpers.js';
+import { FormGroup, Radio } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
@@ -29,28 +30,17 @@ export const MachinesConnectionSelector = ({ onValueChanged, loggedUser, connect
         return null;
 
     return (
-        <>
-            <label className="control-label" htmlFor={id}>
-                {_("Connection")}
-            </label>
-            <fieldset className='form-inline' id={id}>
-                <div className='radio'>
-                    <label>
-                        <input type="radio"
-                               checked={connectionName === LIBVIRT_SYSTEM_CONNECTION}
-                               onChange={() => onValueChanged('connectionName', LIBVIRT_SYSTEM_CONNECTION)}
-                               className={connectionName === LIBVIRT_SYSTEM_CONNECTION ? "active" : ''} />
-                        {_("System")}
-                    </label>
-                    <label>
-                        <input type="radio"
-                               checked={connectionName == LIBVIRT_SESSION_CONNECTION}
-                               onChange={() => onValueChanged('connectionName', LIBVIRT_SESSION_CONNECTION)}
-                               className={connectionName == LIBVIRT_SESSION_CONNECTION ? "active" : ''} />
-                        {_("Session")}
-                    </label>
-                </div>
-            </fieldset>
-        </>
+        <FormGroup label={_("Connection")} isInline id={id} className="machines-connection-selector">
+            <Radio isChecked={connectionName === LIBVIRT_SYSTEM_CONNECTION}
+                   onChange={() => onValueChanged('connectionName', LIBVIRT_SYSTEM_CONNECTION)}
+                   name="connectionName"
+                   id="connectionName-system"
+                   label={_("System")} />
+            <Radio isChecked={connectionName == LIBVIRT_SESSION_CONNECTION}
+                   onChange={() => onValueChanged('connectionName', LIBVIRT_SESSION_CONNECTION)}
+                   name="connectionName"
+                   id="connectionName-session"
+                   label={_("Session")} />
+        </FormGroup>
     );
 };

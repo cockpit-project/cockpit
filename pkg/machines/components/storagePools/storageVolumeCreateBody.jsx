@@ -19,6 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FormGroup, FormSection, InputGroup, TextInput } from "@patternfly/react-core";
 
 import * as Select from "cockpit-components-select.jsx";
 import { units, digitFilter } from '../../helpers.js';
@@ -28,18 +29,14 @@ const _ = cockpit.gettext;
 
 const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-name`}>
-                {_("Name")}
-            </label>
-            <input id={`${idPrefix}-name`}
-                   className="form-control"
-                   type="text"
-                   minLength={1}
-                   placeholder={_("New volume name")}
-                   value={volumeName || ""}
-                   onChange={e => onValueChanged('volumeName', e.target.value)} />
-        </>
+        <FormGroup fieldId={`${idPrefix}-name`}
+                   label={_("Name")}>
+            <TextInput id={`${idPrefix}-name`}
+                        minLength={1}
+                        placeholder={_("New volume name")}
+                        value={volumeName || ""}
+                        onChange={value => onValueChanged('volumeName', value)} />
+        </FormGroup>
     );
 };
 
@@ -59,48 +56,43 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolType, onValueC
 
     if (validVolumeFormats) {
         formatRow = (
-            <>
-                <label className='control-label' htmlFor={`${idPrefix}-fileformat`}>
-                    {_("Format")}
-                </label>
+            <FormGroup fieldId={`${idPrefix}-fileformat`} label={_("Format")}>
                 <Select.Select id={`${idPrefix}-format`}
                     onChange={value => onValueChanged('format', value)}
                     initial={format}
                     extraClass='form-control ct-form-split'>
                     { validVolumeFormats.map(format => <Select.SelectEntry data={format} key={format}>{format}</Select.SelectEntry>) }
                 </Select.Select>
-            </>
+            </FormGroup>
         );
     }
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-size`}>
-                {_("Size")}
-            </label>
-            <div role="group" className="ct-form-split">
-                <input id={`${idPrefix}-size`}
-                       className="form-control add-disk-size"
-                       type="text" inputMode="numeric" pattern="[0-9]*"
-                       value={parseFloat(size).toFixed(0)}
-                       onKeyPress={digitFilter}
-                       step={1}
-                       min={0}
-                       onChange={e => onValueChanged('size', e.target.value)} />
-
-                <Select.Select id={`${idPrefix}-unit`}
-                               initial={unit}
-                               onChange={value => onValueChanged('unit', value)}>
-                    <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                        {_("MiB")}
-                    </Select.SelectEntry>
-                    <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                        {_("GiB")}
-                    </Select.SelectEntry>
-                </Select.Select>
-            </div>
+        <FormSection className="ct-form-split">
+            <FormGroup fieldId={`${idPrefix}-size`}
+                       label={_("Size")}>
+                <InputGroup>
+                    <TextInput id={`${idPrefix}-size`}
+                               type="number" inputMode='numeric' pattern="[0-9]*"
+                               value={parseFloat(size).toFixed(0)}
+                               onKeyPress={digitFilter}
+                               step={1}
+                               min={0}
+                               onChange={value => onValueChanged('size', value)} />
+                    <Select.Select id={`${idPrefix}-unit`}
+                                   initial={unit}
+                                   onChange={value => onValueChanged('unit', value)}>
+                        <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
+                            {_("MiB")}
+                        </Select.SelectEntry>
+                        <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
+                            {_("GiB")}
+                        </Select.SelectEntry>
+                    </Select.Select>
+                </InputGroup>
+            </FormGroup>
             {formatRow}
-        </>
+        </FormSection>
     );
 };
 

@@ -20,8 +20,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock } from 'patternfly-react';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Checkbox, Form, FormGroup, FormSection, Modal, TextInput } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { networkCreate } from '../../libvirt-dbus.js';
@@ -36,14 +35,11 @@ const _ = cockpit.gettext;
 
 const ConnectionRow = ({ connectionName }) => {
     return (
-        <>
-            <label className='control-label' htmlFor="create-network-connection-name">
-                {_("Connection")}
-            </label>
+        <FormGroup fieldId="create-network-connection-name" label={_("Connection")} hasNoPaddingTop>
             <samp id="create-network-connection-name">
                 {connectionName}
             </samp>
-        </>
+        </FormGroup>
     );
 };
 
@@ -113,27 +109,18 @@ function validateParams(dialogValues) {
 }
 
 const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
-    const validationState = validationFailed.name ? 'error' : undefined;
+    const validationState = validationFailed.name ? 'error' : 'default';
 
     return (
-        <>
-            <label className='control-label' htmlFor='create-network-name'>
-                {_("Name")}
-            </label>
-            <FormGroup validationState={validationState} controlId='name'>
-                <input
-                   id='create-network-name'
-                   type='text'
-                   placeholder={_("Unique network name")}
-                   value={dialogValues.name}
-                   onChange={e => onValueChanged('name', e.target.value)}
-                   className='form-control' />
-                { validationState == 'error' &&
-                <HelpBlock>
-                    <p className='text-danger'>{validationFailed.name}</p>
-                </HelpBlock> }
-            </FormGroup>
-        </>
+        <FormGroup fieldId='create-network-name' label={_("Name")}
+                   helperTextInvalid={validationFailed.name}
+                   validated={validationState}>
+            <TextInput id='create-network-name'
+                       placeholder={_("Unique network name")}
+                       value={dialogValues.name}
+                       validated={validationState}
+                       onChange={value => onValueChanged('name', value)} />
+        </FormGroup>
     );
 };
 
@@ -141,11 +128,9 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
     const forwardModes = ['nat', 'open', 'none'];
 
     return (
-        <>
-            <label className='control-label' htmlFor='create-network-forward-mode'>
-                {_("Forward mode")}
-            </label>
+        <FormGroup fieldId='create-network-forward-mode' label={_("Forward mode")}>
             <Select.Select id='create-network-forward-mode'
+                           extraClass="pf-c-form-control"
                            initial={dialogValues.forwardMode}
                            onChange={value => onValueChanged('forwardMode', value)}>
                 { forwardModes.map(mode => {
@@ -157,17 +142,15 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
                 })
                 }
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
 const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
     return (
-        <>
-            <label className='control-label' htmlFor='create-network-device'>
-                {_("Device")}
-            </label>
+        <FormGroup fieldId='create-network-device' label={_("Device")}>
             <Select.Select id='create-network-device'
+                           extraClass='pf-c-form-control'
                            enabled={devices.length > 0}
                            initial={dialogValues.device}
                            onChange={value => onValueChanged('device', value)}>
@@ -185,17 +168,15 @@ const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
                     })}
                 </optgroup>
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
-const IpRow = ({ onValueChanged, dialogValues }) => {
+const IpRow = ({ onValueChanged, dialogValues, validationFailed }) => {
     return (
-        <>
-            <label className='control-label' htmlFor='create-network-ip-configuration'>
-                {_("IP configuration")}
-            </label>
+        <FormGroup fieldId='create-network-ip-configuration' label={_("IP configuration")}>
             <Select.Select id='create-network-ip-configuration'
+                           extraClass='pf-c-form-control'
                            initial={dialogValues.ip}
                            onChange={value => onValueChanged('ip', value)}>
                 { (dialogValues.forwardMode === "none") &&
@@ -212,96 +193,73 @@ const IpRow = ({ onValueChanged, dialogValues }) => {
                     {_("IPv4 and IPv6")}
                 </Select.SelectEntry>
             </Select.Select>
-        </>
+            { (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") &&
+            <Ipv4Row dialogValues={dialogValues}
+                     onValueChanged={onValueChanged}
+                     validationFailed={validationFailed} /> }
+
+            { (dialogValues.ip === "IPv6 only" || dialogValues.ip === "IPv4 and IPv6") &&
+            <Ipv6Row dialogValues={dialogValues}
+                     onValueChanged={onValueChanged}
+                     validationFailed={validationFailed} /> }
+        </FormGroup>
     );
 };
 
 const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, validationFailed }) => {
-    const validationStart = validationFailed['ipv' + ipVersion + 'DhcpRangeStart'] ? 'error' : undefined;
-    const validationEnd = validationFailed['ipv' + ipVersion + 'DhcpRangeEnd'] ? 'error' : undefined;
+    const validationStart = validationFailed['ipv' + ipVersion + 'DhcpRangeStart'] ? 'error' : 'default';
+    const validationEnd = validationFailed['ipv' + ipVersion + 'DhcpRangeEnd'] ? 'error' : 'default';
 
     return (
         <>
-            <label className='checkbox-inline'>
-                <input id={'network-ipv' + ipVersion + '-dhcp'}
-                    type='checkbox'
-                    checked={expanded}
-                    onChange={e => onValueChanged('ipv' + ipVersion + 'DhcpEnabled', !expanded)} />
-                {_("Set DHCP range")}
-            </label>
-
-            {expanded && <>
-                <div className='create-network-dialog-grid'>
-                    <div className='ct-form'>
-                        <label className='control-label' htmlFor={'network-ipv' + ipVersion + '-dhcp-range-start'}> {_("Start")} </label>
-                        <FormGroup validationState={validationStart} controlId={'ipv' + ipVersion + '-dhcp-range-start'}>
-                            <input
-                               id={'network-ipv' + ipVersion + '-dhcp-range-start'}
-                               type='text'
+            <FormGroup>
+                <Checkbox id={'network-ipv' + ipVersion + '-dhcp'}
+                          isChecked={expanded}
+                          label={_("Set DHCP range")}
+                          onChange={() => onValueChanged('ipv' + ipVersion + 'DhcpEnabled', !expanded)} />
+            </FormGroup>
+            {expanded && <FormSection className="ct-form-split">
+                <FormGroup fieldId={'network-ipv' + ipVersion + '-dhcp-range-start'} label={_("Start")}
+                           helperTextInvalid={validationFailed['ipv' + ipVersion + 'DhcpRangeStart']}
+                           validated={validationStart}>
+                    <TextInput id={'network-ipv' + ipVersion + '-dhcp-range-start'}
                                value={rangeStart}
-                               onChange={e => onValueChanged('ipv' + ipVersion + 'DhcpRangeStart', e.target.value)}
-                               className='form-control' />
-                            { validationStart == 'error' &&
-                            <HelpBlock>
-                                <p className='text-danger'>{validationFailed['ipv' + ipVersion + 'DhcpRangeStart']}</p>
-                            </HelpBlock> }
-                        </FormGroup>
-                    </div>
-                    <div className='ct-form'>
-                        <label className='control-label' htmlFor={'network-ipv' + ipVersion + '-dhcp-range-end'}> {_("End")} </label>
-                        <FormGroup validationState={validationEnd} controlId={'ipv' + ipVersion + '-dhcp-range-end'}>
-                            <input
-                               id={'network-ipv' + ipVersion + '-dhcp-range-end'}
-                               type='text'
+                               onChange={value => onValueChanged('ipv' + ipVersion + 'DhcpRangeStart', value)} />
+                </FormGroup>
+                <FormGroup fieldId={'network-ipv' + ipVersion + '-dhcp-range-end'} label={_("End")}
+                           helperTextInvalid={validationFailed['ipv' + ipVersion + 'DhcpRangeEnd']}
+                           validated={validationEnd}>
+                    <TextInput id={'network-ipv' + ipVersion + '-dhcp-range-end'}
                                value={rangeEnd}
-                               onChange={e => onValueChanged('ipv' + ipVersion + 'DhcpRangeEnd', e.target.value)}
-                               className='form-control' />
-                            { validationEnd == 'error' &&
-                            <HelpBlock>
-                                <p className='text-danger'>{validationFailed['ipv' + ipVersion + 'DhcpRangeEnd']}</p>
-                            </HelpBlock> }
-                        </FormGroup>
-                    </div>
-                </div>
-            </> }
+                               onChange={value => onValueChanged('ipv' + ipVersion + 'DhcpRangeEnd', value)} />
+                </FormGroup>
+            </FormSection>}
         </>
     );
 };
 
 const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
-    const validationAddress = validationFailed.ipv4 ? 'error' : undefined;
-    const validationNetmask = validationFailed.netmask ? 'error' : undefined;
+    const validationAddress = validationFailed.ipv4 ? 'error' : 'default';
+    const validationNetmask = validationFailed.netmask ? 'error' : 'default';
 
     return (
         <>
-            <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv4-address'> {_("IPv4 network")} </label>
-                <FormGroup validationState={validationAddress} controlId='ipv4-address'>
-                    <input id='network-ipv4-address'
-                       type='text'
-                       value={dialogValues.ipv4}
-                       onChange={e => onValueChanged('ipv4', e.target.value)}
-                       className='form-control' />
-                    { validationAddress == 'error' &&
-                    <HelpBlock>
-                        <p className='text-danger'>{validationFailed.ipv4}</p>
-                    </HelpBlock> }
-                </FormGroup>
-            </div>
-            <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv4-netmask'> {_("Mask or prefix length")} </label>
-                <FormGroup validationState={validationNetmask} controlId='ipv4-netmask'>
-                    <input id='network-ipv4-netmask'
-                       type='text'
-                       value={dialogValues.netmask}
-                       onChange={e => onValueChanged('netmask', e.target.value)}
-                       className='form-control' />
-                    { validationNetmask == 'error' &&
-                    <HelpBlock>
-                        <p className='text-danger'>{validationFailed.netmask}</p>
-                    </HelpBlock> }
-                </FormGroup>
-            </div>
+            <FormGroup fieldId='network-ipv4-address' label={_("IPv4 network")}
+                       helperTextInvalid={validationFailed.ipv4}
+                       validated={validationAddress}>
+                <TextInput id='network-ipv4-address'
+                           value={dialogValues.ipv4}
+                           validated={validationAddress}
+                           onChange={value => onValueChanged('ipv4', value)} />
+            </FormGroup>
+            <FormGroup fieldId='network-ipv4-netmask' label={_("Mask or prefix length")}
+                       helperTextInvalid={validationFailed.netmask}
+                       validated={validationNetmask}>
+                <TextInput id='network-ipv4-netmask'
+                           value={dialogValues.netmask}
+                           validated={validationNetmask}
+                           onChange={value => onValueChanged('netmask', value)} />
+            </FormGroup>
             <DhcpRow ipVersion='4'
                 rangeStart={dialogValues.ipv4DhcpRangeStart}
                 rangeEnd={dialogValues.ipv4DhcpRangeEnd}
@@ -313,39 +271,27 @@ const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
 };
 
 const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
-    const validationAddress = validationFailed.ipv6 ? 'error' : undefined;
-    const validationPrefix = validationFailed.prefix ? 'error' : undefined;
+    const validationAddress = validationFailed.ipv6 ? 'error' : 'default';
+    const validationPrefix = validationFailed.prefix ? 'error' : 'default';
 
     return (
         <>
-            <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv6-address'> {_("IPv6 network")} </label>
-                <FormGroup validationState={validationAddress} controlId='ipv6-address'>
-                    <input id='network-ipv6-address'
-                       type='text'
-                       value={dialogValues.ipv6}
-                       onChange={e => onValueChanged('ipv6', e.target.value)}
-                       className='form-control' />
-                    { validationAddress == 'error' &&
-                    <HelpBlock>
-                        <p className='text-danger'>{validationFailed.ipv6}</p>
-                    </HelpBlock> }
-                </FormGroup>
-            </div>
-            <div className='ct-form'>
-                <label className='control-label' htmlFor='network-ipv6-prefix'> {_("Prefix length")} </label>
-                <FormGroup validationState={validationPrefix} controlId='ipv6-prefix'>
-                    <input id='network-ipv6-prefix'
-                       type='text'
-                       value={dialogValues.prefix}
-                       onChange={e => onValueChanged('prefix', e.target.value)}
-                       className='form-control' />
-                    { validationPrefix == 'error' &&
-                    <HelpBlock>
-                        <p className='text-danger'>{validationFailed.prefix}</p>
-                    </HelpBlock> }
-                </FormGroup>
-            </div>
+            <FormGroup fieldId='network-ipv6-address' label={_("IPv6 network")}
+                       helperTextInvalid={validationFailed.ipv6}
+                       validated={validationAddress}>
+                <TextInput id='network-ipv6-address'
+                           value={dialogValues.ipv6}
+                           validated={validationAddress}
+                           onChange={value => onValueChanged('ipv6', value)} />
+            </FormGroup>
+            <FormGroup fieldId='network-ipv6-prefix' label={_("Prefix length")}
+                       helperTextInvalid={validationFailed.prefix}
+                       validated={validationPrefix}>
+                <TextInput id='network-ipv6-prefix'
+                           value={dialogValues.prefix}
+                           validated={validationPrefix}
+                           onChange={value => onValueChanged('prefix', value)} />
+            </FormGroup>
             <DhcpRow ipVersion='6'
                 rangeStart={dialogValues.ipv6DhcpRangeStart}
                 rangeEnd={dialogValues.ipv6DhcpRangeEnd}
@@ -433,16 +379,12 @@ class CreateNetworkModal extends React.Component {
         const validationFailed = this.state.validate && validateParams(this.state);
 
         const body = (
-            <form className='ct-form'>
+            <Form isHorizontal>
                 <ConnectionRow connectionName={LIBVIRT_SYSTEM_CONNECTION} />
-
-                <hr />
 
                 <NetworkNameRow dialogValues={this.state}
                                 onValueChanged={this.onValueChanged}
                                 validationFailed={validationFailed} />
-
-                <hr />
 
                 <NetworkForwardModeRow dialogValues={this.state}
                                        onValueChanged={this.onValueChanged} />
@@ -452,24 +394,11 @@ class CreateNetworkModal extends React.Component {
                                   onValueChanged={this.onValueChanged}
                                   validationFailed={validationFailed} /> }
 
-                <hr />
-
                 { (this.state.forwardMode !== "vepa" && this.state.forwardMode !== "bridge") &&
-                <>
-                    <IpRow dialogValues={this.state}
-                           onValueChanged={this.onValueChanged} />
-
-                    { (this.state.ip === "IPv4 only" || this.state.ip === "IPv4 and IPv6") &&
-                    <Ipv4Row dialogValues={this.state}
-                             onValueChanged={this.onValueChanged}
-                             validationFailed={validationFailed} /> }
-
-                    { (this.state.ip === "IPv6 only" || this.state.ip === "IPv4 and IPv6") &&
-                    <Ipv6Row dialogValues={this.state}
-                             onValueChanged={this.onValueChanged}
-                             validationFailed={validationFailed} /> }
-                </> }
-            </form>
+                <IpRow dialogValues={this.state}
+                       onValueChanged={this.onValueChanged}
+                       validationFailed={validationFailed} /> }
+            </Form>
         );
 
         return (

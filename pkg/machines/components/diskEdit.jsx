@@ -19,7 +19,9 @@
 
 import React from 'react';
 import cockpit from 'cockpit';
-import { Button, Tooltip, Alert, Modal, Radio } from '@patternfly/react-core';
+import {
+    Alert, Button, Form, FormGroup, Modal, Popover, Radio,
+} from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import * as Select from 'cockpit-components-select.jsx';
@@ -42,14 +44,11 @@ const NameRow = ({ idPrefix, name, diskType }) => {
         label = _("Storage volume");
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-name`}>
-                {label}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-name`} label={label}>
             <samp id={`${idPrefix}-name`}>
                 {name}
             </samp>
-        </>
+        </FormGroup>
     );
 };
 
@@ -57,41 +56,33 @@ const BusRow = ({ onValueChanged, dialogValues, idPrefix, shutoff }) => {
     const busTypes = ['sata', 'scsi', 'usb', 'virtio'];
 
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-bus-type`}>
-                {_("Bus")}
-            </label>
-            <div role="group">
-                <Select.Select id={`${idPrefix}-bus-type`}
-                    onChange={value => onValueChanged('busType', value)}
-                    initial={dialogValues.busType}
-                    extraClass='form-control ct-form-split'
-                    enabled={shutoff}>
-                    {busTypes.map(busType => {
-                        return (
-                            <Select.SelectEntry data={busType} key={busType}>
-                                {busType}
-                            </Select.SelectEntry>
-                        );
-                    })}
-                </Select.Select>
-                {!shutoff &&
-                <div className="info-circle">
-                    <Tooltip arial-label="tooltip" entryDelay={0} content={_("Machine must be shut off before changing bus type")}>
-                        <InfoAltIcon />
-                    </Tooltip>
-                </div>}
-            </div>
-        </>
+        <FormGroup fieldId={`${idPrefix}-bus-type`} label={_("Bus")}
+                   labelIcon={!shutoff &&
+                       <Popover bodyContent={_("Machine must be shut off before changing bus type")}>
+                           <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                               <InfoAltIcon noVerticalAlign />
+                           </button>
+                       </Popover>}>
+            <Select.Select id={`${idPrefix}-bus-type`}
+                onChange={value => onValueChanged('busType', value)}
+                initial={dialogValues.busType}
+                extraClass='pf-c-form-control'
+                enabled={shutoff}>
+                {busTypes.map(busType => {
+                    return (
+                        <Select.SelectEntry data={busType} key={busType}>
+                            {busType}
+                        </Select.SelectEntry>
+                    );
+                })}
+            </Select.Select>
+        </FormGroup>
     );
 };
 
 const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
     return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-access`}>
-                {_("Access")}
-            </label>
+        <FormGroup fieldId={`${idPrefix}-access`} label={_("Access")} isInline>
             <Radio id={`${idPrefix}-readonly`}
                    name="access"
                    isChecked={dialogValues.readonly}
@@ -117,7 +108,7 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
                        onValueChanged('shareable', true);
                    }}
                    label={_("Writeable and shared")} />}
-        </>
+        </FormGroup>
     );
 };
 
@@ -158,7 +149,7 @@ class EditDiskModalBody extends React.Component {
         const idPrefix = `${this.props.idPrefix}-edit`;
 
         const defaultBody = (
-            <div className='ct-form'>
+            <Form isHorizontal>
                 <NameRow idPrefix={idPrefix}
                          diskType={vm.disks[disk.target].type}
                          name={getDiskFullName(vm.disks[disk.target])} />
@@ -172,7 +163,7 @@ class EditDiskModalBody extends React.Component {
                         idPrefix={idPrefix}
                         onValueChanged={this.onValueChanged}
                         shutoff={vm.state == 'shut off'} />
-            </div>
+            </Form>
         );
 
         const showWarning = () => {

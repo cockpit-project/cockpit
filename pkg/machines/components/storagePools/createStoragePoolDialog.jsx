@@ -19,8 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock } from 'patternfly-react';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Checkbox, Form, FormGroup, FormSection, Modal, TextInput } from '@patternfly/react-core';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -35,26 +34,18 @@ import './createStoragePoolDialog.css';
 const _ = cockpit.gettext;
 
 const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.validationFailed.name ? 'error' : undefined;
+    const validationState = dialogValues.validationFailed.name ? 'error' : 'default';
 
     return (
-        <>
-            <label className='control-label'>
-                {_("Name")}
-            </label>
-            <FormGroup validationState={validationState} controlId='name'>
-                <input id='storage-pool-dialog-name'
-                       type='text'
+        <FormGroup fieldId='storage-pool-dialog-name' label={_("Name")}
+                   helperTextInvalid={dialogValues.name.length == 0 ? _("Name should not be empty") : _("Name contains invalid characters")}
+                   validated={validationState}>
+            <TextInput id='storage-pool-dialog-name'
                        placeholder={_("Storage pool name")}
                        value={dialogValues.name || ''}
-                       onChange={e => onValueChanged('name', e.target.value)}
-                       className='form-control' />
-                { validationState == 'error' &&
-                <HelpBlock>
-                    <p className="text-danger">{dialogValues.name.length == 0 ? _("Name should not be empty") : _("Name contains invalid characters")}</p>
-                </HelpBlock> }
-            </FormGroup>
-        </>
+                       validated={validationState}
+                       onChange={value => onValueChanged('name', value)} />
+        </FormGroup>
     );
 };
 
@@ -81,11 +72,9 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
      */
 
     return (
-        <>
-            <label className='control-label'>
-                {_("Type")}
-            </label>
+        <FormGroup fieldId='storage-pool-dialog-type' label={_("Type")}>
             <Select.Select id='storage-pool-dialog-type'
+                           extraClass='pf-c-form-control'
                            initial={dialogValues.type}
                            onChange={value => onValueChanged('type', value)}>
                 { poolTypes
@@ -98,86 +87,61 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
                         })
                 }
             </Select.Select>
-        </>
+        </FormGroup>
     );
 };
 
 const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.target.length == 0 && dialogValues.validationFailed.target ? 'error' : undefined;
+    const validationState = dialogValues.target.length == 0 && dialogValues.validationFailed.target ? 'error' : 'default';
 
     if (['dir', 'netfs', 'iscsi', 'disk'].includes(dialogValues.type)) {
         return (
-            <>
-                <label htmlFor='storage-pool-dialog-target' className='control-label'>
-                    {_("Target path")}
-                </label>
-                <FormGroup validationState={validationState} controlId='target'>
-                    <FileAutoComplete id='storage-pool-dialog-target'
-                        superuser='try'
-                        placeholder={_("Path on host's filesystem")}
-                        onChange={value => onValueChanged('target', value)} />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Target path should not be empty")}</p>
-                    </HelpBlock> }
-                </FormGroup>
-                <hr />
-            </>
+            <FormGroup fieldId='storage-pool-dialog-target' label={_("Target path")}
+                       id="storage-pool-dialog-target-group"
+                       helperTextInvalid={_("Target path should not be empty")}
+                       validated={validationState}>
+                <FileAutoComplete id='storage-pool-dialog-target'
+                                  superuser='try'
+                                  placeholder={_("Path on host's filesystem")}
+                                  onChange={value => onValueChanged('target', value)} />
+            </FormGroup>
         );
     }
     return null;
 };
 
 const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.source.host.length == 0 && dialogValues.validationFailed.host ? 'error' : undefined;
+    const validationState = dialogValues.source.host.length == 0 && dialogValues.validationFailed.host ? 'error' : 'default';
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <>
-                <label className='control-label'>
-                    {_("Host")}
-                </label>
-                <FormGroup validationState={validationState} controlId='host'>
-                    <input id='storage-pool-dialog-host'
-                           type='text'
+            <FormGroup fieldId='storage-pool-dialog-host' label={_("Host")}
+                       helperTextInvalid={_("Host should not be empty")}
+                       validated={validationState}>
+                <TextInput id='storage-pool-dialog-host'
+                           validated={validationState}
                            placeholder={_("Host name")}
                            value={dialogValues.source.host || ''}
-                           onChange={e => onValueChanged('source', { host: e.target.value })}
-                           className='form-control' />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Host should not be empty")}</p>
-                    </HelpBlock> }
-                </FormGroup>
-                <hr />
-            </>
+                           onChange={value => onValueChanged('source', { host: value })} />
+            </FormGroup>
         );
     return null;
 };
 
 const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.source.initiator.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+    const validationState = dialogValues.source.initiator.length == 0 && dialogValues.validationFailed.source ? 'error' : 'default';
 
     if (['iscsi-direct'].includes(dialogValues.type))
         return (
-            <>
-                <label className='control-label'>
-                    {_("Initiator")}
-                </label>
-                <FormGroup validationState={validationState} controlId='initiator'>
-                    <input id='storage-pool-dialog-initiator'
-                           type='text'
+            <FormGroup label={_("Initiator")} fieldId='storage-pool-dialog-initiator'
+                       helperTextInvalid={_("Initiator IQN should not be empty")}
+                       validated={validationState}>
+                <TextInput id='storage-pool-dialog-initiator'
                            placeholder={_("iSCSI initiator IQN")}
+                           validated={validationState}
                            value={dialogValues.source.initiator || ''}
-                           onChange={e => onValueChanged('source', { initiator: e.target.value })}
-                           className='form-control' />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Initiator IQN should not be empty")}</p>
-                    </HelpBlock> }
-                </FormGroup>
-                <hr />
-            </>
+                           onChange={value => onValueChanged('source', { initiator: value })} />
+            </FormGroup>
         );
     return null;
 };
@@ -188,123 +152,90 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
     const diskPoolSourceFormatTypes = ['dos', 'dvh', 'gpt', 'mac'];
 
     if (dialogValues.type == 'netfs') {
-        validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+        validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : 'default';
         placeholder = _("The directory on the server being exported");
     } else if (dialogValues.type == 'iscsi' || dialogValues.type == 'iscsi-direct') {
-        validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+        validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : 'default';
         placeholder = _("iSCSI target IQN");
     } else if (dialogValues.type == 'disk') {
-        validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+        validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : 'default';
         placeholder = _("Physical disk device on host");
     } else if (dialogValues.type == 'logical') {
-        validationState = dialogValues.source.name && dialogValues.validationFailed.source ? 'error' : undefined;
+        validationState = dialogValues.source.name && dialogValues.validationFailed.source ? 'error' : 'default';
         placeholder = _("Volume group name");
     }
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <>
-                <label className='control-label'>
-                    {_("Source path")}
-                </label>
-                <FormGroup validationState={validationState} controlId='source'>
-                    <input id='storage-pool-dialog-source'
-                           type='text'
+            <FormGroup label={_("Source path")} fieldId='storage-pool-dialog-source'
+                       helperTextInvalid={_("Source path should not be empty")}
+                       validated={validationState}>
+                <TextInput id='storage-pool-dialog-source'
                            minLength={1}
                            value={dialogValues.source.dir || dialogValues.source.device || ''}
-                           onChange={e => {
+                           onChange={value => {
                                if (dialogValues.type == 'netfs')
-                                   return onValueChanged('source', { dir: e.target.value });
+                                   return onValueChanged('source', { dir: value });
                                else
-                                   return onValueChanged('source', { device: e.target.value });
+                                   return onValueChanged('source', { device: value });
                            }}
-                           placeholder={placeholder}
-                           className='form-control' />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Source path should not be empty")}</p>
-                    </HelpBlock> }
-                </FormGroup>
-                <hr />
-            </>
+                           placeholder={placeholder} />
+            </FormGroup>
         );
     else if (dialogValues.type == 'disk')
         return (
-            <>
-                <label className='control-label' htmlFor='storage-pool-dialog-source'>
-                    {_("Source path")}
-                </label>
-                <FormGroup className='ct-form-split'
-                           validationState={validationState}
-                           controlId='source'>
+            <FormSection className='ct-form-split-2-1'>
+                <FormGroup fieldId='storage-pool-dialog-source' label={_("Source path")}
+                           id="storage-pool-dialog-source-group"
+                           helperTextInvalid={_("Source path should not be empty")}
+                           validated={validationState}>
                     <FileAutoComplete id='storage-pool-dialog-source'
-                        superuser='try'
-                        placeholder={placeholder}
-                        onChange={value => onValueChanged('source', { device: value })} />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Source path should not be empty")}</p>
-                    </HelpBlock> }
+                                      superuser='try'
+                                      placeholder={placeholder}
+                                      onChange={value => onValueChanged('source', { device: value })} />
                 </FormGroup>
-                <label className='control-label' htmlFor='storage-pool-dialog-source-format'>
-                    {_("Format")}
-                </label>
-                <Select.Select id='storage-pool-dialog-source-format'
-                               extraClass='form-control ct-form-split'
-                               initial={dialogValues.source.format}
-                               onChange={value => onValueChanged('source', { format: value })}>
-                    { diskPoolSourceFormatTypes
-                            .map(format => {
-                                return (
-                                    <Select.SelectEntry data={format} key={format}>
-                                        {format}
-                                    </Select.SelectEntry>
-                                );
-                            })
-                    }
-                </Select.Select>
-                <hr />
-            </>
+                <FormGroup fieldId='storage-pool-dialog-source-format' label={_("Format")}>
+                    <Select.Select id='storage-pool-dialog-source-format'
+                                   extraClass='pf-c-form-control'
+                                   initial={dialogValues.source.format}
+                                   onChange={value => onValueChanged('source', { format: value })}>
+                        { diskPoolSourceFormatTypes
+                                .map(format => {
+                                    return (
+                                        <Select.SelectEntry data={format} key={format}>
+                                            {format}
+                                        </Select.SelectEntry>
+                                    );
+                                })
+                        }
+                    </Select.Select>
+                </FormGroup>
+            </FormSection>
         );
     else if (dialogValues.type == 'logical')
         return (
-            <>
-                <label className='control-label' htmlFor='storage-pool-dialog-source'>
-                    {_("Source volume group")}
-                </label>
-                <FormGroup validationState={validationState} controlId='source'>
-                    <input id='storage-pool-dialog-source'
-                           type='text'
+            <FormGroup fieldId='storage-pool-dialog-source' label={_("Source volume group")}
+                       helperTextInvalid={_("Volume group name should not be empty")}
+                       validated={validationState}>
+                <TextInput id='storage-pool-dialog-source'
+                           validated={validationState}
                            minLength={1}
                            value={dialogValues.source.name || ''}
-                           onChange={e => onValueChanged('source', { name: e.target.value })}
-                           placeholder={placeholder}
-                           className='form-control' />
-                    { validationState == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{_("Volume group name should not be empty")}</p>
-                    </HelpBlock> }
-                </FormGroup>
-                <hr />
-            </>
+                           onChange={value => onValueChanged('source', { name: value })}
+                           placeholder={placeholder} />
+            </FormGroup>
         );
     return null;
 };
 
 const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <>
-            <label className='control-label'>
-                {_("Startup")}
-            </label>
-            <label className='checkbox-inline'>
-                <input id='storage-pool-dialog-autostart'
-                    type='checkbox'
-                    checked={dialogValues.autostart}
-                    onChange={e => onValueChanged('autostart', e.target.checked)} />
-                {_("Start pool when host boots")}
-            </label>
-        </>
+        <FormGroup label={_("Startup")} fieldId='storage-pools-dialog-autostart' hasNoPaddingTop>
+            <Checkbox id='storage-pool-dialog-autostart'
+                      label={_("Start pool when host boots")}
+                      isChecked={dialogValues.autostart}
+                      onChange={checked => onValueChanged('autostart', checked)} />
+        </FormGroup>
     );
 };
 
@@ -469,20 +400,17 @@ class CreateStoragePoolModal extends React.Component {
 
     render() {
         const defaultBody = (
-            <form className="ct-form ct-form-maxmin">
+            <Form isHorizontal>
                 <MachinesConnectionSelector id='storage-pool-dialog-connection'
                     connectionName={this.state.connectionName}
                     onValueChanged={this.onValueChanged}
                     loggedUser={this.props.loggedUser} />
-                <hr />
-
                 <StoragePoolNameRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
-                <hr />
                 <StoragePoolTypeRow dialogValues={this.state}
                                     libvirtVersion={this.props.libvirtVersion}
                                     onValueChanged={this.onValueChanged} />
-                <hr />
+
                 <StoragePoolTargetRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
                 <StoragePoolHostRow dialogValues={this.state}
@@ -493,7 +421,7 @@ class CreateStoragePoolModal extends React.Component {
                                       onValueChanged={this.onValueChanged} />
                 <StoragePoolAutostartRow dialogValues={this.state}
                                          onValueChanged={this.onValueChanged} />
-            </form>
+            </Form>
         );
 
         return (

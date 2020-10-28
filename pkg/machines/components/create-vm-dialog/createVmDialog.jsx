@@ -19,10 +19,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock } from 'patternfly-react';
 import {
+    Checkbox,
+    Form, FormGroup,
     Modal,
     Select as PFSelect, SelectOption, SelectVariant,
+    TextInput,
     Button, Tooltip, TooltipPosition
 } from '@patternfly/react-core';
 
@@ -59,7 +61,6 @@ import { storagePoolRefresh } from '../../libvirt-dbus.js';
 import { Password } from './password.jsx';
 
 import './createVmDialog.scss';
-import 'form-layout.scss';
 import VMS_CONFIG from '../../config.js';
 
 const _ = cockpit.gettext;
@@ -196,26 +197,20 @@ function validateParams(vmParams) {
 }
 
 const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
-    const validationStateName = validationFailed.vmName ? 'error' : undefined;
+    const validationStateName = validationFailed.vmName ? 'error' : 'default';
 
     return (
-        <>
-            <label className="control-label" htmlFor="vm-name">
-                {_("Name")}
-            </label>
-            <FormGroup validationState={validationStateName} controlId='name'>
-                <input id='vm-name' className='form-control'
-                    type='text'
-                    minLength={1}
-                    value={vmName || ''}
-                    placeholder={_("Unique name")}
-                    onChange={e => onValueChanged('vmName', e.target.value)} />
-                { validationStateName == 'error' &&
-                <HelpBlock>
-                    <p className="text-danger">{validationFailed.vmName}</p>
-                </HelpBlock> }
-            </FormGroup>
-        </>
+        <FormGroup label={_("Name")} fieldId="vm-name"
+                   id="vm-name-group"
+                   helperTextInvalid={validationFailed.vmName}
+                   validated={validationStateName}>
+            <TextInput id='vm-name'
+                       validated={validationStateName}
+                       minLength={1}
+                       value={vmName || ''}
+                       placeholder={_("Unique name")}
+                       onChange={value => onValueChanged('vmName', value)} />
+        </FormGroup>
     );
 };
 
@@ -223,7 +218,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
-    const validationStateSource = validationFailed.source ? 'error' : undefined;
+    const validationStateSource = validationFailed.source ? 'error' : 'default';
 
     switch (sourceType) {
     case LOCAL_INSTALL_MEDIA_SOURCE:
@@ -259,27 +254,25 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
         installationSource = (
             <>
                 <CockpitSelect.StatelessSelect id="network-select"
+                    extraClass="pf-c-form-control"
                     selected={source || 'no-resource'}
                     onChange={value => onValueChanged('source', value)}>
                     {getPXENetworkRows(nodeDevices, networks)}
                 </CockpitSelect.StatelessSelect>
 
-                {installationSourceWarning &&
-                <HelpBlock>
-                    <p className="text-warning">{installationSourceWarning}</p>
-                </HelpBlock> }
+                {installationSourceWarning && <p className="text-warning">{installationSourceWarning}</p>}
             </>
         );
         break;
     case URL_SOURCE:
         installationSourceId = "source-url";
         installationSource = (
-            <input id={installationSourceId} className="form-control"
-                type="text"
-                minLength={1}
-                placeholder={_("Remote URL")}
-                value={source}
-                onChange={e => onValueChanged('source', e.target.value)} />
+            <TextInput id={installationSourceId}
+                       validated={validationStateSource}
+                       minLength={1}
+                       placeholder={_("Remote URL")}
+                       value={source}
+                       onChange={value => onValueChanged('source', value)} />
         );
         break;
     default:
@@ -289,39 +282,33 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
     return (
         <>
             {sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-            <>
-                <label className="control-label" htmlFor="source-type">
-                    {_("Installation type")}
-                </label>
+            <FormGroup label={_("Installation type")}
+                       id="source-type-group"
+                       fieldId="source-type">
                 <CockpitSelect.Select id="source-type"
-                    initial={sourceType}
-                    onChange={value => onValueChanged('sourceType', value)}>
-                    {downloadOSSupported ? <CockpitSelect.SelectEntry data={DOWNLOAD_AN_OS}
-                        key={DOWNLOAD_AN_OS}>{_("Download an OS")}</CockpitSelect.SelectEntry> : null}
+                                      extraClass="pf-c-form-control"
+                                      initial={sourceType}
+                                      onChange={value => onValueChanged('sourceType', value)}>
+                    {downloadOSSupported
+                        ? <CockpitSelect.SelectEntry data={DOWNLOAD_AN_OS}
+                                                     key={DOWNLOAD_AN_OS}>{_("Download an OS")}</CockpitSelect.SelectEntry> : null}
                     <CockpitSelect.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local install media")}</CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</CockpitSelect.SelectEntry>
+                                               key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local install media")}</CockpitSelect.SelectEntry>
+                    <CockpitSelect.SelectEntry data={URL_SOURCE}
+                                               key={URL_SOURCE}>{_("URL")}</CockpitSelect.SelectEntry>
                     <CockpitSelect.SelectEntry title={connectionName == 'session' ? _("Network boot is available only when using system connection") : null}
-                        disabled={connectionName == 'session'}
-                        data={PXE_SOURCE}
-                        key={PXE_SOURCE}>{_("Network boot (PXE)")}
+                                               disabled={connectionName == 'session'}
+                                               data={PXE_SOURCE}
+                                               key={PXE_SOURCE}>{_("Network boot (PXE)")}
                     </CockpitSelect.SelectEntry>
                 </CockpitSelect.Select>
-            </>}
+            </FormGroup>}
 
             {sourceType != DOWNLOAD_AN_OS
-                ? <>
-                    <label className="control-label" htmlFor={installationSourceId}>
-                        {_("Installation source")}
-                    </label>
-                    <FormGroup validationState={validationStateSource} controlId='source'>
-                        {installationSource}
-                        { validationStateSource == 'error' &&
-                        <HelpBlock>
-                            <p className="text-danger">{validationFailed.source}</p>
-                        </HelpBlock> }
-                    </FormGroup>
-                </>
+                ? <FormGroup label={_("Installation Source")} id={installationSourceId + "-group"} fieldId={installationSourceId}
+                             helperTextInvalid={validationFailed.source} validated={validationStateSource}>
+                    {installationSource}
+                </FormGroup>
                 : <OSRow os={os}
                          osInfoList={osInfoList.filter(os => os.treeInstallable)}
                          onValueChanged={onValueChanged}
@@ -366,58 +353,53 @@ class OSRow extends React.Component {
 
     render() {
         const { os, onValueChanged, isLoading, validationFailed } = this.props;
-        const validationStateOS = validationFailed.os ? 'error' : undefined;
+        const validationStateOS = validationFailed.os ? 'error' : 'default';
 
         return (
-            <>
-                <label className="control-label" htmlFor='os-select'>
-                    {_("Operating system")}
-                </label>
-                <FormGroup validationState={validationStateOS} bsClass='form-group ct-validation-wrapper'>
-                    <PFSelect
-                        variant={SelectVariant.typeahead}
-                        key={this.state.typeAheadKey}
-                        id='os-select'
-                        isDisabled={isLoading}
-                        selections={os ? this.createValue(os) : null}
-                        typeAheadAriaLabel={_("Choose an operating system")}
-                        placeholderText={_("Choose an operating system")}
-                        onSelect={(event, value) => {
-                            this.setState({
-                                isOpen: false
-                            });
-                            onValueChanged('os', value);
-                        }}
-                        onClear={() => {
-                            this.setState({ isOpen: false });
-                            onValueChanged('os', null);
-                        }}
-                        onToggle={isOpen => this.setState({ isOpen })}
-                        isOpen={this.state.isOpen}
-                        menuAppendTo="parent">
-                        {this.state.osEntries.map(os => <SelectOption key={os.shortId}
-                                                                      value={this.createValue(os)} />)}
-                    </PFSelect>
-                    { validationFailed.os && os == undefined &&
-                    <HelpBlock>
-                        <p className="text-danger">{validationFailed.os}</p>
-                    </HelpBlock> }
-                </FormGroup>
-            </>
+            <FormGroup fieldId='os-select'
+                       id="os-select-group"
+                       validated={validationStateOS}
+                       helperTextInvalid={validationFailed.os}
+                       label={_("Operating system")}>
+                <PFSelect
+                    variant={SelectVariant.typeahead}
+                    key={this.state.typeAheadKey}
+                    id='os-select'
+                    isDisabled={isLoading}
+                    selections={os ? this.createValue(os) : null}
+                    typeAheadAriaLabel={_("Choose an operating system")}
+                    placeholderText={_("Choose an operating system")}
+                    onSelect={(event, value) => {
+                        this.setState({
+                            isOpen: false
+                        });
+                        onValueChanged('os', value);
+                    }}
+                    onClear={() => {
+                        this.setState({ isOpen: false });
+                        onValueChanged('os', null);
+                    }}
+                    onToggle={isOpen => this.setState({ isOpen })}
+                    isOpen={this.state.isOpen}
+                    menuAppendTo="parent">
+                    {this.state.osEntries.map(os => <SelectOption key={os.shortId}
+                                                                  value={this.createValue(os)} />)}
+                </PFSelect>
+            </FormGroup>
         );
     }
 }
 
 const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstallation, os, profile, onValueChanged }) => {
-    const validationStatePassword = validationFailed.password ? 'error' : undefined;
+    const validationStatePassword = validationFailed.password ? 'error' : 'default';
     let unattendedInstallationCheckbox = (
-        <label className="checkbox-inline">
-            <input id="unattended-installation" type="checkbox"
-                checked={unattendedInstallation}
-                disabled={unattendedDisabled}
-                onChange={e => onValueChanged('unattendedInstallation', e.target.checked)} />
-            {_("Run unattended installation")}
-        </label>
+        <FormGroup fieldId="unattended-installation" isInline>
+            <Checkbox id="unattended-installation"
+                      isChecked={unattendedInstallation}
+                      isDisabled={unattendedDisabled}
+                      onChange={checked => onValueChanged('unattendedInstallation', checked)}
+                      label={_("Run unattended installation")} />
+        </FormGroup>
     );
     if (unattendedDisabled) {
         unattendedInstallationCheckbox = (
@@ -430,14 +412,14 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
     return (
         <>
             {unattendedInstallationCheckbox}
-            {!unattendedDisabled && unattendedInstallation ? <>
-                {os.profiles.length > 0 && <>
-                    <label className="control-label" htmlFor="profile-select">
-                        {_("Profile")}
-                    </label>
+            {!unattendedDisabled && unattendedInstallation && <>
+                {os.profiles.length > 0 &&
+                <FormGroup fieldId="profile-select"
+                           label={_("Profile")}>
                     <CockpitSelect.Select id="profile-select"
-                        initial={os.profiles && os.profiles[0]}
-                        onChange={e => onValueChanged('profile', e)}>
+                                          extraClass="pf-c-form-control"
+                                          initial={os.profiles && os.profiles[0]}
+                                          onChange={e => onValueChanged('profile', e)}>
                         { (os.profiles || []).sort()
                                 .reverse() // Let jeos (Server) appear always first on the list since in osinfo-db it's not consistent
                                 .map(profile => {
@@ -451,48 +433,34 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                                     return <CockpitSelect.SelectEntry data={profile} key={profile}>{profileName}</CockpitSelect.SelectEntry>;
                                 }) }
                     </CockpitSelect.Select>
-                </>}
-                <label htmlFor='root-password' className='control-label'>
-                    {_("Root password")}
-                </label>
-                <FormGroup validationState={validationStatePassword} bsClass='form-group ct-validation-wrapper' controlId='root-password'>
+                </FormGroup>}
+                <FormGroup fieldId='root-password' label={_("Root password")}
+                           helperText={profile == 'desktop' && _("Leave the password blank if you do not wish to have a root account created")}
+                           validated={validationStatePassword} helperTextInvalid={validationFailed.password}>
                     <Password id='root-password' onValueChanged={(value) => onValueChanged('rootPassword', value)} />
-                    <HelpBlock>
-                        <p className="text-danger">{validationFailed.password}</p>
-                        {profile == 'desktop' && <p className="text-info">{_("Leave the password blank if you do not wish to have a root account created")}</p>}
-                    </HelpBlock>
                 </FormGroup>
-                <hr />
-            </> : <span />}
+            </>}
         </>
     );
 };
 
 const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, minimumMemory, onValueChanged, validationFailed }) => {
-    const validationStateMemory = validationFailed.memory ? 'error' : undefined;
+    const validationStateMemory = validationFailed.memory ? 'error' : 'default';
     return (
-        <>
-            <label htmlFor='memory-size' className='control-label'>
-                {_("Memory")}
-            </label>
-            <FormGroup validationState={validationStateMemory} bsClass='form-group ct-validation-wrapper' controlId='memory'>
-                <MemorySelectRow id='memory-size'
-                    value={Math.max(memorySize, Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit)))}
-                    maxValue={nodeMaxMemory && Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit))}
-                    minValue={Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit))}
-                    initialUnit={memorySizeUnit}
-                    onValueChange={value => onValueChanged('memorySize', value)}
-                    onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
-                <HelpBlock id="memory-size-helpblock">
-                    {validationStateMemory === "error" && <p>{validationFailed.memory}</p>}
-                </HelpBlock>
-            </FormGroup>
-        </>
+        <FormGroup label={_("Memory")} validated={validationStateMemory} helperTextInvalid={validationFailed.memory} fieldId='memory' id='memory-group'>
+            <MemorySelectRow id='memory-size'
+                value={Math.max(memorySize, Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit)))}
+                maxValue={nodeMaxMemory && Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit))}
+                minValue={Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit))}
+                initialUnit={memorySizeUnit}
+                onValueChange={value => onValueChanged('memorySize', value)}
+                onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
+        </FormGroup>
     );
 };
 
 const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, recommendedStorage, minimumStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
-    const validationStateStorage = validationFailed.storage ? 'error' : undefined;
+    const validationStateStorage = validationFailed.storage ? 'error' : 'default';
     let volumeEntries;
     let isVolumeUsed = {};
     // Existing storage pool is chosen
@@ -509,60 +477,55 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
 
     return (
         <>
-            <label className="control-label" htmlFor="storage-pool-select">
-                {_("Storage")}
-            </label>
-            <CockpitSelect.Select id="storage-pool-select"
-                           initial={storagePoolName}
-                           onChange={e => onValueChanged('storagePool', e)}>
-                <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">{_("Create new volume")}</CockpitSelect.SelectEntry>
-                <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">{_("No storage")}</CockpitSelect.SelectEntry>
-                <CockpitSelect.SelectDivider />
-                <optgroup key="Storage pools" label="Storage pools">
-                    { storagePools.map(pool => {
-                        if (pool.volumes && pool.volumes.length)
-                            return <CockpitSelect.SelectEntry data={pool.name} key={pool.name}>{pool.name}</CockpitSelect.SelectEntry>;
-                    })}
-                </optgroup>
-            </CockpitSelect.Select>
+            <FormGroup label={_("Storage")} fieldId="storage-pool-select">
+                <CockpitSelect.Select id="storage-pool-select"
+                                      extraClass="pf-c-form-control"
+                                      initial={storagePoolName}
+                                      onChange={e => onValueChanged('storagePool', e)}>
+                    <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">
+                        {_("Create new volume")}
+                    </CockpitSelect.SelectEntry>
+                    <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">
+                        {_("No storage")}
+                    </CockpitSelect.SelectEntry>
+                    <CockpitSelect.SelectDivider />
+                    <optgroup key="Storage pools" label="Storage pools">
+                        { storagePools.map(pool => {
+                            if (pool.volumes && pool.volumes.length)
+                                return <CockpitSelect.SelectEntry data={pool.name} key={pool.name}>{pool.name}</CockpitSelect.SelectEntry>;
+                        })}
+                    </optgroup>
+                </CockpitSelect.Select>
+            </FormGroup>
 
             { storagePoolName !== "NewVolume" &&
             storagePoolName !== "NoStorage" &&
-            <>
-                <label className="control-label" htmlFor="storage-volume-select">
-                    {_("Volume")}
-                </label>
+            <FormGroup label={_("Volume")}
+                       fieldId="storage-volume-select"
+                       helperText={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) && _("This volume is already used by another VM.")}
+                       validated={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) ? "warning" : "default"}>
                 <CockpitSelect.Select id="storage-volume-select"
-                               initial={storageVolume}
-                               onChange={e => onValueChanged('storageVolume', e)}>
+                                      extraClass="pf-c-form-control"
+                                      value={storageVolume}
+                                      validated={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) ? "warning" : "default"}
+                                      onChange={value => onValueChanged('storageVolume', value)}>
                     {volumeEntries}
                 </CockpitSelect.Select>
-
-                { isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0 &&
-                <HelpBlock>
-                    <p className="text-warning">{_("This volume is already used by another VM.")}</p>
-                </HelpBlock> }
-            </> }
+            </FormGroup>}
 
             { storagePoolName === "NewVolume" &&
-            <>
-                <label htmlFor='storage-size' className='control-label'>
-                    {_("Size")}
-                </label>
-                <FormGroup validationState={validationStateStorage} bsClass='form-group ct-validation-wrapper' controlId='storage'>
-                    <MemorySelectRow id="storage-size"
-                        value={Math.max(storageSize, Math.floor(convertToUnit(minimumStorage || 0, units.B, storageSizeUnit)))}
-                        maxValue={poolSpaceAvailable && Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit))}
-                        minValue={minimumStorage && Math.floor(convertToUnit(minimumStorage, units.B, storageSizeUnit))}
-                        initialUnit={storageSizeUnit}
-                        onValueChange={value => onValueChanged('storageSize', value)}
-                        onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
-                    {poolSpaceAvailable &&
-                    <HelpBlock id="storage-size-helpblock">
-                        {validationStateStorage === "error" && <p>{validationFailed.storage}</p>}
-                    </HelpBlock>}
-                </FormGroup>
-            </> }
+            <FormGroup label={_("Size")} fieldId='storage'
+                       id='storage-group'
+                       validated={poolSpaceAvailable && validationStateStorage}
+                       helperTextInvalid={validationFailed.storage}>
+                <MemorySelectRow id="storage-size"
+                    value={Math.max(storageSize, Math.floor(convertToUnit(minimumStorage || 0, units.B, storageSizeUnit)))}
+                    maxValue={poolSpaceAvailable && Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit))}
+                    minValue={minimumStorage && Math.floor(convertToUnit(minimumStorage, units.B, storageSizeUnit))}
+                    initialUnit={storageSizeUnit}
+                    onValueChange={value => onValueChanged('storageSize', value)}
+                    onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
+            </FormGroup>}
         </>
     );
 };
@@ -813,13 +776,13 @@ class CreateVmModal extends React.Component {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         let startVmCheckbox = (
-            <label className="checkbox-inline">
-                <input id="start-vm" type="checkbox"
-                    checked={this.state.startVm}
-                    disabled={this.state.unattendedInstallation}
-                    onChange={e => this.onValueChanged('startVm', e.target.checked)} />
-                {_("Immediately start VM")}
-            </label>
+            <FormGroup fieldId="start-vm">
+                <Checkbox id="start-vm"
+                    isChecked={this.state.startVm}
+                    isDisabled={this.state.unattendedInstallation}
+                    label={_("Immediately start VM")}
+                    onChange={checked => this.onValueChanged('startVm', checked)} />
+            </FormGroup>
         );
         if (this.state.unattendedInstallation) {
             startVmCheckbox = (
@@ -842,20 +805,16 @@ class CreateVmModal extends React.Component {
         }
 
         const dialogBody = (
-            <form className="ct-form">
+            <Form isHorizontal>
                 <NameRow
                     vmName={this.state.vmName}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed} />
 
-                <hr />
-
                 <MachinesConnectionSelector id='connection'
                     connectionName={this.state.connectionName}
                     onValueChanged={this.onValueChanged}
                     loggedUser={loggedUser} />
-
-                <hr />
 
                 <SourceRow
                     connectionName={this.state.connectionName}
@@ -869,8 +828,6 @@ class CreateVmModal extends React.Component {
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed} />
 
-                <hr />
-
                 {this.state.sourceType != DOWNLOAD_AN_OS &&
                 <>
                     <OSRow
@@ -880,7 +837,6 @@ class CreateVmModal extends React.Component {
                         isLoading={this.state.autodetectOSInProgress}
                         validationFailed={validationFailed} />
 
-                    <hr />
                 </>}
 
                 { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
@@ -908,8 +864,6 @@ class CreateVmModal extends React.Component {
                     minimumMemory={this.state.minimumMemory}
                 />
 
-                <hr />
-
                 {this.state.sourceType != PXE_SOURCE &&
                  this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
                  this.props.unattendedSupported &&
@@ -921,11 +875,10 @@ class CreateVmModal extends React.Component {
                          os={this.state.os}
                          profile={this.state.profile}
                          onValueChanged={this.onValueChanged} />
-                     <hr />
                  </>}
 
                 {startVmCheckbox}
-            </form>
+            </Form>
         );
 
         return (

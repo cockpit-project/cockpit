@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, Tooltip } from '@patternfly/react-core';
+import { Button, Form, Modal, Tooltip } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -86,12 +86,12 @@ class CreateStorageVolumeModal extends React.Component {
                            </Button>
                        </>
                    }>
-                <div className='ct-form'>
+                <Form isHorizontal>
                     <VolumeCreateBody idPrefix={idPrefix}
                                       storagePool={this.props.storagePool}
                                       dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
-                </div>
+                </Form>
             </Modal>
         );
     }

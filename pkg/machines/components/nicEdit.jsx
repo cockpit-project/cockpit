@@ -19,7 +19,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import { Button, Alert, Modal } from '@patternfly/react-core';
+import { Button, Alert, Form, FormGroup, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -35,14 +35,11 @@ const _ = cockpit.gettext;
 
 const NetworkMacRow = ({ network }) => {
     return (
-        <>
-            <label className='control-label' htmlFor='mac'>
-                {_("MAC address")}
-            </label>
+        <FormGroup fieldId='mac' label={_("MAC address")} hasNoPaddingTop>
             <samp id='mac'>
                 {network.mac}
             </samp>
-        </>
+        </FormGroup>
     );
 };
 
@@ -128,21 +125,19 @@ export class EditNICModal extends React.Component {
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
-            <form className='ct-form'>
+            <Form>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
                                          networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
-                <hr />
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
                                  osTypeArch={vm.arch}
                                  osTypeMachine={vm.emulatedMachine} />
-                <hr />
                 <NetworkMacRow network={network} />
-            </form>
+            </Form>
         );
         const showWarning = () => {
             if (vm.state === 'running' && (

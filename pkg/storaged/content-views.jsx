@@ -31,6 +31,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { format_dialog } from "./format-dialog.jsx";
+import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
 import { CryptoTab } from "./crypto-tab.jsx";
@@ -609,9 +610,9 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             Action: {
                 Title: _("Format"),
                 Danger: _("Formatting a disk will erase all data on it."),
+                wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {
                     var options = {
-                        'no-block': { t: 'b', v: true },
                         'tear-down': { t: 'b', v: true }
                     };
                     if (vals.erase != "no")

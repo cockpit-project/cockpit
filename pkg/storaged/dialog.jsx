@@ -370,7 +370,11 @@ export const dialog_open = (def) => {
                                             if (is_visible(f, values))
                                                 visible_values[f.tag] = values[f.tag];
                                         });
-                                        return def.Action.action(visible_values, progress_callback);
+                                        if (def.Action.wrapper)
+                                            return def.Action.wrapper(visible_values, progress_callback,
+                                                                      def.Action.action);
+                                        else
+                                            return def.Action.action(visible_values, progress_callback);
                                     })
                                     .catch(error => {
                                         if (error.toString() != "[object Object]") {

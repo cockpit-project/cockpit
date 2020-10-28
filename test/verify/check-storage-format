@@ -90,6 +90,39 @@ class TestStorageFormat(StorageCase):
         else:
             check_type("ntfs", 128)
 
+    def testFormatCancel(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Make a super slow block device so that we have enough
+        # chances to cancel the Format.
+
+        disk = self.add_ram_disk()
+        m.execute("""disk=%s; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""" % disk)
+        b.click("#others tr:contains('/dev/mapper/superslow')")
+        b.wait_present('#storage-detail')
+
+        self.content_head_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_apply()
+        b.wait_in_text("footer", "Creating filesystem on /dev/mapper/superslow")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 1, "Unrecognized data")
+
+        self.content_head_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("erase", "zero")
+        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_apply()
+        b.wait_in_text("footer", "Erasing /dev/mapper/superslow")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 1, "Unrecognized data")
 
 if __name__ == '__main__':
     test_main()

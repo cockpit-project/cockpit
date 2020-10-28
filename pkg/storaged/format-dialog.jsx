@@ -27,6 +27,7 @@ import {
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point, get_cryptobacking_noauto } from "./fsys-tab.jsx";
+import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
 
@@ -257,8 +258,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
         },
         Action: {
             Title: create_partition ? _("Create partition") : _("Format"),
-            Danger: (create_partition
-                ? null : _("Formatting a storage device will erase all data on it.")),
+            Danger: (create_partition ? null : _("Formatting a storage device will erase all data on it.")),
+            wrapper: job_progress_wrapper(client, block.path),
             action: function (vals) {
                 var options = {
                     'tear-down': { t: 'b', v: true }

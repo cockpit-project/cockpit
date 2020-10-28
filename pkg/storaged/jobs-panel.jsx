@@ -198,3 +198,23 @@ export class JobsPanel extends React.Component {
         );
     }
 }
+
+export function job_progress_wrapper(client, path) {
+    return function (vals, progress_callback, action_function) {
+        function client_changed() {
+            const job = client.path_jobs[path];
+            if (job) {
+                let desc = make_description(client, job);
+                if (job.ProgressValid)
+                    desc += cockpit.format(" ($0%)", (job.Progress * 100).toFixed());
+                progress_callback(desc, job.Cancelable ? () => job.Cancel({}) : null);
+            } else {
+                progress_callback(null, null);
+            }
+        }
+
+        client.addEventListener("changed", client_changed);
+        return action_function(vals, progress_callback)
+                .finally(() => { client.removeEventListener("changed", client_changed) });
+    };
+}

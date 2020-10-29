@@ -523,7 +523,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     @nondestructive
     def testAbrtSegv(self):
         b = self.browser
@@ -559,7 +559,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("#journal-entry #accordion-markup .panel-body:contains('signal: 11  executable: ')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     @nondestructive
     def testAbrtDelete(self):
         b = self.browser
@@ -592,7 +592,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_not_present("#journal-entry-fields .nav .pf-m-danger")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     @nondestructive
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
@@ -657,7 +657,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     @nondestructive
     def testAbrtReportCancel(self):
         b = self.browser
@@ -693,7 +693,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("table.reporting-table tr:contains('Report to Cockpit') td:contains('Reporting was canceled')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     @nondestructive
     def testAbrtReportNoReportd(self):
         b = self.browser

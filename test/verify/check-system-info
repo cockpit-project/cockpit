@@ -292,7 +292,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-3", "rhel-8-4", "centos-8-stream")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

@@ -126,7 +126,7 @@ class TestStorageResize(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @skipImage("No NTFS support installed", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "centos-8-stream")
     def testResizeNtfs(self):
         self.checkResize("ntfs", None,
                          can_shrink=True, shrink_needs_unmount=True,
@@ -136,7 +136,7 @@ class TestStorageResize(StorageCase):
         self.checkResize("ext4", True,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=False,
-                         need_passphrase=(self.machine.image in ["rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]))
+                         need_passphrase=(self.machine.image in ["rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "centos-8-stream"]))
 
     def wait_not_present_with_udev_trigger(self, selector):
         # This is fundamentally the same as Browser.wait, but uses a
@@ -260,7 +260,7 @@ class TestStorageResize(StorageCase):
         m.execute("lvresize TEST/vol -L+100M")
 
         def confirm_with_passphrase():
-            if m.image not in ["rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
+            if m.image not in ["rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "centos-8-stream"]:
                 return
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()

@@ -862,7 +862,7 @@ ProtocolHeader = X-Forwarded-Proto
         self.allow_restart_journal_messages()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-3", "rhel-8-4", "ubuntu-stable", "ubuntu-2004")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -904,7 +904,7 @@ server {
         self.checkCockpitOnProxy()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-3", "rhel-8-4", "ubuntu-stable", "ubuntu-2004")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

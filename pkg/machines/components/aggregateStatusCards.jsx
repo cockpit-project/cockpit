@@ -34,9 +34,13 @@ export class AggregateStatusCards extends React.Component {
     render() {
         return (
             <div className='grid-cards-ct'>
-                <Card id='card-pf-storage-pools'>
+                <Card id='card-pf-storage-pools'
+                      isSelectable
+                      onKeyDown={() => cockpit.location.go(['storages'])}
+                      onClick={() => cockpit.location.go(['storages'])}>
                     <CardHeader>
-                        <Button onClick={() => cockpit.location.go(['storages'])} variant="link" icon={<ServerIcon />}>
+                        <ServerIcon size="md" />
+                        <Button onClick={() => cockpit.location.go(['storages'])} variant="link">
                             <span className="card-pf-title-link">
                                 {cockpit.format(cockpit.ngettext("$0 Storage pool", "$0 Storage pools", this.props.storagePools.length), this.props.storagePools.length)}
                             </span>
@@ -54,9 +58,13 @@ export class AggregateStatusCards extends React.Component {
                         </Flex>
                     </CardHeader>
                 </Card>
-                <Card id='card-pf-networks'>
+                <Card id='card-pf-networks'
+                      isSelectable
+                      onKeyDown={() => cockpit.location.go(['networks'])}
+                      onClick={() => cockpit.location.go(['networks'])}>
                     <CardHeader>
-                        <Button onClick={() => cockpit.location.go(['networks'])} variant="link" icon={<NetworkIcon />}>
+                        <NetworkIcon size="md" />
+                        <Button onClick={() => cockpit.location.go(['networks'])} variant="link">
                             <span className="card-pf-title-link">
                                 {cockpit.format(cockpit.ngettext("$0 Network", "$0 Networks", this.props.networks.length), this.props.networks.length)}
                             </span>

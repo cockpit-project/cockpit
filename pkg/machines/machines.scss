@@ -379,24 +379,3 @@ $toast-anim-speed: 200ms;
         margin:  -0.25rem 0.25rem;
     }
 }
-
-// Adjust the storage pool and network icons
-.pf-c-card__header {
-    .pf-c-button__icon {
-        // Add a space between the icon and text
-        --pf-c-button__icon--m-start--MarginRight: var(--pf-global--spacer--md);
-        // Increase the icon size
-        font-size: var(--pf-global--icon--FontSize--lg);
-
-        // Align to the middle, instead of a hardcoded offset
-        // PF issue: https://github.com/patternfly/patternfly/issues/3628
-        svg {
-            vertical-align: middle !important;
-        }
-    }
-
-    // Change the color when not hovered
-    > .pf-m-link:not(:hover) .pf-c-button__icon {
-        color: var(--pf-global--Color--300);
-    }
-}

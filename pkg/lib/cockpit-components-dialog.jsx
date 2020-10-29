@@ -58,26 +58,16 @@ export class DialogFooter extends React.Component {
             action_canceled: false,
             error_message: null,
         };
-        this.keyUpHandler = this.keyUpHandler.bind(this);
         this.update_progress = this.update_progress.bind(this);
         this.cancel_click = this.cancel_click.bind(this);
     }
 
-    keyUpHandler(e) {
-        if (e.keyCode == 27) {
-            this.cancel_click();
-            e.stopPropagation();
-        }
-    }
-
     componentDidMount() {
         document.body.classList.add("modal-in");
-        document.addEventListener('keyup', this.keyUpHandler);
     }
 
     componentWillUnmount() {
         document.body.classList.remove("modal-in");
-        document.removeEventListener('keyup', this.keyUpHandler);
     }
 
     update_progress(msg, cancel) {
@@ -238,11 +228,6 @@ DialogFooter.propTypes = {
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  */
 export class Dialog extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { isOpen: true };
-    }
-
     componentDidMount() {
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)
@@ -252,8 +237,10 @@ export class Dialog extends React.Component {
     render() {
         return (
             <Modal position="top" variant="medium"
+                   onEscapePress={() => undefined}
+                   showClose={false}
                    id={this.props.id}
-                   isOpen={this.state.isOpen} onClose={() => this.setState({ isOpen: false })}
+                   isOpen
                    footer={this.props.footer} title={this.props.title}>
                 { this.props.body }
             </Modal>

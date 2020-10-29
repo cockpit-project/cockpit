@@ -167,16 +167,10 @@ class TestFirewall(NetworkCase):
 
         # Check that all services are shown.  This only works reliably since #12806
         active_rules = get_active_rules(m)
-        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14597
-            b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
-        else:
-            b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.listing tbody", len(active_rules))
+        b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
-        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14597
-            b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-c-table__expandable-row", "Post Office Protocol")
-        else:
-            b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.ct-listing-panel", "Post Office Protocol")
+        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-c-table__expandable-row", "Post Office Protocol")
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
@@ -257,13 +251,10 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'fedora-testing', "fedora-32", "fedora-33"]:
+        if m.image in ['rhel-8-3', 'rhel-8-4', 'debian-testing', 'fedora-testing', "fedora-32", "fedora-33"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
-            if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14597
-                b.wait_present(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
-            else:
-                b.wait_present(".zone-section[data-id='public'] tbody.open .ct-listing-panel:contains(Included Services)")
+            b.wait_present(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
 
         # pop3 should now not appear any more in Add Services dialog

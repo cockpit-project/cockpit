@@ -24,6 +24,7 @@ import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { password_quality, PasswordFormFields } from "./password.jsx";
 
 const _ = cockpit.gettext;
 
@@ -128,33 +129,6 @@ export function passwd_change(user, new_pass) {
     });
 }
 
-export function password_quality(password, force) {
-    return new Promise((resolve, reject) => {
-        cockpit.spawn('/usr/bin/pwscore', { err: "message" })
-                .input(password)
-                .done(function(content) {
-                    var quality = parseInt(content, 10);
-                    if (quality === 0) {
-                        reject(new Error(_("Password is too weak")));
-                    } else if (quality <= 33) {
-                        resolve("weak");
-                    } else if (quality <= 66) {
-                        resolve("okay");
-                    } else if (quality <= 99) {
-                        resolve("good");
-                    } else {
-                        resolve("excellent");
-                    }
-                })
-                .fail(function(ex) {
-                    if (!force)
-                        reject(new Error(ex.message || _("Password is not acceptable")));
-                    else
-                        resolve("weak");
-                });
-    });
-}
-
 function SetPasswordDialogBody({ state, errors, change }) {
     const {
         need_old, password_old, password, password_confirm,
@@ -171,33 +145,16 @@ function SetPasswordDialogBody({ state, errors, change }) {
                 <TextInput className="check-passwords" type="password" id="account-set-password-old"
                            value={password_old} onChange={value => change("password_old", value)} />
             </FormGroup> }
-
-            <FormGroup label={_("New password")}
-                       helperTextInvalid={errors && errors.password}
-                       validated={(errors && errors.password) ? "error" : "default"}
-                       fieldId="account-set-password-pw1">
-                <TextInput className="check-passwords" type="password" id="account-set-password-pw1"
-                           value={password} onChange={value => change("password", value)} />
-            </FormGroup>
-
-            <FormGroup label={_("Confirm new password")}
-                       helperTextInvalid={errors && errors.password_confirm}
-                       validated={(errors && errors.password_confirm) ? "error" : "default"}
-                       fieldId="account-set-password-pw2">
-                <TextInput type="password" id="account-set-password-pw2"
-                           value={password_confirm} onChange={value => change("password_confirm", value)} />
-                <div>
-                    <div id="account-set-password-meter" className={"progress password-strength-meter " + password_strength}>
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                        <div className="progress-bar" />
-                    </div>
-                    <div>
-                        <span id="account-set-password-meter-message" className="help-block">{password_message}</span>
-                    </div>
-                </div>
-            </FormGroup>
+            <PasswordFormFields password={password}
+                                password_confirm={password_confirm}
+                                password_label={_("New password")}
+                                password_confirm_label={_("Confirm new password")}
+                                password_strength={password_strength}
+                                password_message={password_message}
+                                error_password={errors && errors.password}
+                                error_password_confirm={errors && errors.password_confirm}
+                                idPrefix="account-set-password"
+                                change={change} />
         </Form>
     );
 }
@@ -213,7 +170,6 @@ export function set_password_dialog(account, current_user) {
         password: "",
         password_confirm: "",
         password_strength: "",
-        password_message: "",
         confirm_weak: false,
     };
 
@@ -229,18 +185,16 @@ export function set_password_dialog(account, current_user) {
             old_password = state.password;
             if (state.password) {
                 password_quality(state.password)
-                        .catch(ex => "weak")
+                        .catch(ex => {
+                            return { value: 0 };
+                        })
                         .then(strength => {
-                            state.password_strength = strength;
-                            if (strength == "excellent")
-                                state.password_message = _("Excellent password");
-                            else
-                                state.password_message = "";
+                            state.password_strength = strength.value;
+                            state.password_message = strength.message;
                             update();
                         });
             } else {
                 state.password_strength = "";
-                state.password_message = "";
             }
         }
 

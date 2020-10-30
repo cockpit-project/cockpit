@@ -3,8 +3,6 @@
 @import "../../node_modules/@patternfly/patternfly/components/Form/form.scss";
 @import "../lib/table.css";
 @import "../lib/ct-card.scss";
-@import "./password.scss";
-
 
 #account .pf-c-card {
     @extend .ct-card;
@@ -255,4 +253,11 @@
 
 .outline-question-circle-icon {
     margin-left: var(--pf-global--spacer--sm);
+}
+
+#account-set-password-meter, #accounts-create-password-meter {
+    grid-gap: var(--pf-global--spacer--xs);
+    .pf-c-progress__description, .pf-c-progress__status {
+        display: none;
+    }
 }

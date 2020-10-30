@@ -103,7 +103,6 @@ class TestMultiOS(MachineCase):
 
         stock_b.login_and_go("/dashboard", legacy_authorized=True)
         wait_dashboard_addresses(stock_b, ["localhost"])
-        stock_b.snapshot("YYY")
 
         add_machine(stock_b, "10.111.113.1", password=None)
         wait_dashboard_addresses(stock_b, ["localhost", "10.111.113.1"])

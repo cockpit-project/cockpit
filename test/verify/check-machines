@@ -183,7 +183,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh net-start default || true")
         m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 
-    def startVm(self, name, graphics='spice', ptyconsole=False):
+    def createVm(self, name, graphics='spice', ptyconsole=False, running=True):
         m = self.machine
 
         image_file = m.pull("cirros")
@@ -221,10 +221,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.created_pool = True
 
         xml = DOMAIN_XML.format(**args)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml{1}".format(xml,
+                                                                               " && virsh start {}".format(name) if running else ""))
 
-        m.execute('[ "$(virsh domstate {0})" = running ] || '
-                  '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
+        m.execute('[ "$(virsh domstate {0})" = {1} ] || {{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name,
+                                                                                                                                            "running" if running else "\"shut off\""))
 
         # TODO check if kernel is booted
         # Ideally we would like to check guest agent event for that
@@ -265,7 +266,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
         name = "subVmTest1"
-        args = self.startVm(name)
+        args = self.createVm(name)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -309,7 +310,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         self.allow_authorize_journal_messages()
         self.login_and_go("/machines", user=user, superuser=superuser)
@@ -391,7 +392,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToMainPage()
 
         # start another one, should appear automatically
-        self.startVm("subVmTest2")
+        self.createVm("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-state", "Running")
         self.goToVmPage("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
@@ -442,7 +443,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check correctness of the toast notifications list
         # We 'll create errors by starting to start domains when the default network in inactive
-        self.startVm("subVmTest3")
+        self.createVm("subVmTest3")
         m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
 
         def tryRunDomain(index, name):
@@ -500,7 +501,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             except subprocess.CalledProcessError:  # return code != 0
                 return False
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
         self.login_and_go("/machines")
 
         b.wait_in_text("body", "Virtual machines")
@@ -570,7 +571,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -793,7 +794,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         # Wait for the system to completely start
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -848,7 +849,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         # Wait for the system to completely start
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -889,7 +890,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         dev = self.add_ram_disk()
         used_targets = ['vda']
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         # Wait for the system to completely start
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -945,7 +946,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 50M --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1105,7 +1106,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1140,7 +1141,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1265,7 +1266,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testExternalConsole(self):
         b = self.browser
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1291,7 +1292,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 
-        args = self.startVm("subVmTest1", graphics='vnc')
+        args = self.createVm("subVmTest1", graphics='vnc')
 
         if urlroot != "":
             self.machine.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
@@ -1323,7 +1324,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         name = "subVmTest1"
         img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
 
-        args = self.startVm(name, graphics='vnc')
+        args = self.createVm(name, graphics='vnc')
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1378,7 +1379,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Try to delete a paused VM
         name = "paused-test-vm"
-        args = self.startVm(name)
+        args = self.createVm(name)
 
         self.goToVmPage(name)
 
@@ -1394,7 +1395,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Try to delete a transient VM
         name = "transient-VM"
-        args = self.startVm(name)
+        args = self.createVm(name)
         m.execute("virsh undefine {0}".format(name))
         b.reload()
         self.browser.enter_page('/machines')
@@ -1413,7 +1414,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         name = "vmWithSerialConsole"
 
-        self.startVm(name, graphics='vnc', ptyconsole=True)
+        self.createVm(name, graphics='vnc', ptyconsole=True)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -1440,7 +1441,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         name = "vmForSwitching"
 
-        self.startVm(name, graphics="vnc", ptyconsole=True)
+        self.createVm(name, graphics="vnc", ptyconsole=True)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -2651,46 +2652,51 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
-
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
-        self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
-        self.goToVmPage("subVmTest1")
+        def checkAutostart(vm_name, running):
+            self.createVm(vm_name, running=running)
+            self.waitVmRow(vm_name)
+            b.wait_in_text("#vm-{}-state".format(vm_name), "Running" if running else "Shut off")
+            self.goToVmPage(vm_name)
 
+            # set checkbox state and check state of checkbox
+            b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True) # don't know the initial state of checkbox, so set it to checked
+            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
 
-        # set checkbox state and check state of checkbox
-        b.set_checked("#vm-subVmTest1-autostart-checkbox", True) # don't know the initial state of checkbox, so set it to checked
-        b.wait_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "enable")
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_not_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "disable")
 
-        # change checkbox state and check state of checkbox
-        b.click("#vm-subVmTest1-autostart-checkbox")
-        b.wait_not_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "disable")
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
 
-        # change checkbox state and check state of checkbox
-        b.click("#vm-subVmTest1-autostart-checkbox")
-        b.wait_present("#vm-subVmTest1-autostart-checkbox:checked")
-        # check virsh state
-        autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
-        self.assertEqual(autostartState, "enable")
+            # non-persistent VM doesn't have autostart
+            if running:
+                m.execute("virsh undefine {}".format(vm_name))
+                b.wait_not_present("#vm-{}-autostart-checkbox".format(vm_name))
 
-        # non-persistent VM doesn't have autostart
-        m.execute("virsh undefine subVmTest1")
-        b.wait_not_present("#vm-subVmTest1-autostart-checkbox")
+            self.goToMainPage()
+
+        checkAutostart("subVmTest1", True)
+        checkAutostart("subVmTest2", False)
 
     def testBootOrder(self):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -2935,7 +2941,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         # prepare libvirt storage pools
         p1 = os.path.join(self.vm_tmpdir, "vm_one")
@@ -3040,7 +3046,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -3121,7 +3127,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "mydiskofpoolone_2" in m.execute("virsh vol-list myPoolOne"))
         wait(lambda: "mydiskofpoolone_3" in m.execute("virsh vol-list myPoolOne"))
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
         m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent".format(p1))
@@ -3190,7 +3196,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testMultipleSettings(self):
         b = self.browser
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -3228,7 +3234,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
@@ -3596,7 +3602,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         # Check snapshot for running VM
         m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
@@ -3643,7 +3649,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -3697,7 +3703,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -4694,7 +4700,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
 
-        args = self.startVm("subVmTest1")
+        args = self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -4900,7 +4906,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")

@@ -1,0 +1,91 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2020 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+import cockpit from 'cockpit';
+import React from 'react';
+import { FormGroup, Progress, ProgressSize, ProgressMeasureLocation, TextInput } from '@patternfly/react-core';
+
+const _ = cockpit.gettext;
+
+export function password_quality(password, force) {
+    return new Promise((resolve, reject) => {
+        cockpit.spawn('/usr/bin/pwscore', { err: "message" })
+                .input(password)
+                .done(function(content) {
+                    var quality = parseInt(content, 10);
+                    if (quality === 0)
+                        reject(new Error(_("Password is too weak")));
+                    else
+                        resolve({ value: quality, message: quality === 100 ? _("Excellent password") : undefined });
+                })
+                .fail(function(ex) {
+                    if (!force)
+                        reject(new Error(ex.message || _("Password is not acceptable")));
+                    else
+                        resolve({ value: 0 });
+                });
+    });
+}
+
+export const PasswordFormFields = ({
+    password, password_confirm,
+    password_label, password_confirm_label,
+    password_strength, password_message,
+    error_password, error_password_confirm,
+    idPrefix, change
+}) => {
+    let variant;
+    if (password_strength === "")
+        variant = "default";
+    else if (password_strength > 66)
+        variant = "success";
+    else if (password_strength > 33)
+        variant = "warning";
+    else
+        variant = "danger";
+
+    return (
+        <>
+            <FormGroup label={password_label}
+                       helperTextInvalid={error_password}
+                       validated={error_password ? "error" : "default"}
+                       fieldId={idPrefix + "-pw1"}>
+                <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
+                           value={password} onChange={value => change("password", value)} />
+            </FormGroup>
+
+            <FormGroup label={password_confirm_label}
+                       helperTextInvalid={error_password_confirm}
+                       validated={error_password_confirm ? "error" : "default"}
+                       fieldId={idPrefix + "-pw2"}>
+                <TextInput type="password" id={idPrefix + "-pw2"}
+                           value={password_confirm} onChange={value => change("password_confirm", value)} />
+                <div>
+                    <Progress id={idPrefix + "-meter"}
+                              className={"password-strength-meter " + variant}
+                              title="password quality"
+                              size={ProgressSize.sm}
+                              measureLocation={ProgressMeasureLocation.none}
+                              variant={variant}
+                              value={isNaN(password_strength) ? 1 : password_strength} />
+                    <div id="account-set-password-meter-message" className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
+                </div>
+            </FormGroup>
+        </>
+    );
+};

@@ -112,18 +112,18 @@ class TestAccounts(MachineCase):
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "berta")
         b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
-        b.set_input_text('#accounts-create-pw1', "foo")
-        b.wait_visible("#accounts-create-password-meter.weak")
-        b.set_input_text('#accounts-create-pw1', good_password)
-        b.wait_visible("#accounts-create-password-meter.excellent")
+        b.set_input_text('#accounts-create-password-pw1', "foo")
+        b.wait_visible("#accounts-create-password-meter.danger")
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.wait_visible("#accounts-create-password-meter.success")
 
         # wrong password confirmation
-        b.set_input_text('#accounts-create-pw2', good_password + 'b')
+        b.set_input_text('#accounts-create-password-pw2', good_password + 'b')
         b.click('#accounts-create-dialog button.apply')
         b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
 
         # correct password confirmation
-        b.set_input_text('#accounts-create-pw2', good_password)
+        b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
         b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
         b.wait_not_present('#accounts-create-dialog')
@@ -148,16 +148,16 @@ class TestAccounts(MachineCase):
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "jussi")
         b.set_input_text('#accounts-create-real-name', "Jussi Junior")
-        b.set_input_text('#accounts-create-pw1', "foo")
-        b.set_input_text('#accounts-create-pw2', "foo")
+        b.set_input_text('#accounts-create-password-pw1', "foo")
+        b.set_input_text('#accounts-create-password-pw2', "foo")
         b.set_checked('#accounts-create-locked', True)
         b.click('#accounts-create-dialog button.apply')
 
         # Password is weak, lets change it to another weak - this should still not accept
         b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
         b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Click Create again to use the password anyway.")
-        b.set_input_text('#accounts-create-pw1', "bar")
-        b.set_input_text('#accounts-create-pw2', "bar")
+        b.set_input_text('#accounts-create-password-pw1', "bar")
+        b.set_input_text('#accounts-create-password-pw2', "bar")
         b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
         b.click('#accounts-create-dialog button.apply')
 
@@ -232,7 +232,7 @@ class TestAccounts(MachineCase):
         # weak password
         b.set_input_text("#account-set-password-pw1", 'a')
         b.set_input_text("#account-set-password-pw2", 'a')
-        b.wait_visible("#account-set-password-meter.weak")
+        b.wait_visible("#account-set-password-meter.danger")
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
         b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Click Set again to use the password anyway.")
@@ -247,7 +247,7 @@ class TestAccounts(MachineCase):
         # Now set to something valid
         b.set_input_text("#account-set-password-pw1", good_password_2)
         b.set_input_text("#account-set-password-pw2", good_password_2)
-        b.wait_visible("#account-set-password-meter.excellent")
+        b.wait_visible("#account-set-password-meter.success")
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 

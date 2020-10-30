@@ -36,7 +36,7 @@ EOF
 if [ -z "$DISKS" ]; then
     DISKS_PARAM="--disk none"
 else
-    createOptions "$DISKS" "--disk"
+    createOptions "'$DISKS'" "--disk"
     DISKS_PARAM="$CREATE_OPTIONS_RESULT"
 fi
 
@@ -59,9 +59,9 @@ if [ "$SOURCE_TYPE" = "pxe" ]; then
 elif [ "$SOURCE_TYPE" = "os" ]; then
     INSTALL_METHOD="--install os=$OS"
 elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
-    INSTALL_METHOD="--cdrom $SOURCE"
+    INSTALL_METHOD="--cdrom '$SOURCE'"
 else
-    INSTALL_METHOD="--location $SOURCE"
+    INSTALL_METHOD="--location '$SOURCE'"
 fi
 
 if [ "$AUTOSTART" = "true" ]; then
@@ -105,7 +105,7 @@ handleFailure() {
     exit $1
 }
 
-virt-install \
+eval virt-install \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
     --os-variant "$OS" \
@@ -113,14 +113,14 @@ virt-install \
     --wait -1 \
     --noautoconsole \
     --check path_in_use=off \
-    $MEMORY_PARAM \
-    $DISKS_PARAM \
-    $INSTALL_METHOD \
-    $GRAPHICS_PARAM \
-    $VNICS_PARAM \
-    $VCPUS_PARAM \
-    $BOOT_PARAM \
-    $AUTOSTART_PARAM || handleFailure $?
+    "$MEMORY_PARAM" \
+    "$DISKS_PARAM" \
+    "$INSTALL_METHOD" \
+    "$GRAPHICS_PARAM" \
+    "$VNICS_PARAM" \
+    "$VCPUS_PARAM" \
+    "$BOOT_PARAM" \
+    "$AUTOSTART_PARAM" || handleFailure $?
 
 vmExists "$VM_NAME"
 # set metadata

@@ -1840,6 +1840,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 storage_pool="No storage",
                                                 start_vm=True,))
 
+        self.machine.execute("touch '{0}'".format(config.PATH_WITH_SPACE))
+        # Check file with empty space
+        runner.createTest(TestMachines.VmDialog(self, sourceType='file',
+                                                location=config.PATH_WITH_SPACE,
+                                                memory_size=256, memory_size_unit='MiB',
+                                                storage_pool="No storage",
+                                                start_vm=True,))
+
     def testCreateImportDisk(self):
         runner = TestMachines.CreateVmRunner(self)
         config = TestMachines.TestCreateConfig
@@ -1949,6 +1957,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
+        PATH_WITH_SPACE = '/var/lib/libvirt/novell with spaces.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
         TREE_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os'

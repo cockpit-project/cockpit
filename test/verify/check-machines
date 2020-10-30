@@ -2371,10 +2371,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # we just need to check that the VM was spawned
             fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
             root = ET.fromstring(fedora_28_xml)
-            root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
-            root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
-            root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
-            root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+            root.find('os').find('resources').find('minimum').find('ram').text = '134217728'
+            root.find('os').find('resources').find('minimum').find('storage').text = '134217728'
+            root.find('os').find('resources').find('recommended').find('ram').text = '268435456'
+            root.find('os').find('resources').find('recommended').find('storage').text = '268435456'
             if self.machine.image not in ["debian-stable"]:
                 root.find('os').find('eol-date').text = '9999-12-31'
             new_fedora_28_xml = ET.tostring(root)

@@ -37,10 +37,11 @@ class TestPages(MachineCase):
         expected = "Web Console"
         expected += "".join(items)
         expected += "About Web Console"
-        # DOCUMENTATION_URL is only in Fedora
-        # RHEL is tracked in rhbz#1789984
+        # DOCUMENTATION_URL is only in Fedora and RHEL >= 8.4
         if "fedora" in m.image:
             expected = "Fedora documentation" + expected
+        elif m.image in ["rhel-8-4"]:
+            expected = "Red Hat Enterprise Linux documentation" + expected
         b.wait_collected_text("#navbar-docs-items", expected)
         b.click("#navbar-docs > a")
         b.wait_not_visible("#navbar-docs-items")

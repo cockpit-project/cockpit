@@ -580,28 +580,6 @@ function Index() {
         $(self).triggerHandler("disconnect", watchdog_problem);
     });
 
-    /* Handle navigation */
-    $(document).on("click", ".nav-item", function(ev) {
-        if (ev.target.nodeName === "BUTTON") // Buttons in navigation have their own handlers
-            return;
-
-        let target_class = ev.target.className;
-        if (typeof target_class !== "string")
-            target_class = "";
-
-        if (target_class.indexOf("event-eater") > -1) // Special case for stopping propagation on disabled buttons
-            return;
-
-        let a = this;
-        if (ev.target.nodeName !== "A")
-            a = this.querySelector("a");
-
-        if (!a.host || window.location.host === a.host) {
-            self.jump(a.getAttribute('href'));
-            ev.preventDefault();
-        }
-    });
-
     /* Handles an href link as seen below */
     $(document).on("click", "a[href]", function(ev) {
         var a = this;

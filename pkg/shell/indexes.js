@@ -328,6 +328,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 keyword: component.keyword.keyword,
                 term: term,
                 to: index.href({ host: machine.address, component: path, hash: hash }),
+                jump: index.jump,
             });
         }
 
@@ -355,6 +356,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 filtering: keyword_filter,
                 sorting: (a, b) => { return b.keyword.score - a.keyword.score },
                 current: state.component,
+                jump: index.jump,
             }),
             document.getElementById("host-apps"));
 

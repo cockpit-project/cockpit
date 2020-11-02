@@ -113,6 +113,7 @@ export class CockpitHosts extends React.Component {
     }
 
     onHostEdit(event, machine) {
+        event.preventDefault();
         const dlg = $("#edit-host-dialog");
 
         const can_change_user = machine.address != "localhost";
@@ -205,6 +206,7 @@ export class CockpitHosts extends React.Component {
                 header={(m.user ? m.user : this.state.current_user) + " @"}
                 status={m.state === "failed" ? { type: "error", title: _("Connection error") } : null}
                 className={m.state}
+                jump={this.props.jump}
                 actions={[
                     <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={e => this.onHostEdit(e, m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>,
                     <Button isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger"><MinusIcon /></Button>

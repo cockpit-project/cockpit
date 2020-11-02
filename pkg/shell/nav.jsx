@@ -114,7 +114,10 @@ export class CockpitNav extends React.Component {
                             <div className="nav-group-heading">
                                 <h2 className="pf-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
                                 { g.action &&
-                                    <a className="pf-c-nav__section-title nav-item" href={g.action.path}>{g.action.label}</a>
+                                    <a className="pf-c-nav__section-title nav-item" href={g.action.path} onClick={ ev => {
+                                        this.props.jump(g.action.path);
+                                        ev.preventDefault();
+                                    }}>{g.action.label}</a>
                                 }
                             </div>
                             <ul className="pf-c-nav__list">
@@ -137,6 +140,7 @@ CockpitNav.propTypes = {
     current: PropTypes.string.isRequired,
     filtering: PropTypes.func.isRequired,
     sorting: PropTypes.func.isRequired,
+    jump: PropTypes.func.isRequired,
 };
 
 function PageStatus({ status, name }) {
@@ -177,33 +181,24 @@ export function CockpitNavItem(props) {
     if (props.header)
         header_matches = props.keyword === props.header.toLowerCase();
 
-    // Buttons when disabled don't get any events, but the events go to their parents
-    // This is problematic when there are disabled buttons over elements that have event listeners
-    // In our case it is navigation item with possible actions (like editing of host)
-    function event_eater(ev) {
-        if (ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-        }
-    }
-
     const classes = props.className ? [props.className] : [];
     classes.push("pf-c-nav__item", "nav-item");
 
     return (
         <li className={classes.join(" ")}>
             <span className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")} data-for={props.to}>
-                <a href={props.to}>
+                <a href={props.to} onClick={ev => {
+                    props.jump(props.to);
+                    ev.preventDefault();
+                }}>
                     { props.header && <span className="hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
                     { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
                     { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
                 </a>
                 {s && s.type && <PageStatus status={s} name={props.name} />}
-                { props.actions &&
-                    <div role="presentation" className="nav-host-action-buttons event-eater" onClick={event_eater} onKeyPress={event_eater}>
-                        {props.actions}
-                    </div>
-                }
+                <div role="presentation" className="nav-host-action-buttons">
+                    {props.actions}
+                </div>
             </span>
         </li>
     );
@@ -212,6 +207,7 @@ export function CockpitNavItem(props) {
 CockpitNavItem.propTypes = {
     name: PropTypes.string.isRequired,
     to: PropTypes.string.isRequired,
+    jump: PropTypes.func.isRequired,
     status: PropTypes.object,
     active: PropTypes.bool,
     keyword: PropTypes.string,

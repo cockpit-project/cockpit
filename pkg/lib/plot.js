@@ -463,6 +463,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
 
 export class Plot {
     constructor(element, x_range_seconds, x_stop_seconds) {
+        cockpit.event_target(this);
+
         this.element = element;
         this.options = { };
 
@@ -480,19 +482,23 @@ export class Plot {
         this.cur_hover_series = null;
         this.cur_hover_val = false;
 
-        $(this.element).on('plothover', null, this, this.hover_on);
-        $(this.element).on('mouseleave', null, this, this.hover_off);
-        $(this.element).on('plotselecting', null, this, this.selecting);
-        $(this.element).on('plotselected', null, this, this.selected);
+        if (this.element) {
+            $(this.element).on('plothover', null, this, this.hover_on);
+            $(this.element).on('mouseleave', null, this, this.hover_off);
+            $(this.element).on('plotselecting', null, this, this.selecting);
+            $(this.element).on('plotselected', null, this, this.selected);
 
-        // for testing
-        $(this.element).data('flot_data', this.flot_data);
+            // for testing
+            $(this.element).data('flot_data', this.flot_data);
+        }
 
         this.reset(x_range_seconds, x_stop_seconds);
     }
 
     refresh_now() {
-        if (this.element.height() === 0 || this.element.width() === 0)
+        this.dispatchEvent("plot", this.flot_data);
+
+        if (this.element == null || this.element.height() === 0 || this.element.width() === 0)
             return;
 
         if (this.flot === null)
@@ -599,12 +605,14 @@ export class Plot {
         this.series = [];
         this.flot_data = [];
         this.flot = null;
-        $(this.element).empty();
-        $(this.element).data('flot_data', null);
+        if (this.element) {
+            $(this.element).empty();
+            $(this.element).data('flot_data', null);
+        }
     }
 
     resize() {
-        if (this.element.height() === 0 || this.element.width() === 0)
+        if (this.element == null || this.element.height() === 0 || this.element.width() === 0)
             return;
         if (this.flot)
             this.flot.resize();

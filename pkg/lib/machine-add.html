@@ -1,19 +1,26 @@
 <div class="modal-header">
     <button class="close" data-dismiss="modal"
         aria-hidden="true">&times;</button>
+    {{^editing}}
     <h4 class="modal-title" translate="yes">Add new host</h4>
+    {{/editing}}
+    {{#editing}}
+    <h4 class="modal-title" translate="yes">Edit host</h4>
+    {{/editing}}
 </div>
 
 <div class="modal-body">
+    {{^editing}}
     <p>
       <span translate="yes">Specify the host and the login user account for the host that you want to add.</span><br/>
       <span translate="yes">For the host, either specify the hostname, IP address, an alias name or a unique resource identifier for the SSH destination.</span>
     </p><br/>
+    {{/editing}}
     <form class="ct-form">
       <label translate="yes" class="control-label">Host</label>
       <div class="dialog-wrapper error-keep">
         <input class="form-control" id="add-machine-address"
-               type="text" value="{{ full_address }}"
+               type="text" value="{{ host_address }}" {{connection_change_disabled}}
                list="options"
                placeholder="{{ placeholder }}"/>
         <datalist id="options">
@@ -25,7 +32,7 @@
 
       <label translate="yes" class="control-label">User name</label>
       <input class="form-control" id="add-machine-user"
-             type="text""/>
+             type="text" value="{{ host_user }}" {{connection_change_disabled}}/>
 
       <label translate="yes" class="control-label">Color</label>
       <div id="add-machine-color-picker"/>
@@ -39,6 +46,11 @@
       <span translate="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
     </div>
     {{/nearlimit}}
+    {{^editing}}
     <button class="pf-c-button pf-m-primary" translate="yes">Add</button>
+    {{/editing}}
+    {{#editing}}
+    <button class="pf-c-button pf-m-primary" translate="yes">Set</button>
+    {{/editing}}
     <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
 </div>

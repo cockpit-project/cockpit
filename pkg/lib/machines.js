@@ -278,40 +278,12 @@ function Machines() {
     }
 
     self.change = function change(host, values) {
-        var mod, hostnamed, call;
         var machine = self.lookup(host);
 
-        if (values.label) {
-            var conn_to = host;
-            if (machine)
-                conn_to = machine.connection_string;
-
-            if (!machine || machine.label !== values.label) {
-                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to, superuser: "try" });
-                call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
-                                      "SetPrettyHostname", [values.label, true])
-                        .always(function() {
-                            hostnamed.close();
-                        })
-                        .fail(function(ex) {
-                            console.warn("couldn't set pretty host name: " + ex);
-                        });
-            }
-        }
-
         if (machine && !machine.on_disk)
-            mod = update_session_machine(machine, host, values);
+            return update_session_machine(machine, host, values);
         else
-            mod = update_saved_machine(host, values);
-
-        if (call)
-            // Can't use Promise.all() here, because this promise is sometimes
-            // passed to the dialog() function from pkg/lib/patterns.js, which
-            // expects a promise with a progress() method
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all([call, mod]);
-
-        return mod;
+            return update_saved_machine(host, values);
     };
 
     self.data = function data(content) {

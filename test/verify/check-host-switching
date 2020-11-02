@@ -117,10 +117,9 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
             self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
 
-        # Change host name to 'localhost' so all machines have the same name
         self.machines["machine1"].execute("hostnamectl set-hostname localhost")
-        self.machines["machine2"].execute("hostnamectl set-hostname localhost")
-        self.machines["machine3"].execute("hostnamectl set-hostname localhost")
+        self.machines["machine2"].execute("hostnamectl set-hostname machine2")
+        self.machines["machine3"].execute("hostnamectl set-hostname machine3")
 
         self.allow_authorize_journal_messages()
         self.setup_ssh_auth()
@@ -131,6 +130,9 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         m = self.machine
         m2 = self.machines["machine2"]
         m3 = self.machines["machine3"]
+
+        m2.execute("hostnamectl set-hostname machine2")
+        m3.execute("hostnamectl set-hostname machine3")
 
         self.login_and_go()
 
@@ -210,7 +212,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3"])
         key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
         m.execute(
-            "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
+            "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh".format(key))
         self.add_machine(b, "10.111.113.2", True)
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_connected(b, "10.111.113.2")
@@ -227,25 +229,12 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
 
-        b.wait_popup('edit-host-dialog')
-        b.set_val('#edit-host-user', 'bad-user')
-
-        b.click('#edit-host-apply')
-        b.wait_popdown('edit-host-dialog')
-        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] .nav-status")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] #localhost-error")
-        b.mouse("#localhost-error", "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "Connection error")
-        b.mouse("#localhost-error", "mouseleave")
-        b.wait_not_present("div.pf-c-tooltip")
-
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
-        b.wait_popup('edit-host-dialog')
-        b.set_val('#edit-host-user', '')
-        b.click('#edit-host-apply')
-        b.wait_popdown('edit-host-dialog')
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.3'] .nav-status")
+        b.wait_popup('hosts_setup_server_dialog')
+        b.set_val('#add-machine-user', 'bad-user')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
+        b.click('#hosts_setup_server_dialog button:contains("Cancel")')
+        b.wait_popdown('hosts_setup_server_dialog')
 
         # Test switching
         b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
@@ -291,7 +280,11 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']
+        m2 = self.machines['machine2']
         m3 = self.machines['machine3']
+
+        m2.execute("hostnamectl set-hostname machine2")
+        m3.execute("hostnamectl set-hostname machine3")
 
         self.allow_journal_messages("Could not chdir to home directory /home/franz: No such file or directory")
         m1.execute("useradd franz")
@@ -299,13 +292,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         m3.execute("useradd franz")
         m3.execute("echo franz:foobar | chpasswd")
         self.authorize_pubkey(m3, "franz", self.get_pubkey(m1, "admin"))
-
-        # We need to have admin access on machine3 in order to change
-        # the host name.  Let's just allow sudo without a password for
-        # that.
-        #
-        m3.write("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL\n")
-        m3.write("/etc/sudoers.d/franz", "admin ALL=(ALL) NOPASSWD:ALL\n")
 
         self.login_and_go()
 
@@ -317,52 +303,59 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
 
-        b.wait_popup('edit-host-dialog')
-        old_color = b.attr("#host-edit-color", "style")
-        b.set_val('#edit-host-user', 'franz')
-        b.set_val('#edit-host-name', "MesMer")
+        b.wait_popup('hosts_setup_server_dialog')
+        old_machine3_color = b.attr("#host-edit-color", "style")
+        b.set_val('#add-machine-user', 'franz')
         b.click('#host-edit-color')
         b.wait_visible('#host-edit-color-popover')
         b.click('#host-edit-color-popover div.popover-content > div:nth-child(3)')
         b.wait_not_visible('#host-edit-color-popover')
+        new_machine3_color = b.attr("#host-edit-color", "style")
+        self.assertNotEqual(old_machine3_color, new_machine3_color)
 
-        b.click('#edit-host-apply')
-        b.wait_popdown('edit-host-dialog')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_popdown('hosts_setup_server_dialog')
 
-        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @MesMer")
-        self.assertEqual(m3.execute("hostnamectl --pretty"), "MesMer\n")
+        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @machine3")
 
         # Go to the updated machine and try to change whilst on it
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_present("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
 
-        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@MesMer")
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
         b.click("#hosts-sel button")
-        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @MesMer")
+        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @machine3")
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
 
-        b.wait_val('#edit-host-user', 'franz')
-        b.wait_val('#edit-host-name', "MesMer")
-        b.set_val('#edit-host-user', 'admin')
-        new_color = b.attr("#host-edit-color", "style")
-        self.assertNotEqual(old_color, new_color)
+        b.wait_val('#add-machine-address', "10.111.113.3")
+        self.assertEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
+        b.wait_val('#add-machine-user', 'franz')
+        b.set_val('#add-machine-address', "10.111.113.2")
+        self.assertNotEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
+        b.set_val('#add-machine-user', 'admin')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_popdown('hosts_setup_server_dialog')
 
-        b.click('#edit-host-apply')
-        b.wait_popdown('edit-host-dialog')
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
 
-        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "admin @MesMer")
-        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@MesMer")
+        # Changing the address of a host will navigate to that host,
+        # and that will close the host switcher.  Let's open it again
+        # to check it.
+        b.click("#hosts-sel button")
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.3']")
+        b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
 
         # Test that unprivileged user cannot edit or add hosts
         b.logout()
         self.login_and_go("/system", user="franz", superuser=False)
         b.switch_to_top()
         b.click("#hosts-sel button")
-        b.wait_visible("#nav-hosts .nav-item span[data-for='/@10.111.113.3']")
+        b.wait_visible("#nav-hosts .nav-item span[data-for='/@10.111.113.2']")
         b.wait_not_present("button:contains('Edit hosts')")
         b.wait_not_present("button:contains('Add new host')")
-
 
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")

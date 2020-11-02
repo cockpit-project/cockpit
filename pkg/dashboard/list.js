@@ -27,7 +27,6 @@ import * as plot from "plot.js";
 import { machines } from "machines";
 import { new_machine_dialog_manager } from "machine-dialogs";
 import { cpu_ram_info } from "machine-info.js";
-import { image_editor } from "./image-editor.js";
 
 const _ = cockpit.gettext;
 
@@ -148,69 +147,8 @@ var resource_monitors = [
     }
 ];
 
-var avatar_editor;
-
-$(function () {
-    avatar_editor = image_editor($('#host-edit-avatar'), 256, 256);
-});
-
-function host_edit_dialog(machine_manager, machine_dialogs, host) {
-    var machine = machine_manager.lookup(host);
-    if (!machine)
-        return;
-
-    var can_change_user = machine.address != "localhost";
-    var dlg = $("#host-edit-dialog");
-    $('#host-edit-fail')
-            .text("")
-            .hide();
-    $('#host-edit-name').val(machine.label);
-    $('#host-edit-name').prop('disabled', machine.state == "failed");
-
-    cockpit.user().done(function (user) {
-        $('#host-edit-user').attr('placeholder', user.name);
-    });
-    $('#host-edit-user').prop('disabled', !can_change_user);
-    $('#host-edit-user').val(machine.user);
-    $("#host-edit-dialog a[data-content]").popover();
-
-    machine_dialogs.render_color_picker("#host-edit-colorpicker", machine.address);
-
-    $('#host-edit-apply').off('click');
-    $('#host-edit-apply').on('click', function () {
-        dlg.dialog('failure', null);
-        var values = {
-            avatar: avatar_editor.changed ? avatar_editor.get_data(128, 128, "image/png") : null,
-            color: machines.colors.parse($('#host-edit-colorpicker #host-edit-color').css('background-color')),
-            label: $('#host-edit-name').val(),
-        };
-
-        if (can_change_user)
-            values.user = $('#host-edit-user').val();
-
-        var promise = machine_manager.change(machine.key, values);
-        dlg.dialog('promise', promise);
-    });
-    $('#host-edit-avatar').off('click');
-    $('#host-edit-avatar').on('click', function () {
-        $('#host-edit-fail')
-                .text("")
-                .hide();
-        avatar_editor.select_file()
-                .done(function () {
-                    $('#host-edit-avatar').off('click');
-                    avatar_editor.changed = true;
-                    avatar_editor.start_cropping();
-                });
-    });
-    dlg.modal('show');
-    avatar_editor.stop_cropping();
-    avatar_editor.load_data(machine.avatar || "images/server-large.png")
-            .fail(function () {
-                $('#host-edit-fail')
-                        .text(_("Can't load image"))
-                        .show();
-            });
+function host_edit_dialog(machine_dialogs, host) {
+    machine_dialogs.render_dialog("add-machine", "dashboard_setup_server_dialog", host);
 }
 
 superuser.addEventListener("changed", update_servers_privileged);
@@ -295,7 +233,7 @@ PageDashboard.prototype = {
                     var item = $(this).parent(".list-group-item");
                     var host = item.attr("data-address");
                     self.toggle_edit(false);
-                    host_edit_dialog(self.machines, self.mdialogs, host);
+                    host_edit_dialog(self.mdialogs, host);
                     return false;
                 })
                 .on("mouseenter", "a.list-group-item", function() {

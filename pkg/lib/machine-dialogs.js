@@ -111,7 +111,7 @@ function full_address(machines_ins, address) {
     return address;
 }
 
-function Dialog(selector, address, machines_ins, codes) {
+function Dialog(selector, address, machines_ins, codes, caller_callback) {
     var self = this;
 
     self.machines_ins = machines_ins;
@@ -300,6 +300,8 @@ function Dialog(selector, address, machines_ins, codes) {
         self.get_sel().dialog("wait", dialog_dfd.promise());
         if (promise_callback)
             promise_funcs.push(promise_callback);
+        if (caller_callback)
+            promise_funcs.push(() => caller_callback(self.address));
 
         next(0);
     };
@@ -380,7 +382,7 @@ function AddMachine(dialog) {
     function existing_error(address) {
         var ex = null;
         var machine = dialog.machines_ins.lookup(address);
-        if (machine && machine.visible && machine.on_disk) {
+        if (machine && machine.visible && machine.on_disk && machine != self.old_machine) {
             ex = new Error(_("This machine has already been added."));
             ex.target = "#add-machine-address";
         }
@@ -436,13 +438,25 @@ function AddMachine(dialog) {
         }
 
         var color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
+
+        if (self.old_machine && dialog.address == self.old_machine.connection_string) {
+            dialog.run(dialog.machines_ins.change(self.old_machine.key, { color: color }));
+            return;
+        }
+
         if (existing_error(dialog.address))
             return;
 
         dialog.set_goal(function() {
             var dfp = $.Deferred();
             dialog.machines_ins.add(dialog.address, color)
-                    .then(dfp.resolve)
+                    .then(function () {
+                        if (self.old_machine && self.old_machine != dialog.machines_ins.lookup(dialog.address)) {
+                            dialog.machines_ins.change(self.old_machine.key, { visible: false })
+                                    .then(dfp.resolve);
+                        } else
+                            dfp.resolve();
+                    })
                     .catch(function (ex) {
                         var msg = cockpit.format(_("Failed to add machine: $0"),
                                                  cockpit.message(ex));
@@ -476,8 +490,29 @@ function AddMachine(dialog) {
         if (!limit || isNaN(limit))
             limit = 20;
 
+        self.old_machine = null;
+        var address_parts = null;
+        if (dialog.address) {
+            self.old_machine = dialog.machines_ins.lookup(dialog.address);
+            if (self.old_machine && !self.old_machine.visible)
+                self.old_machine = null;
+            address_parts = dialog.machines_ins.split_connection_string(dialog.address);
+        }
+
+        var host_address = ""; var host_user = "";
+        if (address_parts) {
+            host_address = address_parts.address;
+            if (address_parts.port)
+                host_address += ":" + address_parts.port;
+            host_user = address_parts.user;
+        }
+
         dialog.render({
+            editing: self.old_machine != null,
             nearlimit : limit * 0.75 <= dialog.machines_ins.list.length,
+            host_address: host_address,
+            host_user: host_user,
+            connection_change_disabled: dialog.address == "localhost" ? "disabled" : "",
             limit : limit,
             options : invisible,
         });
@@ -487,7 +522,8 @@ function AddMachine(dialog) {
 
         $("#add-machine-address").on("input focus change", check_address);
         $("#add-machine-user").on("input", function () { user_name_dirty = true });
-        color_picker.render("#add-machine-color-picker", null, unused_color);
+        color_picker.render("#add-machine-color-picker", null, self.old_machine ? self.old_machine.color : unused_color);
+        check_address();
     };
 }
 
@@ -1032,9 +1068,9 @@ function MachineDialogManager(machines_ins, codes) {
         return !!codes[machine.problem];
     };
 
-    self.render_dialog = function (template, target_id, address) {
+    self.render_dialog = function (template, target_id, address, callback) {
         var selector = "#" + target_id;
-        var dialog = new Dialog(selector, address, machines_ins, codes);
+        var dialog = new Dialog(selector, address, machines_ins, codes, callback);
         dialog.render_template(template);
         dialog.show();
     };

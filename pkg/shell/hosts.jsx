@@ -10,12 +10,9 @@ import 'polyfills';
 import { superuser } from "superuser";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 
-import { machines } from "machines";
 import { new_machine_dialog_manager } from "machine-dialogs";
 
 import "../../node_modules/@patternfly/patternfly/components/Select/select.scss";
-
-import $ from "jquery"; // Ech... Fixme: We now use the same dialogs as dashboard and we need jQuery to open them
 
 const _ = cockpit.gettext;
 const hosts_sel = document.getElementById("nav-hosts");
@@ -113,41 +110,15 @@ export class CockpitHosts extends React.Component {
     }
 
     onHostEdit(event, machine) {
-        event.preventDefault();
-        const dlg = $("#edit-host-dialog");
-
-        const can_change_user = machine.address != "localhost";
-        const name = document.getElementById("edit-host-name");
-        name.disabled = machine.state == "failed";
-        name.value = machine.label;
-
-        const user = document.getElementById("edit-host-user");
-        user.placeholder = this.state.current_user;
-        user.disabled = !can_change_user;
-        user.value = machine.user || "";
-        $("#edit-host-dialog a[data-content]").popover();
-
-        this.mdialogs.render_color_picker("#edit-host-colorpicker", machine.address);
-
-        // Remove all existing listeners so we don't change it multiple times
-        const orig = document.getElementById("edit-host-apply");
-        var copy = orig.cloneNode(true);
-        orig.parentNode.replaceChild(copy, orig);
-
-        document.getElementById("edit-host-apply").addEventListener("click", e => {
-            dlg.dialog('failure', null);
-            const values = {
-                color: machines.colors.parse(document.querySelector('#edit-host-colorpicker #host-edit-color').style["background-color"]),
-                label: name.value,
-            };
-
-            if (can_change_user)
-                values.user = user.value;
-
-            const promise = this.props.machines.change(machine.key, values);
-            dlg.dialog('promise', promise);
-        });
-        dlg.modal('show');
+        this.mdialogs.render_dialog("add-machine", "hosts_setup_server_dialog", machine.address,
+                                    (new_connection_string) => {
+                                        var parts = this.props.machines.split_connection_string(new_connection_string);
+                                        if (machine == this.props.machine && parts.address != machine.address) {
+                                            const addr = this.props.hostAddr({ host: parts.address }, true);
+                                            this.props.jump(addr);
+                                        }
+                                        return Promise.resolve();
+                                    });
     }
 
     onEditHosts() {

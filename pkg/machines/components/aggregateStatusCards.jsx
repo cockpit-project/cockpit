@@ -28,7 +28,7 @@ import {
 } from '@patternfly/react-core';
 import { ServerIcon, NetworkIcon, ArrowCircleUpIcon, ArrowCircleDownIcon } from '@patternfly/react-icons';
 
-import './aggregateStatusCards.css';
+import './aggregateStatusCards.scss';
 
 export class AggregateStatusCards extends React.Component {
     render() {

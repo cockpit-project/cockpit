@@ -25,12 +25,17 @@
 
   /* Card header is a flex container with space between the elements - this moves the buttons text to the left */
   .pf-c-card .pf-m-link {
-      margin-right: auto;
+    margin-right: auto;
   }
 
   /* Normalize padding on the card's header*/
   .pf-c-card__header {
     padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+  }
+
+  /* Add a space after the arrow icons */
+  .active-resources > svg {
+    margin-right: var(--pf-global--spacer--sm);
   }
 }
 

@@ -197,20 +197,12 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
 
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-user', 'bad-user')
-
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
-        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
-        b.wait_present("#dashboard-hosts .failed[data-address='10.111.113.3']")
-
-        b.click('#dashboard-enable-edit')
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-user', '')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#add-machine-user', 'bad-user')
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
+        b.wait_in_text("#dashboard_setup_server_dialog", "Unable to log in to")
+        b.click('#dashboard_setup_server_dialog button:contains("Cancel")')
+        b.wait_popdown('dashboard_setup_server_dialog')
         b.wait_present("#dashboard-hosts .connected[data-address='10.111.113.3']")
 
         # Test switching
@@ -244,7 +236,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 
     def testEdit(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/dashboard")
         self.wait_dashboard_addresses(b, ["localhost"])
@@ -256,19 +247,17 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         b.click('#dashboard-hosts a:first-child button.edit-button')
         b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
 
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-name', "Horst")
+        b.wait_popup('dashboard_setup_server_dialog')
         b.click('#host-edit-color')
         b.wait_visible('#host-edit-color-popover')
-        b.wait_visible('#host-edit-user[disabled]')
+        b.wait_visible('#add-machine-address[disabled]')
+        b.wait_visible('#add-machine-user[disabled]')
         b.click('#host-edit-color-popover div.popover-content > div:nth-child(3)')
         b.wait_not_visible('#host-edit-color-popover')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
+        b.wait_popdown('dashboard_setup_server_dialog')
 
-        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
         b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
-        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
     def testLimits(self):
         b = self.browser

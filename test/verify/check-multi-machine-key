@@ -205,12 +205,12 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.enter_page("/dashboard")
         b.click('#dashboard-enable-edit')
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] .edit-button")
-        b.wait_popup('host-edit-dialog')
-        b.wait_visible('#host-edit-user')
-        self.assertEqual(b.val("#host-edit-user"), "")
-        b.set_val('#host-edit-user', 'user')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.wait_visible('#add-machine-user')
+        self.assertEqual(b.val("#add-machine-user"), "")
+        b.set_val('#add-machine-user', 'user')
+        b.click("#dashboard_setup_server_dialog .pf-m-primary")
+        b.wait_popdown('dashboard_setup_server_dialog')
 
         # We now expect this iframe to disappear
         b.switch_to_top()

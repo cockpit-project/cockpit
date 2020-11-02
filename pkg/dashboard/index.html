@@ -131,60 +131,6 @@
             </div>
         </div>
 
-        <div class="modal" id="host-edit-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" translate>Edit server</h4>
-                    </div>
-                    <div class="modal-body">
-                    <div>
-                        <input data-role="none" type="file" id="host-edit-file-input" hidden/>
-                        <table class="form-table-ct">
-                            <tr>
-                                <td class="top" translate="yes">Host name</td>
-                                <td>
-                                    <input class="form-control" id="host-edit-name"/>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr id="host-edit-user-row">
-                                <td class="top" translate="yes">User</td>
-                                <td>
-                                    <input class="form-control" id="host-edit-user"/>
-                                </td>
-                                <td>
-                                    <a tabindex="0" role="button" data-toggle="popover"
-                                        data-trigger="focus" data-placement="bottom" translate="data-content"
-                                        data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
-                                        <span class="fa fa-lg fa-info-circle"></span>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td translate="yes">Color</td>
-                                <td id="host-edit-colorpicker">
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td class="top" translate="yes">Avatar</td>
-                                <td>
-                                    <div id="host-edit-avatar"></div>
-                                    <div id="host-edit-fail"></div>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </table>
-                    </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="pf-c-button pf-m-primary" id="host-edit-apply" translate="yes">Set</button>
-                        <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </body>
 </html>

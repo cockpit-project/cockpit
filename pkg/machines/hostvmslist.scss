@@ -17,3 +17,10 @@
     display: block;
     text-align: left;
 }
+
+/* Add  the missing space when the list's toolbar wraps
+ * patternfly/patternfly#3348
+ */
+.pf-c-toolbar__content-section {
+    gap: var(--pf-global--spacer--sm) 0;
+}

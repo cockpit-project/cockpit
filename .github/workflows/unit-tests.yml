@@ -14,6 +14,11 @@ jobs:
       #- name: interactive SSH debug session
       #  uses: mxschmitt/action-tmate@v3
 
+      - name: Build unit test container if it changed
+        run: |
+          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
+          [ -z "$changes" ] || docker build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t docker.io/cockpit/unit-tests containers/unit-tests
+
       - name: Run unit-tests container
         run: containers/unit-tests/start
 
@@ -27,6 +32,11 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
+      - name: Build unit test container if it changed
+        run: |
+          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
+          [ -z "$changes" ] || docker build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t docker.io/cockpit/unit-tests containers/unit-tests
+
       - name: Run unit-tests container
         run: containers/unit-tests/start CC=clang
 
@@ -39,6 +49,11 @@ jobs:
         with:
           # need this to also fetch tags
           fetch-depth: 0
+
+      - name: Build unit test container if it changed
+        run: |
+          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
+          [ -z "$changes" ] || docker build --build-arg debian_arch=i386 --build-arg personality=linux32 -t docker.io/cockpit/unit-tests:i386 containers/unit-tests
 
       - name: Run unit-tests container
         run: containers/unit-tests/start :i386

@@ -462,6 +462,25 @@ fi
 AC_SUBST(COCKPIT_WSINSTANCE_USER)
 AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
 
+# admin users group
+AC_ARG_WITH([admin-group],
+            [AC_HELP_STRING([--with-admin-group=GROUP],
+                            [system group to which admin users belong])],
+            [admin_group=$withval],
+            [
+              AC_MSG_CHECKING([for system group to which admin users belong])
+              CANDIDATE_GROUPS="wheel sudo root"
+              admin_group="$(getent group ${CANDIDATE_GROUPS} | head -n1 | cut -f1 -d:)"
+              if test -n "$admin_group"; then
+                AC_MSG_RESULT([$admin_group])
+              else
+                AC_MSG_RESULT([unable to detect])
+                AC_MSG_ERROR([none of '${CANDIDATE_GROUPS}' exist: please specify a group with --with-admin-group=])
+              fi
+            ])
+AC_SUBST(admin_group)
+
+
 AC_ARG_WITH(selinux_config_type,
 	    AS_HELP_STRING([--with-selinux-config-type=<type>],
 			   [SELinux context type for cockpit config files]
@@ -613,6 +632,7 @@ echo "
         cockpit-ws group:           ${COCKPIT_GROUP}
         cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
         cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
+        admin group:                ${admin_group}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}

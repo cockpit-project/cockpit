@@ -459,15 +459,48 @@ class TestConnection(MachineCase):
     def testSocket(self):
         m = self.machine
 
-        self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
-        self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+        # non-admin user
+        m.execute("useradd user")
+
+        # enable no-password login for 'admin' and 'user'
+        m.execute("passwd -d admin")
+        m.execute("passwd -d user")
+
+        # debian-stable only allows passwordless logins from /etc/securetty, which excludes ssh
+        if m.image in ['debian-stable']:
+            self.sed_file('s/nullok_secure/nullok/', '/etc/pam.d/common-auth')
+
+        self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
+                      'systemctl restart sshd.service')
+
+        def assertInOrNot(string, result, expected):
+            if expected:
+                self.assertIn(string, result)
+            else:
+                self.assertNotIn(string, result)
+
+        def checkMotdForUser(string, user, expected):
+            result = m.execute(f"ssh -o StrictHostKeyChecking=no -n {user}@localhost")
+            assertInOrNot(string, result, expected)
+
+        def checkMotdContent(string, expected=True):
+            # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
+            old_pam = (m.image in ['centos-8-stream', 'debian-stable', 'debian-testing', 'ubuntu-2004', 'ubuntu-stable', 'rhel-8-3', 'rhel-8-4'])
+
+            # check issue (should be exactly the same as motd)
+            assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected)
+
+            # check motd as 'root' (via cat) and 'admin' and 'user' (via ssh)
+            assertInOrNot(string, m.execute("cat /etc/motd.d/cockpit"), expected)
+            checkMotdForUser(string, expected=expected, user='admin')
+            checkMotdForUser(string, expected=old_pam and expected or False, user='user')
+
+        checkMotdContent('systemctl')
+        checkMotdContent(':9090/', expected=False)
         m.start_cockpit()
 
-        self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit.issue"))
-        self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
-
+        checkMotdContent(':9090/')
+        checkMotdContent('systemctl', expected=False)
         m.execute("systemctl stop cockpit.socket")
 
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
@@ -475,16 +508,14 @@ class TestConnection(MachineCase):
         m.execute(
             'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
-        self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
-        self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertNotIn("443", m.execute("cat /etc/motd.d/cockpit"))
+        checkMotdContent('systemctl')
+        checkMotdContent(':9090/', expected=False)
+        checkMotdContent(':443/', expected=False)
         m.start_cockpit(tls=True)
 
-        self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
-        self.assertIn("443", m.execute("cat /etc/issue.d/cockpit.issue"))
-        self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
+        checkMotdContent('systemctl', expected=False)
+        checkMotdContent(':9090/', expected=False)
+        checkMotdContent(':443/')
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)

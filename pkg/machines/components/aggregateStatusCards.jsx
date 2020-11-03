@@ -31,12 +31,18 @@ import { ServerIcon, NetworkIcon, ArrowCircleUpIcon, ArrowCircleDownIcon } from 
 import './aggregateStatusCards.scss';
 
 export class AggregateStatusCards extends React.Component {
+    onCardSelect(event, goto) {
+        if ([13, 32].includes(event.keyCode)) { // Carriage return and space
+            cockpit.location.go([goto]);
+        }
+    }
+
     render() {
         return (
             <div className='grid-cards-ct'>
                 <Card id='card-pf-storage-pools'
                       isSelectable
-                      onKeyDown={() => cockpit.location.go(['storages'])}
+                      onKeyDown={event => this.onCardSelect(event, 'storages')}
                       onClick={() => cockpit.location.go(['storages'])}>
                     <CardHeader>
                         <ServerIcon size="md" />
@@ -60,7 +66,7 @@ export class AggregateStatusCards extends React.Component {
                 </Card>
                 <Card id='card-pf-networks'
                       isSelectable
-                      onKeyDown={() => cockpit.location.go(['networks'])}
+                      onKeyDown={event => this.onCardSelect(event, 'networks')}
                       onClick={() => cockpit.location.go(['networks'])}>
                     <CardHeader>
                         <NetworkIcon size="md" />

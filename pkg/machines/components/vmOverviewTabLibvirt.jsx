@@ -262,7 +262,7 @@ class VmOverviewTabLibvirt extends React.Component {
             <>
                 <Flex className="overview-tab" direction={{ default:"column", "2xl": "row" }}>
                     <FlexItem>
-                        <DescriptionList>
+                        <DescriptionList isHorizontal>
                             <Text component={TextVariants.h4}>
                                 {_("General")}
                             </Text>
@@ -301,7 +301,7 @@ class VmOverviewTabLibvirt extends React.Component {
                         </DescriptionList>
                     </FlexItem>
                     <FlexItem>
-                        <DescriptionList>
+                        <DescriptionList isHorizontal>
                             <Text component={TextVariants.h4}>
                                 {_("Hypervisor details")}
                             </Text>

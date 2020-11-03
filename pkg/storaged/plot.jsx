@@ -208,8 +208,9 @@ class StoragePlot extends React.Component {
                     self.stacked_instances_series = self.plot.add_metrics_stacked_instances_series(self.props.data, { });
                     $(self.stacked_instances_series).on('hover', hover);
                 }
-                for (var i = 0; i < self.props.devs.length; i++)
+                for (var i = 0; i < self.props.devs.length; i++) {
                     self.stacked_instances_series.add_instance(self.props.devs[i]);
+                }
             }
         }
 

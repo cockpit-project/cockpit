@@ -69,11 +69,11 @@ class UnlockDialog extends React.Component {
             <>
                 { state.error && <ModalError dialogError={state.error} />}
                 { !state.message &&
-                <Button variant='primary' onClick={state.apply} disabled={state.busy}>
+                <Button variant='primary' onClick={state.apply} isDisabled={state.busy}>
                     {_("Authenticate")}
                 </Button>
                 }
-                <Button variant='link' className='btn-cancel' onClick={state.cancel} disabled={!state.cancel}>
+                <Button variant='link' className='btn-cancel' onClick={state.cancel} isDisabled={!state.cancel}>
                     {state.message ? _("Close") : _("Cancel")}
                 </Button>
                 { state.busy && <div className="spinner pull-right" /> }

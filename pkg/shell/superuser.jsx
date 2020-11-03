@@ -76,7 +76,11 @@ class UnlockDialog extends React.Component {
                 <Button variant='link' className='btn-cancel' onClick={state.cancel} isDisabled={!state.cancel}>
                     {state.message ? _("Close") : _("Cancel")}
                 </Button>
-                { state.busy && <div className="spinner pull-right" /> }
+                { state.busy &&
+                <div className="dialog-wait-ct">
+                    <div className="spinner spinner-sm" />
+                </div>
+                }
             </>
         );
         return (

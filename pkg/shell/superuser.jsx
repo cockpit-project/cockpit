@@ -98,11 +98,11 @@ class LockDialog extends React.Component {
     }
 
     render() {
-        const { onclose, proxy } = this.props;
+        const { onClose, proxy } = this.props;
 
         const close = () => {
             this.setState({ error: null });
-            onclose();
+            onClose();
         };
 
         const apply = () => {
@@ -113,7 +113,7 @@ class LockDialog extends React.Component {
                             const key = host_superuser_storage_key(this.props.host);
                             if (key)
                                 window.localStorage.setItem(key, "none");
-                            onclose();
+                            onClose();
                         });
                     })
                     .catch(err => {
@@ -318,12 +318,12 @@ export class SuperuserDialogs extends React.Component {
 
                 <UnlockDialog proxy={this.superuser}
                               state={this.state.unlock_dialog_state}
-                              onclose={() => this.setState({ show_lock_dialog: false })} />
+                              onClose={() => this.set_unlock_state({ closed: true }) } />
 
                 <LockDialog proxy={this.superuser}
                             host={this.props.host}
                             show={this.state.show_lock_dialog}
-                            onclose={() => this.setState({ show_lock_dialog: false })} />
+                            onClose={() => this.setState({ show_lock_dialog: false })} />
             </>);
     }
 }

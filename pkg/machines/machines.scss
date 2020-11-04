@@ -2,11 +2,26 @@
 @import "../lib/table.css";
 
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+@import "../../node_modules/@patternfly/patternfly/components/Alert/alert.scss";
 @import "../lib/ct-card.scss";
 
 /* Style the list cards as ct-cards */
 .pf-c-page__main-section > .pf-c-card {
     @extend .ct-card;
+}
+
+/* Create a hybrid popover with an alert style */
+.ct-popover-alert .pf-c-popover__content {
+    @extend .pf-c-alert;
+    @extend .pf-m-danger;
+    display: block;
+    box-shadow: none;
+}
+
+/* Also style the hybrid popover alert title like an alert */
+.ct-popover-alert .pf-c-title {
+    @extend .pf-c-alert__title;
+    font-size: inherit;
 }
 
 .icon-2x-vms {

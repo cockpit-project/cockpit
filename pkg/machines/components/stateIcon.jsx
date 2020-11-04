@@ -73,7 +73,7 @@ export const StateIcon = ({ state, valueId, error, dismissError }) => {
 
     if (error)
         return (
-            <Popover headerContent={error.text} bodyContent={error.detail}>
+            <Popover headerContent={error.text} bodyContent={error.detail} className="ct-popover-alert">
                 {label}
             </Popover>
         );

@@ -16,7 +16,8 @@ or root.
 ## Building
 
 The `build` script will build the `cockpit/unit-tests` and
-`cockpit/unit-tests:i386` containers.
+`cockpit/unit-tests:i386` containers. Call it with an architecture to only
+build one variant, e.g. `build i386`.
 
 ## Running tests
 

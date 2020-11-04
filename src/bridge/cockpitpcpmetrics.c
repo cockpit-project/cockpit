@@ -42,6 +42,7 @@ typedef struct {
   const gchar *derive;
   pmID id;
   pmDesc desc;
+  gboolean xxx_values_are_actually_u32;
   pmUnits *units;
   gdouble factor;
 
@@ -288,6 +289,9 @@ build_sample (CockpitPcpMetrics *self,
     {
       if (pmExtractValue (valfmt, value, PM_TYPE_U64, &sample, PM_TYPE_U64) < 0)
         return;
+
+      if (info->xxx_values_are_actually_u32)
+        sample.ull = sample.ul;
 
       sample.d = (sample.ull << 16) >> 16;
     }
@@ -570,6 +574,13 @@ convert_metric_description (CockpitPcpMetrics *self,
       info->units = &info->desc.units;
       info->factor = 1.0;
     }
+
+  // XXX - workaround for https://github.com/performancecopilot/pcp/pull/1137
+  //
+  if (g_strcmp0 (info->name, "disk.dev.read_bytes") == 0
+      || g_strcmp0 (info->name, "disk.dev.write_bytes") == 0
+      || g_strcmp0 (info->name, "disk.dev.total_bytes") == 0)
+    info->xxx_values_are_actually_u32 = TRUE;
 
   return TRUE;
 }

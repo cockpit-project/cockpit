@@ -67,14 +67,6 @@ export const PasswordFormFields = ({
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
                            value={password} onChange={value => change("password", value)} />
-            </FormGroup>
-
-            <FormGroup label={password_confirm_label}
-                       helperTextInvalid={error_password_confirm}
-                       validated={error_password_confirm ? "error" : "default"}
-                       fieldId={idPrefix + "-pw2"}>
-                <TextInput type="password" id={idPrefix + "-pw2"}
-                           value={password_confirm} onChange={value => change("password_confirm", value)} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"password-strength-meter " + variant}
@@ -85,6 +77,14 @@ export const PasswordFormFields = ({
                               value={isNaN(password_strength) ? 1 : password_strength} />
                     <div id="account-set-password-meter-message" className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
                 </div>
+            </FormGroup>
+
+            <FormGroup label={password_confirm_label}
+                       helperTextInvalid={error_password_confirm}
+                       validated={error_password_confirm ? "error" : "default"}
+                       fieldId={idPrefix + "-pw2"}>
+                <TextInput type="password" id={idPrefix + "-pw2"}
+                           value={password_confirm} onChange={value => change("password_confirm", value)} />
             </FormGroup>
         </>
     );

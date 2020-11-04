@@ -2008,6 +2008,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.machine = test_obj.machine
             self.assertTrue = test_obj.assertTrue
             self.assertIn = test_obj.assertIn
+            self.goToVmPage = test_obj.goToVmPage
+            self.goToMainPage = test_obj.goToMainPage
 
             self.sourceType = sourceType
             self.sourceTypeSecondChoice = sourceTypeSecondChoice
@@ -2107,6 +2109,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def createAndVerifyVirtInstallArgs(self):
             self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
             self.browser.wait_not_present("#create-vm-dialog")
+            if self.storage_pool != "No storage":
+                self.goToVmPage(self.name)
+                self.browser.wait_text("#vm-{}-disks-vda-bus".format(self.name), "virtio")
+                self.goToMainPage()
 
             virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
             wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
@@ -2500,6 +2506,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             self.test_obj.goToVmPage(name, dialog.connection or "system")
 
+            # check bus type
+            if dialog.storage_pool != "No storage":
+                self.browser.wait_in_text("#vm-{}-disks-vda-bus".format(dialog.name), "virtio")
             # check memory
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
             # the host has (less or more than 1 GiB), and thus needs to be dynamic

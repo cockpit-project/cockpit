@@ -210,7 +210,7 @@ export function set_password_dialog(account, current_user) {
         return password_quality(state.password, force)
                 .catch(ex => {
                     errors.password = (ex.message || ex.toString()).replace("\n", " ");
-                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set"));
+                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set password"));
                 })
                 .then(() => {
                     return !has_errors(errors);
@@ -227,7 +227,7 @@ export function set_password_dialog(account, current_user) {
         const footer = {
             actions: [
                 {
-                    caption: _("Set"),
+                    caption: _("Set password"),
                     style: "primary",
                     clicked: () => {
                         const second_click = state.confirm_weak;
@@ -273,7 +273,7 @@ export function reset_password_dialog(account) {
     const footer = {
         actions: [
             {
-                caption: _("Reset"),
+                caption: _("Reset password"),
                 style: "primary",
                 clicked: () => {
                     return cockpit.spawn(["/usr/bin/passwd", "-e", account.name],

@@ -235,7 +235,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#account-set-password-meter.danger")
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Click Set again to use the password anyway.")
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Click Set password again to use the password anyway.")
 
         # password mismatch
         b.set_input_text("#account-set-password-pw1", good_password + 'a')

@@ -70,6 +70,11 @@ V_COPY = $(V_COPY_$(V))
 V_COPY_ = $(V_COPY_$(AM_DEFAULT_VERBOSITY))
 V_COPY_0 = @echo "  COPY    " $@;
 
+V_TAR = $(V_TAR_$(V))
+V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
+V_TAR_0 = @echo "  TAR     " $@;
+
+
 MV = mv -f
 
 COPY_RULE = \
@@ -226,17 +231,17 @@ maintainer-clean-local::
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
-	tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
-	tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
+	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_PO)
-	tar -cf - $^ | tar -C $(distdir) -xf -
+	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 
 #
 

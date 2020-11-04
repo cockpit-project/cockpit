@@ -41,7 +41,7 @@ cd /tmp/source
 
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 
-make V=1 all
+make all
 
 if [ -n "${BUILD_ONLY:-}" ]; then
   exit 0

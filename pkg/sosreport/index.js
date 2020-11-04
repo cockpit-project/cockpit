@@ -153,7 +153,7 @@ function sos_cancel() {
     }
     sos_archive_url = null;
     sos_archive_files = [];
-    $("#sos").modal('hide');
+    $("#sos").prop('hidden', true);
 }
 
 function sos_download() {
@@ -171,7 +171,10 @@ function sos_download() {
 
 function init() {
     $(function () {
-        $("#sos").on("show.bs.modal", sos_init);
+        $("#create-button").on("click", () => {
+            $("#sos").prop('hidden', false);
+            sos_init();
+        });
         $("#sos-cancel").on("click", sos_cancel);
         $('#sos-download button').on('click', sos_download);
 

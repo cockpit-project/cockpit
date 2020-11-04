@@ -55,7 +55,7 @@ threads=1
 
         self.login_and_go("/sosreport", urlroot=urlroot)
 
-        b.click('[data-target="#sos"]')
+        b.click("button:contains('Create report')")
         b.wait_visible("#sos")
 
         with b.wait_timeout(540):
@@ -97,7 +97,7 @@ threads=1
         m.execute("rm -rf /var/tmp/sos*")
 
         self.login_and_go("/sosreport")
-        b.click('[data-target="#sos"]')
+        b.click("button:contains('Create report')")
         b.wait_visible("#sos")
         m.execute("until pgrep -x sosreport >/dev/null; do sleep 1; done")
 

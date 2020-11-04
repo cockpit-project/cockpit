@@ -22,7 +22,6 @@ import React from 'react';
 import { useObject, useEvent } from 'hooks.js';
 
 import { Button, TextArea } from '@patternfly/react-core';
-import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { show_unexpected_error } from "./dialog-utils.js";
 import * as authorized_keys from './authorized-keys.js';
@@ -134,9 +133,9 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                         { allow_mods &&
                         <div className="pf-c-data-list__item-action">
                             <Button variant="secondary" onClick={() => remove_key(k.raw)}
-                                    isSmall
-                                    className="account-remove-key"
-                                    icon={<MinusIcon />} />
+                                    className="account-remove-key">
+                                {_("Remove")}
+                            </Button>
                         </div> }
                     </div>
                 </li>);
@@ -150,9 +149,9 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                 <div className="pf-c-card__title"><h2>{_("Authorized public SSH keys")}</h2></div>
                 { allow_mods &&
                 <Button onClick={() => add_authorized_key_dialog(manager)}
-                        isSmall
-                        id="authorized-key-add"
-                        icon={<PlusIcon />} />}
+                        id="authorized-key-add">
+                    {_("Add key")}
+                </Button>}
             </div>
             <div className="pf-c-card__body contains-list">
                 <ul className="pf-c-data-list pf-m-compact" id="account-authorized-keys-list">

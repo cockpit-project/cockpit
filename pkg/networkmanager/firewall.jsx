@@ -21,12 +21,9 @@ import '../lib/patternfly/patternfly-cockpit.scss';
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
+import { ListView } from "patternfly-react";
 import {
-    ListView,
-    Modal,
-} from "patternfly-react";
-import {
-    Alert, Button, Tooltip, Page, PageSection, PageSectionVariants,
+    Alert, Button, Tooltip, Page, PageSection, PageSectionVariants, Modal,
     Breadcrumb, BreadcrumbItem,
     Split, SplitItem,
 } from '@patternfly/react-core';
@@ -497,102 +494,99 @@ class AddServicesModal extends React.Component {
         const addText = this.state.custom ? _("Add ports") : _("Add services");
         const titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
         return (
-            <Modal id="add-services-dialog" show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.Title> {titleText} </Modal.Title>
-                </Modal.Header>
-                <div id="cockpit_modal_dialog">
-                    <Modal.Body id="add-services-dialog-body">
-                        <form action="" className="toggle-body ct-form">
-                            <label className="radio ct-form-full">
-                                <input type="radio" name="type" value="services" onChange={this.onToggleType} defaultChecked />
-                                {_("Services")}
-                            </label>
-                            { this.state.custom ||
-                                <>
-                                    { services ? (
-                                        <fieldset>
-                                            <div className="ct-form">
-                                                <label htmlFor="filter-services-input" className="control-label">
-                                                    {_("Filter services")}
-                                                </label>
-                                                <SearchInput id="filter-services-input"
-                                                    value={this.state.filter}
-                                                    className="form-control"
-                                                    onChange={this.onFilterChanged} />
-                                                <ListView className="list-group dialog-list-ct ct-form-full">
-                                                    {
-                                                        services.map(s => (
-                                                            <ListView.Item key={s.id}
-                                                                        className="list-group-item"
-                                                                        checkboxInput={ <input data-id={s.id}
-                                                                                                id={"firewall-service-" + s.id}
-                                                                                                type="checkbox"
-                                                                                                checked={this.state.selected.has(s.id)}
-                                                                                                onChange={this.onToggleService} /> }
-                                                                        stacked
-                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.id}</label> }
-                                                                        description={ renderPorts(s) } />
-                                                        ))
-                                                    }
-                                                </ListView>
-                                            </div>
-                                        </fieldset>
-                                    ) : (
-                                        <div className="spinner spinner-lg" />
-                                    )}
-                                </>
-                            }
-                            <label className="radio ct-form-full">
-                                <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
-                                {_("Custom ports")}
-                            </label>
-                            { !this.state.custom ||
-                                <>
-                                    <label className="control-label" htmlFor="hint" hidden>Hint</label>
-                                    <p id="hint">
-                                        {_("Comma-separated ports, ranges, and aliases are accepted")}
-                                    </p>
-
-                                    <label className="control-label" htmlFor="tcp-ports">TCP</label>
-                                    <input id="tcp-ports" type="text" onChange={this.validate}
-                                           className={"form-control " + (this.state.tcp_error ? "error" : "") }
-                                           value={this.state.custom_tcp_value}
-                                           placeholder={_("Example: 22,ssh,8080,5900-5910")}
-                                           autoFocus />
-                                    <output className="has-error" htmlFor="tcp-ports">{this.state.tcp_error}</output>
-
-                                    <label className="control-label" htmlFor="udp-ports">UDP</label>
-                                    <input id="udp-ports" type="text" onChange={this.validate}
-                                           className={"form-control " + (this.state.udp_error ? "error" : "") }
-                                           value={this.state.custom_udp_value}
-                                           placeholder={_("Example: 88,2019,nfs,rsync")} />
-                                    <output className="has-error" htmlFor="udp-ports">{this.state.udp_error}</output>
-
-                                    <label className="control-label" htmlFor="service-name">{_("ID")}</label>
-                                    <input id="service-name" className="form-control" type="text" onChange={this.setId}
-                                           placeholder={_("(Optional)")} value={this.state.custom_id} />
-                                </>
-                            }
-                        </form>
-                    </Modal.Body>
-                </div>
-                <Modal.Footer>
-                    {
-                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+            <Modal id="add-services-dialog" isOpen
+                   position="top" variant="medium"
+                   onClose={this.props.close}
+                   title={titleText}
+                   footer={<>
+                       {
+                           this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                       }
+                       { !this.state.custom ||
+                           <Alert variant="warning"
+                               isInline
+                               title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
+                       }
+                       <Button variant='primary' onClick={this.save} aria-label={titleText}>
+                           {addText}
+                       </Button>
+                       <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                           {_("Cancel")}
+                       </Button>
+                   </>}
+            >
+                <form action="" className="toggle-body ct-form">
+                    <label className="radio ct-form-full">
+                        <input type="radio" name="type" value="services" onChange={this.onToggleType} defaultChecked />
+                        {_("Services")}
+                    </label>
+                    { this.state.custom ||
+                        <>
+                            { services ? (
+                                <fieldset>
+                                    <div className="ct-form">
+                                        <label htmlFor="filter-services-input" className="control-label">
+                                            {_("Filter services")}
+                                        </label>
+                                        <SearchInput id="filter-services-input"
+                                            value={this.state.filter}
+                                            className="form-control"
+                                            onChange={this.onFilterChanged} />
+                                        <ListView className="list-group dialog-list-ct ct-form-full">
+                                            {
+                                                services.map(s => (
+                                                    <ListView.Item key={s.id}
+                                                                className="list-group-item"
+                                                                checkboxInput={ <input data-id={s.id}
+                                                                                        id={"firewall-service-" + s.id}
+                                                                                        type="checkbox"
+                                                                                        checked={this.state.selected.has(s.id)}
+                                                                                        onChange={this.onToggleService} /> }
+                                                                stacked
+                                                                heading={ <label htmlFor={"firewall-service-" + s.id}>{s.id}</label> }
+                                                                description={ renderPorts(s) } />
+                                                ))
+                                            }
+                                        </ListView>
+                                    </div>
+                                </fieldset>
+                            ) : (
+                                <div className="spinner spinner-lg" />
+                            )}
+                        </>
                     }
+                    <label className="radio ct-form-full">
+                        <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
+                        {_("Custom ports")}
+                    </label>
                     { !this.state.custom ||
-                        <Alert variant="warning"
-                            isInline
-                            title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
+                        <>
+                            <label className="control-label" htmlFor="hint" hidden>Hint</label>
+                            <p id="hint">
+                                {_("Comma-separated ports, ranges, and aliases are accepted")}
+                            </p>
+
+                            <label className="control-label" htmlFor="tcp-ports">TCP</label>
+                            <input id="tcp-ports" type="text" onChange={this.validate}
+                                   className={"form-control " + (this.state.tcp_error ? "error" : "") }
+                                   value={this.state.custom_tcp_value}
+                                   placeholder={_("Example: 22,ssh,8080,5900-5910")}
+                                   autoFocus />
+                            <output className="has-error" htmlFor="tcp-ports">{this.state.tcp_error}</output>
+
+                            <label className="control-label" htmlFor="udp-ports">UDP</label>
+                            <input id="udp-ports" type="text" onChange={this.validate}
+                                   className={"form-control " + (this.state.udp_error ? "error" : "") }
+                                   value={this.state.custom_udp_value}
+                                   placeholder={_("Example: 88,2019,nfs,rsync")} />
+                            <output className="has-error" htmlFor="udp-ports">{this.state.udp_error}</output>
+
+                            <label className="control-label" htmlFor="service-name">{_("ID")}</label>
+                            <input id="service-name" className="form-control" type="text" onChange={this.setId}
+                                   placeholder={_("(Optional)")} value={this.state.custom_id} />
+                        </>
                     }
-                    <Button variant='primary' onClick={this.save} aria-label={titleText}>
-                        {addText}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+                </form>
             </Modal>
         );
     }
@@ -664,88 +658,87 @@ class ActivateZoneModal extends React.Component {
         const virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
         const physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
         return (
-            <Modal id="add-zone-dialog" show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.Title>{ _("Add zone") }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body id="add-zone-dialog-body">
-                    <form className="ct-form">
-                        <label htmlFor="add-zone-services-readonly" className="control-label">
-                            { _("Trust level") }
-                        </label>
-                        <div role="group" className="add-zone-zones">
-                            <fieldset className="add-zone-zones-firewalld">
-                                <legend>{ _("Sorted from least trusted to most trusted") }</legend>
-                                { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
-                                        .map(z =>
-                                            <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                                { firewall.zones[z].id }
-                                            </label>
-                                        )}
-                            </fieldset>
-                            <fieldset className="add-zone-zones-custom">
-                                { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
-                                { customZones.map(z =>
-                                    <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                        { firewall.zones[z].id }
-                                    </label>
-                                )}
-                            </fieldset>
-                        </div>
-
-                        <label htmlFor="add-zone-description-readonly" className="control-label">{ _("Description") }</label>
-                        <p id="add-zone-description-readonly">
-                            { (this.state.zone && firewall.zones[this.state.zone].description) || _("No description available") }
-                        </p>
-
-                        <label htmlFor="add-zone-services-readonly" className="control-label">{ _("Included services") }</label>
-                        <div id="add-zone-services-readonly">
-                            { (this.state.zone && firewall.zones[this.state.zone].services.join(", ")) || _("None") }
-                            <legend>{_("The cockpit service is automatically included")}</legend>
-                        </div>
-
-                        <label htmlFor="add-zone-interface" className="control-label">{ _("Interfaces") }</label>
-                        <fieldset className="add-zone-interfaces">
-                            { physicalDevices.map(i =>
-                                <label className="radio" key={i.device}>
-                                    <input type="checkbox" value={i.device} onChange={this.onInterfaceChange} checked={this.state.interfaces.has(i.device)} />
-                                    { i.device }
-                                </label>) }
-                            { virtualDevices.map(i =>
-                                <label className="radio" key={i.device}>
-                                    <input type="checkbox" value={i.device} onChange={this.onInterfaceChange} checked={this.state.interfaces.has(i.device)} />
-                                    { i.device }
-                                </label>) }
+            <Modal id="add-zone-dialog" isOpen
+                   position="top" variant="medium"
+                   onClose={this.props.close}
+                   title={_("Add zone")}
+                   footer={<>
+                       {
+                           this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                       }
+                       <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
+                                                                               (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
+                                                                               (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
+                           { _("Add zone") }
+                       </Button>
+                       <Button variant="link" className="btn-cancel" onClick={this.props.close}>
+                           { _("Cancel") }
+                       </Button>
+                   </>}
+            >
+                <form className="ct-form">
+                    <label htmlFor="add-zone-services-readonly" className="control-label">
+                        { _("Trust level") }
+                    </label>
+                    <div role="group" className="add-zone-zones">
+                        <fieldset className="add-zone-zones-firewalld">
+                            <legend>{ _("Sorted from least trusted to most trusted") }</legend>
+                            { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
+                                    .map(z =>
+                                        <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
+                                            { firewall.zones[z].id }
+                                        </label>
+                                    )}
                         </fieldset>
+                        <fieldset className="add-zone-zones-custom">
+                            { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
+                            { customZones.map(z =>
+                                <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
+                                    { firewall.zones[z].id }
+                                </label>
+                            )}
+                        </fieldset>
+                    </div>
 
-                        <label htmlFor="add-zone-ip" className="control-label">{ _("Allowed addresses") }</label>
-                        <label className="radio" key="ip-entire-subnet">
-                            <input type="radio" name="add-zone-ip" value="ip-entire-subnet" onChange={e => this.onChange("ipRange", e.target.value)} defaultChecked />
-                            { _("Entire subnet") }
+                    <label htmlFor="add-zone-description-readonly" className="control-label">{ _("Description") }</label>
+                    <p id="add-zone-description-readonly">
+                        { (this.state.zone && firewall.zones[this.state.zone].description) || _("No description available") }
+                    </p>
+
+                    <label htmlFor="add-zone-services-readonly" className="control-label">{ _("Included services") }</label>
+                    <div id="add-zone-services-readonly">
+                        { (this.state.zone && firewall.zones[this.state.zone].services.join(", ")) || _("None") }
+                        <legend>{_("The cockpit service is automatically included")}</legend>
+                    </div>
+
+                    <label htmlFor="add-zone-interface" className="control-label">{ _("Interfaces") }</label>
+                    <fieldset className="add-zone-interfaces">
+                        { physicalDevices.map(i =>
+                            <label className="radio" key={i.device}>
+                                <input type="checkbox" value={i.device} onChange={this.onInterfaceChange} checked={this.state.interfaces.has(i.device)} />
+                                { i.device }
+                            </label>) }
+                        { virtualDevices.map(i =>
+                            <label className="radio" key={i.device}>
+                                <input type="checkbox" value={i.device} onChange={this.onInterfaceChange} checked={this.state.interfaces.has(i.device)} />
+                                { i.device }
+                            </label>) }
+                    </fieldset>
+
+                    <label htmlFor="add-zone-ip" className="control-label">{ _("Allowed addresses") }</label>
+                    <label className="radio" key="ip-entire-subnet">
+                        <input type="radio" name="add-zone-ip" value="ip-entire-subnet" onChange={e => this.onChange("ipRange", e.target.value)} defaultChecked />
+                        { _("Entire subnet") }
+                    </label>
+                    <div role="group">
+                        <label className="radio" key="ip-range">
+                            <input type="radio" name="add-zone-ip" value="ip-range" onChange={e => this.onChange("ipRange", e.target.value)} />
+                            { _("Range") }
                         </label>
-                        <div role="group">
-                            <label className="radio" key="ip-range">
-                                <input type="radio" name="add-zone-ip" value="ip-range" onChange={e => this.onChange("ipRange", e.target.value)} />
-                                { _("Range") }
-                            </label>
-                            { this.state.ipRange === "ip-range" && <input id="add-zone-ip" onChange={e => this.onChange("ipRangeValue", e.target.value)} /> }
-                        </div>
-                        <div>{ this.state.ipRange === "ip-range" && <legend>{_("IP address with routing prefix. Separate multiple values with a comma. Example: 192.0.2.0/24, 2001:db8::/32")}</legend> }</div>
-                    </form>
-                </Modal.Body>
-                <Modal.Footer>
-                    {
-                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
-                    }
-                    <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
-                                                                            (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
-                                                                            (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
-                        { _("Add zone") }
-                    </Button>
-                    <Button variant="link" className="btn-cancel" onClick={this.props.close}>
-                        { _("Cancel") }
-                    </Button>
-                </Modal.Footer>
+                        { this.state.ipRange === "ip-range" && <input id="add-zone-ip" onChange={e => this.onChange("ipRangeValue", e.target.value)} /> }
+                    </div>
+                    <div>{ this.state.ipRange === "ip-range" && <legend>{_("IP address with routing prefix. Separate multiple values with a comma. Example: 192.0.2.0/24, 2001:db8::/32")}</legend> }</div>
+                </form>
             </Modal>
         );
     }
@@ -753,22 +746,21 @@ class ActivateZoneModal extends React.Component {
 
 function DeleteConfirmationModal(props) {
     return (
-        <Modal id="delete-confirmation-dialog" show>
-            <Modal.Header>
-                <Modal.Title>{ props.title }</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="delete-confirmation-body">
-                {props.body && <span className="fa fa-exclamation-triangle" />}
-                <div>{props.body}</div>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
-                    { _("Delete") }
-                </Button>
-                <Button variant="link" className="btn-cancel" onClick={props.onCancel}>
-                    { _("Cancel") }
-                </Button>
-            </Modal.Footer>
+        <Modal id="delete-confirmation-dialog" isOpen
+               position="top" variant="medium"
+               onClose={props.onCancel}
+               title={props.title}
+               footer={<>
+                   <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
+                       { _("Delete") }
+                   </Button>
+                   <Button variant="link" className="btn-cancel" onClick={props.onCancel}>
+                       { _("Cancel") }
+                   </Button>
+               </>}
+        >
+            {props.body && <span className="fa fa-exclamation-triangle" />}
+            {props.body}
         </Modal>
     );
 }

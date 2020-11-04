@@ -209,42 +209,42 @@ class TestFirewall(NetworkCase):
 
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # filter for pop3
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
         b.set_input_text("#filter-services-input", "pop")
-        b.wait_not_present(".modal-dialog .list-view-pf input[data-id='imap']")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text(".modal-dialog .list-view-pf .list-group-item:first-child .service-ports.tcp"))
-        b.wait_not_present(".modal-dialog .list-view-pf .list-group-item:first-child .service-ports.udp")
+        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='imap']")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # filter for port 110
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
         b.set_input_text("#filter-services-input", "110")
-        b.wait_not_present(".modal-dialog .list-view-pf input[data-id='imap']")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text(".modal-dialog .list-view-pf .list-group-item:first-child .service-ports.tcp"))
-        b.wait_not_present(".modal-dialog .list-view-pf .list-group-item:first-child .service-ports.udp")
+        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='imap']")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # don't select anything in the dialog
-        b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
-        b.wait_not_present(".modal-dialog")
+        b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+        b.wait_not_present(".pf-c-modal-box")
 
 
         def addService(zone, service):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
-            b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
-            b.wait_not_present(".modal-dialog")
+            b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+            b.wait_not_present(".pf-c-modal-box")
             b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
 
@@ -259,10 +259,10 @@ class TestFirewall(NetworkCase):
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='imap']")
-        b.wait_not_present(".modal-dialog .list-view-pf input[data-id='pop3']")
-        b.click("#add-services-dialog .modal-footer .btn-cancel")
-        b.wait_not_present(".modal-dialog")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.click("#add-services-dialog footer .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box")
 
         # should still be here
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='http']")
@@ -270,9 +270,9 @@ class TestFirewall(NetworkCase):
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".modal-dialog .list-view-pf input[data-id='empty']")
-        b.click("#add-services-dialog .modal-footer .btn-cancel")
-        b.wait_not_present(".modal-dialog")
+        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='empty']")
+        b.click("#add-services-dialog footer .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box")
 
         # remove all services
         services = set(m.execute("firewall-cmd --list-services").strip().split(" "))
@@ -407,28 +407,28 @@ class TestFirewall(NetworkCase):
         def addServiceToZone(service, zone):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
-            b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
-            b.wait_not_present(".modal-dialog")
+            b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+            b.wait_not_present(".pf-c-modal-box")
             b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
 
         def addZone(zone, interfaces=[], sources=None, error=None):
             b.click("#add-zone-button")
             b.wait_present("#add-zone-dialog")
-            b.wait_present("#add-zone-dialog .modal-footer button.{0}:disabled".format(self.btn_primary))
+            b.wait_present("#add-zone-dialog footer button.{0}:disabled".format(self.btn_primary))
             b.click("#add-zone-dialog .add-zone-zones-firewalld input[value='{}']".format(zone))
 
             for i in interfaces:
-                b.click("#add-zone-dialog-body input[value='{}']".format(i))
+                b.click("#add-zone-dialog input[value='{}']".format(i))
             if sources:
-                b.click("#add-zone-dialog-body input[value='ip-range']")
-                b.set_input_text("#add-zone-dialog-body #add-zone-ip", sources)
+                b.click("#add-zone-dialog input[value='ip-range']")
+                b.set_input_text("#add-zone-dialog #add-zone-ip", sources)
 
-            b.click("#add-zone-dialog .modal-footer button.{0}:enabled".format(self.btn_primary))
+            b.click("#add-zone-dialog footer button.{0}:enabled".format(self.btn_primary))
 
             if error:
                 b.wait_in_text("#add-zone-dialog div.pf-m-danger", error)
-                b.click("#add-zone-dialog .modal-footer button.btn-cancel")
+                b.click("#add-zone-dialog footer button.btn-cancel")
                 b.wait_not_present("#add-zone-dialog")
                 return
 
@@ -477,7 +477,7 @@ class TestFirewall(NetworkCase):
         b.click("#add-zone-button")
         b.wait_present("#add-zone-dialog")
         b.wait_not_present("#add-zone-body input[value='{}']".format(home_iface))
-        b.click("#add-zone-dialog .modal-footer button.btn-cancel")
+        b.click("#add-zone-dialog footer button.btn-cancel")
         b.wait_not_present("#add-zone-dialog")
 
         addServiceToZone("pop3", "home")

@@ -38,11 +38,11 @@ function instance(realmd, mode, realm, state) {
     /* If in an operation first time cancel is clicked, cancel operation */
     $(".realms-op-cancel").on("click", function() {
         if (!cancel())
-            $(dialog).modal('hide');
+            $(dialog).prop('hidden', true);
     });
 
     /* When we're hidden some other way, cancel any operations */
-    $(dialog).on("hide.bs.modal", function() {
+    $(dialog).on("hide", function() {
         cancel();
     });
 
@@ -526,7 +526,7 @@ function instance(realmd, mode, realm, state) {
                             .fail(function(ex) {
                                 busy(null);
                                 if (ex.name == "org.freedesktop.realmd.Error.Cancelled") {
-                                    $(dialog).modal("hide");
+                                    $(dialog).prop('hidden', true);
                                 } else {
                                     console.log("Failed to " + mode + " domain: " + realm.Name + ": " + ex);
                                     $(".realms-op-message").empty()
@@ -541,7 +541,7 @@ function instance(realmd, mode, realm, state) {
                             })
                             .done(function() {
                                 busy(null);
-                                $(dialog).modal("hide");
+                                $(dialog).prop('hidden', true);
                             })
                             .always(function() {
                                 sub.remove();
@@ -680,7 +680,7 @@ export function setup() {
         $(dialog)
                 .attr("id", "realms-op")
                 .appendTo("body")
-                .modal('show');
+                .prop('hidden', false);
         cockpit.translate();
     }
 

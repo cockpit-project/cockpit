@@ -74,6 +74,32 @@
         return document.getElementById(name);
     }
 
+    // Show or hide an element or set of elements based on a boolean
+    function showHide(elements, toggle) {
+        // >= 1 arguments (of type element or string (for CSS selectors))
+        for (var i=0; i < elements.length; i++) {
+            if (typeof elements[i] === "string") {
+                // Support CSS selectors as a string
+                document.querySelectorAll(elements[i]).forEach(function(element){
+                    element.hidden = toggle;
+                });
+            } else {
+                // Hide specific elements
+                elements[i].hidden = toggle;
+            }
+        }
+    }
+
+    // Show >=1 arguments (element or CSS selector)
+    function show() {
+        showHide(arguments, false);
+    }
+
+    // Hide >=1 arguments (element or CSS selector)
+    function hide() {
+        showHide(arguments, true);
+    }
+
     function fatal(msg) {
         if (window.console)
             console.warn("fatal:", msg);

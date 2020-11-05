@@ -74,47 +74,56 @@
         return document.getElementById(name);
     }
 
-    // Show or hide an element or set of elements based on a boolean
-    function showHide(elements, toggle) {
+    // Hide an element (or set of elements) based on a boolean
+    // true: element is hidden, false: element is shown
+    function hideToggle(elements, toggle) {
+        var els;
+
+        // If it's a single selector, convert it to an array for the loop
+        if (typeof elements === "string")
+            elements = [elements];
+
         // >= 1 arguments (of type element or string (for CSS selectors))
+        // (passed in "arguments" isn't a a true array, so forEach wouldn't always work)
         for (var i=0; i < elements.length; i++) {
             if (typeof elements[i] === "string") {
                 // Support CSS selectors as a string
-                document.querySelectorAll(elements[i]).forEach(function(element){
-                    element.hidden = toggle;
-                });
+                els = document.querySelectorAll(elements[i]);
+
+                if (els)
+                    els.forEach(function(element){
+                        element.hidden = !!toggle;
+                    });
             } else {
                 // Hide specific elements
-                elements[i].hidden = toggle;
+                elements[i].hidden = !!toggle;
             }
         }
     }
 
     // Show >=1 arguments (element or CSS selector)
     function show() {
-        showHide(arguments, false);
+        hideToggle(arguments, false);
     }
 
     // Hide >=1 arguments (element or CSS selector)
     function hide() {
-        showHide(arguments, true);
+        hideToggle(arguments, true);
     }
 
     function fatal(msg) {
         if (window.console)
             console.warn("fatal:", msg);
 
-        id("login-again").style.display = "none";
-        id("login-wait-validating").style.display = "none";
+        hide("#login-again", "#login-wait-validating");
 
         if (oauth_redirect_to) {
             id("login-again").href = oauth_redirect_to;
-            id("login-again").style.display = "block";
+            show("#login-again");
         }
 
-        id("login").style.display = 'none';
-        id("login-details").style.display = 'none';
-        id("login-fatal").style.display = 'block';
+        hide("#login", "#login-details");
+        show("#login-fatal");
 
         var el = id("login-fatal-message");
         el.textContent = "";
@@ -147,9 +156,8 @@
         function disableLogin(name) {
             if (window.console)
                 console.warn(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
-            id("login").style.display = 'none';
-            id("login-details").style.display = 'none';
-            id("unsupported-browser").style.display = 'block';
+            hide("#login", "#login-details");
+            show("#unsupported-browser");
             document.body.className += " brand-unsupported-browser";
         }
 
@@ -254,17 +262,17 @@
             ev.preventDefault();
 
         if (show === undefined)
-            show = id("server-group").style.display === "none";
+            show = id("server-group").hidden
+
+        hideToggle("#server-group", !show);
 
         id("option-group").setAttribute("data-state", show);
         if (show) {
-            id("server-group").style.display = 'block';
-            id("option-caret").setAttribute("class", "caret caret-down");
-            id("option-caret").setAttribute("className", "caret caret-down");
+            id("option-caret").classList.add("caret-down");
+            id("option-caret").classList.remove("caret-right");
         } else {
-            id("server-group").style.display = 'none';
-            id("option-caret").setAttribute("class", "caret caret-right");
-            id("option-caret").setAttribute("className", "caret caret-right");
+            id("option-caret").classList.add("caret-right");
+            id("option-caret").classList.remove("caret-down");
         }
     }
 
@@ -289,8 +297,7 @@
         document.title = title;
 
         if (application.indexOf("cockpit+=") === 0) {
-            id("brand").style.display = "none";
-            id("badge").style.visibility = "hidden";
+            hide("#brand", "#badge");
         } else {
             brand("badge", "");
             brand("brand", "Cockpit");
@@ -300,7 +307,7 @@
             return;
 
         if (environment.banner) {
-            id("banner").classList.remove("group-hidden");
+            show("#banner");
             id("banner-message").textContent = environment.banner.trimEnd();
         }
 
@@ -326,8 +333,7 @@
 
         /* Try automatic/kerberos authentication? */
         if (oauth) {
-            id("login-details").style.display = 'none';
-            id("login").style.display = 'none';
+            hide("#login-details", "#login");
             if (logout_intent) {
                 build_oauth_redirect_to();
                 id("login-again").textContent = _("Login again");
@@ -394,7 +400,7 @@
             }
 
             token_val = query[oauth.TokenParam];
-            id("login-wait-validating").style.display = "block";
+            show("#login-wait-validating");
             xhr = new XMLHttpRequest();
             xhr.open("GET", login_path, true);
             xhr.setRequestHeader("Authorization", "Bearer " + token_val);
@@ -426,12 +432,12 @@
     }
 
     function clear_errors() {
-        id("error-group").classList.add("group-hidden");
+        hide("#error-group");
         id("login-error-message").textContent = "";
     }
 
     function clear_info() {
-        id("info-group").classList.add("group-hidden");
+        hide("#info-group");
         id("login-info-message").textContent = "";
     }
 
@@ -444,7 +450,7 @@
             } else {
                 show_form(in_conversation);
                 id("login-error-message").textContent = msg;
-                id("error-group").classList.remove("group-hidden");
+                show("#error-group");
             }
         }
     }
@@ -453,7 +459,7 @@
         clear_info();
         if (msg) {
             id("login-info-message").textContent = msg;
-            id("info-group").classList.remove("group-hidden");
+            show("#info-group");
         }
     }
 
@@ -464,7 +470,7 @@
         } else {
             clear_errors();
             id("login-error-message").textContent = msg;
-            id("error-group").classList.remove("group-hidden");
+            show("#error-group");
             toggle_options(null, true);
             show_form();
         }
@@ -532,26 +538,26 @@
         var connectable = environment.page.connect;
         var expanded = id("option-group").getAttribute("data-state");
 
-        id("login-wait-validating").style.display = "none";
-        id("login").style.visibility = 'visible';
-        id("login").style.display = "block";
-        id("user-group").style.display = in_conversation ? "none" : "block";
-        id("password-group").style.display = in_conversation ? "none" : "block";
-        id("conversation-group").style.display = in_conversation ? "block" : "none";
+        hide("#login-wait-validating");
+        show("#login");
+
+        hideToggle(["#user-group", "#password-group"], in_conversation);
+        hideToggle("#conversation-group", !in_conversation);
+
         id("login-button-text").textContent = _("Log in");
         id("login-password-input").value = '';
 
         if (need_host()) {
-            id("option-group").style.display = "none";
+            hide("#option-group");
             expanded = true;
         } else {
-            id("option-group").style.display = !connectable || in_conversation ? "none" : "block";
+            hideToggle("#option-group", !connectable || in_conversation);
         }
 
         if (!connectable || in_conversation) {
-            id("server-group").style.display = "none";
+            hide("#server-group");
         } else {
-            id("server-group").style.display = expanded ? "block" : "none";
+            hideToggle("#server-group", !expanded);
         }
 
         id("login-button").removeAttribute('disabled');

@@ -114,25 +114,34 @@ function setupLogging(client) {
         // Lets parse it to have at least some basic check that code did not throw
         // exception
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1549528
-        if (entry.entry.stackTrace !== undefined &&
-            typeof entry.entry.text === "string" &&
-            entry.entry.text.indexOf("Error: ") !== -1) {
-            trace = entry.entry.text.split(": ", 1);
+
+        let msg = entry["entry"];
+        let text = msg.text;
+        if (typeof text !== "string")
+            if (text[0] && typeof text[0] === "string")
+                text = text[0];
+
+        // HACK: https://github.com/cockpit-project/cockpit/issues/14871
+        if (typeof text === "string" && text.indexOf("Rendering components directly into document.body is discouraged") > -1)
+            return;
+
+        if (msg.stackTrace !== undefined &&
+            typeof text === "string" &&
+            text.indexOf("Error: ") !== -1) {
+            trace = text.split(": ", 1);
             processException({exceptionDetails: {
                 exception: {
                     className: trace[0],
                     message: trace.length > 1 ? trace[1] : "",
-                    stacktrace: entry.entry.stackTrace,
-                    entry: entry.entry,
+                    stacktrace: msg.stackTrace,
+                    entry: msg,
                 },
             }
             });
         } else {
-            let msg = entry["entry"];
-
             /* Reduce unsafe-inline messages from PatternFly's usage of Emotion
              * (https://github.com/patternfly/patternfly-react/issues/2919) */
-            if ((msg.text || "").indexOf("Content Security Policy:") >= 0 && (msg.text || "").indexOf("resource at inline") >= 0) {
+            if ((text || "").indexOf("Content Security Policy:") >= 0 && (text || "").indexOf("resource at inline") >= 0) {
                 if (sawRefusedInlineStyle)
                     return;
                 sawRefusedInlineStyle = true;
@@ -140,7 +149,7 @@ function setupLogging(client) {
 
             messages.push([ "cdp", msg ]);
             /* Ignore authentication failure log lines that don't denote failures */
-            if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)
+            if (!(msg.url || "").endsWith("/login") || (text || "").indexOf("401") === -1)
                 process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
             resolveLogPromise();
         }

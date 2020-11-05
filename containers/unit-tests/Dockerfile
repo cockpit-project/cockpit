@@ -5,10 +5,6 @@ ARG personality=linux64
 COPY setup.sh /
 RUN ${personality} /setup.sh ${personality} && rm -rf /setup.sh
 
-# HACK: Working around Node.js screwing around with stdio
-ENV NODE_PATH /usr/bin/node
-COPY turd-polish /usr/local/bin/node
-
 # 'builder' user created in setup.sh
 USER builder
 ENV LANG=C.UTF-8

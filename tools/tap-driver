@@ -166,11 +166,6 @@ class Driver:
 
         proc.wait()
 
-        # Make sure the test didn't change blocking output
-        assert fcntl.fcntl(0, fcntl.F_GETFL) & os.O_NONBLOCK == 0
-        assert fcntl.fcntl(1, fcntl.F_GETFL) & os.O_NONBLOCK == 0
-        assert fcntl.fcntl(2, fcntl.F_GETFL) & os.O_NONBLOCK == 0
-
         return proc.returncode
 
 

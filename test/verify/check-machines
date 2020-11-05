@@ -2991,7 +2991,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
 
         # Changing readonly with running VM
-        b.click("#vm-subVmTest1-disks-vde-edit-readonly")
+        b.set_checked("#vm-subVmTest1-disks-vde-edit-readonly", True)
 
         # Tooltip in dialog should show
         b.wait_present("#vm-subVmTest1-disks-vde-edit-idle-message")
@@ -3016,7 +3016,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
 
         # Changing readonly
-        b.click("#vm-subVmTest1-disks-vde-edit-writable-shareable")
+        b.set_checked("#vm-subVmTest1-disks-vde-edit-writable-shareable", True)
         # Tooltip in dialog should not be present
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit-idle-message")
 

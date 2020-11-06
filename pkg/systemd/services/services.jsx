@@ -273,7 +273,7 @@ class ServicesPage extends React.Component {
       */
     isUnitHandled(name) {
         const suffix = name.substr(name.lastIndexOf('.') + 1);
-        return Object.keys(service_tabs_suffixes).includes(suffix);
+        return service_tabs_suffixes.includes(suffix);
     }
 
     /* When the page is running in the background fetch only information about failed units
@@ -638,7 +638,7 @@ class ServicesPage extends React.Component {
             const u = this.state.unit_by_path[p];
             if (u.ActiveState == "failed") {
                 const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
-                if (Object.keys(service_tabs_suffixes).includes(suffix)) {
+                if (service_tabs_suffixes.includes(suffix)) {
                     tabErrors[suffix] = true;
                     failed.add(u.Id);
                 }

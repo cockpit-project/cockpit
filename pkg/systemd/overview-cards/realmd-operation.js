@@ -484,6 +484,7 @@ function instance(realmd, mode, realm, state) {
 
         ensure()
                 .fail(function() {
+                    $(".realms-op-cancel").prop('disabled', false);
                     busy(null);
                 })
                 .done(function(realm) {
@@ -519,6 +520,7 @@ function instance(realmd, mode, realm, state) {
 
                     if (!call) {
                         sub.remove();
+                        $(".realms-op-cancel").prop('disabled', false);
                         return;
                     }
 

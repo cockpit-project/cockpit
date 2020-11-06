@@ -86,8 +86,8 @@ class ServicesRow extends React.PureComponent {
                                                       key={cockpit.format("$0-$1", shortId, key)}>
                                             {(columnsMap[key].timerOnly)
                                                 ? <>
-                                                    {NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next Run: $0", NextRunTime)}</div>}
-                                                    {LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last Trigger: $0", LastTriggerTime)}</div>}
+                                                    {NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next run: $0", NextRunTime)}</div>}
+                                                    {LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last trigger: $0", LastTriggerTime)}</div>}
                                                 </>
                                                 : props[key]}
                                         </DataListCell>

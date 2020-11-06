@@ -2702,6 +2702,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m = self.machine
 
         self.createVm("subVmTest1")
+        self.machine.execute("touch /var/lib/libvirt/images/phonycdrom; virsh attach-disk subVmTest1 /var/lib/libvirt/images/phonycdrom sdb --type cdrom --config")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -2718,6 +2719,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
+        # Check a cdrom attributes are shown correctly
+        cdrom_row = b.text("#vm-subVmTest1-order-modal-device-row-2 .list-view-pf-additional-info")
+        self.assertTrue("cdrom" and "/var/lib/libvirt/images/phonycdrom" in cdrom_row)
         # Move first device down and check whetever succeeded
         row = b.text("#vm-subVmTest1-order-modal-device-row-1 .list-view-pf-additional-info")
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down")

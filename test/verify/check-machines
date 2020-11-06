@@ -123,6 +123,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml || true")
 
+        # avoid error noise about resources getting cleaned up
+        self.addCleanup(self.browser.logout)
+        self.allow_authorize_journal_messages()
+
+
     def goToVmPage(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
 
@@ -560,12 +565,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines", user="nonadmin", superuser=False)
         b.wait_in_text("body", "Virtual machines")
         b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
-        b.logout()
-
-        self.allow_authorize_journal_messages()
-
-        # Might happen when user is logged out
-        self.allow_journal_messages("connection unexpectedly closed by peer")
 
     def testDisks(self):
         b = self.browser
@@ -826,9 +825,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # Detach the iscsi disk before reaching teardown because shutting of the domains would sometimes hang when iscsi disks are attached
             m.execute("virsh detach-disk subVmTest1 --target vdb")
 
-        # avoid error noise about resources getting cleaned up
-        b.logout()
-
         # AppArmor doesn't like the non-standard path for our storage pools
         if m.image in ["debian-testing"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
@@ -917,9 +913,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             volume_size_unit='MiB',
             expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
-
-        # avoid error noise about resources getting cleaned up
-        b.logout()
 
         # AppArmor doesn't like the non-standard path for our storage pools
         if m.image in ["debian-testing"]:
@@ -1094,9 +1087,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         # Check that usage information can't be fetched since the pool is inactive
         b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
-
-        # avoid error noise about resources getting cleaned up
-        b.logout()
 
         # AppArmor doesn't like the non-standard path for our storage pools
         if m.image in ["debian-testing"]:
@@ -1288,6 +1278,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click('.machines-desktop-viewer-block .link-button')
         b.wait_in_text('.machines-desktop-more-info-container',
                        'Clicking "Launch Remote Viewer" will download')
+
+        # HACK: clicking 'Launch Remote Viewer' kills execution context and thus CDP fails
+        b.reload()
+        b.enter_page("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
 
     def testInlineConsole(self, urlroot=""):
         b = self.browser

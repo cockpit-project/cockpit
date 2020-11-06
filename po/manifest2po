@@ -100,7 +100,7 @@ function process_keywords(keywords) {
         v.matches.forEach(keyword =>
             push({
                 msgid: keyword,
-                locations: [ filename ]
+                locations: [ filename + ":0" ]
             })
         );
     });
@@ -110,7 +110,7 @@ function process_docs(docs) {
     docs.forEach(doc => {
         push({
             msgid: doc.label,
-            locations: [ filename ]
+            locations: [ filename + ":0" ]
         })
     });
 }
@@ -120,7 +120,7 @@ function process_menu(menu) {
         if (menu[m].label) {
             push({
                 msgid: menu[m].label,
-                locations: [ filename ]
+                locations: [ filename + ":0" ]
             });
         }
         if (menu[m].keywords)

@@ -2950,7 +2950,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
-        self.createVm("subVmTest1")
+        args = self.createVm("subVmTest1")
+
+        # Wait for the machine to fully boot before performing disk changes
+        wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # prepare libvirt storage pools
         p1 = os.path.join(self.vm_tmpdir, "vm_one")

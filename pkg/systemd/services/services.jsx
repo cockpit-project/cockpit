@@ -46,8 +46,6 @@ import { page_status } from "notifications";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 
-moment.locale(cockpit.language);
-
 const _ = cockpit.gettext;
 
 // As long as we have long-running superuser channels, we need to
@@ -785,6 +783,8 @@ class ServicesPage extends React.Component {
 }
 
 function init() {
+    moment.locale(cockpit.language);
+
     ReactDOM.render(
         <ServicesPage />,
         document.getElementById('services')

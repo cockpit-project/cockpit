@@ -1029,10 +1029,6 @@ class MachineCase(unittest.TestCase):
         "#1\) Respect the privacy of others.",
         "#2\) Think before you type.",
         "#3\) With great power comes great responsibility.",
-
-        # Segfault in console-login-helper-messages on fedora-coreos
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1884236
-        "Process.*\\(gensnippet_if\\) of user 0 dumped core.",
     ]
 
     allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
@@ -1120,10 +1116,6 @@ class MachineCase(unittest.TestCase):
             # Fedora switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
-        if self.image in ['rhel-8-3', 'rhel-8-3-distropkg']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1835909
-            self.allowed_messages.append('.*type=1400.*avc:  denied  { read write } .* comm="qemu-kvm" path="/dev/mapper/control".*')
-
         if self.image in ['debian-testing', 'ubuntu-stable']:
             # HACK: https://bugs.debian.org/951477
             self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')
@@ -1134,10 +1126,6 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')
             # but we have to ignore that general header line
             self.allowed_messages.append('^Stack trace of.*')
-
-        if self.image == "fedora-33":
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1871351
-            self.allowed_messages.append('.*type=1400.*avc:  denied  { getattr } for .* comm="cockpit-session" name="/".*')
 
         all_found = True
         first = None

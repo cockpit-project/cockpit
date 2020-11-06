@@ -36,9 +36,6 @@ class TestStorageVDO(StorageCase):
             b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
 
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1616247
-        m.execute("depmod")
-
         b.wait_visible("#devices")
 
         # Make a logical volume for use as the backing device.

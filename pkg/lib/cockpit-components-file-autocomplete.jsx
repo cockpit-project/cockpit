@@ -178,7 +178,8 @@ export class FileAutoComplete extends React.Component {
                 }}
                 onToggle={this.onToggle}
                 onClear={this.clearSelection}
-                isOpen={this.state.isOpen}>
+                isOpen={this.state.isOpen}
+                menuAppendTo="parent">
                 {this.state.displayFiles.map((option, index) => (
                     <SelectOption key={option.path}
                                   className={option.type}

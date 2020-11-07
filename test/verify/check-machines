@@ -85,26 +85,23 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # https://bugs.launchpad.net/ubuntu/+source/libvirt-dbus/+bug/1892757
             m.execute("usermod -a -G libvirt libvirtdbus")
 
+        self.startLibvirt()
+        self.addCleanup(m.execute, "systemctl stop libvirtd")
+
+        # Stop all domains
+        self.addCleanup(m.execute, "for d in $(virsh list --name); do virsh destroy $d || true; done")
+
         # Cleanup pools
-        active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name || true").split('\n'))
-        for pool in active_pools:
-            m.execute("virsh pool-destroy {0} || true".format(pool))
-        inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name || true").split('\n'))
-        for pool in inactive_pools:
-            m.execute("virsh pool-undefine {0} || true".format(pool))
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
+
+        # Stop all pools
+        self.addCleanup(m.execute, "for n in $(virsh pool-list --all --name); do virsh pool-destroy $n || true; done")
 
         # Cleanup networks
         self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
 
-        self.startLibvirt()
-        self.addCleanup(m.execute, "systemctl stop libvirtd")
-
         # Stop all networks
         self.addCleanup(m.execute, "for n in $(virsh net-list --all --name); do virsh net-destroy $n || true; done")
-
-        # Stop all domains
-        self.addCleanup(m.execute, "for d in $(virsh list --name); do virsh destroy $d || true; done")
 
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")

@@ -4,7 +4,6 @@ basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	dist/base1/cockpit.min.css.gz \
 	dist/base1/patternfly.css \
-	dist/base1/mustache.min.js.gz \
 	dist/base1/jquery.min.js.gz \
 	dist/base1/cockpit.min.js.gz \
 	$(NULL)
@@ -16,7 +15,6 @@ basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	dist/base1/cockpit.min.css.map \
 	dist/base1/patternfly.css.map \
-	dist/base1/mustache.min.js.map \
 	dist/base1/jquery.min.js.map \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
@@ -46,11 +44,6 @@ dist/base1/cockpit.js: src/base1/cockpit.js
 	$(COPY_RULE)
 dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
-dist/base1/mustache.js: src/base1/deprecated.js
-	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/node_modules/mustache/mustache.js > $@.tmp && $(MV) $@.tmp $@
-dist/base1/mustache.min.js: dist/base1/mustache.js
-	$(MIN_JS_RULE)
 dist/base1/manifest.json: src/base1/manifest.json
 	$(COPY_RULE)
 
@@ -58,8 +51,6 @@ dist/base1/manifest.json: src/base1/manifest.json
 dist/base1/cockpit.min.js.map: dist/base1/cockpit.min.js
 
 dist/base1/jquery.min.js.map: dist/base1/jquery.min.js
-
-dist/base1/mustache.min.js.map: dist/base1/mustache.min.js
 
 dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 
@@ -192,15 +183,11 @@ EXTRA_DIST += \
 	dist/base1/jquery.js \
 	dist/base1/jquery.min.js \
 	dist/base1/jquery.min.js.map \
-	dist/base1/mustache.js \
-	dist/base1/mustache.min.js \
-	dist/base1/mustache.min.js.map \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
 	dist/base1/simple-tap.js \
 	src/base1/cockpit.scss \
 	src/base1/cockpit.js \
-	src/base1/deprecated.js \
 	src/base1/manifest.json \
 	src/base1/simple-tap.js \
 	src/base1/test-dbus-common.js \
@@ -228,10 +215,6 @@ MAINTAINERCLEANFILES += \
 	dist/base1/jquery.min.js.gz \
 	dist/base1/jquery.min.js.map \
 	dist/base1/manifest.json \
-	dist/base1/mustache.js \
-	dist/base1/mustache.min.js \
-	dist/base1/mustache.min.js.gz \
-	dist/base1/mustache.min.js.map \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
 	dist/base1/qunit.css \

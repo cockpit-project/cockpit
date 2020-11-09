@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 function MockPeer() {
     /*
@@ -7,6 +7,7 @@ function MockPeer() {
      * recv(event, payload)
      * closed(event, problem)
      */
+    cockpit.event_target(this);
 
     var channel = null;
 
@@ -66,21 +67,20 @@ function MockPeer() {
         this.send = function(payload) {
             console.assert(arguments.length == 1);
             console.assert(this.valid);
-            $(peer).trigger("recv", [channel, payload]);
+            peer.dispatchEvent("recv", channel, payload);
         };
 
         this.close = function(options) {
             console.assert(arguments.length <= 1);
             this.valid = false;
-            $(peer).trigger("closed", [channel, options || { }]);
-            $(this).triggerHandler("close", [options || { }]);
+            peer.dispatchEvent("close", channel, options || {});
         };
 
         QUnit.testDone(function() {
             channel.valid = false;
         });
 
-        $(peer).trigger("opened", [channel, options]);
+        peer.dispatchEvent("open", channel, options || {});
     }
 
     cockpit.channel = function(options) {

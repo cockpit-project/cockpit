@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, common_dbus_tests, dbus_track_tests */
+/* global cockpit, QUnit, common_dbus_tests, dbus_track_tests */
 
 /* with a name */
 var options = {
@@ -102,7 +102,7 @@ QUnit.test("owned messages", function (assert) {
                     assert.equal(this.state(), "resolved", "name claimed");
                     if (!other) {
                         other = cockpit.dbus(name, { bus: "session" });
-                        $(other).on("owner", on_owner);
+                        other.addEventListener("owner", on_owner);
                         release_name();
                     } else {
                         assert.strictEqual(times_changed, 3, "owner changed three times");
@@ -133,7 +133,7 @@ QUnit.test("bad dbus address", function (assert) {
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { bus: "none", address: "bad" });
-    $(dbus).on("close", function(event, options) {
+    dbus.addEventListener("close", (event, options) => {
         assert.equal(options.problem, "protocol-error", "bad address closed");
         done();
     });
@@ -144,7 +144,7 @@ QUnit.test("bad dbus bus", function (assert) {
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { bus: "bad" });
-    $(dbus).on("close", function(event, options) {
+    dbus.addEventListener("close", (event, options) => {
         assert.equal(options.problem, "protocol-error", "bad bus format");
         done();
     });
@@ -308,7 +308,7 @@ QUnit.test("watch no default name", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.addEventListener("notify", function(event, data) {
-        $.extend(true, cache, data);
+        Object.assign(cache, data);
     });
 
     dbus.watch({ path: "/otree/frobber", name: "com.redhat.Cockpit.DBusTests.Second" })

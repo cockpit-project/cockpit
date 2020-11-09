@@ -17,7 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global cockpit, QUnit, $ */
+/* global cockpit, QUnit */
+
+function deep_update(target, data) {
+    for (const prop in data) {
+        if (Object.prototype.toString.call(data[prop]) === '[object Object]') {
+            if (!target[prop])
+                target[prop] = {};
+            deep_update(target[prop], data[prop]);
+        } else {
+            target[prop] = data[prop];
+        }
+    }
+}
 
 function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
     QUnit.test("call method", function (assert) {
@@ -60,7 +72,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         const done = assert.async();
         assert.expect(1);
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("close", function(event, options) {
+        dbus.addEventListener("close", function(event, options) {
             assert.equal(options.problem, "test-code", "got right code");
             done();
         });
@@ -677,9 +689,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(true, cache, data);
-        });
+        const onnotify = (event, data) => deep_update(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch("/otree/frobber")
                 .done(function() {
@@ -694,7 +705,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                          o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
                                          y: 42
                                      }, "correct data");
-                    $(dbus).off();
+                    dbus.removeEventListener("notify", onnotify);
                     done();
                 });
     });
@@ -706,9 +717,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
-        });
+        const onnotify = (event, data) => Object.assign(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
@@ -726,7 +736,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                           }
                         }
                     }, "correct data");
-                    $(dbus).off();
+                    dbus.removeEventListener("notify", onnotify);
                     done();
                 });
     });
@@ -738,12 +748,11 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
-        });
+        const onnotify_cache = (event, data) => Object.assign(cache, data);
+        dbus.addEventListener("notify", onnotify_cache);
 
         dbus.watch("/otree/frobber");
-        $(dbus).on("notify", function(event, data) {
+        const onnotify_test = (event, data) => {
             assert.equal(typeof cache["/otree/frobber"], "object", "has path");
             assert.deepEqual(cache, {
                 "/otree/frobber": {
@@ -758,9 +767,11 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     }
                 }
             }, "correct data");
-            $(dbus).off();
+            dbus.removeEventListener("notify", onnotify_cache);
+            dbus.removeEventListener("notify", onnotify_test);
             done();
-        });
+        };
+        dbus.addEventListener("notify", onnotify_test);
     });
 
     QUnit.test("watch barrier", function (assert) {
@@ -770,9 +781,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
-        });
+        const onnotify = (event, data) => Object.assign(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path_namespace: "/otree" });
 
@@ -792,7 +802,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfully");
-                    $(dbus).off();
+                    dbus.removeEventListener("notify", onnotify);
                     done();
                 });
     });
@@ -804,9 +814,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(true, cache, data);
-        });
+        const onnotify = (event, data) => deep_update(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
@@ -858,7 +867,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                                     "com.redhat.Cockpit.DBusTests.Alpha": null
                                                 }
                                             }, "correct data");
-                                            $(dbus).off();
+                                            dbus.removeEventListener("notify", onnotify);
                                             done();
                                         });
                             });
@@ -873,9 +882,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
-        });
+        const onnotify = (event, data) => Object.assign(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path_namespace: "/cliques/" + name })
                 .done(function() {
@@ -895,7 +903,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             })
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "method called");
-                                $(dbus).off();
+                                dbus.removeEventListener("notify", onnotify);
                                 done();
                             });
                 });
@@ -909,9 +917,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
-        });
+        const onnotify = (event, data) => Object.assign(cache, data);
+        dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path: "/hidden/" + name })
                 .done(function() {
@@ -922,7 +929,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                         assert.deepEqual(cache[path], {
                             "com.redhat.Cockpit.DBusTests.Hidden": { Name: name }
                         }, "got data before signal");
-                        $(dbus).off();
+                        dbus.removeEventListener("notify", onnotify);
                         done();
                     });
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -961,7 +968,6 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     })
                     .always(function() {
                         assert.equal(this.state(), "resolved", "method called");
-                        $(dbus).off();
                         done();
                     });
         });
@@ -981,7 +987,6 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "method called");
-                    $(dbus).off();
                     done();
                 });
     });
@@ -999,7 +1004,6 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call timed out");
-                    $(dbus).off();
                     done();
                 });
     });
@@ -1013,20 +1017,20 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var dbus = cockpit.dbus(bus_name, channel_options);
         var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
-        $(proxy).on("signal", function(event, name, args) {
+        const onsignal = (event, name, args) => {
             assert.equal(name, "TestSignal", "signals: got right name");
             assert.deepEqual(args, [
                 43, ["foo", "frobber"], ["/foo", "/foo/bar"],
                 { first: [42, 42], second: [43, 43] }], "got right arguments");
             received = true;
-        });
+        };
+        proxy.addEventListener("signal", onsignal);
 
         proxy.call("RequestSignalEmission", [0])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "emission requested");
                     assert.equal(received, true, "signal received");
-                    $(dbus).off();
-                    $(proxy).off();
+                    proxy.removeEventListener("signal", onsignal);
                     done();
                 });
     });
@@ -1039,11 +1043,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
         proxy.wait().done(function() {
-            $(proxy).on("changed", function () {
+            const onchanged = () => {
                 assert.equal(proxy.FinallyNormalName, "externally injected");
-                $(proxy).off("changed");
+                proxy.removeEventListener("changed", onchanged);
                 done();
-            });
+            };
+            proxy.addEventListener("changed", onchanged);
+
             dbus.notify({
                 "/otree/frobber": {
                     "com.redhat.Cockpit.DBusTests.Frobber": {
@@ -1068,18 +1074,18 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
                     proxies.wait().always(function() {
                         var added;
-                        $(proxies).on("added", function(event, proxy) {
+                        proxies.addEventListener("added", function(event, proxy) {
                             added = proxy;
                             assert.strictEqual(added.valid, true, "added objects valid");
                         });
 
                         var changed;
-                        $(proxies).on("changed", function(event, proxy) {
+                        proxies.addEventListener("changed", function(event, proxy) {
                             changed = proxy;
                         });
 
                         var removed;
-                        $(proxies).on("removed", function(event, proxy) {
+                        proxies.addEventListener("removed", function(event, proxy) {
                             removed = proxy;
                         });
 
@@ -1108,7 +1114,6 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                                             assert.strictEqual(removed, added, "removed fired");
                                                             assert.strictEqual(removed.valid, false, "removed is invalid");
                                                             dbus.close();
-                                                            $(dbus).off();
                                                             done();
                                                         });
                                             });
@@ -1138,7 +1143,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                         address: channel_options.address,
                         track: true
                     });
-                    $(other).on("close", function(event, data) {
+                    other.addEventListener("close", function(event, data) {
                         assert.strictEqual(data.problem, undefined, "no problem");
                         gone = true;
                         if (released && gone)
@@ -1176,7 +1181,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                     assert.equal(this.state(), "resolved", "name claimed");
 
                     var other = cockpit.dbus(name, channel_options);
-                    $(other).on("close", function(event, data) {
+                    other.addEventListener("close", function(event, data) {
                         gone = true;
                     });
 

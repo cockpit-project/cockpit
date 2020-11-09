@@ -15,6 +15,7 @@ function MockPeer() {
     var self = this;
     var echos = { };
     var nulls = { };
+    cockpit.event_target(this);
 
     /* These are events */
     self.onopen = function(event) { };
@@ -140,7 +141,7 @@ function MockWebSocket(url, protocol) {
     /* Open shortly */
     window.setTimeout(function() {
         ws.readyState = 1;
-        $(mock).triggerHandler("open");
+        mock.dispatchEvent("open");
         ws.onopen({ name: "open" });
         var init = {
             command: "init",
@@ -227,7 +228,7 @@ QUnit.test("open channel", function (assert) {
 
     var channel = cockpit.channel({ host: "scruffy" });
     var is_inited = false;
-    $(mock_peer).on("open", function(event) {
+    mock_peer.addEventListener("open", function(event) {
         assert.ok(true, "websocket connected");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -254,11 +255,12 @@ QUnit.test("multiple", function (assert) {
     var channel = cockpit.channel({ host: "scruffy" });
     var channelb = cockpit.channel({ host: "amy" });
 
-    $(mock_peer).on("recv", function(event) {
+    const onrecv = event => {
         $(mock_peer).off("recv");
         assert.notStrictEqual(channel.id, channelb.id, "channels have different ids");
         done();
-    });
+    };
+    $(mock_peer).on("recv", onrecv);
 });
 
 QUnit.test("open no host", function (assert) {
@@ -267,7 +269,7 @@ QUnit.test("open no host", function (assert) {
 
     var channel = cockpit.channel({ });
     assert.ok(channel);
-    $(mock_peer).on("open", function(event) {
+    mock_peer.addEventListener("open", function(event) {
         assert.ok(true, "websocket connected");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -286,7 +288,7 @@ QUnit.test("open auto host", function (assert) {
     force_default_host = "planetexpress";
     var channel = cockpit.channel({ });
     assert.ok(channel);
-    $(mock_peer).on("open", function(event) {
+    mock_peer.addEventListener("open", function(event) {
         assert.ok(true, "websocket connected");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -303,7 +305,7 @@ QUnit.test("send message", function (assert) {
     assert.expect(2);
 
     var channel = cockpit.channel({ });
-    $(mock_peer).on("open", function(event) {
+    mock_peer.addEventListener("open", function(event) {
         channel.send("Scruffy gonna die the way he lived");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -341,16 +343,17 @@ QUnit.test("receive message", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+    function onrecv(event, chan, payload) {
+        const cmd = JSON.parse(payload);
         if (cmd.command == "open") {
             $(mock_peer).off("recv");
             mock_peer.send(channel.id, "Oh, marrrrmalade!");
         }
-    });
+    }
+    $(mock_peer).on("recv", onrecv);
 
     var channel = cockpit.channel({ });
-    $(channel).on("message", function(event, message) {
+    channel.addEventListener("message", function(event, message) {
         assert.equal(message, "Oh, marrrrmalade!", "got right message in channel");
         done();
     });
@@ -361,7 +364,7 @@ QUnit.test("close channel", function (assert) {
     assert.expect(4);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+        const cmd = JSON.parse(payload);
         if (cmd.command == "init") {
             return;
         } else if (cmd.command == "open") {
@@ -374,7 +377,7 @@ QUnit.test("close channel", function (assert) {
         done();
     });
     var channel = cockpit.channel({ });
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.ok(true, "triggered event");
         assert.ok(!options.problem, "no problem");
         done();
@@ -386,7 +389,7 @@ QUnit.test("close early", function (assert) {
     assert.expect(3);
 
     var channel = cockpit.channel({ });
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.ok(true, "triggered event");
         assert.equal(options.problem, "yo", "got problem");
         done();
@@ -400,7 +403,7 @@ QUnit.test("close problem", function (assert) {
     assert.expect(5);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+        const cmd = JSON.parse(payload);
         if (cmd.command == "init") {
             return;
         } else if (cmd.command == "open") {
@@ -413,7 +416,7 @@ QUnit.test("close problem", function (assert) {
         done();
     });
     var channel = cockpit.channel({ });
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.ok(true, "triggered event");
         assert.equal(options.problem, "problem", "set");
     });
@@ -425,7 +428,7 @@ QUnit.test("close problem string", function (assert) {
 
     var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+        const cmd = JSON.parse(payload);
         if (cmd.command == "init") {
             return;
         } else if (cmd.command == "open") {
@@ -437,7 +440,7 @@ QUnit.test("close problem string", function (assert) {
         assert.equal(cmd.problem, "testo", "sent reason");
         done();
     });
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.ok(true, "triggered event");
         assert.equal(options.problem, "testo", "set");
     });
@@ -451,7 +454,7 @@ QUnit.test("close peer", function (assert) {
         var msg = JSON.parse(payload);
         if (msg.command == "init")
             return;
-        var cmd = {
+        const cmd = {
             command: "close",
             channel: channel.id,
             problem : "marmalade",
@@ -463,7 +466,7 @@ QUnit.test("close peer", function (assert) {
     var channel = cockpit.channel({ });
     var channelb = cockpit.channel({ });
 
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.ok(true, "triggered event");
         assert.equal(options.problem, "marmalade", "received reason");
         assert.equal(options.extra, 5, "received extra");
@@ -480,14 +483,14 @@ QUnit.test("close socket", function (assert) {
     var channel = cockpit.channel({ });
     var channelb = cockpit.channel({ });
 
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
         assert.strictEqual(channel.valid, false, "channel is invalid");
         if (!channel.valid && !channelb.valid)
             done();
     });
 
-    $(channelb).on("close", function(event, options) {
+    channelb.addEventListener("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
         assert.strictEqual(channelb.valid, false, "other channel invalid");
         if (!channel.valid && !channelb.valid)
@@ -555,7 +558,7 @@ QUnit.test("wait callback", function (assert) {
 QUnit.test("logout", function (assert) {
     const done = assert.async();
     $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+        const cmd = JSON.parse(payload);
         if (cmd.command == "logout") {
             mock_peer.close("disconnected");
             assert.strictEqual(cmd.disconnect, true, "disconnect set");
@@ -565,7 +568,7 @@ QUnit.test("logout", function (assert) {
     var channel = cockpit.channel({ payload: "echo" });
     var channelb = cockpit.channel({ payload: "echo" });
 
-    $(channel).on("close", function(event, options) {
+    channel.addEventListener("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
         assert.strictEqual(channel.valid, false, "channel is invalid");
         channel = null;
@@ -573,7 +576,7 @@ QUnit.test("logout", function (assert) {
             done();
     });
 
-    $(channelb).on("close", function(event, options) {
+    channelb.addEventListener("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
         assert.strictEqual(channelb.valid, false, "other channel invalid");
         channelb = null;
@@ -588,7 +591,7 @@ QUnit.test("droppriv", function (assert) {
     const done = assert.async();
     assert.expect(1);
     $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+        const cmd = JSON.parse(payload);
         if (cmd.command == "logout") {
             assert.strictEqual(cmd.disconnect, false, "disconnect not set");
             done();
@@ -604,21 +607,23 @@ QUnit.test("info", function (assert) {
 
     var info_changed = false;
 
-    $(cockpit.info).on("changed", function() {
+    const onchanged = () => {
         assert.strictEqual(cockpit.info.version, "zero.point.zero", "cockpit.info.version");
         assert.strictEqual(cockpit.info.build, "nasty stuff", "cockpit.info.build");
         info_changed = true;
-    });
+    };
+    cockpit.info.addEventListener("changed", onchanged);
 
-    $(mock_peer).on("recv", function(event, chan, payload) {
-        var cmd = JSON.parse(payload);
+    const onrecv = (event, chan, payload) => {
+        const cmd = JSON.parse(payload);
         if (cmd.command == "open") {
             $(mock_peer).off("recv");
-            $(cockpit.info).off("changed");
+            cockpit.info.removeEventListener("changed", onchanged);
             assert.strictEqual(info_changed, true, "info changed event was called");
             done();
         }
-    });
+    };
+    $(mock_peer).on("recv", onrecv);
 
     var channel = cockpit.channel({ host: "scruffy" });
     assert.ok(channel);
@@ -686,7 +691,7 @@ QUnit.test("filter message in", function (assert) {
 
     var received = 0;
     var channel = cockpit.channel({ payload: "echo" });
-    $(channel).on("message", function(data) {
+    channel.addEventListener("message", function(data) {
         received += 1;
 
         if (received == 2) {

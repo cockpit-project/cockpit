@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 QUnit.test("load user info", function (assert) {
     const done = assert.async();
@@ -35,7 +35,7 @@ QUnit.test("user object", function (assert) {
         assert.equal(typeof user.shell, "string", "user shell");
         assert.equal(typeof user.home, "string", "user home");
         assert.equal(typeof user.id, "number", "user id");
-        assert.ok($.isArray(user.groups), "user groups");
+        assert.ok(Array.isArray(user.groups), "user groups");
         done();
     });
 });

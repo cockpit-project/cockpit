@@ -61,11 +61,6 @@ function in_array(array, val) {
     return false;
 }
 
-/* HACK: http://web.mit.edu/jwalden/www/isArray.html */
-function is_array(it) {
-    return Object.prototype.toString.call(it) === '[object Array]';
-}
-
 function is_function(x) {
     return typeof x === 'function';
 }
@@ -721,7 +716,7 @@ function Transport() {
             transport_debug("send control:", payload);
 
         /* A binary message */
-        if (payload.byteLength || is_array(payload)) {
+        if (payload.byteLength || Array.isArray(payload)) {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
             var output = join_data([array_from_raw_string(channel), [10], payload], true);
@@ -1456,7 +1451,7 @@ function factory() {
         var counter = 0;
         var results = [];
 
-        if (arguments.length != 1 && !is_array(promises))
+        if (arguments.length != 1 && !Array.isArray(promises))
             promises = Array.prototype.slice.call(arguments);
 
         promises.forEach(function(promise, key) {
@@ -2587,7 +2582,7 @@ function factory() {
             if (options) {
                 for (opt in options) {
                     value = options[opt];
-                    if (!is_array(value))
+                    if (!Array.isArray(value))
                         value = [value];
                     value.forEach(push_option);
                 }
@@ -2617,7 +2612,7 @@ function factory() {
                     var value = decodeURIComponent(parts[1]);
                     if (options[name]) {
                         last = options[name];
-                        if (!is_array(value))
+                        if (!Array.isArray(value))
                             last = options[name] = [last];
                         last.push(value);
                     } else {
@@ -2705,7 +2700,7 @@ function factory() {
      */
 
     cockpit.jump = function jump(path, host) {
-        if (is_array(path))
+        if (Array.isArray(path))
             path = "/" + path.map(encodeURIComponent).join("/")
 .replace("%40", "@")
 .replace("%3D", "=")
@@ -4286,7 +4281,7 @@ function factory() {
         self.post = function post(path, body, headers) {
             headers = headers || { };
 
-            if (is_plain_object(body) || is_array(body)) {
+            if (is_plain_object(body) || Array.isArray(body)) {
                 body = JSON.stringify(body);
                 if (find_header(headers, "Content-Type") === undefined)
                     headers["Content-Type"] = "application/json";

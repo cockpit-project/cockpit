@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 /* Seems like something jQuery should provide */
 if (!console.assert) {
@@ -16,6 +16,7 @@ function MockPeer() {
      * close(event, problem)
      * get(event, path)
      */
+    cockpit.event_target(this);
 
     /* open: triggered when mock Channel is created */
     this.onopened = function(event, channel, options) {
@@ -74,20 +75,20 @@ function MockPeer() {
         this.send = function(payload) {
             console.assert(arguments.length == 1);
             console.assert(this.valid);
-            window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]) }, 5);
+            window.setTimeout(function() { peer.dispatchEvent("recv", channel, payload) }, 5);
         };
 
         this.control = function(options) {
             console.assert(typeof command === 'string');
             console.assert(options !== null && typeof options === 'object');
             console.assert(arguments.length == 1);
-            window.setTimeout(function() { $(peer).trigger("control", [channel, options]) }, 5);
+            window.setTimeout(function() { peer.dispatchEvent("control", channel, options) }, 5);
         };
 
         this.close = function(options) {
             console.assert(arguments.length <= 1);
             this.valid = false;
-            window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]) }, 5);
+            window.setTimeout(function() { peer.dispatchEvent("closed", channel, options || { }) }, 5);
             this.dispatchEvent("close", options || { });
         };
 
@@ -122,7 +123,7 @@ function MockPeer() {
             channel.valid = false;
         });
 
-        $(peer).trigger("opened", [channel, options]);
+        peer.dispatchEvent("opened", channel, options);
     }
 
     cockpit.channel = function(options) {
@@ -139,11 +140,11 @@ QUnit.test("simple request", function (assert) {
     assert.expect(5);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel, options) {
+    peer.addEventListener("opened", function(event, channel, options) {
         assert.deepEqual(channel.options.spawn, ["/the/path", "arg1", "arg2"], "passed spawn correctly");
         assert.equal(channel.options.host, undefined, "had no host");
     });
-    $(peer).on("recv", function(event, channel, payload) {
+    peer.addEventListener("recv", function(event, channel, payload) {
         assert.equal(payload, "input", "had input");
         this.send(channel, "output");
         this.close(channel);
@@ -169,12 +170,12 @@ QUnit.test("input large", function (assert) {
     var count = 0;
 
     var peer = new MockPeer();
-    $(peer).on("recv", function(event, channel, payload) {
+    peer.addEventListener("recv", function(event, channel, payload) {
         assert.ok(typeof (payload) == "string", "got payload");
         output += payload;
         count += 1;
     });
-    $(peer).on("control", function(event, channel, options) {
+    peer.addEventListener("control", function(event, channel, options) {
         if (options.command == "done")
             this.close(channel);
     });
@@ -202,13 +203,13 @@ QUnit.test("binary large", function (assert) {
     var count = 0;
 
     var peer = new MockPeer();
-    $(peer).on("recv", function(event, channel, payload) {
+    peer.addEventListener("recv", function(event, channel, payload) {
         console.log(typeof (payload), payload.constructor);
         assert.equal(typeof (payload), "object", "got payload");
         assert.equal(payload.constructor, Uint8Array, "right binary array");
         count += 1;
     });
-    $(peer).on("control", function(event, channel, options) {
+    peer.addEventListener("control", function(event, channel, options) {
         console.log("control", options);
         if (options.command == "done")
             this.close(channel);
@@ -228,7 +229,7 @@ QUnit.test("string command", function (assert) {
     assert.expect(2);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel, options) {
+    peer.addEventListener("opened", function(event, channel, options) {
         assert.deepEqual(channel.options.spawn, ["/the/path"], "passed spawn correctly");
         assert.equal(channel.options.host, "hostname", "had host");
         done();
@@ -242,7 +243,7 @@ QUnit.test("channel options", function (assert) {
     assert.expect(1);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel) {
+    peer.addEventListener("opened", function(event, channel) {
         assert.deepEqual(channel.options, {
             spawn: ["/the/path", "arg"],
             host: "the-other-host.example.com",
@@ -262,7 +263,7 @@ QUnit.test("streaming", function (assert) {
     assert.expect(15);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel) {
+    peer.addEventListener("opened", function(event, channel) {
         for (var i = 0; i < 10; i++)
             this.send(channel, String(i));
         this.close(channel);
@@ -292,7 +293,7 @@ QUnit.test("with problem", function (assert) {
     assert.expect(4);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel) {
+    peer.addEventListener("opened", function(event, channel) {
         peer.close(channel, { problem: "not-found" });
     });
 
@@ -313,7 +314,7 @@ QUnit.test("with status", function (assert) {
     assert.expect(5);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel) {
+    peer.addEventListener("opened", function(event, channel) {
         peer.send(channel, "the data");
         peer.close(channel, { "exit-status": 5 });
     });
@@ -336,7 +337,7 @@ QUnit.test("with signal", function (assert) {
     assert.expect(5);
 
     var peer = new MockPeer();
-    $(peer).on("opened", function(event, channel) {
+    peer.addEventListener("opened", function(event, channel) {
         peer.send(channel, "signal data here");
         peer.close(channel, { "exit-signal": "TERM" });
     });

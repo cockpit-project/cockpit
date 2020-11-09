@@ -114,10 +114,12 @@ base_QUNIT_DEPS = \
 	src/base1/test-dbus-common.js \
 	$(NULL)
 
+# HACK: last user of jquery is test-chan; port that away and drop this
 dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/qunit/qunit/qunit.js \
 	    $(srcdir)/node_modules/qunit-tap/lib/qunit-tap.js \
+	    $(srcdir)/node_modules/jquery/dist/jquery.slim.min.js \
             $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:

@@ -1,11 +1,11 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 QUnit.test("basic", function (assert) {
     window.location.hash = "";
 
     assert.equal(typeof cockpit.location, "object", "cockpit.location exists");
-    assert.ok($.isArray(cockpit.location.path), "cockpit.location.path exists");
-    assert.ok($.isPlainObject(cockpit.location.options), "cockpit.location.options exists");
+    assert.ok(Array.isArray(cockpit.location.path), "cockpit.location.path exists");
+    assert.equal(typeof cockpit.location.options, "object", "cockpit.location.options exists");
     assert.equal(typeof cockpit.location.go, "function", "cockpit.location.go exists");
     assert.equal(typeof cockpit.location.replace, "function", "cockpit.location.replace exists");
     assert.equal(typeof cockpit.location.decode, "function", "cockpit.location.decode exists");
@@ -268,12 +268,13 @@ QUnit.test("test", function (assert) {
     var triggered = false;
 
     assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
-    $(cockpit).on("locationchanged", function() {
+    const onLocationChanged = () => {
         assert.strictEqual(window.location.hash, "#/gonna-happen", "hash has changed");
-        $(cockpit).off("locationchanged");
+        cockpit.removeEventListener("locationchanged", onLocationChanged);
         triggered = true;
         done();
-    });
+    };
+    cockpit.addEventListener("locationchanged", onLocationChanged);
 
     cockpit.location.go(["gonna-happen"]);
     assert.ok(!triggered, "not yet triggered");

@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
@@ -108,7 +108,7 @@ QUnit.test("sink row", function (assert) {
     });
 
     var notified = null;
-    $(grid).on("notify", function(ev, n, x) {
+    grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
@@ -234,7 +234,7 @@ QUnit.test("cache simple", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
 
     var notified = null;
-    $(grid).on("notify", function(ev, n, x) {
+    grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
@@ -284,7 +284,7 @@ QUnit.test("cache multiple", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
 
     var notified = null;
-    $(grid).on("notify", function(ev, n, x) {
+    grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
@@ -407,7 +407,7 @@ QUnit.test("move", function (assert) {
     });
 
     var notified = null;
-    $(grid).on("notify", function(ev, n, x) {
+    grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
@@ -445,7 +445,7 @@ QUnit.test("move", function (assert) {
 });
 
 QUnit.test("move negative", function (assert) {
-    var now = $.now();
+    var now = Date.now();
     var grid = cockpit.grid(1000, -20, -5);
 
     assert.equal(grid.beg, Math.floor(now / 1000) - 20);
@@ -476,7 +476,7 @@ QUnit.test("test", function (assert) {
     var count = 0;
     grid.walk();
 
-    $(grid).on("notify", function() {
+    grid.addEventListener("notify", () => {
         count += 1;
 
         assert.equal(count, fetched.length, "fetched " + count);
@@ -488,9 +488,9 @@ QUnit.test("test", function (assert) {
     });
 });
 
-/* mock $.now() function that returns a constant value to avoid races
+/* mock Date.now() function that returns a constant value to avoid races
  */
-$.now = Date.now = function() {
+Date.now = function() {
     return 0;
 };
 

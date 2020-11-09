@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, ArrayBuffer, Uint8Array */
+/* global cockpit, QUnit, ArrayBuffer, Uint8Array */
 
 QUnit.test("basic", function (assert) {
     const done = assert.async();
@@ -7,19 +7,20 @@ QUnit.test("basic", function (assert) {
     var channel = cockpit.channel({ payload: "echo" });
     var pass = 0;
 
-    $(channel).on("control", function(ev, options) {
+    const onControl = (ev, options) => {
         if (pass === 0) {
             assert.equal(options.command, "ready", "got ready");
             pass += 1;
         } else {
             assert.equal(options.command, "done", "got done");
             channel.close();
-            $(channel).off();
+            channel.removeEventListener("control", onControl);
             done();
         }
-    });
+    };
+    channel.addEventListener("control", onControl);
 
-    $(channel).on("message", function(ev, payload) {
+    channel.addEventListener("message", (ev, payload) => {
         assert.strictEqual(payload, "the payload", "got the right payload");
         channel.control({ command: "done" });
     });
@@ -37,15 +38,16 @@ QUnit.test("binary empty", function (assert) {
         binary: true
     });
 
-    $(channel).on("message", function(ev, payload) {
+    const onMessage = (ev, payload) => {
         if (window.Uint8Array)
             assert.ok(payload instanceof window.Uint8Array, "got a byte array");
         else
-            assert.ok($.isArray(payload), "got a byte array");
+            assert.ok(Array.isArray(payload), "got a byte array");
         assert.strictEqual(payload.length, 0, "got the right payload");
-        $(channel).off();
+        channel.removeEventListener("message", onMessage);
         done();
-    });
+    };
+    channel.addEventListener("message", onMessage);
 
     channel.send("");
 });
@@ -56,11 +58,11 @@ QUnit.test("binary", function (assert) {
 
     var channel = cockpit.channel({ payload: "echo", binary: true });
 
-    $(channel).on("message", function(ev, payload) {
+    const onMessage = (ev, payload) => {
         if (window.Uint8Array)
             assert.ok(payload instanceof window.Uint8Array, "got a byte array");
         else
-            assert.ok($.isArray(payload), "got a byte array");
+            assert.ok(Array.isArray(payload), "got a byte array");
 
         var array = [];
         for (var i = 0; i < payload.length; i++)
@@ -68,9 +70,10 @@ QUnit.test("binary", function (assert) {
         assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7], "got back right data");
 
         channel.close();
-        $(channel).off();
+        channel.removeEventListener("message", onMessage);
         done();
-    });
+    };
+    channel.addEventListener("message", onMessage);
 
     var i, buffer;
 

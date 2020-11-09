@@ -223,7 +223,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
 
         # Clean out the relevant logfiles
-        self.restore_file("/var/run/utmp")  # https://bugzilla.redhat.com/show_bug.cgi?id=1783715
         m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
 
         # First login should have no messages

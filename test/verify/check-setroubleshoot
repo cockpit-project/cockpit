@@ -277,11 +277,6 @@ class TestSelinux(MachineCase):
         b = self.browser
         m = self.machine
 
-        # HACK: http://bugzilla.redhat.com/show_bug.cgi?id=1346364
-        # This issue happens when selinux item is in kickstart
-        # as happens in our virt-builder and virt-install usage
-        m.execute("chmod ugo+r /etc/selinux/config")
-
         self.login_and_go("/selinux/setroubleshoot")
 
         #########################################################

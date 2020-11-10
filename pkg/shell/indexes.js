@@ -25,6 +25,7 @@ import ReactDOM from "react-dom";
 import { SuperuserIndicator } from "./superuser.jsx";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
+import { AboutModal } from "./shell-modals.jsx";
 
 import * as base_index from "./base_index";
 
@@ -417,8 +418,13 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         divider.className = "divider";
         const about = document.createElement("li");
         const el_a = document.createElement("a");
-        el_a.setAttribute("data-toggle", "modal");
-        el_a.setAttribute("data-target", "#about");
+        el_a.onclick = () => {
+            ReactDOM.render(React.createElement(AboutModal, {
+                onClose: () =>
+                    ReactDOM.unmountComponentAtNode(document.getElementById('about'))
+            }),
+                            document.getElementById('about'));
+        };
         el_a.appendChild(document.createTextNode(_("About Web Console")));
         about.appendChild(el_a);
 

@@ -76,8 +76,7 @@
                 <a role="link" tabindex="0" id="active-pages" translate="yes" class="navbar-advanced">Active pages</a>
               </li>
               <li>
-                  <a role="link" tabindex="0" data-toggle="modal" data-target="#credentials-dialog"
-                      id="credentials-item" translate="yes">SSH keys</a>
+                  <a role="link" tabindex="0" id="credentials-item" translate="yes">SSH keys</a>
               </li>
               <li>
                 <a role="link" tabindex="0" id="go-logout" translate="yes">Log out</a>
@@ -110,183 +109,187 @@
 
         <div id="oops-modal"></div>
 
-        <div class="modal" id="credentials-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" translate="yes">SSH keys</h4>
-                    </div>
-                    <div class="modal-body">
-                        <table class="listing-ct">
-                            <tbody>
-                                <tr id="credential-keys">
-                                    <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
-                                    <td class="listing-ct-actions">
-                                        <a role="link" tabindex="0">
-                                            <i translate class="pficon pficon-add-circle-o"></i>
-                                            <span translate>Add key</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr class="load-custom-key hidden">
-                                    <td colspan="3">
-                                        <div role="group">
-                                            <div id="ssh-file-container"></div>
-                                            <button class="pf-c-button pf-m-secondary" id="ssh-file-add" translate>Add</button>
-                                        </div>
-                                        <div class="dialog-error help-block"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="table-scrollable">
-                            <table class="listing-ct credential-listing">
-                                <tbody class="ssh-add-key-body open">
-                                    <tr class="listing-ct-item listing-ct-head">
-                                        <th class="credential-label"></th>
-                                        <td></td>
-                                        <td class="listing-ct-actions"></td>
-                                    </tr>
-                                    <tr class="listing-ct-body">
-                                        <td colspan="3">
-                                            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
-                                              <div class="pf-c-alert__icon">
-                                                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                                              </div>
-                                              <h4 class="pf-c-alert__title credential-alert"></h4>
-                                            </div>
-                                            <div class="credential-unlock">
-                                                <dl>
-                                                    <dt>
-                                                        <label for="add-key-password" translate>Password</label>
-                                                    </dt>
-                                                    <dd>
-                                                        <input class="form-control credential-password"
-                                                                autocomplete="new-password"
-                                                                id="add-key-password"
-                                                                value="" type="password"/>
-                                                    </dd>
-                                                    <dt></dt>
-                                                    <dd>
-                                                        <button class="pf-c-button pf-m-primary"
-                                                                translate>Unlock key</button>
-                                                    </dd>
-                                                </dl>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody class="ssh-key-body" hidden>
-                                    <tr class="listing-ct-item listing-ct-head">
-                                        <th class="credential-label"></th>
-                                        <td></td>
-                                        <td class="listing-ct-actions"></td>
-                                    </tr>
-                                    <tr class="listing-ct-panel credential-panel">
-                                        <td colspan="3">
-                                            <ul class="nav nav-tabs nav-tabs-pf">
-                                                <li class="active"><a href="#" translate="yes">Details</a></li>
-                                                <li><a href="#" translate="yes">Public key</a></li>
-                                                <li><a href="#" translate="yes">Password</a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr class="listing-ct-body">
-                                        <td colspan="3">
-                                            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
-                                              <div class="pf-c-alert__icon">
-                                                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                                              </div>
-                                              <h4 class="pf-c-alert__title credential-alert"></h4>
-                                            </div>
-                                            <div class="credential-unlock">
-                                                <dl>
-                                                    <dt>
-                                                        <label for="ssh-key-password" translate="yes">Password</label>
-                                                    </dt>
-                                                    <dd>
-                                                        <input class="form-control credential-password"
-                                                                autocomplete="new-password"
-                                                                id="ssh-key-password"
-                                                                value="" type="password"/>
-                                                    </dd>
-                                                    <dt></dt>
-                                                    <dd>
-                                                        <button class="pf-c-button pf-m-primary"
-                                                                translate>Unlock key</button>
-                                                    </dd>
-                                                </dl>
-                                            </div>
-                                            <div class="credential-tab credential-panel">
-                                                <dl>
-                                                    <dt>
-                                                        <label translate>Comment</label>
-                                                    </dt>
-                                                    <dd class="credential-comment"></dd>
-                                                    <dt>
-                                                        <label translate>Type</label>
-                                                    </dt>
-                                                    <dd class="credential-type"></dd>
-                                                    <dt>
-                                                        <label translate>Fingerprint</label>
-                                                    </dt>
-                                                    <dd class="credential-fingerprint"></dd>
-                                                </dl>
-                                            </div>
-                                            <div class="credential-tab credential-panel" hidden>
-                                                <textarea class="credential-data form-control" rows="4" readonly>
-                                                </textarea>
-                                            </div>
-                                            <div class="credential-tab credential-panel" hidden>
-                                                <dl>
-                                                    <dt>
-                                                        <label for="credential-old-passwd" translate="yes">Old password</label>
-                                                    </dt>
-                                                    <dd>
-                                                        <input class="form-control credential-old"
-                                                            autocomplete="new-password"
-                                                            id="credential-old-passwd"
-                                                            value="" type="password"/>
-                                                    </dd>
-                                                    <dt>
-                                                        <label for="credential-new-passwd" translate="yes">New password</label>
-                                                    </dt>
-                                                    <dd>
-                                                        <input class="form-control credential-new"
-                                                            autocomplete="new-password"
-                                                            id="credential-new-passwd"
-                                                            value="" type="password"/>
-                                                    </dd>
-                                                    <dt>
-                                                        <label for="new-passwd-confirm" translate="yes">Confirm</label>
-                                                    </dt>
-                                                    <dd>
-                                                        <input class="form-control credential-two"
-                                                            autocomplete="new-password"
-                                                            id="new-passwd-confirm"
-                                                            value="" type="password"/>
-                                                    </dd>
-                                                    <dt>
-                                                        <a tabindex="0" role="button" data-toggle="popover"
-                                                            data-trigger="focus" data-placement="top"
-                                                            data-content="Tip: Make your key password match your login password to automatically authenticate against other systems." translate="data-content">
-                                                            <span class="fa fa-lg fa-info-circle"></span>
-                                                        </a>
-                                                    </dt>
-                                                    <dd>
-                                                        <button class="credential-change pf-c-button pf-m-primary"
-                                                            translate="yes">Change password</button>
-                                                    </dd>
-                                                </dl>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+        <div hidden aria-hidden="true" id="credentials-dialog">
+            <div class="pf-c-backdrop">
+                <div class="pf-l-bullseye">
+                    <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+                        <header class="pf-c-modal-box__header">
+                            <h1 class="pf-c-modal-box__title" translate="yes">SSH keys</h1>
+                        </header>
+                        <div class="pf-c-modal-box__body">
+                            <div class="modal-body">
+                                <table class="listing-ct">
+                                    <tbody>
+                                        <tr id="credential-keys">
+                                            <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
+                                            <td class="listing-ct-actions">
+                                                <a role="link" tabindex="0">
+                                                    <i translate class="pficon pficon-add-circle-o"></i>
+                                                    <span translate>Add key</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr class="load-custom-key hidden">
+                                            <td colspan="3">
+                                                <div role="group">
+                                                    <div id="ssh-file-container"></div>
+                                                    <button class="pf-c-button pf-m-secondary" id="ssh-file-add" translate>Add</button>
+                                                </div>
+                                                <div class="dialog-error help-block"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="table-scrollable">
+                                    <table class="listing-ct credential-listing">
+                                        <tbody class="ssh-add-key-body open">
+                                            <tr class="listing-ct-item listing-ct-head">
+                                                <th class="credential-label"></th>
+                                                <td></td>
+                                                <td class="listing-ct-actions"></td>
+                                            </tr>
+                                            <tr class="listing-ct-body">
+                                                <td colspan="3">
+                                                    <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
+                                                      <div class="pf-c-alert__icon">
+                                                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                                      </div>
+                                                      <h4 class="pf-c-alert__title credential-alert"></h4>
+                                                    </div>
+                                                    <div class="credential-unlock">
+                                                        <dl>
+                                                            <dt>
+                                                                <label for="add-key-password" translate>Password</label>
+                                                            </dt>
+                                                            <dd>
+                                                                <input class="form-control credential-password"
+                                                                        autocomplete="new-password"
+                                                                        id="add-key-password"
+                                                                        value="" type="password"/>
+                                                            </dd>
+                                                            <dt></dt>
+                                                            <dd>
+                                                                <button class="pf-c-button pf-m-primary"
+                                                                        translate>Unlock key</button>
+                                                            </dd>
+                                                        </dl>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody class="ssh-key-body" hidden>
+                                            <tr class="listing-ct-item listing-ct-head">
+                                                <th class="credential-label"></th>
+                                                <td></td>
+                                                <td class="listing-ct-actions"></td>
+                                            </tr>
+                                            <tr class="listing-ct-panel credential-panel">
+                                                <td colspan="3">
+                                                    <ul class="nav nav-tabs nav-tabs-pf">
+                                                        <li class="active"><a href="#" translate="yes">Details</a></li>
+                                                        <li><a href="#" translate="yes">Public key</a></li>
+                                                        <li><a href="#" translate="yes">Password</a></li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr class="listing-ct-body">
+                                                <td colspan="3">
+                                                    <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
+                                                      <div class="pf-c-alert__icon">
+                                                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                                      </div>
+                                                      <h4 class="pf-c-alert__title credential-alert"></h4>
+                                                    </div>
+                                                    <div class="credential-unlock">
+                                                        <dl>
+                                                            <dt>
+                                                                <label for="ssh-key-password" translate="yes">Password</label>
+                                                            </dt>
+                                                            <dd>
+                                                                <input class="form-control credential-password"
+                                                                        autocomplete="new-password"
+                                                                        id="ssh-key-password"
+                                                                        value="" type="password"/>
+                                                            </dd>
+                                                            <dt></dt>
+                                                            <dd>
+                                                                <button class="pf-c-button pf-m-primary"
+                                                                        translate>Unlock key</button>
+                                                            </dd>
+                                                        </dl>
+                                                    </div>
+                                                    <div class="credential-tab credential-panel">
+                                                        <dl>
+                                                            <dt>
+                                                                <label translate>Comment</label>
+                                                            </dt>
+                                                            <dd class="credential-comment"></dd>
+                                                            <dt>
+                                                                <label translate>Type</label>
+                                                            </dt>
+                                                            <dd class="credential-type"></dd>
+                                                            <dt>
+                                                                <label translate>Fingerprint</label>
+                                                            </dt>
+                                                            <dd class="credential-fingerprint"></dd>
+                                                        </dl>
+                                                    </div>
+                                                    <div class="credential-tab credential-panel" hidden>
+                                                        <textarea class="credential-data form-control" rows="4" readonly>
+                                                        </textarea>
+                                                    </div>
+                                                    <div class="credential-tab credential-panel" hidden>
+                                                        <dl>
+                                                            <dt>
+                                                                <label for="credential-old-passwd" translate="yes">Old password</label>
+                                                            </dt>
+                                                            <dd>
+                                                                <input class="form-control credential-old"
+                                                                    autocomplete="new-password"
+                                                                    id="credential-old-passwd"
+                                                                    value="" type="password"/>
+                                                            </dd>
+                                                            <dt>
+                                                                <label for="credential-new-passwd" translate="yes">New password</label>
+                                                            </dt>
+                                                            <dd>
+                                                                <input class="form-control credential-new"
+                                                                    autocomplete="new-password"
+                                                                    id="credential-new-passwd"
+                                                                    value="" type="password"/>
+                                                            </dd>
+                                                            <dt>
+                                                                <label for="new-passwd-confirm" translate="yes">Confirm</label>
+                                                            </dt>
+                                                            <dd>
+                                                                <input class="form-control credential-two"
+                                                                    autocomplete="new-password"
+                                                                    id="new-passwd-confirm"
+                                                                    value="" type="password"/>
+                                                            </dd>
+                                                            <dt>
+                                                                <a tabindex="0" role="button" data-toggle="popover"
+                                                                    data-trigger="focus" data-placement="top"
+                                                                    data-content="Tip: Make your key password match your login password to automatically authenticate against other systems." translate="data-content">
+                                                                    <span class="fa fa-lg fa-info-circle"></span>
+                                                                </a>
+                                                            </dt>
+                                                            <dd>
+                                                                <button class="credential-change pf-c-button pf-m-primary"
+                                                                    translate="yes">Change password</button>
+                                                            </dd>
+                                                        </dl>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Close</button>
+                        <footer class="pf-c-modal-box__footer">
+                            <button class="pf-c-button pf-m-secondary" id="credentials-modal-close" translate="yes">Close</button>
+                        </footer>
                     </div>
                 </div>
             </div>

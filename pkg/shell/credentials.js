@@ -266,66 +266,69 @@ export function setup() {
     /* Popover help */
             .on("click", "[data-toggle='popover']", function() {
                 $(this).popover('toggle');
-            })
+            });
 
     /* Dialog is hidden */
-            .on("hide.bs.modal", function() {
-                if (keys) {
-                    $(keys).off();
-                    keys.close();
-                    keys = null;
-                }
-                hide_add_key();
-            })
+    $("#credentials-modal-close").on("click", function() {
+        if (keys) {
+            $(keys).off();
+            keys.close();
+            keys = null;
+        }
+        hide_add_key();
+        $("#credentials-dialog").prop('hidden', true);
+    });
 
     /* Dialog is shown */
-            .on("show.bs.modal", function() {
-                keys = credentials.keys_instance();
+    $("#credentials-item").on("click", function() {
+        $("#credentials-dialog").prop('hidden', false);
 
-                $(keys).on("changed", function() {
-                    var key, id, row;
-                    var rows = { };
-                    var table = $("#credentials-dialog table.credential-listing");
+        keys = credentials.keys_instance();
 
-                    table.find("tbody[data-id]").each(function(i, el) {
-                        row = $(el);
-                        rows[row.attr("data-id")] = row;
-                    });
+        $(keys).on("changed", function() {
+            var key, id, row;
+            var rows = { };
+            var table = $("#credentials-dialog table.credential-listing");
 
-                    var body = table.find("tbody.ssh-key-body").first();
-                    for (id in keys.items) {
-                        if (!(id in rows)) {
-                            row = rows[id] = body.clone();
-                            row.attr("data-id", id)
-                                    .removeAttr("hidden");
-                            table.append(row);
-                        }
-                    }
-
-                    function text(row, field, string) {
-                        var sel = row.find(field);
-                        string = string || "";
-                        if (sel.text() !== string)
-                            sel.text(string);
-                    }
-
-                    for (id in rows) {
-                        row = rows[id];
-                        key = keys.items[id];
-                        if (key) {
-                            text(row, ".credential-label", key.name || key.comment);
-                            text(row, ".credential-type", key.type);
-                            text(row, ".credential-fingerprint", key.fingerprint);
-                            text(row, ".credential-comment", key.comment);
-                            text(row, ".credential-data", key.data);
-                            row.attr("data-name", key.name)
-                                    .attr("data-loaded", key.loaded ? "1" : "0");
-
-                            renderKeyOnOff(id, key.loaded || row.hasClass("unlock"), !key.name, row);
-                        } else if (id !== "adding") {
-                            row.remove();
-                        }
-                    }
-                });
+            table.find("tbody[data-id]").each(function(i, el) {
+                row = $(el);
+                rows[row.attr("data-id")] = row;
             });
+
+            var body = table.find("tbody.ssh-key-body").first();
+            for (id in keys.items) {
+                if (!(id in rows)) {
+                    row = rows[id] = body.clone();
+                    row.attr("data-id", id)
+                            .removeAttr("hidden");
+                    table.append(row);
+                }
+            }
+
+            function text(row, field, string) {
+                var sel = row.find(field);
+                string = string || "";
+                if (sel.text() !== string)
+                    sel.text(string);
+            }
+
+            for (id in rows) {
+                row = rows[id];
+                key = keys.items[id];
+                if (key) {
+                    text(row, ".credential-label", key.name || key.comment);
+                    text(row, ".credential-type", key.type);
+                    text(row, ".credential-fingerprint", key.fingerprint);
+                    text(row, ".credential-comment", key.comment);
+                    text(row, ".credential-data", key.data);
+                    row.attr("data-name", key.name)
+                            .attr("data-loaded", key.loaded ? "1" : "0");
+
+                    renderKeyOnOff(id, key.loaded || row.hasClass("unlock"), !key.name, row);
+                } else if (id !== "adding") {
+                    row.remove();
+                }
+            }
+        });
+    });
 }

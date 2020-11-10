@@ -23,7 +23,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { showDialog } from "./active-pages";
-import { LangModal } from "./shell-modals.jsx";
+import { LangModal, TimeoutModal } from "./shell-modals.jsx";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -515,24 +515,25 @@ function Index() {
         if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
             title = document.title;
             sessionFinalTimeout();
-            $("#session-timeout-dialog").modal("show");
-
-            document.getElementById("keep-session-alive").addEventListener("click", e => {
-                window.clearTimeout(session_final_timer);
-                session_final_timer = null;
-                document.title = title;
-                resetTimer();
-                $("#session-timeout-dialog").modal("hide");
-                final_countdown = 30000;
-            });
         }
     }
 
     function updateFinalCountdown() {
         const remaining_secs = Math.floor(final_countdown / 1000);
         const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
-        document.getElementById("timeout-message").innerHTML = timeout_text;
         document.title = "(" + remaining_secs + ") " + title;
+        ReactDOM.render(React.createElement(TimeoutModal, {
+            onClose: () => {
+                window.clearTimeout(session_final_timer);
+                session_final_timer = null;
+                document.title = title;
+                resetTimer();
+                ReactDOM.unmountComponentAtNode(document.getElementById('session-timeout-dialog'));
+                final_countdown = 30000;
+            },
+            text: timeout_text,
+        }),
+                        document.getElementById('session-timeout-dialog'));
     }
 
     function sessionFinalTimeout() {

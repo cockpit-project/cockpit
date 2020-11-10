@@ -46,7 +46,6 @@ var options = {
     logout_sel: "#go-logout",
     oops_sel: "#navbar-oops",
     language_sel: "#display-language",
-    about_sel: "#about-version",
     killer_sel: "#active-pages",
     default_title: "Cockpit",
 };

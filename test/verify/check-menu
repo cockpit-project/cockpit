@@ -41,10 +41,10 @@ class TestMenu(MachineCase):
 
         b.switch_to_top()
         b.click('#navbar-docs-dropdown')
-        b.click('a[data-target="#about"]')
-        b.wait_popup('about')
-        b.click('#about button[data-dismiss="modal"]')
-        b.wait_popdown("about")
+        b.click('a:contains("About Web Console")')
+        b.wait_visible('.pf-c-modal-box__body:contains("Cockpit is an interactive Linux server admin interface")')
+        b.click('#about-cockpit-modal .pf-c-modal-box__footer button')
+        b.wait_not_present('#about-cockpit-modal')
 
         # Test session timeout
         time.sleep(20)

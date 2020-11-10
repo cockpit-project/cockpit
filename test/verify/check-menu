@@ -48,21 +48,21 @@ class TestMenu(MachineCase):
 
         # Test session timeout
         time.sleep(20)
-        b.wait_not_visible("#session-timeout-dialog")
+        b.wait_not_present("#session-timeout-modal")
         b.wait_visible("#nav-system")
         b.enter_page("/system")
         b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
         b.switch_to_top()
         time.sleep(35)
         with b.wait_timeout(3):
-            b.wait_popup("session-timeout-dialog")
-            self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 15)
-        b.click("#keep-session-alive")
-        b.wait_popdown("session-timeout-dialog")
+            b.wait_visible("#session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 15)
+        b.click("#session-timeout-modal footer button")
+        b.wait_not_present("#session-timeout-modal")
         time.sleep(30)
         with b.wait_timeout(8):
-            b.wait_popup("session-timeout-dialog")
-            self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 20)
+            b.wait_popup("session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 20)
         time.sleep(30)
         b.wait_visible("#login")
         b.wait_visible("#login-info-message")
@@ -73,7 +73,7 @@ class TestMenu(MachineCase):
         self.login_and_go("/system")
         b.switch_to_top()
         time.sleep(75)
-        b.wait_not_visible("#session-timeout-dialog")
+        b.wait_not_present("#session-timeout-modal")
         b.wait_visible("#nav-system")
 
         self.check_axe("Test-navigation")

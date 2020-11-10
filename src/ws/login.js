@@ -541,7 +541,7 @@
         var expanded = id("option-group").getAttribute("data-state");
 
         hide("#login-wait-validating");
-        show("#login");
+        show("#login", "#login-details");
 
         hideToggle(["#user-group", "#password-group"], in_conversation);
         hideToggle("#conversation-group", !in_conversation);

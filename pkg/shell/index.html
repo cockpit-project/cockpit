@@ -69,7 +69,7 @@
               <li id="super-user-indicator-mobile" class="mobile_v"></li>
               <li class="divider mobile_v"></li>
               <li class="display-language-menu">
-                <a role="link" tabindex="0" data-toggle="modal" data-target="#display-language" translate="yes">Display language</a>
+                <a role="link" tabindex="0" translate="yes" id="open-display-language">Display language</a>
               </li>
               <li class="divider display-language-menu"></li>
               <li>
@@ -104,24 +104,7 @@
             </div>
         </div>
 
-        <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title" translate="yes">Display language</h4>
-              </div>
-              <div class="modal-body">
-                <p translate="yes">Choose the language to be used in the application</p>
-                <select id="display-language-list" size="5" data-role="none">
-                </select>
-              </div>
-              <div class="modal-footer">
-                <button class="pf-c-button pf-m-primary" id="display-language-select-button" translate="yes">Select</button>
-                <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div id="display-language"></div>
 
         <div class="modal" id="session-timeout-dialog" tabindex="-1" role="dialog" data-backdrop="static">
           <div class="modal-dialog">

@@ -19,7 +19,11 @@
 
 import $ from "jquery";
 import cockpit from "cockpit";
+import React from "react";
+import ReactDOM from "react-dom";
+
 import { showDialog } from "./active-pages";
+import { LangModal } from "./shell-modals.jsx";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -486,7 +490,7 @@ function Router(index) {
  * As a convenience, common menu items can be setup by adding the
  * selector to be used to hook them up. The accepted selectors
  * are.
- * oops_sel, logout_sel, language_sel
+ * oops_sel, logout_sel
  *
  * Emits "disconnect" and "expect_restart" signals, that should be
  * handled by the caller.
@@ -818,44 +822,6 @@ function Index() {
         });
     }
 
-    /* Display language dialog */
-    function setup_language(id) {
-        /*
-         * Note that we don't go ahead and load all the po files in order
-         * to produce this list. Perhaps we would include it somewhere in a
-         * separate automatically generated file. Need to see.
-         */
-        var manifest = cockpit.manifests.shell || { };
-        $(".display-language-menu").toggle(!!manifest.locales);
-        var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
-        if (!language)
-            language = "en-us";
-
-        $('html').attr('lang', language);
-
-        $.each(manifest.locales || { }, function(code, name) {
-            var el = $("<option>").text(name)
-                    .val(code);
-            if (code == language)
-                el.attr("selected", "true");
-            $("#display-language-list").append(el);
-        });
-
-        $("#display-language-select-button").on("click", function(event) {
-            var code_to_select = $("#display-language-list").val();
-            var cookie = "CockpitLang=" + encodeURIComponent(code_to_select) +
-                         "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
-            document.cookie = cookie;
-            window.localStorage.setItem("cockpit.lang", code_to_select);
-            window.location.reload(true);
-            return false;
-        });
-
-        $(id).on("shown.bs.modal", function() {
-            $("display-language-list").focus();
-        });
-    }
-
     function setup_killer(id) {
         $(id).on("click", function(ev) {
             if (ev && ev.button === 0)
@@ -869,11 +835,19 @@ function Index() {
     if (self.logout_sel)
         setup_logout(self.logout_sel);
 
-    if (self.language_sel)
-        setup_language(self.language_sel);
-
     if (self.killer_sel)
         setup_killer(self.killer_sel);
+
+    const manifest = cockpit.manifests.shell || { };
+    $(".display-language-menu").toggle(!!manifest.locales);
+
+    $("#open-display-language").click(() => {
+        ReactDOM.render(React.createElement(LangModal, {
+            onClose: () =>
+                ReactDOM.unmountComponentAtNode(document.getElementById('display-language'))
+        }),
+                        document.getElementById('display-language'));
+    });
 }
 
 function CompiledComponents() {

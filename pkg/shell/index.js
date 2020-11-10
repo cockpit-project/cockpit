@@ -45,7 +45,6 @@ document.addEventListener("click", function(ev) {
 var options = {
     logout_sel: "#go-logout",
     oops_sel: "#navbar-oops",
-    language_sel: "#display-language",
     killer_sel: "#active-pages",
     default_title: "Cockpit",
 };

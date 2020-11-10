@@ -164,9 +164,14 @@ class TestApps(PackageCase):
             b.switch_to_top()
             b.click("#navbar-dropdown")
             b.click(".display-language-menu a")
-            b.wait_popup('display-language')
-            b.set_val("#display-language select", lang)
-            b.click("#display-language-select-button")
+            if m.image == "rhel-8-3-distropkg": # Changed in #14890
+                b.wait_popup('display-language')
+                b.set_val("#display-language select", lang)
+                b.click("#display-language-select-button")
+            else:
+                b.wait_visible('#display-language-modal')
+                b.set_val("#display-language-modal select", lang)
+                b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
@@ -177,7 +182,7 @@ class TestApps(PackageCase):
         b.wait_present(".app-description:contains('DESCRIPTION:de')")
         b.wait_not_present(".app-description:contains('DESCRIPTION:none')")
 
-        set_lang("ja-ja")
+        set_lang("ja-jp")
         b.wait_present(".app-description:contains('DESCRIPTION:none')")
         b.wait_not_present(".app-description:contains('DESCRIPTION:de')")
 

@@ -46,3 +46,53 @@ export function AboutModal(props) {
             </div>
         </Modal>);
 }
+
+export class LangModal extends React.Component {
+    constructor(props) {
+        super();
+
+        let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
+        if (!language)
+            language = "en-us";
+
+        this.state = {
+            selected: language,
+        };
+
+        this.onSelect = this.onSelect.bind(this);
+    }
+
+    onSelect() {
+        const lang = this.state.selected;
+
+        if (!lang)
+            return;
+
+        const cookie = "CockpitLang=" + encodeURIComponent(lang) + "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+        document.cookie = cookie;
+        window.localStorage.setItem("cockpit.lang", lang);
+        window.location.reload(true);
+    }
+
+    render() {
+        const manifest = cockpit.manifests.shell || { };
+
+        return (
+            <Modal isOpen position="top" variant="medium"
+                   id="display-language-modal"
+                   onClose={this.props.onClose}
+                   title={_("Display language")}
+                   footer={<>
+                       <Button variant='primary' onClick={this.onSelect}>{_("Select")}</Button>
+                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
+                   </>}
+            >
+                <p translate="yes">Choose the language to be used in the application</p>
+                <select id="display-language-list" size="5" data-role="none" defaultValue={this.state.selected} onChange={e => this.setState({ selected: e.target.value })}>
+                    {Object.keys(manifest.locales || { }).map(key => {
+                        return <option key={key} value={key}>{manifest.locales[key]}</option>;
+                    })}
+                </select>
+            </Modal>);
+    }
+}

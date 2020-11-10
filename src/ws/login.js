@@ -91,12 +91,14 @@
                 els = document.querySelectorAll(elements[i]);
 
                 if (els)
-                    els.forEach(function(element) {
-                        element.hidden = !!toggle;
+                    els.forEach(function(element){
+                        if (element.hidden !== !!toggle)
+                            element.hidden = !!toggle;
                     });
             } else {
                 // Hide specific elements
-                elements[i].hidden = !!toggle;
+                if (elements[i].hidden !== !!toggle)
+                    elements[i].hidden = !!toggle;
             }
         }
     }

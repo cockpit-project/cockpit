@@ -760,7 +760,7 @@
         var base = '/' + application + '/@localhost/';
         if (url_root)
             base = '/' + url_root + base;
-        var embeded_url = base + 'shell/index.html';
+        var embedded_url = base + 'shell/index.html';
         var xhr = new XMLHttpRequest();
         xhr.open("GET", base + 'manifests.json', true);
         xhr.onreadystatechange = function () {
@@ -769,11 +769,11 @@
                     var resp = JSON.parse(xhr.responseText);
                     var base1 = resp ? resp.base1 : {};
                     if (!base1.version || base1.version < "119.x") {
-                        login_reload(embeded_url);
+                        login_reload(embedded_url);
                     } else
                         login_reload(wanted);
                 } else {
-                    login_reload(embeded_url);
+                    login_reload(embedded_url);
                 }
             }
         };

@@ -23,7 +23,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { showDialog } from "./active-pages";
-import { LangModal, TimeoutModal } from "./shell-modals.jsx";
+import { LangModal, TimeoutModal, OopsModal } from "./shell-modals.jsx";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -809,10 +809,11 @@ function Index() {
         if (!oops)
             return;
         oops.children("a").on("click", function() {
-            $("#error-popup-title").text(_("Unexpected error"));
-            var details = _("Cockpit had an unexpected internal error. <br/><br/>You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error (<b>Ctrl-Shift-J</b> in most browsers).");
-            $("#error-popup-message").html(details);
-            $('#error-popup').modal('show');
+            ReactDOM.render(React.createElement(OopsModal, {
+                onClose: () =>
+                    ReactDOM.unmountComponentAtNode(document.getElementById('oops-modal'))
+            }),
+                            document.getElementById('oops-modal'));
         });
     }
 

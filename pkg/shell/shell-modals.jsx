@@ -108,3 +108,20 @@ export function TimeoutModal(props) {
             {props.text}
         </Modal>);
 }
+
+export function OopsModal(props) {
+    return (
+        <Modal isOpen position="top" variant="medium"
+               onClose={props.onClose}
+               title={_("Unexpected error")}
+               footer={<Button variant='secondary' onClick={props.onClose}>{_("Close")}</Button>}
+        >
+            {_("Cockpit had an unexpected internal error.")}
+            <br />
+            <br />
+            <span>{("You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error") + " ("}
+                <b>{_("Ctrl-Shift-J")}</b>
+                {" " + _("in most browsers") + ")."}
+            </span>
+        </Modal>);
+}

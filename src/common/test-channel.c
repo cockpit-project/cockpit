@@ -494,6 +494,26 @@ test_capable (void)
 }
 
 static void
+test_null_close_control (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          NULL);
+
+  /* Make sure the NULL here works */
+  cockpit_channel_control (channel, "close", NULL);
+
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
+static void
 test_ping_channel (void)
 {
   JsonObject *reply = NULL;
@@ -754,6 +774,7 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
+  g_test_add_func ("/channel/test-null-close-control", test_null_close_control);
   g_test_add_func ("/channel/test_close_not_capable",
                    test_close_not_capable);
   g_test_add_func ("/channel/test_capable",

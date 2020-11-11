@@ -96,13 +96,13 @@ export class DialogFooter extends React.Component {
                     if (this.state.action_canceled) {
                         if (this.props.dialog_done)
                             this.props.dialog_done(false);
+                    } else {
+                        this.setState({ action_in_progress: false, error_message: error });
                     }
 
                     /* Always log global dialog errors for easier debugging */
                     if (error)
                         console.warn(error.message || error.toString());
-
-                    this.setState({ action_in_progress: false, error_message: error });
                 });
 
         if (p.progress)

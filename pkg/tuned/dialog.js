@@ -28,6 +28,8 @@ import React from "react";
 import { TunedDialogBody } from "./change-profile.jsx";
 import link_html from "raw-loader!./link.html";
 
+import 'bootstrap/js/tooltip';
+
 const _ = cockpit.gettext;
 
 function setup() {

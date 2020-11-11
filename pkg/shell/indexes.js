@@ -18,6 +18,8 @@
  */
 
 import $ from "jquery";
+import "bootstrap/dist/js/bootstrap";
+
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";

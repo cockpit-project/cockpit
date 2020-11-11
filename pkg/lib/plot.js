@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import cockpit from 'cockpit';
 
+import 'bootstrap/dist/js/bootstrap';
 import 'jquery-flot/jquery.flot';
 import 'jquery-flot/jquery.flot.selection';
 import 'jquery-flot/jquery.flot.time';

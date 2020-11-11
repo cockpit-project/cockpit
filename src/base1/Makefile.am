@@ -4,7 +4,6 @@ basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	dist/base1/cockpit.min.css.gz \
 	dist/base1/patternfly.css \
-	dist/base1/jquery.min.js.gz \
 	dist/base1/cockpit.min.js.gz \
 	$(NULL)
 base_DATA = \
@@ -15,7 +14,6 @@ basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	dist/base1/cockpit.min.css.map \
 	dist/base1/patternfly.css.map \
-	dist/base1/jquery.min.js.map \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
@@ -34,11 +32,6 @@ PATTERNFLY_CSS_RULE = \
 
 dist/base1/cockpit.min.css: src/base1/cockpit.scss
 	$(PATTERNFLY_CSS_RULE)
-dist/base1/jquery.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
-dist/base1/jquery.min.js: dist/base1/jquery.js
-	$(MIN_JS_RULE)
 dist/base1/cockpit.js: src/base1/cockpit.js
 	$(ESLINT_RULE)
 	$(COPY_RULE)
@@ -49,8 +42,6 @@ dist/base1/manifest.json: src/base1/manifest.json
 
 
 dist/base1/cockpit.min.js.map: dist/base1/cockpit.min.js
-
-dist/base1/jquery.min.js.map: dist/base1/jquery.min.js
 
 dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 
@@ -182,9 +173,6 @@ EXTRA_DIST += \
 	dist/base1/cockpit.min.css.map \
 	dist/base1/cockpit.min.js \
 	dist/base1/cockpit.min.js.map \
-	dist/base1/jquery.js \
-	dist/base1/jquery.min.js \
-	dist/base1/jquery.min.js.map \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
 	dist/base1/simple-tap.js \
@@ -212,10 +200,6 @@ MAINTAINERCLEANFILES += \
 	dist/base1/fonts/fontawesome.woff \
 	dist/base1/fonts/glyphicons.woff \
 	dist/base1/fonts/patternfly.woff \
-	dist/base1/jquery.js \
-	dist/base1/jquery.min.js \
-	dist/base1/jquery.min.js.gz \
-	dist/base1/jquery.min.js.map \
 	dist/base1/manifest.json \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \

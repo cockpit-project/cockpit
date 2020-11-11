@@ -36,6 +36,7 @@ import { journal } from 'journal';
 
 /* jQuery extensions */
 import 'patterns';
+import 'bootstrap/dist/js/bootstrap';
 
 import "page.scss";
 import "table.css";

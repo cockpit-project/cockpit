@@ -31,6 +31,8 @@ import { MultipathAlert } from "./multipath.jsx";
 import { Overview } from "./overview.jsx";
 import { Details } from "./details.jsx";
 
+import "bootstrap/dist/js/bootstrap";
+
 import "page.scss";
 import "table.css";
 import "plot.css";

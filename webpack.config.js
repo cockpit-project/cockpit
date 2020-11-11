@@ -228,7 +228,6 @@ var info = {
 
 var externals = {
     "cockpit": "cockpit",
-    "jquery": "jQuery",
 };
 
 /* ---------------------------------------------------------------------
@@ -415,6 +414,28 @@ module.exports = {
                 test: eslint ? /\.(js|jsx)$/ : /dont.match.me/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "eslint-loader"
+            },
+            // flot and bootstrap UI require jQuery to be in the global namespace
+            // only expose that to pages which need it, as we want to port to React and get rid of jQuery
+            {
+                issuer: /shell|networkmanager|dashboard|storaged|playground\/plot|systemd\/(logs|services|shutdown)/,
+                test: require.resolve('jquery'),
+                loader: 'expose-loader',
+                options: {
+                    exposes: 'jQuery'
+                }
+            },
+            // tuned is embedded into overview, but both require global jQuery; overriding is ok
+            {
+                issuer: /tuned/,
+                test: require.resolve('jquery'),
+                loader: 'expose-loader',
+                options: {
+                    exposes: {
+                        globalName: 'jQuery',
+                        override: true,
+                    }
+                }
             },
             {
                 test: /\.js$/,

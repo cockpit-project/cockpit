@@ -20,6 +20,8 @@
 import '../lib/patternfly/patternfly-cockpit.scss';
 
 import $ from "jquery";
+import "bootstrap/js/dropdown";
+
 import cockpit from "cockpit";
 import { journal } from "journal";
 import moment from "moment";

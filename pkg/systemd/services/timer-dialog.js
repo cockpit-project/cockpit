@@ -18,9 +18,11 @@
  */
 
 import $ from "jquery";
+
 import cockpit from "cockpit";
 import { mustache } from "mustache";
 import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now, updateTime } from "./services.jsx";
+import "bootstrap/dist/js/bootstrap";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
 import moment from "moment";

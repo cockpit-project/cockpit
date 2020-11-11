@@ -19,6 +19,7 @@
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 import $ from "jquery";
+import "bootstrap/dist/js/bootstrap";
 import { mustache } from "mustache";
 
 import cockpit from "cockpit";

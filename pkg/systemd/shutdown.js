@@ -22,6 +22,7 @@ import cockpit from "cockpit";
 
 /* These add themselves to jQuery so just including is enough */
 import "patterns";
+import "bootstrap/dist/js/bootstrap";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
 import "./shutdown.scss";

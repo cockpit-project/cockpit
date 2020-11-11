@@ -393,7 +393,8 @@ class OSRow extends React.Component {
                             onValueChanged('os', null);
                         }}
                         onToggle={isOpen => this.setState({ isOpen })}
-                        isOpen={this.state.isOpen}>
+                        isOpen={this.state.isOpen}
+                        menuAppendTo="parent">
                         {this.state.osEntries.map(os => <SelectOption key={os.shortId}
                                                                       value={this.createValue(os)} />)}
                     </PFSelect>

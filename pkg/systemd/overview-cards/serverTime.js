@@ -508,20 +508,22 @@ function ChangeSystimeBody({ state, errors, change }) {
         </table>);
 
     return (
-        <div className="modal-body ct-form">
+        <div className="ct-form">
             <label htmlFor="systime-timezones" className="control-label">{_("Time zone")}</label>
             <Validated errors={errors} error_key="time_zone">
                 <Select id="systime-timezones" variant={SelectVariant.typeahead}
                         isOpen={zonesOpen} onToggle={setZonesOpen}
                         selections={time_zone}
-                        onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}>
+                        onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
+                        menuAppendTo="parent">
                     { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
                 </Select>
             </Validated>
             <label className="control-label" htmlFor="change_systime">{_("Set time")}</label>
             <Select id="change_systime"
                     isOpen={modeOpen} onToggle={setModeOpen}
-                    selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}>
+                    selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}
+                    menuAppendTo="parent">
                 <SelectOption value="manual_time">{_("Manually")}</SelectOption>
                 <SelectOption isDisabled={!ntp_supported} value="ntp_time">{_("Automatically using NTP")}</SelectOption>
                 <SelectOption isDisabled={!ntp_supported || !custom_ntp.supported} value="ntp_time_custom">{_("Automatically using specific NTP servers")}</SelectOption>

@@ -38,11 +38,6 @@ img {
   vertical-align: middle;
 }
 
-#login-wait-validating div,
-.col-xs-12 {
-  float: left;
-}
-
 #option-group,
 .pf-c-button,
 .cross,
@@ -104,7 +99,7 @@ input::-moz-focus-inner {
 }
 
 p {
-  margin: 0 0 10px;
+  margin: 0 0 1rem;
 }
 
 .container {
@@ -121,43 +116,8 @@ p {
   margin-bottom: 2rem;
 }
 
-.container:after,
-.container:before,
-.form-group:after,
-.form-group:before,
-.row:after,
-.row:before {
-  content: " ";
-  display: table;
-}
-
-.container:after,
-.row:after {
-  clear: both;
-}
-
-.col-lg-5,
-.col-lg-7,
-.col-md-10,
-.col-md-2,
-.col-md-6,
-.col-sm-1,
-.col-sm-10,
-.col-sm-12,
-.col-sm-2,
-.col-sm-3,
-.col-sm-5,
-.col-sm-6,
-.col-sm-7,
-.col-xs-12 {
-  position: relative;
-  min-height: 1px;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.col-xs-12 {
-  width: 100%;
+.form-group + .form-group {
+  margin-top: 1rem;
 }
 
 label {
@@ -253,7 +213,7 @@ label.checkbox {
 .help-block {
   display: block;
   margin-top: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
   color: #737373;
 }
 
@@ -353,8 +313,10 @@ label.checkbox {
 }
 
 .login-pf #brand {
+  /*
   position: relative;
   top: -70px;
+  */
 }
 
 .login-pf #brand img {
@@ -363,23 +325,19 @@ label.checkbox {
   max-width: 100%;
 }
 
-.login-pf #badge {
-  display: block;
-  margin: 20px auto 70px;
-  position: relative;
-  text-align: center;
+.brand-unsupported-browser #brand {
+  display: none;
 }
 
 .login-pf #banner {
-  margin-top: 20px;
+  margin-top: 2rem;
 }
 
 .login-pf .container {
   background-color: rgba(255, 255, 255, .055);
-  clear: right;
   padding-bottom: 40px;
-  padding-top: 20px;
-  width: auto;
+  padding-top: 2rem;
+  width: 100%;
 }
 
 .login-pf .container .details p:first-child {
@@ -388,8 +346,11 @@ label.checkbox {
   margin-top: 25px;
 }
 
-.login-pf .container .details p {
-  margin-bottom: 2px;
+.login-pf .details p {
+  margin: 0;
+}
+.login-pf .details p + p {
+  margin-top: 0.5rem;
 }
 
 .login-pf .container .control-label {
@@ -421,12 +382,13 @@ label.checkbox {
 .pf-c-alert {
     color: #151515;
     position: relative;
-    grid-template-columns: repeat(2, max-content) 1fr max-content;
+    grid-template-columns: max-content 1fr max-content;
     grid-template-rows: 1fr auto;
-    grid-template-areas: "icon title action" ". content content";
+    grid-template-areas:
+      "icon title   action"
+      ".    content content";
     background-color: #fff;
     margin: 0 0 1.5rem;
-    align-items: center;
     display: grid;
 }
 
@@ -446,9 +408,17 @@ label.checkbox {
 
 .pf-c-alert > svg {
   grid-area: icon;
-  height: 18px;
-  width: 18px;
-  margin: 1rem 0 1rem 1rem;
+  height: 1.125rem;
+  width: 1.125rem;
+  margin: 1.125rem 1rem 1rem 1rem;
+  float: left;
+}
+
+@supports (display: grid) {
+  .pf-c-alert > svg {
+    float: none;
+    margin-right: 0;
+  }
 }
 
 .pf-c-alert__title {
@@ -509,10 +479,6 @@ label.checkbox {
   color: #000;
 }
 
-.login-browser-recommendations {
-  margin-top: 6rem;
-}
-
 .caret,
 .server-box {
   position: relative;
@@ -570,8 +536,7 @@ label.checkbox {
   font-weight: 700;
   justify-content: center;
   position: absolute;
-  /* 20px = padding of col-* */
-  right: 20px;
+  right: 2rem;
   top: 0;
   width: 2rem;
 }
@@ -584,7 +549,7 @@ label.checkbox {
 #option-group div {
   margin-left: -3px;
   margin-top: 3px;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 }
 
 #login-button {
@@ -603,112 +568,12 @@ label.checkbox {
 
 /*** Media breakpoints ***/
 
-/** Bootstrap breakpoints **/
-
 @media (min-width: 1024px) {
-  .container { width: 760px; }
-
-  .col-sm-1,
-  .col-sm-10,
-  .col-sm-12,
-  .col-sm-2,
-  .col-sm-3,
-  .col-sm-5,
-  .col-sm-6,
-  .col-sm-7 {
-    float: left;
-  }
-
-  .col-sm-12 {
-    width: 100%;
-  }
-
-  .col-sm-10 {
-    width: 83.33333333333334%;
-  }
-
-  .col-sm-7 {
-    width: 58.333333333333336%;
-  }
-
-  .col-sm-6 {
-    width: 50%;
-  }
-
-  .col-sm-5 {
-    width: 41.66666666666667%;
-  }
-
-  .col-sm-3 {
-    width: 25%;
-  }
-
-  .col-sm-2 {
-    width: 16.666666666666664%;
-  }
-
-  .col-sm-1 {
-    width: 8.333333333333332%;
-  }
-
-  .col-sm-offset-2 {
-    margin-left: 16.666666666666664%;
-  }
+  .container { min-width: 34rem; }
 }
-
-@media (min-width: 1024px) {
-  .container {
-    width: 980px;
-  }
-
-  .col-md-10,
-  .col-md-2,
-  .col-md-6 {
-    float: left;
-  }
-
-  .col-md-10 {
-    width: 83.33333333333334%;
-  }
-
-  .col-md-6 {
-    width: 50%;
-  }
-
-  .col-md-2 {
-    width: 16.666666666666664%;
-  }
-
-}
-
-@media (min-width: 1200px) {
-  .container {
-    width: 1180px;
-  }
-
-  .col-lg-5,
-  .col-lg-7 {
-    float: left;
-  }
-
-  .col-lg-7 {
-    width: 58.333333333333336%;
-  }
-
-  .col-lg-5 {
-    width: 41.66666666666667%;
-  }
-
-}
-
-/** Cockpit-specific media breakpoints **/
 
 /* Optimize for mobile phones in portrait mode */
 @media (max-width: 480px) {
-
-  .unsupported-browser .container > .row > .col-sm-12 {
-    position: static;
-  }
 
   .login-pf {
     display: flex;
@@ -731,17 +596,7 @@ label.checkbox {
   }
 
   /* Brand container */
-  .container > .row > .col-sm-12 {
-    order: 1;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-  }
-
   .login-pf #brand {
-    position: static;
     font-size: inherit;
     background-position: 50% 50%;
   }
@@ -755,35 +610,11 @@ label.checkbox {
 /* Large phones and desktops */
 @media (min-width: 481px) {
 
-  .brand-unsupported-browser #brand {
-    margin-left: -40px;
-    position: absolute;
-    text-align: center;
-    width: 100%;
-  }
-
-  .unsupported-browser {
-    font-size: 140%;
-    /*
-    There's 80px on the left and 20px on the side for the login container.
-    We'll center with a workaround to pull the box (80px - 20px) / 2 = 30px left
-     */
-    margin-left: -30px;
-    text-align: center;
-  }
-
   .unsupported-browser-heading {
-    font-size: 3rem;
-    left: 50%;
-    /* Pull the H2 half the width to the left to center */
-    margin: 0 0 0 -32rem;
-    position: absolute;
-    text-align: center;
-    top: -16rem;
-    width: 64rem;
+    margin: 2rem 0;
   }
 
-  .login-browser-recommendations h3 {
+  .browser-recommendations h3 {
     font-weight: 400;
     margin-top: 0;
   }
@@ -807,31 +638,8 @@ label.checkbox {
     text-align: left;
   }
 
-  .login-pf #badge {
-    float: right;
-    margin-right: 64px;
-    margin-top: 50px;
-  }
-
-  .login-pf .container {
-    bottom: 13%;
-    padding-left: 80px;
-    position: absolute;
-    width: 100%;
-  }
-
   .login-pf .container .login-area {
     border-right: 1px solid #474747;
-  }
-
-  .login-pf .container .details {
-    padding-left: 40px;
-  }
-
-  .login-pf .container .details p:first-child {
-    border-top: 0;
-    padding-top: 0;
-    margin-top: 0;
   }
 
 }
@@ -860,148 +668,124 @@ label.checkbox {
 
 /* PF4-ish style overrides (depending on grid & CSS variables */
 
-@supports (display: grid) {
-  [class*=col-] {
-    padding: 0;
-  }
+.row {
+  display: flex;
+  flex-flow: column;
+  margin: 0;
+}
 
-  .col-sm-12 {
-    padding: 3rem 3rem 0;
-  }
+body.login-pf {
+  color: #151515;
+  display: grid;
+  grid-template-areas: "alert" "login" "details" "logo";
+  grid-template-rows: repeat(3, auto) 1fr;
+  background-position: 0 0 !important;
+  height: 100vh;
+  padding: 0;
+}
 
-  .row {
-    display: flex;
-    flex-flow: column;
-    margin: 0;
-  }
+.login-pf .container .details p:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
 
+.login-button {
+  width: 100%;
+}
+
+.login-pf .container {
+  background: white;
+  color: #333;
+  grid-area: login;
+  padding: 2rem 3rem;
+}
+
+.login-pf .details {
+  grid-area: details;
+  padding: 1.5rem 3rem;
+  width: 100%;
+  background: #ededed;
+}
+
+.login-pf #badge {
+  grid-area: logo;
+}
+
+.login-pf .container .login-area {
+  border: none;
+  width: auto;
+}
+
+.login-pf #brand {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  padding: 0 0 1rem;
+  text-transform: initial;
+}
+
+.unsupported-browser a,
+a {
+  color: #06c;
+}
+
+.unsupported-browser a:focus,
+.unsupported-browser a:hover,
+a:focus,
+a:hover {
+  color: #004080;
+}
+
+.caret polygon {
+  fill: #06c;
+}
+
+[role=form] .col-md-10,
+form .col-md-10 {
+  display: flex;
+}
+
+.cross {
+  right: 0;
+}
+
+/* Mobile-specific */
+@media (max-width: 1023px) {
   body.login-pf {
-    color: #151515;
-    display: grid;
-    grid-template-areas: "alert" "login" "logo";
-    grid-template-rows: auto auto 1fr;
-    background-position: 0 0 !important;
-    height: 100vh;
+    justify-items: center;
+  }
+
+  #badge {
+    background-position: center;
+    margin-top: 2rem;
+  }
+}
+
+/* Desktop-specific */
+@media (min-width: 1024px) {
+  body.login-pf {
+    grid-template-areas:
+      ". alert   alert ."
+      ". .       .     ."
+      ". login   logo  ."
+      ". details logo  ."
+      ". .     .     .";
+    grid-template-rows: auto 1fr minmax(min-content,max-content) auto 1fr;
+    grid-template-columns: minmax(0, 2.125rem) auto 1fr minmax(0, 2.125rem);
     grid-gap: 0 4rem;
-    padding: 0;
   }
+}
 
-  .login-pf .container .details p:first-child {
-    border-top: 0;
-    padding-top: 0;
-    margin-top: 0;
-  }
+.unsupported-browser ul {
+  color: #555;
+  margin: 0 0 2rem;
+}
 
-  .container > .row > .col-sm-12 {
-    order: inherit;
-    position: static;
-    text-align: left;
-  }
-
-  .login-button {
-    width: 100%;
-  }
-
-  .login-pf .container {
-    position: static;
-    background: white;
-    color: #333;
-    grid-area: login;
-    margin: 0;
-    padding: 0;
-  }
-
-  .login-pf #badge {
-    grid-area: logo;
-    margin: 0 !important;
-  }
-
-  .login-pf .container .login-area {
-    border: none;
-    width: auto;
-    padding: 0 3rem 1.5rem;
-  }
-  .login-pf .container .details {
-    padding: 1.5rem 3rem;
-    width: auto !important;
-    background: #ededed;
-  }
-
-  .login-pf #brand {
-    font-size: 1.75rem;
-    line-height: 1.3;
-    padding: 0 0 2rem;
-    position: static;
-    text-transform: initial;
-  }
-
-  .unsupported-browser a,
-  a {
-    color: #06c;
-  }
-
-  .unsupported-browser a:focus,
-  .unsupported-browser a:hover,
-  a:focus,
-  a:hover {
-    color: #004080;
-  }
-
-  .caret polygon {
-    fill: #06c;
-  }
-
-  [role=form] .col-md-10,
-  form .col-md-10 {
-    display: flex;
-  }
-
-  .cross {
-    right: 0;
-  }
-
-  /* Mobile-specific */
-  @media (max-width: 1023px) {
-    body.login-pf {
-      justify-items: center;
-      grid-gap: 0.5rem;
-    }
-
-    #badge {
-      background-position: center;
-    }
-  }
-
-  /* Desktop-specific */
-  @media (min-width: 1024px) {
-    body.login-pf {
-      grid-template-areas: ". alert alert ." ". . . ." ". login logo ." ". . . . ";
-      grid-template-rows: auto 1fr minmax(min-content,max-content) 1fr;
-      grid-template-columns: minmax(0, 2.125rem) 35rem 1fr minmax(0, 2.125rem);
-    }
-  }
-
-  body.login-pf.brand-unsupported-browser {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto;
-  }
-
-  .unsupported-browser {
-    padding: 2rem;
-    margin: 0;
-    font-size: inherit;
-  }
-
-  .unsupported-browser ul {
-    color: #555;
-    margin: 0 0 2rem;
-  }
-
-  .login-browser-recommendations {
-    margin: 0;
-    display: flex;
-    justify-content: space-around;
-  }
+.browser-recommendations {
+  display: grid;
+  justify-content: space-around;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, max-content));
+  grid-gap: 0 1rem;
 }
 
 .dialog-error {

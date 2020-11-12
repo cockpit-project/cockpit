@@ -156,11 +156,14 @@
 
     function requisites() {
         function disableLogin(name) {
+            var errorString = format(_("This web browser is too old to run the Web Console (missing $0)"), name);
+
             if (window.console)
-                console.warn(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
+                console.warn(errorString);
+            id("login-error-message").textContent = errorString;
             hide("#login", "#login-details");
-            show("#unsupported-browser");
-            document.body.className += " brand-unsupported-browser";
+            show("#unsupported-browser", "#error-group");
+            document.body.classList.add("brand-unsupported-browser");
         }
 
         function req(name, obj) {

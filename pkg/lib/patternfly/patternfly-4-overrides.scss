@@ -68,3 +68,9 @@ svg {
         }
     }
 }
+
+// Override chart numbers to be monospaced, as RedHatText does not have tabular numbers
+// Issue: https://github.com/RedHatOfficial/RedHatFont/issues/27
+.pf-c-chart text[id*=axis] {
+    --pf-chart-global--FontFamily: var(--pf-global--FontFamily--monospace);
+}

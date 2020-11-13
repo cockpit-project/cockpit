@@ -154,13 +154,10 @@ var info = {
 
         "lib/test-dummy",
         "lib/test-journal-renderer",
-        "lib/test-machines",
 
         "networkmanager/test-utils",
 
         "storaged/test-util",
-
-        "machines/test-machines",
     ],
 
     files: [

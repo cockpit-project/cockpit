@@ -29,7 +29,7 @@ class TestStorageUnused(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         # The following block devices should not be offered for creating a
         # raid

@@ -39,8 +39,7 @@ class TestStorageBasic(StorageCase):
 
         self.browser.wait_present("#devices [data-toggle=dropdown]")
 
-        b.wait_in_text("#drives", "VirtIO")
-        b.wait_not_in_text("#drives", "Show all")
+        b.wait_present("#mounts tbody tr")
 
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()

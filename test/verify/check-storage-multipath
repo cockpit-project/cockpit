@@ -57,7 +57,7 @@ class TestStorageMultipath(StorageCase):
         m.execute("udevadm trigger")
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         b.inject_js("""
           ph_texts = function (sel) {

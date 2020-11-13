@@ -30,7 +30,7 @@ class TestStorageNfs(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         m.execute("mkdir /home/foo /home/bar")
         m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
@@ -153,7 +153,7 @@ class TestStorageNfs(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         m.execute("mkdir /home/foo /home/bar")
         m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
@@ -177,7 +177,7 @@ class TestStorageNfs(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         m.execute("mkdir /home/foo /home/bar")
         m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")

@@ -614,7 +614,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             volume_format=None,
             persistent_vm=True,
         ):
-            print(pool_name, volume_name)
             self.test_obj = test_obj
             self.vm_name = vm_name
             self.pool_name = pool_name
@@ -1049,7 +1048,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Undefine all Storage pools and  confirm that the Add Disk dialog is disabled
         active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
-        print(active_pools)
         for pool in active_pools:
             m.execute("virsh pool-destroy {0}".format(pool))
         b.wait_in_text("#card-pf-storage-pools .active-resources:nth-of-type(1)", "0")
@@ -4983,7 +4981,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def verify_backend(self):
                 # Verify libvirt XML
-                print(self.name)
                 snap_xml = "virsh -c qemu:///system snapshot-dumpxml --domain {0} --snapshotname {1}".format("subVmTest1", self.name)
                 xmllint_element = "{0} | xmllint --xpath 'string(//domainsnapshot/{{prop}})' - 2>&1 || true".format(snap_xml)
 

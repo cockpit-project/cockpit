@@ -39,7 +39,7 @@ class HostSwitcherHelpers:
         for address in expected:
             b.wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
 
-    def wait_dashboard_addresses(self, b, expected):
+    def wait_host_addresses(self, b, expected):
         b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))
         for address in expected:
             b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
@@ -137,7 +137,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.login_and_go()
 
         b.click("#hosts-sel button")
-        self.wait_dashboard_addresses(b, ["localhost"])
+        self.wait_host_addresses(b, ["localhost"])
 
         b.wait_not_present("button:contains('Edit hosts')")
 
@@ -147,11 +147,11 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b2.login_and_go()
 
         b2.click("#hosts-sel button")
-        self.wait_dashboard_addresses(b2, ["localhost"])
+        self.wait_host_addresses(b2, ["localhost"])
 
         self.add_machine(b, "10.111.113.2")
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2"])
-        self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.wait_connected(b, "10.111.113.2")
         self.wait_connected(b2, "10.111.113.2")
 
@@ -168,19 +168,19 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
 
         self.add_machine(b, "10.111.113.3")
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.wait_connected(b, "10.111.113.3")
         self.wait_connected(b2, "10.111.113.3")
 
         # Remove two
         self.machine_remove(b, "10.111.113.2", m2)
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3"])
-        self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.3"])
 
         self.machine_remove(b, "10.111.113.3", m3, True)
-        self.wait_dashboard_addresses(b, ["localhost"])
-        self.wait_dashboard_addresses(b2, ["localhost"])
+        self.wait_host_addresses(b, ["localhost"])
+        self.wait_host_addresses(b2, ["localhost"])
 
         # Check that the two removed machines are listed in "Add Host"
         # on both browsers
@@ -189,8 +189,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Add one back, check addresses on both browsers
         self.add_machine(b, "10.111.113.2", True)
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2"])
-        self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.wait_connected(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
         self.check_discovered_addresses(b2, ["10.111.113.3"])
@@ -199,8 +199,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # And the second one, check addresses on both browsers
         self.add_machine(b, "10.111.113.3", True)
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_connected(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
@@ -209,12 +209,12 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Move m2 known host key to ~/.ssh, verify that it's known
         self.machine_remove(b, "10.111.113.2", m2)
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
         key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
         m.execute(
             "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh".format(key))
         self.add_machine(b, "10.111.113.2", True)
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_connected(b, "10.111.113.2")
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
 
@@ -242,9 +242,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')
 
-        # localhost should have the dashboard
-        b.wait_in_text("#nav-system", "Dashboard")
-
         b.click("#hosts-sel button")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
@@ -252,9 +249,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#hosts-sel button")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
-
-        # remote hosts should not have the dashboard, since #14590
-        b.wait_not_in_text("#nav-system", "Dashboard")
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
@@ -297,7 +291,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         b.click("#hosts-sel button")
         self.add_machine(b, "10.111.113.3")
-        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
         self.wait_connected(b, "10.111.113.3")
 
         b.click("button:contains('Edit hosts')")
@@ -393,13 +387,13 @@ class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
 
         b.click("#hosts-sel button")
-        self.wait_dashboard_addresses(b, ["localhost"])
+        self.wait_host_addresses(b, ["localhost"])
         check_limit(0)
 
-        self.wait_dashboard_addresses(b, fake_machines(3))
+        self.wait_host_addresses(b, fake_machines(3))
         check_limit(0)
 
-        self.wait_dashboard_addresses(b, fake_machines(14))
+        self.wait_host_addresses(b, fake_machines(14))
         check_limit(20)
         self.allow_journal_messages(
             ".*couldn't connect: Failed to resolve hostname bad.*",

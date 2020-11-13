@@ -697,16 +697,14 @@ class TestWsUpdate(NoSubManCase):
         self.createPackage("cockpit-ws", "999", "1")
         # these have strict version dependencies to cockpit-ws, don't get in the way
         self.createPackage("cockpit", "999", "1")
-        self.createPackage("cockpit-dashboard", "999", "1")
         m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
         b.wait_in_text(".content-header-extra button", "Check for updates")
         b.click(".content-header-extra button")
 
         b.wait_in_text("#updates #available h3", "Available updates")
-        self.assertEqual(b.text("#state"), "3 updates")
+        self.assertEqual(b.text("#state"), "2 updates")
         b.wait_in_text("table.available", "cockpit-ws")
-        b.wait_in_text("table.available", "cockpit-dashboard")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
         self.allow_restart_journal_messages()

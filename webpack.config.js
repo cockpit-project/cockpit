@@ -12,11 +12,6 @@ var info = {
             "apps/index.jsx"
         ],
 
-        "dashboard/dashboard": [
-            "dashboard/list.js",
-            "dashboard/dashboard.scss",
-        ],
-
         "kdump/kdump": [
             "kdump/kdump.js",
             "kdump/kdump.scss",
@@ -188,8 +183,6 @@ var info = {
     files: [
         "apps/index.html",
         "apps/default.png",
-
-        "dashboard/index.html",
 
         "kdump/index.html",
 

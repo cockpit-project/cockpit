@@ -179,41 +179,37 @@ class TestMultiMachineAdd(MachineCase):
         add_machine(b, "10.111.113.2", password=None)
         add_machine(b, m3_host, password=None)
 
-        # TODO: The concrete error message when killing the bridge and
-        # session is not predictable.  So we just wait for any error
-        # to appear without checking the precise text.  We print the
-        # error message, to help with issue #606.
-        #
-        # https://github.com/cockpit-project/cockpit/issues/606
+        b.switch_to_top()
+        b.click("#hosts-sel button")
 
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
         kill_user_admin(m2)
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-error.png')
+        b.wait_visible("#machine2-error")
 
         kill_user_admin(m3)
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.3'] img", 'src', '../shell/images/server-error.png')
+        b.wait_visible("#machine3-error")
 
         # Navigating reconnects
-        b.click("#dashboard-hosts a[data-address='10.111.113.2']")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname != "/dashboard"')
+        b.click("a[href='/@10.111.113.2']")
+
+        b.wait_js_cond('window.location.pathname == "/@10.111.113.2/system"')
         b.enter_page("/system", host="10.111.113.2")
         b.wait_text(hostname_selector, "machine2")
-        b.switch_to_top()
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
-        b.click("#dashboard-hosts a[data-address='10.111.113.3']")
         b.switch_to_top()
-        b.wait_js_cond('window.location.pathname != "/dashboard"')
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_not_present("#machine2-error")
+
+        b.click("a[href='/@10.111.113.3']")
+
+        b.wait_js_cond('window.location.pathname == "/@10.111.113.3/system"')
         b.enter_page("/system", host=m3_host)
         b.wait_text(hostname_selector, "machine3")
+
         b.switch_to_top()
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.3'] img", 'src', '../shell/images/server-small.png')
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.3']")
+        b.wait_not_present("#machine3-error")
 
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
@@ -238,10 +234,11 @@ class TestMultiMachineAdd(MachineCase):
         add_machine(b, "m2", password=None)
         add_machine(b, "m3", password=None)
 
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='m2'] img", 'src', '../shell/images/server-small.png')
-        b.wait_attr("#dashboard-hosts a[data-address='m3'] img", 'src', '../shell/images/server-small.png')
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@m2']")
+        b.wait_visible("a[href='/@m3']")
+        b.wait_not_present("#page-sidebar .nav-status")
 
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
@@ -282,9 +279,8 @@ class TestMultiMachine(MachineCase):
         b.wait_text(hostname_selector, "machine1")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.wait_present("a[data-address='10.111.113.2']")
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
 
         # Direct to machine2, new login
         m2.execute("echo admin:alt-password | chpasswd")
@@ -304,12 +300,10 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
 
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
-        m2_dashboard_name = "machine2"
 
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-        b.wait_not_present("a[data-address='10.111.113.2']")
+        b.click("#hosts-sel button")
+        b.wait_in_text("a[href='/@localhost']", "machine2")
+        b.wait_not_present("a[href='/@10.111.113.2']")
         b.logout()
 
         # Bad host key
@@ -452,10 +446,9 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
 
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-        b.wait_not_present("a[data-address='10.111.113.2']")
+        b.click("#hosts-sel button")
+        b.wait_in_text("a[href='/@localhost']", "machine2")
+        b.wait_not_present("a[href='/@10.111.113.2']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()
@@ -465,7 +458,7 @@ class TestMultiMachine(MachineCase):
     def testDirectLogin(self):
         b = self.browser
 
-        self.login_and_go("/dashboard")
+        self.login_and_go("/system")
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/')
 
@@ -489,7 +482,7 @@ class TestMultiMachine(MachineCase):
         # ensure it's really enabled
         self.assertEqual(self.machine.execute('cat /proc/sys/crypto/fips_enabled').strip(), "1")
 
-        self.login_and_go("/dashboard")
+        self.login_and_go("/system")
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/')
 
@@ -519,18 +512,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
 
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname == "/cockpit-new/dashboard"')
-        b.enter_page("/dashboard")
-        b.click("a[data-address='localhost']")
-        b.enter_page("/system")
-        b.switch_to_top()
-
         # Test 2nd machine
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
         add_machine(b, "10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")
         b.wait_text(hostname_selector, "machine2")
@@ -578,7 +560,7 @@ class TestMultiMachine(MachineCase):
         m2.execute("zcat /usr/share/cockpit/systemd/terminal.html.gz | sed -e 's|</body>|magic-m2-token</body>|' | gzip"
                    " > /tmp/terminal.html.gz && mount -o bind /tmp/terminal.html.gz /usr/share/cockpit/systemd/terminal.html.gz")
 
-        self.login_and_go("/dashboard")
+        self.login_and_go("/system")
         add_machine(b, "10.111.113.2")
 
         b.leave_page()
@@ -598,18 +580,10 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         m2_path = "/@10.111.113.2/playground/test"
-        dashboard_path = "/dashboard"
 
         # Add a machine
         self.login_and_go(None)
         add_machine(b, "10.111.113.2")
-
-        b.go(dashboard_path)
-        b.enter_page("/dashboard")
-        # Check the server image
-        b.wait_present("#dashboard-hosts a[data-address='10.111.113.2']")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
-        b.switch_to_top()
 
         # Go to the path, remove the image
         b.go(m2_path)
@@ -622,11 +596,14 @@ class TestMultiMachine(MachineCase):
         kill_user_admin(m2)
 
         b.wait_text(".curtains-ct h1", "Not connected to host")
-        self.assertEqual(b.text("#machine-reconnect"), "Reconnect")
+        b.wait_text("#machine-reconnect", "Reconnect")
 
-        b.go(dashboard_path)
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-error.png')
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_present("#machine2-error")
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system_information_hostname_text", "machine1")
         b.switch_to_top()
 
         # navigating there again will fail
@@ -634,10 +611,10 @@ class TestMultiMachine(MachineCase):
         b.wait_text(".curtains-ct h1", "Not connected to host")
         b.wait_text("#machine-troubleshoot", "Log in")
 
-        # wait for dashboard to load
-        b.go(dashboard_path)
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-error.png')
+        # wait for system to load
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system_information_hostname_text", "machine1")
         b.switch_to_top()
 
         # renable admin
@@ -659,11 +636,10 @@ class TestMultiMachine(MachineCase):
         b.wait_present("img[src='hammer.gif']")
         b.switch_to_top()
 
-        # Dashboard shows it as up
-        b.go(dashboard_path)
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
-        b.switch_to_top()
+        # Host shows it is up
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_not_present("#page-sidebar .nav-status")
 
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")

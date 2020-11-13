@@ -201,24 +201,22 @@ class TestMultiMachineKeyAuth(MachineCase):
         authorize_user(m2, "user")
         m2.execute("rm /home/admin/.ssh/authorized_keys")
 
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.click('#dashboard-enable-edit')
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] .edit-button")
-        b.wait_popup('dashboard_setup_server_dialog')
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary")
+
+        b.wait_popup('hosts_setup_server_dialog')
         b.wait_visible('#add-machine-user')
         self.assertEqual(b.val("#add-machine-user"), "")
         b.set_val('#add-machine-user', 'user')
-        b.click("#dashboard_setup_server_dialog .pf-m-primary")
-        b.wait_popdown('dashboard_setup_server_dialog')
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_popdown('hosts_setup_server_dialog')
 
         # We now expect this iframe to disappear
-        b.switch_to_top()
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
         # And then we expect it to be reloaded after clicking through
-        b.enter_page("/dashboard")
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        b.wait_visible("a[href='/@10.111.113.2']")
         b.enter_page("/system", host="user@10.111.113.2")
 
         self.allow_restart_journal_messages()
@@ -257,20 +255,23 @@ Host 10.111.113.2
         m1.execute("chown -R admin:admin /home/admin/.ssh")
         authorize_user(m2, "user", ["verify/files/ssh/id_ed25519.pub"])
 
-        self.login_and_go("/dashboard")
+        self.login_and_go("/system")
+        b.switch_to_top()
+
         self.load_key('id_rsa', 'foobar')
         b.wait_js_cond('loaded === true')
-        b.enter_page("/dashboard")
 
-        b.click("#dashboard-add")
-        b.set_val("#add-machine-address", "10.111.113.2")
-        b.click("#dashboard_setup_server_dialog .pf-m-primary")
-        b.wait_in_text("#dashboard_setup_server_dialog", "Fingerprint")
-        b.click("#dashboard_setup_server_dialog .pf-m-primary")
-        b.wait_in_text("#dashboard_setup_server_dialog", "/home/admin/.ssh/id_ed25519")
+        b.click("#hosts-sel button")
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
+        b.set_val('#add-machine-address', "10.111.113.2")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_in_text("#hosts_setup_server_dialog", "Fingerprint")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_ed25519")
         b.set_val(".locked-identity-password", "locked")
-        b.click("#dashboard_setup_server_dialog .modal-footer>.pf-m-primary")
-        b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        b.click("#hosts_setup_server_dialog .modal-footer>.pf-m-primary")
+        b.wait_visible("a[href='/@10.111.113.2']")
         self.allow_hostkey_messages()
 
     def testLockedDefaultIdentity(self):
@@ -291,17 +292,20 @@ Host 10.111.113.2
         m1.execute("ssh-keygen -p -f /home/admin/.ssh/id_rsa -P foobar -N foobarfoo")
         authorize_user(m2, "admin", ["verify/files/ssh/id_rsa.pub"])
 
-        self.login_and_go("/dashboard")
+        self.login_and_go("/system")
+        b.switch_to_top()
 
-        b.click("#dashboard-add")
+        b.click("#hosts-sel button")
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
         b.set_val("#add-machine-address", "10.111.113.2")
-        b.click("#dashboard_setup_server_dialog .pf-m-primary")
-        b.wait_in_text("#dashboard_setup_server_dialog", "Fingerprint")
-        b.click("#dashboard_setup_server_dialog .pf-m-primary")
-        b.wait_in_text("#dashboard_setup_server_dialog", "/home/admin/.ssh/id_rsa")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_in_text("#hosts_setup_server_dialog", "Fingerprint")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_rsa")
         b.set_val(".locked-identity-password", "foobarfoo")
-        b.click("#dashboard_setup_server_dialog .modal-footer>.pf-m-primary")
-        b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        b.click("#hosts_setup_server_dialog .modal-footer>.pf-m-primary")
+        b.wait_visible("a[href='/@10.111.113.2']")
         self.allow_hostkey_messages()
 
 

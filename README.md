@@ -20,8 +20,8 @@ Jumping between the terminal and the web tool is no problem. A service started v
 can be stopped via the terminal. Likewise, if an error occurs in the terminal, it can be seen
 in the Cockpit journal interface.
 
-On the Cockpit dashboard, you can easily add other machines with Cockpit installed that are
-accessible via SSH.
+You can also easily add other machines that have Cockpit installed and are accessible via SSH and jump
+between these hosts.
 
 ### Development
 

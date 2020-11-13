@@ -158,7 +158,6 @@ SUBST_RULE = \
 WEBPACK_PACKAGES = \
 	base1 \
 	apps \
-	dashboard \
 	kdump \
 	machines \
 	metrics \

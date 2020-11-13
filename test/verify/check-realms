@@ -485,18 +485,20 @@ ExecStart=/bin/true
 
         # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
         # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
-        b.login_and_go("/dashboard", user='%s@cockpit.lan' % self.admin_user, password=self.admin_password)
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
-        b.set_val('#add-machine-address', 'x0.cockpit.lan')
-        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Add)')
+        b.login_and_go("/system", user='%s@cockpit.lan' % self.admin_user, password=self.admin_password)
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
+        b.set_val('#add-machine-address', "x0.cockpit.lan")
+        b.click('#hosts_setup_server_dialog .modal-footer button:contains(Add)')
 
         # with --pubkey support this should Just Work, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
-            b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-            b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Connect)')
-        b.wait_popdown('dashboard_setup_server_dialog')
-        b.wait_present("#dashboard-hosts a[data-address='x0.cockpit.lan']")
+            b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+            b.click('#hosts_setup_server_dialog .modal-footer button:contains(Connect)')
+        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_visible("a[href='/@x0.cockpit.lan']")
         b.logout()
 
     def checkBackendSpecificCleanup(self):
@@ -801,7 +803,7 @@ ExecStart=/bin/true
         # HACK: There is no operating system where the domain admins can do passwordless sudo
         # while having a kerberos ticket, so we can't start a root bridge.
         # This is something that needs to be worked on at an OS level. We use admin level
-        # features below, such as adding a machine to the dashboard
+        # features below, such as adding a machine to the host switcher
         m.execute("echo 'admin        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")
 
         # Make sure negotiate auth is not offered first

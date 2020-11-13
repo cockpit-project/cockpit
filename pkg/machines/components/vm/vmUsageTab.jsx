@@ -28,7 +28,6 @@ import {
 import {
     logDebug,
     units,
-    toFixedPrecision,
     convertToBestUnit,
     convertToUnit,
 } from "../../helpers.js";
@@ -45,8 +44,8 @@ class VmUsageTab extends React.Component {
         const memTotalBest = convertToBestUnit(memTotal, units.KiB);
 
         const totalCpus = vm.vcpus && vm.vcpus.count > 0 ? vm.vcpus.count : 0;
-        let cpuUsage = isNaN(vm.cpuUsage) ? 0 : vm.cpuUsage;
-        cpuUsage = toFixedPrecision(cpuUsage, 1);
+        const vmCpuUsage = vm.cpuUsage;
+        const cpuUsage = isNaN(vmCpuUsage) ? 0 : parseFloat(vmCpuUsage.toFixed(1));
         const totalCpusStr = cockpit.format(cockpit.ngettext("$0 vCPU", "$0 vCPUs", totalCpus), totalCpus);
 
         logDebug(`VmUsageTab.render(): rssMem: ${rssMem} KiB, memTotal: ${memTotal} KiB, totalCpus: ${totalCpus}, cpuUsage: ${cpuUsage}`);
@@ -60,8 +59,8 @@ class VmUsageTab extends React.Component {
                         variant={(rssMem / memTotal * 100) > 90 ? ProgressVariant.danger : ProgressVariant.info}
                         title={_("Memory")}
                         label={cockpit.format("$0 / $1 $2",
-                                              toFixedPrecision(memRssBest.value, 1),
-                                              memRssBest.value != 0 ? convertToUnit(memTotal, units.KiB, memRssBest.unit) : toFixedPrecision(memTotalBest.value, 1),
+                                              parseFloat(memRssBest.value.toFixed(1)),
+                                              memRssBest.value != 0 ? parseFloat(convertToUnit(memTotal, units.KiB, memRssBest.unit).toFixed(1)) : parseFloat(memTotalBest.value.toFixed(1)),
                                               memRssBest.value != 0 ? memRssBest.unit : memTotalBest.unit)} />
                 </FlexItem>
                 <FlexItem className="vcpu-usage-chart">

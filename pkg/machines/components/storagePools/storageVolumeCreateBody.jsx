@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import * as Select from "cockpit-components-select.jsx";
-import { units, digitFilter, toFixedPrecision } from '../../helpers.js';
+import { units, digitFilter } from '../../helpers.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
@@ -82,7 +82,7 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolType, onValueC
                 <input id={`${idPrefix}-size`}
                        className="form-control add-disk-size"
                        type="text" inputMode="numeric" pattern="[0-9]*"
-                       value={toFixedPrecision(size)}
+                       value={parseFloat(size).toFixed(0)}
                        onKeyPress={digitFilter}
                        step={1}
                        min={0}

@@ -334,6 +334,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "256 MiB")
+        b.wait_not_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
         usage = b.text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure").split("/ 256 MiB")[0]
         wait(lambda: float(usage) > 0.0, delay=3)
 
@@ -388,8 +389,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # continue shut off validation - usage should drop to zero
-        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0.0 /")
-        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0.0%" )
+        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
+        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0%" )
 
         self.goToMainPage()
 
@@ -2492,9 +2493,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
             # the host has (less or more than 1 GiB), and thus needs to be dynamic
             if dialog.memory_size >= 1024 and dialog.memory_size_unit == "MiB":
-                memory_text = "/ %.1f GiB" % (dialog.memory_size/1024)
+                memory_text = "/ " + ("%.1f" % (dialog.memory_size/1024)).rstrip('.0') + " GiB"
             else:
-                memory_text = "/ {0:.1f} {1}".format(dialog.memory_size, dialog.memory_size_unit)
+                memory_text = "/ " + ("%.1f" % dialog.memory_size).rstrip('.0') + " %s" % dialog.memory_size_unit
             b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", memory_text)
 
             # check disks

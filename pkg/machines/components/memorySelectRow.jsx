@@ -22,7 +22,7 @@ import { Slider } from 'patternfly-react';
 
 import * as Select from "cockpit-components-select.jsx";
 
-import { digitFilter, toFixedPrecision, units } from "../helpers.js";
+import { digitFilter, units } from "../helpers.js";
 
 import './memorySelectRow.css';
 
@@ -36,7 +36,7 @@ class MemorySelectRow extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.value !== prevState.memory && !prevState.inputHasFocus)
-            return { memory: nextProps.value };
+            return { memory: parseFloat(nextProps.value).toFixed(0) };
         return null;
     }
 
@@ -66,7 +66,7 @@ class MemorySelectRow extends React.Component {
                         type="text" inputMode="numeric" pattern="[0-9]*"
                         min={minValue}
                         max={maxValue}
-                        value={toFixedPrecision(this.state.memory)}
+                        value={this.state.memory}
                         onKeyPress={digitFilter}
                         step={1}
                         disabled={readOnly}

@@ -1,0 +1,38 @@
+name: unit-test-refresh
+on:
+  schedule:
+    # auto-refresh every Sunday evening
+    - cron: '0 22 * * 0'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  # we do both builds and all tests in a single run, so that we only upload the containers on success
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Build fresh containers
+        run: containers/unit-tests/build
+
+      - name: Run amd64 gcc test
+        run: containers/unit-tests/start
+
+      - name: Run amd64 clang test
+        run: containers/unit-tests/start CC=clang
+
+      - name: Run i386 test
+        run: containers/unit-tests/start :i386
+
+      - name: Log into Dockerhub
+        run: podman login -u cockpituous -p ${{ secrets.DOCKER_TOKEN }} docker.io
+
+      - name: Push containers to registry
+        run: |
+          podman push docker.io/cockpit/unit-tests:latest
+          podman push docker.io/cockpit/unit-tests:i386

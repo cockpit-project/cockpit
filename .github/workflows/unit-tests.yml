@@ -1,30 +1,13 @@
 name: unit-tests
 on: [push, pull_request]
 jobs:
-  gcc:
+  unit-tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        startarg: [':latest', ':i386', 'CC=clang']
+      fail-fast: false
     timeout-minutes: 60
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-        with:
-          # need this to also fetch tags
-          fetch-depth: 0
-
-      #- name: interactive SSH debug session
-      #  uses: mxschmitt/action-tmate@v3
-
-      - name: Build unit test container if it changed
-        run: |
-          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
-          [ -z "$changes" ] || containers/unit-tests/build amd64
-
-      - name: Run unit-tests container
-        run: containers/unit-tests/start
-
-  clang:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -35,25 +18,8 @@ jobs:
       - name: Build unit test container if it changed
         run: |
           changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
-          [ -z "$changes" ] || containers/unit-tests/build amd64
+          [ '${{ matrix.startarg }}' = ':i386' ] && arch=i386 || arch=amd64
+          [ -z "$changes" ] || containers/unit-tests/build $arch
 
       - name: Run unit-tests container
-        run: containers/unit-tests/start CC=clang
-
-  i386:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-        with:
-          # need this to also fetch tags
-          fetch-depth: 0
-
-      - name: Build unit test container if it changed
-        run: |
-          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
-          [ -z "$changes" ] || containers/unit-tests/build i386
-
-      - name: Run unit-tests container
-        run: containers/unit-tests/start :i386
+        run: 'containers/unit-tests/start ${{ matrix.startarg }}'

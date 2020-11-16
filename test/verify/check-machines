@@ -771,7 +771,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             target_iqn = "iqn.2019-09.cockpit.lan"
             self.prepareStorageDeviceOnISCSI(target_iqn)
 
-            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
+            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-id --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
 
             self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
@@ -1723,7 +1723,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             target_iqn = "iqn.2019-09.cockpit.lan"
             self.prepareStorageDeviceOnISCSI(target_iqn)
 
-            print(self.machine.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && ls -la /dev/disk/by-path && virsh pool-start iscsi-pool".format(target_iqn)))
+            print(self.machine.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-id --source-host 127.0.0.1 --source-dev {0} && ls -la /dev/disk/by-id && virsh pool-start iscsi-pool".format(target_iqn)))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
 
             self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
@@ -4484,7 +4484,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self,
                 name="my_iscsi_pool",
                 pool_type="iscsi",
-                target="/dev/disk/by-path/",
+                target="/dev/disk/by-id/",
                 source={"host": "127.0.0.1", "source_path": target_iqn}
             ).execute()
 

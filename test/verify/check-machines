@@ -2204,7 +2204,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if self.profile:
                     b.select_from_dropdown("#profile-select", self.profile)
                 if self.root_password:
-                    b.set_input_text("#root-password", self.root_password)
+                    b.set_input_text("#create-vm-dialog-root-password-pw1", self.root_password)
 
             return self
 

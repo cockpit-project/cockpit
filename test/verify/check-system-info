@@ -182,6 +182,9 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
+        b.click('#system_information_ssh_keys button:contains("Close")')
+        b.wait_popdown("system_information_ssh_keys")
+
         m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
         b.wait_in_text('#system_information_hostname_text', "Adventure Box")
 

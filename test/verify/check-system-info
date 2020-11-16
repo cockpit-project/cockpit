@@ -189,11 +189,11 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#system_information_hostname_text', "Adventure Box")
 
         b.click('#system_information_hostname_button')
-        b.wait_popup("system_information_change_hostname")
+        b.wait_present("#system_information_change_hostname")
         b.wait_val("#sich-pretty-hostname", "Adventure Box")
-        b.set_val("#sich-hostname", "host1.cockpit.lan")
+        b.set_input_text("#sich-hostname", "host1.cockpit.lan")
         b.click("#system_information_change_hostname button:contains('Change')")
-        b.wait_popdown("system_information_change_hostname")
+        b.wait_not_present("#system_information_change_hostname")
 
         b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
         self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")

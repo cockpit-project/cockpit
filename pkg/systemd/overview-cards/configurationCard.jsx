@@ -17,7 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Card, CardBody, Button, CardTitle } from '@patternfly/react-core';
+import {
+    Card, CardBody, Button, CardTitle, Modal,
+    Form, FormGroup, TextInput
+} from '@patternfly/react-core';
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as service from "service.js";
@@ -40,23 +43,6 @@ import "./configurationCard.scss";
 
 const _ = cockpit.gettext;
 
-function dialog_setup(d) {
-    d.setup();
-    $('#' + d.id)
-            .on('show.bs.modal', function(event) {
-                if (event.target.id === d.id)
-                    d.enter();
-            })
-            .on('shown.bs.modal', function(event) {
-                if (event.target.id === d.id)
-                    d.show();
-            })
-            .on('hidden.bs.modal', function(event) {
-                if (event.target.id === d.id)
-                    d.leave();
-            });
-}
-
 export class ConfigurationCard extends React.Component {
     constructor(props) {
         super(props);
@@ -65,6 +51,7 @@ export class ConfigurationCard extends React.Component {
             pmlogger_switch_visible: false,
             pcp_link_visible: false,
             serverTime: '',
+            hostEditModal: false,
         };
 
         this.pmcd_service = service.proxy("pmcd");
@@ -83,8 +70,6 @@ export class ConfigurationCard extends React.Component {
     }
 
     componentDidMount() {
-        dialog_setup(new PageSystemInformationChangeHostname());
-
         $(this.pmlogger_service).on("changed", data => this.pmlogger_service_changed());
         this.pmlogger_service_changed();
         packagekit.detect().then(exists => {
@@ -248,7 +233,7 @@ export class ConfigurationCard extends React.Component {
         if (superuser.allowed && !this.realmd.hostname_button_disabled)
             hostname_button = (
                 <Button id="system_information_hostname_button" variant="link"
-                        onClick={ () => $('#system_information_change_hostname').modal('show') }
+                        onClick={ () => this.setState({ hostEditModal: true }) }
                         isInline aria-label="edit hostname">
                     {this.props.hostname !== "" ? _("edit") : _("Set hostname")}
                 </Button>);
@@ -268,220 +253,175 @@ export class ConfigurationCard extends React.Component {
             </Privileged>);
 
         return (
-            <Card className="system-configuration">
-                <CardTitle>{_("Configuration")}</CardTitle>
-                <CardBody>
-                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
-                        <tbody>
-                            <tr>
-                                <th scope="row">{_("Hostname")}</th>
-                                <td>
-                                    {this.props.hostname && <span id="system_information_hostname_text">{this.props.hostname}</span>}
-                                    <span>{hostname_button}</span>
-                                </td>
-                            </tr>
+            <>
+                {this.state.hostEditModal && <PageSystemInformationChangeHostname onClose={() => this.setState({ hostEditModal: false })} />}
+                <Card className="system-configuration">
+                    <CardTitle>{_("Configuration")}</CardTitle>
+                    <CardBody>
+                        <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">{_("Hostname")}</th>
+                                    <td>
+                                        {this.props.hostname && <span id="system_information_hostname_text">{this.props.hostname}</span>}
+                                        <span>{hostname_button}</span>
+                                    </td>
+                                </tr>
 
-                            <tr>
-                                <th scope="row">{_("System time")}</th>
-                                <td><ServerTimeConfig /></td>
-                            </tr>
+                                <tr>
+                                    <th scope="row">{_("System time")}</th>
+                                    <td><ServerTimeConfig /></td>
+                                </tr>
 
-                            <tr>
-                                <th scope="row">{_("Domain")}</th>
-                                <td>{domain_button}</td>
-                            </tr>
+                                <tr>
+                                    <th scope="row">{_("Domain")}</th>
+                                    <td>{domain_button}</td>
+                                </tr>
 
-                            <tr>
-                                <th scope="row">{_("Performance profile")}</th>
-                                <td><span id="system-info-performance" /></td>
-                            </tr>
+                                <tr>
+                                    <th scope="row">{_("Performance profile")}</th>
+                                    <td><span id="system-info-performance" /></td>
+                                </tr>
 
-                            <tr>
-                                <th scope="row">{_("Secure shell keys")}</th>
-                                <td>
-                                    <Button variant="link" isInline id="system-ssh-keys-link" data-toggle="modal" onClick={this.host_keys_show}
-                                        data-target="#system_information_ssh_keys">{_("Show fingerprints")}</Button>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <th scope="row">{_("Secure shell keys")}</th>
+                                    <td>
+                                        <Button variant="link" isInline id="system-ssh-keys-link" data-toggle="modal" onClick={this.host_keys_show}
+                                            data-target="#system_information_ssh_keys">{_("Show fingerprints")}</Button>
+                                    </td>
+                                </tr>
 
-                            {this.state.pmlogger_switch_visible &&
-                            <tr>
-                                <th scope="row">{_("Store metrics")}</th>
-                                <td>
-                                    <OnOffSwitch
-                                        id="server-pmlogger-switch"
-                                        state={this.pmlogger_service.state === "running"}
-                                        disabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
-                                        onChange={this.onPmLoggerSwitchChange} />
-                                </td>
-                            </tr>}
+                                {this.state.pmlogger_switch_visible &&
+                                <tr>
+                                    <th scope="row">{_("Store metrics")}</th>
+                                    <td>
+                                        <OnOffSwitch
+                                            id="server-pmlogger-switch"
+                                            state={this.pmlogger_service.state === "running"}
+                                            disabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
+                                            onChange={this.onPmLoggerSwitchChange} />
+                                    </td>
+                                </tr>}
 
-                            {this.state.pcp_link_visible &&
-                            <tr>
-                                <th scope="row">{_("PCP")}</th>
-                                <td>
-                                    <Button isInline variant="link" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
-                                        {_("Enable stored metrics")}
-                                    </Button>
-                                </td>
-                            </tr>}
+                                {this.state.pcp_link_visible &&
+                                <tr>
+                                    <th scope="row">{_("PCP")}</th>
+                                    <td>
+                                        <Button isInline variant="link" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
+                                            {_("Enable stored metrics")}
+                                        </Button>
+                                    </td>
+                                </tr>}
 
-                        </tbody>
-                    </table>
-                </CardBody>
-            </Card>
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </>
         );
     }
 }
 
-PageSystemInformationChangeHostname.prototype = {
-    _init: function() {
-        this.id = "system_information_change_hostname";
-    },
+class PageSystemInformationChangeHostname extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            update_from_pretty: true,
+            init_hostname: "",
+            hostname: "",
+            proxy: null,
+            pretty: "",
+            init_pretty: "",
+            error: [],
 
-    setup: function() {
-        $("#sich-pretty-hostname").on("input change", $.proxy(this._on_full_name_changed, this));
-        $("#sich-hostname").on("input change", $.proxy(this._on_name_changed, this));
-        $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
-    },
+        };
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onPrettyChanged = this.onPrettyChanged.bind(this);
+        this.onHostnameChanged = this.onHostnameChanged.bind(this);
+    }
 
-    enter: function() {
-        this._always_update_from_pretty = false;
-        this.client = cockpit.dbus('org.freedesktop.hostname1',
-                                   { superuser : "try" });
-        this.hostname_proxy = this.client.proxy();
+    componentDidMount() {
+        const client = cockpit.dbus('org.freedesktop.hostname1', { superuser : "try" });
+        const hostname_proxy = client.proxy();
 
-        this.hostname_proxy.wait()
+        hostname_proxy.wait()
                 .then(() => {
-                    this._initial_hostname = this.hostname_proxy.StaticHostname || "";
-                    this._initial_pretty_hostname = this.hostname_proxy.PrettyHostname || "";
-                    $("#sich-pretty-hostname").val(this._initial_pretty_hostname);
-                    $("#sich-hostname").val(this._initial_hostname);
-                    this._update();
+                    const initial_hostname = hostname_proxy.StaticHostname || "";
+                    const initial_pretty_hostname = hostname_proxy.PrettyHostname || "";
+                    this.setState({
+                        proxy: hostname_proxy,
+                        hostname: initial_hostname,
+                        init_hostname: initial_hostname,
+                        pretty: initial_pretty_hostname,
+                        init_pretty: initial_pretty_hostname,
+                    });
                 });
-    },
+    }
 
-    show: function() {
-        $("#sich-pretty-hostname").focus();
-    },
+    onPrettyChanged(value) {
+        // Whenever the pretty host name has changed (e.g. the user has edited it), we compute a new
+        // simple host name (e.g. 7bit ASCII, no special chars/spaces, lower case) from it
 
-    leave: function() {
-        this.hostname_proxy = null;
-    },
+        const new_state = { pretty: value };
 
-    _on_apply_button: function(event) {
-        var new_full_name = $("#sich-pretty-hostname").val();
-        var new_name = $("#sich-hostname").val();
-
-        var one = this.hostname_proxy.call("SetStaticHostname", [new_name, true]);
-        var two = this.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
-
-        // We can't use Promise.all() here, because dialg expects a promise
-        // with a progress() method (see pkg/lib/patterns.js)
-        // eslint-disable-next-line cockpit/no-cockpit-all
-        $("#system_information_change_hostname").dialog("promise", cockpit.all([one, two]));
-    },
-
-    _on_full_name_changed: function(event) {
-        /* Whenever the pretty host name has changed (e.g. the user has edited it), we compute a new
-         * simple host name (e.g. 7bit ASCII, no special chars/spaces, lower case) from it...
-         */
-        var pretty_hostname = $("#sich-pretty-hostname").val();
-        if (this._always_update_from_pretty || this._initial_pretty_hostname != pretty_hostname) {
-            var old_hostname = $("#sich-hostname").val();
-            var first_dot = old_hostname.indexOf(".");
-            var new_hostname = pretty_hostname
+        if (this.state.update_from_pretty) {
+            const old_hostname = this.state.hostname;
+            const first_dot = old_hostname.indexOf(".");
+            let new_hostname = value
                     .toLowerCase()
                     .replace(/['".]+/g, "")
                     .replace(/[^a-zA-Z0-9]+/g, "-");
             new_hostname = new_hostname.substr(0, 64);
             if (first_dot >= 0)
                 new_hostname = new_hostname + old_hostname.substr(first_dot);
-            $("#sich-hostname").val(new_hostname);
-            this._always_update_from_pretty = true; // make sure we always update it from now-on
+            new_state.hostname = new_hostname;
         }
-        this._update();
-    },
-
-    _on_name_changed: function(event) {
-        this._update();
-    },
-
-    _update: function() {
-        var apply_button = $("#sich-apply-button");
-        var note1 = $("#sich-note-1");
-        var note2 = $("#sich-note-2");
-        var changed = false;
-        var valid = false;
-        var can_apply = false;
-
-        var charError = _("Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)");
-        var lengthError = _("Real host name must be 64 characters or less");
-
-        var validLength = $("#sich-hostname").val().length <= 64;
-        var hostname = $("#sich-hostname").val();
-        var pretty_hostname = $("#sich-pretty-hostname").val();
-        var validSubdomains = true;
-        var periodCount = 0;
-
-        for (var i = 0; i < $("#sich-hostname").val().length; i++) {
-            if ($("#sich-hostname").val()[i] == '.')
-                periodCount++;
-            else
-                periodCount = 0;
-
-            if (periodCount > 1) {
-                validSubdomains = false;
-                break;
-            }
-        }
-
-        var validName = (hostname.match(/[.a-z0-9-]*/) == hostname) && validSubdomains;
-
-        if ((hostname != this._initial_hostname ||
-            pretty_hostname != this._initial_pretty_hostname) &&
-            (hostname !== "" || pretty_hostname !== ""))
-            changed = true;
-
-        if (validLength && validName)
-            valid = true;
-
-        if (changed && valid)
-            can_apply = true;
-
-        if (valid) {
-            $(note1).css("visibility", "hidden");
-            $(note2).css("visibility", "hidden");
-            $("#sich-hostname-error").removeClass("has-error");
-        } else if (!validLength && validName) {
-            $("#sich-hostname-error").addClass("has-error");
-            $(note1).text(lengthError);
-            $(note1).css("visibility", "visible");
-            $(note2).css("visibility", "hidden");
-        } else if (validLength && !validName) {
-            $("#sich-hostname-error").addClass("has-error");
-            $(note1).text(charError);
-            $(note1).css("visibility", "visible");
-            $(note2).css("visibility", "hidden");
-        } else {
-            $("#sich-hostname-error").addClass("has-error");
-
-            if ($(note1).text() === lengthError)
-                $(note2).text(charError);
-            else if ($(note1).text() === charError)
-                $(note2).text(lengthError);
-            else {
-                $(note1).text(lengthError);
-                $(note2).text(charError);
-            }
-            $(note1).css("visibility", "visible");
-            $(note2).css("visibility", "visible");
-        }
-
-        apply_button.prop('disabled', !can_apply);
+        this.setState(new_state);
     }
-};
 
-function PageSystemInformationChangeHostname() {
-    this._init();
+    onHostnameChanged(value) {
+        const error = [];
+        if (value.length > 64)
+            error.push(_("Real host name must be 64 characters or less"));
+        if (value.match(/[.a-z0-9-]*/)[0] !== value || value.indexOf("..") !== -1)
+            error.push(_("Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)"));
+
+        this.setState({
+            hostname: value,
+            update_from_pretty: false,
+            error: error,
+        });
+    }
+
+    onSubmit() {
+        const one = this.state.proxy.call("SetStaticHostname", [this.state.hostname, true]);
+        const two = this.state.proxy.call("SetPrettyHostname", [this.state.pretty, true]);
+
+        Promise.all([one, two]).then(this.props.onClose);
+    }
+
+    render() {
+        const disabled = this.state.error.length || (this.state.init_hostname == this.state.hostname && this.state.init_pretty == this.state.pretty);
+        return (
+            <Modal isOpen position="top" variant="medium"
+                   onClose={this.props.onClose}
+                   id="system_information_change_hostname"
+                   title={_("Change host name")}
+                   footer={<>
+                       <Button variant='primary' isDisabled={disabled} onClick={this.onSubmit}>{_("Change")}</Button>
+                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
+                   </>}
+            >
+                <Form isHorizontal>
+                    <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
+                        <TextInput id="sich-pretty-hostname" value={this.state.pretty} onChange={this.onPrettyChanged} />
+                    </FormGroup>
+                    <FormGroup fieldId="sich-hostname" label={_("Real host name")}
+                               helperTextInvalid={this.state.error.join("\n")}
+                               validated={this.state.error.length ? "error" : "default"}>
+                        <TextInput id="sich-hostname" value={this.state.hostname} onChange={this.onHostnameChanged} />
+                    </FormGroup>
+                </Form>
+            </Modal>);
+    }
 }

@@ -85,13 +85,13 @@
 
         // >= 1 arguments (of type element or string (for CSS selectors))
         // (passed in "arguments" isn't a a true array, so forEach wouldn't always work)
-        for (var i=0; i < elements.length; i++) {
+        for (var i = 0; i < elements.length; i++) {
             if (typeof elements[i] === "string") {
                 // Support CSS selectors as a string
                 els = document.querySelectorAll(elements[i]);
 
                 if (els)
-                    els.forEach(function(element){
+                    els.forEach(function(element) {
                         element.hidden = !!toggle;
                     });
             } else {
@@ -262,7 +262,7 @@
             ev.preventDefault();
 
         if (show === undefined)
-            show = id("server-group").hidden
+            show = id("server-group").hidden;
 
         hideToggle("#server-group", !show);
 

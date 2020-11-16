@@ -28,7 +28,9 @@ import {
     Button, Grid, GridItem, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody, CardFooter,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
+    Flex, FlexItem,
     Page, PageSection, PageSectionVariants,
+    Text, TextVariants,
 } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
@@ -168,7 +170,7 @@ const HeaderBar = ({ state, updates, timeSinceRefresh, onRefresh, unregistered, 
     let state_str;
 
     // unregistered & no available updates → blank slate, no header bar
-    if ((unregistered && state == "uptodate") || state == "available")
+    if (state == "uptodate" || state == "available")
         return null;
 
     if (state == "available") {
@@ -511,6 +513,44 @@ const AskRestart = ({ onIgnore, onRestart, history }) => <>
         </Expander>
     </div>
 </>;
+
+const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
+    const numUpdates = Object.keys(updates).length;
+    const numSecurity = count_security_updates(updates);
+    let stateStr;
+
+    if (numUpdates == 0)
+        stateStr = _("System is up to date");
+    else if (numUpdates == numSecurity)
+        stateStr = cockpit.ngettext("$1 security fix", "$1 security fixes", numSecurity);
+    else {
+        stateStr = cockpit.ngettext("$0 update", "$0 updates", numUpdates);
+        if (numSecurity > 0)
+            stateStr += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", numSecurity);
+    }
+    stateStr = cockpit.format(stateStr, numUpdates, numSecurity);
+
+    if (!stateStr)
+        return null;
+
+    let lastChecked;
+    if (timeSinceRefresh !== null)
+        lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - timeSinceRefresh * 1000).fromNow());
+
+    const icon = highestSeverity ? <span className={PK.getSeverityIcon(highestSeverity)} /> : <CheckIcon color="green" />;
+
+    return (<Flex>
+        <Flex>
+            <FlexItem>{icon}</FlexItem>
+        </Flex>
+        <Flex flex={{ default: 'flex_1' }}>
+            <FlexItem>
+                <Text component={TextVariants.p}>{stateStr}</Text>
+                <Text component={TextVariants.small}>{lastChecked}</Text>
+            </FlexItem>
+        </Flex>
+    </Flex>);
+};
 
 class OsUpdates extends React.Component {
     constructor() {
@@ -879,6 +919,9 @@ class OsUpdates extends React.Component {
                     actions: (<Tooltip content={_("Check for updates")}>
                         <Button variant="secondary" onClick={this.handleRefresh}><i className="fa fa-refresh" /></Button>
                     </Tooltip>),
+                    body: <StatusCard updates={this.state.updates}
+                                      highestSeverity={highest_severity}
+                                      timeSinceRefresh={this.state.timeSinceRefresh} />
                 },
                 {
                     span: 6,

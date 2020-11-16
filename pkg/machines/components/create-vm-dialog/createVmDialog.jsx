@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     Checkbox,
@@ -58,7 +58,7 @@ import {
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
-import { Password } from './password.jsx';
+import { PasswordFormFields, password_quality } from 'cockpit-components-password.jsx';
 
 import './createVmDialog.scss';
 import VMS_CONFIG from '../../config.js';
@@ -390,8 +390,33 @@ class OSRow extends React.Component {
     }
 }
 
-const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstallation, os, profile, onValueChanged }) => {
-    const validationStatePassword = validationFailed.password ? 'error' : 'default';
+const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstallation, os, profile, rootPassword, onValueChanged }) => {
+    const [password_strength, setPasswordStrength] = useState('');
+    const [password_message, setPasswordMessage] = useState('');
+    const [errors, setPasswordErrors] = useState({});
+
+    useEffect(() => {
+        if (rootPassword) {
+            password_quality(rootPassword)
+                    .then(strength => {
+                        setPasswordErrors({});
+                        setPasswordStrength(strength.value);
+                        setPasswordMessage(strength.message || '');
+                    })
+                    .catch(ex => {
+                        if (validationFailed !== undefined) {
+                            const errors = {};
+                            errors.password = (ex.message || ex.toString()).replace("\n", " ");
+                            setPasswordErrors(errors);
+                        }
+                        setPasswordStrength(0);
+                        setPasswordMessage('');
+                    });
+        } else {
+            setPasswordStrength('');
+        }
+    }, [rootPassword, validationFailed]);
+
     let unattendedInstallationCheckbox = (
         <FormGroup fieldId="unattended-installation" isInline>
             <Checkbox id="unattended-installation"
@@ -434,11 +459,14 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                                 }) }
                     </CockpitSelect.Select>
                 </FormGroup>}
-                <FormGroup fieldId='root-password' label={_("Root password")}
-                           helperText={profile == 'desktop' && _("Leave the password blank if you do not wish to have a root account created")}
-                           validated={validationStatePassword} helperTextInvalid={validationFailed.password}>
-                    <Password id='root-password' onValueChanged={(value) => onValueChanged('rootPassword', value)} />
-                </FormGroup>
+                <PasswordFormFields password={rootPassword}
+                                    password_label={_("Root password")}
+                                    password_strength={password_strength}
+                                    idPrefix="create-vm-dialog-root-password"
+                                    password_message={password_message}
+                                    password_label_info={profile == 'desktop' ? _("Leave the password blank if you do not wish to have a root account created") : ""}
+                                    error_password={validationFailed && (validationFailed.password ? validationFailed.password : errors.password)}
+                                    change={(_, value) => onValueChanged('rootPassword', value)} />
             </>}
         </>
     );
@@ -870,6 +898,7 @@ class CreateVmModal extends React.Component {
                  <>
                      <UnattendedRow
                          validationFailed={validationFailed}
+                         rootPassword={this.state.rootPassword}
                          unattendedDisabled={unattendedDisabled}
                          unattendedInstallation={this.state.unattendedInstallation}
                          os={this.state.os}

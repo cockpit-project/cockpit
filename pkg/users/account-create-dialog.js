@@ -23,7 +23,7 @@ import React from 'react';
 import { Checkbox, Form, FormGroup, TextInput } from '@patternfly/react-core';
 import { has_errors } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
-import { password_quality, PasswordFormFields } from "./password.jsx";
+import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;

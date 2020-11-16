@@ -18,7 +18,10 @@
  */
 import cockpit from 'cockpit';
 import React from 'react';
-import { FormGroup, Progress, ProgressSize, ProgressMeasureLocation, TextInput } from '@patternfly/react-core';
+import { FormGroup, Popover, Progress, ProgressSize, ProgressMeasureLocation, TextInput } from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons';
+
+import './cockpit-components-password.scss';
 
 const _ = cockpit.gettext;
 
@@ -46,6 +49,7 @@ export const PasswordFormFields = ({
     password, password_confirm,
     password_label, password_confirm_label,
     password_strength, password_message,
+    password_label_info,
     error_password, error_password_confirm,
     idPrefix, change
 }) => {
@@ -62,6 +66,14 @@ export const PasswordFormFields = ({
     return (
         <>
             <FormGroup label={password_label}
+                       labelIcon={password_label_info &&
+                           <Popover bodyContent={password_label_info}>
+                               <button onClick={e => e.preventDefault()}
+                                       className="pf-c-form__group-label-help">
+                                   <HelpIcon noVerticalAlign />
+                               </button>
+                           </Popover>
+                       }
                        helperTextInvalid={error_password}
                        validated={error_password ? "error" : "default"}
                        fieldId={idPrefix + "-pw1"}>
@@ -69,23 +81,23 @@ export const PasswordFormFields = ({
                            value={password} onChange={value => change("password", value)} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
-                              className={"password-strength-meter " + variant}
+                              className={"ct-password-strength-meter " + variant}
                               title="password quality"
                               size={ProgressSize.sm}
                               measureLocation={ProgressMeasureLocation.none}
                               variant={variant}
                               value={isNaN(password_strength) ? 1 : password_strength} />
-                    <div id="account-set-password-meter-message" className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
+                    <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
                 </div>
             </FormGroup>
 
-            <FormGroup label={password_confirm_label}
+            {password_confirm_label && <FormGroup label={password_confirm_label}
                        helperTextInvalid={error_password_confirm}
                        validated={error_password_confirm ? "error" : "default"}
                        fieldId={idPrefix + "-pw2"}>
                 <TextInput type="password" id={idPrefix + "-pw2"}
                            value={password_confirm} onChange={value => change("password_confirm", value)} />
-            </FormGroup>
+            </FormGroup>}
         </>
     );
 };

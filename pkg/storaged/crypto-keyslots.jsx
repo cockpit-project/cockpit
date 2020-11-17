@@ -589,7 +589,7 @@ export class CryptoKeyslots extends React.Component {
                 <CardHeader>
                     <CardActions>
                         <span className="key-slot-panel-remaining">
-                            { remaining < 6 ? (remaining ? cockpit.format(_("$0 slots remain"), remaining) : _("No available slots")) : null }
+                            { remaining < 6 ? (remaining ? cockpit.format(cockpit.ngettext("$0 slot remains", "$0 slots remain", remaining), remaining) : _("No available slots")) : null }
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
                                        excuse={(keys.length == this.state.max_slots)

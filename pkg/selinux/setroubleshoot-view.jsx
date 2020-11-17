@@ -426,7 +426,7 @@ export class SETroubleshootPage extends React.Component {
                 ];
                 var title;
                 if (itm.count > 1) {
-                    title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
+                    title = cockpit.format(cockpit.ngettext("$0 occurrence", "$0 occurrences", itm.count),
                                            itm.count);
                     columns.push({ title: <span className="badge" title={title}>{itm.count}</span> });
                 } else {

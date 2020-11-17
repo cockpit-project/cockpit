@@ -104,12 +104,10 @@ base_QUNIT_DEPS = \
 	src/base1/test-dbus-common.js \
 	$(NULL)
 
-# HACK: last user of jquery is test-chan; port that away and drop this
 dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/qunit/qunit/qunit.js \
 	    $(srcdir)/node_modules/qunit-tap/lib/qunit-tap.js \
-	    $(srcdir)/node_modules/jquery/dist/jquery.slim.min.js \
             $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:
@@ -124,6 +122,13 @@ $(base_QUNIT_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_QUNIT_DE
 	$(ESLINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
+	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
+
+# HACK: last user of jquery is test-chan; port that away and drop this special-case rule
+dist/base1/test-chan.html: src/base1/test-chan.js $(base_QUNIT_DEPS)
+	$(ESLINT_RULE)
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	cat $(srcdir)/node_modules/jquery/dist/jquery.slim.min.js $< > $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
 
 # Simple tests run without QUnit

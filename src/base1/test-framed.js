@@ -1,13 +1,14 @@
-/* global cockpit, test */
+/* global cockpit, QUnit */
 
 /* This is *NOT* a development guide, we take lots of shortcuts here */
 
-var parent_tests = 1;
-var frame_tests = 6;
-
 /* Top level window */
-function parent_window() {
-    document.getElementById("title").innerHTML = "Cockpit Parent Frame";
+function parent_window(assert) {
+    const done = assert.async();
+    assert.expect(7);
+    window.assert = assert; // for the child frame
+
+    document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
     window.name = "cockpit1";
     var initialized = false;
     var frame;
@@ -17,26 +18,25 @@ function parent_window() {
             frame.postMessage(message, cockpit.transport.origin);
     });
 
-    window.addEventListener("message", function(event) {
-        var message = event.data;
+    window.addEventListener("message", event => {
+        const message = event.data;
         if (message.length === 0) {
-            test.done(parent_tests + frame_tests);
+            done();
         } else if (message.indexOf && message.indexOf('"init"') !== -1) {
             initialized = true;
             frame.postMessage('\n{ "command": "init", "version": 1, "a": "b", "host" : "frame_host"  }',
                               cockpit.transport.origin);
         } else {
-            var ret = cockpit.transport.inject(message);
+            const ret = cockpit.transport.inject(message);
             if (!ret) console.error("inject failed");
         }
     }, false);
 
     /* This keeps coming up in tests ... how to open the transport */
-    var chan = cockpit.channel({ payload: "resource2" });
-    chan.addEventListener("close", function() {
-        test.equal(cockpit.transport.host, "localhost",
-                   "parent cockpit.transport.host");
-        var iframe = document.createElement("iframe");
+    const chan = cockpit.channel({ payload: "resource2" });
+    chan.addEventListener("close", () => {
+        assert.equal(cockpit.transport.host, "localhost", "parent cockpit.transport.host");
+        const iframe = document.createElement("iframe");
         iframe.setAttribute("name", "cockpit1:blah");
         iframe.setAttribute("src", window.location.href + "?sub");
         document.body.appendChild(iframe);
@@ -45,59 +45,55 @@ function parent_window() {
 }
 
 function child_frame() {
+    const assert = window.parent.assert;
+
     var spawn_done = false;
     var binary_done = false;
 
-    test.start_from(parent_tests);
-
-    document.getElementById("title").innerHTML = "Cockpit Child Frame";
-    cockpit.spawn(["/bin/sh", "-c", "echo hi"],
-                  { host : "localhost" })
-            .done(function(resp) {
-                test.assert(resp == "hi\n", "framed channel got output");
+    const promise = cockpit.spawn(["/bin/sh", "-c", "echo hi"], { host : "localhost" })
+            .then(resp => {
+                assert.equal(resp, "hi\n", "framed channel got output");
             })
-            .always(function() {
-                test.assert(this.state() == "resolved", "framed channel closed");
-                test.equal(cockpit.transport.host, "frame_host",
-                           "framed cockpit.transport.host");
+            .always(() => {
+                assert.equal(promise.state(), "resolved", "framed channel closed");
+                assert.equal(cockpit.transport.host, "frame_host", "framed cockpit.transport.host");
                 spawn_done = true;
                 if (spawn_done && binary_done) {
-                    test.done();
                     cockpit.transport.close();
                 }
             });
 
-    var channel = cockpit.channel({
+    const channel = cockpit.channel({
         payload: "echo", binary: true,
         host : "localhost"
     });
     channel.addEventListener("message", function(ev, payload) {
-        test.assert(typeof payload[0] == "number", "binary channel got a byte array");
+        assert.equal(typeof payload[0], "number", "binary channel got a byte array");
 
-        var match = true;
-        for (var i = 0; i < payload.length; i++) {
+        let match = true;
+        for (let i = 0; i < payload.length; i++) {
             if (payload[i] !== i)
                 match = false;
         }
-        test.assert(match === true, "binary channel got back right data");
+        assert.equal(match, true, "binary channel got back right data");
         channel.close();
     });
-    channel.addEventListener("close", function(ev, options) {
-        test.assert(!options.reason, "binary channel close cleanly");
+    channel.addEventListener("close", (ev, options) => {
+        assert.notOk(options.reason, "binary channel close cleanly");
         binary_done = true;
-        if (spawn_done && binary_done) {
-            test.done();
+        if (spawn_done && binary_done)
             cockpit.transport.close();
-        }
     });
 
-    var view = new Array(8);
-    for (var i = 0; i < 8; i++)
+    const view = new Array(8);
+    for (let i = 0; i < 8; i++)
         view[i] = i;
     channel.send(view);
 }
 
-if (window.parent === window)
-    parent_window();
-else
+if (window.parent === window) {
+    QUnit.test("framed", parent_window);
+    QUnit.start();
+} else {
     child_frame();
+}

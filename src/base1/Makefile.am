@@ -69,7 +69,7 @@ basefonts_DATA = \
 
 # Tests run with QUnit
 
-base_QUNIT_TESTS = \
+base_TESTS = \
 	dist/base1/test-base64.html \
 	dist/base1/test-utf8.html \
 	dist/base1/test-events.html \
@@ -94,9 +94,13 @@ base_QUNIT_TESTS = \
 	dist/base1/test-browser-storage.html \
 	dist/base1/test-promise.html \
 	dist/base1/test-protocol.html \
+	dist/base1/test-no-jquery.html \
+	dist/base1/test-framed-cache.html \
+	dist/base1/test-framed.html \
+	dist/base1/test-dbus-framed.html \
 	$(NULL)
 
-base_QUNIT_DEPS = \
+base_DEPS = \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \
 	dist/base1/test-dbus-common.js \
@@ -118,7 +122,7 @@ dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
 	$(ESLINT_RULE)
 	$(COPY_RULE)
 
-$(base_QUNIT_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_QUNIT_DEPS)
+$(base_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_DEPS)
 	$(ESLINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
@@ -133,29 +137,6 @@ dist/base1/test-chan.html: src/base1/test-chan.js $(base_QUNIT_DEPS)
 
 # Simple tests run without QUnit
 
-base_SIMPLE_TESTS = \
-	dist/base1/test-no-jquery.html \
-	dist/base1/test-framed-cache.html \
-	dist/base1/test-framed.html \
-	dist/base1/test-dbus-framed.html \
-	$(NULL)
-
-base_SIMPLE_DEPS = \
-	dist/base1/simple-tap.js \
-	src/base1/simple-template.html \
-	src/base1/simple-tap.js \
-	$(NULL)
-
-dist/base1/simple-tap.js: src/base1/simple-tap.js
-	$(ESLINT_RULE)
-	$(COPY_RULE)
-
-$(base_SIMPLE_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_SIMPLE_DEPS)
-	$(ESLINT_RULE)
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
-	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/simple-template.html > $@.tmp && $(MV) $@.tmp $@
-
 dist/base1/test-%.js: dist/base1/test-%.html
 	@true
 
@@ -163,8 +144,6 @@ dist/base1/test-%.js: dist/base1/test-%.html
 
 SED_TEST_TEMPLATE = sed -e 's,[@]TEST[@],$(notdir $<),g'
 
-base_TESTS = $(base_QUNIT_TESTS) $(base_SIMPLE_TESTS)
-base_TESTS_DEPS = $(base_QUNIT_DEPS) $(base_SIMPLE_DEPS)
 base_TESTS_JAVASCRIPT = $(base_TESTS:.html=.js)
 base_TESTS_SOURCE = $(subst dist/,src/,$(base_TESTS_JAVASCRIPT))
 
@@ -179,16 +158,14 @@ EXTRA_DIST += \
 	dist/base1/cockpit.min.js.map \
 	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
-	dist/base1/simple-tap.js \
 	src/base1/cockpit.scss \
 	src/base1/cockpit.js \
 	src/base1/manifest.json \
-	src/base1/simple-tap.js \
 	src/base1/test-dbus-common.js \
 	$(base_DATA) \
 	$(basefonts_DATA) \
 	$(base_TESTS) \
-	$(base_TESTS_DEPS) \
+	$(base_DEPS) \
 	$(base_TESTS_SOURCE) \
 	$(base_TESTS_JAVASCRIPT) \
 	$(NULL)
@@ -209,7 +186,6 @@ MAINTAINERCLEANFILES += \
 	dist/base1/patternfly.css.map \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \
-	dist/base1/simple-tap.js \
 	dist/base1/test-dbus-common.js \
 	$(base_TESTS) \
 	$(base_TESTS_JAVASCRIPT) \

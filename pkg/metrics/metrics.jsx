@@ -102,7 +102,7 @@ const RESOURCES = {
         // page/s, unbounded, and mostly 0; just categorize into "nothing" (most of the time),
         // "a little" (< 1000 pages), and "a lot" (> 1000 pages)
         normalize: swapout => swapout > 1000 ? 1 : (swapout > 1 ? 0.3 : 0),
-        format: swapout => cockpit.format(_("$0 pages"), Math.floor(swapout)),
+        format: swapout => cockpit.format(cockpit.ngettext("$0 page", "$0 pages", Math.floor(swapout)), Math.floor(swapout)),
     },
     use_disks: {
         name: _("Disk I/O"),

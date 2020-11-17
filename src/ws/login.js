@@ -1,4 +1,6 @@
-/* global XMLHttpRequest */
+/* Patch IE to support forEach on NodeLists, used in show/hide */
+if (window.NodeList && !NodeList.prototype.forEach)
+  NodeList.prototype.forEach = Array.prototype.forEach;
 
 (function(console) {
     var localStorage;
@@ -156,6 +158,8 @@
 
     function requisites() {
         function disableLogin(name) {
+            if (name === "supports")
+                name = "@supports API"
             var errorString = format(_("This web browser is too old to run the Web Console (missing $0)"), name);
 
             if (window.console)
@@ -169,7 +173,7 @@
         function req(name, obj) {
             var ret;
             try {
-                ret = (obj[name]);
+                ret = (obj && obj[name]);
             } catch (ex) {
                 fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"), name));
                 throw ex;
@@ -193,8 +197,7 @@
              */
             var args = [].join.call(arguments, ": ");
 
-            if (!window.CSS.supports.apply(this, arguments)) {
-                fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"), args));
+            if (!window.CSS || !window.CSS.supports.apply(this, arguments)) {
                 disableLogin(args);
                 return false;
             }
@@ -209,7 +212,6 @@
                req("console", window) &&
                req("pushState", window.history) &&
                req("textContent", document) &&
-               req("CSS", window) &&
                req("supports", window.CSS) &&
                css("display", "flex") &&
                css("display", "grid");

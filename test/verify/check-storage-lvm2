@@ -32,7 +32,6 @@ class TestStorageLvm2(StorageCase):
         mount_point_thin = "/run/thin"
 
         self.login_and_go("/storage")
-        b.wait_present("#mounts tbody tr")
 
         dev_1 = self.add_ram_disk()
         dev_2 = self.add_loopback_disk()
@@ -222,7 +221,6 @@ class TestStorageLvm2(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_present("#mounts tbody tr")
 
         disk1 = self.add_ram_disk()
         disk2 = self.add_loopback_disk()
@@ -258,7 +256,6 @@ class TestStorageLvm2(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_present("#mounts tbody tr")
 
         disk = self.add_ram_disk(100)
         b.wait_in_text("#drives", disk)

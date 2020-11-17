@@ -29,7 +29,6 @@ class TestStorageFormat(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_present("#mounts tbody tr")
 
         # Try to format a disk that is too small for XFS.
 
@@ -52,7 +51,6 @@ class TestStorageFormat(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_present("#mounts tbody tr")
 
         m.add_disk("50M", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")

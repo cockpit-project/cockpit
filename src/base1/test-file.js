@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, Uint8Array */
+/* global cockpit, QUnit */
 
 var dir;
 
@@ -470,7 +470,7 @@ QUnit.test("channel options", function (assert) {
     assert.expect(1);
     cockpit.file(dir + "/foo", { binary: true }).read()
             .done(function(data) {
-                assert.ok(data instanceof window.Uint8Array, "options applied, got binary data");
+                assert.ok(data instanceof Uint8Array, "options applied, got binary data");
             })
             .always(function() {
                 done();

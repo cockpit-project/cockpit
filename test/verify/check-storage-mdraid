@@ -91,7 +91,7 @@ class TestStorageMdRaid(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         # Add four disks and make a RAID out of three of them
         m.add_disk("50M", serial="DISK1")
@@ -247,7 +247,7 @@ class TestStorageMdRaid(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         m.add_disk("50M", serial="DISK1")
         m.add_disk("50M", serial="DISK2")

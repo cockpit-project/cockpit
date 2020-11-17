@@ -30,7 +30,7 @@ class TestStoragePartitions(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         # A loopback device ends with a digit and partitions have
         # names like "/dev/loop0p1".  Check that the storage stack has
@@ -70,7 +70,7 @@ class TestStoragePartitions(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
+        b.wait_present("#mounts tbody tr")
 
         disk = self.add_ram_disk()
         b.click('#drives tr:contains("%s")' % disk)

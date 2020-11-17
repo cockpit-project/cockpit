@@ -123,7 +123,7 @@ export function format_delay(d) {
 }
 
 export function format_size_and_text(size, text) {
-    return cockpit.format(_("${size} ${desc}"), { size: fmt_size(size), desc: text });
+    return fmt_size(size) + " " + text;
 }
 
 export function validate_lvm2_name(name) {

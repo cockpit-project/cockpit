@@ -337,7 +337,7 @@ export class NFSDetails extends React.Component {
                             <DescriptionListDescription>
                                 { entry.mounted
                                     ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                                    : _("--")
+                                    : "--"
                                 }
                             </DescriptionListDescription>
                         </DescriptionListGroup>

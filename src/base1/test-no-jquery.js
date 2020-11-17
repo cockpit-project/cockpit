@@ -1,26 +1,28 @@
-/* global cockpit, test */
+/* global cockpit, QUnit */
 
-test.assert(typeof jQuery === "undefined", "jQuery is not defined");
-test.assert(typeof $ === "undefined", "$ is not defined");
-test.assert(typeof cockpit === "object", "cockpit is defined");
-test.assert(cockpit.channel !== undefined, "cockpit.channel is defined");
-test.assert(cockpit.spawn !== undefined, "cockpit.spawn is defined");
+QUnit.test("cockpit object without jQuery", assert => {
+    const done = assert.async();
+    assert.expect(8);
 
-/* Actually try to do something useful */
-var got_message = false;
-var channel = cockpit.channel({ payload: "stream", spawn: ["sh", "-c", "echo hello"] });
-channel.onmessage = function(ev) {
-    got_message = true;
-    test.assert(ev.detail === "hello\n", "channel message correct");
-    channel.onmessage = null;
-};
-channel.onclose = function(ev) {
-    test.assert(ev.detail.command === "close", "channel close data correct");
-    if (ev.detail.problem == "no-cockpit") {
-        test.skip("not running with a server");
-        test.done(7);
-    } else {
-        test.assert(got_message, "channel got message");
-        test.done(8);
-    }
-};
+    assert.equal(typeof jQuery, "undefined", "jQuery is not defined");
+    assert.equal(typeof $, "undefined", "$ is not defined");
+    assert.equal(typeof cockpit, "object", "cockpit is defined");
+    assert.notEqual(cockpit.channel, undefined, "cockpit.channel is defined");
+    assert.notEqual(cockpit.spawn, undefined, "cockpit.spawn is defined");
+
+    /* Actually try to do something useful */
+    let got_message = false;
+    const channel = cockpit.channel({ payload: "stream", spawn: ["sh", "-c", "echo hello"] });
+    channel.onmessage = ev => {
+        got_message = true;
+        assert.equal(ev.detail, "hello\n", "channel message correct");
+        channel.onmessage = null;
+    };
+    channel.onclose = ev => {
+        assert.equal(ev.detail.command, "close", "channel close data correct");
+        assert.ok(got_message, "channel got message");
+        done();
+    };
+});
+
+QUnit.start();

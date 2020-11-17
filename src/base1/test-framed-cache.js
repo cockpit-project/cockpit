@@ -1,20 +1,23 @@
-/* global cockpit, test */
-
-var parent_tests = 6;
-var frame_tests = 6;
+/* global cockpit, QUnit */
 
 /* Top level window */
-function parent_window() {
-    document.getElementById("title").innerHTML = "Cockpit Parent Frame";
+function parent_window(assert) {
+    const done = assert.async();
+    assert.expect(12);
+    window.assert = assert; // for the child frame
+
+    document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
     var count = 0;
     var child_done = false;
 
     function maybe_done () {
-        if (child_done && count == 2)
-            test.done(frame_tests + parent_tests);
+        if (child_done && count == 2) {
+            child_done = null;
+            done();
+        }
     }
 
-    window.addEventListener("message", function(event) {
+    window.addEventListener("message", event => {
         if (event.data == "child-done") {
             child_done = true;
             window.setTimeout(maybe_done, 0);
@@ -22,8 +25,8 @@ function parent_window() {
     });
 
     function provider(result, key) {
-        test.equal(key, "cross-frame-cache", "parent provider got right key");
-        test.equal(typeof result, "function", "parent provider got result function");
+        assert.equal(key, "cross-frame-cache", "parent provider got right key");
+        assert.equal(typeof result, "function", "parent provider got result function");
         result({ myobject: "value" });
         return {
             close: function() {}
@@ -32,51 +35,49 @@ function parent_window() {
 
     function consumer(value, key) {
         count++;
-        test.equal(key, "cross-frame-cache", "parent consumer got right key");
+        assert.equal(key, "cross-frame-cache", "parent consumer got right key");
         if (count === 1) {
-            test.equal(value.myobject, "value", "parent consumer got parent value");
+            assert.equal(value.myobject, "value", "parent consumer got parent value");
         } else if (count === 2) {
-            test.equal(value.myobject, "value2", "parent consumer got child value");
+            assert.equal(value.myobject, "value2", "parent consumer got child value");
         }
         maybe_done();
     }
 
     cockpit.cache("cross-frame-cache", provider, consumer, 'parent');
-    var iframe = document.createElement("iframe");
+    const iframe = document.createElement("iframe");
     iframe.setAttribute("name", "cockpit1:blah");
     iframe.setAttribute("src", window.location.href + "?sub");
     document.body.appendChild(iframe);
 }
 
 function child_frame() {
-    document.getElementById("title").innerHTML = "Cockpit Child Frame";
+    const assert = window.parent.assert;
+
     var count = 0;
     var cache;
 
-    test.start_from(parent_tests);
-
     function provider(result, key) {
-        test.equal(key, "cross-frame-cache", "child provider got right key");
-        test.equal(typeof result, "function", "child provider got result function");
-        var timer = window.setTimeout(function() {
+        assert.equal(key, "cross-frame-cache", "child provider got right key");
+        assert.equal(typeof result, "function", "child provider got result function");
+        const timer = window.setTimeout(() => {
             result({ myobject: "value2" });
             window.clearTimeout(timer);
         }, 1000);
         return {
-            close: function() {}
+            close: () => undefined,
         };
     }
 
     function consumer(value, key) {
         count++;
-        test.equal(key, "cross-frame-cache", "child consumer got right key");
+        assert.equal(key, "cross-frame-cache", "child consumer got right key");
         if (count === 1) {
-            test.equal(value.myobject, "value", "child consumer got parent value");
+            assert.equal(value.myobject, "value", "child consumer got parent value");
             cache.claim();
         } else if (count == 2) {
-            test.equal(value.myobject, "value2", "child consumer got child value");
+            assert.equal(value.myobject, "value2", "child consumer got child value");
             window.parent.postMessage("child-done", "*");
-            test.done();
         }
     }
 
@@ -84,7 +85,8 @@ function child_frame() {
 }
 
 if (window.parent === window) {
-    parent_window();
+    QUnit.test("framed cache", parent_window);
+    QUnit.start();
 } else {
     child_frame();
 }

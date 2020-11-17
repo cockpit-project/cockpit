@@ -2555,8 +2555,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.machine.execute("until test -z $(virsh list --all --name); do sleep 1; done")
             self.machine.execute("until test -z $(ls /home/admin/.local/share/libvirt/images/ 2>/dev/null); do sleep 1; done")
 
-            if b.is_present(".pf-c-alert-group li .pf-c-alert .pf-c-button"):
-                b.click(".pf-c-alert-group li .pf-c-alert .pf-c-button")
+            alerts = self.browser.call_js_func("ph_count", ".pf-c-alert-group li")
+            for i  in range(alerts):
+                    b.click(".pf-c-alert-group li:first-of-type .pf-c-alert .pf-c-button")
 
             b.wait_not_present(".pf-c-alert-group li .pf-c-alert")
 

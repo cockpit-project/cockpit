@@ -1,5 +1,19 @@
 /* Login page is standalone, all related CSS is here */
 
+@font-face {
+  font-family: RedHatText;
+  font-style: normal;
+  font-weight: 400;
+  src: url(cockpit/static/fonts/RedHatText-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: RedHatText;
+  font-style: normal;
+  font-weight: 700;
+  src: url(cockpit/static/fonts/RedHatText-Medium.woff2) format('woff2');
+}
+
 *,
 :after,
 :before {
@@ -18,6 +32,8 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  height: 100%;
+  background: #000;
 }
 
 body {
@@ -134,6 +150,7 @@ form .control-label {
   display: flex;
   align-items: center;
   min-height: 2rem;
+  padding: 0 0 0.5rem;
 }
 
 .form-control {
@@ -199,10 +216,10 @@ form .control-label {
 }
 
 .checkbox-row > input[type=checkbox] {
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   align-self: flex-start;
-  margin-top: calc((1.5rem - 16px) / 2);
+  margin-top: calc((1.5rem - 1rem) / 2);
   margin-right: 0.5rem;
 }
 
@@ -226,19 +243,9 @@ label.checkbox {
   display: inline-flex;
 }
 
-.pf-c-button,
-.control-label {
-  margin-bottom: 0;
-}
-
-.control-label {
-  margin-top: 0;
-  padding-top: 3px;
-}
-
 .form-group:after {
   clear: both;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .pf-c-button {
@@ -294,29 +301,8 @@ label.checkbox {
   background-image: none;
 }
 
-@font-face {
-  font-family: RedHatText;
-  font-style: normal;
-  font-weight: 400;
-  src: url(cockpit/static/fonts/RedHatText-Regular.woff2) format('woff2');
-}
-
-@font-face {
-  font-family: RedHatText;
-  font-style: normal;
-  font-weight: 700;
-  src: url(cockpit/static/fonts/RedHatText-Medium.woff2) format('woff2');
-}
-
 .login-pf {
   height: 100%;
-}
-
-.login-pf #brand {
-  /*
-  position: relative;
-  top: -70px;
-  */
 }
 
 .login-pf #brand img {
@@ -334,16 +320,19 @@ label.checkbox {
 }
 
 .login-pf .container {
-  background-color: rgba(255, 255, 255, .055);
-  padding-bottom: 40px;
-  padding-top: 2rem;
+  background-color: rgba(255, 255, 255, ..5);
+  background: white;
+  color: #333;
+  grid-area: login;
+  padding: 3rem 3rem 2rem;
   width: 100%;
 }
 
+
 .login-pf .container .details p:first-child {
   border-top: 1px solid #474747;
-  padding-top: 25px;
-  margin-top: 25px;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .login-pf .details p {
@@ -523,16 +512,16 @@ label.checkbox {
   -moz-transform: rotate(90deg);
   -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
-  -moz-transform-origin: 8px 8px;
-  -webkit-transform-origin: 8px 8px;
-  transform-origin: 8px 8px;
+  -moz-transform-origin: 0.5rem 0.5rem
+  -webkit-transform-origin: 0.5rem 0.5rem
+  transform-origin: 0.5rem 0.5rem
 }
 
 .cross {
   align-items: center;
   bottom: 0;
   display: flex;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 700;
   justify-content: center;
   position: absolute;
@@ -568,17 +557,12 @@ label.checkbox {
 
 /*** Media breakpoints ***/
 
-@media (min-width: 1024px) {
-  .container { min-width: 34rem; }
-}
-
 /* Optimize for mobile phones in portrait mode */
 @media (max-width: 480px) {
 
   .login-pf {
     display: flex;
     flex-direction: column-reverse;
-    height: auto;
     position: relative;
   }
 
@@ -628,11 +612,6 @@ label.checkbox {
     text-align: right;
   }
 
-  [role=form] .control-label,
-  form .control-label {
-    padding: 0;
-  }
-
   .login-pf #brand img {
     margin: 0;
     text-align: left;
@@ -642,28 +621,6 @@ label.checkbox {
     border-right: 1px solid #474747;
   }
 
-}
-
-/* Animation */
-
-@-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0);
-  }
-
-  to {
-    -webkit-transform: rotate(359deg);
-  }
-}
-
-@keyframes rotation {
-  from {
-    transform: rotate(0);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
 }
 
 /* PF4-ish style overrides (depending on grid & CSS variables */
@@ -680,7 +637,6 @@ body.login-pf {
   grid-template-areas: "alert" "login" "details" "logo";
   grid-template-rows: repeat(3, auto) 1fr;
   background-position: 0 0 !important;
-  height: 100vh;
   padding: 0;
 }
 
@@ -692,13 +648,6 @@ body.login-pf {
 
 .login-button {
   width: 100%;
-}
-
-.login-pf .container {
-  background: white;
-  color: #333;
-  grid-area: login;
-  padding: 2rem 3rem;
 }
 
 .login-pf .details {
@@ -757,7 +706,7 @@ form .col-md-10 {
 
   #badge {
     background-position: center;
-    margin-top: 2rem;
+    margin: 2rem;
   }
 }
 
@@ -771,7 +720,7 @@ form .col-md-10 {
       ". details logo  ."
       ". .     .     .";
     grid-template-rows: auto 1fr minmax(min-content,max-content) auto 1fr;
-    grid-template-columns: minmax(0, 2.125rem) auto 1fr minmax(0, 2.125rem);
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(auto, 34rem)) minmax(0, 1fr);
     grid-gap: 0 4rem;
   }
 }
@@ -808,4 +757,26 @@ form .col-md-10 {
 #login-again {
   display: block;
   margin-bottom: 1rem;
+}
+
+/* Animation */
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
 }

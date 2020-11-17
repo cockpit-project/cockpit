@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, ArrayBuffer, Uint8Array */
+/* global cockpit, QUnit */
 
 QUnit.test("basic", function (assert) {
     const done = assert.async();
@@ -39,10 +39,7 @@ QUnit.test("binary empty", function (assert) {
     });
 
     const onMessage = (ev, payload) => {
-        if (window.Uint8Array)
-            assert.ok(payload instanceof window.Uint8Array, "got a byte array");
-        else
-            assert.ok(Array.isArray(payload), "got a byte array");
+        assert.ok(payload instanceof Uint8Array, "got a byte array");
         assert.strictEqual(payload.length, 0, "got the right payload");
         channel.removeEventListener("message", onMessage);
         done();
@@ -59,10 +56,7 @@ QUnit.test("binary", function (assert) {
     var channel = cockpit.channel({ payload: "echo", binary: true });
 
     const onMessage = (ev, payload) => {
-        if (window.Uint8Array)
-            assert.ok(payload instanceof window.Uint8Array, "got a byte array");
-        else
-            assert.ok(Array.isArray(payload), "got a byte array");
+        assert.ok(payload instanceof Uint8Array, "got a byte array");
 
         var array = [];
         for (var i = 0; i < payload.length; i++)
@@ -77,16 +71,10 @@ QUnit.test("binary", function (assert) {
 
     var i, buffer;
 
-    if (window.ArrayBuffer) {
-        buffer = new ArrayBuffer(8);
-        var view = new Uint8Array(buffer);
-        for (i = 0; i < 8; i++)
-            view[i] = i;
-    } else {
-        buffer = new Array(8);
-        for (i = 0; i < 8; i++)
-            buffer[i] = i;
-    }
+    buffer = new ArrayBuffer(8);
+    var view = new Uint8Array(buffer);
+    for (i = 0; i < 8; i++)
+        view[i] = i;
 
     assert.strictEqual(channel.binary, true, "binary set");
     channel.send(buffer);

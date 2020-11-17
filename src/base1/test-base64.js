@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, Uint8Array */
+/* global cockpit, QUnit */
 
 QUnit.test("base64 array", function (assert) {
     var data = new Array(5);
@@ -26,7 +26,7 @@ QUnit.test("base64 arraybuffer", function (assert) {
         view[i] = i;
     assert.equal(cockpit.base64_encode(view), "AAECAwQ=", "encoded from Uint8Array");
 
-    var data = cockpit.base64_decode("AAECAwQFBg==", window.Uint8Array);
+    var data = cockpit.base64_decode("AAECAwQFBg==", Uint8Array);
     assert.equal(data.length, 7, "right length");
 
     var match = 1;

@@ -33,8 +33,8 @@ override_dh_install:
 	# Debian/Ubuntu PAM config
 	mkdir -p debian/tmp/etc/pam.d
 	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
-ifeq ($(SHIP_PF_API),)
-	rm debian/tmp/usr/share/cockpit/base1/patternfly.css
+ifneq ($(SHIP_PF_API),)
+	ln -s cockpit.css.gz debian/tmp/usr/share/cockpit/base1/patternfly.css.gz
 endif
 
 	# don't ship broken branding symlinks

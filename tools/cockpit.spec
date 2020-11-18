@@ -194,14 +194,14 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 # only ship deprecated PatternFly API for stable releases
-%if 0%{?fedora} > 33 || 0%{?rhel} > 8
-    rm %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css
+%if 0%{?fedora} <= 33 || 0%{?rhel} <= 8
+    ln -s cockpit.css.gz %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css.gz
 %endif
 
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/cockpit/base1' > base.list
 echo '%dir %{_datadir}/cockpit/base1/fonts' >> base.list
-find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list
+find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
 echo '%dir %{_datadir}/cockpit/ssh' >> base.list

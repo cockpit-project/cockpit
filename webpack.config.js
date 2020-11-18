@@ -4,6 +4,10 @@
 
 var info = {
     entries: {
+        "base1/cockpit": [
+            "base1/cockpit.js",
+        ],
+
         "apps/apps": [
             "apps/index.jsx"
         ],
@@ -141,6 +145,36 @@ var info = {
     },
 
     tests: [
+        "base1/test-base64",
+        "base1/test-browser-storage",
+        "base1/test-cache",
+        "base1/test-chan",
+        "base1/test-dbus-address",
+        "base1/test-dbus-framed",
+        "base1/test-dbus",
+        "base1/test-echo",
+        "base1/test-events",
+        "base1/test-external",
+        "base1/test-file",
+        "base1/test-format",
+        "base1/test-framed-cache",
+        "base1/test-framed",
+        "base1/test-http",
+        "base1/test-locale",
+        "base1/test-location",
+        "base1/test-machines",
+        "base1/test-metrics",
+        "base1/test-no-jquery",
+        "base1/test-permissions",
+        "base1/test-promise",
+        "base1/test-protocol",
+        "base1/test-series",
+        "base1/test-spawn-proc",
+        "base1/test-spawn",
+        "base1/test-user",
+        "base1/test-utf8",
+        "base1/test-websocket",
+
         "kdump/test-config-client",
 
         "lib/test-dummy",
@@ -306,6 +340,12 @@ class CleanUpStatsPlugin {
 
 var plugins = [
     new copy(info.files),
+    // base1 fonts
+    new copy([
+        { from: path.resolve(nodedir, 'patternfly/dist/fonts/fontawesome-webfont.woff'), to: 'base1/fonts/fontawesome.woff' },
+        { from: path.resolve(nodedir, 'patternfly/dist/fonts/glyphicons-halflings-regular.woff'), to: 'base1/fonts/glyphicons.woff' },
+        { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
+    ]),
     new miniCssExtractPlugin("[name].css"),
     new CleanUpStatsPlugin(),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
@@ -334,6 +374,7 @@ info.tests.forEach(function(test) {
             template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(function() { return "../" }).join(""),
             script: path.basename(test + ext),
+            ext: ext,
             inject: false,
         }));
     }
@@ -434,7 +475,8 @@ module.exports = {
             {
                 test: /\.(js|jsx)$/,
                 // exclude external dependencies; it's too slow, and they are already plain JS except the above
-                exclude: /\/node_modules\/.*\//,
+                // also exclude unit tests, we don't need it for them, just a waste and makes failures harder to read
+                exclude: /\/node_modules|\/test-/,
                 use: babel_loader
             },
             /* HACK: remove unwanted fonts from PatternFly's css */

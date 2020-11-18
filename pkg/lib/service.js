@@ -196,7 +196,7 @@ export function proxy(name, kind) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll", [iface])
                     .fail(function (error) {
-                        console.log(error);
+                        console.log("service: GetAll Properties failed", JSON.stringify(error));
                     })
                     .done(function (result) {
                         var props = { };

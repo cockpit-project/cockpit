@@ -316,11 +316,19 @@ label.checkbox {
 }
 
 .login-pf #banner {
-  margin-top: 2rem;
+  margin: 1rem 0 0.5rem;
+  grid-area: banner;
+  width: 100%;
+}
+
+#banner-message {
+  white-space: pre-wrap;
+  max-height: 12em;
+  overflow: auto;
 }
 
 .login-pf .container {
-  background-color: rgba(255, 255, 255, ..5);
+  background-color: rgba(255, 255, 255, 0.5);
   background: white;
   color: #333;
   grid-area: login;
@@ -369,38 +377,32 @@ label.checkbox {
 
 /* Alerts */
 .pf-c-alert {
-    color: #151515;
-    position: relative;
-    grid-template-columns: max-content 1fr max-content;
-    grid-template-rows: 1fr auto;
-    grid-template-areas:
-      "icon title   action"
-      ".    content content";
-    background-color: #fff;
-    margin: 0 0 1.5rem;
-    display: grid;
+  color: #151515;
+  position: relative;
+  grid-template-columns: max-content 1fr max-content;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "icon title   action"
+    ".    content content";
+  background-color: #fff;
+  margin: 0 0 1.5rem;
+  display: grid;
+  border: 3px solid #009596;
+  border-width: 2px 0 0;
+  box-shadow: rgba(3, 3, 3, 0.16) 0 0.5rem 1rem 0, rgba(3, 3, 3, 0.08) 0 0 0.5rem 0;
 }
 
 .pf-c-alert.pf-m-inline {
-    border: solid #ededed;
-    border-width: 1px 1px 1px 0;
-}
-
-.pf-c-alert.pf-m-inline::before {
-    position: absolute;
-    top: -1px;
-    bottom: -1px;
-    left: 0;
-    width: 3px;
-    content: "";
+  box-shadow: none;
 }
 
 .pf-c-alert > svg {
   grid-area: icon;
   height: 1.125rem;
   width: 1.125rem;
-  margin: 1.125rem 1rem 1rem 1rem;
+  margin: 1.25rem 1rem 1rem 1rem;
   float: left;
+  color: #009596;
 }
 
 @supports (display: grid) {
@@ -414,11 +416,11 @@ label.checkbox {
   grid-area: title;
   font-size: 1rem;
   margin: 1rem;
-  background-color: #fff;
 }
 
-.pf-c-alert.pf-m-inline.pf-m-danger::before {
-    background-color: #c9190b;
+.pf-c-alert.pf-m-inline.pf-m-danger {
+  background: #faeae8;
+  border-color: #c9190b;
 }
 
 .pf-c-alert.pf-m-danger > svg {
@@ -426,11 +428,12 @@ label.checkbox {
 }
 
 .pf-c-alert.pf-m-danger .pf-c-alert__title {
-    color: #a30000;
+  color: #a30000;
 }
 
-.pf-c-alert.pf-m-inline.pf-m-info::before {
-    background-color: #73bcf7;
+.pf-c-alert.pf-m-inline.pf-m-info {
+  background: #e7f1fa;
+  border-color: #73bcf7;
 }
 
 .pf-c-alert.pf-m-info > svg {
@@ -438,7 +441,7 @@ label.checkbox {
 }
 
 .pf-c-alert.pf-m-info .pf-c-alert__title {
-    color: #004368;
+  color: #004368;
 }
 
 #server-group:before {
@@ -637,7 +640,7 @@ label.checkbox {
 body.login-pf {
   color: #151515;
   display: grid;
-  grid-template-areas: "alert" "login" "details" "logo";
+  grid-template-areas: "banner" "login" "details" "logo";
   grid-template-rows: repeat(3, auto) 1fr;
   background-position: 0 0 !important;
   padding: 0;
@@ -692,11 +695,6 @@ a:hover {
   fill: #06c;
 }
 
-[role=form] .col-md-10,
-form .col-md-10 {
-  display: flex;
-}
-
 .cross {
   right: 0;
 }
@@ -717,11 +715,11 @@ form .col-md-10 {
 @media (min-width: 1024px) {
   body.login-pf {
     grid-template-areas:
-      ". alert   alert ."
-      ". .       .     ."
-      ". login   logo  ."
-      ". details logo  ."
-      ". .     .     .";
+      ". banner  banner ."
+      ". .       .      ."
+      ". login   logo   ."
+      ". details logo   ."
+      ". .       .      .";
     grid-template-rows: auto 1fr minmax(min-content,max-content) auto 1fr;
     grid-template-columns: minmax(0, 1fr) repeat(2, minmax(auto, 34rem)) minmax(0, 1fr);
     grid-gap: 0 4rem;
@@ -741,19 +739,6 @@ form .col-md-10 {
 }
 
 .dialog-error {
-  grid-area: alert;
-  margin: 0px;
-}
-
-.noscript {
-  margin-bottom: 4rem;
-}
-
-#banner-message {
-  white-space: pre-wrap;
-  max-height: 12em;
-  overflow: auto;
-  padding: 1.5em 1em;
   margin: 0;
 }
 

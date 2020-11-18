@@ -31,7 +31,6 @@ import {
     Dropdown, DropdownItem, DropdownToggle, DropdownToggleAction,
 } from '@patternfly/react-core';
 
-import { shutdown, shutdown_modal_setup } from "./shutdown.js";
 import { superuser } from "superuser";
 
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
@@ -39,9 +38,9 @@ import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
 import { HealthCard } from './overview-cards/healthCard.jsx';
 import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
-import { ServerTime } from './overview-cards/serverTime.js';
 import { SuperuserAlert } from './superuser-alert.jsx';
 import { SuperuserIndicator } from "../shell/superuser.jsx";
+import { ShutdownModal } from "./shutdown.jsx";
 
 const _ = cockpit.gettext;
 
@@ -164,7 +163,6 @@ class OverviewPage extends React.Component {
 
     componentDidMount() {
         this.hostnameMonitor();
-        shutdown_modal_setup();
         superuser.addEventListener("changed", this.onPermissionChanged);
         this.onPermissionChanged();
     }
@@ -205,10 +203,10 @@ class OverviewPage extends React.Component {
     render() {
         const { actionIsOpen } = this.state;
         const dropdownItems = [
-            <DropdownItem key="restart" id="restart" onClick={() => shutdown('restart', new ServerTime())} component="button">
+            <DropdownItem key="restart" id="restart" onClick={() => this.setState({ restartModal: true })} component="button">
                 {_("Restart")}
             </DropdownItem>,
-            <DropdownItem key="shutdown" id="shutdown" onClick={() => shutdown('shutdown', new ServerTime())} component="button">
+            <DropdownItem key="shutdown" id="shutdown" onClick={() => this.setState({ shutdownModal: true })} component="button">
                 {_("Shutdown")}
             </DropdownItem>,
         ];
@@ -222,7 +220,7 @@ class OverviewPage extends React.Component {
                             splitButtonItems={[
                                 <DropdownToggleAction id='restart-button' variant="secondary"
                                     key='restart-button'
-                                    onClick={() => shutdown('restart', new ServerTime())}>
+                                    onClick={() => this.setState({ restartModal: true })}>
                                     {_("Restart")}
                                 </DropdownToggleAction>
                             ]}
@@ -241,34 +239,38 @@ class OverviewPage extends React.Component {
               window.parent.features.navbar_is_for_current_machine));
 
         return (
-            <Page>
-                <SuperuserAlert />
-                <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
-                    <div className='ct-overview-header-hostname'>
-                        <h1>
-                            {this.hostname_text() || ""}
-                        </h1>
-                        {this.state.hostnameData &&
-                         this.state.hostnameData.OperatingSystemPrettyName &&
-                         <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
-                    </div>
-                    <div className='ct-overview-header-actions'>
-                        { show_superuser && <SuperuserIndicator /> }
-                        { "\n" }
-                        { headerActions }
-                    </div>
-                </PageSection>
-                <PageSection variant={PageSectionVariants.default}>
-                    <LoginMessages />
-                    <Gallery className='ct-system-overview' hasGutter>
-                        <MotdCard />
-                        <HealthCard />
-                        <UsageCard />
-                        <SystemInfomationCard />
-                        <ConfigurationCard hostname={this.hostname_text()} />
-                    </Gallery>
-                </PageSection>
-            </Page>
+            <>
+                {this.state.restartModal && <ShutdownModal onClose={() => this.setState({ restartModal: false })} />}
+                {this.state.shutdownModal && <ShutdownModal shutdown onClose={() => this.setState({ shutdownModal: false })} />}
+                <Page>
+                    <SuperuserAlert />
+                    <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
+                        <div className='ct-overview-header-hostname'>
+                            <h1>
+                                {this.hostname_text() || ""}
+                            </h1>
+                            {this.state.hostnameData &&
+                             this.state.hostnameData.OperatingSystemPrettyName &&
+                             <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
+                        </div>
+                        <div className='ct-overview-header-actions'>
+                            { show_superuser && <SuperuserIndicator /> }
+                            { "\n" }
+                            { headerActions }
+                        </div>
+                    </PageSection>
+                    <PageSection variant={PageSectionVariants.default}>
+                        <LoginMessages />
+                        <Gallery className='ct-system-overview' hasGutter>
+                            <MotdCard />
+                            <HealthCard />
+                            <UsageCard />
+                            <SystemInfomationCard />
+                            <ConfigurationCard hostname={this.hostname_text()} />
+                        </Gallery>
+                    </PageSection>
+                </Page>
+            </>
         );
     }
 }

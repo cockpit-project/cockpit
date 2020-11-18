@@ -287,9 +287,10 @@ class CommonTests:
         b.click("#overview #restart-button")
 
         b.wait_popup("shutdown-dialog")
-        b.click("#shutdown-dialog .dropdown button")
-        b.click("a:contains('No delay')")
-        b.click("#shutdown-dialog .modal-footer button:contains(Restart)")
+        b.click("#delay")
+        b.click("button:contains('No delay')")
+        b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
+        b.click("#shutdown-dialog button:contains(Restart)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()

@@ -15,50 +15,6 @@
 </head>
 <body class="pf-m-redhat-font">
   <div id="overview"></div>
-
-  <div class="modal" id="shutdown-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h4 class="modal-title"></h4>
-              </div>
-              <div class="modal-body ct-form">
-                  <textarea class="form-control">
-                  </textarea>
-                  <label class="control-label" for="action-delay" translate="yes">Delay</label>
-                  <div role='group' id="action-delay">
-                      <div class="btn-group bootstrap-select dropdown form-control">
-                          <button class="btn btn-default dropdown-toggle" type="button"
-                                                                          data-toggle="dropdown">
-                              <span class="pull-left" translate="yes">1 minute</span>
-                              <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                          </button>
-                          <ul class="dropdown-menu">
-                              <li value="1"><a role="link" tabindex="0" translate="yes">1 minute</a></li>
-                              <li value="5"><a role="link" tabindex="0" translate="yes">5 minutes</a></li>
-                              <li value="20"><a role="link" tabindex="0" translate="yes">20 minutes</a></li>
-                              <li value="40"><a role="link" tabindex="0" translate="yes">40 minutes</a></li>
-                              <li value="60"><a role="link" tabindex="0" translate="yes">60 minutes</a></li>
-                              <li role="separator" class="divider"></li>
-                              <li value="0"><a role="link" tabindex="0" translate="yes">No delay</a></li>
-                              <li value="x"><a role="link" tabindex="0" translate="yes">Specific time</a></li>
-                          </ul>
-                      </div>
-                      <div>
-                          <input class="form-control shutdown-date" type="text">
-                          <input class="form-control shutdown-hours" type="text">
-                          :
-                          <input class="form-control shutdown-minutes" type="text">
-                      </div>
-                  </div>
-              </div>
-              <div class="modal-footer">
-                  <button class="pf-c-button pf-m-danger"></button>
-                  <button class="pf-c-button pf-m-link" translate="yes" data-dismiss="modal">Cancel</button>
-              </div>
-          </div>
-      </div>
-  </div>
   <script src="../performance/performance.js"></script>
 </body>
 </html>

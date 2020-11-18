@@ -16,46 +16,6 @@
 <body class="pf-m-redhat-font">
   <div id="overview"></div>
 
-  <script id="ssh-host-keys-tmpl" type="x-template/mustache">
-      <div class="list-group dialog-list-ct">
-          {{#keys}}
-              <div class="list-group-item">
-                  <p>{{ title }}</p>
-                  {{#fps}}
-                  <small>{{.}}</small>
-                  {{/fps}}
-              </div>
-          {{/keys}}
-          {{^keys}}
-              <div class="list-group-item">
-                  <p translate="yes">No host keys found.</p>
-              </div>
-          {{/keys}}
-      </div>
-  </script>
-  <div class="modal" id="system_information_ssh_keys" tabindex="-1"
-      role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h4 class="modal-title" translate="yes">Machine SSH key fingerprints</h4>
-              </div>
-              <div class="modal-body">
-                  <div class="spinner spinner-lg"></div>
-                  <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
-                    <div class="pf-c-alert__icon">
-                      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                    </div>
-                    <h4 class="pf-c-alert__title"></h4>
-                  </div>
-                  <div class="content" hidden></div>
-              </div>
-              <div class="modal-footer">
-                  <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate>Close</button>
-              </div>
-          </div>
-      </div>
-  </div>
   <div class="modal" id="shutdown-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
           <div class="modal-content">

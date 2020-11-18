@@ -88,20 +88,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.startLibvirt()
         self.addCleanup(m.execute, "systemctl stop libvirtd")
 
-        # Stop all domains
-        self.addCleanup(m.execute, "for d in $(virsh list --name); do virsh destroy $d || true; done")
-
         # Cleanup pools
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
 
         # Stop all pools
-        self.addCleanup(m.execute, "for n in $(virsh pool-list --all --name); do virsh pool-destroy $n || true; done")
+        self.addCleanup(m.execute, "for n in $(virsh pool-list --name | head -n -1); do virsh pool-destroy $n; done")
 
         # Cleanup networks
         self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
 
         # Stop all networks
-        self.addCleanup(m.execute, "for n in $(virsh net-list --all --name); do virsh net-destroy $n || true; done")
+        self.addCleanup(m.execute, "for n in $(virsh net-list --name | head -n -1); do virsh net-destroy $n; done")
+
+        # Stop all domains
+        self.addCleanup(m.execute, "for d in $(virsh list --name | head -n -1); do virsh destroy $d; done")
 
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
@@ -225,6 +225,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         xml = DOMAIN_XML.format(**args)
         m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml{1}".format(xml,
                                                                                " && virsh start {}".format(name) if running else ""))
+        self.addCleanup(m.execute, "virsh undefine {0}; rm -f {1}".format(name, img))
+        self.addCleanup(m.execute, "virsh destroy {0} || true".format(name))
 
         m.execute('[ "$(virsh domstate {0})" = {1} ] || {{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name,
                                                                                                                                             "running" if running else "\"shut off\""))

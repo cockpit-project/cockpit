@@ -35,7 +35,7 @@ import {
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon, RedoIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
-import AutoUpdates from "./autoupdates.jsx";
+import { AutoUpdates, AutoUpdatesBody } from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -580,7 +580,11 @@ class CardsPage extends React.Component {
                 span: 6,
                 id: "automatic-updates",
                 title: _("Automatic updates"),
-                body: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.state.privileged} />),
+                actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.state.privileged} />),
+                body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
+                                        type={this.state.autoUpdatesType}
+                                        day={this.state.autoUpdatesDay}
+                                        time={this.state.autoUpdatesTime} />),
             },
         ];
 
@@ -596,11 +600,11 @@ class CardsPage extends React.Component {
             });
         }
 
-        if (!this.state.autoUpdatesEnabled) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+        if (!this.state.autoUpdatesEnabled && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),
-                body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.props.history} />
+                body: <History packagekit={this.props.history} />
             });
         }
 

@@ -505,16 +505,19 @@ label.checkbox {
 }
 
 .caret {
-  top: 4px;
+  vertical-align: middle;
+  margin: calc((1.5rem - 16px) / 2) 0;
+  margin-right: 0.25rem;
+  transition: all 300ms;
 }
 
 .caret-down {
   -moz-transform: rotate(90deg);
   -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
-  -moz-transform-origin: 0.5rem 0.5rem
-  -webkit-transform-origin: 0.5rem 0.5rem
-  transform-origin: 0.5rem 0.5rem
+  -moz-transform-origin: 0.5rem 0.5rem;
+  -webkit-transform-origin: 0.5rem 0.5rem;
+  transform-origin: 0.5rem;
 }
 
 .cross {

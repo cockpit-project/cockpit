@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import {
-    Card, CardBody, Button, CardTitle, Modal,
+    Card, CardBody, Button, CardTitle, Modal, Alert,
     Form, FormGroup, TextInput
 } from '@patternfly/react-core';
 
@@ -27,8 +27,8 @@ import * as service from "service.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
 import $ from "jquery";
-import { mustache } from "mustache";
 import * as packagekit from "packagekit.js";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { Privileged } from "cockpit-components-privileged.jsx";
 import { ServerTimeConfig } from './serverTime.js';
@@ -52,6 +52,7 @@ export class ConfigurationCard extends React.Component {
             pcp_link_visible: false,
             serverTime: '',
             hostEditModal: false,
+            showKeysModal: false,
         };
 
         this.pmcd_service = service.proxy("pmcd");
@@ -62,9 +63,6 @@ export class ConfigurationCard extends React.Component {
         this.onPmLoggerSwitchChange = this.onPmLoggerSwitchChange.bind(this);
         this.update_pmlogger_row = this.update_pmlogger_row.bind(this);
         this.pmlogger_service_changed = this.pmlogger_service_changed.bind(this);
-
-        this.host_keys_show = this.host_keys_show.bind(this);
-        this.host_keys_hide = this.host_keys_hide.bind(this);
 
         this.realmd = realmd.setup();
     }
@@ -77,96 +75,7 @@ export class ConfigurationCard extends React.Component {
             this.update_pmlogger_row();
         });
 
-        $("#system_information_ssh_keys").on("hide.bs.modal", () => this.host_keys_hide());
-
         this.realmd.addEventListener("changed", () => this.setState({}));
-    }
-
-    host_keys_show() {
-        var self = this;
-
-        $("#system_information_ssh_keys .spinner").toggle(true);
-        $("#system_information_ssh_keys .content").prop("hidden", true);
-        $("#system_information_ssh_keys .pf-c-alert").toggle(false);
-
-        /*
-         * Yes, we do refresh the keys while the dialog is open.
-         * It may occur that sshd is not running at the point when
-         * we try, or in rare cases the keys may change.
-         */
-        self.host_keys_interval = window.setInterval(function() {
-            self.host_keys_update();
-        }, 10 * 1000);
-        self.host_keys_update();
-    }
-
-    host_keys_hide() {
-        window.clearInterval(this.host_keys_interval);
-        this.host_keys_interval = null;
-    }
-
-    host_keys_update() {
-        var self = this;
-        var parenthesis = /^\((.*)\)$/;
-        var spinner = $("#system_information_ssh_keys .spinner");
-        var content = $("#system_information_ssh_keys .content");
-        var error = $("#system_information_ssh_keys .pf-c-alert");
-
-        cockpit.script(host_keys_script, [], {
-            superuser: "try",
-            err: "message"
-        })
-                .done(function(data) {
-                    var seen = {};
-                    var arr = [];
-                    var keys = {};
-
-                    var i, tmp, m;
-                    var full = data.trim().split("\n");
-                    for (i = 0; i < full.length; i++) {
-                        var line = full[i];
-                        if (!line)
-                            continue;
-
-                        var parts = line.trim().split(" ");
-                        var title;
-                        var fp = parts[1];
-                        if (!seen[fp]) {
-                            seen[fp] = fp;
-                            title = parts[parts.length - 1];
-                            if (title) {
-                                m = title.match(parenthesis);
-                                if (m && m[1])
-                                    title = m[1];
-                            }
-                            if (!keys[title])
-                                keys[title] = [];
-                            keys[title].push(fp);
-                        }
-                    }
-
-                    arr = Object.keys(keys);
-                    arr.sort();
-                    arr = arr.map(function(k) {
-                        return { title: k, fps: keys[k] };
-                    });
-
-                    self.ssh_host_keys_tmpl = $("#ssh-host-keys-tmpl").html();
-                    mustache.parse(self.ssh_host_keys_tmpl);
-
-                    tmp = mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
-                    content.html(tmp);
-                    spinner.toggle(false);
-                    error.toggle(false);
-                    content.prop("hidden", false);
-                })
-                .fail(function(ex) {
-                    var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
-                    content.prop("hidden", true);
-                    spinner.toggle(false);
-                    $("#system_information_ssh_keys .pf-c-alert h4").text(msg);
-                    error.toggle(true);
-                });
     }
 
     onPmLoggerSwitchChange(enable) {
@@ -255,6 +164,7 @@ export class ConfigurationCard extends React.Component {
         return (
             <>
                 {this.state.hostEditModal && <PageSystemInformationChangeHostname onClose={() => this.setState({ hostEditModal: false })} />}
+                {this.state.showKeysModal && <SystemInformationSshKeys onClose={() => this.setState({ showKeysModal: false })} />}
                 <Card className="system-configuration">
                     <CardTitle>{_("Configuration")}</CardTitle>
                     <CardBody>
@@ -286,8 +196,10 @@ export class ConfigurationCard extends React.Component {
                                 <tr>
                                     <th scope="row">{_("Secure shell keys")}</th>
                                     <td>
-                                        <Button variant="link" isInline id="system-ssh-keys-link" data-toggle="modal" onClick={this.host_keys_show}
-                                            data-target="#system_information_ssh_keys">{_("Show fingerprints")}</Button>
+                                        <Button variant="link" isInline id="system-ssh-keys-link"
+                                                onClick={() => this.setState({ showKeysModal: true })}>
+                                            {_("Show fingerprints")}
+                                        </Button>
                                     </td>
                                 </tr>
 
@@ -319,6 +231,115 @@ export class ConfigurationCard extends React.Component {
                 </Card>
             </>
         );
+    }
+}
+
+class SystemInformationSshKeys extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            keys: [],
+            error: "",
+            loading: true,
+        };
+        this.interval = null;
+
+        this.keysUpdate = this.keysUpdate.bind(this);
+    }
+
+    componentDidMount() {
+        /*
+         * Yes, we do refresh the keys while the dialog is open.
+         * It may occur that sshd is not running at the point when
+         * we try, or in rare cases the keys may change.
+         */
+        this.interval = window.setInterval(this.keysUpdate, 10 * 1000);
+        this.keysUpdate();
+    }
+
+    componentWillUnmount() {
+        window.clearInterval(this.interval);
+        this.interval = null;
+    }
+
+    keysUpdate() {
+        cockpit.script(host_keys_script, [], { superuser: "try", err: "message" })
+                .then(data => {
+                    const seen = {};
+                    const keys = {};
+
+                    data.trim().split("\n")
+                            .forEach(line => {
+                                if (!line)
+                                    return;
+
+                                const parts = line.trim().split(" ");
+                                const fp = parts[1];
+                                if (!seen[fp]) {
+                                    seen[fp] = fp;
+                                    let title = parts[parts.length - 1];
+                                    if (title) {
+                                        const m = title.match(/^\((.*)\)$/);
+                                        if (m && m[1])
+                                            title = m[1];
+                                    }
+                                    if (!keys[title])
+                                        keys[title] = [];
+                                    keys[title].push(fp);
+                                }
+                            });
+
+                    let arr = Object.keys(keys);
+                    arr.sort();
+                    arr = arr.map(function(k) {
+                        return { title: k, fps: keys[k] };
+                    });
+
+                    this.setState({
+                        keys: arr,
+                        loading: false,
+                        error: "",
+                    });
+                })
+                .catch(function(ex) {
+                    this.setState({
+                        loading: false,
+                        error: cockpit.format(_("failed to list ssh host keys: $0"), ex.message),
+                    });
+                });
+    }
+
+    render() {
+        let body = null;
+        if (this.state.error)
+            body = <Alert variant='danger' isInline title={_("Loading of SSH keys failed")}>
+                <p>{_("Error message")}: {this.state.error}</p>
+            </Alert>;
+        else if (this.state.loading)
+            body = <EmptyStatePanel loading title={ _("Loading keys...") } />;
+        else if (!this.state.keys.length)
+            body = <EmptyStatePanel title={ _("No host keys found.") } />;
+        else
+            body = <div className="list-group dialog-list-ct">
+                {this.state.keys.map(key =>
+                    <div className="list-group-item" key={key.title}>
+                        <h4>{key.title}</h4>
+                        {key.fps.map((fp, i) => <div key={i}><small>{fp}</small></div>)}
+                    </div>
+                )}
+            </div>;
+
+        return (
+            <Modal isOpen position="top" variant="medium"
+                   onClose={this.props.onClose}
+                   id="system_information_ssh_keys"
+                   title={_("Machine SSH key fingerprints")}
+                   footer={<>
+                       <Button variant='secondary' onClick={this.props.onClose}>{_("Close")}</Button>
+                   </>}
+            >
+                {body}
+            </Modal>);
     }
 }
 

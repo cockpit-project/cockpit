@@ -141,15 +141,12 @@ class TestSystemInfo(MachineCase):
         m.execute("chmod 600 /etc/ssh/weirdname")
         m.execute("restorecon /etc/ssh/weirdname || true")
 
-        new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5 | cut -d' ' -f2")
-        new_alt = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E sha256 | cut -d' ' -f2")
-        old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E md5 | cut -d' ' -f2")
-        old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2")
+        new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5 | cut -d' ' -f2 | tr -d '\n'")
+        new_alt = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E sha256 | cut -d' ' -f2 | tr -d '\n'")
+        old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E md5 | cut -d' ' -f2 | tr -d '\n'")
+        old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2 | tr -d '\n'")
 
         b.click("#system-ssh-keys-link")
-        b.wait_popup("system_information_ssh_keys")
-        b.wait_not_visible("#system_information_ssh_keys .spinner")
-        b.wait_visible("#system_information_ssh_keys .content")
         b.wait_in_text("#system_information_ssh_keys .list-group", "ED25519")
         b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
         b.wait_in_text("#system_information_ssh_keys .list-group", "ECDSA")
@@ -158,8 +155,8 @@ class TestSystemInfo(MachineCase):
         b.wait_not_in_text("#system_information_ssh_keys .list-group", new_alt)
         b.wait_in_text("#system_information_ssh_keys .list-group", old_alt)
 
-        b.click("#system_information_ssh_keys button")
-        b.wait_popdown("system_information_ssh_keys")
+        b.click('#system_information_ssh_keys button:contains("Close")')
+        b.wait_not_present("#system_information_ssh_keys")
 
         # Change ssh config and restart
         self.sed_file(r"s,.*HostKey *,#,; $ a HostKey /etc/ssh/weirdname", "/etc/ssh/sshd_config",
@@ -168,9 +165,7 @@ class TestSystemInfo(MachineCase):
         ssh_reconnect(m)
 
         b.click("#system-ssh-keys-link")
-        b.wait_popup("system_information_ssh_keys")
-        b.wait_not_visible("#system_information_ssh_keys .spinner")
-        b.wait_visible("#system_information_ssh_keys .content")
+        b.wait_visible("#system_information_ssh_keys")
         b.wait_not_in_text("#system_information_ssh_keys .list-group", "ED25519")
         b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
         b.wait_not_in_text("#system_information_ssh_keys .list-group", "ECDSA")
@@ -183,7 +178,7 @@ class TestSystemInfo(MachineCase):
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
         b.click('#system_information_ssh_keys button:contains("Close")')
-        b.wait_popdown("system_information_ssh_keys")
+        b.wait_not_present("#system_information_ssh_keys")
 
         m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
         b.wait_in_text('#system_information_hostname_text', "Adventure Box")

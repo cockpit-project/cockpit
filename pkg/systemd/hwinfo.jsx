@@ -338,7 +338,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
     moment.locale(cockpit.language);
     detect().then(info => {
-        console.debug("hardware info collection data:", JSON.stringify(info));
         ReactDOM.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));
     });
 });

@@ -103,9 +103,6 @@ MIN_CSS_RULE = \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ \
 		--source-map --source-map-inline-sources $^
 
-ESLINT_RULE = \
-	$(V_CHECK) eslint $<
-
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
 	-e 's,[@]datadir[@],$(datadir),g' \
@@ -158,6 +155,7 @@ SUBST_RULE = \
 # Webpack related
 
 WEBPACK_PACKAGES = \
+	base1 \
 	apps \
 	dashboard \
 	kdump \
@@ -214,7 +212,7 @@ dist/%/Makefile.deps:
 # have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
 	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
-	(if ls $(srcdir)/pkg/$*/*.html >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
+	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
 
 dist/%/manifest.json: pkg/%/manifest.json
@@ -443,7 +441,6 @@ title2sentence: multi-word
 
 include po/Makefile.am
 include pkg/Makefile.am
-include src/base1/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am
 include src/branding/default/Makefile.am

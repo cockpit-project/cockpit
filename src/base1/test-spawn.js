@@ -1,13 +1,5 @@
 /* global cockpit, QUnit */
 
-/* Seems like something jQuery should provide */
-if (!console.assert) {
-    console.assert = function(cond, msg) {
-        if (!cond)
-            throw msg || "assertion failed";
-    };
-}
-
 function MockPeer() {
     /*
      * Events triggered here:

@@ -128,13 +128,6 @@ $(base_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_DEPS)
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
 
-# HACK: last user of jquery is test-chan; port that away and drop this special-case rule
-dist/base1/test-chan.html: src/base1/test-chan.js $(base_QUNIT_DEPS)
-	$(ESLINT_RULE)
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/node_modules/jquery/dist/jquery.slim.min.js $< > $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
-	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
-
 # Simple tests run without QUnit
 
 dist/base1/test-%.js: dist/base1/test-%.html

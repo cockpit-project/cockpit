@@ -26,7 +26,6 @@ import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as service from "service.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
-import $ from "jquery";
 import * as packagekit from "packagekit.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
@@ -68,7 +67,9 @@ export class ConfigurationCard extends React.Component {
     }
 
     componentDidMount() {
-        $(this.pmlogger_service).on("changed", data => this.pmlogger_service_changed());
+        this.pmlogger_service.addEventListener("changed", data => {
+            this.pmlogger_service_changed();
+        });
         this.pmlogger_service_changed();
         packagekit.detect().then(exists => {
             this.packagekit_exists = exists;

@@ -61,7 +61,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.reload()
         b.wait_visible("#login-user-input")
         b.wait_visible("#banner")
-        self.assertEqual(b.text("#banner pre"), m.execute("cat /etc/issue").rstrip())
+        self.assertEqual(b.text("#banner-message"), m.execute("cat /etc/issue").rstrip())
 
         # Test non existent file
         m.execute("printf '[Session]\nBanner = /etc/non-existing-file\n' > /etc/cockpit/cockpit.conf")

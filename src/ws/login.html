@@ -1,133 +1,131 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Loading...</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex">
-    <meta insert_dynamic_content_here>
-    <script>
-    </script>
-    <style>
-    </style>
-    <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet">
-  </head>
-  <body class="login-pf">
-    <div id="banner" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
-      <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true"><path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z"/></svg>
-      <pre id="banner-message" class="pf-c-alert__title"></pre>
+
+<head>
+  <title>Loading...</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta insert_dynamic_content_here>
+  <script>
+  </script>
+  <style>
+  </style>
+  <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet">
+</head>
+
+<body class="login-pf">
+  <div id="banner" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+    <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true">
+      <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z" />
+    </svg>
+    <span id="banner-message" class="pf-c-alert__title"></span>
+  </div>
+
+  <span id="badge"></span>
+
+  <div class="container">
+    <div id="brand" class="hide-before"></div>
+
+    <div id="error-group" class="pf-c-alert pf-m-danger pf-m-inline dialog-error noscript" aria-label="inline danger alert">
+      <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+        <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+      </svg>
+      <h4 id="login-error-message" class="pf-c-alert__title">
+        <span class="noscript" translate>Please enable JavaScript to use the Web Console.</span>
+      </h4>
     </div>
 
-    <span id="badge">
-    </span>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-12">
-          <div id="brand" class="hide-before">
-          </div><!--/#brand-->
-        </div><!--/.col-*-->
+    <div id="info-group" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+      <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+        <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" />
+      </svg>
+      <h4 id="login-info-message" class="pf-c-alert__title"></h4>
+    </div>
 
-        <div id="error-group" class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
-          <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true"><path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/></svg>
-          <h4 id="login-error-message" class="pf-c-alert__title"></h4>
+    <div id="login" class="login-area" hidden>
+      <div role="form">
+
+        <div id="conversation-group" class="form-group" hidden>
+          <div id="conversation-message"></div>
+          <label id="conversation-prompt" for="conversation-input"></label>
+          <input type="password" class="form-control" id="conversation-input">
         </div>
 
-        <div id="info-group" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
-          <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true"><path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"/></svg>
-          <h4 id="login-info-message" class="pf-c-alert__title"></h4>
+        <div id="user-group" class="form-group">
+          <label for="login-user-input" class="control-label" translate>User name</label>
+          <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus>
         </div>
 
-        <div id="login" class="login-area" hidden>
-          <div role="form">
-
-            <div id="conversation-group" class="form-group" hidden>
-              <div id="conversation-message"></div>
-              <label id="conversation-prompt" for="conversation-input"></label>
-              <input type="password" class="form-control" id="conversation-input">
-            </div>
-
-            <div id="user-group" class="form-group">
-              <label for="login-user-input" class="control-label" translate>User name</label>
-              <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus>
-            </div>
-
-            <div id="password-group" class="form-group">
-              <label for="login-password-input" class="control-label" translate>Password</label>
-              <input type="password" class="form-control" id="login-password-input">
-            </div>
-
-            <div id="option-group">
-              <a href="#" id="show-other-login-options">
-                <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
-                  <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
-                </svg><span id="show-other-login-options-text" translate>Other options</span>
-                <!-- Above: Span needs to be immediately next to SVG to prevent whitespace in the link -->
-              </a>
-            </div>
-
-            <div id="server-group" class="form-group" hidden>
-              <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" class="control-label" translate>Connect to</label>
-              <div class="server-box">
-                <input type="text" class="form-control" id="server-field">
-                <span class="cross" id="server-clear" aria-hidden="true">&#x274c;</span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <button class="pc-c-button pf-m-primary login-button" id="login-button" type="submit">
-                <span class="spinner"></span>
-                <span id="login-button-text" translate>Log in</span>
-              </button>
-            </div>
-          </div>
-        </div><!--/.col-*-->
-
-        <div id="login-wait-validating" hidden>
-          <span class="help-block" translate>Validating authentication token</span>
-          <span class="spinner col-xs-15"></span>
+        <div id="password-group" class="form-group">
+          <label for="login-password-input" class="control-label" translate>Password</label>
+          <input type="password" class="form-control" id="login-password-input">
         </div>
 
-        <div id="login-fatal" hidden>
-          <div id="login-fatal-message"></div>
-          <a id="login-again" translate hidden>Try again</a>
+        <div id="option-group">
+          <a href="#" id="show-other-login-options">
+            <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
+              <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
+            </svg><span id="show-other-login-options-text" translate>Other options</span>
+            <!-- Above: Span needs to be immediately next to SVG to prevent whitespace in the link -->
+          </a>
         </div>
 
-        <div class="noscript" translate>
-          Please enable JavaScript to use the Web Console.
-        </div>
-
-        <div class="unsupported-browser noscript" id="unsupported-browser">
-          <h2 class="unsupported-browser-heading" translate>A modern browser is required for security, reliability, and performance.</h2>
-          <div class="browser-recommendations">
-            <div class="browser-download">
-              <h3 translate>Download a new browser for free</h3>
-              <ul>
-                <li><a href="https://firefox.com/">Mozilla Firefox</a> / Linux, Windows, macOS</li>
-                <li><a href="https://google.com/chrome">Google Chrome</a> / Linux, Windows, macOS</li>
-              </ul>
-            </div>
-            <div class="browser-bundled">
-              <h3 translate>Or use a bundled browser</h3>
-              <ul>
-                <li><a href="https://microsoftedge.com/">Microsoft Edge</a> / Windows 10+</li>
-                <li><a href="https://apple.com/safari/">Apple Safari</a> / macOS</li>
-              </ul>
-            </div>
+        <div id="server-group" class="form-group" hidden>
+          <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" class="control-label" translate>Connect to</label>
+          <div class="server-box">
+            <input type="text" class="form-control" id="server-field">
+            <span class="cross" id="server-clear" aria-hidden="true">&#x274c;</span>
           </div>
         </div>
 
-      </div><!--/.row-->
-
-
-    </div><!--/.container-->
-
-    <div class="details" id="login-details" hidden>
-      <p>
-        <label class="control-label"><span translate>Server</span>: <b id="server-name"></b></label>
-      </p>
-      <p id="login-note" class="login-note"></p>
+        <div class="form-group">
+          <button class="pc-c-button pf-m-primary login-button" id="login-button" type="submit">
+            <span class="spinner"></span>
+            <span id="login-button-text" translate>Log in</span>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!--/.col-*-->
-  </body>
+    <div id="login-wait-validating" hidden>
+      <span class="help-block" translate>Validating authentication token</span>
+      <span class="spinner col-xs-15"></span>
+    </div>
+
+    <div id="login-fatal" hidden>
+      <div id="login-fatal-message"></div>
+      <a id="login-again" translate hidden>Try again</a>
+    </div>
+
+    <div class="unsupported-browser" id="unsupported-browser" hidden>
+      <h2 class="unsupported-browser-heading" translate>A modern browser is required for security, reliability, and performance.</h2>
+      <div class="browser-recommendations">
+        <div class="browser-download">
+          <h3 translate>Download a new browser for free</h3>
+          <ul>
+            <li><a href="https://firefox.com/">Mozilla Firefox</a> / Linux, Windows, macOS</li>
+            <li><a href="https://google.com/chrome">Google Chrome</a> / Linux, Windows, macOS</li>
+          </ul>
+        </div>
+        <div class="browser-bundled">
+          <h3 translate>Or use a bundled browser</h3>
+          <ul>
+            <li><a href="https://microsoftedge.com/">Microsoft Edge</a> / Windows 10+</li>
+            <li><a href="https://apple.com/safari/">Apple Safari</a> / macOS</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="details" id="login-details" hidden>
+    <p>
+      <label class="control-label"><span translate>Server</span>: <b id="server-name"></b></label>
+    </p>
+    <p id="login-note" class="login-note"></p>
+  </div>
+
+</body>
+
 </html>

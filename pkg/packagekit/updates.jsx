@@ -32,7 +32,7 @@ import {
     Page, PageSection, PageSectionVariants,
     Text, TextVariants,
 } from '@patternfly/react-core';
-import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import { RebootingIcon, CheckIcon, ExclamationCircleIcon, RedoIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
 import AutoUpdates from "./autoupdates.jsx";
@@ -552,6 +552,78 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
     </Flex>);
 };
 
+class CardsPage extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            autoUpdatesEnabled: undefined,
+            autoUpdatesType: undefined,
+            autoUpdatesDay: undefined,
+            autoUpdatesTime: undefined,
+        };
+    }
+
+    render() {
+        const cardContents = [
+            {
+                id: "status",
+                span: 6,
+                title: _("Status"),
+                actions: (<Tooltip content={_("Check for updates")}>
+                    <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
+                </Tooltip>),
+                body: <StatusCard updates={this.props.updates}
+                                  highestSeverity={this.props.highestSeverity}
+                                  timeSinceRefresh={this.props.timeSinceRefresh} />
+            },
+            {
+                span: 6,
+                id: "automatic-updates",
+                title: _("Automatic updates"),
+                body: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.state.privileged} />),
+            },
+        ];
+
+        if (this.props.state === "available") { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+            cardContents.push({
+                id: "available-updates",
+                title: _("Available updates"),
+                actions: (<div className="pk-updates--header--actions">
+                    {this.props.applySecurity}
+                    {this.props.applyAll}
+                </div>),
+                body: <UpdatesList updates={this.props.updates} />
+            });
+        }
+
+        if (!this.state.autoUpdatesEnabled) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+            cardContents.push({
+                id: "update-history",
+                title: _("Update history"),
+                body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.props.history} />
+            });
+        }
+
+        return cardContents.map(card => {
+            return (
+                <GridItem key={card.id} span={card.span}>
+                    <Card className={card.className}
+                          id={card.id}>
+                        <CardHeader>
+                            <CardTitle><h2>{card.title}</h2></CardTitle>
+                            {card.actions && <CardActions>{card.actions}</CardActions>}
+                        </CardHeader>
+                        <CardBody>
+                            {card.body}
+                        </CardBody>
+                        <CardFooter />
+                    </Card>
+                </GridItem>
+            );
+        });
+    }
+}
+
 class OsUpdates extends React.Component {
     constructor() {
         super();
@@ -566,7 +638,6 @@ class OsUpdates extends React.Component {
             history: [],
             unregistered: false,
             privileged: false,
-            autoUpdatesEnabled: undefined
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -911,60 +982,6 @@ class OsUpdates extends React.Component {
                 }
             });
 
-            const cardContents = [
-                {
-                    id: "status",
-                    span: 6,
-                    title: _("Status"),
-                    actions: (<Tooltip content={_("Check for updates")}>
-                        <Button variant="secondary" onClick={this.handleRefresh}><i className="fa fa-refresh" /></Button>
-                    </Tooltip>),
-                    body: <StatusCard updates={this.state.updates}
-                                      highestSeverity={highest_severity}
-                                      timeSinceRefresh={this.state.timeSinceRefresh} />
-                },
-                {
-                    span: 6,
-                    id: "automatic-updates",
-                    body: <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
-                },
-                {
-                    id: "available-updates",
-                    title: _("Available updates"),
-                    actions: (<div className="pk-updates--header--actions">
-                        {applySecurity}
-                        {applyAll}
-                    </div>),
-                    body: <UpdatesList updates={this.state.updates} />
-                },
-            ];
-
-            if (this.state.autoUpdatesEnabled !== undefined) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
-                cardContents.push({
-                    id: "update-history",
-                    title: _("Update history"),
-                    body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
-                });
-            }
-
-            const cards = cardContents.map(card => {
-                return (
-                    <GridItem key={card.id} span={card.span}>
-                        <Card className={card.className}
-                              id={card.id}>
-                            <CardHeader>
-                                <CardTitle><h2>{card.title}</h2></CardTitle>
-                                {card.actions && <CardActions>{card.actions}</CardActions>}
-                            </CardHeader>
-                            <CardBody>
-                                {card.body}
-                            </CardBody>
-                            <CardFooter />
-                        </Card>
-                    </GridItem>
-                );
-            });
-
             return (
                 <>
                     <PageSection variant={PageSectionVariants.light}>
@@ -972,7 +989,11 @@ class OsUpdates extends React.Component {
                     </PageSection>
                     <PageSection>
                         <Grid hasGutter>
-                            {cards}
+                            <CardsPage handleRefresh={this.handleRefresh}
+                                       applySecurity={applySecurity}
+                                       applyAll={applyAll}
+                                       highestSeverity={highest_severity}
+                                       {...this.state} />
                         </Grid>
                     </PageSection>
                 </>
@@ -1017,51 +1038,6 @@ class OsUpdates extends React.Component {
                 }
             });
 
-            const cardContents = [
-                {
-                    id: "status",
-                    span: 6,
-                    title: _("Status"),
-                    actions: (<Tooltip content={_("Check for updates")}>
-                        <Button variant="secondary" onClick={this.handleRefresh}><i className="fa fa-refresh" /></Button>
-                    </Tooltip>),
-                    body: <StatusCard updates={this.state.updates}
-                                      timeSinceRefresh={this.state.timeSinceRefresh} />
-                },
-                {
-                    span: 6,
-                    id: "automatic-updates",
-                    title: _("Automatic updates"),
-                    actions: (<AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />),
-                },
-            ];
-
-            if (this.state.autoUpdatesEnabled !== undefined) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
-                cardContents.push({
-                    id: "update-history",
-                    title: _("Update history"),
-                    body: <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
-                });
-            }
-
-            const cards = cardContents.map(card => {
-                return (
-                    <GridItem key={card.id} span={card.span}>
-                        <Card className={card.className}
-                              id={card.id}>
-                            <CardHeader>
-                                <CardTitle><h2>{card.title}</h2></CardTitle>
-                                {card.actions && <CardActions>{card.actions}</CardActions>}
-                            </CardHeader>
-                            <CardBody>
-                                {card.body}
-                            </CardBody>
-                            <CardFooter />
-                        </Card>
-                    </GridItem>
-                );
-            });
-
             return (
                 <>
                     <PageSection variant={PageSectionVariants.light}>
@@ -1069,7 +1045,7 @@ class OsUpdates extends React.Component {
                     </PageSection>
                     <PageSection>
                         <Grid hasGutter>
-                            {cards}
+                            <CardsPage handleRefresh={this.handleRefresh} {...this.state} />
                         </Grid>
                     </PageSection>
                 </>

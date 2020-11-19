@@ -218,29 +218,32 @@ export function ip6_from_text(text, empty_is_zero) {
 }
 
 export function list_interfaces() {
-    const client = cockpit.dbus("org.freedesktop.NetworkManager");
-    return client.call('/org/freedesktop/NetworkManager',
-                       'org.freedesktop.NetworkManager',
-                       'GetAllDevices', [])
-            .then(reply => {
-                return Promise.all(reply[0].map(device => {
-                    return Promise.all([
-                        client.call(device,
-                                    'org.freedesktop.DBus.Properties',
-                                    'Get', ['org.freedesktop.NetworkManager.Device', 'Interface'])
-                                .then(reply => reply[0]),
-                        client.call(device,
-                                    'org.freedesktop.DBus.Properties',
-                                    'Get', ['org.freedesktop.NetworkManager.Device', 'Capabilities'])
-                                .then(reply => reply[0])
-                    ]);
-                }));
-            })
-            .then(interfaces => {
-                client.close();
-                return Promise.resolve(interfaces.map(i => {
-                    return { device: i[0].v, capabilities: i[1].v };
-                }));
-            })
-            .catch(error => console.warn(error));
+    return new Promise((resolve, reject) => {
+        const client = cockpit.dbus("org.freedesktop.NetworkManager");
+        client.call('/org/freedesktop/NetworkManager',
+                    'org.freedesktop.NetworkManager',
+                    'GetAllDevices', [])
+                .then(reply => {
+                    Promise.all(reply[0].map(device => {
+                        return Promise.all([
+                            client.call(device,
+                                        'org.freedesktop.DBus.Properties',
+                                        'Get', ['org.freedesktop.NetworkManager.Device', 'Interface'])
+                                    .then(reply => reply[0]),
+                            client.call(device,
+                                        'org.freedesktop.DBus.Properties',
+                                        'Get', ['org.freedesktop.NetworkManager.Device', 'Capabilities'])
+                                    .then(reply => reply[0])
+                        ]);
+                    }))
+                            .then(interfaces => {
+                                client.close();
+                                resolve(interfaces.map(i => {
+                                    return { device: i[0].v, capabilities: i[1].v };
+                                }));
+                            })
+                            .catch(e => console.warn(JSON.stringify(e)));
+                })
+                .catch(e => console.warn(JSON.stringify(e)));
+    });
 }

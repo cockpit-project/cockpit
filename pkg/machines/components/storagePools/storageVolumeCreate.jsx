@@ -23,7 +23,7 @@ import { Button, Form, Modal, Tooltip } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, getDefaultVolumeFormat, convertToUnit } from '../../helpers.js';
+import { units, getDefaultVolumeFormat, convertToUnit, isEmpty } from '../../helpers.js';
 import { storageVolumeCreate } from '../../libvirt-dbus.js';
 import { VolumeCreateBody } from './storageVolumeCreateBody.jsx';
 
@@ -35,7 +35,7 @@ class CreateStorageVolumeModal extends React.Component {
         this.state = {
             createInProgress: false,
             dialogError: undefined,
-            volumeName: undefined,
+            volumeName: '',
             size: 1,
             unit: units.GiB.name,
             format: getDefaultVolumeFormat(props.storagePool),
@@ -43,6 +43,7 @@ class CreateStorageVolumeModal extends React.Component {
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.validateParams = this.validateParams.bind(this);
     }
 
     dialogErrorSet(text, detail) {
@@ -53,24 +54,43 @@ class CreateStorageVolumeModal extends React.Component {
         this.setState({ [key]: value });
     }
 
-    onCreateClicked() {
-        const { volumeName, format } = this.state;
-        const { name, connectionName } = this.props.storagePool;
-        const size = convertToUnit(this.state.size, this.state.unit, 'MiB');
+    validateParams() {
+        const validationFailed = {};
 
-        this.setState({ createInProgress: true });
-        storageVolumeCreate(connectionName, name, volumeName, size, format)
-                .fail(exc => {
-                    this.setState({ createInProgress: false });
-                    this.dialogErrorSet(_("Volume failed to be created"), exc.message);
-                })
-                .then(() => {
-                    this.props.close();
-                });
+        if (isEmpty(this.state.volumeName.trim()))
+            validationFailed.volumeName = _("Name must not be empty");
+        const poolCapacity = parseFloat(convertToUnit(this.props.storagePool.capacity, units.B, this.state.unit));
+        if (this.state.size > poolCapacity)
+            validationFailed.size = cockpit.format(_("Storage volume size must not exceed the storage pool's capacity ($0 $1)"), poolCapacity.toFixed(2), this.state.unit);
+
+        return validationFailed;
+    }
+
+    onCreateClicked() {
+        const validation = this.validateParams();
+        if (Object.getOwnPropertyNames(validation).length > 0) {
+            this.setState({ createInProgress: false, validate: true });
+        } else {
+            this.setState({ createInProgress: true, validate: false });
+
+            const { volumeName, format } = this.state;
+            const { name, connectionName } = this.props.storagePool;
+            const size = convertToUnit(this.state.size, this.state.unit, 'MiB');
+
+            storageVolumeCreate(connectionName, name, volumeName, size, format)
+                    .fail(exc => {
+                        this.setState({ createInProgress: false });
+                        this.dialogErrorSet(_("Volume failed to be created"), exc.message);
+                    })
+                    .then(() => {
+                        this.props.close();
+                    });
+        }
     }
 
     render() {
         const idPrefix = `${this.props.idPrefix}-dialog`;
+        const validationFailed = this.state.validate ? this.validateParams() : {};
 
         return (
             <Modal position="top" variant="medium" id={`${idPrefix}-modal`} className='volume-create' isOpen onClose={this.props.close}
@@ -90,6 +110,7 @@ class CreateStorageVolumeModal extends React.Component {
                     <VolumeCreateBody idPrefix={idPrefix}
                                       storagePool={this.props.storagePool}
                                       dialogValues={this.state}
+                                      validationFailed={validationFailed}
                                       onValueChanged={this.onValueChanged} />
                 </Form>
             </Modal>

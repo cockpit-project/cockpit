@@ -1140,7 +1140,7 @@ class MachineCase(unittest.TestCase):
             # When coredump could not be generated, we cannot do much with info about there being a coredump
             # Ignore this message and all subsequent core dumps
             # If there is more than just one line about coredump, it will fail and show this messages
-            if m == "Failed to generate stack trace: (null)":
+            if m.startswith("Failed to generate stack trace"):
                 self.allowed_messages.append("Process .* of user .* dumped core.*")
                 continue
 

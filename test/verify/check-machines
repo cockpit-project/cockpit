@@ -4608,7 +4608,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self.xfail = xfail
                 self.xfail_object = xfail_object
                 self.xfail_error = xfail_error
-                self.remove = remove
 
             def execute(self):
                 self.open()
@@ -4677,9 +4676,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                    size = round(size / (1024**2))
                 self.test_obj.assertEqual(size, int(self.size))
 
-            def cleanup(self):
-                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.pool_name))
-
             def close(self):
                 b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage volumes" subtab
 
@@ -4707,7 +4703,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             size="256",
             unit="MiB",
             format="qcow2",
-            remove=True,
         ).execute()
 
         StorageVolumeCreateDialog(
@@ -4718,7 +4713,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             size="10", #Creation of big nfs vol might take so long it will result in timetout
             unit="MiB",
             format="raw", #Creation of qcow2 nfs vol might take so long it will result in timetout
-            remove=True,
         ).execute()
 
         StorageVolumeCreateDialog(
@@ -4729,7 +4723,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             size="10", # Only 50MiB available on disk-pool
             unit="MiB",
             format="none",
-            remove=True,
         ).execute()
 
         # Try raw format
@@ -4738,7 +4731,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             pool_name="dir-pool",
             vol_name="volume_of_dir_pool2",
             format="raw",
-            remove=True,
         ).execute()
 
         # create disk for lvm-pool
@@ -4751,7 +4743,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             vol_name="lvm_vol",
             size="20",
             format="",
-            remove=True,
         ).execute()
 
     def testNICAdd(self):

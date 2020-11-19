@@ -66,7 +66,10 @@ const _ = cockpit.gettext;
             if (event.button !== 0)
                 return;
 
-            this.refs.terminal.reset();
+            if (!this.state.channel.valid && this.state.user)
+                this.setState({ channel: this.createChannel(this.state.user) });
+            else
+                this.refs.terminal.reset();
 
             // don't focus the button, but keep it on the terminal
             this.refs.resetButton.blur();

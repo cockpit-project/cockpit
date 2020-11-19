@@ -99,6 +99,13 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
+        # Check that when we `exit` we can still reconnect with the 'Reset' button
+        b.key_press("exit\r")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "disconnected")
+        b.click('button:contains("Reset")')
+        wait_line(n, prompt)
+        b.wait_not_in_text(".terminal .xterm-accessibility-tree", "disconnected")
+
         def select_line(sel, width):
             # Select line by dragging mouse
             # 10px padding on all sides

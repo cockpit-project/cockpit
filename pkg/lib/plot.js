@@ -631,7 +631,7 @@ export class Plot {
     check_archives() {
         if (!this.archives) {
             this.archives = true;
-            $(this).triggerHandler('changed');
+            this.dispatchEvent('changed');
         }
     }
 

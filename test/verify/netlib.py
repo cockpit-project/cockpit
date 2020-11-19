@@ -86,6 +86,8 @@ class NetworkCase(MachineCase, NetworkHelpers):
             self.restore_dir("/etc/NetworkManager", post_restore_action="systemctl try-restart NetworkManager")
             self.restore_dir("/etc/sysconfig/network-scripts")
 
+        m.execute("systemctl start NetworkManager")
+
         # Ensure a clean and consistent state.  We remove rogue
         # connections that might still be here from the time of
         # creating the image and we prevent NM from automatically

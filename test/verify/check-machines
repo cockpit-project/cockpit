@@ -1679,7 +1679,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         runner.createTest(TestMachines.VmDialog(self, sourceType='pxe',
                                                 name="pxe-guest",
                                                 location="Host device {0}: macvtap".format(iface),
-                                                storage_size=100, storage_size_unit='MiB',
+                                                storage_size=128, storage_size_unit='MiB',
                                                 start_vm=True,
                                                 delete=False))
         self.machine.execute("virsh destroy pxe-guest")
@@ -1895,7 +1895,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         runner.createTest(TestMachines.VmDialog(self, sourceType='url',
                                                 location=config.VALID_URL,
                                                 memory_size=256, memory_size_unit='MiB',
-                                                storage_size=100, storage_size_unit='MiB',
+                                                storage_size=128, storage_size_unit='MiB',
                                                 start_vm=False))
 
         # Test detection of ISO file in URL
@@ -1947,8 +1947,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         FEDORA_28 = 'Fedora 28'
         FEDORA_28_SHORTID = 'fedora28'
 
-        CIRROS = 'CirrOS'
-
         MANDRIVA_2011_FILTERED_OS = 'Mandriva Linux 2011'
 
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
@@ -1962,8 +1960,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                      expected_memory_size=None,
                      storage_size=None, storage_size_unit='GiB',
                      expected_storage_size=None,
-                     os_name='CirrOS',
-                     os_short_id=None,
+                     os_name="Fedora 28",
+                     os_short_id="fedora28",
                      is_unattended=None,
                      profile=None,
                      root_password=None,
@@ -2192,7 +2190,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.wait_val("#memory-size", self.expected_memory_size)
 
             # check minimum memory is correctly set in the slider - the following are fake data
-            if self.os_name in [TestMachines.TestCreateConfig.CIRROS, TestMachines.TestCreateConfig.FEDORA_28]:
+            if self.os_name in [TestMachines.TestCreateConfig.FEDORA_28]:
                 b.wait_attr("#memory-size-slider  div[role=slider].hide", "aria-valuemin", "128")
 
             b.wait_visible("#start-vm")
@@ -2756,16 +2754,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
+        TestMachines.CreateVmRunner(self)
+
         b = self.browser
         m = self.machine
-
-        # define default storage pool for system connection
-        cmds = [
-            "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
-            "virsh pool-start default"
-        ]
-        m.execute(" && ".join(cmds))
-        m.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")

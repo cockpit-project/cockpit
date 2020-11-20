@@ -70,8 +70,6 @@ def release_target(used_targets, target):
 @nondestructive
 @no_retry_when_changed
 class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
-    created_pool = False
-
     def setUp(self):
         super().setUp()
 
@@ -124,6 +122,31 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.addCleanup(self.browser.logout)
         self.allow_authorize_journal_messages()
 
+    def addStoragePool(self, poolDetails, connectionName='system', removeContentOnCleanup=True, build=False):
+        buildCmd = ""
+        if build:
+            buildCmd = "virsh pool-build {0} --overwrite &&".format(poolDetails["name"])
+        if "xml" in poolDetails:
+            self.machine.execute("echo \"{0}\" > {1} && virsh pool-define {1} {3} && virsh pool-start {2}".format(poolDetails["xml"], os.path.join(self.vm_tmpdir, "testPool"), poolDetails["name"], buildCmd or ""))
+        else:
+            extra = ""
+            if "target" in poolDetails:
+                extra += " --target {0}".format(poolDetails["target"])
+            if "source_host" in poolDetails:
+                extra += " --source-host {0}".format(poolDetails["source_host"])
+            if "source_dev" in poolDetails:
+                extra += " --source-dev {0}".format(poolDetails["source_dev"])
+            if "source_path" in poolDetails:
+                extra += " --source-path {0}".format(poolDetails["source_path"])
+            self.machine.execute("virsh pool-define-as {0} --type {1} {2} && {3} virsh pool-start {0}".format(poolDetails["name"], poolDetails["type"], extra, buildCmd or ""))
+
+        rmPoolDir = ""
+        if removeContentOnCleanup:
+            if not poolDetails or ("type" in  poolDetails and poolDetails["type"] in ["dir", "netfs"]):
+                rmPoolDir = r"&& rm -rf {0}".format(poolDetails["source_path"] if "source_path" in poolDetails else poolDetails["target"])
+            else:
+                rmPoolDir = r"&& virsh pool-delete {0}".format(poolDetails["name"])
+        self.addCleanup(self.machine.execute, "virsh pool-destroy {0} {1} || true && virsh pool-undefine {0} || true".format(poolDetails["name"], rmPoolDir))
 
     def goToVmPage(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
@@ -216,11 +239,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         else:
             assert False, "invalid value for graphics"
         args["graphics"] = cxml.format(**args)
-
-        if not self.created_pool:
-            xml = POOL_XML.format(path="/var/lib/libvirt/images")
-            m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
-            self.created_pool = True
 
         xml = DOMAIN_XML.format(**args)
         m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml{1}".format(xml,
@@ -784,9 +802,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             target_iqn = "iqn.2019-09.cockpit.lan"
             self.prepareStorageDeviceOnISCSI(target_iqn)
 
-            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-id --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
+            self.addStoragePool(
+                { "name": "iscsi-pool", "type": "iscsi", "target": "/dev/disk/by-id", "source_host": "127.0.0.1", "source_dev": target_iqn },
+                "system",
+                False
+            ) # iscsi pool deletion is not supported by the connection driver
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
-            self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
 
         args = self.createVm("subVmTest1")
 
@@ -836,7 +857,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        self.addStoragePool({ "name": "nfs-pool", "type": "netfs", "target": nfs_pool, "source_host": "127.0.0.1", "source_path": mnt_exports })
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
@@ -892,12 +913,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        cmds = [
-            "virsh pool-define-as pool-disk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
-            "virsh pool-build pool-disk --overwrite",
-            "virsh pool-start pool-disk",
-        ]
-        self.machine.execute(" && ".join(cmds))
+        self.addStoragePool({ "name": "pool-disk", "type": "disk", "target": os.path.join(self.vm_tmpdir, "poolDiskImages"), "source_dev": dev }, "system", False, True)
         partition = os.path.basename(dev) + "1"
         self.VMAddDiskDialog(
             self,
@@ -925,9 +941,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         v2 = os.path.join(self.vm_tmpdir, "vm_two")
         default_tmp = os.path.join(self.vm_tmpdir, "default_tmp")
         m.execute("mkdir --mode 777 {0} {1} {2}".format(v1, v2, default_tmp))
-        m.execute("virsh pool-define-as default_tmp --type dir --target {0} && virsh pool-start default_tmp".format(default_tmp))
-        m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0} && virsh pool-start myPoolTwo".format(v2))
+
+        self.addStoragePool({ "name": "default_tmp", "type": "dir", "target": default_tmp }, "system", False)
+        self.addStoragePool({ "name": "myPoolOne", "type": "dir", "target": v1 }, "system", False)
+        self.addStoragePool({ "name": "myPoolTwo", "type": "dir", "target": v2 }, "system", False)
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 50M --format qcow2")
@@ -1310,6 +1327,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testDelete(self):
         b = self.browser
         m = self.machine
+
+        self.addStoragePool({ "name": "images", "type": "dir", "target": "/var/lib/libvirt/images" })
 
         name = "subVmTest1"
         img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
@@ -1711,10 +1730,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         dev = self.add_ram_disk()
         partition = dev.split('/')[2] + "1"
+        self.addStoragePool({ "name": "poolDisk", "type": "disk", "target": os.path.join(self.vm_tmpdir, "poolDiskImages"), "source_dev": dev }, "system", False, True)
         cmds = [
-            "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
-            "virsh pool-build poolDisk --overwrite",
-            "virsh pool-start poolDisk",
             "virsh vol-create-as poolDisk {0} 1024".format(partition)
         ]
         self.machine.execute(" && ".join(cmds))
@@ -1734,10 +1751,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             target_iqn = "iqn.2019-09.cockpit.lan"
             self.prepareStorageDeviceOnISCSI(target_iqn)
 
-            print(self.machine.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-id --source-host 127.0.0.1 --source-dev {0} && ls -la /dev/disk/by-id && virsh pool-start iscsi-pool".format(target_iqn)))
+            # iscsi storage pool does not support content cleanup
+            self.addStoragePool({ "name": "iscsi-pool", "type": "iscsi", "target": "/dev/disk/by-id", "source_host": "127.0.0.1", "source_dev": target_iqn }, "system", False)
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
-
-            self.addCleanup(self.machine.execute, "virsh pool-destroy iscsi-pool; virsh pool-delete iscsi-pool; virsh pool-undefine iscsi-pool")
 
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1755,12 +1771,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         config = TestMachines.TestCreateConfig
 
         # Undefine the default storage pool for the first test
-        self.machine.execute("virsh pool-destroy default; virsh pool-undefine default")
+        self.machine.execute("virsh pool-destroy default && virsh pool-undefine default")
 
         self.login_and_go("/machines")
         self.browser.wait_in_text("body", "Virtual machines")
 
         # Check that when there is no storage pool defined a VM can still be created
+        # This test will automatically create a storage pool called images pointing to NOVELL_MOCKUP_ISO_PATH
         runner.createTest(TestMachines.VmDialog(self, sourceType='file',
                                                 location=config.NOVELL_MOCKUP_ISO_PATH,
                                                 storage_pool="No storage",
@@ -1768,14 +1785,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.browser.switch_to_top()
         self.browser.wait_not_visible("#navbar-oops")
-
-        # define again the default storage pool for system connection
-        # we need so that the UI will know the remaining available space when we use that pool's path
-        cmds = [
-                "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
-                "virsh pool-start default"
-                ]
-        self.machine.execute(" && ".join(cmds))
 
         self.browser.reload()
         self.browser.enter_page('/machines')
@@ -1803,10 +1812,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 memory_size=100000, memory_size_unit='MiB',
                                                 storage_pool="No storage",
                                                 start_vm=False))
+
+        self.machine.execute("mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool")
+        self.addStoragePool({ "name": "tmp\ pool", "type": "dir", "target": "/var/lib/libvirt/pools/tmp\ pool" })
         cmds = [
-            "mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool",
-            "virsh pool-define-as tmp\ pool --type dir --target /var/lib/libvirt/pools/tmp\ pool",
-            "virsh pool-start tmp\ pool",
             "qemu-img create -f qcow2 /var/lib/libvirt/pools/tmp\ pool/vmTmpDestination.qcow2 128M",
             "virsh pool-refresh tmp\ pool"
         ]
@@ -1831,7 +1840,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 storage_pool="No storage",
                                                 start_vm=True,))
 
-        self.machine.execute("touch '{0}'".format(config.PATH_WITH_SPACE))
         # Check file with empty space
         runner.createTest(TestMachines.VmDialog(self, sourceType='file',
                                                 location=config.PATH_WITH_SPACE,
@@ -1947,8 +1955,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
-        NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
-        PATH_WITH_SPACE = '/var/lib/libvirt/novell with spaces.iso'
+        NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/images/novell.iso'
+        PATH_WITH_SPACE = '/var/lib/libvirt/images/novell with spaces.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
         TREE_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os'
@@ -2304,9 +2312,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.test_obj = test_obj
 
             self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+            self.machine.execute("touch '{0}'".format(TestMachines.TestCreateConfig.PATH_WITH_SPACE))
             self.machine.execute("qemu-img create {0} 500M".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
-            test_obj.addCleanup(test_obj.machine.execute, "rm -f {0} {1}".format(
+            test_obj.addCleanup(test_obj.machine.execute, "rm -f {0} '{1}' {2}".format(
                 TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH,
+                TestMachines.TestCreateConfig.PATH_WITH_SPACE,
                 TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
 
             self._fakeOsDBInfo()
@@ -2802,6 +2812,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
+        # Let the CreateVmRunner prepare for us the iso path and the mock osinfo-db
         TestMachines.CreateVmRunner(self)
 
         b = self.browser
@@ -3741,8 +3752,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "1 Storage pool")
-        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pool")
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "0 Storage pools")
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pools")
 
         # prepare libvirt storage pools
         p1 = os.path.join(self.vm_tmpdir, "vm_one")
@@ -3753,7 +3764,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
         m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
 
-        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "3 Storage pools")
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "2 Storage pools")
 
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
@@ -4567,7 +4578,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Prepare dir pool
         dir_pool = os.path.join(self.vm_tmpdir, "dir_pool")
         m.execute("mkdir --mode 777 {0}".format(dir_pool))
-        m.execute("virsh pool-define-as dir-pool --type dir --target {0} && virsh pool-start dir-pool".format(dir_pool))
+        self.addStoragePool({ "name": "dir-pool", "type": "dir", "target": dir_pool})
 
         # Prepare net-fs pool
         nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
@@ -4575,16 +4586,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.restore_file("/etc/exports")
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        self.addStoragePool({ "name": "nfs-pool", "type": "netfs", "target": nfs_pool, "source_host": "127.0.0.1", "source_path": mnt_exports })
 
         # Prepare disk/block pool
         dev = self.add_ram_disk()
-        cmds = [
-            "virsh pool-define-as disk-pool disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
-            "virsh pool-build disk-pool --overwrite",
-            "virsh pool-start disk-pool",
-        ]
-        self.machine.execute(" && ".join(cmds))
+        self.addStoragePool({ "name": "disk-pool", "type": "disk", "target": os.path.join(self.vm_tmpdir, "poolDiskImages"), "source_dev": dev }, "system", False, True)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")

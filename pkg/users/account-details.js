@@ -195,7 +195,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         cockpit.spawn(["/usr/bin/loginctl", "terminate-user", user],
                       { superuser: "try", err: "message" })
                 .then(() => {
-                    this.get_logged();
+                    get_details(user).then(setDetails);
                 })
                 .catch(show_unexpected_error);
     }

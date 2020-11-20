@@ -269,7 +269,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"
                                                      isDisabled={committing_real_name || account.uid == 0}
-                                                     value={edited_real_name || account.gecos}
+                                                     value={edited_real_name !== null ? edited_real_name : account.gecos}
                                                      onKeyPress={event => {
                                                          if (event.key == "Enter") {
                                                              event.target.blur();

@@ -13,13 +13,6 @@ var info = {
             "dashboard/dashboard.scss",
         ],
 
-        "docker/docker": [
-            "docker/containers.js"
-        ],
-        "docker/console": [
-            "docker/console.js",
-        ],
-
         "kdump/kdump": [
             "kdump/kdump.js",
             "kdump/kdump.scss",
@@ -148,8 +141,6 @@ var info = {
     },
 
     tests: [
-        "docker/test-docker",
-
         "kdump/test-config-client",
 
         "lib/test-dummy",
@@ -165,10 +156,6 @@ var info = {
         "apps/default.png",
 
         "dashboard/index.html",
-
-        "docker/console.html",
-        "docker/index.html",
-        "docker/images/drive-harddisk-symbolic.svg",
 
         "kdump/index.html",
 

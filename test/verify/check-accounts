@@ -55,9 +55,8 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
+        b.set_input_text('#account-real-name', "") # Check that we can delete the name before setting it up
         b.set_input_text('#account-real-name', "Anton Arbitrary")
-        b.wait_present("#account-details")
-        b.wait_present("#account-details")
         b.blur("#account-real-name")
         b.wait_present('#account-real-name:not([disabled])')
         b.wait_text("#account-title", "Anton Arbitrary")

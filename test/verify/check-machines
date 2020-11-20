@@ -86,6 +86,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.startLibvirt()
         self.addCleanup(m.execute, "systemctl stop libvirtd")
 
+        # Remove dummy bridge which we use in the tests
+        self.addCleanup(m.execute, "ip link delete virbrtest type bridge || true")
+
         # Cleanup pools
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
 
@@ -2816,6 +2819,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
+        m.execute("ip link add virbrtest type bridge")
+        self.addCleanup(m.execute, "ip link delete virbrtest type bridge")
+
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
@@ -2871,7 +2877,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Attach some interface
-        m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
+        m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbrtest")
 
         # Change the os boot firmware configuration
         supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
@@ -3280,8 +3286,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
 
-        # Create a second bridge to LAN NIC, virbr0 does not make sense but let's use it for test purposes
-        m.execute("virsh attach-interface --persistent subVmTest1 bridge virbr0")
+        m.execute("virsh attach-interface --persistent subVmTest1 bridge virbrtest")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
@@ -3355,7 +3360,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Change network type and source from the bridge NIC
         b.wait_in_text("#vm-subVmTest1-network-1-type", "bridge")
-        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbr0")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbrtest")
 
         # Change interface type to direct
         # Open the modal dialog
@@ -3378,20 +3383,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Direct attachment")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "virbr0")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "virbrtest")
 
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
 
         b.wait_in_text("#vm-subVmTest1-network-1-type", "bridge")
-        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbr0")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbrtest")
 
         b.click("#vm-subVmTest1-network-1-edit-dialog")
-        b.wait_in_text("#vm-subVmTest1-network-1-select-source", "virbr0")
+        b.wait_in_text("#vm-subVmTest1-network-1-select-source", "virbrtest")
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
-        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbr0")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbrtest")
 
         # Change interface type to network
         # Open the modal dialog
@@ -3589,7 +3594,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check headers of networks
         b.wait_in_text("#network-test_network2-{0}-name".format(connectionName), "test_network2")
-        b.wait_in_text("#network-test_network2-{0}-device".format(connectionName), "virbr1")
+        b.wait_in_text("#network-test_network2-{0}-device".format(connectionName), "virbrtest")
         b.wait_in_text("#network-test_network2-{0}-forwarding".format(connectionName), "None (isolated network)")
         b.wait_in_text("#network-test_network3-{0}-name".format(connectionName), "test_network3")
         b.wait_in_text("#network-test_network3-{0}-device".format(connectionName), "br0")
@@ -4899,7 +4904,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         NICAddDialog(
             self,
             source_type="Bridge to LAN",
-            source="virbr0",
+            source="virbrtest",
         ).execute()
 
         # Test model

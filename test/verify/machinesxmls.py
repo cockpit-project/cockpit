@@ -20,7 +20,7 @@ TEST_NETWORK_XML = """
 <network>
   <name>test_network</name>
   <forward mode='nat'/>
-  <bridge name='virbr1' stp='on' delay='0'/>
+  <bridge name='virbrtest' stp='on' delay='0'/>
   <mac address='52:54:00:bc:93:8e'/>
   <ip address='192.168.123.1' netmask='255.255.255.0'>
     <dhcp>
@@ -33,7 +33,7 @@ TEST_NETWORK_XML = """
 TEST_NETWORK2_XML = """
 <network>
   <name>test_network2</name>
-  <bridge name='virbr1' stp='on' delay='0'/>
+  <bridge name='virbrtest' stp='on' delay='0'/>
   <mac address='52:54:00:79:86:29'/>
   <domain name='test'/>
   <bandwidth>

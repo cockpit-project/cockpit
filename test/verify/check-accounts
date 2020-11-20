@@ -269,6 +269,15 @@ class TestAccounts(MachineCase):
         b.click('.cockpit-account-user-name a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
+        # Terminate session
+        b2 = self.new_browser(m)
+        b2.login_and_go("/system")
+        b.go("#/admin")
+        b.wait_in_text("#account-details", "Logged in")
+        b.click("#account-details button:contains('Terminate session')")
+        b.wait_not_in_text("#account-details", "Logged in")
+        b.wait_visible("#account-logout[disabled]")
+
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")

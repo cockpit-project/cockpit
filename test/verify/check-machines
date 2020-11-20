@@ -116,8 +116,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
 
-        m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml || true")
-
         # avoid error noise about resources getting cleaned up
         self.addCleanup(self.browser.logout)
         self.allow_authorize_journal_messages()

@@ -38,6 +38,7 @@ set -eu
 
 # minimalistic WebKit browser
 PYWEBKIT='
+import subprocess
 import sys
 import gi
 
@@ -57,12 +58,16 @@ class Browser(Gtk.Window):
         self.add(self.webview)
         self.webview.show()
         self.webview.connect("load-changed", self._title_changed)
+        self.webview.connect("create", self._open_external)
 
         self.connect("destroy", Gtk.main_quit)
         self.connect("key-press-event", self._key_pressed)
 
         self.show()
         self.webview.load_uri(uri)
+
+    def _open_external(self, widget, event):
+        subprocess.run(["xdg-open", event.get_request().get_uri()])
 
     def _title_changed(self, widget, event):
         self.set_title(self.webview.get_title() or "")

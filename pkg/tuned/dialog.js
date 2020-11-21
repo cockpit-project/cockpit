@@ -182,6 +182,8 @@ function setup() {
         function create_dialog(profiles, active_profile, primary_disabled, static_error) {
             dialog_selected = active_profile;
             var dialog_props = {
+                helpMessage: _("Tuned is a service that monitors your system and optimizes the performance under certain workloads. The core of Tuned are profiles, which tune your system for different use cases."),
+                helpLink: "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/managing_systems_using_the_rhel_8_web_console/index#optimizing-the-system-performance-using-the-web-console_system-management-using-the-RHEL-8-web-console",
                 title: _("Change performance profile"),
                 body: React.createElement(TunedDialogBody, {
                     active_profile: active_profile,

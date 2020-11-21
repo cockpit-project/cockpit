@@ -21,7 +21,8 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert, Button, Modal } from "@patternfly/react-core";
+import { Alert, Button, Modal, Popover } from "@patternfly/react-core";
+import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import "page.scss";
 import "cockpit-components-dialog.css";
@@ -235,12 +236,28 @@ export class Dialog extends React.Component {
     }
 
     render() {
+        let help = null;
+        let footer = null;
+        if (this.props.helpLink)
+            footer = <a href={this.props.helpLink} target="_blank" rel="noopener noreferrer">{_("Learn more")} <ExternalLinkAltIcon /></a>;
+
+        if (this.props.helpMessage)
+            help = <Popover
+                  bodyContent={this.props.helpMessage}
+                  footerContent={footer}
+            >
+                <Button variant="plain" aria-label={_("Learn more")}>
+                    <HelpIcon />
+                </Button>
+            </Popover>;
+
         return (
             <Modal position="top" variant="medium"
                    onEscapePress={() => undefined}
                    showClose={false}
                    id={this.props.id}
                    isOpen
+                   help={help}
                    footer={this.props.footer} title={this.props.title}>
                 { this.props.body }
             </Modal>

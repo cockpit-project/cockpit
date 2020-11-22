@@ -792,11 +792,14 @@ class MachineCase(unittest.TestCase):
 
     def disable_preload(self, *packages):
         for pkg in packages:
-            self.write_file("/usr/share/cockpit/%s/override.json" % pkg, '{ "preload": [ ] }')
+            path = "/usr/share/cockpit/%s" % pkg
+            if self.machine.execute("if test -e %s; then echo yes; fi" % path):
+                self.write_file("%s/override.json" % path, '{ "preload": [ ] }')
 
     def enable_preload(self, package, *pages):
-        path = "/usr/share/cockpit/%s/override.json" % package
-        self.write_file(path, '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
+        path = "/usr/share/cockpit/%s" % package
+        if self.machine.execute("if test -e %s; then echo yes; fi" % path):
+            self.write_file(path + '/override.json', '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
 
     def setUp(self, restrict=True):
 

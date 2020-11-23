@@ -153,6 +153,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 rmPoolDir = r"&& virsh pool-delete {0}".format(poolDetails["name"])
         self.addCleanup(self.machine.execute, "virsh pool-destroy {0} {1} || true && virsh pool-undefine {0} || true".format(poolDetails["name"], rmPoolDir))
 
+    def addSnapshot(self, vmName, snapshotName, description, diskOnly=False):
+        self.machine.execute("virsh snapshot-create-as --domain {0} --name {1} --description '{2}' {3}".format(vmName, snapshotName, description, "--disk-only" if diskOnly else ""))
+        self.addCleanup(self.machine.execute, "virsh snapshot-delete --domain {0} --snapshotname {1} {2}".format(vmName, snapshotName, "--metadata" if diskOnly else ""))
+
     def goToVmPage(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
 
@@ -3669,9 +3673,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotA --description 'Description of snapshotA'")
+        self.addSnapshot("subVmTest1", "snapshotA", "Description of snapshotA")
         time.sleep(1)
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB'")
+        self.addSnapshot("subVmTest1", "snapshotB", "Description of snapshotB")
         # snapshotB is the current snapshot
         m.execute("virsh snapshot-current --domain subVmTest1 --snapshotname snapshotA")
 
@@ -3729,7 +3733,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
         time1 = datetime.now().strftime("%H:%M:%S")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB' --disk-only")
+        self.addSnapshot("subVmTest1", "snapshotB", "Description of snapshotB", True)
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
@@ -3748,7 +3752,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         time1 = datetime.now().strftime("%H:%M:%S")
-        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
+        self.addSnapshot("subVmTest1", "snapshotC", "Description of snapshotC")
 
         b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')

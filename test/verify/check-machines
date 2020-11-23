@@ -1595,15 +1595,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
                 self.browser.wait_not_present('select option[data-value="Download an OS"]')
             else:
-                runner.createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
-                                                                    expected_memory_size=256,
-                                                                    expected_storage_size=256,
-                                                                    os_name=config.FEDORA_28,
-                                                                    os_short_id=config.FEDORA_28_SHORTID,
-                                                                    start_vm=True, delete=False))
+                dialog = TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
+                                               expected_memory_size=256,
+                                               expected_storage_size=256,
+                                               os_name=config.FEDORA_28,
+                                               os_short_id=config.FEDORA_28_SHORTID,
+                                               start_vm=True, delete=False)
+
+                runner.createDownloadAnOSTest(dialog)
 
                 runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
                                                                            check_script_finished=False, env_is_empty=False), {"vm-name": "already exists"})
+
+                runner._deleteVm(dialog) \
+                      .checkEnvIsEmpty()
 
     def testCreatePXE(self):
         runner = TestMachines.CreateVmRunner(self)
@@ -1649,11 +1654,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
         # to have serial console at bios and also redirect serial console to a file
-        runner.createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
-                                                location="Virtual network pxe-nat: NAT",
-                                                memory_size=256, memory_size_unit='MiB',
-                                                storage_pool="No storage",
-                                                start_vm=True, delete=False))
+        dialog = TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
+                                       location="Virtual network pxe-nat: NAT",
+                                       memory_size=256, memory_size_unit='MiB',
+                                       storage_pool="No storage",
+                                       start_vm=True, delete=False)
+        runner.createTest(dialog)
 
         # We don't want to use start_vm == False because if we get a separate install phase
         # virt-install will overwrite our changes.
@@ -1708,16 +1714,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # The file is full of ANSI control characters in between every letter, filter them out
         wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
+        # FIXME: this should get replaced by the UI equivalent but it results in a racy operation
         self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
         runner.checkEnvIsEmpty()
+        # runner._deleteVm(dialog) \
+        #       .checkEnvIsEmpty()
 
         # Check that host network devices are appearing in the options for PXE boot sources
-        runner.createTest(TestMachines.VmDialog(self, sourceType='pxe',
-                                                name="pxe-guest",
-                                                location="Host device {0}: macvtap".format(iface),
-                                                storage_size=128, storage_size_unit='MiB',
-                                                start_vm=True,
-                                                delete=False))
+        dialog = TestMachines.VmDialog(self, sourceType='pxe',
+                                       name="pxe-guest",
+                                       location="Host device {0}: macvtap".format(iface),
+                                       storage_size=128, storage_size_unit='MiB',
+                                       start_vm=True,
+                                       delete=False)
+        runner.createTest(dialog)
         self.machine.execute("virsh destroy pxe-guest")
 
         # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is marked as non bootable
@@ -1893,16 +1903,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 storage_size=1))
 
         # name already exists
-        runner.createTest(TestMachines.VmDialog(self, name='existing-name', sourceType='url',
-                                                location=config.VALID_URL, storage_size=1,
-                                                delete=False))
+        dialog = TestMachines.VmDialog(self, name='existing-name', sourceType='url',
+                                       location=config.VALID_URL, storage_size=1,
+                                       delete=False)
+        runner.createTest(dialog)
 
         self.goToMainPage()
         runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
                                                                    env_is_empty=False), {"vm-name": "already exists"})
 
-        self.machine.execute("virsh undefine existing-name")
-
+        runner._deleteVm(dialog) \
+              .checkEnvIsEmpty()
 
         runner.createTest(TestMachines.VmDialog(self, sourceType='url',
                                                 location=config.VALID_URL,

@@ -481,6 +481,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
+        self.allow_restart_journal_messages()
+
         libvirtServiceName = "libvirtd.service"
 
         def checkLibvirtEnabled():

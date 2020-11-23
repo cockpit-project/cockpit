@@ -43,17 +43,25 @@ const ConnectionRow = ({ connectionName }) => {
     );
 };
 
-function validateParams(dialogValues) {
+function validateParams(dialogValues, networks) {
     const validationFailed = {};
 
     if (isEmpty(dialogValues.name.trim()))
         validationFailed.name = _("Name should not be empty");
 
     if (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") {
-        if (isEmpty(dialogValues.ipv4.trim()))
+        if (isEmpty(dialogValues.ipv4.trim())) {
             validationFailed.ipv4 = _("IPv4 network should not be empty");
-        else if (!utils.validateIpv4(dialogValues.ipv4))
+        } else if (!utils.validateIpv4(dialogValues.ipv4)) {
             validationFailed.ipv4 = _("Invalid IPv4 address");
+        } else {
+            const net = networks.some(net => net.ip[0] &&
+                                      net.ip[0].family === "ipv4" &&
+                                      net.ip[0].netmask === dialogValues.netmask &&
+                                      utils.isIpv4InNetwork(dialogValues.ipv4, dialogValues.netmask, net.ip[0].netmasknetwork.ipv4.address));
+            if (net)
+                validationFailed.ipv4 = cockpit.format(_("IPv4 address is already used by network '$0'"), net.name);
+        }
 
         if (isEmpty(dialogValues.netmask.trim()))
             validationFailed.netmask = _("Mask or prefix length should not be empty");
@@ -351,7 +359,7 @@ class CreateNetworkModal extends React.Component {
     }
 
     onCreate() {
-        if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
+        if (Object.getOwnPropertyNames(validateParams(this.state, this.props.networks)).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
             const {
@@ -376,7 +384,7 @@ class CreateNetworkModal extends React.Component {
     }
 
     render() {
-        const validationFailed = this.state.validate && validateParams(this.state);
+        const validationFailed = this.state.validate && validateParams(this.state, this.props.networks);
 
         const body = (
             <Form isHorizontal>
@@ -426,6 +434,7 @@ class CreateNetworkModal extends React.Component {
 CreateNetworkModal.propTypes = {
     close: PropTypes.func.isRequired,
     devices: PropTypes.array.isRequired,
+    networks: PropTypes.array.isRequired,
 };
 
 export class CreateNetworkAction extends React.Component {
@@ -454,6 +463,7 @@ export class CreateNetworkAction extends React.Component {
                 { this.state.showModal &&
                 <CreateNetworkModal
                     close={this.close}
+                    networks={this.props.networks}
                     devices={this.props.devices} /> }
             </>
         );
@@ -461,4 +471,5 @@ export class CreateNetworkAction extends React.Component {
 }
 CreateNetworkAction.propTypes = {
     devices: PropTypes.array.isRequired,
+    networks: PropTypes.array.isRequired,
 };

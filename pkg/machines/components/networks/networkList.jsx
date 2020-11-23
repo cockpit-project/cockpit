@@ -46,7 +46,7 @@ export class NetworkList extends React.Component {
         const { dispatch, networks, resourceHasError, onAddErrorNotification, vms, nodeDevices, interfaces } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
         const devices = getNetworkDevices(vms, nodeDevices, interfaces);
-        const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} />);
+        const actions = (<CreateNetworkAction devices={devices} networks={networks} />);
 
         return (
             <Page breadcrumb={

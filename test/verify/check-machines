@@ -4083,6 +4083,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             )
         duplicated_net.execute()
 
+        # Check "Address not within subnet"
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="nat",
+            ip_conf="IPv4 only",
+            ipv4_address="192.168.110.2",
+            ipv4_netmask="255.255.255.0",
+            xfail=True,
+            xfail_objects = ["ipv4_address"],
+            xfail_error = "Address is already used by network",
+        ).execute()
+        duplicated_net.cleanup()
+
         # XFail: Activate a network which has a same ipv4 address with last one
         NetworkCreateDialog(
             self,

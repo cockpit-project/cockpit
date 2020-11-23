@@ -269,14 +269,27 @@ class TestAccounts(MachineCase):
         b.click('.cockpit-account-user-name a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
-        # Terminate session
-        b2 = self.new_browser(m)
-        b2.login_and_go("/system")
-        b.go("#/admin")
-        b.wait_in_text("#account-details", "Logged in")
-        b.click("#account-details button:contains('Terminate session')")
-        b.wait_not_in_text("#account-details", "Logged in")
-        b.wait_visible("#account-logout[disabled]")
+        if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
+            b.go("#/admin")
+            b.wait_visible("#account-logout[disabled]")
+
+            # Log in as "admin" and the open details in other browser should update
+            b2 = self.new_browser(m)
+            b2.login_and_go("/system")
+            b.wait_in_text("#account-details", "Logged in")
+            b.wait_visible("#account-logout:not(:disabled)")
+
+            # Now log out and it should update again
+            b2.logout()
+            b.wait_not_in_text("#account-details", "Logged in")
+            b.wait_visible("#account-logout[disabled]")
+
+            # Terminate session
+            b2.login_and_go("/system")
+            b.wait_in_text("#account-details", "Logged in")
+            b.click("#account-details button:contains('Terminate session')")
+            b.wait_not_in_text("#account-details", "Logged in")
+            b.wait_visible("#account-logout[disabled]")
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")

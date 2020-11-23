@@ -136,6 +136,13 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     const [details, setDetails] = useState(null);
     useEffect(() => {
         get_details(user).then(setDetails);
+
+        // Watch `/var/run/utmp` to register when user logs in or out
+        const handle = cockpit.file("/var/run/utmp", { superuser: "try" });
+        handle.watch(() => {
+            get_details(user).then(setDetails);
+        });
+        return handle.close;
     }, [user, accounts, shadow]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);

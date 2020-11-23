@@ -68,7 +68,7 @@ var messages = [];
 var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
-var sawRefusedInlineStyle = false;
+var shownMessages = []; // Show every message just once, keep here seen messages
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -81,7 +81,10 @@ function setupLogging(client) {
     client.Runtime.consoleAPICalled(info => {
         let msg = info.args.map(v => (v.value || "").toString()).join(" ");
         messages.push([ info.type, msg ]);
-        process.stderr.write("> " + info.type + ": " + msg + "\n")
+        if (shownMessages.indexOf(msg) == -1) {
+            shownMessages.push(msg);
+            process.stderr.write("> " + info.type + ": " + msg + "\n")
+        }
 
         resolveLogPromise();
     });
@@ -139,18 +142,18 @@ function setupLogging(client) {
             }
             });
         } else {
-            /* Reduce unsafe-inline messages from PatternFly's usage of Emotion
-             * (https://github.com/patternfly/patternfly-react/issues/2919) */
-            if ((text || "").indexOf("Content Security Policy:") >= 0 && (text || "").indexOf("resource at inline") >= 0) {
-                if (sawRefusedInlineStyle)
-                    return;
-                sawRefusedInlineStyle = true;
-            }
-
             messages.push([ "cdp", msg ]);
             /* Ignore authentication failure log lines that don't denote failures */
-            if (!(msg.url || "").endsWith("/login") || (text || "").indexOf("401") === -1)
-                process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
+            if (!(msg.url || "").endsWith("/login") || (text || "").indexOf("401") === -1) {
+                const orig = {...msg};
+                delete msg.timestamp;
+                delete msg.args;
+                const msgstr = JSON.stringify(msg);
+                if (shownMessages.indexOf(msgstr) == -1) {
+                    shownMessages.push(msgstr);
+                    process.stderr.write("CDP: " + JSON.stringify(orig) + "\n");
+                }
+            }
             resolveLogPromise();
         }
     });

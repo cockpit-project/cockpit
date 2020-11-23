@@ -156,7 +156,7 @@ class TestStorage(StorageCase):
         #
         #        https://github.com/latchset/tang/issues/23
 
-        if m.image not in ["rhel-7-9"]:
+        if m.image not in ["rhel-7-9", "centos-7"]:
             m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
 
         m.execute("systemctl start tangd.socket")

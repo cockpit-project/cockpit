@@ -277,7 +277,7 @@ export function useObject(create, destroy, deps, comps) {
  * }
  *
  * The component will be re-rendered whenever "proxy" emits the
- * "changed" signal.
+ * "changed" signal.  The "proxy" parameter can be null.
  */
 
 export function useEvent(obj, event) {
@@ -290,7 +290,7 @@ export function useEvent(obj, event) {
             setToggler(toggle => !toggle);
         }
 
-        obj.addEventListener(event, update);
-        return () => obj.removeEventListener(event, update);
+        obj && obj.addEventListener(event, update);
+        return () => obj && obj.removeEventListener(event, update);
     }, [obj, event]);
 }

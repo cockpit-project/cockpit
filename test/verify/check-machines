@@ -123,6 +123,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.addCleanup(self.browser.logout)
         self.allow_authorize_journal_messages()
 
+        wait(lambda: "default" == self.machine.execute("virsh net-list --name --all").strip(), delay=3)
+        wait(lambda: "" == self.machine.execute("virsh pool-list --name --all").strip(), delay=3)
+        wait(lambda: "" == self.machine.execute("virsh list --name --all").strip(), delay=3)
+
     def addStoragePool(self, poolDetails, connectionName='system', removeContentOnCleanup=True, build=False):
         buildCmd = ""
         if build:

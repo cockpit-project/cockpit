@@ -45,6 +45,9 @@ BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 
+# Be careful when changing this string, check in cockpit-project/bots where it is being used
+UNEXPECTED_MESSAGE = "FAIL: Test completed, but found unexpected "
+
 __all__ = (
     # Test definitions
     'test_main',
@@ -64,6 +67,7 @@ __all__ = (
     'wait',
     'opts',
     'TEST_DIR',
+    'UNEXPECTED_MESSAGE',
 )
 
 # Command line options
@@ -1161,7 +1165,7 @@ class MachineCase(unittest.TestCase):
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
-            raise Error("FAIL: Test completed, but found unexpected journal messages:\n" + first)
+            raise Error(UNEXPECTED_MESSAGE + "journal messages:\n" + first)
 
     def allow_browser_errors(self, *patterns):
         """Don't fail if the test caused a console error contains the given regexp"""
@@ -1179,7 +1183,7 @@ class MachineCase(unittest.TestCase):
                 if re.search(p, log):
                     break
             else:
-                raise Error("FAIL: Test completed, but found unexpected browser errors:\n" + log)
+                raise Error(UNEXPECTED_MESSAGE + "browser errors:\n" + log)
 
     def check_axe(self, label=None, suffix=""):
         """Run aXe check on the currently active frame

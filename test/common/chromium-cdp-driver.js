@@ -66,7 +66,7 @@ var messages = [];
 var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
-var sawRefusedInlineStyle = false;
+var shownMessages = []; // Show every message just once, keep here seen messages
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -83,7 +83,10 @@ function setupLogging(client) {
             return
 
         messages.push([ info.type, msg ]);
-        process.stderr.write("> " + info.type + ": " + msg + "\n")
+        if (shownMessages.indexOf(msg) == -1) {
+            shownMessages.push(msg);
+            process.stderr.write("> " + info.type + ": " + msg + "\n")
+        }
 
         resolveLogPromise();
     });
@@ -115,10 +118,6 @@ function setupLogging(client) {
             /* when building with --enable-debug, we have proper symbols and can reliably identify the source */
             if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName === "makeStyleTag")
                 return;
-            /* else, show the error just once */
-            if (sawRefusedInlineStyle)
-                return;
-            sawRefusedInlineStyle = true;
             /* further trim the output by dropping the stackTrace if it's minified */
             if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName.length == 1)
                 msg.stackTrace = "(minified)";
@@ -126,8 +125,16 @@ function setupLogging(client) {
 
         messages.push([ "cdp", msg ]);
         /* Ignore authentication failure log lines that don't denote failures */
-        if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)
-            process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
+        if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1) {
+            const orig = {...msg};
+            delete msg.timestamp;
+            delete msg.args;
+            const msgstr = JSON.stringify(msg);
+            if (shownMessages.indexOf(msgstr) == -1) {
+                shownMessages.push(msgstr);
+                process.stderr.write("CDP: " + JSON.stringify(orig) + "\n");
+            }
+        }
         resolveLogPromise();
     });
 }

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     Button,
@@ -41,6 +41,7 @@ import {
     vmId,
 } from "../../helpers.js";
 
+import { CloneDialog } from '../vmCloneDialog.jsx';
 import { DeleteDialog } from "../deleteDialog.jsx";
 import LibvirtDBus from '../../libvirt-dbus.js';
 
@@ -49,8 +50,15 @@ const _ = cockpit.gettext;
 const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetailsPage }) => {
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [showDeleteDialog, toggleDeleteModal] = useState(false);
+    const [showCloneDialog, toggleCloneModal] = useState(false);
     const [operationInProgress, setOperationInProgress] = useState(false);
     const [prevVmState, setPrevVmState] = useState(vm.state);
+    const [virtCloneAvailable, setVirtCloneAvailable] = useState(false);
+
+    useEffect(() => {
+        cockpit.spawn(['which', 'virt-clone'], { err: 'ignore' })
+                .then(() => setVirtCloneAvailable(true));
+    }, []);
 
     if (vm.state !== prevVmState) {
         setPrevVmState(vm.state);
@@ -266,6 +274,37 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
         </Button>);
     }
 
+    const cloneItem = (
+        <DropdownItem isDisabled={!virtCloneAvailable}
+                      key={`${id}-clone`}
+                      id={`${id}-clone`}
+                      onClick={() => toggleCloneModal(true)}>
+            {_("Clone")}
+        </DropdownItem>
+    );
+    if (state == "shut off") {
+        if (virtCloneAvailable)
+            dropdownItems.push(cloneItem);
+        else
+            dropdownItems.push(
+                <Tooltip key={`${id}-clone-tooltip`} id='virt-clone-not-available-tooltip'
+                         content={_("virt-install package needs to be installed on the system in order to clone VMs")}>
+                    <span>
+                        {cloneItem}
+                    </span>
+                </Tooltip>
+            );
+    }
+    let cloneAction;
+    if (showCloneDialog) {
+        cloneAction = (
+            <CloneDialog key='action-clone'
+                         name={vm.name}
+                         connectionName={vm.connectionName}
+                         toggleModal={() => toggleCloneModal(!showCloneDialog)} />
+        );
+    }
+
     let deleteAction = null;
     if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
         if (!vm.persistent) {
@@ -298,6 +337,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             {shutdown}
             {install}
             {deleteAction}
+            {cloneAction}
             <Dropdown onSelect={() => setIsActionOpen(!isActionOpen)}
                       id={`${id}-action-kebab`}
                       toggle={<KebabToggle onToggle={isOpen => setIsActionOpen(isOpen)} />}

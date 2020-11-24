@@ -1622,7 +1622,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # We don't want to use start_vm == False because if we get a separate install phase
         # virt-install will overwrite our changes.
 
-        if self.machine.image not in ["fedora-33", "fedora-testing"]:
+        if self.machine.image not in ["fedora-33", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
             self.machine.execute("virsh destroy pxe-guest")
@@ -2870,7 +2870,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("> {0}".format(logfile)) # clear logfile
         b.click("#vm-VmNotInstalled-action-kebab button")
         b.click("#vm-VmNotInstalled-forceOff")
-        if m.image not in ["fedora-33", "fedora-testing"]:
+        if m.image not in ["fedora-33", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
             # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration

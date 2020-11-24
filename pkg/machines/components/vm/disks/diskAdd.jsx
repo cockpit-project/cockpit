@@ -40,6 +40,9 @@ const CREATE_NEW = 'create-new';
 const USE_EXISTING = 'use-existing';
 
 function getFilteredVolumes(vmStoragePool, disks) {
+    if (!vmStoragePool || !vmStoragePool.volumes)
+        return [];
+
     const usedDiskPaths = Object.getOwnPropertyNames(disks)
             .filter(target => disks[target].source && (disks[target].source.file || disks[target].source.volume))
             .map(target => (disks[target].source && (disks[target].source.file || disks[target].source.volume)));

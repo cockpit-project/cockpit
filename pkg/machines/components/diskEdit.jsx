@@ -85,27 +85,27 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
         <FormGroup fieldId={`${idPrefix}-access`} label={_("Access")} isInline>
             <Radio id={`${idPrefix}-readonly`}
                    name="access"
-                   isChecked={dialogValues.readonly}
-                   onChange={e => {
-                       onValueChanged('readonly', true);
-                       onValueChanged('shareable', false);
+                   value="readonly"
+                   isChecked={dialogValues.access == "readonly" }
+                   onChange={(_, event) => {
+                       onValueChanged("access", event.currentTarget.value);
                    }}
                    label={_("Read-only")} />
             <Radio id={`${idPrefix}-writable`}
                    name="access"
-                   isChecked={!dialogValues.readonly && !dialogValues.shareable}
-                   onChange={e => {
-                       onValueChanged('readonly', false);
-                       onValueChanged('shareable', false);
+                   value="writable"
+                   isChecked={dialogValues.access == "writable" }
+                   onChange={(_, event) => {
+                       onValueChanged("access", event.currentTarget.value);
                    }}
                    label={_("Writeable")} />
             {(driverType === "raw") &&
             <Radio id={`${idPrefix}-writable-shareable`}
                    name="access"
-                   isChecked={dialogValues.shareable}
-                   onChange={e => {
-                       onValueChanged('readonly', false);
-                       onValueChanged('shareable', true);
+                   value="shareable"
+                   isChecked={dialogValues.access == "shareable" }
+                   onChange={(_, event) => {
+                       onValueChanged("access", event.currentTarget.value);
                    }}
                    label={_("Writeable and shared")} />}
         </FormGroup>
@@ -115,9 +115,16 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
 class EditDiskModalBody extends React.Component {
     constructor(props) {
         super(props);
+        let access;
+        if (props.disk.readonly)
+            access = "readonly";
+        else if (props.disk.shareable)
+            access = "shareable";
+        else
+            access = "writable";
+
         this.state = {
-            readonly: props.disk.readonly,
-            shareable: props.disk.shareable,
+            access,
             busType: props.disk.bus,
         };
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -137,7 +144,14 @@ class EditDiskModalBody extends React.Component {
         const { disk, vm } = this.props;
         const existingTargets = Object.getOwnPropertyNames(vm.disks);
 
-        updateDiskAttributes({ connectionName: vm.connectionName, objPath: vm.id, target: disk.target, readonly: this.state.readonly, shareable: this.state.shareable, busType: this.state.busType, existingTargets })
+        updateDiskAttributes({
+            connectionName: vm.connectionName,
+            objPath: vm.id, target: disk.target,
+            readonly: this.state.access == "readonly",
+            shareable: this.state.access == "shareable",
+            busType: this.state.busType,
+            existingTargets
+        })
                 .then(() => this.props.close())
                 .fail((exc) => {
                     this.dialogErrorSet(_("Disk settings could not be saved"), exc.message);

@@ -372,7 +372,7 @@ export class AddDiskModalBody extends React.Component {
                     stateDelta.mode = value;
                     const poolName = stateDelta.storagePoolName;
                     if (poolName)
-                        stateDelta = { ...stateDelta, ...this.existingVolumeNameDelta(this.getDefaultVolumeName(poolName), prevState.storagePoolName) };
+                        stateDelta = { ...stateDelta, ...this.existingVolumeNameDelta(this.getDefaultVolumeName(poolName), poolName) };
                 }
 
                 return stateDelta;

@@ -25,8 +25,8 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import {
-    Button, Grid, GridItem, Tooltip,
-    Card, CardTitle, CardActions, CardHeader, CardBody, CardFooter,
+    Button, Gallery, Tooltip,
+    Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
     Page, PageSection, PageSectionVariants,
@@ -567,8 +567,8 @@ class CardsPage extends React.Component {
         const cardContents = [
             {
                 id: "status",
-                span: 6,
                 title: _("Status"),
+                className: "pk-card-info",
                 actions: (<Tooltip content={_("Check for updates")}>
                     <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
                 </Tooltip>),
@@ -577,8 +577,8 @@ class CardsPage extends React.Component {
                                   timeSinceRefresh={this.props.timeSinceRefresh} />
             },
             {
-                span: 6,
                 id: "automatic-updates",
+                className: "pk-card-info",
                 title: _("Automatic updates"),
                 actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.state.privileged} />),
                 body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
@@ -610,19 +610,15 @@ class CardsPage extends React.Component {
 
         return cardContents.map(card => {
             return (
-                <GridItem key={card.id} span={card.span}>
-                    <Card className={card.className}
-                          id={card.id}>
-                        <CardHeader>
-                            <CardTitle><h2>{card.title}</h2></CardTitle>
-                            {card.actions && <CardActions>{card.actions}</CardActions>}
-                        </CardHeader>
-                        <CardBody>
-                            {card.body}
-                        </CardBody>
-                        <CardFooter />
-                    </Card>
-                </GridItem>
+                <Card key={card.id} className={card.className} id={card.id}>
+                    <CardHeader>
+                        <CardTitle><h2>{card.title}</h2></CardTitle>
+                        {card.actions && <CardActions>{card.actions}</CardActions>}
+                    </CardHeader>
+                    <CardBody>
+                        {card.body}
+                    </CardBody>
+                </Card>
             );
         });
     }
@@ -992,13 +988,13 @@ class OsUpdates extends React.Component {
                         <h2 id="page-title">{_("Software updates")}</h2>
                     </PageSection>
                     <PageSection>
-                        <Grid hasGutter>
+                        <Gallery className='pk-overview' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
                                        applyAll={applyAll}
                                        highestSeverity={highest_severity}
                                        {...this.state} />
-                        </Grid>
+                        </Gallery>
                     </PageSection>
                 </>
             );
@@ -1048,9 +1044,9 @@ class OsUpdates extends React.Component {
                         <h2 id="page-title">{_("Software updates")}</h2>
                     </PageSection>
                     <PageSection>
-                        <Grid hasGutter>
+                        <Gallery className='pk-overview' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh} {...this.state} />
-                        </Grid>
+                        </Gallery>
                     </PageSection>
                 </>
             );

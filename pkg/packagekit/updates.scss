@@ -358,3 +358,11 @@ table.header-buttons {
 table.available {
     margin-bottom: var(--pf-global--spacer--3xl);
 }
+
+.pk-overview {
+    --pf-l-gallery--GridTemplateColumns: repeat(auto-fit,minmax(0.5fr,1fr));
+
+    > article:not(.pk-card-info) {
+        grid-column: span 2;
+    }
+}

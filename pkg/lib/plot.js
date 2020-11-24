@@ -428,6 +428,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
 
         instance_data.reset = reset.bind(this);
         instance_data.remove = remove.bind(this);
+        instance_data.name = name;
         this.last_instance = instance_data;
         this.instances[name] = instance_data;
         instance_data.reset();
@@ -1241,4 +1242,222 @@ export function setup_complicated_plot(graph_id, grid, series, options) {
         last = ser.data;
     });
     return setup_plot(graph_id, grid, series, options);
+}
+
+// ***** THE NEW STUFF ****
+
+/* Eventually, the stuff below will replace the stuff above.
+ *
+ * The public API here is not general and a bit weird.  It can only do
+ * what Cockpit itself needs right now, and what can be easily
+ * supported by the old stuff above.  But it's a start.
+ *
+ * The basic idea is that you create a global PlotState object and
+ * keep it alive for the lifetime of the page.  Then you instantiate
+ * ZoomControl and SvgPlot components as needed.
+ *
+ * To control what to plot, you call some methods on the PlotState
+ * object:
+ *
+ * - plot_state.plot_single(id, metric_options)
+ *
+ * - plot_state.plot_instances(id, metric_options, instances, reset)
+ *
+ * You need to figure out the rest of the details from the existing
+ * users, unfortunately.
+ */
+
+class ZoomState {
+    constructor(reset_callback) {
+        cockpit.event_target(this);
+
+        this.reset_callback = reset_callback;
+
+        this.x_range = 5 * 60;
+        this.x_stop = undefined;
+        this.history = [];
+
+        this.enable_zoom_in = false;
+        this.enable_zoom_out = true;
+        this.enable_scroll_left = true;
+        this.enable_scroll_right = false;
+    }
+
+    reset() {
+        const plot_min_x_range = 5 * 60;
+
+        if (this.x_range < plot_min_x_range) {
+            this.x_stop += (plot_min_x_range - this.x_range) / 2;
+            this.x_range = plot_min_x_range;
+        }
+        if (this.x_stop >= (new Date()).getTime() / 1000 - 10)
+            this.x_stop = undefined;
+
+        this.reset_callback(this.x_range, this.x_stop);
+
+        this.enable_zoom_in = (this.x_range > plot_min_x_range);
+        this.enable_scroll_right = (this.x_stop !== undefined);
+
+        this.dispatchEvent("changed");
+    }
+
+    set_range(x_range) {
+        this.history = [];
+        this.x_range = x_range;
+        this.reset();
+    }
+
+    zoom_in(x_range, x_stop) {
+        this.history.push(this.x_range);
+        this.x_range = x_range;
+        this.x_stop = x_stop;
+        this.reset();
+    }
+
+    zoom_out() {
+        const plot_zoom_steps = [
+            5 * 60,
+            60 * 60,
+            6 * 60 * 60,
+            24 * 60 * 60,
+            7 * 24 * 60 * 60,
+            30 * 24 * 60 * 60,
+            365 * 24 * 60 * 60
+        ];
+
+        var r = this.history.pop();
+        if (r === undefined) {
+            var i;
+            for (i = 0; i < plot_zoom_steps.length - 1; i++) {
+                if (plot_zoom_steps[i] > this.x_range)
+                    break;
+            }
+            r = plot_zoom_steps[i];
+        }
+        if (this.x_stop !== undefined)
+            this.x_stop += (r - this.x_range) / 2;
+        this.x_range = r;
+        this.reset();
+    }
+
+    goto_now() {
+        this.x_stop = undefined;
+        this.reset();
+    }
+
+    scroll_left() {
+        var step = this.x_range / 10;
+        if (this.x_stop === undefined)
+            this.x_stop = (new Date()).getTime() / 1000;
+        this.x_stop -= step;
+        this.reset();
+    }
+
+    scroll_right() {
+        var step = this.x_range / 10;
+        if (this.x_stop !== undefined) {
+            this.x_stop += step;
+            this.reset();
+        }
+    }
+}
+
+class SinglePlotState {
+    constructor() {
+        this._plot = new Plot(null, 300);
+        this._plot.start_walking();
+    }
+
+    plot_single(metric) {
+        if (this._stacked_instances_series) {
+            this._stacked_instances_series.clear_instances();
+            this._stacked_instances_series.remove();
+            this._stacked_instances_series = null;
+        }
+        if (!this._sum_series) {
+            this._sum_series = this._plot.add_metrics_sum_series(metric, { });
+        }
+    }
+
+    plot_instances(metric, insts, reset) {
+        if (this._sum_series) {
+            this._sum_series.remove();
+            this._sum_series = null;
+        }
+        if (!this._stacked_instances_series) {
+            this._stacked_instances_series = this._plot.add_metrics_stacked_instances_series(metric, { });
+        } else if (reset) {
+            this._stacked_instances_series.clear_instances();
+        }
+
+        for (var i = 0; i < insts.length; i++) {
+            this._stacked_instances_series.add_instance(insts[i]);
+        }
+    }
+
+    destroy() {
+        this._plot.destroy();
+    }
+}
+
+export class PlotState {
+    constructor() {
+        cockpit.event_target(this);
+        this.plots = { };
+        this.zoom_state = null;
+    }
+
+    _reset_plots(x_range, x_stop) {
+        for (const id in this.plots) {
+            const p = this.plots[id]._plot;
+            p.stop_walking();
+            p.reset(x_range, x_stop);
+            p.refresh();
+            if (x_stop === undefined)
+                p.start_walking();
+        }
+    }
+
+    _check_archives(plot) {
+        if (!this.zoom_state && plot.archives) {
+            this.zoom_state = new ZoomState(this._reset_plots.bind(this));
+            this.dispatchEvent("changed");
+        }
+    }
+
+    _get(id) {
+        if (this.plots[id])
+            return this.plots[id];
+
+        const ps = new SinglePlotState();
+        ps._plot.addEventListener("changed", () => this._check_archives(ps._plot));
+        this._check_archives(ps._plot);
+        ps._plot.addEventListener("plot", (event, data) => {
+            ps.data = data;
+            this.dispatchEvent("plot:" + id);
+        });
+
+        this.plots[id] = ps;
+        return ps;
+    }
+
+    plot_single(id, metric) {
+        const ps = this._get(id);
+        ps.plot_single(metric);
+        ps.instances = null;
+    }
+
+    plot_instances(id, metric, insts, reset) {
+        const ps = this._get(id);
+        ps.plot_instances(metric, insts, reset);
+        ps.instances = insts;
+    }
+
+    data(id) {
+        return this.plots[id] && this.plots[id].data;
+    }
+
+    instances(id) {
+        return this.plots[id] && this.plots[id].instances;
+    }
 }

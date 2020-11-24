@@ -63,6 +63,9 @@ var info = {
         "playground/plot": [
             "playground/plot.js",
         ],
+        "playground/plot-svg": [
+            "playground/plot-svg.js"
+        ],
         "playground/react-patterns": [
             "playground/react-patterns",
         ],
@@ -189,6 +192,7 @@ var info = {
         "playground/metrics.html",
         "playground/pkgs.html",
         "playground/plot.html",
+        "playground/plot-svg.html",
         "playground/react-patterns.html",
         "playground/service.html",
         "playground/speed.html",
@@ -415,7 +419,7 @@ module.exports = {
             // flot and bootstrap UI require jQuery to be in the global namespace
             // only expose that to pages which need it, as we want to port to React and get rid of jQuery
             {
-                issuer: /shell|networkmanager|dashboard|storaged|playground\/plot|systemd\/(logs|services|shutdown)/,
+                issuer: /shell|networkmanager|dashboard|storaged|playground\/(plot|plot-svg)|systemd\/(logs|services|shutdown)/,
                 test: require.resolve('jquery'),
                 loader: 'expose-loader',
                 options: {

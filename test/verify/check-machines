@@ -4152,6 +4152,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if self.activate and not self.xfail_objects:
                     m.execute("virsh net-destroy {}".format(self.name))
                 m.execute("virsh net-undefine {0}".format(self.name))
+                self.test_obj.waitNetworkRow(self.name, None, False)
 
 
         # Test various forward Modes

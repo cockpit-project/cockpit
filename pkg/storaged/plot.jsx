@@ -17,304 +17,81 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
 import React from "react";
-import $ from "jquery";
 
-import * as plot from "plot.js";
+import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
+import { ZoomControls, SvgPlot, bytes_per_sec_config } from "cockpit-components-plot.jsx";
+
 import { decode_filename } from "./utils.js";
 
-const _ = cockpit.gettext;
+const single_read_metric = {
+    direct: ["disk.all.read_bytes"],
+    internal: ["disk.all.read"],
+    units: "bytes",
+    derive: "rate",
+    threshold: 1000
+};
 
-class ZoomControls extends React.Component {
-    constructor() {
-        super();
-        this.classes = { };
-        this.plots = [];
+const single_write_metric = {
+    direct: ["disk.all.write_bytes"],
+    internal: ["disk.all.written"],
+    units: "bytes",
+    derive: "rate",
+    threshold: 1000
+};
+
+const instances_read_metric = {
+    direct: "disk.dev.read_bytes",
+    internal: "block.device.read",
+    units: "bytes",
+    derive: "rate",
+    threshold: 1000
+};
+
+const instances_write_metric = {
+    direct: "disk.dev.write_bytes",
+    internal: "block.device.written",
+    units: "bytes",
+    derive: "rate",
+    threshold: 1000
+};
+
+export function update_plot_state(ps, client) {
+    const devs = [];
+    for (var p in client.drives) {
+        var block = client.drives_block[p];
+        var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
+        if (dev)
+            devs.push(dev);
     }
 
-    render() {
-        var self = this;
-
-        function setup(element) {
-            if (!element)
-                return;
-
-            if (!self.controls) {
-                // The setup_plot_controls function has been written
-                // to work with a jQuery object but it will only modify
-                // the classes of it with the usual hasClass/addClass/removeClass functions.
-                // So we duck-type the relevant functions.
-                var duck = {
-                    hasClass: (cl) => self.classes[cl],
-                    addClass: (cl) => {
-                        self.classes[cl] = true;
-                        self.props.onClassesChanged(self.classes);
-                    },
-                    removeClass: (cl) => {
-                        delete self.classes[cl];
-                        self.props.onClassesChanged(self.classes);
-                    }
-                };
-                self.controls = plot.setup_plot_controls(duck, $(element), self.plots);
-            }
-        }
-
-        return (
-            <div ref={setup} id="storage-graph-toolbar" className="zoom-controls standard-zoom-controls">
-                <div className="dropdown">
-                    <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span />
-                        <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" />
-                    </button>
-                    <ul className="dropdown-menu" role="menu">
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-action="goto-now">{_("Go to now")}</a>
-                        </li>
-                        <li role="presentation" className="divider" />
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-range="300">{_("5 minutes")}</a>
-                        </li>
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-range="3600">{_("1 hour")}</a>
-                        </li>
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-range="21600">{_("6 hours")}</a>
-                        </li>
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-range="86400">{_("1 day")}</a>
-                        </li>
-                        <li role="presentation">
-                            <a tabIndex="0" role="menuitem" data-range="604800">{_("1 week")}</a>
-                        </li>
-                    </ul>
-                </div>
-                { "\n" }
-                <button className="pf-c-button pf-m-secondary" data-action="zoom-out">
-                    <span className="glyphicon glyphicon-zoom-out" />
-                </button>
-                { "\n" }
-                <div className="btn-group">
-                    <button className="pf-c-button pf-m-secondary" data-action="scroll-left"> <span className="fa fa-angle-left" /></button>
-                    <button className="pf-c-button pf-m-secondary" data-action="scroll-right"> <span className="fa fa-angle-right" /></button>
-                </div>
-            </div>
-        );
-    }
-
-    reset(plots) {
-        if (this.controls)
-            this.controls.reset(plots);
-        else
-            this.plots = plots;
+    if (devs.length > 10) {
+        ps.plot_single('read', single_read_metric);
+        ps.plot_single('write', single_write_metric);
+    } else {
+        ps.plot_instances('read', instances_read_metric, devs);
+        ps.plot_instances('write', instances_write_metric, devs);
     }
 }
 
-class StoragePlot extends React.Component {
-    constructor() {
-        super();
-        this.state = { unit: "" };
-        this.on_resize = () => { this.setState({}) };
-    }
-
-    componentDidMount() {
-        window.addEventListener("resize", this.on_resize);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.on_resize);
-    }
-
-    render() {
-        var self = this;
-
-        function setup_hook(flot) {
-            var axes = flot.getAxes();
-            if (axes.yaxis.datamax < 100000)
-                axes.yaxis.options.max = 100000;
-            else
-                axes.yaxis.options.max = null;
-            axes.yaxis.options.min = 0;
-        }
-
-        function post_hook(flot) {
-            var unit = cockpit.format_bytes_per_sec(flot.getAxes().yaxis.max, 1024, true)[1];
-            if (unit != self.state.unit)
-                self.setState({ unit: unit });
-        }
-
-        function hover(event, dev) {
-            if (self.props.onHover)
-                self.props.onHover(dev);
-        }
-
-        function setup_plot(element) {
-            if (!element)
-                return;
-
-            /* If we get a new DOM element, we need to recreate the
-             * whole plot.  This is bad, but does not actually happen
-             * in the normal life of the storage page.
-             */
-            if (self.plot && element != self.plot_element) {
-                self.plot.destroy();
-                self.plot = null;
-            }
-
-            if (!self.plot) {
-                var plot_options = plot.plot_simple_template();
-                $.extend(plot_options.yaxis, {
-                    ticks: plot.memory_ticks,
-                    tickFormatter: plot.format_bytes_per_sec_tick_no_unit
-                });
-                $.extend(plot_options.grid, {
-                    hoverable: true,
-                    autoHighlight: false
-                });
-                plot_options.setup_hook = setup_hook;
-                plot_options.post_hook = post_hook;
-                self.plot = new plot.Plot($(element), 300);
-                self.plot_element = element;
-                self.plot.set_options(plot_options);
-                self.plot.start_walking();
-
-                if (self.props.onPlotCreated)
-                    self.props.onPlotCreated(self.plot);
-            }
-
-            if (element.offsetWidth != self.last_offsetWidth || element.offsetHeight != self.last_offsetHeight) {
-                self.last_offsetWidth = element.offsetWidth;
-                self.last_offsetHeight = element.offsetHeight;
-                self.plot.resize();
-            }
-
-            if (self.props.devs === null) {
-                // Show a single sum series
-                if (self.stacked_instances_series) {
-                    self.stacked_instances_series.clear_instances();
-                    self.stacked_instances_series.remove();
-                    self.stacked_instances_series = null;
-                }
-                if (!self.sum_series) {
-                    self.sum_series = self.plot.add_metrics_sum_series(self.props.data, { });
-                }
-            } else {
-                // Show a stacked instance series
-                if (self.sum_series) {
-                    self.sum_series.remove();
-                    self.sum_series = null;
-                }
-                if (!self.stacked_instances_series) {
-                    self.stacked_instances_series = self.plot.add_metrics_stacked_instances_series(self.props.data, { });
-                    $(self.stacked_instances_series).on('hover', hover);
-                }
-                for (var i = 0; i < self.props.devs.length; i++)
-                    self.stacked_instances_series.add_instance(self.props.devs[i]);
-            }
-        }
-
-        return (
-            <div className="col-sm-6 storage-graph-container">
-                <div>
-                    <span className="plot-unit">{this.state.unit}</span>
-                    <span className="plot-title">{this.props.title}</span>
-                </div>
-                <div ref={setup_plot} className="zoomable-plot storage-graph" />
-            </div>
-        );
-    }
-}
-
-export class StoragePlots extends React.Component {
-    constructor() {
-        super();
-        this.plots = [];
-        this.state = { classes: { } };
-    }
-
-    render() {
-        var client = this.props.client;
-
-        var read_plot_data, write_plot_data;
-        var devs;
-
-        if (Object.keys(client.drives).length < 20) {
-            // Show a graph for each drive
-
-            read_plot_data = {
-                direct: "disk.dev.read_bytes",
-                internal: "block.device.read",
-                units: "bytes",
-                derive: "rate",
-                threshold: 1000
-            };
-
-            write_plot_data = {
-                direct: "disk.dev.write_bytes",
-                internal: "block.device.written",
-                units: "bytes",
-                derive: "rate",
-                threshold: 1000
-            };
-
-            devs = [];
-            for (var p in client.drives) {
-                var block = client.drives_block[p];
-                var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
-                if (dev)
-                    devs.push(dev);
-            }
-        } else {
-            // Just a single graph for total I/O
-
-            read_plot_data = {
-                direct: ["disk.all.read_bytes"],
-                internal: ["disk.all.read"],
-                units: "bytes",
-                derive: "rate",
-                threshold: 1000
-            };
-
-            write_plot_data = {
-                direct: ["disk.all.write_bytes"],
-                internal: ["disk.all.written"],
-                units: "bytes",
-                derive: "rate",
-                threshold: 1000
-            };
-
-            devs = null;
-        }
-
-        // We need to tell the zoom controls about our plots as they
-        // get created.
-
-        const setup_controls = (element) => {
-            if (element && !this.controls) {
-                this.controls = element;
-                this.controls.reset(this.plots);
-            }
-        };
-
-        const new_plot = (p) => {
-            this.plots.push(p);
-            if (this.controls)
-                this.controls.reset(this.plots);
-        };
-
-        return (
-            <div className={Object.keys(this.state.classes).join(" ")}>
-                <ZoomControls ref={setup_controls}
-                              onClassesChanged={(cls) => this.setState({ classes: cls })} />
-                <div className="row">
-                    <StoragePlot devs={devs} onHover={this.props.onHover}
-                                 onPlotCreated={new_plot}
-                                 title={_("Reading")} data={read_plot_data} />
-                    <StoragePlot devs={devs} onHover={this.props.onHover}
-                                 onPlotCreated={new_plot}
-                                 title={_("Writing")} data={write_plot_data} />
-                </div>
-            </div>
-        );
-    }
-}
+export const StoragePlots = ({ plot_state, onHover }) => {
+    return (
+        <>
+            <Split>
+                <SplitItem isFilled />
+                <SplitItem><ZoomControls plot_state={plot_state} /></SplitItem>
+            </Split>
+            <Grid sm={12} md={6} lg={6} hasGutter>
+                <GridItem>
+                    <SvgPlot className="storage-graph"
+                             title="Reading" config={bytes_per_sec_config}
+                             plot_state={plot_state} plot_id='read' onHover={onHover} />
+                </GridItem>
+                <GridItem>
+                    <SvgPlot className="storage-graph"
+                             title="Writing" config={bytes_per_sec_config}
+                             plot_state={plot_state} plot_id='write' onHover={onHover} />
+                </GridItem>
+            </Grid>
+        </>);
+};

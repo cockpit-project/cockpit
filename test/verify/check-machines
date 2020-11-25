@@ -1133,7 +1133,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
+        b.click("#vm-subVmTest1-vcpus-count button") # open VCPU modal detail window
 
         b.wait_present(".pf-c-modal-box__body")
 
@@ -1178,7 +1178,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
         # Open dialog window
-        b.click("#vm-subVmTest1-vcpus-count")
+        b.click("#vm-subVmTest1-vcpus-count button")
         b.wait_present(".pf-c-modal-box__body")
 
         # Check basic values
@@ -1199,7 +1199,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Open dialog
-        b.click("#vm-subVmTest1-vcpus-count")
+        b.click("#vm-subVmTest1-vcpus-count button")
 
         b.wait_present(".pf-c-modal-box__body")
 
@@ -1227,7 +1227,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
 
         # Open dialog
-        b.click("#vm-subVmTest1-vcpus-count")
+        b.click("#vm-subVmTest1-vcpus-count button")
 
         b.wait_present(".pf-c-modal-box__body")
 
@@ -1244,7 +1244,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # non-persistent VM doesn't have configurable vcpu
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
+        b.wait_present("#vm-subVmTest1-vcpus-count button:disabled")
 
     def testExternalConsole(self):
         b = self.browser
@@ -1697,7 +1697,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is marked as non bootable
         b.click("#vm-pxe-guest-overview")
-        b.click("#vm-pxe-guest-boot-order")
+        b.click("#vm-pxe-guest-boot-order button")
         b.wait_present("#vm-pxe-guest-order-modal-window")
         b.wait_present("#vm-pxe-guest-order-modal-device-row-0 input:checked")
         b.wait_in_text("#vm-pxe-guest-order-modal-device-row-0 .list-group-item-heading", "disk")
@@ -2687,6 +2687,33 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         checkAutostart("subVmTest1", True)
         checkAutostart("subVmTest2", False)
 
+    def testCPUModel(self):
+        b = self.browser
+
+        self.createVm("subVmTest1", running=False)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        self.goToVmPage("subVmTest1")
+
+        # Copy host CPU configuration
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
+        b.click("#cpu-config-dialog-apply")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
+
+        # Choose manually a CPU model
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "coreduo")
+        b.click("#cpu-config-dialog-apply")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom (coreduo)")
+
+        # CPU configuration should be disabled for running VMs
+        b.click("#vm-subVmTest1-run")
+        b.wait_present("#vm-subVmTest1-cpu-model button.pf-m-disabled")
+
     def testBootOrder(self):
         b = self.browser
         m = self.machine
@@ -2705,7 +2732,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         bootOrder = b.text("#vm-subVmTest1-boot-order")
 
         # Open dialog
-        b.click("#vm-subVmTest1-boot-order")
+        b.click("#vm-subVmTest1-boot-order button")
         b.wait_present("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
@@ -2737,7 +2764,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         bootOrder = b.text("#vm-subVmTest1-boot-order")
 
         # Open dialog
-        b.click("#vm-subVmTest1-boot-order")
+        b.click("#vm-subVmTest1-boot-order button")
         b.wait_present("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
@@ -2759,7 +2786,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable boot order
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("button#vm-subVmTest1-boot-order:disabled")
+        b.wait_present("#vm-subVmTest1-boot-order button:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
@@ -2791,7 +2818,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.set_checked("#vm-VmNotInstalled-autostart-checkbox", autostart)
 
         # Change memory settings
-        b.click("#vm-VmNotInstalled-memory-count")
+        b.click("#vm-VmNotInstalled-memory-count button")
         b.wait_present("#vm-memory-modal")
         b.set_input_text("#vm-VmNotInstalled-memory-modal-max-memory", "400")
         b.blur("#vm-VmNotInstalled-memory-modal-max-memory")
@@ -2801,7 +2828,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Change vCPUs setting
-        b.click("#vm-VmNotInstalled-vcpus-count")
+        b.click("#vm-VmNotInstalled-vcpus-count button")
         b.wait_present(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "8")
         b.blur("#machines-vcpu-max-field")
@@ -2815,7 +2842,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Change Boot Order setting
         bootOrder = b.text("#vm-VmNotInstalled-boot-order")
-        b.click("#vm-VmNotInstalled-boot-order")
+        b.click("#vm-VmNotInstalled-boot-order button")
         b.wait_present(".pf-c-modal-box__body")
         b.set_checked("#vm-VmNotInstalled-order-modal-device-row-1-checkbox", True)
         b.click("#vm-VmNotInstalled-order-modal-device-row-0 #vm-VmNotInstalled-order-modal-down")
@@ -2893,7 +2920,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check configuration changes survived installation
         # Check memory settings have persisted
-        b.click("#vm-VmNotInstalled-memory-count")
+        b.click("#vm-VmNotInstalled-memory-count button")
         b.wait_present("#vm-VmNotInstalled-memory-modal-memory")
         b.wait_val("#vm-VmNotInstalled-memory-modal-max-memory", "400")
         b.wait_val("#vm-VmNotInstalled-memory-modal-memory", "300")
@@ -2901,7 +2928,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Check vCPU settings have persisted
-        b.click("#vm-VmNotInstalled-vcpus-count")
+        b.click("#vm-VmNotInstalled-vcpus-count button")
         b.wait_present(".pf-c-modal-box__body")
         b.wait_val("#machines-vcpu-max-field", "8")
         b.wait_val("#machines-vcpu-count-field", "2")
@@ -3049,7 +3076,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage("subVmTest1")
 
         # Wait for the edit link
-        b.click("#vm-subVmTest1-memory-count")
+        b.click("#vm-subVmTest1-memory-count button")
 
         # Change memory
         b.wait_present("#vm-subVmTest1-memory-modal-memory")
@@ -3082,7 +3109,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
 
         # Click for the edit link
-        b.click("#vm-subVmTest1-memory-count")
+        b.click("#vm-subVmTest1-memory-count button")
 
         # Verify that limiting max memory in offline VMs bellow memory will decrease memory as well
         b.set_input_text("#vm-subVmTest1-memory-modal-max-memory", str(current_memory - 20))
@@ -3103,7 +3130,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable memory
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("button#vm-subVmTest1-memory-count:disabled")
+        b.wait_present("#vm-subVmTest1-memory-count button:disabled")
 
     def testDetachDisk(self):
         b = self.browser
@@ -3200,14 +3227,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Change Boot Order setting
         bootOrder = b.text("#vm-subVmTest1-boot-order")
-        b.click("#vm-subVmTest1-boot-order") # Open dialog
+        b.click("#vm-subVmTest1-boot-order button") # Open dialog
         b.wait_present(".pf-c-modal-box__body")
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
         b.click("#vm-subVmTest1-order-modal-save") # Save
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Change vCPUs setting
-        b.click("#vm-subVmTest1-vcpus-count") # Open dialog
+        b.click("#vm-subVmTest1-vcpus-count button") # Open dialog
         b.wait_present(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "3") # Change values
         b.set_input_text("#machines-vcpu-count-field", "3")

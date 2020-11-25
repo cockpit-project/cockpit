@@ -36,17 +36,8 @@ class TestNetworkingBasic(NetworkCase):
         self.wait_for_iface(iface)
         b.wait_not_visible("#network-interface")
 
-        # Graphs are visible
-        el_width = "(function (sel) { return ph_find(sel).offsetWidth; })"
-        el_height = "(function (sel) { return ph_find(sel).offsetHeight; })"
-
-        b.wait_visible("#networking-tx-graph")
-        self.assertGreater(b.call_js_func(el_width, "#networking-tx-graph"), 200)
-        self.assertGreater(b.call_js_func(el_height, "#networking-tx-graph"), 100)
-
-        b.wait_visible("#networking-rx-graph")
-        self.assertGreater(b.call_js_func(el_width, "#networking-rx-graph"), 200)
-        self.assertGreater(b.call_js_func(el_height, "#networking-rx-graph"), 100)
+        b.wait_in_text("#network-graphs-element", "Transmitting")
+        b.wait_in_text("#network-graphs-element", "Receiving")
 
         # Details of test iface
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)

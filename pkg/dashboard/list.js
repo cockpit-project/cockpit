@@ -19,6 +19,8 @@
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 import $ from "jquery";
+import React from "react";
+import ReactDOM from "react-dom";
 import "bootstrap/dist/js/bootstrap";
 import { mustache } from "mustache";
 
@@ -28,6 +30,8 @@ import * as plot from "plot.js";
 import { machines } from "machines";
 import { new_machine_dialog_manager } from "machine-dialogs";
 import { cpu_ram_info } from "machine-info.js";
+
+import { DashboardPlots } from "./plots.js";
 
 const _ = cockpit.gettext;
 
@@ -113,6 +117,7 @@ var resource_monitors = [
                 "network.interface.tx"
             ],
             units: "bytes",
+            factor: 8,
             'omit-instances': ["lo"],
             derive: "rate"
         },
@@ -213,6 +218,15 @@ PageDashboard.prototype = {
             plot_refresh();
         }
 
+        function highlight_machine(addr) {
+            console.log("HOVER", addr);
+        }
+
+        self.plot_state = new plot.PlotState();
+
+        ReactDOM.render(<DashboardPlots plot_state={self.plot_state} onHover={highlight_machine} />,
+                        document.getElementById('dashboard-graphs-element'));
+
         plot_init();
         set_monitor(current_monitor);
         plot.setup_plot_controls($('#dashboard'), $('#dashboard-toolbar'), self.plots);
@@ -254,6 +268,8 @@ PageDashboard.prototype = {
                 seen[addr] = true;
             });
 
+            const plot_machines = [ ];
+
             $("#dashboard-hosts .list-group-item").each(function() {
                 var item = $(this);
                 var addr = item.attr("data-address");
@@ -275,6 +291,8 @@ PageDashboard.prototype = {
                     return;
                 }
 
+                plot_machines.push(machine);
+
                 delete seen[addr];
                 if (!series[addr]) {
                     series[addr] = plot_add(addr, info);
@@ -292,6 +310,26 @@ PageDashboard.prototype = {
                     }
                 });
             });
+
+            const cpu_metrics = plot_machines.map(m => [m.address,
+                                                        machine_resource_metric(m, resource_monitors[0],
+                                                                                self.infos[m.address])]);
+            self.plot_state.plot_sums('cpu', Object.fromEntries(cpu_metrics));
+
+            const mem_metrics = plot_machines.map(m => [m.address,
+                                                           machine_resource_metric(m, resource_monitors[1],
+                                                                                   self.infos[m.address])]);
+            self.plot_state.plot_sums('mem', Object.fromEntries(mem_metrics));
+
+            const net_metrics = plot_machines.map(m => [m.address,
+                                                        machine_resource_metric(m, resource_monitors[2],
+                                                                                self.infos[m.address])]);
+            self.plot_state.plot_sums('net', Object.fromEntries(net_metrics));
+
+            const disk_metrics = plot_machines.map(m => [m.address,
+                                                         machine_resource_metric(m, resource_monitors[3],
+                                                                                 self.infos[m.address])]);
+            self.plot_state.plot_sums('disk', Object.fromEntries(disk_metrics));
 
             $.each(seen, function(addr) {
                 series[addr].forEach(function (s) { s.remove() });
@@ -426,10 +464,22 @@ PageDashboard.prototype = {
             return series;
         }
 
+        function machine_resource_metric(machine, resource, info) {
+            var desc = resource.plot;
+            if (resource.plot.apply)
+                desc = resource.plot(info);
+            return $.extend({ host: machine.connection_string,
+                              options: { color: machine.color,
+                                         name: machine.address
+                                       }
+                            },
+                            desc);
+        }
+
         function plot_init() {
             self.plots = [];
 
-            resource_monitors.forEach(function (rm) {
+            resource_monitors.forEach(function (rm, i) {
                 function setup_hook(flot) {
                     var axes = flot.getAxes();
                     var config = rm;

@@ -29,7 +29,7 @@ import {
 } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
-import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
+import { MachinesConnectionSelector } from '../common/machinesConnectionSelector.jsx';
 import * as CockpitSelect from "cockpit-components-select.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
@@ -56,7 +56,7 @@ import {
     filterReleaseEolDates,
     getOSStringRepresentation,
 } from "./createVmDialogUtils.js";
-import MemorySelectRow from '../memorySelectRow.jsx';
+import MemorySelectRow from '../vm/overview/memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
 import { PasswordFormFields, password_quality } from 'cockpit-components-password.jsx';
 

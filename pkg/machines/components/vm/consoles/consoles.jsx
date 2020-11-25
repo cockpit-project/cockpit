@@ -25,9 +25,9 @@ import SerialConsole from './serialConsole.jsx';
 import Vnc from './vnc.jsx';
 import DesktopConsole from './desktopConsole.jsx';
 
-import { logDebug } from '../helpers.js';
-import { vmDesktopConsole } from '../actions/provider-actions.js';
-import LibvirtDBus from '../libvirt-dbus.js';
+import { logDebug } from '../../../helpers.js';
+import { vmDesktopConsole } from '../../../actions/provider-actions.js';
+import LibvirtDBus from '../../../libvirt-dbus.js';
 
 import './consoles.css';
 

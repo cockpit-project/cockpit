@@ -21,15 +21,15 @@ import PropTypes from 'prop-types';
 import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
-import { changeNetworkState, getVm } from "../actions/provider-actions.js";
-import { rephraseUI, vmId } from "../helpers.js";
+import { changeNetworkState, getVm } from "../../../actions/provider-actions.js";
+import { rephraseUI, vmId } from "../../../helpers.js";
 import AddNIC from './nicAdd.jsx';
 import { EditNICModal } from './nicEdit.jsx';
-import WarningInactive from './warningInactive.jsx';
+import WarningInactive from '../../common/warningInactive.jsx';
 import './nic.css';
-import { detachIface, vmInterfaceAddresses } from '../libvirt-dbus.js';
+import { detachIface, vmInterfaceAddresses } from '../../../libvirt-dbus.js';
 import { ListingTable } from "cockpit-components-table.jsx";
-import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
+import { DeleteResourceButton, DeleteResourceModal } from '../../common/deleteResource.jsx';
 
 const _ = cockpit.gettext;
 

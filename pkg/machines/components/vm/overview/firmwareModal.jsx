@@ -23,7 +23,7 @@ import { Button, Modal } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as Select from "cockpit-components-select.jsx";
-import { setOSFirmware } from "../../libvirt-dbus.js";
+import { setOSFirmware } from "../../../libvirt-dbus.js";
 
 const _ = cockpit.gettext;
 

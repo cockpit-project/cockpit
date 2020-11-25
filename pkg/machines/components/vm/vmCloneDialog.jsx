@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React, { useState } from 'react';
 import { Button, Form, FormGroup, Modal, TextInput } from '@patternfly/react-core';
 
-import { isEmpty, isObjectEmpty } from '../helpers.js';
+import { isEmpty, isObjectEmpty } from '../../helpers.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import "./vmCloneDialog.scss";

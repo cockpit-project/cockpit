@@ -29,14 +29,14 @@ import {
 } from '@patternfly/react-core';
 import { cellWidth } from '@patternfly/react-table';
 
-import VmActions from './components/vm/vmActions.jsx';
-import { updateVm } from './actions/store-actions.js';
+import VmActions from '../vm/vmActions.jsx';
+import { updateVm } from '../../actions/store-actions.js';
 
-import { vmId, rephraseUI, dummyVmsFilter, DOMAINSTATE } from "./helpers.js";
+import { vmId, rephraseUI, dummyVmsFilter, DOMAINSTATE } from "../../helpers.js";
 
 import { ListingTable } from "cockpit-components-table.jsx";
-import StateIcon from './components/stateIcon.jsx';
-import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
+import StateIcon from '../common/stateIcon.jsx';
+import { AggregateStatusCards } from "../aggregateStatusCards.jsx";
 
 import "./hostvmslist.scss";
 

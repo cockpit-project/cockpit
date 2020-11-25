@@ -22,10 +22,10 @@ import { AlertGroup, Alert } from '@patternfly/react-core';
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
 
-import HostVmsList from "./hostvmslist.jsx";
+import HostVmsList from "./components/vms/hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import { NetworkList } from "./components/networks/networkList.jsx";
-import { VmExpandedContent } from './components/vm/vmExpandedContent.jsx';
+import { VmDetailsPage } from './components/vm/vmDetailsPage.jsx';
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { isObjectEmpty, dummyVmsFilter, vmId } from "./helpers.js";
@@ -143,7 +143,7 @@ class App extends React.Component {
             const connectionName = vm.connectionName;
             // If vm.isUi is set we show a dummy placeholder until libvirt gets a real domain object for newly created V
             const expandedContent = vm.isUi ? undefined : (
-                <VmExpandedContent vm={vm} vms={vms} config={config}
+                <VmDetailsPage vm={vm} vms={vms} config={config}
                     libvirtVersion={systemInfo.libvirtVersion}
                     notifications={this.state.resourceHasError[vm.id]
                         ? Object.keys(this.state.notifications)

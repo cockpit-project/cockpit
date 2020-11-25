@@ -41,8 +41,8 @@ import {
     vmId,
 } from "../../helpers.js";
 
-import { CloneDialog } from '../vmCloneDialog.jsx';
-import { DeleteDialog } from "../deleteDialog.jsx";
+import { CloneDialog } from './vmCloneDialog.jsx';
+import { DeleteDialog } from "./deleteDialog.jsx";
 import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;

@@ -23,7 +23,7 @@ import { Button, Modal } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { revertSnapshot } from '../libvirt-dbus.js';
+import { revertSnapshot } from '../../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 

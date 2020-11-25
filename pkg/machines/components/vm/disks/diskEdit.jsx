@@ -27,8 +27,8 @@ import { InfoAltIcon } from '@patternfly/react-icons';
 import * as Select from 'cockpit-components-select.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
-import { updateDiskAttributes } from '../libvirt-dbus.js';
-import { getDiskPrettyName, getDiskFullName } from '../helpers.js';
+import { updateDiskAttributes } from '../../../libvirt-dbus.js';
+import { getDiskPrettyName, getDiskFullName } from '../../../helpers.js';
 
 import 'form-layout.scss';
 

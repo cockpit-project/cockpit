@@ -18,7 +18,7 @@
  */
 import React from "react";
 import cockpit from 'cockpit';
-import { vmId } from '../helpers.js';
+import { vmId } from '../../../helpers.js';
 
 import { Button } from '@patternfly/react-core';
 

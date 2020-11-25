@@ -27,28 +27,27 @@ import {
 
 import { VCPUModal } from './vcpuModal.jsx';
 import { CPUTypeModal } from './cpuTypeModal.jsx';
-import MemoryModal from './vm/memoryModal.jsx';
+import MemoryModal from './memoryModal.jsx';
 import {
     getBootOrderDevices,
     getSortedBootOrderDevices,
     rephraseUI,
     vmId
-} from '../helpers.js';
+} from '../../../helpers.js';
 import {
     changeVmAutostart,
     getVm
-} from '../actions/provider-actions.js';
-import { BootOrderModal } from './vm/bootOrderModal.jsx';
-import { FirmwareModal } from './vm/firmwareModal.jsx';
-import WarningInactive from './warningInactive.jsx';
-import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
-import { StateIcon } from './stateIcon.jsx';
-import LibvirtDBus, { getDomainCapabilities } from '../libvirt-dbus.js';
-import { getDomainCapLoader, getDomainCapMaxVCPU } from '../libvirt-common.js';
-import { getDomainCapLoader, getDomainCapMaxVCPU, getDomainCapCPUCustomModels } from '../libvirt-common.js';
-import { updateVm } from '../actions/store-actions.js';
+} from '../../../actions/provider-actions.js';
+import { updateVm } from '../../../actions/store-actions.js';
+import { BootOrderModal } from './bootOrderModal.jsx';
+import { FirmwareModal } from './firmwareModal.jsx';
+import WarningInactive from '../../common/warningInactive.jsx';
+import { supportsUefiXml, labelForFirmwarePath } from './helpers.js';
+import { StateIcon } from '../../common/stateIcon.jsx';
+import LibvirtDBus, { getDomainCapabilities } from '../../../libvirt-dbus.js';
+import { getDomainCapLoader, getDomainCapMaxVCPU, getDomainCapCPUCustomModels } from '../../../libvirt-common.js';
 
-import './overviewTab.css';
+import '../../common/overviewCard.css';
 
 const _ = cockpit.gettext;
 
@@ -69,7 +68,7 @@ function getBootOrder(vm) {
     return bootOrder;
 }
 
-class VmOverviewTabLibvirt extends React.Component {
+class VmOverviewCard extends React.Component {
     constructor(props) {
         super(props);
 
@@ -360,7 +359,7 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 }
 
-VmOverviewTabLibvirt.propTypes = {
+VmOverviewCard.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
     libvirtVersion: PropTypes.number.isRequired,
@@ -368,4 +367,4 @@ VmOverviewTabLibvirt.propTypes = {
     nodeDevices: PropTypes.array.isRequired,
 };
 
-export default VmOverviewTabLibvirt;
+export default VmOverviewCard;

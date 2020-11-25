@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import { Button, Checkbox, Form, FormGroup, FormSection, Modal, TextInput } from '@patternfly/react-core';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
-import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
+import { MachinesConnectionSelector } from '../common/machinesConnectionSelector.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
 import * as Select from 'cockpit-components-select.jsx';

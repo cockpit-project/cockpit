@@ -8,13 +8,13 @@ import {
     units,
     convertToUnit,
     vmId
-} from '../../helpers.js';
-import MemorySelectRow from '../memorySelectRow.jsx';
+} from '../../../helpers.js';
+import MemorySelectRow from './memorySelectRow.jsx';
 import {
     setMemory,
     setMaxMemory,
     getVm
-} from '../../actions/provider-actions.js';
+} from '../../../actions/provider-actions.js';
 
 import 'form-layout.scss';
 

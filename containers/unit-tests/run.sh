@@ -56,6 +56,7 @@ if dpkg-architecture --is amd64; then
     grep -q 'src/ws/login.html' po/cockpit.pot
     grep -q 'pkg/systemd/manifest.json.in' po/cockpit.pot
     grep -q 'src/bridge/cockpitpackages.c' po/cockpit.pot
+    ! grep -q 'test-.*.js' po/cockpit.pot
 else
     # on i386, validate that "distclean" does not remove too much
     make dist-gzip

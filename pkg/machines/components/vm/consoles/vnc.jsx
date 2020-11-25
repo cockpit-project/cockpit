@@ -22,8 +22,8 @@ import cockpit from 'cockpit';
 import { VncConsole } from '@patternfly/react-console';
 import { Dropdown, DropdownToggle, DropdownItem, DropdownSeparator } from '@patternfly/react-core';
 
-import { logDebug } from '../helpers.js';
-import { domainSendKey } from '../libvirt-dbus.js';
+import { logDebug } from '../../../helpers.js';
+import { domainSendKey } from '../../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 // https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h

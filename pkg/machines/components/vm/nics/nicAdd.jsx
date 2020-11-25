@@ -23,9 +23,9 @@ import { Button, Checkbox, Form, FormGroup, Modal, Radio, TextInput } from '@pat
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
-import { getVm } from '../actions/provider-actions.js';
-import LibvirtDBus, { attachIface } from '../libvirt-dbus.js';
-import { getNetworkDevices } from '../helpers.js';
+import { getVm } from '../../../actions/provider-actions.js';
+import LibvirtDBus, { attachIface } from '../../../libvirt-dbus.js';
+import { getNetworkDevices } from '../../../helpers.js';
 
 import './nic.css';
 

@@ -29,8 +29,8 @@ import {
 } from "@patternfly/react-core";
 
 import { ModalError } from "cockpit-components-inline-notification.jsx";
-import { createSnapshot } from "../libvirt-dbus.js";
-import { getVmSnapshots } from '../actions/provider-actions.js';
+import { createSnapshot } from "../../../libvirt-dbus.js";
+import { getVmSnapshots } from '../../../actions/provider-actions.js';
 
 const _ = cockpit.gettext;
 

@@ -21,8 +21,8 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { Button, Modal } from '@patternfly/react-core';
 
-import { vmId } from '../helpers.js';
-import { deleteVm } from '../actions/provider-actions.js';
+import { vmId } from '../../helpers.js';
+import { deleteVm } from '../../actions/provider-actions.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './deleteDialog.css';

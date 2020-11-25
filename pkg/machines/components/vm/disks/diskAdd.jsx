@@ -26,10 +26,10 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
-import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
-import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
-import LibvirtDBus, { updateDiskAttributes } from '../libvirt-dbus.js';
+import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../../../helpers.js';
+import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../../../actions/provider-actions.js';
+import { VolumeCreateBody } from '../../storagePools/storageVolumeCreateBody.jsx';
+import LibvirtDBus, { updateDiskAttributes } from '../../../libvirt-dbus.js';
 
 import 'form-layout.scss';
 import './diskAdd.css';

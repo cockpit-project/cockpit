@@ -6,8 +6,8 @@ import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
-import { setVCPUSettings } from "../actions/provider-actions.js";
-import { digitFilter } from "../helpers.js";
+import { setVCPUSettings } from "../../../actions/provider-actions.js";
+import { digitFilter } from "../../../helpers.js";
 
 import './vcpuModal.css';
 

@@ -19,7 +19,7 @@
 
 import React from 'react';
 
-import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../helpers.js';
+import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../../helpers.js';
 import { FormGroup, Radio } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 

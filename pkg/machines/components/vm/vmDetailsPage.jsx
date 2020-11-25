@@ -30,19 +30,19 @@ import { ExpandIcon } from '@patternfly/react-icons';
 
 import { vmId } from "../../helpers.js";
 
-import { VmDisksTabLibvirt, VmDisksActions } from '../vmDisksTab.jsx';
-import { VmNetworkTab, VmNetworkActions } from '../vmnetworktab.jsx';
-import Consoles from '../consoles.jsx';
-import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
-import VmUsageTab from './vmUsageTab.jsx';
-import { VmSnapshotsTab, VmSnapshotsActions } from '../vmSnapshotsTab.jsx';
+import { VmDisksCardLibvirt, VmDisksActions } from './disks/vmDisksCard.jsx';
+import { VmNetworkTab, VmNetworkActions } from './nics/vmNicsCard.jsx';
+import Consoles from './consoles/consoles.jsx';
+import VmOverviewCard from './overview/vmOverviewCard.jsx';
+import VmUsageTab from './vmUsageCard.jsx';
+import { VmSnapshotsCard, VmSnapshotsActions } from './snapshots/vmSnapshotsCard.jsx';
 import VmActions from './vmActions.jsx';
 
-import './vmExpandedContent.scss';
+import './vmDetailsPage.scss';
 
 const _ = cockpit.gettext;
 
-export const VmExpandedContent = ({
+export const VmDetailsPage = ({
     vm, vms, config, libvirtVersion, hostDevices, storagePools,
     onUsageStartPolling, onUsageStopPolling, dispatch, networks,
     interfaces, nodeDevices, notifications, onAddErrorNotification
@@ -97,8 +97,8 @@ export const VmExpandedContent = ({
         {
             id: `${vmId(vm.name)}-overview`,
             title: _("Overview"),
-            body: <VmOverviewTab vm={vm} config={config} dispatch={dispatch}
-                                 nodeDevices={nodeDevices} libvirtVersion={libvirtVersion} />,
+            body: <VmOverviewCard vm={vm} config={config} dispatch={dispatch}
+                                  nodeDevices={nodeDevices} libvirtVersion={libvirtVersion} />,
         },
         {
             id: `${vmId(vm.name)}-usage`,
@@ -127,8 +127,8 @@ export const VmExpandedContent = ({
             title: _("Disks"),
             actions: <VmDisksActions vm={vm} vms={vms} storagePools={storagePools}
                                      dispatch={dispatch} />,
-            body: <VmDisksTabLibvirt vm={vm} config={config} storagePools={storagePools}
-                                     dispatch={dispatch} onAddErrorNotification={onAddErrorNotification} />,
+            body: <VmDisksCardLibvirt vm={vm} config={config} storagePools={storagePools}
+                                      dispatch={dispatch} onAddErrorNotification={onAddErrorNotification} />,
         },
         {
             id: `${vmId(vm.name)}-networks`,
@@ -148,8 +148,8 @@ export const VmExpandedContent = ({
             className: "snapshots-card",
             title: _("Snapshots"),
             actions: <VmSnapshotsActions vm={vm} dispatch={dispatch} />,
-            body: <VmSnapshotsTab vm={vm} dispatch={dispatch} config={config}
-                                  onAddErrorNotification={onAddErrorNotification} />
+            body: <VmSnapshotsCard vm={vm} dispatch={dispatch} config={config}
+                                   onAddErrorNotification={onAddErrorNotification} />
         });
     }
 
@@ -190,7 +190,7 @@ export const VmExpandedContent = ({
     );
 };
 
-VmExpandedContent.propTypes = {
+VmDetailsPage.propTypes = {
     vm: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,

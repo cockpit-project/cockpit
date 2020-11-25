@@ -20,17 +20,17 @@ import React from 'react';
 import moment from "moment";
 
 import cockpit from 'cockpit';
-import { vmId } from "../helpers.js";
+import { vmId } from "../../../helpers.js";
 import { CreateSnapshotModal } from "./vmSnapshotsCreateModal.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
-import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
+import { DeleteResourceButton, DeleteResourceModal } from '../../common/deleteResource.jsx';
 import { RevertSnapshotModal } from './vmSnapshotsRevertModal.jsx';
-import { deleteSnapshot } from '../libvirt-dbus.js';
-import { getVmSnapshots } from '../actions/provider-actions.js';
+import { deleteSnapshot } from '../../../libvirt-dbus.js';
+import { getVmSnapshots } from '../../../actions/provider-actions.js';
 
-import './vmSnapshotsTab.scss';
+import './vmSnapshotsCard.scss';
 
 const _ = cockpit.gettext;
 
@@ -87,7 +87,7 @@ export class VmSnapshotsActions extends React.Component {
     }
 }
 
-export class VmSnapshotsTab extends React.Component {
+export class VmSnapshotsCard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};

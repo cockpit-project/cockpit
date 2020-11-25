@@ -25,7 +25,7 @@ import { ErrorCircleOIcon, PendingIcon } from '@patternfly/react-icons';
 
 import {
     rephraseUI,
-} from "../helpers.js";
+} from "../../helpers.js";
 
 import "./stateIcon.scss";
 

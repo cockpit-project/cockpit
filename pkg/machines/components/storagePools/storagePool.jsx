@@ -26,7 +26,7 @@ import {
     storagePoolId,
     units
 } from '../../helpers.js';
-import StateIcon from '../stateIcon.jsx';
+import StateIcon from '../common/stateIcon.jsx';
 import { updateOrAddStoragePool } from '../../actions/store-actions.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';

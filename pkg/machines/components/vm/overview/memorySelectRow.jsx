@@ -23,7 +23,7 @@ import { Slider } from 'patternfly-react';
 
 import * as Select from "cockpit-components-select.jsx";
 
-import { digitFilter, units } from "../helpers.js";
+import { digitFilter, units } from "../../../helpers.js";
 
 import './memorySelectRow.css';
 

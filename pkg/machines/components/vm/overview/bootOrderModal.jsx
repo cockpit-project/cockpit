@@ -33,11 +33,11 @@ import {
     getSortedBootOrderDevices,
     rephraseUI,
     vmId
-} from '../../helpers.js';
+} from '../../../helpers.js';
 import {
     changeBootOrder,
     getVm
-} from '../../actions/provider-actions.js';
+} from '../../../actions/provider-actions.js';
 
 import './bootOrderModal.css';
 

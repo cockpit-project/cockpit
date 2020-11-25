@@ -26,8 +26,8 @@ import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import {
     changeNetworkSettings,
     getVm
-} from '../actions/provider-actions.js';
-import { getNetworkDevices } from '../helpers.js';
+} from '../../../actions/provider-actions.js';
+import { getNetworkDevices } from '../../../helpers.js';
 
 import 'form-layout.scss';
 

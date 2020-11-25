@@ -22,13 +22,13 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { Button } from '@patternfly/react-core';
 
-import { convertToUnit, diskPropertyChanged, toReadableNumber, units, vmId } from "../helpers.js";
+import { convertToUnit, diskPropertyChanged, toReadableNumber, units, vmId } from "../../../helpers.js";
 import { AddDiskModalBody } from './diskAdd.jsx';
-import { getVm, detachDisk } from '../actions/provider-actions.js';
+import { getVm, detachDisk } from '../../../actions/provider-actions.js';
 import { EditDiskAction } from './diskEdit.jsx';
-import WarningInactive from './warningInactive.jsx';
+import WarningInactive from '../../common/warningInactive.jsx';
 import { ListingTable } from "cockpit-components-table.jsx";
-import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
+import { DeleteResourceButton, DeleteResourceModal } from '../../common/deleteResource.jsx';
 import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
 const _ = cockpit.gettext;
@@ -95,7 +95,7 @@ export class VmDisksActions extends React.Component {
     }
 }
 
-export class VmDisksTabLibvirt extends React.Component {
+export class VmDisksCardLibvirt extends React.Component {
     /**
      * Returns true, if disk statistics are retrieved.
      */
@@ -184,7 +184,7 @@ export class VmDisksTabLibvirt extends React.Component {
                                                     `${idPrefix}-${target}`,
                                                     storagePools));
         return (
-            <VmDisksTab
+            <VmDisksCard
                 vm={vm}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
@@ -194,12 +194,12 @@ export class VmDisksTabLibvirt extends React.Component {
     }
 }
 
-VmDisksTabLibvirt.propTypes = {
+VmDisksCardLibvirt.propTypes = {
     vm: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
 };
 
-export class VmDisksTab extends React.Component {
+export class VmDisksCard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
@@ -316,7 +316,7 @@ export class VmDisksTab extends React.Component {
         );
     }
 }
-VmDisksTab.propTypes = {
+VmDisksCard.propTypes = {
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     onAddErrorNotification: PropTypes.func.isRequired,

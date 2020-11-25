@@ -24,10 +24,10 @@ import {
     rephraseUI,
     networkId
 } from '../../helpers.js';
-import StateIcon from '../stateIcon.jsx';
+import StateIcon from '../common/stateIcon.jsx';
 import { updateOrAddNetwork } from '../../actions/store-actions.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
-import { DeleteResourceModal, DeleteResourceButton } from '../deleteResource.jsx';
+import { DeleteResourceModal, DeleteResourceButton } from '../common/deleteResource.jsx';
 import {
     networkActivate,
     networkDeactivate,

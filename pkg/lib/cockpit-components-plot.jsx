@@ -136,7 +136,7 @@ function time_ticks(data) {
 }
 
 function value_ticks(data, config) {
-    let max = 4 * config.base_unit;
+    let max = config.min_max;
     const last_plot = data[data.length - 1].data;
     for (let i = 0; i < last_plot.length; i++) {
         const s = last_plot[i][1] || last_plot[i][2];
@@ -146,12 +146,12 @@ function value_ticks(data, config) {
 
     // Pick a unit
     let unit = 1;
-    while (max > unit * config.base_unit)
+    while (config.base_unit && max > unit * config.base_unit)
         unit *= config.base_unit;
 
     // Find the highest power of 10 that is below max.  If we use that
     // as the distance between ticks, we get at most 10 ticks.
-    var size = Math.pow(10, Math.floor(Math.log10(max / unit))) * unit;
+    let size = Math.pow(10, Math.floor(Math.log10(max / unit))) * unit;
 
     // Get the number of ticks to be around 4, but don't produce
     // fractional numbers.
@@ -160,18 +160,26 @@ function value_ticks(data, config) {
     while (max / size < 3 && size / unit >= 10)
         size /= 2;
 
-    var ticks = [];
-    for (let t = 0; t <= max + size; t += size)
+    let ticks = [];
+    for (let t = 0; t < max + size; t += size)
         ticks.push(t);
 
-    const unit_str = config.formatter(unit, config.base_unit, true)[1];
+    if (config.pull_out_unit) {
+        const unit_str = config.formatter(unit, config.base_unit, true)[1];
 
-    return {
-        ticks: ticks,
-        formatter: (val) => config.formatter(val, unit_str, true)[0],
-        unit: unit_str,
-        max: ticks[ticks.length - 1]
-    };
+        return {
+            ticks: ticks,
+            formatter: (val) => config.formatter(val, unit_str, true)[0],
+            unit: unit_str,
+            max: ticks[ticks.length - 1]
+        };
+    } else {
+        return {
+            ticks: ticks,
+            formatter: config.formatter,
+            max: ticks[ticks.length - 1]
+        };
+    }
 }
 
 export const ZoomControls = ({ plot_state }) => {
@@ -252,7 +260,7 @@ export const ZoomControls = ({ plot_state }) => {
     );
 };
 
-export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className }) => {
+export const SvgPlot = ({ title, config, style, plot_state, plot_id, onHover, className }) => {
     const container_ref = useRef(null);
     const measure_ref = useRef(null);
 
@@ -289,7 +297,7 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
 
         const m_left = Math.ceil(rect.width) + tick_gap + tick_length; // unit string plus gap plus tick
         const m_right = 30; // half of the time label
-        const m_top = 1.5 * Math.ceil(rect.height); // one and a half line
+        const m_top = (y_ticks.unit || title ? 1.5 : 0.5) * Math.ceil(rect.height); // half line plus one if necc.
         const m_bottom = tick_length + tick_gap + 2 * Math.ceil(rect.height); // two line labels plus gap plus tick
 
         function x_coord(x) {
@@ -309,14 +317,27 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
         }
 
         function path(data, color, hover_arg) {
-            let d = cmd("M", m_left, h - m_bottom);
-            for (let i = 0; i < data.length; i++) {
-                d += cmd("L", x_coord(data[i][0]), y_coord(data[i][1]));
+            let d = "";
+            let next_cmd = "M";
+            if (style != "lines") {
+                d += cmd("M", m_left, h - m_bottom);
+                next_cmd = "L";
             }
-            d += cmd("L", w - m_right, h - m_bottom);
-            d += "z";
+            for (let i = 0; i < data.length; i++) {
+                d += cmd(next_cmd, x_coord(data[i][0]), y_coord(data[i][1]));
+                next_cmd = "L";
+            }
+            if (style != "lines") {
+                d += cmd("L", w - m_right, h - m_bottom);
+                d += "z";
+            }
 
-            return <path key={hover_arg} d={d} stroke="#005dc9" fill={color}
+            const stroke = style == "lines" ? color : "#005dc9";
+            const stroke_width = style == "lines" ? 2 : null;
+            const fill = style == "lines" ? "transparent" : color;
+
+            return <path key={hover_arg} d={d}
+                         stroke={stroke} strokeWidth={stroke_width} fill={fill}
                          onMouseEnter={() => onHover(hover_arg)}
                          onMouseLeave={() => onHover(null)} />;
         }
@@ -334,7 +355,9 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
 
         const paths = [];
         for (let i = chart_data.length - 1; i >= 0; i--)
-            paths.push(path(chart_data[i].data, colors[i % colors.length], chart_data[i].name || true));
+            paths.push(path(chart_data[i].data,
+                            chart_data[i].color || colors[i % colors.length],
+                            chart_data[i].name || true));
 
         function start_dragging(event) {
             if (event.button !== 0)
@@ -381,17 +404,19 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
                  onMouseUp={selection ? stop_dragging : null}
                  onMouseMove={selection ? drag : null}
                  onMouseLeave={cancel_dragging}>
-                <text x={0} y={-20} style={{ fontSize: "small" }} ref={measure_ref}>{config.widest_unit_string}</text>
+                <text x={0} y={-20} style={{ fontSize: "small" }} ref={measure_ref}>{config.widest_string}</text>
                 <rect x={m_left} y={m_top} width={w - m_left - m_right} height={h - m_top - m_bottom}
                       stroke="#d4d4d4" fill="transparent" shapeRendering="crispEdges" />
-                <text x={m_left - tick_length - tick_gap} y={0.5 * m_top}
-                      style={{ fontSize: "small" }}
-                      textAnchor="end">
-                    {y_ticks.unit}
-                </text>
-                <text x={m_left} y={0.5 * m_top}>
-                    {title}
-                </text>
+                { y_ticks.unit && <text x={m_left - tick_length - tick_gap} y={0.5 * m_top}
+                                        style={{ fontSize: "small" }}
+                                        textAnchor="end">
+                                      {y_ticks.unit}
+                                  </text>
+                }
+                { title && <text x={m_left} y={0.5 * m_top}>
+                               {title}
+                           </text>
+                }
                 { y_ticks.ticks.map((t, i) => <line key={i}
                                                     x1={m_left - tick_length} x2={w - m_right}
                                                     y1={y_coord(t)} y2={y_coord(t)}
@@ -428,12 +453,22 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
 
 export const bytes_per_sec_config = {
     base_unit: 1024,
-    widest_unit_string: "MiB/s",
+    min_max: 10240,
+    pull_out_unit: true,
+    widest_string: "MiB/s",
     formatter: cockpit.format_bytes_per_sec
 };
 
 export const bits_per_sec_config = {
     base_unit: 1000,
+    min_max: 10000,
+    pull_out_unit: true,
     widest_unit_string: "Mbps",
     formatter: cockpit.format_bits_per_sec
+};
+
+export const percent_config = {
+    min_max: 100,
+    widest_string: "999%",
+    formatter: val => val.toFixed() + "%"
 };

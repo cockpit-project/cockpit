@@ -301,7 +301,7 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
         }
 
         function y_coord(y) {
-            return h - y / y_range * (h - m_top - m_bottom) - m_bottom;
+            return h - Math.max(y, 0) / y_range * (h - m_top - m_bottom) - m_bottom;
         }
 
         function cmd(op, x, y) {

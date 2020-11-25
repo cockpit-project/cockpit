@@ -46,6 +46,16 @@ fi
 if dpkg-architecture --is amd64; then
     # run distcheck on main arch
     make XZ_COMPRESS_FLAGS='-0' V=0 distcheck 2>&1
+
+    # check translation build
+    make po/cockpit.pot
+    # do some spot checks
+    grep -q 'pkg/base1/cockpit.js' po/cockpit.pot
+    grep -q 'pkg/lib/machine-dialogs.js' po/cockpit.pot
+    grep -q 'pkg/systemd/services.html' po/cockpit.pot
+    grep -q 'src/ws/login.html' po/cockpit.pot
+    grep -q 'pkg/systemd/manifest.json.in' po/cockpit.pot
+    grep -q 'src/bridge/cockpitpackages.c' po/cockpit.pot
 else
     # on i386, validate that "distclean" does not remove too much
     make dist-gzip

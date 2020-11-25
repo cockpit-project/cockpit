@@ -1448,16 +1448,10 @@ export class PlotState {
     }
 
     plot_instances(id, metric, insts, reset) {
-        const ps = this._get(id);
-        ps.plot_instances(metric, insts, reset);
-        ps.instances = insts;
+        this._get(id).plot_instances(metric, insts, reset);
     }
 
     data(id) {
         return this.plots[id] && this.plots[id].data;
-    }
-
-    instances(id) {
-        return this.plots[id] && this.plots[id].instances;
     }
 }

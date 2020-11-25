@@ -17,25 +17,40 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import cockpit from "cockpit";
+import React, { useState } from "react";
 
-import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
+import { Split, SplitItem, Tabs, Tab } from '@patternfly/react-core';
 import { ZoomControls, SvgPlot, percent_config, memory_config_with_inline_units, bits_per_sec_config_with_inline_units, bytes_per_sec_config_with_inline_units } from "cockpit-components-plot.jsx";
 
+const _ = cockpit.gettext;
+
 export const DashboardPlots = ({ plot_state, onHover }) => {
+    const [ active, setActive ] = useState(0);
+
     return (
         <>
             <Split>
                 <SplitItem isFilled />
                 <SplitItem><ZoomControls plot_state={plot_state} /></SplitItem>
             </Split>
-            <SvgPlot className="dashboard-graph" config={percent_config} style="lines"
-                     plot_state={plot_state} plot_id='cpu' onHover={onHover} />
-            <SvgPlot className="dashboard-graph" config={memory_config_with_inline_units} style="lines"
-                     plot_state={plot_state} plot_id='mem' onHover={onHover} />
-            <SvgPlot className="dashboard-graph" config={bits_per_sec_config_with_inline_units} style="lines"
-                     plot_state={plot_state} plot_id='net' onHover={onHover} />
-            <SvgPlot className="dashboard-graph" config={bytes_per_sec_config_with_inline_units} style="lines"
-                     plot_state={plot_state} plot_id='disk' onHover={onHover} />
+            <Tabs isBox={true} activeKey={active} onSelect={(event, index) => setActive(index)}>
+                <Tab eventKey={0} title={_("CPU")}>
+                    <SvgPlot className="dashboard-graph" config={percent_config} style="lines"
+                             plot_state={plot_state} plot_id='cpu' onHover={onHover} />
+                </Tab>
+                <Tab eventKey={1} title={_("Memory")}>
+                    <SvgPlot className="dashboard-graph" config={memory_config_with_inline_units} style="lines"
+                             plot_state={plot_state} plot_id='mem' onHover={onHover} />
+                </Tab>
+                <Tab eventKey={2} title={_("Network")}>
+                    <SvgPlot className="dashboard-graph" config={bits_per_sec_config_with_inline_units} style="lines"
+                             plot_state={plot_state} plot_id='net' onHover={onHover} />
+                </Tab>
+                <Tab eventKey={3} title={_("Disk I/O")}>
+                    <SvgPlot className="dashboard-graph" config={bytes_per_sec_config_with_inline_units} style="lines"
+                             plot_state={plot_state} plot_id='disk' onHover={onHover} />
+                </Tab>
+            </Tabs>
         </>);
 };

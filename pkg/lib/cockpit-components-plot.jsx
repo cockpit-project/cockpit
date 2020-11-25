@@ -138,10 +138,13 @@ function time_ticks(data) {
 function value_ticks(data, config) {
     let max = config.min_max;
     const last_plot = data[data.length - 1].data;
-    for (let i = 0; i < last_plot.length; i++) {
-        const s = last_plot[i][1] || last_plot[i][2];
-        if (s > max)
-            max = s;
+    for (let i = 0; i < data.length; i++) {
+        const d = data[i].data;
+        for (let j = 0; j < d.length; j++) {
+            const s = d[j][1] || d[j][2];
+            if (s > max)
+                max = s;
+        }
     }
 
     // Pick a unit
@@ -463,7 +466,21 @@ export const bits_per_sec_config = {
     base_unit: 1000,
     min_max: 10000,
     pull_out_unit: true,
-    widest_unit_string: "Mbps",
+    widest_string: "Mbps",
+    formatter: cockpit.format_bits_per_sec
+};
+
+export const bytes_per_sec_config_with_inline_units = {
+    base_unit: 1024,
+    min_max: 10240,
+    widest_string: "999 MiB/s",
+    formatter: cockpit.format_bytes_per_sec
+};
+
+export const bits_per_sec_config_with_inline_units = {
+    base_unit: 1000,
+    min_max: 10000,
+    widest_string: "999 Mbps",
     formatter: cockpit.format_bits_per_sec
 };
 
@@ -471,4 +488,11 @@ export const percent_config = {
     min_max: 100,
     widest_string: "999%",
     formatter: val => val.toFixed() + "%"
+};
+
+export const memory_config_with_inline_units = {
+    base_unit: 1024,
+    min_max: 10240,
+    widest_string: "1999 MiB",
+    formatter: cockpit.format_bytes
 };

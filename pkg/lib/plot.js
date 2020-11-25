@@ -883,15 +883,15 @@ export function format_bytes_per_sec_tick(val, axis) {
 }
 
 export function bits_per_sec_tick_unit(axis) {
-    return cockpit.format_bits_per_sec(axis.max * 8, 1000, true)[1];
+    return cockpit.format_bits_per_sec(axis.max, 1000, true)[1];
 }
 
 export function format_bits_per_sec_tick_no_unit(val, axis) {
-    return cockpit.format_bits_per_sec(val * 8, bits_per_sec_tick_unit(axis), true)[0];
+    return cockpit.format_bits_per_sec(val, bits_per_sec_tick_unit(axis), true)[0];
 }
 
 export function format_bits_per_sec_tick(val, axis) {
-    return cockpit.format_bits_per_sec(val * 8, 1000);
+    return cockpit.format_bits_per_sec(val, 1000);
 }
 
 export function setup_plot_controls(container, element, plots) {

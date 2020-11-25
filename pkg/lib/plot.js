@@ -1369,30 +1369,68 @@ class SinglePlotState {
     }
 
     plot_single(metric) {
-        if (this._stacked_instances_series) {
-            this._stacked_instances_series.clear_instances();
-            this._stacked_instances_series.remove();
-            this._stacked_instances_series = null;
+        this._remove_instances();
+        this._remove_sums();
+
+        if (!this._single_series) {
+            this._single_series = this._plot.add_metrics_sum_series(metric, { });
         }
-        if (!this._sum_series) {
-            this._sum_series = this._plot.add_metrics_sum_series(metric, { });
+    }
+
+    _remove_single() {
+        if (this._single_series) {
+            this._single_series.remove();
+            this._single_series = null;
         }
     }
 
     plot_instances(metric, insts, reset) {
-        if (this._sum_series) {
-            this._sum_series.remove();
-            this._sum_series = null;
-        }
+        this._remove_single();
+        this._remove_sums();
+
         if (!this._stacked_instances_series) {
             this._stacked_instances_series = this._plot.add_metrics_stacked_instances_series(metric, { });
         } else if (reset) {
             this._stacked_instances_series.clear_instances();
         }
-
         for (var i = 0; i < insts.length; i++) {
             this._stacked_instances_series.add_instance(insts[i]);
         }
+    }
+
+    _remove_instances() {
+        if (this._stacked_instances_series) {
+            this._stacked_instances_series.clear_instances();
+            this._stacked_instances_series.remove();
+            this._stacked_instances_series = null;
+        }
+    }
+
+    plot_sums(metrics) {
+        this._remove_single();
+        this._remove_instances();
+
+        console.log("SUMS", metrics);
+
+        if (!this._sum_series)
+            this._sum_series = { }
+
+        for (const m in metrics) {
+            if (!this._sum_series[m])
+                this._sum_series[m] = this._plot.add_metrics_sum_series(metrics[m], metrics[m].options || { })
+        }
+
+        for (const m in this._sum_series) {
+            if (!metrics[m])
+                this._sum_series[m].remove();
+        }
+    }
+
+    _remove_sums() {
+        for (m in this._sum_series) {
+            this._sum_series[m].remove();
+        }
+        this._sum_series = null;
     }
 
     destroy() {
@@ -1449,6 +1487,10 @@ export class PlotState {
 
     plot_instances(id, metric, insts, reset) {
         this._get(id).plot_instances(metric, insts, reset);
+    }
+
+    plot_sums(id, metrics) {
+        this._get(id).plot_sums(metrics);
     }
 
     data(id) {

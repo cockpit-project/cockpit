@@ -155,6 +155,14 @@ export function getDomainCapLoader(capsXML) {
     return osElem && osElem.getElementsByTagName("loader");
 }
 
+export function getDomainCapCPUCustomModels(capsXML) {
+    const domainCapsElem = getElem(capsXML);
+    const cpuElem = domainCapsElem.getElementsByTagName("cpu") && domainCapsElem.getElementsByTagName("cpu")[0];
+    const modeElems = cpuElem && cpuElem.getElementsByTagName("mode");
+    const customModeElem = modeElems && Array.prototype.find.call(modeElems, modeElem => modeElem.getAttribute("name") == "custom");
+    return customModeElem && Array.prototype.map.call(customModeElem.getElementsByTagName("model"), modelElem => modelElem.textContent);
+}
+
 export function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional
@@ -283,16 +291,14 @@ export function parseDumpxmlForCpu(cpuElem) {
 
     const cpu = {};
 
-    const cpuMode = cpuElem.getAttribute('mode');
-    let cpuModel = '';
-    if (cpuMode && cpuMode === 'custom') {
+    cpu.mode = cpuElem.getAttribute('mode');
+    if (cpu.mode === 'custom') {
         const modelElem = getSingleOptionalElem(cpuElem, 'model');
         if (modelElem) {
-            cpuModel = modelElem.childNodes[0].nodeValue; // content of the domain/cpu/model element
+            cpu.model = modelElem.childNodes[0].nodeValue; // content of the domain/cpu/model element
         }
     }
 
-    cpu.model = rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
     cpu.topology = {};
 
     const topologyElem = getSingleOptionalElem(cpuElem, 'topology');
@@ -1143,6 +1149,36 @@ export function updateBootOrder(domXml, devices) {
     }
 
     const tmp = document.createElement("div");
+    tmp.appendChild(domainElem);
+
+    return tmp.innerHTML;
+}
+
+
+export function updateCpuModelConfiguration(domXml, mode, model) {
+    const domainElem = getElem(domXml);
+    if (!domainElem)
+        throw new Error("updateCpuModelConfiguration: domXML has no domain element");
+
+    let cpuElem = domainElem.getElementsByTagName("cpu")[0];
+    if (cpuElem)
+        cpuElem.remove();
+    cpuElem = document.createElement("cpu");
+    cpuElem.setAttribute("mode", mode);
+    if (mode == "custom")
+        cpuElem.setAttribute("match", "exact");
+    cpuElem.setAttribute("check", "full");
+
+    domainElem.appendChild(cpuElem);
+
+    if (model) {
+        const modelElem = document.createElement("model");
+        cpuElem.appendChild(modelElem);
+        modelElem.textContent = model;
+    }
+
+    const tmp = document.createElement("div");
+
     tmp.appendChild(domainElem);
 
     return tmp.innerHTML;

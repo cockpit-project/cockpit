@@ -26,6 +26,7 @@ import {
 } from "@patternfly/react-core";
 
 import { VCPUModal } from './vcpuModal.jsx';
+import { CPUTypeModal } from './cpuTypeModal.jsx';
 import MemoryModal from './vm/memoryModal.jsx';
 import {
     getBootOrderDevices,
@@ -44,6 +45,7 @@ import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
 import { StateIcon } from './stateIcon.jsx';
 import LibvirtDBus, { getDomainCapabilities } from '../libvirt-dbus.js';
 import { getDomainCapLoader, getDomainCapMaxVCPU } from '../libvirt-common.js';
+import { getDomainCapLoader, getDomainCapMaxVCPU, getDomainCapCPUCustomModels } from '../libvirt-common.js';
 import { updateVm } from '../actions/store-actions.js';
 
 import './overviewTab.css';
@@ -74,11 +76,14 @@ class VmOverviewTabLibvirt extends React.Component {
         this.state = {
             runningVmUpdated: false,
             showVcpuModal: false,
+            showCpuTypeModal: false,
             showBootOrderModal: false,
             showMemoryModal: false,
             showFirmwareModal: false,
+            cpuModels: [],
         };
         this.openVcpu = this.openVcpu.bind(this);
+        this.openCpuType = this.openCpuType.bind(this);
         this.openMemory = this.openMemory.bind(this);
         this.openBootOrder = this.openBootOrder.bind(this);
         this.openFirmware = this.openFirmware.bind(this);
@@ -96,9 +101,10 @@ class VmOverviewTabLibvirt extends React.Component {
                 .done(domCaps => {
                     const loaderElems = getDomainCapLoader(domCaps);
                     const maxVcpu = getDomainCapMaxVCPU(domCaps);
+                    const cpuModels = getDomainCapCPUCustomModels(domCaps);
 
                     if (this._isMounted)
-                        this.setState({ loaderElems, maxVcpu: Number(maxVcpu) });
+                        this.setState({ loaderElems, maxVcpu: Number(maxVcpu), cpuModels });
                 })
                 .fail(() => console.warn("getDomainCapabilities failed"));
     }
@@ -114,7 +120,7 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 
     close() {
-        this.setState({ showVcpuModal: false, showMemoryModal: false, showBootOrderModal: false, showFirmwareModal: false });
+        this.setState({ showVcpuModal: false, showCpuTypeModal: false, showMemoryModal: false, showBootOrderModal: false, showFirmwareModal: false });
     }
 
     getOVMFBinariesOnHost(loaderElems) {
@@ -128,6 +134,10 @@ class VmOverviewTabLibvirt extends React.Component {
 
     openVcpu() {
         this.setState({ showVcpuModal: true });
+    }
+
+    openCpuType() {
+        this.setState({ showCpuTypeModal: true });
     }
 
     openBootOrder() {
@@ -176,24 +186,38 @@ class VmOverviewTabLibvirt extends React.Component {
             </DescriptionListDescription>
         );
         const bootOrder = (
-            <DescriptionListDescription>
-                <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
-                    {getBootOrder(vm)}
-                </Button>
+            <DescriptionListDescription id={`${idPrefix}-boot-order`}>
+                {getBootOrder(vm)}
                 { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
+                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openBootOrder}>
+                    {_("edit")}
+                </Button>
             </DescriptionListDescription>
         );
         const memoryLink = (
-            <DescriptionListDescription>
-                <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
-                    {cockpit.format_bytes(vm.currentMemory * 1024)}
+            <DescriptionListDescription id={`${idPrefix}-memory-count`}>
+                {cockpit.format_bytes(vm.currentMemory * 1024)}
+                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openMemory}>
+                    {_("edit")}
                 </Button>
             </DescriptionListDescription>
         );
         const vcpuLink = (
-            <DescriptionListDescription>
-                { <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button> }
+            <DescriptionListDescription id={`${idPrefix}-vcpus-count`}>
+                {vm.vcpus.count}
                 { vm.persistent && vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
+                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openVcpu}>
+                    {_("edit")}
+                </Button>
+            </DescriptionListDescription>
+        );
+
+        const vmCpuType = (
+            <DescriptionListDescription id={`${idPrefix}-cpu-model`}>
+                {rephraseUI('cpuMode', vm.cpu.mode) + (vm.cpu.model ? ` (${vm.cpu.model})` : '')}
+                <Button variant="link" className="edit-inline" isInline isDisabled={vm.state != "shut off"} onClick={this.openCpuType}>
+                    {_("edit")}
+                </Button>
             </DescriptionListDescription>
         );
 
@@ -294,7 +318,7 @@ class VmOverviewTabLibvirt extends React.Component {
 
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{_("CPU type")}</DescriptionListTerm>
-                                <DescriptionListDescription id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</DescriptionListDescription>
+                                {vmCpuType}
                             </DescriptionListGroup>
 
                             <DescriptionListGroup>
@@ -330,6 +354,7 @@ class VmOverviewTabLibvirt extends React.Component {
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
                 { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }
                 { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} maxVcpu={this.state.maxVcpu} /> }
+                { this.state.showCpuTypeModal && <CPUTypeModal close={this.close} vm={vm} dispatch={dispatch} models={this.state.cpuModels} /> }
             </>
         );
     }

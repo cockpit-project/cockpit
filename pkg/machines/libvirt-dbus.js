@@ -103,6 +103,7 @@ import {
     serialConsoleCommand,
     unknownConnectionName,
     updateBootOrder,
+    updateCpuModelConfiguration,
     updateDisk,
     updateMaxMemory,
     updateVCPUSettings,
@@ -1533,6 +1534,20 @@ export function networkDeactivate(connectionName, objPath) {
 
 export function networkUndefine(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.Network', 'Undefine', [], { timeout, type: '' });
+}
+
+export function setCpuMode({
+    name,
+    id: objPath,
+    connectionName,
+    mode,
+    model,
+}) {
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], { timeout, type: 'u' })
+            .then(domXml => {
+                const updatedXML = updateCpuModelConfiguration(domXml[0], mode, model);
+                return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], { timeout, type: 's' });
+            });
 }
 
 export function setOSFirmware(connectionName, objPath, loaderType) {

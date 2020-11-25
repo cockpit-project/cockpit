@@ -230,6 +230,7 @@ const transform = {
     cpuMode: {
         custom: _("custom"),
         'host-model': _("host"),
+        'host-passthrough': _("host passthrough")
     },
     networkType: {
         direct: _("direct"),

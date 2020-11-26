@@ -30,6 +30,8 @@ jobs:
         with:
           # need this to also fetch tags
           fetch-depth: 0
+          # we set up our own auth above, don't configure the default GITHUB_TOKEN
+          token: '${{ secrets.COCKPITUOUS_TOKEN }}'
 
       - uses: mxschmitt/action-tmate@v3
 

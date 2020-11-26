@@ -102,11 +102,6 @@ import {
     resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
-    updateBootOrder,
-    updateCpuModelConfiguration,
-    updateDisk,
-    updateMaxMemory,
-    updateVCPUSettings,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -117,6 +112,13 @@ import {
     INSTALL_VM,
     START_LIBVIRT,
 } from './libvirt-common.js';
+import {
+    updateBootOrder,
+    updateCpuModelConfiguration,
+    updateDisk,
+    updateMaxMemory,
+    updateVCPUSettings,
+} from './libvirt-xml-update.js';
 
 const clientLibvirt = {};
 /* Default timeout for libvirt-dbus method calls */

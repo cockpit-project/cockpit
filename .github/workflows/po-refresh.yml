@@ -31,6 +31,8 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
+      - uses: mxschmitt/action-tmate@v3
+
       - name: Run po-refresh bot
         run: |
           tools/make-bots

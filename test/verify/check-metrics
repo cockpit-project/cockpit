@@ -92,8 +92,13 @@ class TestMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl stop pmlogger")
+        m.execute("timedatectl set-ntp off")
+        m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
+        m.execute("timedatectl set-time '2020-11-24 09:24:05'")
+
         # clean slate, to avoid seeing the data from preparing the VM
-        m.execute("systemctl stop pmlogger; rm -rf /var/log/pcp/pmlogger/*; systemctl start pmlogger")
+        m.execute("rm -rf /var/log/pcp/pmlogger/*; systemctl start pmlogger")
 
         login(self)
         # eventually finishes data loading and shows heading

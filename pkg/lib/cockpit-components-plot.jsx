@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import moment from "moment";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { useEvent } from "hooks.js";
 
 import {
@@ -263,9 +263,22 @@ export const ZoomControls = ({ plot_state }) => {
     );
 };
 
+const useLayoutSize = (init_width, init_height) => {
+    const ref = useRef(null);
+    const [ size, setSize ] = useState({ width: init_width, height: init_height });
+    useLayoutEffect(() => {
+        if (ref.current) {
+            const rect = ref.current.getBoundingClientRect();
+            if (rect.width != size.width || rect.height != size.height)
+                setSize({ width: rect.width, height: rect.height });
+        }
+    });
+    return [ ref, size ];
+}
+
 export const SvgPlot = ({ title, config, style, plot_state, plot_id, onHover, className }) => {
-    const container_ref = useRef(null);
-    const measure_ref = useRef(null);
+    const [ container_ref, container_size ] = useLayoutSize(0, 0);
+    const [ measure_ref, measure_size ] = useLayoutSize(36, 20);
 
     useEvent(plot_state, "plot:" + plot_id);
     useEvent(plot_state, "changed");
@@ -281,11 +294,11 @@ export const SvgPlot = ({ title, config, style, plot_state, plot_id, onHover, cl
     const y_ticks = value_ticks(chart_data, config);
 
     function make_chart() {
-        if (!container_ref.current)
-            return null;
+        const w = container_size.width;
+        const h = container_size.height;
 
-        const w = container_ref.current.offsetWidth;
-        const h = container_ref.current.offsetHeight;
+        if (w == 0 || h == 0)
+            return null;
 
         const x_off = t_ticks.start;
         const x_range = (t_ticks.end - t_ticks.start);
@@ -294,14 +307,10 @@ export const SvgPlot = ({ title, config, style, plot_state, plot_id, onHover, cl
         const tick_length = 5;
         const tick_gap = 3;
 
-        const rect = (measure_ref.current
-            ? measure_ref.current.getBoundingClientRect()
-            : { width: 36, height: 20 });
-
-        const m_left = Math.ceil(rect.width) + tick_gap + tick_length; // unit string plus gap plus tick
+        const m_left = Math.ceil(measure_size.width) + tick_gap + tick_length; // unit string plus gap plus tick
         const m_right = 30; // half of the time label
-        const m_top = (y_ticks.unit || title ? 1.5 : 0.5) * Math.ceil(rect.height); // half line plus one if necc.
-        const m_bottom = tick_length + tick_gap + 2 * Math.ceil(rect.height); // two line labels plus gap plus tick
+        const m_top = (y_ticks.unit || title ? 1.5 : 0.5) * Math.ceil(measure_size.height); // half line plus one if necc.
+        const m_bottom = tick_length + tick_gap + 2 * Math.ceil(measure_size.height); // two line labels plus gap plus tick
 
         function x_coord(x) {
             return (x - x_off) / x_range * (w - m_left - m_right) + m_left;

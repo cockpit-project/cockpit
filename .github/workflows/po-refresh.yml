@@ -30,6 +30,8 @@ jobs:
         with:
           # need this to also fetch tags
           fetch-depth: 0
+          # the default GITHUB_TOKEN would override our ~/.git-credentials from above
+          token: '${{ secrets.COCKPITUOUS_TOKEN }}'
 
       - name: Run po-refresh bot
         run: |

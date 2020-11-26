@@ -62,7 +62,7 @@ export const StateIcon = ({ state, valueId, error, dismissError }) => {
             </Label>}
             <Label color={stateMap[state] && stateMap[state].color}
                    icon={stateMap[state] && stateMap[state].icon}
-                   className={"resource-state-text resource-state--" + state.toLowerCase().replaceAll(' ', '-')}
+                   className={"resource-state-text resource-state--" + (state || "").toLowerCase().replaceAll(' ', '-')}
                    id={valueId}>
                 <>
                     {rephraseUI('resourceStates', state)}

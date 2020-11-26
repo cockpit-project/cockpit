@@ -39,8 +39,6 @@ class TestStorageBasic(StorageCase):
 
         self.browser.wait_present("#devices [data-toggle=dropdown]")
 
-        b.wait_present("#mounts tbody tr")
-
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()
 

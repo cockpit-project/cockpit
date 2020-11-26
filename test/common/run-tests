@@ -40,7 +40,12 @@ class Test:
 
 
 def test_name(test):
-    return "{0} {1} {2}{3}".format(test.test_id, test.command[0], test.command[-1], " [ND]" if test.nondestructive else "")
+    return "{0} {1} {2}{3}".format(
+            test.test_id,
+            test.command[0],
+            test.command[-1],
+            " [ND@{0}]".format(test.serial_machine) if test.nondestructive else "",
+            )
 
 
 def flush_stdout():

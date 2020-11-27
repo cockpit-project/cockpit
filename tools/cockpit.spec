@@ -68,7 +68,8 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 
 # in RHEL the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
-%if 0%{?rhel}
+# This split does not apply to EPEL/COPR.
+%if 0%{?rhel} && 0%{?epel} == 0
 
 %if "%{name}" == "cockpit"
 %define build_basic 1

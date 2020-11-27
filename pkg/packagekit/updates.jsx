@@ -546,8 +546,8 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
         </Flex>
         <Flex flex={{ default: 'flex_1' }}>
             <FlexItem>
-                <Text component={TextVariants.p}>{stateStr}</Text>
-                <Text component={TextVariants.small}>{lastChecked}</Text>
+                <Text id="state" component={TextVariants.p}>{stateStr}</Text>
+                <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             </FlexItem>
         </Flex>
     </Flex>);
@@ -581,7 +581,7 @@ class CardsPage extends React.Component {
                 id: "automatic-updates",
                 className: "pk-card-info",
                 title: _("Automatic updates"),
-                actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.state.privileged} />),
+                actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />),
                 body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
                                         type={this.state.autoUpdatesType}
                                         day={this.state.autoUpdatesDay}
@@ -954,14 +954,14 @@ class OsUpdates extends React.Component {
             let text;
 
             applyAll = (
-                <Button variant="primary" onClick={ () => this.applyUpdates(false) }>
+                <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(false) }>
                     { num_updates == num_security_updates
                         ? _("Install security updates") : _("Install all updates") }
                 </Button>);
 
             if (num_security_updates > 0 && num_updates > num_security_updates) {
                 applySecurity = (
-                    <Button variant="secondary" onClick={ () => this.applyUpdates(true) }>
+                    <Button id="install-security" variant="secondary" onClick={ () => this.applyUpdates(true) }>
                         {_("Install security updates")}
                     </Button>);
             }

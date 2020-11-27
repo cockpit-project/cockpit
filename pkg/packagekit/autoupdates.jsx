@@ -296,7 +296,7 @@ export class AutoUpdates extends React.Component {
 
     initializeBackend(forceReinit) {
         return getBackend(forceReinit).then(b => {
-            const promise = this.setState({ backend: b, enabled: b.enabled, type: b.type, day: b.day, time: b.time }, () => {
+            const promise = this.setState({ backend: b, enabled: b && b.enabled, type: b && b.type, day: b && b.day, time: b && b.time }, () => {
                 this.debugBackendState("AutoUpdates: backend initialized");
                 return null;
             });
@@ -398,7 +398,7 @@ export class AutoUpdates extends React.Component {
             <Button variant="secondary"
                     isDisabled={!enabled}
                     onClick={() => {
-                        if (!this.state.backend) {
+                        if (!this.state.backend.installed) {
                             install_dialog(this.state.backend.packageName)
                                     .then(() => {
                                         this.initializeBackend(true);

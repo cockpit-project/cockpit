@@ -20,7 +20,7 @@ vmExists(){
 }
 
 err_handler () {
-    rm -f "$ROOT_PASSWORD_FILE $XMLS_FILE"
+    rm -f "$ROOT_PASSWORD_FILE" "$XMLS_FILE"
 }
 
 handleFailure(){

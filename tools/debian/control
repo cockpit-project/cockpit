@@ -58,7 +58,14 @@ Depends: ${misc:Depends},
          ${shlibs:Depends},
          glib-networking
 Provides: cockpit-ssh
-Breaks: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
+Breaks: cockpit-dashboard (<< 170.x),
+ cockpit-ws (<< 181.x),
+# 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
+ cockpit-dashboard (<< 233),
+ cockpit-networkmanager (<< 233),
+ cockpit-storaged (<< 233),
+ cockpit-system (<< 233),
+ cockpit-tests (<< 233),
 Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on

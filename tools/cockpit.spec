@@ -368,6 +368,12 @@ Provides: cockpit-ssh = %{version}-%{release}
 Conflicts: cockpit-dashboard < 170.x
 # PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
 Conflicts: cockpit-ws < 181.x
+# 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
+Conflicts: cockpit-dashboard < 233
+Conflicts: cockpit-networkmanager < 233
+Conflicts: cockpit-storaged < 233
+Conflicts: cockpit-system < 233
+Conflicts: cockpit-tests < 233
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

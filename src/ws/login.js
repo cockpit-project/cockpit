@@ -488,7 +488,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
     function login_note(msg) {
         var el = id("login-note");
         if (msg) {
-            el.style.display = 'block';
+            show(el);
             el.textContent = msg;
         } else {
             el.innerHTML = '&nbsp;';
@@ -607,9 +607,9 @@ if (window.NodeList && !NodeList.prototype.forEach)
         var msg = prompt_data.error || prompt_data.message;
         if (msg) {
             em.textContent = msg;
-            em.style.display = "block";
+            show(em);
         } else {
-            em.style.display = "none";
+            hide(em);
         }
 
         var ei = id("conversation-input");

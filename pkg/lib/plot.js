@@ -1427,7 +1427,7 @@ class SinglePlotState {
     }
 
     _remove_sums() {
-        for (m in this._sum_series) {
+        for (const m in this._sum_series) {
             this._sum_series[m].remove();
         }
         this._sum_series = null;

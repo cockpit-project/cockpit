@@ -137,7 +137,6 @@ function time_ticks(data) {
 
 function value_ticks(data, config) {
     let max = config.min_max;
-    const last_plot = data[data.length - 1].data;
     for (let i = 0; i < data.length; i++) {
         const d = data[i].data;
         for (let j = 0; j < d.length; j++) {

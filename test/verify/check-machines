@@ -2689,19 +2689,29 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     def testCPUModel(self):
         b = self.browser
+        m = self.machine
 
-        self.createVm("subVmTest1", running=False)
+        self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
         self.goToVmPage("subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Copy host CPU configuration
+        b.wait_present("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
         b.click("#vm-subVmTest1-cpu-model button")
         b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
         b.click("#cpu-config-dialog-apply")
+        # Warning about about difference in persistent and non-persitent XML shoud appear
+        b.wait_present("#cpu-tooltip")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        # Warning should dissapear and changes should be visible in the UI
+        b.wait_not_present("#cpu-tooltip")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
 
         # Choose manually a CPU model
@@ -2710,9 +2720,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#cpu-config-dialog-apply")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom (coreduo)")
 
-        # CPU configuration should be disabled for running VMs
-        b.click("#vm-subVmTest1-run")
-        b.wait_present("#vm-subVmTest1-cpu-model button.pf-m-disabled")
+        # Verify libvirt XML
+        dom_xml = "virsh dumpxml {0}".format("subVmTest1")
+        xmllint_element = "{0} | xmllint --xpath 'string(//domain/{{prop}})' - 2>&1 || true".format(dom_xml)
+        self.assertEqual("coreduo", m.execute(xmllint_element.format(prop='cpu/model')).strip())
 
     def testBootOrder(self):
         b = self.browser

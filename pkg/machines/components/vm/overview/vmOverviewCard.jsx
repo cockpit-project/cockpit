@@ -173,6 +173,9 @@ class VmOverviewCard extends React.Component {
                              (vm.cpu.threads !== vm.inactiveXML.cpu.threads) ||
                              (vm.cpu.cores !== vm.inactiveXML.cpu.cores);
 
+        const cpuModeChanged = (vm.cpu.mode !== vm.inactiveXML.cpu.mode) ||
+                               (vm.cpu.model !== vm.inactiveXML.cpu.model);
+
         const autostart = (
             <DescriptionListDescription>
                 <label className='checkbox-inline'>
@@ -214,7 +217,8 @@ class VmOverviewCard extends React.Component {
         const vmCpuType = (
             <DescriptionListDescription id={`${idPrefix}-cpu-model`}>
                 {rephraseUI('cpuMode', vm.cpu.mode) + (vm.cpu.model ? ` (${vm.cpu.model})` : '')}
-                <Button variant="link" className="edit-inline" isInline isDisabled={vm.state != "shut off"} onClick={this.openCpuType}>
+                { vm.persistent && vm.state === "running" && cpuModeChanged && <WarningInactive iconId="cpu-tooltip" tooltipId="tip-cpu" /> }
+                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openCpuType}>
                     {_("edit")}
                 </Button>
             </DescriptionListDescription>

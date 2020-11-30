@@ -779,32 +779,33 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => Object.assign(cache, data);
         dbus.addEventListener("notify", onnotify);
 
-        dbus.watch({ path_namespace: "/otree" });
-
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", ["Browser-side JS"])
-                .done(function(reply) {
-                    assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
-                                     {
-                                         FinallyNormalName: "There aint no place like home",
-                                         ReadonlyProperty: "blah",
-                                         aay: [], ag: [], ao: [], as: [],
-                                         ay: "QUJDYWJjAA==",
-                                         b: false, d: 43, g: "", i: 0, n: 0,
-                                         o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                                         y: 42
-                                     }, "correct data");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    dbus.removeEventListener("notify", onnotify);
-                    done();
+        dbus.watch({ path_namespace: "/otree" })
+                .then(() => {
+                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                              "HelloWorld", ["Browser-side JS"])
+                            .done(function(reply) {
+                                assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
+                                                 {
+                                                     FinallyNormalName: "There aint no place like home",
+                                                     ReadonlyProperty: "blah",
+                                                     aay: [], ag: [], ao: [], as: [],
+                                                     ay: "QUJDYWJjAA==",
+                                                     b: false, d: 43, g: "", i: 0, n: 0,
+                                                     o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                                     y: 42
+                                                 }, "correct data");
+                            })
+                            .always(function() {
+                                assert.equal(this.state(), "resolved", "finished successfully");
+                                dbus.removeEventListener("notify", onnotify);
+                                done();
+                            });
                 });
     });
 

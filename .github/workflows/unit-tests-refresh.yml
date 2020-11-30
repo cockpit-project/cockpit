@@ -29,10 +29,10 @@ jobs:
       - name: Run i386 test
         run: containers/unit-tests/start :i386
 
-      - name: Log into Dockerhub
-        run: podman login -u cockpituous -p ${{ secrets.DOCKER_TOKEN }} docker.io
+      - name: Log into container registry
+        run: podman login -u cockpituous -p ${{ secrets.COCKPITUOUS_GHCR_TOKEN }} ghcr.io
 
       - name: Push containers to registry
         run: |
-          podman push docker.io/cockpit/unit-tests:latest
-          podman push docker.io/cockpit/unit-tests:i386
+          podman push ghcr.io/cockpit-project/unit-tests:latest
+          podman push ghcr.io/cockpit-project/unit-tests:i386

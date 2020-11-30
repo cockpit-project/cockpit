@@ -222,7 +222,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        if m.image != "rhel-8-3-distropkg":
+        if not self.system_before(231):
             b.click(".system-information a")  # View hardware details
             b.enter_page("/system/hwinfo", "10.111.113.3")
             b.click(".pf-c-breadcrumb li:first-child a")

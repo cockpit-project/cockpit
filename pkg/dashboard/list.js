@@ -268,7 +268,7 @@ PageDashboard.prototype = {
                 seen[addr] = true;
             });
 
-            const plot_machines = [ ];
+            const plot_machines = [];
 
             $("#dashboard-hosts .list-group-item").each(function() {
                 var item = $(this);
@@ -312,23 +312,23 @@ PageDashboard.prototype = {
             });
 
             const cpu_metrics = plot_machines.map(m => [m.address,
-                                                        machine_resource_metric(m, resource_monitors[0],
-                                                                                self.infos[m.address])]);
+                machine_resource_metric(m, resource_monitors[0],
+                                        self.infos[m.address])]);
             self.plot_state.plot_sums('cpu', Object.fromEntries(cpu_metrics));
 
             const mem_metrics = plot_machines.map(m => [m.address,
-                                                           machine_resource_metric(m, resource_monitors[1],
-                                                                                   self.infos[m.address])]);
+                machine_resource_metric(m, resource_monitors[1],
+                                        self.infos[m.address])]);
             self.plot_state.plot_sums('mem', Object.fromEntries(mem_metrics));
 
             const net_metrics = plot_machines.map(m => [m.address,
-                                                        machine_resource_metric(m, resource_monitors[2],
-                                                                                self.infos[m.address])]);
+                machine_resource_metric(m, resource_monitors[2],
+                                        self.infos[m.address])]);
             self.plot_state.plot_sums('net', Object.fromEntries(net_metrics));
 
             const disk_metrics = plot_machines.map(m => [m.address,
-                                                         machine_resource_metric(m, resource_monitors[3],
-                                                                                 self.infos[m.address])]);
+                machine_resource_metric(m, resource_monitors[3],
+                                        self.infos[m.address])]);
             self.plot_state.plot_sums('disk', Object.fromEntries(disk_metrics));
 
             $.each(seen, function(addr) {
@@ -468,11 +468,13 @@ PageDashboard.prototype = {
             var desc = resource.plot;
             if (resource.plot.apply)
                 desc = resource.plot(info);
-            return $.extend({ host: machine.connection_string,
-                              options: { color: machine.color,
-                                         name: machine.address
-                                       }
-                            },
+            return $.extend({
+                host: machine.connection_string,
+                options: {
+                    color: machine.color,
+                    name: machine.address
+                }
+            },
                             desc);
         }
 

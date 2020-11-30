@@ -26,7 +26,7 @@ import { ZoomControls, SvgPlot, percent_config, memory_config_with_inline_units,
 const _ = cockpit.gettext;
 
 export const DashboardPlots = ({ plot_state, onHover }) => {
-    const [ active, setActive ] = useState(0);
+    const [active, setActive] = useState(0);
 
     return (
         <>
@@ -34,7 +34,7 @@ export const DashboardPlots = ({ plot_state, onHover }) => {
                 <SplitItem isFilled />
                 <SplitItem><ZoomControls plot_state={plot_state} /></SplitItem>
             </Split>
-            <Tabs isBox={true} activeKey={active} onSelect={(event, index) => setActive(index)}>
+            <Tabs isBox activeKey={active} onSelect={(event, index) => setActive(index)}>
                 <Tab eventKey={0} title={_("CPU")}>
                     <SvgPlot className="dashboard-graph" config={percent_config} style="lines"
                              plot_state={plot_state} plot_id='cpu' onHover={onHover} />

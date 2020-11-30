@@ -1413,11 +1413,11 @@ class SinglePlotState {
         console.log("SUMS", metrics);
 
         if (!this._sum_series)
-            this._sum_series = { }
+            this._sum_series = { };
 
         for (const m in metrics) {
             if (!this._sum_series[m])
-                this._sum_series[m] = this._plot.add_metrics_sum_series(metrics[m], metrics[m].options || { })
+                this._sum_series[m] = this._plot.add_metrics_sum_series(metrics[m], metrics[m].options || { });
         }
 
         for (const m in this._sum_series) {

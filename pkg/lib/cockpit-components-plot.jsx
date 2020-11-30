@@ -163,7 +163,7 @@ function value_ticks(data, config) {
     while (max / size < 3 && size / unit >= 10)
         size /= 2;
 
-    let ticks = [];
+    const ticks = [];
     for (let t = 0; t < max + size; t += size)
         ticks.push(t);
 
@@ -422,12 +422,12 @@ export const SvgPlot = ({ title, config, style, plot_state, plot_id, onHover, cl
                 { y_ticks.unit && <text x={m_left - tick_length - tick_gap} y={0.5 * m_top}
                                         style={{ fontSize: "small" }}
                                         textAnchor="end">
-                                      {y_ticks.unit}
-                                  </text>
+                    {y_ticks.unit}
+                </text>
                 }
                 { title && <text x={m_left} y={0.5 * m_top}>
-                               {title}
-                           </text>
+                    {title}
+                </text>
                 }
                 { y_ticks.ticks.map((t, i) => <line key={i}
                                                     x1={m_left - tick_length} x2={w - m_right}

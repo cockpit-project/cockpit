@@ -164,7 +164,7 @@ class TestApps(PackageCase):
             b.switch_to_top()
             b.click("#navbar-dropdown")
             b.click(".display-language-menu a")
-            if m.image == "rhel-8-3-distropkg": # Changed in #14890
+            if self.system_before(233): # Changed in #14890
                 b.wait_popup('display-language')
                 b.set_val("#display-language select", lang)
                 b.click("#display-language-select-button")

@@ -29,6 +29,7 @@ import shutil
 import socket
 import sys
 import traceback
+import subprocess
 import re
 import json
 import tempfile
@@ -804,6 +805,16 @@ class MachineCase(unittest.TestCase):
         path = "/usr/share/cockpit/%s" % package
         if self.machine.execute("if test -e %s; then echo yes; fi" % path):
             self.write_file(path + '/override.json', '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
+
+    def system_before(self, version, release=1):
+        try:
+            v = self.machine.execute("rpm -q --qf '%{V}\\n' cockpit-system").split(".")
+        except subprocess.CalledProcessError:
+            return False
+
+        if int(v[0]) == version:
+            return int(v[1]) < release
+        return int(v[0]) < version
 
     def setUp(self, restrict=True):
 

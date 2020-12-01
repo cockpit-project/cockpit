@@ -18,6 +18,9 @@ jobs:
 
       - name: Clone repository
         uses: actions/checkout@v2
+        with:
+          # the default GITHUB_TOKEN would override our ~/.git-credentials from above
+          token: '${{ secrets.COCKPITUOUS_TOKEN }}'
 
       - name: Run npm-update bot
         run: |

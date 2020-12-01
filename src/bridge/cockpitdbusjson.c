@@ -2763,7 +2763,6 @@ process_connection (CockpitDBusJson *self,
         {
           cockpit_channel_fail (channel, "internal-error", "%s", error ? error->message : "(error is NULL)");
         }
-      g_error_free (error);
     }
   else
     {
@@ -2808,7 +2807,7 @@ on_connection_ready (GObject *source,
                      gpointer user_data)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
-  GError *error = NULL;
+  g_autoptr(GError) error = NULL;
 
   self->connection = g_dbus_connection_new_for_address_finish (result,
                                                                &error);
@@ -2823,7 +2822,7 @@ on_shared_connection_ready (GObject *source,
 {
   gchar *key = user_data;
   GDBusConnection *connection;
-  GError *error = NULL;
+  g_autoptr(GError) error = NULL;
   GPtrArray *subscribers;
 
   connection = g_dbus_connection_new_for_address_finish (result, &error);

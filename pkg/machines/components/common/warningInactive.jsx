@@ -1,8 +1,9 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { Tooltip } from "@patternfly/react-core";
+
+import './warningInactive.css';
 
 const _ = cockpit.gettext;
 

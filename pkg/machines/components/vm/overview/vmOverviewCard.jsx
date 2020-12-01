@@ -80,6 +80,7 @@ class VmOverviewCard extends React.Component {
             showMemoryModal: false,
             showFirmwareModal: false,
             cpuModels: [],
+            virtXMLAvailable: undefined,
         };
         this.openVcpu = this.openVcpu.bind(this);
         this.openCpuType = this.openCpuType.bind(this);
@@ -106,6 +107,11 @@ class VmOverviewCard extends React.Component {
                         this.setState({ loaderElems, maxVcpu: Number(maxVcpu), cpuModels });
                 })
                 .fail(() => console.warn("getDomainCapabilities failed"));
+
+        cockpit.spawn(['which', 'virt-xml'], { err: 'ignore' })
+                .then(() => {
+                    this.setState({ virtXMLAvailable: true });
+                }, () => this.setState({ virtXMLAvailable: false }));
     }
 
     onAutostartChanged() {
@@ -214,13 +220,24 @@ class VmOverviewCard extends React.Component {
             </DescriptionListDescription>
         );
 
+        let cpuEditButton = (
+            <Button variant="link" className="edit-inline" isInline isAriaDisabled={!vm.persistent || !this.state.virtXMLAvailable} onClick={this.openCpuType}>
+                {_("edit")}
+            </Button>
+        );
+        if (!this.state.virtXMLAvailable) {
+            cpuEditButton = (
+                <Tooltip id='virt-install-missing'
+                         content={_("virt-install package needs to be installed on the system in order to edit this attribute")}>
+                    {cpuEditButton}
+                </Tooltip>
+            );
+        }
         const vmCpuType = (
             <DescriptionListDescription id={`${idPrefix}-cpu-model`}>
                 {rephraseUI('cpuMode', vm.cpu.mode) + (vm.cpu.model ? ` (${vm.cpu.model})` : '')}
                 { vm.persistent && vm.state === "running" && cpuModeChanged && <WarningInactive iconId="cpu-tooltip" tooltipId="tip-cpu" /> }
-                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openCpuType}>
-                    {_("edit")}
-                </Button>
+                { cpuEditButton }
             </DescriptionListDescription>
         );
 

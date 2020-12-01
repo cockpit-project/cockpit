@@ -374,6 +374,7 @@ Conflicts: cockpit-networkmanager < 233
 Conflicts: cockpit-storaged < 233
 Conflicts: cockpit-system < 233
 Conflicts: cockpit-tests < 233
+Conflicts: cockpit-docker < 233
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

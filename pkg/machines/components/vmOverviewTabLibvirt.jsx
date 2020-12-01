@@ -44,6 +44,7 @@ import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
 import { StateIcon } from './stateIcon.jsx';
 import LibvirtDBus, { getDomainCapabilities } from '../libvirt-dbus.js';
 import { getDomainCapLoader, getDomainCapMaxVCPU } from '../libvirt-common.js';
+import { updateVm } from '../actions/store-actions.js';
 
 import './overviewTab.css';
 
@@ -270,7 +271,14 @@ class VmOverviewTabLibvirt extends React.Component {
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{_("State")}</DescriptionListTerm>
                                 <DescriptionListDescription>
-                                    <StateIcon error={vm.error} state={vm.state} valueId={`${idPrefix}-state`} />
+                                    <StateIcon error={vm.error}
+                                               state={vm.state}
+                                               valueId={`${idPrefix}-state`}
+                                               dismissError={() => dispatch(updateVm({
+                                                   connectionName: vm.connectionName,
+                                                   name: vm.name,
+                                                   error: null
+                                               }))} />
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
 

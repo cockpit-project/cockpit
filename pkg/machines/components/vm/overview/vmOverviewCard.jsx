@@ -38,11 +38,10 @@ import {
 } from '../../../actions/provider-actions.js';
 import { updateVm } from '../../../actions/store-actions.js';
 import { BootOrderLink } from './bootOrder.jsx';
-import { FirmwareModal } from './firmwareModal.jsx';
+import { FirmwareLink } from './firmware.jsx';
 import WarningInactive from '../../common/warningInactive.jsx';
-import { supportsUefiXml, labelForFirmwarePath } from './helpers.js';
 import { StateIcon } from '../../common/stateIcon.jsx';
-import LibvirtDBus, { getDomainCapabilities } from '../../../libvirt-dbus.js';
+import { getDomainCapabilities } from '../../../libvirt-dbus.js';
 import { getDomainCapLoader, getDomainCapMaxVCPU, getDomainCapCPUCustomModels } from '../../../libvirt-common.js';
 
 import '../../common/overviewCard.css';
@@ -58,14 +57,12 @@ class VmOverviewCard extends React.Component {
             showVcpuModal: false,
             showCpuTypeModal: false,
             showMemoryModal: false,
-            showFirmwareModal: false,
             cpuModels: [],
             virtXMLAvailable: undefined,
         };
         this.openVcpu = this.openVcpu.bind(this);
         this.openCpuType = this.openCpuType.bind(this);
         this.openMemory = this.openMemory.bind(this);
-        this.openFirmware = this.openFirmware.bind(this);
         this.close = this.close.bind(this);
         this.onAutostartChanged = this.onAutostartChanged.bind(this);
     }
@@ -104,16 +101,7 @@ class VmOverviewCard extends React.Component {
     }
 
     close() {
-        this.setState({ showVcpuModal: false, showCpuTypeModal: false, showMemoryModal: false, showFirmwareModal: false });
-    }
-
-    getOVMFBinariesOnHost(loaderElems) {
-        return Array.prototype.map.call(loaderElems, loader => {
-            const valueElem = loader.getElementsByTagName('value');
-
-            if (valueElem && valueElem[0].parentNode == loader)
-                return valueElem[0].textContent;
-        });
+        this.setState({ showVcpuModal: false, showCpuTypeModal: false, showMemoryModal: false });
     }
 
     openVcpu() {
@@ -126,10 +114,6 @@ class VmOverviewCard extends React.Component {
 
     openMemory() {
         this.setState({ showMemoryModal: true });
-    }
-
-    openFirmware() {
-        this.setState({ showFirmwareModal: true });
     }
 
     render() {
@@ -194,68 +178,6 @@ class VmOverviewCard extends React.Component {
                 { cpuEditButton }
             </DescriptionListDescription>
         );
-
-        let firmwareLinkWrapper;
-        // <os firmware=[bios/efi]' settings is available only for libvirt version >= 5.2. Before that version it silently ignores this attribute in the XML
-        if (this.state.loaderElems && libvirtVersion >= 5002000) {
-            const hasInstallPhase = vm.metadata && vm.metadata.hasInstallPhase;
-            const labelForFirmware = labelForFirmwarePath(vm.loader, vm.arch);
-            let currentFirmware;
-            if (vm.firmware == "efi" || labelForFirmware == "efi")
-                currentFirmware = "UEFI";
-            else if (labelForFirmware == "custom")
-                currentFirmware = cockpit.format(_("Custom firmware: $0"), vm.loader);
-            else if (labelForFirmware == "unknown")
-                currentFirmware = _("Unknown firmware");
-            else
-                currentFirmware = "BIOS";
-
-            /* If the VM hasn't an install phase then don't show a link, just the text  */
-            if (!LibvirtDBus.canInstall(vm.state, hasInstallPhase)) {
-                firmwareLinkWrapper = <div id={`${idPrefix}-firmware`}>{currentFirmware}</div>;
-            } else {
-                const uefiPaths = this.getOVMFBinariesOnHost(this.state.loaderElems).filter(elem => elem !== undefined);
-                const firmwareLink = disabled => {
-                    return (
-                        <span id={`${idPrefix}-firmware-tooltip`}>
-                            <Button variant="link" isInline id={`${idPrefix}-firmware`} isDisabled={disabled} onClick={this.openFirmware}>
-                                {currentFirmware}
-                            </Button>
-                        </span>
-                    );
-                };
-
-                if (vm.state != "shut off") {
-                    if (vm.persistent) {
-                        firmwareLinkWrapper = (
-                            <Tooltip id='firmware-edit-disabled-on-running' content={_("Shut off the VM in order to edit firmware configuration")}>
-                                {firmwareLink(true)}
-                            </Tooltip>
-                        );
-                    } else {
-                        firmwareLinkWrapper = (
-                            <Tooltip id='firmware-edit-disabled-on-transient' content={_("Transient VMs don't support editing firmware configuration")}>
-                                {firmwareLink(true)}
-                            </Tooltip>
-                        );
-                    }
-                } else if (!supportsUefiXml(this.state.loaderElems[0])) {
-                    firmwareLinkWrapper = (
-                        <Tooltip id='missing-uefi-support' content={_("Libvirt or hypervisor does not support UEFI")}>
-                            {firmwareLink(true)}
-                        </Tooltip>
-                    );
-                } else if (uefiPaths.length == 0) {
-                    firmwareLinkWrapper = (
-                        <Tooltip id='missing-uefi-images' content={_("Libvirt did not detect any UEFI/OVMF firmware image installed on the host")}>
-                            {firmwareLink(true)}
-                        </Tooltip>
-                    );
-                } else {
-                    firmwareLinkWrapper = firmwareLink(false);
-                }
-            }
-        }
 
         return (
             <>
@@ -322,15 +244,18 @@ class VmOverviewCard extends React.Component {
                                 <DescriptionListDescription id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</DescriptionListDescription>
                             </DescriptionListGroup>
 
-                            {firmwareLinkWrapper && <DescriptionListGroup>
+                            { this.state.loaderElems && libvirtVersion >= 5002000 && // <os firmware=[bios/efi]' settings is available only for libvirt version >= 5.2. Before that version it silently ignores this attribute in the XML
+                            <DescriptionListGroup>
                                 <DescriptionListTerm>{_("Firmware")}</DescriptionListTerm>
-                                {firmwareLinkWrapper}
+                                <FirmwareLink vm={vm}
+                                              loaderElems={this.state.loaderElems}
+                                              libvirtVersion={libvirtVersion}
+                                              idPrefix={idPrefix} />
                             </DescriptionListGroup>}
                         </DescriptionList>
                     </FlexItem>
                 </Flex>
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
-                { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }
                 { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} maxVcpu={this.state.maxVcpu} /> }
                 { this.state.showCpuTypeModal && <CPUTypeModal close={this.close} vm={vm} dispatch={dispatch} models={this.state.cpuModels} /> }
             </>

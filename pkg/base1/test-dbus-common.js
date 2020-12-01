@@ -742,17 +742,16 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("watch change", function (assert) {
+    QUnit.test("watch change", assert => {
         const done = assert.async();
         assert.expect(2);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify_cache = (event, data) => Object.assign(cache, data);
         dbus.addEventListener("notify", onnotify_cache);
 
-        dbus.watch("/otree/frobber");
         const onnotify_test = (event, data) => {
             assert.equal(typeof cache["/otree/frobber"], "object", "has path");
             assert.deepEqual(cache, {
@@ -770,9 +769,11 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
             }, "correct data");
             dbus.removeEventListener("notify", onnotify_cache);
             dbus.removeEventListener("notify", onnotify_test);
-            done();
         };
         dbus.addEventListener("notify", onnotify_test);
+
+        dbus.watch("/otree/frobber")
+                .then(() => done());
     });
 
     QUnit.test("watch barrier", function (assert) {

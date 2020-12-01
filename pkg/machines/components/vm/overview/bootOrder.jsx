@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import {
@@ -25,10 +25,12 @@ import {
     ListView,
     ListViewItem,
 } from 'patternfly-react';
-import { Button, Alert, Modal } from '@patternfly/react-core';
 
+import { Button, Alert, Modal } from '@patternfly/react-core';
+import WarningInactive from '../../common/warningInactive.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
+    getBootOrderDevices,
     findHostNodeDevice,
     getSortedBootOrderDevices,
     rephraseUI,
@@ -39,7 +41,7 @@ import {
     getVm
 } from '../../../actions/provider-actions.js';
 
-import './bootOrderModal.css';
+import './bootOrder.css';
 
 const _ = cockpit.gettext;
 
@@ -182,7 +184,7 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
     );
 };
 
-export class BootOrderModal extends React.Component {
+class BootOrderModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -339,4 +341,45 @@ BootOrderModal.propTypes = {
     nodeDevices: PropTypes.array.isRequired,
 };
 
-export default BootOrderModal;
+/**
+ * Returns a sorted array of all devices with boot order
+ *
+ * @param {object} vm
+ * @returns {array}
+ */
+function getBootOrder(vm) {
+    let bootOrder = _("No boot device found");
+    const devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
+
+    if (devices && devices.length > 0) {
+        bootOrder = devices.map(bootDevice => rephraseUI("bootableDisk", bootDevice.type)).join(); // Example: network,disk,disk
+    }
+
+    return bootOrder;
+}
+
+export const BootOrderLink = ({ vm, idPrefix, close, dispatch, nodeDevices }) => {
+    const [bootOrderShow, setBootOrderShow] = useState(false);
+    const bootOrderChanged = () => {
+        const activeDevices = getBootOrderDevices(vm);
+        const inactiveDevices = getBootOrderDevices(vm.inactiveXML);
+
+        // check if number bootable devices has changed
+        if (inactiveDevices.length !== activeDevices.length)
+            return true;
+        else
+            // check if boot order of any device has changed
+            return !inactiveDevices.every((element, index) => element.bootOrder === activeDevices[index].bootOrder);
+    };
+
+    return (
+        <>
+            {bootOrderShow && <BootOrderModal close={() => setBootOrderShow(false)} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} />}
+            {getBootOrder(vm)}
+            { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
+            <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={setBootOrderShow}>
+                {_("edit")}
+            </Button>
+        </>
+    );
+};

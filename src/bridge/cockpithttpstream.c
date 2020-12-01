@@ -344,14 +344,13 @@ relay_headers (CockpitHttpStream *self,
                CockpitChannel *channel,
                GByteArray *buffer)
 {
-  GHashTable *headers = NULL;
-  gchar *version = NULL;
-  gchar *reason = NULL;
-  JsonObject *object;
+  g_autoptr(GHashTable) headers = NULL;
+  g_autofree gchar *version = NULL;
+  g_autofree gchar *reason = NULL;
+  g_autoptr(JsonObject) object = NULL;
   const gchar *data;
   JsonObject *heads;
   GHashTableIter iter;
-  GBytes *message;
   gpointer key;
   gpointer value;
   guint status;
@@ -370,7 +369,7 @@ relay_headers (CockpitHttpStream *self,
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: received response with bad HTTP status line", self->name);
-      goto out;
+      return TRUE;
     }
 
   offset2 = web_socket_util_parse_headers (data + offset, length - offset, &headers);
@@ -381,7 +380,7 @@ relay_headers (CockpitHttpStream *self,
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: received response with bad HTTP headers", self->name);
-      goto out;
+      return TRUE;
     }
 
   g_debug ("%s: response: %u %s", self->name, status, reason);
@@ -392,7 +391,7 @@ relay_headers (CockpitHttpStream *self,
   if (!parse_transfer_encoding (self, channel, headers) ||
       !parse_content_length (self, channel, status, headers) ||
       !parse_keep_alive (self, channel, version, headers))
-    goto out;
+    return TRUE;
 
   cockpit_pipe_skip (buffer, offset + offset2);
 
@@ -418,22 +417,13 @@ relay_headers (CockpitHttpStream *self,
 
   if (self->headers_inline)
     {
-      message = cockpit_json_write_bytes (object);
+      g_autoptr(GBytes) message = cockpit_json_write_bytes (object);
       cockpit_channel_send (channel, message, TRUE);
-      g_bytes_unref (message);
     }
   else
     {
       cockpit_channel_control (channel, "response", object);
     }
-
-  json_object_unref (object);
-
-out:
-  if (headers)
-    g_hash_table_unref (headers);
-  g_free (version);
-  g_free (reason);
 
   return TRUE;
 }

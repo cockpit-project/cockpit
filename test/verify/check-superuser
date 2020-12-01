@@ -399,7 +399,7 @@ class TestSuperuserOldDashboard(MachineCase):
         m.execute("firewall-cmd --add-service cockpit")
         m.start_cockpit()
 
-        # Log into m1 and add m2 to the dashboard
+        # Log into m1 and add m2
         b.open("/")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")

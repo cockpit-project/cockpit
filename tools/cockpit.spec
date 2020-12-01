@@ -208,9 +208,6 @@ echo '%dir %{_datadir}/cockpit/ssh' >> base.list
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
-echo '%dir %{_datadir}/cockpit/dashboard' >> dashboard.list
-find %{buildroot}%{_datadir}/cockpit/dashboard -type f >> dashboard.list
-
 echo '%dir %{_datadir}/cockpit/pcp' >> pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
 
@@ -280,7 +277,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard machines packagekit pcp playground storaged; do
+for pkg in apps machines packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
@@ -364,8 +361,6 @@ troubleshooting, interactive command-line sessions, and more.
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
 Provides: cockpit-ssh = %{version}-%{release}
-# cockpit-ssh moved from dashboard to bridge in 171
-Conflicts: cockpit-dashboard < 170.x
 # PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
 Conflicts: cockpit-ws < 181.x
 # 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
@@ -427,6 +422,7 @@ Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 Requires: sos
+Obsoletes: cockpit-dashboard
 %endif
 %if 0%{?fedora} >= 29
 # 0.7.0 (actually) supports task cancellation.
@@ -681,17 +677,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 
 %post -n cockpit-pcp
 systemctl reload-or-try-restart pmlogger
-
-%package -n cockpit-dashboard
-Summary: Cockpit remote server dashboard
-BuildArch: noarch
-Requires: cockpit-ssh >= 135
-Conflicts: cockpit-ws < 135
-
-%description -n cockpit-dashboard
-Cockpit page for showing performance graphs for up to 20 remote servers.
-
-%files -n cockpit-dashboard -f dashboard.list
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

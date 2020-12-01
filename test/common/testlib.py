@@ -114,7 +114,7 @@ class Browser:
         Load a page into the browser.
 
         Arguments:
-          href: The path of the Cockpit page to load, such as "/dashboard".
+          href: The path of the Cockpit page to load, such as "/users".
 
         Either PAGE or URL needs to be given.
 

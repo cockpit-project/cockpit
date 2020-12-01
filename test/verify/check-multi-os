@@ -21,7 +21,27 @@ import parent
 from testlib import *
 
 
-def wait_dashboard_addresses(b, expected):
+def wait_addresses(b, expected):
+    b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))
+    for address in expected:
+        b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
+
+def add_machine(b, address, password):
+    b.click("button:contains('Add new host')")
+    b.wait_popup('hosts_setup_server_dialog')
+    b.set_val('#add-machine-address', address)
+    b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
+    b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+    b.click('#hosts_setup_server_dialog .pf-m-primary')
+
+    if password:
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_val('#login-custom-password', password)
+        b.click('#hosts_setup_server_dialog .modal-footer button:contains(Log in)')
+
+    b.wait_popdown('hosts_setup_server_dialog')
+
+def wait_stock_addresses(b, expected):
     b.wait_js_func(
         """(function(expected) {
             var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
@@ -31,8 +51,7 @@ def wait_dashboard_addresses(b, expected):
             return expected.sort().toString() == addresses.sort().toString();
         })""", expected)
 
-
-def add_machine(b, address, password):
+def add_stock_machine(b, address, password):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#add-machine-address', address)
@@ -85,10 +104,10 @@ class TestMultiOS(MachineCase):
 
         self.allow_hostkey_messages()
 
-        self.login_and_go("/dashboard")
-
-        dev_dashboard_addresses = ["localhost"]
-        wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
+        self.login_and_go()
+        dev_b.click("#hosts-sel button")
+        dev_addresses = ["localhost"]
+        wait_addresses(dev_b, dev_addresses)
 
         stock_m = self.machines['centos-7']
         stock_m.execute("firewall-cmd --add-service cockpit")
@@ -102,17 +121,14 @@ class TestMultiOS(MachineCase):
         stock_b = self.new_browser(stock_m)
 
         stock_b.login_and_go("/dashboard", legacy_authorized=True)
-        wait_dashboard_addresses(stock_b, ["localhost"])
+        wait_stock_addresses(stock_b, ["localhost"])
 
-        add_machine(stock_b, "10.111.113.1", password=None)
-        wait_dashboard_addresses(stock_b, ["localhost", "10.111.113.1"])
-
-        dev_b.switch_to_top()
-        dev_b.switch_to_frame("cockpit1:localhost/dashboard")
+        add_stock_machine(stock_b, "10.111.113.1", password=None)
+        wait_stock_addresses(stock_b, ["localhost", "10.111.113.1"])
 
         add_machine(dev_b, "10.111.113.5", password="foobar")
-        dev_dashboard_addresses.append("10.111.113.5")
-        wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
+        dev_addresses.append("10.111.113.5")
+        wait_addresses(dev_b, dev_addresses)
 
         stock_b.switch_to_top()
         self.check_dbus(stock_b, "10.111.113.1")
@@ -121,11 +137,9 @@ class TestMultiOS(MachineCase):
         self.check_spawn(stock_b, "10.111.113.1")
         self.check_spawn(dev_b, "10.111.113.5")
 
-        dev_b.switch_to_top()
         dev_b.go("/@10.111.113.5/network")
         dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/network'][src$='/network/index.html#/']")
 
-        dev_b.switch_to_top()
         dev_b.go("/@10.111.113.5/storage")
         dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/storage'][src$='/storage/index.html#/']")
 
@@ -133,7 +147,6 @@ class TestMultiOS(MachineCase):
         dev_b.go("/@10.111.113.5/users")
         dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/users'][src$='/users/index.html#/']")
 
-        stock_b.switch_to_top()
         stock_b.go("/@10.111.113.1/system")
         stock_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.1/system'][data-loaded]")
         stock_b.switch_to_frame('cockpit1:10.111.113.1/system')
@@ -154,17 +167,18 @@ class TestMultiOSDirect(MachineCase):
 
         self.allow_hostkey_messages()
 
-        self.login_and_go("/dashboard")
+        self.login_and_go()
+        b.click("#hosts-sel button")
 
-        dev_dashboard_addresses = ["localhost"]
-        wait_dashboard_addresses(b, dev_dashboard_addresses)
+        dev_addresses = ["localhost"]
+        wait_addresses(b, dev_addresses)
 
         stock_m = self.machines['centos-7']
         stock_m.execute("hostnamectl set-hostname stock")
 
         add_machine(b, "10.111.113.5", password="foobar")
-        dev_dashboard_addresses.append("10.111.113.5")
-        wait_dashboard_addresses(b, dev_dashboard_addresses)
+        dev_addresses.append("10.111.113.5")
+        wait_addresses(b, dev_addresses)
         b.logout()
 
         # Access stock directly from dev

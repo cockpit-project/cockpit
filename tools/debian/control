@@ -58,8 +58,7 @@ Depends: ${misc:Depends},
          ${shlibs:Depends},
          glib-networking
 Provides: cockpit-ssh
-Breaks: cockpit-dashboard (<< 170.x),
- cockpit-ws (<< 181.x),
+Breaks: cockpit-ws (<< 181.x),
 # 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
  cockpit-dashboard (<< 233),
  cockpit-networkmanager (<< 233),
@@ -71,18 +70,6 @@ Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
-
-Package: cockpit-dashboard
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         cockpit-bridge (>= 170.x),
-         cockpit-ws (>= ${source:Version}),
-         cockpit-ws (<< ${source:Version}.1~),
-Replaces: cockpit-system (<< 128), cockpit-ws (<< 128)
-Description: Cockpit remote server dashboard
- Cockpit page for showing performance graphs for up to 20 remote servers.
 
 Package: cockpit-doc
 Section: doc
@@ -160,7 +147,8 @@ Provides: cockpit-shell,
           cockpit-tuned,
           cockpit-users
 Conflicts: cockpit-shell
-Replaces: cockpit-shell
+Breaks: cockpit-dashboard
+Replaces: cockpit-shell, cockpit-dashboard
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.

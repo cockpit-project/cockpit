@@ -29,8 +29,6 @@ import { VCPUModal } from './vcpuModal.jsx';
 import { CPUTypeModal } from './cpuTypeModal.jsx';
 import MemoryModal from './memoryModal.jsx';
 import {
-    getBootOrderDevices,
-    getSortedBootOrderDevices,
     rephraseUI,
     vmId
 } from '../../../helpers.js';
@@ -39,7 +37,7 @@ import {
     getVm
 } from '../../../actions/provider-actions.js';
 import { updateVm } from '../../../actions/store-actions.js';
-import { BootOrderModal } from './bootOrderModal.jsx';
+import { BootOrderLink } from './bootOrder.jsx';
 import { FirmwareModal } from './firmwareModal.jsx';
 import WarningInactive from '../../common/warningInactive.jsx';
 import { supportsUefiXml, labelForFirmwarePath } from './helpers.js';
@@ -51,23 +49,6 @@ import '../../common/overviewCard.css';
 
 const _ = cockpit.gettext;
 
-/**
- * Returns a sorted array of all devices with boot order
- *
- * @param {object} vm
- * @returns {array}
- */
-function getBootOrder(vm) {
-    let bootOrder = _("No boot device found");
-    const devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
-
-    if (devices && devices.length > 0) {
-        bootOrder = devices.map(bootDevice => rephraseUI("bootableDisk", bootDevice.type)).join(); // Example: network,disk,disk
-    }
-
-    return bootOrder;
-}
-
 class VmOverviewCard extends React.Component {
     constructor(props) {
         super(props);
@@ -76,7 +57,6 @@ class VmOverviewCard extends React.Component {
             runningVmUpdated: false,
             showVcpuModal: false,
             showCpuTypeModal: false,
-            showBootOrderModal: false,
             showMemoryModal: false,
             showFirmwareModal: false,
             cpuModels: [],
@@ -85,7 +65,6 @@ class VmOverviewCard extends React.Component {
         this.openVcpu = this.openVcpu.bind(this);
         this.openCpuType = this.openCpuType.bind(this);
         this.openMemory = this.openMemory.bind(this);
-        this.openBootOrder = this.openBootOrder.bind(this);
         this.openFirmware = this.openFirmware.bind(this);
         this.close = this.close.bind(this);
         this.onAutostartChanged = this.onAutostartChanged.bind(this);
@@ -125,7 +104,7 @@ class VmOverviewCard extends React.Component {
     }
 
     close() {
-        this.setState({ showVcpuModal: false, showCpuTypeModal: false, showMemoryModal: false, showBootOrderModal: false, showFirmwareModal: false });
+        this.setState({ showVcpuModal: false, showCpuTypeModal: false, showMemoryModal: false, showFirmwareModal: false });
     }
 
     getOVMFBinariesOnHost(loaderElems) {
@@ -145,10 +124,6 @@ class VmOverviewCard extends React.Component {
         this.setState({ showCpuTypeModal: true });
     }
 
-    openBootOrder() {
-        this.setState({ showBootOrderModal: true });
-    }
-
     openMemory() {
         this.setState({ showMemoryModal: true });
     }
@@ -158,18 +133,6 @@ class VmOverviewCard extends React.Component {
     }
 
     render() {
-        const bootOrderChanged = () => {
-            const activeDevices = getBootOrderDevices(vm);
-            const inactiveDevices = getBootOrderDevices(vm.inactiveXML);
-
-            // check if number bootable devices has changed
-            if (inactiveDevices.length !== activeDevices.length)
-                return true;
-            else
-                // check if boot order of any device has changed
-                return !inactiveDevices.every((element, index) => element.bootOrder === activeDevices[index].bootOrder);
-        };
-
         const { vm, dispatch, config, nodeDevices, libvirtVersion } = this.props;
         const idPrefix = vmId(vm.name);
 
@@ -191,15 +154,6 @@ class VmOverviewCard extends React.Component {
                         onChange={this.onAutostartChanged} />
                     {_("Run when host boots")}
                 </label>
-            </DescriptionListDescription>
-        );
-        const bootOrder = (
-            <DescriptionListDescription id={`${idPrefix}-boot-order`}>
-                {getBootOrder(vm)}
-                { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
-                <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={this.openBootOrder}>
-                    {_("edit")}
-                </Button>
             </DescriptionListDescription>
         );
         const memoryLink = (
@@ -343,7 +297,12 @@ class VmOverviewCard extends React.Component {
 
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{_("Boot order")}</DescriptionListTerm>
-                                {bootOrder}
+                                <DescriptionListDescription id={`${idPrefix}-boot-order`}>
+                                    <BootOrderLink vm={vm} idPrefix={idPrefix}
+                                                   close={this.close}
+                                                   dispatch={dispatch}
+                                                   nodeDevices={nodeDevices} />
+                                </DescriptionListDescription>
                             </DescriptionListGroup>
 
                             {vm.persistent && <DescriptionListGroup>
@@ -370,7 +329,6 @@ class VmOverviewCard extends React.Component {
                         </DescriptionList>
                     </FlexItem>
                 </Flex>
-                { this.state.showBootOrderModal && <BootOrderModal close={this.close} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} /> }
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
                 { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }
                 { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} maxVcpu={this.state.maxVcpu} /> }

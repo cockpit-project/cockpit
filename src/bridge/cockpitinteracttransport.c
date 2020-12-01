@@ -71,15 +71,11 @@ on_pipe_read (CockpitPipe *pipe,
               gpointer user_data)
 {
   CockpitInteractTransport *self = COCKPIT_INTERACT_TRANSPORT (user_data);
-  GBytes *message;
-  GBytes *payload;
-  gchar *channel;
-  guint8 *pos;
-  guint32 size;
 
   for (;;)
     {
-      pos = NULL;
+      guint8 *pos = NULL;
+
       if (input->len > 0)
         pos = (guint8 *)g_strstr_len ((gchar *)input->data, input->len, self->delimiter);
       if (!pos)
@@ -89,18 +85,16 @@ on_pipe_read (CockpitPipe *pipe,
           break;
         }
 
-      size = pos - input->data;
-      message = cockpit_pipe_consume (input, 0, size, self->delimiter_len);
+      guint32 size = pos - input->data;
+      g_autoptr(GBytes) message = cockpit_pipe_consume (input, 0, size, self->delimiter_len);
 
-      payload = cockpit_transport_parse_frame (message, &channel);
+      g_autofree gchar *channel = NULL;
+      g_autoptr(GBytes) payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {
           g_debug ("%s: received a %d byte payload", self->name, (int)size);
           cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
-          g_bytes_unref (payload);
-          g_free (channel);
         }
-      g_bytes_unref (message);
     }
 
   if (end_of_data)

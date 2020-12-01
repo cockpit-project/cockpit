@@ -244,35 +244,6 @@ export function updateBootOrder(domXml, devices) {
     return tmp.innerHTML;
 }
 
-export function updateCpuModelConfiguration(domXml, mode, model) {
-    const domainElem = getElem(domXml);
-    if (!domainElem)
-        throw new Error("updateCpuModelConfiguration: domXML has no domain element");
-
-    let cpuElem = domainElem.getElementsByTagName("cpu")[0];
-    if (cpuElem)
-        cpuElem.remove();
-    cpuElem = document.createElement("cpu");
-    cpuElem.setAttribute("mode", mode);
-    if (mode == "custom")
-        cpuElem.setAttribute("match", "exact");
-    cpuElem.setAttribute("check", "full");
-
-    domainElem.appendChild(cpuElem);
-
-    if (model) {
-        const modelElem = document.createElement("model");
-        cpuElem.appendChild(modelElem);
-        modelElem.textContent = model;
-    }
-
-    const tmp = document.createElement("div");
-
-    tmp.appendChild(domainElem);
-
-    return tmp.innerHTML;
-}
-
 /*
  * This function is used to define only offline attribute of memory.
  */

@@ -114,7 +114,6 @@ import {
 } from './libvirt-common.js';
 import {
     updateBootOrder,
-    updateCpuModelConfiguration,
     updateDisk,
     updateMaxMemory,
     updateVCPUSettings,
@@ -1545,11 +1544,12 @@ export function setCpuMode({
     mode,
     model,
 }) {
-    return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], { timeout, type: 'u' })
-            .then(domXml => {
-                const updatedXML = updateCpuModelConfiguration(domXml[0], mode, model);
-                return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], { timeout, type: 's' });
-            });
+    const modelStr = model ? `,model=${model}` : "";
+
+    return cockpit.script(
+        `virt-xml -c qemu:///${connectionName} --cpu clearxml=true,mode=${mode}${modelStr} ${name} --edit`,
+        { superuser: "try", err: "message" }
+    );
 }
 
 export function setOSFirmware(connectionName, objPath, loaderType) {

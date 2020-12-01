@@ -1474,12 +1474,11 @@ superuser_method_call (GDBusConnection *connection,
 
       for (GList *l = router->rules; l; l = g_list_next (l))
         {
-          gchar *rule_id = rule_superuser_id (l->data);
+          g_autofree gchar *rule_id = rule_superuser_id (l->data);
           if (rule_id)
             {
               if (g_str_equal (id, rule_id))
                 {
-                  g_free (rule_id);
                   router->superuser_start_invocation = invocation;
                   router->superuser_rule = l->data;
                   cockpit_peer_reset (router->superuser_rule->user_data);
@@ -1740,7 +1739,7 @@ superuser_init_start (CockpitRouter *router,
     {
       for (GList *l = router->rules; l; l = g_list_next (l))
         {
-          gchar *rule_id = rule_superuser_id (l->data);
+          g_autofree gchar *rule_id = rule_superuser_id (l->data);
           if (rule_id && (id == NULL || g_str_equal (id, rule_id)))
             {
               router->superuser_rule = l->data;
@@ -1752,7 +1751,6 @@ superuser_init_start (CockpitRouter *router,
                                 G_CALLBACK (on_superuser_transport_closed), router);
               return;
             }
-          g_free (rule_id);
         }
 
       if (id)

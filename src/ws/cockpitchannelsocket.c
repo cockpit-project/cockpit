@@ -199,21 +199,21 @@ cockpit_channel_socket_open (CockpitWebService *service,
   CockpitChannelSocket *self = NULL;
   WebSocketDataType data_type;
   CockpitTransport *transport;
-  gchar **protocols = NULL;
-  gchar *id = NULL;
+  g_autofree const gchar **protocols = NULL;
+  g_autofree gchar *id = NULL;
 
   if (!cockpit_web_service_parse_external (open, NULL, NULL, NULL, &protocols) ||
       !cockpit_web_service_parse_binary (open, &data_type))
     {
       respond_with_error (original_path, path, io_stream, for_tls_proxy, headers, 400, "Bad channel request");
-      goto out;
+      return;
     }
 
   transport = cockpit_web_service_get_transport (service);
   if (!transport)
     {
       respond_with_error (original_path, path, io_stream, for_tls_proxy, headers, 502, "Failed to open channel transport");
-      goto out;
+      return;
     }
 
   json_object_set_boolean_member (open, "flow-control", TRUE);
@@ -227,7 +227,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
 
   self->data_type = data_type;
 
-  self->socket = cockpit_web_service_create_socket ((const gchar **)protocols, original_path,
+  self->socket = cockpit_web_service_create_socket (protocols, original_path,
                                                      io_stream, headers, input_buffer, for_tls_proxy);
   self->socket_open = g_signal_connect (self->socket, "open", G_CALLBACK (on_socket_open), self);
   self->socket_message = g_signal_connect (self->socket, "message", G_CALLBACK (on_socket_message), self);
@@ -241,8 +241,4 @@ cockpit_channel_socket_open (CockpitWebService *service,
 
   /* Tell the socket peer's output to throttle based on back pressure */
   cockpit_flow_throttle (COCKPIT_FLOW (self->socket), COCKPIT_FLOW (self));
-
-out:
-  g_free (id);
-  g_free (protocols);
 }

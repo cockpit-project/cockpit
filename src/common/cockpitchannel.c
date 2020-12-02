@@ -432,28 +432,12 @@ cockpit_channel_constructed (GObject *object)
   priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
 }
 
-
-static gboolean
-strv_contains (gchar **strv,
-               gchar *str)
-{
-  g_return_val_if_fail (strv != NULL, FALSE);
-  g_return_val_if_fail (str != NULL, FALSE);
-
-  for (; *strv != NULL; strv++)
-    {
-      if (g_str_equal (str, *strv))
-        return TRUE;
-    }
-  return FALSE;
-}
-
 static gboolean
 cockpit_channel_ensure_capable (CockpitChannel *self,
                                 JsonObject *options)
 {
   CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
-  gchar **capabilities = NULL;
+  const gchar **capabilities = NULL;
   JsonObject *close_options = NULL; // owned by channel
   gboolean missing = FALSE;
   gboolean ret = FALSE;
@@ -472,10 +456,10 @@ cockpit_channel_ensure_capable (CockpitChannel *self,
       goto out;
     }
 
-  len = g_strv_length (capabilities);
+  len = g_strv_length ((gchar **) capabilities);
   for (i = 0; i < len; i++)
     {
-      if (priv->capabilities == NULL || !strv_contains(priv->capabilities, capabilities[i]))
+      if (priv->capabilities == NULL || !g_strv_contains((const gchar **) priv->capabilities, capabilities[i]))
         {
           g_message ("%s: unsupported capability required: %s", priv->id, capabilities[i]);
           missing = TRUE;

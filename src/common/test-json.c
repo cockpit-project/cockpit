@@ -202,7 +202,7 @@ test_get_strv (TestCase *tc,
 {
   const gchar *defawlt[] = { "1", "2", NULL };
   gboolean ret;
-  gchar **value;
+  const gchar **value;
 
   ret = cockpit_json_get_strv (tc->root, "array", NULL, &value);
   g_assert (ret == TRUE);

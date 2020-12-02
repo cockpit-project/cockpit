@@ -389,7 +389,7 @@ parse_environ (CockpitChannel *channel,
                JsonObject *options,
                const gchar *directory)
 {
-  gchar **envset = NULL;
+  const gchar **envset = NULL;
   gchar **env;
 
   if (!cockpit_json_get_strv (options, "environ", NULL, &envset))
@@ -410,7 +410,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
   GSocketAddress *address;
   CockpitPipeFlags flags;
   JsonObject *options;
-  gchar **argv = NULL;
+  const gchar **argv = NULL;
   gchar **env = NULL;
   const gchar *internal = NULL;
   const gchar *dir;

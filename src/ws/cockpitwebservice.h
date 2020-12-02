@@ -77,7 +77,7 @@ gboolean                cockpit_web_service_parse_external   (JsonObject *open,
                                                               const gchar **content_type,
                                                               const gchar **content_encoding,
                                                               const gchar **content_disposition,
-                                                              gchar ***protocols);
+                                                              const gchar ***protocols);
 
 const gchar *           cockpit_web_service_get_host         (CockpitWebService *self,
                                                               const gchar *checksum);

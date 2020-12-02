@@ -830,8 +830,8 @@ spawn_process_for_config (CockpitPeer *self)
   const gchar *default_argv[] = { "/bin/false", NULL };
   CockpitPipe *pipe = NULL;
   const gchar *directory = NULL;
-  gchar **argv = NULL;
-  gchar **envset = NULL;
+  const gchar **argv = NULL;
+  const gchar **envset = NULL;
   gchar **env = NULL;
   GError *error = NULL;
   GPid pid = 0;
@@ -851,8 +851,8 @@ spawn_process_for_config (CockpitPeer *self)
     {
       g_debug ("%s: spawning peer bridge process", self->name);
 
-      env = cockpit_pipe_get_environ ((const gchar **)envset, NULL);
-      g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
+      env = cockpit_pipe_get_environ (envset, NULL);
+      g_spawn_async_with_pipes (directory, (gchar **)argv, env,
                                 G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
                                 spawn_setup, GINT_TO_POINTER (fds[0]),
                                 &pid, NULL, NULL, NULL, &error);

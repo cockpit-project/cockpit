@@ -264,22 +264,22 @@ on_socket_connect (GObject *object,
   CockpitWebSocketStream *self = COCKPIT_WEB_SOCKET_STREAM (user_data);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *problem = "protocol-error";
-  gchar **protocols = NULL;
-  GList *l, *names = NULL;
-  GError *error = NULL;
+  g_autofree const gchar **protocols = NULL;
+  g_autoptr(GList) names = NULL;
+  GList *l;
+  g_autoptr(GError) error = NULL;
   JsonObject *options;
   JsonObject *headers;
   const gchar *value;
   JsonNode *node;
-  GIOStream *io;
 
-  io = cockpit_connect_stream_finish (result, &error);
+  g_autoptr(GIOStream) io = cockpit_connect_stream_finish (result, &error);
   if (error)
     {
       problem = cockpit_stream_problem (error, self->origin, "couldn't connect",
                                         cockpit_channel_close_options (channel));
       cockpit_channel_close (channel, problem);
-      goto out;
+      return;
     }
 
   options = cockpit_channel_get_options (channel);
@@ -288,7 +288,7 @@ on_socket_connect (GObject *object,
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"protocol\" value in WebSocket stream request", self->origin);
-      goto out;
+      return;
     }
 
   if (G_IS_TLS_CONNECTION (io))
@@ -303,7 +303,7 @@ on_socket_connect (GObject *object,
       self->sig_accept_cert = 0;
     }
 
-  self->client = web_socket_client_new_for_stream (self->url, self->origin, (const gchar **)protocols, io);
+  self->client = web_socket_client_new_for_stream (self->url, self->origin, protocols, io);
 
   node = json_object_get_member (options, "headers");
   if (node)
@@ -312,7 +312,7 @@ on_socket_connect (GObject *object,
         {
           cockpit_channel_fail (channel, "protocol-error",
                                 "%s: invalid \"headers\" field in WebSocket stream request", self->origin);
-          goto out;
+          return;
         }
 
       headers = json_node_get_object (node);
@@ -325,7 +325,7 @@ on_socket_connect (GObject *object,
               cockpit_channel_fail (channel, "protocol-error",
                                     "%s: invalid header value in WebSocket stream request: %s",
                                     self->origin, (gchar *)l->data);
-              goto out;
+              return;
             }
           value = json_node_get_string (node);
 
@@ -345,15 +345,6 @@ on_socket_connect (GObject *object,
 
   /* Let the websocket throtlte the channel peer's output flow */
   cockpit_flow_throttle (COCKPIT_FLOW (channel), COCKPIT_FLOW (self->client));
-
-  problem = NULL;
-
-out:
-  g_clear_error (&error);
-  g_strfreev (protocols);
-  if (io)
-    g_object_unref (io);
-  g_list_free (names);
 }
 
 static void

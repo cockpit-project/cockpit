@@ -45,7 +45,10 @@ fi
 
 if dpkg-architecture --is amd64; then
     # run distcheck on main arch
-    make XZ_COMPRESS_FLAGS='-0' V=0 distcheck 2>&1
+    make XZ_COMPRESS_FLAGS='-0' V=0 distcheck 2>&1 || {
+        find -name test-suite.log | xargs cat
+        exit 1
+    }
 
     # check translation build
     make po/cockpit.pot
@@ -66,7 +69,10 @@ else
     ./configure
     make distclean
     ./configure
-    make check 2>&1
+    make check 2>&1 || {
+        find -name test-suite.log | xargs cat
+        exit 1
+    }
 fi
 
 make check-memory 2>&1 || {

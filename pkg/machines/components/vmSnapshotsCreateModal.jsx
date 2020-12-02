@@ -44,8 +44,7 @@ const NameRow = ({ onValueChanged, dialogValues, onValidate }) => {
                 validated={dialogValues.validationError.name ? "error" : "default"}
                 id="name"
                 type="text"
-                onChange={(value) => onValueChanged("name", value)}
-                aria-label={_("Name input text")} />
+                onChange={(value) => onValueChanged("name", value)} />
         </FormGroup>
     );
 };
@@ -57,7 +56,6 @@ const DescriptionRow = ({ onValueChanged, dialogValues }) => {
                 id="description"
                 onChange={(value) => onValueChanged("description", value)}
                 resizeOrientation="vertical"
-                aria-label={_("Description input text")}
             />
         </FormGroup>
     );

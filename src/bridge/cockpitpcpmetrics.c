@@ -580,10 +580,9 @@ prepare_current_context (CockpitPcpMetrics *self,
 {
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   JsonObject *options;
-  gchar **instances = NULL;
-  gchar **omit_instances = NULL;
+  g_autofree const gchar **instances = NULL;
+  g_autofree const gchar **omit_instances = NULL;
   JsonArray *metrics;
-  gboolean ret = FALSE;
   int i;
 
   g_free (self->metrics);
@@ -596,19 +595,19 @@ prepare_current_context (CockpitPcpMetrics *self,
   options = cockpit_channel_get_options (channel);
 
   /* "instances" option */
-  if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&instances))
+  if (!cockpit_json_get_strv (options, "instances", NULL, &instances))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"instances\" option (not an array of strings)", self->name);
-      goto out;
+      return FALSE;
     }
 
   /* "omit-instances" option */
-  if (!cockpit_json_get_strv (options, "omit-instances", NULL, (gchar ***)&omit_instances))
+  if (!cockpit_json_get_strv (options, "omit-instances", NULL, &omit_instances))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"omit-instances\" option (not an array of strings)", self->name);
-      goto out;
+      return FALSE;
     }
 
   /* "metrics" option */
@@ -616,7 +615,7 @@ prepare_current_context (CockpitPcpMetrics *self,
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"metrics\" option was specified (not an array)", self->name);
-      goto out;
+      return FALSE;
     }
   if (metrics)
     self->numpmid = json_array_get_length (metrics);
@@ -627,7 +626,7 @@ prepare_current_context (CockpitPcpMetrics *self,
     {
       MetricInfo *info = &self->metrics[i];
       if (!convert_metric_description (self, json_array_get_element (metrics, i), info, i, not_found))
-        goto out;
+        return FALSE;
 
       self->pmidlist[i] = info->id;
 
@@ -656,12 +655,7 @@ prepare_current_context (CockpitPcpMetrics *self,
         }
     }
 
-  ret = TRUE;
-
- out:
-  g_free (instances);
-  g_free (omit_instances);
-  return ret;
+  return TRUE;
 }
 
 static void start_archive (CockpitPcpMetrics *self, gint64 timestamp);

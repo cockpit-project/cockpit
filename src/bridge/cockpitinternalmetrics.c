@@ -132,7 +132,6 @@ typedef struct {
   gint64 interval;
   int n_metrics;
   MetricInfo *metrics;
-  const gchar **instances;
   const gchar **omit_instances;
   SamplerSet samplers;
 
@@ -454,16 +453,8 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
 
   options = cockpit_channel_get_options (channel);
 
-  /* "instances" option */
-  if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&self->instances))
-    {
-      cockpit_channel_fail (channel, "protocol-error",
-                            "invalid \"instances\" option (not an array of strings)");
-      return;
-    }
-
   /* "omit-instances" option */
-  if (!cockpit_json_get_strv (options, "omit-instances", NULL, (gchar ***)&self->omit_instances))
+  if (!cockpit_json_get_strv (options, "omit-instances", NULL, &self->omit_instances))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "invalid \"omit-instances\" option (not an array of strings)");
@@ -527,7 +518,6 @@ cockpit_internal_metrics_finalize (GObject *object)
 {
   CockpitInternalMetrics *self = COCKPIT_INTERNAL_METRICS (object);
 
-  g_free (self->instances);
   g_free (self->omit_instances);
 
   for (int i = 0; i < self->n_metrics; i++)

@@ -109,9 +109,9 @@ typedef struct {
 typedef struct {
   JsonObject *config;
 
-  // Contents owned by config
-  gchar **env;
-  gchar **spawn;
+  // Array owned by us, elements owned by config
+  const gchar **env;
+  const gchar **spawn;
 
   GHashTable *peers;
 } DynamicPeer;
@@ -615,19 +615,17 @@ strv_to_json_array (gchar **strv)
 
 static void
 add_dynamic_args_to_array (gchar ***key,
-                           gchar **config_args,
+                           const gchar **config_args,
                            JsonObject *options)
 {
   GPtrArray *arr = NULL;
-  gint length;
   gint i;
 
   g_assert (config_args != NULL);
   g_assert (key != NULL);
 
   arr = g_ptr_array_new ();
-  length = g_strv_length (config_args);
-  for (i = 0; i < length; i++)
+  for (i = 0; config_args[i]; i++)
     {
       GString *s = g_string_new ("");
       GBytes *input = g_bytes_new_static (config_args[i], strlen(config_args[i]) + 1);
@@ -1364,7 +1362,7 @@ static gchar *
 rule_superuser_id (RouterRule *rule)
 {
   gboolean privileged;
-  gchar **spawn = NULL;
+  const gchar **spawn = NULL;
   gchar *id;
 
   if (rule->config
@@ -1606,12 +1604,7 @@ superuser_get_property (GDBusConnection *connection,
                || router->superuser_start_invocation)
         return g_variant_new ("s", "none");
       else
-        {
-          gchar *id = rule_superuser_id (router->superuser_rule);
-          GVariant *v = g_variant_new ("s", id);
-          g_free (id);
-          return v;
-        }
+        return g_variant_new_take_string (rule_superuser_id (router->superuser_rule));
     }
   else
     g_return_val_if_reached (NULL);

@@ -1169,7 +1169,7 @@ test_parse_external (void)
   const gchar *content_disposition;
   const gchar *content_type;
   const gchar *content_encoding;
-  gchar **protocols;
+  const gchar **protocols;
   JsonObject *object;
   JsonObject *external;
   JsonArray *array;

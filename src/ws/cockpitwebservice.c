@@ -829,7 +829,7 @@ cockpit_web_service_parse_external (JsonObject *options,
                                     const gchar **content_type,
                                     const gchar **content_encoding,
                                     const gchar **content_disposition,
-                                    gchar ***protocols)
+                                    const gchar ***protocols)
 {
   JsonObject *external;
   const gchar *value;

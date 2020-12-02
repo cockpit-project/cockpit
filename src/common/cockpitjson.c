@@ -212,13 +212,13 @@ gboolean
 cockpit_json_get_strv (JsonObject *options,
                        const gchar *member,
                        const gchar **defawlt,
-                       gchar ***value)
+                       const gchar ***value)
 {
   gboolean valid = FALSE;
   JsonArray *array;
   JsonNode *node;
   guint length, i;
-  gchar **val = NULL;
+  const gchar **val = NULL;
 
   node = json_object_get_member (options, member);
   if (!node)
@@ -232,13 +232,13 @@ cockpit_json_get_strv (JsonObject *options,
       valid = TRUE;
       array = json_node_get_array (node);
       length = json_array_get_length (array);
-      val = g_new (gchar *, length + 1);
+      val = g_new (const gchar *, length + 1);
       for (i = 0; i < length; i++)
         {
           node = json_array_get_element (array, i);
           if (json_node_get_value_type (node) == G_TYPE_STRING)
             {
-              val[i] = (gchar *)json_node_get_string (node);
+              val[i] = json_node_get_string (node);
             }
           else
             {

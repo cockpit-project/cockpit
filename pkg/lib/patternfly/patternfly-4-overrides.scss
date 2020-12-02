@@ -68,3 +68,10 @@ svg {
         }
     }
 }
+
+.pf-c-card__header {
+  // Allow actions to wrap if there's not enough space
+  // issue: https://github.com/patternfly/patternfly/issues/3713
+  // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
+  flex-wrap: wrap;
+}

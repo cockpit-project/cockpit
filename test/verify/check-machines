@@ -2817,7 +2817,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
+        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
@@ -2828,7 +2828,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text("#vm-VmNotInstalled-firmware", "UEFI")
 
             # Temporarily delete the OVMF binary and check the firmware options again
-            if "fedora" in m.image or "rhel" in m.image:
+            if "fedora" in m.image or "rhel" in m.image or "centos-8" in m.image:
                 ovmf_path = "/usr/share/edk2"
             elif "debian" in m.image or "ubuntu" in m.image:
                 ovmf_path = "/usr/share/OVMF"
@@ -2845,7 +2845,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
             def hack_broken_caps():
-                if m.image in ["fedora-32", "fedora-33", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
+                if m.image in ["fedora-32", "fedora-33", "fedora-testing", "centos-8-stream", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
                     m.execute("systemctl restart libvirtd")
                     # We don't get events for shut off VMs so reload the page
                     b.reload()

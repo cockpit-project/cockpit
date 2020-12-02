@@ -389,6 +389,7 @@ const UpdatesList = ({ updates }) => {
     return (
         <ListingTable className="available"
                 aria-label={_("Available updates")}
+                gridBreakPoint='grid-lg'
                 columns={[
                     { title: _("Name") },
                     { title: _("Version") },

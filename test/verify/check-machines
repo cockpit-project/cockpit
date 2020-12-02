@@ -83,19 +83,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # https://bugs.launchpad.net/ubuntu/+source/libvirt-dbus/+bug/1892757
             m.execute("usermod -a -G libvirt libvirtdbus")
 
+        # Cleanup pools
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
+
+        # Cleanup networks
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
+
         self.addCleanup(m.execute, "systemctl stop libvirtd")
+        self.addCleanup(m.execute, "while pgrep qemu; do sleep 0.5; done")
 
         # Remove dummy bridge which we use in the tests
         self.addCleanup(m.execute, "ip link delete virbrtest type bridge || true")
 
-        # Cleanup pools
-        self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
-
         # Stop all pools
         self.addCleanup(m.execute, "for n in $(virsh pool-list --name | head -n -1); do virsh pool-destroy $n; done")
-
-        # Cleanup networks
-        self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
 
         # Stop all networks
         self.addCleanup(m.execute, "for n in $(virsh net-list --name | head -n -1); do virsh net-destroy $n; done")

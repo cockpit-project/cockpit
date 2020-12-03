@@ -1,6 +1,6 @@
 /* Patch IE to support forEach on NodeLists, used in show/hide */
 if (window.NodeList && !NodeList.prototype.forEach)
-  NodeList.prototype.forEach = Array.prototype.forEach;
+    NodeList.prototype.forEach = Array.prototype.forEach;
 
 (function(console) {
     var localStorage;
@@ -93,7 +93,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
                 els = document.querySelectorAll(elements[i]);
 
                 if (els)
-                    els.forEach(function(element){
+                    els.forEach(function(element) {
                         if (element.hidden !== !!toggle)
                             element.hidden = !!toggle;
                     });
@@ -159,7 +159,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
     function requisites() {
         function disableLogin(name) {
             if (name === "supports")
-                name = "@supports API"
+                name = "@supports API";
             var errorString = format(_("This web browser is too old to run the Web Console (missing $0)"), name);
 
             if (window.console)

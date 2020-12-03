@@ -106,13 +106,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <button id="journal-follow" class="pf-c-button pf-m-secondary" type="button" translate>Pause</button>
         </div>
       </section>
-      <section id="journal-box" class="pf-c-page__main-section pf-m-light"></section>
+      <section id="journal-box" class="pf-c-page__main-section pf-m-light">
+        <div class="panel panel-default cockpit-log-panel" id="journal-logs" role="table"></div>
+        <div class="journal-start" id="start-box" role="rowgroup"></div>
+      </section>
     </main>
   </div>
 
   <div id="journal-entry" class="pf-c-page" hidden>
     <main role="main" class="pf-c-page__main" tabindex="-1">
-      <section id="journal-box" class="pf-c-page__main-breadcrumb">
+      <section id="journal-entry-box" class="pf-c-page__main-breadcrumb">
         <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
           <ol class="pf-c-breadcrumb__list">
             <li class="pf-c-breadcrumb__item">

@@ -31,12 +31,17 @@ import { superuser } from "superuser";
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 // We open a couple of long-running channels with { superuser: "try" },
 // so we need to reload the page if the access level changes.
 //
 superuser.reload_page_on_change();
+
+function JournalLogs({ logs }) {
+    return <>{logs}</>;
+}
 
 $(function() {
     cockpit.translate();
@@ -125,16 +130,14 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, match, priority, tag, keep_following, grep, boot, since) {
-        var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
-        var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
-
-        outer.empty().append(box, start_box);
+    function journalbox(match, priority, tag, keep_following, grep, boot, since) {
+        const self = {};
+        var out = new JournalOutput(cockpit.location.options);
 
         var query_count = 5000;
         var query_more = 1000;
 
-        var renderer = journal.renderer(box);
+        var renderer = journal.renderer(out);
         var procs = [];
         var following_procs = [];
 
@@ -156,6 +159,7 @@ $(function() {
             }
             renderer.prepend_flush();
             show_service_filters();
+            ReactDOM.render(React.createElement(JournalLogs, { logs: out.logs }), document.getElementById("journal-logs"));
         }
 
         function append_entries(entries) {
@@ -164,9 +168,12 @@ $(function() {
             for (var i = 0; i < entries.length; i++)
                 renderer.append(entries[i]);
             renderer.append_flush();
+            ReactDOM.render(React.createElement(JournalLogs, { logs: out.logs }), document.getElementById("journal-logs"));
         }
 
         function didnt_reach_start(first) {
+            if (no_logs)
+                ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
             manage_start_box(false, no_logs,
                              no_logs ? _("No logs found") : "",
                              no_logs ? _("You may try to load older entries.") : "",
@@ -189,9 +196,10 @@ $(function() {
                                              }
                                          })
                                          .done(function() {
-                                             if (no_logs)
+                                             if (no_logs) {
+                                                 ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
                                                  manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
-                                             else if (count < query_more)
+                                             } else if (count < query_more)
                                                  ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                                          }));
                              });
@@ -208,7 +216,7 @@ $(function() {
                         prepend_entries(entries);
                     }));
         }
-        outer.follow = follow;
+        self.follow = follow;
 
         function clear_service_list() {
             if (loading_services) {
@@ -255,6 +263,7 @@ $(function() {
                     .forEach(unit => $('#journal-service-menu').append($('<option value="' + unit + '"' + (unit === tag ? ' selected>' : '>')).text(unit)));
         }
 
+        ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
         manage_start_box(true, false, _("Loading..."), "", "");
 
         var options = {
@@ -308,9 +317,10 @@ $(function() {
                     }
                 })
                 .done(function() {
-                    if (no_logs)
+                    if (no_logs) {
+                        ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
                         manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
-                    else if (count < query_count)
+                    } else if (count < query_count)
                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                     if (!last) {
                         following_procs.push(journal.journalctl(match, {
@@ -331,7 +341,7 @@ $(function() {
                         didnt_reach_start(oldest);
                 }));
 
-        outer.stop = function stop() {
+        self.stop = function stop() {
             $.each(procs, function(i, proc) {
                 proc.stop();
             });
@@ -340,13 +350,13 @@ $(function() {
             });
         };
 
-        outer.stop_following = function stop_following() {
+        self.stop_following = function stop_following() {
             $.each(following_procs, function(i, proc) {
                 proc.stop();
             });
         };
 
-        return outer;
+        return self;
     }
 
     var filler;
@@ -424,7 +434,7 @@ $(function() {
         if (the_journal)
             the_journal.stop();
 
-        the_journal = journalbox($("#journal-box"), match, prio_level, options.tag, follow, grep, options.boot, options.since);
+        the_journal = journalbox(match, prio_level, options.tag, follow, grep, options.boot, options.since);
     }
 
     function update_entry() {
@@ -976,6 +986,7 @@ $(function() {
         update();
     });
 
+    /*
     $('#journal-box').on('click', '.cockpit-logline', function() {
         var cursor = $(this).attr('data-cursor');
         if (cursor)
@@ -990,6 +1001,7 @@ $(function() {
         if (cursor)
             cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
+    */
 
     $('#journal-cmd-copy').on('click', function(ev) {
         ev.preventDefault();

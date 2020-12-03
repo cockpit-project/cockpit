@@ -24,6 +24,7 @@ import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import cockpit from 'cockpit';
 import { superuser } from 'superuser';
+import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 
 import firewall from './firewall-client.js';
 import * as utils from './utils';
@@ -32,7 +33,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { mustache } from 'mustache';
 import * as plot from 'plot.js';
-import { journal } from 'journal';
 
 /* jQuery extensions */
 import 'patterns';
@@ -41,7 +41,6 @@ import 'bootstrap/dist/js/bootstrap';
 import "page.scss";
 import "table.css";
 import "plot.css";
-import "journal.css";
 import "./networking.css";
 import "form-layout.scss";
 
@@ -1727,16 +1726,9 @@ PageNetworking.prototype = {
     },
 
     enter: function () {
-        this.log_box = journal.logbox(["_SYSTEMD_UNIT=NetworkManager.service",
-            "_SYSTEMD_UNIT=firewalld.service"], 10,
-                                      { prio: "debug", _SYSTEMD_UNIT: "NetworkManager.service,firewalld.service" });
-        $('#networking-log').empty()
-                .append(this.log_box);
+        ReactDOM.render(React.createElement(NetworkingLogs), document.getElementById("networking-log"));
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
-        $("#goto-networking-logs").on("click", function() {
-            cockpit.jump("/system/logs/#/?prio=debug&_SYSTEMD_UNIT=NetworkManager.service,firewalld.service");
-        });
         this.update_devices();
     },
 
@@ -1746,8 +1738,7 @@ PageNetworking.prototype = {
     },
 
     leave: function() {
-        if (this.log_box)
-            this.log_box.stop();
+        ReactDOM.unmountComponentAtNode(document.getElementById("networking-log"));
 
         $(this.model).off(".networking");
     },
@@ -3129,6 +3120,17 @@ PageNetworkInterface.prototype = {
 
 function PageNetworkInterface(model) {
     this._init(model);
+}
+
+function NetworkingLogs() {
+    var match = [
+        "_SYSTEMD_UNIT=NetworkManager.service", "+",
+        "_SYSTEMD_UNIT=firewalld.service"
+    ];
+
+    const search_options = { prio: "debug", _SYSTEMD_UNIT: "NetworkManager.service,firewalld.service" };
+    const url = "/system/logs/#/?prio=debug&_SYSTEMD_UNIT=NetworkManager.service,firewalld.service";
+    return <LogsPanel title={_("Network logs")} match={match} max={10} search_options={search_options} goto_url={url} className="contains-list" />;
 }
 
 function switchbox(val, callback) {

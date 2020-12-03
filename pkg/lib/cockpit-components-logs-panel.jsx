@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
    journal.renderer, and also collects the output.
  */
 
-class JournalOutput {
+export class JournalOutput {
     constructor(search_options) {
         this.logs = [];
         this.reboot_key = 0;
@@ -107,8 +107,16 @@ class JournalOutput {
         this.logs.unshift(item);
     }
 
+    append(item) {
+        this.logs.push(item);
+    }
+
     remove_first() {
         this.logs.shift();
+    }
+
+    remove_last() {
+        this.logs.pop();
     }
 
     limit(max) {

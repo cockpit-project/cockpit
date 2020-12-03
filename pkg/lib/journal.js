@@ -18,10 +18,6 @@
  */
 
 import cockpit from "cockpit";
-import { mustache } from "mustache";
-import day_header_template from 'raw-loader!journal_day_header.mustache';
-import line_template from 'raw-loader!journal_line.mustache';
-import reboot_template from 'raw-loader!journal_reboot.mustache';
 import moment from "moment";
 
 moment.locale(cockpit.language);
@@ -224,79 +220,7 @@ journal.printable = function printable(value) {
         return _("[binary data]");
 };
 
-function output_funcs_for_box(box) {
-    /* Dereference any jQuery object here */
-    if (box.jquery)
-        box = box[0];
-
-    mustache.parse(day_header_template);
-    mustache.parse(line_template);
-    mustache.parse(reboot_template);
-
-    function render_line(ident, prio, message, count, time, entry) {
-        var parts = {
-            cursor: entry.__CURSOR,
-            time: time,
-            message: message,
-            service: ident
-        };
-        if (count > 1)
-            parts.count = count;
-        if (ident === 'abrt-notification') {
-            parts.problem = true;
-            parts.service = entry.PROBLEM_BINARY;
-        } else if (prio < 4)
-            parts.warning = true;
-        return mustache.render(line_template, parts);
-    }
-
-    var reboot = _("Reboot");
-    var reboot_line = mustache.render(reboot_template, { message: reboot });
-
-    function render_reboot_separator() {
-        return reboot_line;
-    }
-
-    function render_day_header(day) {
-        return mustache.render(day_header_template, { day: day });
-    }
-
-    function parse_html(string) {
-        var div = document.createElement("div");
-        div.innerHTML = string.trim();
-        return div.children[0];
-    }
-
-    return {
-        render_line: render_line,
-        render_day_header: render_day_header,
-        render_reboot_separator: render_reboot_separator,
-
-        append: function(elt) {
-            if (typeof (elt) == "string")
-                elt = parse_html(elt);
-            box.appendChild(elt);
-        },
-        prepend: function(elt) {
-            if (typeof (elt) == "string")
-                elt = parse_html(elt);
-            if (box.firstChild)
-                box.insertBefore(elt, box.firstChild);
-            else
-                box.appendChild(elt);
-        },
-        remove_last: function() {
-            if (box.lastChild)
-                box.removeChild(box.lastChild);
-        },
-        remove_first: function() {
-            if (box.firstChild)
-                box.removeChild(box.firstChild);
-        },
-    };
-}
-
-/* Render the journal entries by passing suitable HTML strings back to
+/* Render the journal entries by passing suitable DOM elements back to
    the caller via the 'output_funcs'.
 
    Rendering is context aware.  It will insert 'reboot' markers, for
@@ -356,15 +280,11 @@ function output_funcs_for_box(box) {
       - output_funcs.render_line(ident, prio, message, count, time, cursor)
       - output_funcs.render_day_header(day)
       - output_funcs.render_reboot_separator()
-
 */
 
-journal.renderer = function renderer(funcs_or_box) {
-    var output_funcs;
-    if (funcs_or_box.render_line)
-        output_funcs = funcs_or_box;
-    else
-        output_funcs = output_funcs_for_box(funcs_or_box);
+journal.renderer = function renderer(output_funcs) {
+    if (!output_funcs.render_line)
+        console.error("Invalid renderer provided");
 
     function copy_object(o) {
         var c = { }; for (var p in o) c[p] = o[p]; return c;

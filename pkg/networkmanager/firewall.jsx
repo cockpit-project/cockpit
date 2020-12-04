@@ -882,7 +882,7 @@ export class Firewall extends React.Component {
         }
 
         var addZoneAction = (
-            <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
+            <Button variant="primary" onClick={this.openAddZoneDialog} id="add-zone-button" aria-label={_("Add a new zone")}>
                 {_("Add zone")}
             </Button>
         );

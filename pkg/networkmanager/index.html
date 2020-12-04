@@ -44,15 +44,19 @@
           <span class="pficon pficon-error-circle-o"></span>
         </div>
         <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
-        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start service</button>
+        <div class="pf-c-alert__action">
+          <button class="pf-c-button pf-m-secondary" type="submit" translate="yes">Start service</button>
+        </div>
       </div>
 
       <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
-        <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable service</button>
         <div class="pf-c-alert__icon">
           <span class="pficon pficon-info"></span>
         </div>
         <h4 class="pf-c-alert__title" translate="yes">Network devices and graphs require NetworkManager.</h4>
+        <div class="pf-c-alert__action">
+          <button class="pf-c-button pf-m-secondary" type="submit" translate="yes">Enable service</button>
+        </div>
       </div>
 
       <section id="networking-graphs" class="pf-c-page__main-section pf-m-light">

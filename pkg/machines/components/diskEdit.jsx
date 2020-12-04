@@ -237,7 +237,7 @@ export class EditDiskAction extends React.Component {
 
         return (
             <>
-                <Button id={`${idPrefix}-edit`} variant='secondary' onClick={this.open} className='pull-right'>
+                <Button id={`${idPrefix}-edit`} variant='secondary' onClick={this.open}>
                     {_("Edit")}
                 </Button>
                 { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} /> }

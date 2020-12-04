@@ -447,7 +447,7 @@ export class CreateNetworkAction extends React.Component {
     render() {
         return (
             <>
-                <Button className='pull-right' id='create-network'
+                <Button id='create-network'
                         variant='secondary' onClick={this.open}>
                     {_("Create virtual network")}
                 </Button>

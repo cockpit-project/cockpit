@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import {
-    Alert, Button,
+    Alert, AlertActionLink,
     Page, PageSection
 } from "@patternfly/react-core";
 
@@ -64,22 +64,17 @@ export class MultipathAlert extends React.Component {
                     });
         }
 
-        if (multipath_broken && !multipathd_running) {
+        if (multipath_broken && !multipathd_running)
             return (
                 <Page>
                     <PageSection>
-                        <Alert isInline variant='danger' title={
-                            <>
-                                <Button onClick={activate} variant="secondary" className="pull-right">{_("Start multipath")}</Button>
-                                <span className="alert-message">
-                                    {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
-                                </span>
-                            </>
-                        } />
+                        <Alert isInline variant='danger'
+                            actionClose={<AlertActionLink variant='secondary' onClick={activate}>{_("Start multipath")}</AlertActionLink>}
+                            title={_("There are devices with multiple paths on the system, but the multipath service is not running.")}
+                        />
                     </PageSection>
                 </Page>
             );
-        } else
-            return null;
+        return null;
     }
 }

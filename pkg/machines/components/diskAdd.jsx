@@ -181,7 +181,7 @@ class AdditionalOptions extends React.Component {
     }
 }
 
-const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm }) => {
+const CreateNewDisk = ({ idPrefix, onValueChanged, validationFailed, dialogValues, vmStoragePools, vm }) => {
     const storagePool = vmStoragePools.find(pool => pool.name == dialogValues.storagePoolName);
     const poolTypesNotSupportingVolumeCreation = ['iscsi', 'iscsi-direct', 'gluster', 'mpath'];
 
@@ -189,11 +189,13 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
         <>
             <PoolRow idPrefix={idPrefix}
                      storagePoolName={dialogValues.storagePoolName}
+                     validationFailed={validationFailed}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools.map(pool => ({ ...pool, disabled: poolTypesNotSupportingVolumeCreation.includes(pool.type) }))} />
             {storagePool &&
             <VolumeCreateBody idPrefix={idPrefix}
                               storagePool={storagePool}
+                              validationFailed={validationFailed}
                               dialogValues={dialogValues}
                               onValueChanged={onValueChanged} />}
         </>
@@ -215,11 +217,12 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
     return <Alert isInline variant='warning' id={`${idPrefix}-vms-usage`} title={text} />;
 };
 
-const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm, vms }) => {
+const UseExistingDisk = ({ idPrefix, onValueChanged, validationFailed, dialogValues, vmStoragePools, vm, vms }) => {
     return (
         <>
             <PoolRow idPrefix={idPrefix}
                      storagePoolName={dialogValues.storagePoolName}
+                     validationFailed={validationFailed}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
             {vmStoragePools.length > 0 && <>
@@ -242,12 +245,17 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
 export class AddDiskModalBody extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { ...this.initialState, dialogLoading: true };
+        this.state = {
+            ...this.initialState,
+            validate: false,
+            dialogLoading: true
+        };
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
         this.getDefaultVolumeName = this.getDefaultVolumeName.bind(this);
         this.existingVolumeNameDelta = this.existingVolumeNameDelta.bind(this);
+        this.validateParams = this.validateParams.bind(this);
     }
 
     get initialState() {
@@ -287,6 +295,28 @@ export class AddDiskModalBody extends React.Component {
         this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
                 .fail(exc => this.dialogErrorSet(_("Disk settings could not be saved"), exc.message))
                 .then(() => this.setState({ dialogLoading: false }));
+    }
+
+    validateParams() {
+        const validationFailed = {};
+
+        if (!this.state.storagePoolName)
+            validationFailed.storagePool = _("Please choose a storage pool");
+
+        if (this.state.mode === CREATE_NEW) {
+            if (!this.state.volumeName) {
+                validationFailed.volumeName = _("Please enter new volume name");
+            }
+            const poolCapacity = parseFloat(convertToUnit(this.props.storagePools.find(pool => pool.name == this.state.storagePoolName).capacity, units.B, this.state.unit));
+            if (this.state.size > poolCapacity) {
+                validationFailed.size = cockpit.format(_("Storage volume size must not exceed the storage pool's capacity ($0 $1)"), poolCapacity.toFixed(2), this.state.unit);
+            }
+        } else if (this.state.mode === USE_EXISTING) {
+            if (!this.state.existingVolumeName)
+                validationFailed.existingVolumeName = _("Please choose a volume");
+        }
+
+        return validationFailed;
     }
 
     existingVolumeNameDelta(value, poolName) {
@@ -369,20 +399,12 @@ export class AddDiskModalBody extends React.Component {
     onAddClicked() {
         const { vm, dispatch, close, vms, storagePools } = this.props;
 
-        // validate
-        if (!this.state.storagePoolName)
-            return this.dialogErrorSet(_("Please choose a storage pool"));
+        const validation = this.validateParams();
+        if (Object.getOwnPropertyNames(validation).length > 0)
+            return this.setState({ addDiskInProgress: false, validate: true });
 
         if (this.state.mode === CREATE_NEW) {
-            // validate
-            if (!this.state.volumeName) {
-                return this.dialogErrorSet(_("Please enter new volume name"));
-            }
-            if (!(this.state.size > 0)) { // must be positive number
-                return this.dialogErrorSet(_("Please enter new volume size"));
-            }
-
-            this.setState({ addDiskInProgress: true });
+            this.setState({ addDiskInProgress: true, validate: false });
             // create new disk
             return dispatch(volumeCreateAndAttach({
                 connectionName: vm.connectionName,
@@ -409,10 +431,6 @@ export class AddDiskModalBody extends React.Component {
         }
 
         // use existing volume
-        if (!this.state.existingVolumeName)
-            return this.dialogErrorSet(_("Please choose a volume"));
-
-        this.setState({ addDiskInProgress: true });
         const storagePool = storagePools.find(pool => pool.name === this.state.storagePoolName);
         const volume = storagePool.volumes.find(vol => vol.name === this.state.existingVolumeName);
         const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
@@ -461,6 +479,7 @@ export class AddDiskModalBody extends React.Component {
     render() {
         const { vm, storagePools, vms } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
+        const validationFailed = this.state.validate ? this.validateParams() : {};
 
         let defaultBody;
         if (this.state.dialogLoading) {
@@ -485,6 +504,7 @@ export class AddDiskModalBody extends React.Component {
                         <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                        onValueChanged={this.onValueChanged}
                                        dialogValues={this.state}
+                                       validationFailed={validationFailed}
                                        vmStoragePools={storagePools}
                                        vm={vm} />
                     )}
@@ -492,6 +512,7 @@ export class AddDiskModalBody extends React.Component {
                         <UseExistingDisk idPrefix={`${idPrefix}-existing`}
                                          onValueChanged={this.onValueChanged}
                                          dialogValues={this.state}
+                                         validationFailed={validationFailed}
                                          vmStoragePools={storagePools}
                                          vms={vms}
                                          vm={vm} />

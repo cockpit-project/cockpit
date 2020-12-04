@@ -4549,7 +4549,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         class StorageVolumeCreateDialog(object):
             def __init__(
                 self, test_obj, pool_name, vol_name, size="128", unit="MiB", format='qcow2',
-                pool_type = "dir", xfail=False, xfail_error=None, remove=True,
+                pool_type = "dir", xfail=False, xfail_object=None, xfail_error=None, remove=True,
             ):
                 self.test_obj = test_obj
                 self.pool_name = pool_name
@@ -4559,6 +4559,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self.unit = unit
                 self.format = format
                 self.xfail = xfail
+                self.xfail_object = xfail_object
                 self.xfail_error = xfail_error
                 self.remove = remove
 
@@ -4599,12 +4600,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def create(self):
                 b.click(".pf-c-modal-box__footer button:contains(Create)")
 
-                if (not self.xfail):
+                if not self.xfail:
                     # Creation of volumes might take longer for some pool types
                     if self.pool_type  in ["disk", "netfs"]:
                         b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
                         b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
                     b.wait_not_present("#create-volume-dialog-modal")
+                else:
+                    if "size" == self.xfail_object:
+                        b.wait_in_text("#create-volume-dialog-size-group .pf-c-form__helper-text.pf-m-error", self.xfail_error)
 
             def verify(self):
                 # Check that the defined volume is now visible
@@ -4633,6 +4637,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage volumes" subtab
 
                 self.test_obj.togglePoolRow(self.pool_name)
+
+        # Check size validation
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool",
+            size="1000",
+            unit="GiB",
+            format="qcow2",
+            remove=True,
+            xfail=True,
+            xfail_object='size',
+            xfail_error = "exceed the storage pool",
+        ).execute()
 
         # Check volume creation for various pool types
         StorageVolumeCreateDialog(

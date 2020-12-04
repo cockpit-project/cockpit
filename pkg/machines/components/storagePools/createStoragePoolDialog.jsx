@@ -469,7 +469,7 @@ export class CreateStoragePoolAction extends React.Component {
     render() {
         return (
             <>
-                <Button className='pull-right' id='create-storage-pool' variant='secondary' onClick={this.open}>
+                <Button id='create-storage-pool' variant='secondary' onClick={this.open}>
                     {_("Create storage pool")}
                 </Button>
                 { this.state.showModal &&

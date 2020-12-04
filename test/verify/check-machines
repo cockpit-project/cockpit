@@ -394,6 +394,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.goToMainPage()
 
+        # clone
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-clone a[aria-disabled=false]")
+
+        b.wait_text(".pf-c-modal-box__title-text", "Create a clone VM based on subVmTest1")
+        b.click("footer button.pf-m-primary")
+        b.wait_not_present(".pf-c-modal-box")
+        self.waitVmRow("subVmTest1-clone")
+
         # start another one, should appear automatically
         self.createVm("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-state", "Running")

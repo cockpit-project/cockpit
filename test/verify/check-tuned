@@ -73,9 +73,10 @@ class TestTuned(MachineCase):
         body_selector = ".pf-c-modal-box:contains('Change performance profile')"
         b.wait_present("{0} .list-group-item.active p".format(body_selector))
 
-        # Make sure we see the recommended profile and its badge
+        # Make sure we see the recommended profile and its badges
         b.wait_in_text("{0} .list-group-item.active p".format(body_selector), recommended_profile)
-        b.wait_present("{0} .list-group-item.active span.badge:contains('recommended')".format(body_selector))
+        b.wait_present("{0} .list-group-item.active .pf-c-label:contains('recommended')".format(body_selector))
+        b.wait_present("{0} .list-group-item.active .pf-c-label:contains('active')".format(body_selector))
 
         b.click("{0} .list-group-item p:contains('balanced')".format(body_selector))
         b.wait_present("{0} .list-group-item.active p:contains('balanced')".format(body_selector))

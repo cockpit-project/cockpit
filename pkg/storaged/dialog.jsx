@@ -214,7 +214,11 @@
 import cockpit from "cockpit";
 
 import React, { useState } from "react";
-import { Alert, Tooltip, TooltipPosition, Select as TypeAheadSelect, SelectOption, SelectVariant } from "@patternfly/react-core";
+import {
+    Alert, Tooltip, TooltipPosition,
+    Select as TypeAheadSelect, SelectOption, SelectVariant,
+    DataList, DataListItem, DataListItemRow, DataListItemCells, DataListCell,
+} from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
@@ -939,12 +943,18 @@ function add_para(parts, text) {
 function add_usage_message(parts, list, text, c1, c2) {
     if (list && list.length > 0) {
         add_para(parts, text);
-        parts.push(
-            <table key={text + " table"} className="table table-bordered">
-                <tbody>
-                    { list.map(elt => <tr key={elt[c2]}><td><span className="pull-right">{elt[c1]}</span>{elt[c2]}</td></tr>) }
-                </tbody>
-            </table>);
+        parts.push(<DataList key={text + " datalist"} aria-label={_("Affected locations")} isCompact>
+            { list.map(elt => <DataListItem aria-labelledby={elt[c2]} key={elt[c2]}>
+                <DataListItemRow>
+                    <DataListItemCells
+                        dataListCells={[
+                            <DataListCell key={elt[c2]} id={elt[c2]}>{elt[c2]}</DataListCell>,
+                            <DataListCell alignRight key={elt[c1]}>{elt[c1]}</DataListCell>
+                        ]}
+                    />
+                </DataListItemRow>
+            </DataListItem>)}
+        </DataList>);
     }
 }
 

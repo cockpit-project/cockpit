@@ -114,17 +114,13 @@ export class VDODetails extends React.Component {
         var alert = null;
         if (backing_block && backing_block.Size > vdo.physical_size)
             alert = (
-                <Alert variant='warning' isInline title={
-                    <div>
-                        <div className="pull-right">
-                            <StorageButton onClick={vdo.grow_physical}>{_("Grow to take all space")}</StorageButton>
-                        </div>
-                        {_("This VDO device does not use all of its backing device.")}
-                    </div> }> {
-                        cockpit.format(_("Only $0 of $1 are used."),
-                                       fmt_size(vdo.physical_size),
-                                       fmt_size(backing_block.Size))
-                    } </Alert>
+                <Alert variant='warning' isInline
+                    actionClose={<StorageButton onClick={vdo.grow_physical}>{_("Grow to take all space")}</StorageButton>}
+                    title={_("This VDO device does not use all of its backing device.")}>
+                    { cockpit.format(_("Only $0 of $1 are used."),
+                                     fmt_size(vdo.physical_size),
+                                     fmt_size(backing_block.Size))}
+                </Alert>
             );
 
         function stop() {

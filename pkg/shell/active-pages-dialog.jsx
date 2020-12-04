@@ -22,6 +22,7 @@ import React from "react";
 import cockpit from "cockpit";
 
 import { ListingTable } from "cockpit-components-table.jsx";
+import { Label, Split, SplitItem } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -41,7 +42,14 @@ export class ActivePagesDialogBody extends React.Component {
         var self = this;
         var frames = self.state.iframes.map(function(frame) {
             var columns = [{
-                title: <>{frame.displayName}{frame.visible && <span className="badge active pull-right">{_("active")}</span>}</>,
+                title: <Split>
+                    <SplitItem isFilled>
+                        {frame.displayName}
+                    </SplitItem>
+                    <SplitItem>
+                        {frame.visible && <Label color="blue">{_("active")}</Label>}
+                    </SplitItem>
+                </Split>,
             }];
             return ({
                 props: { key: frame.name, frame },

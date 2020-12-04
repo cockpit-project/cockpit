@@ -21,6 +21,8 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
+import { Label, Split, SplitItem } from '@patternfly/react-core';
+
 const _ = cockpit.gettext;
 
 /* Performance profile entry
@@ -34,17 +36,27 @@ const _ = cockpit.gettext;
  */
 class TunedDialogProfile extends React.Component {
     render() {
-        var classes = "list-group-item";
-        if (this.props.selected)
+        let classes = "list-group-item";
+        let variant = "filled";
+
+        if (this.props.selected) {
             classes += " active";
-        var recommended;
-        if (this.props.recommended)
-            recommended = <span className="badge pull-right">{ _("recommended") }</span>;
+            variant = "outline";
+        }
+
         return (
             <button className={ classes } key={ this.props.name } onClick={ this.props.click }>
-                {recommended}
-                <p>{ this.props.title }</p>
-                <small>{ this.props.description }</small>
+                <Split>
+                    <SplitItem isFilled>
+                        <p>{ this.props.title }</p>
+                        <small>{ this.props.description }</small>
+                    </SplitItem>
+                    <SplitItem>
+                        {this.props.recommended && <Label color="blue" variant={variant}>{_("recommended")}</Label>}
+                        {" "}
+                        {this.props.active && <Label color="blue" variant={variant}>{_("active")}</Label>}
+                    </SplitItem>
+                </Split>
             </button>
         );
     }
@@ -87,7 +99,7 @@ export class TunedDialogBody extends React.Component {
     render() {
         var self = this;
         var profiles = this.props.profiles.map(function(itm) {
-            itm.active = (self.props.active_profile == itm.profile);
+            itm.active = (self.props.active_profile == itm.name);
             itm.selected = (self.state.selected_profile == itm.name);
             itm.click = self.handleProfileClick.bind(self, itm.name);
             return <TunedDialogProfile key={itm.name} { ...itm } />;

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Button } from "@patternfly/react-core";
+import { Button, Split, SplitItem, Spinner } from "@patternfly/react-core";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -57,14 +57,14 @@ export function icon_url(path_or_url) {
 
 export const ProgressBar = ({ title, data }) => {
     if (data.waiting) {
-        return (
-            <div>
-                <div className="pull-right spinner spinner-sm" />
-                <div className="progress-title">
-                    {_("Waiting for other programs to finish using the package manager...")}
-                </div>
-            </div>
-        );
+        return (<Split>
+            <SplitItem className="progress-title" isFilled>
+                {_("Waiting for other programs to finish using the package manager...")}
+            </SplitItem>
+            <SplitItem>
+                <Spinner size="md" />
+            </SplitItem>
+        </Split>);
     } else {
         return (
             <div>

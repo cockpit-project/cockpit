@@ -101,7 +101,7 @@ export class DrivesPanel extends React.Component {
                        className="storage-drives-list"
                        title={_("Drives")}
                        empty_text={_("No drives attached")}
-                       show_all_text={cockpit.format(_("Show all $0 drives"), drives.length)}>
+                       show_all_text={cockpit.format(cockpit.ngettext("Show $0 drive", "Show all $0 drives", drives.length), drives.length)}>
                 { drives }
             </SidePanel>
         );

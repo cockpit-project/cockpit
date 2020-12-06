@@ -587,18 +587,6 @@ module.exports = {
                             }
                         }
                     },
-                    {
-                        loader: 'sass-resources-loader',
-                            // Make PF3 and PF4 variables globably accessible to be used by the components scss
-                            options: {
-                                resources: [
-                                    path.resolve(libdir, './_global-variables.scss'),
-                                    path.resolve(nodedir, './@patternfly/patternfly/base/patternfly-themes.scss'),
-                                    path.resolve(nodedir, './@patternfly/patternfly/base/patternfly-variables.scss'),
-                                    path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
-                                ],
-                            },
-                    },
                 ]
             },
             {

@@ -2,6 +2,7 @@ import cockpit from "cockpit";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
+import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
 var channel = null;
 var websocket = null;

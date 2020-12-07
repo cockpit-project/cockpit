@@ -231,17 +231,7 @@ export class VmSnapshotsCard extends React.Component {
         let rows = [];
         if (vm.snapshots) {
             rows = vm.snapshots.sort((a, b) => ((b.creationTime - a.creationTime) || (a.name.localeCompare(b.name)))).map((target, snapId) => {
-                const columns = detailMap.map(d => {
-                    let column = null;
-                    if (typeof d.value === 'string') {
-                        if (target[d.value] !== undefined)
-                            column = { title: <div id={`${id}-snapshot-${snapId}-${d.value}`}>{target[d.value]}</div> };
-                    }
-                    if (typeof d.value === 'function')
-                        column = { title: d.value(target, snapId) };
-
-                    return column;
-                });
+                const columns = detailMap.map(d => ({ title: d.value(target, snapId) }));
                 return { columns };
             });
         }

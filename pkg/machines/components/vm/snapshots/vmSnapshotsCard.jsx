@@ -19,6 +19,7 @@
 import React from 'react';
 import moment from "moment";
 
+import { breakWord } from '@patternfly/react-table';
 import cockpit from 'cockpit';
 import { vmId } from "../../../helpers.js";
 import { CreateSnapshotModal } from "./vmSnapshotsCreateModal.jsx";
@@ -136,7 +137,8 @@ export class VmSnapshotsCard extends React.Component {
                             {desc}
                         </div>
                     );
-                }
+                },
+                cellTransforms: [breakWord]
             },
             {
                 name: _("VM state"), value: (snap, snapId) => {
@@ -227,7 +229,7 @@ export class VmSnapshotsCard extends React.Component {
 
         detailMap = detailMap.filter(d => !d.hidden);
 
-        const columnTitles = detailMap.map(target => target.name);
+        const columnTitles = detailMap.map(target => ({ title: target.name, cellTransforms: target.cellTransforms }));
         let rows = [];
         if (vm.snapshots) {
             rows = vm.snapshots.sort((a, b) => ((b.creationTime - a.creationTime) || (a.name.localeCompare(b.name)))).map((target, snapId) => {

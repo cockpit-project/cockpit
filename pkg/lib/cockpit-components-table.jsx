@@ -120,8 +120,11 @@ export class ListingTable extends React.Component {
                 res.title = column;
             } else {
                 res.title = column.title;
+                res.cellTransforms = [];
                 if (column.header)
-                    res.cellTransforms = [headerCol()];
+                    res.cellTransforms.push(headerCol());
+                if (column.cellTransforms)
+                    res.cellTransforms = res.cellTransforms.concat(column.cellTransforms);
                 if (column.transforms)
                     res.transforms = column.transforms;
                 if (column.sortable)

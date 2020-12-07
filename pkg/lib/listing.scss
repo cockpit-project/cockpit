@@ -121,7 +121,7 @@ tbody.open > tr.listing-ct-item th {
 }
 
 tbody.open td div.listing-ct-head {
-    background-color: $color-pf-white;
+    background-color: $pf-color-white;
     align-items: flex-end;
 }
 
@@ -158,7 +158,7 @@ tr.listing-ct-item.listing-ct-nonavigate:hover {
 
 tr.listing-ct-item .listing-ct-toggle:not(:empty) {
     width: 35px;
-    color: $color-pf-black-800;
+    color: $pf-color-black-800;
 }
 
 /* Highlight toggle color when hovered or if the row is open */
@@ -243,21 +243,21 @@ td.listing-ct-actions {
 
 /* if the entire row is selected, highlight */
 tr.listing-ct-item.listing-ct-selected {
-    background-color: $color-pf-blue-400;
-    color: $color-pf-white;
-    border-color: multiply($color-pf-black-200, $color-pf-blue-400);
+    background-color: $pf-color-blue-400;
+    color: $pf-color-white;
+    border-color: multiply($pf-color-black-200, $pf-color-blue-400);
 
     &:hover {
-        background-color: multiply($color-pf-black-200, $color-pf-blue-400);
-        border-color: multiply($color-pf-black-200, $color-pf-blue-400);
+        background-color: multiply($pf-color-black-200, $pf-color-blue-400);
+        border-color: multiply($pf-color-black-200, $pf-color-blue-400);
     }
 }
 
 tr.listing-ct-item.listing-ct-selected .badge {
-    background-color: multiply($badge-bg, $color-pf-blue-400);
+    background-color: multiply($badge-bg, $pf-color-blue-400);
 
     &:hover {
-        background-color: multiply($badge-bg, $color-pf-blue-500);
+        background-color: multiply($badge-bg, $pf-color-blue-500);
     }
 }
 
@@ -301,7 +301,7 @@ div.listing-ct-head:last-child {
 
 div.listing-ct-maybe div.listing-ct-head,
 div.listing-ct-maybe div.listing-ct-body {
-    background-color: $color-pf-white;
+    background-color: $pf-color-white;
     border: none;
 }
 
@@ -351,7 +351,7 @@ tbody.active .listing-ct-head {
 .listing-ct-body {
     padding: $listing-ct-padding * 2 $listing-ct-padding + $listing-ct-spacing;
     border: 1px solid $listing-ct-border;
-    background-color: $color-pf-white;
+    background-color: $pf-color-white;
 }
 
 .listing-ct-inline > td > .listing-ct-body {

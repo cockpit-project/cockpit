@@ -387,8 +387,7 @@ const UpdatesList = ({ updates }) => {
     });
 
     return (
-        <ListingTable className="available"
-                aria-label={_("Available updates")}
+        <ListingTable aria-label={_("Available updates")}
                 gridBreakPoint='grid-lg'
                 columns={[
                     { title: _("Name") },
@@ -616,7 +615,7 @@ class CardsPage extends React.Component {
                         <CardTitle><h2>{card.title}</h2></CardTitle>
                         {card.actions && <CardActions>{card.actions}</CardActions>}
                     </CardHeader>
-                    <CardBody>
+                    <CardBody className="contains-list">
                         {card.body}
                     </CardBody>
                 </Card>

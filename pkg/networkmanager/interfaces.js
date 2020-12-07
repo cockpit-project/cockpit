@@ -3588,7 +3588,7 @@ function apply_group_member(choices, model, apply_group, group_connection, group
                 var iface;
                 if ($(elt).prop('checked')) {
                     iface = model.find_interface($(elt).attr("data-iface"));
-                    if (iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
+                    if (iface && iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
                         active_settings.push(iface.Device.ActiveConnection.Connection.Settings);
                     }
                 }

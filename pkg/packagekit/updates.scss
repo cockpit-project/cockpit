@@ -100,6 +100,7 @@ table.listing-ct thead th {
     td.type {
         white-space: nowrap;
     }
+
     td.changelog {
         vertical-align: top;
 
@@ -154,6 +155,14 @@ table.listing-ct thead th {
 .pficon-enhancement:before {
     content: "\e93a";
     font-family: pf-symbols;
+}
+
+td.type {
+    > .pficon,
+    > .fa {
+        margin: calc(-0.5 * var(--pf-global--spacer--xs)) var(--pf-global--spacer--xs) 0 0;
+        vertical-align: middle;
+    }
 }
 
 div.changelog {

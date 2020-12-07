@@ -274,9 +274,8 @@ function updateItem(info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    <span className={iconClasses}>
-                        { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                    </span>
+                    <span className={iconClasses} />
+                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </Tooltip>
             </>);
     } else {
@@ -284,9 +283,8 @@ function updateItem(info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={tip}>
-                    <span className={iconClasses}>
-                        { bugs ? info.bug_urls.length : "" }
-                    </span>
+                    <span className={iconClasses} />
+                    { bugs ? info.bug_urls.length : "" }
                 </Tooltip>
             </>);
     }

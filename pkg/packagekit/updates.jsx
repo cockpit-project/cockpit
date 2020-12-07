@@ -596,6 +596,7 @@ class CardsPage extends React.Component {
                     {this.props.applySecurity}
                     {this.props.applyAll}
                 </div>),
+                containsList: true,
                 body: <UpdatesList updates={this.props.updates} />
             });
         }
@@ -604,6 +605,7 @@ class CardsPage extends React.Component {
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),
+                containsList: true,
                 body: <History packagekit={this.props.history} />
             });
         }
@@ -615,7 +617,7 @@ class CardsPage extends React.Component {
                         <CardTitle><h2>{card.title}</h2></CardTitle>
                         {card.actions && <CardActions>{card.actions}</CardActions>}
                     </CardHeader>
-                    <CardBody className="contains-list">
+                    <CardBody className={card.containsList ? "contains-list" : null}>
                         {card.body}
                     </CardBody>
                 </Card>

@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   # we do both builds and all tests in a single run, so that we only upload the containers on success
+  # run as root, as podman is missing slirp4netns in Ubuntu 18.04, and does not have overlayfs by default
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 180
@@ -18,21 +19,21 @@ jobs:
           fetch-depth: 0
 
       - name: Build fresh containers
-        run: containers/unit-tests/build
+        run: sudo containers/unit-tests/build
 
       - name: Run amd64 gcc test
-        run: containers/unit-tests/start
+        run: sudo containers/unit-tests/start
 
       - name: Run amd64 clang test
-        run: containers/unit-tests/start CC=clang
+        run: sudo containers/unit-tests/start CC=clang
 
       - name: Run i386 test
-        run: containers/unit-tests/start :i386
+        run: sudo containers/unit-tests/start :i386
 
       - name: Log into container registry
-        run: podman login -u cockpituous -p ${{ secrets.COCKPITUOUS_GHCR_TOKEN }} ghcr.io
+        run: sudo podman login -u cockpituous -p ${{ secrets.COCKPITUOUS_GHCR_TOKEN }} ghcr.io
 
       - name: Push containers to registry
         run: |
-          podman push ghcr.io/cockpit-project/unit-tests:latest
-          podman push ghcr.io/cockpit-project/unit-tests:i386
+          sudo podman push ghcr.io/cockpit-project/unit-tests:latest
+          sudo podman push ghcr.io/cockpit-project/unit-tests:i386

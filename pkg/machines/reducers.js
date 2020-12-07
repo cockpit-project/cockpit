@@ -241,10 +241,12 @@ function vms(state, action) {
     }
     case UPDATE_DOMAIN_SNAPSHOTS: {
         const { connectionName, domainPath, snaps } = action.payload;
-        const indexedVm = findVmToUpdate(state, { connectionName, id: domainPath });
         const index = getFirstIndexOfResource(state, 'id', domainPath, connectionName);
+
         if (index < 0)
             return state;
+
+        const indexedVm = findVmToUpdate(state, { connectionName, id: domainPath });
         const updatedVm = Object.assign({}, state[index]);
 
         updatedVm.snapshots = snaps;
@@ -354,11 +356,13 @@ function storagePools(state, action) {
     }
     case UPDATE_STORAGE_VOLUMES: {
         const { connectionName, poolName, volumes } = action.payload;
-        const indexedStoragePool = findStoragePoolToUpdate(state, { connectionName, name: poolName });
         const index = getFirstIndexOfResource(state, 'name', poolName, connectionName);
+
         if (index < 0) {
             return state;
         }
+
+        const indexedStoragePool = findStoragePoolToUpdate(state, { connectionName, name: poolName });
         const updatedStoragePool = Object.assign({}, state[index]);
 
         updatedStoragePool.volumes = volumes;

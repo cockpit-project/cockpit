@@ -12,7 +12,7 @@ import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 
 import { new_machine_dialog_manager } from "machine-dialogs";
 
-import "../../node_modules/@patternfly/patternfly/components/Select/select.scss";
+import "../../node_modules/@patternfly/patternfly/components/Select/select.css";
 
 const _ = cockpit.gettext;
 const hosts_sel = document.getElementById("nav-hosts");

@@ -66,8 +66,12 @@ cockpit_frame_parse (unsigned char *input,
   if (i == length)
     return 0;
 
-  /* A failure */
-  if (size == 0 || input[i] != '\n')
+  /* Improperly formatted if any of the following cases:
+   *   - no digits read
+   *   - digits not followed by newline
+   *   - size had a leading zero
+   */
+  if (size == 0 || input[i] != '\n' || input[0] == '0')
     return -1;
 
   if (consumed)

@@ -26,24 +26,24 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
-def break_hostkey(m, address, filename=None):
-    if not filename:
-        filename = "/etc/ssh/ssh_known_hosts"
+def break_hostkey(m, address):
+    filename = "/home/admin/.ssh/known_hosts"
 
-    m.execute('touch {}'.format(filename))
+    m.execute('su admin -c "mkdir -p -m 700 `dirname {}`"'.format(filename))
+    m.execute('su admin -c "touch {}"'.format(filename))
 
     line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
     m.execute("echo '{0}'> {1}".format(line, filename))
 
 
-def fix_hostkey(m, key=None, filename=None):
-    if not filename:
-        filename = "/etc/ssh/ssh_known_hosts"
+def fix_hostkey(m, key=None):
+    filename = "/home/admin/.ssh/known_hosts"
 
     if not key:
         key = ''
 
-    m.execute('touch {}'.format(filename))
+    m.execute('su admin -c "mkdir -p -m 700 `dirname {}`"'.format(filename))
+    m.execute('su admin -c "touch {}"'.format(filename))
     m.execute("echo '{0}' > {1}".format(key, filename))
 
 
@@ -266,21 +266,12 @@ class TestMultiMachine(MachineCase):
             self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
 
-    def checkDirectLogin(self, root='/'):
+    def checkDirectLogin(self, root='/', known_host=False):
         b = self.browser
         m2 = self.machine2
         m = self.machine
 
         hostname_selector = "#system_information_hostname_text"
-
-        b.switch_to_top()
-        b.go("{}/system".format(root))
-        b.enter_page("/system")
-        b.wait_text(hostname_selector, "machine1")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
-        b.click("#hosts-sel button")
-        b.wait_visible("a[href='/@10.111.113.2']")
 
         # Direct to machine2, new login
         m2.execute("echo admin:alt-password | chpasswd")
@@ -291,9 +282,26 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#badge")
         b.wait_not_visible("#brand")
         b.wait_in_text("#server-name", "10.111.113.2")
+        b.wait_val("#server-field", "10.111.113.2")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')
+        if not known_host:
+            b.wait_in_text("#hostkey-message-1", "10.111.113.2")
+            match = re.match(r'\((?:ssh-)?([^-]*).*\)', b.text("#hostkey-type"))
+            assert match
+            algo = match.groups()[0]
+            try:
+                # This assumes that all fingerprints use SHA256.
+                line = m2.execute("ssh-keygen -l -E SHA256 -f /etc/ssh/ssh_host_%s_key.pub" %
+                                  (algo.lower()), quiet=True)
+                fp = line.split(" ")[1]
+                self.assertEqual(b.text('#hostkey-fingerprint'), fp)
+            except subprocess.CalledProcessError:
+                # ssh-keygen doesn't support -E, just make sure we have a fp
+                self.assertTrue(b.val('#hostkey-fingerprint'))
+            b.click('#login-button')
+
         b.expect_load()
         b.enter_page("/system")
         b.wait_in_text(hostname_selector, "machine2")
@@ -318,96 +326,41 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#password-group")
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
-        b.wait_not_visible("#server-group")
+        b.wait_visible("#server-group")
         b.wait_in_text("#login-error-message", "Hostkey does not match")
 
-        # Clear host key.
+        # Clear bad host key in /etc and set bad host key in
+        # localStorage.
         m.execute("echo '' > /etc/ssh/ssh_known_hosts")
+        b.eval_js("""window.localStorage.setItem("known_hosts", '{"10.111.113.2":"BAD"}')""")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')
+        b.wait_visible("#hostkey-group")
+        b.wait_in_text("#hostkey-title", "10.111.113.2 key changed")
+        b.click('#login-button')
 
-        b.wait_not_visible("#conversation-group")
-        b.wait_visible("#password-group")
-        b.wait_visible("#user-group")
-        b.wait_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Host is unknown")
+        b.expect_load()
+        b.enter_page("/system")
+        b.wait_in_text(hostname_selector, "machine2")
+        b.logout()
 
-        m.execute("echo '\n[SSH-Login]\nallowUnknown = true' >> /etc/cockpit/cockpit.conf")
-        m.restart_cockpit()
-        b.open("{0}=10.111.113.2".format(root))
-        b.wait_visible("#login")
+        # Clear localStorage and set correct host key in /etc
+        b.eval_js("""window.localStorage.setItem("known_hosts", '{}')""")
+        m.execute("ssh-keyscan 10.111.113.2 > /etc/ssh/ssh_known_hosts")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")
-        b.click('#login-button')
-
-        b.wait_visible("#conversation-group")
-        b.wait_not_visible("#password-group")
-        b.wait_not_visible("#user-group")
-        b.wait_not_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "Fingerprint")
-        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
-        b.set_val('#conversation-input', 'foobar')
-        b.click('#login-button')
-
-        b.wait_not_visible("#conversation-group")
-        b.wait_visible("#password-group")
-        b.wait_visible("#user-group")
-        b.wait_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Hostkey is unknown")
-
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
-        b.click('#login-button')
-
-        b.wait_visible("#conversation-group")
-        b.wait_not_visible("#password-group")
-        b.wait_not_visible("#user-group")
-        b.wait_not_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "Fingerprint")
-        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
-
-        match = re.match(r'(MD5|SHA256) Fingerprint \((?:ssh-)?([^-]*).*\):', b.text("#conversation-prompt"))
-        assert match
-        (hash_fn, algo) = match.groups()
-        try:
-            line = m2.execute("ssh-keygen -l -E %s -f /etc/ssh/ssh_host_%s_key.pub" %
-                              (hash_fn, algo.lower()), quiet=True)
-            # SHA256 base64 fingerprints include an "SHA256:" prefix, but MD5 hex FPs don't
-            fp = line.split(" ")[1].replace('MD5:', '')
-            self.assertEqual(b.val('#conversation-input'), fp)
-        except subprocess.CalledProcessError:
-            # ssh-keygen doesn't support -E, just make sure we have a fp
-            self.assertTrue(b.val('#conversation-input'))
-
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
         b.wait_in_text(hostname_selector, "machine2")
         b.logout()
 
-        # Check hostkey isn't saved
-        self.assertFalse(m.execute("cat /etc/ssh/ssh_known_hosts").strip())
-
-        # Direct to machine2, via form
-        b.open("{0}other".format(root))
-        b.wait_visible("#login")
-        b.wait_visible("#user-group")
-        b.wait_visible("#password-group")
-        b.wait_not_visible("#server-group")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "bad-password")
-        b.click('#login-button')
-        b.wait_visible("#login-error-message")
-
         login_options = '#show-other-login-options'
 
         # Connect to bad machine
+        b.open("{0}other".format(root))
+        b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "bad-password")
         b.click(login_options)
         b.wait_visible("#server-group")
@@ -418,55 +371,18 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#server-group")
         b.wait_in_text("#login-error-message", "Unable to connect")
 
-        # remote login via "Connect to:" login page field; should connect to unknown hosts
-        m.execute("sed -i '/allowUnknown/d' /etc/cockpit/cockpit.conf")
-        m.restart_cockpit()
-        b.open(root)
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-
-        # Connect to machine2
-        b.click(login_options)
-        b.wait_visible("#server-group")
-        b.set_val("#server-field", "10.111.113.2")
-        b.set_val("#login-password-input", "alt-password")
-        b.click('#login-button')
-        b.wait_in_text("#server-name", "10.111.113.2")
-        b.wait_visible("#conversation-group")
-        b.wait_not_visible("#password-group")
-        b.wait_not_visible("#user-group")
-        b.wait_not_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "Fingerprint")
-        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
-        b.click('#login-button')
-        b.expect_load()
-        b.enter_page("/system")
-        b.wait_in_text(hostname_selector, "machine2")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
-
-        b.click("#hosts-sel button")
-        b.wait_in_text("a[href='/@localhost']", "machine2")
-        b.wait_not_present("a[href='/@10.111.113.2']")
-
         # Might happen when we switch away.
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*: Connection reset by peer",
                                     "connection unexpectedly closed by peer")
 
     def testDirectLogin(self):
-        b = self.browser
-
-        self.login_and_go("/system")
-        add_machine(b, "10.111.113.2")
+        self.machine.start_cockpit()
         self.checkDirectLogin('/')
 
     @skipImage("test VM image does not have FIPS support", "debian-stable",
                "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos")
     def testFIPS(self):
-        b = self.browser
-
         # enable FIPS: RHEL has and needs a convenience script for that
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening#switching-the-system-to-fips-mode_using-the-system-wide-cryptographic-policies
         self.machine.execute(r'''set -e;
@@ -482,8 +398,7 @@ class TestMultiMachine(MachineCase):
         # ensure it's really enabled
         self.assertEqual(self.machine.execute('cat /proc/sys/crypto/fips_enabled').strip(), "1")
 
-        self.login_and_go("/system")
-        add_machine(b, "10.111.113.2")
+        self.machine.start_cockpit()
         self.checkDirectLogin('/')
 
     def testUrlRoot(self):
@@ -529,6 +444,7 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/users"')
         b.wait_js_cond('window.location.hash == "#/admin"')
 
+        b.logout()
         self.checkDirectLogin('/cockpit-new/')
         self.allow_hostkey_messages()
 
@@ -726,7 +642,7 @@ class TestMultiMachine(MachineCase):
 
         # Host key path is correct
         m1.execute("mkdir -p /home/admin/.ssh/")
-        break_hostkey(m1, "10.111.113.2", filename="/home/admin/.ssh/known_hosts")
+        break_hostkey(m1, "10.111.113.2")
 
         start_machine_troubleshoot(b, True, True)
         b.wait_in_text('#troubleshoot-dialog {}'.format(self.default_btn_class), "Close")
@@ -735,7 +651,7 @@ class TestMultiMachine(MachineCase):
         # only fixed in 141 (PR #6720)
         b.click("#troubleshoot-dialog button")
         b.wait_popdown('troubleshoot-dialog')
-        fix_hostkey(m1, filename="/home/admin/.ssh/known_hosts")
+        fix_hostkey(m1)
 
         # Bad cockpit
         break_bridge(m2)

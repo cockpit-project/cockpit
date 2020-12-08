@@ -3,7 +3,8 @@
 set -euf
 
 d=$HOME/.ssh
-f=$d/authorized_keys
+p=${2:-authorized_keys}
+f=$d/$p
 
 if ! test -f "$f"; then
     mkdir -m 700 -p "$d"

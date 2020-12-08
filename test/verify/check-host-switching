@@ -207,17 +207,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         b2.kill()
 
-        # Move m2 known host key to ~/.ssh, verify that it's known
-        self.machine_remove(b, "10.111.113.2", m2)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
-        key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
-        m.execute(
-            "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh".format(key))
-        self.add_machine(b, "10.111.113.2", True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.wait_connected(b, "10.111.113.2")
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
-
         # Test change user, not doing in edit to reuse machines
 
         # Navigate to load iframe

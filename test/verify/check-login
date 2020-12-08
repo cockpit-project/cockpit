@@ -820,6 +820,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         def check_server(server, expect_fp_ack):
             b.open('/')
             b.wait_visible("#login")
+            # start with no known keys every time
+            b.eval_js("""window.localStorage.setItem("known_hosts", "{ }")""")
             b.set_val('#login-user-input', "user")
             b.set_val('#login-password-input', "foobar")
             b.click("#show-other-login-options")
@@ -827,8 +829,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             b.click("#login-button")
 
             if expect_fp_ack:
-                b.wait_in_text("#conversation-prompt", "Fingerprint")
-                b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+                b.wait_in_text("#hostkey-title", "New host")
+                b.wait_in_text("#hostkey-message-1", "for the first time")
                 b.click("#login-button")
 
             b.expect_load()

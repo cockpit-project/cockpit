@@ -146,7 +146,7 @@ class TestStorageMdRaid(StorageCase):
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger" % dev)
         wait_degraded_state(True)
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "FAILED"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
@@ -301,7 +301,7 @@ class TestStorageMdRaid(StorageCase):
         # A failed disk can be removed
         dev = b.text(info_field("Device", m.image))
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "FAILED"})
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
         b.wait_not_present('#detail-sidebar tr:contains(DISK1) button:disabled')
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")

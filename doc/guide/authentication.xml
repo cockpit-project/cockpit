@@ -4,14 +4,29 @@
 <chapter id="authentication">
   <title>Cockpit Authentication</title>
 
-  <section id="initial-auth">
-    <title>Primary server authentication</title>
-
     <para>While cockpit allows you to monitor and administer several servers at the
       same time, there is always a primary server your browser connects to
       that runs the Cockpit web service (cockpit-ws) through which connections to
       additional servers are established.
       See <ulink url="https://raw.githubusercontent.com/cockpit-project/cockpit/master/doc/cockpit-transport.png">this diagram</ulink> for how it works.</para>
+
+      <para>Normally, a session is established on the primary server,
+      and you use the Shell UI of that session to connect to secondary
+      servers.</para>
+
+      <para>However, it is also possible to instruct the
+      <filename>cockpit-ws</filename> process on the primary server to
+      directly connect to a secondary server, without opening a
+      session on the primary server at all. This is done on the main
+      login page of Cockpit, by filling out the "Connect to"
+      field.</para>
+
+  <section id="initial-auth">
+    <title>Directly logging into the primary server</title>
+
+    <para>The most common way to use Cockpit is to just log directly
+    into the server that you want to access. This can be done if you
+    have direct network access to port 9090 on that server.</para>
 
     <para>By default the cockpit web service is installed on the base system and
       <link linkend="listen">socket activated by systemd</link>. In this setup
@@ -47,18 +62,27 @@
   </section>
 
   <section id="secondary-auth">
-    <title>Secondary server authentication</title>
+    <title>Logging into a secondary server from the primary session</title>
 
-    <para>Once you are able to login to the primary server you will be able to connect to
-      additional servers. These servers will need to be running an SSH server on port 22
-      and be configured to support one of the following authentication methods.</para>
+    <para>Once you have a session on the primary server you will be
+    able to connect to additional servers by using the host switching
+    UI of the Cockpit Shell. This is useful if you have direct network
+    access to the primary server, but not to the secondary server.</para>
+
+    <para>On the command line, you would log into the primary server
+    and then use SSH to log into the secondary one. Cockpit does just
+    the same, and uses SSH to log into the secondary server. Instead
+    of running a interactive shell there, however, it starts a
+    <filename>cockpit-bridge</filename> process.</para>
+
+    <para>Thus, these servers will need to be running an SSH server on
+    port 22 and be configured to support one of the following
+    authentication methods.</para>
 
     <section id="password">
       <title>Password</title>
       <para>The target server will need to have password based authentication
-        enabled in <filename>sshd</filename>. When this is setup for the first time,
-        Cockpit will ensure that the user connected to primary server has the
-        same password on the secondary server.</para>
+        enabled in <filename>sshd</filename>.</para>
     </section>
 
     <section id="kerberos">
@@ -72,31 +96,53 @@
     <section id="public-key">
       <title>Public key</title>
 
-    <para>When you successfully log into the primary server, an <filename>ssh-agent
-      </filename> is started. The following keys are then preloaded into the
-      <filename>ssh-agent</filename> provided they are supported by your SSH
-      version, present, with the correct permissions, and either unencrypted
-      or encrypted with the same password that was used to login.</para>
+    <para>When you successfully log into the primary server, a
+    <filename>ssh-agent</filename> is started and keys are loaded into
+    it by running <filename>ssh-add</filename> without any arguments.
+    Any passphrase prompt is answered with the password used to log
+    into the primary server.</para>
 
-<programlisting>
-~/.ssh/id_rsa
-~/.ssh/id_dsa
-~/.ssh/id_ed25519
-~/.ssh/id_ecdsa
-</programlisting>
-
-    <para>Cockpit provides an interface for loading other keys into the agent
+    <para>Cockpit provides a user interface for loading other keys into the agent
       that could not be automatically loaded.</para>
 
-    <para>The target server will need to have public key authentication enabled in
-      <filename>sshd</filename>, and the public key you wish to use must be present in
-      <filename>~/.ssh/authorized_keys</filename>.</para>
-
-    <para>Note that when a user is authenticated in this way the authentication
-      happens without a password, as such the standard cockpit reauthorization
-      mechanisms do not work. The user will only be able to obtain additional
-      privileges if they do not require a password.</para>
+    <para>The target server will need to have public key
+    authentication enabled in <filename>sshd</filename>, and the
+    public key you wish to use must be present in
+    <filename>~/.ssh/authorized_keys</filename>. Cockpit has a user
+    interface for creating SSH keys and for authorizing them.</para>
 
     </section>
+
+    <section id="host-keys">
+      <title>SSH host keys</title>
+      <para>Cockpit will prompt the user to verify unknown SSH host
+      keys, and will write accepted host keys into
+      <filename>~/.ssh/known_hosts</filename>.</para>
+    </section>
   </section>
+
+  <section id="direct-secondary-auth">
+    <title>Directly logging into a secondary server without a primary session</title>
+
+    <para>It is also possible to log into a secondary server without
+    opening a session on the primary server. This is useful if you
+    are not actually interested in the primary server and would only
+    use it because you do not have direct network access to the
+    secondary server.</para>
+
+    <para>In this case, <filename>cockpit-ws</filename> still runs on
+    the primary server, but the credentials from the login screen are
+    directly used with SSH to log into the secondary server given in
+    the "Connect To" field of the login screen.</para>
+
+    <para>Thus, the PAM configuration and accounts on the primaray
+    server don't matter at all. Often, the only purpose of the primary
+    server is to sit on the boundary of your network and forward
+    connections to internal machines.</para>
+
+    <para>In this case, the login page will prompt you to verify
+    unknown SSH keys. Accepted keys will be remembered in the local
+    storage of your browser.</para>
+  </section>
+
 </chapter>

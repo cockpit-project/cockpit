@@ -44,6 +44,25 @@ body {
   line-height: 1.5;
 }
 
+h1, h2, h3, h4 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  padding: 0 0 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
 .pf-c-button,
 label {
   font-weight: 600;
@@ -106,6 +125,8 @@ textarea {
 button {
   -webkit-appearance: button;
   overflow: visible;
+  border-radius: 0.1875rem;
+  border: none;
 }
 
 button::-moz-focus-inner,
@@ -132,8 +153,14 @@ p {
   margin-bottom: 2rem;
 }
 
-.form-group + .form-group {
+.form-group:not([hidden]) + .form-group {
   margin-top: 1rem;
+}
+
+.login-actions {
+  display: flex;
+  align-items: baseline;
+  grid-gap: 1rem;
 }
 
 label {
@@ -239,7 +266,7 @@ label.checkbox {
   display: inline-block;
 }
 
-#login-button[disabled] .spinner {
+#login-button[spinning] .spinner {
   display: inline-flex;
 }
 
@@ -253,8 +280,9 @@ label.checkbox {
   background-image: none;
   border: 1px solid transparent;
   white-space: nowrap;
-  padding: 2px 6px;
+  padding: 0.25rem 0.5rem;
   border-radius: 1px;
+  font-size: inherit;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -277,12 +305,6 @@ label.checkbox {
   width: device-width;
 }
 
-.pf-c-button {
-  padding: 0.25rem 0.5rem;
-  border-radius: 1px;
-  font-size: inherit;
-}
-
 .pf-m-primary {
   background-color: #06c;
   border-color: #06c;
@@ -295,10 +317,20 @@ label.checkbox {
   background-color: #004080;
   border-color: #004080;
   color: #fff;
+  outline: none;
 }
 
-.pf-m-primary:active {
-  background-image: none;
+.pf-m-danger {
+  background-color: #c9190b;
+  border-color: #c9190b;
+  color: #fff;
+}
+
+.pf-m-danger:hover,
+.pf-m-danger:focus {
+  background-color: #a30000;
+  border-color: #a30000;
+  outline: none;
 }
 
 .login-pf {
@@ -431,6 +463,19 @@ label.checkbox {
   color: #a30000;
 }
 
+.pf-c-alert.pf-m-inline.pf-m-warning {
+  background: #fdf7e7;
+  border-color: #f0ab00;
+}
+
+.pf-c-alert.pf-m-warning > svg {
+  color: #f0ab00;
+}
+
+.pf-c-alert.pf-m-warning .pf-c-alert__title {
+  color: #795600;
+}
+
 .pf-c-alert.pf-m-inline.pf-m-info {
   background: #e7f1fa;
   border-color: #73bcf7;
@@ -489,8 +534,24 @@ label.checkbox {
   border-color: rgba(255, 255, 255, .75) rgba(255, 255, 255, .25) rgba(255, 255, 255, .25);
 }
 
+#hostkey-fingerprint {
+  font-size: large;
+  font-weight: bold;
+  margin-bottom: 0px
+}
+
+#hostkey-type {
+  font-size: small;
+}
+
+#hostkey-verify-help-cmds {
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: #ddd;
+}
+
 #login-button .spinner,
-#login-button[disabled] #login-button-text,
+#login-button[spinning] #login-button-text,
 .hide-before:before {
   display: none;
 }
@@ -552,7 +613,12 @@ label.checkbox {
   align-items: center;
   justify-content: center;
   height: 2.5rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  flex-basis: 100%;
+}
+
+#hostkey-group:not([hidden]) ~ .login-actions > #login-button {
+  flex-basis: max-content;
 }
 
 #login-button[disabled] {
@@ -673,10 +739,13 @@ body.login-pf {
 }
 
 .login-pf #brand {
-  font-size: 1.75rem;
-  line-height: 1.3;
-  padding: 0 0 1rem;
   text-transform: initial;
+  font-weight: 400;
+}
+
+#brand strong,
+#brand b {
+  font-weight: 600;
 }
 
 .unsupported-browser a,

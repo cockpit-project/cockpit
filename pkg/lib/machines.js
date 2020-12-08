@@ -1,9 +1,10 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
+import ssh_add_key_sh from "raw-loader!ssh-add-key.sh";
+
 var mod = { };
 
-var known_hosts_path = "/etc/ssh/ssh_known_hosts";
 /*
  * We share the Machines state between multiple frames. Only
  * one frame has the job of loading the state, usually index.js
@@ -218,17 +219,7 @@ function Machines() {
     }
 
     self.add_key = function(host_key) {
-        var known_hosts = cockpit.file(known_hosts_path, { superuser: "try" });
-        return known_hosts
-                .modify(function(data) {
-                    if (!data)
-                        data = "";
-
-                    return data + "\n" + host_key;
-                })
-                .always(function() {
-                    known_hosts.close();
-                });
+        return cockpit.script(ssh_add_key_sh, [host_key.trim(), "known_hosts"], { err: "message" });
     };
 
     self.add = function add(connection_string, color) {

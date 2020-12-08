@@ -42,7 +42,7 @@ class BastionContainerMachine(VirtMachine):
             self.upload([AUTH_KEY], "/tmp")
 
         self.execute("podman run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 "
-                     "cockpit/bastion /usr/libexec/cockpit-ws --no-tls """.format(extra))
+                     "cockpit/bastion /usr/libexec/cockpit-ws --no-tls ".format(extra))
         self.wait_for_cockpit_running(seconds=180)
 
 
@@ -54,8 +54,8 @@ class TestBastion(MachineCase):
     }
 
     def approve_key(self, b):
-        b.wait_visible("#conversation-input")
-        b.wait_in_text("#conversation-message", "authenticity of host")
+        b.wait_visible("#hostkey-group")
+        b.wait_in_text("#hostkey-message-1", "You are connecting to 10.111.113.1 for the first time.")
         b.click("#login-button")
 
     def testKeyLogin(self):
@@ -84,7 +84,8 @@ class TestBastion(MachineCase):
         b.open("/=10.111.113.1")
         b.wait_visible("#login")
         b.wait_visible("#option-group")
-        b.wait_not_visible("#server-field")
+        b.wait_visible("#server-field")
+        b.wait_val("#server-field", "10.111.113.1")
         b.wait_text("#server-name", "10.111.113.1")
 
         # The machine pw doesn't work
@@ -110,7 +111,6 @@ class TestBastion(MachineCase):
         # works with authorized key
         b.set_val("#login-password-input", "fubar")
         b.click("#login-button")
-        self.approve_key(b)
 
         b.expect_load()
         b.wait_text('#current-username', 'admin')
@@ -139,7 +139,6 @@ class TestBastion(MachineCase):
 
         b.set_val("#login-password-input", "foobar")
         b.click("#login-button")
-        self.approve_key(b)
 
         b.expect_load()
         b.wait_text('#current-username', 'admin')

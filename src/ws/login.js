@@ -245,7 +245,9 @@ if (window.NodeList && !NodeList.prototype.forEach)
         }
 
         if (path.indexOf("/=") === 0) {
-            environment.hostname = path.substring(2);
+            environment.hostname = path.substring(2).split("/")[0];
+            id("server-field").value = environment.hostname;
+            toggle_options(null, true);
             path = "/cockpit+" + path.split("/")[1];
         } else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
             path = "/cockpit";
@@ -450,14 +452,14 @@ if (window.NodeList && !NodeList.prototype.forEach)
         id("login-info-message").textContent = "";
     }
 
-    function login_failure(msg, in_conversation) {
+    function login_failure(msg, form) {
         clear_errors();
         if (msg) {
             /* OAuth failures are always fatal */
             if (oauth) {
                 fatal(msg);
             } else {
-                show_form(in_conversation);
+                show_form(form || "login");
                 id("login-error-message").textContent = msg;
                 show("#error-group");
             }
@@ -475,13 +477,13 @@ if (window.NodeList && !NodeList.prototype.forEach)
     function host_failure(msg) {
         var host = id("server-field").value;
         if (!host) {
-            login_failure(msg, false);
+            login_failure(msg);
         } else {
             clear_errors();
             id("login-error-message").textContent = msg;
             show("#error-group");
             toggle_options(null, true);
-            show_form();
+            show_form("login");
         }
     }
 
@@ -513,9 +515,13 @@ if (window.NodeList && !NodeList.prototype.forEach)
             if (machine) {
                 application = "cockpit+=" + machine;
                 login_path = org_login_path.replace("/" + org_application + "/", "/" + application + "/");
+                id("brand").style.display = "none";
+                id("badge").style.visibility = "hidden";
             } else {
                 application = org_application;
                 login_path = org_login_path;
+                brand("badge", "");
+                brand("brand", "Cockpit");
             }
 
             id("server-name").textContent = machine || environment.hostname;
@@ -543,35 +549,40 @@ if (window.NodeList && !NodeList.prototype.forEach)
         }
     }
 
-    function show_form(in_conversation) {
+    function show_form(form) {
         var connectable = environment.page.connect;
         var expanded = id("option-group").getAttribute("data-state");
 
         hide("#login-wait-validating");
         show("#login", "#login-details");
 
-        hideToggle(["#user-group", "#password-group"], in_conversation);
-        hideToggle("#conversation-group", !in_conversation);
+        hideToggle(["#user-group", "#password-group"], form != "login");
+        hideToggle("#conversation-group", form != "conversation");
+        hideToggle("#hostkey-group", form != "hostkey");
 
-        id("login-button-text").textContent = _("Log in");
+        id("login-button-text").textContent = (form == "hostkey") ? _("Accept key and log in") : _("Log in");
         id("login-password-input").value = '';
 
         if (need_host()) {
             hide("#option-group");
             expanded = true;
         } else {
-            hideToggle("#option-group", !connectable || in_conversation);
+            hideToggle("#option-group", !connectable || form != "login");
         }
 
-        if (!connectable || in_conversation) {
+        if (!connectable || form != "login") {
             hide("#server-group");
         } else {
             hideToggle("#server-group", !expanded);
         }
 
         id("login-button").removeAttribute('disabled');
+        id("login-button").removeAttribute('spinning');
+        id("login-button").classList.remove("pf-m-danger");
+        id("login-button").classList.add("pf-m-primary");
+        hide("#get-out-link");
 
-        if (!in_conversation)
+        if (form == "login")
             id("login-button").addEventListener("click", call_login);
     }
 
@@ -595,11 +606,88 @@ if (window.NodeList && !NodeList.prototype.forEach)
 
         id("login-password-input").addEventListener("keydown", do_login);
 
-        show_form();
+        show_form("login");
         id("login-user-input").focus();
     }
 
+    function get_known_hosts_db() {
+        try {
+            return JSON.parse(localStorage.getItem("known_hosts") || "{ }");
+        } catch (ex) {
+            console.warn("Can't parse known_hosts database in localStorage", ex);
+            return { };
+        }
+    }
+
+    function set_known_hosts_db(db) {
+        try {
+            localStorage.setItem("known_hosts", JSON.stringify(db));
+        } catch (ex) {
+            console.warn("Can't write known_hosts database to localStorage", ex);
+        }
+    }
+
+    function do_hostkey_verification(data) {
+        var key_db = get_known_hosts_db();
+        var key = data["host-key"];
+        var key_key = key.split(" ")[0];
+        var key_type = key.split(" ")[1];
+
+        if (key_db[key_key] == key) {
+            converse(data.id, data.default);
+            return;
+        }
+
+        if (key_db[key_key]) {
+            id("hostkey-title").textContent = format(_("$0 key changed"), id("server-field").value);
+            show("#hostkey-warning-group");
+            id("hostkey-message-1").textContent = "";
+        } else {
+            id("hostkey-title").textContent = _("New host");
+            hide("#hostkey-warning-group");
+            id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), id("server-field").value);
+        }
+
+        id("hostkey-verify-help-1").textContent = format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), id("server-field").value);
+        id("hostkey-verify-help-cmds").textContent = format("ssh-keyscan$0 localhost | ssh-keygen -lf -",
+                                                            key_type ? " -t " + key_type : "");
+
+        id("hostkey-fingerprint").textContent = data.default;
+
+        if (key_type) {
+            id("hostkey-type").textContent = format("($0)", key_type);
+            show("#hostkey-type");
+        } else {
+            hide("#hostkey-type");
+        }
+
+        login_failure("");
+
+        function call_converse() {
+            id("login-button").removeEventListener("click", call_converse);
+            login_failure(null, "hostkey");
+            key_db[key_key] = key;
+            set_known_hosts_db(key_db);
+            converse(data.id, data.default);
+        }
+
+        id("login-button").addEventListener("click", call_converse);
+
+        show_form("hostkey");
+        show("#get-out-link");
+
+        if (key_db[key_key]) {
+            id("login-button").classList.add("pf-m-danger");
+            id("login-button").classList.remove("pf-m-primary");
+        }
+    }
+
     function show_converse(prompt_data) {
+        if (prompt_data["host-key"]) {
+            do_hostkey_verification(prompt_data);
+            return;
+        }
+
         var type = prompt_data.echo ? "text" : "password";
         id("conversation-prompt").textContent = prompt_data.prompt;
 
@@ -623,12 +711,12 @@ if (window.NodeList && !NodeList.prototype.forEach)
         function call_converse() {
             id("conversation-input").removeEventListener("keydown", key_down);
             id("login-button").removeEventListener("click", call_converse);
-            login_failure(null, true);
+            login_failure(null, "conversation");
             converse(prompt_data.id, id("conversation-input").value);
         }
 
         function key_down(e) {
-            login_failure(null, true);
+            login_failure(null, "conversation");
             if (e.which == 13) {
                 call_converse();
             }
@@ -636,7 +724,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
 
         id("conversation-input").addEventListener("keydown", key_down);
         id("login-button").addEventListener("click", call_converse);
-        show_form(true);
+        show_form("conversation");
         ei.focus();
     }
 
@@ -681,6 +769,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
 
     function send_login_request(method, headers, is_conversation) {
         id("login-button").setAttribute('disabled', "true");
+        id("login-button").setAttribute('spinning', "true");
         var xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         var prompt_data;
@@ -733,7 +822,6 @@ if (window.NodeList && !NodeList.prototype.forEach)
             } else {
                 fatal(format(_("$0 error"), xhr.status));
             }
-            id("login-button").removeAttribute('disabled');
         };
         xhr.send();
     }

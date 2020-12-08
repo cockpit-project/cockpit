@@ -2,7 +2,7 @@ import $ from "jquery";
 import * as plot from "plot.js";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
-import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
+import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 import "plot.css";
 

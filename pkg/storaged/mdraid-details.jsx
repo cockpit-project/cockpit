@@ -99,7 +99,7 @@ class MDRaidSidebar extends React.Component {
 
             function state_text(state) {
                 return {
-                    faulty:       _("FAILED"),
+                    faulty:       _("Failed"),
                     in_sync:      _("In sync"),
                     spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
                     write_mostly: _("Write-mostly"),

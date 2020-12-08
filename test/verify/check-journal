@@ -462,10 +462,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
         self.login_and_go("/system/logs#/?tag=logger")
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
-        b.wait_text("#journal-entry-message", "[13 bytes of binary data]")
+        b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
 
         def wait_field(name, value):
-            row_sel = "#journal-entry-fields tr:contains('" + name + "')"
+            row_sel = ".info-table-ct tr:contains('" + name + "')"
             b.wait_present(row_sel + " td:nth-child(2):contains('" + value + "')")
 
         wait_field("FOO", "bar")
@@ -482,7 +482,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
         self.login_and_go("/system/logs#/?tag=logger")
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')")
-        b.wait_text("#journal-entry-message", "[no data]")
+        b.wait_text(".pf-c-card__title", "[no data]")
 
     @nondestructive
     def testLogLevel(self):
@@ -538,16 +538,16 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.click(sleep_crash_list_sel)
 
         def wait_field(name, value):
-            row_sel = "#journal-entry-fields tr:contains('" + name + "')"
+            row_sel = "#abrt-details tr:contains('" + name + "')"
             b.wait_present(row_sel + " td:nth-child(2):contains('" + value + "')")
 
         wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
 
-        b.click("li:contains(Problem info)")
+        b.click("button:contains(Problem info)")
         wait_field("reason", "killed by SIGSEGV")
-        b.click("li:contains(Problem details)")
-        b.click("#journal-entry-fields #accordion-markup .accordion-toggle:contains('core_backtrace')")
-        b.wait_present("#journal-entry #accordion-markup .panel-body:contains('signal: 11  executable: ')")
+        b.click("button:contains(Problem details)")
+        b.click("#abrt-details .pf-c-accordion__toggle:contains('core_backtrace')")
+        b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body tr:contains('signal') td:contains('11')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -571,16 +571,17 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         self.login_and_go("/system/logs")
         b.click(sleep_crash_list_sel)
 
-        b.wait_in_text("#journal-entry-heading", "sleep")
-        b.click("#journal-entry-fields .nav .pf-m-danger")
+        b.wait_in_text("#entry-heading", "sleep")
+        b.wait_visible("h2:contains('Crash reporting')")
+        b.click("button.pf-m-danger:contains('Delete')")
         b.wait_in_text('#journal-box', "(sleep) crashed in")
         b.click(sleep_crash_list_sel)
 
-        b.wait_in_text("#journal-entry-heading", "sleep")
+        b.wait_in_text("#entry-heading", "sleep")
         # details view should hide log view
-        b.wait_not_visible('.cockpit-log-panel')
-        b.wait_present("#journal-entry-message:contains('(sleep) crashed in')")
-        b.wait_not_present("#journal-entry-fields .nav .pf-m-danger")
+        b.wait_not_present("h2:contains('Crash reporting')")
+        b.wait_present(".pf-c-card__title:contains('(sleep) crashed in')")
+        b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -620,8 +621,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
         b.click(sleep_crash_list_sel)
-        b.click("table.reporting-table tr:first-child button:contains('Report')")
-        b.wait_present("table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'")
+        # HERE
+        b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
+        b.wait_present("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
 
         # "Unreport" the problem to test reporting unknown problem
         m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
@@ -634,7 +636,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.reload()
         b.enter_page("/system/logs")
 
-        b.click("table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')")
+        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
 
         test_user = 'correcthorsebatterystaple'
 
@@ -645,7 +647,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.wait_not_present(".pf-c-modal-box__body p:contains('Password')")
         b.click(".pf-c-modal-box__footer button:contains('No')")
-        b.wait_present("table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
+        b.wait_present("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -678,10 +680,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         self.login_and_go("/system/logs")
 
         b.click(sleep_crash_list_sel)
-        b.click("table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')")
-        b.wait_visible("table.reporting-table tr:contains('Report to Cockpit') td:contains('Cancel me')")
-        b.click("table.reporting-table tr:contains('Report to Cockpit') button:contains('Cancel')")
-        b.wait_present("table.reporting-table tr:contains('Report to Cockpit') td:contains('Reporting was canceled')")
+        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
+        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Cancel me')")
+        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Cancel')")
+        b.wait_present("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -710,8 +712,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
         b.click(sleep_crash_list_sel)
-        b.click("table.reporting-table tr:first-child button:contains('Report')")
-        b.wait_present("table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'")
+        b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
+        b.wait_present("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
 
 if __name__ == '__main__':
     test_main()

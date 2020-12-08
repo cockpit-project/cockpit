@@ -12,61 +12,38 @@
     }
 }
 
-/* Do not break labels */
-#journal-entry .info-table-ct td:first-child {
-    word-break: keep-all;
-}
+#journal-entry {
+    height: 100%;
 
-#journal-entry-message:not(:empty) {
-    padding: 10px;
-}
+    .pf-l-gallery {
+        --pf-l-gallery--GridTemplateColumns: 1fr;
+    }
 
-#journal-entry-fields {
-    margin-bottom: 10px;
-    width: 100%;
-}
+    .pf-c-page__main-breadcrumb {
+        padding: var(--pf-global--gutter);
+    }
 
-#journal-entry-fields th {
-    font-weight: normal;
-}
+    /* Do not break labels */
+    .info-table-ct td:first-child {
+        word-break: keep-all;
+    }
 
-.journal-entry-value,
-#journal-entry-message {
-    word-break: break-all;
-    white-space: pre-wrap !important;
-}
+    .pf-c-card__title,
+    .multiline,
+    .info-table-ct td:not(:first-child) {
+        word-break: break-all;
+        white-space: pre-wrap !important;
+        font-family: monospace, monospace;
+    }
 
-.journal-entry-value {
-    font-family: monospace, monospace;
-}
+    .pf-l-split {
+        padding-bottom: var(--pf-global--gutter);
+        align-items: center;
+    }
 
-.other-threads-btn {
-    margin-top: 20px;
-}
-
-.other_threads {
-    clear: both;
-}
-
-.problem-panel {
-    background: none !important;
-    height: auto;
-}
-
-.problem-panel:hover {
-    background: #EDEDED !important;
-    height: auto;
-}
-
-.panel-heading.problem-panel{
-    cursor: pointer;
-}
-
-.problem-btn {
-    float: right;
-    padding: 0px 5px 0px 5px;
-    margin-right: 10px;
-    margin-top: 4px;
+    .info-table-ct > thead > tr > th {
+        padding-left: 1rem;
+    }
 }
 
 #journal .filter select,

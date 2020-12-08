@@ -19,9 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from 'react-dom';
-import { Button } from "@patternfly/react-core";
+import { Button, Card, CardBody, CardTitle, Split, SplitItem, Spinner } from "@patternfly/react-core";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { superuser } from "superuser";
 
 const _ = cockpit.gettext;
 
@@ -49,7 +49,6 @@ const ProblemState = Object.freeze({
 });
 
 const client = cockpit.dbus("org.freedesktop.problems", { superuser: "try" });
-var reportd_client;
 
 // For one-off fetches of properties to avoid setting up a cache for everything.
 function get_problem_properties(problem) {
@@ -58,7 +57,7 @@ function get_problem_properties(problem) {
     }
 
     return new Promise(executor)
-            .then(() => client.call(problem.path,
+            .then(() => client.call(problem,
                                     "org.freedesktop.DBus.Properties",
                                     "GetAll", ["org.freedesktop.Problems2.Entry"]));
 }
@@ -82,7 +81,7 @@ class FAFWorkflowRow extends React.Component {
     }
 
     updateStatusFromBus() {
-        get_problem_properties(this.props.problem)
+        get_problem_properties(this.props.problem.path)
                 .catch(exception => {
                     this.setState({ problemState: ProblemState.UNREPORTABLE });
 
@@ -317,10 +316,10 @@ class BusWorkflowRow extends React.Component {
             problemState: ProblemState.REPORTING,
         });
 
-        reportd_client
+        this.props.client
                 .wait()
                 .catch(exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)))
-                .then(() => this._createTask(reportd_client))
+                .then(() => this._createTask(this.props.client))
                 .catch(exception => {
                     const message = cockpit.format("reportd task could not be created: $0", (exception.problem || exception.message));
 
@@ -382,7 +381,7 @@ class BusWorkflowRow extends React.Component {
             console.error(cockpit.format("Getting properties for problem $0 failed: $1", this.props.problem.path, exception));
         };
 
-        get_problem_properties(this.props.problem).then(on_get_properties, on_get_properties_rejected);
+        get_problem_properties(this.props.problem.path).then(on_get_properties, on_get_properties_rejected);
     }
 }
 
@@ -432,18 +431,18 @@ function WorkflowRow(props) {
     }
 
     return (
-        <tr>
-            <td>{props.label}</td>
-            <td>
-                {props.problemState === ProblemState.REPORTING && <span className="spinner spinner-xs" />}
+        <Split hasGutter>
+            <SplitItem>{props.label}</SplitItem>
+            <SplitItem isFilled>
+                {props.problemState === ProblemState.REPORTING && <Spinner size="md" /> }
                 {status}
-            </td>
-            <td>{button}</td>
-        </tr>
+            </SplitItem>
+            <SplitItem>{button}</SplitItem>
+        </Split>
     );
 }
 
-class ReportingTable extends React.Component {
+export class ReportingTable extends React.Component {
     constructor(props) {
         super(props);
 
@@ -453,9 +452,13 @@ class ReportingTable extends React.Component {
 
         this.getWorkflows = this.getWorkflows.bind(this);
 
-        reportd_client
+        this.reportd_client = cockpit.dbus("org.freedesktop.reportd", {
+            bus: superuser.allowed ? "system" : "session",
+            track: true
+        });
+        this.reportd_client
                 .wait()
-                .then(() => this.getWorkflows(reportd_client),
+                .then(() => this.getWorkflows(this.reportd_client),
                       exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)));
     }
 
@@ -467,46 +470,20 @@ class ReportingTable extends React.Component {
 
     render() {
         return (
-            <table className="panel panel-default reporting-table table">
-                <caption>
-                    <h3>{_("Crash reporting")}</h3>
-                </caption>
-                <tbody>
+            <Card>
+                <CardTitle><h2>{_("Crash reporting")}</h2></CardTitle>
+                <CardBody>
                     <FAFWorkflowRow problem={this.props.problem} />
                     {
                         this.state.workflows.map((workflow, index) => [
                             <BusWorkflowRow key={index.toString()}
                                             problem={this.props.problem}
+                                            client={this.reportd_client}
                                             workflow={workflow} />
                         ])
                     }
-                </tbody>
-            </table>
+                </CardBody>
+            </Card>
         );
     }
-}
-
-export function init_reporting(problem, container) {
-    const permission = cockpit.permission({ admin: true });
-    const on_permission_changed = () => {
-        // reportd may use ABRT API that requires authorization, but it cannot
-        // be given using polkit, as the calling process will always be reportd
-        // and not cockpit-bridge. However, UID 0 is always authorized, hence
-        // the spawning of the system service and using the system bus here.
-        //
-        // TODO: Only use system bus when reportd is merged into ABRT
-        //       (https://github.com/abrt/reportd/issues/8).
-        reportd_client = cockpit.dbus("org.freedesktop.reportd",
-                                      {
-                                          bus: permission.allowed ? "system" : "session",
-                                          track: true,
-                                      });
-
-        permission.close();
-        permission.removeEventListener("changed", on_permission_changed);
-
-        ReactDOM.render(<ReportingTable problem={problem} />, container);
-    };
-
-    permission.addEventListener("changed", on_permission_changed);
 }

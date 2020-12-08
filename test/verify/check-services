@@ -255,8 +255,8 @@ Unit=test.service
 
         b.click(".cockpit-logline:contains('WORKING')")
         b.enter_page("/system/logs")
-        b.wait_text("#journal-entry-message", "WORKING")
-        b.click("#journal-navigate-home")
+        b.wait_text(".pf-c-card__title", "WORKING")
+        b.click(".pf-c-breadcrumb a:contains('Logs')")
         # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
         if m.image != "debian-stable":
             b.wait_val("#journal-grep", "priority:debug service:test.service ")

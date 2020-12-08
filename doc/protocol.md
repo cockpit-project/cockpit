@@ -35,6 +35,7 @@ sent through the channel 'a5', that might look like:
 When a message is sent over a stream transport that does not have distinct
 messages (such as SSH or stdio), the message is also prefixed with a base 10
 integer and new line, which represents the length of the following message.
+The length must be a positive number (ie: strictly greater than zero).
 
 An example. When going over a stream transport with a payload of the 3 byte
 string 'abc', and a channel of 'a5', would have a message length of 6: 3 bytes of

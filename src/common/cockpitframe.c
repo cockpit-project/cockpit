@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -139,103 +140,163 @@ out:
   return ret;
 }
 
-static void *
-xrealloc (void *old,
-          size_t length)
+/* read_exactly:
+ * @fd: a blocking file descriptor
+ * @buffer: where to read to
+ * @required_size: the exact number of bytes to read
+ * @was_eof: if EOF was encountered
+ *
+ * Reads exactly @required_size bytes from @fd into @buffer.  If the
+ * correct number of bytes are read, then %TRUE is returned.
+ *
+ * On failure, returns %FALSE.  If the failure was due to an underlying
+ * read error, then this error will be stored into errno.  If the
+ * failure was due to an incorrect number of bytes being read, then
+ * errno will be set to %EBADMSG.
+ *
+ * The only permitted exception is if @was_eof is non-%NULL.  In that
+ * case, if exactly 0 bytes are read from @fd (ie: EOF at the start of
+ * the message) then @was_eof will be set to %TRUE and the call will
+ * return successfully.  Otherwise, @was_eof will be set to %FALSE on
+ * successful completion.
+ *
+ * If the required number of bytes couldn't be read, then any number of
+ * bytes may have been read from @fd.  The only reasonable thing to do
+ * at this point is to treat the connection as broken, and close @fd.
+ * In particular, this is why @fd should never be non-blocking.
+ */
+static bool
+read_exactly (int fd,
+              unsigned char *buffer,
+              size_t required_size,
+              bool *was_eof)
 {
-  void *data = realloc (old, length);
-  if (!data && length > 0)
-    free (old);
-  return data;
+  size_t offset = 0;
+
+  while (offset < required_size)
+    {
+      ssize_t n = read (fd, buffer + offset, required_size - offset);
+      if (n == -1)
+        {
+          if (errno == EINTR)
+            continue;
+
+          if (errno != ECONNRESET)
+            return false;
+
+          /* ECONNRESET is treated as EOF */
+          n = 0;
+        }
+
+      if (n == 0)
+        {
+          if (was_eof != NULL && offset == 0)
+            {
+              *was_eof = true;
+              return true;
+            }
+
+          errno = EBADMSG;
+          return false;
+        }
+
+      offset += n;
+    }
+
+  if (was_eof)
+    *was_eof = false;
+
+  return true;
 }
 
 ssize_t
 cockpit_frame_read (int fd,
                     unsigned char **output)
 {
-  ssize_t size = 0;
-  size_t skip;
-  ssize_t res;
-  int errn = 0;
-  ssize_t ret = -1;
+  /* We first need to read the size of the frame, followed by the
+   * content of the frame.  We want to do this efficiently as possible,
+   * while avoiding to read() more than the frame (since we can't put
+   * bytes back).  MSG_PEEK is also not always available, since we're
+   * often talking to a pipe.
+   *
+   * Fortunately, we have a reasonable approach for this.
+   *
+   * Empty frames are invalid (cockpit_frame_parse() rejects size == 0),
+   * so the smallest possible frame has a length of at least 3: the
+   * single-digit size, the newline, then the single byte of body.
+   * Therefore it's always safe to read 3 bytes ("the initial read").
+   *
+   * Conveniently, reading three bytes is also always enough to tell us
+   * how many bytes it's safe to read in order to determine the size of
+   * the frame:
+   *
+   *   - if we read a digit or two, followed by a newline, then we
+   *     already know the size of the entire frame
+   *
+   *   - if we read three digits, we know that the frame body is at
+   *     least 100 bytes long.  Since the maximum size of the length
+   *     field is 8 (+1 for newline), we can safely read this entire
+   *     amount.
+   *
+   *   - if we get something other than digits or newlines, it's an
+   *     error
+   */
+  size_t n_read = 3;
+  unsigned char headerbuf[MAX_FRAME_SIZE_BYTES + 1];
+  bool eof;
 
-  unsigned char *buf = NULL;
-  size_t buflen = 0;
-  size_t allocated = 0;
+  if (!read_exactly (fd, headerbuf, n_read, &eof))
+    return -1;
 
-  while (size == 0 || buflen < size)
+  if (eof)
     {
-      /* Reallocate */
-      if (buflen + 1 > allocated)
-        {
-          allocated = size;
-          if (allocated < buflen + 128)
-            allocated = buflen + 128;
-          buf = xrealloc (buf, allocated);
-          if (!buf)
-            {
-              errn = ENOMEM;
-              goto out;
-            }
-        }
+      if (output)
+        *output = NULL;
+      return 0;
+    }
 
-      res = read (fd, buf + buflen, 1);
-      if (res < 0 && errno == ECONNRESET && buflen == 0)
-        res = 0;
-      if (res < 0)
-        {
-          /* A read failure */
-          if (errno != EINTR && errno != EAGAIN)
-            {
-              errn = errno;
-              goto out;
-            }
-        }
-      else if (res == 0)
-        {
-          /* No message parsed, but also no data received */
-          if (size == 0 && buflen == 0)
-            ret = 0;
-          else
-            errn = EBADMSG;
-          goto out;
-        }
-      else if (res > 0)
-        {
-          buflen += 1;
-        }
+  size_t n_consumed;
+  ssize_t size = cockpit_frame_parse (headerbuf, n_read, &n_consumed);
+  if (size == 0)
+    {
+      /* cockpit_frame_parse() asked to read more data.  As explained
+       * above, it's safe to read the rest of the buffer now (6 bytes).
+       * This should always result in a defined (non-zero) result.
+       */
+      if (!read_exactly (fd, headerbuf + n_read, sizeof headerbuf - n_read, NULL))
+        return -1;
 
-      /* Parse the length if necessary */
-      if (size == 0)
-        {
-          assert (buf != NULL);
-          size = cockpit_frame_parse (buf, buflen, &skip);
-          if (size > 0)
-            {
-              assert (buflen >= skip);
-              if (buflen > skip)
-                memmove (buf, buf + skip, buflen - skip);
-              buflen -= skip;
-            }
-        }
+      n_read = sizeof headerbuf;
+      size = cockpit_frame_parse (headerbuf, n_read, &n_consumed);
+      assert (size != 0);
+    }
 
-      if (size < 0)
-        {
-          errn = EBADMSG;
-          goto out;
-        }
+  if (size == -1)
+    {
+      errno = EBADMSG;
+      return -1;
+    }
+
+  /* We now have size equal to the number of bytes we need to return. */
+  unsigned char *buffer = malloc (size);
+  if (buffer == NULL)
+    return -1; /* ENOMEM */
+
+  /* Copy the non-consumed bytes from the header (might be zero) */
+  size_t bytes_from_header = n_read - n_consumed;
+  memcpy (buffer, headerbuf + n_consumed, bytes_from_header);
+
+  /* Get the rest of the body (might be zero) */
+  if (!read_exactly (fd, buffer + bytes_from_header, size - bytes_from_header, NULL))
+    {
+      free (buffer);
+      return -1;
     }
 
   if (output)
-    {
-      *output = buf;
-      buf = NULL;
-    }
-  ret = size;
+    *output = buffer;
+  else
+    free (buffer);
 
-out:
-  free (buf);
-  if (ret < 0)
-    errno = errn;
-  return ret;
+  return size;
 }

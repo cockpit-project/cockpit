@@ -207,12 +207,10 @@ export class CockpitHosts extends React.Component {
                     <PageSidebar isNavOpen={this.props.opened} theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")} nav={
                         <>
                             <CockpitNav selector={this.props.selector} groups={groups} item_render={render} sorting={(a, b) => true} filtering={this.filterHosts} current={label} />
-                            {this.state.privileged &&
-                                <div className="nav-hosts-actions">
-                                    {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
-                                    <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
-                                </div>
-                            }
+                            <div className="nav-hosts-actions">
+                                {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
+                                <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
+                            </div>
                         </>
                     } />
                 </HostsSelector>

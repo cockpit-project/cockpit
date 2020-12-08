@@ -127,12 +127,125 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     @skipBrowser("Firefox looses track of contexts", "firefox")
     def testBasic(self):
         b = self.browser
-        m = self.machine
         m2 = self.machines["machine2"]
         m3 = self.machines["machine3"]
 
         m2.execute("hostnamectl set-hostname machine2")
         m3.execute("hostnamectl set-hostname machine3")
+
+        # This should all work without being admin on machine1
+        self.login_and_go(superuser=False)
+
+        b.click("#hosts-sel button")
+        self.wait_host_addresses(b, ["localhost"])
+
+        b.wait_not_present("button:contains('Edit hosts')")
+
+        self.add_machine(b, "10.111.113.2")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_connected(b, "10.111.113.2")
+
+        # Main host should have both buttons disabled, the second both enabled
+        b.click("button:contains('Edit hosts')")
+        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-danger:not(:disabled)")
+        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary:not(:disabled)")
+        b.click("button:contains('Stop editing hosts')")
+        b.wait_not_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary")
+
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+
+        self.add_machine(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.wait_connected(b, "10.111.113.3")
+
+        # Remove two
+        self.machine_remove(b, "10.111.113.2", m2)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
+
+        self.machine_remove(b, "10.111.113.3", m3, True)
+        self.wait_host_addresses(b, ["localhost"])
+
+        # Check that the two removed machines are listed in "Add Host"
+        self.check_discovered_addresses(b, ["10.111.113.2", "10.111.113.3"])
+
+        # Add one back, check addresses on both browsers
+        self.add_machine(b, "10.111.113.2", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_connected(b, "10.111.113.2")
+        self.check_discovered_addresses(b, ["10.111.113.3"])
+
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+
+        # And the second one, check addresses
+        self.add_machine(b, "10.111.113.3", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_connected(b, "10.111.113.3")
+        self.check_discovered_addresses(b, [])
+
+        # Test change user, not doing in edit to reuse machines
+
+        # Navigate to load iframe
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
+
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+
+        b.wait_popup('hosts_setup_server_dialog')
+        b.set_val('#add-machine-user', 'bad-user')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
+        b.click('#hosts_setup_server_dialog button:contains("Cancel")')
+        b.wait_popdown('hosts_setup_server_dialog')
+
+        # Test switching
+        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
+
+        b.click("#nav-hosts .nav-item a[href='/@localhost']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
+
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+
+        b.enter_page("/system", "10.111.113.3")
+        b.wait_text_not("#system_information_systime_button", "")
+        b.click(".system-information a")  # View hardware details
+        b.enter_page("/system/hwinfo", "10.111.113.3")
+        b.click(".pf-c-breadcrumb li:first-child a")
+        b.enter_page("/system", "10.111.113.3")
+
+        # Remove host underneath ourselves
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-danger")
+        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+        b.enter_page("/system", "localhost")
+
+        # removing machines interrupts channels
+        self.allow_restart_journal_messages()
+        self.allow_hostkey_messages()
+        self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
+
+    @skipBrowser("Firefox looses track of contexts", "firefox")
+    def testBasicAsAdmin(self):
+        b = self.browser
+        m2 = self.machines["machine2"]
+        m3 = self.machines["machine3"]
+
+        # When being admin, changes in the host switcher are supposed
+        # to be reflected in all browser sessions.
 
         self.login_and_go()
 
@@ -205,61 +318,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
-        b2.kill()
-
-        # Test change user, not doing in edit to reuse machines
-
-        # Navigate to load iframe
-        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
-        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
-
-        b.click("#hosts-sel button")
-        b.click("button:contains('Edit hosts')")
-
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
-
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_val('#add-machine-user', 'bad-user')
-        b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
-        b.click('#hosts_setup_server_dialog button:contains("Cancel")')
-        b.wait_popdown('hosts_setup_server_dialog')
-
-        # Test switching
-        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
-
-        b.click("#nav-hosts .nav-item a[href='/@localhost']")
-        b.wait_js_cond('window.location.pathname == "/system"')
-
-        b.click("#hosts-sel button")
-        b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
-        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
-
-        b.click("#hosts-sel button")
-        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
-        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
-
-        b.enter_page("/system", "10.111.113.3")
-        b.wait_text_not("#system_information_systime_button", "")
-        b.click(".system-information a")  # View hardware details
-        b.enter_page("/system/hwinfo", "10.111.113.3")
-        b.click(".pf-c-breadcrumb li:first-child a")
-        b.enter_page("/system", "10.111.113.3")
-
-        # Remove host underneath ourselves
-        b.switch_to_top()
-        b.click("#hosts-sel button")
-        b.click("button:contains('Edit hosts')")
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-danger")
-        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
-        b.wait_js_cond('window.location.pathname == "/system"')
-        b.enter_page("/system", "localhost")
-
-        # removing machines interrupts channels
-        self.allow_restart_journal_messages()
-        self.allow_hostkey_messages()
-        self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
-
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']
@@ -276,7 +334,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         m3.execute("echo franz:foobar | chpasswd")
         self.authorize_pubkey(m3, "franz", self.get_pubkey(m1, "admin"))
 
-        self.login_and_go()
+        # This should all work without being admin on m1
+        self.login_and_go(superuser=False)
 
         b.click("#hosts-sel button")
         self.add_machine(b, "10.111.113.3")
@@ -331,15 +390,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.3']")
         b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
 
-        # Test that unprivileged user cannot edit or add hosts
-        b.logout()
-        self.login_and_go("/system", user="franz", superuser=False)
-        b.switch_to_top()
-        b.click("#hosts-sel button")
-        b.wait_visible("#nav-hosts .nav-item span[data-for='/@10.111.113.2']")
-        b.wait_not_present("button:contains('Edit hosts')")
-        b.wait_not_present("button:contains('Add new host')")
-
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
 class TestHostEditing(MachineCase, HostSwitcherHelpers):
@@ -372,7 +422,7 @@ class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
             b.click("#hosts_setup_server_dialog .pf-m-link")
 
-        self.login_and_go()
+        self.login_and_go(superuser=False)
 
 
         b.click("#hosts-sel button")

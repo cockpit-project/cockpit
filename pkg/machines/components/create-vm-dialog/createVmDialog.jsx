@@ -305,7 +305,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
             </FormGroup>}
 
             {sourceType != DOWNLOAD_AN_OS
-                ? <FormGroup label={_("Installation Source")} id={installationSourceId + "-group"} fieldId={installationSourceId}
+                ? <FormGroup label={_("Installation source")} id={installationSourceId + "-group"} fieldId={installationSourceId}
                              helperTextInvalid={validationFailed.source} validated={validationStateSource}>
                     {installationSource}
                 </FormGroup>

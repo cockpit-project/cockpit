@@ -359,16 +359,7 @@ $(function() {
         return self;
     }
 
-    var filler;
-
-    function stop_query() {
-        if (filler)
-            filler.stop();
-    }
-
     function update_query() {
-        stop_query();
-
         var match = [];
         const options = cockpit.location.options;
 
@@ -918,7 +909,6 @@ $(function() {
             update_query();
             $("#journal").show();
         } else if (path.length == 1) {
-            stop_query();
             $("#journal").hide();
             update_entry();
             $("#journal-entry").prop("hidden", false);
@@ -985,23 +975,6 @@ $(function() {
         update_services_list = true;
         update();
     });
-
-    /*
-    $('#journal-box').on('click', '.cockpit-logline', function() {
-        var cursor = $(this).attr('data-cursor');
-        if (cursor)
-            cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
-    });
-
-    $('#journal-box').on('keypress', '.cockpit-logline', function(ev) {
-        if (ev.key !== "Enter")
-            return;
-
-        var cursor = $(this).attr('data-cursor');
-        if (cursor)
-            cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
-    });
-    */
 
     $('#journal-cmd-copy').on('click', function(ev) {
         ev.preventDefault();

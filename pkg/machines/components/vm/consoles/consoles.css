@@ -1,55 +1,12 @@
+@import '../../../../../node_modules/@patternfly/react-styles/css/components/Consoles/AccessConsoles.css';
 
-/* Size console based on content, allowing it to wrap */
-.vnc-console {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-}
-
-/* Console menu should stretch to fill available space */
-.vnc-console > .console-menu {
-    flex: auto;
-}
-
-/* Vertical align the label and dropdown */
-.vnc-console .console-menu .form-table-ct td {
-    vertical-align: middle;
-}
-
-/* Use flex to size the send key and disconnect button */
-.vnc-console > .toolbar-pf-action-right > div:not([class]) {
-    display: flex;
-}
-
-/* Space action buttons apart */
-label[for=console-type-select],
-.console-menu > :not(:last-child),
-.vnc-console > .toolbar-pf-action-right .dropdown {
-    margin-right: 0.5rem;
-}
-
-/* Size the VNC & terminal area appropriately */
-.vnc-console > .console-menu ~ .toolbar-pf-results,
 .terminal-control ~ .vm-terminal {
     margin: 0.5rem auto 0;
     width: 100%;
 }
 
-/* VNC console really shouldn't be a col-sm-12 */
-/* but we inherit the code from PF3/react/console */
-.vnc-console > .toolbar-pf-results .col-sm-12 {
-    margin: 0;
-    padding: 0;
-    float: none;
-}
-
-/* WebKit applies inline styling including flex, causing unneeded padding. */
-.vnc-console > .toolbar-pf-results .col-sm-12 > div > div[style] {
-    align-items: center;
-}
-
 /* Make the VNC canvas scale down to available width */
-.vnc-console canvas {
+.pf-c-console__vnc canvas {
     max-width: 100%;
     height: auto !important;
 }
@@ -78,6 +35,16 @@ label[for=console-type-select],
 /* Hide send key button - there is not way to do that from the JS
  * https://github.com/patternfly/patternfly-react/issues/3689
  */
-#console-send-shortcut {
+#pf-c-console__send-shortcut {
     display: none;
+}
+
+/* Add spacing between action buttons */
+.pf-c-console__actions-vnc {
+    gap: var(--pf-global--spacer--sm);
+}
+/* Ensure that the VNC console actions wrap */
+/* https://github.com/patternfly/patternfly-react/pull/5247 */
+.pf-c-console__actions-vnc {
+    flex-wrap: wrap;
 }

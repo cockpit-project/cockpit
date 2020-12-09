@@ -73,14 +73,14 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
     }
 
     return (
-        <>
+        <div className="pf-c-console__actions">
             <label htmlFor="console-type-select">{_("Console type")}</label>
             <Select.StatelessSelect id="console-type-select"
                                     selected={selected}
                                     onChange={onChange}>
                 {entries}
             </Select.StatelessSelect>
-        </>
+        </div>
     );
 };
 
@@ -174,17 +174,28 @@ class Consoles extends React.Component {
                              vm={vm} />
         );
 
+        let consoleType;
         switch (this.state.consoleType) {
         case 'serial-browser':
             if (serialConsoleCommand)
-                return <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand}>{consoleSelector}</SerialConsole>;
+                consoleType = <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand} />;
             break;
         case 'vnc-browser':
-            return <Vnc vm={vm} consoleDetail={this.state.consoleDetail} onAddErrorNotification={onAddErrorNotification}>{consoleSelector}</Vnc>;
+            consoleType = <Vnc vm={vm} consoleDetail={this.state.consoleDetail} onAddErrorNotification={onAddErrorNotification} />;
+            break;
         case 'desktop':
-            return <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config}>{consoleSelector}</DesktopConsole>;
+            consoleType = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />;
+            break;
         default:
             break;
+        }
+        if (consoleType) {
+            return (
+                <div className="pf-c-console">
+                    {consoleSelector}
+                    {consoleType}
+                </div>
+            );
         }
 
         return (<NoConsoleDefined />);

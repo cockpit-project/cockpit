@@ -19,13 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import * as Select from "cockpit-components-select.jsx";
+import { AccessConsoles } from "@patternfly/react-console";
 
 import SerialConsole from './serialConsole.jsx';
 import Vnc from './vnc.jsx';
 import DesktopConsole from './desktopConsole.jsx';
 
-import { logDebug } from '../../../helpers.js';
 import { vmDesktopConsole } from '../../../actions/provider-actions.js';
 import LibvirtDBus from '../../../libvirt-dbus.js';
 
@@ -41,67 +40,14 @@ const VmNotRunning = () => {
     );
 };
 
-const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
-    const entries = [];
-
-    let isDesktop = false;
-    if (vm.displays) {
-        if (vm.displays.vnc) {
-            entries.push(
-                <Select.SelectEntry data="vnc-browser" key='vnc-browser'>
-                    {_("Graphics console (VNC)")}
-                </Select.SelectEntry>
-            );
-            isDesktop = true;
-        }
-
-        if (isDesktop || vm.displays.spice) {
-            entries.push(
-                <Select.SelectEntry data="desktop" key='desktop'>
-                    {_("Graphics console in desktop viewer")}
-                </Select.SelectEntry>
-            );
-        }
-    }
-
-    if (isSerialConsole) {
-        entries.push(
-            <Select.SelectEntry data="serial-browser" key='serial-browser'>
-                {_("Serial console")}
-            </Select.SelectEntry>
-        );
-    }
-
-    return (
-        <div className="pf-c-console__actions">
-            <label htmlFor="console-type-select">{_("Console type")}</label>
-            <Select.StatelessSelect id="console-type-select"
-                                    selected={selected}
-                                    onChange={onChange}>
-                {entries}
-            </Select.StatelessSelect>
-        </div>
-    );
-};
-
-const NoConsoleDefined = () => {
-    return (
-        <div>
-            {_("No console defined for this virtual machine.")}
-        </div>
-    );
-};
-
 class Consoles extends React.Component {
     constructor (props) {
         super(props);
 
         this.state = {
-            consoleType: undefined,
             consoleDetail: undefined,
         };
 
-        this.onConsoleTypeSelected = this.onConsoleTypeSelected.bind(this);
         this.getDefaultConsole = this.getDefaultConsole.bind(this);
         this.onDesktopConsoleDownload = this.onDesktopConsoleDownload.bind(this);
     }
@@ -111,39 +57,20 @@ class Consoles extends React.Component {
 
         if (vm.displays) {
             if (vm.displays.vnc) {
-                return 'vnc-browser';
+                return 'VncConsole';
             }
             if (vm.displays.spice) {
-                return 'desktop';
+                return 'DesktopViewer';
             }
         }
 
         const serialConsoleCommand = LibvirtDBus.serialConsoleCommand({ vm });
         if (serialConsoleCommand) {
-            return 'serial-browser';
+            return 'SerialConsole';
         }
 
         // no console defined
         return null;
-    }
-
-    componentDidMount () {
-        this.onConsoleTypeSelected(this.getDefaultConsole());
-    }
-
-    onConsoleTypeSelected (key) {
-        logDebug('onConsoleTypeSelected', key);
-
-        const { vm } = this.props;
-        let consoleDetail;
-
-        if (key === 'vnc-browser')
-            consoleDetail = vm.displays.vnc;
-
-        this.setState({
-            consoleType: key,
-            consoleDetail,
-        });
     }
 
     onDesktopConsoleDownload (type) {
@@ -165,40 +92,29 @@ class Consoles extends React.Component {
             this.onDesktopConsoleDownload(vm.displays.spice ? 'spice' : 'vnc');
         };
 
-        logDebug('Consoles render, this.state.consoleType: ', this.state.consoleType);
-
-        const consoleSelector = (
-            <ConsoleSelector onChange={this.onConsoleTypeSelected}
-                             isSerialConsole={!!serialConsoleCommand}
-                             selected={this.state.consoleType}
-                             vm={vm} />
+        return (
+            <AccessConsoles preselectedType={this.getDefaultConsole()}
+                            textSelectConsoleType={_("Select console type")}
+                            textSerialConsole={_("Serial console")}
+                            textVncConsole={_("VNC console")}
+                            textDesktopViewerConsole={_("Desktop viewer")}>
+                {!!serialConsoleCommand &&
+                <SerialConsole type="SerialConsole"
+                               connectionName={vm.connectionName}
+                               vmName={vm.name}
+                               spawnArgs={serialConsoleCommand} />}
+                {vm.displays && vm.displays.vnc &&
+                <Vnc type="VncConsole"
+                     vm={vm}
+                     consoleDetail={vm.displays.vnc}
+                     onAddErrorNotification={onAddErrorNotification} />}
+                {vm.displays && (vm.displays.vnc || vm.displays.spice) &&
+                <DesktopConsole type="DesktopViewer"
+                                vm={vm}
+                                onDesktopConsole={onDesktopConsole}
+                                config={config} />}
+            </AccessConsoles>
         );
-
-        let consoleType;
-        switch (this.state.consoleType) {
-        case 'serial-browser':
-            if (serialConsoleCommand)
-                consoleType = <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand} />;
-            break;
-        case 'vnc-browser':
-            consoleType = <Vnc vm={vm} consoleDetail={this.state.consoleDetail} onAddErrorNotification={onAddErrorNotification} />;
-            break;
-        case 'desktop':
-            consoleType = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />;
-            break;
-        default:
-            break;
-        }
-        if (consoleType) {
-            return (
-                <div className="pf-c-console">
-                    {consoleSelector}
-                    {consoleType}
-                </div>
-            );
-        }
-
-        return (<NoConsoleDefined />);
     }
 }
 Consoles.propTypes = {

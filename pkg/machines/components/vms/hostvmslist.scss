@@ -1,6 +1,12 @@
 @import "@patternfly/patternfly/components/Table/table.scss";
 @import "@patternfly/patternfly/components/Table/table-grid.scss";
 @import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "../../../lib/ct-card.scss";
+
+/* Style the list cards as ct-cards */
+.pf-c-page__main-section .pf-c-card {
+    @extend .ct-card;
+}
 
 // PF4 issue https://github.com/patternfly/patternfly-react/issues/4612
 // Mimic .pf-c-table__action

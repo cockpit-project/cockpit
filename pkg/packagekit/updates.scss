@@ -359,19 +359,3 @@ table.header-buttons {
 .pk-updates .pf-c-description-list + div {
     padding-top: var(--pf-global--spacer--md);
 }
-
-.pk-overview {
-    --pk-columns: 2;
-    --pf-l-gallery--GridTemplateColumns: repeat(var(--pk-columns), 1fr);
-
-    > .pf-c-card:not(.pk-card-info) {
-        // Extend all non-info cards to be full width;
-        // let pk-card-info fit 1 column of the grid
-        grid-column: 1 / -1;
-    }
-
-    @media screen and (max-width: $pf-global--breakpoint--lg) {
-        // Shrink to 1 column when space is constrained
-        --pk-columns: 1;
-    }
-}

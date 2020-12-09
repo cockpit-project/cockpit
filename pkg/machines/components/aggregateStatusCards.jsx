@@ -39,8 +39,9 @@ export class AggregateStatusCards extends React.Component {
 
     render() {
         return (
-            <div className='grid-cards-ct'>
+            <>
                 <Card id='card-pf-storage-pools'
+                      className='ct-card-info'
                       isSelectable
                       onKeyDown={event => this.onCardSelect(event, 'storages')}
                       onClick={() => cockpit.location.go(['storages'])}>
@@ -65,6 +66,7 @@ export class AggregateStatusCards extends React.Component {
                     </CardHeader>
                 </Card>
                 <Card id='card-pf-networks'
+                      className='ct-card-info'
                       isSelectable
                       onKeyDown={event => this.onCardSelect(event, 'networks')}
                       onClick={() => cockpit.location.go(['networks'])}>
@@ -88,7 +90,7 @@ export class AggregateStatusCards extends React.Component {
                         </Flex>
                     </CardHeader>
                 </Card>
-            </div>
+            </>
         );
     }
 }

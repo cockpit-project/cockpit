@@ -201,11 +201,9 @@ const ManualConnection = ({ displays, idPrefix }) => {
 
 const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
     return (
-        <div className="manual-connection">
-            <div className='machines-desktop-main'>
-                <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
-                <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />
-            </div>
+        <div className="pf-c-console__desktop-viewer">
+            <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
+            <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />
         </div>
     );
 };

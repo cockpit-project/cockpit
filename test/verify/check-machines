@@ -1413,7 +1413,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage(name)
         b.wait_in_text("#vm-{0}-state".format(name), "Running") # running or paused
 
-        b.set_val("#console-type-select", "serial-browser")
+        b.click("#pf-c-console__type-selector")
+        b.wait_visible("#pf-c-console__type-selector + .pf-c-select__menu")
+        b.click("#SerialConsole button")
+        b.wait_not_present("#pf-c-console__type-selector + .pf-c-select__menu")
+
         b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
 
         b.click("#{0}-serialconsole-disconnect".format(name))
@@ -1442,9 +1446,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.wait_visible("#vm-{0}-consoles".format(name))
         b.wait_visible(".pf-c-console__vnc canvas")
-        b.select_from_dropdown("#console-type-select", "Serial console")
-        b.wait_not_present(".pf-c-console__vnc canvas")
 
+        b.click("#pf-c-console__type-selector")
+        b.wait_visible("#pf-c-console__type-selector + .pf-c-select__menu")
+        b.click("#SerialConsole button")
+        b.wait_not_present("#pf-c-console__type-selector + .pf-c-select__menu")
+
+        b.wait_not_present(".pf-c-console__vnc canvas")
         b.wait_visible("#{}-terminal".format(name))
 
         b.wait_not_present("#navbar-oops")

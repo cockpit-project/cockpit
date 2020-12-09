@@ -28,3 +28,19 @@
 .ct-card.pf-c-card .pf-c-card__header {
   padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
 }
+
+.ct-cards-grid {
+    --ct-grid-columns: 2;
+    --pf-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);
+
+    > .pf-c-card:not(.ct-card-info) {
+        // Extend all non-info cards to be full width;
+        // let ct-card-info fit 1 column of the grid
+        grid-column: 1 / -1;
+    }
+
+    @media screen and (max-width: $pf-global--breakpoint--lg) {
+        // Shrink to 1 column when space is constrained
+        --ct-grid-columns: 1;
+    }
+}

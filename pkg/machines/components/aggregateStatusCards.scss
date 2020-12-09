@@ -1,36 +1,6 @@
-:root {
-  --cards-gutter-y: 1.5rem;
-  --cards-gutter-x: 2rem;
-  --cards-min: 22rem;
-}
-
-@media (max-width: 768px) {
-  :root {
-    --cards-gutter-y: 1rem;
-    --cards-gutter-x: 1rem;
-  }
-}
-@media (max-width: 480px) {
-  :root {
-    --cards-min: 15rem;
-  }
-}
-
-/* Organize cards in a grid instead of BootStrap */
-.grid-cards-ct {
-  padding-bottom: var(--cards-gutter-y);
-  display: grid;
-  grid-gap: var(--cards-gutter-y) var(--cards-gutter-x);
-  grid-template-columns: repeat(auto-fit, minmax(var(--cards-min), 1fr));
-
-  /* Card header is a flex container with space between the elements - this moves the buttons text to the left */
+.ct-cards-grid {
   .pf-c-card .pf-m-link {
     margin-right: auto;
-  }
-
-  /* Normalize padding on the card's header*/
-  .pf-c-card__header {
-    padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
   }
 
   /* Add a space after the arrow icons */
@@ -39,10 +9,3 @@
   }
 }
 
-@media screen and (min-width: 60rem) {
-  /* Make a single card no longer than half the width */
-  .grid-cards-ct > div:first-child:last-child {
-    /* Remove 1/2 grid-gap to keep width the same */
-    max-width: calc(50% - 10px);
-  }
-}

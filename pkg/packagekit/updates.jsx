@@ -565,8 +565,8 @@ class CardsPage extends React.Component {
         const cardContents = [
             {
                 id: "status",
+                className: "ct-card-info",
                 title: _("Status"),
-                className: "pk-card-info",
                 actions: (<Tooltip content={_("Check for updates")}>
                     <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
                 </Tooltip>),
@@ -576,7 +576,7 @@ class CardsPage extends React.Component {
             },
             {
                 id: "automatic-updates",
-                className: "pk-card-info",
+                className: "ct-card-info",
                 title: _("Automatic updates"),
                 actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />),
                 body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
@@ -988,7 +988,7 @@ class OsUpdates extends React.Component {
                         <h2 id="page-title">{_("Software updates")}</h2>
                     </PageSection>
                     <PageSection>
-                        <Gallery className='pk-overview' hasGutter>
+                        <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
                                        applyAll={applyAll}
@@ -1044,7 +1044,7 @@ class OsUpdates extends React.Component {
                         <h2 id="page-title">{_("Software updates")}</h2>
                     </PageSection>
                     <PageSection>
-                        <Gallery className='pk-overview' hasGutter>
+                        <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh} {...this.state} />
                         </Gallery>
                     </PageSection>

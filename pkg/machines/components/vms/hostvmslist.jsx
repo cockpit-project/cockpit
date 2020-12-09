@@ -23,6 +23,7 @@ import cockpit from 'cockpit';
 import {
     Button, Card, CardTitle, CardHeader, CardActions, CardBody,
     Divider, TextInput,
+    Gallery,
     Toolbar, ToolbarContent, ToolbarItem,
     Select, SelectOption, SelectVariant,
     Page, PageSection, Text, TextVariants,
@@ -119,68 +120,70 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
     // https://github.com/patternfly/patternfly-react/issues/3267
     return (<Page>
         <PageSection>
-            <AggregateStatusCards networks={networks} storagePools={storagePools} />
-            <Card id='virtual-machines-listing'>
-                <CardHeader>
-                    <CardTitle>
-                        <Text component={TextVariants.h2}>{_("Virtual machines")}</Text>
-                    </CardTitle>
-                    <CardActions>
-                        {toolBar}
-                    </CardActions>
-                </CardHeader>
-                <CardBody className="contains-list">
-                    <ListingTable aria-label={_("Virtual machines")}
-                        variant='compact'
-                        columns={[
-                            { title: _("Name"), header: true, transforms: [cellWidth(25)] },
-                            { title: _("Connection"), transforms: [cellWidth(25)] },
-                            { title: _("State"), transforms: [cellWidth(25)] },
-                            { title: "", transforms: [cellWidth(25)] },
-                        ]}
-                        emptyCaption={_("No VM is running or defined on this host")}
-                        rows={ combinedVmsFiltered
-                                .sort(sortFunction)
-                                .map(vm => {
-                                    const vmActions = <VmActions
-                                        vm={vm}
-                                        config={config}
-                                        dispatch={dispatch}
-                                        storagePools={storagePools}
-                                        onAddErrorNotification={onAddErrorNotification}
-                                    />;
+            <Gallery className="ct-cards-grid" hasGutter>
+                <AggregateStatusCards networks={networks} storagePools={storagePools} />
+                <Card id='virtual-machines-listing'>
+                    <CardHeader>
+                        <CardTitle>
+                            <Text component={TextVariants.h2}>{_("Virtual machines")}</Text>
+                        </CardTitle>
+                        <CardActions>
+                            {toolBar}
+                        </CardActions>
+                    </CardHeader>
+                    <CardBody className="contains-list">
+                        <ListingTable aria-label={_("Virtual machines")}
+                            variant='compact'
+                            columns={[
+                                { title: _("Name"), header: true, transforms: [cellWidth(25)] },
+                                { title: _("Connection"), transforms: [cellWidth(25)] },
+                                { title: _("State"), transforms: [cellWidth(25)] },
+                                { title: "", transforms: [cellWidth(25)] },
+                            ]}
+                            emptyCaption={_("No VM is running or defined on this host")}
+                            rows={ combinedVmsFiltered
+                                    .sort(sortFunction)
+                                    .map(vm => {
+                                        const vmActions = <VmActions
+                                            vm={vm}
+                                            config={config}
+                                            dispatch={dispatch}
+                                            storagePools={storagePools}
+                                            onAddErrorNotification={onAddErrorNotification}
+                                        />;
 
-                                    return {
-                                        columns: [
-                                            {
-                                                title: <Button id={`${vmId(vm.name)}-${vm.connectionName}-name`}
-                                                          variant="link"
-                                                          isInline
-                                                          isDisabled={vm.isUi}
-                                                          component="a"
-                                                          href={'#' + cockpit.format("vm?name=$0&connection=$1", vm.name, vm.connectionName)}
-                                                          className="vm-list-item-name">{vm.name}</Button>
-                                            },
-                                            { title: rephraseUI('connections', vm.connectionName) },
-                                            {
-                                                title: (
-                                                    <VmState vm={vm}
-                                                             dismissError={() => dispatch(updateVm({
-                                                                 connectionName: vm.connectionName,
-                                                                 name: vm.name,
-                                                                 error: null
-                                                             }))} />
-                                                )
-                                            },
-                                            { title: !vm.isUi ? vmActions : null },
-                                        ],
-                                        rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
-                                        props: { key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName) },
-                                    };
-                                }) }
-                    />
-                </CardBody>
-            </Card>
+                                        return {
+                                            columns: [
+                                                {
+                                                    title: <Button id={`${vmId(vm.name)}-${vm.connectionName}-name`}
+                                                              variant="link"
+                                                              isInline
+                                                              isDisabled={vm.isUi}
+                                                              component="a"
+                                                              href={'#' + cockpit.format("vm?name=$0&connection=$1", vm.name, vm.connectionName)}
+                                                              className="vm-list-item-name">{vm.name}</Button>
+                                                },
+                                                { title: rephraseUI('connections', vm.connectionName) },
+                                                {
+                                                    title: (
+                                                        <VmState vm={vm}
+                                                                 dismissError={() => dispatch(updateVm({
+                                                                     connectionName: vm.connectionName,
+                                                                     name: vm.name,
+                                                                     error: null
+                                                                 }))} />
+                                                    )
+                                                },
+                                                { title: !vm.isUi ? vmActions : null },
+                                            ],
+                                            rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
+                                            props: { key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName) },
+                                        };
+                                    }) }
+                        />
+                    </CardBody>
+                </Card>
+            </Gallery>
         </PageSection>
     </Page>);
 };

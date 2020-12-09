@@ -123,6 +123,7 @@ libcockpit_common_a_LIBS = \
 # TESTS
 
 COCKPIT_CHECKS = \
+	test-frame \
 	test-hash \
 	test-hex \
 	test-json \
@@ -158,6 +159,10 @@ test_channel_SOURCES = \
 	src/common/mock-transport.c src/common/mock-transport.h
 test_channel_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_common_a_LIBS)
+
+test_frame_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_frame_SOURCES = src/common/test-frame.c
+test_frame_LDADD = $(libcockpit_common_a_LIBS)
 
 test_hash_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hash_SOURCES = src/common/test-hash.c

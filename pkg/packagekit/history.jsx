@@ -102,8 +102,7 @@ export class History extends React.Component {
         });
 
         return (
-            <ListingTable caption={_("Update history")}
-                          aria-label={_("Updates history")}
+            <ListingTable aria-label={_("Updates history")}
                           showHeader={false}
                           className="updates-history"
                           columns={[_("Time"), _("History package count")]}

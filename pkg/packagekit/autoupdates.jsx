@@ -20,9 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 import PropTypes from 'prop-types';
-import { debounce } from "throttle-debounce";
+import { Alert, Button, Form, FormGroup, Modal, Radio, Text, TextVariants } from '@patternfly/react-core';
 
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as Select from "cockpit-components-select.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
@@ -249,67 +248,128 @@ function getBackend(forceReinit) {
  * Properties:
  * onInitialized(enabled): (optional): callback once backend knowsn whether automatic updates are enabled
  */
-export default class AutoUpdates extends React.Component {
+export const AutoUpdatesBody = (props) => {
+    const { enabled, type, day, time } = props;
+    const days = {
+        "": "everyday",
+        mon: "every Monday",
+        tue: "every Tuesday",
+        wed: "every Wednesday",
+        thu: "every Thursday",
+        fri: "every Friday",
+        sat: "every Saturday",
+        sun: "every Sunday"
+    };
+
+    let str;
+    if (enabled) {
+        str = type == "security" ? _("Security updates ") : _("Updates ");
+        str += cockpit.format(_("will be applied $0 at $1"), days[day], time);
+    } else {
+        str = _("Automatic updates are not set up");
+    }
+
+    return (<Text component={TextVariants.p}>{str}</Text>);
+};
+
+/**
+ * Main React component
+ *
+ * Properties:
+ * onInitialized(enabled): (optional): callback once backend knowsn whether automatic updates are enabled
+ */
+export class AutoUpdates extends React.Component {
     constructor() {
         super();
-        this.state = { backend: null, pending: false, pendingEnable: null };
+        this.state = {
+            pending: false,
+            showModal: false,
+            supported: undefined,
+            enabled: undefined,
+            type: undefined,
+            day: undefined,
+            time: undefined,
+        };
+        this.handleChange = this.handleChange.bind(this);
         this.initializeBackend();
-        this.debouncedSetConfig = debounce(300, false, (enabled, type, day, time) => {
-            this.state.backend.setConfig(enabled, type, day, time)
-                    .always(() => {
-                        this.debugBackendState("handleChange: setConfig finished");
-                        this.setState({ pending: false, pendingEnable: null });
-                    });
-        });
     }
 
     initializeBackend(forceReinit) {
         return getBackend(forceReinit).then(b => {
-            const promise = this.setState({ backend: b }, () => {
+            const promise = this.setState({ backend: b, enabled: b && b.enabled, type: b && b.type, day: b && b.day, time: b && b.time }, () => {
                 this.debugBackendState("AutoUpdates: backend initialized");
                 return null;
             });
-            if (this.props.onInitialized)
-                this.props.onInitialized(b ? b.enabled : null);
+            if (this.props.onInitialized) {
+                this.props.onInitialized({
+                    autoUpdatesEnabled: b ? b.enabled : null,
+                    autoUpdatesType: b ? b.type : null,
+                    autoUpdatesDay: b ? b.day : null,
+                    autoUpdatesTime: b ? b.time : null,
+                });
+            }
             return promise;
         });
     }
 
     debugBackendState(prefix) {
         if (this.state.backend)
-            debug(`${prefix}: state is (${this.state.backend.enabled}, ${this.state.backend.type}, ${this.state.backend.day}, ${this.state.backend.time})`);
+            debug(`${prefix}: state is (${this.state.enabled}, ${this.state.type}, ${this.state.day}, ${this.state.time})`);
     }
 
-    handleChange(enabled, type, day, time) {
+    handleChange() {
+        const { backend, enabled, type, day, time } = this.state;
+
         this.debugBackendState(`handleChange(${enabled}, ${type}, ${day}, ${time})`);
-        this.setState({ pending: true, pendingEnable: enabled });
-        this.debouncedSetConfig(enabled, type, day, time);
+        this.setState({ pending: true });
+        backend.setConfig(enabled, type, day, time)
+                .always((b) => {
+                    this.debugBackendState("handleChange: setConfig finished");
+                    if (this.props.onInitialized) {
+                        this.props.onInitialized({
+                            autoUpdatesEnabled: enabled,
+                            autoUpdatesType: type,
+                            autoUpdatesDay: day,
+                            autoUpdatesTime: time,
+                        });
+                    }
+                    this.setState({ pending: false, showModal: false });
+                });
     }
 
     render() {
-        const backend = this.state.backend;
-        if (!backend)
+        if (!this.state.backend)
             return null;
 
-        let autoConfig;
         const enabled = !this.state.pending && this.props.privileged;
+        const hours = Array.from(Array(24).keys());
+        const body = (
+            <Form isHorizontal>
+                <FormGroup fieldId="type" label={_("Type")}>
+                    <Radio isChecked={!this.state.enabled}
+                           onChange={e => this.setState({ enabled: false, type: null })}
+                           enabled={enabled}
+                           label={_("No updates")}
+                           id="no-updates"
+                           name="type" />
+                    <Radio isChecked={this.state.enabled && this.state.type === "security"}
+                           onChange={e => this.setState({ enabled: true, type: "security" })}
+                           enabled={enabled}
+                           label={_("Security updates only")}
+                           id="security-updates"
+                           name="type" />
+                    <Radio isChecked={this.state.enabled && this.state.type === "all"}
+                           onChange={e => this.setState({ enabled: true, type: "all" })}
+                           enabled={enabled}
+                           label={_("All updates")}
+                           id="all-updates"
+                           name="type" />
+                </FormGroup>
 
-        if (backend.enabled && backend.installed) {
-            const hours = Array.from(Array(24).keys());
-
-            autoConfig = (
-                <div className="auto-conf">
-                    <span className="auto-conf-group">
-                        <Select.Select id="auto-update-type" enabled={enabled} initial={backend.type}
-                                       onChange={ t => this.handleChange(null, t, null, null) }>
-                            <Select.SelectEntry data="all">{_("Apply all updates")}</Select.SelectEntry>
-                            <Select.SelectEntry data="security">{_("Apply security updates")}</Select.SelectEntry>
-                        </Select.Select>
-                    </span>
-
-                    <span className="auto-conf-group">
-                        <Select.Select id="auto-update-day" enabled={enabled} initial={backend.day}
-                                       onChange={ d => this.handleChange(null, null, d, null) }>
+                {this.state.enabled && <>
+                    <FormGroup fieldId="when" label={_("When")}>
+                        <Select.Select id="auto-update-day" enabled={enabled} initial={this.state.day}
+                                       onChange={d => this.setState({ day: d })}>
                             <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
                             <Select.SelectDivider />
                             <Select.SelectEntry data="mon">{_("Mondays")}</Select.SelectEntry>
@@ -320,41 +380,57 @@ export default class AutoUpdates extends React.Component {
                             <Select.SelectEntry data="sat">{_("Saturdays")}</Select.SelectEntry>
                             <Select.SelectEntry data="sun">{_("Sundays")}</Select.SelectEntry>
                         </Select.Select>
-                    </span>
 
-                    <span className="auto-conf-group">
                         <span className="auto-conf-text">{_("at")}</span>
 
-                        <Select.Select id="auto-update-time" enabled={enabled} initial={backend.time}
-                                       onChange={ t => this.handleChange(null, null, null, t) }>
-                            { hours.map(h => <Select.SelectEntry key={h} data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
+                        <Select.Select id="auto-update-time" enabled={enabled} initial={this.state.time}
+                                       onChange={t => this.setState({ time: t })}>
+                            {hours.map(h => <Select.SelectEntry key={h} data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
                         </Select.Select>
-                    </span>
+                    </FormGroup>
 
-                    <span className="auto-conf-group auto-conf-text">{_("and restart the machine automatically.")}</span>
-                </div>
-            );
-        }
+                    <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />
+                </>}
+            </Form>
+        );
 
-        // we want the button to already show the target state while being disabled
-        const onOffState = this.state.pendingEnable == null ? backend.enabled : this.state.pendingEnable;
-
-        return (
-            <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
-                <h2 className="pk-updates--header--heading">{_("Automatic updates")}</h2>
-                <div className="pk-updates--header--actions">
-                    <OnOffSwitch state={onOffState} disabled={!enabled}
-                                 onChange={e => {
-                                     if (!this.state.backend.installed) {
-                                         install_dialog(this.state.backend.packageName)
-                                                 .then(() => { this.initializeBackend(true).then(() => { this.handleChange(e, null, null, null) }) }, () => null);
-                                     } else {
-                                         this.handleChange(e, null, null, null);
-                                     }
-                                 }} />
-                </div>
-                {autoConfig}
-            </div>);
+        return (<>
+            <Button variant="secondary"
+                    isDisabled={!enabled}
+                    onClick={() => {
+                        if (!this.state.backend.installed) {
+                            install_dialog(this.state.backend.packageName)
+                                    .then(() => {
+                                        this.initializeBackend(true);
+                                        this.setState({ showModal: true });
+                                    }, () => null);
+                        } else {
+                            this.setState({ showModal: true });
+                        }
+                    }}>
+                {_("Edit")}
+            </Button>
+            <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen={this.state.showModal}
+                   title={_("Automatic updates")}
+                   footer={
+                       <>
+                           <Button variant="primary"
+                                   isLoading={ this.state.pending }
+                                   isDisabled={ this.state.pending }
+                                   onClick={ this.handleChange }>
+                               {_("Save changes")}
+                           </Button>
+                           <Button variant="link"
+                                   isDisabled={ this.state.pending }
+                                   isLoading={ this.state.pending }
+                                   onClick={() => this.setState({ showModal: false })}>
+                               {_("Cancel")}
+                           </Button>
+                       </>
+                   }>
+                {body}
+            </Modal>
+        </>);
     }
 }
 

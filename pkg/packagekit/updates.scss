@@ -1,4 +1,11 @@
 @import "@patternfly/patternfly/components/Page/page.scss";
+@import "~@patternfly/patternfly/components/Page/page.scss";
+@import "../lib/ct-card.scss";
+
+/* Style the list cards as ct-cards */
+.pf-c-page__main-section .pf-c-card {
+    @extend .ct-card;
+}
 
 .pf-c-table tr:nth-child(1) {
     > td, th {
@@ -93,6 +100,7 @@ table.listing-ct thead th {
     td.type {
         white-space: nowrap;
     }
+
     td.changelog {
         vertical-align: top;
 
@@ -147,6 +155,14 @@ table.listing-ct thead th {
 .pficon-enhancement:before {
     content: "\e93a";
     font-family: pf-symbols;
+}
+
+td.type {
+    > .pficon,
+    > .fa {
+        margin: calc(-0.5 * var(--pf-global--spacer--xs)) var(--pf-global--spacer--xs) 0 0;
+        vertical-align: middle;
+    }
 }
 
 div.changelog {
@@ -244,14 +260,12 @@ div.changelog {
 }
 
 .flow-list-blank-slate {
-    padding-top: 8em;
     margin: 0 auto;
     max-width: 69rem;
     text-align: center;
 }
 
 .flow-list {
-    margin: 1em 1em 3em;
     padding: 0;
     max-width: 110rem;
     text-align: left;
@@ -271,7 +285,6 @@ div.changelog {
 }
 
 .update-log {
-    padding-top: 8em;
     margin: 0 auto;
     max-width: 69rem;
     text-align: center;
@@ -348,6 +361,18 @@ table.header-buttons {
     padding-top: var(--pf-global--spacer--md);
 }
 
-table.available {
-    margin-bottom: var(--pf-global--spacer--3xl);
+.pk-overview {
+    --pk-columns: 2;
+    --pf-l-gallery--GridTemplateColumns: repeat(var(--pk-columns), 1fr);
+
+    > .pf-c-card:not(.pk-card-info) {
+        // Extend all non-info cards to be full width;
+        // let pk-card-info fit 1 column of the grid
+        grid-column: 1 / -1;
+    }
+
+    @media screen and (max-width: $pf-global--breakpoint--lg) {
+        // Shrink to 1 column when space is constrained
+        --pk-columns: 1;
+    }
 }

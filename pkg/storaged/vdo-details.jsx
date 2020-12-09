@@ -233,7 +233,7 @@ export class VDODetails extends React.Component {
                                           if (block && block.IdUsage == "filesystem")
                                               return cockpit.spawn([ "fsadm", "resize",
                                                   decode_filename(block.Device) ],
-                                                                   { superuser: true });
+                                                                   { superuser: true, err: "message" });
                                       });
                               }
                           }

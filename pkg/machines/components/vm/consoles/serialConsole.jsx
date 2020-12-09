@@ -79,7 +79,6 @@ class SerialConsoleCockpit extends React.Component {
         return (
             <>
                 <div className="terminal-control">
-                    {this.props.children}
                     {this.state.channel
                         ? <button id={this.props.vmName + "-serialconsole-disconnect"} className="pf-c-button pf-m-secondary" onClick={this.onDisconnect}>{_("Disconnect")}</button>
                         : <button id={this.props.vmName + "-serialconsole-connect"} className="pf-c-button pf-m-secondary" onClick={this.createChannel}>{_("Connect")}</button>
@@ -97,7 +96,6 @@ SerialConsoleCockpit.propTypes = {
     connectionName: PropTypes.string.isRequired,
     vmName: PropTypes.string.isRequired,
     spawnArgs: PropTypes.array.isRequired,
-    children: PropTypes.node.isRequired,
 };
 
 export default SerialConsoleCockpit;

@@ -164,11 +164,7 @@ class Vnc extends React.Component {
                         vncLogging='warn'
                         onDisconnected={this.onDisconnected}
                         onInitFailed={this.onInitFailed}
-                        additionalButtons={additionalButtons}>
-                <div className='console-menu'>
-                    {this.props.children}
-                </div>
-            </VncConsole>
+                        additionalButtons={additionalButtons} />
         );
     }
 }

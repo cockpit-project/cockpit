@@ -1295,7 +1295,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage("subVmTest1")
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
-        b.wait_visible(".toolbar-pf-results canvas")
+        b.wait_visible(".pf-c-console__vnc canvas")
 
         # make sure the log file is full - then empty it and reboot the VM - the log file should fill up again
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -1441,9 +1441,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-{0}-state".format(name), "Running")
 
         b.wait_visible("#vm-{0}-consoles".format(name))
-        b.wait_visible("div.vnc-console canvas")
+        b.wait_visible(".pf-c-console__vnc canvas")
         b.select_from_dropdown("#console-type-select", "Serial console")
-        b.wait_not_present("div.vnc-console canvas")
+        b.wait_not_present(".pf-c-console__vnc canvas")
+
         b.wait_visible("#{}-terminal".format(name))
 
         b.wait_not_present("#navbar-oops")

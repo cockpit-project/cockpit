@@ -469,7 +469,7 @@ module.exports = {
             },
             /* these modules need to be babel'ed, they cause bugs in their dist'ed form */
             {
-                test: /\/node_modules\/.*(@novnc|react-table).*\.js$/,
+                test: /\/node_modules\/.*(react-table).*\.js$/,
                 use: babel_loader
             },
             {

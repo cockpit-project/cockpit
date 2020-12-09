@@ -199,10 +199,9 @@ const ManualConnection = ({ displays, idPrefix }) => {
     );
 };
 
-const DesktopConsoleDownload = ({ children, vm, onDesktopConsole, config }) => {
+const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
     return (
         <div className="manual-connection">
-            {children}
             <div className='machines-desktop-main'>
                 <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
                 <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />

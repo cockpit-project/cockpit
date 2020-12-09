@@ -58,7 +58,7 @@ export class EditNICModal extends React.Component {
             availableSources = props.availableSources.device;
         } else if (props.network.type === "bridge") {
             currentSource = props.network.source.bridge;
-            availableSources = props.availableSources.device;
+            availableSources = props.availableSources.bridge;
         }
         if (availableSources.includes(currentSource))
             defaultNetworkSource = currentSource;
@@ -87,6 +87,8 @@ export class EditNICModal extends React.Component {
             let sources;
             if (value === "network")
                 sources = this.state.availableSources.network;
+            else if (value === "bridge")
+                sources = this.state.availableSources.bridge;
             else
                 sources = this.state.availableSources.device;
 

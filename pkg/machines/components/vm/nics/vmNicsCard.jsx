@@ -40,6 +40,7 @@ export class VmNetworkActions extends React.Component {
         this.state = {
             showAddNICModal: false,
             networkDevices: undefined,
+            networkBridges: undefined,
         };
 
         this.open = this.open.bind(this);
@@ -57,6 +58,7 @@ export class VmNetworkActions extends React.Component {
     componentDidMount() {
         // only consider symlinks -- there might be other stuff like "bonding_masters" which we don't want
         getNetworkDevices(devs => this.setState({ networkDevices: devs }));
+        this.setState({ networkBridges: getNetworkBridges(this.props.interfaces) });
     }
 
     render() {
@@ -65,6 +67,7 @@ export class VmNetworkActions extends React.Component {
         const availableSources = {
             network: networks.map(network => network.name),
             device: this.state.networkDevices,
+            bridge: this.state.networkBridges,
         };
         return (<>
             {this.state.showAddNICModal && this.state.networkDevices !== undefined &&
@@ -94,6 +97,7 @@ export class VmNetworkTab extends React.Component {
         this.state = {
             interfaceAddress: [],
             networkDevices: undefined,
+            networkBridges: undefined,
         };
 
         this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
@@ -110,6 +114,7 @@ export class VmNetworkTab extends React.Component {
     componentDidMount() {
         // only consider symlinks -- there might be other stuff like "bonding_masters" which we don't want
         getNetworkDevices(devs => this.setState({ networkDevices: devs }));
+        this.setState({ networkBridges: getNetworkBridges(this.props.interfaces) });
 
         if (this.props.vm.state != 'running' && this.props.vm.state != 'paused')
             return;
@@ -136,6 +141,7 @@ export class VmNetworkTab extends React.Component {
         const availableSources = {
             network: networks.map(network => network.name),
             device: this.state.networkDevices,
+            bridge: this.state.networkBridges,
         };
 
         const nicLookupByMAC = (interfacesList, mac) => {

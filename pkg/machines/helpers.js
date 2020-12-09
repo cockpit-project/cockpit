@@ -673,6 +673,15 @@ export function getStorageVolumesUsage(vms, storagePool) {
 }
 
 /**
+ * Filters only network bridges out of all network devices
+ * @param {array} interfaces
+ * @returns {array}
+ */
+export function getNetworkBridges(interfaces) {
+    return interfaces.filter(iface => iface.type === "bridge");
+}
+
+/**
  * Returns a list of potential physical devices suitable as network devices
  * @returns {array}
  */

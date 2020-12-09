@@ -92,6 +92,8 @@ export class AddNIC extends React.Component {
             let sources;
             if (value === "network")
                 sources = this.state.availableSources.network;
+            else if (value === "bridge")
+                sources = this.state.availableSources.bridge;
             else
                 sources = this.state.availableSources.device;
 

@@ -94,6 +94,8 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
         let sources;
         if (dialogValues.networkType === "network")
             sources = dialogValues.availableSources.network;
+        else if (dialogValues.networkType === "bridge")
+            sources = dialogValues.availableSources.bridge;
         else
             sources = dialogValues.availableSources.device;
 
@@ -108,6 +110,8 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
         } else {
             if (dialogValues.networkType === "network")
                 defaultNetworkSource = _("No virtual networks");
+            else if (dialogValues.networkType === "bridge")
+                defaultNetworkSource = _("No network bridges");
             else
                 defaultNetworkSource = _("No network devices");
 
@@ -136,7 +140,7 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
                         })}
             </Select.Select>
             {["network", "direct", "bridge"].includes(dialogValues.networkType) && (
-                <FormGroup fieldId={`${idPrefix}-select-source`} label={_("Source")}>
+                <FormGroup fieldId={`${idPrefix}-select-source`} label={dialogValues.networkType === "bridge" ? _("Bridge") : _("Source")}>
                     <Select.Select id={`${idPrefix}-select-source`}
                                    onChange={value => onValueChanged('networkSource', value)}
                                    enabled={networkSourceEnabled}

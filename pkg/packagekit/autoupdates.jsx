@@ -422,7 +422,6 @@ export class AutoUpdates extends React.Component {
                            </Button>
                            <Button variant="link"
                                    isDisabled={ this.state.pending }
-                                   isLoading={ this.state.pending }
                                    onClick={() => this.setState({ showModal: false })}>
                                {_("Cancel")}
                            </Button>

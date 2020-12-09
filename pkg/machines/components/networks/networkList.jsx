@@ -54,7 +54,7 @@ export class NetworkList extends React.Component {
     }
 
     render() {
-        const { dispatch, networks, resourceHasError, onAddErrorNotification, vms, nodeDevices, interfaces } = this.props;
+        const { dispatch, networks, resourceHasError, onAddErrorNotification } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
         const actions = (<CreateNetworkAction devices={this.state.networkDevices} dispatch={dispatch} />);
 
@@ -105,7 +105,4 @@ NetworkList.propTypes = {
     networks: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     resourceHasError: PropTypes.object.isRequired,
-    vms: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
-    interfaces: PropTypes.array.isRequired,
 };

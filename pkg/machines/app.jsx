@@ -215,10 +215,7 @@ class App extends React.Component {
                 <NetworkList networks={networks}
                     dispatch={dispatch}
                     resourceHasError={this.state.resourceHasError}
-                    onAddErrorNotification={this.onAddErrorNotification}
-                    vms={vms}
-                    nodeDevices={nodeDevices}
-                    interfaces={interfaces} />
+                    onAddErrorNotification={this.onAddErrorNotification} />
                 }
             </>
         );

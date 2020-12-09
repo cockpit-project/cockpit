@@ -674,29 +674,15 @@ export function getStorageVolumesUsage(vms, storagePool) {
 
 /**
  * Returns a list of potential physical devices suitable as network devices
- * by merging all network node devices and interfaces.
- *
- * @param {array} vms
- * @param {array} nodeDevices
- * @param {array} interfaces
  * @returns {array}
  */
-export function getNetworkDevices(vms, nodeDevices, interfaces) {
-    const devs = [];
-
-    nodeDevices.forEach(dev => {
-        if (dev.capability.type === "net")
-            devs.push(dev.capability.interface);
-    });
-
-    interfaces.forEach(iface => {
-        devs.push(iface.name);
-    });
-
-    const uniq = [...new Set(devs)];
-    uniq.sort();
-
-    return uniq;
+export function getNetworkDevices(updateState) {
+    cockpit.spawn(["find", "/sys/class/net", "-type", "l", "-printf", '%f\n'], { err: "message" })
+            .then(output => {
+                const devs = output.trim().split('\n');
+                updateState(devs);
+            })
+            .catch(e => console.warn("could not read /sys/class/net:", e.toString()));
 }
 
 export function getDefaultVolumeFormat(pool) {

@@ -22,7 +22,7 @@ import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../../../actions/provider-actions.js";
-import { rephraseUI, vmId } from "../../../helpers.js";
+import { rephraseUI, vmId, getNetworkBridges, getNetworkDevices } from "../../../helpers.js";
 import AddNIC from './nicAdd.jsx';
 import { EditNICModal } from './nicEdit.jsx';
 import WarningInactive from '../../common/warningInactive.jsx';
@@ -32,15 +32,6 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { DeleteResourceButton, DeleteResourceModal } from '../../common/deleteResource.jsx';
 
 const _ = cockpit.gettext;
-
-const getNetworkDevices = (updateState) => {
-    cockpit.spawn(["find", "/sys/class/net", "-type", "l", "-printf", '%f\n'], { err: "message" })
-            .then(output => {
-                const devs = output.trim().split('\n');
-                updateState(devs);
-            })
-            .catch(e => console.warn("could not read /sys/class/net:", e.toString()));
-};
 
 export class VmNetworkActions extends React.Component {
     constructor(props) {

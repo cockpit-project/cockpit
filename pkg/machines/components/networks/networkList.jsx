@@ -37,6 +37,17 @@ import './networkList.scss';
 const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            networkDevices: undefined,
+        };
+    }
+
+    componentDidMount() {
+        getNetworkDevices(devs => this.setState({ networkDevices: devs }));
+    }
+
     shouldComponentUpdate(nextProps, _) {
         const networks = nextProps.networks;
         return !networks.find(network => !network.name);
@@ -45,8 +56,7 @@ export class NetworkList extends React.Component {
     render() {
         const { dispatch, networks, resourceHasError, onAddErrorNotification, vms, nodeDevices, interfaces } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
-        const devices = getNetworkDevices(vms, nodeDevices, interfaces);
-        const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} />);
+        const actions = (<CreateNetworkAction devices={this.state.networkDevices} dispatch={dispatch} />);
 
         return (
             <Page breadcrumb={

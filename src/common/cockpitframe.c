@@ -28,7 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_FRAME_SIZE_BYTES 7
+#define MAX_FRAME_SIZE_BYTES 8
 
 /**
  * cockpit_frame_parse:
@@ -56,7 +56,7 @@ cockpit_frame_parse (unsigned char *input,
   for (i = 0; i < length; i++)
     {
       /* Check invalid characters, prevent integer overflow, limit max length */
-      if (i > MAX_FRAME_SIZE_BYTES || (char)(input[i]) < '0' || (char)(input[i]) > '9')
+      if (i >= MAX_FRAME_SIZE_BYTES || (char)(input[i]) < '0' || (char)(input[i]) > '9')
         break;
       size *= 10;
       size += (char)(input[i]) - '0';

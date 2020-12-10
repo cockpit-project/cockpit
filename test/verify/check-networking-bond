@@ -59,7 +59,7 @@ class TestBonding(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+        b.wait_visible("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
@@ -69,9 +69,9 @@ class TestBonding(NetworkCase):
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface1)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface1)
         self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface1, True)
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface2)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface2)
         self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
 
         b.wait_text_not("#network-interface-mac", "")
@@ -93,8 +93,8 @@ class TestBonding(NetworkCase):
         b.enter_page("/network")
         b.wait_text("#network-interface-name", "tbond")
         b.wait_text("#network-interface-hw", "Bond")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface1)
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface2)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface1)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface2)
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
@@ -156,7 +156,7 @@ class TestBonding(NetworkCase):
         # Wait until the page is really ready by waiting for some ethernet interface
         # to show up in some row.
         iface = m.execute("cd /sys/class/net && ls -d e* | head -n1").strip()
-        b.wait_present("tr[data-interface='%s']" % iface)
+        b.wait_visible("tr[data-interface='%s']" % iface)
 
         # Make a simple bond without any members.  This is enough to
         # test the renaming.
@@ -214,7 +214,7 @@ class TestBonding(NetworkCase):
         # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", ip)
 
     def testAmbiguousMember(self):
@@ -249,7 +249,7 @@ class TestBonding(NetworkCase):
 
         b.click("#networking-interfaces tr[data-interface='bond0'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
 
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
@@ -280,14 +280,14 @@ class TestBondingVirt(NetworkCase):
         # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", "10.111.113.1")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
-        b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#networking-interfaces tr[data-interface='%s']" % iface)
 
     @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     @skipImage("not using dhclient", "fedora-coreos")
@@ -318,7 +318,7 @@ class TestBondingVirt(NetworkCase):
         # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_present("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tbond')", "10.111.113.1")
 
 

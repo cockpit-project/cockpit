@@ -74,7 +74,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_not_in_text("#detail-sidebar", dev_2)
 
         # The remaining lone disk is not removable
-        b.wait_present('#detail-sidebar tr:nth-child(1) button:disabled')
+        b.wait_visible('#detail-sidebar tr:nth-child(1) button:disabled')
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -122,7 +122,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog_wait_close()
 
         b.click('tr:contains("vgroup0")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # create a logical volume
         b.click("button:contains(Create new logical volume)")
@@ -199,8 +199,8 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"size": 70})
 
         # There is not enough free space to remove any of the disks.
-        b.wait_present('#detail-sidebar tr:nth-child(1) button:disabled')
-        b.wait_present('#detail-sidebar tr:nth-child(2) button:disabled')
+        b.wait_visible('#detail-sidebar tr:nth-child(1) button:disabled')
+        b.wait_visible('#detail-sidebar tr:nth-child(2) button:disabled')
 
         # use almost all of the pool by erasing the thin volume
         self.content_head_action(2, "Format")
@@ -239,7 +239,7 @@ class TestStorageLvm2(StorageCase):
 
         b.wait_in_text("#devices", "vgroup0")
         b.click('tr:contains("vgroup0")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # Check the we are really using a partition on disk1 now
         b.wait_in_text("#detail-sidebar", "Partition of Linux scsi_debug")

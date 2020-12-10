@@ -49,7 +49,7 @@ class TestStorageMounting(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('#drives tr:contains("MYDISK")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # Format it
 
@@ -125,7 +125,7 @@ class TestStorageMounting(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('#drives tr:contains("MYDISK")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # Open format dialog and play with the checkboxes
 
@@ -135,10 +135,10 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("crypto.on", True)
 
         def wait_checked(field):
-            b.wait_present(self.dialog_field(field) + ":checked")
+            b.wait_visible(self.dialog_field(field) + ":checked")
 
         def wait_not_checked(field):
-            b.wait_present(self.dialog_field(field) + ":not(:checked)")
+            b.wait_visible(self.dialog_field(field) + ":not(:checked)")
 
         wait_checked("crypto_options.auto")
         wait_checked("mount_options.auto")
@@ -188,7 +188,7 @@ class TestStorageMounting(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('#drives tr:contains("MYDISK")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # Format it
 

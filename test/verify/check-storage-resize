@@ -200,7 +200,7 @@ class TestStorageResize(StorageCase):
         # Grow the logical volume and let Cockpit grow the filesystem
 
         m.execute("lvresize TEST/vol -L+100M")
-        b.wait_present(vol_tab + " button:contains(Grow content)")
+        b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
@@ -267,7 +267,7 @@ class TestStorageResize(StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        b.wait_present(vol_tab + " button:contains(Grow content)")
+        b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
         confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
@@ -282,7 +282,7 @@ class TestStorageResize(StorageCase):
         self.confirm()
         self.wait_mounted(2, 1)
 
-        b.wait_present(vol_tab + " button:contains(Shrink volume)")
+        b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")
@@ -294,7 +294,7 @@ class TestStorageResize(StorageCase):
         m.execute("lvresize TEST/vol -L+100M")
         m.execute("echo vainu-reku-toma-rolle-kaja | cryptsetup resize %s" % fs_dev)
 
-        b.wait_present(vol_tab + " button:contains(Grow content)")
+        b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
         confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
@@ -309,7 +309,7 @@ class TestStorageResize(StorageCase):
         self.confirm()
         self.wait_mounted(2, 1)
 
-        b.wait_present(vol_tab + " button:contains(Shrink volume)")
+        b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")

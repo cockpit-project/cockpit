@@ -43,7 +43,7 @@ class TestNetworkingVLAN(NetworkCase):
         b.set_val("#network-vlan-settings-vlan-id-input", "123")
         b.click("#network-vlan-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-vlan-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tvlan']")
+        b.wait_visible("#networking-interfaces tr[data-interface='tvlan']")
 
         # It automatically activates.  It won't get an IP address, but that's okay.
         self.wait_for_iface("tvlan", state="Configuring IP")

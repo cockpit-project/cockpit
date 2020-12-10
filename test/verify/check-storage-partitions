@@ -46,9 +46,9 @@ class TestStoragePartitions(StorageCase):
                         "rm /var/tmp/disk1").strip()
         self.addCleanup(m.execute, "losetup -d " + dev)
 
-        b.wait_present('tr:contains("%s")' % dev)
+        b.wait_visible('tr:contains("%s")' % dev)
         b.click('tr:contains("%s")' % dev)
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
@@ -72,7 +72,7 @@ class TestStoragePartitions(StorageCase):
 
         disk = self.add_ram_disk()
         b.click('#drives tr:contains("%s")' % disk)
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})

@@ -156,14 +156,14 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # "Add services" button should be enabled
-        b.wait_present(".zone-section[data-id='public'] .add-services-button:enabled")
+        b.wait_visible(".zone-section[data-id='public'] .add-services-button:enabled")
 
         # ensure that pop3 is not enabled (shouldn't be on any of our images),
         # so that we can use it for testing
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         m.execute("firewall-cmd --add-service=pop3")
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Check that all services are shown.  This only works reliably since #12806
         active_rules = get_active_rules(m)
@@ -178,7 +178,7 @@ class TestFirewall(NetworkCase):
 
         # Test that service without name is shown properly
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='empty']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='empty']")
 
         m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
         b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
@@ -205,35 +205,35 @@ class TestFirewall(NetworkCase):
         # add a service to the runtime configuration via the cli, after all the
         # operations it should still be there, indicating no reload took place
         m.execute("firewall-cmd --add-service=http")
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='http']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
 
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # filter for pop3
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
         b.set_input_text("#filter-services-input", "pop")
         b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
         self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
         b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # filter for port 110
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
         b.set_input_text("#filter-services-input", "110")
         b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
         self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
         b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
 
         # don't select anything in the dialog
         b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
@@ -245,7 +245,7 @@ class TestFirewall(NetworkCase):
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
             b.wait_not_present(".pf-c-modal-box")
-            b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
+            b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
 
         # now add pop3
@@ -254,23 +254,23 @@ class TestFirewall(NetworkCase):
         if m.image in ['rhel-8-3', 'rhel-8-4', 'debian-testing', 'fedora-testing', "fedora-32", "fedora-33"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
-            b.wait_present(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
+            b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
         b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog footer .btn-cancel")
         b.wait_not_present(".pf-c-modal-box")
 
         # should still be here
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='http']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
 
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_present(".pf-c-modal-box .list-view-pf input[data-id='empty']")
+        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='empty']")
         b.click("#add-services-dialog footer .btn-cancel")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -291,7 +291,7 @@ class TestFirewall(NetworkCase):
 
         # test error handling
         m.execute("firewall-cmd --add-service=pop3")
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
@@ -306,18 +306,18 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
         # wait until all zones are present, including the ones added at runtime
         if m.image not in ["debian-stable", "ubuntu-2004", "ubuntu-stable"]:
-            b.wait_present("#zones-listing .zone-section[data-id='libvirt']")
+            b.wait_visible("#zones-listing .zone-section[data-id='libvirt']")
 
         # add a service to the runtime configuration via the cli, after all the
         # operations it should be removed, indicating a reload took place
         m.execute("firewall-cmd --add-service=http")
-        b.wait_present("tr[data-row-id='http']")
+        b.wait_visible("tr[data-row-id='http']")
 
         def open_dialog():
             b.click(".zone-section[data-id='public'] .add-services-button")
-            b.wait_present("#add-services-dialog input[value='ports']:enabled")
+            b.wait_visible("#add-services-dialog input[value='ports']:enabled")
             b.click("#add-services-dialog input[value='ports']")
-            b.wait_present("#tcp-ports")
+            b.wait_visible("#tcp-ports")
             b.wait_visible("#tcp-ports")
 
         def set_field(sel, val, expected):
@@ -325,14 +325,14 @@ class TestFirewall(NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_present(".has-error:contains({0})".format(text))
+            b.wait_visible(".has-error:contains({0})".format(text))
             b.wait_visible(".has-error:contains({0})".format(text))
 
         def save(identifier, tcp, udp):
             b.click("button:contains(Add ports)")
             b.wait_not_present("#add-services-dialog")
             line_sel = ".zone-section[data-id='public'] tr[data-row-id='{0}']".format(identifier)
-            b.wait_present(line_sel)
+            b.wait_visible(line_sel)
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
 
         open_dialog()
@@ -409,13 +409,13 @@ class TestFirewall(NetworkCase):
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
             b.wait_not_present(".pf-c-modal-box")
-            b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
+            b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
 
         def addZone(zone, interfaces=[], sources=None, error=None):
             b.click("#add-zone-button")
-            b.wait_present("#add-zone-dialog")
-            b.wait_present("#add-zone-dialog footer button.{0}:disabled".format(self.btn_primary))
+            b.wait_visible("#add-zone-dialog")
+            b.wait_visible("#add-zone-dialog footer button.{0}:disabled".format(self.btn_primary))
             b.click("#add-zone-dialog .add-zone-zones-firewalld input[value='{}']".format(zone))
 
             for i in interfaces:
@@ -437,8 +437,8 @@ class TestFirewall(NetworkCase):
                 b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), source)
             for i in interfaces:
                 b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), i)
-            b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone))
-            b.wait_present("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
+            b.wait_visible("#zones-listing .zone-section[data-id='{}']".format(zone))
+            b.wait_visible("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
 
         def removeZone(zone):
             b.click(".zone-section[data-id='{}'] .zone-section-buttons button.{}".format(zone, self.btn_danger))
@@ -452,16 +452,16 @@ class TestFirewall(NetworkCase):
         addZone("work", sources="192.168.1.0/24")
 
         addServiceToZone("pop3", "work")
-        b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
         self.assertNotIn(self.default_zone.split(" ")[0], b.text("tr[data-row-id='pop3']"))
         addServiceToZone("pop3", "public")
-        b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Remove the service from public zone
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
         b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button")
@@ -475,7 +475,7 @@ class TestFirewall(NetworkCase):
         # Interfaces which already belong to an active zone shouldn't show up in
         # the Add Zone dialog anymore
         b.click("#add-zone-button")
-        b.wait_present("#add-zone-dialog")
+        b.wait_visible("#add-zone-dialog")
         b.wait_not_present("#add-zone-body input[value='{}']".format(home_iface))
         b.click("#add-zone-dialog footer button.btn-cancel")
         b.wait_not_present("#add-zone-dialog")

@@ -310,10 +310,10 @@ class TestStorageLuks(StorageCase):
 
         if not luks_2:
             # check if add button is inactive
-            b.wait_present(panel + ":disabled")
+            b.wait_present(panel + ".pf-c-card__header button:disabled")
             # check if edit button is inactive
-            slots_table = tab + " .pf-c-card table "
-            b.wait_present(slots_table + ":disabled")
+            slots_table = tab + " .pf-c-card table tr:first-child"
+            b.wait_present(slots_table + " button:disabled")
 
         # remove one slot
         slots_table = tab + " .pf-c-card table "

@@ -343,7 +343,7 @@ class TestSystemInfo(MachineCase):
         # strips empty lines, but not leading spaces
         b.wait_text('#motd', "  Hello\n  World")
 
-        b.click('#motd-box button')
+        b.click('#motd-box button:not(#motd-box-edit)')
         b.wait_not_present('#motd-box')
 
         # motd should stay dismissed after a reload
@@ -354,6 +354,13 @@ class TestSystemInfo(MachineCase):
         m.execute("echo Hello again >/etc/motd")
         b.wait_visible('#motd-box')
         b.wait_text('#motd', "Hello again")
+
+        b.click("#motd-box-edit")
+        b.set_input_text("#motd-box-edit-modal textarea", "Hello cockpit team")
+        b.click("#motd-box-edit-modal button.pf-m-primary")
+        b.wait_not_present("motd-box-edit-modal")
+        b.wait_text('#motd', "Hello cockpit team")
+        self.assertEqual("Hello cockpit team", self.machine.execute("cat /etc/motd").rstrip())
 
         # because of the reload
         self.allow_restart_journal_messages()

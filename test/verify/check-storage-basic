@@ -32,19 +32,19 @@ class TestStorageBasic(StorageCase):
         self.allow_authorize_journal_messages()
         self.login_and_go("/storage", superuser=False)
 
-        b.wait_present("#devices")
+        b.wait_visible("#devices")
         b.wait_not_present("#devices [data-toggle=dropdown]")
 
         b.relogin('/storage', superuser=True)
 
-        self.browser.wait_present("#devices [data-toggle=dropdown]")
+        self.browser.wait_visible("#devices [data-toggle=dropdown]")
 
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()
 
         b.wait_in_text("#drives", disk)
         b.click('tr:contains("%s")' % disk)
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
 
         def info_field_value(name):

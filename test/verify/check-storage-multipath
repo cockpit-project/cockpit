@@ -36,7 +36,7 @@ class TestStorageMultipath(StorageCase):
             return '#detail-header .pf-c-description-list__group:nth-of-type(%s) > dd' % index
 
         def wait_detail_row(index, name):
-            b.wait_present(detail_row_name(index))
+            b.wait_visible(detail_row_name(index))
             b.wait_text(detail_row_name(index), name)
 
         def check_free_block_devices(expected):
@@ -68,7 +68,7 @@ class TestStorageMultipath(StorageCase):
 
         b.wait_in_text("#drives", "MYSERIAL")
         b.click('tr:contains("MYSERIAL")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
         wait_detail_row(5, "Device file")
         b.wait_in_text(detail_row_value(5), "/dev/sda")
 
@@ -93,11 +93,11 @@ class TestStorageMultipath(StorageCase):
         self.dialog_wait_close()
 
         b.go("#/sda")
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         # Switch on multipathd.  A primary device should appear.
 
-        b.wait_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
+        b.wait_visible('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
         b.click('button:contains(Start multipath)')
         b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
         b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')

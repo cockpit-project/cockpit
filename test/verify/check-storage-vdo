@@ -65,8 +65,8 @@ class TestStorageVDO(StorageCase):
         b.wait_in_text(detail(3), "used of 5 GiB")
         b.wait_in_text(detail(4), "used of 5 GiB")
         b.wait_text(detail(5), "256 MiB")
-        b.wait_present(detail(6) + " input:checked")
-        b.wait_present(detail(7) + " input:checked")
+        b.wait_visible(detail(6) + " input:checked")
+        b.wait_visible(detail(7) + " input:checked")
 
         # Make a filesystem on it
 
@@ -99,7 +99,7 @@ class TestStorageVDO(StorageCase):
 
         # Stop
 
-        b.wait_present('#detail-content table')
+        b.wait_visible('#detail-content table')
         b.click('.pf-c-card__header:contains("VDO") button:contains("Stop")')
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")

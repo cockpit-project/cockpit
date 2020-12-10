@@ -47,8 +47,8 @@ class TestStorageNfs(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_present("#nfs-mounts td:contains(/home/foo)")
-        b.wait_present("#nfs-mounts td:contains(/mnt)")
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mnt)")
         b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
 
         # Should be saved to fstab
@@ -64,14 +64,14 @@ class TestStorageNfs(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_present("#nfs-mounts td:contains(/home/bar)")
-        b.wait_present("#nfs-mounts td:contains(/mounts/bar)")
+        b.wait_visible("#nfs-mounts td:contains(/home/bar)")
+        b.wait_visible("#nfs-mounts td:contains(/mounts/bar)")
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-c-progress__status", "")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
         b.mousedown("#nfs-mounts tr:contains(/home/bar)")
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/bar")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/bar")
 
@@ -91,10 +91,10 @@ class TestStorageNfs(StorageCase):
         b.click('#detail-header button:contains("Edit")')
 
         def wait_checked(field):
-            b.wait_present(self.dialog_field(field) + ":checked")
+            b.wait_visible(self.dialog_field(field) + ":checked")
 
         def wait_not_checked(field):
-            b.wait_present(self.dialog_field(field) + ":not(:checked)")
+            b.wait_visible(self.dialog_field(field) + ":not(:checked)")
 
         self.dialog_wait_open()
         wait_checked("mount_options.auto")
@@ -115,14 +115,14 @@ class TestStorageNfs(StorageCase):
         b.go("#/")
         b.wait_visible("#storage")
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mnt")
 
         # Unmount and remount /home/foo
         b.click("#detail-header button:contains(Unmount)")
         b.click("#detail-header button:contains(Mount)")
-        b.wait_present("#detail-header button:contains(Unmount)")
+        b.wait_visible("#detail-header button:contains(Unmount)")
 
         # Remove /home/foo
         b.click("#detail-header button:contains(Remove)")
@@ -135,16 +135,16 @@ class TestStorageNfs(StorageCase):
 
         # Picks up mounts in fstab
         m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")
-        b.wait_present("#nfs-mounts td:contains(1.2.3.4 /something)")
-        b.wait_present("#nfs-mounts td:contains(/somewhere)")
-        b.wait_present("#nfs-mounts td:contains(Not mounted)")
+        b.wait_visible("#nfs-mounts td:contains(1.2.3.4 /something)")
+        b.wait_visible("#nfs-mounts td:contains(/somewhere)")
+        b.wait_visible("#nfs-mounts td:contains(Not mounted)")
 
         # Ignores non-FS mounts which look similar
         m.execute("echo '2.3.4.5:/marmalade /dunno rfs defaults 0 0' >> /etc/fstab")
         # But recognizes variants like "nfs4"
         m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
-        b.wait_present("#nfs-mounts td:contains(5.6.7.8)")
-        b.wait_present("#nfs-mounts td:contains(/four)")
+        b.wait_visible("#nfs-mounts td:contains(5.6.7.8)")
+        b.wait_visible("#nfs-mounts td:contains(/four)")
         self.assertFalse(b.is_present("#nfs-mounts td:contains(marmalade)"))
 
     def testNfsListExports(self):
@@ -192,15 +192,15 @@ class TestStorageNfs(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_present("#nfs-mounts td:contains(/home/foo)")
-        b.wait_present("#nfs-mounts td:contains(/mounts/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mounts/foo)")
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-c-progress__status", "")
 
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
         b.mousedown("#nfs-mounts tr:contains(/home/foo)")
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")
 
@@ -218,7 +218,7 @@ class TestStorageNfs(StorageCase):
         b.wait_in_text("#dialog", "of user root")
         self.dialog_apply()
 
-        b.wait_present("#detail-header button:contains(Mount)")
+        b.wait_visible("#detail-header button:contains(Mount)")
 
 
 @skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
@@ -276,7 +276,7 @@ class TestStoragePackagesNFS(PackageCase, StorageHelpers):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_present("#nfs-mounts button .fa-plus")
+        b.wait_visible("#nfs-mounts button .fa-plus")
 
 
 if __name__ == '__main__':

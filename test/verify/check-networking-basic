@@ -58,9 +58,9 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
         # Manual mode  disables automatic switches
-        b.wait_present("#network-ip-settings-dialog [data-field='dns'] .onoff-ct :disabled")
-        b.wait_present("#network-ip-settings-dialog [data-field='dns_search'] .onoff-ct :disabled")
-        b.wait_present("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns'] .onoff-ct :disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns_search'] .onoff-ct :disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
 
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.0.8")

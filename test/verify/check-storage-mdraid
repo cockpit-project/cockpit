@@ -58,7 +58,7 @@ class TestStorageMdRaid(StorageCase):
 
     def raid_default_action(self, action):
         def do_click():
-            self.browser.wait_present('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
+            self.browser.wait_visible('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
             self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
 
         do_click()
@@ -121,7 +121,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text("#devices", "ARR")
 
         b.click('#devices tr:contains("ARR")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
                           "QEMU QEMU HARDDISK (DISK2)": "In sync",
@@ -264,7 +264,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text("#devices", "ARR")
 
         b.click('#devices tr:contains("ARR")')
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
                           "QEMU QEMU HARDDISK (DISK2)": "In sync"})
@@ -274,17 +274,17 @@ class TestStorageMdRaid(StorageCase):
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State", m.image), "Not running")
 
-        b.wait_present('#detail-sidebar .pf-c-card__header button:disabled')
-        b.wait_present('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar .pf-c-card__header button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
 
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State", m.image), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present('#detail-sidebar .pf-c-card__header button:disabled')
-        b.wait_present('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
 
         # Adding a spare will allow removal of the "in-sync" disks.
         self.raid_add_disk("DISK3")
@@ -295,8 +295,8 @@ class TestStorageMdRaid(StorageCase):
         # Removing the spare will make them un-removable again
         self.raid_remove_disk("DISK3")
         b.wait_not_in_text('#detail-sidebar', "DISK3")
-        b.wait_present('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
 
         # A failed disk can be removed
         dev = b.text(info_field("Device", m.image))
@@ -307,7 +307,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         # The last disk can not be removed
-        b.wait_present('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
 
 
 if __name__ == '__main__':

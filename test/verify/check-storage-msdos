@@ -61,7 +61,6 @@ class TestStorageMsDOS(StorageCase):
         # Create a extended partition to fill the rest of the disk
         self.content_row_action(2, "Create partition")
         self.dialog_wait_open()
-        b.wait_present("option[value='dos-extended']")
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_present("name")
         self.dialog_wait_not_present("mount_point")

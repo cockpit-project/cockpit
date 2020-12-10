@@ -58,14 +58,14 @@ class TestAccounts(MachineCase):
         b.set_input_text('#account-real-name', "") # Check that we can delete the name before setting it up
         b.set_input_text('#account-real-name', "Anton Arbitrary")
         b.blur("#account-real-name")
-        b.wait_present('#account-real-name:not([disabled])')
+        b.wait_visible('#account-real-name:not([disabled])')
         b.wait_text("#account-title", "Anton Arbitrary")
         self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
 
         # Add some other GECOS fields
         b.set_input_text('#account-real-name', "Anton Arbitrary,1,123")
         b.blur("#account-real-name")
-        b.wait_present('#account-real-name:not([disabled])')
+        b.wait_visible('#account-real-name:not([disabled])')
         self.assertIn(":Anton Arbitrary,1,123:", m.execute("grep anton /etc/passwd"))
         # Table title only shows real name, no other GECOS fields
         b.wait_text("#account-title", "Anton Arbitrary")
@@ -87,14 +87,14 @@ class TestAccounts(MachineCase):
         b.go("#/root")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
-        b.wait_present("#account-delete[disabled]")
-        b.wait_present("#account-real-name[disabled]")
+        b.wait_visible("#account-delete[disabled]")
+        b.wait_visible("#account-real-name[disabled]")
         # when running against existing machines there might be an ssh root session
         if "root" in m.execute("who"):
             b.wait_visible("#account-logout:not([disabled])")
         else:
             b.wait_visible("#account-logout[disabled]")
-        b.wait_present("#account-locked:not(:checked)")
+        b.wait_visible("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
         # now lock account
@@ -103,7 +103,7 @@ class TestAccounts(MachineCase):
 
         # go back to accounts overview, check pf-c-breadcrumb
         b.click("#account .pf-c-breadcrumb a")
-        b.wait_present("#accounts-create")
+        b.wait_visible("#accounts-create")
 
         # Create a user from the UI
         self.sed_file('s/^SHELL=.*$/SHELL=\/bin\/true/', '/etc/default/useradd')
@@ -189,10 +189,10 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "jussi")
         b.set_checked('#account-locked', False)
         b.wait(lambda: not is_locked())
-        b.wait_present(admin_role_sel + ":not(:checked)")
+        b.wait_visible(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
-        b.wait_present(admin_role_sel + ":checked")
+        b.wait_visible(admin_role_sel + ":checked")
         b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
 
         # Login as jussi and change role admin for itself
@@ -208,16 +208,16 @@ class TestAccounts(MachineCase):
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
-        b.wait_present(admin_role_sel + ":checked")
+        b.wait_visible(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())
         if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
-            b.wait_present("#account-roles .pf-c-alert.pf-m-info")
+            b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
-        b.wait_present(admin_role_sel + ":checked:not([disabled])")
+        b.wait_visible(admin_role_sel + ":checked:not([disabled])")
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_present(admin_role_sel + ":checked")
+        b.wait_visible(admin_role_sel + ":checked")
         b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
         b.logout()
         b.login_and_go("/users")
@@ -259,7 +259,7 @@ class TestAccounts(MachineCase):
         b.set_val("#login-password-input", good_password_2)
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
 
         # incomplete passwd entry; fixed in PR #13384
         m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
@@ -306,7 +306,7 @@ class TestAccounts(MachineCase):
         self.login_and_go("/users", user="anton", superuser=False)
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
-        b.wait_present('#account-set-password:enabled')
+        b.wait_visible('#account-set-password:enabled')
         b.click('#account-set-password')
         b.wait_visible('#account-set-password-dialog')
         b.set_input_text("#account-set-password-old", "foobar")
@@ -323,14 +323,14 @@ class TestAccounts(MachineCase):
         b.set_val("#login-password-input", new_password)
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
 
         # Set minimum age to disallow changing it immediately again
         m.execute("chage --mindays 7 anton")
         b.enter_page("/users")
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
-        b.wait_present('#account-set-password:enabled')
+        b.wait_visible('#account-set-password:enabled')
         b.click('#account-set-password')
         b.wait_visible('#account-set-password-dialog')
         b.set_input_text("#account-set-password-old", new_password)
@@ -355,7 +355,7 @@ class TestAccounts(MachineCase):
         for user in ["anton", "root"]:
             b.go("#/" + user)
             b.wait_text("#account-user-name", user)
-            b.wait_present('#account-set-password:enabled')
+            b.wait_visible('#account-set-password:enabled')
             b.click('#account-set-password')
             b.wait_visible('#account-set-password-dialog')
             b.wait_visible("#account-set-password-pw1")
@@ -375,7 +375,7 @@ class TestAccounts(MachineCase):
             b.set_val("#login-password-input", new_password)
             b.click('#login-button')
             b.expect_load()
-            b.wait_present('#content')
+            b.wait_visible('#content')
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
@@ -469,9 +469,9 @@ class TestAccounts(MachineCase):
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-button", "Never lock account")
-        b.wait_present("#account-expiration-button[disabled]")
+        b.wait_visible("#account-expiration-button[disabled]")
         b.wait_in_text("#password-expiration-button", "Require password change on")
-        b.wait_present("#password-expiration-button[disabled]")
+        b.wait_visible("#password-expiration-button[disabled]")
 
         # Lastly force a password change
         b.logout()

@@ -135,7 +135,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         vm_row = "tbody tr[data-row-id=vm-{0}-{1}]".format(vmName, connectionName)
         if present:
-            b.wait_present(vm_row)
+            b.wait_visible(vm_row)
         else:
             b.wait_not_present(vm_row)
 
@@ -145,13 +145,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if isExpanded:
             self.browser.wait_not_present("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName)) # click on the row header
         else:
-            self.browser.wait_present("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName)) # click on the row header
+            self.browser.wait_visible("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName)) # click on the row header
 
     def waitPoolRow(self, poolName, connectionName="system", present="true"):
         b = self.browser
         pool_row = "tbody tr[data-row-id=pool-{0}-{1}]".format(poolName, connectionName)
         if present:
-            b.wait_present(pool_row)
+            b.wait_visible(pool_row)
         else:
             b.wait_not_present(pool_row)
 
@@ -161,13 +161,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if isExpanded:
             self.browser.wait_not_present("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName)) # click on the row header
         else:
-            self.browser.wait_present("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName)) # click on the row header
+            self.browser.wait_visible("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName)) # click on the row header
 
     def waitNetworkRow(self, networkName, connectionName="system", present="true"):
         b = self.browser
         network_row = "tbody tr[data-row-id=network-{0}-{1}]".format(networkName, connectionName)
         if present:
-            b.wait_present(network_row)
+            b.wait_visible(network_row)
         else:
             b.wait_not_present(network_row)
 
@@ -478,13 +478,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         try:
             with b.wait_timeout(10):
-                b.wait_present("#vm-{0}-disks-{1}-used".format(name, target)) # wait for disk statistics to show up
+                b.wait_visible("#vm-{0}-disks-{1}-used".format(name, target)) # wait for disk statistics to show up
         except Error as ex:
             if not ex.msg.startswith('timeout'):
                 raise
             # stats did not show up, check if user message showed up
             print("Libvirt version does not support disk statistics")
-            b.wait_present("#vm-{0}-disks-notification".format(name))
+            b.wait_visible("#vm-{0}-disks-notification".format(name))
 
     def testLibvirt(self):
         b = self.browser
@@ -522,7 +522,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
         b.wait_in_text(".pf-c-empty-state", "Virtualization service (libvirt) is not active")
-        b.wait_present("#enable-libvirt:checked")
+        b.wait_visible("#enable-libvirt:checked")
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: checkLibvirtEnabled())
         b.wait_in_text("body", "Virtual machines")
@@ -533,7 +533,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         hack_libvirtd_crash()
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_in_text(".pf-c-empty-state", "Virtualization service (libvirt) is not active")
-        b.wait_present("#enable-libvirt:checked")
+        b.wait_visible("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
@@ -547,7 +547,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
         b.wait_in_text(".pf-c-empty-state", "Virtualization service (libvirt) is not active")
-        b.wait_present("#enable-libvirt:checked")
+        b.wait_visible("#enable-libvirt:checked")
 
         b.click(".pf-c-empty-state button.pf-m-link")  # Troubleshoot
         b.leave_page()
@@ -592,7 +592,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # attach to the virtio bus instead of ide
         m.execute("virsh attach-disk subVmTest1 /var/lib/libvirt/images/image3.img vdc")
 
-        b.wait_present("#vm-subVmTest1-disks-vda-used")
+        b.wait_visible("#vm-subVmTest1-disks-vda-used")
 
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
 
@@ -611,7 +611,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceReboot")
 
-        b.wait_present("#vm-subVmTest1-disks-vda-device")
+        b.wait_visible("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
     class VMAddDiskDialog(object):
@@ -653,7 +653,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
             b.wait_in_text(".pf-c-modal-box__title", "Add disk")
 
-            b.wait_present("label:contains(Create new)")
+            b.wait_visible("label:contains(Create new)")
             if self.use_existing_volume:
                 b.click("label:contains(Use existing)")
 
@@ -664,10 +664,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if not self.use_existing_volume:
                 # Choose storage pool
                 if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
-                    b.wait_present("#vm-{0}-disks-adddisk-new-select-pool:enabled".format(self.vm_name))
+                    b.wait_visible("#vm-{0}-disks-adddisk-new-select-pool:enabled".format(self.vm_name))
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
                 else:
                     b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
+                    # Our custom select does not respond on the click function
                     b.wait_present(".pf-c-modal-box option[data-value={0}]:disabled".format(self.pool_name))
                     return self
 
@@ -684,7 +685,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if self.permanent:
                     b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
             else:
-                b.wait_present("#vm-{0}-disks-adddisk-existing-select-pool:enabled".format(self.vm_name))
+                b.wait_visible("#vm-{0}-disks-adddisk-existing-select-pool:enabled".format(self.vm_name))
                 # Choose storage pool
                 b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
                 # Select from the available volumes
@@ -737,9 +738,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self.test_obj.waitPoolRow(self.pool_name)
                 self.test_obj.togglePoolRow(self.pool_name)
 
-                b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
+                b.wait_visible("#pool-{0}-system-storage-volumes".format(self.pool_name))
                 b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
-                b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
+                b.wait_visible("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
 
                 b.click(".machines-listing-breadcrumb li a:contains(Virtual machines)")
                 self.test_obj.goToVmPage("subVmTest1")
@@ -1025,8 +1026,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#vm-subVmTest1-disks-vde-device")
         release_target(used_targets, "vdb")
         release_target(used_targets, "vde")
-        b.wait_present("#vm-subVmTest1-disks-vdc-device")
-        b.wait_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdc-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdd-device")
 
         # testing sata disk after VM shutoff because sata disk cannot be hotplugged
         self.VMAddDiskDialog(
@@ -1069,9 +1070,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.goToVmPage('subVmTest1')
         b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
-        b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+        b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
         b.click("label:contains(Use existing)")
-        b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+        b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
         b.click(".pf-c-modal-box__footer button:contains(Cancel)")
 
         # Make sure that trying to inspect the Disks tab will just show the fields that are available when a pool is inactive
@@ -1135,7 +1136,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         b.click("#vm-subVmTest1-vcpus-count button") # open VCPU modal detail window
 
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
 
         # Test basic vCPU properties
         b.wait_val("#machines-vcpu-count-field", "1")
@@ -1156,7 +1157,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Make sure warning next to vcpus appears
-        b.wait_present("#vcpus-tooltip")
+        b.wait_visible("#vcpus-tooltip")
 
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-action-kebab button")
@@ -1179,7 +1180,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Open dialog window
         b.click("#vm-subVmTest1-vcpus-count button")
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
 
         # Check basic values
         b.wait_val("#machines-vcpu-count-field", "3")
@@ -1201,7 +1202,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count button")
 
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
 
         b.set_input_text("#machines-vcpu-count-field", "2")
 
@@ -1229,7 +1230,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count button")
 
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
 
         # Set new socket value
         b.wait_val("#coresSelect", "2")
@@ -1244,7 +1245,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # non-persistent VM doesn't have configurable vcpu
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("#vm-subVmTest1-vcpus-count button:disabled")
+        b.wait_visible("#vm-subVmTest1-vcpus-count button:disabled")
 
     def testExternalConsole(self):
         b = self.browser
@@ -1263,7 +1264,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-consoles-manual-port-spice", "5900")
 
         b.click("#vm-subVmTest1-consoles-launch") # "Launch Remote Viewer" button
-        b.wait_present("#dynamically-generated-file") # is .vv file generated for download?
+        b.wait_visible("#dynamically-generated-file") # is .vv file generated for download?
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
@@ -1294,7 +1295,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage("subVmTest1")
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
-        b.wait_present(".toolbar-pf-results canvas")
+        b.wait_visible(".toolbar-pf-results canvas")
 
         # make sure the log file is full - then empty it and reboot the VM - the log file should fill up again
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -1327,8 +1328,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # Virsh does not offer some option to create disks of type volume
             # We have to do this from cockpit UI
             b.click("#vm-subVmTest1-disks-adddisk") # button
-            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
-            b.wait_present("label:contains(Create new)") # radio button label in the modal dialog
+            b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
+            b.wait_visible("label:contains(Create new)") # radio button label in the modal dialog
 
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)
@@ -1339,8 +1340,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
             b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
 
-            b.wait_present("#vm-subVmTest1-disks-vdb-source-volume")
-            b.wait_present("#vm-subVmTest1-disks-vdb-source-pool")
+            b.wait_visible("#vm-subVmTest1-disks-vdb-source-volume")
+            b.wait_visible("#vm-subVmTest1-disks-vdb-source-pool")
 
         secondDiskVolName = "mydisk"
         poolName = "images"
@@ -1351,11 +1352,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
 
-        b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
-        b.wait_present("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
+        b.wait_visible("#vm-{0}-delete-modal-dialog .modal-body:contains(The VM is running)".format(name))
+        b.wait_visible("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
         # virsh attach-disk does not create disks of type volume
-        b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-volume:contains({0})".format(secondDiskVolName, name))
-        b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-pool:contains({0})".format(poolName, name))
+        b.wait_visible("#vm-{1}-delete-modal-dialog #disk-source-volume:contains({0})".format(secondDiskVolName, name))
+        b.wait_visible("#vm-{1}-delete-modal-dialog #disk-source-pool:contains({0})".format(poolName, name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 
@@ -1390,7 +1391,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.browser.enter_page('/machines')
         self.goToMainPage()
         b.click("#vm-{0}-action-kebab button".format(name))
-        b.wait_present("#vm-{0}-delete a.pf-m-disabled".format(name))
+        b.wait_visible("#vm-{0}-delete a.pf-m-disabled".format(name))
         b.click("#vm-{0}-forceOff".format(name))
         self.waitVmRow(name, 'system', False)
         b.wait_not_present('#vm-{0}-state button:contains("view more")'.format(name))
@@ -1439,11 +1440,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.goToVmPage(name)
         b.wait_in_text("#vm-{0}-state".format(name), "Running")
 
-        b.wait_present("#vm-{0}-consoles".format(name))
-        b.wait_present("div.vnc-console canvas")
+        b.wait_visible("#vm-{0}-consoles".format(name))
+        b.wait_visible("div.vnc-console canvas")
         b.select_from_dropdown("#console-type-select", "Serial console")
         b.wait_not_present("div.vnc-console canvas")
-        b.wait_present("#{}-terminal".format(name))
+        b.wait_visible("#{}-terminal".format(name))
 
         b.wait_not_present("#navbar-oops")
 
@@ -1698,10 +1699,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is marked as non bootable
         b.click("#vm-pxe-guest-overview")
         b.click("#vm-pxe-guest-boot-order button")
-        b.wait_present("#vm-pxe-guest-order-modal-window")
-        b.wait_present("#vm-pxe-guest-order-modal-device-row-0 input:checked")
+        b.wait_visible("#vm-pxe-guest-order-modal-window")
+        b.wait_visible("#vm-pxe-guest-order-modal-device-row-0 input:checked")
         b.wait_in_text("#vm-pxe-guest-order-modal-device-row-0 .list-group-item-heading", "disk")
-        b.wait_present("#vm-pxe-guest-order-modal-device-row-1 input:not(checked)")
+        b.wait_visible("#vm-pxe-guest-order-modal-device-row-1 input:not(checked)")
         b.wait_in_text("#vm-pxe-guest-order-modal-device-row-1 .list-group-item-heading", "network")
 
     def testCreateThenInstall(self):
@@ -2029,7 +2030,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             else:
                 b.click("#create-new-vm")
 
-            b.wait_present("#create-vm-dialog")
+            b.wait_visible("#create-vm-dialog")
             if self.sourceType == 'disk_image':
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Import a virtual machine")
             else:
@@ -2088,6 +2089,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         def checkPXENotAvailableSession(self):
             self.browser.set_checked("#connectionName-{0}".format(self.connection), True)
+            # Our custom select does not respond on the click function
             self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
 
@@ -2243,9 +2245,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_in_text(error_location, error_msg)
 
             if self.sourceType == 'disk_image':
-                b.wait_present(".pf-c-modal-box__footer button:contains(Import):disabled")
+                b.wait_visible(".pf-c-modal-box__footer button:contains(Import):disabled")
             else:
-                b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
+                b.wait_visible(".pf-c-modal-box__footer button:contains(Create):disabled")
 
             return self
 
@@ -2266,11 +2268,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             error_location = ".pf-c-modal-box__footer div.pf-c-alert"
 
-            b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
+            b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
             b.wait_not_present(".pf-c-modal-box__footer button.pf-m-in-progress")
             try:
                 with b.wait_timeout(10):
-                    b.wait_present(error_location)
+                    b.wait_visible(error_location)
                     b.wait_in_text("button.alert-link.more-button", "show more")
                     b.click("button.alert-link.more-button")
                     waitForError(errors, error_location)
@@ -2283,7 +2285,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     # then error should be shown in the notification area
                     error_location = ".pf-c-alert-group li .pf-c-alert"
                     with b.wait_timeout(20):
-                        b.wait_present(error_location)
+                        b.wait_visible(error_location)
                         b.wait_in_text("button.alert-link.more-button", "show more")
                         b.click("button.alert-link.more-button")
                         waitForError(errors, error_location)
@@ -2469,9 +2471,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
             b.click("#vm-{0}-action-kebab button".format(dialog.name))
-            b.wait_present(vm_delete_button + " a[aria-disabled=false]")
+            b.wait_visible(vm_delete_button + " a[aria-disabled=false]")
             b.click(vm_delete_button)
-            b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
+            b.wait_visible("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
             b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             self.test_obj.waitVmRow(dialog.name, "system", False)
@@ -2658,7 +2660,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # set checkbox state and check state of checkbox
             b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True) # don't know the initial state of checkbox, so set it to checked
-            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            b.wait_visible("#vm-{}-autostart-checkbox:checked".format(vm_name))
             # check virsh state
             autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
             self.assertEqual(autostartState, "enable")
@@ -2672,7 +2674,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # change checkbox state and check state of checkbox
             b.click("#vm-{}-autostart-checkbox".format(vm_name))
-            b.wait_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            b.wait_visible("#vm-{}-autostart-checkbox:checked".format(vm_name))
             # check virsh state
             autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
             self.assertEqual(autostartState, "enable")
@@ -2701,12 +2703,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Copy host CPU configuration
-        b.wait_present("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
+        b.wait_visible("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
         b.click("#vm-subVmTest1-cpu-model button")
         b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
         b.click("#cpu-config-dialog-apply")
         # Warning about about difference in persistent and non-persitent XML shoud appear
-        b.wait_present("#cpu-tooltip")
+        b.wait_visible("#cpu-tooltip")
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
@@ -2744,7 +2746,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Open dialog
         b.click("#vm-subVmTest1-boot-order button")
-        b.wait_present("#vm-subVmTest1-order-modal-window")
+        b.wait_visible("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
         # Check a cdrom attributes are shown correctly
@@ -2755,13 +2757,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down")
         b.wait_in_text("#vm-subVmTest1-order-modal-device-row-0 .list-view-pf-additional-info", row)
         # Make sure the footer warning does appear
-        b.wait_present("#vm-subVmTest1-order-modal-min-message")
+        b.wait_visible("#vm-subVmTest1-order-modal-min-message")
 
         # Save
         b.click("#vm-subVmTest1-order-modal-save")
         b.wait_not_present("#vm-subVmTest1-order-modal-window")
         # Make sure warning next to boot order appears
-        b.wait_present("#boot-order-tooltip")
+        b.wait_visible("#boot-order-tooltip")
 
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-action-kebab button")
@@ -2776,7 +2778,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Open dialog
         b.click("#vm-subVmTest1-boot-order button")
-        b.wait_present("#vm-subVmTest1-order-modal-window")
+        b.wait_visible("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
         # Unselect second device
@@ -2797,7 +2799,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable boot order
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("#vm-subVmTest1-boot-order button:disabled")
+        b.wait_visible("#vm-subVmTest1-boot-order button:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
@@ -2830,7 +2832,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Change memory settings
         b.click("#vm-VmNotInstalled-memory-count button")
-        b.wait_present("#vm-memory-modal")
+        b.wait_visible("#vm-memory-modal")
         b.set_input_text("#vm-VmNotInstalled-memory-modal-max-memory", "400")
         b.blur("#vm-VmNotInstalled-memory-modal-max-memory")
         b.set_input_text("#vm-VmNotInstalled-memory-modal-memory", "300")
@@ -2840,7 +2842,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Change vCPUs setting
         b.click("#vm-VmNotInstalled-vcpus-count button")
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "8")
         b.blur("#machines-vcpu-max-field")
         b.set_input_text("#machines-vcpu-count-field", "2")
@@ -2854,7 +2856,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Change Boot Order setting
         bootOrder = b.text("#vm-VmNotInstalled-boot-order")
         b.click("#vm-VmNotInstalled-boot-order button")
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
         b.set_checked("#vm-VmNotInstalled-order-modal-device-row-1-checkbox", True)
         b.click("#vm-VmNotInstalled-order-modal-device-row-0 #vm-VmNotInstalled-order-modal-down")
         b.click("#vm-VmNotInstalled-order-modal-save")
@@ -2868,7 +2870,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
-            b.wait_present(".pf-c-modal-box__body")
+            b.wait_visible(".pf-c-modal-box__body")
             b.select_from_dropdown("select", "UEFI")
             b.click("#firmware-dialog-apply")
             b.wait_not_present(".pf-c-modal-box__body")
@@ -2932,7 +2934,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Check configuration changes survived installation
         # Check memory settings have persisted
         b.click("#vm-VmNotInstalled-memory-count button")
-        b.wait_present("#vm-VmNotInstalled-memory-modal-memory")
+        b.wait_visible("#vm-VmNotInstalled-memory-modal-memory")
         b.wait_val("#vm-VmNotInstalled-memory-modal-max-memory", "400")
         b.wait_val("#vm-VmNotInstalled-memory-modal-memory", "300")
         b.click("#vm-VmNotInstalled-memory-modal-cancel")
@@ -2940,7 +2942,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check vCPU settings have persisted
         b.click("#vm-VmNotInstalled-vcpus-count button")
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
         b.wait_val("#machines-vcpu-max-field", "8")
         b.wait_val("#machines-vcpu-count-field", "2")
         b.wait_val("#socketsSelect", "2")
@@ -2962,7 +2964,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.assertEqual(b.get_checked("#vm-VmNotInstalled-autostart-checkbox"), autostart)
 
         # Check new vNIC have persisted
-        b.wait_present("#vm-VmNotInstalled-network-1-type")
+        b.wait_visible("#vm-VmNotInstalled-network-1-type")
 
         self.allow_browser_errors("Failed when connecting: Connection closed")
         self.allow_browser_errors("Tried changing state of a disconnected RFB object")
@@ -3001,28 +3003,28 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Test qcow2 disk has only readonly attribute configurable
         b.click("#vm-subVmTest1-disks-vdg-edit")
-        b.wait_present("#vm-subVmTest1-disks-vdg-edit-dialog")
-        b.wait_present("#vm-subVmTest1-disks-vdg-edit-readonly")
-        b.wait_present("#vm-subVmTest1-disks-vdg-edit-writable")
+        b.wait_visible("#vm-subVmTest1-disks-vdg-edit-dialog")
+        b.wait_visible("#vm-subVmTest1-disks-vdg-edit-readonly")
+        b.wait_visible("#vm-subVmTest1-disks-vdg-edit-writable")
         b.wait_not_present("#vm-subVmTest1-disks-vdg-edit-writable-shareable")
         b.click("#vm-subVmTest1-disks-vdg-edit-dialog-cancel")
         b.wait_not_present("#vm-subVmTest1-disks-vdg-edit-dialog")
 
         # Test configuration of readonly and shareable attributes
         b.click("#vm-subVmTest1-disks-vde-edit")
-        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        b.wait_visible("#vm-subVmTest1-disks-vde-edit-dialog")
 
         # Changing readonly with running VM
         b.set_checked("#vm-subVmTest1-disks-vde-edit-readonly", True)
 
         # Tooltip in dialog should show
-        b.wait_present("#vm-subVmTest1-disks-vde-edit-idle-message")
+        b.wait_visible("#vm-subVmTest1-disks-vde-edit-idle-message")
 
         # Save changes
         b.click("#vm-subVmTest1-disks-vde-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit-dialog")
         # See tooltip present in disk listing table
-        b.wait_present("#vm-subVmTest1-disks-vde-access-tooltip")
+        b.wait_visible("#vm-subVmTest1-disks-vde-access-tooltip")
 
         # Shut off VM and see state has changed
         b.click("#vm-subVmTest1-action-kebab button")
@@ -3035,7 +3037,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Test configuration of readonly and shareable attributes for Shut off VM
         b.click("#vm-subVmTest1-disks-vde-edit")
-        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        b.wait_visible("#vm-subVmTest1-disks-vde-edit-dialog")
 
         # Changing readonly
         b.set_checked("#vm-subVmTest1-disks-vde-edit-writable-shareable", True)
@@ -3051,7 +3053,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
         # Change bus type to scsi
         b.click("#vm-subVmTest1-disks-vde-edit")
-        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        b.wait_visible("#vm-subVmTest1-disks-vde-edit-dialog")
         b.select_from_dropdown("#vm-subVmTest1-disks-vde-edit-bus-type", "scsi")
 
         # Close dialog
@@ -3066,8 +3068,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Test disk's bus cannot be changed on running VM
         b.click("#vm-subVmTest1-disks-sda-edit")
-        b.wait_present("#vm-subVmTest1-disks-sda-edit-dialog")
-        b.wait_present("#vm-subVmTest1-disks-sda-edit-bus-type:disabled")
+        b.wait_visible("#vm-subVmTest1-disks-sda-edit-dialog")
+        b.wait_visible("#vm-subVmTest1-disks-sda-edit-bus-type:disabled")
 
         # Disks on non-persistent VM cannot be edited
         m.execute("virsh undefine subVmTest1")
@@ -3090,7 +3092,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-memory-count button")
 
         # Change memory
-        b.wait_present("#vm-subVmTest1-memory-modal-memory")
+        b.wait_visible("#vm-subVmTest1-memory-modal-memory")
 
         b.wait_attr("#vm-subVmTest1-memory-modal-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
         b.wait_attr("#vm-subVmTest1-memory-modal-max-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
@@ -3141,7 +3143,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         # Non-persistent VM doesn't have configurable memory
         m.execute("virsh undefine subVmTest1")
-        b.wait_present("#vm-subVmTest1-memory-count button:disabled")
+        b.wait_visible("#vm-subVmTest1-memory-count button:disabled")
 
     def testDetachDisk(self):
         b = self.browser
@@ -3175,11 +3177,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        b.wait_present("#vm-subVmTest1-disks-vdc-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
-        b.wait_present(".pf-c-modal-box")
+        b.wait_visible(".pf-c-modal-box")
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
-        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
+        b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
         # When live-detaching disks the guest OS needs to cooperate so that we can
         # see the disk getting detached in the UI.
         # Wait until we see the login prompt before attempting operation that need
@@ -3196,9 +3198,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
         # Test detaching permanent disk of a stopped domain
-        b.wait_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdd-device")
         b.click("#delete-subVmTest1-disk-vdd")
-        b.wait_present(".pf-c-modal-box")
+        b.wait_visible(".pf-c-modal-box")
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_not_present(".pf-c-modal-box")
@@ -3217,9 +3219,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Test detaching of disk on non-persistent VM
         m.execute("virsh undefine subVmTest1")
         m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
-        b.wait_present("#vm-subVmTest1-disks-vdc-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
-        b.wait_present(".pf-c-modal-box")
+        b.wait_visible(".pf-c-modal-box")
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".pf-c-modal-box")
@@ -3239,14 +3241,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Change Boot Order setting
         bootOrder = b.text("#vm-subVmTest1-boot-order")
         b.click("#vm-subVmTest1-boot-order button") # Open dialog
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
         b.click("#vm-subVmTest1-order-modal-save") # Save
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Change vCPUs setting
         b.click("#vm-subVmTest1-vcpus-count button") # Open dialog
-        b.wait_present(".pf-c-modal-box__body")
+        b.wait_visible(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "3") # Change values
         b.set_input_text("#machines-vcpu-count-field", "3")
         b.click("#machines-vcpu-modal-dialog-apply") # Save
@@ -3303,7 +3305,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Change network model type of a running domain
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-model", "e1000e", substring=True)
         # Wait for the footer warning to appear
-        b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
+        b.wait_visible("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
         b.wait_in_text("#vm-subVmTest1-network-1-select-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-select-source", "default")
@@ -3313,10 +3315,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
         # Wait for the tooltips to appear next to the elements we changed
         b.wait_in_text("#vm-subVmTest1-network-1-model", current_model_type)
-        b.wait_present("#vm-subVmTest1-network-1-model-tooltip")
+        b.wait_visible("#vm-subVmTest1-network-1-model-tooltip")
         b.wait_in_text("#vm-subVmTest1-network-1-type", 'network')
         b.wait_in_text("#vm-subVmTest1-network-1-source", 'default')
-        b.wait_present("#vm-subVmTest1-network-1-source-tooltip")
+        b.wait_visible("#vm-subVmTest1-network-1-source-tooltip")
 
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-action-kebab button")
@@ -3430,7 +3432,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # And ensure that the network sources dropdown is disabled
         b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
-        b.wait_present("#vm-subVmTest1-network-1-edit-dialog-save:disabled")
+        b.wait_visible("#vm-subVmTest1-network-1-edit-dialog-save:disabled")
         b.click(".pf-c-modal-box__footer button:contains(Cancel)")
 
         # Ensure that when the source of a NIC was removed we can still change it
@@ -3479,25 +3481,25 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Expand row for first network
         self.toggleNetworkRow("test_network2", connectionName)
 
-        b.wait_present("#network-test_network2-{0}-autostart-checkbox".format(connectionName))
+        b.wait_visible("#network-test_network2-{0}-autostart-checkbox".format(connectionName))
 
         # set checkbox state and check state of checkbox
         b.set_checked("#network-test_network2-{0}-autostart-checkbox".format(connectionName), True) # don't know the initial state of checkbox, so set it to checked
-        b.wait_present("#network-test_network2-{0}-autostart-checkbox:checked".format(connectionName))
+        b.wait_visible("#network-test_network2-{0}-autostart-checkbox:checked".format(connectionName))
         # check virsh state
         autostartState = m.execute("virsh net-info test_network2 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "yes")
 
         # change checkbox state and check state of checkbox
         b.click("#network-test_network2-{0}-autostart-checkbox".format(connectionName))
-        b.wait_present("#network-test_network2-{0}-autostart-checkbox:not(:checked)".format(connectionName))
+        b.wait_visible("#network-test_network2-{0}-autostart-checkbox:not(:checked)".format(connectionName))
         # check virsh state
         autostartState = m.execute("virsh net-info test_network2 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "no")
 
         # change checkbox state and check state of checkbox
         b.click("#network-test_network2-{0}-autostart-checkbox".format(connectionName))
-        b.wait_present("#network-test_network2-{0}-autostart-checkbox:checked".format(connectionName))
+        b.wait_visible("#network-test_network2-{0}-autostart-checkbox:checked".format(connectionName))
         # check virsh state
         autostartState = m.execute("virsh net-info test_network2 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "yes")
@@ -3525,17 +3527,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.toggleNetworkRow("test_network2", connectionName)
 
         # activate network
-        b.wait_present("#activate-network-test_network2-{0}".format(connectionName))
+        b.wait_visible("#activate-network-test_network2-{0}".format(connectionName))
         b.click("#activate-network-test_network2-{0}".format(connectionName))
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "active")
         # check virsh state
         wait(lambda: "yes" == m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip(), tries=5)
 
         # deactivate network
-        b.wait_present("#deactivate-network-test_network2-{0}".format(connectionName))
+        b.wait_visible("#deactivate-network-test_network2-{0}".format(connectionName))
         b.click("#deactivate-network-test_network2-{0}".format(connectionName))
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "inactive")
-        b.wait_present("#activate-network-test_network2-{0}".format(connectionName))
+        b.wait_visible("#activate-network-test_network2-{0}".format(connectionName))
         # check virsh state
         wait(lambda: "no" == m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip(), tries=5)
 
@@ -3590,7 +3592,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check overview network properties are present
         b.wait_in_text("#network-test_network2-{0}-persistent".format(connectionName), "yes")
-        b.wait_present("#network-test_network2-{0}-autostart-checkbox:not(:checked)".format(connectionName))
+        b.wait_visible("#network-test_network2-{0}-autostart-checkbox:not(:checked)".format(connectionName))
         b.wait_in_text("#network-test_network2-{0}-ipv4-address".format(connectionName), "192.168.100.1")
         b.wait_in_text("#network-test_network2-{0}-ipv4-netmask".format(connectionName), "255.255.255.0")
         b.wait_in_text("#network-test_network2-{0}-ipv4-dhcp-range".format(connectionName), "192.168.100.128 - 192.168.100.170")
@@ -3609,7 +3611,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check overview network properties are present
         b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "yes")
-        b.wait_present("#network-test_network3-{0}-autostart-checkbox:not(:checked)".format(connectionName))
+        b.wait_visible("#network-test_network3-{0}-autostart-checkbox:not(:checked)".format(connectionName))
 
         # Check overview network properties are not present
         b.wait_not_present("#network-test_network3-{0}-ipv4-address".format(connectionName))
@@ -3625,7 +3627,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.toggleNetworkRow("test_network4", connectionName)
         b.wait_in_text("#network-test_network4-{0}-persistent".format(connectionName), "no")
         b.wait_not_present("#network-test_network4-{0}-autostart-checkbox".format(connectionName)) # Transient network shouldn't have autostart option
-        b.wait_present('#delete-network-test_network4-{0}:disabled'.format(connectionName)) # Transient network cannot be deleted
+        b.wait_visible('#delete-network-test_network4-{0}:disabled'.format(connectionName)) # Transient network cannot be deleted
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         self.waitNetworkRow("test_network4", connectionName, False) # Check it's not present after deactivation
 
@@ -3653,7 +3655,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
 
-        b.wait_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_visible("#vm-subVmTest1-snapshot-1-current")
         b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
         self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
         self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
@@ -3663,7 +3665,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click('.pf-c-modal-box__footer button:contains("Revert")')
 
         b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
-        b.wait_present("#vm-subVmTest1-snapshot-0-current")
+        b.wait_visible("#vm-subVmTest1-snapshot-0-current")
         self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
         self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
 
@@ -3790,7 +3792,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
         # Check storage volumes of a pool
-        b.wait_present("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
+        b.wait_visible("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolOne-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
         b.wait_in_text("tr[data-row-id=pool-myPoolOne-{0}] + tr table td".format(connectionName),
                        "No storage volumes defined for this storage pool")
@@ -3800,9 +3802,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Expand row for second storage pool and check list of storage volumes
         self.togglePoolRow("myPoolTwo", connectionName)
-        b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
-        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName), "VolumeThree")
@@ -3810,7 +3812,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Delete a volume from terminal and verify that refresh worked by reloading the browser page
         m.execute("rm -f {0}".format(os.path.join(p2, "VolumeThree")))
-        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
         b.reload()
         b.enter_page('/machines')
         self.togglePoolRow("myPoolTwo", connectionName)
@@ -3818,16 +3820,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
 
         # Delete Storage Volume that is not used by any VM
-        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
         b.click("tbody input[aria-label='Select row 1']")
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
         b.click("#storage-volumes-delete")
         b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
 
         # Try to Delete Storage Volume which is used by a VM
-        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
         b.click("tbody input[aria-label='Select row 0']")
-        b.wait_present("#storage-volumes-delete:disabled")
+        b.wait_visible("#storage-volumes-delete:disabled")
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
 
         # Test operations on storage pools
@@ -3840,7 +3842,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
 
         # See deletion of Pool is disabled because this pool is referenced by VM's disk
-        b.wait_present("#delete-pool-myPoolTwo-{0}:disabled".format(connectionName))
+        b.wait_visible("#delete-pool-myPoolTwo-{0}:disabled".format(connectionName))
 
         # Detach disk so pool can be deleted
         m.execute("virsh detach-disk --domain subVmTest1 --target vdc --config")
@@ -3855,7 +3857,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#deactivate-pool-myPoolTwo-{0}".format(connectionName))
 
         # Delete an inactive Pool. It's volumes won't be deleted
-        b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_visible("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.wait_in_text("div.pf-c-modal-box div.pf-c-modal-box__body", "Its content will not be deleted.")
         b.click('.pf-c-modal-box__footer button:contains("Delete")')
@@ -3872,9 +3874,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#activate-pool-myPoolTwo-{0}".format(connectionName))
 
         # Delete and active Pool and also its volumes
-        b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_visible("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
-        b.wait_present("div.pf-c-modal-box")
+        b.wait_visible("div.pf-c-modal-box")
         b.set_checked("input#storage-pool-delete-volumes", True)
         b.click('.pf-c-modal-box__footer button:contains("Delete")')
         b.wait_not_present("div.pf-c-modal-box")
@@ -3901,10 +3903,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Expand row for myPoolTwo and check list of storage volumes
         self.togglePoolRow("myPoolTwo", connectionName)
-        b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
 
-        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "subVmTest1")
 
         m.execute("virsh detach-disk --config --target vdd subVmTest1")
@@ -3914,12 +3916,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh pool-define-as mypool --type netfs --source-host 127.0.0.10 --source-path /mnt/pool --target /mnt/pool")
         self.togglePoolRow("mypool", connectionName)
         b.click("#activate-pool-mypool-system")
-        b.wait_present("#activate-pool-mypool-system:disabled")
+        b.wait_visible("#activate-pool-mypool-system:disabled")
 
         # Transient network
         self.togglePoolRow("myPoolThree", connectionName)
         b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName)) # Transient pool shouldn't have autostart option
-        b.wait_present('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName)) # Transient pool cannot be deleted
+        b.wait_visible('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName)) # Transient pool cannot be deleted
         b.click('#deactivate-pool-myPoolThree-{0}'.format(connectionName)) # Deactivate transient pool
         # Check it's not present after deactivation
         self.waitPoolRow("myPoolThree", connectionName, False)
@@ -3972,7 +3974,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def open(self):
                 b.click("#create-network")
-                b.wait_present("#create-network-dialog")
+                b.wait_visible("#create-network-dialog")
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create virtual network")
 
             def fill(self):
@@ -4032,7 +4034,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                         b.wait_in_text("#create-network-dialog .pf-c-modal-box__body #network-ipv6-dhcp-range-end + .pf-c-form__helper-text.pf-m-error", self.xfail_error)
                     if "footer" in self.xfail_objects:
                         error_location = "#create-network-dialog .pf-c-modal-box__footer .pf-m-danger"
-                        b.wait_present(error_location)
+                        b.wait_visible(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)
 
@@ -4335,7 +4337,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def open(self):
                 b.click("#create-storage-pool")
-                b.wait_present("#create-storage-pool-dialog")
+                b.wait_visible("#create-storage-pool-dialog")
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
 
             def fill(self):
@@ -4377,14 +4379,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     # Check incomplete dialog
                     if (not self.name):
-                        b.wait_present("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-name + .pf-c-form__helper-text.pf-m-error")
+                        b.wait_visible("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-name + .pf-c-form__helper-text.pf-m-error")
 
                     if (not self.target):
-                        b.wait_present("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-target-group .pf-c-form__helper-text.pf-m-error")
+                        b.wait_visible("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-target-group .pf-c-form__helper-text.pf-m-error")
                     # Check errors from backend
                     if self.xfail_error:
                         error_location = "#create-storage-pool-dialog .pf-c-modal-box__footer .pf-m-danger"
-                        b.wait_present(error_location)
+                        b.wait_visible(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)
 
@@ -4455,9 +4457,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 # Check on the volume tab of the storage pool
                 b.click("#pool-{}-{}-storage-volumes".format(self.name, connectionName))
                 if "iscsi" in self.pool_type:
-                    b.wait_present('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
+                    b.wait_visible('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
                 else:
-                    b.wait_present('#{}-{}-create-volume-button:enabled'.format(self.name, connectionName))
+                    b.wait_visible('#{}-{}-create-volume-button:enabled'.format(self.name, connectionName))
 
             def cleanup(self):
                 m.execute("virsh pool-undefine {0}".format(self.name))
@@ -4540,7 +4542,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             else:
                 # Ensure that iscsi-direct is absent from the types dropdown
                 b.click("#create-storage-pool")
-                b.wait_present("#create-storage-pool-dialog")
+                b.wait_visible("#create-storage-pool-dialog")
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
                 b.click("#storage-pool-dialog-type")
                 b.wait_not_present("#storage-pool-dialog-type option[value*='isci-direct']")
@@ -4625,7 +4627,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
                 b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage volumes" subtab
 
-                b.wait_present("#create-volume-dialog-modal")
+                b.wait_visible("#create-volume-dialog-modal")
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage volume")
 
             def fill(self):
@@ -4650,8 +4652,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if not self.xfail:
                     # Creation of volumes might take longer for some pool types
                     if self.pool_type  in ["disk", "netfs"]:
-                        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
-                        b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
+                        b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
+                        b.wait_visible(".pf-c-modal-box__footer button:contains(Create):disabled")
                     b.wait_not_present("#create-volume-dialog-modal")
                 else:
                     if "size" == self.xfail_object:
@@ -4659,7 +4661,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             def verify(self):
                 # Check that the defined volume is now visible
-                b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.vol_name))
+                b.wait_visible("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.vol_name))
 
                 # Verify libvirt XML
                 vol_xml = "virsh -c qemu:///system vol-dumpxml --pool {0} --vol {1}".format(self.pool_name, self.vol_name)
@@ -4879,14 +4881,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.click(".pf-c-modal-box__footer button:contains(Delete)")
                     # On a running VM detaching NIC takes longer and we can see the spinner
                     if vm_state == "Running":
-                        b.wait_present(".pf-c-modal-box__footer button.pf-m-in-progress")
+                        b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
 
                     # Check NIC is no longer in list
                     b.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))
                     b.wait_not_present(".pf-c-modal-box")
 
         # No NICs present
-        b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+        b.wait_visible("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
 
         NICAddDialog(
             self,
@@ -4954,7 +4956,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
 
         # Now there are three NICs present - try to delete the second one and make sure that it's deleted and the dialog is not present anymore
-        b.wait_present("#vm-subVmTest1-network-3-mac")
+        b.wait_visible("#vm-subVmTest1-network-3-mac")
         b.click("#delete-vm-subVmTest1-iface-2")
         b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Network Interface")
         b.click(".pf-c-modal-box__footer button:contains(Delete)")
@@ -4975,7 +4977,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
         self.goToVmPage("subVmTest1")
-        b.wait_present("#vm-subVmTest1-snapshots")
+        b.wait_visible("#vm-subVmTest1-snapshots")
 
         # Shut off domain
         b.click("#vm-subVmTest1-action-kebab button")
@@ -5055,7 +5057,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.wait_not_present("#vm-subVmTest1-snapshot-{0}-name:contains({1})".format(self.snap_num, self.name))
 
         # No Snapshots present
-        b.wait_present("#vm-subVmTest1-add-snapshot-button")
+        b.wait_visible("#vm-subVmTest1-add-snapshot-button")
 
         # Test snapshot creation with pre-generated values
         SnapshotCreateDialog(

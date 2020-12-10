@@ -214,7 +214,6 @@ class TestStorageResize(StorageCase):
         self.content_head_action(1, "Mount")
         self.confirm()
         self.wait_mounted(1, 2)
-        b.wait_present(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))

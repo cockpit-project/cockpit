@@ -66,7 +66,7 @@ class Vnc extends React.Component {
         }
 
         const { consoleDetail } = props;
-        if (!consoleDetail) {
+        if (!consoleDetail || consoleDetail.port == -1) {
             logDebug('Vnc component: console detail not yet provided');
             return;
         }

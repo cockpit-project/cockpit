@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up dependencies
-        run: sudo apt-get install -y npm make
+        run: |
+          sudo apt update
+          sudo apt install -y npm make
 
       - name: Set up configuration and secrets
         run: |

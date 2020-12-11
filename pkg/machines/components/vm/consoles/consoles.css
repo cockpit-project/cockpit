@@ -50,3 +50,9 @@
 .pf-c-console__actions-vnc {
     flex-wrap: wrap;
 }
+
+/* Ensure that the two columns have some space in between */
+/* https://github.com/patternfly/patternfly-react/pull/5247 */
+.pf-c-console__desktop-viewer {
+    gap: var(--pf-global--spacer--md);
+}

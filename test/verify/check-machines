@@ -133,7 +133,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     def waitVmRow(self, vmName, connectionName='system', present=True):
         b = self.browser
-        vm_row = "tbody tr[data-row-id=vm-{0}-{1}] td".format(vmName, connectionName)
+        vm_row = "tbody tr[data-row-id=vm-{0}-{1}]".format(vmName, connectionName)
         if present:
             b.wait_present(vm_row)
         else:
@@ -149,7 +149,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     def waitPoolRow(self, poolName, connectionName="system", present="true"):
         b = self.browser
-        pool_row = "tbody tr[data-row-id=pool-{0}-{1}] td".format(poolName, connectionName)
+        pool_row = "tbody tr[data-row-id=pool-{0}-{1}]".format(poolName, connectionName)
         if present:
             b.wait_present(pool_row)
         else:
@@ -165,7 +165,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
     def waitNetworkRow(self, networkName, connectionName="system", present="true"):
         b = self.browser
-        network_row = "tbody tr[data-row-id=network-{0}-{1}] td".format(networkName, connectionName)
+        network_row = "tbody tr[data-row-id=network-{0}-{1}]".format(networkName, connectionName)
         if present:
             b.wait_present(network_row)
         else:

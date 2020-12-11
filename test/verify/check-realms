@@ -235,18 +235,31 @@ class TestRealms(MachineCase):
         # should have stopped cert tracking
         self.assertNotIn("status:", m.execute("ipa-getcert list"))
 
-        # Send a wrong password
-        b.click("#system-info-domain a")
-        b.wait_popup("realms-op")
-        b.set_val(self.op_address, "cockpit.lan")
-        b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
-        b.set_val(self.op_admin, "admin")
-        b.set_val(self.op_admin_password, "foo")
-        b.click(".realms-op-apply")
-        b.wait_text_not(".realms-op-message", "")
-        b.wait_not_visible(".realms-op-leave-only-row")
-        b.click(".realms-op-cancel")
-        b.wait_popdown("realms-op")
+        # Sometimes with some versions of realmd the Leave operation
+        # from above is still active in the realmd daemon.  So we loop
+        # here until we get the expected error instead of "Already
+        # running another action".
+
+        tries = 0
+        while tries < 3:
+            # Send a wrong password
+            b.click("#system-info-domain a")
+            b.wait_popup("realms-op")
+            b.set_val(self.op_address, "cockpit.lan")
+            b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
+            b.set_val(self.op_admin, "admin")
+            b.set_val(self.op_admin_password, "foo")
+            b.click(".realms-op-apply")
+            b.wait_text_not(".realms-op-message", "")
+            error = b.text(".realms-op-message")
+            b.wait_not_visible(".realms-op-leave-only-row")
+            b.click(".realms-op-cancel")
+            b.wait_popdown("realms-op")
+            if not "Already running another action" in error:
+                break
+            print("Another operation running, retry")
+            time.sleep(20)
+            tries += 1
 
         # Try to join a non-existing domain
         b.click("#system-info-domain a")

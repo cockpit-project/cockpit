@@ -138,9 +138,19 @@ const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
 
 const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, onValueChanged }) => {
     let formatRow;
+    let validVolumeFormats;
 
     // For the valid volume format types for different pool types see https://libvirt.org/storage.html
-    if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(storagePoolType) > -1) {
+    if (['disk'].indexOf(storagePoolType) > -1) {
+        validVolumeFormats = [
+            'none', 'linux', 'fat16', 'fat32', 'linux-swap', 'linux-lvm',
+            'linux-raid', 'extended'
+        ];
+    } else if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(storagePoolType) > -1) {
+        validVolumeFormats = ['qcow2', 'raw'];
+    }
+
+    if (validVolumeFormats) {
         formatRow = (
             <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-fileformat`}>
@@ -150,12 +160,7 @@ const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, 
                     onChange={value => onValueChanged('diskFileFormat', value)}
                     initial={diskFileFormat}
                     extraClass='form-control ct-form-layout-split'>
-                    <Select.SelectEntry data='qcow2' key='qcow2'>
-                        {_("qcow2")}
-                    </Select.SelectEntry>
-                    <Select.SelectEntry data='raw' key='raw'>
-                        {_("raw")}
-                    </Select.SelectEntry>
+                    { validVolumeFormats.map(format => <Select.SelectEntry data={format} key={format}>{format}</Select.SelectEntry>) }
                 </Select.Select>
             </React.Fragment>
         );
@@ -378,8 +383,13 @@ class AddDiskModalBody extends React.Component {
 
     getDefaultVolumeFormat(pool) {
         // For the valid volume format types for different pool types see https://libvirt.org/storage.html
+        if (['disk'].indexOf(pool.type) > -1)
+            return 'none';
+
         if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1)
             return 'qcow2';
+
+        return undefined;
     }
 
     get initialState() {
@@ -418,10 +428,19 @@ class AddDiskModalBody extends React.Component {
 
     onValueChanged(key, value) {
         let stateDelta = {};
+        const { storagePools, vm } = this.props;
 
         switch (key) {
         case 'storagePoolName': {
+            const currentPool = storagePools.find(pool => pool.name === value && pool.connectionName === vm.connectionName);
+            const prevPool = storagePools.find(pool => pool.name === this.state.storagePoolName && pool.connectionName === vm.connectionName);
+
             this.setState({ storagePoolName: value });
+            // Reset the format only when the Format selection dropdown changes entries - otherwise just keep the old selection
+            // All pool types apart from 'disk' have either 'raw' or 'qcow2' format
+            if ((currentPool.type == 'disk' && prevPool.type != 'disk') || (currentPool.type != 'disk' && prevPool.type == 'disk'))
+                this.onValueChanged('diskFileFormat', this.getDefaultVolumeFormat(currentPool));
+
             if (this.state.mode === USE_EXISTING) { // user changed pool
                 this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(value));
             }
@@ -430,7 +449,6 @@ class AddDiskModalBody extends React.Component {
         case 'existingVolumeName': {
             stateDelta.existingVolumeName = value;
             this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
-                const { storagePools, vm } = this.props;
                 const pool = storagePools.find(pool => pool.name === prevState.storagePoolName && pool.connectionName === vm.connectionName);
                 stateDelta.diskFileFormat = this.getDefaultVolumeFormat(pool);
                 if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {

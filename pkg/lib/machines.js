@@ -264,7 +264,7 @@ function Machines() {
                 conn_to = machine.connection_string;
 
             if (!machine || machine.label !== values.label) {
-                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to });
+                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to, superuser: "try" });
                 call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
                                       "SetPrettyHostname", [ values.label, true ])
                         .always(function() {

@@ -109,7 +109,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
             b.mouse(sel, "mousemove", 10 + width, 17)
             b.mouse(sel, "mouseup", 10 + width, 17)
 
-        b.grant_permissions("clipboardRead", "clipboardWrite")
+        try:
+            b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
+        except RuntimeError:
+            # fallback for older Chrome releases
+            b.grant_permissions("clipboardRead", "clipboardWrite")
 
         # Execute command
         wait_line(n, prompt)

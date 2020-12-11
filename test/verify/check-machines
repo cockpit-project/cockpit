@@ -1418,7 +1418,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#SerialConsole button")
         b.wait_not_present("#pf-c-console__type-selector + .pf-c-select__menu")
 
-        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
+        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:last-child".format(name), "cirros login")
 
         b.click("#{0}-serialconsole-disconnect".format(name))
         b.wait_text("#{0}-terminal".format(name), "Disconnected from serial console. Click the connect button.")

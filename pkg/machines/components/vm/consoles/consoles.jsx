@@ -80,7 +80,7 @@ class Consoles extends React.Component {
     }
 
     render () {
-        const { vm, config, onAddErrorNotification } = this.props;
+        const { vm, onAddErrorNotification } = this.props;
 
         if (!LibvirtDBus.canConsole || !LibvirtDBus.canConsole(vm.state)) {
             return (<VmNotRunning />);
@@ -110,16 +110,14 @@ class Consoles extends React.Component {
                      onAddErrorNotification={onAddErrorNotification} />}
                 {vm.displays && (vm.displays.vnc || vm.displays.spice) &&
                 <DesktopConsole type="DesktopViewer"
-                                vm={vm}
                                 onDesktopConsole={onDesktopConsole}
-                                config={config} />}
+                                displays={vm.displays} />}
             </AccessConsoles>
         );
     }
 }
 Consoles.propTypes = {
     vm: PropTypes.object.isRequired,
-    config: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
 };

@@ -111,7 +111,7 @@ class Vnc extends React.Component {
     }
 
     render() {
-        const { consoleDetail, vm, onAddErrorNotification } = this.props;
+        const { consoleDetail, connectionName, vmName, vmId, onAddErrorNotification } = this.props;
         const { path, isActionOpen } = this.state;
         if (!consoleDetail || !path) {
             // postpone rendering until consoleDetail is known and channel ready
@@ -125,9 +125,9 @@ class Vnc extends React.Component {
                     id={cockpit.format("ctrl-alt-$0", keyName)}
                     key={cockpit.format("ctrl-alt-$0", keyName)}
                     onClick={() => {
-                        return domainSendKey(vm.connectionName, vm.id, [Enum.KEY_LEFTCTRL, Enum.KEY_LEFTALT, Enum[cockpit.format("KEY_$0", keyName.toUpperCase())]])
+                        return domainSendKey(connectionName, vmId, [Enum.KEY_LEFTCTRL, Enum.KEY_LEFTALT, Enum[cockpit.format("KEY_$0", keyName.toUpperCase())]])
                                 .fail(ex => onAddErrorNotification({
-                                    text: cockpit.format(_("Failed to send key Ctrl+Alt+$0 to VM $1"), keyName, vm.name),
+                                    text: cockpit.format(_("Failed to send key Ctrl+Alt+$0 to VM $1"), keyName, vmName),
                                     detail: ex.message
                                 }));
                     }}>
@@ -142,8 +142,8 @@ class Vnc extends React.Component {
         ];
         const additionalButtons = [
             <Dropdown onSelect={this.onExtraKeysDropdownToggle}
-                id={cockpit.format("$0-$1-vnc-sendkey", vm.name, vm.connectionName)}
-                key={cockpit.format("$0-$1-vnc-sendkey", vm.name, vm.connectionName)}
+                id={cockpit.format("$0-$1-vnc-sendkey", vmName, connectionName)}
+                key={cockpit.format("$0-$1-vnc-sendkey", vmName, connectionName)}
                 toggle={
                     <DropdownToggle onToggle={isOpen => this.setState({ isActionOpen: isOpen })}>
                         {_("Send key")}

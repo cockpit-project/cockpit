@@ -105,7 +105,9 @@ class Consoles extends React.Component {
                                spawnArgs={serialConsoleCommand} />}
                 {vm.displays && vm.displays.vnc &&
                 <Vnc type="VncConsole"
-                     vm={vm}
+                     vmName={vm.name}
+                     vmId={vm.id}
+                     connectionName={vm.connectionName}
                      consoleDetail={vm.displays.vnc}
                      onAddErrorNotification={onAddErrorNotification} />}
                 {vm.displays && (vm.displays.vnc || vm.displays.spice) &&

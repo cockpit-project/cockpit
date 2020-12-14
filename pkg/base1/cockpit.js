@@ -22,8 +22,8 @@
  * Newer code should not include cockpit.css, but our examples still do
  */
 import "../lib/patternfly/patternfly-cockpit.scss";
-import "@patternfly/patternfly/components/_all.scss";
 import "../lib/page.scss";
+import "@patternfly/patternfly/components/Button/button.css";
 import "../lib/listing.scss";
 
 /* eslint-disable indent,no-empty */

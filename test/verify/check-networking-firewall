@@ -209,31 +209,31 @@ class TestFirewall(NetworkCase):
 
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
 
         # filter for pop3
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
         b.set_input_text("#filter-services-input", "pop")
-        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
-        b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .service-list li:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
 
         # filter for port 110
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
         b.set_input_text("#filter-services-input", "110")
-        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.tcp"))
-        b.wait_not_present(".pf-c-modal-box .list-view-pf .list-group-item:first-child .service-ports.udp")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .service-list li:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
 
         # don't select anything in the dialog
         b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
@@ -242,7 +242,7 @@ class TestFirewall(NetworkCase):
 
         def addService(zone, service):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
-            b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
+            b.click("#add-services-dialog .service-list #firewall-service-{}".format(service))
             b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
             b.wait_not_present(".pf-c-modal-box")
             b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
@@ -259,8 +259,8 @@ class TestFirewall(NetworkCase):
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='imap']")
-        b.wait_not_present(".pf-c-modal-box .list-view-pf input[data-id='pop3']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-pop3")
         b.click("#add-services-dialog footer .btn-cancel")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -270,7 +270,7 @@ class TestFirewall(NetworkCase):
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-c-modal-box .list-view-pf input[data-id='empty']")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-empty")
         b.click("#add-services-dialog footer .btn-cancel")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -325,8 +325,7 @@ class TestFirewall(NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_visible(".has-error:contains({0})".format(text))
-            b.wait_visible(".has-error:contains({0})".format(text))
+            b.wait_visible(".pf-c-form__helper-text.pf-m-error:contains({0})".format(text))
 
         def save(identifier, tcp, udp):
             b.click("button:contains(Add ports)")
@@ -406,7 +405,7 @@ class TestFirewall(NetworkCase):
 
         def addServiceToZone(service, zone):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
-            b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
+            b.click("#add-services-dialog .service-list #firewall-service-{}".format(service))
             b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
             b.wait_not_present(".pf-c-modal-box")
             b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))

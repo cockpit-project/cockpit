@@ -41,7 +41,7 @@ import 'bootstrap/dist/js/bootstrap';
 import "page.scss";
 import "table.css";
 import "plot.css";
-import "./networking.css";
+import "./networking.scss";
 import "form-layout.scss";
 
 const _ = cockpit.gettext;

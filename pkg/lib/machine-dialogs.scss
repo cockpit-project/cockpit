@@ -90,3 +90,11 @@
     visibility: hidden;
     height: 0px;
 }
+
+// When the dialog is ported to PF4, we can remove these lines.
+// (The element isn't currently imported, so its CSS variables aren't either. So we're defining what PF4 currently defines them as.)
+.pf-c-form__helper-text {
+    --pf-c-form__helper-text--MarginTop: var(--pf-global--spacer--xs);
+    --pf-c-form__helper-text--FontSize: var(--pf-global--FontSize--sm);
+    --pf-c-form__helper-text--Color: var(--pf-global--Color--100);
+}

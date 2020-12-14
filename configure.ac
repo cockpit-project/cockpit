@@ -92,6 +92,11 @@ if test "$enable_polkit" != "no"; then
 fi
 if test "$enable_ssh" != "no"; then
   PKG_CHECK_MODULES(libssh, [libssh >= 0.8.5])
+  old_CFLAGS=$CFLAGS; CFLAGS=$libssh_CFLAGS
+  old_LIBS=$LIBS; LIBS=$libssh_LIBS
+  AC_CHECK_FUNCS(ssh_userauth_publickey_auto_get_current_identity)
+  CFLAGS=$old_CFLAGS
+  LIBS=$old_LIBS
 fi
 
 # pam

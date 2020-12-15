@@ -10,16 +10,11 @@
 </div>
 
 <div class="modal-body">
-    {{^editing}}
-    <p>
-      <span translate="yes">Specify the host and the login user account for the host that you want to add.</span><br/>
-      <span translate="yes">For the host, either specify the hostname, IP address, an alias name or a unique resource identifier for the SSH destination.</span>
-    </p><br/>
-    {{/editing}}
-    <form class="ct-form">
-      <label translate="yes" class="control-label">Host</label>
+    <form class="ct-form pf-c-form">
+      <label translate="yes" class="control-label" for="add-machine-address">Host</label>
       <div class="dialog-wrapper error-keep">
         <input class="form-control" id="add-machine-address"
+               aria-describedby="add-machine-address-helper"
                type="text" value="{{ host_address }}" {{connection_change_disabled}}
                list="options"
                placeholder="{{ placeholder }}"/>
@@ -28,11 +23,16 @@
           <option value="{{.}}">
             {{/options}}
         </datalist>
+        <div class="pf-c-form__helper-text" id="add-machine-address-helper" translate="yes">Can be a hostname, IP address, alias name, or ssh:// URI</div>
       </div>
 
-      <label translate="yes" class="control-label">User name</label>
-      <input class="form-control" id="add-machine-user"
-             type="text" value="{{ host_user }}" {{connection_change_disabled}}/>
+      <label translate="yes" class="control-label" for="add-machine-user">User name</label>
+      <div>
+        <input class="form-control" id="add-machine-user" type="text"
+               aria-describedby="add-machine-user-helper"
+               value="{{ host_user }}" {{connection_change_disabled}} />
+        <div class="pf-c-form__helper-text" id="add-machine-user-helper" translate="yes">When empty, connect with the current user</div>
+      </div>
 
       <label translate="yes" class="control-label">Color</label>
       <div id="add-machine-color-picker"/>

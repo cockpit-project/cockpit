@@ -966,7 +966,7 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_visible("#automatic-updates-dialog")
         b.select_from_dropdown("#auto-update-day", "every day")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied everyday at 21:00")
+        b.wait_in_text("#automatic-updates", "Updates will be applied every day at 21:00")
         assertType("all")
         assertTimer("21")
 
@@ -990,7 +990,7 @@ class TestAutoUpdates(NoSubManCase):
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#automatic-updates", "Updates will be applied everyday at 8:00")
+            b.wait_in_text("#automatic-updates", "Updates will be applied every day at 8:00")
 
             # OnCalendar= parsing: weekday and time
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
@@ -1004,7 +1004,7 @@ class TestAutoUpdates(NoSubManCase):
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#automatic-updates", "Updates will be applied everyday at 7:00")
+            b.wait_in_text("#automatic-updates", "Updates will be applied every day at 7:00")
 
             # OnCalendar= parsing: unsupported
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '

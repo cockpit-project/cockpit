@@ -1,7 +1,8 @@
 #host-edit-color {
     position: relative;
     width: 7rem;
-    height: 1.5rem;
+    // Make the height the same as a PF input + padding
+    height: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--xs));
     border-radius: var(--pf-global--BorderRadius--sm);
 
     &:not(:hover):not(:focus) {

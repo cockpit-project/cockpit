@@ -251,7 +251,7 @@ function getBackend(forceReinit) {
 export const AutoUpdatesBody = (props) => {
     const { enabled, type, day, time } = props;
     const days = {
-        "": "everyday",
+        "": "every day",
         mon: "every Monday",
         tue: "every Tuesday",
         wed: "every Wednesday",

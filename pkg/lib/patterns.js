@@ -35,8 +35,10 @@ function field_error(target, error) {
     }
 
     var message;
-    if (error.message)
+    if (error.message) {
+        console.warn(error.message);
         message = $("<div class='dialog-error help-block'>").text(error.message);
+    }
     wrapper.addClass("has-error").append(message);
 
     if (!wrapper.hasClass("error-keep")) {

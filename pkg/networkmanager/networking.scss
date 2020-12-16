@@ -13,21 +13,48 @@
 @import "../../node_modules/@patternfly/patternfly/layouts/Bullseye/bullseye.css";
 @import "../../node_modules/@patternfly/patternfly/components/ModalBox/modal-box.css";
 
+// Pull in variables (especially for breakpoints)
+@import "_global-variables.scss";
+
 #networking, #network-interface {
-  .pf-l-gallery {
-      --pf-l-gallery--GridTemplateColumns: 1fr;
-  }
+    .pf-l-gallery {
+        --pf-l-gallery--GridTemplateColumns: 1fr;
+    }
 }
 
-.networking-page .firewall-switch {
+// Mixin to extend for both Firewall switches:
+// In the Network Overview page and the Firewall page
+%firewall-switch {
     padding-left: var(--pf-global--spacer--md);
 }
 
-.networking-page .pf-c-card__header,
-.networking-page .pf-c-card__header .pf-c-card__actions {
-    flex-wrap: wrap;
-    button {
-        margin-bottom: 0.5rem;
+// General networking page overview
+.networking-page {
+    .firewall-switch {
+        @extend %firewall-switch;
+    }
+
+    .pf-c-card__header {
+        flex-wrap: wrap;
+
+        .pf-c-card__actions {
+            flex-wrap: wrap;
+        }
+
+        button,
+        .pf-c-card__actions button {
+            margin-bottom: 0.5rem;
+        }
+    }
+ 
+    .pf-c-card__header > .pf-c-card__title {
+        padding: 0;
+        font-weight: normal;
+        font-size: var(--pf-global--FontSize--2xl);
+    }
+
+    .cockpit-log-panel {
+        max-width: 100vw;
     }
 }
 
@@ -40,35 +67,27 @@
         padding: 0;
     }
 
-    #network-interface-hw, #network-interface-mac {
-      font-size: var(--pf-global--FontSize--md);
-      font-weight: var(--pf-global--FontWeight--normal);
+    @at-root {
+        #network-interface-hw, #network-interface-mac {
+            font-size: var(--pf-global--FontSize--md);
+            font-weight: var(--pf-global--FontWeight--normal);
+        }
+
+        .network-interface-status > span {
+            overflow-wrap: anywhere;
+        }
     }
-
-    .network-interface-status > span {
-      overflow-wrap: anywhere;
-    }
-}
-
-.networking-page .pf-c-card__header > .pf-c-card__title {
-  padding: 0;
-  font-weight: normal;
-  font-size: var(--pf-global--FontSize--2xl);
-}
-
-.networking-page .cockpit-log-panel {
-  max-width: 100vw;
 }
 
 .ipv4-address {
-  display: inline;
-}
+    display: inline;
 
-.ipv4-address input {
-  width: 2em;
-  background: none;
-  border: none;
-  text-align: center;
+    input {
+        width: 2em;
+        background: none;
+        border: none;
+        text-align: center;
+    }
 }
 
 .network-number-field {
@@ -78,71 +97,102 @@
 .network-ip-settings-row {
     border-bottom: 1px solid lightgray;
     padding-bottom: 10px;
-}
 
-.network-ip-settings-row:last-of-type {
-    border-bottom: none;
-    padding-bottom: 0;
-}
+    &:last-of-type {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
 
-.network-ip-settings-row table {
-    margin-top: 20px;
-}
+    table {
+        margin-top: 20px;
+    }
 
-.network-ip-settings-row tr {
-  background: #F4F4F4;
-    border: 1px solid #BABABA;
-}
+    tr {
+        background: #F4F4F4;
+        border: 1px solid #BABABA;
 
-.network-ip-settings-row tr td {
-    padding: 4px;
-}
+        td {
+            padding: 4px;
+        }
+    }
 
-.network-ip-settings-row .pf-m-secondary {
-    margin-right: 5px;
-}
+    .pf-m-secondary {
+        margin-right: 5px;
+    }
 
-.network-ip-settings-row tr td .pf-m-secondary {
-    margin-right: 4px;
+    tr td .pf-m-secondary {
+        margin-right: 4px;
+    }
 }
 
 .network-graph {
     height: 180px;
 }
 
-th.networking-speed {
-    width: 20%;
+.pf-c-page__main-breadcrumb + .networking-graphs {
+    // Remove the top padding when following a breadcrumb
+    padding-top: 0;
 }
 
-th.networking-spacer {
-    width: 10em;
+// Constrain widths of networking headers (on both the main page and in network-interface-members)
+th {
+    &.networking-speed {
+        width: 20%;
+    }
+
+    &.networking-spacer {
+        width: var(--pf-global--spacer--4xl);
+    }
+
+    &.networking-action {
+        width: var(--pf-global--spacer--3xl);
+    }
 }
 
-th.networking-action {
-    width: 28px;
+.network-interface-details {
+    &-title {
+        display: grid;
+        grid-auto-flow: column;
+        grid-gap: var(--pf-global--spacer--md);
+    }
+
+    &-delete {
+        margin-right: var(--pf-global--spacer--lg);
+    }
+
+    // Seems to be used for the "general" checkbox
+    .networking-controls {
+        label {
+            font-weight: inherit;
+        }
+
+        input {
+            margin-left: 0px;
+        }
+    }
+
+#networking-interfaces, #networking-unmanaged-interfaces {
+    td[data-label=Name] {
+        font-weight: var(--pf-global--FontWeight--bold);
+    }
 }
 
-td.networking-row-configure {
-    text-align: right;
 }
 
-#network-interface-hw {
-    margin-left: 20px;
-    margin-right: 20px;
+.network-interface-members {
+    // Align network-interface-members toggle to the right
+    .networking-row-configure {
+        text-align: right;
+    }
+
+    // Old-style table shouldn't have margins on the card
+    .table:last-child {
+        margin-bottom: 0;
+    }
 }
 
-#network-interface-delete {
-    margin-right: 20px;
-}
-
-td.networking-controls label {
-    font-weight: inherit;
-}
-
-td.networking-controls input {
-    margin-left: 0px;
-}
-
+// Dropdown menu that's behind an add button on the network interface members section _and_ the network bonds dialog
+// ideally, this should be a dropdown button with a caret to indicate there are choices underneith
 ul.add-button {
     right: 0px;
     left: auto;
@@ -150,38 +200,75 @@ ul.add-button {
     text-align: left;
 }
 
-span.inverted-switchbox {
-    margin-right: 10px;
+// IPv4 / IPv6 settings
+#network-ip-settings-dialog {
+    @at-root {
+        // Used in IPv4 / IPv6 automatic to manual selections
+        .inverted-switchbox {
+            margin-right: var(--pf-global--spacer--md);
+        }
+     
+        .network-ip-settings-row {
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 10px;
+
+            &:last-of-type {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .pf-m-secondary {
+                margin-right: 5px;
+            }
+
+            table {
+                margin-top: 20px;
+            }
+
+            tr {
+                background: #F4F4F4;
+                border: 1px solid #BABABA;
+            }
+
+            td {
+                padding: 4px;
+                text-align: right;
+                padding-right: 0;
+
+                &:last-child {
+                    width: 28px;
+                }
+                
+                .pf-m-secondary {
+                    margin-right: 4px;
+                }
+            }
+        }
+    }
 }
 
-.network-ip-settings-row td {
-    text-align: right;
-    padding-right: 0;
-}
-.network-ip-settings-row td:last-child {
-    width: 28px;
+#network-mtu-settings {
+    &-dialog label {
+        input[type=radio] {
+            position: relative;
+            top: 3px;
+            margin-right: 0.5em;
+        }
+    }
+
+    &-input {
+        margin-left: 0.5em;
+        width: 5em;
+        display: inline;
+    }
 }
 
-#network-mtu-settings-dialog label {
-    font-weight: normal;
-}
-
-#network-mtu-settings-dialog label input[type=radio] {
-    position: relative;
-    top: 3px;
-    margin-right: 0.5em;
-}
-
-#network-mtu-settings-input {
-    margin-left: 0.5em;
-    width: 5em;
-    display: inline;
-}
-
+#network-mtu-settings-dialog label,
 #network-mac-settings-dialog label {
     font-weight: normal;
 }
 
+// Temporary curtain to hide the conten as it loads
 #testing-connection-curtain {
     z-index: 2000;
 }
@@ -193,27 +280,63 @@ span.inverted-switchbox {
     margin-right: 20px;
 }
 
-.modal-title {
-    display: inline-block;
+// Some old PF3 dialogs are still in use within the networking page
+.modal {
+    @at-root {
+        .modal-title {
+            display: inline-block;
+            background: pink;
+            color: red;
+        }
+
+        .modal-header {
+            button {
+                margin-left: 10px;
+                background: pink;
+                color: red;
+            }
+
+            i.fa {
+                margin-right: 2px;
+                background: pink;
+                color: red;
+            }
+        }
+    }
 }
 
-.modal-header button {
-    margin-left: 10px;
+// Handle form error state highlighting
+// This is done natively by PF4, but this is specifically for widgets on the networking page
+// (Can be removed once ported to PF4)
+.form-control.error {
+    border-color: #cc0000;
+
+    &:hover {
+        border-color: #990000;
+    }
+
+    &:focus {
+        border-color: #990000;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+    }
 }
 
-.modal-header i.fa {
-    margin-right: 2px;
-}
-
-.popover-content a {
+// Adjust the "learn more" link in the dialog help link (for bond settings)
+.pf-c-modal-box__header-help .popover-content > a {
     display: block;
-    padding-top: 1em;
+    padding: var(--pf-global--spacer--md) 0 var(--pf-global--spacer--sm);
+
+    > .fa {
+        margin-right: var(--pf-global--spacer--sm);
+    }
 }
 
+/********** Firewall section **********/
 
+// Firewall's toggle
 h2 + .onoff-ct {
-    margin-left: 1.5em;
-    vertical-align: text-bottom;
+    @extend %firewall-switch;
 }
 
 #networking-firewall-summary:hover {
@@ -221,127 +344,90 @@ h2 + .onoff-ct {
     background-color: var(--color-ct-list-hover-bg);
 }
 
-/* set min-height to the same as max-height, so that the list doesn't shrink
- * when filtering */
-#add-services-dialog .dialog-list-ct {
-    height: 100vh;
-    /* Constrain the list to a maximum size of the viewport height - UI chrome */
-    max-height: calc(100vh - 30rem);
-    min-height: 13em;
-}
+#add-services-dialog {
+    .dialog-list-ct {
+        height: 100vh;
 
-@media screen and (min-width: 640px) {
-    /* Add a bit more padding in desktop mode */
-    #add-services-dialog .dialog-list-ct {
-        max-height: calc(100vh - 40rem);
+        /* Constrain the list to a maximum size of the viewport height - UI chrome */
+        max-height: calc(100vh - 30rem);
+        min-height: 13em;
+
+        @media screen and (min-width: 640px) {
+            /* Add a bit more padding in desktop mode */
+
+            max-height: calc(100vh - 40rem);
+        }
     }
-}
 
-#add-services-dialog .service-list {
-    max-height: 13rem;
-    overflow-y: auto;
-}
-
-#add-services-dialog .service-list-item-heading {
-    font-size: 1.2em;
-    margin: 0;
-}
-
-#add-services-dialog .service-list-item-text {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-#add-services-dialog .service-ports {
-    opacity: 0.75;
-}
-
-#add-services-dialog .service-ports:first-of-type {
-    margin-right: 1em;
-}
-#add-services-dialog .add-services-dialog-type {
-    display: flex;
-}
-
-.form-control.error {
-    border-color: #cc0000;
-}
-
-.form-control.error:hover {
-    border-color: #990000;
-}
-
-.form-control.error:focus {
-    border-color: #990000;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
-}
-
-#add-services-dialog .has-error {
-    animation: 300ms error-slide-down ease-in-out;
-    color: #c00;
-    padding: 0;
-}
-
-#add-services-dialog .has-error:empty {
-    display: none;
-}
-
-@keyframes error-slide-down {
-    0% {
-        line-height: 0;
-        height: 0;
-        opacity: 0;
-        overflow: hidden;
+    .service-list {
+        max-height: 13rem;
+        overflow-y: auto;
     }
-    100% {
-        line-height: inherit;
-        height: auto;
-        opacity: 1;
-    }
-}
 
-#firewall .ct-table tbody tr:first-of-type td:nth-child(2) {
-    font-weight: var(--pf-global--FontWeight--bold);
+    .service-list-item-heading {
+        font-size: 1.2em;
+        margin: 0;
+    }
+
+    .service-list-item-text {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .service-ports {
+        opacity: 0.75;
+
+        &:first-of-type {
+            margin-right: 1em;
+        }
+    }
+
+    .add-services-dialog-type {
+        display: flex;
+    }
+
+    .has-error {
+        animation: 300ms error-slide-down ease-in-out;
+        color: #c00;
+        padding: 0;
+
+        &:empty {
+            display: none;
+        }
+    }
 }
 
 #firewall {
     height: 100%;
+
+    .ct-table tbody tr:first-of-type td:nth-child(2) {
+        font-weight: var(--pf-global--FontWeight--bold);
+    }
 }
 
-#firewall-heading,
-#networking-graphs {
+.firewall-heading,
+.networking-graphs {
     background: var(--color-white);
 }
 
-#networking-graphs {
-    margin: 0;
-    /* Bootstrap uses 20px padding for row children. Compensate. */
-    padding: 1rem calc(3rem - 20px);
-}
-
-#networking-graphs .row {
-    margin: 0;
-}
-
-#firewall-heading {
+.firewall-heading {
     margin-bottom: 2rem;
-}
 
-#firewall-heading-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 0;
-}
+    &-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0;
 
-#firewall-heading-title-group {
-    display: flex;
-    align-items: center;
-}
+        &-group {
+            display: flex;
+            align-items: center;
 
-#firewall-heading-title-group h1 {
-    margin: 0 2rem 0 0;
+            h1 {
+                margin: 0 2rem 0 0;
+            }
+        }
+    }
 }
 
 #zones-listing {
@@ -356,10 +442,10 @@ h2 + .onoff-ct {
     border-right: 1px solid var(--color-border-default);
     margin: 0 0 2rem 0;
     box-shadow: var(--pf-global--BoxShadow--sm);
-}
 
-.zone-section > .ct-listing {
-    margin-top: 0;
+   > .ct-listing {
+        margin-top: 0;
+    }
 }
 
 .zone-section-heading {
@@ -374,10 +460,10 @@ h2 + .onoff-ct {
 .zone-section-buttons {
     display: inline-flex;
     align-content: center;
-}
 
-.zone-section-buttons > button {
-    margin-left: 2px;
+    > button {
+        margin-left: 2px;
+    }
 }
 
 .zone-section-targets {
@@ -394,14 +480,16 @@ h2 + .onoff-ct {
     font-weight: bold;
 }
 
-#delete-confirmation-dialog .fa-exclamation-triangle {
-    color: var(--pf-global--warning-color--100);
-    font-size: 300%;
-    margin-right: 1rem;
-}
+#delete-confirmation-dialog {
+    .fa-exclamation-triangle {
+        color: var(--pf-global--warning-color--100);
+        font-size: 300%;
+        margin-right: 1rem;
+    }
 
-#delete-confirmation-dialog .delete-confirmation-body {
-    display: flex;
+    .delete-confirmation-body {
+        display: flex;
+    }
 }
 
 #add-zone-dialog legend {
@@ -418,32 +506,36 @@ h2 + .onoff-ct {
 }
 
 /* Move firewalld zones higher in z-index (so lines can go behind) */
-.add-zone-zones-firewalld input {
-    position: relative;
-    z-index: 2;
-    width: 16px;
-    height: 16px;
-}
+.add-zone-zones-firewalld {
+    input {
+        position: relative;
+        z-index: 2;
+        width: 16px;
+        height: 16px;
+    }
 
-/* FIXME: Add lines behind the radio buttons */
-.add-zone-zones-firewalld > label::after {
-    border-bottom: 1px solid #d1d1d1;
-    content: "";
-}
+    > label {
+        /* FIXME: Add lines behind the radio buttons */
+        &::after {
+            border-bottom: 1px solid #d1d1d1;
+            content: "";
+        }
 
-/* Start line at the midpoint for the first radio */
-.add-zone-zones-firewalld > label:first-of-type::after {
-    left: 50%;
-}
-
-/* End line at the midpoint for the last radio */
-.add-zone-zones-firewalld > label:last-of-type::after {
-    right: 50%;
+        /* Start line at the midpoint for the first radio */
+        &:first-of-type::after {
+            left: 50%;
+        }
+    
+        /* End line at the midpoint for the last radio */
+        &:last-of-type::after {
+            right: 50%;
+        }
+    }
 }
 
 /* Display labels bellow buttons */
 .add-zone-zones-firewalld, .add-zone-zones-custom {
-    > label.radio {
+   > label.radio {
         display: inline-flex;
     }
 }
@@ -458,12 +550,21 @@ h2 + .onoff-ct {
     line-height: 1;
 }
 
-#networking-interfaces, #networking-unmanaged-interfaces {
-    td[data-label=Name] {
-        font-weight: var(--pf-global--FontWeight--bold);
+// Animation for Firewall's add service dialog,
+// as a sudden transition would be (otherwise) too jarring
+@keyframes error-slide-down {
+    0% {
+        line-height: 0;
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+    }
+
+    100% {
+        line-height: inherit;
+        height: auto;
+        opacity: 1;
     }
 }
 
-#network-interface-members table {
-    margin-bottom: 0;
-}
+/* End Firewall specific CSS */

@@ -677,13 +677,13 @@ class CreateVmModal extends React.Component {
         case 'memorySizeUnit':
             this.setState({ [key]: value });
             key = 'memorySize';
-            value = convertToUnit(this.state.memorySize, this.state.memorySizeUnit, value);
+            value = Math.round(convertToUnit(this.state.memorySize, this.state.memorySizeUnit, value));
             this.setState({ [key]: value });
             break;
         case 'storageSizeUnit':
             this.setState({ [key]: value });
             key = 'storageSize';
-            value = convertToUnit(this.state.storageSize, this.state.storageSizeUnit, value);
+            value = Math.round(convertToUnit(this.state.storageSize, this.state.storageSizeUnit, value));
             this.setState({ [key]: value });
             break;
         case 'startVm': {

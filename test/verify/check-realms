@@ -172,7 +172,7 @@ class CommonTests:
         b.wait_popdown("realms-op")
         wait_number_domains(0)
         # re-enables hostname changing
-        b.wait_present("#system_information_hostname_button:not([disabled])")
+        b.wait_visible("#system_information_hostname_button:not([disabled])")
 
         self.checkBackendSpecificCleanup()
 
@@ -833,7 +833,7 @@ ExecStart=/bin/true
 
         # run kinit and see if got forwarded the kerberos ticket into the session
         b.enter_page("/system/terminal")
-        b.wait_present(".terminal .xterm-accessibility-tree")
+        b.wait_visible(".terminal .xterm-accessibility-tree")
         b.wait_in_text(line_sel(1), "admin")
         b.key_press("klist\r")
         b.wait_in_text(line_sel(2), "Ticket cache")
@@ -917,7 +917,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join domain")
-        b.wait_present(self.domain_sel + "[disabled]")
+        b.wait_visible(self.domain_sel + "[disabled]")
         self.waitTooltip("realmd is not available on this system")
         b.logout()
 
@@ -930,7 +930,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         b.click(self.domain_sel)
         b.wait_in_text(".pf-c-modal-box:contains('Install software')", "realmd is not available")
-        b.wait_present(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button:contains(Install):disabled")
+        b.wait_visible(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button:contains(Install):disabled")
         b.click(".pf-c-modal-box:contains('Install software') .pf-c-modal-box__footer button.cancel")
         b.wait_not_present(".pf-c-modal-box:contains('Install software')")
         b.logout()
@@ -976,7 +976,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_not_present(".pf-c-modal-box:contains('Install software')")
 
         # should continue straight to join dialog
-        b.wait_present("#realms-op")
+        b.wait_visible("#realms-op")
         b.wait_popup("realms-op")
 
         # no running IPA server for this test, so just cancel

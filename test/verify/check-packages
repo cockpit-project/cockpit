@@ -61,7 +61,7 @@ class TestPackages(MachineCase):
         self.login_and_go("/playground/pkgs")
 
         b.switch_to_top()
-        b.wait_present("#nav-system li:contains(Terminal)")
+        b.wait_visible("#nav-system li:contains(Terminal)")
 
         m.execute("mkdir /usr/share/cockpit/test")
         m.write("/usr/share/cockpit/test/manifest.json", test_manifest)

@@ -138,17 +138,17 @@ class TestMultiOS(MachineCase):
         self.check_spawn(dev_b, "10.111.113.5")
 
         dev_b.go("/@10.111.113.5/network")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/network'][src$='/network/index.html#/']")
+        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/network'][src$='/network/index.html#/']")
 
         dev_b.go("/@10.111.113.5/storage")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/storage'][src$='/storage/index.html#/']")
+        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/storage'][src$='/storage/index.html#/']")
 
         dev_b.switch_to_top()
         dev_b.go("/@10.111.113.5/users")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/users'][src$='/users/index.html#/']")
+        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/users'][src$='/users/index.html#/']")
 
         stock_b.go("/@10.111.113.1/system")
-        stock_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.1/system'][data-loaded]")
+        stock_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.1/system'][data-loaded]")
         stock_b.switch_to_frame('cockpit1:10.111.113.1/system')
         stock_b.wait_text_not("#system_information_hardware_text", "")
 
@@ -195,7 +195,7 @@ class TestMultiOSDirect(MachineCase):
 
         b.expect_load()
 
-        b.wait_present("iframe.container-frame[name='cockpit1:localhost/system'][data-loaded]")
+        b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system'][data-loaded]")
         b.wait_not_visible(".curtains-ct")
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")
         b.switch_to_frame("cockpit1:localhost/system")

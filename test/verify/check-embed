@@ -43,31 +43,31 @@ Shell=/embed-cockpit/index.html
         m.start_cockpit()
         self.login_and_go()
 
-        b.wait_present("#embed-loaded")
-        b.wait_present("#embed-address")
+        b.wait_visible("#embed-loaded")
+        b.wait_visible("#embed-address")
         m.write("/etc/cockpit/cockpit.conf","""
 [WebService]
 Shell=/shell/index.html
 """)
         b.set_val("#embed-address", "http://{0}:{1}".format(m.web_address, m.web_port))
         b.click("#embed-full")
-        b.wait_present("iframe[name='embed-full'][loaded]")
+        b.wait_visible("iframe[name='embed-full'][loaded]")
         b.switch_to_frame("embed-full")
-        b.wait_present("#system_information_os_text")
+        b.wait_visible("#system_information_os_text")
 
         # Page should show automatically now that other frame logged in
         b.switch_to_top()
         b.click("#embed-terminal")
-        b.wait_present("iframe[name='embed-terminal'][loaded]")
+        b.wait_visible("iframe[name='embed-terminal'][loaded]")
         b.switch_to_frame("embed-terminal")
         b.wait_visible("#terminal")
 
         # Clicking on the link with separate auth, shouldn't log in automatically
         b.switch_to_top()
         b.click("#embed-auth")
-        b.wait_present("iframe[name='embed-auth'][loaded]")
+        b.wait_visible("iframe[name='embed-auth'][loaded]")
         b.switch_to_frame("embed-auth")
-        b.wait_present("#login-user-input")
+        b.wait_visible("#login-user-input")
 
 
 if __name__ == '__main__':

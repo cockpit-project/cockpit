@@ -108,7 +108,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # reload, which should log us in with the cookie
         b.reload()
-        b.wait_present("#content")
+        b.wait_visible("#content")
         b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
@@ -180,13 +180,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def assert_messages(has_last, n_fail):
             if has_last:
-                b.wait_present('#login-messages')
-                b.wait_present('#last-login')
+                b.wait_visible('#login-messages')
+                b.wait_visible('#last-login')
                 b.wait_in_text('#last-login', "Last login")
                 b.wait_in_text('#last-login', "from") # only present if IP was logged
 
                 if n_fail:
-                    b.wait_present('#last-failed-login')
+                    b.wait_visible('#last-failed-login')
                     b.wait_in_text('#last-failed-login', "from")
                     b.wait_in_text('#login-messages', 'There were {} failed'.format(n_fail))
                 else:
@@ -195,7 +195,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             else:
                 assert not n_fail
-                b.wait_present('#login-messages[empty=yes]')
+                b.wait_visible('#login-messages[empty=yes]')
                 self.assertFalse(b.is_present('#last-login'))
                 self.assertFalse(b.is_present('#last-failed-login'))
 
@@ -333,7 +333,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         b.expect_load()
-        b.wait_present("#content")
+        b.wait_visible("#content")
         b.wait_text('#current-username', 'admin')
 
         self.allow_journal_messages('Error executing command as another user: Not authorized',
@@ -379,7 +379,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         b.expect_load()
-        b.wait_present("#content")
+        b.wait_visible("#content")
         b.wait_text('#current-username', 'admin')
 
         self.allow_restart_journal_messages()

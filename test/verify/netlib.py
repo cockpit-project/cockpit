@@ -177,7 +177,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
 
     def wait_onoff(self, sel, val):
-        self.browser.wait_present(sel + " input" + (":checked" if val else ":not(:checked)"))
+        self.browser.wait_visible(sel + " input" + (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self, sel):
         self.browser.click(sel + " input")

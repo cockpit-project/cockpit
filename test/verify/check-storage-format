@@ -103,7 +103,7 @@ class TestStorageFormat(StorageCase):
         disk = self.add_ram_disk()
         m.execute("""disk=%s; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""" % disk)
         b.click("#others tr:contains('/dev/mapper/superslow')")
-        b.wait_present('#storage-detail')
+        b.wait_visible('#storage-detail')
 
         self.content_head_action(1, "Format")
         self.dialog_wait_open()

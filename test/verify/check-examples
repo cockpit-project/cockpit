@@ -150,7 +150,7 @@ class TestLongRunning(MachineCase):
         out = b.text("#output")
         self.assertIn("\nBREAK_A\n", out)
         self.assertNotIn("\nNOTME", out)
-        b.wait_present("button#run:disabled")
+        b.wait_visible("button#run:disabled")
         b.wait_text("button#run", "Start")
 
         # reset

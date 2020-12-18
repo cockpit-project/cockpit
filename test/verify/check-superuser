@@ -223,7 +223,7 @@ class TestSuperuserOldShell(MachineCase):
         b.wait_in_text("#hostkey-message-1", "You are connecting to 10.111.113.2 for the first time.")
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
         b.wait_visible('#content')
 
         # The old shell should have gotten the password from cockpit-ws and it should work
@@ -263,7 +263,7 @@ class TestSuperuserOldWebserver(MachineCase):
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
         b.wait_visible('#content')
 
         # We should have gotten the password from the old cockpit-ws and it should work
@@ -297,7 +297,7 @@ class TestSuperuserOldWebserver(MachineCase):
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
         b.wait_visible('#content')
 
         # We should not have gotten the password from the old
@@ -406,7 +406,7 @@ class TestSuperuserOldDashboard(MachineCase):
         b.set_checked('#authorized-input', True)
         b.click('#login-button')
         b.expect_load()
-        b.wait_present('#content')
+        b.wait_visible('#content')
         b.wait_visible('#content')
 
         b.go("/@10.111.113.2")
@@ -424,7 +424,7 @@ class TestSuperuserOldDashboard(MachineCase):
         b.click(".ct-overview-header-actions button:contains('Administrative access')")
         b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-        b.wait_present(".ct-overview-header-actions button:contains('Limited access')")
+        b.wait_visible(".ct-overview-header-actions button:contains('Limited access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -437,7 +437,7 @@ class TestSuperuserOldDashboard(MachineCase):
         b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
-        b.wait_present(".ct-overview-header-actions button:contains('Administrative access')")
+        b.wait_visible(".ct-overview-header-actions button:contains('Administrative access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")

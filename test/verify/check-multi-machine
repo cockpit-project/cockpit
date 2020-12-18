@@ -77,7 +77,7 @@ def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
 
 def fail_login(b):
     b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-    b.wait_present('#troubleshoot-dialog .modal-footer button:contains(Log in):not([disabled])')
+    b.wait_visible('#troubleshoot-dialog .modal-footer button:contains(Log in):not([disabled])')
     b.wait_in_text("#troubleshoot-dialog .dialog-error", "Login failed")
 
 
@@ -437,7 +437,7 @@ class TestMultiMachine(MachineCase):
         # Test subnav
         b.click('a[href="/@10.111.113.2/users"]')
         b.enter_page("/users", host="10.111.113.2")
-        b.wait_present("#accounts-list")
+        b.wait_visible("#accounts-list")
         b.click("#accounts-list .cockpit-account:first-child")
         b.wait_text("#account-user-name", "admin")
         b.switch_to_top()
@@ -516,7 +516,7 @@ class TestMultiMachine(MachineCase):
 
         b.click("#hosts-sel button")
         b.wait_visible("a[href='/@10.111.113.2']")
-        b.wait_present("#machine2-error")
+        b.wait_visible("#machine2-error")
         b.go("/system")
         b.enter_page("/system")
         b.wait_in_text("#system_information_hostname_text", "machine1")
@@ -549,7 +549,7 @@ class TestMultiMachine(MachineCase):
 
         b.enter_page("/playground/test", "10.111.113.2", reconnect=True)
         # image is back because it page was reloaded after disconnection
-        b.wait_present("img[src='hammer.gif']")
+        b.wait_visible("img[src='hammer.gif']")
         b.switch_to_top()
 
         # Host shows it is up
@@ -606,7 +606,7 @@ class TestMultiMachine(MachineCase):
 
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
+        b.wait_visible("iframe.container-frame[name='%s'][data-ready]" % frame)
 
         b.enter_page("/playground/test", "10.111.113.2")
 

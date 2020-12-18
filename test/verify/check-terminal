@@ -52,7 +52,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # wait until first line is not empty
         n = 1
-        b.wait_present(".terminal .xterm-accessibility-tree")
+        b.wait_visible(".terminal .xterm-accessibility-tree")
         function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
         b.wait_js_func(function_str, line_sel(n))
 
@@ -197,7 +197,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.relogin("/system")
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
-        b.wait_present('.terminal')
+        b.wait_visible('.terminal')
         b.wait_attr(".xterm-viewport", "style", white_style)
 
     @nondestructive
@@ -211,11 +211,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         b.try_login("admin", "foobar")
         b.expect_load()
-        b.wait_present("#terminal")
+        b.wait_visible("#terminal")
 
         # wait until first line is not empty
         n = 1
-        b.wait_present(".terminal .xterm-accessibility-tree")
+        b.wait_visible(".terminal .xterm-accessibility-tree")
         b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ' '})", line_sel(n))
 
         # execute a command we can see the effect of

@@ -36,6 +36,7 @@ class HostSwitcherHelpers:
 
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_cond('ph_select("#hosts_setup_server_dialog datalist option").length == {0}'.format(len(expected)))
+        # Check that we rendered all expected hosts
         for address in expected:
             b.wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
 
@@ -188,7 +189,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Navigate to load iframe
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
-        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
 
         b.click("#hosts-sel button")
         b.click("button:contains('Edit hosts')")
@@ -360,7 +361,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Go to the updated machine and try to change whilst on it
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
-        b.wait_present("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
 
         b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
         b.click("#hosts-sel button")

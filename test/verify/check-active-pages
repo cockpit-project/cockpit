@@ -42,13 +42,13 @@ class TestActivePages(MachineCase):
             # /playground/preloaded, /system/services, and /updates
             n_extra_preloaded = 3
 
-        b.wait_present("#overview")
+        b.wait_visible("#overview")
 
         def showPagesAssertCount(count):
             b.switch_to_top()
             b.mouse("#navbar-dropdown", "click", altKey=True)
             b.click("#active-pages")
-            b.wait_present("#active-pages-dialog")
+            b.wait_visible("#active-pages-dialog")
             b.wait_js_func("ph_count_check", "#active-pages-dialog tr", count)
 
         # Initially we have /system and maybe /playground/preloaded
@@ -58,7 +58,7 @@ class TestActivePages(MachineCase):
 
         b.go("/users")
         b.enter_page("/users")
-        b.wait_present("#accounts-list")
+        b.wait_visible("#accounts-list")
 
         # now we want a third page to be present in the pages menu
         showPagesAssertCount(2 + n_extra_preloaded)
@@ -92,7 +92,7 @@ class TestActivePages(MachineCase):
         # click on the other page as well
         b.click('tr[data-row-id="cockpit1:localhost/system"] input[type=checkbox]')
         # wait until it's highlighted
-        b.wait_present('tr[data-row-id="cockpit1:localhost/system"] input[type=checkbox]:checked')
+        b.wait_visible('tr[data-row-id="cockpit1:localhost/system"] input[type=checkbox]:checked')
         # close
         b.click("#active-pages-dialog button.pf-m-primary")
         b.wait_not_present("#active-pages-dialog")

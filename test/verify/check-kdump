@@ -70,7 +70,7 @@ class TestKdump(MachineCase):
         b.wait_visible("#app")
 
         def assertActive(active):
-            b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_visible(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
         if m.image in ["rhel-8-3", "rhel-8-4", "centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
@@ -108,10 +108,10 @@ class TestKdump(MachineCase):
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
         b.click("button{}:contains('Apply')".format(self.primary_btn_class))
-        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.set_input_text(mountInput, "localhost:")
         b.click("button{}:contains('Apply')".format(self.primary_btn_class))
-        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.click("button{}:contains('Apply')".format(self.primary_btn_class))
 
         # test compression
@@ -149,14 +149,14 @@ class TestKdump(MachineCase):
         b.set_input_text(pathInput, customPath)
         b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         # we should get an error
-        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
         m.execute("mkdir -p {0}".format(customPath))
         b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_not_present(pathInput)
-        b.wait_present("button:contains('locally in {0}')".format(customPath))
+        b.wait_visible("button:contains('locally in {0}')".format(customPath))
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
@@ -170,7 +170,7 @@ class TestKdump(MachineCase):
         b.click(crashButton)
 
         # wait until we've actuall triggered a crash
-        b.wait_present("div.spinner")
+        b.wait_visible("div.spinner")
 
         # wait for disconnect and then try connecting again
         b.switch_to_top()

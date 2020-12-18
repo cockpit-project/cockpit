@@ -94,10 +94,10 @@ class StorageHelpers:
     def content_row_expand(self, index):
         b = self.browser
         tbody = self.content_row_tbody(index)
-        b.wait_present(tbody)
+        b.wait_visible(tbody)
         if "pf-m-expanded" not in (b.attr(tbody, "class") or ""):
             b.click(tbody + " tr td.pf-c-table__toggle button")
-            b.wait_present(tbody + ".pf-m-expanded")
+            b.wait_visible(tbody + ".pf-m-expanded")
 
     def content_row_action(self, index, title):
         btn = self.content_row_tbody(index) + " tr td:last-child button:contains(%s)" % title
@@ -127,7 +127,7 @@ class StorageHelpers:
         tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
-        self.browser.wait_present(tab)
+        self.browser.wait_visible(tab)
         return tab
 
     def content_tab_action(self, row_index, tab_index, title):
@@ -139,7 +139,7 @@ class StorageHelpers:
     def wait_content_tab_action_disabled(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
         btn = tab + " button:disabled:contains(%s)" % title
-        self.browser.wait_present(btn)
+        self.browser.wait_visible(btn)
 
     # To check what's in a tab, we need to open the row and select the
     # tab.

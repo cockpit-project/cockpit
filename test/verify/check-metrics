@@ -173,7 +173,7 @@ class TestMetrics(MachineCase):
         self.assertLessEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 30), 0.01)
 
         # swap usage is not shown if there is no swap
-        b.wait_present("#current-memory-usage")
+        b.wait_visible("#current-memory-usage")
         self.assertFalse(b.is_present("#current-swap-usage"))
         b.logout()
 
@@ -320,7 +320,7 @@ class TestMetrics(MachineCase):
 
         def progressValue(progress_bar_sel):
             sel = progress_bar_sel + " .pf-c-progress__indicator"
-            b.wait_present(sel)
+            b.wait_visible(sel)
             b.wait_attr_contains(sel, "style", "width:")
             style = b.attr(sel, "style")
             m = re.search("width: (\d+)%;", style)
@@ -416,7 +416,7 @@ class TestMetrics(MachineCase):
 
         b.go("/metrics")
         b.enter_page("/metrics")
-        b.wait_present("table[aria-label='Top 5 memory services']")
+        b.wait_visible("table[aria-label='Top 5 memory services']")
 
         # only some images have swap
         if m.execute("swapon --show").strip():
@@ -493,7 +493,7 @@ class TestMetrics(MachineCase):
 
             b.go("/metrics")
             b.enter_page("/metrics")
-            b.wait_present(progress_sel)
+            b.wait_visible(progress_sel)
             b.logout()
 
             # without cockpit-storaged, mounts are not links
@@ -501,7 +501,7 @@ class TestMetrics(MachineCase):
             m.write("/usr/share/cockpit/storaged/manifest.json", "")
             self.allow_journal_messages("storaged: couldn't read manifest.json: JSON data was empty")
             login(self)
-        b.wait_present(progress_sel)
+        b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))
 
         # Network usage

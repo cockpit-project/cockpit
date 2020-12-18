@@ -110,7 +110,7 @@ class TestSelinux(MachineCase):
         row_selector = "tbody:contains('ls from read access on the directory')"
 
         # wait for the alert to appear
-        b.wait_present(row_selector)
+        b.wait_visible(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-c-table__toggle button"
@@ -151,7 +151,7 @@ class TestSelinux(MachineCase):
         row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 
         # wait for the alert to appear
-        b.wait_present(row_selector)
+        b.wait_visible(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-c-table__toggle button"
@@ -284,7 +284,7 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "SELinux policy")
 
         def assertEnforce(active):
-            b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_visible(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)

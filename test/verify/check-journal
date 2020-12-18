@@ -92,7 +92,7 @@ class TestJournal(MachineCase):
         if not browser.text(button_text_selector) == value:
             item_selector = "{0} ul li a:contains({1})".format(selector, value)
             browser.click("{0} button".format(selector))
-            browser.wait_present(item_selector)
+            browser.wait_visible(item_selector)
             if click:
                 browser.click(item_selector)
                 browser.wait_in_text(button_text_selector, value)
@@ -244,6 +244,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("THE SERVICE")
         wait_log_present("JUST ERROR")
 
+        # We cannot open this select with tests but we need to wait until it gets loaded
         b.wait_present("#journal-service-menu option[value='check-journal']")
         b.set_val("#journal-service-menu", "just-a-service")
         wait_log_not_present("JUST ERROR")
@@ -271,7 +272,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         # Test following
         m.execute("logger --tag test-stream Message 1")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
 
         b.click("#journal-follow:contains('Pause')")
         b.wait_visible("#journal-follow:contains('Resume')")
@@ -281,9 +282,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.click("#journal-follow:contains('Resume')")
         b.wait_visible("#journal-follow:contains('Pause')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         m.execute("logger --tag test-stream Message 3")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
         # Test message filtering
 
@@ -297,13 +298,13 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_js_cond('window.location.hash === "#/?prio=notice&tag=test-stream&grep=1"')
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
 
         b.focus("#journal-grep")
         b.key_press("\bm.*[2-5]\r")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
         m.execute(r"printf 'MESSAGE=Message 4\nPRIORITY=3\nFOO=bar\n' | logger --journald")
         m.execute(r"printf 'MESSAGE=Message 5\nPRIORITY=3\nFOO=bar\n' | logger --journald")
@@ -311,9 +312,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.go("#/?tag=logger")
 
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
 
         b.focus("#journal-grep")
         b.key_press("FOO=bar [5-6]\r")
@@ -321,13 +322,13 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         b.focus("#journal-grep")
         b.key_press("\b"*13 + "[5-6]\r")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
-        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         # Test filters
         b.click("#log-filters")
@@ -466,7 +467,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         def wait_field(name, value):
             row_sel = ".info-table-ct tr:contains('" + name + "')"
-            b.wait_present(row_sel + " td:nth-child(2):contains('" + value + "')")
+            b.wait_visible(row_sel + " td:nth-child(2):contains('" + value + "')")
 
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
@@ -499,19 +500,19 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
         self.select_priority("Only emergency")
-        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
         self.select_priority("Warning and above")
-        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
-        b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
         self.select_priority("Info and above")
-        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
-        b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
-        b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
+        b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -539,7 +540,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         def wait_field(name, value):
             row_sel = "#abrt-details tr:contains('" + name + "')"
-            b.wait_present(row_sel + " td:nth-child(2):contains('" + value + "')")
+            b.wait_visible(row_sel + " td:nth-child(2):contains('" + value + "')")
 
         wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
 
@@ -580,7 +581,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_in_text("#entry-heading", "sleep")
         # details view should hide log view
         b.wait_not_present("h2:contains('Crash reporting')")
-        b.wait_present(".pf-c-card__title:contains('(sleep) crashed in')")
+        b.wait_visible(".pf-c-card__title:contains('(sleep) crashed in')")
         b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
@@ -623,7 +624,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.click(sleep_crash_list_sel)
         # HERE
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_present("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
+        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
 
         # "Unreport" the problem to test reporting unknown problem
         m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
@@ -647,7 +648,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.wait_not_present(".pf-c-modal-box__body p:contains('Password')")
         b.click(".pf-c-modal-box__footer button:contains('No')")
-        b.wait_present("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
+        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -683,7 +684,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
         b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Cancel me')")
         b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Cancel')")
-        b.wait_present("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
+        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-4", "centos-8-stream")
@@ -713,7 +714,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         self.login_and_go("/system/logs")
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_present("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
+        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
 
 if __name__ == '__main__':
     test_main()

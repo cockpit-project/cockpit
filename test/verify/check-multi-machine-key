@@ -195,7 +195,7 @@ class TestMultiMachineKeyAuth(MachineCase):
             self.load_key('id_rsa', 'foobar')
 
         b.go("/@10.111.113.2")
-        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
         # Change user
         authorize_user(m2, "user")

@@ -184,7 +184,7 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#system_information_hostname_text', "Adventure Box")
 
         b.click('#system_information_hostname_button')
-        b.wait_present("#system_information_change_hostname")
+        b.wait_visible("#system_information_change_hostname")
         b.wait_val("#sich-pretty-hostname", "Adventure Box")
         b.set_input_text("#sich-hostname", "host1.cockpit.lan")
         b.click("#system_information_change_hostname button:contains('Change')")
@@ -241,7 +241,7 @@ class TestSystemInfo(MachineCase):
 
         self.login_and_go("/system", superuser=False)
         b.wait_text_not("#system_information_systime_button", "")
-        b.wait_present('#system_information_systime_button[disabled]')
+        b.wait_visible('#system_information_systime_button[disabled]')
 
         # Gain admin access
         b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
@@ -481,7 +481,7 @@ class TestSystemInfo(MachineCase):
         self.restore_dir("/usr/local/bin")
 
         self.login_and_go('/system/hwinfo')
-        b.wait_present('#hwinfo th:contains(CPU)')
+        b.wait_visible('#hwinfo th:contains(CPU)')
 
         def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
             m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
@@ -494,14 +494,14 @@ class TestSystemInfo(MachineCase):
             b.enter_page('/system/hwinfo')
 
             if not expect_link_present:
-                b.wait_present('#hwinfo th:contains(CPU)')
+                b.wait_visible('#hwinfo th:contains(CPU)')
                 b.wait_not_present('#hwinfo th:contains(CPU security)')
             else:
                 b.click('#hwinfo button:contains(Mitigations)')
 
             if expect_smt_state is not None:
-                b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-                b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+                b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+                b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                                (expect_smt_state and ":checked" or ":not(:checked)"))
 
             if cmdline:
@@ -529,7 +529,7 @@ class TestSystemInfo(MachineCase):
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (self.expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
@@ -581,11 +581,11 @@ fi
         # Switch back nosmt option
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (self.expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (self.expect_smt_default and ':checked' or ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
@@ -601,10 +601,10 @@ fi
         m.wait_reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -612,8 +612,8 @@ fi
 
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', superuser=False)
-        b.wait_present('#hwinfo th:contains(CPU)')
-        b.wait_present('#cpu_mitigations[disabled]')
+        b.wait_visible('#hwinfo th:contains(CPU)')
+        b.wait_visible('#cpu_mitigations[disabled]')
         b.mouse('#tip-cpu-security', 'mouseenter')
         b.wait_text('.pf-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
         b.mouse('#tip-cpu-security', 'mouseleave')
@@ -628,9 +628,9 @@ fi
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
+        b.wait_visible('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
                                     'Generating grub configuration file.*',
@@ -685,7 +685,7 @@ insecure_connection=True
 
         def progressValue(number):
             sel = ".system-usage tr:nth-child(%i) .pf-c-progress__indicator" % number
-            b.wait_present(sel)
+            b.wait_visible(sel)
             b.wait_attr_contains(sel, "style", "width:")
             style = b.attr(sel, "style")
             m = re.search("width: (\d+)%;", style)
@@ -760,12 +760,12 @@ class TestPcp(packagelib.PackageCase):
         b.wait_not_present("#system-configuration-enable-pcp-link")
 
         # Turn stored metrics on
-        b.wait_present("#server-pmlogger-switch input:not(:checked)")
+        b.wait_visible("#server-pmlogger-switch input:not(:checked)")
         b.click("#server-pmlogger-switch input")
-        b.wait_present("#server-pmlogger-switch input:disabled")
+        b.wait_visible("#server-pmlogger-switch input:disabled")
         m.execute("touch /tmp/pmlogger.start")
-        b.wait_present("#server-pmlogger-switch input:not(:disabled)")
-        b.wait_present("#server-pmlogger-switch input:checked")
+        b.wait_visible("#server-pmlogger-switch input:not(:disabled)")
+        b.wait_visible("#server-pmlogger-switch input:checked")
 
 if __name__ == '__main__':
     test_main()

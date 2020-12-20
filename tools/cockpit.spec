@@ -254,6 +254,9 @@ find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
+echo '%dir %{_datadir}/cockpit/static' > static.list
+find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
+
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users metrics; do
@@ -459,7 +462,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 If sssd-dbus is installed, you can enable client certificate/smart card
 authentication via sssd/FreeIPA.
 
-%files ws -f cockpit.lang
+%files ws -f cockpit.lang -f static.list
 %doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
@@ -498,7 +501,6 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-tls
 %{_libexecdir}/cockpit-desktop
 %attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
-%{_datadir}/cockpit/static
 %{_datadir}/cockpit/branding
 
 %pre ws

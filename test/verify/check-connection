@@ -564,14 +564,14 @@ class TestConnection(MachineCase):
         m.start_cockpit()
 
         # static handler
-        headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit/static/login.min.html")
+        headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit/static/login.html")
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Content-Type: text/html\r\n", headers)
         self.assertIn("Cross-Origin-Resource-Policy: same-origin\r\n", headers)
         # login.html is not always accessible as a file (e. g. in Atomic), so just assert a reasonable content length
         self.assertIn("Content-Length: ", headers)
         length = int(headers.split('Content-Length: ', 1)[1].split()[0])
-        self.assertGreater(length, 10000)
+        self.assertGreater(length, 5000)
         self.assertLess(length, 100000)
 
         # login handler: wrong password
@@ -874,7 +874,7 @@ ProtocolHeader = X-Forwarded-Proto
                 ["curl", "--verbose", "--head",
                  "--resolve", "alice:%s:%s" % (https_port, https_host),
                  "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
-                 "https://alice:%s/cockpit/static/login.min.html" % https_port],
+                 "https://alice:%s/cockpit/static/login.html" % https_port],
                 stderr=subprocess.STDOUT)
         self.assertIn(b"HTTP/1.1 200 OK", out)
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)

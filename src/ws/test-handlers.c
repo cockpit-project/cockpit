@@ -103,7 +103,7 @@ base_setup (Test *test)
 
   test->auth = cockpit_auth_new (FALSE, COCKPIT_AUTH_NONE);
   test->roots = cockpit_web_response_resolve_roots (static_roots);
-  test->login_html = g_strdup(SRCDIR "/src/ws/login.html");
+  test->login_html = g_strdup(SRCDIR "/pkg/static/login.html");
 
   test->data.auth = test->auth;
   test->data.branding_roots = (const gchar **)test->roots;

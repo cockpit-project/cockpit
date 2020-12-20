@@ -342,21 +342,8 @@ var plugins = [
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
 ];
 
-var output = {
-    path: distdir,
-    filename: "[name].js",
-    sourceMapFilename: "[file].map",
-};
-
-/* Only minimize when in production mode */
-if (production) {
-    /* Rename output files when minimizing */
-    output.filename = "[name].min.js";
-}
-
 /* Fill in the tests properly */
 info.tests.forEach(function(test) {
-    var ext = production ? ".min.js" : ".js";
     if (!section || test.indexOf(section) === 0) {
         info.entries[test] = vpath("pkg", test + ".js");
         plugins.push(new html({
@@ -364,8 +351,7 @@ info.tests.forEach(function(test) {
             filename: test + ".html",
             template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(function() { return "../" }).join(""),
-            script: path.basename(test + ext),
-            ext: ext,
+            script: path.basename(test + '.js'),
             inject: false,
         }));
     }
@@ -407,7 +393,6 @@ module.exports = {
         extensions: ["*", ".js", ".json"]
     },
     entry: info.entries,
-    output: output,
     externals: externals,
     plugins: plugins,
 

@@ -310,6 +310,23 @@ const base1_fonts = [
     { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
 ];
 
+// main font for all our pages
+const redhat_fonts = ["Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
+                      "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
+                      "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular"].map(name => {
+                          const subdir = 'RedHat' + name.split('-')[0];
+                          return  {
+                              from: path.resolve(nodedir, '@redhat/redhat-font/webfonts', subdir, 'RedHat' + name + '.woff2'),
+                              to: 'static/fonts/'
+                          };
+                      });
+
+// deprecated OpenSans static font for cockpit-ws package (still necessary for RHEL 7 remote hosts)
+const opensans_fonts = ["Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "Italic", "Light",
+                        "LightItalic", "Regular", "Semibold", "SemiboldItalic"].map(name => (
+        { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
+    ));
+
 const plugins = [
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
@@ -318,6 +335,12 @@ const plugins = [
 
 if (section.startsWith('base1'))
     plugins.push(new copy(base1_fonts));
+
+// FIXME: move this to "static" section once we build that with webpack
+if (section.startsWith('base1')) {
+    plugins.push(new copy(redhat_fonts));
+    plugins.push(new copy(opensans_fonts));
+}
 
 /* Fill in the tests properly */
 info.tests.forEach(test => {

@@ -31,9 +31,6 @@ dist/static/login.po.%.html: src/ws/%.po src/ws/po.empty.html
 	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/src/ws/po.empty.html -o $@.tmp src/ws/$*.po && \
 	$(MV) $@.tmp $@
 
-staticfontsdir = $(staticdir)/fonts
-staticfonts_DATA = $(OPENSANS_FONTS) $(REDHATTEXT_FONTS) $(REDHATDISPLAY_FONTS)
-
 MAINTAINERCLEANFILES += \
 	dist/static/login.html \
 	dist/static/login.min.html \
@@ -55,7 +52,6 @@ EXTRA_DIST += \
 	src/ws/login.css \
 	src/ws/po.empty.html \
 	$(LOGIN_PO_FILES) \
-	$(staticfonts_DATA) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

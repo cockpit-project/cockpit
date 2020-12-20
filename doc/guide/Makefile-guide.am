@@ -61,7 +61,11 @@ GUIDE_XSLT = \
 	doc/guide/version-greater-or-equal.xsl \
 	$(NULL)
 
-GUIDE_FONTS = $(subst dist/static/fonts/,dist/guide/html/,$(REDHATTEXT_FONTS))
+# keep in sync with doc/guide/static/style.css
+GUIDE_FONTS = \
+	dist/guide/html/RedHatText-Regular.woff2 \
+	dist/guide/html/RedHatText-Medium.woff2 \
+	$(NULL)
 
 EXTRA_DIST += \
 	$(GUIDE_DOCBOOK) \
@@ -88,7 +92,7 @@ MAINTAINERCLEANFILES += \
 	*.tmp \
 	$(NULL)
 
-dist/guide/html/%.woff2: dist/static/fonts/%.woff2
+dist/guide/html/%.woff2: $(srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText/%.woff2
 	$(COPY_RULE)
 
 dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)

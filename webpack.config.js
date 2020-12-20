@@ -303,23 +303,6 @@ info.files.forEach(value => {
 });
 info.files = files;
 
-// Hide mini-css-extract-plugin spam logs
-class CleanUpStatsPlugin {
-  shouldPickStatChild(child) {
-    return child.name.indexOf('mini-css-extract-plugin') !== 0;
-  }
-
-  apply(compiler) {
-    compiler.hooks.done.tap('CleanUpStatsPlugin', (stats) => {
-      const children = stats.compilation.children;
-      if (Array.isArray(children)) {
-        stats.compilation.children = children
-          .filter(child => this.shouldPickStatChild(child));
-      }
-    });
-  }
-}
-
 const plugins = [
     new copy(info.files),
     // base1 fonts
@@ -329,7 +312,6 @@ const plugins = [
         { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
     ]),
     new miniCssExtractPlugin("[name].css"),
-    new CleanUpStatsPlugin(),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
 ];
 
@@ -389,6 +371,7 @@ module.exports = {
     plugins: plugins,
 
     devtool: "source-map",
+    stats: "errors-warnings",
 
     // disable noisy warnings about exceeding the recommended size limit
     performance: {

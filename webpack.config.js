@@ -2,7 +2,7 @@
  * Fill in module info here.
  */
 
-var info = {
+const info = {
     entries: {
         "base1/cockpit": [
             "base1/cockpit.js",
@@ -241,27 +241,27 @@ var info = {
 
 process.traceDeprecation = true;
 
-var webpack = require("webpack");
-var copy = require("copy-webpack-plugin");
-var html = require('html-webpack-plugin');
-var miniCssExtractPlugin = require('mini-css-extract-plugin');
-var path = require("path");
-var fs = require("fs");
+const webpack = require("webpack");
+const copy = require("copy-webpack-plugin");
+const html = require('html-webpack-plugin');
+const miniCssExtractPlugin = require('mini-css-extract-plugin');
+const path = require("path");
+const fs = require("fs");
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 /* These can be overridden, typically from the Makefile.am */
-var srcdir = process.env.SRCDIR || __dirname;
-var builddir = process.env.BUILDDIR || __dirname;
-var distdir = builddir + path.sep + "dist";
-var libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
-var nodedir = path.resolve(srcdir, "node_modules");
-var section = process.env.ONLYDIR || null;
+const srcdir = process.env.SRCDIR || __dirname;
+const builddir = process.env.BUILDDIR || __dirname;
+const distdir = builddir + path.sep + "dist";
+const libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
+const nodedir = path.resolve(srcdir, "node_modules");
+const section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
-var production = process.env.NODE_ENV === 'production';
+const production = process.env.NODE_ENV === 'production';
 
 /* development options for faster iteration */
-var eslint = process.env.ESLINT !== '0';
+const eslint = process.env.ESLINT !== '0';
 
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs
@@ -275,8 +275,8 @@ var eslint = process.env.ESLINT !== '0';
  */
 
 function vpath(/* ... */) {
-    var filename = Array.prototype.join.call(arguments, path.sep);
-    var expanded = builddir + path.sep + filename;
+    const filename = Array.prototype.join.call(arguments, path.sep);
+    let expanded = builddir + path.sep + filename;
     if (fs.existsSync(expanded))
         return expanded;
     expanded = srcdir + path.sep + filename;
@@ -286,23 +286,18 @@ function vpath(/* ... */) {
 }
 
 /* Qualify all the paths in entries */
-Object.keys(info.entries).forEach(function(key) {
+Object.keys(info.entries).forEach(key => {
     if (section && key.indexOf(section) !== 0) {
         delete info.entries[key];
         return;
     }
 
-    info.entries[key] = info.entries[key].map(function(value) {
-        if (value.indexOf("/") === -1)
-            return value;
-        else
-            return vpath("pkg", value);
-    });
+    info.entries[key] = info.entries[key].map(value => (value.indexOf("/") === -1) ? value : vpath("pkg", value));
 });
 
 /* Qualify all the paths in files listed */
-var files = [];
-info.files.forEach(function(value) {
+const files = [];
+info.files.forEach(value => {
     if (!section || value.indexOf(section) === 0)
         files.push({ from: vpath("pkg", value), to: value });
 });
@@ -325,7 +320,7 @@ class CleanUpStatsPlugin {
   }
 }
 
-var plugins = [
+const plugins = [
     new copy(info.files),
     // base1 fonts
     new copy([
@@ -339,21 +334,21 @@ var plugins = [
 ];
 
 /* Fill in the tests properly */
-info.tests.forEach(function(test) {
+info.tests.forEach(test => {
     if (!section || test.indexOf(section) === 0) {
         info.entries[test] = vpath("pkg", test + ".js");
         plugins.push(new html({
             title: path.basename(test),
             filename: test + ".html",
             template: libdir + path.sep + "qunit-template.html",
-            builddir: test.split("/").map(function() { return "../" }).join(""),
+            builddir: test.split("/").map(() => "../").join(""),
             script: path.basename(test + '.js'),
             inject: false,
         }));
     }
 });
 
-var aliases = {
+const aliases = {
     "moment": "moment/moment.js",
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
@@ -363,7 +358,7 @@ if (production)
     aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
 
 
-var babel_loader = {
+const babel_loader = {
     loader: "babel-loader",
     options: {
         presets: [

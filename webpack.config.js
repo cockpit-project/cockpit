@@ -235,10 +235,6 @@ var info = {
     ]
 };
 
-var externals = {
-    "cockpit": "cockpit",
-};
-
 /* ---------------------------------------------------------------------
  * Implementation
  */
@@ -393,7 +389,8 @@ module.exports = {
         extensions: ["*", ".js", ".json"]
     },
     entry: info.entries,
-    externals: externals,
+    // cockpit.js gets included via <script>, everything else should be bundled
+    externals: { "cockpit": "cockpit" },
     plugins: plugins,
 
     devtool: "source-map",

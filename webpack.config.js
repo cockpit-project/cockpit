@@ -303,17 +303,21 @@ info.files.forEach(value => {
 });
 info.files = files;
 
+// base1 fonts for cockpit-bridge package
+const base1_fonts = [
+    { from: path.resolve(nodedir, 'patternfly/dist/fonts/fontawesome-webfont.woff'), to: 'base1/fonts/fontawesome.woff' },
+    { from: path.resolve(nodedir, 'patternfly/dist/fonts/glyphicons-halflings-regular.woff'), to: 'base1/fonts/glyphicons.woff' },
+    { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
+];
+
 const plugins = [
     new copy(info.files),
-    // base1 fonts
-    new copy([
-        { from: path.resolve(nodedir, 'patternfly/dist/fonts/fontawesome-webfont.woff'), to: 'base1/fonts/fontawesome.woff' },
-        { from: path.resolve(nodedir, 'patternfly/dist/fonts/glyphicons-halflings-regular.woff'), to: 'base1/fonts/glyphicons.woff' },
-        { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
-    ]),
     new miniCssExtractPlugin("[name].css"),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
 ];
+
+if (section.startsWith('base1'))
+    plugins.push(new copy(base1_fonts));
 
 /* Fill in the tests properly */
 info.tests.forEach(test => {

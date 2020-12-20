@@ -88,19 +88,6 @@ GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
-UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
-CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
-
-MIN_JS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $(filter-out %.deps, $^) --mangle --comments 'preserve' --beautify \
-		--source-map url=$(notdir $@).map,includeSources --output $@
-
-MIN_CSS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ \
-		--source-map --source-map-inline-sources $^
-
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
 	-e 's,[@]datadir[@],$(datadir),g' \
@@ -165,6 +152,7 @@ WEBPACK_PACKAGES = \
 	shell \
 	sosreport \
 	ssh \
+	static \
 	storaged \
 	systemd \
 	tuned \

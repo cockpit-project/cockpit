@@ -166,10 +166,13 @@ function generateDeps(makefile, stats) {
             !endsWith(output, "override.json") &&
             // COMPAT: Support older cockpit-ws binaries. See #14673
             !endsWith(output, "shell/index.html") &&
+            // cockpit-ws cannot currently serve compressed login page
+            output.indexOf("static/login") < 0 &&
             !endsWith(output, ".png") &&
             !endsWith(output, ".map") &&
             !endsWith(output, ".ttf") &&
             !endsWith(output, ".woff") &&
+            !endsWith(output, ".woff2") &&
             !endsWith(output, ".gif")) {
             install += ".gz";
         }

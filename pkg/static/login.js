@@ -782,7 +782,8 @@ if (window.NodeList && !NodeList.prototype.forEach)
         xhr.onreadystatechange = function () {
             if (xhr.readyState != 4) {
                 return;
-            } else if (xhr.status == 200) {
+            }
+            if (xhr.status == 200) {
                 var resp = JSON.parse(xhr.responseText);
                 run(resp);
             } else if (xhr.status == 401) {

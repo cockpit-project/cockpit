@@ -100,6 +100,11 @@ const info = {
             "sosreport/sosreport.scss",
         ],
 
+        "static/login": [
+            "static/login.js",
+            "static/login.css",
+        ],
+
         "storaged/storage": [
             "storaged/devices.jsx"
         ],
@@ -221,6 +226,8 @@ const info = {
         "sosreport/index.html",
         "sosreport/sosreport.png",
 
+        "static/login.html",
+
         "storaged/index.html",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
@@ -336,8 +343,7 @@ const plugins = [
 if (section.startsWith('base1'))
     plugins.push(new copy(base1_fonts));
 
-// FIXME: move this to "static" section once we build that with webpack
-if (section.startsWith('base1')) {
+if (section.startsWith('static')) {
     plugins.push(new copy(redhat_fonts));
     plugins.push(new copy(opensans_fonts));
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-08 18:23+0000\n"
+"POT-Creation-Date: 2020-12-15 18:24+0000\n"
 "PO-Revision-Date: 2020-06-11 12:40+0000\n"
 "Last-Translator: Jakob Sundberg <jakob@mress.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -42,7 +42,7 @@ msgstr "Inte tillgängligt"
 msgid "$0 GiB total"
 msgstr ""
 
-#: pkg/machines/components/aggregateStatusCards.jsx:75
+#: pkg/machines/components/aggregateStatusCards.jsx:77
 #, fuzzy
 #| msgid "$0 network"
 msgid "$0 Network"
@@ -50,7 +50,7 @@ msgid_plural "$0 Networks"
 msgstr[0] "$0 Nätverk"
 msgstr[1] "$0 Nätverk"
 
-#: pkg/machines/components/aggregateStatusCards.jsx:51
+#: pkg/machines/components/aggregateStatusCards.jsx:52
 #, fuzzy
 #| msgid "Storage pool"
 #| msgid_plural "Storage pools"
@@ -112,7 +112,7 @@ msgstr "$0 diskar"
 msgid "$0 documentation"
 msgstr "$0 dokumentation"
 
-#: src/ws/login.js:374 src/ws/login.js:734
+#: src/ws/login.js:376 src/ws/login.js:823
 msgid "$0 error"
 msgstr "$0 fel"
 
@@ -124,7 +124,7 @@ msgstr "$0 avslutade med kod $1"
 msgid "$0 failed"
 msgstr "$0 misslyckades"
 
-#: pkg/storaged/content-views.jsx:393
+#: pkg/storaged/content-views.jsx:394
 msgctxt "storage-id-desc"
 msgid "$0 file system"
 msgstr "$0 filsystem"
@@ -177,10 +177,10 @@ msgstr ""
 "$0 är tillgängligt till de flesta operativsystem.  Sök efter det i GNOME-"
 "programvara för att installera det eller kör följande:"
 
-#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:164
+#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:165
 #: pkg/storaged/vdo-details.jsx:131 pkg/storaged/vdo-details.jsx:162
 #: pkg/storaged/lvol-tabs.jsx:209 pkg/storaged/lvol-tabs.jsx:271
-#: pkg/storaged/content-views.jsx:335 pkg/storaged/content-views.jsx:579
+#: pkg/storaged/content-views.jsx:336 pkg/storaged/content-views.jsx:580
 #: pkg/storaged/mdraid-details.jsx:231 pkg/storaged/mdraid-details.jsx:283
 msgid "$0 is in active use"
 msgstr "$0 används aktivt"
@@ -188,6 +188,12 @@ msgstr "$0 används aktivt"
 #: pkg/lib/cockpit-components-install-dialog.jsx:153
 msgid "$0 is not available from any repository."
 msgstr "$0 är inte tillgängligt från något förråd."
+
+#: src/ws/login.js:642
+#, fuzzy
+#| msgid "Force change"
+msgid "$0 key changed"
+msgstr "Framtvinga ändring"
 
 #: pkg/base1/cockpit.js:2798
 msgid "$0 killed with signal $1"
@@ -278,7 +284,7 @@ msgstr[1] "$0 fack återstår"
 msgid "$0 total"
 msgstr "Totalt"
 
-#: pkg/packagekit/updates.jsx:176
+#: pkg/packagekit/updates.jsx:181 pkg/packagekit/updates.jsx:525
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 uppdatering"
@@ -330,11 +336,11 @@ msgstr "zon $0"
 msgid "$0, $1 free"
 msgstr "$0, $1 fritt"
 
-#: pkg/systemd/logs.js:472
+#: pkg/systemd/logDetails.jsx:147
 msgid "$0: crash at $1"
 msgstr "$0: stop vid $1"
 
-#: pkg/packagekit/updates.jsx:174
+#: pkg/packagekit/updates.jsx:179 pkg/packagekit/updates.jsx:523
 msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 säkerhetsfix"
@@ -352,7 +358,7 @@ msgstr "(Valfritt)"
 msgid "(none)"
 msgstr "(ingen)"
 
-#: pkg/packagekit/updates.jsx:178
+#: pkg/packagekit/updates.jsx:183 pkg/packagekit/updates.jsx:527
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", inklusive $1 säkerhetsfix"
@@ -593,7 +599,7 @@ msgstr ""
 msgid "A disk is needed."
 msgstr "En disk behövs."
 
-#: src/ws/login.html:102
+#: src/ws/login.html:119
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "En modern webbläsare krävs för säkerhet, pålitlighet och prestanda."
@@ -636,6 +642,10 @@ msgstr "Om webkonsollen"
 msgid "Absent"
 msgstr "Frånvarande"
 
+#: src/ws/login.js:563
+msgid "Accept key and log in"
+msgstr ""
+
 #: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:305
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:228
 #: pkg/machines/components/vm/disks/diskEdit.jsx:85
@@ -655,13 +665,13 @@ msgstr "Kontot är inte tillgängligt eller kan inte redigeras."
 msgid "Accounts"
 msgstr "Konton"
 
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:815
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 #: pkg/apps/application-list.jsx:110
 #, fuzzy
 msgid "Actions"
 msgstr "Program"
 
-#: pkg/storaged/content-views.jsx:289
+#: pkg/storaged/content-views.jsx:290
 #: pkg/machines/components/storagePools/storagePool.jsx:174
 #: pkg/machines/components/networks/network.jsx:174
 msgid "Activate"
@@ -684,7 +694,7 @@ msgstr "Aktiv reserv"
 msgid "Active pages"
 msgstr "Aktiva sidor"
 
-#: pkg/storaged/dialog.jsx:1040 pkg/storaged/dialog.jsx:1044
+#: pkg/storaged/dialog.jsx:1044 pkg/storaged/dialog.jsx:1048
 msgid "Active since"
 msgstr "Aktivt sedan"
 
@@ -752,7 +762,7 @@ msgstr "Lägg till nyckel"
 msgid "Add network interface"
 msgstr "Lägg till nätverksport"
 
-#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:213
+#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:212
 #, fuzzy
 msgid "Add new host"
 msgstr "Lägg till zon"
@@ -896,7 +906,7 @@ msgstr "Administratörslösenord"
 msgid "Advanced TCA"
 msgstr "Avanserad TCA"
 
-#: pkg/storaged/dialog.jsx:946
+#: pkg/storaged/dialog.jsx:950
 #, fuzzy
 #| msgid "Current allocation"
 msgid "Affected locations"
@@ -911,7 +921,7 @@ msgctxt "time-delay"
 msgid "After"
 msgstr "Efter"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:204
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:206
 msgid "After deleting the snapshot, all its captured content will be lost."
 msgstr ""
 
@@ -938,15 +948,21 @@ msgstr ""
 msgid "Alert and above"
 msgstr "Larm och högre"
 
-#: pkg/systemd/services/services.jsx:684 pkg/systemd/logs.js:229
-#: pkg/machines/components/vms/hostvmslist.jsx:63
-#: pkg/machines/components/vms/hostvmslist.jsx:80
+#: pkg/systemd/services/services.jsx:684 pkg/systemd/logs.js:163
+#: pkg/machines/components/vms/hostvmslist.jsx:64
+#: pkg/machines/components/vms/hostvmslist.jsx:81
 msgid "All"
 msgstr "Alla"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:160
 msgid "All logs"
 msgstr "Alla loggar"
+
+#: pkg/packagekit/autoupdates.jsx:364
+#, fuzzy
+#| msgid "Apply all updates"
+msgid "All updates"
+msgstr "Lägg på alla uppdateringar"
 
 #: pkg/lib/machine-info.js:79
 msgid "All-in-one"
@@ -1000,14 +1016,6 @@ msgstr "Program"
 msgid "Apply"
 msgstr "Lägg på"
 
-#: pkg/packagekit/autoupdates.jsx:305
-msgid "Apply all updates"
-msgstr "Lägg på alla uppdateringar"
-
-#: pkg/packagekit/autoupdates.jsx:306
-msgid "Apply security updates"
-msgstr "Lägg på säkerhetsuppdateringar"
-
 #: pkg/selinux/setroubleshoot-view.jsx:125
 msgid "Apply this solution"
 msgstr "Lägg på denna lösning"
@@ -1016,11 +1024,11 @@ msgstr "Lägg på denna lösning"
 msgid "Applying solution..."
 msgstr "Lägger på lösning …"
 
-#: pkg/packagekit/updates.jsx:59
+#: pkg/packagekit/updates.jsx:63
 msgid "Applying updates"
 msgstr "Lägger på uppdateringar"
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:65
 msgid "Applying updates failed"
 msgstr "Att lägga på uppdateringar misslyckades"
 
@@ -1072,11 +1080,11 @@ msgstr "Autentiserar"
 msgid "Authentication"
 msgstr "Autentisering"
 
-#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:724
+#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:813
 msgid "Authentication failed"
 msgstr "Autentisering misslyckades"
 
-#: src/ws/login.js:714
+#: src/ws/login.js:803
 msgid "Authentication failed: Server closed connection"
 msgstr "Autentiseringen misslyckades: servern stängde ner förbindelsen"
 
@@ -1122,8 +1130,14 @@ msgstr "Automatiskt (DHCP)"
 msgid "Automatic login"
 msgstr "Automatisk"
 
-#: pkg/packagekit/autoupdates.jsx:344
+#: pkg/packagekit/autoupdates.jsx:414 pkg/packagekit/updates.jsx:580
 msgid "Automatic updates"
+msgstr "Automatiska uppdateringar"
+
+#: pkg/packagekit/autoupdates.jsx:269
+#, fuzzy
+#| msgid "Automatic updates"
+msgid "Automatic updates are not set up"
 msgstr "Automatiska uppdateringar"
 
 #: pkg/machines/components/libvirtSlate.jsx:94
@@ -1157,7 +1171,7 @@ msgstr "Starta automatiskt"
 msgid "Available targets on $0"
 msgstr "Tillgängliga mål på $0"
 
-#: pkg/packagekit/updates.jsx:386 pkg/packagekit/updates.jsx:877
+#: pkg/packagekit/updates.jsx:388 pkg/packagekit/updates.jsx:592
 msgid "Available updates"
 msgstr "Tillgängliga uppdateringar"
 
@@ -1214,7 +1228,7 @@ msgstr "Bladhölje"
 msgid "Block"
 msgstr "Block"
 
-#: pkg/storaged/content-views.jsx:741
+#: pkg/storaged/content-views.jsx:742
 msgid "Block device for filesystems"
 msgstr "Blockenhet för filsystem"
 
@@ -1271,11 +1285,11 @@ msgstr "Utsändning"
 msgid "Broken configuration"
 msgstr "Trasig konfiguration"
 
-#: pkg/packagekit/updates.jsx:857
+#: pkg/packagekit/updates.jsx:971
 msgid "Bug fix updates available"
 msgstr "Felrättningsuppdateringar tillgängliga"
 
-#: pkg/packagekit/updates.jsx:331
+#: pkg/packagekit/updates.jsx:334
 #, fuzzy
 msgid "Bugs"
 msgstr "Fel:"
@@ -1336,7 +1350,7 @@ msgstr "CPU-typ"
 msgid "CPU usage"
 msgstr "CPU-användning:"
 
-#: pkg/packagekit/updates.jsx:319
+#: pkg/packagekit/updates.jsx:322
 msgid "CVE"
 msgstr ""
 
@@ -1345,7 +1359,7 @@ msgstr ""
 msgid "Cache"
 msgstr "Cache"
 
-#: pkg/systemd/logs.js:201 pkg/systemd/logs.js:322
+#: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Hittade inga loggar med dessa filter aktiva."
 
@@ -1358,16 +1372,19 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/systemd/overview-cards/realmd-operation.html:84
 #: pkg/systemd/services.html:281 pkg/lib/machine-change-auth.html:75
 #: pkg/lib/machine-unknown-hostkey.html:21 pkg/lib/machine-add.html:55
-#: pkg/lib/machine-change-port.html:26 pkg/sosreport/index.js:52
-#: pkg/shell/shell-modals.jsx:87 pkg/shell/superuser.jsx:77
-#: pkg/shell/superuser.jsx:134 pkg/networkmanager/firewall.jsx:514
-#: pkg/networkmanager/firewall.jsx:675 pkg/networkmanager/firewall.jsx:758
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/hwinfo.jsx:239
+#: pkg/lib/machine-change-port.html:26 src/ws/login.html:103
+#: pkg/sosreport/index.js:52 pkg/shell/shell-modals.jsx:87
+#: pkg/shell/superuser.jsx:77 pkg/shell/superuser.jsx:134
+#: pkg/networkmanager/firewall.jsx:514 pkg/networkmanager/firewall.jsx:675
+#: pkg/networkmanager/firewall.jsx:758 pkg/systemd/reporting.jsx:419
+#: pkg/systemd/hwinfo.jsx:239
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/services/service-details.jsx:70
 #: pkg/lib/cockpit-components-dialog.jsx:148 pkg/storaged/jobs-panel.jsx:126
-#: pkg/storaged/dialog.jsx:404 pkg/packagekit/updates.jsx:196
-#: pkg/apps/utils.jsx:84 pkg/machines/components/common/deleteResource.jsx:68
+#: pkg/storaged/dialog.jsx:408 pkg/packagekit/autoupdates.jsx:426
+#: pkg/packagekit/updates.jsx:201 pkg/apps/utils.jsx:84
+#: pkg/machines/components/common/deleteResource.jsx:68
 #: pkg/machines/components/vm/deleteDialog.jsx:140
 #: pkg/machines/components/vm/overview/firmware.jsx:63
 #: pkg/machines/components/vm/overview/bootOrder.jsx:324
@@ -1473,6 +1490,13 @@ msgstr "Ändra lösenord"
 msgid "Change the settings"
 msgstr "Ändra inställningarna"
 
+#: src/ws/login.html:59
+msgid ""
+"Changed keys are often the result of an operating system reinstallation. "
+"However, an unexpected change may indicate a third-party attempt to "
+"intercept your connection."
+msgstr ""
+
 #: pkg/machines/components/common/warningInactive.jsx:12
 #: pkg/machines/components/vm/overview/bootOrder.jsx:285
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:180
@@ -1489,7 +1513,7 @@ msgstr ""
 "Att ändra inställningarna kommer bryta förbindelsen till servern, och kommer "
 "göra administrationsgränssnittet otillgängligt."
 
-#: pkg/packagekit/updates.jsx:192
+#: pkg/packagekit/updates.jsx:197 pkg/packagekit/updates.jsx:570
 msgid "Check for updates"
 msgstr "Kontrollera om det finns uppdateringar"
 
@@ -1513,7 +1537,7 @@ msgstr "Kontrollerar och reparerar RAID-enhet $target"
 msgid "Checking for new applications"
 msgstr "Kontrollerar om det finns nya program"
 
-#: pkg/packagekit/updates.jsx:816
+#: pkg/packagekit/updates.jsx:930
 msgid "Checking for package updates..."
 msgstr "Söker efter programuppdateringar..."
 
@@ -1584,7 +1608,7 @@ msgstr ""
 #: pkg/sosreport/index.js:128 pkg/shell/shell-modals.jsx:34
 #: pkg/shell/shell-modals.jsx:117 pkg/shell/superuser.jsx:77
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
-#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/storaged/dialog.jsx:404
+#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/storaged/dialog.jsx:408
 #: pkg/apps/utils.jsx:102
 msgid "Close"
 msgstr "Stäng"
@@ -1597,7 +1621,7 @@ msgstr "Stäng valda sidor"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:394
+#: src/ws/login.js:396
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit-autentisering är felaktigt konfigurerad."
 
@@ -1677,11 +1701,11 @@ msgstr "Kommunikationen med tuned har misslyckats"
 msgid "Compact PCI"
 msgstr "Kompakt PCI"
 
-#: pkg/storaged/content-views.jsx:600
+#: pkg/storaged/content-views.jsx:601
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "Kompatibel med alla system och enheter (MBR)"
 
-#: pkg/storaged/content-views.jsx:603
+#: pkg/storaged/content-views.jsx:604
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Kompatibel med moderna system och hårddiskar > 2 TB (GPT)"
 
@@ -1733,7 +1757,7 @@ msgid "Configuring system settings"
 msgstr "Ändra inställningarna"
 
 #: pkg/shell/index.html:261 pkg/users/account-create-dialog.js:61
-#: pkg/storaged/format-dialog.jsx:221
+#: pkg/storaged/format-dialog.jsx:222
 msgid "Confirm"
 msgstr "Bekräfta"
 
@@ -1781,7 +1805,7 @@ msgstr "Anslut"
 msgid "Connect automatically"
 msgstr "Anslut automatiskt"
 
-#: src/ws/login.html:75
+#: src/ws/login.html:91
 msgid "Connect to"
 msgstr "Anslut till"
 
@@ -1811,7 +1835,7 @@ msgid "Connecting to virtualization service"
 msgstr "Ansluter till virtualiseringstjänsten"
 
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:33
-#: pkg/machines/components/vms/hostvmslist.jsx:137
+#: pkg/machines/components/vms/hostvmslist.jsx:139
 #: pkg/machines/components/storagePools/storagePoolList.jsx:74
 #: pkg/machines/components/networks/networkList.jsx:77
 #: pkg/machines/components/networks/createNetworkDialog.jsx:38
@@ -1862,8 +1886,8 @@ msgstr "Behållaradministratör"
 msgid "Contains:"
 msgstr "Behållare:"
 
-#: pkg/storaged/content-views.jsx:639 pkg/storaged/content-views.jsx:644
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:815
+#: pkg/storaged/content-views.jsx:640 pkg/storaged/content-views.jsx:645
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Content"
 msgstr "Innehåll"
 
@@ -1909,7 +1933,7 @@ msgstr "Kunde inte återställa lagringspoolen"
 msgid "Crash dump location"
 msgstr "Kraschdumpplats"
 
-#: pkg/systemd/reporting.jsx:472
+#: pkg/systemd/reporting.jsx:474
 msgid "Crash reporting"
 msgstr "Rapportera krasher"
 
@@ -1925,8 +1949,8 @@ msgstr "kraschad"
 
 #: pkg/users/account-create-dialog.js:209
 #: pkg/users/account-create-dialog.js:253 pkg/storaged/vdos-panel.jsx:146
-#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:131
-#: pkg/storaged/content-views.jsx:277 pkg/storaged/content-views.jsx:784
+#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:132
+#: pkg/storaged/content-views.jsx:278 pkg/storaged/content-views.jsx:785
 #: pkg/storaged/mdraids-panel.jsx:123
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:133
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:434
@@ -1973,7 +1997,7 @@ msgstr "Skapa en diagnostisk rapport"
 msgid "Create it"
 msgstr "Skapa den"
 
-#: pkg/storaged/content-views.jsx:728
+#: pkg/storaged/content-views.jsx:729
 msgid "Create logical volume"
 msgstr "Skapa en logisk volym"
 
@@ -1985,7 +2009,7 @@ msgstr "Skapa ny"
 msgid "Create new account"
 msgstr "Skapa ett nytt konto"
 
-#: pkg/storaged/content-views.jsx:802
+#: pkg/storaged/content-views.jsx:803
 msgid "Create new logical volume"
 msgstr "Skapa en ny logisk volym"
 
@@ -2001,15 +2025,15 @@ msgstr "Skapa en ny virtuell maskin"
 msgid "Create new volume"
 msgstr "Skapa ny volym"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:505
+#: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:506
 msgid "Create partition"
 msgstr "Skapa en partition"
 
-#: pkg/storaged/format-dialog.jsx:132
+#: pkg/storaged/format-dialog.jsx:133
 msgid "Create partition on $0"
 msgstr "Skapa partition på $0"
 
-#: pkg/storaged/content-views.jsx:632
+#: pkg/storaged/content-views.jsx:633
 msgid "Create partition table"
 msgstr "Skapa partitionstabell"
 
@@ -2017,8 +2041,8 @@ msgstr "Skapa partitionstabell"
 msgid "Create report"
 msgstr "Skapa en rapport"
 
-#: pkg/storaged/content-views.jsx:271 pkg/storaged/content-views.jsx:292
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:77
+#: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:293
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:78
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:128
 msgid "Create snapshot"
 msgstr "Skapa en ögonblicksbild"
@@ -2032,7 +2056,7 @@ msgstr "Skapa en lagringspool"
 msgid "Create storage volume"
 msgstr "Skapa lagringsvolym"
 
-#: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:142
+#: pkg/storaged/content-views.jsx:116 pkg/storaged/content-views.jsx:143
 msgid "Create thin volume"
 msgstr "Skapa en tunn volym"
 
@@ -2062,12 +2086,12 @@ msgstr "Skapa en volymgrupp"
 msgid "Creating RAID device $target"
 msgstr "Skapar en RAID-enhet $target"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:49
+#: pkg/machines/components/vms/hostvmslist.jsx:50
 #, fuzzy
 msgid "Creating VM"
 msgstr "Skapa en VM"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:47
+#: pkg/machines/components/vms/hostvmslist.jsx:48
 msgid "Creating VM installation"
 msgstr ""
 
@@ -2127,7 +2151,7 @@ msgstr "Skapar en volymgrupp $target"
 msgid "Creation of VM $0 failed"
 msgstr "Misslyckades att skapa VM $0"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:107
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:108
 #, fuzzy
 msgid "Creation time"
 msgstr "Skapa en timer"
@@ -2148,7 +2172,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:113
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:114
 #, fuzzy
 msgid "Current"
 msgstr "Nuvarande uppstart"
@@ -2161,7 +2185,7 @@ msgstr "Nuvarande indelning"
 msgid "Current boot"
 msgstr "Nuvarande uppstart"
 
-#: pkg/storaged/format-dialog.jsx:65
+#: pkg/storaged/format-dialog.jsx:66
 msgid "Custom encryption options"
 msgstr "Anpassade krypteringsalternativ"
 
@@ -2169,7 +2193,7 @@ msgstr "Anpassade krypteringsalternativ"
 msgid "Custom firmware: $0"
 msgstr "Eget hårdvaruprogram: $0"
 
-#: pkg/storaged/nfs-details.jsx:181 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/nfs-details.jsx:181 pkg/storaged/format-dialog.jsx:248
 #: pkg/storaged/fsys-tab.jsx:262
 msgid "Custom mount options"
 msgstr "Anpassade monteringsalternativ"
@@ -2215,7 +2239,7 @@ msgstr "Mörk"
 msgid "Data used"
 msgstr "Data använt"
 
-#: pkg/storaged/content-views.jsx:287
+#: pkg/storaged/content-views.jsx:288
 #: pkg/machines/components/storagePools/storagePool.jsx:165
 #: pkg/machines/components/networks/network.jsx:170
 msgid "Deactivate"
@@ -2243,10 +2267,11 @@ msgstr "Fördröjning"
 
 #: pkg/networkmanager/index.html:460 pkg/users/delete-account-dialog.js:60
 #: pkg/users/account-details.js:268 pkg/networkmanager/firewall.jsx:755
-#: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
-#: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
-#: pkg/storaged/content-views.jsx:346 pkg/storaged/content-views.jsx:362
-#: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
+#: pkg/systemd/abrtLog.jsx:242 pkg/storaged/vgroup-details.jsx:202
+#: pkg/storaged/vgroup-details.jsx:224 pkg/storaged/vdo-details.jsx:201
+#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/content-views.jsx:347
+#: pkg/storaged/content-views.jsx:363 pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:317
 #: pkg/machines/components/common/deleteResource.jsx:60
 #: pkg/machines/components/common/deleteResource.jsx:65
 #: pkg/machines/components/common/deleteResource.jsx:94
@@ -2310,11 +2335,11 @@ msgstr "Att ta bort en RAID-enhet kommer att radera all data på den."
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Att ta bort en VDO-enhet kommer att ta bort all data på den."
 
-#: pkg/storaged/content-views.jsx:324
+#: pkg/storaged/content-views.jsx:325
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "Att ta bort en logisk volym kommer att ta bort all data i den."
 
-#: pkg/storaged/content-views.jsx:327
+#: pkg/storaged/content-views.jsx:328
 msgid "Deleting a partition will delete all data in it."
 msgstr "Att ta bort en partition kommer att ta bort all data i den."
 
@@ -2337,7 +2362,7 @@ msgstr "Tar bort volymgruppen $target"
 
 #: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:703
 #: pkg/systemd/services/services-list.jsx:53
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:129
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:130
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:54
 msgid "Description"
 msgstr "Beskrivning"
@@ -2358,7 +2383,7 @@ msgstr ""
 msgid "Detachable"
 msgstr "Frånkopplingsbar"
 
-#: pkg/shell/index.html:188 pkg/packagekit/updates.jsx:391
+#: pkg/shell/index.html:188 pkg/packagekit/updates.jsx:394
 msgid "Details"
 msgstr "Detaljer"
 
@@ -2390,7 +2415,7 @@ msgctxt "storage"
 msgid "Device file"
 msgstr "Enhetsfil"
 
-#: pkg/storaged/content-views.jsx:631
+#: pkg/storaged/content-views.jsx:632
 msgid "Device is read-only"
 msgstr "Enheten är skrivskyddad"
 
@@ -2489,7 +2514,7 @@ msgstr "Disklösenfras"
 msgid "Disk settings could not be saved"
 msgstr "Inställningarna för disken kunde inte sparas"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:151
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:153
 msgid "Disk-only snapshot"
 msgstr ""
 
@@ -2547,15 +2572,15 @@ msgstr "Domänadministratörens namn"
 msgid "Domain administrator password"
 msgstr "Domänadministratörens lösenord"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:153
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:155
 msgid "Domain has crashed"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:152
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:154
 msgid "Domain is blocked on resource"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/content-views.jsx:592
+#: pkg/storaged/format-dialog.jsx:196 pkg/storaged/content-views.jsx:593
 msgid "Don't overwrite existing data"
 msgstr "Skriv inte över befintliga data"
 
@@ -2568,7 +2593,7 @@ msgstr "Upprepa inte"
 msgid "Done!"
 msgstr "Klar!"
 
-#: src/ws/login.html:105
+#: src/ws/login.html:122
 msgid "Download a new browser for free"
 msgstr "Hämta en ny webbläsare gratis"
 
@@ -2584,11 +2609,11 @@ msgstr "Hämta en rapport"
 msgid "Download the MSI from $0"
 msgstr "Hämta MSI:n från $0"
 
-#: pkg/packagekit/updates.jsx:74
+#: pkg/packagekit/updates.jsx:78
 msgid "Downloaded"
 msgstr "Hämtat"
 
-#: pkg/packagekit/updates.jsx:66
+#: pkg/packagekit/updates.jsx:70
 msgid "Downloading"
 msgstr "Hämtar"
 
@@ -2615,7 +2640,7 @@ msgid "Dying"
 msgstr "döende"
 
 #: pkg/shell/indexes.js:345 pkg/storaged/nfs-details.jsx:315
-#: pkg/storaged/crypto-tab.jsx:136
+#: pkg/storaged/crypto-tab.jsx:136 pkg/packagekit/autoupdates.jsx:411
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:287
 #: pkg/machines/components/vm/disks/diskEdit.jsx:241
 msgid "Edit"
@@ -2624,6 +2649,11 @@ msgstr "Redigera"
 #: pkg/machines/components/vm/disks/diskEdit.jsx:193
 msgid "Edit $0 attributes"
 msgstr ""
+
+#: pkg/systemd/overview-cards/motdCard.jsx:87
+#, fuzzy
+msgid "Edit /etc/motd"
+msgstr "Redigera"
 
 #: pkg/storaged/crypto-keyslots.jsx:279
 msgid "Edit Tang keyserver"
@@ -2634,9 +2664,14 @@ msgstr "Redigera Tang-nyckelserver"
 msgid "Edit host"
 msgstr "Redigera"
 
-#: pkg/shell/hosts.jsx:212
+#: pkg/shell/hosts.jsx:211
 msgid "Edit hosts"
 msgstr ""
+
+#: pkg/systemd/overview-cards/motdCard.jsx:77
+#, fuzzy
+msgid "Edit motd"
+msgstr "Redigera"
 
 #: pkg/networkmanager/index.html:113
 msgid "Edit rules and zones"
@@ -2688,7 +2723,7 @@ msgstr "Slå på brandväggen"
 msgid "Enabled"
 msgstr "Aktiverad"
 
-#: pkg/storaged/format-dialog.jsx:209
+#: pkg/storaged/format-dialog.jsx:210
 msgid "Encrypt data"
 msgstr "Kryptera data"
 
@@ -2696,7 +2731,7 @@ msgstr "Kryptera data"
 msgid "Encrypted $0"
 msgstr "Krypterad $0"
 
-#: pkg/storaged/content-views.jsx:407
+#: pkg/storaged/content-views.jsx:408
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "Krypterad data"
@@ -2717,7 +2752,7 @@ msgstr "Storleken på krypterade volymer kan inte ändras här."
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr "Krypterade volymer behöver låsas upp innan deras storlek kan ändras."
 
-#: pkg/storaged/content-views.jsx:157
+#: pkg/storaged/content-views.jsx:158
 msgid "Encryption"
 msgstr "Kryptering"
 
@@ -2738,7 +2773,7 @@ msgstr "Slutet kan inte vara tomt"
 msgid "Enforcing"
 msgstr "Tvingande"
 
-#: pkg/packagekit/updates.jsx:859
+#: pkg/packagekit/updates.jsx:973
 msgid "Enhancement updates available"
 msgstr "Förbättringsuppdateringar är tillgängliga"
 
@@ -2746,15 +2781,11 @@ msgstr "Förbättringsuppdateringar är tillgängliga"
 msgid "Entire subnet"
 msgstr "Hela subnätet"
 
-#: pkg/systemd/logs.html:128
-msgid "Entry"
-msgstr "Post"
-
-#: pkg/systemd/logs.js:478
+#: pkg/systemd/logDetails.jsx:153
 msgid "Entry at $0"
 msgstr "Ingång vid $0"
 
-#: pkg/storaged/format-dialog.jsx:192 pkg/storaged/content-views.jsx:589
+#: pkg/storaged/format-dialog.jsx:193 pkg/storaged/content-views.jsx:590
 msgid "Erase"
 msgstr "Radera"
 
@@ -2762,7 +2793,7 @@ msgstr "Radera"
 msgid "Erasing $target"
 msgstr "Raderar $target"
 
-#: pkg/packagekit/updates.jsx:327
+#: pkg/packagekit/updates.jsx:330
 #, fuzzy
 msgid "Errata"
 msgstr "Errata:"
@@ -2844,11 +2875,11 @@ msgstr ""
 msgid "Expansion chassis"
 msgstr "Expansionschassin"
 
-#: pkg/systemd/logs.js:562
+#: pkg/systemd/abrtLog.jsx:244
 msgid "Extended information"
 msgstr "Utökad information"
 
-#: pkg/storaged/format-dialog.jsx:158 pkg/storaged/content-views.jsx:527
+#: pkg/storaged/format-dialog.jsx:159 pkg/storaged/content-views.jsx:528
 msgid "Extended partition"
 msgstr "Utökad partition"
 
@@ -2916,6 +2947,12 @@ msgstr "Kunde inte hämta IP-adresser från portar i $0"
 msgid "Failed to load authorized keys."
 msgstr "Misslyckades att läsa in auktoriserade nycklar."
 
+#: pkg/systemd/overview-cards/motdCard.jsx:97
+#, fuzzy
+#| msgid "Failed to change firmware"
+msgid "Failed to save changes in /etc/motd"
+msgstr "Misslyckades att ändra hårdvaruprogram"
+
 #: pkg/machines/components/vm/consoles/vnc.jsx:130
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "Kunde inte skicka Ctrl+Alt+$0 till VM $1"
@@ -2938,7 +2975,7 @@ msgstr "Färre än det maximala antalet virtuella CPU:er skall vara aktiverade."
 msgid "File"
 msgstr "Arkiv"
 
-#: pkg/storaged/content-views.jsx:155
+#: pkg/storaged/content-views.jsx:156
 msgid "Filesystem"
 msgstr "Filsystem"
 
@@ -2958,7 +2995,7 @@ msgstr "Filsystem"
 msgid "Filter"
 msgstr "Filtrera"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:91
+#: pkg/machines/components/vms/hostvmslist.jsx:92
 #, fuzzy
 msgid "Filter by name"
 msgstr "Filtrera efter namn eller beskrivning"
@@ -3028,22 +3065,22 @@ msgstr "Framtvinga omstart"
 msgid "Force shut down"
 msgstr "Framtvinga avstängning"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:367
-#: pkg/storaged/content-views.jsx:369 pkg/storaged/content-views.jsx:610
+#: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:368
+#: pkg/storaged/content-views.jsx:370 pkg/storaged/content-views.jsx:611
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:66
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:197
 msgid "Format"
 msgstr "Formater"
 
-#: pkg/storaged/format-dialog.jsx:134
+#: pkg/storaged/format-dialog.jsx:135
 msgid "Format $0"
 msgstr "Formatera $0"
 
-#: pkg/storaged/content-views.jsx:586
+#: pkg/storaged/content-views.jsx:587
 msgid "Format disk $0"
 msgstr "Formatera disken $0"
 
-#: pkg/storaged/content-views.jsx:611
+#: pkg/storaged/content-views.jsx:612
 msgid "Formatting a disk will erase all data on it."
 msgstr "Att formatera en disk kommer att radera all data på den."
 
@@ -3063,11 +3100,15 @@ msgstr ""
 msgid "Forwarding mode"
 msgstr ""
 
+#: pkg/systemd/abrtLog.jsx:74
+msgid "Frame number"
+msgstr ""
+
 #: pkg/storaged/pvol-tabs.jsx:51
 msgid "Free"
 msgstr "Ledigt"
 
-#: pkg/storaged/content-views.jsx:512
+#: pkg/storaged/content-views.jsx:513
 msgid "Free space"
 msgstr "Ledigt utrymme"
 
@@ -3083,7 +3124,7 @@ msgstr ""
 msgid "Friday"
 msgstr "Fredag"
 
-#: pkg/packagekit/autoupdates.jsx:319
+#: pkg/packagekit/autoupdates.jsx:379
 msgid "Fridays"
 msgstr "Fredagar"
 
@@ -3095,7 +3136,7 @@ msgstr "Fullständigt namn"
 msgid "GNU LGPL version 2.1"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2692 pkg/systemd/logs.js:567
+#: pkg/networkmanager/interfaces.js:2692 pkg/systemd/abrtLog.jsx:248
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:188
 #: pkg/machines/components/networks/networkOverviewTab.jsx:85
 msgid "General"
@@ -3191,11 +3232,11 @@ msgstr "Hjälp"
 msgid "Hide additional options"
 msgstr "Göm ytterligare inställningar"
 
-#: pkg/systemd/logs.js:950 pkg/systemd/logs.js:1095
+#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:514
 msgid "Hide filters"
 msgstr "Göm filter"
 
-#: pkg/packagekit/history.jsx:109
+#: pkg/packagekit/history.jsx:108
 #, fuzzy
 msgid "History package count"
 msgstr "Lås kontot"
@@ -3356,7 +3397,13 @@ msgstr ""
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "Om tang-show-keys inte är tillgängligt, kör det följande:"
 
-#: pkg/networkmanager/interfaces.js:1954 pkg/packagekit/updates.jsx:503
+#: src/ws/login.html:68
+msgid ""
+"If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
+"not log in and contact your administrator."
+msgstr ""
+
+#: pkg/networkmanager/interfaces.js:1954 pkg/packagekit/updates.jsx:506
 msgid "Ignore"
 msgstr "Ignorera"
 
@@ -3409,7 +3456,7 @@ msgstr "I synk"
 msgid "Inactive"
 msgstr "Inaktiv"
 
-#: pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:702
 msgid "Inactive volume"
 msgstr "Inaktiv volym"
 
@@ -3433,7 +3480,7 @@ msgstr "Indexminne"
 msgid "Info and above"
 msgstr "Info och högre"
 
-#: pkg/packagekit/updates.jsx:460
+#: pkg/packagekit/updates.jsx:463
 msgid "Initializing..."
 msgstr "Initierar …"
 
@@ -3463,7 +3510,7 @@ msgstr "Installera stöd för NFS"
 msgid "Install VDO support"
 msgstr "Installera stöd för VDO"
 
-#: pkg/packagekit/updates.jsx:844
+#: pkg/packagekit/updates.jsx:958
 msgid "Install all updates"
 msgstr "Installera alla uppdateringar"
 
@@ -3471,7 +3518,7 @@ msgstr "Installera alla uppdateringar"
 msgid "Install cockpit-pcp"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:844 pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:958 pkg/packagekit/updates.jsx:964
 msgid "Install security updates"
 msgstr "Installera säkerhetsuppdateringar"
 
@@ -3497,11 +3544,11 @@ msgstr "Installationskällan kan inte vara tom"
 msgid "Installation type"
 msgstr "Installationstyp"
 
-#: pkg/packagekit/updates.jsx:75
+#: pkg/packagekit/updates.jsx:79
 msgid "Installed"
 msgstr "Installerad"
 
-#: pkg/packagekit/updates.jsx:67 pkg/apps/application-list.jsx:55
+#: pkg/packagekit/updates.jsx:71 pkg/apps/application-list.jsx:55
 #: pkg/apps/application.jsx:59
 msgid "Installing"
 msgstr "Installerar"
@@ -3530,7 +3577,7 @@ msgstr "Gränssnitt"
 msgid "Internal error"
 msgstr "Internt fel"
 
-#: src/ws/login.js:706
+#: src/ws/login.js:795
 msgid "Internal error: Invalid challenge header"
 msgstr "Internt fel: felaktig utmaningshuvud"
 
@@ -3675,11 +3722,11 @@ msgstr "Går med i namnrymden för"
 msgid "Journal"
 msgstr "Journal"
 
-#: pkg/systemd/logs.js:458
+#: pkg/systemd/logDetails.jsx:135
 msgid "Journal entry"
 msgstr "Journalpost"
 
-#: pkg/systemd/logs.js:496
+#: pkg/systemd/logDetails.jsx:121
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
@@ -3761,7 +3808,7 @@ msgstr "Senaste 24 timmarna"
 msgid "Last 7 days"
 msgstr "Senaste 7 datgarna"
 
-#: pkg/packagekit/updates.jsx:194
+#: pkg/packagekit/updates.jsx:199 pkg/packagekit/updates.jsx:536
 msgid "Last checked: $0"
 msgstr "Senast kontrollerad: $0 sedan"
 
@@ -3864,7 +3911,7 @@ msgstr "Lastbalansering"
 msgid "Load earlier data"
 msgstr "Läs in tidigare poster"
 
-#: pkg/systemd/logs.js:180
+#: pkg/systemd/logs.js:114
 msgid "Load earlier entries"
 msgstr "Läs in tidigare poster"
 
@@ -3872,11 +3919,11 @@ msgstr "Läs in tidigare poster"
 msgid "Load spike"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:66
 msgid "Loading available updates failed"
 msgstr "Inläsningen av tillgängliga uppdateringar misslyckades"
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:59
 msgid "Loading available updates, please wait..."
 msgstr "Läser in tillgängliga uppdateringar, var god dröj …"
 
@@ -3900,8 +3947,9 @@ msgstr "Laddar resurser"
 msgid "Loading system modifications..."
 msgstr "Laddar anpassningar till systemet..."
 
-#: pkg/kdump/kdump-view.jsx:371 pkg/systemd/services/services.jsx:664
-#: pkg/systemd/logs.js:224 pkg/systemd/logs.js:267 pkg/storaged/devices.jsx:70
+#: pkg/kdump/kdump-view.jsx:371 pkg/systemd/logDetails.jsx:141
+#: pkg/systemd/services/services.jsx:664 pkg/systemd/logs.js:158
+#: pkg/systemd/logs.js:201 pkg/storaged/devices.jsx:69
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
 #: pkg/metrics/metrics.jsx:975
 msgid "Loading..."
@@ -3927,7 +3975,7 @@ msgstr "Lokal monteringspunkt"
 msgid "Location"
 msgstr "Plats"
 
-#: pkg/storaged/content-views.jsx:255
+#: pkg/storaged/content-views.jsx:256
 msgid "Lock"
 msgstr "Lås"
 
@@ -3950,7 +3998,7 @@ msgid "Locking $target"
 msgstr "Låser $target"
 
 #: pkg/shell/index.html:308 pkg/lib/machine-change-auth.html:74
-#: src/ws/login.html:85 src/ws/login.js:556
+#: src/ws/login.html:101 src/ws/login.js:563
 msgid "Log in"
 msgstr "Logga in"
 
@@ -3958,7 +4006,7 @@ msgstr "Logga in"
 msgid "Log in to {{host}}"
 msgstr "Logga in på {{host}}"
 
-#: src/ws/login.js:582
+#: src/ws/login.js:593
 msgid "Log in with your server user account."
 msgstr "Logga in med ditt serveranvändarkonto."
 
@@ -3994,12 +4042,12 @@ msgstr "Logisk volym (ögonblicksbild)"
 msgid "Logical volume of $0"
 msgstr "Logisk voly av $0"
 
-#: pkg/storaged/content-views.jsx:809 pkg/storaged/content-views.jsx:814
+#: pkg/storaged/content-views.jsx:810 pkg/storaged/content-views.jsx:815
 #, fuzzy
 msgid "Logical volumes"
 msgstr "Logisk volym"
 
-#: src/ws/login.js:348
+#: src/ws/login.js:350
 msgid "Login again"
 msgstr "Logga in igen"
 
@@ -4011,11 +4059,11 @@ msgstr "Inloggningen misslyckades"
 msgid "Login format"
 msgstr "Inloggningsformat"
 
-#: src/ws/login.js:349
+#: src/ws/login.js:351
 msgid "Logout successful"
 msgstr "Utloggningen lyckades"
 
-#: pkg/systemd/logs.html:122 pkg/systemd/manifest.json.in:0
+#: pkg/systemd/logDetails.jsx:161 pkg/systemd/manifest.json.in:0
 msgid "Logs"
 msgstr "Loggar"
 
@@ -4183,11 +4231,11 @@ msgstr ""
 msgid "Maximum transmission unit"
 msgstr "Maximal överföringsstorlek"
 
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:405
 msgid "Member of RAID device"
 msgstr "Medlem i RAID-enhet"
 
-#: pkg/storaged/content-views.jsx:400
+#: pkg/storaged/content-views.jsx:401
 msgid "Member of RAID device $0"
 msgstr "Medlem i RAID-enhet $0"
 
@@ -4309,7 +4357,7 @@ msgstr "Modifiera $target"
 msgid "Monday"
 msgstr "Måndag"
 
-#: pkg/packagekit/autoupdates.jsx:315
+#: pkg/packagekit/autoupdates.jsx:375
 msgid "Mondays"
 msgstr "Måndagar"
 
@@ -4335,7 +4383,7 @@ msgid "More information"
 msgstr "Mer information"
 
 #: pkg/kdump/kdump-view.jsx:104 pkg/storaged/nfs-details.jsx:310
-#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/content-views.jsx:376
+#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/content-views.jsx:377
 msgid "Mount"
 msgstr "Montering"
 
@@ -4359,7 +4407,7 @@ msgstr "Inställningar för monteringspunkter"
 msgid "Mount filesystem"
 msgstr "Montera filsystem"
 
-#: pkg/storaged/format-dialog.jsx:245 pkg/storaged/fsys-tab.jsx:484
+#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:484
 msgid "Mount now"
 msgstr "Montera nu"
 
@@ -4367,13 +4415,13 @@ msgstr "Montera nu"
 msgid "Mount on $0 now"
 msgstr "Montera på $0 nu"
 
-#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:236
+#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:237
 #: pkg/storaged/fsys-tab.jsx:254
 msgid "Mount options"
 msgstr "Monteringsflaggor"
 
 #: pkg/storaged/fsys-panel.jsx:95 pkg/storaged/nfs-details.jsx:331
-#: pkg/storaged/format-dialog.jsx:230 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/nfs-panel.jsx:103
 #: pkg/storaged/fsys-tab.jsx:249 pkg/storaged/fsys-tab.jsx:526
 msgid "Mount point"
 msgstr "Monteringspunkt"
@@ -4394,7 +4442,7 @@ msgstr "Monteringspunkten är redan i användning för $0"
 msgid "Mount point must start with \"/\"."
 msgstr "Monteringspunkten måste börja med ”/”."
 
-#: pkg/storaged/nfs-details.jsx:180 pkg/storaged/format-dialog.jsx:246
+#: pkg/storaged/nfs-details.jsx:180 pkg/storaged/format-dialog.jsx:247
 #: pkg/storaged/fsys-tab.jsx:261
 msgid "Mount read only"
 msgstr "Montera skrivskyddat"
@@ -4445,20 +4493,20 @@ msgstr "NTP-server"
 #: pkg/networkmanager/index.html:272 pkg/networkmanager/index.html:329
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
 #: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/crypto-panel.jsx:79
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/format-dialog.jsx:201
+#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/format-dialog.jsx:202
 #: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroups-panel.jsx:74
 #: pkg/storaged/part-tab.jsx:40 pkg/storaged/lvol-tabs.jsx:41
 #: pkg/storaged/lvol-tabs.jsx:387 pkg/storaged/lvol-tabs.jsx:445
-#: pkg/storaged/content-views.jsx:117 pkg/storaged/content-views.jsx:273
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:730
-#: pkg/storaged/content-views.jsx:815 pkg/storaged/iscsi-panel.jsx:128
+#: pkg/storaged/content-views.jsx:118 pkg/storaged/content-views.jsx:274
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:731
+#: pkg/storaged/content-views.jsx:816 pkg/storaged/iscsi-panel.jsx:128
 #: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/mdraids-panel.jsx:61
-#: pkg/packagekit/updates.jsx:388
+#: pkg/packagekit/updates.jsx:391
 #: pkg/machines/components/vm/vmCloneDialog.jsx:80
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:120
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:121
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
-#: pkg/machines/components/vms/hostvmslist.jsx:136
+#: pkg/machines/components/vms/hostvmslist.jsx:138
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:36
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
 #: pkg/machines/components/storagePools/storagePoolList.jsx:72
@@ -4630,6 +4678,11 @@ msgstr "Lås aldrig konton"
 msgid "New NFS mount"
 msgstr "Ny NFS-montering"
 
+#: src/ws/login.js:646
+#, fuzzy
+msgid "New host"
+msgstr "Lägg till zon"
+
 #: pkg/lib/machine-dialogs.js:747
 #, fuzzy
 msgid "New key password"
@@ -4656,7 +4709,7 @@ msgstr "Nytt volymnamn"
 msgid "Next"
 msgstr "Nästa"
 
-#: pkg/networkmanager/interfaces.js:2583 pkg/systemd/reporting.jsx:271
+#: pkg/networkmanager/interfaces.js:2583 pkg/systemd/reporting.jsx:270
 msgid "No"
 msgstr "Nej"
 
@@ -4668,7 +4721,7 @@ msgstr "Inga NFS-monteringar uppsatta"
 msgid "No SELinux alerts."
 msgstr "Inga SELinux-larm."
 
-#: pkg/machines/components/vms/hostvmslist.jsx:141
+#: pkg/machines/components/vms/hostvmslist.jsx:143
 msgid "No VM is running or defined on this host"
 msgstr "Ingen VM kör eller är definierad på denna värd."
 
@@ -4716,7 +4769,7 @@ msgstr "Hände mellan $0 och $1"
 msgid "No delay"
 msgstr "Ingen fördröjning"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:132
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:133
 #, fuzzy
 msgid "No description"
 msgstr "Beskrivning"
@@ -4747,7 +4800,7 @@ msgstr "Inga diskar är definerade för denna VM"
 msgid "No drives attached"
 msgstr "Inga diskar är anslutna"
 
-#: pkg/storaged/format-dialog.jsx:156
+#: pkg/storaged/format-dialog.jsx:157
 msgid "No filesystem"
 msgstr "Inget filsystem"
 
@@ -4755,7 +4808,7 @@ msgstr "Inget filsystem"
 msgid "No free key slots"
 msgstr "Inga fria nyckelfack"
 
-#: pkg/storaged/content-views.jsx:795
+#: pkg/storaged/content-views.jsx:796
 msgid "No free space"
 msgstr "Inget ledigt utrymme"
 
@@ -4780,11 +4833,11 @@ msgstr "Inga nycklar tillagda"
 msgid "No log entries"
 msgstr "Läs in tidigare poster"
 
-#: pkg/storaged/content-views.jsx:813
+#: pkg/storaged/content-views.jsx:814
 msgid "No logical volumes"
 msgstr "Inga logiska volymer"
 
-#: pkg/systemd/logs.js:178 pkg/systemd/logs.js:201 pkg/systemd/logs.js:322
+#: pkg/systemd/logs.js:112 pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "No logs found"
 msgstr ""
 
@@ -4822,12 +4875,12 @@ msgstr ""
 msgid "No networks available"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:173
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:175
 #, fuzzy
 msgid "No parent"
 msgstr "Förälder"
 
-#: pkg/storaged/content-views.jsx:605
+#: pkg/storaged/content-views.jsx:606
 msgid "No partitioning"
 msgstr "Ingen partitionering"
 
@@ -4848,7 +4901,7 @@ msgstr ""
 msgid "No rule hits"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:101
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:102
 msgid "No snapshots"
 msgstr ""
 
@@ -4888,7 +4941,14 @@ msgstr "Filen eller katalogen finns inte"
 msgid "No system modifications"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:58
+#: pkg/packagekit/autoupdates.jsx:352
+#, fuzzy
+#| msgid "$0 update"
+#| msgid_plural "$0 updates"
+msgid "No updates"
+msgstr "$0 uppdatering"
+
+#: pkg/packagekit/updates.jsx:62
 msgid "No updates pending"
 msgstr "Inga väntande uppdateringar"
 
@@ -4980,7 +5040,7 @@ msgstr "Inte tillåtet att utföra denna åtgärd."
 msgid "Not ready"
 msgstr "Inte klar"
 
-#: pkg/packagekit/updates.jsx:795
+#: pkg/packagekit/updates.jsx:909
 msgid "Not registered"
 msgstr ""
 
@@ -5109,7 +5169,7 @@ msgstr "Optisk enhet"
 msgid "Options"
 msgstr "Alternativ"
 
-#: src/ws/login.html:112
+#: src/ws/login.html:129
 msgid "Or use a bundled browser"
 msgstr "Eller använd en medpackad bläddrare"
 
@@ -5117,7 +5177,7 @@ msgstr "Eller använd en medpackad bläddrare"
 msgid "Other"
 msgstr "Annan"
 
-#: pkg/storaged/content-views.jsx:412
+#: pkg/storaged/content-views.jsx:413
 msgctxt "storage-id-desc"
 msgid "Other data"
 msgstr "Andra data"
@@ -5126,7 +5186,7 @@ msgstr "Andra data"
 msgid "Other devices"
 msgstr "Andra enheter"
 
-#: src/ws/login.html:69
+#: src/ws/login.html:85
 msgid "Other options"
 msgstr "Andra alternativ"
 
@@ -5141,7 +5201,7 @@ msgstr ""
 msgid "Overview"
 msgstr "Översikt"
 
-#: pkg/storaged/format-dialog.jsx:196 pkg/storaged/content-views.jsx:593
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/content-views.jsx:594
 msgid "Overwrite existing data with zeros"
 msgstr "Skriv över befintliga data med nollor"
 
@@ -5157,7 +5217,7 @@ msgstr ""
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:506
+#: pkg/packagekit/updates.jsx:509
 msgid "Package information"
 msgstr "Paketinformation"
 
@@ -5165,15 +5225,15 @@ msgstr "Paketinformation"
 msgid "PackageKit crashed"
 msgstr "PackageKit kraschade"
 
-#: pkg/packagekit/updates.jsx:574
+#: pkg/packagekit/updates.jsx:688
 msgid "PackageKit is not installed"
 msgstr "PackageKit är inte installerat"
 
-#: pkg/packagekit/updates.jsx:742
+#: pkg/packagekit/updates.jsx:856
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit rapporterade felkod $0"
 
-#: pkg/packagekit/updates.jsx:315
+#: pkg/packagekit/updates.jsx:318
 #, fuzzy
 msgid "Packages"
 msgstr "$0 Paket"
@@ -5192,7 +5252,7 @@ msgstr "Förälder"
 msgid "Parent $parent"
 msgstr "Förälder $parent"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:172
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:174
 #, fuzzy
 msgid "Parent snapshot"
 msgstr "Skapa en ögonblicksbild"
@@ -5205,7 +5265,7 @@ msgstr "Del av"
 msgid "Part of "
 msgstr "Del av"
 
-#: pkg/storaged/content-views.jsx:149
+#: pkg/storaged/content-views.jsx:150
 msgid "Partition"
 msgstr "Partition"
 
@@ -5213,7 +5273,7 @@ msgstr "Partition"
 msgid "Partition of $0"
 msgstr "Partition av $0"
 
-#: pkg/storaged/content-views.jsx:596
+#: pkg/storaged/content-views.jsx:597
 msgid "Partitioning"
 msgstr "Partitionering"
 
@@ -5221,12 +5281,12 @@ msgstr "Partitionering"
 msgid "Passive"
 msgstr "Passiv"
 
-#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:241
+#: pkg/storaged/format-dialog.jsx:214 pkg/storaged/content-views.jsx:242
 #: pkg/storaged/crypto-keyslots.jsx:212 pkg/storaged/crypto-keyslots.jsx:568
 msgid "Passphrase"
 msgstr "Lösenfras"
 
-#: pkg/storaged/format-dialog.jsx:217 pkg/storaged/crypto-keyslots.jsx:161
+#: pkg/storaged/format-dialog.jsx:218 pkg/storaged/crypto-keyslots.jsx:161
 #: pkg/storaged/crypto-keyslots.jsx:220 pkg/storaged/crypto-keyslots.jsx:261
 #: pkg/storaged/crypto-keyslots.jsx:264
 msgid "Passphrase cannot be empty"
@@ -5236,14 +5296,14 @@ msgstr "Lösenfrasen får inte vara tom"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Att ta bort lösenfrasen kan förhindra upplåsning av $0."
 
-#: pkg/storaged/format-dialog.jsx:225 pkg/storaged/crypto-keyslots.jsx:228
+#: pkg/storaged/format-dialog.jsx:226 pkg/storaged/crypto-keyslots.jsx:228
 #: pkg/storaged/crypto-keyslots.jsx:266
 msgid "Passphrases do not match"
 msgstr "Lösenfraserna stämmer inte överens"
 
 #: pkg/shell/index.html:161 pkg/shell/index.html:190 pkg/shell/index.html:205
 #: pkg/lib/machine-change-auth.html:43 pkg/lib/machine-change-auth.html:50
-#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:61
+#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:77
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:321
 #: pkg/shell/superuser.jsx:45 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157
@@ -5320,7 +5380,7 @@ msgstr "Sökväg till filen"
 msgid "Paths"
 msgstr "Sökvägar"
 
-#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:397 pkg/systemd/logs.js:1069
+#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
 #: pkg/machines/components/vm/vmActions.jsx:185
 msgid "Pause"
 msgstr ""
@@ -5349,7 +5409,7 @@ msgstr "Periferichassi"
 msgid "Permanent"
 msgstr "Permanent"
 
-#: src/ws/login.js:730
+#: src/ws/login.js:819
 msgid "Permission denied"
 msgstr "Åtkomst nekas"
 
@@ -5379,11 +5439,11 @@ msgstr ""
 msgid "Physical disk device on host"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:160 pkg/storaged/content-views.jsx:402
+#: pkg/storaged/content-views.jsx:161 pkg/storaged/content-views.jsx:403
 msgid "Physical volume"
 msgstr "Fysisk volym"
 
-#: pkg/storaged/content-views.jsx:397
+#: pkg/storaged/content-views.jsx:398
 msgid "Physical volume of $0"
 msgstr "Fysisk volym för $0"
 
@@ -5422,7 +5482,7 @@ msgid "Please choose a volume"
 msgstr "Ange ett nytt volymnamn"
 
 #: pkg/storaged/vgroup-details.jsx:198 pkg/storaged/vdo-details.jsx:197
-#: pkg/storaged/content-views.jsx:342 pkg/storaged/mdraid-details.jsx:290
+#: pkg/storaged/content-views.jsx:343 pkg/storaged/mdraid-details.jsx:290
 msgid "Please confirm deletion of $0"
 msgstr "Bekräfta raderingen av $0"
 
@@ -5451,7 +5511,7 @@ msgstr "Fel användarnamn eller lösenord"
 msgid "Please specify an expiration date"
 msgstr "Ange ett utgångsdatum"
 
-#: src/ws/login.js:510
+#: src/ws/login.js:512
 msgid "Please specify the host to connect to"
 msgstr "Ange värden att ansluta till"
 
@@ -5463,7 +5523,7 @@ msgstr "Starta den virtuella maskinen för att komma åt dess konsol."
 msgid "Plug"
 msgstr "Plugg"
 
-#: pkg/storaged/content-views.jsx:141
+#: pkg/storaged/content-views.jsx:142
 #: pkg/machines/components/vm/deleteDialog.jsx:53
 #: pkg/machines/components/vm/overview/bootOrder.jsx:96
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:45
@@ -5475,11 +5535,11 @@ msgstr "Pool"
 msgid "Pool for thin logical volumes"
 msgstr "Pool för tunna logiska volymer"
 
-#: pkg/storaged/content-views.jsx:682
+#: pkg/storaged/content-views.jsx:683
 msgid "Pool for thin volumes"
 msgstr "Pool för tunna volymer"
 
-#: pkg/storaged/content-views.jsx:743
+#: pkg/storaged/content-views.jsx:744
 msgid "Pool for thinly provisioned volumes"
 msgstr "Pool för tunt underhållna volymer"
 
@@ -5554,7 +5614,7 @@ msgstr "Snyggt värdnamn"
 msgid "Previous boot"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:102
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:103
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -5577,15 +5637,15 @@ msgstr "Prioritet $priority"
 msgid "Private"
 msgstr ""
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
 msgstr "Problemdetaljer"
 
-#: pkg/systemd/logs.js:568
+#: pkg/systemd/abrtLog.jsx:260
 msgid "Problem info"
 msgstr "Probleminformation"
 
-#: pkg/storaged/dialog.jsx:1040
+#: pkg/storaged/dialog.jsx:1044
 msgid "Process"
 msgstr "Process"
 
@@ -5629,7 +5689,7 @@ msgstr "Protokoll"
 msgid "Public key"
 msgstr "Publik nyckel"
 
-#: pkg/storaged/content-views.jsx:735
+#: pkg/storaged/content-views.jsx:736
 msgid "Purpose"
 msgstr "Syfte"
 
@@ -5707,7 +5767,7 @@ msgctxt "storage"
 msgid "RAID level"
 msgstr "RAID-nivå"
 
-#: pkg/storaged/content-views.jsx:163
+#: pkg/storaged/content-views.jsx:164
 msgid "RAID member"
 msgstr "RAID-medlem"
 
@@ -5798,7 +5858,7 @@ msgstr "Starta om"
 msgid "Receiving"
 msgstr "Tar emot"
 
-#: pkg/storaged/format-dialog.jsx:152
+#: pkg/storaged/format-dialog.jsx:153
 msgid "Recommended default"
 msgstr ""
 
@@ -5814,23 +5874,23 @@ msgstr "Återställer"
 msgid "Recovering RAID device $target"
 msgstr "Återställer RAID-enhet $target"
 
-#: pkg/packagekit/updates.jsx:57
+#: pkg/packagekit/updates.jsx:61
 msgid "Refreshing package information"
 msgstr "Uppdaterar paketinformation"
 
-#: src/ws/login.js:720
+#: src/ws/login.js:809
 msgid "Refusing to connect. Host is unknown"
 msgstr "Vägrar att ansluta.  Värden är okänd"
 
-#: src/ws/login.js:722
+#: src/ws/login.js:811
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Vägrar att ansluta.  Värdnyckeln stämmer inte"
 
-#: src/ws/login.js:718
+#: src/ws/login.js:807
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Vägrar att ansluta.  Värdnyckeln är okänd"
 
-#: pkg/packagekit/updates.jsx:806
+#: pkg/packagekit/updates.jsx:920
 msgid "Register…"
 msgstr "Registrera …"
 
@@ -5988,27 +6048,27 @@ msgstr "Upprepa varje vecka"
 msgid "Repeat yearly"
 msgstr "Upprepa årligen"
 
-#: pkg/systemd/reporting.jsx:429
+#: pkg/systemd/reporting.jsx:428
 msgid "Report"
 msgstr "Rapport"
 
-#: pkg/systemd/reporting.jsx:153
+#: pkg/systemd/reporting.jsx:152
 msgid "Report to ABRT Analytics"
 msgstr ""
 
-#: pkg/systemd/reporting.jsx:410
+#: pkg/systemd/reporting.jsx:409
 msgid "Reported; no links available"
 msgstr ""
 
-#: pkg/systemd/reporting.jsx:306
+#: pkg/systemd/reporting.jsx:305
 msgid "Reporting failed"
 msgstr ""
 
-#: pkg/systemd/reporting.jsx:206
+#: pkg/systemd/reporting.jsx:205
 msgid "Reporting was canceled"
 msgstr ""
 
-#: pkg/systemd/reporting.jsx:408
+#: pkg/systemd/reporting.jsx:407
 msgid "Reports:"
 msgstr ""
 
@@ -6076,15 +6136,15 @@ msgstr ""
 msgid "Restart"
 msgstr "Starta om"
 
-#: pkg/packagekit/updates.jsx:501
+#: pkg/packagekit/updates.jsx:504
 msgid "Restart now"
 msgstr "Starta om nu"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:921
+#: pkg/packagekit/updates.jsx:502 pkg/packagekit/updates.jsx:1021
 msgid "Restart recommended"
 msgstr "Omstart rekommenderas"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:1028
 msgid "Restarting"
 msgstr "Startar om"
 
@@ -6092,13 +6152,13 @@ msgstr "Startar om"
 msgid "Restoring connection"
 msgstr "Återställer förbindelsen"
 
-#: pkg/systemd/logs.js:400 pkg/systemd/logs.js:1065
+#: pkg/systemd/logs.js:325 pkg/systemd/logs.js:497
 #: pkg/machines/components/vm/vmActions.jsx:196
 msgid "Resume"
 msgstr ""
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:68
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:195
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:197
 #, fuzzy
 msgid "Revert"
 msgstr "Aldrig"
@@ -6251,7 +6311,7 @@ msgstr ""
 msgid "Saturday"
 msgstr "Lördag"
 
-#: pkg/packagekit/autoupdates.jsx:320
+#: pkg/packagekit/autoupdates.jsx:380
 msgid "Saturdays"
 msgstr ""
 
@@ -6268,6 +6328,13 @@ msgstr "Spara"
 #: pkg/systemd/hwinfo.jsx:236
 msgid "Save and reboot"
 msgstr ""
+
+#: pkg/systemd/overview-cards/motdCard.jsx:98
+#: pkg/packagekit/autoupdates.jsx:421
+#, fuzzy
+#| msgid "Force change"
+msgid "Save changes"
+msgstr "Framtvinga ändring"
 
 #: pkg/storaged/vdos-panel.jsx:121
 msgid "Save space by compressing individual blocks with LZ4"
@@ -6310,15 +6377,27 @@ msgstr ""
 msgid "Securely erasing $target"
 msgstr "Raderar säkert $target"
 
-#: pkg/packagekit/updates.jsx:855
+#: pkg/packagekit/autoupdates.jsx:266
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates "
+msgstr "Säkerhetsuppdateringar tillgängliga"
+
+#: pkg/packagekit/updates.jsx:969
 msgid "Security updates available"
+msgstr "Säkerhetsuppdateringar tillgängliga"
+
+#: pkg/packagekit/autoupdates.jsx:358
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates only"
 msgstr "Säkerhetsuppdateringar tillgängliga"
 
 #: pkg/shell/shell-modals.jsx:86
 msgid "Select"
 msgstr "Välj"
 
-#: pkg/systemd/reporting.jsx:246
+#: pkg/systemd/reporting.jsx:245
 msgid "Send"
 msgstr ""
 
@@ -6345,7 +6424,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr ""
 
-#: src/ws/login.html:124 pkg/kdump/kdump-view.jsx:121
+#: src/ws/login.html:141 pkg/kdump/kdump-view.jsx:121
 #: pkg/storaged/nfs-details.jsx:326 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "Server"
@@ -6374,7 +6453,7 @@ msgstr "Servern har stängt förbindelsen."
 msgid "Server software"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1044
+#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1048
 #: pkg/metrics/metrics.jsx:423 pkg/metrics/metrics.jsx:457
 msgid "Service"
 msgstr "Tjänst"
@@ -6412,7 +6491,7 @@ msgstr "Tjänstenamn"
 msgid "Services"
 msgstr "Tjänster"
 
-#: pkg/storaged/dialog.jsx:1040 pkg/machines/helpers.js:208
+#: pkg/storaged/dialog.jsx:1044 pkg/machines/helpers.js:208
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:43
 msgid "Session"
 msgstr "Session"
@@ -6450,7 +6529,7 @@ msgstr "Ställ in tiden"
 msgid "Set to"
 msgstr "Sätt till"
 
-#: pkg/packagekit/updates.jsx:77
+#: pkg/packagekit/updates.jsx:81
 msgid "Set up"
 msgstr "Sätt upp"
 
@@ -6467,7 +6546,7 @@ msgid ""
 "VM when creating it"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:69
+#: pkg/packagekit/updates.jsx:73
 msgid "Setting up"
 msgstr "Sätter upp"
 
@@ -6475,7 +6554,7 @@ msgstr "Sätter upp"
 msgid "Setting up loop device $target"
 msgstr "Sätter upp vändslingeenheten $target"
 
-#: pkg/packagekit/updates.jsx:323 pkg/packagekit/updates.jsx:390
+#: pkg/packagekit/updates.jsx:326 pkg/packagekit/updates.jsx:393
 msgid "Severity"
 msgstr "Allvarsgrad"
 
@@ -6514,7 +6593,13 @@ msgstr "Ytterligare åtgärder"
 msgid "Show all"
 msgstr ""
 
-#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:948 pkg/systemd/logs.js:1097
+#: pkg/systemd/abrtLog.jsx:214
+#, fuzzy
+#| msgid "Show all images"
+msgid "Show all threads"
+msgstr "Visa alla avbilder"
+
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:397 pkg/systemd/logs.js:516
 #, fuzzy
 msgid "Show filters"
 msgstr "Visa fingeravtryck"
@@ -6555,7 +6640,7 @@ msgid "Shutdown"
 msgstr ""
 
 #: pkg/machines/helpers.js:214
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:150
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:152
 #, fuzzy
 msgid "Shutting down"
 msgstr "Stäng av"
@@ -6565,11 +6650,11 @@ msgid "Single rank"
 msgstr ""
 
 #: pkg/systemd/hwinfo.jsx:305 pkg/storaged/fsys-panel.jsx:96
-#: pkg/storaged/nfs-details.jsx:336 pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/nfs-details.jsx:336 pkg/storaged/format-dialog.jsx:185
 #: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/part-tab.jsx:45
 #: pkg/storaged/lvol-tabs.jsx:219 pkg/storaged/lvol-tabs.jsx:281
 #: pkg/storaged/lvol-tabs.jsx:394 pkg/storaged/lvol-tabs.jsx:452
-#: pkg/storaged/content-views.jsx:122 pkg/storaged/content-views.jsx:777
+#: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:778
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:83
 #: pkg/machines/components/storagePools/storagePoolList.jsx:73
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
@@ -6577,23 +6662,23 @@ msgstr ""
 msgid "Size"
 msgstr "Storlek"
 
-#: pkg/storaged/dialog.jsx:902
+#: pkg/storaged/dialog.jsx:906
 msgid "Size cannot be negative"
 msgstr "Storleken kan inte vara negativ"
 
-#: pkg/storaged/dialog.jsx:900
+#: pkg/storaged/dialog.jsx:904
 msgid "Size cannot be zero"
 msgstr "Storleken kan inte vara noll"
 
-#: pkg/storaged/dialog.jsx:904
+#: pkg/storaged/dialog.jsx:908
 msgid "Size is too large"
 msgstr "Storleken är för stor"
 
-#: pkg/storaged/dialog.jsx:898
+#: pkg/storaged/dialog.jsx:902
 msgid "Size must be a number"
 msgstr "Storleken måste vara ett tal"
 
-#: pkg/storaged/dialog.jsx:906
+#: pkg/storaged/dialog.jsx:910
 msgid "Size must be at least $0"
 msgstr "Storleken måste vara åtminstone $0"
 
@@ -6634,7 +6719,8 @@ msgstr "Uttag"
 msgid "Software Updates"
 msgstr "Programvaruuppdateringar"
 
-#: pkg/packagekit/index.html:23
+#: pkg/packagekit/index.html:23 pkg/packagekit/updates.jsx:988
+#: pkg/packagekit/updates.jsx:1044
 msgid "Software updates"
 msgstr "Programvaruuppdateringar"
 
@@ -6657,7 +6743,7 @@ msgstr "Lösningen misslyckades"
 msgid "Solutions"
 msgstr "Lösningar"
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:60
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "Något annat program använder just nu pakethanteraren, var god dröj …"
@@ -6737,7 +6823,7 @@ msgid "Stable"
 msgstr "Stabilt"
 
 #: pkg/systemd/services/service-details.jsx:136
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/content-views.jsx:308
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/content-views.jsx:309
 #: pkg/storaged/mdraid-details.jsx:314
 #: pkg/machines/components/networks/createNetworkDialog.jsx:222
 msgid "Start"
@@ -6784,8 +6870,8 @@ msgstr "Uppstart"
 #: pkg/systemd/hwinfo.jsx:305 pkg/systemd/services/services-list.jsx:98
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:192
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:265
-#: pkg/machines/components/vms/hostvmslist.jsx:95
-#: pkg/machines/components/vms/hostvmslist.jsx:138
+#: pkg/machines/components/vms/hostvmslist.jsx:96
+#: pkg/machines/components/vms/hostvmslist.jsx:140
 #: pkg/machines/components/storagePools/storagePoolList.jsx:75
 #: pkg/machines/components/networks/networkList.jsx:79
 msgid "State"
@@ -6803,7 +6889,7 @@ msgid "Static"
 msgstr "Statisk"
 
 #: pkg/networkmanager/interfaces.js:2602
-#: pkg/systemd/services/service-details.jsx:444
+#: pkg/systemd/services/service-details.jsx:444 pkg/packagekit/updates.jsx:569
 msgid "Status"
 msgstr "Status"
 
@@ -6817,7 +6903,7 @@ msgstr "Fast"
 
 #: pkg/systemd/services/service-details.jsx:132
 #: pkg/storaged/vdo-details.jsx:143 pkg/storaged/vdo-details.jsx:260
-#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/mdraid-details.jsx:313
 msgid "Stop"
 msgstr "Stoppa"
 
@@ -6837,7 +6923,7 @@ msgstr "Stoppa och avmontera"
 msgid "Stop device"
 msgstr "Stoppa enhet"
 
-#: pkg/shell/hosts.jsx:212
+#: pkg/shell/hosts.jsx:211
 msgid "Stop editing hosts"
 msgstr ""
 
@@ -6855,7 +6941,7 @@ msgstr "Stoppar växlingsutrymmet $target"
 msgid "Storage"
 msgstr "Lagring"
 
-#: pkg/storaged/devices.jsx:76
+#: pkg/storaged/devices.jsx:75
 msgid "Storage can not be managed on this system."
 msgstr ""
 
@@ -6910,7 +6996,7 @@ msgstr ""
 msgid "Store metrics"
 msgstr "Lagringsmått"
 
-#: pkg/storaged/format-dialog.jsx:69
+#: pkg/storaged/format-dialog.jsx:70
 msgid "Store passphrase"
 msgstr "Lagra lösenfrasen"
 
@@ -6933,7 +7019,7 @@ msgstr "ULPC"
 msgid "Sunday"
 msgstr "Söndag"
 
-#: pkg/packagekit/autoupdates.jsx:321
+#: pkg/packagekit/autoupdates.jsx:381
 msgid "Sundays"
 msgstr ""
 
@@ -6945,7 +7031,7 @@ msgstr "Stöd är installerat."
 msgid "Suspended (PM)"
 msgstr "vilande (SH)"
 
-#: pkg/storaged/content-views.jsx:167 pkg/metrics/metrics.jsx:101
+#: pkg/storaged/content-views.jsx:168 pkg/metrics/metrics.jsx:101
 #: pkg/metrics/metrics.jsx:384 pkg/metrics/metrics.jsx:961
 msgid "Swap"
 msgstr "Växlingsutrymme"
@@ -6956,7 +7042,7 @@ msgstr "Växlingsutrymme"
 msgid "Swap out"
 msgstr "Använt växlingsutrymme"
 
-#: pkg/storaged/content-views.jsx:410
+#: pkg/storaged/content-views.jsx:411
 msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "Växlingsutrymme"
@@ -7025,7 +7111,7 @@ msgstr "System"
 msgid "System information"
 msgstr "Systeminformation"
 
-#: pkg/packagekit/updates.jsx:933 pkg/packagekit/updates.jsx:943
+#: pkg/packagekit/updates.jsx:521 pkg/packagekit/updates.jsx:1034
 msgid "System is up to date"
 msgstr "Systemet är uppdaterat"
 
@@ -7257,7 +7343,7 @@ msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
 
-#: pkg/storaged/dialog.jsx:1009
+#: pkg/storaged/dialog.jsx:1013
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
@@ -7265,13 +7351,13 @@ msgstr ""
 "Filsystemet används av inloggningssesioner och systemtjänster.  Att gå "
 "vidare kommer stoppa dessa."
 
-#: pkg/storaged/dialog.jsx:1011
+#: pkg/storaged/dialog.jsx:1015
 msgid "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
 "Filsystemet används av inloggningssessioner.  Att gå vidare kommer stoppa "
 "dessa."
 
-#: pkg/storaged/dialog.jsx:1013
+#: pkg/storaged/dialog.jsx:1017
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr ""
@@ -7354,6 +7440,12 @@ msgstr "Lösenorden stämmer inte överens."
 msgid "The pool is empty"
 msgstr "Poolen är tom"
 
+#: src/ws/login.html:67
+msgid ""
+"The resulting fingerprint is fine to share via public methods, including "
+"email."
+msgstr ""
+
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:431
 msgid "The selected operating system does not support unattended installation"
 msgstr ""
@@ -7367,7 +7459,7 @@ msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
 msgstr ""
 
-#: src/ws/login.js:712
+#: src/ws/login.js:801
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7473,7 +7565,7 @@ msgstr ""
 msgid "This device cannot be managed here."
 msgstr "Denna enhet kan inte hanteras här."
 
-#: pkg/storaged/dialog.jsx:994
+#: pkg/storaged/dialog.jsx:998
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
@@ -7481,11 +7573,11 @@ msgstr ""
 "Denna enhet har filsystem som används just nu.  Att gå vidare kommer "
 "avmontera alla filsystem på den."
 
-#: pkg/storaged/dialog.jsx:973
+#: pkg/storaged/dialog.jsx:977
 msgid "This device is currently used for RAID devices."
 msgstr "Denna enhet används just nu till RAID-enheter."
 
-#: pkg/storaged/dialog.jsx:1002
+#: pkg/storaged/dialog.jsx:1006
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
@@ -7493,15 +7585,15 @@ msgstr ""
 "Denna enhet används just nu till RAID-enheter.  Att gå vidare kommer ta bort "
 "den från sin RAID-enhet."
 
-#: pkg/storaged/dialog.jsx:977
+#: pkg/storaged/dialog.jsx:981
 msgid "This device is currently used for VDO devices."
 msgstr "Denna enhet används just nu till VDO-enheter."
 
-#: pkg/storaged/dialog.jsx:969
+#: pkg/storaged/dialog.jsx:973
 msgid "This device is currently used for volume groups."
 msgstr "Denna enhet används just nu till volymgrupper."
 
-#: pkg/storaged/dialog.jsx:998
+#: pkg/storaged/dialog.jsx:1002
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
@@ -7529,6 +7621,10 @@ msgstr "Denna disk kan inte tas bort medans enheten återhämtar sig."
 msgid "This field cannot be empty."
 msgstr "Detta fält får inte vara tomt."
 
+#: pkg/packagekit/autoupdates.jsx:392
+msgid "This host will reboot after updates are installed."
+msgstr ""
+
 #: pkg/storaged/lvol-tabs.jsx:410
 msgid "This logical volume is not completely used by its content."
 msgstr ""
@@ -7554,7 +7650,7 @@ msgstr "Detta paket behöver Cockpit version %s eller senare"
 msgid "This pool type does not support storage volume creation"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:917
 msgid "This system is not registered"
 msgstr "Detta system är inte registrerat"
 
@@ -7601,10 +7697,6 @@ msgstr "Denna volym behöver aktiveras före dess storlek kan ändras."
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "Denna webbläsare är för gammal för att köra Cockpit (saknar $0)"
 
-#: pkg/packagekit/updates.jsx:887
-msgid "This web console will be updated."
-msgstr "Denna webbkonsol kommer uppdateras."
-
 #: pkg/lib/machine-dialogs.js:759
 msgid "This will allow you to log in without password in the future."
 msgstr ""
@@ -7637,11 +7729,11 @@ msgstr "Trådar per kärna"
 msgid "Thursday"
 msgstr "Torsdag"
 
-#: pkg/packagekit/autoupdates.jsx:318
+#: pkg/packagekit/autoupdates.jsx:378
 msgid "Thursdays"
 msgstr ""
 
-#: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:109
+#: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:108
 #, fuzzy
 msgid "Time"
 msgstr "Timrar"
@@ -7662,7 +7754,13 @@ msgstr ""
 "Tips: gör så att ditt nyckellösenord stämmer med ditt inloggningslösenord "
 "för att automatiskt autentisera mot andra system."
 
-#: pkg/packagekit/updates.jsx:804
+#: src/ws/login.html:62
+msgid ""
+"To ensure that your connection is not intercepted by a malicious third-"
+"party, please verify the host key fingerprint:"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:918
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7671,7 +7769,13 @@ msgstr ""
 "Hat, antingen genom att använda Red Hats kundportal eller en lokal "
 "prenumerationsserver."
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:39
+#: src/ws/login.js:651
+msgid ""
+"To verify a fingerprint, run the following on $0 while physically sitting at "
+"the machine or through a trusted network:"
+msgstr ""
+
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:40
 #: pkg/metrics/metrics.jsx:921
 msgid "Today"
 msgstr ""
@@ -7734,7 +7838,7 @@ msgstr "Förtroendenyckel"
 msgid "Trust level"
 msgstr ""
 
-#: src/ws/login.html:98
+#: src/ws/login.html:115
 msgid "Try again"
 msgstr "Försök igen"
 
@@ -7747,7 +7851,7 @@ msgstr "Försök att synkronisera med {{Server}}"
 msgid "Tuesday"
 msgstr "Tisdag"
 
-#: pkg/packagekit/autoupdates.jsx:316
+#: pkg/packagekit/autoupdates.jsx:376
 msgid "Tuesdays"
 msgstr ""
 
@@ -7779,8 +7883,9 @@ msgid "Turn on administrative access"
 msgstr ""
 
 #: pkg/shell/index.html:227 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/format-dialog.jsx:199
+#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/format-dialog.jsx:200
 #: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/part-tab.jsx:55
+#: pkg/packagekit/autoupdates.jsx:348
 #: pkg/machines/components/vm/overview/bootOrder.jsx:113
 #: pkg/machines/components/vm/overview/bootOrder.jsx:124
 #: pkg/machines/components/vm/overview/bootOrder.jsx:130
@@ -7828,7 +7933,7 @@ msgstr "Kan inte verkställa inställningarna: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Kan inte verkställa denna lösning automatiskt"
 
-#: src/ws/login.js:716
+#: src/ws/login.js:805
 msgid "Unable to connect to that address"
 msgstr "Kan inte ansluta till den adressen"
 
@@ -7929,7 +8034,7 @@ msgstr "Unikt namn"
 msgid "Unique network name"
 msgstr ""
 
-#: pkg/storaged/dialog.jsx:1044
+#: pkg/storaged/dialog.jsx:1048
 #: pkg/machines/components/vm/overview/bootOrder.jsx:139
 msgid "Unit"
 msgstr "Enhet"
@@ -7983,12 +8088,12 @@ msgstr ""
 msgid "Unknown type"
 msgstr "Okänd typ"
 
-#: pkg/storaged/content-views.jsx:239 pkg/storaged/content-views.jsx:244
-#: pkg/storaged/content-views.jsx:257
+#: pkg/storaged/content-views.jsx:240 pkg/storaged/content-views.jsx:245
+#: pkg/storaged/content-views.jsx:258
 msgid "Unlock"
 msgstr "Lås upp"
 
-#: pkg/storaged/format-dialog.jsx:63
+#: pkg/storaged/format-dialog.jsx:64
 msgid "Unlock at boot"
 msgstr "Lås upp vid uppstart"
 
@@ -7996,7 +8101,7 @@ msgstr "Lås upp vid uppstart"
 msgid "Unlock key"
 msgstr "Lås upp nyckeln"
 
-#: pkg/storaged/format-dialog.jsx:64
+#: pkg/storaged/format-dialog.jsx:65
 msgid "Unlock read only"
 msgstr "Lås upp endast för läsning"
 
@@ -8013,7 +8118,7 @@ msgid "Unmanaged interfaces"
 msgstr "Ej hanterade gränssnitt"
 
 #: pkg/storaged/nfs-details.jsx:309 pkg/storaged/fsys-tab.jsx:290
-#: pkg/storaged/content-views.jsx:374
+#: pkg/storaged/content-views.jsx:375
 msgid "Unmount"
 msgstr "Avmontera"
 
@@ -8037,11 +8142,11 @@ msgstr "Namnlös"
 msgid "Unplug"
 msgstr "Koppla ur"
 
-#: pkg/storaged/content-views.jsx:170
+#: pkg/storaged/content-views.jsx:171
 msgid "Unrecognized data"
 msgstr "Okända data"
 
-#: pkg/storaged/content-views.jsx:417
+#: pkg/storaged/content-views.jsx:418
 msgctxt "storage-id-desc"
 msgid "Unrecognized data"
 msgstr "Okända data"
@@ -8050,7 +8155,7 @@ msgstr "Okända data"
 msgid "Unrecognized data can not be made smaller here."
 msgstr "Okända data får inte göras mindre här."
 
-#: pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Volym som ej stöds"
 
@@ -8062,11 +8167,11 @@ msgstr "Ej betrodd värd"
 msgid "Update"
 msgstr "Uppdatera"
 
-#: pkg/packagekit/history.jsx:105
+#: pkg/packagekit/updates.jsx:605
 msgid "Update history"
 msgstr "Uppdatera historiken"
 
-#: pkg/packagekit/updates.jsx:478
+#: pkg/packagekit/updates.jsx:481
 msgid "Update log"
 msgstr "Uppdatera loggen"
 
@@ -8075,24 +8180,30 @@ msgstr "Uppdatera loggen"
 msgid "Update package information"
 msgstr "Paketinformation"
 
-#: pkg/packagekit/updates.jsx:76
+#: pkg/packagekit/updates.jsx:80
 msgid "Updated"
 msgstr "Uppdaterat"
 
-#: pkg/packagekit/updates.jsx:500
+#: pkg/packagekit/updates.jsx:503
 msgid "Updated packages may require a restart to take effect."
 msgstr "Uppdaterade paket kan behöva en omstart för att få effekt."
 
-#: pkg/packagekit/updates.jsx:861
+#: pkg/packagekit/autoupdates.jsx:266
+#, fuzzy
+#| msgid "Update"
+msgid "Updates "
+msgstr "Uppdatera"
+
+#: pkg/packagekit/updates.jsx:975
 msgid "Updates available"
 msgstr "Uppdateringar tillgängliga"
 
-#: pkg/packagekit/history.jsx:106
+#: pkg/packagekit/history.jsx:105
 #, fuzzy
 msgid "Updates history"
 msgstr "Uppdatera historiken"
 
-#: pkg/packagekit/updates.jsx:68
+#: pkg/packagekit/updates.jsx:72
 msgid "Updating"
 msgstr "Uppdaterar"
 
@@ -8143,12 +8254,12 @@ msgid "User"
 msgstr "Användare"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:57
-#: pkg/lib/machine-add.html:33 src/ws/login.html:56
+#: pkg/lib/machine-add.html:33 src/ws/login.html:72
 #: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:289
 msgid "User name"
 msgstr "Användarnamn"
 
-#: src/ws/login.js:508
+#: src/ws/login.js:510
 msgid "User name cannot be empty"
 msgstr "Användarnamnet får inte vara tomt"
 
@@ -8165,11 +8276,11 @@ msgstr "Användarnamn"
 msgid "VCPU settings could not be saved"
 msgstr "VCPU-inställningarna kunde inte sparas"
 
-#: pkg/storaged/content-views.jsx:165
+#: pkg/storaged/content-views.jsx:166
 msgid "VDO backing"
 msgstr "VDO-underlag"
 
-#: pkg/storaged/content-views.jsx:415
+#: pkg/storaged/content-views.jsx:416
 msgctxt "storage-id-desc"
 msgid "VDO backing"
 msgstr "VDO-underlag"
@@ -8245,7 +8356,7 @@ msgstr ""
 msgid "VM $0 failed to start"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:142
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:144
 #, fuzzy
 msgid "VM state"
 msgstr "Tillstånd"
@@ -8270,7 +8381,7 @@ msgstr "VNC-port:"
 msgid "Validating address"
 msgstr ""
 
-#: src/ws/login.html:92
+#: src/ws/login.html:109
 msgid "Validating authentication token"
 msgstr "Validerar autentiseringselementet"
 
@@ -8284,7 +8395,7 @@ msgstr "Validerar nyckeln"
 msgid "Vendor"
 msgstr "Leverantör"
 
-#: pkg/packagekit/updates.jsx:78
+#: pkg/packagekit/updates.jsx:82
 msgid "Verified"
 msgstr "Verifierad"
 
@@ -8292,12 +8403,12 @@ msgstr "Verifierad"
 msgid "Verify key"
 msgstr "Verifiera nyckel"
 
-#: pkg/packagekit/updates.jsx:70
+#: pkg/packagekit/updates.jsx:74
 msgid "Verifying"
 msgstr "Verifierar"
 
 #: pkg/shell/shell-modals.jsx:39 pkg/systemd/hwinfo.jsx:87
-#: pkg/packagekit/updates.jsx:389
+#: pkg/packagekit/updates.jsx:392
 msgid "Version"
 msgstr "Version"
 
@@ -8322,7 +8433,7 @@ msgstr ""
 msgid "View project website"
 msgstr "Projektwebbsajt"
 
-#: pkg/systemd/reporting.jsx:398
+#: pkg/systemd/reporting.jsx:397
 msgid "View report"
 msgstr ""
 
@@ -8333,8 +8444,8 @@ msgstr "Virtuella maskiner"
 
 #: pkg/machines/components/vm/vmDetailsPage.jsx:79
 #: pkg/machines/components/vm/vmDetailsPage.jsx:177
-#: pkg/machines/components/vms/hostvmslist.jsx:126
-#: pkg/machines/components/vms/hostvmslist.jsx:133
+#: pkg/machines/components/vms/hostvmslist.jsx:128
+#: pkg/machines/components/vms/hostvmslist.jsx:135
 #: pkg/machines/components/storagePools/storagePoolList.jsx:52
 #: pkg/machines/components/networks/networkList.jsx:55
 msgid "Virtual machines"
@@ -8357,7 +8468,7 @@ msgstr ""
 msgid "Virtualization service (libvirt) is not active"
 msgstr "Virtualiseringstjänsten (libvirt) är inte aktiv"
 
-#: pkg/storaged/content-views.jsx:144
+#: pkg/storaged/content-views.jsx:145
 #: pkg/machines/components/vm/deleteDialog.jsx:50
 #: pkg/machines/components/vm/overview/bootOrder.jsx:97
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:46
@@ -8403,7 +8514,7 @@ msgstr "Väntar"
 msgid "Waiting for details..."
 msgstr "Väntar på detaljer …"
 
-#: pkg/systemd/reporting.jsx:221
+#: pkg/systemd/reporting.jsx:220
 msgid "Waiting for input…"
 msgstr ""
 
@@ -8416,7 +8527,7 @@ msgstr "Väntar på att andra program skall sluta använda pekethanteraren …"
 msgid "Waiting for other software management operations to finish"
 msgstr "Väntar på att andra programvaruhanteringsåtgärder skall bli klara"
 
-#: pkg/systemd/reporting.jsx:316
+#: pkg/systemd/reporting.jsx:315
 msgid "Waiting to start…"
 msgstr ""
 
@@ -8449,7 +8560,7 @@ msgstr ""
 msgid "Wednesday"
 msgstr "Onsdag"
 
-#: pkg/packagekit/autoupdates.jsx:317
+#: pkg/packagekit/autoupdates.jsx:377
 msgid "Wednesdays"
 msgstr ""
 
@@ -8460,6 +8571,10 @@ msgstr "Veckor"
 #: pkg/storaged/crypto-keyslots.jsx:335
 msgid "What if tang-show-keys is not available?"
 msgstr "Vad gör man om tang-show-keys inte är tillgängligt?"
+
+#: pkg/packagekit/autoupdates.jsx:370
+msgid "When"
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:102
 msgid "White"
@@ -8494,7 +8609,7 @@ msgstr ""
 msgid "Writing"
 msgstr "Skriver"
 
-#: src/ws/login.js:726
+#: src/ws/login.js:815
 msgid "Wrong user name or password"
 msgstr "Fel användarnamn eller lösenord"
 
@@ -8502,12 +8617,16 @@ msgstr "Fel användarnamn eller lösenord"
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2582 pkg/systemd/reporting.jsx:262
+#: pkg/networkmanager/interfaces.js:2582 pkg/systemd/reporting.jsx:261
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:38
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:39
 msgid "Yesterday"
+msgstr ""
+
+#: src/ws/login.js:648
+msgid "You are connecting to $0 for the first time."
 msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:151 pkg/networkmanager/firewall.jsx:899
@@ -8530,7 +8649,7 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr ""
 
-#: pkg/systemd/logs.js:179
+#: pkg/systemd/logs.js:113
 msgid "You may try to load older entries."
 msgstr ""
 
@@ -8568,20 +8687,11 @@ msgstr ""
 msgid "Your account"
 msgstr "Lås kontot"
 
-#: pkg/packagekit/updates.jsx:889
-msgid ""
-"Your browser will disconnect, but this does not affect the update process. "
-"You can reconnect in a few moments to continue watching the progress."
-msgstr ""
-"Din webbläsare kommer kopplas ifrån, men detta påverkar inte "
-"uppdateringsprocessen.  Du kan återansluta om några ögonblick för att "
-"fortsätta följa förloppet."
-
 #: pkg/shell/superuser.jsx:146
 msgid "Your browser will remember your access level across sessions."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:1029
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8631,10 +8741,6 @@ msgstr ""
 msgid "addon"
 msgstr ""
 
-#: pkg/packagekit/autoupdates.jsx:334
-msgid "and restart the machine automatically."
-msgstr "och starta automatiskt om maskinen."
-
 #: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr ""
@@ -8651,7 +8757,7 @@ msgstr ""
 msgid "asset tag"
 msgstr ""
 
-#: pkg/packagekit/autoupdates.jsx:326
+#: pkg/packagekit/autoupdates.jsx:384
 msgid "at"
 msgstr "klockan"
 
@@ -8679,7 +8785,7 @@ msgstr ""
 msgid "bridge"
 msgstr "brygga"
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:282
 msgid "bug fix"
 msgstr "felrättning"
 
@@ -8802,7 +8908,7 @@ msgstr "aktiverat"
 msgid "encryption"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:282
 msgid "enhancement"
 msgstr "förbättring"
 
@@ -8814,7 +8920,7 @@ msgstr "fel"
 msgid "ethernet"
 msgstr "ethernet"
 
-#: pkg/packagekit/autoupdates.jsx:313
+#: pkg/packagekit/autoupdates.jsx:373
 msgid "every day"
 msgstr "varje dag"
 
@@ -9045,7 +9151,7 @@ msgstr ""
 msgid "no"
 msgstr "nej"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:145
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:147
 msgid "no state saved"
 msgstr ""
 
@@ -9160,7 +9266,7 @@ msgstr ""
 msgid "running $0"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:271 pkg/packagekit/manifest.json.in:0
+#: pkg/packagekit/updates.jsx:276 pkg/packagekit/manifest.json.in:0
 msgid "security"
 msgstr "säkerhet"
 
@@ -9382,6 +9488,10 @@ msgstr ""
 msgid "warning"
 msgstr ""
 
+#: pkg/packagekit/autoupdates.jsx:267
+msgid "will be applied $0 at $1"
+msgstr ""
+
 #: pkg/machines/helpers.js:259
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
@@ -9396,6 +9506,27 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in:0
 msgid "zone"
 msgstr "zon"
+
+#~ msgid "Apply security updates"
+#~ msgstr "Lägg på säkerhetsuppdateringar"
+
+#~ msgid "Entry"
+#~ msgstr "Post"
+
+#~ msgid "This web console will be updated."
+#~ msgstr "Denna webbkonsol kommer uppdateras."
+
+#~ msgid ""
+#~ "Your browser will disconnect, but this does not affect the update "
+#~ "process. You can reconnect in a few moments to continue watching the "
+#~ "progress."
+#~ msgstr ""
+#~ "Din webbläsare kommer kopplas ifrån, men detta påverkar inte "
+#~ "uppdateringsprocessen.  Du kan återansluta om några ögonblick för att "
+#~ "fortsätta följa förloppet."
+
+#~ msgid "and restart the machine automatically."
+#~ msgstr "och starta automatiskt om maskinen."
 
 #~ msgid "Dashboard"
 #~ msgstr "Panel"
@@ -9973,9 +10104,6 @@ msgstr "zon"
 
 #~ msgid "Show all containers"
 #~ msgstr "Visa alla behållare"
-
-#~ msgid "Show all images"
-#~ msgstr "Visa alla avbilder"
 
 #~ msgid "Start Docker"
 #~ msgstr "Starta Docker"

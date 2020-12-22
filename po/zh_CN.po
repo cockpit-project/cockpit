@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-08 18:23+0000\n"
+"POT-Creation-Date: 2020-12-15 18:24+0000\n"
 "PO-Revision-Date: 2020-09-20 17:29+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -55,14 +55,14 @@ msgstr "不可用"
 msgid "$0 GiB total"
 msgstr ""
 
-#: pkg/machines/components/aggregateStatusCards.jsx:75
+#: pkg/machines/components/aggregateStatusCards.jsx:77
 #, fuzzy
 #| msgid "$0 network"
 msgid "$0 Network"
 msgid_plural "$0 Networks"
 msgstr[0] "$0 网络"
 
-#: pkg/machines/components/aggregateStatusCards.jsx:51
+#: pkg/machines/components/aggregateStatusCards.jsx:52
 #, fuzzy
 #| msgid "Storage pool"
 #| msgid_plural "Storage pools"
@@ -120,7 +120,7 @@ msgstr "$0 磁盘"
 msgid "$0 documentation"
 msgstr "$0 文档"
 
-#: src/ws/login.js:374 src/ws/login.js:734
+#: src/ws/login.js:376 src/ws/login.js:823
 msgid "$0 error"
 msgstr "$0 错误"
 
@@ -132,7 +132,7 @@ msgstr "$0 退出，代码为 $1"
 msgid "$0 failed"
 msgstr "$0 失败"
 
-#: pkg/storaged/content-views.jsx:393
+#: pkg/storaged/content-views.jsx:394
 msgctxt "storage-id-desc"
 msgid "$0 file system"
 msgstr "$0 文件系统"
@@ -183,10 +183,10 @@ msgstr ""
 "$0 大多数操作系统可用。为了安装它，请在 GNOME 软件中心中搜索它，或运行以下命"
 "令："
 
-#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:164
+#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:165
 #: pkg/storaged/vdo-details.jsx:131 pkg/storaged/vdo-details.jsx:162
 #: pkg/storaged/lvol-tabs.jsx:209 pkg/storaged/lvol-tabs.jsx:271
-#: pkg/storaged/content-views.jsx:335 pkg/storaged/content-views.jsx:579
+#: pkg/storaged/content-views.jsx:336 pkg/storaged/content-views.jsx:580
 #: pkg/storaged/mdraid-details.jsx:231 pkg/storaged/mdraid-details.jsx:283
 msgid "$0 is in active use"
 msgstr "$0 已激活"
@@ -194,6 +194,12 @@ msgstr "$0 已激活"
 #: pkg/lib/cockpit-components-install-dialog.jsx:153
 msgid "$0 is not available from any repository."
 msgstr "所有仓库都不提供 $0。"
+
+#: src/ws/login.js:642
+#, fuzzy
+#| msgid "Force change"
+msgid "$0 key changed"
+msgstr "强制变更"
 
 #: pkg/base1/cockpit.js:2798
 msgid "$0 killed with signal $1"
@@ -275,7 +281,7 @@ msgstr[0] "剩余 $0 个槽位"
 msgid "$0 total"
 msgstr "总共"
 
-#: pkg/packagekit/updates.jsx:176
+#: pkg/packagekit/updates.jsx:181 pkg/packagekit/updates.jsx:525
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 个更新"
@@ -321,11 +327,11 @@ msgstr "$0 区域"
 msgid "$0, $1 free"
 msgstr "$0, $1 可用"
 
-#: pkg/systemd/logs.js:472
+#: pkg/systemd/logDetails.jsx:147
 msgid "$0: crash at $1"
 msgstr "$0: 崩溃于 $1"
 
-#: pkg/packagekit/updates.jsx:174
+#: pkg/packagekit/updates.jsx:179 pkg/packagekit/updates.jsx:523
 msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 安全修正"
@@ -342,7 +348,7 @@ msgstr "(可选)"
 msgid "(none)"
 msgstr "（无）"
 
-#: pkg/packagekit/updates.jsx:178
+#: pkg/packagekit/updates.jsx:183 pkg/packagekit/updates.jsx:527
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] "， 包括 $1 安全修复"
@@ -580,7 +586,7 @@ msgstr "{{#strong}}{{host}}{{/strong}} 上未安装一个兼容版本的 Cockpit
 msgid "A disk is needed."
 msgstr "需要一个磁盘。"
 
-#: src/ws/login.html:102
+#: src/ws/login.html:119
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "需要新的浏览器以确保安全性、可靠性和性能。"
@@ -623,6 +629,10 @@ msgstr "关于 Web 控制台"
 msgid "Absent"
 msgstr "缺席"
 
+#: src/ws/login.js:563
+msgid "Accept key and log in"
+msgstr ""
+
 #: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:305
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:228
 #: pkg/machines/components/vm/disks/diskEdit.jsx:85
@@ -642,12 +652,12 @@ msgstr "帐户不可用或不可编辑."
 msgid "Accounts"
 msgstr "账户"
 
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:815
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 #: pkg/apps/application-list.jsx:110
 msgid "Actions"
 msgstr "操作"
 
-#: pkg/storaged/content-views.jsx:289
+#: pkg/storaged/content-views.jsx:290
 #: pkg/machines/components/storagePools/storagePool.jsx:174
 #: pkg/machines/components/networks/network.jsx:174
 msgid "Activate"
@@ -670,7 +680,7 @@ msgstr "激活备份"
 msgid "Active pages"
 msgstr "激活页面"
 
-#: pkg/storaged/dialog.jsx:1040 pkg/storaged/dialog.jsx:1044
+#: pkg/storaged/dialog.jsx:1044 pkg/storaged/dialog.jsx:1048
 msgid "Active since"
 msgstr "活跃自"
 
@@ -738,7 +748,7 @@ msgstr "添加密钥"
 msgid "Add network interface"
 msgstr "添加网络接口"
 
-#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:213
+#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:212
 msgid "Add new host"
 msgstr "添加新主机"
 
@@ -877,7 +887,7 @@ msgstr "管理员密码"
 msgid "Advanced TCA"
 msgstr "高级 TCA"
 
-#: pkg/storaged/dialog.jsx:946
+#: pkg/storaged/dialog.jsx:950
 #, fuzzy
 #| msgid "Current allocation"
 msgid "Affected locations"
@@ -892,7 +902,7 @@ msgctxt "time-delay"
 msgid "After"
 msgstr "后"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:204
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:206
 msgid "After deleting the snapshot, all its captured content will be lost."
 msgstr "删除快照后，其所收集的内容将全部丢失。"
 
@@ -918,15 +928,21 @@ msgstr ""
 msgid "Alert and above"
 msgstr "Alert 及更高级别"
 
-#: pkg/systemd/services/services.jsx:684 pkg/systemd/logs.js:229
-#: pkg/machines/components/vms/hostvmslist.jsx:63
-#: pkg/machines/components/vms/hostvmslist.jsx:80
+#: pkg/systemd/services/services.jsx:684 pkg/systemd/logs.js:163
+#: pkg/machines/components/vms/hostvmslist.jsx:64
+#: pkg/machines/components/vms/hostvmslist.jsx:81
 msgid "All"
 msgstr "所有"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:160
 msgid "All logs"
 msgstr "所有日志"
+
+#: pkg/packagekit/autoupdates.jsx:364
+#, fuzzy
+#| msgid "Apply all updates"
+msgid "All updates"
+msgstr "应用所有更新"
 
 #: pkg/lib/machine-info.js:79
 msgid "All-in-one"
@@ -979,14 +995,6 @@ msgstr "应用列表"
 msgid "Apply"
 msgstr "应用"
 
-#: pkg/packagekit/autoupdates.jsx:305
-msgid "Apply all updates"
-msgstr "应用所有更新"
-
-#: pkg/packagekit/autoupdates.jsx:306
-msgid "Apply security updates"
-msgstr "应用安全更新"
-
 #: pkg/selinux/setroubleshoot-view.jsx:125
 msgid "Apply this solution"
 msgstr "应用该方案"
@@ -995,11 +1003,11 @@ msgstr "应用该方案"
 msgid "Applying solution..."
 msgstr "正在应用方案..."
 
-#: pkg/packagekit/updates.jsx:59
+#: pkg/packagekit/updates.jsx:63
 msgid "Applying updates"
 msgstr "正在应用更新"
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:65
 msgid "Applying updates failed"
 msgstr "应用更新失败"
 
@@ -1050,11 +1058,11 @@ msgstr "验证中"
 msgid "Authentication"
 msgstr "验证"
 
-#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:724
+#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:813
 msgid "Authentication failed"
 msgstr "验证失败"
 
-#: src/ws/login.js:714
+#: src/ws/login.js:803
 msgid "Authentication failed: Server closed connection"
 msgstr "验证失败： 服务关闭连接"
 
@@ -1096,8 +1104,14 @@ msgstr "自动 (DHCP)"
 msgid "Automatic login"
 msgstr "自动登陆"
 
-#: pkg/packagekit/autoupdates.jsx:344
+#: pkg/packagekit/autoupdates.jsx:414 pkg/packagekit/updates.jsx:580
 msgid "Automatic updates"
+msgstr "自动更新"
+
+#: pkg/packagekit/autoupdates.jsx:269
+#, fuzzy
+#| msgid "Automatic updates"
+msgid "Automatic updates are not set up"
 msgstr "自动更新"
 
 #: pkg/machines/components/libvirtSlate.jsx:94
@@ -1131,7 +1145,7 @@ msgstr "自动启动"
 msgid "Available targets on $0"
 msgstr "$0 上可用的目标"
 
-#: pkg/packagekit/updates.jsx:386 pkg/packagekit/updates.jsx:877
+#: pkg/packagekit/updates.jsx:388 pkg/packagekit/updates.jsx:592
 msgid "Available updates"
 msgstr "可用的更新"
 
@@ -1188,7 +1202,7 @@ msgstr "刀片机箱"
 msgid "Block"
 msgstr "块"
 
-#: pkg/storaged/content-views.jsx:741
+#: pkg/storaged/content-views.jsx:742
 msgid "Block device for filesystems"
 msgstr "文件系统的块设备"
 
@@ -1245,11 +1259,11 @@ msgstr "广播"
 msgid "Broken configuration"
 msgstr "错误的配置"
 
-#: pkg/packagekit/updates.jsx:857
+#: pkg/packagekit/updates.jsx:971
 msgid "Bug fix updates available"
 msgstr "错误修复的更新可以使用"
 
-#: pkg/packagekit/updates.jsx:331
+#: pkg/packagekit/updates.jsx:334
 msgid "Bugs"
 msgstr "程序错误"
 
@@ -1311,7 +1325,7 @@ msgstr "CPU类型"
 msgid "CPU usage"
 msgstr "CPU 使用率："
 
-#: pkg/packagekit/updates.jsx:319
+#: pkg/packagekit/updates.jsx:322
 msgid "CVE"
 msgstr "CVE"
 
@@ -1320,7 +1334,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "缓存"
 
-#: pkg/systemd/logs.js:201 pkg/systemd/logs.js:322
+#: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "Can not find any logs using the current combination of filters."
 msgstr "使用当前的过滤器组合找不到任何日志。"
 
@@ -1333,16 +1347,19 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/systemd/overview-cards/realmd-operation.html:84
 #: pkg/systemd/services.html:281 pkg/lib/machine-change-auth.html:75
 #: pkg/lib/machine-unknown-hostkey.html:21 pkg/lib/machine-add.html:55
-#: pkg/lib/machine-change-port.html:26 pkg/sosreport/index.js:52
-#: pkg/shell/shell-modals.jsx:87 pkg/shell/superuser.jsx:77
-#: pkg/shell/superuser.jsx:134 pkg/networkmanager/firewall.jsx:514
-#: pkg/networkmanager/firewall.jsx:675 pkg/networkmanager/firewall.jsx:758
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/hwinfo.jsx:239
+#: pkg/lib/machine-change-port.html:26 src/ws/login.html:103
+#: pkg/sosreport/index.js:52 pkg/shell/shell-modals.jsx:87
+#: pkg/shell/superuser.jsx:77 pkg/shell/superuser.jsx:134
+#: pkg/networkmanager/firewall.jsx:514 pkg/networkmanager/firewall.jsx:675
+#: pkg/networkmanager/firewall.jsx:758 pkg/systemd/reporting.jsx:419
+#: pkg/systemd/hwinfo.jsx:239
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/services/service-details.jsx:70
 #: pkg/lib/cockpit-components-dialog.jsx:148 pkg/storaged/jobs-panel.jsx:126
-#: pkg/storaged/dialog.jsx:404 pkg/packagekit/updates.jsx:196
-#: pkg/apps/utils.jsx:84 pkg/machines/components/common/deleteResource.jsx:68
+#: pkg/storaged/dialog.jsx:408 pkg/packagekit/autoupdates.jsx:426
+#: pkg/packagekit/updates.jsx:201 pkg/apps/utils.jsx:84
+#: pkg/machines/components/common/deleteResource.jsx:68
 #: pkg/machines/components/vm/deleteDialog.jsx:140
 #: pkg/machines/components/vm/overview/firmware.jsx:63
 #: pkg/machines/components/vm/overview/bootOrder.jsx:324
@@ -1445,6 +1462,13 @@ msgstr "更改 ${key} 的密码。"
 msgid "Change the settings"
 msgstr "修改设置"
 
+#: src/ws/login.html:59
+msgid ""
+"Changed keys are often the result of an operating system reinstallation. "
+"However, an unexpected change may indicate a third-party attempt to "
+"intercept your connection."
+msgstr ""
+
 #: pkg/machines/components/common/warningInactive.jsx:12
 #: pkg/machines/components/vm/overview/bootOrder.jsx:285
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:180
@@ -1459,7 +1483,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "修改设置将会中断与服务器的连接，并将导致管理界面不可用。"
 
-#: pkg/packagekit/updates.jsx:192
+#: pkg/packagekit/updates.jsx:197 pkg/packagekit/updates.jsx:570
 msgid "Check for updates"
 msgstr "检查更新"
 
@@ -1483,7 +1507,7 @@ msgstr "检查并修复 RAID 设备 $target"
 msgid "Checking for new applications"
 msgstr "检查新的应用"
 
-#: pkg/packagekit/updates.jsx:816
+#: pkg/packagekit/updates.jsx:930
 msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
 
@@ -1553,7 +1577,7 @@ msgstr ""
 #: pkg/sosreport/index.js:128 pkg/shell/shell-modals.jsx:34
 #: pkg/shell/shell-modals.jsx:117 pkg/shell/superuser.jsx:77
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
-#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/storaged/dialog.jsx:404
+#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/storaged/dialog.jsx:408
 #: pkg/apps/utils.jsx:102
 msgid "Close"
 msgstr "关闭"
@@ -1566,7 +1590,7 @@ msgstr "关闭已选的页面"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:394
+#: src/ws/login.js:396
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit 验证的配置不正确。"
 
@@ -1642,11 +1666,11 @@ msgstr "与 tuned 通信失败"
 msgid "Compact PCI"
 msgstr "紧凑型 PCI"
 
-#: pkg/storaged/content-views.jsx:600
+#: pkg/storaged/content-views.jsx:601
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "兼容所有系统和设备 (MBR)"
 
-#: pkg/storaged/content-views.jsx:603
+#: pkg/storaged/content-views.jsx:604
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "兼容现代系统，且硬盘空间大于 2TB (GPT)"
 
@@ -1696,7 +1720,7 @@ msgid "Configuring system settings"
 msgstr "配置系统设置"
 
 #: pkg/shell/index.html:261 pkg/users/account-create-dialog.js:61
-#: pkg/storaged/format-dialog.jsx:221
+#: pkg/storaged/format-dialog.jsx:222
 msgid "Confirm"
 msgstr "确认"
 
@@ -1743,7 +1767,7 @@ msgstr "连接"
 msgid "Connect automatically"
 msgstr "自动连接"
 
-#: src/ws/login.html:75
+#: src/ws/login.html:91
 msgid "Connect to"
 msgstr "连接至"
 
@@ -1773,7 +1797,7 @@ msgid "Connecting to virtualization service"
 msgstr "连接虚拟化服务"
 
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:33
-#: pkg/machines/components/vms/hostvmslist.jsx:137
+#: pkg/machines/components/vms/hostvmslist.jsx:139
 #: pkg/machines/components/storagePools/storagePoolList.jsx:74
 #: pkg/machines/components/networks/networkList.jsx:77
 #: pkg/machines/components/networks/createNetworkDialog.jsx:38
@@ -1823,8 +1847,8 @@ msgstr "容器管理员"
 msgid "Contains:"
 msgstr "包含："
 
-#: pkg/storaged/content-views.jsx:639 pkg/storaged/content-views.jsx:644
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:815
+#: pkg/storaged/content-views.jsx:640 pkg/storaged/content-views.jsx:645
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Content"
 msgstr "内容"
 
@@ -1869,7 +1893,7 @@ msgstr "无法恢复到快照"
 msgid "Crash dump location"
 msgstr "崩溃信息存放在"
 
-#: pkg/systemd/reporting.jsx:472
+#: pkg/systemd/reporting.jsx:474
 msgid "Crash reporting"
 msgstr "崩溃报告"
 
@@ -1885,8 +1909,8 @@ msgstr "已崩溃"
 
 #: pkg/users/account-create-dialog.js:209
 #: pkg/users/account-create-dialog.js:253 pkg/storaged/vdos-panel.jsx:146
-#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:131
-#: pkg/storaged/content-views.jsx:277 pkg/storaged/content-views.jsx:784
+#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:132
+#: pkg/storaged/content-views.jsx:278 pkg/storaged/content-views.jsx:785
 #: pkg/storaged/mdraids-panel.jsx:123
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:133
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:434
@@ -1933,7 +1957,7 @@ msgstr "创建诊断报告"
 msgid "Create it"
 msgstr "创建它"
 
-#: pkg/storaged/content-views.jsx:728
+#: pkg/storaged/content-views.jsx:729
 msgid "Create logical volume"
 msgstr "创建逻辑卷"
 
@@ -1945,7 +1969,7 @@ msgstr "新建"
 msgid "Create new account"
 msgstr "创建新账户"
 
-#: pkg/storaged/content-views.jsx:802
+#: pkg/storaged/content-views.jsx:803
 msgid "Create new logical volume"
 msgstr "创建新逻辑卷"
 
@@ -1961,15 +1985,15 @@ msgstr "创建新的虚拟机"
 msgid "Create new volume"
 msgstr "创建新卷"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:505
+#: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:506
 msgid "Create partition"
 msgstr "创建分区"
 
-#: pkg/storaged/format-dialog.jsx:132
+#: pkg/storaged/format-dialog.jsx:133
 msgid "Create partition on $0"
 msgstr "在$0上创建分区"
 
-#: pkg/storaged/content-views.jsx:632
+#: pkg/storaged/content-views.jsx:633
 msgid "Create partition table"
 msgstr "创建分区表"
 
@@ -1977,8 +2001,8 @@ msgstr "创建分区表"
 msgid "Create report"
 msgstr "创建报表"
 
-#: pkg/storaged/content-views.jsx:271 pkg/storaged/content-views.jsx:292
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:77
+#: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:293
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:78
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:128
 msgid "Create snapshot"
 msgstr "创建快照"
@@ -1992,7 +2016,7 @@ msgstr "创建存储池"
 msgid "Create storage volume"
 msgstr "创建存储卷"
 
-#: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:142
+#: pkg/storaged/content-views.jsx:116 pkg/storaged/content-views.jsx:143
 msgid "Create thin volume"
 msgstr "创建Thin卷"
 
@@ -2022,11 +2046,11 @@ msgstr "创建卷组"
 msgid "Creating RAID device $target"
 msgstr "创建 RAID 设备 $target"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:49
+#: pkg/machines/components/vms/hostvmslist.jsx:50
 msgid "Creating VM"
 msgstr "创建虚拟机"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:47
+#: pkg/machines/components/vms/hostvmslist.jsx:48
 msgid "Creating VM installation"
 msgstr "创建虚拟机安装"
 
@@ -2078,7 +2102,7 @@ msgstr "创建卷组 $target"
 msgid "Creation of VM $0 failed"
 msgstr "虚拟机$0创建失败"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:107
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:108
 msgid "Creation time"
 msgstr "创建时间"
 
@@ -2098,7 +2122,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr ""
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:113
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:114
 msgid "Current"
 msgstr "当前的"
 
@@ -2110,7 +2134,7 @@ msgstr "当前分配"
 msgid "Current boot"
 msgstr "当前启动"
 
-#: pkg/storaged/format-dialog.jsx:65
+#: pkg/storaged/format-dialog.jsx:66
 msgid "Custom encryption options"
 msgstr "自定义加密选项"
 
@@ -2118,7 +2142,7 @@ msgstr "自定义加密选项"
 msgid "Custom firmware: $0"
 msgstr "自定义固件：$0"
 
-#: pkg/storaged/nfs-details.jsx:181 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/nfs-details.jsx:181 pkg/storaged/format-dialog.jsx:248
 #: pkg/storaged/fsys-tab.jsx:262
 msgid "Custom mount options"
 msgstr "自定义挂载选项"
@@ -2164,7 +2188,7 @@ msgstr "暗色"
 msgid "Data used"
 msgstr "数据已使用空间"
 
-#: pkg/storaged/content-views.jsx:287
+#: pkg/storaged/content-views.jsx:288
 #: pkg/machines/components/storagePools/storagePool.jsx:165
 #: pkg/machines/components/networks/network.jsx:170
 msgid "Deactivate"
@@ -2192,10 +2216,11 @@ msgstr "延时"
 
 #: pkg/networkmanager/index.html:460 pkg/users/delete-account-dialog.js:60
 #: pkg/users/account-details.js:268 pkg/networkmanager/firewall.jsx:755
-#: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
-#: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
-#: pkg/storaged/content-views.jsx:346 pkg/storaged/content-views.jsx:362
-#: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
+#: pkg/systemd/abrtLog.jsx:242 pkg/storaged/vgroup-details.jsx:202
+#: pkg/storaged/vgroup-details.jsx:224 pkg/storaged/vdo-details.jsx:201
+#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/content-views.jsx:347
+#: pkg/storaged/content-views.jsx:363 pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:317
 #: pkg/machines/components/common/deleteResource.jsx:60
 #: pkg/machines/components/common/deleteResource.jsx:65
 #: pkg/machines/components/common/deleteResource.jsx:94
@@ -2256,11 +2281,11 @@ msgstr "删除 RAID 设备将擦除其中的所有数据."
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "删除 RAID 设备将擦除其中的所有数据."
 
-#: pkg/storaged/content-views.jsx:324
+#: pkg/storaged/content-views.jsx:325
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "删除逻辑卷将擦除其中的所有数据。"
 
-#: pkg/storaged/content-views.jsx:327
+#: pkg/storaged/content-views.jsx:328
 msgid "Deleting a partition will delete all data in it."
 msgstr "删除分区将擦除其中的所有数据。"
 
@@ -2280,7 +2305,7 @@ msgstr "删除卷组 $target"
 
 #: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:703
 #: pkg/systemd/services/services-list.jsx:53
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:129
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:130
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:54
 msgid "Description"
 msgstr "描述"
@@ -2299,7 +2324,7 @@ msgstr "尝试删除之前，从所有 VM 中分离使用这个池的磁盘。"
 msgid "Detachable"
 msgstr "可拆开"
 
-#: pkg/shell/index.html:188 pkg/packagekit/updates.jsx:391
+#: pkg/shell/index.html:188 pkg/packagekit/updates.jsx:394
 msgid "Details"
 msgstr "详情"
 
@@ -2331,7 +2356,7 @@ msgctxt "storage"
 msgid "Device file"
 msgstr "设备文件"
 
-#: pkg/storaged/content-views.jsx:631
+#: pkg/storaged/content-views.jsx:632
 msgid "Device is read-only"
 msgstr "设备只读"
 
@@ -2429,7 +2454,7 @@ msgstr "磁盘口令"
 msgid "Disk settings could not be saved"
 msgstr "磁盘设置不能被保存"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:151
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:153
 msgid "Disk-only snapshot"
 msgstr "纯磁盘快照"
 
@@ -2487,15 +2512,15 @@ msgstr "域管理员用户名"
 msgid "Domain administrator password"
 msgstr "域管理员密码"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:153
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:155
 msgid "Domain has crashed"
 msgstr "域已崩溃"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:152
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:154
 msgid "Domain is blocked on resource"
 msgstr "域在资源上被阻塞"
 
-#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/content-views.jsx:592
+#: pkg/storaged/format-dialog.jsx:196 pkg/storaged/content-views.jsx:593
 msgid "Don't overwrite existing data"
 msgstr "不覆盖已存在数据"
 
@@ -2508,7 +2533,7 @@ msgstr "不要重复"
 msgid "Done!"
 msgstr "已完成！"
 
-#: src/ws/login.html:105
+#: src/ws/login.html:122
 msgid "Download a new browser for free"
 msgstr "免费下载新的浏览器"
 
@@ -2524,11 +2549,11 @@ msgstr "下载报告"
 msgid "Download the MSI from $0"
 msgstr "从 $0 下载 MSI"
 
-#: pkg/packagekit/updates.jsx:74
+#: pkg/packagekit/updates.jsx:78
 msgid "Downloaded"
 msgstr "已下载"
 
-#: pkg/packagekit/updates.jsx:66
+#: pkg/packagekit/updates.jsx:70
 msgid "Downloading"
 msgstr "正在下载"
 
@@ -2555,7 +2580,7 @@ msgid "Dying"
 msgstr "失活的"
 
 #: pkg/shell/indexes.js:345 pkg/storaged/nfs-details.jsx:315
-#: pkg/storaged/crypto-tab.jsx:136
+#: pkg/storaged/crypto-tab.jsx:136 pkg/packagekit/autoupdates.jsx:411
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:287
 #: pkg/machines/components/vm/disks/diskEdit.jsx:241
 msgid "Edit"
@@ -2565,6 +2590,12 @@ msgstr "编辑"
 msgid "Edit $0 attributes"
 msgstr "编辑 $0 属性"
 
+#: pkg/systemd/overview-cards/motdCard.jsx:87
+#, fuzzy
+#| msgid "Edit host"
+msgid "Edit /etc/motd"
+msgstr "编辑主机"
+
 #: pkg/storaged/crypto-keyslots.jsx:279
 msgid "Edit Tang keyserver"
 msgstr "编辑Tang keyserver"
@@ -2573,9 +2604,15 @@ msgstr "编辑Tang keyserver"
 msgid "Edit host"
 msgstr "编辑主机"
 
-#: pkg/shell/hosts.jsx:212
+#: pkg/shell/hosts.jsx:211
 msgid "Edit hosts"
 msgstr "编辑多个主机"
+
+#: pkg/systemd/overview-cards/motdCard.jsx:77
+#, fuzzy
+#| msgid "Edit host"
+msgid "Edit motd"
+msgstr "编辑主机"
 
 #: pkg/networkmanager/index.html:113
 msgid "Edit rules and zones"
@@ -2627,7 +2664,7 @@ msgstr "启用防火墙"
 msgid "Enabled"
 msgstr "启用"
 
-#: pkg/storaged/format-dialog.jsx:209
+#: pkg/storaged/format-dialog.jsx:210
 msgid "Encrypt data"
 msgstr "加密的数据"
 
@@ -2635,7 +2672,7 @@ msgstr "加密的数据"
 msgid "Encrypted $0"
 msgstr "已加密 $0"
 
-#: pkg/storaged/content-views.jsx:407
+#: pkg/storaged/content-views.jsx:408
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "加密的数据"
@@ -2656,7 +2693,7 @@ msgstr "加密卷不能在这里改变大小。"
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr "加密卷需要先解锁才能调整大小。"
 
-#: pkg/storaged/content-views.jsx:157
+#: pkg/storaged/content-views.jsx:158
 msgid "Encryption"
 msgstr "加密"
 
@@ -2677,7 +2714,7 @@ msgstr "结束不应为空"
 msgid "Enforcing"
 msgstr "强制"
 
-#: pkg/packagekit/updates.jsx:859
+#: pkg/packagekit/updates.jsx:973
 msgid "Enhancement updates available"
 msgstr "可用的功能增强更新"
 
@@ -2685,15 +2722,11 @@ msgstr "可用的功能增强更新"
 msgid "Entire subnet"
 msgstr "整个子网"
 
-#: pkg/systemd/logs.html:128
-msgid "Entry"
-msgstr "条目"
-
-#: pkg/systemd/logs.js:478
+#: pkg/systemd/logDetails.jsx:153
 msgid "Entry at $0"
 msgstr "进入于 $0"
 
-#: pkg/storaged/format-dialog.jsx:192 pkg/storaged/content-views.jsx:589
+#: pkg/storaged/format-dialog.jsx:193 pkg/storaged/content-views.jsx:590
 msgid "Erase"
 msgstr "擦除"
 
@@ -2701,7 +2734,7 @@ msgstr "擦除"
 msgid "Erasing $target"
 msgstr "擦除 $target"
 
-#: pkg/packagekit/updates.jsx:327
+#: pkg/packagekit/updates.jsx:330
 msgid "Errata"
 msgstr "勘误"
 
@@ -2782,11 +2815,11 @@ msgstr ""
 msgid "Expansion chassis"
 msgstr "扩展机箱"
 
-#: pkg/systemd/logs.js:562
+#: pkg/systemd/abrtLog.jsx:244
 msgid "Extended information"
 msgstr "扩展的信息"
 
-#: pkg/storaged/format-dialog.jsx:158 pkg/storaged/content-views.jsx:527
+#: pkg/storaged/format-dialog.jsx:159 pkg/storaged/content-views.jsx:528
 msgid "Extended partition"
 msgstr "扩展分区"
 
@@ -2854,6 +2887,12 @@ msgstr "获取在 $0 中的接口的 IP 地址失败"
 msgid "Failed to load authorized keys."
 msgstr "载入 authorized key 失败。"
 
+#: pkg/systemd/overview-cards/motdCard.jsx:97
+#, fuzzy
+#| msgid "Failed to change firmware"
+msgid "Failed to save changes in /etc/motd"
+msgstr "修改固件失败"
+
 #: pkg/machines/components/vm/consoles/vnc.jsx:130
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "发送按键 Ctrl+Alt+$0 到 VM $1 失败"
@@ -2876,7 +2915,7 @@ msgstr "启用的虚拟 CPU 数量应少于最大虚拟 CPU 数量。"
 msgid "File"
 msgstr "文件"
 
-#: pkg/storaged/content-views.jsx:155
+#: pkg/storaged/content-views.jsx:156
 msgid "Filesystem"
 msgstr "文件系统"
 
@@ -2896,7 +2935,7 @@ msgstr "文件系统"
 msgid "Filter"
 msgstr "过滤器"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:91
+#: pkg/machines/components/vms/hostvmslist.jsx:92
 msgid "Filter by name"
 msgstr "根据名称过滤"
 
@@ -2965,22 +3004,22 @@ msgstr "强制重启"
 msgid "Force shut down"
 msgstr "强制关机"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:367
-#: pkg/storaged/content-views.jsx:369 pkg/storaged/content-views.jsx:610
+#: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:368
+#: pkg/storaged/content-views.jsx:370 pkg/storaged/content-views.jsx:611
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:66
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:197
 msgid "Format"
 msgstr "格式化"
 
-#: pkg/storaged/format-dialog.jsx:134
+#: pkg/storaged/format-dialog.jsx:135
 msgid "Format $0"
 msgstr "格式化 $0"
 
-#: pkg/storaged/content-views.jsx:586
+#: pkg/storaged/content-views.jsx:587
 msgid "Format disk $0"
 msgstr "格式化磁盘 $0"
 
-#: pkg/storaged/content-views.jsx:611
+#: pkg/storaged/content-views.jsx:612
 msgid "Formatting a disk will erase all data on it."
 msgstr "格式化磁盘将擦除其中的所有数据。"
 
@@ -3000,11 +3039,18 @@ msgstr "转发模式"
 msgid "Forwarding mode"
 msgstr "转发模式"
 
+#: pkg/systemd/abrtLog.jsx:74
+#, fuzzy
+#| msgctxt "storage"
+#| msgid "Serial number"
+msgid "Frame number"
+msgstr "序列号"
+
 #: pkg/storaged/pvol-tabs.jsx:51
 msgid "Free"
 msgstr "可用"
 
-#: pkg/storaged/content-views.jsx:512
+#: pkg/storaged/content-views.jsx:513
 msgid "Free space"
 msgstr "空闲空间"
 
@@ -3018,7 +3064,7 @@ msgstr "在这个组中释放更多可用空间：缩小或删除其它逻辑卷
 msgid "Friday"
 msgstr "星期五"
 
-#: pkg/packagekit/autoupdates.jsx:319
+#: pkg/packagekit/autoupdates.jsx:379
 msgid "Fridays"
 msgstr "周五"
 
@@ -3030,7 +3076,7 @@ msgstr "全名"
 msgid "GNU LGPL version 2.1"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2692 pkg/systemd/logs.js:567
+#: pkg/networkmanager/interfaces.js:2692 pkg/systemd/abrtLog.jsx:248
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:188
 #: pkg/machines/components/networks/networkOverviewTab.jsx:85
 msgid "General"
@@ -3125,11 +3171,11 @@ msgstr "帮助"
 msgid "Hide additional options"
 msgstr "隐藏额外操作"
 
-#: pkg/systemd/logs.js:950 pkg/systemd/logs.js:1095
+#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:514
 msgid "Hide filters"
 msgstr "隐藏过滤器"
 
-#: pkg/packagekit/history.jsx:109
+#: pkg/packagekit/history.jsx:108
 msgid "History package count"
 msgstr "历史软件包数量"
 
@@ -3285,7 +3331,13 @@ msgstr ""
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "如果没有 tang-show-keys，请运行以下命令："
 
-#: pkg/networkmanager/interfaces.js:1954 pkg/packagekit/updates.jsx:503
+#: src/ws/login.html:68
+msgid ""
+"If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
+"not log in and contact your administrator."
+msgstr ""
+
+#: pkg/networkmanager/interfaces.js:1954 pkg/packagekit/updates.jsx:506
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3337,7 +3389,7 @@ msgstr "同步中"
 msgid "Inactive"
 msgstr "未激活"
 
-#: pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:702
 msgid "Inactive volume"
 msgstr "暂停卷"
 
@@ -3361,7 +3413,7 @@ msgstr "索引内存"
 msgid "Info and above"
 msgstr "Info 及更高级别"
 
-#: pkg/packagekit/updates.jsx:460
+#: pkg/packagekit/updates.jsx:463
 msgid "Initializing..."
 msgstr "初始化中..."
 
@@ -3391,7 +3443,7 @@ msgstr "安装 NFS 支持"
 msgid "Install VDO support"
 msgstr "安装 VDO 支持"
 
-#: pkg/packagekit/updates.jsx:844
+#: pkg/packagekit/updates.jsx:958
 msgid "Install all updates"
 msgstr "安装所有更新"
 
@@ -3399,7 +3451,7 @@ msgstr "安装所有更新"
 msgid "Install cockpit-pcp"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:844 pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:958 pkg/packagekit/updates.jsx:964
 msgid "Install security updates"
 msgstr "安装安全更新"
 
@@ -3425,11 +3477,11 @@ msgstr "安装源不能为空"
 msgid "Installation type"
 msgstr "安装类型"
 
-#: pkg/packagekit/updates.jsx:75
+#: pkg/packagekit/updates.jsx:79
 msgid "Installed"
 msgstr "已安装"
 
-#: pkg/packagekit/updates.jsx:67 pkg/apps/application-list.jsx:55
+#: pkg/packagekit/updates.jsx:71 pkg/apps/application-list.jsx:55
 #: pkg/apps/application.jsx:59
 msgid "Installing"
 msgstr "正在安装"
@@ -3458,7 +3510,7 @@ msgstr "接口"
 msgid "Internal error"
 msgstr "内部错误"
 
-#: src/ws/login.js:706
+#: src/ws/login.js:795
 msgid "Internal error: Invalid challenge header"
 msgstr "内部错误：无效的挑战字头部"
 
@@ -3602,11 +3654,11 @@ msgstr "加入命名空间"
 msgid "Journal"
 msgstr "日志"
 
-#: pkg/systemd/logs.js:458
+#: pkg/systemd/logDetails.jsx:135
 msgid "Journal entry"
 msgstr "日志条目"
 
-#: pkg/systemd/logs.js:496
+#: pkg/systemd/logDetails.jsx:121
 msgid "Journal entry not found"
 msgstr "未找到日志条目"
 
@@ -3684,7 +3736,7 @@ msgstr "最近 24 小时"
 msgid "Last 7 days"
 msgstr "最近 7 天"
 
-#: pkg/packagekit/updates.jsx:194
+#: pkg/packagekit/updates.jsx:199 pkg/packagekit/updates.jsx:536
 msgid "Last checked: $0"
 msgstr "最后检查于： $0"
 
@@ -3786,7 +3838,7 @@ msgstr "负载均衡"
 msgid "Load earlier data"
 msgstr "载入更早条目"
 
-#: pkg/systemd/logs.js:180
+#: pkg/systemd/logs.js:114
 msgid "Load earlier entries"
 msgstr "载入更早条目"
 
@@ -3794,11 +3846,11 @@ msgstr "载入更早条目"
 msgid "Load spike"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:66
 msgid "Loading available updates failed"
 msgstr "加载可用的更新失败"
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:59
 msgid "Loading available updates, please wait..."
 msgstr "正在加载可用的更新，请等待..."
 
@@ -3822,8 +3874,9 @@ msgstr "加载资源"
 msgid "Loading system modifications..."
 msgstr "加载系统改变..."
 
-#: pkg/kdump/kdump-view.jsx:371 pkg/systemd/services/services.jsx:664
-#: pkg/systemd/logs.js:224 pkg/systemd/logs.js:267 pkg/storaged/devices.jsx:70
+#: pkg/kdump/kdump-view.jsx:371 pkg/systemd/logDetails.jsx:141
+#: pkg/systemd/services/services.jsx:664 pkg/systemd/logs.js:158
+#: pkg/systemd/logs.js:201 pkg/storaged/devices.jsx:69
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
 #: pkg/metrics/metrics.jsx:975
 msgid "Loading..."
@@ -3849,7 +3902,7 @@ msgstr "挂载点"
 msgid "Location"
 msgstr "位置"
 
-#: pkg/storaged/content-views.jsx:255
+#: pkg/storaged/content-views.jsx:256
 msgid "Lock"
 msgstr "锁定"
 
@@ -3872,7 +3925,7 @@ msgid "Locking $target"
 msgstr "锁定 $target"
 
 #: pkg/shell/index.html:308 pkg/lib/machine-change-auth.html:74
-#: src/ws/login.html:85 src/ws/login.js:556
+#: src/ws/login.html:101 src/ws/login.js:563
 msgid "Log in"
 msgstr "登录"
 
@@ -3880,7 +3933,7 @@ msgstr "登录"
 msgid "Log in to {{host}}"
 msgstr "登录到 {{host}}"
 
-#: src/ws/login.js:582
+#: src/ws/login.js:593
 msgid "Log in with your server user account."
 msgstr "使用您的服务器用户帐户登录。"
 
@@ -3916,11 +3969,11 @@ msgstr "逻辑卷 (快照)"
 msgid "Logical volume of $0"
 msgstr "$0 的逻辑卷"
 
-#: pkg/storaged/content-views.jsx:809 pkg/storaged/content-views.jsx:814
+#: pkg/storaged/content-views.jsx:810 pkg/storaged/content-views.jsx:815
 msgid "Logical volumes"
 msgstr "逻辑卷"
 
-#: src/ws/login.js:348
+#: src/ws/login.js:350
 msgid "Login again"
 msgstr "再次登录"
 
@@ -3932,11 +3985,11 @@ msgstr "登录失败"
 msgid "Login format"
 msgstr "登陆格式"
 
-#: src/ws/login.js:349
+#: src/ws/login.js:351
 msgid "Logout successful"
 msgstr "注销成功"
 
-#: pkg/systemd/logs.html:122 pkg/systemd/manifest.json.in:0
+#: pkg/systemd/logDetails.jsx:161 pkg/systemd/manifest.json.in:0
 msgid "Logs"
 msgstr "日志"
 
@@ -4099,11 +4152,11 @@ msgstr "为客户机操作系统分配的最大虚拟 CPU 数，必须介于 1 �
 msgid "Maximum transmission unit"
 msgstr "最大传输单元"
 
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:405
 msgid "Member of RAID device"
 msgstr "RAID 设备的成员"
 
-#: pkg/storaged/content-views.jsx:400
+#: pkg/storaged/content-views.jsx:401
 msgid "Member of RAID device $0"
 msgstr "RAID 设备 $0 的成员"
 
@@ -4224,7 +4277,7 @@ msgstr "修改 $target"
 msgid "Monday"
 msgstr "星期一"
 
-#: pkg/packagekit/autoupdates.jsx:315
+#: pkg/packagekit/autoupdates.jsx:375
 msgid "Mondays"
 msgstr "周一"
 
@@ -4250,7 +4303,7 @@ msgid "More information"
 msgstr "更多信息"
 
 #: pkg/kdump/kdump-view.jsx:104 pkg/storaged/nfs-details.jsx:310
-#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/content-views.jsx:376
+#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/content-views.jsx:377
 msgid "Mount"
 msgstr "挂载"
 
@@ -4274,7 +4327,7 @@ msgstr "挂载配置"
 msgid "Mount filesystem"
 msgstr "挂载文件系统"
 
-#: pkg/storaged/format-dialog.jsx:245 pkg/storaged/fsys-tab.jsx:484
+#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:484
 msgid "Mount now"
 msgstr "现在挂载"
 
@@ -4282,13 +4335,13 @@ msgstr "现在挂载"
 msgid "Mount on $0 now"
 msgstr "现在在 $0 挂载"
 
-#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:236
+#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:237
 #: pkg/storaged/fsys-tab.jsx:254
 msgid "Mount options"
 msgstr "挂载选项"
 
 #: pkg/storaged/fsys-panel.jsx:95 pkg/storaged/nfs-details.jsx:331
-#: pkg/storaged/format-dialog.jsx:230 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/nfs-panel.jsx:103
 #: pkg/storaged/fsys-tab.jsx:249 pkg/storaged/fsys-tab.jsx:526
 msgid "Mount point"
 msgstr "挂载点"
@@ -4309,7 +4362,7 @@ msgstr "挂载点已用于 $0"
 msgid "Mount point must start with \"/\"."
 msgstr "挂载点必须以“/”开头。"
 
-#: pkg/storaged/nfs-details.jsx:180 pkg/storaged/format-dialog.jsx:246
+#: pkg/storaged/nfs-details.jsx:180 pkg/storaged/format-dialog.jsx:247
 #: pkg/storaged/fsys-tab.jsx:261
 msgid "Mount read only"
 msgstr "只读挂载"
@@ -4360,20 +4413,20 @@ msgstr "NTP 服务器"
 #: pkg/networkmanager/index.html:272 pkg/networkmanager/index.html:329
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
 #: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/crypto-panel.jsx:79
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/format-dialog.jsx:201
+#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/format-dialog.jsx:202
 #: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroups-panel.jsx:74
 #: pkg/storaged/part-tab.jsx:40 pkg/storaged/lvol-tabs.jsx:41
 #: pkg/storaged/lvol-tabs.jsx:387 pkg/storaged/lvol-tabs.jsx:445
-#: pkg/storaged/content-views.jsx:117 pkg/storaged/content-views.jsx:273
-#: pkg/storaged/content-views.jsx:646 pkg/storaged/content-views.jsx:730
-#: pkg/storaged/content-views.jsx:815 pkg/storaged/iscsi-panel.jsx:128
+#: pkg/storaged/content-views.jsx:118 pkg/storaged/content-views.jsx:274
+#: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:731
+#: pkg/storaged/content-views.jsx:816 pkg/storaged/iscsi-panel.jsx:128
 #: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/mdraids-panel.jsx:61
-#: pkg/packagekit/updates.jsx:388
+#: pkg/packagekit/updates.jsx:391
 #: pkg/machines/components/vm/vmCloneDialog.jsx:80
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:120
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:121
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
-#: pkg/machines/components/vms/hostvmslist.jsx:136
+#: pkg/machines/components/vms/hostvmslist.jsx:138
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:36
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
 #: pkg/machines/components/storagePools/storagePoolList.jsx:72
@@ -4545,6 +4598,12 @@ msgstr "账号从不锁定"
 msgid "New NFS mount"
 msgstr "新的 NFS 挂载"
 
+#: src/ws/login.js:646
+#, fuzzy
+#| msgid "Add new host"
+msgid "New host"
+msgstr "添加新主机"
+
 #: pkg/lib/machine-dialogs.js:747
 msgid "New key password"
 msgstr "新密钥密码"
@@ -4570,7 +4629,7 @@ msgstr "新卷名称"
 msgid "Next"
 msgstr "下一步"
 
-#: pkg/networkmanager/interfaces.js:2583 pkg/systemd/reporting.jsx:271
+#: pkg/networkmanager/interfaces.js:2583 pkg/systemd/reporting.jsx:270
 msgid "No"
 msgstr "否"
 
@@ -4582,7 +4641,7 @@ msgstr "没有设置 NFS 挂载"
 msgid "No SELinux alerts."
 msgstr "没有 SELinux 警告。"
 
-#: pkg/machines/components/vms/hostvmslist.jsx:141
+#: pkg/machines/components/vms/hostvmslist.jsx:143
 msgid "No VM is running or defined on this host"
 msgstr "该主机上没有定义或运行虚拟机"
 
@@ -4630,7 +4689,7 @@ msgstr "在 $0 和 $1 间发生"
 msgid "No delay"
 msgstr "无延时"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:132
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:133
 msgid "No description"
 msgstr "没有描述"
 
@@ -4660,7 +4719,7 @@ msgstr "没有为该虚拟机定义磁盘"
 msgid "No drives attached"
 msgstr "没有附件的驱动器"
 
-#: pkg/storaged/format-dialog.jsx:156
+#: pkg/storaged/format-dialog.jsx:157
 msgid "No filesystem"
 msgstr "无文件系统"
 
@@ -4668,7 +4727,7 @@ msgstr "无文件系统"
 msgid "No free key slots"
 msgstr "没有空闲的密钥 slot"
 
-#: pkg/storaged/content-views.jsx:795
+#: pkg/storaged/content-views.jsx:796
 msgid "No free space"
 msgstr "没有剩余空间"
 
@@ -4692,11 +4751,11 @@ msgstr "没有添加密钥"
 msgid "No log entries"
 msgstr "无日志条目"
 
-#: pkg/storaged/content-views.jsx:813
+#: pkg/storaged/content-views.jsx:814
 msgid "No logical volumes"
 msgstr "没有逻辑卷"
 
-#: pkg/systemd/logs.js:178 pkg/systemd/logs.js:201 pkg/systemd/logs.js:322
+#: pkg/systemd/logs.js:112 pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "No logs found"
 msgstr "没有找到日志"
 
@@ -4733,11 +4792,11 @@ msgstr "没有在这个主机上定义网络"
 msgid "No networks available"
 msgstr "没有可用的网络"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:173
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:175
 msgid "No parent"
 msgstr "没有上级"
 
-#: pkg/storaged/content-views.jsx:605
+#: pkg/storaged/content-views.jsx:606
 msgid "No partitioning"
 msgstr "无分区"
 
@@ -4758,7 +4817,7 @@ msgstr "没有结果符合过滤条件。清除所有过滤器以显示结果。
 msgid "No rule hits"
 msgstr "无规则命中"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:101
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:102
 msgid "No snapshots"
 msgstr "没有快照"
 
@@ -4800,7 +4859,14 @@ msgstr "没有该文件或目录"
 msgid "No system modifications"
 msgstr "没有系统改变"
 
-#: pkg/packagekit/updates.jsx:58
+#: pkg/packagekit/autoupdates.jsx:352
+#, fuzzy
+#| msgid "$0 update"
+#| msgid_plural "$0 updates"
+msgid "No updates"
+msgstr "$0 个更新"
+
+#: pkg/packagekit/updates.jsx:62
 msgid "No updates pending"
 msgstr "没有待完成的更新"
 
@@ -4890,7 +4956,7 @@ msgstr "不允许执行该操作。"
 msgid "Not ready"
 msgstr "未就绪"
 
-#: pkg/packagekit/updates.jsx:795
+#: pkg/packagekit/updates.jsx:909
 msgid "Not registered"
 msgstr "没有注册"
 
@@ -5018,7 +5084,7 @@ msgstr "光盘驱动器"
 msgid "Options"
 msgstr "选项"
 
-#: src/ws/login.html:112
+#: src/ws/login.html:129
 msgid "Or use a bundled browser"
 msgstr "或者使用捆绑的浏览器"
 
@@ -5026,7 +5092,7 @@ msgstr "或者使用捆绑的浏览器"
 msgid "Other"
 msgstr "其他"
 
-#: pkg/storaged/content-views.jsx:412
+#: pkg/storaged/content-views.jsx:413
 msgctxt "storage-id-desc"
 msgid "Other data"
 msgstr "其他数据"
@@ -5035,7 +5101,7 @@ msgstr "其他数据"
 msgid "Other devices"
 msgstr "其他设备"
 
-#: src/ws/login.html:69
+#: src/ws/login.html:85
 msgid "Other options"
 msgstr "其他选项"
 
@@ -5050,7 +5116,7 @@ msgstr ""
 msgid "Overview"
 msgstr "概览"
 
-#: pkg/storaged/format-dialog.jsx:196 pkg/storaged/content-views.jsx:593
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/content-views.jsx:594
 msgid "Overwrite existing data with zeros"
 msgstr "使用 0 覆盖已存在数据"
 
@@ -5066,7 +5132,7 @@ msgstr "PCP"
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:506
+#: pkg/packagekit/updates.jsx:509
 msgid "Package information"
 msgstr "软件包信息"
 
@@ -5074,15 +5140,15 @@ msgstr "软件包信息"
 msgid "PackageKit crashed"
 msgstr "PackageKit 已崩溃"
 
-#: pkg/packagekit/updates.jsx:574
+#: pkg/packagekit/updates.jsx:688
 msgid "PackageKit is not installed"
 msgstr "PackageKit 未安装"
 
-#: pkg/packagekit/updates.jsx:742
+#: pkg/packagekit/updates.jsx:856
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit 已报告错误码 $0"
 
-#: pkg/packagekit/updates.jsx:315
+#: pkg/packagekit/updates.jsx:318
 msgid "Packages"
 msgstr "软件包"
 
@@ -5100,7 +5166,7 @@ msgstr "父"
 msgid "Parent $parent"
 msgstr "父 $parent"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:172
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:174
 msgid "Parent snapshot"
 msgstr "上级快照"
 
@@ -5112,7 +5178,7 @@ msgstr "部分"
 msgid "Part of "
 msgstr "部分 "
 
-#: pkg/storaged/content-views.jsx:149
+#: pkg/storaged/content-views.jsx:150
 msgid "Partition"
 msgstr "分区"
 
@@ -5120,7 +5186,7 @@ msgstr "分区"
 msgid "Partition of $0"
 msgstr "$0 的分区"
 
-#: pkg/storaged/content-views.jsx:596
+#: pkg/storaged/content-views.jsx:597
 msgid "Partitioning"
 msgstr "分区"
 
@@ -5128,12 +5194,12 @@ msgstr "分区"
 msgid "Passive"
 msgstr "被动"
 
-#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:241
+#: pkg/storaged/format-dialog.jsx:214 pkg/storaged/content-views.jsx:242
 #: pkg/storaged/crypto-keyslots.jsx:212 pkg/storaged/crypto-keyslots.jsx:568
 msgid "Passphrase"
 msgstr "口令"
 
-#: pkg/storaged/format-dialog.jsx:217 pkg/storaged/crypto-keyslots.jsx:161
+#: pkg/storaged/format-dialog.jsx:218 pkg/storaged/crypto-keyslots.jsx:161
 #: pkg/storaged/crypto-keyslots.jsx:220 pkg/storaged/crypto-keyslots.jsx:261
 #: pkg/storaged/crypto-keyslots.jsx:264
 msgid "Passphrase cannot be empty"
@@ -5143,14 +5209,14 @@ msgstr "密码不能为空"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "删除密码口令可能会阻止解锁 $0。"
 
-#: pkg/storaged/format-dialog.jsx:225 pkg/storaged/crypto-keyslots.jsx:228
+#: pkg/storaged/format-dialog.jsx:226 pkg/storaged/crypto-keyslots.jsx:228
 #: pkg/storaged/crypto-keyslots.jsx:266
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
 #: pkg/shell/index.html:161 pkg/shell/index.html:190 pkg/shell/index.html:205
 #: pkg/lib/machine-change-auth.html:43 pkg/lib/machine-change-auth.html:50
-#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:61
+#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:77
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:321
 #: pkg/shell/superuser.jsx:45 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157
@@ -5227,7 +5293,7 @@ msgstr "文件路径"
 msgid "Paths"
 msgstr "路径"
 
-#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:397 pkg/systemd/logs.js:1069
+#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
 #: pkg/machines/components/vm/vmActions.jsx:185
 msgid "Pause"
 msgstr "暂停"
@@ -5256,7 +5322,7 @@ msgstr "外设机箱"
 msgid "Permanent"
 msgstr "永久的"
 
-#: src/ws/login.js:730
+#: src/ws/login.js:819
 msgid "Permission denied"
 msgstr "权限被拒绝"
 
@@ -5286,11 +5352,11 @@ msgstr "物理磁盘设备"
 msgid "Physical disk device on host"
 msgstr "主机上的物理磁盘设备"
 
-#: pkg/storaged/content-views.jsx:160 pkg/storaged/content-views.jsx:402
+#: pkg/storaged/content-views.jsx:161 pkg/storaged/content-views.jsx:403
 msgid "Physical volume"
 msgstr "物理卷"
 
-#: pkg/storaged/content-views.jsx:397
+#: pkg/storaged/content-views.jsx:398
 msgid "Physical volume of $0"
 msgstr "$0 的物理卷"
 
@@ -5327,7 +5393,7 @@ msgid "Please choose a volume"
 msgstr "请选择一个卷"
 
 #: pkg/storaged/vgroup-details.jsx:198 pkg/storaged/vdo-details.jsx:197
-#: pkg/storaged/content-views.jsx:342 pkg/storaged/mdraid-details.jsx:290
+#: pkg/storaged/content-views.jsx:343 pkg/storaged/mdraid-details.jsx:290
 msgid "Please confirm deletion of $0"
 msgstr "请确认删除 $0"
 
@@ -5355,7 +5421,7 @@ msgstr "请设置一个 root 用户的密码"
 msgid "Please specify an expiration date"
 msgstr "请指定一个过期时间"
 
-#: src/ws/login.js:510
+#: src/ws/login.js:512
 msgid "Please specify the host to connect to"
 msgstr "请指定要连接的主机"
 
@@ -5367,7 +5433,7 @@ msgstr "请启动虚拟机来访问其控制台。"
 msgid "Plug"
 msgstr "插"
 
-#: pkg/storaged/content-views.jsx:141
+#: pkg/storaged/content-views.jsx:142
 #: pkg/machines/components/vm/deleteDialog.jsx:53
 #: pkg/machines/components/vm/overview/bootOrder.jsx:96
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:45
@@ -5379,11 +5445,11 @@ msgstr "池"
 msgid "Pool for thin logical volumes"
 msgstr "瘦逻辑卷池"
 
-#: pkg/storaged/content-views.jsx:682
+#: pkg/storaged/content-views.jsx:683
 msgid "Pool for thin volumes"
 msgstr "瘦卷的池"
 
-#: pkg/storaged/content-views.jsx:743
+#: pkg/storaged/content-views.jsx:744
 msgid "Pool for thinly provisioned volumes"
 msgstr "瘦分配配置卷的池"
 
@@ -5458,7 +5524,7 @@ msgstr "好主机名"
 msgid "Previous boot"
 msgstr "以前启动"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:102
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:103
 msgid ""
 "Previously taken snapshots allow you to revert to an earlier state if "
 "something goes wrong"
@@ -5481,15 +5547,15 @@ msgstr "优先级 $priority"
 msgid "Private"
 msgstr "私有"
 
-#: pkg/systemd/logs.js:569
+#: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
 msgstr "问题详情"
 
-#: pkg/systemd/logs.js:568
+#: pkg/systemd/abrtLog.jsx:260
 msgid "Problem info"
 msgstr "问题信息"
 
-#: pkg/storaged/dialog.jsx:1040
+#: pkg/storaged/dialog.jsx:1044
 msgid "Process"
 msgstr "流程"
 
@@ -5532,7 +5598,7 @@ msgstr "协议"
 msgid "Public key"
 msgstr "公钥"
 
-#: pkg/storaged/content-views.jsx:735
+#: pkg/storaged/content-views.jsx:736
 msgid "Purpose"
 msgstr "目的"
 
@@ -5609,7 +5675,7 @@ msgctxt "storage"
 msgid "RAID level"
 msgstr "RAID 级别"
 
-#: pkg/storaged/content-views.jsx:163
+#: pkg/storaged/content-views.jsx:164
 msgid "RAID member"
 msgstr "RAID 成员"
 
@@ -5698,7 +5764,7 @@ msgstr "重启"
 msgid "Receiving"
 msgstr "接收中"
 
-#: pkg/storaged/format-dialog.jsx:152
+#: pkg/storaged/format-dialog.jsx:153
 msgid "Recommended default"
 msgstr "推荐的默认"
 
@@ -5714,23 +5780,23 @@ msgstr "恢复"
 msgid "Recovering RAID device $target"
 msgstr "恢复 RAID 设备 $target"
 
-#: pkg/packagekit/updates.jsx:57
+#: pkg/packagekit/updates.jsx:61
 msgid "Refreshing package information"
 msgstr "刷新软件包信息"
 
-#: src/ws/login.js:720
+#: src/ws/login.js:809
 msgid "Refusing to connect. Host is unknown"
 msgstr "拒绝连接。主机未知"
 
-#: src/ws/login.js:722
+#: src/ws/login.js:811
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "拒绝连接。主机密钥不匹配"
 
-#: src/ws/login.js:718
+#: src/ws/login.js:807
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "拒绝连接。未知主机密钥"
 
-#: pkg/packagekit/updates.jsx:806
+#: pkg/packagekit/updates.jsx:920
 msgid "Register…"
 msgstr "注册…"
 
@@ -5888,27 +5954,27 @@ msgstr "每周重复"
 msgid "Repeat yearly"
 msgstr "每年重复"
 
-#: pkg/systemd/reporting.jsx:429
+#: pkg/systemd/reporting.jsx:428
 msgid "Report"
 msgstr "报告"
 
-#: pkg/systemd/reporting.jsx:153
+#: pkg/systemd/reporting.jsx:152
 msgid "Report to ABRT Analytics"
 msgstr "向ABRT Analytics 报告"
 
-#: pkg/systemd/reporting.jsx:410
+#: pkg/systemd/reporting.jsx:409
 msgid "Reported; no links available"
 msgstr "已报告；没有可用的链接"
 
-#: pkg/systemd/reporting.jsx:306
+#: pkg/systemd/reporting.jsx:305
 msgid "Reporting failed"
 msgstr "报告失败"
 
-#: pkg/systemd/reporting.jsx:206
+#: pkg/systemd/reporting.jsx:205
 msgid "Reporting was canceled"
 msgstr "报告已取消"
 
-#: pkg/systemd/reporting.jsx:408
+#: pkg/systemd/reporting.jsx:407
 msgid "Reports:"
 msgstr "报告："
 
@@ -5976,15 +6042,15 @@ msgstr "对一个加密的文件系统调整大小需要解锁磁盘。请提供
 msgid "Restart"
 msgstr "重启"
 
-#: pkg/packagekit/updates.jsx:501
+#: pkg/packagekit/updates.jsx:504
 msgid "Restart now"
 msgstr "立刻重启"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:921
+#: pkg/packagekit/updates.jsx:502 pkg/packagekit/updates.jsx:1021
 msgid "Restart recommended"
 msgstr "建议重启"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:1028
 msgid "Restarting"
 msgstr "正在重启"
 
@@ -5992,13 +6058,13 @@ msgstr "正在重启"
 msgid "Restoring connection"
 msgstr "恢复连接"
 
-#: pkg/systemd/logs.js:400 pkg/systemd/logs.js:1065
+#: pkg/systemd/logs.js:325 pkg/systemd/logs.js:497
 #: pkg/machines/components/vm/vmActions.jsx:196
 msgid "Resume"
 msgstr "恢复"
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:68
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:195
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:197
 msgid "Revert"
 msgstr "恢复"
 
@@ -6147,7 +6213,7 @@ msgstr "Safari 用户需要导入并信任自签名 CA 证书："
 msgid "Saturday"
 msgstr "星期六"
 
-#: pkg/packagekit/autoupdates.jsx:320
+#: pkg/packagekit/autoupdates.jsx:380
 msgid "Saturdays"
 msgstr "周六"
 
@@ -6164,6 +6230,13 @@ msgstr "保存"
 #: pkg/systemd/hwinfo.jsx:236
 msgid "Save and reboot"
 msgstr "保存并重启"
+
+#: pkg/systemd/overview-cards/motdCard.jsx:98
+#: pkg/packagekit/autoupdates.jsx:421
+#, fuzzy
+#| msgid "Force change"
+msgid "Save changes"
+msgstr "强制变更"
 
 #: pkg/storaged/vdos-panel.jsx:121
 msgid "Save space by compressing individual blocks with LZ4"
@@ -6204,15 +6277,27 @@ msgstr "安全 shell 密钥"
 msgid "Securely erasing $target"
 msgstr "安全擦除 $target"
 
-#: pkg/packagekit/updates.jsx:855
+#: pkg/packagekit/autoupdates.jsx:266
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates "
+msgstr "可用的错误修复更新"
+
+#: pkg/packagekit/updates.jsx:969
 msgid "Security updates available"
+msgstr "可用的错误修复更新"
+
+#: pkg/packagekit/autoupdates.jsx:358
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates only"
 msgstr "可用的错误修复更新"
 
 #: pkg/shell/shell-modals.jsx:86
 msgid "Select"
 msgstr "选择"
 
-#: pkg/systemd/reporting.jsx:246
+#: pkg/systemd/reporting.jsx:245
 msgid "Send"
 msgstr "发送"
 
@@ -6239,7 +6324,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "序列号"
 
-#: src/ws/login.html:124 pkg/kdump/kdump-view.jsx:121
+#: src/ws/login.html:141 pkg/kdump/kdump-view.jsx:121
 #: pkg/storaged/nfs-details.jsx:326 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "服务器"
@@ -6268,7 +6353,7 @@ msgstr "服务器关闭了连接。"
 msgid "Server software"
 msgstr "服务器软件"
 
-#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1044
+#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1048
 #: pkg/metrics/metrics.jsx:423 pkg/metrics/metrics.jsx:457
 msgid "Service"
 msgstr "服务"
@@ -6306,7 +6391,7 @@ msgstr "服务名称"
 msgid "Services"
 msgstr "服务"
 
-#: pkg/storaged/dialog.jsx:1040 pkg/machines/helpers.js:208
+#: pkg/storaged/dialog.jsx:1044 pkg/machines/helpers.js:208
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:43
 msgid "Session"
 msgstr "会话"
@@ -6344,7 +6429,7 @@ msgstr "设置时间"
 msgid "Set to"
 msgstr "设置为"
 
-#: pkg/packagekit/updates.jsx:77
+#: pkg/packagekit/updates.jsx:81
 msgid "Set up"
 msgstr "设置"
 
@@ -6359,7 +6444,7 @@ msgid ""
 "VM when creating it"
 msgstr "为无人值守安装设置用户密码要求在创建 VM 的时候启动它"
 
-#: pkg/packagekit/updates.jsx:69
+#: pkg/packagekit/updates.jsx:73
 msgid "Setting up"
 msgstr "设置"
 
@@ -6367,7 +6452,7 @@ msgstr "设置"
 msgid "Setting up loop device $target"
 msgstr "创建 loop 设备 $target"
 
-#: pkg/packagekit/updates.jsx:323 pkg/packagekit/updates.jsx:390
+#: pkg/packagekit/updates.jsx:326 pkg/packagekit/updates.jsx:393
 msgid "Severity"
 msgstr "严重性"
 
@@ -6405,7 +6490,13 @@ msgstr "显示额外操作"
 msgid "Show all"
 msgstr "显示全部"
 
-#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:948 pkg/systemd/logs.js:1097
+#: pkg/systemd/abrtLog.jsx:214
+#, fuzzy
+#| msgid "Show all images"
+msgid "Show all threads"
+msgstr "显示所有镜像"
+
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:397 pkg/systemd/logs.js:516
 msgid "Show filters"
 msgstr "显示过滤器"
 
@@ -6444,7 +6535,7 @@ msgid "Shutdown"
 msgstr "关机"
 
 #: pkg/machines/helpers.js:214
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:150
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:152
 msgid "Shutting down"
 msgstr "正在关机"
 
@@ -6453,11 +6544,11 @@ msgid "Single rank"
 msgstr "Single rank"
 
 #: pkg/systemd/hwinfo.jsx:305 pkg/storaged/fsys-panel.jsx:96
-#: pkg/storaged/nfs-details.jsx:336 pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/nfs-details.jsx:336 pkg/storaged/format-dialog.jsx:185
 #: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/part-tab.jsx:45
 #: pkg/storaged/lvol-tabs.jsx:219 pkg/storaged/lvol-tabs.jsx:281
 #: pkg/storaged/lvol-tabs.jsx:394 pkg/storaged/lvol-tabs.jsx:452
-#: pkg/storaged/content-views.jsx:122 pkg/storaged/content-views.jsx:777
+#: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:778
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:83
 #: pkg/machines/components/storagePools/storagePoolList.jsx:73
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
@@ -6465,23 +6556,23 @@ msgstr "Single rank"
 msgid "Size"
 msgstr "大小"
 
-#: pkg/storaged/dialog.jsx:902
+#: pkg/storaged/dialog.jsx:906
 msgid "Size cannot be negative"
 msgstr "大小不能为负数"
 
-#: pkg/storaged/dialog.jsx:900
+#: pkg/storaged/dialog.jsx:904
 msgid "Size cannot be zero"
 msgstr "大小不能为零"
 
-#: pkg/storaged/dialog.jsx:904
+#: pkg/storaged/dialog.jsx:908
 msgid "Size is too large"
 msgstr "大小太大"
 
-#: pkg/storaged/dialog.jsx:898
+#: pkg/storaged/dialog.jsx:902
 msgid "Size must be a number"
 msgstr "大小必须是一个数字"
 
-#: pkg/storaged/dialog.jsx:906
+#: pkg/storaged/dialog.jsx:910
 msgid "Size must be at least $0"
 msgstr "大小必须最小为 $0"
 
@@ -6518,7 +6609,8 @@ msgstr "套接字"
 msgid "Software Updates"
 msgstr "软件更新"
 
-#: pkg/packagekit/index.html:23
+#: pkg/packagekit/index.html:23 pkg/packagekit/updates.jsx:988
+#: pkg/packagekit/updates.jsx:1044
 msgid "Software updates"
 msgstr "软件更新"
 
@@ -6543,7 +6635,7 @@ msgstr "方案失败"
 msgid "Solutions"
 msgstr "方案"
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:60
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "某些其他程序正在使用软件包管理器，请等待..."
@@ -6623,7 +6715,7 @@ msgid "Stable"
 msgstr "稳定的"
 
 #: pkg/systemd/services/service-details.jsx:136
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/content-views.jsx:308
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/content-views.jsx:309
 #: pkg/storaged/mdraid-details.jsx:314
 #: pkg/machines/components/networks/createNetworkDialog.jsx:222
 msgid "Start"
@@ -6670,8 +6762,8 @@ msgstr "启动"
 #: pkg/systemd/hwinfo.jsx:305 pkg/systemd/services/services-list.jsx:98
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:192
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:265
-#: pkg/machines/components/vms/hostvmslist.jsx:95
-#: pkg/machines/components/vms/hostvmslist.jsx:138
+#: pkg/machines/components/vms/hostvmslist.jsx:96
+#: pkg/machines/components/vms/hostvmslist.jsx:140
 #: pkg/machines/components/storagePools/storagePoolList.jsx:75
 #: pkg/machines/components/networks/networkList.jsx:79
 msgid "State"
@@ -6688,7 +6780,7 @@ msgid "Static"
 msgstr "静态"
 
 #: pkg/networkmanager/interfaces.js:2602
-#: pkg/systemd/services/service-details.jsx:444
+#: pkg/systemd/services/service-details.jsx:444 pkg/packagekit/updates.jsx:569
 msgid "Status"
 msgstr "状态"
 
@@ -6702,7 +6794,7 @@ msgstr "Sticky"
 
 #: pkg/systemd/services/service-details.jsx:132
 #: pkg/storaged/vdo-details.jsx:143 pkg/storaged/vdo-details.jsx:260
-#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/mdraid-details.jsx:313
 msgid "Stop"
 msgstr "停止"
 
@@ -6722,7 +6814,7 @@ msgstr "停止并卸载"
 msgid "Stop device"
 msgstr "停止设备"
 
-#: pkg/shell/hosts.jsx:212
+#: pkg/shell/hosts.jsx:211
 msgid "Stop editing hosts"
 msgstr "停止编辑主机"
 
@@ -6740,7 +6832,7 @@ msgstr "停止启动交换空间 $target"
 msgid "Storage"
 msgstr "存储"
 
-#: pkg/storaged/devices.jsx:76
+#: pkg/storaged/devices.jsx:75
 msgid "Storage can not be managed on this system."
 msgstr "存储不能在这个系统上管理。"
 
@@ -6795,7 +6887,7 @@ msgstr "存储卷不能被删除"
 msgid "Store metrics"
 msgstr "存储指标数据"
 
-#: pkg/storaged/format-dialog.jsx:69
+#: pkg/storaged/format-dialog.jsx:70
 msgid "Store passphrase"
 msgstr "存储口令"
 
@@ -6816,7 +6908,7 @@ msgstr "子笔记本"
 msgid "Sunday"
 msgstr "星期日"
 
-#: pkg/packagekit/autoupdates.jsx:321
+#: pkg/packagekit/autoupdates.jsx:381
 msgid "Sundays"
 msgstr "周日"
 
@@ -6828,7 +6920,7 @@ msgstr "已安装支持。"
 msgid "Suspended (PM)"
 msgstr "已挂起 （电源管理）"
 
-#: pkg/storaged/content-views.jsx:167 pkg/metrics/metrics.jsx:101
+#: pkg/storaged/content-views.jsx:168 pkg/metrics/metrics.jsx:101
 #: pkg/metrics/metrics.jsx:384 pkg/metrics/metrics.jsx:961
 msgid "Swap"
 msgstr "交换空间"
@@ -6839,7 +6931,7 @@ msgstr "交换空间"
 msgid "Swap out"
 msgstr "使用的交换空间"
 
-#: pkg/storaged/content-views.jsx:410
+#: pkg/storaged/content-views.jsx:411
 msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "交换空间"
@@ -6900,7 +6992,7 @@ msgstr "系统"
 msgid "System information"
 msgstr "系统信息"
 
-#: pkg/packagekit/updates.jsx:933 pkg/packagekit/updates.jsx:943
+#: pkg/packagekit/updates.jsx:521 pkg/packagekit/updates.jsx:1034
 msgid "System is up to date"
 msgstr "系统已更新到最新"
 
@@ -7126,17 +7218,17 @@ msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr "该文件系统当前没有被加载，但在下次引导后将被挂载。"
 
-#: pkg/storaged/dialog.jsx:1009
+#: pkg/storaged/dialog.jsx:1013
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
 msgstr "登录会话和系统服务正在使用文件系统。继续进行将停止这些。"
 
-#: pkg/storaged/dialog.jsx:1011
+#: pkg/storaged/dialog.jsx:1015
 msgid "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr "登录会话正在使用文件系统。继续进行将停止这些。"
 
-#: pkg/storaged/dialog.jsx:1013
+#: pkg/storaged/dialog.jsx:1017
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr "系统服务正在使用文件系统。继续进行将停止这些。"
@@ -7215,6 +7307,12 @@ msgstr "密码不匹配。"
 msgid "The pool is empty"
 msgstr "池为空"
 
+#: src/ws/login.html:67
+msgid ""
+"The resulting fingerprint is fine to share via public methods, including "
+"email."
+msgstr ""
+
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:431
 msgid "The selected operating system does not support unattended installation"
 msgstr "所选操作系统不支持无人值守安装"
@@ -7228,7 +7326,7 @@ msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
 msgstr "所选操作系统的最小存储要求是 $0 $1"
 
-#: src/ws/login.js:712
+#: src/ws/login.js:801
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7324,31 +7422,31 @@ msgstr "这天不是所有月份都有。<br> 定时器将只会在有 31 号的
 msgid "This device cannot be managed here."
 msgstr "该设备不能在这里被管理。"
 
-#: pkg/storaged/dialog.jsx:994
+#: pkg/storaged/dialog.jsx:998
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
 msgstr "该设备有正在使用的文件系统。继续进行将卸载其上的所有文件系统。"
 
-#: pkg/storaged/dialog.jsx:973
+#: pkg/storaged/dialog.jsx:977
 msgid "This device is currently used for RAID devices."
 msgstr "该设备正在被 RAID 设备使用。"
 
-#: pkg/storaged/dialog.jsx:1002
+#: pkg/storaged/dialog.jsx:1006
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
 msgstr "该设备正在被 RAID 设备使用。继续进行将从 RAID 设备中移除它。"
 
-#: pkg/storaged/dialog.jsx:977
+#: pkg/storaged/dialog.jsx:981
 msgid "This device is currently used for VDO devices."
 msgstr "该设备正在被 VOD 设备使用。"
 
-#: pkg/storaged/dialog.jsx:969
+#: pkg/storaged/dialog.jsx:973
 msgid "This device is currently used for volume groups."
 msgstr "该设备正在被卷组使用。"
 
-#: pkg/storaged/dialog.jsx:998
+#: pkg/storaged/dialog.jsx:1002
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
@@ -7373,6 +7471,10 @@ msgstr "当设备正在恢复时，该磁盘不能被移除。"
 #: pkg/systemd/services/timer-dialog.js:84
 msgid "This field cannot be empty."
 msgstr "该字段不能为空。"
+
+#: pkg/packagekit/autoupdates.jsx:392
+msgid "This host will reboot after updates are installed."
+msgstr ""
 
 #: pkg/storaged/lvol-tabs.jsx:410
 msgid "This logical volume is not completely used by its content."
@@ -7399,7 +7501,7 @@ msgstr "该软件包需要 %s 版本或以后的 Cockpit"
 msgid "This pool type does not support storage volume creation"
 msgstr "这个池类型不支持创建存储卷"
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:917
 msgid "This system is not registered"
 msgstr "该系统未注册"
 
@@ -7443,10 +7545,6 @@ msgstr "在调整大小之前，需要激活此卷。"
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "浏览器太老，不能运行 Cockpit （缺少 $0）"
 
-#: pkg/packagekit/updates.jsx:887
-msgid "This web console will be updated."
-msgstr "此 Web 控制台将会被更新。"
-
 #: pkg/lib/machine-dialogs.js:759
 msgid "This will allow you to log in without password in the future."
 msgstr "这样以后登陆时将不需要密码。"
@@ -7479,11 +7577,11 @@ msgstr "每个内核的线程数"
 msgid "Thursday"
 msgstr "星期四"
 
-#: pkg/packagekit/autoupdates.jsx:318
+#: pkg/packagekit/autoupdates.jsx:378
 msgid "Thursdays"
 msgstr "周四"
 
-#: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:109
+#: pkg/systemd/logs.html:37 pkg/packagekit/history.jsx:108
 msgid "Time"
 msgstr "时间"
 
@@ -7501,14 +7599,26 @@ msgid ""
 "authenticate against other systems."
 msgstr "提示：确保您的关键密码匹配登录密码来自动验证其他系统。"
 
-#: pkg/packagekit/updates.jsx:804
+#: src/ws/login.html:62
+msgid ""
+"To ensure that your connection is not intercepted by a malicious third-"
+"party, please verify the host key fingerprint:"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:918
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
 "为了获取软件更新，该系统需要通过红帽客户门户网站或本地订阅服务器注册到红帽。"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:39
+#: src/ws/login.js:651
+msgid ""
+"To verify a fingerprint, run the following on $0 while physically sitting at "
+"the machine or through a trusted network:"
+msgstr ""
+
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:40
 #: pkg/metrics/metrics.jsx:921
 msgid "Today"
 msgstr "今天"
@@ -7570,7 +7680,7 @@ msgstr "信任密钥"
 msgid "Trust level"
 msgstr "信任级别"
 
-#: src/ws/login.html:98
+#: src/ws/login.html:115
 msgid "Try again"
 msgstr "重试"
 
@@ -7582,7 +7692,7 @@ msgstr "正在尝试与 $0 同步"
 msgid "Tuesday"
 msgstr "星期二"
 
-#: pkg/packagekit/autoupdates.jsx:316
+#: pkg/packagekit/autoupdates.jsx:376
 msgid "Tuesdays"
 msgstr "周二"
 
@@ -7614,8 +7724,9 @@ msgid "Turn on administrative access"
 msgstr "开启管理员权限"
 
 #: pkg/shell/index.html:227 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/format-dialog.jsx:199
+#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/format-dialog.jsx:200
 #: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/part-tab.jsx:55
+#: pkg/packagekit/autoupdates.jsx:348
 #: pkg/machines/components/vm/overview/bootOrder.jsx:113
 #: pkg/machines/components/vm/overview/bootOrder.jsx:124
 #: pkg/machines/components/vm/overview/bootOrder.jsx:130
@@ -7661,7 +7772,7 @@ msgstr "无法应用设置： $0"
 msgid "Unable to apply this solution automatically"
 msgstr "无法自动应用该方案"
 
-#: src/ws/login.js:716
+#: src/ws/login.js:805
 msgid "Unable to connect to that address"
 msgstr "无法连接至该地址"
 
@@ -7758,7 +7869,7 @@ msgstr "唯一名称"
 msgid "Unique network name"
 msgstr "唯一的网络名称"
 
-#: pkg/storaged/dialog.jsx:1044
+#: pkg/storaged/dialog.jsx:1048
 #: pkg/machines/components/vm/overview/bootOrder.jsx:139
 msgid "Unit"
 msgstr "单位"
@@ -7811,12 +7922,12 @@ msgstr "未知的服务名"
 msgid "Unknown type"
 msgstr "未知类型"
 
-#: pkg/storaged/content-views.jsx:239 pkg/storaged/content-views.jsx:244
-#: pkg/storaged/content-views.jsx:257
+#: pkg/storaged/content-views.jsx:240 pkg/storaged/content-views.jsx:245
+#: pkg/storaged/content-views.jsx:258
 msgid "Unlock"
 msgstr "未锁定"
 
-#: pkg/storaged/format-dialog.jsx:63
+#: pkg/storaged/format-dialog.jsx:64
 msgid "Unlock at boot"
 msgstr "在启动时解锁"
 
@@ -7824,7 +7935,7 @@ msgstr "在启动时解锁"
 msgid "Unlock key"
 msgstr "解锁密钥"
 
-#: pkg/storaged/format-dialog.jsx:64
+#: pkg/storaged/format-dialog.jsx:65
 msgid "Unlock read only"
 msgstr "只读解锁"
 
@@ -7841,7 +7952,7 @@ msgid "Unmanaged interfaces"
 msgstr "未管理的接口"
 
 #: pkg/storaged/nfs-details.jsx:309 pkg/storaged/fsys-tab.jsx:290
-#: pkg/storaged/content-views.jsx:374
+#: pkg/storaged/content-views.jsx:375
 msgid "Unmount"
 msgstr "卸载"
 
@@ -7865,11 +7976,11 @@ msgstr "未命名"
 msgid "Unplug"
 msgstr "拔"
 
-#: pkg/storaged/content-views.jsx:170
+#: pkg/storaged/content-views.jsx:171
 msgid "Unrecognized data"
 msgstr "无法识别的数据"
 
-#: pkg/storaged/content-views.jsx:417
+#: pkg/storaged/content-views.jsx:418
 msgctxt "storage-id-desc"
 msgid "Unrecognized data"
 msgstr "无法识别的数据"
@@ -7878,7 +7989,7 @@ msgstr "无法识别的数据"
 msgid "Unrecognized data can not be made smaller here."
 msgstr "这里不能把无法识别的数据变小。"
 
-#: pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "不支持的卷"
 
@@ -7890,11 +8001,11 @@ msgstr "不可信的主机"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/history.jsx:105
+#: pkg/packagekit/updates.jsx:605
 msgid "Update history"
 msgstr "更新历史"
 
-#: pkg/packagekit/updates.jsx:478
+#: pkg/packagekit/updates.jsx:481
 msgid "Update log"
 msgstr "更新日志"
 
@@ -7902,23 +8013,29 @@ msgstr "更新日志"
 msgid "Update package information"
 msgstr "更新软件包信息"
 
-#: pkg/packagekit/updates.jsx:76
+#: pkg/packagekit/updates.jsx:80
 msgid "Updated"
 msgstr "已更新"
 
-#: pkg/packagekit/updates.jsx:500
+#: pkg/packagekit/updates.jsx:503
 msgid "Updated packages may require a restart to take effect."
 msgstr "已更新的软件包可能需要重启生效。"
 
-#: pkg/packagekit/updates.jsx:861
+#: pkg/packagekit/autoupdates.jsx:266
+#, fuzzy
+#| msgid "Update"
+msgid "Updates "
+msgstr "更新"
+
+#: pkg/packagekit/updates.jsx:975
 msgid "Updates available"
 msgstr "可用的更新"
 
-#: pkg/packagekit/history.jsx:106
+#: pkg/packagekit/history.jsx:105
 msgid "Updates history"
 msgstr "更新历史"
 
-#: pkg/packagekit/updates.jsx:68
+#: pkg/packagekit/updates.jsx:72
 msgid "Updating"
 msgstr "更新"
 
@@ -7969,12 +8086,12 @@ msgid "User"
 msgstr "用户"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:57
-#: pkg/lib/machine-add.html:33 src/ws/login.html:56
+#: pkg/lib/machine-add.html:33 src/ws/login.html:72
 #: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:289
 msgid "User name"
 msgstr "用户名"
 
-#: src/ws/login.js:508
+#: src/ws/login.js:510
 msgid "User name cannot be empty"
 msgstr "用户名不能为空"
 
@@ -7991,11 +8108,11 @@ msgstr "用户名"
 msgid "VCPU settings could not be saved"
 msgstr "VCPU 设置不能被保存"
 
-#: pkg/storaged/content-views.jsx:165
+#: pkg/storaged/content-views.jsx:166
 msgid "VDO backing"
 msgstr "VDO支持"
 
-#: pkg/storaged/content-views.jsx:415
+#: pkg/storaged/content-views.jsx:416
 msgctxt "storage-id-desc"
 msgid "VDO backing"
 msgstr "VDO支持"
@@ -8070,7 +8187,7 @@ msgstr "VM $0 关闭失败"
 msgid "VM $0 failed to start"
 msgstr "VM $0 启动失败"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:142
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:144
 msgid "VM state"
 msgstr "VM 状态"
 
@@ -8094,7 +8211,7 @@ msgstr "VNC 端口："
 msgid "Validating address"
 msgstr "验证地址"
 
-#: src/ws/login.html:92
+#: src/ws/login.html:109
 msgid "Validating authentication token"
 msgstr "正在校验验证口令"
 
@@ -8108,7 +8225,7 @@ msgstr "验证 key"
 msgid "Vendor"
 msgstr "厂商"
 
-#: pkg/packagekit/updates.jsx:78
+#: pkg/packagekit/updates.jsx:82
 msgid "Verified"
 msgstr "已验证"
 
@@ -8116,12 +8233,12 @@ msgstr "已验证"
 msgid "Verify key"
 msgstr "验证密钥"
 
-#: pkg/packagekit/updates.jsx:70
+#: pkg/packagekit/updates.jsx:74
 msgid "Verifying"
 msgstr "正在验证"
 
 #: pkg/shell/shell-modals.jsx:39 pkg/systemd/hwinfo.jsx:87
-#: pkg/packagekit/updates.jsx:389
+#: pkg/packagekit/updates.jsx:392
 msgid "Version"
 msgstr "版本"
 
@@ -8145,7 +8262,7 @@ msgstr "查看硬件详细信息"
 msgid "View project website"
 msgstr "查看项目网站"
 
-#: pkg/systemd/reporting.jsx:398
+#: pkg/systemd/reporting.jsx:397
 msgid "View report"
 msgstr "查看报告"
 
@@ -8155,8 +8272,8 @@ msgstr "虚拟机"
 
 #: pkg/machines/components/vm/vmDetailsPage.jsx:79
 #: pkg/machines/components/vm/vmDetailsPage.jsx:177
-#: pkg/machines/components/vms/hostvmslist.jsx:126
-#: pkg/machines/components/vms/hostvmslist.jsx:133
+#: pkg/machines/components/vms/hostvmslist.jsx:128
+#: pkg/machines/components/vms/hostvmslist.jsx:135
 #: pkg/machines/components/storagePools/storagePoolList.jsx:52
 #: pkg/machines/components/networks/networkList.jsx:55
 msgid "Virtual machines"
@@ -8178,7 +8295,7 @@ msgstr "虚拟网络创建失败"
 msgid "Virtualization service (libvirt) is not active"
 msgstr "虚拟化服务（libvirt）未激活"
 
-#: pkg/storaged/content-views.jsx:144
+#: pkg/storaged/content-views.jsx:145
 #: pkg/machines/components/vm/deleteDialog.jsx:50
 #: pkg/machines/components/vm/overview/bootOrder.jsx:97
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:46
@@ -8224,7 +8341,7 @@ msgstr "等待中"
 msgid "Waiting for details..."
 msgstr "等待详情..."
 
-#: pkg/systemd/reporting.jsx:221
+#: pkg/systemd/reporting.jsx:220
 msgid "Waiting for input…"
 msgstr "等待输入…"
 
@@ -8237,7 +8354,7 @@ msgstr "正在等待其他程序来结束使用中的软件包管理器..."
 msgid "Waiting for other software management operations to finish"
 msgstr "等待其他软件管理操作完成"
 
-#: pkg/systemd/reporting.jsx:316
+#: pkg/systemd/reporting.jsx:315
 msgid "Waiting to start…"
 msgstr "等待开始…"
 
@@ -8269,7 +8386,7 @@ msgstr "Web 控制台正运行于限制访问模式。"
 msgid "Wednesday"
 msgstr "星期三"
 
-#: pkg/packagekit/autoupdates.jsx:317
+#: pkg/packagekit/autoupdates.jsx:377
 msgid "Wednesdays"
 msgstr "周三"
 
@@ -8280,6 +8397,10 @@ msgstr "周"
 #: pkg/storaged/crypto-keyslots.jsx:335
 msgid "What if tang-show-keys is not available?"
 msgstr "如果没有 tang-show-keys？"
+
+#: pkg/packagekit/autoupdates.jsx:370
+msgid "When"
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:102
 msgid "White"
@@ -8314,7 +8435,7 @@ msgstr "可写和共享"
 msgid "Writing"
 msgstr "写入中"
 
-#: src/ws/login.js:726
+#: src/ws/login.js:815
 msgid "Wrong user name or password"
 msgstr "错误的用户名或密码"
 
@@ -8322,13 +8443,17 @@ msgstr "错误的用户名或密码"
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2582 pkg/systemd/reporting.jsx:262
+#: pkg/networkmanager/interfaces.js:2582 pkg/systemd/reporting.jsx:261
 msgid "Yes"
 msgstr "是"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:38
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:39
 msgid "Yesterday"
 msgstr "昨天"
+
+#: src/ws/login.js:648
+msgid "You are connecting to $0 for the first time."
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:151 pkg/networkmanager/firewall.jsx:899
 msgid "You are not authorized to modify the firewall."
@@ -8348,7 +8473,7 @@ msgstr "您没有权限查看此帐户的授权公钥."
 msgid "You have been logged out due to inactivity."
 msgstr "您由于不活动而已注销。"
 
-#: pkg/systemd/logs.js:179
+#: pkg/systemd/logs.js:113
 msgid "You may try to load older entries."
 msgstr "您可以尝试加载较早的条目。"
 
@@ -8385,19 +8510,11 @@ msgstr "您将在$0秒钟后登出。"
 msgid "Your account"
 msgstr "您的账户"
 
-#: pkg/packagekit/updates.jsx:889
-msgid ""
-"Your browser will disconnect, but this does not affect the update process. "
-"You can reconnect in a few moments to continue watching the progress."
-msgstr ""
-"您的浏览器将断开连接，但这不会影响更新过程。您可以在几分钟后重新连接以继续观"
-"察进度。"
-
 #: pkg/shell/superuser.jsx:146
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的浏览器将会在不同会话之间记住您的访问级别。"
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:1029
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8445,10 +8562,6 @@ msgstr "add-on"
 msgid "addon"
 msgstr "addon"
 
-#: pkg/packagekit/autoupdates.jsx:334
-msgid "and restart the machine automatically."
-msgstr "并自动重启机器。"
-
 #: pkg/systemd/logs.html:82
 msgid "any free-form string as regular expression"
 msgstr "任意自由形式的字符串作为正则表达式"
@@ -8465,7 +8578,7 @@ msgstr "apt-get"
 msgid "asset tag"
 msgstr "asset tag"
 
-#: pkg/packagekit/autoupdates.jsx:326
+#: pkg/packagekit/autoupdates.jsx:384
 msgid "at"
 msgstr "在"
 
@@ -8493,7 +8606,7 @@ msgstr "引导"
 msgid "bridge"
 msgstr "网桥"
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:282
 msgid "bug fix"
 msgstr "Bug 修正"
 
@@ -8617,7 +8730,7 @@ msgstr "已启用"
 msgid "encryption"
 msgstr "加密"
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:282
 msgid "enhancement"
 msgstr "性能强化"
 
@@ -8629,7 +8742,7 @@ msgstr "错误"
 msgid "ethernet"
 msgstr "以太网"
 
-#: pkg/packagekit/autoupdates.jsx:313
+#: pkg/packagekit/autoupdates.jsx:373
 msgid "every day"
 msgstr "每天"
 
@@ -8859,7 +8972,7 @@ msgstr ""
 msgid "no"
 msgstr "否"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:145
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:147
 msgid "no state saved"
 msgstr "无保存的状态"
 
@@ -8974,7 +9087,7 @@ msgstr "角色"
 msgid "running $0"
 msgstr "运行中 $0"
 
-#: pkg/packagekit/updates.jsx:271 pkg/packagekit/manifest.json.in:0
+#: pkg/packagekit/updates.jsx:276 pkg/packagekit/manifest.json.in:0
 msgid "security"
 msgstr "安全"
 
@@ -9206,6 +9319,10 @@ msgstr "卷"
 msgid "warning"
 msgstr "警告"
 
+#: pkg/packagekit/autoupdates.jsx:267
+msgid "will be applied $0 at $1"
+msgstr ""
+
 #: pkg/machines/helpers.js:259
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
@@ -9220,6 +9337,26 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in:0
 msgid "zone"
 msgstr "区"
+
+#~ msgid "Apply security updates"
+#~ msgstr "应用安全更新"
+
+#~ msgid "Entry"
+#~ msgstr "条目"
+
+#~ msgid "This web console will be updated."
+#~ msgstr "此 Web 控制台将会被更新。"
+
+#~ msgid ""
+#~ "Your browser will disconnect, but this does not affect the update "
+#~ "process. You can reconnect in a few moments to continue watching the "
+#~ "progress."
+#~ msgstr ""
+#~ "您的浏览器将断开连接，但这不会影响更新过程。您可以在几分钟后重新连接以继续"
+#~ "观察进度。"
+
+#~ msgid "and restart the machine automatically."
+#~ msgstr "并自动重启机器。"
 
 #~ msgid "Dashboard"
 #~ msgstr "仪表板"
@@ -9791,9 +9928,6 @@ msgstr "区"
 
 #~ msgid "Show all containers"
 #~ msgstr "显示所有容器"
-
-#~ msgid "Show all images"
-#~ msgstr "显示所有镜像"
 
 #~ msgid "Start Docker"
 #~ msgstr "启动 Docker"

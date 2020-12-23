@@ -190,15 +190,12 @@ class TestUpdates(NoSubManCase):
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
         b.click("#available-updates button#install-all")
 
-        b.wait_in_text("#state", "Applying updates")
+        # applying updates panel present
         b.wait_visible("#app div.pf-c-progress__bar")
 
-        # no refresh button or "last checked", but Cancel button
-        b.wait_text(".content-header-extra--updated", "")
-        b.wait_in_text(".content-header-extra button", "Cancel")
-
+        b.wait_in_text(".progress-main-view button.progress-cancel", "Cancel")
         # Cancel button should eventually get disabled
-        b.wait_visible(".content-header-extra button:disabled")
+        b.wait_visible(".progress-main-view button.progress-cancel:disabled")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_present("#update-log"))
@@ -339,7 +336,7 @@ class TestUpdates(NoSubManCase):
         self.assertEqual(b.text("#available-updates button#install-security"), "Install security updates")
         b.click("#available-updates button#install-security")
 
-        b.wait_in_text("#state", "Applying updates")
+        # applying updates panel present
         b.wait_visible("#app div.pf-c-progress__bar")
 
         # should have succeeded and show restart page
@@ -382,7 +379,7 @@ class TestUpdates(NoSubManCase):
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
         b.click("#available-updates button#install-all")
 
-        b.wait_in_text("#state", "Applying updates")
+        # applying updates panel present
         b.wait_visible("#app div.pf-c-progress__bar")
 
         # should have succeeded and show restart
@@ -529,7 +526,8 @@ class TestUpdates(NoSubManCase):
 
         b.click("#available-updates button#install-all")
 
-        b.wait_in_text("#state", "Applying updates failed")
+        # error message visible
+        b.wait_visible("#app .pf-c-page pre")
 
         self.assertRegex(b.text("#app .pf-c-page pre:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory")
@@ -561,8 +559,8 @@ class TestUpdates(NoSubManCase):
         b.wait_visible("#app div.pf-c-progress__bar")
         m.execute("systemctl kill --signal=SEGV packagekit.service")
 
-        b.wait_in_text("#state", "Applying updates failed")
-        b.wait_in_text("#app .pf-c-page", "PackageKit crashed")
+        # error message visible
+        b.wait_in_text("#app .pf-c-page pre", "PackageKit crashed")
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
         self.allow_journal_messages("Process .* dumped core.*")
@@ -585,7 +583,7 @@ class TestUpdates(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_in_text("#state", "Loading available updates failed")
+        # error message present
         b.wait_in_text(".pf-c-page__main-section pre", "PackageKit is not installed")
 
         # update status on front page should be invisible
@@ -610,7 +608,7 @@ class TestUpdates(NoSubManCase):
 
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#available-updates button#install-all")
-        b.wait_text("#state", "Applying updates failed")
+        # error message visible
         b.wait_in_text("#app pre", "authentication")
 
         # become superuser
@@ -637,9 +635,11 @@ class TestUpdates(NoSubManCase):
         # applying updates works now
         b.click("#available-updates button#install-all")
 
-        b.wait_in_text("#app .pf-c-empty-state h1", "Restart recommended")
-        self.assertEqual(b.text("#app .pf-c-empty-state button.pf-m-primary"), "Restart now")
-        b.click("#app .pf-c-empty-state button.pf-m-link:contains('Ignore')")
+        # wait until installation is finished
+        m.execute("while [ ! -e /stamp-vanilla-2.0-2 ]; do sleep 1; done")
+        # reboot panel is visible
+        b.wait_visible("#app .pf-c-empty-state")
+        b.click("#app .pf-c-empty-state button:contains('Ignore')")
 
         # should go back to updates overview, nothing pending any more
         # TODO make Packagekit GetUpdates work for tests properly
@@ -670,20 +670,21 @@ class TestWsUpdate(NoSubManCase):
         b.login_and_go("/updates")
 
         b.click("#available-updates button#install-all")
-        b.wait_in_text("#state", "Applying updates")
+
+        # applying updates panel present
         b.wait_in_text("#app div.progress-description", "slow")
 
         # restarting should pick up that install progress
         m.restart_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#state", "Applying updates")
-        b.wait_visible("#app div.pf-c-progress__bar")
+
+        b.wait_in_text(".pf-c-empty-state h1", "Initializing")
 
         # finish the package installation
         m.execute("touch {0}".format(install_lockfile))
 
         # should have succeeded and show restart page; cancel
-        b.wait_in_text("#app .pf-c-empty-state h1", "Restart recommended")
+        b.wait_visible("#app .pf-c-empty-state")
         b.click("#app .pf-c-empty-state button.pf-m-link:contains('Ignore')")
         b.wait_in_text("#state", "System is up to date")
 
@@ -766,8 +767,6 @@ class TestUpdatesSubscriptions(PackageCase):
         # empty state visible in main area
         b.wait_visible(".pf-c-empty-state button")
         b.wait_in_text(".pf-c-empty-state", "This system is not registered")
-        # no header bar
-        b.wait_not_present(".content-header-extra")
 
         # test the button to switch to Subscriptions
         b.click(".pf-c-empty-state button")

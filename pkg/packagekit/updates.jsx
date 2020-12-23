@@ -59,7 +59,7 @@ function init() {
         loading: _("Loading available updates, please wait..."),
         locked: _("Some other program is currently using the package manager, please wait..."),
         refreshing: _("Refreshing package information"),
-        uptodate: _("No updates pending"),
+        uptodate: _("System is up to date"),
         applying: _("Applying updates"),
         updateSuccess: null,
         updateError: _("Applying updates failed"),
@@ -162,53 +162,6 @@ function find_highest_severity(updates) {
             max = updates[u].severity;
     return max;
 }
-
-// TODO get rid of HeaderBar when whole redesign is completed
-const HeaderBar = ({ state, updates, timeSinceRefresh, onRefresh, unregistered, allowCancel, onCancel }) => {
-    const num_updates = Object.keys(updates).length;
-    let num_security = 0;
-    let state_str;
-
-    // unregistered & no available updates → blank slate, no header bar
-    if (state == "uptodate" || state == "available")
-        return null;
-
-    if (state == "available") {
-        num_security = count_security_updates(updates);
-        if (num_updates == num_security)
-            state_str = cockpit.ngettext("$1 security fix", "$1 security fixes", num_security);
-        else {
-            state_str = cockpit.ngettext("$0 update", "$0 updates", num_updates);
-            if (num_security > 0)
-                state_str += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", num_security);
-        }
-        state_str = cockpit.format(state_str, num_updates, num_security);
-    } else {
-        state_str = STATE_HEADINGS[state];
-    }
-
-    if (!state_str)
-        return null;
-
-    let lastChecked;
-    let actionButton;
-    if (state == "uptodate" || state == "available") {
-        if (!unregistered)
-            actionButton = <Button variant="secondary" onClick={onRefresh}>{_("Check for updates")}</Button>;
-        if (timeSinceRefresh !== null)
-            lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - timeSinceRefresh * 1000).fromNow());
-    } else if (state == "applying") {
-        actionButton = <Button variant="link" onClick={onCancel} isDisabled={!allowCancel}>{_("Cancel")}</Button>;
-    }
-
-    return (
-        <PageSection className="content-header-extra">
-            <div id="state" className="content-header-extra--state">{state_str}</div>
-            <div className="content-header-extra--updated">{lastChecked}</div>
-            <div className="content-header-extra--action">{actionButton}</div>
-        </PageSection>
-    );
-};
 
 function getSeverityURL(urls) {
     if (!urls)
@@ -445,32 +398,31 @@ class ApplyUpdates extends React.Component {
     }
 
     render() {
-        var actionHTML, logRows;
-
-        if (this.state.actions.length > 0) {
-            const lastAction = this.state.actions[this.state.actions.length - 1];
-            actionHTML = (
-                <>
-                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                    &nbsp;{lastAction.package}
-                </>);
-            logRows = this.state.actions.slice(0, -1).map((action, i) => (
-                <tr key={action.package + i}>
-                    <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
-                    <td>{action.package}</td>
-                </tr>));
-        } else {
-            actionHTML = _("Initializing...");
+        const cancelButton = (
+            <Button className={this.state.actions.length !== 0 && "progress-cancel"}
+                   variant="secondary"
+                   onClick={this.props.onCancel}
+                   isDisabled={!this.props.allowCancel}>
+                {_("Cancel")}
+            </Button>
+        );
+        if (this.state.actions.length === 0) {
+            return <EmptyStatePanel title={ _("Initializing...") }
+                                    secondary={cancelButton}
+                                    loading />;
         }
 
+        const lastAction = this.state.actions[this.state.actions.length - 1];
         return (
             <>
                 <div className="progress-main-view">
                     <div className="progress-description">
                         <div className="spinner spinner-xs spinner-inline" />
-                        {actionHTML}
+                        <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
+                        &nbsp;{lastAction.package}
                     </div>
                     <Progress title={this.state.timeRemaining && moment.duration(this.state.timeRemaining * 1000).humanize()} value={this.state.percentage} />
+                    {cancelButton}
                 </div>
 
                 <div className="update-log">
@@ -482,7 +434,11 @@ class ApplyUpdates extends React.Component {
                         <div id="update-log" className="update-log-content">
                             <table>
                                 <tbody>
-                                    {logRows}
+                                    { this.state.actions.slice(0, -1).map((action, i) => (
+                                        <tr key={action.package + i}>
+                                            <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
+                                            <td>{action.package}</td>
+                                        </tr>)) }
                                 </tbody>
                             </table>
                         </div>
@@ -514,7 +470,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
     let stateStr;
 
     if (numUpdates == 0)
-        stateStr = _("System is up to date");
+        stateStr = STATE_HEADINGS.uptodate;
     else if (numUpdates == numSecurity)
         stateStr = cockpit.ngettext("$1 security fix", "$1 security fixes", numSecurity);
     else {
@@ -931,9 +887,9 @@ class OsUpdates extends React.Component {
             });
 
             if (this.state.loadPercent)
-                return <Progress value={this.state.loadPercent} title={STATE_HEADINGS[state]} />;
+                return <Progress value={this.state.loadPercent} title={STATE_HEADINGS[this.state.state]} />;
             else
-                return <EmptyStatePanel loading />;
+                return <EmptyStatePanel paragraph={STATE_HEADINGS[this.state.state]} loading />;
 
         case "available":
         {
@@ -1003,7 +959,9 @@ class OsUpdates extends React.Component {
 
         case "applying":
             page_status.set_own(null);
-            return <ApplyUpdates transaction={this.state.applyTransaction} />;
+            return <ApplyUpdates transaction={this.state.applyTransaction}
+                                 onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
+                                 allowCancel={this.state.allowCancel} />;
 
         case "updateSuccess":
             page_status.set_own({
@@ -1021,7 +979,7 @@ class OsUpdates extends React.Component {
         case "uptodate":
         {
             page_status.set_own({
-                title: _("System is up to date"),
+                title: STATE_HEADINGS[this.state.state],
                 details: {
                     link: false,
                     icon: "fa fa-check-circle-o"
@@ -1075,13 +1033,13 @@ class OsUpdates extends React.Component {
         if (!["available", "uptodate"].includes(this.state.state))
             content = <PageSection variant={PageSectionVariants.light}>{content}</PageSection>;
 
+        let header;
+        if (["updateError", "loadError"].includes(this.state.state))
+            header = <PageSection>{STATE_HEADINGS[this.state.state]}</PageSection>;
+
         return (
             <Page>
-                <HeaderBar state={this.state.state} updates={this.state.updates}
-                           timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
-                           unregistered={this.state.unregistered}
-                           allowCancel={this.state.allowCancel}
-                           onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
+                {header}
                 {content}
             </Page>
         );

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Button, Split, SplitItem, Spinner } from "@patternfly/react-core";
+import { Button, Progress, Split, SplitItem, Spinner } from "@patternfly/react-core";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -66,16 +66,7 @@ export const ProgressBar = ({ title, data }) => {
             </SplitItem>
         </Split>);
     } else {
-        return (
-            <div>
-                <div className="progress-title">
-                    {title}
-                </div>
-                <div className="progress">
-                    <div className="progress-bar" style={{ width: data.percentage + "%" }} />
-                </div>
-            </div>
-        );
+        return <Progress value={data.percentage} title={title} />;
     }
 };
 

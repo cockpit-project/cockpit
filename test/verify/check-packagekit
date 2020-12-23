@@ -191,7 +191,7 @@ class TestUpdates(NoSubManCase):
         b.click("#available-updates button#install-all")
 
         b.wait_in_text("#state", "Applying updates")
-        b.wait_visible("#app div.progress-bar")
+        b.wait_visible("#app div.pf-c-progress__bar")
 
         # no refresh button or "last checked", but Cancel button
         b.wait_text(".content-header-extra--updated", "")
@@ -340,7 +340,7 @@ class TestUpdates(NoSubManCase):
         b.click("#available-updates button#install-security")
 
         b.wait_in_text("#state", "Applying updates")
-        b.wait_visible("#app div.progress-bar")
+        b.wait_visible("#app div.pf-c-progress__bar")
 
         # should have succeeded and show restart page
         b.wait_in_text("#app .pf-c-empty-state h1", "Restart recommended")
@@ -383,7 +383,7 @@ class TestUpdates(NoSubManCase):
         b.click("#available-updates button#install-all")
 
         b.wait_in_text("#state", "Applying updates")
-        b.wait_visible("#app div.progress-bar")
+        b.wait_visible("#app div.pf-c-progress__bar")
 
         # should have succeeded and show restart
         b.wait_in_text("#app .pf-c-empty-state h1", "Restart recommended")
@@ -558,7 +558,7 @@ class TestUpdates(NoSubManCase):
         b.click("#available-updates button#install-all")
 
         # let updates start and zap PackageKit
-        b.wait_visible("#app div.progress-bar")
+        b.wait_visible("#app div.pf-c-progress__bar")
         m.execute("systemctl kill --signal=SEGV packagekit.service")
 
         b.wait_in_text("#state", "Applying updates failed")
@@ -677,7 +677,7 @@ class TestWsUpdate(NoSubManCase):
         m.restart_cockpit()
         b.login_and_go("/updates")
         b.wait_in_text("#state", "Applying updates")
-        b.wait_visible("#app div.progress-bar")
+        b.wait_visible("#app div.pf-c-progress__bar")
 
         # finish the package installation
         m.execute("touch {0}".format(install_lockfile))

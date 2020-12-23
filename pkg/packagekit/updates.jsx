@@ -25,7 +25,7 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import {
-    Button, Gallery, Tooltip,
+    Button, Gallery, Progress, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
@@ -470,11 +470,7 @@ class ApplyUpdates extends React.Component {
                         <div className="spinner spinner-xs spinner-inline" />
                         {actionHTML}
                     </div>
-                    <div className="progress progress-label-top-right">
-                        <div className="progress-bar" role="progressbar" style={ { width: this.state.percentage + "%" } }>
-                            { this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null }
-                        </div>
-                    </div>
+                    <Progress title={this.state.timeRemaining && moment.duration(this.state.timeRemaining * 1000).humanize()} value={this.state.percentage} />
                 </div>
 
                 <div className="update-log">
@@ -935,13 +931,7 @@ class OsUpdates extends React.Component {
             });
 
             if (this.state.loadPercent)
-                return (
-                    <div className="progress-main-view">
-                        <div className="progress">
-                            <div className="progress-bar" role="progressbar" style={ { width: this.state.loadPercent + "%" } } />
-                        </div>
-                    </div>
-                );
+                return <Progress value={this.state.loadPercent} title={STATE_HEADINGS[state]} />;
             else
                 return <EmptyStatePanel loading />;
 

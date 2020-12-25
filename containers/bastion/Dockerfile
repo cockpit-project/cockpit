@@ -1,4 +1,4 @@
-FROM fedora:32
+FROM fedora:33
 
 ARG VERSION
 ARG INSTALLER

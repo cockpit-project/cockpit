@@ -72,7 +72,7 @@ aborted. The number of seconds to wait can be adjusted by adding a response-time
 along side the auth schema configuration in your config file. The given value should be a
 number between 1 and 900.
 
-Once a result is known a "init" command should be sent. If the login was succussful you can usually
+Once a result is known a "init" command should be sent. If the login was successful you can usually
 just let the bridge do this.
 
 If the login was not successful the JSON should include a problem field. Values of

@@ -416,7 +416,7 @@ Obsoletes: cockpit-networkmanager
 Requires: NetworkManager >= 1.6
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
-Recommends: polkit
+Recommends: (sudo or polkit)
 Recommends: PackageKit
 Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3

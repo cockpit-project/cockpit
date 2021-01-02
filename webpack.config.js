@@ -172,7 +172,6 @@ var info = {
 
         "kdump/test-config-client",
 
-        "lib/test-dummy",
         "lib/test-journal-renderer",
 
         "networkmanager/test-utils",

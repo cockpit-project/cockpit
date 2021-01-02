@@ -155,6 +155,7 @@ var info = {
         "base1/test-framed-cache",
         "base1/test-framed",
         "base1/test-http",
+        "base1/test-journal-renderer",
         "base1/test-locale",
         "base1/test-location",
         "base1/test-machines",
@@ -171,8 +172,6 @@ var info = {
         "base1/test-websocket",
 
         "kdump/test-config-client",
-
-        "lib/test-journal-renderer",
 
         "networkmanager/test-utils",
 

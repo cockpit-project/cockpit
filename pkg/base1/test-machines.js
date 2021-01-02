@@ -1,5 +1,6 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
+import { machines } from "machines";
 
 var dbus = cockpit.dbus(null, { bus: "internal" });
 var configDir;
@@ -233,6 +234,18 @@ QUnit.test("updating and existing delta file", function (assert) {
                                    { green: { address: "9.8.7.6", user: "joe", color: "pitchblack" } });
                 done();
             });
+});
+
+QUnit.test("colors.parse()", function (assert) {
+    const colors = [
+        ["#960064", "rgb(150, 0, 100)"],
+        ["rgb(150, 0, 100)", "rgb(150, 0, 100)"],
+        ["#ccc", "rgb(204, 204, 204)"],
+    ];
+    assert.expect(colors.length);
+    colors.forEach(function(color) {
+        assert.equal(machines.colors.parse(color[0]), color[1], "parsed color " + color[0]);
+    });
 });
 
 /* The test cockpit-bridge gets started with temp $XDG_CONFIG_DIRS instead of defaulting to /etc/.

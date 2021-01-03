@@ -413,22 +413,23 @@ export class AutoUpdates extends React.Component {
                 {_("Edit")}
             </Button>
             <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen={this.state.showModal}
-                   title={_("Automatic updates")}
-                   footer={
-                       <>
-                           <Button variant="primary"
-                                   isLoading={ this.state.pending }
-                                   isDisabled={ this.state.pending }
-                                   onClick={ this.handleChange }>
-                               {_("Save changes")}
-                           </Button>
-                           <Button variant="link"
-                                   isDisabled={ this.state.pending }
-                                   onClick={() => this.setState({ showModal: false })}>
-                               {_("Cancel")}
-                           </Button>
-                       </>
-                   }>
+                title={_("Automatic updates")}
+                onClose={() => this.setState({ showModal: false })}
+                footer={
+                    <>
+                        <Button variant="primary"
+                                isLoading={ this.state.pending }
+                                isDisabled={ this.state.pending }
+                                onClick={ this.handleChange }>
+                            {_("Save changes")}
+                        </Button>
+                        <Button variant="link"
+                                isDisabled={ this.state.pending }
+                                onClick={() => this.setState({ showModal: false })}>
+                            {_("Cancel")}
+                        </Button>
+                    </>
+                }>
                 {body}
             </Modal>
         </>);

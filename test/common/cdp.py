@@ -196,7 +196,10 @@ class CDP:
             with open(os.path.join(profile, "handlers.json"), "w") as f:
                 f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
 
-            return [exe, "-P", "blank", "--headless" if not self.show_browser else "", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
+            cmd = [exe, "-P", "blank", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
+            if not self.show_browser:
+                cmd.insert(3, "--headless")
+            return cmd
 
     def start(self):
         environ = os.environ.copy()

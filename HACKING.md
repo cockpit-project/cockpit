@@ -16,11 +16,11 @@ various development dependencies.
 
 On Debian and recent Ubuntu ≥ 19.04:
 
-    $ sudo apt-get install nodejs npm
+    $ sudo apt-get install nodejs npm sassc
 
 On Fedora:
 
-    $ sudo dnf install nodejs npm
+    $ sudo dnf install nodejs npm sassc
 
 On older OS releases you can use the [n utility](https://github.com/tj/n) to
 get a current version of npm and nodejs.

@@ -6,6 +6,7 @@
 @import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
 @import "../../node_modules/@patternfly/patternfly/components/Table/table.css";
 @import "../../node_modules/@patternfly/patternfly/components/Table/table-grid.css";
+@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.css";
 
 /* The following are needed for the Modal */
 @import "../../node_modules/@patternfly/patternfly/components/Backdrop/backdrop.css";
@@ -220,7 +221,7 @@ span.inverted-switchbox {
 }
 
 
-h1 .onoff-ct {
+h2 + .onoff-ct {
     margin-left: 1.5em;
     vertical-align: text-bottom;
 }
@@ -246,32 +247,17 @@ h1 .onoff-ct {
     }
 }
 
-#add-services-dialog .list-group-item {
-    cursor: default;
+#add-services-dialog .service-list {
+    max-height: 13rem;
+    overflow-y: auto;
 }
 
-#add-services-dialog .list-view-pf-main-info {
-    padding: 1rem 0;
-}
-
-#add-services-dialog .list-view-pf-checkbox {
-    margin: 1rem 1rem 1rem 0;
-}
-
-#add-services-dialog .list-view-pf-view {
-    margin: 0;
-}
-
-#add-services-dialog .list-view-pf-description {
-    flex: auto;
-}
-
-#add-services-dialog .list-group-item-heading {
+#add-services-dialog .service-list-item-heading {
     font-size: 1.2em;
     margin: 0;
 }
 
-#add-services-dialog .list-group-item-text {
+#add-services-dialog .service-list-item-text {
     display: flex;
     flex-wrap: wrap;
 }
@@ -283,22 +269,8 @@ h1 .onoff-ct {
 #add-services-dialog .service-ports:first-of-type {
     margin-right: 1em;
 }
-
-#add-services-dialog .spinner-lg {
-    /* (Max-height of dialog-list-ct (above) - spinner size + grid gap) / 2 */
-    margin: calc(((100vh - 40rem) - 30px + 0.5rem) / 2) auto;
-}
-
-#add-services-dialog .toggle-body > .ct-form {
-    margin-left: 1rem;
-}
-
-#add-services-dialog .toggle-body > .ct-form + label {
-    margin-top: 1rem;
-}
-
-#add-services-dialog .toggle-body > .ct-form > .control-label {
-    padding-left: 0;
+#add-services-dialog .add-services-dialog-type {
+    display: flex;
 }
 
 .form-control.error {
@@ -443,43 +415,16 @@ h1 .onoff-ct {
 }
 
 #add-zone-dialog legend {
-    all: unset;
     color: var(--color-subtle-copy);
-    display: block;
-    font: inherit;
-    /* Align with label padding */
-    line-height: 1.5;
-    padding: 0 0.5rem;
     font-size: var(--pf-global--FontSize--sm);
-}
-
-#add-zone-dialog .add-zone-zones {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: last baseline;
-    /* Compensate for bottom fieldset padding */
-    margin-bottom: -1rem;
 }
 
 .add-zone-zones legend {
-    line-height: 3 !important;
+    line-height: 3;
 }
 
-#add-zone-dialog .add-zone-zones > fieldset {
-    /* Compensate for label padding */
-    margin-left: -0.5rem;
-    /* Pad to the side & bottom, so zone groups have space between each other */
-    /* In an ideal world, we'd add `gap` in the parent, */
-    /* but only Firefox supports `gap` for `flex` thus far. */
-    padding: 0 2rem 1rem 0;
-}
-
-#add-zone-dialog .add-zone-zones label {
-    margin: 0;
-    flex-flow: column;
-    padding: 0 0.5rem;
+#add-zone-dialog .add-zone-zones .pf-c-radio__label {
     text-transform: capitalize;
-    font-size: var(--pf-global--FontSize--sm);
 }
 
 /* Move firewalld zones higher in z-index (so lines can go behind) */
@@ -490,14 +435,10 @@ h1 .onoff-ct {
     height: 16px;
 }
 
-/* Add lines behind the radio buttons */
+/* FIXME: Add lines behind the radio buttons */
 .add-zone-zones-firewalld > label::after {
     border-bottom: 1px solid #d1d1d1;
     content: "";
-    position: absolute;
-    top: 8px;
-    right: 0;
-    left: 0;
 }
 
 /* Start line at the midpoint for the first radio */
@@ -510,8 +451,11 @@ h1 .onoff-ct {
     right: 50%;
 }
 
-form.horizontal fieldset {
-    flex-direction: row;
+/* Display labels bellow buttons */
+.add-zone-zones-firewalld, .add-zone-zones-custom {
+    > label.radio {
+        display: inline-flex;
+    }
 }
 
 #add-zone-description-readonly {
@@ -522,21 +466,6 @@ form.horizontal fieldset {
 #add-zone-services-readonly legend {
     padding: 0;
     line-height: 1;
-}
-
-.add-zone-interfaces {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
-    grid-gap: 0 0.5rem;
-    padding: 0.5rem 0 0;
-    /* 70px seems to be minimum UI padding width */
-    /* This is needed for iPhone SE sizes, but does not affect other sizes */
-    /* Needs !important to override specificity of "100%" */
-    max-width: calc(100vw - 70px) !important;
-}
-
-.add-zone-interfaces > label.radio {
-    margin: 0;
 }
 
 #networking-interfaces, #networking-unmanaged-interfaces {

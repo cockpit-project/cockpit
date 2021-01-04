@@ -362,6 +362,12 @@ const LIBVIRT_DBUS_PROVIDER = {
                     storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], { timeout, type: 's' })
                                 .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], { timeout, type: 'u' }))
+                                .catch(ex => {
+                                    if (!ex.message.includes("no storage vol with matching path"))
+                                        return Promise.reject(ex);
+                                    else
+                                        return cockpit.file(disk.source.file, { superuser: "try" }).replace(null); // delete key file
+                                })
                     );
                     const pool = storagePools.find(pool => pool.connectionName === connectionName && pool.volumes.some(vol => vol.path === disk.source.file));
                     if (pool)

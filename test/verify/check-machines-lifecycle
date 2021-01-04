@@ -378,9 +378,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         b.wait_in_text("#vm-{0}-state".format(name), "Paused")
         b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
-        # HACK: Don't delete disks here because they will fail with 'storage volume does not exist'
-        # This can be reverted when https://github.com/cockpit-project/cockpit/pull/15102 gets merged
-        b.set_checked("#vm-{0}-delete-modal-dialog ul li:first-child input[type=checkbox]".format(name), False)
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         self.waitVmRow(name, 'system', False)
 

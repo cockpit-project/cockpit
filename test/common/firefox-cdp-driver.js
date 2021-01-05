@@ -32,7 +32,6 @@ const CDP = require('chrome-remote-interface');
 
 var enable_debug = false;
 var the_client = null;
-var last_frame_name = "";
 
 function debug(msg) {
     if (enable_debug)
@@ -203,8 +202,9 @@ function waitLog() {
  * to load. This is very laborious, see this issue for discussing improvements:
  * https://github.com/ChromeDevTools/devtools-protocol/issues/72
  */
-var frameNameToContextId = {};
 var scriptsOnNewContext = [];
+var frameIdToContextId = {};
+var frameNameToFrameId = {};
 
 // set these to wait for a frame to be loaded
 var frameWaitName = null;
@@ -216,6 +216,18 @@ var pageLoadReject = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
+
+    // map frame names to frame IDs; root frame has no name, no need to track that
+    client.Page.frameNavigated(info => {
+        debug("frameNavigated " + JSON.stringify(info));
+        frameNameToFrameId[info.frame.name || "cockpit1"] = info.frame.id;
+
+        // were we waiting for this frame to be loaded?
+        if (frameWaitPromiseResolve && frameWaitName === info.frame.name) {
+            frameWaitPromiseResolve();
+            frameWaitPromiseResolve = null;
+        }
+    });
 
     client.Page.loadEventFired(() => {
         if (pageLoadResolve) {
@@ -229,26 +241,22 @@ function setupFrameTracking(client) {
     });
 
     // track execution contexts so that we can map between context and frame IDs
-    // HACK: Also since firefox does not send frames names in FrameNavigated, nor it does
-    // not send all frameNavigated, just read it from context
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1549529
     client.Runtime.executionContextCreated(info => {
         debug("executionContextCreated " + JSON.stringify(info));
+        frameIdToContextId[info.context.auxData.frameId] = info.context.id;
         scriptsOnNewContext.forEach(s => {
             client.Runtime.evaluate({expression: s, contextId:info.context.id});
         });
-        client.Runtime.evaluate({expression: "window.name", contextId:info.context.id}).then(r => {
-            // HACK: window.name of the topmost/login window on first login is "",
-            // but when relogin or refresh it is "cockpit1"
-            const frame_name = r.result.value || "cockpit1";
-            frameNameToContextId[frame_name] = info.context.id;
+    });
 
-            // were we waiting for this frame to be loaded?
-            if (frameWaitPromiseResolve && frameWaitName === frame_name) {
-                frameWaitPromiseResolve();
-                frameWaitPromiseResolve = null;
+    client.Runtime.executionContextDestroyed(info => {
+        debug("executionContextDestroyed " + info.executionContextId);
+        for (let frameId in frameIdToContextId) {
+            if (frameIdToContextId[frameId] == info.executionContextId) {
+                delete frameIdToContextId[frameId];
+                break;
             }
-        });
+        }
     });
 }
 
@@ -256,11 +264,13 @@ function setupFrameTracking(client) {
 function getFrameExecId(frame) {
     if (frame === null)
         frame = "cockpit1";
-    // HACK: Remember the frame name that was last resolved in case it was unusable
-    // In that case we should try to resolve it a bit later - but we don't have the name anymore
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1549529
-    last_frame_name = frame;
-    return frameNameToContextId[frame];
+    var frameId = frameNameToFrameId[frame];
+    if (!frameId)
+        throw Error(`Frame ${frame} is unknown`);
+    var execId = frameIdToContextId[frameId];
+    if (!execId)
+        throw Error(`Frame ${frame} (${frameId}) has no executionContextId`);
+    return execId;
 }
 
 function expectLoad(timeout) {
@@ -281,7 +291,7 @@ function expectLoadFrame(name, timeout) {
                 // executionContextCreated() signal. This might happen before or after frameNavigated(), so wait in case
                 // it happens afterwards.
                function pollExecId() {
-                    if (frameNameToContextId[name]) {
+                    if (frameIdToContextId[frameNameToFrameId[name]]) {
                         clearTimeout(tm);
                         resolve();
                     } else {
@@ -326,9 +336,6 @@ function addScriptToEvaluateOnNewDocument(script) {
     });
 }
 
-// HACK: We don't get frame name when context is created, but we need to read it the frame itself.
-// This can cause race and thus we need to re-check if contextId was not updated.
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1549529
 function evaluate(cmd) {
     return new Promise((resolve, reject) => {
         const match_exp = cmd.expression.match(/ph_wait_cond[^=]*=>\s*([\s\S]*),\s*(\d*)/);
@@ -344,25 +351,12 @@ function evaluate(cmd) {
                 }});
             }, parseInt(match_exp[2]));
         function step() {
-            let context = getFrameExecId(last_frame_name);
-            the_client.Runtime.evaluate({expression: match_exp[1], contextId: context}).then(r => {
+            the_client.Runtime.evaluate({expression: match_exp[1], contextId: cmd.contextId}).then(r => {
                 if (r && r.result && r.result.value === true) {
                     clearTimeout(tm);
                     resolve(r);
                 } else {
                     stepTimer = setTimeout(step, 100);
-                }
-            })
-            .catch(e => {
-                if (e.response.message.indexOf("Unable to find execution context with id")) {
-                    stepTimer = setTimeout(step, 100);
-                } else {
-                    resolve({exceptionDetails: {
-                        exception: {
-                            type: "string",
-                            value: "timeout",
-                        }
-                    }});
                 }
             });
         }

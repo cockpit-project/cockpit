@@ -336,34 +336,6 @@ function addScriptToEvaluateOnNewDocument(script) {
     });
 }
 
-function evaluate(cmd) {
-    return new Promise((resolve, reject) => {
-        const match_exp = cmd.expression.match(/ph_wait_cond[^=]*=>\s*([\s\S]*),\s*(\d*)/);
-        let stepTimer = null;
-        let tm = setTimeout( () => {
-                if (stepTimer)
-                    clearTimeout(stepTimer);
-                resolve({exceptionDetails: {
-                    exception: {
-                        type: "string",
-                        value: "timeout",
-                    }
-                }});
-            }, parseInt(match_exp[2]));
-        function step() {
-            the_client.Runtime.evaluate({expression: match_exp[1], contextId: cmd.contextId}).then(r => {
-                if (r && r.result && r.result.value === true) {
-                    clearTimeout(tm);
-                    resolve(r);
-                } else {
-                    stepTimer = setTimeout(step, 100);
-                }
-            });
-        }
-        step();
-    });
-}
-
 // This should work on different targets (meaning tabs)
 // CDP takes {target:target} so we can pick target
 // Problem is that CDP.New() which creates new target works only for chrome/ium
@@ -405,8 +377,6 @@ CDP(options)
                     // HACKS: See description of related functions
                     if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
                         command = command.substring(12);
-                    if (command.startsWith("client.Runtime.evaluate") && command.indexOf("ph_wait_cond") !== -1)
-                        command = command.substring(15);
 
                     // run the command
                     eval(command).then(reply => {

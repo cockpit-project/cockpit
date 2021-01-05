@@ -124,7 +124,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.allow_authorize_journal_messages()
         self.setup_ssh_auth()
 
-    @skipBrowser("Firefox looses track of contexts", "firefox")
     def testBasic(self):
         b = self.browser
         m2 = self.machines["machine2"]
@@ -238,7 +237,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
-    @skipBrowser("Firefox looses track of contexts", "firefox")
     def testBasicAsAdmin(self):
         b = self.browser
         m2 = self.machines["machine2"]

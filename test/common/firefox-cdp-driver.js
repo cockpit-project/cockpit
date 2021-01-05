@@ -91,22 +91,25 @@ function setupLogging(client) {
 
     function processException(info) {
         let details = info.exceptionDetails;
+        if (details.exception)
+            details = details.exception;
+
         // don't log test timeouts, they already get handled
-        if (details.exception && details.exception.className === "PhWaitCondTimeout")
+        if (details.className === "PhWaitCondTimeout")
             return;
 
         // HACK: Sometimes on Firefox >= 77 xterm.js can raise following message when Cockpit is reloaded:
         // `InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable`
         // It does not oops, everything is functional, safe to ignore for now
-        if (details.exception && details.exception.className === "InvalidStateError")
+        if (details.className === "InvalidStateError")
             return;
 
-        process.stderr.write(details.description || JSON.stringify(details) + "\n");
+        process.stderr.write(details.description || details.text || JSON.stringify(details) + "\n");
 
-        unhandledExceptions.push(details.exception.message ||
-                                 details.exception.description ||
-                                 details.exception.value ||
-                                 JSON.stringify(details.exception));
+        unhandledExceptions.push(details.message ||
+                                 details.description ||
+                                 details.value ||
+                                 JSON.stringify(details));
     }
 
     client.Runtime.exceptionThrown(info => processException(info));

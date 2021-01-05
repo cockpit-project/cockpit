@@ -783,7 +783,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         var cache = { };
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        const onnotify = (event, data) => Object.assign(cache, data);
+        const onnotify = (event, data) => deep_update(cache, data);
         dbus.addEventListener("notify", onnotify);
 
         dbus.watch({ path_namespace: "/otree" });

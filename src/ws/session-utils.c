@@ -389,6 +389,9 @@ do_lastlog (uid_t                 uid,
    *
    *  strncpy (entry.ll_host, rhost, sizeof entry.ll_host);
    *  strncpy (entry.ll_line, "web console", sizeof entry.ll_line);
+   *
+   * See also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94615
+   * See also https://sourceware.org/bugzilla/show_bug.cgi?id=25844
    */
   memset (&entry, 0, sizeof entry);
   memcpy (entry.ll_host, rhost, MIN (strlen (rhost), sizeof entry.ll_host));

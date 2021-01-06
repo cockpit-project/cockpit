@@ -24,7 +24,7 @@ from testlib import *
 @skipImage("No realmd available", "fedora-coreos")
 @skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
 @skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestS4USsh(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},

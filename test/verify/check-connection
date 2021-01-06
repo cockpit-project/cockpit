@@ -26,7 +26,7 @@ import parent
 from testlib import *
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestConnection(MachineCase):
 
     def setUp(self):
@@ -842,7 +842,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestReverseProxy(MachineCase):
 
     provision = {

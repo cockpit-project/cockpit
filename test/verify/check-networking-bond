@@ -25,7 +25,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -252,7 +252,7 @@ class TestBonding(NetworkCase):
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestBondingVirt(NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},

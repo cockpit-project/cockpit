@@ -74,7 +74,7 @@ def login(self):
     else:
         self.login_and_go("/metrics")
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestMetrics(MachineCase):
 
     def waitStream(self, current_max):
@@ -536,7 +536,7 @@ class TestMetrics(MachineCase):
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='In']", "0")
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestCockpitPcp(packagelib.PackageCase):
     def testNoCockpitPcp(self):
         b = self.browser
@@ -579,7 +579,7 @@ class TestCockpitPcp(packagelib.PackageCase):
         b.enter_page("/metrics")
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestMultiCPU(MachineCase):
 
     provision = {

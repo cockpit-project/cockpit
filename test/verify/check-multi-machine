@@ -129,7 +129,7 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     raise error
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestMultiMachineAdd(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
@@ -241,7 +241,7 @@ class TestMultiMachineAdd(MachineCase):
         b.wait_not_present("#page-sidebar .nav-status")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestMultiMachine(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},

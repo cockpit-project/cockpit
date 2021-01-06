@@ -23,7 +23,7 @@ from testlib import *
 def line_sel(i):
     return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestTerminal(MachineCase):
     def setUp(self):
         super().setUp()

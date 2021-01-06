@@ -9,7 +9,7 @@ from testlib import *
 EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestPinger(MachineCase):
 
     def setUp(self):
@@ -28,7 +28,7 @@ class TestPinger(MachineCase):
 
 
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestXHRProxy(MachineCase):
     def setUp(self):
         super().setUp()
@@ -72,7 +72,7 @@ class TestXHRProxy(MachineCase):
 
 
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestLongRunning(MachineCase):
 
     def setUp(self):

@@ -93,7 +93,7 @@ def ssh_reconnect(machine, timeout_sec=120):
     raise error
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSystemInfo(MachineCase):
     def setUp(self):
         super().setUp()
@@ -721,7 +721,7 @@ insecure_connection=True
         wait(lambda: progressValue(2) <= initial_usage)
         self.assertGreater(progressValue(2), 10)
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestPcp(packagelib.PackageCase):
 
     def testEnablePcpLink(self):

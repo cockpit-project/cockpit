@@ -24,7 +24,7 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class HostSwitcherHelpers:
 
     def check_discovered_addresses(self, b, addresses):
@@ -97,7 +97,7 @@ class HostSwitcherHelpers:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
 
 @no_retry_when_changed
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20"},
@@ -389,7 +389,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
     def testLimits(self):

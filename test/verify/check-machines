@@ -30,7 +30,7 @@ from storagelib import StorageHelpers
 from machinesxmls import *
 from datetime import datetime
 
-distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "ubuntu-2004", "ubuntu-stable"]
+distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable"]
 
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
@@ -298,7 +298,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         return user_name
 
     # FIXME remove this skipImage
-    @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
+    @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
     def testBasicLibvirtUserUnprivileged(self):
         user = self.createUser(user_group='libvirt')
         self._testBasic(user, False)
@@ -509,7 +509,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # newer libvirtd versions use socket activation
         # we should test that separately, but here we test only using the service unit
-        if m.image not in ["debian-stable", "ubuntu-stable", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "centos-8-stream"]:
+        if m.image not in ["debian-stable", "ubuntu-stable", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "centos-8-stream"]:
             m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
             self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
 
@@ -2870,7 +2870,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
+        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", "rhel-8-4-distropkg", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
@@ -2898,7 +2898,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
             def hack_broken_caps():
-                if m.image in ["fedora-32", "fedora-33", "fedora-testing", "centos-8-stream", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
+                if m.image in ["fedora-32", "fedora-33", "fedora-testing", "centos-8-stream", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
                     m.execute("systemctl restart libvirtd")
                     # We don't get events for shut off VMs so reload the page
                     b.reload()

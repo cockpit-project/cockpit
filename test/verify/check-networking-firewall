@@ -46,7 +46,7 @@ def get_active_rules(machine):
 
 @skipImage("no firewalld", "fedora-coreos")
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestFirewall(NetworkCase):
     def setUp(self):
         MachineCase.setUp(self)

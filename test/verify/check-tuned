@@ -22,7 +22,7 @@ from testlib import *
 
 @nondestructive
 @skipImage("No tuned packaged", "fedora-coreos")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestTuned(MachineCase):
 
     def testBasic(self):

@@ -42,7 +42,12 @@ import { FirmwareLink } from './firmware.jsx';
 import WarningInactive from '../../common/warningInactive.jsx';
 import { StateIcon } from '../../common/stateIcon.jsx';
 import { getDomainCapabilities } from '../../../libvirt-dbus.js';
-import { getDomainCapLoader, getDomainCapMaxVCPU, getDomainCapCPUCustomModels } from '../../../libvirt-common.js';
+import {
+    getDomainCapLoader,
+    getDomainCapMaxVCPU,
+    getDomainCapCPUCustomModels,
+    getDomainCapCPUHostModel,
+} from '../../../libvirt-common.js';
 
 import '../../common/overviewCard.css';
 
@@ -78,9 +83,10 @@ class VmOverviewCard extends React.Component {
                     const loaderElems = getDomainCapLoader(domCaps);
                     const maxVcpu = getDomainCapMaxVCPU(domCaps);
                     const cpuModels = getDomainCapCPUCustomModels(domCaps);
+                    const cpuHostModel = getDomainCapCPUHostModel(domCaps);
 
                     if (this._isMounted)
-                        this.setState({ loaderElems, maxVcpu: Number(maxVcpu), cpuModels });
+                        this.setState({ loaderElems, maxVcpu: Number(maxVcpu), cpuModels, cpuHostModel });
                 })
                 .fail(() => console.warn("getDomainCapabilities failed"));
 
@@ -126,8 +132,16 @@ class VmOverviewCard extends React.Component {
                              (vm.cpu.threads !== vm.inactiveXML.cpu.threads) ||
                              (vm.cpu.cores !== vm.inactiveXML.cpu.cores);
 
-        const cpuModeChanged = (vm.cpu.mode !== vm.inactiveXML.cpu.mode) ||
-                               (vm.cpu.model !== vm.inactiveXML.cpu.model);
+        /* The live xml shows what host-model expanded to when started
+         * This is important since the expansion varies depending on the host and so needs to be tracked across migration
+         */
+        let cpuModeChanged = false;
+        if (vm.inactiveXML.cpu.mode == 'host-model')
+            cpuModeChanged = !(vm.cpu.mode == 'host-model' || vm.cpu.model == this.state.cpuHostModel);
+        else if (vm.inactiveXML.cpu.mode == 'host-passthrough')
+            cpuModeChanged = vm.cpu.mode != 'host-passthrough';
+        else if (vm.inactiveXML.cpu.mode == 'custom')
+            cpuModeChanged = vm.cpu.mode !== 'custom' || vm.cpu.model !== vm.inactiveXML.cpu.model;
 
         const autostart = (
             <DescriptionListDescription>

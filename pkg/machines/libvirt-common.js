@@ -162,6 +162,14 @@ export function getDomainCapCPUCustomModels(capsXML) {
     return customModeElem && Array.prototype.map.call(customModeElem.getElementsByTagName("model"), modelElem => modelElem.textContent);
 }
 
+export function getDomainCapCPUHostModel(capsXML) {
+    const domainCapsElem = getElem(capsXML);
+    const cpuElem = domainCapsElem.getElementsByTagName("cpu") && domainCapsElem.getElementsByTagName("cpu")[0];
+    const modeElems = cpuElem && cpuElem.getElementsByTagName("mode");
+    const hostModelModeElem = modeElems && Array.prototype.find.call(modeElems, modeElem => modeElem.getAttribute("name") == "host-model");
+    return hostModelModeElem && Array.prototype.map.call(hostModelModeElem.getElementsByTagName("model"), modelElem => modelElem.textContent)[0];
+}
+
 export function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional

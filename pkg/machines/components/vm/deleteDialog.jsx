@@ -101,7 +101,7 @@ export class DeleteDialog extends React.Component {
                     if ((d.type == 'file' && d.source.file) || d.type == 'volume')
                         disks.push(Object.assign(d, { checked: !d.readonly }));
                 });
-        this.state = { disks: disks, destroy: vm.state != 'shut off' };
+        this.state = { disks: disks };
     }
 
     dialogErrorSet(text, detail) {
@@ -118,7 +118,7 @@ export class DeleteDialog extends React.Component {
     delete() {
         const storage = this.state.disks.filter(d => d.checked);
 
-        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }, this.props.storagePools))
+        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.props.vm.state != 'shut off', storage: storage }, this.props.storagePools))
                 .then(() => cockpit.location.go(["vms"]))
                 .catch(exc => {
                     this.dialogErrorSet(cockpit.format(_("VM $0 failed to get deleted"), this.props.vm.name), exc.message);
@@ -141,7 +141,7 @@ export class DeleteDialog extends React.Component {
                         </Button>
                     </>
                 }>
-                <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
+                <DeleteDialogBody disks={this.state.disks} destroy={this.props.vm.state != 'shut off'} onChange={this.onDiskCheckedChanged} />
             </Modal>
         );
     }

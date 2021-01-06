@@ -2532,7 +2532,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                b.wait_in_text("#vm-{0}-disks .ct-table-empty".format(name), "No disks defined")
+                # On smaller resolutions empty message is hidden. Firefox opens up in smaller window then chrome.
+                if b.cdp.browser == "firefox":
+                    b.wait_not_visible("#vm-{0}-disks .ct-table-empty:contains('No disks defined')".format(name))
+                else:
+                    b.wait_in_text("#vm-{0}-disks .ct-table-empty".format(name), "No disks defined")
                 b.click("#vm-{0}-disks-adddisk".format(name))
                 b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self

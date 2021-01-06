@@ -2731,6 +2731,18 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         xmllint_element = "{0} | xmllint --xpath 'string(//domain/{{prop}})' - 2>&1 || true".format(dom_xml)
         self.assertEqual("coreduo", m.execute(xmllint_element.format(prop='cpu/model')).strip())
 
+        # Host-model gets expanded  to custom mode when the VM is running
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "host-model")
+        b.click("#cpu-config-dialog-apply")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom")
+        # In the test ENV libvirt does not properly set the CPU model so we see a tooltip https://bugzilla.redhat.com/show_bug.cgi?id=1913337
+        # b.wait_not_present("#cpu-tooltip")
+
     def testBootOrder(self):
         b = self.browser
         m = self.machine

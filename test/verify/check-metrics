@@ -422,8 +422,8 @@ class TestMetrics(MachineCase):
         b.enter_page("/metrics")
         b.wait_present("table[aria-label='Top 5 memory services']")
 
-        # some images don't have swap
-        if m.image not in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "fedora-coreos", "centos-8-stream"]:
+        # only some images have swap
+        if m.execute("swapon --show").strip():
             # use even more memory to trigger swap
             m.execute("systemd-run --slice cockpittest --unit mem-hog2 sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep infinity'")
             b.wait(lambda: progressValue("#current-swap-usage") > 0)

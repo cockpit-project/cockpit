@@ -26,9 +26,9 @@ try {
 }
 
 var opts = stdio.getopt({
-    directory: { key: "d", args: 1, description: "Base directory for input files" },
+    directory: { key: "d", args: 1, description: "Base directory for input files", default: "." },
     output: { key: "o", args: 1, description: "Output file" },
-    from: { key: "f", args: 1, description: "File containing list of input files" },
+    from: { key: "f", args: 1, description: "File containing list of input files", default: "" },
 });
 
 if (!opts.from && opts.args.length < 1) {

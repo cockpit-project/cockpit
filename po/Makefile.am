@@ -57,56 +57,42 @@ TRANSLATE = \
 	src/ws/ \
 	$(NULL)
 
-# Lists of files we need to extract from
-po/POTFILES.c.in:
-	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c' ) > $@
-po/POTFILES.html.in:
-	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find $(TRANSLATE) -name '*.html' ) > $@
-po/POTFILES.js.in:
-	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx' ) > $@
-po/POTFILES.manifest.in:
-	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in' ) > $@
-po/POTFILES.appstream.in:
-	( cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in' ) > $@
-po/POTFILES.polkit.in:
-	( cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in' ) > $@
-.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.manifest.in po/POTFILES.appstream.in po/POTFILES.polkit.in
-
 # Extract from GLib based C code files
-po/cockpit.c.pot: po/POTFILES.c.in
+po/cockpit.c.pot:
 	$(XGETTEXT) --default-domain=cockpit --output=$@ --language=C \
 		--keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=Q_ \
 		--keyword=g_dgettext:2 --keyword=g_dngettext:2,3 --keyword=g_dpgettext:2 \
 		--keyword=g_dpgettext2=2c,3 \
-		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
+		--from-code=UTF-8 --directory=$(srcdir) $$(cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c')
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
-po/cockpit.html.pot: po/POTFILES.html.in
-	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -f $^ -o $@
+po/cockpit.html.pot:
+	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -o $@ \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
 # Extract cockpit style javascript translations
-po/cockpit.js.pot: po/POTFILES.js.in
+po/cockpit.js.pot:
 	$(XGETTEXT) --default-domain=cockpit --output=- --language=C --keyword= \
 		--keyword=_:1,1t --keyword=_:1c,2,2t --keyword=C_:1c,2 \
 		--keyword=N_ --keyword=NC_:1c,2 \
 		--keyword=gettext:1,1t --keyword=gettext:1c,2,2t \
 		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
 		--keyword=gettextCatalog.getString:1,3c --keyword=gettextCatalog.getPlural:2,3,4c \
-		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^ | \
+		--from-code=UTF-8 --directory=$(srcdir) \
+		$$( cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
 		sed '/^#/ s/, c-format//' > $@
 
-po/cockpit.manifest.pot: po/POTFILES.manifest.in
-	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $^ -o $@
+po/cockpit.manifest.pot:
+	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in')
 
-po/cockpit.appstream.pot: po/POTFILES.appstream.in
-	cd $(srcdir) && $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
+po/cockpit.appstream.pot:
+	cd $(srcdir) && $(XGETTEXT) --output=$(abs_builddir)/$@ \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
 
-po/cockpit.polkit.pot: po/POTFILES.polkit.in
-	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
+po/cockpit.polkit.pot:
+	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \
+		$$(find $(TRANSLATE) -name '*.policy.in')
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
@@ -136,7 +122,6 @@ CLEANFILES += \
 	$(MO_FILES) \
 	$(POJS_FILES) \
 	$(nodist_po_DATA) \
-	po/POTFILES.*.in \
 	dist/shell/*.po \
 	src/ws/*.po \
 	po/cockpit*.pot \

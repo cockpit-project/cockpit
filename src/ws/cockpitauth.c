@@ -1598,7 +1598,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
             force_secure = connection ? !G_IS_SOCKET_CONNECTION (connection) : TRUE;
           cookie_name = application_cookie_name (cockpit_creds_get_application (creds));
           cookie_b64 = g_base64_encode ((guint8 *)session->cookie, strlen (session->cookie));
-          header = g_strdup_printf ("%s=%s; Path=/; %s HttpOnly",
+          header = g_strdup_printf ("%s=%s; Path=/; SameSite=Strict;%s HttpOnly",
                                     cookie_name, cookie_b64,
                                     force_secure ? " Secure;" : "");
           g_free (cookie_b64);
@@ -1734,7 +1734,7 @@ cockpit_auth_empty_cookie_value (const gchar *path, gboolean secure)
 
   /* this is completely security irrelevant, but security scanners complain
    * about the lack of Secure (rhbz#1677767) */
-  gchar *cookie_line = g_strdup_printf ("%s=deleted; PATH=/;%s HttpOnly",
+  gchar *cookie_line = g_strdup_printf ("%s=deleted; PATH=/; SameSite=strict;%s HttpOnly",
                                         cookie,
                                         secure ? " Secure;" : "");
 

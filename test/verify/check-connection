@@ -103,6 +103,7 @@ class TestConnection(MachineCase):
         # cookie should not be marked as secure, it's not https
         cookie = b.cookie("cockpit")
         self.assertTrue(cookie["httpOnly"])
+        self.assertEqual(cookie["sameSite"], "Strict")
         self.assertFalse(cookie["secure"])
 
         # take cockpit-ws down on the server page
@@ -421,12 +422,14 @@ class TestConnection(MachineCase):
         # cookie should be marked as secure
         self.assertTrue(cookie["httpOnly"])
         self.assertTrue(cookie["secure"])
+        self.assertEqual(cookie["sameSite"], "Strict")
         # same after logout
         b.logout()
         cookie = b.cookie("cockpit")
         self.assertEqual(cookie["value"], "deleted")
         self.assertTrue(cookie["httpOnly"])
         self.assertTrue(cookie["secure"])
+        self.assertEqual(cookie["sameSite"], "Strict")
 
         # http on localhost should not redirect to https
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))

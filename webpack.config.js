@@ -394,7 +394,7 @@ const babel_loader = {
 
 /* check if sassc is available, to avoid unintelligible error messages */
 try {
-    childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'inherit', 'inherit'] });
+    childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'pipe', 'inherit'] });
 } catch (e) {
     if (e.code === 'ENOENT') {
         console.error("ERROR: You need to install the 'sassc' package to build this project.");

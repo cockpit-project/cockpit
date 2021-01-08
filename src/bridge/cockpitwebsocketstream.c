@@ -64,10 +64,6 @@ typedef struct _CockpitWebSocketStream {
 
 } CockpitWebSocketStream;
 
-typedef struct {
-  CockpitChannelClass parent_class;
-} CockpitWebSocketStreamClass;
-
 G_DEFINE_TYPE (CockpitWebSocketStream, cockpit_web_socket_stream, COCKPIT_TYPE_CHANNEL);
 
 static void

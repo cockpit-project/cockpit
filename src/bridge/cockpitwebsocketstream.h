@@ -17,15 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_WEB_SOCKET_STREAM_H__
-#define COCKPIT_WEB_SOCKET_STREAM_H__
+#pragma once
 
-#include <gio/gio.h>
+#include "common/cockpitchannel.h"
 
-G_BEGIN_DECLS
-
-#define COCKPIT_TYPE_WEB_SOCKET_STREAM         (cockpit_web_socket_stream_get_type ())
-
-GType              cockpit_web_socket_stream_get_type     (void) G_GNUC_CONST;
-
-#endif /* COCKPIT_WEB_SOCKET_STREAM_H__ */
+#define COCKPIT_TYPE_WEB_SOCKET_STREAM (cockpit_web_socket_stream_get_type ())
+G_DECLARE_FINAL_TYPE (CockpitWebSocketStream, cockpit_web_socket_stream,
+                      COCKPIT, WEB_SOCKET_STREAM, CockpitChannel)

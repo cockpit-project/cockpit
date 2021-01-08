@@ -179,6 +179,32 @@ test_basic (TestCase *test,
 }
 
 static void
+test_bad_port (TestCase *test,
+               gconstpointer data)
+{
+  test->port = 1023;
+
+  g_autoptr(JsonObject) options = json_object_new ();
+  json_object_set_int_member (options, "port", test->port);
+  json_object_set_string_member (options, "payload", "websocket-stream1");
+  json_object_set_string_member (options, "path", "/socket");
+
+  g_autoptr(CockpitChannel) channel = g_object_new (COCKPIT_TYPE_WEB_SOCKET_STREAM,
+                                                    "transport", test->transport,
+                                                    "id", "444",
+                                                    "options", options,
+                                                    NULL);
+
+  g_autofree gchar *problem = NULL;
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "not-found");
+}
+
+static void
 test_bad_origin (TestCase *test,
                  gconstpointer data)
 {
@@ -369,6 +395,8 @@ main (int argc,
 
   g_test_add ("/websocket-stream/test_basic", TestCase, NULL,
               setup, test_basic, teardown);
+  g_test_add ("/websocket-stream/test_bad_port", TestCase, NULL,
+              setup, test_bad_port, teardown);
   g_test_add ("/websocket-stream/test_bad_origin", TestCase, NULL,
               setup, test_bad_origin, teardown);
   g_test_add ("/websocket/tls/authority-good", TestTls, fixture_tls_authority_good,

@@ -169,7 +169,6 @@ test_basic (TestCase *test,
 
   recv = mock_transport_pop_channel (test->transport, "444");
   cockpit_assert_bytes_eq (recv, "MESSAGE", 7);
-  g_bytes_unref (recv);
 
   cockpit_channel_close (channel, "ending");
 
@@ -300,7 +299,6 @@ test_tls_authority_good (TestTls *test,
 
   recv = mock_transport_pop_channel (test->transport, "444");
   cockpit_assert_bytes_eq (recv, "MESSAGE", 7);
-  g_bytes_unref (recv);
 
   cockpit_channel_close (channel, "ending");
 

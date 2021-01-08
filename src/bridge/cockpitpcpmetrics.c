@@ -513,7 +513,8 @@ convert_metric_description (CockpitPcpMetrics *self,
       return FALSE;
     }
 
-  rc = pmLookupName (1, (char **)&info->name, &info->id);
+  // HACK: cast to `void *` as pcp-5.2.3 changed it from `char **` to `const char **`
+  rc = pmLookupName (1, (void *)&info->name, &info->id);
   if (rc < 0)
     {
       if (not_found)

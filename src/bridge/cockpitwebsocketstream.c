@@ -257,7 +257,7 @@ on_socket_connect (GObject *object,
                    GAsyncResult *result,
                    gpointer user_data)
 {
-  CockpitWebSocketStream *self = COCKPIT_WEB_SOCKET_STREAM (user_data);
+  g_autoptr(CockpitWebSocketStream) self = user_data; /* capture the ref passed to the async op */
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *problem = "protocol-error";
   g_autofree const gchar **protocols = NULL;

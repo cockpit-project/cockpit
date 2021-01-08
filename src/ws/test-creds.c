@@ -25,6 +25,16 @@
 #include "common/cockpittest.h"
 
 static void
+assert_all_zeros (GBytes *bytes)
+{
+  gsize size;
+  const gchar *data = g_bytes_get_data (bytes, &size);
+
+  for (gsize i = 0; i < size; i++)
+    g_assert (data[i] == '\0');
+}
+
+static void
 test_password (void)
 {
   CockpitCreds *creds;
@@ -76,8 +86,8 @@ test_set_password (void)
   g_assert (NULL == cockpit_creds_get_password (creds));
 
   /* Still hold references to all old passwords, but they are cleared */
-  g_assert_cmpstr ("\252\252\252\252\252\252\252\252", ==, g_bytes_get_data (out, NULL));
-  g_assert_cmpstr ("\252\252\252\252\252\252", ==, g_bytes_get_data (two, NULL));
+  assert_all_zeros (out);
+  assert_all_zeros (two);
 
   cockpit_creds_unref (creds);
 }
@@ -109,7 +119,7 @@ test_poison (void)
 
   /* Even though we set a new password, still NULL */
   g_assert (NULL == cockpit_creds_get_password (creds));
-  g_assert_cmpstr ("\252\252\252\252\252\252\252\252", ==, g_bytes_get_data (out, NULL));
+  assert_all_zeros (out);
 
   cockpit_creds_unref (creds);
 }

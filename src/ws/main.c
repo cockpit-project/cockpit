@@ -129,7 +129,7 @@ main (int argc,
   g_autofree gchar *cert_path = NULL;
   g_autoptr(GMainLoop) loop = NULL;
   g_autofree gchar *login_html = NULL;
-  g_autofree gchar *login_po_html = NULL;
+  g_autofree gchar *login_po_js = NULL;
   g_autoptr(CockpitWebServer) server = NULL;
   CockpitWebServerFlags server_flags = COCKPIT_WEB_SERVER_NONE;
   CockpitHandlerData data;
@@ -196,8 +196,8 @@ main (int argc,
   data.branding_roots = (const gchar **)roots;
   login_html = g_strdup (DATADIR "/cockpit/static/login.html");
   data.login_html = (const gchar *)login_html;
-  login_po_html = g_strdup (DATADIR "/cockpit/static/login.po.html");
-  data.login_po_html = (const gchar *)login_po_html;
+  login_po_js = g_strdup (DATADIR "/cockpit/static/po.js");
+  data.login_po_js = (const gchar *)login_po_js;
 
   if (opt_for_tls_proxy)
     server_flags |= COCKPIT_WEB_SERVER_FOR_TLS_PROXY;

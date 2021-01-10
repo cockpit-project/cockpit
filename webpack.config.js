@@ -248,14 +248,17 @@ const info = {
 
 process.traceDeprecation = true;
 
-const webpack = require("webpack");
-const copy = require("copy-webpack-plugin");
 const childProcess = require('child_process');
-const html = require('html-webpack-plugin');
-const miniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require("path");
 const fs = require("fs");
+
+const webpack = require("webpack");
+
+const copy = require("copy-webpack-plugin");
+const html = require('html-webpack-plugin');
+const miniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
@@ -335,10 +338,25 @@ const opensans_fonts = ["Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "I
         { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
     ));
 
+function get_msggrep_options () {
+    // shell needs all manifest translations for search
+    if (section === 'shell/')
+        return ['-N', 'pkg/*/manifest.json.in'];
+    if (section === 'static/')
+        return ['-N', 'src/ws/*'];
+    return undefined;
+}
+
 const plugins = [
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
+    new CockpitPoPlugin({
+        subdir: section,
+        msggrep_options: get_msggrep_options(),
+        // login page does not have cockpit.js, but reads window.cockpit_po
+        wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,
+    }),
 ];
 
 if (section.startsWith('base1'))

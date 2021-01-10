@@ -100,7 +100,6 @@ function generateDeps(makefile, stats) {
 
     // Note that these are cheap ways of doing a set
     var inputs = { };
-    var po_locations = { };
     var outputs = { };
     var installs = { };
     var tests = { };
@@ -116,19 +115,19 @@ function generateDeps(makefile, stats) {
         var parts = module.identifier().split("!");
         parts.concat(module.fileDependencies || []).forEach(function(part) {
             var input = part.split("?")[0];
-            maybePushInput(inputs, po_locations, input);
+            maybePushInput(inputs, input);
 
             /* We distribute licenses, so treat them as inputs */
             moduleLicenses(input).forEach(function(input) {
-                maybePushInput(inputs, { }, input);
+                maybePushInput(inputs, input);
             });
         });
     });
 
     stats.compilation.fileDependencies.forEach(function(file) {
-        maybePushInput(inputs, po_locations, file);
+        maybePushInput(inputs, file);
         moduleLicenses(file).forEach(function(input) {
-            maybePushInput(inputs, { }, input);
+            maybePushInput(inputs, input);
         });
     });
 
@@ -168,6 +167,7 @@ function generateDeps(makefile, stats) {
             !endsWith(output, "shell/index.html") &&
             // cockpit-ws cannot currently serve compressed login page
             output.indexOf("static/login") < 0 &&
+            output.indexOf("static/po.") < 0 &&
             !endsWith(output, ".png") &&
             !endsWith(output, ".map") &&
             !endsWith(output, ".ttf") &&
@@ -186,7 +186,6 @@ function generateDeps(makefile, stats) {
 
     // Finalize all the sets into arrays
     inputs = Object.keys(inputs).sort();
-    po_locations = Object.keys(po_locations).sort();
     outputs = Object.keys(outputs).sort();
     installs = Object.keys(installs).sort();
     tests = Object.keys(tests).sort();
@@ -206,26 +205,9 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_INPUTS", inputs);
     makeArray(prefix + "_OUTPUTS", outputs);
 
-    lines.push(prefix + "_PO = " +
-               path.join(pkgdir, "po.js") +
-               " $(patsubst %," + path.join(pkgdir, "po.%.js") + ",$(LINGUAS))");
-    lines.push("");
-
-    installs.push("$(addsuffix .gz,$(" + prefix + "_PO))");
-
     makeArray(prefix + "_INSTALL", installs);
     makeArray(prefix + "_DEBUG", debugs);
     makeArray(prefix + "_TESTS", tests);
-
-    var filters = po_locations.map(function (l) { return "-N " + l; });
-    filters.push("-N pkg/base1/cockpit.js"); // FIXME: See #13906
-    if (prefix === "shell")
-        filters.push("$(addprefix -N ,$(shell find pkg/ -name manifest.json.in))");
-
-    lines.push(path.join(pkgdir, "%.po") + ": po/%.po");
-    lines.push("\t$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \\");
-    lines.push("\t$(MSGGREP) " + filters.join(" ") + " $< > $@.tmp && mv $@.tmp $@");
-    lines.push("");
 
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
     lines.push("");
@@ -242,7 +224,6 @@ function generateDeps(makefile, stats) {
 
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
-    lines.push("WEBPACK_PO += $(" + prefix + "_PO)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
     lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
@@ -273,9 +254,7 @@ function moduleLicenses(input) {
     return results;
 }
 
-function maybePushInput(inputs, po_locations, input) {
-    var po_location;
-
+function maybePushInput(inputs, input) {
     // Don't include or external refs
     if (endsWith(input, '/') || endsWith(input, 'manifest.json.in') ||
         input.indexOf("external ") === 0 || input.indexOf("multi ") === 0) {
@@ -301,13 +280,9 @@ function maybePushInput(inputs, po_locations, input) {
     if (input.indexOf(cwd) === 0)
         input = input.substr(cwd.length+1);
     if (srcdir && input.indexOf(srcdir) === 0) {
-        po_location = input.substr(srcdir.length+1);
         input = input.substr(srcdir.length+1);
-    } else {
-        po_location = input;
     }
 
-    po_locations[po_location] = true;
     inputs[input] = true;
 }
 

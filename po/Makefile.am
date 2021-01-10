@@ -26,16 +26,6 @@ src/ws/%.po: po/%.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(MSGFMT) -o $@.tmp $< && mv $@.tmp $@ && touch $@
 
-# Copy the empty translations to wherever they are needed
-%/po.js: po/po.empty.js
-	$(COPY_RULE)
-
-# Build a javascript file from a po
-po.%.js: %.po
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.empty.js -o $@.js.tmp $< && \
-	mv $@.js.tmp $@
-
 # Always build the binary gettext data
 all-local:: $(MO_FILES)
 
@@ -125,14 +115,11 @@ CLEANFILES += \
 	dist/shell/*.po \
 	src/ws/*.po \
 	po/cockpit*.pot \
-	po/po.empty.js.gz \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(PO_INPUTS) \
 	po/LINGUAS \
-	po/po.empty.js \
-	po/po2json \
 	po/its/polkit.its \
 	po/its/polkit.loc \
 	$(NULL)

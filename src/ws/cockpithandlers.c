@@ -372,6 +372,7 @@ send_login_html (CockpitWebResponse *response,
                  GHashTable *headers)
 {
   static const gchar *marker = "<meta insert_dynamic_content_here>";
+  static const gchar *po_marker = "/*insert_translations_here*/";
 
   CockpitWebFilter *filter;
   GBytes *environment;
@@ -411,7 +412,7 @@ send_login_html (CockpitWebResponse *response,
 
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
 
-  if (ws->login_po_html)
+  if (ws->login_po_js)
     {
       language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
       if (!language)
@@ -421,7 +422,7 @@ send_login_html (CockpitWebResponse *response,
           language = languages[0];
         }
 
-      po_bytes = cockpit_web_response_negotiation (ws->login_po_html, NULL, language, NULL, &error);
+      po_bytes = cockpit_web_response_negotiation (ws->login_po_js, NULL, language, NULL, &error);
       if (error)
         {
           g_message ("%s", error->message);
@@ -429,7 +430,7 @@ send_login_html (CockpitWebResponse *response,
         }
       else if (po_bytes)
         {
-          filter3 = cockpit_web_inject_new (marker, po_bytes, 1);
+          filter3 = cockpit_web_inject_new (po_marker, po_bytes, 1);
           g_bytes_unref (po_bytes);
           cockpit_web_response_add_filter (response, filter3);
           g_object_unref (filter3);

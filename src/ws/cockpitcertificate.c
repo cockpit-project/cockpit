@@ -312,8 +312,10 @@ cockpit_certificate_create_selfsigned (GError **error)
   cert_path = NULL;
 
 out:
-  cockpit_memory_clear (key_data, -1);
-  cockpit_memory_clear (cert_data, -1);
+  if (key_data)
+    cockpit_memory_clear (key_data, -1);
+  if (cert_data)
+    cockpit_memory_clear (cert_data, -1);
   if (tmp_key)
     g_unlink (tmp_key);
   if (tmp_pem)

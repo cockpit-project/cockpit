@@ -633,8 +633,12 @@ reply_authorize_challenge (CockpitSession *session)
 
   if (response && !cookie)
     {
-      cockpit_memory_clear (session->authorization, -1);
-      g_free (session->authorization);
+      if (session->authorization)
+        {
+          cockpit_memory_clear (session->authorization, -1);
+          g_free (session->authorization);
+        }
+
       session->authorization = g_strdup (response);
       ret = TRUE;
       goto out;

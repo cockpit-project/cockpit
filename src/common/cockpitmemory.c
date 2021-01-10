@@ -28,8 +28,6 @@
 #include <string.h>
 #include <errno.h>
 
-int      cockpit_secmem_drain = 0;
-
 /**
  * cockpit_memory_clear:
  *
@@ -40,33 +38,16 @@ int      cockpit_secmem_drain = 0;
  *
  * This is very similar to memset but we take extra measures to
  * prevent the compiler from optimizing it away.
- *
- * See http://www.dwheeler.com/secure-class/Secure-Programs-HOWTO/protect-secrets.html
  */
 
 void
 cockpit_memory_clear (void * data,
                       ssize_t len)
 {
-  volatile char *vp;
-
-  if (!data)
-    return;
-
   if (len < 0)
     len = strlen (data);
 
-  /* Defeats some optimizations */
-  memset (data, 0xAA, len);
-  memset (data, 0xBB, len);
-
-  /* Defeats others */
-  vp = (volatile char *)data;
-  while (len--)
-    {
-      cockpit_secmem_drain |= *vp;
-      *(vp++) = 0xAA;
-    }
+  explicit_bzero (data, len);
 }
 
 static void

@@ -811,11 +811,6 @@ test_tls_authority_bad (TestTls *test,
   const gchar *control;
   GBytes *bytes;
   JsonObject *resp;
-  gchar *expected_pem = NULL;
-  gchar *expected_json = NULL;
-
-  g_object_get (test->certificate, "certificate-pem", &expected_pem, NULL);
-  g_assert_true (expected_pem != NULL);
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);
@@ -834,8 +829,6 @@ test_tls_authority_bad (TestTls *test,
                           NULL);
 
   cockpit_expect_log ("cockpit-bridge", G_LOG_LEVEL_MESSAGE,
-                      "*Unacceptable TLS certificate:*untrusted-issuer*");
-  cockpit_expect_log ("cockpit-bridge", G_LOG_LEVEL_MESSAGE,
                       "*Unacceptable TLS certificate");
 
   json_object_unref (options);
@@ -846,22 +839,15 @@ test_tls_authority_bad (TestTls *test,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), NULL, bytes);
   g_bytes_unref (bytes);
 
-  while (mock_transport_count_sent (test->transport) < 2)
+  while (mock_transport_count_sent (test->transport) < 1)
     g_main_context_iteration (NULL, TRUE);
 
   resp = mock_transport_pop_control (test->transport);
-  cockpit_assert_json_eq (resp, "{\"command\":\"ready\",\"channel\":\"444\"}");
-
-  resp = mock_transport_pop_control (test->transport);
-  expected_json = g_strdup_printf ("{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", "
-                                   " \"rejected-certificate\":\"%s\"}", expected_pem);
-  cockpit_assert_json_eq (resp, expected_json);
+  cockpit_assert_json_eq (resp, "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\"}");
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
   g_object_unref (channel);
   g_assert (channel == NULL);
-  g_free (expected_pem);
-  g_free (expected_json);
 }
 
 int

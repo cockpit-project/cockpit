@@ -987,7 +987,8 @@ static gboolean
 should_suppress_request_error (GError *error,
                                gsize received)
 {
-  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF) ||
+      g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS))
     {
       g_debug ("request error: %s", error->message);
       return TRUE;

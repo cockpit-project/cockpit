@@ -68,12 +68,12 @@ class HostSwitcherHelpers:
         b.click("button:contains('Add new host')")
         b.wait_popup('hosts_setup_server_dialog')
         b.set_val('#add-machine-address', address)
-        self.add_machine_finish(b, known_host=known_host)
+        self.add_machine_finish(b, address, known_host=known_host)
 
-    def add_machine_finish(self, b, known_host=False):
+    def add_machine_finish(self, b, address, known_host=False):
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
-            b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time" % address)
             b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_popdown('hosts_setup_server_dialog')
 
@@ -376,7 +376,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.assertNotEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
         b.set_val('#add-machine-user', 'admin')
         b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_popdown('hosts_setup_server_dialog')
 

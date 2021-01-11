@@ -2960,11 +2960,12 @@ PageNetworkInterface.prototype = {
             var rows = { };
             var member_ifaces = { };
 
+            $('#network-interface-members').prop('hidden', true);
             tbody.empty();
             self.rx_series.clear_instances();
             self.tx_series.clear_instances();
 
-            var cs = connection_settings(con);
+            var cs = con && connection_settings(con);
             if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
                 self.rx_series.add_instance(self.dev_name);
                 self.tx_series.add_instance(self.dev_name);
@@ -3111,9 +3112,7 @@ PageNetworkInterface.prototype = {
             update_network_privileged();
         }
 
-        $('#network-interface-members').prop('hidden', true);
-        if (self.main_connection)
-            update_connection_members(self.main_connection);
+        update_connection_members(self.main_connection);
     }
 
 };

@@ -218,7 +218,7 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_TESTS", tests);
 
     var filters = po_locations.map(function (l) { return "-N " + l; });
-    filters.push("-N src/base1/cockpit.js"); // FIXME: See #13906
+    filters.push("-N pkg/base1/cockpit.js"); // FIXME: See #13906
     if (prefix === "shell")
         filters.push("$(addprefix -N ,$(shell find pkg/ -name manifest.json.in))");
 

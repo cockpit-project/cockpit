@@ -593,8 +593,6 @@ function HostKey(dialog, problem) {
     var self = this;
     var error_options = null;
     var key = null;
-    var allow_change = (problem == "unknown-hostkey" ||
-                        problem == "unknown-host");
 
     function add_key() {
         var q;
@@ -633,15 +631,18 @@ function HostKey(dialog, problem) {
         var options = {};
         var match_problem = problem;
         var fp;
+        var key_type;
 
         if (error_options) {
             key = error_options["host-key"];
             fp = error_options["host-fingerprint"];
+            if (key)
+                key_type = key.split(" ")[1];
         }
 
         dialog.render({
             context_title : dialog.context_title,
-            key : fp,
+            key : key ? { type: key_type, fingerprint: fp } : null,
         });
 
         if (!key) {
@@ -667,8 +668,8 @@ function HostKey(dialog, problem) {
                     });
 
             dialog.get_sel().dialog("wait", promise);
-        } else if (allow_change) {
-            dialog.get_sel(".modal-footer>.pf-m-primary").on("click", add_key);
+        } else {
+            dialog.get_sel(".modal-footer>.apply").on("click", add_key);
         }
     }
 

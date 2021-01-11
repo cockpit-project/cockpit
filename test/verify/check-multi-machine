@@ -68,8 +68,9 @@ def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
     if new:
         b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
         if not known_host:
-            b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
+            b.wait_in_text('#troubleshoot-dialog', "You are connecting to")
+            b.wait_in_text('#troubleshoot-dialog', "for the first time.")
+            b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
     if password:
         b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
         b.set_val('#login-custom-password', password)
@@ -633,10 +634,8 @@ class TestMultiMachine(MachineCase):
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog {}'.format(self.default_btn_class), "Close")
-        b.wait_in_text('#troubleshoot-dialog h4', "Incorrect host key")
-        b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
-        b.click("#troubleshoot-dialog {}".format(self.default_btn_class))
+        b.wait_in_text('#troubleshoot-dialog', "10.111.113.2 key changed")
+        b.click("#troubleshoot-dialog button:contains(Cancel)")
         b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1)
 
@@ -645,12 +644,8 @@ class TestMultiMachine(MachineCase):
         break_hostkey(m1, "10.111.113.2")
 
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog {}'.format(self.default_btn_class), "Close")
-        b.wait_in_text('#troubleshoot-dialog h4', "Incorrect host key")
-        b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
-        # only fixed in 141 (PR #6720)
-        b.click("#troubleshoot-dialog button")
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_in_text('#troubleshoot-dialog', "10.111.113.2 key changed")
+        b.click("#troubleshoot-dialog button:contains(Cancel)")
         fix_hostkey(m1)
 
         # Bad cockpit
@@ -680,9 +675,8 @@ class TestMultiMachine(MachineCase):
         # Clear host key
         fix_hostkey(m1)
         start_machine_troubleshoot(b)
-        b.wait_in_text('#troubleshoot-dialog h4', "Unknown host key")
-        b.wait_in_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Connect")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
+        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#troubleshoot-dialog button:contains(Accept key and connect)')
         b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
         b.set_val('#login-custom-password', "foobar")
         b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
@@ -750,9 +744,8 @@ class TestMultiMachine(MachineCase):
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        b.wait_in_text('#troubleshoot-dialog h4', "Unknown host key")
-        b.wait_in_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Connect")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
+        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#troubleshoot-dialog button:contains(Accept key and connect)')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.set_val("#login-custom-password", "alt-password")
         b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
@@ -795,8 +788,8 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog', "new host")
         b.set_val('#add-machine-user', "fred")
         b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
-        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
+        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
         b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
 
         # There is no key yet.  Create and authorize it.
@@ -894,8 +887,8 @@ class TestMultiMachine(MachineCase):
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
-        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
+        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
         b.wait_in_text('#troubleshoot-dialog', "The SSH key")
         b.wait_not_visible('.password-change-advice')
         b.wait_not_visible('.login-setup-auto')

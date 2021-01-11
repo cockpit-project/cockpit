@@ -31,7 +31,7 @@ def add_machine(b, address, password):
     b.wait_popup('hosts_setup_server_dialog')
     b.set_val('#add-machine-address', address)
     b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-    b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+    b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time." % address)
     b.click('#hosts_setup_server_dialog .pf-m-primary')
 
     if password:

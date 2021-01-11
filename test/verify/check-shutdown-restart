@@ -114,7 +114,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_popup('troubleshoot-dialog')
         b2.wait_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Add")
         b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b2.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.1 for the first time.")
         b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b2.wait_in_text('#troubleshoot-dialog', "Unable to log in")
         b2.set_val("#login-custom-password", "foobar")

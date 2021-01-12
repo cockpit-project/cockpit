@@ -26,8 +26,7 @@ test -z "$srcdir" && srcdir=.
 PKG_NAME="Cockpit"
 
 (test -f $srcdir/src/ws/cockpit.service.in) || {
-    echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
-    echo " top-level $PKG_NAME directory"
+    echo "**Error**: Directory "\`$srcdir\'" does not look like the top-level $PKG_NAME directory"
     exit 1
 }
 

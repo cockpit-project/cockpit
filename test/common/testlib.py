@@ -236,11 +236,11 @@ class Browser:
         return self.call_js_func('ph_text', selector)
 
     def attr(self, selector, attr):
-        self.wait_present(selector)
+        self._wait_present(selector)
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
-        self.wait_present(selector + ':not([disabled])')
+        self._wait_present(selector + ':not([disabled])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def get_checked(self, selector):
@@ -312,7 +312,7 @@ class Browser:
 
         # translate text value into <option value=".."> ID
         text_selector = "{0} option[data-value{1}='{2}']".format(selector, substring and "*" or "", value)
-        self.wait_present(text_selector)
+        self._wait_present(text_selector)
         value_id = self.attr(text_selector, "value")
         self.set_val(selector, value_id)
         self.wait_val(selector, value_id)
@@ -341,7 +341,7 @@ class Browser:
         path = ''
         index = 0
         self.click("{0} > div button".format(group_identifier))
-        self.wait_present(group_identifier + " .pf-c-select__menu")
+        self._wait_present(group_identifier + " .pf-c-select__menu")
         for path_part in filter(None, location.split('/')):
             path += '/' + path_part
             file_item_selector = file_item_selector_template.format(group_identifier, path)
@@ -392,7 +392,7 @@ class Browser:
     def is_present(self, selector):
         return self.call_js_func('ph_is_present', selector)
 
-    def wait_present(self, selector):
+    def _wait_present(self, selector):
         self.wait_js_func('ph_is_present', selector)
 
     def wait_not_present(self, selector):
@@ -402,7 +402,7 @@ class Browser:
         return self.call_js_func('ph_is_visible', selector)
 
     def wait_visible(self, selector):
-        self.wait_present(selector)
+        self._wait_present(selector)
         self.wait_js_func('ph_is_visible', selector)
 
     def wait_val(self, selector, val):
@@ -414,19 +414,19 @@ class Browser:
         self.wait_js_func('!ph_has_val', selector, val)
 
     def wait_attr(self, selector, attr, val):
-        self.wait_present(selector)
+        self._wait_present(selector)
         self.wait_js_func('ph_has_attr', selector, attr, val)
 
     def wait_attr_contains(self, selector, attr, val):
-        self.wait_present(selector)
+        self._wait_present(selector)
         self.wait_js_func('ph_attr_contains', selector, attr, val)
 
     def wait_attr_not_contains(self, selector, attr, val):
-        self.wait_present(selector)
+        self._wait_present(selector)
         self.wait_js_func('!ph_attr_contains', selector, attr, val)
 
     def wait_not_attr(self, selector, attr, val):
-        self.wait_present(selector)
+        self._wait_present(selector)
         self.wait_js_func('!ph_has_attr', selector, attr, val)
 
     def wait_not_visible(self, selector):
@@ -506,7 +506,7 @@ class Browser:
 
         while True:
             try:
-                self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+                self._wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
                 self.wait_not_visible(".curtains-ct")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
@@ -520,7 +520,7 @@ class Browser:
                 raise
 
         self.switch_to_frame(frame)
-        self.wait_present("body")
+        self._wait_present("body")
         self.wait_visible("body")
 
     def leave_page(self):
@@ -577,14 +577,14 @@ class Browser:
         self.try_login(user, password, superuser=superuser, legacy_authorized=legacy_authorized)
 
         self.expect_load()
-        self.wait_present('#content')
+        self._wait_present('#content')
         self.wait_visible('#content')
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
     def logout(self):
         self.switch_to_top()
-        self.wait_present("#navbar-dropdown")
+        self._wait_present("#navbar-dropdown")
         self.wait_visible("#navbar-dropdown")
         if self.is_visible("button#machine-reconnect"):
             # happens when shutting down cockpit or rebooting machine
@@ -606,7 +606,7 @@ class Browser:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
         self.expect_load()
-        self.wait_present('#content')
+        self._wait_present('#content')
         self.wait_visible('#content')
         if path:
             if path.startswith("/@"):

@@ -38,7 +38,7 @@ class HostSwitcherHelpers:
         b.wait_js_cond('ph_select("#hosts_setup_server_dialog datalist option").length == {0}'.format(len(expected)))
         # Check that we rendered all expected hosts
         for address in expected:
-            b.wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
+            b._wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
 
     def wait_host_addresses(self, b, expected):
         b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))

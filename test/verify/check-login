@@ -539,7 +539,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
         b.expect_load()
-        b.wait_present("#content")
 
         b.wait_visible("#early-failure")
         if safari and cacert:

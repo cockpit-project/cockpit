@@ -669,7 +669,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
                     # Our custom select does not respond on the click function
-                    b.wait_present(".pf-c-modal-box option[data-value={0}]:disabled".format(self.pool_name))
+                    b._wait_present(".pf-c-modal-box option[data-value={0}]:disabled".format(self.pool_name))
                     return self
 
                 # Insert name for the new volume
@@ -2090,7 +2090,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def checkPXENotAvailableSession(self):
             self.browser.set_checked("#connectionName-{0}".format(self.connection), True)
             # Our custom select does not respond on the click function
-            self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
+            self.browser._wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
 
         def createAndVerifyVirtInstallArgs(self):

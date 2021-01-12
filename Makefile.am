@@ -27,6 +27,7 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	$(srcdir)/Makefile \
+	node_modules/README \
 	cockpit-cache-*.tar.xz \
 	$(NULL)
 
@@ -327,9 +328,12 @@ COMMITTED_DIST = \
 	test \
 	$(NULL)
 
+node_modules/README: tools/README.node_modules
+	$(COPY_RULE)
+
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
-dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
+dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json) node_modules/README
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball

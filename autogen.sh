@@ -41,8 +41,8 @@ if test ${npm_version%%.*} -lt 3; then
   exit 1
 fi
 
-# Development dependencies: See node_modules/README
-npm prune
+# Development dependencies: See tools/README.node_modules
+test -d node_modules && npm prune
 
 retries='3'
 while ! npm install; do
@@ -55,7 +55,7 @@ while ! npm install; do
     exit 1
   fi
 
-  find node_modules -mindepth 1 -not -path node_modules/README -delete
+  rm -rf node_modules
 done
 
 rm -rf autom4te.cache

@@ -103,7 +103,6 @@ class TestMetrics(MachineCase):
         login(self)
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-history-heading", "CPU")
-        b.wait_present(".metrics-hour .metrics-data-cpu")
 
         # only shows current hour
         b.wait_js_func("ph_count_check", ".metrics-hour", 1)
@@ -157,7 +156,6 @@ class TestMetrics(MachineCase):
         login(self)
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-history-heading", "CPU")
-        b.wait_present(".metrics-hour .metrics-data-cpu")
 
         # Big spike lasting 3 minutes
         self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 25), 0.9)
@@ -188,7 +186,6 @@ class TestMetrics(MachineCase):
         login(self)
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-history-heading", "CPU")
-        b.wait_present(".metrics-hour .metrics-data-cpu")
 
         # Test network - Big spike lasting 2 minutes
         self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 3), 0.5)
@@ -243,7 +240,6 @@ class TestMetrics(MachineCase):
         prepareArchive(m, "memory.tar.gz", 1600248000)
         login(self)
         b.wait_in_text(".metrics-history-heading", "CPU")
-        b.wait_present(".metrics-hour .metrics-data-cpu")
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
         self.assertLessEqual(getMaximumSpike(b, "memory", False, 1600236000000, 44), 0.3)

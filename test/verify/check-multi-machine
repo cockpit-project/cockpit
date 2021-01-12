@@ -897,7 +897,6 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
         b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
         b.wait_in_text('#troubleshoot-dialog', "The SSH key")
-        b.wait_present('.password-change-advice')
         b.wait_not_visible('.password-change-advice')
         b.wait_not_visible('.login-setup-auto')
 

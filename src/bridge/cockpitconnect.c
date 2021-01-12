@@ -116,11 +116,10 @@ socket_client_connect_done (GObject      *object,
                             GAsyncResult *result,
                             gpointer      user_data)
 {
-  g_autoptr(GSocketConnection) connection;
   g_autoptr(GTask) task = user_data;
   g_autoptr(GError) error = NULL;
 
-  connection = g_socket_client_connect_finish (G_SOCKET_CLIENT (object), result, &error);
+  g_autoptr(GSocketConnection) connection = g_socket_client_connect_finish (G_SOCKET_CLIENT (object), result, &error);
   if (connection != NULL)
     {
       GIOStream *stream; /* weak */

@@ -1234,8 +1234,10 @@ spawn_setup (gpointer data)
   prctl (PR_SET_PDEATHSIG, SIGHUP);
 #endif
 
-  if (flags & COCKPIT_PIPE_STDERR_TO_STDOUT)
-    dup2 (1, 2);
+  if (flags & COCKPIT_PIPE_STDERR_TO_STDOUT) {
+    int r = dup2 (1, 2);
+    g_assert (r == 2); /* that should really never fail */
+  }
 }
 
 /**

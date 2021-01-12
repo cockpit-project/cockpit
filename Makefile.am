@@ -74,6 +74,31 @@ V_TAR = $(V_TAR_$(V))
 V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
 V_TAR_0 = @echo "  TAR     " $@;
 
+# We set SKIP_NODE to 1 if we should avoid buidling anything that
+# depends on node_modules/ having been created.  This allows doing
+# variable expansions like x_DATA = $(FILES$(SKIP_NODE)) which will
+# expand to $(FILES) in the normal case, and to the empty variable
+# $(FILES1) in the case SKIP_NODE is set.  This is similar to the tricks
+# used by automake for verbosity control (ie: V=1 et al).
+#
+# We give the user explicit control over this process via the NO_NPM
+# make variable.  As a user you should use `make NO_NPM=1` or `make
+# NO_NPM=0` to force the value one way or the other.  Otherwise, we
+# guess, depending on the presence of the `node_modules` directory.
+SKIP_NODE := $(shell "$(top_srcdir)/tools/should-skip-node" "$(NO_NPM)")
+SKIP_NODE_ERROR = $(error Couldn't decide if we should depend on node_modules or not)
+SKIP_NODE_SHELLSTATUS_0 = ok
+SKIP_NODE_CHECK_SHELLSTATUS := $(SKIP_NODE_ERROR$(SKIP_NODE_SHELLSTATUS_$(.SHELLSTATUS)))
+
+# Make sure this fails early, and with a good message
+distdir: $(BUILT_SOURCES)
+	@if test -n "$(SKIP_NODE)"; then \
+	  echo; \
+	  echo "Can't dist cockpit without node_modules.  Try running tools/npm-update."; \
+	  echo; \
+	  exit 1; \
+	fi
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am
 
 MV = mv -f
 
@@ -173,7 +198,7 @@ WEBPACK_PO =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
-WEBPACK_STAMPS = $(WEBPACK_PACKAGES:%=dist/%/stamp)
+WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)

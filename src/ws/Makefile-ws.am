@@ -1,7 +1,7 @@
 LOGIN_PO_FILES = $(patsubst %,dist/static/login.po.%.html,$(LINGUAS))
 
 staticdir = $(datadir)/cockpit/static
-nodist_static_DATA = dist/static/login.po.html $(LOGIN_PO_FILES)
+nodist_static_DATA = dist/static/login.po.html $(LOGIN_PO_FILES$(SKIP_NODE))
 
 dist/static/login.po.html: src/ws/po.empty.html
 	$(COPY_RULE)

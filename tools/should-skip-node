@@ -1,0 +1,30 @@
+#!/bin/sh -eu
+
+# Print '1' if the building of node/npm-dependent components should be skipped
+
+srcdir=`dirname $0`
+test -z "$srcdir" && srcdir=.
+top_srcdir="${srcdir}/.."
+
+(test -f "${top_srcdir}/src/ws/cockpit.service.in") || {
+    echo "**Error**: Directory '${top_srcdir}' does not look like the top-level Cockpit directory"
+    exit 1
+}
+
+case "${1:-}" in
+  1)
+    echo 1;
+    ;;
+
+  0)
+    ;;
+
+  '')
+    test -d "${top_srcdir}/node_modules" || echo 1
+    ;;
+
+  *)
+    echo "Invalid value for NO_NPM: $1" >&2
+    exit 1
+    ;;
+esac

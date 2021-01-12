@@ -81,7 +81,10 @@ EXTRA_DIST += \
 	doc/guide/version.in \
 	$(NULL)
 
-noinst_DATA += \
+# we require fonts from `npm install` to build the docs
+noinst_DATA += $(GUIDE_HTML($SKIP_NODE))
+
+GUIDE_HTML = \
 	dist/guide/html/index.html \
 	dist/guide/index.html
 

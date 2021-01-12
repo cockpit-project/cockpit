@@ -236,6 +236,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
+        # Since apparmor 2.13, the new capabilities 'bpf' and 'perfmon' has been added. This has been causing apparmor denial when a VM is defined and started
+        # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=979964
+        if m.image in ["debian-testing"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="bpf".*')
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="perfmon".*')
+
         return args
 
     # Preparations for iscsi storage pool; return the system's initiator name

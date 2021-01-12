@@ -110,7 +110,7 @@ export class ListingTable extends React.Component {
         if (props.row.extraClasses)
             className = props.row.extraClasses.join(' ');
 
-        return <RowWrapper {...props} data-row-id={props.row.rowId} className={className} />;
+        return <RowWrapper {...props} {...props.row.props} data-row-id={props.row.rowId} className={className} />;
     }
 
     reformatColumns(columns, isExpandable) {

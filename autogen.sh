@@ -34,28 +34,7 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
-npm_version=$(npm --version)
-if test ${npm_version%%.*} -lt 3; then
-  echo npm version greater than 3.0.0 required, but you have ${npm_version} installed
-  exit 1
-fi
-
-# Development dependencies: See tools/README.node_modules
-test -d node_modules && npm prune
-
-retries='3'
-while ! npm install; do
-  # npm install is flaky, and when it fails, it usually leaves
-  # node_modules in a corrupt state, so if that happens, start over
-  # again from scratch
-  retries=$((${retries}-1))
-  if test ${retries} -eq 0; then
-    echo 'failed to install nodejs modules'
-    exit 1
-  fi
-
-  rm -rf node_modules
-done
+test "${NO_NPM:-}" != "1" && tools/npm-install
 
 rm -rf autom4te.cache
 

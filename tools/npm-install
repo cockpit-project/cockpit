@@ -1,0 +1,36 @@
+#!/bin/sh -eux
+
+# Development dependencies: See tools/README.node_modules
+
+srcdir=`dirname $0`
+test -z "$srcdir" && srcdir=.
+top_srcdir="${srcdir}/.."
+
+(test -f "${top_srcdir}/src/ws/cockpit.service.in") || {
+    echo "**Error**: Directory '${top_srcdir}' does not look like the top-level Cockpit directory"
+    exit 1
+}
+
+cd "${top_srcdir}"
+
+npm_version=$(npm --version)
+if test ${npm_version%%.*} -lt 3; then
+  echo npm version greater than 3.0.0 required, but you have ${npm_version} installed
+  exit 1
+fi
+
+test -d node_modules && npm prune
+
+retries='3'
+while ! npm install; do
+  # npm install is flaky, and when it fails, it usually leaves
+  # node_modules in a corrupt state, so if that happens, start over
+  # again from scratch
+  retries=$((${retries}-1))
+  if test ${retries} -eq 0; then
+    echo 'failed to install nodejs modules'
+    exit 1
+  fi
+
+  rm -rf node_modules
+done

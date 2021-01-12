@@ -242,11 +242,11 @@ function vms(state, action) {
     case UPDATE_DOMAIN_SNAPSHOTS: {
         const { connectionName, domainPath, snaps } = action.payload;
         const index = getFirstIndexOfResource(state, 'id', domainPath, connectionName);
+        const indexedVm = findVmToUpdate(state, { connectionName, id: domainPath });
 
-        if (index < 0)
+        if (index < 0 || !indexedVm)
             return state;
 
-        const indexedVm = findVmToUpdate(state, { connectionName, id: domainPath });
         const updatedVm = Object.assign({}, state[index]);
 
         updatedVm.snapshots = snaps;

@@ -80,10 +80,18 @@
                         </div>
                         <h4 class="pf-c-alert__title realms-op-message"></h4>
                     </div>
-                    <button class="pf-c-button pf-m-primary realms-op-apply" translate="yes">Next</button>
+                    <button class="pf-c-button pf-m-primary pf-m-progress pf-m-in-progress realms-op-apply">
+                        <span class="realms-op-spinner pf-c-button__progress">
+                            <span class="pf-c-spinner pf-m-md" role="progressbar" aria-valuetext="Loading...">
+                                <span class="pf-c-spinner__clipper"></span>
+                                <span class="pf-c-spinner__lead-ball"></span>
+                                <span class="pf-c-spinner__tail-ball"></span>
+                            </span>
+                        </span>
+                        <span translate="yes">Next</span>
+                    </button>
                     <button class="pf-c-button pf-m-link realms-op-cancel" translate="yes">Cancel</button>
                     <span class="realms-op-wait-message" translate="yes" hidden>This may take a while</span>
-                    <div class="realms-op-spinner spinner pull-right"></div>
                 </footer>
             </div>
         </div>

@@ -82,7 +82,7 @@ class TestServices(MachineCase):
         self.browser.wait_in_text(self.svc_sel(service), state_new)
 
     def wait_page_load(self):
-        self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
     def wait_service_in_panel(self, service, title):
         self.wait_service_state(service, title)
@@ -746,7 +746,7 @@ class TestTimers(MachineCase):
         return 'li[data-goto-unit="%s"]' % service
 
     def wait_page_load(self):
-        self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
     def testCreate(self):
         m = self.machine

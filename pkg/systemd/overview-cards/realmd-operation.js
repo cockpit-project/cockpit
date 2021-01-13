@@ -258,6 +258,10 @@ function instance(realmd, mode, realm, state) {
     function update() {
         var message;
 
+        if (operation)
+            $(".realms-op-apply").addClass("pf-m-in-progress");
+        else
+            $(".realms-op-apply").removeClass("pf-m-in-progress");
         $(".realms-op-spinner").toggle(!!operation);
         $(".realms-op-wait-message").toggle(!!operation);
         $(".realms-op-field").prop('disabled', !!operation);

@@ -337,6 +337,7 @@ function create_timer() {
     var error = check_inputs();
     if (error) {
         $('#create-timer-spinner').prop("hidden", true);
+        $('#timer-save-button').removeClass("pf-m-in-progress");
         return;
     }
     timer_unit.name = $("#servicename")
@@ -409,10 +410,12 @@ function create_timer_file() {
                 systemd_client.call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false])
                         .then(() => systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null).then(() => {
                             $('#create-timer-spinner').prop("hidden", true);
+                            $('#timer-save-button').removeClass("pf-m-in-progress");
                             $("#timer-dialog").modal("toggle");
                         }))
                         .catch(error => {
                             $('#create-timer-spinner').prop("hidden", true);
+                            $('#timer-save-button').removeClass("pf-m-in-progress");
                             console.warn("Failed to enable timer unit:", error.toString());
                         });
                 // start calendar timers
@@ -423,6 +426,7 @@ function create_timer_file() {
             })
             .catch(error => {
                 $('#create-timer-spinner').prop("hidden", false);
+                $('#timer-save-button').addClass("pf-m-in-progress");
                 console.log(error.toString());
             });
 }
@@ -464,9 +468,11 @@ export function timerDialogSetup() {
 
     timer_init();
     $('#create-timer-spinner').prop("hidden", true);
+    $('#timer-save-button').removeClass("pf-m-in-progress");
 
     $("#timer-dialog").on("click", "#timer-save-button", function() {
         $('#create-timer-spinner').prop("hidden", false);
+        $('#timer-save-button').addClass("pf-m-in-progress");
         create_timer();
     });
 

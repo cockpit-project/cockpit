@@ -481,7 +481,7 @@ class TestSystemInfo(MachineCase):
         self.restore_dir("/usr/local/bin")
 
         self.login_and_go('/system/hwinfo')
-        b.wait_visible('#hwinfo th:contains(CPU)')
+        b.wait_in_text("#hwinfo", "CPU")
 
         def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
             m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
@@ -612,7 +612,6 @@ fi
 
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', superuser=False)
-        b.wait_visible('#hwinfo th:contains(CPU)')
         b.wait_visible('#cpu_mitigations[disabled]')
         b.mouse('#tip-cpu-security', 'mouseenter')
         b.wait_text('.pf-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')

@@ -30,10 +30,6 @@ class NeworkTestSuite(SeleniumTest):
             veth.left.con_up()
             self.wait_xpath("//tr[@data-interface='{}']".format(veth.left.name))
 
-    def testGraphs(self):
-        self.wait_id("networking-interfaces", cond=visible)
-        self.wait_id("networking-tx-graph", cond=visible)
-
     def testSanityVlans(self):
         self.click(self.wait_id("networking-add-vlan", cond=clickable))
         self.click(self.wait_id("network-vlan-settings-cancel", cond=clickable))

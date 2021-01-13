@@ -25,14 +25,15 @@ import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import cockpit from 'cockpit';
 import { superuser } from 'superuser';
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { NetworkPlots } from "./plots";
 
 import firewall from './firewall-client.js';
 import * as utils from './utils';
 import * as service from 'service';
 import { v4 as uuidv4 } from 'uuid';
+import { PlotState } from 'plot';
 
 import { mustache } from 'mustache';
-import * as plot from 'plot.js';
 
 /* jQuery extensions */
 import 'patterns';
@@ -1463,22 +1464,6 @@ function render_active_connection(dev, with_link, hide_link_local) {
     return $('<span>').text(parts.join(", "));
 }
 
-function network_plot_setup_hook(pl) {
-    var axes = pl.getAxes();
-    if (axes.yaxis.datamax < 100000)
-        axes.yaxis.options.max = 100000;
-    else
-        axes.yaxis.options.max = null;
-    axes.yaxis.options.min = 0;
-}
-
-function make_network_plot_post_hook(unit) {
-    return function (pl) {
-        var axes = pl.getAxes();
-        $(unit).text(plot.bits_per_sec_tick_unit(axes.yaxis));
-    };
-}
-
 function update_network_privileged() {
     $(".network-privileged").toggle(!!superuser.allowed);
     $(".network-privileged-disabled").toggleClass("disabled", !superuser.allowed);
@@ -1628,64 +1613,17 @@ PageNetworking.prototype = {
                     $("#networking-add-team").attr("data-test-stable", "yes");
                 });
 
-        function highlight_netdev_row(event, id) {
+        function highlight_netdev_row(id) {
             $('#networking-interfaces tr').removeClass('highlight-ct');
             if (id) {
                 $('#networking-interfaces tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
             }
         }
 
-        var rx_plot_data = {
-            direct: "network.interface.in.bytes",
-            internal: "network.interface.rx",
-            units: "bytes",
-            derive: "rate",
-            threshold: 200
-        };
+        this.plot_state = new PlotState();
 
-        var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
-        $.extend(rx_plot_options.grid, {
-            hoverable: true,
-            autoHighlight: false
-        });
-        rx_plot_options.setup_hook = network_plot_setup_hook;
-        rx_plot_options.post_hook = make_network_plot_post_hook("#networking-rx-unit");
-        this.rx_plot = new plot.Plot($("#networking-rx-graph"), 300);
-        this.rx_plot.set_options(rx_plot_options);
-        this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
-        this.rx_plot.start_walking();
-        $(this.rx_series).on('hover', highlight_netdev_row);
-
-        var tx_plot_data = {
-            direct: "network.interface.out.bytes",
-            internal: "network.interface.tx",
-            units: "bytes",
-            derive: "rate",
-            threshold: 200
-        };
-
-        var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
-        $.extend(tx_plot_options.grid, {
-            hoverable: true,
-            autoHighlight: false
-        });
-        tx_plot_options.setup_hook = network_plot_setup_hook;
-        tx_plot_options.post_hook = make_network_plot_post_hook("#networking-tx-unit");
-        this.tx_plot = new plot.Plot($("#networking-tx-graph"), 300);
-        this.tx_plot.set_options(tx_plot_options);
-        this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
-        this.tx_plot.start_walking();
-        $(this.tx_series).on('hover', highlight_netdev_row);
-
-        $(cockpit).on('resize', function () {
-            self.rx_plot.resize();
-            self.tx_plot.resize();
-        });
-
-        var plot_controls = plot.setup_plot_controls($('#networking'), $('#networking-graph-toolbar'));
-        plot_controls.reset([this.rx_plot, this.tx_plot]);
+        ReactDOM.render(<NetworkPlots plot_state={this.plot_state} onHover={highlight_netdev_row} />,
+                        document.getElementById('network-graphs-element'));
 
         ensure_usage_monitor();
         $(usage_grid).on('notify', function (event, index, count) {
@@ -1705,11 +1643,6 @@ PageNetworking.prototype = {
                 }
             }
         }
-
-        $(window).on('resize', function () {
-            self.rx_plot.resize();
-            self.tx_plot.resize();
-        });
 
         const desc = _("A network bond combines multiple network interfaces into one logical interface with higher throughput or redundancy.");
         const lm = _("Learn more");
@@ -1733,8 +1666,6 @@ PageNetworking.prototype = {
     },
 
     show: function() {
-        this.rx_plot.resize();
-        this.tx_plot.resize();
     },
 
     leave: function() {
@@ -1753,6 +1684,8 @@ PageNetworking.prototype = {
         unmanaged_tbody = $('#networking-unmanaged-interfaces tbody');
         unmanaged_tbody.empty();
         $('#networking-unmanaged-interfaces').prop('hidden', true);
+
+        const plot_ifaces = [];
 
         self.model.list_interfaces().forEach(function (iface) {
             function has_group(iface) {
@@ -1775,8 +1708,7 @@ PageNetworking.prototype = {
             var dev = iface.Device;
             var show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
-            self.rx_series.add_instance(iface.Name);
-            self.tx_series.add_instance(iface.Name);
+            plot_ifaces.push(iface.Name);
             add_usage_monitor(iface.Name);
 
             var row = $('<tr>', {
@@ -1798,6 +1730,27 @@ PageNetworking.prototype = {
                 $('#networking-unmanaged-interfaces').prop('hidden', false);
             }
         });
+
+        const rx_plot_data = {
+            direct: "network.interface.in.bytes",
+            internal: "network.interface.rx",
+            units: "bytes",
+            derive: "rate",
+            threshold: 200,
+            factor: 8
+        };
+
+        const tx_plot_data = {
+            direct: "network.interface.out.bytes",
+            internal: "network.interface.tx",
+            units: "bytes",
+            derive: "rate",
+            threshold: 200,
+            factor: 8
+        };
+
+        this.plot_state.plot_instances('rx', rx_plot_data, plot_ifaces);
+        this.plot_state.plot_instances('tx', tx_plot_data, plot_ifaces);
     },
 
     add_bond: function () {
@@ -2216,62 +2169,17 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-delete').syn_click(self.model, $.proxy(this, "delete_connections"));
 
-        function highlight_netdev_row(event, id) {
+        function highlight_netdev_row(id) {
             $('#network-interface-members tr').removeClass('highlight-ct');
             if (id) {
                 $('#network-interface-members tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
             }
         }
 
-        var rx_plot_data = {
-            direct: "network.interface.in.bytes",
-            internal: "network.interface.rx",
-            units: "bytes",
-            derive: "rate"
-        };
+        this.plot_state = new PlotState();
 
-        var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
-        $.extend(rx_plot_options.grid, {
-            hoverable: true,
-            autoHighlight: false
-        });
-        rx_plot_options.setup_hook = network_plot_setup_hook;
-        rx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-rx-unit");
-        this.rx_plot = new plot.Plot($("#network-interface-rx-graph"), 300);
-        this.rx_plot.set_options(rx_plot_options);
-        this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
-        this.rx_plot.start_walking();
-        $(this.rx_series).on('hover', highlight_netdev_row);
-
-        var tx_plot_data = {
-            direct: "network.interface.out.bytes",
-            internal: "network.interface.tx",
-            units: "bytes",
-            derive: "rate"
-        };
-
-        var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
-        $.extend(tx_plot_options.grid, {
-            hoverable: true,
-            autoHighlight: false
-        });
-        tx_plot_options.setup_hook = network_plot_setup_hook;
-        tx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-tx-unit");
-        this.tx_plot = new plot.Plot($("#network-interface-tx-graph"), 300);
-        this.tx_plot.set_options(tx_plot_options);
-        this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
-        this.tx_plot.start_walking();
-        $(this.tx_series).on('hover', highlight_netdev_row);
-
-        $(cockpit).on('resize', function () {
-            self.rx_plot.resize();
-            self.tx_plot.resize();
-        });
-
-        var plot_controls = plot.setup_plot_controls($('#network-interface'), $('#network-interface-graph-toolbar'));
-        plot_controls.reset([this.rx_plot, this.tx_plot]);
+        ReactDOM.render(<NetworkPlots plot_state={this.plot_state} onHover={highlight_netdev_row} />,
+                        document.getElementById('network-interface-graphs-element'));
 
         ensure_usage_monitor();
         $(usage_grid).on('notify', function (event, index, count) {
@@ -2328,11 +2236,6 @@ PageNetworkInterface.prototype = {
 
         firewall.addEventListener('changed', onFirewallChanged);
         onFirewallChanged();
-
-        $(window).on('resize', function () {
-            self.rx_plot.resize();
-            self.tx_plot.resize();
-        });
     },
 
     enter: function (dev_name) {
@@ -2344,17 +2247,12 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface .pf-c-breadcrumb__item .pf-c-breadcrumb__link.pf-m-current').text(self.dev_name);
 
-        self.rx_series.clear_instances();
-        self.tx_series.clear_instances();
-
         $('#network-interface-delete').prop('hidden', true);
         self.dev = null;
         self.update();
     },
 
     show: function() {
-        this.rx_plot.resize();
-        this.tx_plot.resize();
     },
 
     leave: function() {
@@ -2960,20 +2858,36 @@ PageNetworkInterface.prototype = {
             var rows = { };
             var member_ifaces = { };
 
+            const rx_plot_data = {
+                direct: "network.interface.in.bytes",
+                internal: "network.interface.rx",
+                units: "bytes",
+                derive: "rate",
+                factor: 8
+            };
+
+            const tx_plot_data = {
+                direct: "network.interface.out.bytes",
+                internal: "network.interface.tx",
+                units: "bytes",
+                derive: "rate",
+                factor: 8
+            };
+
             $('#network-interface-members').prop('hidden', true);
             tbody.empty();
-            self.rx_series.clear_instances();
-            self.tx_series.clear_instances();
 
             var cs = con && connection_settings(con);
             if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
-                self.rx_series.add_instance(self.dev_name);
-                self.tx_series.add_instance(self.dev_name);
+                self.plot_state.plot_instances('rx', rx_plot_data, [self.dev_name], true);
+                self.plot_state.plot_instances('tx', tx_plot_data, [self.dev_name], true);
                 return;
             }
 
             $('#network-interface-members thead th:first-child')
                     .text(cs.type == "bond" ? _("Interfaces") : _("Ports"));
+
+            const plot_ifaces = [];
 
             con.Members.forEach(function (member_con) {
                 member_con.Interfaces.forEach(function(iface) {
@@ -2989,8 +2903,7 @@ PageNetworkInterface.prototype = {
                     if (dev && !is_managed(dev))
                         return;
 
-                    self.rx_series.add_instance(iface.Name);
-                    self.tx_series.add_instance(iface.Name);
+                    plot_ifaces.push(iface.Name);
                     add_usage_monitor(iface.Name);
                     member_ifaces[iface.Name] = true;
 
@@ -3058,6 +2971,9 @@ PageNetworkInterface.prototype = {
                                 });
                 });
             });
+
+            self.plot_state.plot_instances('rx', rx_plot_data, plot_ifaces, true);
+            self.plot_state.plot_instances('tx', tx_plot_data, plot_ifaces, true);
 
             Object.keys(rows).sort()
                     .forEach(function(name) {

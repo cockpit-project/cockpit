@@ -50,7 +50,8 @@ export class Overview extends React.Component {
                         <Gallery hasGutter>
                             <Card>
                                 <CardBody>
-                                    <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
+                                    <StoragePlots plot_state={this.props.plot_state}
+                                                  onHover={(dev) => this.setState({ highlight: dev })} />
                                 </CardBody>
                             </Card>
                             <FilesystemsPanel client={client} />

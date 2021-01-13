@@ -8,48 +8,8 @@
     <script src="../base1/cockpit.js"></script>
     <script src="plot.js"></script>
 </head>
-<body class="pf-m-redhat-font" hidden>
-  <div class="pf-c-page">
-    <main class="pf-c-page__main" tabindex="-1">
-      <header class="pf-c-page__header">
-        <h1>Plots</h1>
-      </header>
-
-      <div id="toolbar" class="zoom-controls">
-        <div class="dropdown" style="display:inline-block">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now">Go to now</a></li>
-            <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300">5 minutes</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600">1 hour</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600">6 hours</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400">1 day</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800">1 week</a></li>
-          </ul>
-        </div>
-        <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
-          <span class="glyphicon glyphicon-zoom-out"></span>
-        </button>
-        <div class="btn-group">
-            <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
-                <span class="fa fa-angle-left" />
-            </button>
-            <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
-                <span class="fa fa-angle-right" />
-            </button>
-        </div>
-      </div>
-
-      <span class="plot-unit" id="plot_direct_unit"></span>
-      <div id="plot_direct" class="zoomable-plot"></div>
-
-      <span class="plot-unit" id="plot_pmcd_unit"></span>
-      <div id="plot_pmcd" class="zoomable-plot"></div>
-    </main>
-  </div>
+<body class="pf-m-redhat-font">
+  <div id="plot-direct"></div>
+  <div id="plot-pmcd"></div>
 </body>
 </html>

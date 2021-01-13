@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "${TEST_SCENARIO:-}" ]; then
+    echo 'Required variable TEST_SCENARIO not set'
+    exit 1
+fi
+
 if [ "$1" = "--build" ]; then
     BUILD_ONLY=1
 elif [ -n "$1" ]; then
@@ -35,47 +40,10 @@ git clone /source /tmp/source
 [ ! -d /source/node_modules ] || cp -r /source/node_modules /tmp/source/
 cd /tmp/source
 
-./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
-
-make all
+containers/unit-tests/build.sh
 
 if [ -n "${BUILD_ONLY:-}" ]; then
-  exit 0
+    exit 0
 fi
 
-if dpkg-architecture --is amd64; then
-    # run distcheck on main arch
-    make XZ_COMPRESS_FLAGS='-0' V=0 distcheck 2>&1 || {
-        find -name test-suite.log | xargs cat
-        exit 1
-    }
-
-    # check translation build
-    make po/cockpit.pot
-    # do some spot checks
-    grep -q 'pkg/base1/cockpit.js' po/cockpit.pot
-    grep -q 'pkg/lib/machine-dialogs.js' po/cockpit.pot
-    grep -q 'pkg/systemd/services.html' po/cockpit.pot
-    grep -q 'pkg/static/login.html' po/cockpit.pot
-    grep -q 'pkg/systemd/manifest.json.in' po/cockpit.pot
-    grep -q 'src/bridge/cockpitpackages.c' po/cockpit.pot
-    ! grep -q 'test-.*.js' po/cockpit.pot
-else
-    # on i386, validate that "distclean" does not remove too much
-    make dist-gzip
-    mkdir _distcleancheck
-    tar -C _distcleancheck -xf cockpit-[0-9]*.tar.gz
-    cd _distcleancheck/cockpit-*
-    ./configure
-    make distclean
-    ./configure
-    make check 2>&1 || {
-        find -name test-suite.log | xargs cat
-        exit 1
-    }
-fi
-
-make check-memory 2>&1 || {
-    cat test-suite.log
-    exit 1
-}
+containers/unit-tests/scenario-${TEST_SCENARIO}.sh

@@ -2,6 +2,11 @@
 @import "../lib/journal.css";
 @import "./system-global.scss";
 
+body {
+    // Ensure journal UI fills the entire page (and does not run over)
+    display: grid;
+}
+
 #journal {
     display: grid;
     grid-template-rows: auto 1fr;

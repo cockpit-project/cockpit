@@ -34,16 +34,21 @@ to modify its behaviour:
    to build with a different compiler)
  - `:tag` to specify a different tag to use for the `cockpit/unit-tests` image
    (eg: `i386`)
- - `shell` to specify that an interactive shell should be launched instead of
-   running the unit tests
+
+Additionally, a testing scenario must be provided.  Supported options are:
+
+ - `check-memory`: runs 'make check-memory' (ie: run the unit tests under valgrind)
+ - `distcheck`: runs 'make distcheck' and some related checks
+ - `shell`: specify that an interactive shell should be launched instead of
+   building and testing
 
 Some examples:
 
-    $ ./start           # run the unit tests on amd64
+    $ ./start check-memory             # run the valgrind tests on amd64
 
-    $ ./start CC=clang  # run the unit tests on amd64, compiled with clang
+    $ ./start CC=clang check-memory    # run the valgrind tests, compiled with clang
 
-    $ ./start :i386     # run the unit tests on i386
+    $ ./start :i386 distcheck          # run the distcheck tests on i386
 
 ## Debugging tests
 

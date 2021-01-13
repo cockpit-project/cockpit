@@ -2,6 +2,7 @@
 
 top_srcdir=$(realpath -m "$0"/../../..)
 image=ghcr.io/cockpit-project/unit-tests:latest
+scenario=''
 flags=''
 cmd=''
 
@@ -12,10 +13,16 @@ while test $# -gt 0; do
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
+    distcheck|check-memory) scenario="--env=TEST_SCENARIO=$1";;
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
 done
+
+if test -z "$scenario" -a -z "$cmd"; then
+  echo 'Must specify a scenario or `shell`'
+  exit 1
+fi
 
 if test -z "${docker:=$(which podman || which docker || true)}"; then
   echo 'Neither podman nor docker are installed'
@@ -24,4 +31,4 @@ fi
 
 set -ex
 exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
-       ${ccarg:+"$ccarg"} $flags -- "$image" $cmd
+       ${ccarg:+"$ccarg"} $scenario $flags -- "$image" $cmd

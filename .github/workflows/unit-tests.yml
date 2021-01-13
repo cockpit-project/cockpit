@@ -5,7 +5,11 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        startarg: [':latest', ':i386', 'CC=clang']
+        startarg:
+         - check-memory
+         - CC=clang :i386 check-memory
+         - CC=clang distcheck
+         - :i386 distcheck
       fail-fast: false
     timeout-minutes: 60
     steps:
@@ -18,8 +22,13 @@ jobs:
       - name: Build unit test container if it changed
         run: |
           changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
-          [ '${{ matrix.startarg }}' = ':i386' ] && arch=i386 || arch=amd64
-          [ -z "$changes" ] || containers/unit-tests/build $arch
+          if [ -n "${changes}" ]; then
+            case '${{ matrix.startarg }}' in
+              *:i386*) arch=i386;;
+              *) arch=amd64;;
+            esac
+            containers/unit-tests/build $arch
+          fi
 
       - name: Run unit-tests container
         run: 'containers/unit-tests/start ${{ matrix.startarg }}'

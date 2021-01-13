@@ -52,22 +52,9 @@
 }
 
 .panel-heading > :last-child:not(:first-child),
-.panel-heading > .pull-right,
 .panel-heading > .panel-heading-actions {
     flex: auto;
     text-align: right;
-}
-
-.panel-heading > .pull-right {
-    /* HACK: Pull right shouldn't be used to change document order. */
-    /* This CSS _also_ changes document order to replicate the float. */
-    /* Solution: Fix document order when pull-right is used. */
-    order: 100;
-}
-
-.panel-heading > .pull-right:first-child ~ :last-child {
-    /* Undo :last-child above for cases where pull-right is used before */
-    text-align: left;
 }
 
 @media screen and (max-width: 640px) {

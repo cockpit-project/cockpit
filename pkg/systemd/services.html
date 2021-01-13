@@ -277,9 +277,17 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button id="timer-save-button" class="pf-c-button pf-m-primary" translate="yes">Save</button>
+          <button id="timer-save-button" class="pf-c-button pf-m-primary pf-m-progress pf-m-in-progress">
+            <span id="create-timer-spinner" class="pf-c-button__progress">
+              <span class="pf-c-spinner pf-m-md" role="progressbar" translate="aria-valuetext" aria-valuetext="Loading...">
+                <span class="pf-c-spinner__clipper"></span>
+                <span class="pf-c-spinner__lead-ball"></span>
+                <span class="pf-c-spinner__tail-ball"></span>
+              </span>
+            </span>
+            <span translate="yes">Save</span>
+          </button>
           <button id="timer-cancel-button" class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-          <div id="create-timer-spinner" class="spinner spinner-sm pull-right" hidden></div>
         </div>
       </div>
     </div>

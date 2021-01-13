@@ -57,6 +57,7 @@ struct _CockpitPeer {
   guint authorize_values_timeout;
 
   /* first_host */
+  gboolean first_channel_done;
   gchar *init_host;
   gchar *init_superuser;
 
@@ -263,7 +264,7 @@ on_other_control (CockpitTransport *transport,
       if (cockpit_json_get_object (options, "capabilities", NULL, &capabilities) && capabilities)
         {
           if (!cockpit_json_get_bool (capabilities, "explicit-superuser", FALSE, &explicit_superuser_capability))
-            g_warning ("invalued 'explicit-superuser' value in init message");
+            g_warning ("invalid 'explicit-superuser' value in init message");
         }
 
       // Authorization for SSH is over now, but we still need the
@@ -946,8 +947,10 @@ cockpit_peer_handle (CockpitPeer *self,
     }
 
   /* If this is the first channel, we can cache data from it */
-  if (!self->inited)
+  if (!self->first_channel_done)
     {
+      self->first_channel_done = TRUE;
+
       if (!self->init_host && cockpit_json_get_string (options, "host", NULL, &host))
         self->init_host = g_strdup (host);
 
@@ -1121,4 +1124,5 @@ cockpit_peer_reset (CockpitPeer *self)
   self->problem = NULL;
   self->closed = FALSE;
   self->inited = FALSE;
+  self->first_channel_done = FALSE;
 }

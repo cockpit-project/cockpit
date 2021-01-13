@@ -291,6 +291,10 @@ class ServicesPage extends React.Component {
                         if (!this.isUnitHandled(unit_id))
                             return;
 
+                        // Ignore units which 'not-found' LoadState
+                        if (result[2] == 'not-found')
+                            return;
+
                         if (!this.seenPaths.has(path))
                             this.seenPaths.add(path);
 
@@ -634,7 +638,7 @@ class ServicesPage extends React.Component {
 
         for (const p in this.state.unit_by_path) {
             const u = this.state.unit_by_path[p];
-            if (u.ActiveState == "failed") {
+            if (u.ActiveState == "failed" && u.LoadState != "not-found") {
                 const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
                 if (service_tabs_suffixes.includes(suffix)) {
                     tabErrors[suffix] = true;

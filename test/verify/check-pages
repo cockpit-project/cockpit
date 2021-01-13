@@ -600,8 +600,8 @@ OnCalendar=daily
         m.execute("systemctl start pmcd")
 
         self.login_and_go("/playground/plot")
-        b.wait_visible("#plot_direct")
-        b.wait_visible("#plot_pmcd")
+        b.wait_visible("#plot-direct")
+        b.wait_visible("#plot-pmcd")
 
         def read_mem_info(machine):
             info = {}
@@ -613,33 +613,23 @@ OnCalendar=daily
                     info[name] = int(value)
             return info
 
-        b.inject_js("""
-          ph_plot_timestamp = function (sel) {
-            var data = $(sel).data("flot_data")[0]['data'];
-            return data[data.length-1][0];
-          }
-        """)
-
-        b.inject_js("""
-          ph_plot_timestamp_is = function (sel, ts) {
-            return ph_plot_timestamp(sel, 0) >= ts;
-          }
-        """)
-
-        def wait_for_plot(sel, seconds):
-            now = b.call_js_func("ph_plot_timestamp", sel)
-            b.wait_js_func("ph_plot_timestamp_is", sel, now + 20 * 1000)
-
         # When checking whether the plots show the expected results,
         # we look for a segment of the data of a certain duration
         # whose average is in a certain range.  Otherwise any short
         # outlier will make us miss the expected plateau.  Such
-        # outliers happen frequently with the CPU plot.
+        # outliers happen frequently with the CPU plot.  We also
+        # insist that the first and last value of the segment are in
+        # range, otherwise we would find any arbitrary average in a
+        # graph with a slope.
 
         b.inject_js("""
           ph_plateau = function (data, min, max, duration, label) {
               var i, j;
               var sum;  // sum of data[i..j]
+
+              function ok(val) {
+                  return val >= min && val <= max;
+              }
 
               sum = 0;
               i = 0;
@@ -647,7 +637,7 @@ OnCalendar=daily
                   sum += data[j][1];
                   while (i < j && (data[j][0] - data[i][0]) > duration * 1000) {
                       avg = sum / (j - i + 1);
-                      if ((min === null || avg >= min) && (max === null || avg <= max))
+                      if (ok(avg) && ok(data[i][1]) && ok(data[j][1]))
                           return true;
                       sum -= data[i][1];
                       i++;
@@ -659,17 +649,17 @@ OnCalendar=daily
 
         b.inject_js("""
           ph_flot_data_plateau = function (sel, min, max, duration, label) {
-            return ph_plateau(jQuery(sel).data("flot_data")[0]['data'], min, max, duration, label);
+            return ph_plateau(window.plot_state.data(sel)[0].data, min, max, duration, label);
           }
         """)
 
         meminfo = read_mem_info(m)
-        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
-        b.wait_js_func("ph_flot_data_plateau", "#plot_direct", mem_used * 0.95, mem_used * 1.05, 15, "mem")
+        mem_avail = meminfo['MemAvailable']
+        b.wait_js_func("ph_flot_data_plateau", "direct", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
 
         meminfo = read_mem_info(m)
-        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
-        b.wait_js_func("ph_flot_data_plateau", "#plot_pmcd", mem_used * 0.95, mem_used * 1.05, 15, "mem")
+        mem_avail = meminfo['MemAvailable']
+        b.wait_js_func("ph_flot_data_plateau", "pmcd", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
 
     def testPageStatus(self):
         b = self.browser

@@ -19,17 +19,23 @@
 import '../lib/patternfly/patternfly-cockpit.scss';
 import 'polyfills'; // once per application
 
+// This is needed by the bootstrap bits pulled in by various
+// Patternfly React components.
+import 'jquery';
+
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { PlotState } from "plot.js";
 
 import client from "./client";
 import { MultipathAlert } from "./multipath.jsx";
 import { Overview } from "./overview.jsx";
 import { Details } from "./details.jsx";
+import { update_plot_state } from "./plot.jsx";
 
 import "bootstrap/dist/js/bootstrap";
 
@@ -44,6 +50,7 @@ class StoragePage extends React.Component {
     constructor() {
         super();
         this.state = { inited: false, slow_init: false, path: cockpit.location.path };
+        this.plot_state = new PlotState();
         this.on_client_changed = () => { if (!this.props.client.busy) this.setState({}); };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }
@@ -74,8 +81,11 @@ class StoragePage extends React.Component {
         if (client.features == false || client.older_than("2.6"))
             return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Storage can not be managed on this system.") } />;
 
-        let detail;
+        // We maintain the plot state here so that the plots stay
+        // alive no matter what page is shown.
+        update_plot_state(this.plot_state, client);
 
+        let detail;
         if (path.length === 0)
             detail = null;
         else if (path.length == 1)
@@ -84,13 +94,9 @@ class StoragePage extends React.Component {
             detail = <Details client={client} type={path[0]} name={path[1]} name2={path[2]} />;
 
         return (
-            // We keep the Overview mounted at all times to keep the
-            // plot running.  Once our plots are more React friendly,
-            // we can throw this hack out.
             <>
                 <MultipathAlert client={client} />
-                {!detail && <Overview client={client} />}
-                {detail}
+                {detail || <Overview client={client} plot_state={this.plot_state} />}
             </>
         );
     }

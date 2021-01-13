@@ -1,50 +1,36 @@
-import $ from "jquery";
-import * as plot from "plot.js";
+import './plot.css';
 
-import '../lib/patternfly/patternfly-cockpit.scss';
-import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
-import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
-import "plot.css";
+import React from 'react';
+import ReactDOM from "react-dom";
 
-$(function () {
-    var plot_direct = new plot.Plot($('#plot_direct'), 300);
-    var options_direct = plot.plot_simple_template();
-    $.extend(options_direct.yaxis, {
-        ticks: plot.memory_ticks,
-        tickFormatter: plot.format_bytes_tick_no_unit
-    });
-    options_direct.post_hook = function memory_post_hook(p) {
-        var axes = p.getAxes();
-        $('#plot_direct_unit').text(plot.bytes_tick_unit(axes.yaxis));
-    };
-    plot_direct.set_options(options_direct);
-    plot_direct.add_metrics_difference_series({
-        direct: ["mem.physmem", "mem.util.available"],
-        units: "bytes"
-    }, { });
+import { PlotState } from "plot.js";
+import { SvgPlot, bytes_config } from "cockpit-components-plot.jsx";
 
-    var plot_pmcd = new plot.Plot($('#plot_pmcd'), 300);
-    var options_pmcd = plot.plot_simple_template();
-    $.extend(options_pmcd.yaxis, {
-        ticks: plot.memory_ticks,
-        tickFormatter: plot.format_bytes_tick_no_unit
-    });
-    options_pmcd.post_hook = function memory_post_hook(p) {
-        var axes = p.getAxes();
-        $('#plot_pmcd_unit').text(plot.bytes_tick_unit(axes.yaxis));
-    };
-    plot_pmcd.set_options(options_pmcd);
-    plot_pmcd.add_metrics_difference_series({
-        pmcd: ["mem.physmem", "mem.util.available"],
-        units: "bytes"
-    }, { });
+const direct_metric = {
+    direct: ["mem.util.available"],
+    units: "bytes"
+};
 
-    $("body").prop("hidden", false);
-    $("#plot_direct").css({ height: "200px" });
-    $("#plot_pmcd").css({ height: "200px" });
-    plot_direct.resize();
-    plot_pmcd.resize();
+const pmcd_metric = {
+    pmcd: ["mem.util.available"],
+    units: "bytes"
+};
 
-    var plot_controls = plot.setup_plot_controls($('body'), $('#toolbar'));
-    plot_controls.reset([plot_direct, plot_pmcd]);
+document.addEventListener("DOMContentLoaded", function() {
+    const plot_state = new PlotState();
+    plot_state.plot_single('direct', direct_metric);
+    plot_state.plot_single('pmcd', pmcd_metric);
+
+    // For the tests
+    window.plot_state = plot_state;
+
+    ReactDOM.render(<SvgPlot className="mem-graph"
+                             title="Direct" config={bytes_config}
+                             plot_state={plot_state} plot_id="direct" />,
+                    document.getElementById('plot-direct'));
+
+    ReactDOM.render(<SvgPlot className="mem-graph"
+                             title="PMCD" config={bytes_config}
+                             plot_state={plot_state} plot_id="pmcd" />,
+                    document.getElementById('plot-pmcd'));
 });

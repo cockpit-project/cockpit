@@ -49,7 +49,6 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking-interfaces")
-        self.wait_id("networking-tx-graph")
 
         self.click(self.wait_xpath("//tr[@data-interface='%s']" % out, cond=clickable))
         self.wait_text("Carrier", element="td")

@@ -1,0 +1,10 @@
+import unittest
+from fmf_metadata import FMF
+
+
+@FMF.tag("example")
+class Test(unittest.TestCase):
+
+    @FMF.tag("x", post_mark="+")
+    def test(self):
+        self.assertTrue(True)

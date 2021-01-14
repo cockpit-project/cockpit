@@ -40,6 +40,8 @@ import inspect
 
 import testvm
 import cdp
+from fmf_metadata import set_obj_attribute, is_test_function, generic_metadata_setter
+
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
@@ -1385,13 +1387,13 @@ def skipBrowser(reason, *args):
     browser = os.environ.get("TEST_BROWSER", "chromium")
     if browser in args:
         return unittest.skip("{0}: {1}".format(browser, reason))
-    return lambda func: func
+    return generic_metadata_setter("_testlib__skipBrowser", args)
 
 
 def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
-    return lambda func: func
+    return generic_metadata_setter("_testlib__skipImage", args)
 
 
 def skipPackage(*args):
@@ -1399,11 +1401,7 @@ def skipPackage(*args):
     for package in args:
         if package in packages_env:
             return unittest.skip("{0} is excluded in $TEST_SKIP_PACKAGES".format(package))
-    return lambda func: func
-
-
-def is_test_function(member):
-    return inspect.isfunction(member) and member.__name__.startswith("test")
+    return generic_metadata_setter("_testlib__skipPackage", args)
 
 
 def nondestructive(testEntity):
@@ -1411,15 +1409,7 @@ def nondestructive(testEntity):
 
     Can be used on test classes and individual test methods.
     """
-
-    if inspect.isclass(testEntity) and issubclass(testEntity, MachineCase):
-        for test_function in inspect.getmembers(testEntity, is_test_function):
-            test_function[1]._testlib__non_destructive = True
-    elif is_test_function(testEntity):
-        testEntity._testlib__non_destructive = True
-    else:
-        raise Error("The nondestructive decorator can only be used on test classes and test methods")
-    return testEntity
+    return set_obj_attribute(testEntity, "_testlib__non_destructive", True, raise_text="The nondestructive decorator can only be used on test classes and test methods", base_class=MachineCase)
 
 
 def no_retry_when_changed(testEntity):
@@ -1588,7 +1578,8 @@ def arg_parser(enable_sit=True):
     parser.add_argument('--enable-network', dest='enable_network', action='store_true',
                         help="Enable network access for tests")
     parser.add_argument("-l", "--list", action="store_true", help="Print the list of tests that would be executed")
-    parser.add_argument('tests', nargs='*')
+    # TMT compatibility, pass testnames as whitespace separated list
+    parser.add_argument('tests', nargs='*', default=os.getenv("TEST_NAMES").split() if os.getenv("TEST_NAMES") else [])
 
     parser.set_defaults(verbosity=1, fetch=True)
     return parser

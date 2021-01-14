@@ -23,8 +23,10 @@ import unittest
 
 import parent
 from testlib import *
+from fmf_metadata import FMF
 
 
+@FMF.tag("example")
 @skipPackage("example")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestExample(MachineCase):
@@ -50,6 +52,7 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
 
 
+@FMF.tag("example")
 @nondestructive
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestNondestructiveExample(MachineCase):
@@ -61,6 +64,7 @@ class TestNondestructiveExample(MachineCase):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
 
 
+@FMF.tag("example")
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSimple(unittest.TestCase):
 

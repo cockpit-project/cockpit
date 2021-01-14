@@ -1,7 +1,5 @@
-import importlib
-import glob
 import os
-from inspect import isclass
+import fmf_metadata
 
 """
 This wrapper allows to run cockpit tests via pytest e.g.
@@ -10,15 +8,14 @@ This wrapper allows to run cockpit tests via pytest e.g.
     test/verify/pytest_dynamic_loader.py::TestLogin
 """
 
-tests_path = os.path.abspath(os.path.realpath(os.getenv("TEST_PATH", os.path.dirname(__file__))))
-testfile_glob = "check-*"
 
-for filename in glob.glob(os.path.join(tests_path, testfile_glob)):
-    print(filename)
-    loader = importlib.machinery.SourceFileLoader("non_important", filename)
-    module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
-    loader.exec_module(module)
-    for attribute_name in dir(module):
-        attribute = getattr(module, attribute_name)
-        if isclass(attribute):
-            globals()[attribute_name] = attribute
+tests_path = os.path.realpath(os.getenv("TEST_PATH", os.path.dirname(__file__)))
+
+
+def import_classes(path, testfile_globs):
+    for filename in fmf_metadata.get_test_files(path, testfile_globs):
+        for class_name, cls_dict in fmf_metadata.filepath_tests(filename).items():
+            globals()[class_name] = cls_dict["class"]
+
+
+import_classes(path=tests_path, testfile_globs=fmf_metadata.TESTFILE_GLOBS)

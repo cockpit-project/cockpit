@@ -115,17 +115,17 @@ export class SidePanelRow extends React.Component {
                 role="link" tabIndex="0"
                 onKeyPress={this.props.go ? go : null}
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
-                <td className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}>
-                    <div className="sidepanel-row-body">
-                        <div className="sidepanel-row-name">{this.props.name}</div>
-                        <div className="sidepanel-row-info">
-                            <div className="sidepanel-row-detail">{this.props.detail}</div>
-                            <div className="sidepanel-row-devname">{this.props.devname}</div>
+                <td className={this.props.highlight ? "highlight-ct" : ""}>
+                    <div className="sidepanel-row">
+                        <div className="sidepanel-row-body">
+                            <div className="sidepanel-row-name">{this.props.name}</div>
+                            <div className="sidepanel-row-info">
+                                <div className="sidepanel-row-detail">{this.props.detail}</div>
+                                <div className="sidepanel-row-devname">{this.props.devname}</div>
+                            </div>
                         </div>
+                        {decoration}
                     </div>
-                </td>
-                <td className="sidepanel-row-decoration">
-                    {decoration}
                 </td>
             </tr>
         );

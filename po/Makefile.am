@@ -87,8 +87,8 @@ po/cockpit.manifest.pot:
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in')
 
 po/cockpit.appstream.pot:
-	cd $(srcdir) && $(XGETTEXT) --output=$(abs_builddir)/$@ \
-		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
+	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \
+		$$(find $(TRANSLATE) -name '*.appdata.xml.in')
 
 po/cockpit.polkit.pot:
 	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \

@@ -163,7 +163,6 @@ const info = {
         "base1/test-journal-renderer",
         "base1/test-locale",
         "base1/test-location",
-        "base1/test-machines",
         "base1/test-metrics",
         "base1/test-no-jquery",
         "base1/test-permissions",
@@ -179,6 +178,8 @@ const info = {
         "kdump/test-config-client",
 
         "networkmanager/test-utils",
+
+        "shell/machines/test-machines",
 
         "storaged/test-util",
     ],

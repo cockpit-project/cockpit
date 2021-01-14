@@ -22,7 +22,7 @@ import React from "react";
 import { Button, Modal } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { StatelessSelect, SelectEntry } from 'cockpit-components-select.jsx';
-import { host_superuser_storage_key } from 'machines';
+import { host_superuser_storage_key } from './machines/machines';
 
 import "form-layout.scss";
 

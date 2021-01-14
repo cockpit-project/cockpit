@@ -22,21 +22,21 @@ import cockpit from "cockpit";
 
 import { mustache } from "mustache";
 
-import { machines, get_host_superuser_value } from "machines";
+import { machines, get_host_superuser_value } from "./machines";
 import * as credentials from "credentials";
 import "patterns";
 
-import add_tmpl from "raw-loader!machine-add.html";
-import auth_failed_tmpl from "raw-loader!machine-auth-failed.html";
-import change_auth_tmpl from "raw-loader!machine-change-auth.html";
-import change_port_tmpl from "raw-loader!machine-change-port.html";
-import color_picker_tmpl from "raw-loader!machine-color-picker.html";
-import invalid_hostkey_tmpl from "raw-loader!machine-invalid-hostkey.html";
-import not_supported_tmpl from "raw-loader!machine-not-supported.html";
-import unknown_hosts_tmpl from "raw-loader!machine-unknown-hostkey.html";
+import add_tmpl from "raw-loader!./machine-add.html";
+import auth_failed_tmpl from "raw-loader!./machine-auth-failed.html";
+import change_auth_tmpl from "raw-loader!./machine-change-auth.html";
+import change_port_tmpl from "raw-loader!./machine-change-port.html";
+import color_picker_tmpl from "raw-loader!./machine-color-picker.html";
+import invalid_hostkey_tmpl from "raw-loader!./machine-invalid-hostkey.html";
+import not_supported_tmpl from "raw-loader!./machine-not-supported.html";
+import unknown_hosts_tmpl from "raw-loader!./machine-unknown-hostkey.html";
 
-import ssh_show_default_key_sh from "raw-loader!ssh-show-default-key.sh";
-import ssh_add_key_sh from "raw-loader!ssh-add-key.sh";
+import ssh_show_default_key_sh from "raw-loader!./ssh-show-default-key.sh";
+import ssh_add_key_sh from "raw-loader!./ssh-add-key.sh";
 
 import "./machine-dialogs.scss";
 import "form-layout.scss";

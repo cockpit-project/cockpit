@@ -10,7 +10,7 @@ import 'polyfills';
 import { superuser } from "superuser";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 
-import { new_machine_dialog_manager } from "machine-dialogs";
+import { new_machine_dialog_manager } from "./machines/machine-dialogs";
 
 import "../../node_modules/@patternfly/patternfly/components/Select/select.css";
 

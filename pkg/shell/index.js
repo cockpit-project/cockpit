@@ -19,8 +19,8 @@
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 
-import { machines } from "machines";
-import { new_machine_dialog_manager } from "machine-dialogs";
+import { machines } from "./machines/machines";
+import { new_machine_dialog_manager } from "./machines/machine-dialogs";
 import * as credentials from "./credentials";
 import * as indexes from "./indexes";
 

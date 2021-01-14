@@ -32,6 +32,8 @@ to modify its behaviour:
 
  - `CC=othercc` to set the `CC` environment variable inside the container (ie:
    to build with a different compiler)
+ - `NO_NPM=1` to do the initial build without `node_modules`.  Some scenarios
+   (ie: distcheck) may run tools/npm-install anyway, after the initial build.
  - `:tag` to specify a different tag to use for the `cockpit/unit-tests` image
    (eg: `i386`)
 

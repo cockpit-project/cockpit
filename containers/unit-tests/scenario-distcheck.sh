@@ -1,5 +1,17 @@
 #!/bin/sh -eux
 
+if [ "${NO_NPM:-}" = "1" ]; then
+    # We can't 'make dist' with NO_NPM, so unset it and finish the build
+    unset NO_NPM
+    test ! -d /tmp/source/node_modules # this shouldn't be here
+    if [ -d /source/node_modules ]; then
+        cp -r /source/node_modules /tmp/source
+    fi
+    tools/npm-install
+    test -d /tmp/source/node_modules # this must surely be here now
+    make
+fi
+
 make XZ_COMPRESS_FLAGS='-0' V=0 distcheck 2>&1 || {
   find -name test-suite.log | xargs cat
   exit 1

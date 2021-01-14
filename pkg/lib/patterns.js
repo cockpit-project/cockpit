@@ -219,7 +219,8 @@ $.fn.dialog = function dialog(action /* ... */) {
 };
 
 window.addEventListener("hashchange", function() {
-    $(".modal").modal("hide");
+    if ($(".modal").length)
+        $(".modal").modal("hide");
 });
 
 /* ----------------------------------------------------------------------------

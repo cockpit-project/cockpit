@@ -44,10 +44,9 @@ export function setVmCreateInProgress(dispatch, name, connectionName, settings) 
     setupCleanupTimeout(dispatch, name, connectionName, CREATE_TIMEOUT);
 }
 
-export function setVmInstallInProgress(dispatch, name, connectionName, settings) {
+export function setVmInstallInProgress(dispatch, original_vm, settings) {
     const vm = Object.assign({}, {
-        name,
-        connectionName,
+        ...original_vm,
         isUi: true,
         expanded: true,
         openConsoleTab: true,
@@ -55,7 +54,7 @@ export function setVmInstallInProgress(dispatch, name, connectionName, settings)
     }, settings);
 
     dispatch(addUiVm(vm));
-    setupCleanupTimeout(dispatch, name, connectionName, INSTALL_TIMEOUT);
+    setupCleanupTimeout(dispatch, original_vm.name, original_vm.connectionName, INSTALL_TIMEOUT);
 }
 
 export function finishVmCreateInProgress(dispatch, name, connectionName, settings) {

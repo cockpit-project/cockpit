@@ -94,13 +94,11 @@ virsh -c "$CONNECTION_URI" -q dumpxml "$VM_NAME" > "$DOMAIN_FILE"
 virsh -c "$CONNECTION_URI" -q undefine "$VM_NAME" --managed-save
 
 handleFailure() {
-    # If virt-install returned non-zero return code but the VM exists, redefine
+    # If virt-install returned non-zero return code, redefine
     # the VM show that we get back the metadata which enable the 'Install'
     # button, so that the user can re-attempt installation
     set +e
-    if vmExists "$VM_NAME"; then
-        virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
-    fi
+    virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
     rm -f "$DOMAIN_FILE"
     exit $1
 }

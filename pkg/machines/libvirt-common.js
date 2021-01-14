@@ -983,7 +983,7 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
         setVmCreateInProgress(dispatch, vmName, connectionName, { openConsoleTab: startVm });
 
         if (startVm) {
-            setVmInstallInProgress(dispatch, vmName, connectionName);
+            setVmInstallInProgress(dispatch, { name: vmName, connectionName });
         }
 
         const opts = { err: "message", environ: ['LC_ALL=C'] };
@@ -1074,12 +1074,18 @@ export function INIT_DATA_RETRIEVAL () {
     };
 }
 
-export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, disks, displays, interfaces, firmware, autostart, connectionName, onAddErrorNotification }) {
+export function INSTALL_VM({ onAddErrorNotification, ...vm }) {
+    const {
+        autostart, connectionName, cpu, currentMemory,
+        disks, displays, firmware, interfaces, memory,
+        metadata, name, vcpus,
+    } = vm;
+
     logDebug(`${this.name}.INSTALL_VM(${name}):`);
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
         // vm should be returned even if script fails
-        setVmInstallInProgress(dispatch, name, connectionName);
+        setVmInstallInProgress(dispatch, vm);
 
         const opts = { err: "message", environ: ['LC_ALL=C'] };
         if (connectionName === 'system')

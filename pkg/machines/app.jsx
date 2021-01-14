@@ -140,7 +140,7 @@ class App extends React.Component {
 
         let vmContent;
         if (path.length > 0 && path[0] == 'vm') {
-            const vm = vms.find(vm => vm.name == cockpit.location.options.name && vm.connectionName == cockpit.location.options.connection);
+            const vm = combinedVms.find(vm => vm.name == cockpit.location.options.name && vm.connectionName == cockpit.location.options.connection);
             if (!vm) {
                 return (
                     <EmptyStatePanel title={ cockpit.format(_("VM $0 does not exist on $1 connection"), cockpit.location.options.name, cockpit.location.options.connection) }
@@ -156,8 +156,8 @@ class App extends React.Component {
 
             const connectionName = vm.connectionName;
             // If vm.isUi is set we show a dummy placeholder until libvirt gets a real domain object for newly created V
-            const expandedContent = vm.isUi ? undefined : (
-                <VmDetailsPage vm={vm} vms={vms} config={config}
+            const expandedContent = (vm.isUi && !vm.id) ? null : (
+                <VmDetailsPage vm={vm} vms={combinedVms} config={config}
                     libvirtVersion={systemInfo.libvirtVersion}
                     notifications={this.state.resourceHasError[vm.id]
                         ? Object.keys(this.state.notifications)

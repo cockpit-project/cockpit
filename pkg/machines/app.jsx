@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AlertGroup, Alert, Button } from '@patternfly/react-core';
+import { AlertGroup, Alert, Button, AlertActionCloseButton } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
@@ -167,7 +167,7 @@ class App extends React.Component {
                                     return (
                                         <Alert variant='danger' key={notification.index}
                                                isInline
-                                               onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                               actionClose={<AlertActionCloseButton onClose={() => this.onDismissErrorNotification(notification.index)} />}
                                                title={notification.text}>{notification.detail}</Alert>
                                     );
                                 })

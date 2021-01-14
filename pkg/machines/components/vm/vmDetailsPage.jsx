@@ -21,6 +21,7 @@ import React, { useEffect } from 'react';
 import cockpit from 'cockpit';
 
 import {
+    AlertGroup,
     Breadcrumb, BreadcrumbItem,
     Gallery, Button,
     Card, CardTitle, CardActions, CardHeader, CardBody, CardFooter,
@@ -68,7 +69,7 @@ export const VmDetailsPage = ({
                            onAddErrorNotification={onAddErrorNotification}
                            isDetailsPage />
             </div>
-            {notifications && <div className="vm-notifications">{notifications}</div>}
+            {notifications && <AlertGroup className="vm-notifications">{notifications}</AlertGroup>}
         </PageSection>
     );
 

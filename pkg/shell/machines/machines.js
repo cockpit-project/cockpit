@@ -1,7 +1,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import ssh_add_key_sh from "raw-loader!ssh-add-key.sh";
+import ssh_add_key_sh from "raw-loader!./ssh-add-key.sh";
 
 var mod = { };
 

@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-29 18:47+0000\n"
-"PO-Revision-Date: 2021-01-01 17:08+0000\n"
+"POT-Creation-Date: 2021-01-05 18:44+0000\n"
+"PO-Revision-Date: 2021-01-12 16:07+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
 "master/sk/>\n"
@@ -106,7 +106,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentácia k $0"
 
-#: src/ws/login.js:376 src/ws/login.js:823
+#: pkg/static/login.js:376 pkg/static/login.js:824
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -183,13 +183,13 @@ msgstr "$0 je práve používaný"
 msgid "$0 is not available from any repository."
 msgstr "$0 nie je k dispozícií v žiadom repozitári."
 
-#: src/ws/login.js:642
+#: pkg/static/login.js:642
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
 
 #: pkg/base1/cockpit.js:2798
 msgid "$0 killed with signal $1"
-msgstr ""
+msgstr "$0 nútene ukončené signálom $1"
 
 #: pkg/systemd/overview-cards/insights.jsx:170
 msgid "$0 low severity hit"
@@ -267,9 +267,9 @@ msgstr[2] "$0 služieb zhavarovalo"
 #: pkg/storaged/crypto-keyslots.jsx:592
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "$0 slot ostáva"
+msgstr[1] "$0 sloty ostávajú"
+msgstr[2] "$0 slotov ostáva"
 
 #: pkg/metrics/metrics.jsx:496
 msgid "$0 total"
@@ -319,7 +319,7 @@ msgstr[0] "$0 rok"
 msgstr[1] "$0 roky"
 msgstr[2] "$0 rokov"
 
-#: pkg/networkmanager/firewall.jsx:170
+#: pkg/networkmanager/firewall.jsx:178
 msgid "$0 zone"
 msgstr "$ zóna"
 
@@ -342,7 +342,7 @@ msgstr[2] "$1 opráv zabezpečenia"
 msgid "$name (from $host)"
 msgstr "$name (z $host)"
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:610
 msgid "(Optional)"
 msgstr "(Voliteľné)"
 
@@ -590,7 +590,7 @@ msgstr ""
 msgid "A disk is needed."
 msgstr "Je potrebný disk."
 
-#: src/ws/login.html:119
+#: pkg/static/login.html:117
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
@@ -635,7 +635,7 @@ msgstr "O webovej konzoli"
 msgid "Absent"
 msgstr "Chýba"
 
-#: src/ws/login.js:563
+#: pkg/static/login.js:563
 msgid "Accept key and log in"
 msgstr "Prijať kľúč a prihlásiť sa"
 
@@ -720,7 +720,7 @@ msgstr "Pridať $0"
 msgid "Add VLAN"
 msgstr "Pridať VLAN"
 
-#: pkg/networkmanager/firewall.jsx:885
+#: pkg/networkmanager/firewall.jsx:918
 msgid "Add a new zone"
 msgstr "Pridať novú zónu"
 
@@ -758,11 +758,11 @@ msgstr "Pridať sieťové rozhranie"
 msgid "Add new host"
 msgstr "Pridať nového hostiteľa"
 
-#: pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:510
 msgid "Add ports"
 msgstr "Pridať porty"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:511
 msgid "Add ports to $0 zone"
 msgstr "Pridať porty do zóny $0"
 
@@ -770,15 +770,15 @@ msgstr "Pridať porty do zóny $0"
 msgid "Add public key"
 msgstr "Pridať verejný kĺúč"
 
-#: pkg/networkmanager/firewall.jsx:163 pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:510
 msgid "Add services"
 msgstr "Pridať služby"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:511
 msgid "Add services to $0 zone"
 msgstr "Pridať službu do zóny $0"
 
-#: pkg/networkmanager/firewall.jsx:162
+#: pkg/networkmanager/firewall.jsx:170
 msgid "Add services to zone $0"
 msgstr "Pridať služby do zóny $0"
 
@@ -790,8 +790,8 @@ msgstr "Pridať tým"
 msgid "Add virtual network interface"
 msgstr "Pridať virtuálne sieťové rozhranie"
 
-#: pkg/networkmanager/firewall.jsx:664 pkg/networkmanager/firewall.jsx:672
-#: pkg/networkmanager/firewall.jsx:886
+#: pkg/networkmanager/firewall.jsx:689 pkg/networkmanager/firewall.jsx:697
+#: pkg/networkmanager/firewall.jsx:919
 msgid "Add zone"
 msgstr "Pridať zónu"
 
@@ -803,11 +803,13 @@ msgstr ""
 "Pridaním <b>$0</b> sa preruší spojenie so serverom a zneprístupní sa tak "
 "rozhranie pre jeho správu."
 
-#: pkg/networkmanager/firewall.jsx:508
+#: pkg/networkmanager/firewall.jsx:524
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
 msgstr ""
+"Pridaním užívateľsky určených portov sa znovunačíta firewall, čím sa stratia "
+"nastavenia, ktoré boli vytvorené počas behu a neboli uložené!"
 
 #: pkg/users/authorized-keys.js:113
 msgid "Adding key"
@@ -827,7 +829,7 @@ msgstr "Ďalšie DNS $val"
 
 #: pkg/networkmanager/interfaces.js:2648
 msgid "Additional DNS search domains $val"
-msgstr ""
+msgstr "Ďalšie DNS domény k prehľadávaniu $val"
 
 #: pkg/systemd/services/service-details.jsx:169
 msgid "Additional actions"
@@ -841,7 +843,7 @@ msgstr "Ďalšia adresa $val"
 msgid "Additional packages:"
 msgstr "Ďalšie balíky:"
 
-#: pkg/networkmanager/firewall.jsx:117
+#: pkg/networkmanager/firewall.jsx:121
 msgid "Additional ports"
 msgstr "Ďalšie porty"
 
@@ -875,7 +877,7 @@ msgstr "Adresa sa nenachádza v podsieti"
 msgid "Address:"
 msgstr "Adresa:"
 
-#: pkg/networkmanager/interfaces.js:3320 pkg/networkmanager/firewall.jsx:173
+#: pkg/networkmanager/interfaces.js:3320 pkg/networkmanager/firewall.jsx:181
 msgid "Addresses"
 msgstr "Adresy"
 
@@ -957,7 +959,7 @@ msgstr "All-in-one"
 msgid "Allow running (unmask)"
 msgstr "Povoliť spustenie (odmaskovať)"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:759
 msgid "Allowed addresses"
 msgstr "Povolené adresy"
 
@@ -1036,7 +1038,7 @@ msgstr ""
 #: pkg/storaged/vgroups-panel.jsx:84 pkg/storaged/vgroup-details.jsx:70
 #: pkg/storaged/mdraid-details.jsx:61
 msgid "At least one disk is needed."
-msgstr ""
+msgstr "Vyžaduje sa aspoň jeden disk."
 
 #: pkg/systemd/services.html:209
 msgid "At specific time"
@@ -1063,11 +1065,11 @@ msgstr "Overuje sa"
 msgid "Authentication"
 msgstr "Overovanie"
 
-#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:813
+#: pkg/lib/machine-auth-failed.html:2 pkg/static/login.js:814
 msgid "Authentication failed"
 msgstr "Overenie sa nepodarilo"
 
-#: src/ws/login.js:803
+#: pkg/static/login.js:804
 msgid "Authentication failed: Server closed connection"
 msgstr ""
 
@@ -1128,11 +1130,11 @@ msgstr "Spúšťa sa automaticky"
 
 #: pkg/systemd/overview-cards/serverTime.js:528
 msgid "Automatically using NTP"
-msgstr ""
+msgstr "Automaticky využitím NTP"
 
 #: pkg/systemd/overview-cards/serverTime.js:529
 msgid "Automatically using specific NTP servers"
-msgstr ""
+msgstr "Automaticky využitím konkrétnych NTP serverov"
 
 #: pkg/lib/cockpit-components-modifications.jsx:84
 msgid "Automation script"
@@ -1146,7 +1148,7 @@ msgstr "Automatické spustenie"
 
 #: pkg/storaged/iscsi-panel.jsx:125
 msgid "Available targets on $0"
-msgstr ""
+msgstr "Dostupné ciele na $0"
 
 #: pkg/packagekit/updates.jsx:388 pkg/packagekit/updates.jsx:592
 msgid "Available updates"
@@ -1170,7 +1172,7 @@ msgstr "Späť k účtom"
 
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
-msgstr ""
+msgstr "Podkladové zariadenie"
 
 #: pkg/networkmanager/index.html:343
 msgid "Balancer"
@@ -1207,7 +1209,7 @@ msgstr "Blok"
 
 #: pkg/storaged/content-views.jsx:742
 msgid "Block device for filesystems"
-msgstr ""
+msgstr "Blokové zariadenie pre súborové systémy"
 
 #: pkg/machines/helpers.js:219 pkg/storaged/mdraid-details.jsx:106
 msgid "Blocked"
@@ -1246,7 +1248,7 @@ msgstr "Port mostu"
 
 #: pkg/networkmanager/index.html:650
 msgid "Bridge port settings"
-msgstr ""
+msgstr "Nastavenia portov mostu"
 
 #: pkg/networkmanager/index.html:621
 msgid "Bridge settings"
@@ -1262,7 +1264,7 @@ msgstr "Chybné nastavenia"
 
 #: pkg/packagekit/updates.jsx:971
 msgid "Bug fix updates available"
-msgstr ""
+msgstr "Sú dostupné opravy chýb"
 
 #: pkg/packagekit/updates.jsx:334
 msgid "Bugs"
@@ -1336,20 +1338,20 @@ msgstr "Môže byť názov hostiteľa, IP adresa, alias alebo ssh:// URI"
 
 #: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "Can not find any logs using the current combination of filters."
-msgstr ""
+msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 
 #: pkg/networkmanager/index.html:512 pkg/networkmanager/index.html:548
 #: pkg/networkmanager/index.html:577 pkg/networkmanager/index.html:606
 #: pkg/networkmanager/index.html:635 pkg/networkmanager/index.html:664
 #: pkg/networkmanager/index.html:693 pkg/networkmanager/index.html:722
 #: pkg/networkmanager/index.html:751 pkg/sosreport/index.html:74
-#: pkg/playground/translate.html:39 pkg/lib/machine-change-auth.html:75
-#: pkg/lib/machine-add.html:55 pkg/lib/machine-change-port.html:26
-#: pkg/lib/machine-unknown-hostkey.html:21 pkg/systemd/services.html:281
-#: pkg/systemd/index.html:57
-#: pkg/systemd/overview-cards/realmd-operation.html:84 src/ws/login.html:103
-#: pkg/networkmanager/firewall.jsx:514 pkg/networkmanager/firewall.jsx:675
-#: pkg/networkmanager/firewall.jsx:758 pkg/shell/superuser.jsx:77
+#: pkg/static/login.html:101 pkg/playground/translate.html:39
+#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-add.html:55
+#: pkg/lib/machine-change-port.html:26 pkg/lib/machine-unknown-hostkey.html:21
+#: pkg/systemd/services.html:281 pkg/systemd/index.html:57
+#: pkg/systemd/overview-cards/realmd-operation.html:84
+#: pkg/networkmanager/firewall.jsx:530 pkg/networkmanager/firewall.jsx:700
+#: pkg/networkmanager/firewall.jsx:792 pkg/shell/superuser.jsx:77
 #: pkg/shell/superuser.jsx:134 pkg/shell/shell-modals.jsx:87
 #: pkg/sosreport/index.js:52
 #: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:71
@@ -1382,7 +1384,7 @@ msgstr "Zrušiť"
 
 #: pkg/systemd/services/services-list.jsx:74
 msgid "Cannot be enabled"
-msgstr ""
+msgstr "Nie je možné povoliť"
 
 #: pkg/shell/indexes.js:482
 msgid "Cannot connect to an unknown host"
@@ -1390,15 +1392,15 @@ msgstr "Nie je možné sa prihlásiť k neznámemu hostiteľovi"
 
 #: pkg/base1/cockpit.js:4063
 msgid "Cannot forward login credentials"
-msgstr ""
+msgstr "Nie je možné preposlať prístupové údaje"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:635
 msgid "Cannot join a domain because realmd is not available on this system"
-msgstr ""
+msgstr "Nie je možné pridanie do domény, pretože na tomto systéme chýba realmd"
 
 #: pkg/systemd/shutdown.js:176
 msgid "Cannot schedule event in the past"
-msgstr ""
+msgstr "Nie je možné plánovať udalosti do minulosti"
 
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:224
 msgid "Capacity"
@@ -1431,7 +1433,7 @@ msgstr "Zmeniť názov stroja"
 
 #: pkg/storaged/iscsi-panel.jsx:183
 msgid "Change iSCSI initiator name"
-msgstr ""
+msgstr "Zmeniť názov iSCSI iniciátoru"
 
 #: pkg/storaged/crypto-keyslots.jsx:258
 msgid "Change passphrase"
@@ -1443,7 +1445,7 @@ msgstr "Zmeniť heslo"
 
 #: pkg/tuned/dialog.js:187
 msgid "Change performance profile"
-msgstr ""
+msgstr "Zmeniť profil výkonu"
 
 #: pkg/tuned/dialog.js:197
 msgid "Change profile"
@@ -1451,7 +1453,7 @@ msgstr "Zmeniť profil"
 
 #: pkg/systemd/overview-cards/serverTime.js:678
 msgid "Change system time"
-msgstr ""
+msgstr "Zmeniť systémový čas"
 
 #: pkg/lib/machine-dialogs.js:744
 msgid "Change the password of ${key}."
@@ -1459,9 +1461,9 @@ msgstr "Zmeniť heslo kľúča ${key}."
 
 #: pkg/networkmanager/interfaces.js:3161
 msgid "Change the settings"
-msgstr ""
+msgstr "Zmeniť nastavenia"
 
-#: src/ws/login.html:59
+#: pkg/static/login.html:57
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1477,7 +1479,7 @@ msgstr ""
 #: pkg/machines/components/vm/overview/bootOrder.jsx:285
 #: pkg/machines/components/common/warningInactive.jsx:12
 msgid "Changes will take effect after shutting down the VM"
-msgstr ""
+msgstr "Zmeny sa prejavia až po vypnutí virt. stroja"
 
 #: pkg/networkmanager/interfaces.js:3160
 msgid ""
@@ -1509,11 +1511,11 @@ msgstr "Kontroluje a opravuje sa RAID zariadenie $target"
 
 #: pkg/apps/application-list.jsx:144
 msgid "Checking for new applications"
-msgstr ""
+msgstr "Hľadajú sa nové aplikácie"
 
 #: pkg/packagekit/updates.jsx:930
 msgid "Checking for package updates..."
-msgstr ""
+msgstr "Kontrolujú sa aktualizácie..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:145
 msgid "Checking installed software"
@@ -1522,7 +1524,7 @@ msgstr "Zisťuje sa nainštalovaný software"
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:370
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:371
 msgid "Choose an operating system"
-msgstr ""
+msgstr "Vyberte operačný systém"
 
 #: pkg/storaged/mdraids-panel.jsx:92
 msgid "Chunk size"
@@ -1534,11 +1536,11 @@ msgstr "Trieda"
 
 #: pkg/storaged/jobs-panel.jsx:58
 msgid "Cleaning up for $target"
-msgstr ""
+msgstr "Čistenie pre $target"
 
 #: pkg/systemd/services/service-details.jsx:148
 msgid "Clear 'Failed to start'"
-msgstr ""
+msgstr "Vyčistiť „Nepodarilo sa spustiť“"
 
 #: pkg/systemd/services/services.jsx:775
 msgid "Clear all filters"
@@ -1546,7 +1548,7 @@ msgstr "Vyčistiť všetky filtre"
 
 #: pkg/storaged/fsys-tab.jsx:271
 msgid "Clear mount point configuration"
-msgstr ""
+msgstr "Vyčistiť nastavenia prípojného bodu"
 
 #: pkg/shell/nav.jsx:129
 msgid "Clear search"
@@ -1593,7 +1595,7 @@ msgstr ""
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:396
+#: pkg/static/login.js:396
 msgid "Cockpit authentication is configured incorrectly."
 msgstr ""
 
@@ -1603,7 +1605,7 @@ msgstr "Cockpitu sa nepodarilo kontaktovať daného hostiteľa."
 
 #: pkg/shell/shell-modals.jsx:119
 msgid "Cockpit had an unexpected internal error."
-msgstr ""
+msgstr "V Cockpite nastala neočakávaná vnútorná chyba."
 
 #: src/ws/cockpit.appdata.xml.in:10
 msgid ""
@@ -1621,11 +1623,11 @@ msgstr ""
 
 #: pkg/shell/shell-modals.jsx:36
 msgid "Cockpit is an interactive Linux server admin interface."
-msgstr ""
+msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 
 #: pkg/base1/cockpit.js:4067
 msgid "Cockpit is not compatible with the software on the system."
-msgstr ""
+msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 
 #: pkg/lib/machine-not-supported.html:2
 msgid "Cockpit is not installed"
@@ -1653,7 +1655,7 @@ msgstr ""
 msgid "Color"
 msgstr "Farba"
 
-#: pkg/networkmanager/firewall.jsx:566
+#: pkg/networkmanager/firewall.jsx:590 pkg/networkmanager/firewall.jsx:600
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "Sú prijímané čiarkou oddelené porty, rozsahy a alternatívne názvy"
 
@@ -1667,7 +1669,7 @@ msgstr "Komentár"
 
 #: pkg/tuned/dialog.js:111
 msgid "Communication with tuned has failed"
-msgstr ""
+msgstr "Komunikácia s tuned sa nepodarila"
 
 #: pkg/lib/machine-info.js:92
 msgid "Compact PCI"
@@ -1675,15 +1677,15 @@ msgstr "Kompaktné PCI"
 
 #: pkg/storaged/content-views.jsx:601
 msgid "Compatible with all systems and devices (MBR)"
-msgstr ""
+msgstr "Kompatibilné so všetkými systémami a zariadeniami (MBR)"
 
 #: pkg/storaged/content-views.jsx:604
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
-msgstr ""
+msgstr "Kompatibilné s modernými systémami a pevnými diskami > 2TB (GPT)"
 
 #: pkg/kdump/kdump-view.jsx:166
 msgid "Compress crash dumps to save space"
-msgstr ""
+msgstr "Komprimovať výpisi pamäti jadra pre úsporu miesta"
 
 #: pkg/kdump/kdump-view.jsx:160 pkg/storaged/vdo-details.jsx:317
 #: pkg/storaged/vdos-panel.jsx:120
@@ -1696,7 +1698,7 @@ msgstr "Organizačná jednotka počítača"
 
 #: pkg/systemd/services/service-details.jsx:410
 msgid "Condition $0=$1 was not met"
-msgstr ""
+msgstr "Podmienka $0=$1 nebola splnená"
 
 #: pkg/systemd/services/service-details.jsx:457
 msgid "Condition failed"
@@ -1743,7 +1745,7 @@ msgstr "Potvrdiť nové heslo ku kľúču"
 msgid "Confirm new password"
 msgstr "Potvrdiť nové heslo"
 
-#: pkg/networkmanager/firewall.jsx:754
+#: pkg/networkmanager/firewall.jsx:788
 msgid "Confirm removal of $0"
 msgstr ""
 
@@ -1772,7 +1774,7 @@ msgstr "Pripojiť"
 msgid "Connect automatically"
 msgstr "Pripojiť automaticky"
 
-#: src/ws/login.html:91
+#: pkg/static/login.html:89
 msgid "Connect to"
 msgstr "Pripojiť k"
 
@@ -2101,7 +2103,7 @@ msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Creating volume group $target"
-msgstr ""
+msgstr "Vytvára sa skupina zväzkov $target"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:795
 msgid "Creation of VM $0 failed"
@@ -2152,11 +2154,11 @@ msgstr ""
 msgid "Custom mount options"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:560
+#: pkg/networkmanager/firewall.jsx:548
 msgid "Custom ports"
 msgstr "Užívateľsky určené porty"
 
-#: pkg/networkmanager/firewall.jsx:694
+#: pkg/networkmanager/firewall.jsx:718
 msgid "Custom zones"
 msgstr "Užívateľsky určené zóny"
 
@@ -2219,7 +2221,7 @@ msgstr "Deduplikácia"
 msgid "Delay"
 msgstr "Omeškanie"
 
-#: pkg/networkmanager/index.html:460 pkg/networkmanager/firewall.jsx:755
+#: pkg/networkmanager/index.html:460 pkg/networkmanager/firewall.jsx:789
 #: pkg/machines/components/vm/deleteDialog.jsx:137
 #: pkg/machines/components/vm/vmActions.jsx:316
 #: pkg/machines/components/vm/vmActions.jsx:323
@@ -2310,7 +2312,7 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Maže sa skupina zväzkov $target"
 
-#: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:703
+#: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:729
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:54
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:130
 #: pkg/systemd/services/services-list.jsx:53
@@ -2391,7 +2393,7 @@ msgstr "Zložka $0 nie je zapisovateľná alebo neexistuje."
 msgid "Disable simultaneous multithreading"
 msgstr "Vypnúť simultánny multithreading"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:942
 msgid "Disable the firewall"
 msgstr "Vypnúť bránu firewall"
 
@@ -2403,7 +2405,7 @@ msgstr "Vypnúť tuned"
 #: pkg/systemd/services/services.jsx:686
 #: pkg/systemd/services/service-details.jsx:297
 msgid "Disabled"
-msgstr "Vypnuté"
+msgstr "Vypnutá"
 
 #: pkg/systemd/services/service-details.jsx:152
 msgid "Disallow running (mask)"
@@ -2538,7 +2540,7 @@ msgstr "Neopakovať"
 msgid "Done!"
 msgstr "Hotovo!"
 
-#: src/ws/login.html:122
+#: pkg/static/login.html:120
 msgid "Download a new browser for free"
 msgstr "Stiahnite si zdarma nový prehliadač"
 
@@ -2655,13 +2657,13 @@ msgstr "Zapnúť službu"
 msgid "Enable stored metrics"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:942
 msgid "Enable the firewall"
 msgstr "Zapnúť bránu firewall"
 
 #: pkg/systemd/services/services.jsx:520 pkg/systemd/services/services.jsx:685
 msgid "Enabled"
-msgstr "Povolený"
+msgstr "Povolená"
 
 #: pkg/storaged/format-dialog.jsx:210
 msgid "Encrypt data"
@@ -2707,7 +2709,7 @@ msgstr "Koniec"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:72
 #: pkg/machines/components/networks/createNetworkDialog.jsx:100
 msgid "End should not be empty"
-msgstr ""
+msgstr "Je nutné vyplniť koniec"
 
 #: pkg/selinux/setroubleshoot-view.jsx:289
 msgid "Enforcing"
@@ -2717,7 +2719,7 @@ msgstr "Vynucuje sa"
 msgid "Enhancement updates available"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:731
+#: pkg/networkmanager/firewall.jsx:765
 msgid "Entire subnet"
 msgstr "Celá podsieť"
 
@@ -2786,11 +2788,11 @@ msgstr "Ethernet MTU"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/networkmanager/firewall.jsx:573
+#: pkg/networkmanager/firewall.jsx:595
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Príklad: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:581
+#: pkg/networkmanager/firewall.jsx:605
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Príklad: 88,2019,nfs,rsync"
 
@@ -2826,17 +2828,17 @@ msgstr "Neúspešné"
 
 #: pkg/lib/machine-dialogs.js:461
 msgid "Failed to add machine: $0"
-msgstr ""
+msgstr "Nepodarilo sa pridať stroj: $0"
 
-#: pkg/networkmanager/firewall.jsx:307
+#: pkg/networkmanager/firewall.jsx:324
 msgid "Failed to add port"
 msgstr "Nepodarilo sa pridať port"
 
-#: pkg/networkmanager/firewall.jsx:307
+#: pkg/networkmanager/firewall.jsx:324
 msgid "Failed to add service"
 msgstr "Nepodarilo sa pridať službu"
 
-#: pkg/networkmanager/firewall.jsx:642
+#: pkg/networkmanager/firewall.jsx:667
 msgid "Failed to add zone"
 msgstr "Nepodarilo sa pridať zónu"
 
@@ -2935,7 +2937,7 @@ msgstr "Filtrovať podľa mena"
 msgid "Filter by name or description"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:529
+#: pkg/networkmanager/firewall.jsx:237
 msgid "Filter services"
 msgstr "Filtrovať služby"
 
@@ -2944,11 +2946,11 @@ msgid "Fingerprint"
 msgstr "Odtlačok"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:109
-#: pkg/networkmanager/firewall.jsx:916 pkg/networkmanager/firewall.jsx:921
+#: pkg/networkmanager/firewall.jsx:949 pkg/networkmanager/firewall.jsx:955
 msgid "Firewall"
 msgstr "Brána firewall"
 
-#: pkg/networkmanager/firewall.jsx:879
+#: pkg/networkmanager/firewall.jsx:912
 msgid "Firewall is not available"
 msgstr ""
 
@@ -3220,7 +3222,7 @@ msgstr "Hodiny musia byť čísla medzi 0 a 23"
 msgid "Hypervisor details"
 msgstr "Podrobnosti o hypervizoru"
 
-#: pkg/networkmanager/firewall.jsx:584
+#: pkg/networkmanager/firewall.jsx:608
 #: pkg/machines/components/vm/disks/diskEdit.jsx:38 pkg/systemd/hwinfo.jsx:305
 msgid "ID"
 msgstr "ID"
@@ -3234,7 +3236,7 @@ msgstr "ID $id"
 msgid "IP address"
 msgstr "IP adresa"
 
-#: pkg/networkmanager/firewall.jsx:740
+#: pkg/networkmanager/firewall.jsx:773
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3312,7 +3314,7 @@ msgstr "Neaktívne"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "Ak tang-show-keys nie je k dispozícii, spustite nasledujúce:"
 
-#: src/ws/login.html:68
+#: pkg/static/login.html:66
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3375,7 +3377,7 @@ msgstr "Neaktívne"
 msgid "Inactive volume"
 msgstr "Neaktívny zväzok"
 
-#: pkg/networkmanager/firewall.jsx:708
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Included services"
 msgstr "Zahrnuté služby"
 
@@ -3479,8 +3481,8 @@ msgid "Interface type"
 msgstr "Typ rozhrania"
 
 #: pkg/networkmanager/index.html:121 pkg/networkmanager/index.html:276
-#: pkg/networkmanager/interfaces.js:2975 pkg/networkmanager/firewall.jsx:172
-#: pkg/networkmanager/firewall.jsx:714
+#: pkg/networkmanager/interfaces.js:2975 pkg/networkmanager/firewall.jsx:180
+#: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
 msgstr "Rozhrania"
 
@@ -3488,7 +3490,7 @@ msgstr "Rozhrania"
 msgid "Internal error"
 msgstr "Interná chyba"
 
-#: src/ws/login.js:795
+#: pkg/static/login.js:796
 msgid "Internal error: Invalid challenge header"
 msgstr ""
 
@@ -3556,7 +3558,7 @@ msgstr ""
 msgid "Invalid number."
 msgstr "Neplatné číslo."
 
-#: pkg/networkmanager/firewall.jsx:388
+#: pkg/networkmanager/firewall.jsx:405
 msgid "Invalid port number"
 msgstr ""
 
@@ -3568,7 +3570,7 @@ msgstr ""
 msgid "Invalid prefix or netmask $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:417
+#: pkg/networkmanager/firewall.jsx:433
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
@@ -3710,27 +3712,27 @@ msgstr "Notebook"
 
 #: pkg/systemd/logs.html:43
 msgid "Last 24 hours"
-msgstr ""
+msgstr "Posledných 24 hodín"
 
 #: pkg/systemd/logs.html:44
 msgid "Last 7 days"
-msgstr ""
+msgstr "Posledných 7 dní"
 
 #: pkg/packagekit/updates.jsx:199 pkg/packagekit/updates.jsx:536
 msgid "Last checked: $0"
-msgstr ""
+msgstr "Naposledy skontrolované: $0"
 
 #: pkg/systemd/overview.jsx:136
 msgid "Last failed login:"
-msgstr ""
+msgstr "Posledné nepodarené prihlásenie:"
 
 #: pkg/users/account-details.js:302
 msgid "Last login"
-msgstr ""
+msgstr "Posledné prihlásenie"
 
 #: pkg/systemd/overview.jsx:135
 msgid "Last login:"
-msgstr ""
+msgstr "Posledné prihlásenie:"
 
 #: pkg/machines/components/vm/consoles/desktopConsole.jsx:129
 msgid "Launch Remote Viewer"
@@ -3740,7 +3742,7 @@ msgstr ""
 #: pkg/lib/cockpit-components-dialog.jsx:242
 #: pkg/lib/cockpit-components-dialog.jsx:249
 msgid "Learn more"
-msgstr ""
+msgstr "Zistiť viac"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:25
 #: pkg/systemd/overview-cards/realmd-operation.html:29
@@ -3898,8 +3900,8 @@ msgstr "Zamknuté zariadenia"
 msgid "Locking $target"
 msgstr "Zamyká sa $target"
 
-#: pkg/shell/index.html:307 pkg/lib/machine-change-auth.html:74
-#: src/ws/login.html:101 src/ws/login.js:563
+#: pkg/shell/index.html:307 pkg/static/login.html:99
+#: pkg/lib/machine-change-auth.html:74 pkg/static/login.js:563
 msgid "Log in"
 msgstr "Prihlásiť"
 
@@ -3907,7 +3909,7 @@ msgstr "Prihlásiť"
 msgid "Log in to {{host}}"
 msgstr "Prihlásiť na {{host}}"
 
-#: src/ws/login.js:593
+#: pkg/static/login.js:593
 msgid "Log in with your server user account."
 msgstr ""
 
@@ -3947,7 +3949,7 @@ msgstr "Logický zväzok na $0"
 msgid "Logical volumes"
 msgstr "Logické zväzky"
 
-#: src/ws/login.js:350
+#: pkg/static/login.js:350
 msgid "Login again"
 msgstr "Znovu prihlásiť"
 
@@ -3959,7 +3961,7 @@ msgstr "Prihlásenie sa nepodarilo"
 msgid "Login format"
 msgstr "Formát prihlasovania"
 
-#: src/ws/login.js:351
+#: pkg/static/login.js:351
 msgid "Logout successful"
 msgstr "Odhlásenie bolo úspešné"
 
@@ -4443,7 +4445,7 @@ msgstr ""
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:41
 #: pkg/machines/components/networks/createNetworkDialog.jsx:50
 msgid "Name should not be empty"
-msgstr ""
+msgstr "Je nutné vyplniť názov"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:40
 msgid "Name: "
@@ -4516,10 +4518,10 @@ msgstr "Využitie siete"
 
 #: pkg/networkmanager/index.html:46
 msgid "NetworkManager is not running."
-msgstr ""
+msgstr "NetworkManager nebeží."
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:398
-#: pkg/networkmanager/firewall.jsx:915 pkg/networkmanager/manifest.json.in:0
+#: pkg/networkmanager/firewall.jsx:948 pkg/networkmanager/manifest.json.in:0
 msgid "Networking"
 msgstr "Sieť"
 
@@ -4551,7 +4553,7 @@ msgstr "Nikdy nezamknúť účet"
 msgid "New NFS mount"
 msgstr "Nové NFS pripojenie"
 
-#: src/ws/login.js:646
+#: pkg/static/login.js:646
 msgid "New host"
 msgstr "Nový hostiteľ"
 
@@ -4640,7 +4642,7 @@ msgstr ""
 msgid "No description"
 msgstr "Bez popisu"
 
-#: pkg/networkmanager/firewall.jsx:705
+#: pkg/networkmanager/firewall.jsx:731
 msgid "No description available"
 msgstr "Nie je k dispozícií žiaden popis"
 
@@ -4828,7 +4830,7 @@ msgid ""
 "deactivated."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:710 pkg/kdump/kdump-view.jsx:423
+#: pkg/networkmanager/firewall.jsx:737 pkg/kdump/kdump-view.jsx:423
 #: pkg/machines/components/networks/createNetworkDialog.jsx:184
 #: pkg/tuned/dialog.js:230
 msgid "None"
@@ -4842,15 +4844,15 @@ msgstr "Žiadne (izolovaná sieť)"
 msgid "Not a valid private key"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Not authorized to disable the firewall"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Not authorized to enable the firewall"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:153
+#: pkg/networkmanager/firewall.jsx:158
 msgid "Not authorized to remove zone $0"
 msgstr ""
 
@@ -4901,7 +4903,7 @@ msgstr "Nezaregistrované"
 #: pkg/storaged/mdraid-details.jsx:346 pkg/systemd/services/services.jsx:516
 #: pkg/systemd/services/service-details.jsx:327
 msgid "Not running"
-msgstr "Nespustené"
+msgstr "Nespustená"
 
 #: pkg/systemd/overview-cards/serverTime.js:388
 msgid "Not synchronized"
@@ -5020,7 +5022,7 @@ msgstr "Mechanika optického disku"
 msgid "Options"
 msgstr "Možnosti"
 
-#: src/ws/login.html:129
+#: pkg/static/login.html:127
 msgid "Or use a bundled browser"
 msgstr "Alebo použite pribalený prehliadač"
 
@@ -5037,7 +5039,7 @@ msgstr "Iné dáta"
 msgid "Other devices"
 msgstr "Iné zariadenia"
 
-#: src/ws/login.html:85
+#: pkg/static/login.html:83
 msgid "Other options"
 msgstr "Iné voľby"
 
@@ -5149,8 +5151,8 @@ msgid "Passphrases do not match"
 msgstr "Heslové frázy sa líšia"
 
 #: pkg/shell/index.html:160 pkg/shell/index.html:189 pkg/shell/index.html:204
-#: pkg/lib/machine-change-auth.html:43 pkg/lib/machine-change-auth.html:50
-#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:77
+#: pkg/static/login.html:75 pkg/lib/machine-change-auth.html:43
+#: pkg/lib/machine-change-auth.html:50 pkg/lib/machine-auth-failed.html:8
 #: pkg/shell/superuser.jsx:45 pkg/users/account-details.js:321
 #: pkg/users/account-create-dialog.js:60 pkg/storaged/iscsi-panel.jsx:47
 #: pkg/storaged/iscsi-panel.jsx:157
@@ -5252,7 +5254,7 @@ msgstr ""
 msgid "Permanent"
 msgstr "Trvalá"
 
-#: src/ws/login.js:819
+#: pkg/static/login.js:820
 msgid "Permission denied"
 msgstr ""
 
@@ -5331,7 +5333,7 @@ msgstr "Potvrďte zmazanie $0"
 msgid "Please confirm stopping of $0"
 msgstr ""
 
-#: src/ws/login.html:35
+#: pkg/static/login.html:33
 msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 
@@ -5339,7 +5341,7 @@ msgstr ""
 msgid "Please enter new volume name"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:880
+#: pkg/networkmanager/firewall.jsx:913
 msgid "Please install the $0 package"
 msgstr "Nainštalujte $0 balík"
 
@@ -5351,7 +5353,7 @@ msgstr "Nastavte heslo pre účet správcu (root)"
 msgid "Please specify an expiration date"
 msgstr ""
 
-#: src/ws/login.js:512
+#: pkg/static/login.js:512
 msgid "Please specify the host to connect to"
 msgstr "Zadajte stroj, ku ktorému sa chcete pripojiť"
 
@@ -5401,7 +5403,7 @@ msgstr ""
 msgid "Port"
 msgstr "Port"
 
-#: pkg/networkmanager/firewall.jsx:392
+#: pkg/networkmanager/firewall.jsx:409
 msgid "Port number and type do not match"
 msgstr ""
 
@@ -5622,11 +5624,11 @@ msgstr ""
 msgid "Random"
 msgstr "Náhodná"
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:771
 msgid "Range"
 msgstr "Rozsah"
 
-#: pkg/networkmanager/firewall.jsx:425
+#: pkg/networkmanager/firewall.jsx:441
 msgid "Range must be strictly ordered"
 msgstr ""
 
@@ -5715,15 +5717,15 @@ msgstr "Zotavuje sa RAID zariadenia $target"
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:809
+#: pkg/static/login.js:810
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmieta sa pripojenie. Stroj nie je známy"
 
-#: src/ws/login.js:811
+#: pkg/static/login.js:812
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmieta sa pripojenie. Kľúč stroja sa líši"
 
-#: src/ws/login.js:807
+#: pkg/static/login.js:808
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmieta sa pripojenie. Kľúč stroja nie je známy"
 
@@ -5772,7 +5774,7 @@ msgstr "Odobrať"
 msgid "Remove $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:830
+#: pkg/networkmanager/firewall.jsx:863
 msgid "Remove $0 service from $1 zone"
 msgstr "Odstrániť službu $0 zo zóny $1"
 
@@ -5796,11 +5798,11 @@ msgstr ""
 msgid "Remove passphrase in $0?"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:69
+#: pkg/networkmanager/firewall.jsx:73
 msgid "Remove service $0"
 msgstr "Odstrániť službu $0"
 
-#: pkg/networkmanager/firewall.jsx:158 pkg/networkmanager/firewall.jsx:813
+#: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:846
 msgid "Remove zone $0"
 msgstr ""
 
@@ -5828,14 +5830,14 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:828
+#: pkg/networkmanager/firewall.jsx:861
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
 "console connection."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:811
+#: pkg/networkmanager/firewall.jsx:844
 msgid "Removing the zone will remove all services within it."
 msgstr ""
 
@@ -6069,11 +6071,11 @@ msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:355
 msgid "SELinux is disabled on the system"
-msgstr ""
+msgstr "SELinux je vypnutý na tomto systéme"
 
 #: pkg/selinux/setroubleshoot-view.jsx:278
 msgid "SELinux is disabled on the system."
-msgstr ""
+msgstr "SELinux je vypnutý na tomto systéme."
 
 #: pkg/selinux/setroubleshoot-view.jsx:294
 msgid "SELinux policy"
@@ -6247,7 +6249,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Sériové číslo"
 
-#: src/ws/login.html:141 pkg/kdump/kdump-view.jsx:121
+#: pkg/static/login.html:139 pkg/kdump/kdump-view.jsx:121
 #: pkg/storaged/nfs-details.jsx:326 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "Server"
@@ -6276,7 +6278,7 @@ msgstr "Server zavrel spojenie."
 msgid "Server software"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1048
+#: pkg/networkmanager/firewall.jsx:187 pkg/storaged/dialog.jsx:1048
 #: pkg/metrics/metrics.jsx:423 pkg/metrics/metrics.jsx:457
 msgid "Service"
 msgstr "Služba"
@@ -6309,7 +6311,7 @@ msgstr "Záznamy udalostí služby"
 msgid "Service name"
 msgstr "Názov služby"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:521
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:541
 #: pkg/systemd/services/service.jsx:76 pkg/systemd/manifest.json.in:0
 msgid "Services"
 msgstr "Služby"
@@ -6567,8 +6569,10 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "Niečo sa nepodarilo"
 
-#: pkg/networkmanager/firewall.jsx:685
-msgid "Sorted from least trusted to most trusted"
+#: pkg/networkmanager/firewall.jsx:708
+#, fuzzy
+#| msgid "Sorted from least trusted to most trusted"
+msgid "Sorted from least to most trusted"
 msgstr "Zoradené od najmenej po najviac dôverihodné"
 
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:239
@@ -6662,7 +6666,7 @@ msgstr "Spustiť službu"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:65
 #: pkg/machines/components/networks/createNetworkDialog.jsx:93
 msgid "Start should not be empty"
-msgstr ""
+msgstr "Je nutné vyplniť začiatok"
 
 #: pkg/storaged/jobs-panel.jsx:62
 msgid "Starting RAID device $target"
@@ -6694,7 +6698,7 @@ msgstr "Stav"
 #: pkg/systemd/services/services.jsx:526 pkg/systemd/services/services.jsx:687
 #: pkg/systemd/services/service-details.jsx:337
 msgid "Static"
-msgstr "Statický"
+msgstr "Statická"
 
 #: pkg/networkmanager/interfaces.js:2602 pkg/packagekit/updates.jsx:569
 #: pkg/systemd/services/service-details.jsx:444
@@ -6934,7 +6938,7 @@ msgstr "Systémový čas"
 msgid "Systemd units"
 msgstr "Systemd jednotky"
 
-#: pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/firewall.jsx:187
 msgid "TCP"
 msgstr "TCP"
 
@@ -7082,7 +7086,7 @@ msgid ""
 "established. Are you sure you want to continue connecting?"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:711
+#: pkg/networkmanager/firewall.jsx:739
 msgid "The cockpit service is automatically included"
 msgstr "Služba cockpit je zahrnutá automaticky"
 
@@ -7199,7 +7203,7 @@ msgstr "Posledný disk RAID zariadenia nemôže byť odobraný."
 
 #: pkg/storaged/crypto-keyslots.jsx:557
 msgid "The last key slot can not be removed"
-msgstr ""
+msgstr "Posledný slot kľúča nemôže byť odobraný"
 
 #: pkg/storaged/vgroup-details.jsx:101
 msgid "The last physical volume of a volume group cannot be removed."
@@ -7233,7 +7237,7 @@ msgstr "Heslá sa líšia."
 msgid "The pool is empty"
 msgstr ""
 
-#: src/ws/login.html:67
+#: pkg/static/login.html:65
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7252,7 +7256,7 @@ msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
 msgstr ""
 
-#: src/ws/login.js:801
+#: pkg/static/login.js:802
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7285,7 +7289,7 @@ msgstr ""
 "Užívateľské meno môže obsahovať iba písmená a-z, čísla, bodky, pomlčky a "
 "podtržníky."
 
-#: src/ws/login.js:178
+#: pkg/static/login.js:178
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
@@ -7300,7 +7304,7 @@ msgid ""
 "service is not running."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:182
+#: pkg/networkmanager/firewall.jsx:190
 msgid "There are no active services in this zone"
 msgstr ""
 
@@ -7475,7 +7479,7 @@ msgstr ""
 msgid "This volume needs to be activated before it can be resized."
 msgstr ""
 
-#: src/ws/login.js:163
+#: pkg/static/login.js:163
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 
@@ -7494,7 +7498,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:809
+#: pkg/networkmanager/firewall.jsx:842
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7532,7 +7536,7 @@ msgstr ""
 "Tip: Nastavte si heslo ku kľúču rovnaké ako pre prihlasovanie a budete se "
 "voči ostatným systémom overovať automaticky."
 
-#: src/ws/login.html:62
+#: pkg/static/login.html:60
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7544,7 +7548,7 @@ msgid ""
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
 
-#: src/ws/login.js:651
+#: pkg/static/login.js:651
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7604,11 +7608,11 @@ msgstr "Riešiť problém"
 msgid "Trust key"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:681
+#: pkg/networkmanager/firewall.jsx:705
 msgid "Trust level"
 msgstr "Stupeň dôveryhodnosti"
 
-#: src/ws/login.html:115
+#: pkg/static/login.html:113
 msgid "Try again"
 msgstr "Skúsiť znova"
 
@@ -7674,7 +7678,7 @@ msgstr "Iden. typu"
 msgid "Type to filter"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/firewall.jsx:187
 msgid "UDP"
 msgstr "UDP"
 
@@ -7699,7 +7703,7 @@ msgstr ""
 msgid "Unable to apply this solution automatically"
 msgstr ""
 
-#: src/ws/login.js:805
+#: pkg/static/login.js:806
 msgid "Unable to connect to that address"
 msgstr ""
 
@@ -7836,7 +7840,7 @@ msgstr ""
 msgid "Unknown host name"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:386
+#: pkg/networkmanager/firewall.jsx:403
 msgid "Unknown service name"
 msgstr ""
 
@@ -8004,13 +8008,13 @@ msgstr "Používané"
 msgid "User"
 msgstr "Používateľ"
 
-#: pkg/lib/machine-add.html:29
-#: pkg/systemd/overview-cards/realmd-operation.html:57 src/ws/login.html:72
+#: pkg/static/login.html:70 pkg/lib/machine-add.html:29
+#: pkg/systemd/overview-cards/realmd-operation.html:57
 #: pkg/users/account-details.js:289 pkg/users/account-create-dialog.js:49
 msgid "User name"
 msgstr "Užívateľské meno"
 
-#: src/ws/login.js:510
+#: pkg/static/login.js:510
 msgid "User name cannot be empty"
 msgstr "Užívateľské meno nemôže byť prázdne"
 
@@ -8025,7 +8029,7 @@ msgstr "Užívateľské meno"
 
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:164
 msgid "VCPU settings could not be saved"
-msgstr ""
+msgstr "Nastavenia virt. procesoru nebolo možné uložiť"
 
 #: pkg/storaged/content-views.jsx:166
 msgid "VDO backing"
@@ -8130,7 +8134,7 @@ msgstr "VNC port:"
 msgid "Validating address"
 msgstr "Overuje sa adresa"
 
-#: src/ws/login.html:109
+#: pkg/static/login.html:107
 msgid "Validating authentication token"
 msgstr "Kontroluje sa overovací žetón"
 
@@ -8356,7 +8360,7 @@ msgstr "Zapisovateľné a zdielané"
 msgid "Writing"
 msgstr "Zapisuje sa"
 
-#: src/ws/login.js:815
+#: pkg/static/login.js:816
 msgid "Wrong user name or password"
 msgstr "Chybné užívateľské meno alebo heslo"
 
@@ -8372,11 +8376,11 @@ msgstr "Áno"
 msgid "Yesterday"
 msgstr "Včera"
 
-#: src/ws/login.js:648
+#: pkg/static/login.js:648
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:151 pkg/networkmanager/firewall.jsx:899
+#: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
 msgid "You are not authorized to modify the firewall."
 msgstr "Nemáte oprávnenia na správu brány firewall."
 
@@ -8499,7 +8503,7 @@ msgstr "apt-get"
 
 #: pkg/systemd/manifest.json.in:0
 msgid "asset tag"
-msgstr ""
+msgstr "Inventárny štítok"
 
 #: pkg/packagekit/autoupdates.jsx:384
 msgid "at"
@@ -8593,7 +8597,7 @@ msgstr "vypnúť"
 
 #: pkg/machines/helpers.js:203
 msgid "disabled"
-msgstr "Vypnuté"
+msgstr "vypnuté"
 
 #: pkg/machines/helpers.js:223 pkg/machines/helpers.js:226
 #: pkg/storaged/manifest.json.in:0

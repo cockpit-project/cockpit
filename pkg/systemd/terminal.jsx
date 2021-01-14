@@ -2,8 +2,11 @@ import cockpit from "cockpit";
 
 import React from "react";
 import ReactDOM from "react-dom";
+import {
+    Toolbar, ToolbarContent, ToolbarItem
+} from "@patternfly/react-core";
 
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 import { Terminal } from "cockpit-components-terminal.jsx";
 import { Select, SelectEntry } from "cockpit-components-select.jsx";
 
@@ -89,23 +92,32 @@ const _ = cockpit.gettext;
 
             return (
                 <div className="console-ct-container">
-                    <div className="panel-heading terminal-group">
+                    <div className="terminal-group">
                         <tt className="terminal-title">{this.state.title}</tt>
-                        <label className="control-label" htmlFor="theme-select">{_("Appearance:")}</label>
-                        <Select onChange={this.onThemeChanged}
-                            id="theme-select"
-                            className="theme-select"
-                            initial={this.state.theme}>
-                            <SelectEntry data='black-theme'>{_("Black")}</SelectEntry>
-                            <SelectEntry data='dark-theme'>{_("Dark")}</SelectEntry>
-                            <SelectEntry data='light-theme'>{_("Light")}</SelectEntry>
-                            <SelectEntry data='white-theme'>{_("White")}</SelectEntry>
-                        </Select>
-                        <button ref="resetButton"
-                            className="pf-c-button pf-m-secondary terminal-reset"
-                            onClick={this.onResetClick}>{_("Reset")}</button>
+                        <Toolbar id="toolbar">
+                            <ToolbarContent>
+                                <ToolbarItem variant="label" id="theme-select">
+                                    {_("Appearance")}
+                                </ToolbarItem>
+                                <ToolbarItem>
+                                    <Select onChange={this.onThemeChanged}
+                                        ariaLabelledBy="theme-select"
+                                        initial={this.state.theme}>
+                                        <SelectEntry data='black-theme'>{_("Black")}</SelectEntry>
+                                        <SelectEntry data='dark-theme'>{_("Dark")}</SelectEntry>
+                                        <SelectEntry data='light-theme'>{_("Light")}</SelectEntry>
+                                        <SelectEntry data='white-theme'>{_("White")}</SelectEntry>
+                                    </Select>
+                                </ToolbarItem>
+                                <ToolbarItem>
+                                    <button ref="resetButton"
+                                            className="pf-c-button pf-m-secondary terminal-reset"
+                                            onClick={this.onResetClick}>{_("Reset")}</button>
+                                </ToolbarItem>
+                            </ToolbarContent>
+                        </Toolbar>
                     </div>
-                    <div className={"panel-body " + this.state.theme} id="the-terminal">
+                    <div className={"terminal-body " + this.state.theme} id="the-terminal">
                         {terminal}
                     </div>
                 </div>

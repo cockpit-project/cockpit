@@ -2,6 +2,7 @@
 
 top_srcdir=$(realpath -m "$0"/../../..)
 image=ghcr.io/cockpit-project/unit-tests:latest
+no_npm=''
 scenario=''
 flags=''
 cmd=''
@@ -10,6 +11,7 @@ while test $# -gt 0; do
   case "$1" in
     --docker) docker="docker";;
     --podman) docker="podman";;
+    NO_NPM=1) no_npm='--env=NO_NPM=1';;
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
@@ -31,4 +33,4 @@ fi
 
 set -ex
 exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
-       ${ccarg:+"$ccarg"} $scenario $flags -- "$image" $cmd
+       ${ccarg:+"$ccarg"} $scenario $no_npm $flags -- "$image" $cmd

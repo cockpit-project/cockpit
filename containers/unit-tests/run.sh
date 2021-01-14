@@ -37,7 +37,9 @@ if [ ! -e /source/.git ]; then
     exit 1
 fi
 git clone /source /tmp/source
-[ ! -d /source/node_modules ] || cp -r /source/node_modules /tmp/source/
+if [ "${NO_NPM:-}" != "1" -a -d /source/node_modules ]; then
+    cp -r /source/node_modules /tmp/source/
+fi
 cd /tmp/source
 
 containers/unit-tests/build.sh

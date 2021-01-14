@@ -180,7 +180,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         self.assertNotIn(":/.local", path)  # would happen with empty $HOME
 
         def check_theme_select(name, style):
-            b.select_from_dropdown("#theme-select", name)
+            b.select_from_dropdown("#theme-select + div select", name)
             b.wait_attr(".xterm-viewport", "style", style)
 
         # Check that color theme changes

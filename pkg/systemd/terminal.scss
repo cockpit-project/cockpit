@@ -1,5 +1,7 @@
 @import "../lib/console.css";
+@import "_global-variables.scss";
 @import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
+@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
 
 html, body {
         height: 100%;
@@ -12,7 +14,7 @@ html, body {
     overflow: hidden;
 }
 
-.console-ct-container .panel-body,
+.console-ct-container .terminal-body,
 .console-ct-container .console-ct {
     top: 0;
     right: 0;
@@ -20,7 +22,7 @@ html, body {
     left: 0;
 }
 
-.console-ct-container .panel-heading {
+.console-ct-container .terminal-group {
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -30,7 +32,7 @@ html, body {
     right: 18px !important;
 }
 
-.console-ct-container .panel-body {
+.console-ct-container .terminal-body {
     padding: 0;
     position: relative;
 }
@@ -60,26 +62,21 @@ html, body {
 }
 
 .terminal-group {
-    display: grid;
-    grid-gap: 0.5rem;
-    grid-template-columns: 1fr repeat(3, auto);
+    display: flex;
+    row-gap: 0.5rem;
+    justify-content: space-between;
     align-content: center;
     align-items: baseline;
-}
+    flex-wrap: wrap;
 
-@media (min-width: 640px) {
-    .terminal-group {
-        min-height: 4rem;
+    /* Move the padding handling to the container element outside of the toolbar */
+    padding: var(--pf-global--spacer--md);
+
+    > .pf-c-toolbar {
+        padding: 0;
+        > .pf-c-toolbar__content {
+            padding: 0;
+        }
+        padding: 0;
     }
-}
-
-.terminal-group > .pf-c-button {
-    align-self: stretch;
-}
-
-.theme-select {
-    margin-left: 5px;
-    margin-right: 5px;
-    width: auto;
-    min-width: 10rem;
 }

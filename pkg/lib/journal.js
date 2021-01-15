@@ -134,17 +134,17 @@ journal.build_cmd = function build_cmd(/* ... */) {
 };
 
 journal.journalctl = function journalctl(/* ... */) {
-    var [cmd, options] = journal.build_cmd.apply(null, arguments);
+    const [cmd, options] = journal.build_cmd.apply(null, arguments);
 
-    var dfd = cockpit.defer();
-    var promise;
-    var buffer = "";
-    var entries = [];
-    var streamers = [];
-    var interval = null;
+    const dfd = cockpit.defer();
+    const promise = dfd.promise();
+    let buffer = "";
+    let entries = [];
+    let streamers = [];
+    let interval = null;
 
     function fire_streamers() {
-        var ents, i;
+        let ents, i;
         if (streamers.length && entries.length > 0) {
             ents = entries;
             entries = [];
@@ -156,14 +156,14 @@ journal.journalctl = function journalctl(/* ... */) {
         }
     }
 
-    var proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" })
+    const proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" })
             .stream(function(data) {
                 if (buffer)
                     data = buffer + data;
                 buffer = "";
 
-                var lines = data.split("\n");
-                var last = lines.length - 1;
+                const lines = data.split("\n");
+                const last = lines.length - 1;
                 lines.forEach(function(line, i) {
                     if (i == last) {
                         buffer = line;
@@ -198,7 +198,6 @@ journal.journalctl = function journalctl(/* ... */) {
                 window.clearInterval(interval);
             });
 
-    promise = dfd.promise();
     promise.stream = function stream(callback) {
         streamers.push(callback);
         return this;

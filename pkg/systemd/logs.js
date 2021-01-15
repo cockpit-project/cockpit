@@ -74,6 +74,7 @@ $(function() {
         const renderer = journal.renderer(out);
         const procs = [];
         const following_procs = [];
+        let running = true;
 
         let loading_services = false;
 
@@ -119,6 +120,8 @@ $(function() {
                                  procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first, priority: priority, grep: grep })
                                          .fail(query_error)
                                          .stream(function(entries) {
+                                             if (!running)
+                                                 return;
                                              if (entries[0].__CURSOR == first)
                                                  entries.shift();
                                              count += entries.length;
@@ -130,6 +133,8 @@ $(function() {
                                              }
                                          })
                                          .done(function() {
+                                             if (!running)
+                                                 return;
                                              if (no_logs) {
                                                  ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
                                                  manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
@@ -143,6 +148,8 @@ $(function() {
             following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority, grep: grep })
                     .fail(query_error)
                     .stream(function(entries) {
+                        if (!running)
+                            return;
                         if (entries[0].__CURSOR == cursor)
                             entries.shift();
                         if (entries.length > 0 && no_logs)
@@ -237,6 +244,8 @@ $(function() {
         procs.push(journal.journalctl(match, options)
                 .fail(query_error)
                 .stream(function(entries) {
+                    if (!running)
+                        return;
                     if (!last) {
                         last = entries[0].__CURSOR;
                         follow(last);
@@ -251,6 +260,8 @@ $(function() {
                     }
                 })
                 .done(function() {
+                    if (!running)
+                        return;
                     if (no_logs) {
                         ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
                         manage_start_box(false, true, _("No logs found"), _("Can not find any logs using the current combination of filters."));
@@ -266,6 +277,8 @@ $(function() {
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
+                                    if (!running)
+                                        return;
                                     if (entries.length > 0 && no_logs)
                                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                                     prepend_entries(entries);
@@ -276,6 +289,7 @@ $(function() {
                 }));
 
         self.stop = function stop() {
+            running = false;
             $.each(procs, function(i, proc) {
                 proc.stop();
             });

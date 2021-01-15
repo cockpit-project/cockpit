@@ -138,7 +138,16 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
         b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0%" )
 
+        # shut off of a transient VM will redirect us to the main page
         self.goToMainPage()
+        m.execute("virsh dumpxml subVmTest1 > /tmp/subVmTest1.xml")
+        m.execute("virsh start {0} && virsh undefine {0}".format("subVmTest1"))
+        b.wait_visible("tr[data-row-id=vm-subVmTest1-system][data-row-transient=true]")
+        self.goToVmPage("subVmTest1")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+        m.execute("virsh define --file /tmp/subVmTest1.xml")
 
         # clone
         b.click("#vm-subVmTest1-action-kebab button")
@@ -369,16 +378,17 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         b.wait_in_text("#vm-{0}-state".format(name), "Paused")
         b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
-        self.browser.reload()
+        # HACK: Don't delete disks here because they will fail with 'storage volume does not exist'
+        # This can be reverted when https://github.com/cockpit-project/cockpit/pull/15102 gets merged
+        b.set_checked("#vm-{0}-delete-modal-dialog ul li:first-child input[type=checkbox]".format(name), False)
+        b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         self.waitVmRow(name, 'system', False)
 
         # Try to delete a transient VM
         name = "transient-VM"
         args = self.createVm(name)
         m.execute("virsh undefine {0}".format(name))
-        b.reload()
-        self.browser.enter_page('/machines')
-        self.goToMainPage()
+        b.wait_visible("tr[data-row-id=vm-{0}-system][data-row-transient=true]".format(name))
         b.click("#vm-{0}-action-kebab button".format(name))
         b.wait_visible("#vm-{0}-delete a.pf-m-disabled".format(name))
         b.click("#vm-{0}-forceOff".format(name))

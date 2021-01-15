@@ -648,18 +648,18 @@ OnCalendar=daily
         """)
 
         b.inject_js("""
-          ph_flot_data_plateau = function (sel, min, max, duration, label) {
+          ph_plot_data_plateau = function (sel, min, max, duration, label) {
             return ph_plateau(window.plot_state.data(sel)[0].data, min, max, duration, label);
           }
         """)
 
         meminfo = read_mem_info(m)
         mem_avail = meminfo['MemAvailable']
-        b.wait_js_func("ph_flot_data_plateau", "direct", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
+        b.wait_js_func("ph_plot_data_plateau", "direct", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
 
         meminfo = read_mem_info(m)
         mem_avail = meminfo['MemAvailable']
-        b.wait_js_func("ph_flot_data_plateau", "pmcd", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
+        b.wait_js_func("ph_plot_data_plateau", "pmcd", mem_avail * 0.95, mem_avail * 1.05, 15, "mem")
 
     def testPageStatus(self):
         b = self.browser

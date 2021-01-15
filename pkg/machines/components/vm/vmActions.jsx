@@ -273,7 +273,10 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
 
     let install = null;
     if (LibvirtDBus.canInstall(state, hasInstallPhase)) {
-        install = (<Button key='action-install' variant="secondary" onClick={() => onInstall()} id={`${id}-install`}>
+        install = (<Button key='action-install' variant="secondary"
+                           isLoading={vm.isUi}
+                           isDisabled={vm.isUi}
+                           onClick={() => onInstall()} id={`${id}-install`}>
             {_("Install")}
         </Button>);
     }
@@ -344,7 +347,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             {cloneAction}
             <Dropdown onSelect={() => setIsActionOpen(!isActionOpen)}
                       id={`${id}-action-kebab`}
-                      toggle={<KebabToggle onToggle={isOpen => setIsActionOpen(isOpen)} />}
+                      toggle={<KebabToggle isDisabled={vm.isUi} onToggle={isOpen => setIsActionOpen(isOpen)} />}
                       isPlain
                       isOpen={isActionOpen}
                       position='right'

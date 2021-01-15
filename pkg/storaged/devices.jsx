@@ -40,7 +40,6 @@ import { update_plot_state } from "./plot.jsx";
 import "bootstrap/dist/js/bootstrap";
 
 import "table.css";
-import "plot.css";
 import "journal.css";
 import "./storage.scss";
 

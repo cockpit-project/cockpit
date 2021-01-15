@@ -196,7 +196,7 @@ WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
-WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
+WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 

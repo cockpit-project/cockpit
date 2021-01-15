@@ -458,7 +458,7 @@ module.exports = {
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "eslint-loader"
             },
-            // flot and bootstrap UI require jQuery to be in the global namespace
+            // bootstrap UI requires jQuery to be in the global namespace
             // only expose that to pages which need it, as we want to port to React and get rid of jQuery
             {
                 issuer: /shell|networkmanager|storaged|systemd\/(logs|services|shutdown)/,

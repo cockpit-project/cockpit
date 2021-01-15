@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-15 18:24+0000\n"
+"POT-Creation-Date: 2021-01-15 08:48+0100\n"
 "PO-Revision-Date: 2020-11-02 10:34+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -47,7 +47,6 @@ msgstr[3] "$0 מעבדים"
 
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:57
 #, fuzzy
-#| msgid "IP configuration"
 msgid "$0 CPU configuration"
 msgstr "הגדרת IP"
 
@@ -75,11 +74,11 @@ msgstr[1] "$0 מאגרי אחסון"
 msgstr[2] "$0 מאגרי אחסון"
 msgstr[3] "$0 מאגרי אחסון"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2232
 msgid "$0 active zone"
 msgstr "אזור פעיל אחד"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2232
 msgid "$0 active zones"
 msgstr "$0 אזורים פעילים"
 
@@ -103,7 +102,7 @@ msgstr[3] "$0 פגיעות, כולל חמורות"
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 נתונים + $1 תוספת מנוצלים מתוך $2 ($3)"
 
-#: pkg/lib/plot.js:972
+#: pkg/lib/cockpit-components-plot.jsx:232
 msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "יום"
@@ -111,8 +110,8 @@ msgstr[1] "יומיים"
 msgstr[2] "$0 ימים"
 msgstr[3] "$0 ימים"
 
-#: pkg/playground/translate.js:28 pkg/playground/translate.js:31
-#: pkg/storaged/mdraid-details.jsx:209
+#: pkg/storaged/mdraid-details.jsx:209 pkg/playground/translate.js:28
+#: pkg/playground/translate.js:31
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "כונן אחד חסר"
@@ -137,7 +136,7 @@ msgstr "$0 כוננים"
 msgid "$0 documentation"
 msgstr "התיעוד של $0"
 
-#: src/ws/login.js:376 src/ws/login.js:823
+#: pkg/static/login.js:376 pkg/static/login.js:824
 msgid "$0 error"
 msgstr "שגיאת $0"
 
@@ -180,7 +179,7 @@ msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 מתוך $1 על $2"
 
-#: pkg/lib/plot.js:975
+#: pkg/lib/cockpit-components-plot.jsx:235
 msgid "$0 hour"
 msgid_plural "$0 hours"
 msgstr[0] "שעה"
@@ -196,7 +195,7 @@ msgstr[1] "$0 פגיעות חשובות"
 msgstr[2] "$0 פגיעות חשובות"
 msgstr[3] "$0 פגיעות חשובות"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:58
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:61
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
@@ -204,11 +203,11 @@ msgstr ""
 "$0 זמין לרוב מערכות ההפעלה. כדי להתקין אותו, יש לחפש אותו ב„תכנה של GNOME” "
 "או להריץ את הפקודה הבאה:"
 
-#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:165
-#: pkg/storaged/vdo-details.jsx:131 pkg/storaged/vdo-details.jsx:162
 #: pkg/storaged/lvol-tabs.jsx:209 pkg/storaged/lvol-tabs.jsx:271
-#: pkg/storaged/content-views.jsx:336 pkg/storaged/content-views.jsx:580
 #: pkg/storaged/mdraid-details.jsx:231 pkg/storaged/mdraid-details.jsx:283
+#: pkg/storaged/format-dialog.jsx:165 pkg/storaged/vdo-details.jsx:131
+#: pkg/storaged/vdo-details.jsx:162 pkg/storaged/vgroup-details.jsx:190
+#: pkg/storaged/content-views.jsx:336 pkg/storaged/content-views.jsx:580
 msgid "$0 is in active use"
 msgstr "$0 בשימוש פעיל"
 
@@ -216,9 +215,8 @@ msgstr "$0 בשימוש פעיל"
 msgid "$0 is not available from any repository."
 msgstr "$0 אינו זמין מאף מאגר."
 
-#: src/ws/login.js:642
+#: pkg/static/login.js:642
 #, fuzzy
-#| msgid "Force change"
 msgid "$0 key changed"
 msgstr "לאלץ החלפה"
 
@@ -238,7 +236,7 @@ msgstr[3] "$0 פגיעות בדרגת חומרה נמוכה"
 msgid "$0 memory adjustment"
 msgstr "התאמת זיכרון עבור $0"
 
-#: pkg/lib/plot.js:978
+#: pkg/lib/cockpit-components-plot.jsx:238
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "דקה"
@@ -254,7 +252,7 @@ msgstr[1] "$0 פגיעות, כולל בינוניות"
 msgstr[2] "$0 פגיעות, כולל בינוניות"
 msgstr[3] "$0 פגיעות, כולל בינוניות"
 
-#: pkg/lib/plot.js:966
+#: pkg/lib/cockpit-components-plot.jsx:226
 msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "חודש"
@@ -268,8 +266,6 @@ msgstr "רשת $0"
 
 #: pkg/selinux/setroubleshoot-view.jsx:429
 #, fuzzy
-#| msgid "$0 occurrence"
-#| msgid_plural "$1 occurrences"
 msgid "$0 occurrence"
 msgid_plural "$0 occurrences"
 msgstr[0] "מופע אחד"
@@ -296,7 +292,6 @@ msgstr[3] "$0 חבילות"
 
 #: pkg/metrics/metrics.jsx:105
 #, fuzzy
-#| msgid "$0 pages"
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 עמודים"
@@ -304,7 +299,7 @@ msgstr[1] "$0 עמודים"
 msgstr[2] "$0 עמודים"
 msgstr[3] "$0 עמודים"
 
-#: pkg/systemd/services/services.jsx:650
+#: pkg/systemd/services/services.jsx:654
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "שירות אחד נכשל"
@@ -314,7 +309,6 @@ msgstr[3] "$0 שירותים נכשלו"
 
 #: pkg/storaged/crypto-keyslots.jsx:592
 #, fuzzy
-#| msgid "$0 slots remain"
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "נותרו $0 משבצות"
@@ -354,7 +348,7 @@ msgstr "פרטי המעבד הווירטואלי $0"
 msgid "$0 virtual network interface settings"
 msgstr "הגדרות מנשק הרשת הווירטואלי $0"
 
-#: pkg/lib/plot.js:969
+#: pkg/lib/cockpit-components-plot.jsx:229
 msgid "$0 week"
 msgid_plural "$0 weeks"
 msgstr[0] "שבוע"
@@ -366,7 +360,7 @@ msgstr[3] "$0 שבועות"
 msgid "$0 will be installed."
 msgstr "$0 יותקן."
 
-#: pkg/lib/plot.js:963
+#: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "שנה"
@@ -374,7 +368,7 @@ msgstr[1] "שנתיים"
 msgstr[2] "$0 שנים"
 msgstr[3] "$0 שנים"
 
-#: pkg/networkmanager/firewall.jsx:170
+#: pkg/networkmanager/firewall.jsx:178
 msgid "$0 zone"
 msgstr "אזור $0"
 
@@ -398,7 +392,7 @@ msgstr[3] "$0 תיקוני אבטחה"
 msgid "$name (from $host)"
 msgstr "$name (מ־$host)"
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:610
 msgid "(Optional)"
 msgstr "(רשות)"
 
@@ -418,13 +412,11 @@ msgstr[3] ", כולל $0 תיקוני אבטחה"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/networkmanager/index.html:75 pkg/networkmanager/index.html:421
-#: pkg/storaged/plot.jsx:85
+#: pkg/lib/cockpit-components-plot.jsx:275
 msgid "1 day"
 msgstr "יום"
 
-#: pkg/networkmanager/index.html:73 pkg/networkmanager/index.html:419
-#: pkg/storaged/plot.jsx:79
+#: pkg/lib/cockpit-components-plot.jsx:273
 msgid "1 hour"
 msgstr "שעה"
 
@@ -436,8 +428,7 @@ msgstr "דקה"
 msgid "1 minute"
 msgstr "דקה"
 
-#: pkg/networkmanager/index.html:76 pkg/networkmanager/index.html:422
-#: pkg/storaged/plot.jsx:88
+#: pkg/lib/cockpit-components-plot.jsx:276
 msgid "1 week"
 msgstr "שבוע"
 
@@ -581,8 +572,7 @@ msgstr "ארבעה"
 msgid "5 min"
 msgstr "5 דקות"
 
-#: pkg/networkmanager/index.html:72 pkg/networkmanager/index.html:418
-#: pkg/systemd/index.html:38 pkg/storaged/plot.jsx:76
+#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 דקות"
 
@@ -594,8 +584,7 @@ msgstr "512 KiB"
 msgid "5th"
 msgstr "חמישה"
 
-#: pkg/networkmanager/index.html:74 pkg/networkmanager/index.html:420
-#: pkg/storaged/plot.jsx:82
+#: pkg/lib/cockpit-components-plot.jsx:274
 msgid "6 hours"
 msgstr "6 שעות"
 
@@ -619,11 +608,11 @@ msgstr "שבעה"
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1963
+#: pkg/networkmanager/interfaces.js:1916
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1980
+#: pkg/networkmanager/interfaces.js:1933
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
@@ -645,12 +634,12 @@ msgstr "לא מותקנת גרסה תואמת של Cockpit ב־{{#strong}}{{host
 msgid "A disk is needed."
 msgstr "צריך כונן."
 
-#: src/ws/login.html:119
+#: pkg/static/login.html:118
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "נדרש דפדפן עדכני לטובת אבטחה, אמינות וביצועים."
 
-#: pkg/networkmanager/interfaces.js:1714
+#: pkg/networkmanager/interfaces.js:1647
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -669,15 +658,15 @@ msgstr ""
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "יש להוסיף כונן חלופי לפני שניתן יהיה להסיר את הכונן הזה."
 
-#: pkg/networkmanager/interfaces.js:1971
+#: pkg/networkmanager/interfaces.js:1924
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2775
+#: pkg/networkmanager/interfaces.js:2673
 msgid "ARP monitoring"
 msgstr "מעקב אחר ARP"
 
-#: pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1945
 msgid "ARP ping"
 msgstr "פינג ARP"
 
@@ -689,13 +678,13 @@ msgstr "על המסוף המקוון"
 msgid "Absent"
 msgstr "חסר"
 
-#: src/ws/login.js:563
+#: pkg/static/login.js:563
 msgid "Accept key and log in"
 msgstr ""
 
 #: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:305
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:228
 #: pkg/machines/components/vm/disks/diskEdit.jsx:85
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:228
 msgid "Access"
 msgstr "גישה"
 
@@ -718,8 +707,8 @@ msgid "Actions"
 msgstr "פעולות"
 
 #: pkg/storaged/content-views.jsx:290
-#: pkg/machines/components/storagePools/storagePool.jsx:174
 #: pkg/machines/components/networks/network.jsx:174
+#: pkg/machines/components/storagePools/storagePool.jsx:174
 msgid "Activate"
 msgstr "הפעלה"
 
@@ -727,16 +716,16 @@ msgstr "הפעלה"
 msgid "Activating $target"
 msgstr "$target מופעל"
 
-#: pkg/networkmanager/interfaces.js:829 pkg/networkmanager/interfaces.js:1986
+#: pkg/networkmanager/interfaces.js:830 pkg/networkmanager/interfaces.js:1939
 msgid "Active"
 msgstr "פעיל"
 
-#: pkg/networkmanager/interfaces.js:1960 pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1913 pkg/networkmanager/interfaces.js:1930
 msgid "Active backup"
 msgstr "גיבוי פעיל"
 
-#: pkg/shell/index.html:75 pkg/shell/active-pages-dialog.jsx:65
-#: pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:74 pkg/shell/active-pages.js:95
+#: pkg/shell/active-pages-dialog.jsx:65
 msgid "Active pages"
 msgstr "עמודים פעילים"
 
@@ -748,50 +737,50 @@ msgstr "פעיל מאז"
 msgid "Active since "
 msgstr "פעיל מאז "
 
-#: pkg/networkmanager/interfaces.js:1965
+#: pkg/networkmanager/interfaces.js:1918
 msgid "Adaptive load balancing"
 msgstr "איזון עומס מסתגל"
 
-#: pkg/networkmanager/interfaces.js:1964
+#: pkg/networkmanager/interfaces.js:1917
 msgid "Adaptive transmit load balancing"
 msgstr "איזון עומס העברה מסתגל"
 
-#: pkg/shell/index.html:135 pkg/lib/machine-add.html:50
-#: pkg/users/authorized-keys-panel.js:63 pkg/storaged/vgroup-details.jsx:76
-#: pkg/storaged/nfs-details.jsx:196 pkg/storaged/iscsi-panel.jsx:137
-#: pkg/storaged/iscsi-panel.jsx:161 pkg/storaged/crypto-keyslots.jsx:238
-#: pkg/storaged/mdraid-details.jsx:67
+#: pkg/lib/machine-add.html:50 pkg/shell/index.html:134
+#: pkg/users/authorized-keys-panel.js:63 pkg/storaged/mdraid-details.jsx:67
+#: pkg/storaged/crypto-keyslots.jsx:238 pkg/storaged/iscsi-panel.jsx:137
+#: pkg/storaged/iscsi-panel.jsx:161 pkg/storaged/vgroup-details.jsx:76
+#: pkg/storaged/nfs-details.jsx:196
 #: pkg/machines/components/vm/nics/nicAdd.jsx:172
 #: pkg/machines/components/vm/disks/diskAdd.jsx:539
 msgid "Add"
 msgstr "הוספה"
 
-#: pkg/networkmanager/interfaces.js:3100
+#: pkg/networkmanager/interfaces.js:3017
 msgid "Add $0"
 msgstr "הוספת $0"
 
-#: pkg/networkmanager/index.html:126
+#: pkg/networkmanager/index.html:87
 msgid "Add VLAN"
 msgstr "הוספת VLAN"
 
-#: pkg/networkmanager/firewall.jsx:885
+#: pkg/networkmanager/firewall.jsx:918
 msgid "Add a new zone"
 msgstr "הוספת אזור חדש"
 
-#: pkg/networkmanager/index.html:123
+#: pkg/networkmanager/index.html:84
 msgid "Add bond"
 msgstr "הוספת מאגד"
 
-#: pkg/networkmanager/index.html:125
+#: pkg/networkmanager/index.html:86
 msgid "Add bridge"
 msgstr "הוספת גשר"
 
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:90
 #: pkg/machines/components/vm/disks/diskAdd.jsx:534
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:90
 msgid "Add disk"
 msgstr "הוספת כונן"
 
-#: pkg/storaged/vgroup-details.jsx:63 pkg/storaged/mdraid-details.jsx:54
+#: pkg/storaged/mdraid-details.jsx:54 pkg/storaged/vgroup-details.jsx:63
 msgid "Add disks"
 msgstr "הוספת כוננים"
 
@@ -799,7 +788,7 @@ msgstr "הוספת כוננים"
 msgid "Add iSCSI portal"
 msgstr "הוספת שער גישה ל־iSCSI"
 
-#: pkg/shell/index.html:127 pkg/users/authorized-keys-panel.js:153
+#: pkg/shell/index.html:126 pkg/users/authorized-keys-panel.js:153
 #: pkg/storaged/crypto-keyslots.jsx:205
 msgid "Add key"
 msgstr "הוספת מפתח"
@@ -812,11 +801,11 @@ msgstr "הוספת מנשק רשת"
 msgid "Add new host"
 msgstr "הוספת מארח חדש"
 
-#: pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:510
 msgid "Add ports"
 msgstr "הוספת פתחות"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:511
 msgid "Add ports to $0 zone"
 msgstr "הוספת פתחות לאזור $0"
 
@@ -824,19 +813,19 @@ msgstr "הוספת פתחות לאזור $0"
 msgid "Add public key"
 msgstr "הוספת מפתח ציבורי"
 
-#: pkg/networkmanager/firewall.jsx:163 pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:510
 msgid "Add services"
 msgstr "הוספת שירותים"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:511
 msgid "Add services to $0 zone"
 msgstr "הוספת שירותים לאזור $0"
 
-#: pkg/networkmanager/firewall.jsx:162
+#: pkg/networkmanager/firewall.jsx:170
 msgid "Add services to zone $0"
 msgstr "הוספת שירותים לאזור $0"
 
-#: pkg/networkmanager/index.html:124
+#: pkg/networkmanager/index.html:85
 msgid "Add team"
 msgstr "הוספת צוות"
 
@@ -844,19 +833,19 @@ msgstr "הוספת צוות"
 msgid "Add virtual network interface"
 msgstr "הוספת מנשק רשת וירטואלי"
 
-#: pkg/networkmanager/firewall.jsx:664 pkg/networkmanager/firewall.jsx:672
-#: pkg/networkmanager/firewall.jsx:886
+#: pkg/networkmanager/firewall.jsx:689 pkg/networkmanager/firewall.jsx:697
+#: pkg/networkmanager/firewall.jsx:919
 msgid "Add zone"
 msgstr "הוספת אזור"
 
-#: pkg/networkmanager/interfaces.js:3099
+#: pkg/networkmanager/interfaces.js:3016
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
 "הוספת <b>$0</b> תקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/networkmanager/firewall.jsx:508
+#: pkg/networkmanager/firewall.jsx:524
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -876,11 +865,11 @@ msgstr "הוספת כרך פיזי אל $target"
 msgid "Additional"
 msgstr "נוסף"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2543
 msgid "Additional DNS $val"
 msgstr "$val נוסף ב־DNS"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2546
 msgid "Additional DNS search domains $val"
 msgstr "חיפוש שמות תחום DNS נוספים $val"
 
@@ -888,7 +877,7 @@ msgstr "חיפוש שמות תחום DNS נוספים $val"
 msgid "Additional actions"
 msgstr "פעולות נוספות"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2538
 msgid "Additional address $val"
 msgstr "כתובת נוספת $val"
 
@@ -896,18 +885,19 @@ msgstr "כתובת נוספת $val"
 msgid "Additional packages:"
 msgstr "חבילות נוספות:"
 
-#: pkg/networkmanager/firewall.jsx:117
+#: pkg/networkmanager/firewall.jsx:121
 msgid "Additional ports"
 msgstr "פתחות נוספות"
 
 #: pkg/storaged/iscsi-panel.jsx:128
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:191
 #: pkg/machines/components/networks/networkOverviewTab.jsx:120
 #: pkg/machines/components/networks/networkOverviewTab.jsx:145
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:191
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:47
 msgid "Address"
 msgstr "כתובת"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2538
 msgid "Address $val"
 msgstr "כתובת $val"
 
@@ -926,11 +916,7 @@ msgstr "הכתובת אינה תקנית"
 msgid "Address not within subnet"
 msgstr "הכתובת אינה בתת־הרשת"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:153
-msgid "Address:"
-msgstr "כתובת:"
-
-#: pkg/networkmanager/firewall.jsx:173 pkg/networkmanager/interfaces.js:3320
+#: pkg/networkmanager/interfaces.js:3235 pkg/networkmanager/firewall.jsx:181
 msgid "Addresses"
 msgstr "כתובות"
 
@@ -942,7 +928,7 @@ msgstr "ניהול עם המסוף המקוון Cockpit"
 msgid "Administrative access"
 msgstr "גישה ניהולית"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:335
+#: pkg/systemd/overview-cards/realmd-operation.js:339
 msgid "Administrator password"
 msgstr "ססמת ניהול"
 
@@ -952,7 +938,6 @@ msgstr "Advanced TCA"
 
 #: pkg/storaged/dialog.jsx:950
 #, fuzzy
-#| msgid "Current allocation"
 msgid "Affected locations"
 msgstr "ההקצאה הנוכחית"
 
@@ -992,9 +977,9 @@ msgstr "התראה"
 msgid "Alert and above"
 msgstr "אזעקה ומעלה"
 
-#: pkg/systemd/services/services.jsx:684 pkg/systemd/logs.js:163
 #: pkg/machines/components/vms/hostvmslist.jsx:64
-#: pkg/machines/components/vms/hostvmslist.jsx:81
+#: pkg/machines/components/vms/hostvmslist.jsx:81 pkg/systemd/logs.js:163
+#: pkg/systemd/services/services.jsx:688
 msgid "All"
 msgstr "הכול"
 
@@ -1004,7 +989,6 @@ msgstr "כל היומנים"
 
 #: pkg/packagekit/autoupdates.jsx:364
 #, fuzzy
-#| msgid "Apply all updates"
 msgid "All updates"
 msgstr "החלת כל העדכונים"
 
@@ -1016,7 +1000,7 @@ msgstr "אול אין ואן"
 msgid "Allow running (unmask)"
 msgstr "לאפשר הרצה (ביטול מיסוך)"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:759
 msgid "Allowed addresses"
 msgstr "כתובות מורשות"
 
@@ -1037,8 +1021,8 @@ msgstr "תיעוד תפקידים של Ansible"
 msgid "Appearance:"
 msgstr "מראה:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
-#: pkg/apps/application.jsx:148 pkg/apps/manifest.json.in:0
+#: pkg/apps/index.html:23 pkg/apps/application.jsx:148
+#: pkg/apps/application-list.jsx:169 pkg/apps/manifest.json.in:0
 msgid "Applications"
 msgstr "יישומים"
 
@@ -1046,16 +1030,16 @@ msgstr "יישומים"
 msgid "Applications list"
 msgstr "רשימת יישומים"
 
-#: pkg/networkmanager/index.html:511 pkg/networkmanager/index.html:547
-#: pkg/networkmanager/index.html:576 pkg/networkmanager/index.html:605
-#: pkg/networkmanager/index.html:634 pkg/networkmanager/index.html:663
-#: pkg/networkmanager/index.html:692 pkg/networkmanager/index.html:721
-#: pkg/networkmanager/index.html:750 pkg/kdump/kdump-view.jsx:356
-#: pkg/storaged/nfs-details.jsx:196 pkg/storaged/fsys-tab.jsx:291
-#: pkg/storaged/fsys-tab.jsx:368 pkg/storaged/crypto-tab.jsx:84
-#: pkg/storaged/crypto-tab.jsx:114
-#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:62
+#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
+#: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
+#: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
+#: pkg/networkmanager/index.html:672 pkg/storaged/crypto-tab.jsx:84
+#: pkg/storaged/crypto-tab.jsx:114 pkg/storaged/nfs-details.jsx:196
+#: pkg/storaged/fsys-tab.jsx:291 pkg/storaged/fsys-tab.jsx:368
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:243
+#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:62
+#: pkg/kdump/kdump-view.jsx:356
 msgid "Apply"
 msgstr "החלה"
 
@@ -1089,11 +1073,16 @@ msgid "Asset tag"
 msgstr "תג נכס"
 
 #: pkg/storaged/mdraids-panel.jsx:116
-msgid "At least $0 disks are needed."
-msgstr "נדרשים $0 כוננים לפחות."
+#, fuzzy
+msgid "At least $0 disk is needed."
+msgid_plural "At least $0 disks are needed."
+msgstr[0] "נדרש כונן אחד לפחות."
+msgstr[1] "נדרש כונן אחד לפחות."
+msgstr[2] "נדרש כונן אחד לפחות."
+msgstr[3] "נדרש כונן אחד לפחות."
 
-#: pkg/storaged/vgroup-details.jsx:70 pkg/storaged/vgroups-panel.jsx:84
-#: pkg/storaged/mdraid-details.jsx:61
+#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/vgroup-details.jsx:70
+#: pkg/storaged/vgroups-panel.jsx:84
 msgid "At least one disk is needed."
 msgstr "נדרש כונן אחד לפחות."
 
@@ -1113,20 +1102,20 @@ msgstr "יומן פיקוח"
 msgid "Authenticate"
 msgstr "אימות"
 
-#: pkg/networkmanager/interfaces.js:821
+#: pkg/networkmanager/interfaces.js:822
 msgid "Authenticating"
 msgstr "מתבצע אימות"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:48
 #: pkg/lib/machine-change-auth.html:37
+#: pkg/systemd/overview-cards/realmd-operation.html:48
 msgid "Authentication"
 msgstr "אימות"
 
-#: pkg/lib/machine-auth-failed.html:2 src/ws/login.js:813
+#: pkg/lib/machine-auth-failed.html:2 pkg/static/login.js:814
 msgid "Authentication failed"
 msgstr "האימות נכשל"
 
-#: src/ws/login.js:803
+#: pkg/static/login.js:804
 msgid "Authentication failed: Server closed connection"
 msgstr "האימות נכשל: השרת סגר את החיבור"
 
@@ -1148,19 +1137,19 @@ msgstr "אישור מפתח SSH."
 msgid "Authorized public SSH keys"
 msgstr "מפתחות SSH ציבוריים מורשים"
 
-#: pkg/networkmanager/index.html:186 pkg/networkmanager/interfaces.js:1950
-#: pkg/networkmanager/interfaces.js:2748 pkg/networkmanager/interfaces.js:3328
-#: pkg/networkmanager/interfaces.js:3332 pkg/networkmanager/interfaces.js:3338
-#: pkg/systemd/overview-cards/realmd-operation.js:338
+#: pkg/networkmanager/index.html:147 pkg/networkmanager/interfaces.js:1903
+#: pkg/networkmanager/interfaces.js:2646 pkg/networkmanager/interfaces.js:3243
+#: pkg/networkmanager/interfaces.js:3247 pkg/networkmanager/interfaces.js:3253
 #: pkg/machines/components/networks/createNetworkDialog.jsx:158
+#: pkg/systemd/overview-cards/realmd-operation.js:342
 msgid "Automatic"
 msgstr "אוטומטית"
 
-#: pkg/networkmanager/interfaces.js:1951
+#: pkg/networkmanager/interfaces.js:1904
 msgid "Automatic (DHCP only)"
 msgstr "אוטומטית (DHCP בלבד)"
 
-#: pkg/networkmanager/interfaces.js:1941
+#: pkg/networkmanager/interfaces.js:1894
 msgid "Automatic (DHCP)"
 msgstr "אוטומטית (DHCP)"
 
@@ -1174,7 +1163,6 @@ msgstr "עדכונים אוטומטיים"
 
 #: pkg/packagekit/autoupdates.jsx:269
 #, fuzzy
-#| msgid "Automatic updates"
 msgid "Automatic updates are not set up"
 msgstr "עדכונים אוטומטיים"
 
@@ -1182,8 +1170,8 @@ msgstr "עדכונים אוטומטיים"
 msgid "Automatically start libvirt on boot"
 msgstr "הפעלת libvirt אוטומטית עם ההפעלה"
 
-#: pkg/systemd/services/service-details.jsx:364
 #: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/service-details.jsx:364
 msgid "Automatically starts"
 msgstr "מתחיל אוטומטית"
 
@@ -1199,9 +1187,9 @@ msgstr "אוטומטית באמצעות שרתי NTP מסוימים"
 msgid "Automation script"
 msgstr "סקריפט אוטומטי"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:231
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:73
 #: pkg/machines/components/networks/networkOverviewTab.jsx:94
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:73
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:245
 msgid "Autostart"
 msgstr "התחלה אוטומטית"
 
@@ -1233,7 +1221,7 @@ msgstr "חזרה לחשבונות"
 msgid "Backing device"
 msgstr "התקן גיבוי"
 
-#: pkg/networkmanager/index.html:343
+#: pkg/networkmanager/index.html:304
 msgid "Balancer"
 msgstr "מאזן"
 
@@ -1274,19 +1262,18 @@ msgstr "התקן בלוק למערכות הפעלה"
 msgid "Blocked"
 msgstr "חסום"
 
-#: pkg/networkmanager/interfaces.js:2500 pkg/networkmanager/interfaces.js:2512
-#: pkg/networkmanager/interfaces.js:2780
+#: pkg/networkmanager/interfaces.js:2398 pkg/networkmanager/interfaces.js:2410
+#: pkg/networkmanager/interfaces.js:2678
 msgid "Bond"
 msgstr "מאגד"
 
-#: pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:450
 #, fuzzy
-#| msgid "Bridge settings"
 msgid "Bond settings"
 msgstr "הגדרות גשר"
 
 #: pkg/machines/components/vm/overview/bootOrder.jsx:312
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:221
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:235
 msgid "Boot order"
 msgstr "סדר עלייה"
 
@@ -1298,28 +1285,28 @@ msgstr "לא ניתן לשמור הגדרות סדר עלייה"
 msgid "Bound by"
 msgstr "מאוגד על ידי"
 
-#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
-#: pkg/networkmanager/interfaces.js:2857
+#: pkg/networkmanager/interfaces.js:2404 pkg/networkmanager/interfaces.js:2416
+#: pkg/networkmanager/interfaces.js:2755
 msgid "Bridge"
 msgstr "גשר"
 
-#: pkg/networkmanager/interfaces.js:2878
+#: pkg/networkmanager/interfaces.js:2776
 msgid "Bridge port"
 msgstr "פתחת גשר"
 
-#: pkg/networkmanager/index.html:650
+#: pkg/networkmanager/index.html:572
 msgid "Bridge port settings"
 msgstr "הגדרות פתחת גשר"
 
-#: pkg/networkmanager/index.html:621
+#: pkg/networkmanager/index.html:543
 msgid "Bridge settings"
 msgstr "הגדרות גשר"
 
-#: pkg/networkmanager/interfaces.js:1962 pkg/networkmanager/interfaces.js:1979
+#: pkg/networkmanager/interfaces.js:1915 pkg/networkmanager/interfaces.js:1932
 msgid "Broadcast"
 msgstr "שידור"
 
-#: pkg/networkmanager/interfaces.js:2793 pkg/networkmanager/interfaces.js:2827
+#: pkg/networkmanager/interfaces.js:2691 pkg/networkmanager/interfaces.js:2725
 msgid "Broken configuration"
 msgstr "הגדרות פגומות"
 
@@ -1331,12 +1318,12 @@ msgstr "קיים עדכון מתקן תקלות"
 msgid "Bugs"
 msgstr "תקלות"
 
+#: pkg/machines/components/vm/disks/diskAdd.jsx:164
+#: pkg/machines/components/vm/disks/diskEdit.jsx:59
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:226
 #: pkg/machines/components/vm/overview/bootOrder.jsx:102
 #: pkg/machines/components/vm/overview/bootOrder.jsx:114
 #: pkg/machines/components/vm/overview/bootOrder.jsx:137
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:226
-#: pkg/machines/components/vm/disks/diskEdit.jsx:59
-#: pkg/machines/components/vm/disks/diskAdd.jsx:164
 msgid "Bus"
 msgstr "אפיק"
 
@@ -1354,15 +1341,14 @@ msgstr ""
 "לכך שהמפתח אוטומטית יהיה זמין ותהיה לך אפשרות להיכנס אל ${rhost} ללא ססמה "
 "בעתיד."
 
-#: pkg/systemd/hwinfo.jsx:112 pkg/systemd/overview-cards/usageCard.jsx:121
-#: pkg/machines/components/vm/vmUsageCard.jsx:71 pkg/metrics/metrics.jsx:396
-#: pkg/metrics/metrics.jsx:960
+#: pkg/machines/components/vm/vmUsageCard.jsx:71
+#: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:112
+#: pkg/metrics/metrics.jsx:396 pkg/metrics/metrics.jsx:960
 msgid "CPU"
 msgstr "מעבד"
 
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:22
 #, fuzzy
-#| msgid "VCPU settings could not be saved"
 msgid "CPU configuration could not be saved"
 msgstr "לא ניתן לשמור את הגדרות המעבד הווירטואלי"
 
@@ -1378,7 +1364,7 @@ msgstr "מתגי אבטחת מעבד"
 msgid "CPU spike"
 msgstr "קפיצה פתאומית בניצולת מעבד"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:216
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:230
 msgid "CPU type"
 msgstr "סוג מעבד"
 
@@ -1395,50 +1381,53 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "מכלא"
 
+#: pkg/lib/machine-add.html:26
+msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
+msgstr ""
+
 #: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
 msgid "Can not find any logs using the current combination of filters."
 msgstr "לא ניתן למצוא יומנים עם שילוב המסננים הנוכחי."
 
-#: pkg/sosreport/index.html:74 pkg/networkmanager/index.html:512
-#: pkg/networkmanager/index.html:548 pkg/networkmanager/index.html:577
-#: pkg/networkmanager/index.html:606 pkg/networkmanager/index.html:635
-#: pkg/networkmanager/index.html:664 pkg/networkmanager/index.html:693
-#: pkg/networkmanager/index.html:722 pkg/networkmanager/index.html:751
-#: pkg/playground/translate.html:39 pkg/systemd/index.html:57
-#: pkg/systemd/overview-cards/realmd-operation.html:84
-#: pkg/systemd/services.html:281 pkg/lib/machine-change-auth.html:75
-#: pkg/lib/machine-unknown-hostkey.html:21 pkg/lib/machine-add.html:55
-#: pkg/lib/machine-change-port.html:26 src/ws/login.html:103
-#: pkg/sosreport/index.js:52 pkg/shell/shell-modals.jsx:87
-#: pkg/shell/superuser.jsx:77 pkg/shell/superuser.jsx:134
-#: pkg/networkmanager/firewall.jsx:514 pkg/networkmanager/firewall.jsx:675
-#: pkg/networkmanager/firewall.jsx:758 pkg/systemd/reporting.jsx:419
-#: pkg/systemd/hwinfo.jsx:239
-#: pkg/systemd/overview-cards/configurationCard.jsx:434
-#: pkg/systemd/overview-cards/motdCard.jsx:102
-#: pkg/systemd/services/service-details.jsx:70
-#: pkg/lib/cockpit-components-dialog.jsx:148 pkg/storaged/jobs-panel.jsx:126
-#: pkg/storaged/dialog.jsx:408 pkg/packagekit/autoupdates.jsx:426
-#: pkg/packagekit/updates.jsx:201 pkg/apps/utils.jsx:84
+#: pkg/lib/machine-add.html:55 pkg/lib/machine-change-port.html:26
+#: pkg/lib/machine-change-auth.html:75 pkg/lib/machine-unknown-hostkey.html:21
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
+#: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
+#: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
+#: pkg/systemd/overview-cards/realmd-operation.html:93
+#: pkg/systemd/services.html:290 pkg/systemd/index.html:57
+#: pkg/sosreport/index.html:74 pkg/static/login.html:102
+#: pkg/lib/cockpit-components-dialog.jsx:148 pkg/storaged/dialog.jsx:408
+#: pkg/storaged/jobs-panel.jsx:126 pkg/networkmanager/firewall.jsx:530
+#: pkg/networkmanager/firewall.jsx:700 pkg/networkmanager/firewall.jsx:792
+#: pkg/packagekit/autoupdates.jsx:426 pkg/packagekit/updates.jsx:201
+#: pkg/machines/components/networks/createNetworkDialog.jsx:417
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:437
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:105
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:224
 #: pkg/machines/components/common/deleteResource.jsx:68
-#: pkg/machines/components/vm/deleteDialog.jsx:140
-#: pkg/machines/components/vm/overview/firmware.jsx:63
-#: pkg/machines/components/vm/overview/bootOrder.jsx:324
-#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:65
-#: pkg/machines/components/vm/overview/vcpuModal.jsx:246
-#: pkg/machines/components/vm/overview/memoryModal.jsx:142
-#: pkg/machines/components/vm/nics/nicAdd.jsx:175
 #: pkg/machines/components/vm/nics/nicEdit.jsx:162
+#: pkg/machines/components/vm/nics/nicAdd.jsx:175
 #: pkg/machines/components/vm/vmCloneDialog.jsx:75
 #: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:71
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:136
-#: pkg/machines/components/vm/disks/diskEdit.jsx:201
 #: pkg/machines/components/vm/disks/diskAdd.jsx:542
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:437
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:224
-#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:105
+#: pkg/machines/components/vm/disks/diskEdit.jsx:201
+#: pkg/machines/components/vm/deleteDialog.jsx:140
+#: pkg/machines/components/vm/overview/vcpuModal.jsx:246
+#: pkg/machines/components/vm/overview/bootOrder.jsx:324
+#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:65
+#: pkg/machines/components/vm/overview/memoryModal.jsx:142
+#: pkg/machines/components/vm/overview/firmware.jsx:63
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:927
-#: pkg/machines/components/networks/createNetworkDialog.jsx:417
+#: pkg/systemd/reporting.jsx:419
+#: pkg/systemd/overview-cards/configurationCard.jsx:434
+#: pkg/systemd/overview-cards/motdCard.jsx:102 pkg/systemd/hwinfo.jsx:239
+#: pkg/systemd/services/service-details.jsx:70 pkg/sosreport/index.js:52
+#: pkg/apps/utils.jsx:84 pkg/shell/superuser.jsx:77 pkg/shell/superuser.jsx:134
+#: pkg/shell/shell-modals.jsx:87
 msgid "Cancel"
 msgstr "ביטול"
 
@@ -1454,7 +1443,7 @@ msgstr "לא ניתן להתחבר למארח לא ידוע"
 msgid "Cannot forward login credentials"
 msgstr "לא ניתן להעביר פרטי גישה"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:635
+#: pkg/systemd/overview-cards/realmd-operation.js:639
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "לא ניתן להצטרף לשם תחום כיוון ש־realmd לא זמין במערכת הזו"
 
@@ -1466,20 +1455,20 @@ msgstr "לא ניתן לתזמן אירוע לעבר"
 msgid "Capacity"
 msgstr "קיבולת"
 
-#: pkg/storaged/vgroup-details.jsx:235 pkg/storaged/block-details.jsx:48
-#: pkg/storaged/drive-details.jsx:84 pkg/storaged/mdraid-details.jsx:333
+#: pkg/storaged/mdraid-details.jsx:333 pkg/storaged/block-details.jsx:48
+#: pkg/storaged/vgroup-details.jsx:235 pkg/storaged/drive-details.jsx:84
 msgctxt "storage"
 msgid "Capacity"
 msgstr "קיבולת"
 
-#: pkg/networkmanager/interfaces.js:2579
+#: pkg/networkmanager/interfaces.js:2477
 msgid "Carrier"
 msgstr "ספקית"
 
 #: pkg/users/expiration-dialogs.js:103 pkg/users/expiration-dialogs.js:206
+#: pkg/storaged/iscsi-panel.jsx:188
 #: pkg/systemd/overview-cards/configurationCard.jsx:433
 #: pkg/systemd/overview-cards/serverTime.js:685
-#: pkg/storaged/iscsi-panel.jsx:188
 msgid "Change"
 msgstr "החלפה"
 
@@ -1499,7 +1488,7 @@ msgstr "החלפת שם מאתחל ה־iSCSI"
 msgid "Change passphrase"
 msgstr "החלפת מילת צופן"
 
-#: pkg/shell/index.html:277
+#: pkg/shell/index.html:276
 msgid "Change password"
 msgstr "החלפת ססמה"
 
@@ -1519,11 +1508,11 @@ msgstr "החלפת שעון המערכת"
 msgid "Change the password of ${key}."
 msgstr "החלפת הססמה של ${key}."
 
-#: pkg/networkmanager/interfaces.js:3161
+#: pkg/networkmanager/interfaces.js:3076
 msgid "Change the settings"
 msgstr "שינוי ההגדרות"
 
-#: src/ws/login.html:59
+#: pkg/static/login.html:58
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1531,14 +1520,14 @@ msgid ""
 msgstr ""
 
 #: pkg/machines/components/common/warningInactive.jsx:12
-#: pkg/machines/components/vm/overview/bootOrder.jsx:285
-#: pkg/machines/components/vm/overview/vcpuModal.jsx:180
 #: pkg/machines/components/vm/nics/nicEdit.jsx:148
 #: pkg/machines/components/vm/disks/diskEdit.jsx:187
+#: pkg/machines/components/vm/overview/vcpuModal.jsx:180
+#: pkg/machines/components/vm/overview/bootOrder.jsx:285
 msgid "Changes will take effect after shutting down the VM"
 msgstr "השינויים יחולו לאחר הפעלת המכונה הווירטואלית מחדש"
 
-#: pkg/networkmanager/interfaces.js:3160
+#: pkg/networkmanager/interfaces.js:3075
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1552,7 +1541,7 @@ msgstr "איתור עדכונים"
 msgid "Checking $target"
 msgstr "$target בבדיקה"
 
-#: pkg/networkmanager/interfaces.js:825
+#: pkg/networkmanager/interfaces.js:826
 msgid "Checking IP"
 msgstr "ה־IP נבדק"
 
@@ -1597,7 +1586,7 @@ msgstr "מתבצע ניקוי לכבוד $target"
 msgid "Clear 'Failed to start'"
 msgstr "לנקות ‚התחלה נכשלה’"
 
-#: pkg/systemd/services/services.jsx:775
+#: pkg/systemd/services/services.jsx:779
 msgid "Clear all filters"
 msgstr "ניקוי כל המסננים"
 
@@ -1613,7 +1602,7 @@ msgstr "ניקוי החיפוש"
 msgid "Click $0 again to use the password anyway."
 msgstr "יש ללחוץ על $0 שוב כדי להשתמש בססמה בכל זאת."
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:56
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:58
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr "לחיצה על „הפעלת מציג חיצוני” תוריד קובץ ‎.vv ותפעיל את $0."
@@ -1622,24 +1611,24 @@ msgstr "לחיצה על „הפעלת מציג חיצוני” תוריד קוב
 msgid "Client software"
 msgstr "תכנה מצד לקוח"
 
-#: pkg/machines/components/vm/vmCloneDialog.jsx:72
 #: pkg/machines/components/vm/vmActions.jsx:282
+#: pkg/machines/components/vm/vmCloneDialog.jsx:72
 msgid "Clone"
 msgstr ""
 
-#: pkg/shell/index.html:290 pkg/networkmanager/index.html:494
-#: pkg/networkmanager/index.html:523 pkg/networkmanager/index.html:559
-#: pkg/networkmanager/index.html:588 pkg/networkmanager/index.html:617
-#: pkg/networkmanager/index.html:646 pkg/networkmanager/index.html:675
-#: pkg/networkmanager/index.html:704 pkg/networkmanager/index.html:733
-#: pkg/networkmanager/index.html:769 pkg/lib/machine-auth-failed.html:20
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/users/dialog-utils.js:58 pkg/sosreport/index.js:46
-#: pkg/sosreport/index.js:128 pkg/shell/shell-modals.jsx:34
-#: pkg/shell/shell-modals.jsx:117 pkg/shell/superuser.jsx:77
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-not-supported.html:8
+#: pkg/lib/machine-invalid-hostkey.html:12 pkg/networkmanager/index.html:416
+#: pkg/networkmanager/index.html:445 pkg/networkmanager/index.html:481
+#: pkg/networkmanager/index.html:510 pkg/networkmanager/index.html:539
+#: pkg/networkmanager/index.html:568 pkg/networkmanager/index.html:597
+#: pkg/networkmanager/index.html:626 pkg/networkmanager/index.html:655
+#: pkg/networkmanager/index.html:691 pkg/shell/index.html:289
+#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/users/dialog-utils.js:58
+#: pkg/storaged/dialog.jsx:408
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
-#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/storaged/dialog.jsx:408
-#: pkg/apps/utils.jsx:102
+#: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128 pkg/apps/utils.jsx:102
+#: pkg/shell/superuser.jsx:77 pkg/shell/shell-modals.jsx:34
+#: pkg/shell/shell-modals.jsx:117
 msgid "Close"
 msgstr "סגירה"
 
@@ -1651,7 +1640,7 @@ msgstr "סגירת העמודים הנבחרים"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:396
+#: pkg/static/login.js:396
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "האימות של Cockpit לא מוגדר נכון."
 
@@ -1709,7 +1698,7 @@ msgstr ""
 msgid "Color"
 msgstr "צבע"
 
-#: pkg/networkmanager/firewall.jsx:566
+#: pkg/networkmanager/firewall.jsx:590 pkg/networkmanager/firewall.jsx:600
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "פתחות, טווחים וכינויים מופרדים בפסיקים מתקבלים"
 
@@ -1717,7 +1706,7 @@ msgstr "פתחות, טווחים וכינויים מופרדים בפסיקים 
 msgid "Command"
 msgstr "פקודה"
 
-#: pkg/shell/index.html:223
+#: pkg/shell/index.html:222
 msgid "Comment"
 msgstr "הערה"
 
@@ -1741,8 +1730,8 @@ msgstr "תואם למערכות ולכוננים חדישים > 2 ט״ב (GPT)"
 msgid "Compress crash dumps to save space"
 msgstr "דחיסת היטלי קריסה כדי לחסוך במקום"
 
-#: pkg/kdump/kdump-view.jsx:160 pkg/storaged/vdos-panel.jsx:120
-#: pkg/storaged/vdo-details.jsx:317
+#: pkg/storaged/vdos-panel.jsx:120 pkg/storaged/vdo-details.jsx:317
+#: pkg/kdump/kdump-view.jsx:160
 msgid "Compression"
 msgstr "דחיסה"
 
@@ -1762,15 +1751,15 @@ msgstr "התנאי נכשל"
 msgid "Configuration"
 msgstr "הגדרות"
 
-#: pkg/networkmanager/interfaces.js:2714
+#: pkg/networkmanager/interfaces.js:2612
 msgid "Configure"
 msgstr "הגדרה"
 
-#: pkg/networkmanager/interfaces.js:819
+#: pkg/networkmanager/interfaces.js:820
 msgid "Configuring"
 msgstr "מתבצעת הגדרה"
 
-#: pkg/networkmanager/interfaces.js:823
+#: pkg/networkmanager/interfaces.js:824
 msgid "Configuring IP"
 msgstr "מוגדרת כתובת IP"
 
@@ -1782,7 +1771,7 @@ msgstr "kdump מוגדר"
 msgid "Configuring system settings"
 msgstr "הגדרות המערכת מוגדרות"
 
-#: pkg/shell/index.html:261 pkg/users/account-create-dialog.js:61
+#: pkg/shell/index.html:260 pkg/users/account-create-dialog.js:61
 #: pkg/storaged/format-dialog.jsx:222
 msgid "Confirm"
 msgstr "אישור"
@@ -1799,7 +1788,7 @@ msgstr "אישור ססמה חדשה למפתח"
 msgid "Confirm new password"
 msgstr "אישור ססמה חדשה"
 
-#: pkg/networkmanager/firewall.jsx:754
+#: pkg/networkmanager/firewall.jsx:788
 msgid "Confirm removal of $0"
 msgstr "אישור הסרת $0"
 
@@ -1820,25 +1809,22 @@ msgid "Conflicts"
 msgstr "סותר"
 
 #: pkg/lib/machine-unknown-hostkey.html:18
-#: pkg/machines/components/vm/consoles/serialConsole.jsx:85
+#: pkg/machines/components/vm/consoles/serialConsole.jsx:84
 msgid "Connect"
 msgstr "התחברות"
 
-#: pkg/networkmanager/interfaces.js:2701
+#: pkg/networkmanager/interfaces.js:2599
 msgid "Connect automatically"
 msgstr "התחברות אוטומטית"
 
-#: src/ws/login.html:91
+#: pkg/static/login.html:90
 msgid "Connect to"
 msgstr "התחברות אל"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:188
-msgid "Connect with any $0 viewer application."
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:46
+#, fuzzy
+msgid "Connect with any viewer application for following protocols"
 msgstr "ניתן להתחבר עם כל יישום שמציג $0."
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:185
-msgid "Connect with any SPICE or VNC viewer application."
-msgstr "ניתן להתחבר עם כל יישום שמציג SPICE או VNC."
 
 #: pkg/lib/machine-add.html:46
 msgid ""
@@ -1857,11 +1843,11 @@ msgstr "מתבצעת התחברות למכונה"
 msgid "Connecting to virtualization service"
 msgstr "מתבצעת התחברות לשירות וירטואליזציה"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:38
+#: pkg/machines/components/networks/networkList.jsx:77
+#: pkg/machines/components/storagePools/storagePoolList.jsx:74
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:33
 #: pkg/machines/components/vms/hostvmslist.jsx:139
-#: pkg/machines/components/storagePools/storagePoolList.jsx:74
-#: pkg/machines/components/networks/networkList.jsx:77
-#: pkg/machines/components/networks/createNetworkDialog.jsx:38
 msgid "Connection"
 msgstr "התחברות"
 
@@ -1869,7 +1855,7 @@ msgstr "התחברות"
 msgid "Connection error"
 msgstr "שגיאת התחברות"
 
-#: pkg/shell/index.html:318
+#: pkg/shell/index.html:317
 msgid "Connection failed"
 msgstr "ההתחברות נכשלה"
 
@@ -1877,7 +1863,7 @@ msgstr "ההתחברות נכשלה"
 msgid "Connection has timed out."
 msgstr "הזמן שהוקצב להתחברות תם."
 
-#: pkg/networkmanager/index.html:781
+#: pkg/networkmanager/index.html:703
 msgid "Connection will be lost"
 msgstr "החיבור יאבד"
 
@@ -1890,11 +1876,7 @@ msgstr "מורכב מ־"
 msgid "Console"
 msgstr "מסוף"
 
-#: pkg/machines/components/vm/consoles/consoles.jsx:77
-msgid "Console type"
-msgstr "סוג מסוף"
-
-#: pkg/systemd/overview-cards/realmd-operation.js:275
+#: pkg/systemd/overview-cards/realmd-operation.js:279
 msgid "Contacted domain"
 msgstr "שם תחום שנוצר אתו קשר"
 
@@ -1969,11 +1951,11 @@ msgstr "קרס"
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:132
 #: pkg/storaged/content-views.jsx:278 pkg/storaged/content-views.jsx:785
 #: pkg/storaged/mdraids-panel.jsx:123
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:133
+#: pkg/machines/components/networks/createNetworkDialog.jsx:414
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:434
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:102
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:133
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:922
-#: pkg/machines/components/networks/createNetworkDialog.jsx:414
 msgid "Create"
 msgstr "יצירה"
 
@@ -1991,7 +1973,6 @@ msgstr "יצירת מכונה וירטואלית"
 
 #: pkg/machines/components/vm/vmCloneDialog.jsx:63
 #, fuzzy
-#| msgid "Create partition on $0"
 msgid "Create a clone VM based on $0"
 msgstr "יצירת מחיצה על $0"
 
@@ -2005,12 +1986,11 @@ msgstr "יצירת התקנים"
 
 #: pkg/sosreport/index.html:43
 #, fuzzy
-#| msgid "Create diagnostic report"
 msgid "Create diagnostic report                    "
 msgstr "יצירת דוח אבחון"
 
-#: pkg/networkmanager/interfaces.js:3840 pkg/networkmanager/interfaces.js:4044
-#: pkg/networkmanager/interfaces.js:4301 pkg/networkmanager/interfaces.js:4509
+#: pkg/networkmanager/interfaces.js:3755 pkg/networkmanager/interfaces.js:3959
+#: pkg/networkmanager/interfaces.js:4216 pkg/networkmanager/interfaces.js:4424
 msgid "Create it"
 msgstr "ליצור אותו"
 
@@ -2077,7 +2057,7 @@ msgstr "יצירת כרך אחסון"
 msgid "Create thin volume"
 msgstr "יצירת כרך רזה"
 
-#: pkg/systemd/services/services.jsx:747
+#: pkg/systemd/services/services.jsx:751
 msgid "Create timer"
 msgstr "יצירת מתזמן"
 
@@ -2095,7 +2075,7 @@ msgstr "יצירת רשת וירטואלית"
 msgid "Create volume"
 msgstr "יצירת כרך"
 
-#: pkg/storaged/vgroups-panel.jsx:72 pkg/storaged/things-panel.jsx:68
+#: pkg/storaged/things-panel.jsx:68 pkg/storaged/vgroups-panel.jsx:72
 msgid "Create volume group"
 msgstr "יצירת קבוצת כרכים"
 
@@ -2127,25 +2107,25 @@ msgstr "נוצרת מחיצה $target"
 msgid "Creating snapshot of $target"
 msgstr "נוצרת תמונת מצב של $target"
 
-#: pkg/networkmanager/interfaces.js:4508
+#: pkg/networkmanager/interfaces.js:4423
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr "יצירת ה־VLAN הזה תקטע את החיבור לשרת ותמנע את הגישה למנשק הניהול."
 
-#: pkg/networkmanager/interfaces.js:3839
+#: pkg/networkmanager/interfaces.js:3754
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr "יצירת מאגד זה תקטע את החיבור לשרת ותמנע את הגישה למנשק הניהול."
 
-#: pkg/networkmanager/interfaces.js:4300
+#: pkg/networkmanager/interfaces.js:4215
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr "יצירת הגשר הזה תקטע את החיבור לשרת ותמנע את החיבור למנשק הניהול."
 
-#: pkg/networkmanager/interfaces.js:4043
+#: pkg/networkmanager/interfaces.js:3958
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2199,16 +2179,16 @@ msgstr "אפשרויות הצפנה מותאמות אישית"
 msgid "Custom firmware: $0"
 msgstr "קושחה מותאמת אישית: $0"
 
-#: pkg/storaged/nfs-details.jsx:181 pkg/storaged/format-dialog.jsx:248
+#: pkg/storaged/format-dialog.jsx:248 pkg/storaged/nfs-details.jsx:181
 #: pkg/storaged/fsys-tab.jsx:262
 msgid "Custom mount options"
 msgstr "אפשרויות עיגון מותאמות אישית"
 
-#: pkg/networkmanager/firewall.jsx:560
+#: pkg/networkmanager/firewall.jsx:548
 msgid "Custom ports"
 msgstr "פתחות מותאמות אישית"
 
-#: pkg/networkmanager/firewall.jsx:694
+#: pkg/networkmanager/firewall.jsx:718
 msgid "Custom zones"
 msgstr "אזורים מותאמים אישית"
 
@@ -2221,19 +2201,19 @@ msgstr "טווח DHCP"
 msgid "DISK IS FAILING"
 msgstr "הכונן כושל"
 
-#: pkg/networkmanager/interfaces.js:3327
+#: pkg/networkmanager/interfaces.js:3242
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2543
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:3331
+#: pkg/networkmanager/interfaces.js:3246
 msgid "DNS search domains"
 msgstr "חיפוש שמות תחום DNS"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2546
 msgid "DNS search domains $val"
 msgstr "חיפוש שמות תחום DNS‏ $val"
 
@@ -2246,12 +2226,12 @@ msgid "Data used"
 msgstr "נתונים בשימוש"
 
 #: pkg/storaged/content-views.jsx:288
-#: pkg/machines/components/storagePools/storagePool.jsx:165
 #: pkg/machines/components/networks/network.jsx:170
+#: pkg/machines/components/storagePools/storagePool.jsx:165
 msgid "Deactivate"
 msgstr "השבתה"
 
-#: pkg/networkmanager/interfaces.js:831
+#: pkg/networkmanager/interfaces.js:832
 msgid "Deactivating"
 msgstr "מתבצעת השבתה"
 
@@ -2271,27 +2251,26 @@ msgstr "הסרת כפילות"
 msgid "Delay"
 msgstr "השהיה"
 
-#: pkg/networkmanager/index.html:460 pkg/users/delete-account-dialog.js:60
-#: pkg/users/account-details.js:268 pkg/networkmanager/firewall.jsx:755
-#: pkg/systemd/abrtLog.jsx:242 pkg/storaged/vgroup-details.jsx:202
-#: pkg/storaged/vgroup-details.jsx:224 pkg/storaged/vdo-details.jsx:201
-#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/content-views.jsx:347
-#: pkg/storaged/content-views.jsx:363 pkg/storaged/mdraid-details.jsx:294
-#: pkg/storaged/mdraid-details.jsx:317
+#: pkg/networkmanager/index.html:382 pkg/users/delete-account-dialog.js:60
+#: pkg/users/account-details.js:268 pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:317 pkg/storaged/vdo-details.jsx:201
+#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/vgroup-details.jsx:202
+#: pkg/storaged/vgroup-details.jsx:224 pkg/storaged/content-views.jsx:347
+#: pkg/storaged/content-views.jsx:363 pkg/networkmanager/firewall.jsx:789
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:193
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:203
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:221
 #: pkg/machines/components/common/deleteResource.jsx:60
 #: pkg/machines/components/common/deleteResource.jsx:65
 #: pkg/machines/components/common/deleteResource.jsx:94
 #: pkg/machines/components/common/deleteResource.jsx:104
-#: pkg/machines/components/vm/deleteDialog.jsx:137
 #: pkg/machines/components/vm/vmActions.jsx:316
 #: pkg/machines/components/vm/vmActions.jsx:323
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:193
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:203
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:221
+#: pkg/machines/components/vm/deleteDialog.jsx:137 pkg/systemd/abrtLog.jsx:242
 msgid "Delete"
 msgstr "מחיקה"
 
-#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2425
+#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2323
 msgid "Delete $0"
 msgstr "מחיקת $0"
 
@@ -2327,7 +2306,7 @@ msgstr "מחיקת הכרכים שבתוך המאגר הזה"
 msgid "Deleting $target"
 msgstr "$target נמחק"
 
-#: pkg/networkmanager/interfaces.js:2424
+#: pkg/networkmanager/interfaces.js:2322
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2363,15 +2342,20 @@ msgstr "מחיקת מאגר אחסון בלתי פעיל תסיר את הגדר�
 msgid "Deleting volume group $target"
 msgstr "קבוצת הכרכים $target נמחקת"
 
-#: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:703
-#: pkg/systemd/services/services-list.jsx:53
+#: pkg/systemd/services.html:171 pkg/networkmanager/firewall.jsx:729
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:130
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:54
+#: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
 msgstr "תיאור"
 
 #: pkg/lib/machine-info.js:69
 msgid "Desktop"
+msgstr "שולחן עבודה"
+
+#: pkg/machines/components/vm/consoles/consoles.jsx:100
+#, fuzzy
+msgid "Desktop viewer"
 msgstr "שולחן עבודה"
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:152
@@ -2386,7 +2370,7 @@ msgstr ""
 msgid "Detachable"
 msgstr "נתיק"
 
-#: pkg/shell/index.html:188 pkg/packagekit/updates.jsx:394
+#: pkg/shell/index.html:187 pkg/packagekit/updates.jsx:394
 msgid "Details"
 msgstr "פרטים"
 
@@ -2395,12 +2379,12 @@ msgid "Development"
 msgstr "פיתוח"
 
 #: pkg/storaged/crypto-panel.jsx:80
+#: pkg/machines/components/networks/createNetworkDialog.jsx:151
+#: pkg/machines/components/networks/networkList.jsx:76
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:43
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:215
 #: pkg/machines/components/vm/overview/bootOrder.jsx:94
 #: pkg/machines/components/vm/overview/bootOrder.jsx:101
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:215
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:43
-#: pkg/machines/components/networks/networkList.jsx:76
-#: pkg/machines/components/networks/createNetworkDialog.jsx:151
 msgid "Device"
 msgstr "התקן"
 
@@ -2446,7 +2430,7 @@ msgstr "התיקייה $0 איזה זמינה לכתיבה או שאינה קי�
 msgid "Disable simultaneous multithreading"
 msgstr "השבתת ריבוי תהליכים מקבילי"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:942
 msgid "Disable the firewall"
 msgstr "השבתת חומת האש"
 
@@ -2454,9 +2438,9 @@ msgstr "השבתת חומת האש"
 msgid "Disable tuned"
 msgstr "השבתת tuned"
 
-#: pkg/networkmanager/interfaces.js:1945
+#: pkg/networkmanager/interfaces.js:1898 pkg/systemd/services/services.jsx:527
+#: pkg/systemd/services/services.jsx:690
 #: pkg/systemd/services/service-details.jsx:297
-#: pkg/systemd/services/services.jsx:523 pkg/systemd/services/services.jsx:686
 msgid "Disabled"
 msgstr "מושבת"
 
@@ -2464,7 +2448,7 @@ msgstr "מושבת"
 msgid "Disallow running (mask)"
 msgstr "לא לאפשר הרצה (מיסוך)"
 
-#: pkg/machines/components/vm/consoles/serialConsole.jsx:84
+#: pkg/machines/components/vm/consoles/serialConsole.jsx:83
 msgid "Disconnect"
 msgstr "ניתוק"
 
@@ -2508,9 +2492,9 @@ msgstr "הכונן תקין"
 msgid "Disk passphrase"
 msgstr "מילת צופן לכונן"
 
-#: pkg/machines/components/vm/disks/diskEdit.jsx:157
 #: pkg/machines/components/vm/disks/diskAdd.jsx:296
 #: pkg/machines/components/vm/disks/diskAdd.jsx:465
+#: pkg/machines/components/vm/disks/diskEdit.jsx:157
 msgid "Disk settings could not be saved"
 msgstr "לא ניתן לשמור את הגדרות הכונן"
 
@@ -2518,9 +2502,9 @@ msgstr "לא ניתן לשמור את הגדרות הכונן"
 msgid "Disk-only snapshot"
 msgstr "תמונת מצב בכונן בלבד"
 
+#: pkg/storaged/mdraid-details.jsx:56 pkg/storaged/mdraid-details.jsx:160
 #: pkg/storaged/vgroup-details.jsx:65 pkg/storaged/vgroups-panel.jsx:79
-#: pkg/storaged/mdraids-panel.jsx:110 pkg/storaged/mdraid-details.jsx:56
-#: pkg/storaged/mdraid-details.jsx:160
+#: pkg/storaged/mdraids-panel.jsx:110
 #: pkg/machines/components/vm/vmDetailsPage.jsx:127 pkg/metrics/metrics.jsx:466
 #: pkg/metrics/metrics.jsx:962
 msgid "Disks"
@@ -2530,7 +2514,7 @@ msgstr "כוננים"
 msgid "Dismiss"
 msgstr "התעלמות"
 
-#: pkg/shell/index.html:71 pkg/shell/shell-modals.jsx:84
+#: pkg/shell/index.html:70 pkg/shell/shell-modals.jsx:84
 msgid "Display language"
 msgstr "שפת התצוגה"
 
@@ -2556,7 +2540,7 @@ msgstr "שם תחום"
 msgid "Domain $0 could not be contacted"
 msgstr "לא ניתן ליצור קשר עם שם התחום $0"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:280
+#: pkg/systemd/overview-cards/realmd-operation.js:284
 msgid "Domain $0 is not supported"
 msgstr "שם התחום $0 אינו נתמך"
 
@@ -2593,7 +2577,7 @@ msgstr "לא לחזור"
 msgid "Done!"
 msgstr "בוצע!"
 
-#: src/ws/login.html:122
+#: pkg/static/login.html:121
 msgid "Download a new browser for free"
 msgstr "הורדת דפדפן חדש בחינם"
 
@@ -2604,10 +2588,6 @@ msgstr "הורדת מערכת הפעלה"
 #: pkg/sosreport/index.html:60
 msgid "Download report"
 msgstr "הורדת דוח"
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:60
-msgid "Download the MSI from $0"
-msgstr "הורדת ה־MSI מ־$0"
 
 #: pkg/packagekit/updates.jsx:78
 msgid "Downloaded"
@@ -2637,10 +2617,10 @@ msgstr "דו־צדדי"
 msgid "Dying"
 msgstr "גוסס"
 
-#: pkg/shell/indexes.js:345 pkg/storaged/nfs-details.jsx:315
-#: pkg/storaged/crypto-tab.jsx:136 pkg/packagekit/autoupdates.jsx:411
+#: pkg/storaged/crypto-tab.jsx:136 pkg/storaged/nfs-details.jsx:315
+#: pkg/packagekit/autoupdates.jsx:411
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:287
-#: pkg/machines/components/vm/disks/diskEdit.jsx:241
+#: pkg/machines/components/vm/disks/diskEdit.jsx:241 pkg/shell/indexes.js:345
 msgid "Edit"
 msgstr "עריכה"
 
@@ -2650,7 +2630,6 @@ msgstr "עריכת מאפייני $0"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:87
 #, fuzzy
-#| msgid "Edit host"
 msgid "Edit /etc/motd"
 msgstr "עריכת מארח"
 
@@ -2668,11 +2647,10 @@ msgstr "עריכת מארחים"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:77
 #, fuzzy
-#| msgid "Edit host"
 msgid "Edit motd"
 msgstr "עריכת מארח"
 
-#: pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:74
 msgid "Edit rules and zones"
 msgstr "עריכת כללים ואזורים"
 
@@ -2702,7 +2680,7 @@ msgstr "לרוקן"
 msgid "Emptying $target"
 msgstr "$target מתרוקן"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:243
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:257
 msgid "Emulated machine"
 msgstr "מכונה מדומה"
 
@@ -2714,11 +2692,11 @@ msgstr "הפעלת שירות"
 msgid "Enable stored metrics"
 msgstr "הפעלת מדדים מאוחסנים"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:942
 msgid "Enable the firewall"
 msgstr "הפעלת חומת האש"
 
-#: pkg/systemd/services/services.jsx:520 pkg/systemd/services/services.jsx:685
+#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:689
 msgid "Enabled"
 msgstr "מופעל"
 
@@ -2776,7 +2754,7 @@ msgstr "נאכף"
 msgid "Enhancement updates available"
 msgstr "קיימים עדכוני שיפורים"
 
-#: pkg/networkmanager/firewall.jsx:731
+#: pkg/networkmanager/firewall.jsx:765
 msgid "Entire subnet"
 msgstr "כל תת־הרשת"
 
@@ -2797,9 +2775,9 @@ msgid "Errata"
 msgstr "טעויות ידועות"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services/service-details.jsx:416 pkg/storaged/multipath.jsx:61
-#: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/storage-controls.jsx:86
-#: pkg/storaged/storage-controls.jsx:163 pkg/apps/utils.jsx:96
+#: pkg/storaged/storage-controls.jsx:86 pkg/storaged/storage-controls.jsx:163
+#: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
+#: pkg/systemd/services/service-details.jsx:416 pkg/apps/utils.jsx:96
 msgid "Error"
 msgstr "שגיאה"
 
@@ -2811,9 +2789,9 @@ msgstr "שגיאה ומעלה"
 msgid "Error has occurred"
 msgstr "אירעה שגיאה"
 
-#: pkg/selinux/setroubleshoot-view.jsx:448
-#: pkg/systemd/overview-cards/configurationCard.jsx:317
 #: pkg/lib/cockpit-components-inline-notification.jsx:92
+#: pkg/systemd/overview-cards/configurationCard.jsx:317
+#: pkg/selinux/setroubleshoot-view.jsx:448
 msgid "Error message"
 msgstr "הודעת שגיאה"
 
@@ -2833,23 +2811,23 @@ msgstr "שגיאה בעת מחיקת אזעקה: $0"
 msgid "Error while setting SELinux mode: '$0'"
 msgstr "שגיאה בעת הגדרת מצב SELinux:‏ ‚$0’"
 
-#: pkg/networkmanager/index.html:737
+#: pkg/networkmanager/index.html:659
 msgid "Ethernet MAC"
 msgstr "כתובת חומרת אתרנט"
 
-#: pkg/networkmanager/index.html:708
+#: pkg/networkmanager/index.html:630
 msgid "Ethernet MTU"
 msgstr "יחידת העברה מרבית של אתרנט"
 
-#: pkg/networkmanager/interfaces.js:1991
+#: pkg/networkmanager/interfaces.js:1944
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/networkmanager/firewall.jsx:573
+#: pkg/networkmanager/firewall.jsx:595
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "לדוגמה: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:581
+#: pkg/networkmanager/firewall.jsx:605
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "לדוגמה: 88,2019,nfs,rsync"
 
@@ -2877,7 +2855,7 @@ msgstr "פירוט מורחב"
 msgid "Extended partition"
 msgstr "מחיצה מורחבת"
 
-#: pkg/networkmanager/interfaces.js:833 pkg/storaged/mdraid-details.jsx:102
+#: pkg/storaged/mdraid-details.jsx:102 pkg/networkmanager/interfaces.js:834
 #: pkg/machines/components/common/stateIcon.jsx:59
 msgid "Failed"
 msgstr "נכשל"
@@ -2886,15 +2864,15 @@ msgstr "נכשל"
 msgid "Failed to add machine: $0"
 msgstr "הוספת המכונה נכשלה: $0"
 
-#: pkg/networkmanager/firewall.jsx:307
+#: pkg/networkmanager/firewall.jsx:324
 msgid "Failed to add port"
 msgstr "הוספת הפתחה נכשלה"
 
-#: pkg/networkmanager/firewall.jsx:307
+#: pkg/networkmanager/firewall.jsx:324
 msgid "Failed to add service"
 msgstr "הוספת השירות נכשל"
 
-#: pkg/networkmanager/firewall.jsx:642
+#: pkg/networkmanager/firewall.jsx:667
 msgid "Failed to add zone"
 msgstr "הוספת האזור נכשלה"
 
@@ -2902,14 +2880,13 @@ msgstr "הוספת האזור נכשלה"
 msgid "Failed to change firmware"
 msgstr "החלפת הקושחה נכשלה"
 
-#: pkg/users/password-dialogs.js:103 pkg/users/password-dialogs.js:125
-#: pkg/lib/credentials.js:242
+#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "החלפת הססמה נכשלה"
 
 #: pkg/machines/components/vm/vmCloneDialog.jsx:56
 #, fuzzy
-#| msgid "Failed to add machine: $0"
 msgid "Failed to clone VM $0"
 msgstr "הוספת המכונה נכשלה: $0"
 
@@ -2943,7 +2920,6 @@ msgstr "טעינת המפתחות המורשים נכשלה."
 
 #: pkg/systemd/overview-cards/motdCard.jsx:97
 #, fuzzy
-#| msgid "Failed to change firmware"
 msgid "Failed to save changes in /etc/motd"
 msgstr "החלפת הקושחה נכשלה"
 
@@ -2951,8 +2927,8 @@ msgstr "החלפת הקושחה נכשלה"
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "שליחת צירוף המקשים Ctrl+Alt+$0 למכונה הווירטואלית $1 נכשלה"
 
+#: pkg/systemd/services/services.jsx:518
 #: pkg/systemd/services/service-details.jsx:306
-#: pkg/systemd/services/services.jsx:514
 msgid "Failed to start"
 msgstr "ההפעלה נכשלה"
 
@@ -2964,8 +2940,8 @@ msgstr "החלפת פרופיל נכשלה"
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr "יש להפעיל פחות מכמות המעבדים הווירטואלים המרבית."
 
-#: pkg/machines/components/vm/overview/bootOrder.jsx:93
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:42
+#: pkg/machines/components/vm/overview/bootOrder.jsx:93
 msgid "File"
 msgstr "קובץ"
 
@@ -2985,7 +2961,7 @@ msgstr "שם מערכת קבצים"
 msgid "Filesystems"
 msgstr "מערכות קבצים"
 
-#: pkg/systemd/services/services.jsx:719
+#: pkg/systemd/services/services.jsx:723
 msgid "Filter"
 msgstr "מסנן"
 
@@ -2993,28 +2969,28 @@ msgstr "מסנן"
 msgid "Filter by name"
 msgstr "סינון לפי שם"
 
-#: pkg/systemd/services/services.jsx:727
+#: pkg/systemd/services/services.jsx:731
 msgid "Filter by name or description"
 msgstr "סינון לפי שם או תיאור"
 
-#: pkg/networkmanager/firewall.jsx:529
+#: pkg/networkmanager/firewall.jsx:237
 msgid "Filter services"
 msgstr "סינון שירותים"
 
-#: pkg/shell/index.html:231 pkg/lib/machine-unknown-hostkey.html:9
+#: pkg/lib/machine-unknown-hostkey.html:9 pkg/shell/index.html:230
 msgid "Fingerprint"
 msgstr "טביעת אצבע"
 
-#: pkg/networkmanager/index.html:109 pkg/networkmanager/firewall.html:22
-#: pkg/networkmanager/firewall.jsx:916 pkg/networkmanager/firewall.jsx:921
+#: pkg/networkmanager/index.html:70 pkg/networkmanager/firewall.html:22
+#: pkg/networkmanager/firewall.jsx:949 pkg/networkmanager/firewall.jsx:955
 msgid "Firewall"
 msgstr "חומת אש"
 
-#: pkg/networkmanager/firewall.jsx:879
+#: pkg/networkmanager/firewall.jsx:912
 msgid "Firewall is not available"
 msgstr "חומת האש אינה זמינה"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:249
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:263
 msgid "Firmware"
 msgstr "קושחה"
 
@@ -3027,15 +3003,8 @@ msgstr "גרסת קושחה"
 msgid "For legacy applications only. Reduces performance."
 msgstr "ליישומים מיושנים בלבד. פוגע בביצועים."
 
-#: pkg/lib/machine-add.html:16
-msgid ""
-"For the host, either specify the hostname, IP address, an alias name or a "
-"unique resource identifier for the SSH destination."
-msgstr ""
-"למארח, יש לציין שאם מארח, כתובת IP, כינוי או מזה משאב ייחודי ליעד ה־SSH."
-
-#: pkg/systemd/services/service-details.jsx:288
 #: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/service-details.jsx:288
 msgid "Forbidden from running"
 msgstr "נאסר עליו לפעול"
 
@@ -3061,8 +3030,8 @@ msgstr "לאלץ כיבוי"
 
 #: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:368
 #: pkg/storaged/content-views.jsx:370 pkg/storaged/content-views.jsx:611
-#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:66
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:197
+#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:66
 msgid "Format"
 msgstr "פרמוט"
 
@@ -3082,7 +3051,7 @@ msgstr "פרמוט כונן ימחק את כל הנתונים שבו."
 msgid "Formatting a storage device will erase all data on it."
 msgstr "פרמוט התקן אחסון ימחק את כל הנתונים שבו."
 
-#: pkg/networkmanager/interfaces.js:2850
+#: pkg/networkmanager/interfaces.js:2748
 msgid "Forward delay $forward_delay"
 msgstr "השהיית העברה $forward_delay"
 
@@ -3096,8 +3065,6 @@ msgstr "מצב העברה"
 
 #: pkg/systemd/abrtLog.jsx:74
 #, fuzzy
-#| msgctxt "storage"
-#| msgid "Serial number"
 msgid "Frame number"
 msgstr "מספר סידורי"
 
@@ -3133,9 +3100,10 @@ msgstr "שם מלא"
 msgid "GNU LGPL version 2.1"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2692 pkg/systemd/abrtLog.jsx:248
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:188
+#: pkg/networkmanager/interfaces.js:2590
 #: pkg/machines/components/networks/networkOverviewTab.jsx:85
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:202
+#: pkg/systemd/abrtLog.jsx:248
 msgid "General"
 msgstr "כללי"
 
@@ -3147,9 +3115,9 @@ msgstr "לייצר אוטומטית"
 msgid "Generating report"
 msgstr "נוצר דוח"
 
-#: pkg/machines/components/vm/overview/memorySelectRow.jsx:87
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:51
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:101
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:51
+#: pkg/machines/components/vm/overview/memorySelectRow.jsx:87
 msgid "GiB"
 msgstr "GiB"
 
@@ -3157,26 +3125,17 @@ msgstr "GiB"
 msgid "Go to application"
 msgstr "לעבור ליישום"
 
-#: pkg/networkmanager/index.html:70 pkg/networkmanager/index.html:416
-#: pkg/storaged/plot.jsx:72
+#: pkg/lib/cockpit-components-plot.jsx:269
 msgid "Go to now"
 msgstr "לעבור כעת"
 
-#: pkg/machines/components/vm/consoles/consoles.jsx:52
-msgid "Graphics console (VNC)"
-msgstr "מסוף גרפי (VNC)"
-
-#: pkg/machines/components/vm/consoles/consoles.jsx:61
-msgid "Graphics console in desktop viewer"
-msgstr "מסוף גרפי במציג שולחנות העבודה"
-
-#: pkg/networkmanager/interfaces.js:2756
+#: pkg/networkmanager/interfaces.js:2654
 msgid "Group"
 msgstr "קבוצה"
 
-#: pkg/storaged/vdo-details.jsx:231 pkg/storaged/vdo-details.jsx:307
 #: pkg/storaged/lvol-tabs.jsx:246 pkg/storaged/lvol-tabs.jsx:399
-#: pkg/storaged/lvol-tabs.jsx:456
+#: pkg/storaged/lvol-tabs.jsx:456 pkg/storaged/vdo-details.jsx:231
+#: pkg/storaged/vdo-details.jsx:307
 msgid "Grow"
 msgstr "הגדלה"
 
@@ -3196,11 +3155,11 @@ msgstr "הגדלת הכרך הלוגי"
 msgid "Grow to take all space"
 msgstr "להגדיל על חשבון כל המקום הפנוי"
 
-#: pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:223
 msgid "Hair pin mode"
 msgstr "מצב סיכת שיער"
 
-#: pkg/networkmanager/interfaces.js:2876
+#: pkg/networkmanager/interfaces.js:2774
 msgid "Hairpin mode"
 msgstr "מצב סיכת שיער"
 
@@ -3216,11 +3175,11 @@ msgstr "פרטי חומרה"
 msgid "Health"
 msgstr "בריאות"
 
-#: pkg/networkmanager/interfaces.js:2852
+#: pkg/networkmanager/interfaces.js:2750
 msgid "Hello time $hello_time"
 msgstr "זמן Hello‏ $hello_time"
 
-#: pkg/shell/index.html:56
+#: pkg/shell/index.html:55
 msgid "Help"
 msgstr "עזרה"
 
@@ -3236,11 +3195,11 @@ msgstr "הסתרת מסננים"
 msgid "History package count"
 msgstr "ספירת חבילות היסטורית"
 
-#: pkg/lib/machine-add.html:20 pkg/shell/hosts.jsx:199
-#: pkg/machines/components/vm/overview/bootOrder.jsx:98
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:47
+#: pkg/lib/machine-add.html:14
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:118
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:36
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:47
+#: pkg/machines/components/vm/overview/bootOrder.jsx:98 pkg/shell/hosts.jsx:199
 msgid "Host"
 msgstr "מארח"
 
@@ -3256,7 +3215,7 @@ msgstr "מפתח המארח שגוי"
 msgid "Host name"
 msgstr "שם מארח"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:612
+#: pkg/systemd/overview-cards/realmd-operation.js:616
 msgid "Host name should not be changed in a domain"
 msgstr "שם מארח לא אמור להשתנות בשם תחום"
 
@@ -3289,25 +3248,25 @@ msgstr "שעות"
 msgid "Hours must be a number between 0 and 23"
 msgstr "שעה חייבת להיות ערך בין 0 ל־23"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:239
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:253
 msgid "Hypervisor details"
 msgstr "פרטי Hypervisor"
 
-#: pkg/networkmanager/firewall.jsx:584 pkg/systemd/hwinfo.jsx:305
-#: pkg/machines/components/vm/disks/diskEdit.jsx:38
+#: pkg/networkmanager/firewall.jsx:608
+#: pkg/machines/components/vm/disks/diskEdit.jsx:38 pkg/systemd/hwinfo.jsx:305
 msgid "ID"
 msgstr "מזהה"
 
-#: pkg/networkmanager/interfaces.js:2893
+#: pkg/networkmanager/interfaces.js:2791
 msgid "ID $id"
 msgstr "מזהה $id"
 
-#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:150
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "כתובת IP"
 
-#: pkg/networkmanager/firewall.jsx:740
+#: pkg/networkmanager/firewall.jsx:773
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3319,13 +3278,12 @@ msgstr ""
 msgid "IP configuration"
 msgstr "הגדרת IP"
 
-#: pkg/networkmanager/index.html:498
+#: pkg/networkmanager/index.html:420
 #, fuzzy
-#| msgid "IPv4 settings"
 msgid "IP settings"
 msgstr "הגדרות IPv4"
 
-#: pkg/networkmanager/interfaces.js:2901
+#: pkg/networkmanager/interfaces.js:2799
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3349,11 +3307,11 @@ msgstr "רשת IPv4 לא אמורה להישאר ריקה"
 msgid "IPv4 only"
 msgstr "IPv4 בלבד"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3285
 msgid "IPv4 settings"
 msgstr "הגדרות IPv4"
 
-#: pkg/networkmanager/interfaces.js:2902
+#: pkg/networkmanager/interfaces.js:2800
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3373,7 +3331,7 @@ msgstr "רשת IPv6 לא אמורה להישאר ריקה"
 msgid "IPv6 only"
 msgstr "IPv6 בלבד"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3285
 msgid "IPv6 settings"
 msgstr "הגדרות IPv6"
 
@@ -3389,13 +3347,13 @@ msgstr "בהמתנה"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "אם tang-show-keys אינו זמין, להפעיל את זה:"
 
-#: src/ws/login.html:68
+#: pkg/static/login.html:67
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1954 pkg/packagekit/updates.jsx:506
+#: pkg/networkmanager/interfaces.js:1907 pkg/packagekit/updates.jsx:506
 msgid "Ignore"
 msgstr "התעלמות"
 
@@ -3442,8 +3400,8 @@ msgstr ""
 msgid "In sync"
 msgstr "בסנכרון"
 
-#: pkg/networkmanager/interfaces.js:815 pkg/networkmanager/interfaces.js:1389
-#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2595
+#: pkg/networkmanager/interfaces.js:816 pkg/networkmanager/interfaces.js:1390
+#: pkg/networkmanager/interfaces.js:1397 pkg/networkmanager/interfaces.js:2493
 msgid "Inactive"
 msgstr "לא פעיל"
 
@@ -3451,7 +3409,7 @@ msgstr "לא פעיל"
 msgid "Inactive volume"
 msgstr "כרך לא פעיל"
 
-#: pkg/networkmanager/firewall.jsx:708
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Included services"
 msgstr "שירותים כלולים"
 
@@ -3488,8 +3446,8 @@ msgid "Insights: "
 msgstr "תובנות: "
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
-#: pkg/apps/application-list.jsx:90 pkg/apps/application.jsx:117
-#: pkg/machines/components/vm/vmActions.jsx:273
+#: pkg/machines/components/vm/vmActions.jsx:273 pkg/apps/application.jsx:117
+#: pkg/apps/application-list.jsx:90
 msgid "Install"
 msgstr "התקנה"
 
@@ -3523,7 +3481,6 @@ msgstr "התקנת תכנה"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:308
 #, fuzzy
-#| msgid "Installation source"
 msgid "Installation source"
 msgstr "מקור התקנה"
 
@@ -3539,8 +3496,8 @@ msgstr "סוג התקנה"
 msgid "Installed"
 msgstr "מותקן"
 
-#: pkg/packagekit/updates.jsx:71 pkg/apps/application-list.jsx:55
-#: pkg/apps/application.jsx:59
+#: pkg/packagekit/updates.jsx:71 pkg/apps/application.jsx:59
+#: pkg/apps/application-list.jsx:55
 msgid "Installing"
 msgstr "בהתקנה"
 
@@ -3556,9 +3513,9 @@ msgstr "מנשק"
 msgid "Interface type"
 msgstr "סוג מנשק"
 
-#: pkg/networkmanager/index.html:121 pkg/networkmanager/index.html:276
-#: pkg/networkmanager/firewall.jsx:172 pkg/networkmanager/firewall.jsx:714
-#: pkg/networkmanager/interfaces.js:2975
+#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/interfaces.js:2888 pkg/networkmanager/firewall.jsx:180
+#: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
 msgstr "מנשקים"
 
@@ -3566,7 +3523,7 @@ msgstr "מנשקים"
 msgid "Internal error"
 msgstr "שגיאה פנימה"
 
-#: src/ws/login.js:795
+#: pkg/static/login.js:796
 msgid "Internal error: Invalid challenge header"
 msgstr "שגיאה פנימית: כותרת אתגר שגויה"
 
@@ -3634,7 +3591,7 @@ msgstr "מספר הימים שגוי"
 msgid "Invalid number."
 msgstr "מספר שגוי."
 
-#: pkg/networkmanager/firewall.jsx:388
+#: pkg/networkmanager/firewall.jsx:405
 msgid "Invalid port number"
 msgstr "מספר הפתחה שגוי"
 
@@ -3646,7 +3603,7 @@ msgstr "קידומת שגויה $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "קידומת או מסכת רשת שגויה $0"
 
-#: pkg/networkmanager/firewall.jsx:417
+#: pkg/networkmanager/firewall.jsx:433
 msgid "Invalid range"
 msgstr "טווח שגוי"
 
@@ -3690,15 +3647,15 @@ msgstr "הצטרפות"
 msgid "Join a domain"
 msgstr "הצטרפות לשם תחום"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:606
+#: pkg/systemd/overview-cards/realmd-operation.js:610
 msgid "Join domain"
 msgstr "הצטרפות לשם תחום"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:630
+#: pkg/systemd/overview-cards/realmd-operation.js:634
 msgid "Joining a domain requires installation of realmd"
 msgstr "הצטרפות לשם תחום דורש את התקנת realmd"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:514
+#: pkg/systemd/overview-cards/realmd-operation.js:518
 msgid "Joining this domain is not supported"
 msgstr "אין תמיכה בהצטרפות לשם התחום הזה"
 
@@ -3727,7 +3684,7 @@ msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr "השירות Kdump אינו מותקן. נא לוודא שהחבילה kexec-tools מותקנת."
 
-#: pkg/networkmanager/index.html:789
+#: pkg/networkmanager/index.html:711
 msgid "Keep connection"
 msgstr "לשמור על החיבור"
 
@@ -3772,7 +3729,7 @@ msgstr "כתובת שרת מפתחות"
 msgid "Keyserver removal may prevent unlocking $0."
 msgstr "הסרת שרת מפתחות עלולה למנוע את שחרור $0."
 
-#: pkg/networkmanager/index.html:387
+#: pkg/networkmanager/index.html:348
 msgid "LACP key"
 msgstr "מפתח LACP"
 
@@ -3808,13 +3765,14 @@ msgstr "כניסה אחרונה"
 msgid "Last login:"
 msgstr "כניסה אחרונה:"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:129
-msgid "Launch Remote Viewer"
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:54
+#, fuzzy
+msgid "Launch remote viewer"
 msgstr "הפעלת מציג מרוחק"
 
-#: pkg/systemd/logs.html:85 pkg/networkmanager/interfaces.js:1715
-#: pkg/lib/cockpit-components-dialog.jsx:242
+#: pkg/systemd/logs.html:85 pkg/lib/cockpit-components-dialog.jsx:242
 #: pkg/lib/cockpit-components-dialog.jsx:249
+#: pkg/networkmanager/interfaces.js:1648
 msgid "Learn more"
 msgstr "מידע נוסף"
 
@@ -3861,23 +3819,23 @@ msgstr ""
 "מצב גישה מוגבלת מגביל את ההרשאות הניהוליות. חלקים מסוימים במסוף המקוון יפעלו "
 "באופן חלקי."
 
-#: pkg/networkmanager/index.html:321 pkg/networkmanager/index.html:365
+#: pkg/networkmanager/index.html:282 pkg/networkmanager/index.html:326
 msgid "Link down delay"
 msgstr "השהיית קטיעת קישור"
 
-#: pkg/networkmanager/interfaces.js:1942 pkg/networkmanager/interfaces.js:1952
+#: pkg/networkmanager/interfaces.js:1895 pkg/networkmanager/interfaces.js:1905
 msgid "Link local"
 msgstr "קישור מקומי"
 
-#: pkg/networkmanager/index.html:304
+#: pkg/networkmanager/index.html:265
 msgid "Link monitoring"
 msgstr "מעקב אחר קישורים"
 
-#: pkg/networkmanager/index.html:317 pkg/networkmanager/index.html:361
+#: pkg/networkmanager/index.html:278 pkg/networkmanager/index.html:322
 msgid "Link up delay"
 msgstr "השהיית חיבור קישור"
 
-#: pkg/networkmanager/index.html:348
+#: pkg/networkmanager/index.html:309
 msgid "Link watch"
 msgstr "עקיבה אחר קישורים"
 
@@ -3886,7 +3844,7 @@ msgstr "עקיבה אחר קישורים"
 msgid "Load"
 msgstr "טעינה"
 
-#: pkg/networkmanager/interfaces.js:1978
+#: pkg/networkmanager/interfaces.js:1931
 msgid "Load balancing"
 msgstr "איזון עומס"
 
@@ -3912,13 +3870,11 @@ msgstr "העדכונים הזמינים נטענים, נא להמתין…"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:320
 #, fuzzy
-#| msgid "Loading..."
 msgid "Loading keys..."
 msgstr "בטעינה…"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:316
 #, fuzzy
-#| msgid "Loading available updates failed"
 msgid "Loading of SSH keys failed"
 msgstr "טעינת העדכונים הזמינים נכשלה"
 
@@ -3930,11 +3886,11 @@ msgstr "משאבים נטענים"
 msgid "Loading system modifications..."
 msgstr "השינויים למערכת נטענים…"
 
-#: pkg/kdump/kdump-view.jsx:371 pkg/systemd/logDetails.jsx:141
-#: pkg/systemd/services/services.jsx:664 pkg/systemd/logs.js:158
-#: pkg/systemd/logs.js:201 pkg/storaged/devices.jsx:69
+#: pkg/systemd/services.html:282 pkg/storaged/devices.jsx:76
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
-#: pkg/metrics/metrics.jsx:975
+#: pkg/systemd/logDetails.jsx:141 pkg/systemd/logs.js:158
+#: pkg/systemd/logs.js:201 pkg/systemd/services/services.jsx:668
+#: pkg/kdump/kdump-view.jsx:371 pkg/metrics/metrics.jsx:975
 msgid "Loading..."
 msgstr "בטעינה…"
 
@@ -3966,7 +3922,7 @@ msgstr "נעילה"
 msgid "Lock account"
 msgstr "נעילת חשבון"
 
-#: pkg/users/account-details.js:104 pkg/users/expiration-dialogs.js:61
+#: pkg/users/expiration-dialogs.js:61 pkg/users/account-details.js:104
 msgid "Lock account on $0"
 msgstr "נעילת חשבון ב־$0"
 
@@ -3978,8 +3934,8 @@ msgstr "התקנים נעולים"
 msgid "Locking $target"
 msgstr "$target ננעל"
 
-#: pkg/shell/index.html:308 pkg/lib/machine-change-auth.html:74
-#: src/ws/login.html:101 src/ws/login.js:563
+#: pkg/lib/machine-change-auth.html:74 pkg/static/login.html:100
+#: pkg/shell/index.html:307 pkg/static/login.js:563
 msgid "Log in"
 msgstr "כניסה"
 
@@ -3987,7 +3943,7 @@ msgstr "כניסה"
 msgid "Log in to {{host}}"
 msgstr "כניסה אל {{host}}"
 
-#: src/ws/login.js:593
+#: pkg/static/login.js:593
 msgid "Log in with your server user account."
 msgstr "כניסה עם חשבון המשתמש שלך בשרת."
 
@@ -3995,7 +3951,7 @@ msgstr "כניסה עם חשבון המשתמש שלך בשרת."
 msgid "Log messages"
 msgstr "הודעות יומן"
 
-#: pkg/shell/index.html:81 pkg/metrics/metrics.jsx:884
+#: pkg/shell/index.html:80 pkg/metrics/metrics.jsx:884
 msgid "Log out"
 msgstr "יציאה"
 
@@ -4027,7 +3983,7 @@ msgstr "כרך לוגי בגודל $0"
 msgid "Logical volumes"
 msgstr "כרכים לוגיים"
 
-#: src/ws/login.js:350
+#: pkg/static/login.js:350
 msgid "Login again"
 msgstr "נא להיכנס שוב"
 
@@ -4039,7 +3995,7 @@ msgstr "הכניסה נכשלה"
 msgid "Login format"
 msgstr "תצורת כניסה"
 
-#: src/ws/login.js:351
+#: pkg/static/login.js:351
 msgid "Logout successful"
 msgstr "היציאה הצליחה"
 
@@ -4055,26 +4011,26 @@ msgstr "מחשב שולחני עם פרופיל נמוך"
 msgid "Lunch box"
 msgstr "קופסת אוכל"
 
-#: pkg/networkmanager/index.html:202 pkg/networkmanager/index.html:281
+#: pkg/networkmanager/index.html:163 pkg/networkmanager/index.html:242
 #: pkg/machines/components/vm/overview/bootOrder.jsx:108
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/machines/components/vm/nics/nicAdd.jsx:36
 #: pkg/machines/components/vm/nics/nicEdit.jsx:38
+#: pkg/machines/components/vm/nics/nicAdd.jsx:36
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:220
 msgid "MAC address"
 msgstr "כתובת MAC"
 
-#: pkg/networkmanager/interfaces.js:1970
+#: pkg/networkmanager/interfaces.js:1923
 msgid "MII (recommended)"
 msgstr "MII (מומלץ)"
 
-#: pkg/networkmanager/interfaces.js:2750
+#: pkg/networkmanager/interfaces.js:2648
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4575
+#: pkg/networkmanager/interfaces.js:4490
 msgid "MTU must be a positive number"
 msgstr "MTU חייב להיות מספר חיובי"
 
@@ -4130,11 +4086,11 @@ msgstr "ניהול חשבונות משתמשים"
 msgid "Managing virtual machines"
 msgstr "ניהול מכונות וירטואליות"
 
-#: pkg/networkmanager/interfaces.js:1943 pkg/networkmanager/interfaces.js:1953
+#: pkg/networkmanager/interfaces.js:1896 pkg/networkmanager/interfaces.js:1906
 msgid "Manual"
 msgstr "ידני"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:193
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:44
 msgid "Manual connection"
 msgstr "חיבור ידני"
 
@@ -4184,7 +4140,7 @@ msgstr "הקצאה מרבית"
 msgid "Maximum memory could not be saved"
 msgstr "לא ניתן לשמור את הזיכרון המרבי"
 
-#: pkg/networkmanager/interfaces.js:2854
+#: pkg/networkmanager/interfaces.js:2752
 msgid "Maximum message age $max_age"
 msgstr "גיל הודעה מרבי $max_age"
 
@@ -4212,11 +4168,11 @@ msgstr "חבר בהתקן RAID"
 msgid "Member of RAID device $0"
 msgstr "חבר בהתקן ה־RAID‏ $0"
 
-#: pkg/playground/translate.html:90 pkg/systemd/hwinfo.jsx:304
-#: pkg/systemd/overview-cards/usageCard.jsx:132
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:206
+#: pkg/playground/translate.html:90
 #: pkg/machines/components/vm/vmUsageCard.jsx:60
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:220
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:478
+#: pkg/systemd/overview-cards/usageCard.jsx:132 pkg/systemd/hwinfo.jsx:304
 #: pkg/metrics/metrics.jsx:432 pkg/metrics/metrics.jsx:961
 msgid "Memory"
 msgstr "זיכרון"
@@ -4246,7 +4202,7 @@ msgstr "שימוש בזיכרון"
 msgid "Message to logged in users"
 msgstr "הודעה למשתמשים שנמצאים במערכת"
 
-#: pkg/shell/index.html:321
+#: pkg/shell/index.html:320
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "ניתן למצוא הודעות שקשורות בכשל בז׳ורנל:"
 
@@ -4262,8 +4218,8 @@ msgstr "שיטה"
 msgid "Metrics history could not be loaded"
 msgstr "לא ניתן לטעון את היסטוריית המדדים"
 
-#: pkg/machines/components/vm/overview/memorySelectRow.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:98
+#: pkg/machines/components/vm/overview/memorySelectRow.jsx:84
 msgid "MiB"
 msgstr "MiB"
 
@@ -4293,15 +4249,15 @@ msgstr "דקות חייבות להיות מספר בין 0 ל־59"
 msgid "Mitigations"
 msgstr "אפחותים"
 
-#: pkg/networkmanager/index.html:294
+#: pkg/networkmanager/index.html:255
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:27
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:29
 msgid "Mode"
 msgstr "מצב"
 
-#: pkg/systemd/hwinfo.jsx:291
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:110
 #: pkg/machines/components/vm/nics/nicBody.jsx:43
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:110
+#: pkg/systemd/hwinfo.jsx:291
 msgid "Model"
 msgstr "דגם"
 
@@ -4327,15 +4283,15 @@ msgstr "יום שני"
 msgid "Mondays"
 msgstr "ימי שני"
 
-#: pkg/networkmanager/index.html:309
+#: pkg/networkmanager/index.html:270
 msgid "Monitoring interval"
 msgstr "הפרש בין דגימות מעקב"
 
-#: pkg/networkmanager/index.html:313
+#: pkg/networkmanager/index.html:274
 msgid "Monitoring targets"
 msgstr "יעדי מעקב"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:539
+#: pkg/systemd/overview-cards/realmd-operation.js:543
 msgid "More"
 msgstr "עוד"
 
@@ -4343,13 +4299,8 @@ msgstr "עוד"
 msgid "More details"
 msgstr "פרטים נוספים"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:104
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:112
-msgid "More information"
-msgstr "מידע נוסף"
-
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/nfs-details.jsx:310
-#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/content-views.jsx:377
+#: pkg/storaged/content-views.jsx:377 pkg/storaged/nfs-details.jsx:310
+#: pkg/storaged/fsys-tab.jsx:289 pkg/kdump/kdump-view.jsx:104
 msgid "Mount"
 msgstr "עיגון"
 
@@ -4381,13 +4332,13 @@ msgstr "לעגן כעת"
 msgid "Mount on $0 now"
 msgstr "לעגן אל $0 כעת"
 
-#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:237
+#: pkg/storaged/format-dialog.jsx:237 pkg/storaged/nfs-details.jsx:176
 #: pkg/storaged/fsys-tab.jsx:254
 msgid "Mount options"
 msgstr "אפשרויות עיגון"
 
-#: pkg/storaged/fsys-panel.jsx:95 pkg/storaged/nfs-details.jsx:331
-#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/fsys-panel.jsx:95
+#: pkg/storaged/nfs-details.jsx:331 pkg/storaged/nfs-panel.jsx:103
 #: pkg/storaged/fsys-tab.jsx:249 pkg/storaged/fsys-tab.jsx:526
 msgid "Mount point"
 msgstr "נקודת עיגון"
@@ -4408,7 +4359,7 @@ msgstr "נקודת העיגון כבר משמשת לטובת $0"
 msgid "Mount point must start with \"/\"."
 msgstr "נקודת העיגון חייבת להתחיל ב־„/”."
 
-#: pkg/storaged/nfs-details.jsx:180 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/format-dialog.jsx:247 pkg/storaged/nfs-details.jsx:180
 #: pkg/storaged/fsys-tab.jsx:261
 msgid "Mount read only"
 msgstr "עיגון לקריאה בלבד"
@@ -4446,7 +4397,7 @@ msgstr "לא מותקנת תמיכה ב־NFS"
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr "החלפת מצב מתאם הרשת $0 של המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/networkmanager/interfaces.js:1993
+#: pkg/networkmanager/interfaces.js:1946
 msgid "NSNA ping"
 msgstr "פינג מסוג NSNA"
 
@@ -4454,32 +4405,32 @@ msgstr "פינג מסוג NSNA"
 msgid "NTP server"
 msgstr "שרת NTP"
 
-#: pkg/networkmanager/index.html:132 pkg/networkmanager/index.html:149
-#: pkg/networkmanager/index.html:175 pkg/networkmanager/index.html:219
-#: pkg/networkmanager/index.html:272 pkg/networkmanager/index.html:329
-#: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
-#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/crypto-panel.jsx:79
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/format-dialog.jsx:202
-#: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroups-panel.jsx:74
-#: pkg/storaged/part-tab.jsx:40 pkg/storaged/lvol-tabs.jsx:41
-#: pkg/storaged/lvol-tabs.jsx:387 pkg/storaged/lvol-tabs.jsx:445
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
+#: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
+#: pkg/storaged/lvol-tabs.jsx:41 pkg/storaged/lvol-tabs.jsx:387
+#: pkg/storaged/lvol-tabs.jsx:445 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/crypto-panel.jsx:79
+#: pkg/storaged/iscsi-panel.jsx:128 pkg/storaged/iscsi-panel.jsx:185
+#: pkg/storaged/format-dialog.jsx:202 pkg/storaged/fsys-panel.jsx:94
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/vgroups-panel.jsx:74
 #: pkg/storaged/content-views.jsx:118 pkg/storaged/content-views.jsx:274
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:731
-#: pkg/storaged/content-views.jsx:816 pkg/storaged/iscsi-panel.jsx:128
-#: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/mdraids-panel.jsx:61
+#: pkg/storaged/content-views.jsx:816 pkg/storaged/fsys-tab.jsx:361
+#: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/mdraids-panel.jsx:61
 #: pkg/packagekit/updates.jsx:391
-#: pkg/machines/components/vm/vmCloneDialog.jsx:80
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:121
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
-#: pkg/machines/components/vms/hostvmslist.jsx:138
-#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:36
+#: pkg/machines/components/networks/createNetworkDialog.jsx:115
+#: pkg/machines/components/networks/networkList.jsx:75
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
 #: pkg/machines/components/storagePools/storagePoolList.jsx:72
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
+#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:36
+#: pkg/machines/components/vm/vmCloneDialog.jsx:80
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:121
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:203
-#: pkg/machines/components/networks/networkList.jsx:75
-#: pkg/machines/components/networks/createNetworkDialog.jsx:115
+#: pkg/machines/components/vms/hostvmslist.jsx:138 pkg/systemd/hwinfo.jsx:83
+#: pkg/systemd/services/services-list.jsx:52
 msgid "Name"
 msgstr "שם"
 
@@ -4515,14 +4466,14 @@ msgstr "השם לא יכול להכיל רווח."
 msgid "Name contains invalid characters"
 msgstr "השם מכיל תווים שגויים"
 
-#: pkg/machines/components/vm/vmCloneDialog.jsx:39
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:61
+#: pkg/machines/components/vm/vmCloneDialog.jsx:39
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:132
 msgid "Name must not be empty"
 msgstr "השם לא יכול להישאר ריק"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:41
 #: pkg/machines/components/networks/createNetworkDialog.jsx:50
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:41
 msgid "Name should not be empty"
 msgstr "השם לא אמור להיות ריק"
 
@@ -4558,7 +4509,7 @@ msgstr "קלט/פלט רשת"
 msgid "Network I/O spike"
 msgstr "קפיצה פתאומית בפעולות קלט/פלט של רשת"
 
-#: pkg/networkmanager/interfaces.js:1722
+#: pkg/networkmanager/interfaces.js:1655
 msgid "Network bond"
 msgstr "מאגד רשת"
 
@@ -4578,14 +4529,13 @@ msgstr "התקני רשת ותרשימים דורשים NetworkManager."
 msgid "Network file system"
 msgstr "מערכת קבצים רשתית"
 
-#: pkg/machines/components/vm/nics/nicAdd.jsx:124
 #: pkg/machines/components/vm/nics/nicEdit.jsx:115
+#: pkg/machines/components/vm/nics/nicAdd.jsx:124
 msgid "Network interface settings could not be saved"
 msgstr "לא ניתן לשמור את הגדרות מנשק הרשת"
 
-#: pkg/networkmanager/interfaces.js:3133
+#: pkg/networkmanager/interfaces.js:3048
 #, fuzzy
-#| msgid "Networking logs"
 msgid "Network logs"
 msgstr "יומני תקשורת"
 
@@ -4601,20 +4551,20 @@ msgstr "ניצולת רשת"
 msgid "NetworkManager is not running."
 msgstr "NetworkManager אינו פעיל."
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:398
-#: pkg/networkmanager/firewall.jsx:915 pkg/networkmanager/manifest.json.in:0
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:359
+#: pkg/networkmanager/firewall.jsx:948 pkg/networkmanager/manifest.json.in:0
 msgid "Networking"
 msgstr "תקשורת"
 
-#: pkg/networkmanager/interfaces.js:1600 pkg/networkmanager/interfaces.js:2202
+#: pkg/networkmanager/interfaces.js:1585 pkg/networkmanager/interfaces.js:2155
 msgctxt "page-title"
 msgid "Networking"
 msgstr "תקשורת"
 
-#: pkg/machines/components/vm/vmDetailsPage.jsx:136
 #: pkg/machines/components/networks/networkList.jsx:58
 #: pkg/machines/components/networks/networkList.jsx:65
 #: pkg/machines/components/networks/networkList.jsx:72
+#: pkg/machines/components/vm/vmDetailsPage.jsx:136
 msgid "Networks"
 msgstr "רשתות"
 
@@ -4622,11 +4572,11 @@ msgstr "רשתות"
 msgid "Never"
 msgstr "אף פעם"
 
-#: pkg/users/account-details.js:93 pkg/users/expiration-dialogs.js:142
+#: pkg/users/expiration-dialogs.js:142 pkg/users/account-details.js:93
 msgid "Never expire password"
 msgstr "הססמה לא תפוג לעולם"
 
-#: pkg/users/account-details.js:101 pkg/users/expiration-dialogs.js:36
+#: pkg/users/expiration-dialogs.js:36 pkg/users/account-details.js:101
 msgid "Never lock account"
 msgstr "לעולם לא לנעול את החשבון"
 
@@ -4634,9 +4584,8 @@ msgstr "לעולם לא לנעול את החשבון"
 msgid "New NFS mount"
 msgstr "עיגון NFS חדש"
 
-#: src/ws/login.js:646
+#: pkg/static/login.js:646
 #, fuzzy
-#| msgid "Add new host"
 msgid "New host"
 msgstr "הוספת מארח חדש"
 
@@ -4648,11 +4597,11 @@ msgstr "ססמה חדשה למפתח"
 msgid "New passphrase"
 msgstr "מילת צופן חדשה"
 
-#: pkg/shell/index.html:252 pkg/users/password-dialogs.js:150
+#: pkg/shell/index.html:251 pkg/users/password-dialogs.js:150
 msgid "New password"
 msgstr "ססמה חדשה"
 
-#: pkg/users/password-dialogs.js:86 pkg/lib/credentials.js:251
+#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "הססמה החדשה לא התקבלה"
 
@@ -4660,12 +4609,12 @@ msgstr "הססמה החדשה לא התקבלה"
 msgid "New volume name"
 msgstr "שם חדש לכרך"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:83
+#: pkg/systemd/overview-cards/realmd-operation.html:91
 #: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "הבא"
 
-#: pkg/networkmanager/interfaces.js:2583 pkg/systemd/reporting.jsx:270
+#: pkg/networkmanager/interfaces.js:2481 pkg/systemd/reporting.jsx:270
 msgid "No"
 msgstr "לא"
 
@@ -4697,7 +4646,7 @@ msgstr "אין משבצות פנויות"
 msgid "No boot device found"
 msgstr "לא נמצא התקן עלייה"
 
-#: pkg/networkmanager/interfaces.js:1391
+#: pkg/networkmanager/interfaces.js:1392
 msgid "No carrier"
 msgstr "אין ספקית"
 
@@ -4705,9 +4654,10 @@ msgstr "אין ספקית"
 msgid "No configuration found"
 msgstr "לא נמצאו הגדרות"
 
-#: pkg/machines/components/vm/consoles/consoles.jsx:90
-msgid "No console defined for this virtual machine."
-msgstr "לא מוגדר מסוף למכונה הווירטואלית הזאת."
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:45
+#, fuzzy
+msgid "No connection available."
+msgstr "אין תיאור זמין"
 
 #: pkg/metrics/metrics.jsx:919
 msgid "No data available"
@@ -4725,7 +4675,7 @@ msgstr "אין השהיה"
 msgid "No description"
 msgstr "אין תיאור"
 
-#: pkg/networkmanager/firewall.jsx:705
+#: pkg/networkmanager/firewall.jsx:731
 msgid "No description available"
 msgstr "אין תיאור זמין"
 
@@ -4737,9 +4687,9 @@ msgstr "לא סופק תיאור."
 msgid "No devices"
 msgstr "אין התקנים"
 
-#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/vdos-panel.jsx:92
-#: pkg/storaged/vgroups-panel.jsx:81 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/mdraid-details.jsx:58
+#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/mdraid-details.jsx:58
+#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/vgroups-panel.jsx:81
+#: pkg/storaged/mdraids-panel.jsx:112
 msgid "No disks are available."
 msgstr "אין כוננים זמינים."
 
@@ -4791,7 +4741,7 @@ msgstr "אין כרכים לוגיים"
 msgid "No logs found"
 msgstr "לא נמצאו יומנים"
 
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:780
 msgid "No matching results"
 msgstr "אין כללים תואמים"
 
@@ -4841,7 +4791,7 @@ msgstr "לא צוין שם אמתי"
 msgid "No results found"
 msgstr "לא נמצאו תוצאות"
 
-#: pkg/systemd/services/services.jsx:774
+#: pkg/systemd/services/services.jsx:778
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr "לא נמצאו תוצאות לתנאי המסנן. יש לנקות את כל המסננים כדי להציג תוצאות."
@@ -4879,8 +4829,8 @@ msgstr "לא הוגדרו כרכי אחסון למאגר האחסון הזה"
 msgid "No such file found in directory '$0'"
 msgstr "לא נמצא קובץ כזה בתיקייה ‚$0’"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:155
 #: pkg/lib/credentials.js:190
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:155
 msgid "No such file or directory"
 msgstr "אין קובץ או תיקייה בשם הזה"
 
@@ -4890,8 +4840,6 @@ msgstr "אין שינויים במערכת"
 
 #: pkg/packagekit/autoupdates.jsx:352
 #, fuzzy
-#| msgid "$0 update"
-#| msgid_plural "$0 updates"
 msgid "No updates"
 msgstr "עדכון אחד"
 
@@ -4921,9 +4869,9 @@ msgid ""
 msgstr ""
 "לא ניתן למחוק מאגר אחסון שאינו עקבי. הוא פשוט חדל מלהתקיים לאחר סיום הפעלתו."
 
-#: pkg/kdump/kdump-view.jsx:423 pkg/networkmanager/firewall.jsx:710
-#: pkg/tuned/dialog.js:230
+#: pkg/networkmanager/firewall.jsx:737
 #: pkg/machines/components/networks/createNetworkDialog.jsx:184
+#: pkg/tuned/dialog.js:230 pkg/kdump/kdump-view.jsx:423
 msgid "None"
 msgstr "אין"
 
@@ -4935,19 +4883,19 @@ msgstr "אין (רשת מבודדת)"
 msgid "Not a valid private key"
 msgstr "לא מפתח פרטי תקני"
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Not authorized to disable the firewall"
 msgstr "לא מורשה להשבית את חומת האש"
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Not authorized to enable the firewall"
 msgstr "לא מורשה להפעיל את חומת האש"
 
-#: pkg/networkmanager/firewall.jsx:153
+#: pkg/networkmanager/firewall.jsx:158
 msgid "Not authorized to remove zone $0"
 msgstr "לא מורשה להסיר את האזור $0"
 
-#: pkg/networkmanager/interfaces.js:813
+#: pkg/networkmanager/interfaces.js:814
 msgid "Not available"
 msgstr "לא זמין"
 
@@ -4991,8 +4939,8 @@ msgstr "לא מוכן"
 msgid "Not registered"
 msgstr "לא רשום"
 
+#: pkg/storaged/mdraid-details.jsx:346 pkg/systemd/services/services.jsx:520
 #: pkg/systemd/services/service-details.jsx:327
-#: pkg/systemd/services/services.jsx:516 pkg/storaged/mdraid-details.jsx:346
 msgid "Not running"
 msgstr "לא פועל"
 
@@ -5032,11 +4980,11 @@ msgstr "אישור"
 msgid "Old passphrase"
 msgstr "מילת צופן ישנה"
 
-#: pkg/shell/index.html:243 pkg/users/password-dialogs.js:141
+#: pkg/shell/index.html:242 pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "ססמה ישנה"
 
-#: pkg/users/password-dialogs.js:53 pkg/lib/credentials.js:231
+#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "הססמה הישנה לא התקבלה"
 
@@ -5065,7 +5013,7 @@ msgstr ""
 "לאפשר מחיקת כרכים."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:69
-#: pkg/systemd/overview-cards/realmd-operation.js:337
+#: pkg/systemd/overview-cards/realmd-operation.js:341
 msgid "One time password"
 msgstr "ססמה חד־פעמית"
 
@@ -5085,7 +5033,7 @@ msgstr "ניתן לעריכה רק כאשר האורח כבוי"
 msgid "Only emergency"
 msgstr "חירום בלבד"
 
-#: pkg/shell/index.html:51
+#: pkg/shell/index.html:50
 msgid "Ooops!"
 msgstr "אופס!"
 
@@ -5115,7 +5063,7 @@ msgstr "כונן אופטי"
 msgid "Options"
 msgstr "אפשרויות"
 
-#: src/ws/login.html:129
+#: pkg/static/login.html:128
 msgid "Or use a bundled browser"
 msgstr "או להשתמש בדפדפן מובנה"
 
@@ -5132,7 +5080,7 @@ msgstr "נתונים אחרים"
 msgid "Other devices"
 msgstr "התקנים אחרים"
 
-#: src/ws/login.html:85
+#: pkg/static/login.html:84
 msgid "Other options"
 msgstr "אפשרויות אחרות"
 
@@ -5140,10 +5088,10 @@ msgstr "אפשרויות אחרות"
 msgid "Out"
 msgstr "יוצא"
 
-#: pkg/systemd/hwinfo.jsx:316 pkg/machines/components/vm/vmDetailsPage.jsx:99
+#: pkg/machines/components/networks/network.jsx:74
 #: pkg/machines/components/storagePools/storagePool.jsx:69
-#: pkg/machines/components/networks/network.jsx:74 pkg/metrics/metrics.jsx:986
-#: pkg/systemd/manifest.json.in:0
+#: pkg/machines/components/vm/vmDetailsPage.jsx:99 pkg/systemd/hwinfo.jsx:316
+#: pkg/metrics/metrics.jsx:986 pkg/systemd/manifest.json.in:0
 msgid "Overview"
 msgstr "סקירה"
 
@@ -5187,11 +5135,11 @@ msgstr "חבילות"
 msgid "Page name"
 msgstr "שם עמוד"
 
-#: pkg/networkmanager/index.html:166
+#: pkg/networkmanager/index.html:127
 msgid "Parent"
 msgstr "הורה"
 
-#: pkg/networkmanager/interfaces.js:2892
+#: pkg/networkmanager/interfaces.js:2790
 msgid "Parent $parent"
 msgstr "$parent הורה"
 
@@ -5203,7 +5151,7 @@ msgstr "תמונת מצב הורה"
 msgid "Part of"
 msgstr "חלק מתוך"
 
-#: pkg/networkmanager/interfaces.js:1437
+#: pkg/networkmanager/interfaces.js:1438
 msgid "Part of "
 msgstr "חלק מתוך "
 
@@ -5219,18 +5167,18 @@ msgstr "מחיצה של $0"
 msgid "Partitioning"
 msgstr "חלוקה למחיצות"
 
-#: pkg/networkmanager/interfaces.js:1985
+#: pkg/networkmanager/interfaces.js:1938
 msgid "Passive"
 msgstr "סביל"
 
-#: pkg/storaged/format-dialog.jsx:214 pkg/storaged/content-views.jsx:242
 #: pkg/storaged/crypto-keyslots.jsx:212 pkg/storaged/crypto-keyslots.jsx:568
+#: pkg/storaged/format-dialog.jsx:214 pkg/storaged/content-views.jsx:242
 msgid "Passphrase"
 msgstr "מילת צופן"
 
-#: pkg/storaged/format-dialog.jsx:218 pkg/storaged/crypto-keyslots.jsx:161
-#: pkg/storaged/crypto-keyslots.jsx:220 pkg/storaged/crypto-keyslots.jsx:261
-#: pkg/storaged/crypto-keyslots.jsx:264
+#: pkg/storaged/crypto-keyslots.jsx:161 pkg/storaged/crypto-keyslots.jsx:220
+#: pkg/storaged/crypto-keyslots.jsx:261 pkg/storaged/crypto-keyslots.jsx:264
+#: pkg/storaged/format-dialog.jsx:218
 msgid "Passphrase cannot be empty"
 msgstr "מילת הצופן לא יכולה להיות ריקה"
 
@@ -5238,17 +5186,17 @@ msgstr "מילת הצופן לא יכולה להיות ריקה"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "הסרת מילת הצופן עשויה למנוע את השחרור של $0."
 
-#: pkg/storaged/format-dialog.jsx:226 pkg/storaged/crypto-keyslots.jsx:228
-#: pkg/storaged/crypto-keyslots.jsx:266
+#: pkg/storaged/crypto-keyslots.jsx:228 pkg/storaged/crypto-keyslots.jsx:266
+#: pkg/storaged/format-dialog.jsx:226
 msgid "Passphrases do not match"
 msgstr "מילות הצופן אינן תואמות"
 
-#: pkg/shell/index.html:161 pkg/shell/index.html:190 pkg/shell/index.html:205
-#: pkg/lib/machine-change-auth.html:43 pkg/lib/machine-change-auth.html:50
-#: pkg/lib/machine-auth-failed.html:8 src/ws/login.html:77
+#: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:43
+#: pkg/lib/machine-change-auth.html:50 pkg/static/login.html:76
+#: pkg/shell/index.html:160 pkg/shell/index.html:189 pkg/shell/index.html:204
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:321
-#: pkg/shell/superuser.jsx:45 pkg/storaged/iscsi-panel.jsx:47
-#: pkg/storaged/iscsi-panel.jsx:157
+#: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
+#: pkg/shell/superuser.jsx:45
 msgid "Password"
 msgstr "ססמה"
 
@@ -5280,17 +5228,17 @@ msgstr "הדבקה"
 msgid "Paste the contents of your public SSH key file here"
 msgstr "עליך להדביק את תוכן קובץ מפתח ה־SSH הציבורי שלך כאן"
 
-#: pkg/systemd/services/service-details.jsx:451
-#: pkg/machines/components/vm/deleteDialog.jsx:45
 #: pkg/machines/components/vm/disks/diskEdit.jsx:40
+#: pkg/machines/components/vm/deleteDialog.jsx:45
+#: pkg/systemd/services/service-details.jsx:451
 msgid "Path"
 msgstr "נתיב"
 
-#: pkg/networkmanager/index.html:258
+#: pkg/networkmanager/index.html:219
 msgid "Path cost"
 msgstr "עלות נתיב"
 
-#: pkg/networkmanager/interfaces.js:2874
+#: pkg/networkmanager/interfaces.js:2772
 msgid "Path cost $path_cost"
 msgstr "עלות הנתיב $path_cost"
 
@@ -5322,8 +5270,8 @@ msgstr "הנתיב לקובץ"
 msgid "Paths"
 msgstr "נתיבים"
 
-#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
-#: pkg/machines/components/vm/vmActions.jsx:185
+#: pkg/systemd/logs.html:106 pkg/machines/components/vm/vmActions.jsx:185
+#: pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
 msgid "Pause"
 msgstr "השהיה"
 
@@ -5343,11 +5291,11 @@ msgstr "פרופיל ביצועים"
 msgid "Peripheral chassis"
 msgstr "שלדת התקנים חיצוניים"
 
-#: pkg/networkmanager/interfaces.js:3645
+#: pkg/networkmanager/interfaces.js:3560
 msgid "Permanent"
 msgstr "קבוע"
 
-#: src/ws/login.js:819
+#: pkg/static/login.js:820
 msgid "Permission denied"
 msgstr "ההרשאה נדחתה"
 
@@ -5360,8 +5308,8 @@ msgstr "מתירני"
 msgid "Persistence"
 msgstr "עקביות"
 
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:68
 #: pkg/machines/components/networks/networkOverviewTab.jsx:89
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:68
 msgid "Persistent"
 msgstr "עקבי"
 
@@ -5393,11 +5341,11 @@ msgstr "כרכים פיזיים"
 msgid "Physical volumes can not be resized here."
 msgstr "כאן ניתן לשנות גודל של כרכים פיזיים."
 
-#: pkg/networkmanager/index.html:353
+#: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "הפרש בין פינגים"
 
-#: pkg/networkmanager/index.html:357
+#: pkg/networkmanager/index.html:318
 msgid "Ping target"
 msgstr "יעד פינג"
 
@@ -5417,16 +5365,16 @@ msgstr "נא לבחור מאגר אחסון"
 msgid "Please choose a volume"
 msgstr "נא לבחור כרך"
 
-#: pkg/storaged/vgroup-details.jsx:198 pkg/storaged/vdo-details.jsx:197
-#: pkg/storaged/content-views.jsx:343 pkg/storaged/mdraid-details.jsx:290
+#: pkg/storaged/mdraid-details.jsx:290 pkg/storaged/vdo-details.jsx:197
+#: pkg/storaged/vgroup-details.jsx:198 pkg/storaged/content-views.jsx:343
 msgid "Please confirm deletion of $0"
 msgstr "נא לאשר את המחיקה של $0"
 
-#: pkg/storaged/vdo-details.jsx:139 pkg/storaged/mdraid-details.jsx:239
+#: pkg/storaged/mdraid-details.jsx:239 pkg/storaged/vdo-details.jsx:139
 msgid "Please confirm stopping of $0"
 msgstr "נא לאשר את עצירת $0"
 
-#: src/ws/login.html:35
+#: pkg/static/login.html:34
 msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 
@@ -5434,7 +5382,7 @@ msgstr ""
 msgid "Please enter new volume name"
 msgstr "נא להקליד את שם הכרך החדש"
 
-#: pkg/networkmanager/firewall.jsx:880
+#: pkg/networkmanager/firewall.jsx:913
 msgid "Please install the $0 package"
 msgstr "נא להתקין את החבילה $0"
 
@@ -5446,11 +5394,11 @@ msgstr "נא להגדיר ססמה למשתמש העל (root)"
 msgid "Please specify an expiration date"
 msgstr "נא לציין מועד תפוגת תוקף"
 
-#: src/ws/login.js:512
+#: pkg/static/login.js:512
 msgid "Please specify the host to connect to"
 msgstr "נא לציין את המארח לחיבור"
 
-#: pkg/machines/components/vm/consoles/consoles.jsx:39
+#: pkg/machines/components/vm/consoles/consoles.jsx:38
 msgid "Please start the virtual machine to access its console."
 msgstr "נא להפעיל את המכונה הווירטואלית כדי לגשת למסוף שלה."
 
@@ -5459,10 +5407,10 @@ msgid "Plug"
 msgstr "חיבור"
 
 #: pkg/storaged/content-views.jsx:142
-#: pkg/machines/components/vm/deleteDialog.jsx:53
-#: pkg/machines/components/vm/overview/bootOrder.jsx:96
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:45
 #: pkg/machines/components/vm/disks/diskAdd.jsx:112
+#: pkg/machines/components/vm/deleteDialog.jsx:53
+#: pkg/machines/components/vm/overview/bootOrder.jsx:96
 msgid "Pool"
 msgstr "מאגר"
 
@@ -5488,14 +5436,14 @@ msgid "Pool's volumes are used by VMs "
 msgstr "כרכי המאגר משמשים מכונות וירטואליות "
 
 #: pkg/lib/machine-change-port.html:14 pkg/storaged/iscsi-panel.jsx:128
-#: pkg/machines/components/vm/overview/bootOrder.jsx:99
-#: pkg/machines/components/vm/overview/bootOrder.jsx:115
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:192
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:48
+#: pkg/machines/components/vm/overview/bootOrder.jsx:99
+#: pkg/machines/components/vm/overview/bootOrder.jsx:115
 msgid "Port"
 msgstr "פתחה"
 
-#: pkg/networkmanager/firewall.jsx:392
+#: pkg/networkmanager/firewall.jsx:409
 msgid "Port number and type do not match"
 msgstr "מספר הפתחה והסוג אינם תואמים"
 
@@ -5503,8 +5451,8 @@ msgstr "מספר הפתחה והסוג אינם תואמים"
 msgid "Portable"
 msgstr "נייד"
 
-#: pkg/networkmanager/index.html:223 pkg/networkmanager/index.html:333
-#: pkg/networkmanager/interfaces.js:2975
+#: pkg/networkmanager/index.html:184 pkg/networkmanager/index.html:294
+#: pkg/networkmanager/interfaces.js:2888
 msgid "Ports"
 msgstr "פתחות"
 
@@ -5516,12 +5464,12 @@ msgstr "מספר השקעים המועדף לחשיפה לאורח."
 msgid "Prefix"
 msgstr "קידומת"
 
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3232
 #: pkg/machines/components/networks/createNetworkDialog.jsx:287
 msgid "Prefix length"
 msgstr "אורך קידומת"
 
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3232
 msgid "Prefix length or netmask"
 msgstr "אורך קידומת או מסכת רשת"
 
@@ -5529,7 +5477,7 @@ msgstr "אורך קידומת או מסכת רשת"
 msgid "Prefix length should not be empty"
 msgstr "אורך הקידומת לא אמור להיות ריק"
 
-#: pkg/networkmanager/interfaces.js:817
+#: pkg/networkmanager/interfaces.js:818
 msgid "Preparing"
 msgstr "בהכנה"
 
@@ -5537,7 +5485,7 @@ msgstr "בהכנה"
 msgid "Present"
 msgstr "נוכחי"
 
-#: pkg/networkmanager/interfaces.js:3646
+#: pkg/networkmanager/interfaces.js:3561
 msgid "Preserve"
 msgstr "שימור"
 
@@ -5555,16 +5503,16 @@ msgid ""
 "something goes wrong"
 msgstr "תמונות מצב שנלכדו בעבר מאפשרות לך לחזור למצב קודם אם משהו השתבש"
 
-#: pkg/networkmanager/index.html:299
+#: pkg/networkmanager/index.html:260
 msgid "Primary"
 msgstr "עיקרי"
 
-#: pkg/networkmanager/index.html:254 pkg/networkmanager/index.html:373
-#: pkg/networkmanager/index.html:383 pkg/systemd/logs.html:49
+#: pkg/networkmanager/index.html:215 pkg/networkmanager/index.html:334
+#: pkg/networkmanager/index.html:344 pkg/systemd/logs.html:49
 msgid "Priority"
 msgstr "עדיפות"
 
-#: pkg/networkmanager/interfaces.js:2848 pkg/networkmanager/interfaces.js:2872
+#: pkg/networkmanager/interfaces.js:2746 pkg/networkmanager/interfaces.js:2770
 msgid "Priority $priority"
 msgstr "עדיפות $priority"
 
@@ -5613,13 +5561,13 @@ msgstr "משך הצגת הבקשה דרך ssh-keygen תם"
 msgid "Propagates reload to"
 msgstr "מפיץ רענון אל"
 
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:44
 #: pkg/machines/components/vm/overview/bootOrder.jsx:95
 #: pkg/machines/components/vm/overview/bootOrder.jsx:144
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:44
 msgid "Protocol"
 msgstr "פרוטוקול"
 
-#: pkg/shell/index.html:189 pkg/lib/machine-auth-failed.html:9
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:188
 msgid "Public key"
 msgstr "מפתח ציבורי"
 
@@ -5687,7 +5635,7 @@ msgstr "שלדת RAID"
 msgid "RAID device"
 msgstr "התקן RAID"
 
-#: pkg/storaged/utils.js:242 pkg/storaged/mdraid-details.jsx:310
+#: pkg/storaged/mdraid-details.jsx:310 pkg/storaged/utils.js:242
 msgid "RAID device $0"
 msgstr "התקן RAID‏ $0"
 
@@ -5712,15 +5660,15 @@ msgstr "זיכרון"
 msgid "Rack mount chassis"
 msgstr "שלדת מעגן מתלה (Rack)"
 
-#: pkg/networkmanager/interfaces.js:3647
+#: pkg/networkmanager/interfaces.js:3562
 msgid "Random"
 msgstr "אקראי"
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:771
 msgid "Range"
 msgstr "טווח"
 
-#: pkg/networkmanager/firewall.jsx:425
+#: pkg/networkmanager/firewall.jsx:441
 msgid "Range must be strictly ordered"
 msgstr "הטווח חייב להיות מסודר בקפידה"
 
@@ -5740,15 +5688,11 @@ msgstr "קריאה"
 msgid "Read more..."
 msgstr "מידע נוסף…"
 
-#: pkg/systemd/services/service-details.jsx:354
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 #: pkg/machines/components/vm/disks/diskEdit.jsx:93
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
+#: pkg/systemd/services/service-details.jsx:354
 msgid "Read-only"
 msgstr "קריאה בלבד"
-
-#: pkg/storaged/plot.jsx:312
-msgid "Reading"
-msgstr "מתבצעת קריאה"
 
 #: pkg/kdump/kdump-view.jsx:417
 msgid "Reading..."
@@ -5783,9 +5727,8 @@ msgstr "אורך שם התחום האמתי חייב להיות קצר מ־64 ת
 msgid "Reboot"
 msgstr "הפעלה מחדש"
 
-#: pkg/networkmanager/index.html:99 pkg/networkmanager/index.html:135
-#: pkg/networkmanager/index.html:152 pkg/networkmanager/index.html:445
-#: pkg/networkmanager/index.html:476
+#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:398
 msgid "Receiving"
 msgstr "קבלה"
 
@@ -5793,7 +5736,7 @@ msgstr "קבלה"
 msgid "Recommended default"
 msgstr "בררת מחדל מומלצת"
 
-#: pkg/shell/index.html:307
+#: pkg/shell/index.html:306
 msgid "Reconnect"
 msgstr "התחברות מחדש"
 
@@ -5809,15 +5752,15 @@ msgstr "התקן ה־RAID‏ $target עובר שיקום"
 msgid "Refreshing package information"
 msgstr "פרטי החבילה מתרעננים"
 
-#: src/ws/login.js:809
+#: pkg/static/login.js:810
 msgid "Refusing to connect. Host is unknown"
 msgstr "החיבור מסורב. המארח אינו מוכר"
 
-#: src/ws/login.js:811
+#: pkg/static/login.js:812
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "החיבור מסורב. מפתח המארח לא תואם"
 
-#: src/ws/login.js:807
+#: pkg/static/login.js:808
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "החיבור מסורב. מפתח המארח אינו מוכר"
 
@@ -5845,6 +5788,11 @@ msgstr "מרוחק דרך NFS"
 msgid "Remote over SSH"
 msgstr "מרוחק דרך SSH"
 
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:55
+#, fuzzy
+msgid "Remote viewer details"
+msgstr "פרטי Hypervisor"
+
 #: pkg/storaged/drives-panel.jsx:72 pkg/storaged/drives-panel.jsx:74
 msgctxt "storage"
 msgid "Removable drive"
@@ -5854,19 +5802,19 @@ msgstr "כונן נתיק"
 msgid "Removals:"
 msgstr "הסרות:"
 
-#: pkg/users/authorized-keys-panel.js:137 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/crypto-keyslots.jsx:405 pkg/storaged/crypto-keyslots.jsx:442
-#: pkg/apps/application-list.jsx:88 pkg/apps/application.jsx:114
+#: pkg/users/authorized-keys-panel.js:137 pkg/storaged/crypto-keyslots.jsx:405
+#: pkg/storaged/crypto-keyslots.jsx:442 pkg/storaged/nfs-details.jsx:317
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:284
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:294
+#: pkg/apps/application.jsx:114 pkg/apps/application-list.jsx:88
 msgid "Remove"
 msgstr "הסרה"
 
-#: pkg/networkmanager/interfaces.js:3046
+#: pkg/networkmanager/interfaces.js:2960
 msgid "Remove $0"
 msgstr "הסרת $0"
 
-#: pkg/networkmanager/firewall.jsx:830
+#: pkg/networkmanager/firewall.jsx:863
 msgid "Remove $0 service from $1 zone"
 msgstr "הסרת השירות $0 מהאזור $1"
 
@@ -5890,15 +5838,15 @@ msgstr "הסרת מילת צופן"
 msgid "Remove passphrase in $0?"
 msgstr "להסיר את מילת הצופן מעל $0?"
 
-#: pkg/networkmanager/firewall.jsx:69
+#: pkg/networkmanager/firewall.jsx:73
 msgid "Remove service $0"
 msgstr "הסרת השירות $0"
 
-#: pkg/networkmanager/firewall.jsx:158 pkg/networkmanager/firewall.jsx:813
+#: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:846
 msgid "Remove zone $0"
 msgstr "הסרת האזור $0"
 
-#: pkg/apps/application-list.jsx:59 pkg/apps/application.jsx:63
+#: pkg/apps/application.jsx:63 pkg/apps/application-list.jsx:59
 msgid "Removing"
 msgstr "בהסרה"
 
@@ -5910,7 +5858,7 @@ msgstr "$0 בהסרה"
 msgid "Removing $target from RAID device"
 msgstr "מתבצעת הסרה של $target מהתקן RAID"
 
-#: pkg/networkmanager/interfaces.js:3045
+#: pkg/networkmanager/interfaces.js:2959
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -5920,7 +5868,7 @@ msgstr "הסרת <b>$0</b> תקטע את החיבור לשרת ותמנע את �
 msgid "Removing physical volume from $target"
 msgstr "מתבצעת הסרה של כרך פיזי מתוך $target"
 
-#: pkg/networkmanager/firewall.jsx:828
+#: pkg/networkmanager/firewall.jsx:861
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5929,12 +5877,12 @@ msgstr ""
 "הסרת השירות cockpit עלול לגרום לקטיעת שירות המסוף המקוון. נא לוודא שאזור זה "
 "אינו חל על חיבור המסוף המקוון הנוכחי שלך."
 
-#: pkg/networkmanager/firewall.jsx:811
+#: pkg/networkmanager/firewall.jsx:844
 msgid "Removing the zone will remove all services within it."
 msgstr "הסרת האזור תסיר את כל השירותים שבו."
 
-#: pkg/storaged/vgroup-details.jsx:173 pkg/storaged/vgroup-details.jsx:222
-#: pkg/storaged/lvol-tabs.jsx:45
+#: pkg/storaged/lvol-tabs.jsx:45 pkg/storaged/vgroup-details.jsx:173
+#: pkg/storaged/vgroup-details.jsx:222
 msgid "Rename"
 msgstr "שינוי שם"
 
@@ -6045,7 +5993,6 @@ msgstr "איפוס"
 
 #: pkg/users/password-dialogs.js:276
 #, fuzzy
-#| msgid "Set password"
 msgid "Reset password"
 msgstr "הגדרת ססמה"
 
@@ -6062,10 +6009,9 @@ msgstr ""
 "שינוי גודל של מערכת קבצים מוצפנת דורשת את שחרור הכונן. נא לספק את מילת הצופן "
 "הנוכחית של הכונן."
 
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
+#: pkg/machines/components/vm/vmActions.jsx:243 pkg/systemd/shutdown.js:100
+#: pkg/systemd/shutdown.js:101 pkg/systemd/services/service-details.jsx:129
 #: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
-#: pkg/systemd/services/service-details.jsx:129
-#: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
 msgstr "הפעלה מחדש"
 
@@ -6085,8 +6031,8 @@ msgstr "מתבצעת הפעלה מחדש"
 msgid "Restoring connection"
 msgstr "החיבור משוחזר"
 
-#: pkg/systemd/logs.js:325 pkg/systemd/logs.js:497
-#: pkg/machines/components/vm/vmActions.jsx:196
+#: pkg/machines/components/vm/vmActions.jsx:196 pkg/systemd/logs.js:325
+#: pkg/systemd/logs.js:497
 msgid "Resume"
 msgstr "המשך"
 
@@ -6120,7 +6066,7 @@ msgstr "תפקידים"
 msgid "Root password"
 msgstr "ססמת משתמש על (root)"
 
-#: pkg/networkmanager/interfaces.js:1959 pkg/networkmanager/interfaces.js:1976
+#: pkg/networkmanager/interfaces.js:1912 pkg/networkmanager/interfaces.js:1929
 msgid "Round robin"
 msgstr "ראונד-רובין"
 
@@ -6132,7 +6078,7 @@ msgstr "ניתוב אל $0"
 msgid "Routed network"
 msgstr "רשת מנותבת"
 
-#: pkg/networkmanager/interfaces.js:3336
+#: pkg/networkmanager/interfaces.js:3251
 msgid "Routes"
 msgstr "ניתובים"
 
@@ -6144,18 +6090,18 @@ msgstr "הפעלה"
 msgid "Run unattended installation"
 msgstr "הפעלת התקנה ללא מגע"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:139
 #: pkg/machines/components/networks/networkOverviewTab.jsx:101
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:153
 msgid "Run when host boots"
 msgstr "הפעלה עם עליית המארח"
 
-#: pkg/networkmanager/index.html:338
+#: pkg/networkmanager/index.html:299
 msgid "Runner"
 msgstr "שליח"
 
+#: pkg/storaged/mdraid-details.jsx:346 pkg/machines/helpers.js:211
+#: pkg/systemd/services/services.jsx:516
 #: pkg/systemd/services/service-details.jsx:319
-#: pkg/systemd/services/services.jsx:512 pkg/storaged/mdraid-details.jsx:346
-#: pkg/machines/helpers.js:211
 msgid "Running"
 msgstr "פועל"
 
@@ -6191,47 +6137,46 @@ msgstr "פתרון תקלות ב־SELinux"
 msgid "SMART self-test of $target"
 msgstr "בדיקת SMART עצמית של $0"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:187
-msgid "SPICE"
-msgstr "SPICE"
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:165
-msgid "SPICE TLS port:"
-msgstr "פתחת TLS של SPICE:"
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:156
-msgid "SPICE address:"
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:48
+#, fuzzy
+msgid "SPICE Address"
 msgstr "כתובת SPICE:"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:162
-msgid "SPICE port:"
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:50
+#, fuzzy
+msgid "SPICE Port"
 msgstr "פתחת SPICE:"
+
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:52
+#, fuzzy
+msgid "SPICE TLS Port"
+msgstr "פתחת TLS של SPICE:"
 
 #: pkg/lib/machine-change-auth.html:46
 msgid "SSH key"
 msgstr "מפתח SSH"
 
-#: pkg/shell/index.html:78 pkg/shell/index.html:116
+#: pkg/shell/index.html:77 pkg/shell/index.html:115
 msgid "SSH keys"
 msgstr "מפתחות SSH"
 
-#: pkg/networkmanager/index.html:238
+#: pkg/networkmanager/index.html:199
 msgid "STP forward delay"
 msgstr "השהיית העברת STP"
 
-#: pkg/networkmanager/index.html:242
+#: pkg/networkmanager/index.html:203
 msgid "STP hello time"
 msgstr "זמן Hello של STP"
 
-#: pkg/networkmanager/index.html:246
+#: pkg/networkmanager/index.html:207
 msgid "STP maximum message age"
 msgstr "גיל ההודעה המרבי של STP"
 
-#: pkg/networkmanager/index.html:234
+#: pkg/networkmanager/index.html:195
 msgid "STP priority"
 msgstr "עדיפות STP"
 
-#: pkg/shell/index.html:325
+#: pkg/shell/index.html:324
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6245,13 +6190,13 @@ msgstr "שבת"
 msgid "Saturdays"
 msgstr "שבתות"
 
-#: pkg/systemd/services.html:280 pkg/storaged/crypto-keyslots.jsx:269
+#: pkg/systemd/services.html:288 pkg/storaged/crypto-keyslots.jsx:269
 #: pkg/storaged/crypto-keyslots.jsx:288
-#: pkg/machines/components/vm/overview/firmware.jsx:60
-#: pkg/machines/components/vm/overview/bootOrder.jsx:321
-#: pkg/machines/components/vm/overview/memoryModal.jsx:139
 #: pkg/machines/components/vm/nics/nicEdit.jsx:159
 #: pkg/machines/components/vm/disks/diskEdit.jsx:198
+#: pkg/machines/components/vm/overview/bootOrder.jsx:321
+#: pkg/machines/components/vm/overview/memoryModal.jsx:139
+#: pkg/machines/components/vm/overview/firmware.jsx:60
 msgid "Save"
 msgstr "שמירה"
 
@@ -6259,10 +6204,9 @@ msgstr "שמירה"
 msgid "Save and reboot"
 msgstr "שמירה והפעלה מחדש"
 
-#: pkg/systemd/overview-cards/motdCard.jsx:98
 #: pkg/packagekit/autoupdates.jsx:421
+#: pkg/systemd/overview-cards/motdCard.jsx:98
 #, fuzzy
-#| msgid "Force change"
 msgid "Save changes"
 msgstr "לאלץ החלפה"
 
@@ -6309,7 +6253,6 @@ msgstr "$target נמחק בצורה מאובטחת"
 
 #: pkg/packagekit/autoupdates.jsx:266
 #, fuzzy
-#| msgid "Security updates available"
 msgid "Security updates "
 msgstr "יש עדכוני אבטחה"
 
@@ -6319,13 +6262,17 @@ msgstr "יש עדכוני אבטחה"
 
 #: pkg/packagekit/autoupdates.jsx:358
 #, fuzzy
-#| msgid "Security updates available"
 msgid "Security updates only"
 msgstr "יש עדכוני אבטחה"
 
 #: pkg/shell/shell-modals.jsx:86
 msgid "Select"
 msgstr "בחירה"
+
+#: pkg/machines/components/vm/consoles/consoles.jsx:97
+#, fuzzy
+msgid "Select console type"
+msgstr "סוג מסוף"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -6339,13 +6286,12 @@ msgstr "שליחת מקש"
 msgid "Send non-maskable interrupt"
 msgstr "שליחת פסיקה שלא ניתן למסך"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:134
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:439
-#: pkg/networkmanager/index.html:475
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:397
 msgid "Sending"
 msgstr "שליחה"
 
-#: pkg/machines/components/vm/consoles/consoles.jsx:70
+#: pkg/machines/components/vm/consoles/consoles.jsx:98
 msgid "Serial console"
 msgstr "מסוף טורי"
 
@@ -6354,12 +6300,12 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "מספר סידורי"
 
-#: src/ws/login.html:141 pkg/kdump/kdump-view.jsx:121
-#: pkg/storaged/nfs-details.jsx:326 pkg/storaged/nfs-panel.jsx:102
+#: pkg/static/login.html:140 pkg/storaged/nfs-details.jsx:326
+#: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:121
 msgid "Server"
 msgstr "שרת"
 
-#: pkg/storaged/nfs-details.jsx:144 pkg/storaged/iscsi-panel.jsx:44
+#: pkg/storaged/iscsi-panel.jsx:44 pkg/storaged/nfs-details.jsx:144
 msgid "Server address"
 msgstr "כתובת השרת"
 
@@ -6383,7 +6329,7 @@ msgstr "השרת סגר את החיבור."
 msgid "Server software"
 msgstr "התכנה בשרת"
 
-#: pkg/networkmanager/firewall.jsx:179 pkg/storaged/dialog.jsx:1048
+#: pkg/storaged/dialog.jsx:1048 pkg/networkmanager/firewall.jsx:187
 #: pkg/metrics/metrics.jsx:423 pkg/metrics/metrics.jsx:457
 msgid "Service"
 msgstr "שירות"
@@ -6416,13 +6362,14 @@ msgstr "יומני שירות"
 msgid "Service name"
 msgstr "שם השירות"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:521
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:541
 #: pkg/systemd/services/service.jsx:76 pkg/systemd/manifest.json.in:0
 msgid "Services"
 msgstr "שירותים"
 
-#: pkg/storaged/dialog.jsx:1044 pkg/machines/helpers.js:208
+#: pkg/storaged/dialog.jsx:1044
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:43
+#: pkg/machines/helpers.js:208
 msgid "Session"
 msgstr "הפעלה"
 
@@ -6455,7 +6402,7 @@ msgstr "הגדרת ססמה"
 msgid "Set time"
 msgstr "הגדרת שעה"
 
-#: pkg/networkmanager/index.html:193
+#: pkg/networkmanager/index.html:154
 msgid "Set to"
 msgstr "הגדרה לכדי"
 
@@ -6487,7 +6434,7 @@ msgstr "קם התקן לולאה $target"
 msgid "Severity"
 msgstr "דרגת חומרה"
 
-#: pkg/networkmanager/interfaces.js:1944
+#: pkg/networkmanager/interfaces.js:1897
 msgid "Shared"
 msgstr "משותף"
 
@@ -6501,7 +6448,6 @@ msgstr "Shift+Insert"
 
 #: pkg/storaged/things-panel.jsx:82
 #, fuzzy
-#| msgid "Show all $0 devices"
 msgid "Show $0 device"
 msgid_plural "Show all $0 devices"
 msgstr[0] "להציג את כל $0 המכשירים"
@@ -6511,7 +6457,6 @@ msgstr[3] "להציג את כל $0 המכשירים"
 
 #: pkg/storaged/drives-panel.jsx:104
 #, fuzzy
-#| msgid "Show all $0 drives"
 msgid "Show $0 drive"
 msgid_plural "Show all $0 drives"
 msgstr[0] "להציג את כל $0 הכוננים"
@@ -6529,7 +6474,6 @@ msgstr "להציג הכול"
 
 #: pkg/systemd/abrtLog.jsx:214
 #, fuzzy
-#| msgid "Show all images"
 msgid "Show all threads"
 msgstr "להציג את כל התמונות"
 
@@ -6553,9 +6497,9 @@ msgstr "כיווץ הכרך הלוגי"
 msgid "Shrink volume"
 msgstr "כיווץ כרך"
 
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
 #: pkg/machines/components/vm/vmActions.jsx:210
-#: pkg/machines/components/vm/vmActions.jsx:217
+#: pkg/machines/components/vm/vmActions.jsx:217 pkg/systemd/shutdown.js:97
+#: pkg/systemd/shutdown.js:98
 msgid "Shut down"
 msgstr "כיבוי"
 
@@ -6571,8 +6515,8 @@ msgstr "יש לכבות את המכונה הווירטואלית כדי לערו
 msgid "Shutdown"
 msgstr "כיבוי"
 
-#: pkg/machines/helpers.js:214
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:152
+#: pkg/machines/helpers.js:214
 msgid "Shutting down"
 msgstr "מתבצע כיבוי"
 
@@ -6580,16 +6524,17 @@ msgstr "מתבצע כיבוי"
 msgid "Single rank"
 msgstr "שורה אחת"
 
-#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/fsys-panel.jsx:96
-#: pkg/storaged/nfs-details.jsx:336 pkg/storaged/format-dialog.jsx:185
-#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/part-tab.jsx:45
 #: pkg/storaged/lvol-tabs.jsx:219 pkg/storaged/lvol-tabs.jsx:281
 #: pkg/storaged/lvol-tabs.jsx:394 pkg/storaged/lvol-tabs.jsx:452
-#: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:778
-#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:83
+#: pkg/storaged/part-tab.jsx:45 pkg/storaged/format-dialog.jsx:185
+#: pkg/storaged/fsys-panel.jsx:96 pkg/storaged/content-views.jsx:123
+#: pkg/storaged/content-views.jsx:778 pkg/storaged/nfs-details.jsx:336
+#: pkg/storaged/nfs-panel.jsx:104
 #: pkg/machines/components/storagePools/storagePoolList.jsx:73
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
+#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:83
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:545
+#: pkg/systemd/hwinfo.jsx:305
 msgid "Size"
 msgstr "גודל"
 
@@ -6613,11 +6558,11 @@ msgstr "הגודל חייב להיות מספר"
 msgid "Size must be at least $0"
 msgstr "הגודל חייב להיות לפחות $0"
 
-#: pkg/shell/index.html:17
+#: pkg/shell/index.html:16
 msgid "Skip main navigation"
 msgstr "דילוג על הניווט הראשי"
 
-#: pkg/shell/index.html:16
+#: pkg/shell/index.html:15
 msgid "Skip to content"
 msgstr "דילוג לתוכן"
 
@@ -6625,7 +6570,7 @@ msgstr "דילוג לתוכן"
 msgid "Slot"
 msgstr "משבצת"
 
-#: pkg/storaged/crypto-keyslots.jsx:547 pkg/storaged/mdraid-details.jsx:114
+#: pkg/storaged/mdraid-details.jsx:114 pkg/storaged/crypto-keyslots.jsx:547
 msgid "Slot $0"
 msgstr "משבצת $0"
 
@@ -6637,8 +6582,8 @@ msgstr "יצירת תמונת המצב נכשלה"
 msgid "Snapshots"
 msgstr "תמונות מצב"
 
-#: pkg/systemd/services/service-tabs.jsx:40
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:215
+#: pkg/systemd/services/service-tabs.jsx:40
 msgid "Sockets"
 msgstr "שקעים"
 
@@ -6681,15 +6626,16 @@ msgstr "תכנית אחרת משתמשת כרגע במנהל החבילות, נ�
 msgid "Something went wrong"
 msgstr "משהו השתבש"
 
-#: pkg/networkmanager/firewall.jsx:685
-msgid "Sorted from least trusted to most trusted"
+#: pkg/networkmanager/firewall.jsx:708
+#, fuzzy
+msgid "Sorted from least to most trusted"
 msgstr "מסודר מהכי מהימן להכי פחות מהימן"
 
-#: pkg/machines/components/vm/nics/nicBody.jsx:139
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:239
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:230
-#: pkg/machines/components/vm/disks/diskAdd.jsx:491
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:53
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:239
+#: pkg/machines/components/vm/nics/nicBody.jsx:139
+#: pkg/machines/components/vm/disks/diskAdd.jsx:491
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:230
 msgid "Source"
 msgstr "מקור"
 
@@ -6721,11 +6667,11 @@ msgstr "קבוצת כרכים מקורית"
 msgid "Space-saving computer"
 msgstr "מחשב חסכוני במקום"
 
-#: pkg/networkmanager/interfaces.js:2846
+#: pkg/networkmanager/interfaces.js:2744
 msgid "Spanning tree protocol"
 msgstr "פרוטוקול העץ הפורש"
 
-#: pkg/networkmanager/index.html:228
+#: pkg/networkmanager/index.html:189
 msgid "Spanning tree protocol (STP)"
 msgstr "פרוטוקול העץ הפורש (STP)"
 
@@ -6737,24 +6683,18 @@ msgstr "עודף"
 msgid "Specific time"
 msgstr "זמן מסוים"
 
-#: pkg/lib/machine-add.html:15
-msgid ""
-"Specify the host and the login user account for the host that you want to "
-"add."
-msgstr "נא לציין את המארח ואת שם הכניסה של המארח המיועד להוספה."
-
 #: pkg/systemd/hwinfo.jsx:305
 msgid "Speed"
 msgstr "מהירות"
 
-#: pkg/networkmanager/interfaces.js:3648
+#: pkg/networkmanager/interfaces.js:3563
 msgid "Stable"
 msgstr "יציב"
 
-#: pkg/systemd/services/service-details.jsx:136
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/content-views.jsx:309
-#: pkg/storaged/mdraid-details.jsx:314
+#: pkg/storaged/mdraid-details.jsx:314 pkg/storaged/vdo-details.jsx:261
+#: pkg/storaged/content-views.jsx:309
 #: pkg/machines/components/networks/createNetworkDialog.jsx:222
+#: pkg/systemd/services/service-details.jsx:136
 msgid "Start"
 msgstr "התחלה"
 
@@ -6796,13 +6736,13 @@ msgstr "שטח ההחלפה $target מתחיל"
 msgid "Startup"
 msgstr "בהתחלה"
 
-#: pkg/systemd/hwinfo.jsx:305 pkg/systemd/services/services-list.jsx:98
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:192
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:265
-#: pkg/machines/components/vms/hostvmslist.jsx:96
-#: pkg/machines/components/vms/hostvmslist.jsx:140
-#: pkg/machines/components/storagePools/storagePoolList.jsx:75
 #: pkg/machines/components/networks/networkList.jsx:79
+#: pkg/machines/components/storagePools/storagePoolList.jsx:75
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:265
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:206
+#: pkg/machines/components/vms/hostvmslist.jsx:96
+#: pkg/machines/components/vms/hostvmslist.jsx:140 pkg/systemd/hwinfo.jsx:305
+#: pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "מצב"
 
@@ -6811,13 +6751,13 @@ msgctxt "storage"
 msgid "State"
 msgstr "מצב"
 
+#: pkg/systemd/services/services.jsx:530 pkg/systemd/services/services.jsx:691
 #: pkg/systemd/services/service-details.jsx:337
-#: pkg/systemd/services/services.jsx:526 pkg/systemd/services/services.jsx:687
 msgid "Static"
 msgstr "סטטי"
 
-#: pkg/networkmanager/interfaces.js:2602
-#: pkg/systemd/services/service-details.jsx:444 pkg/packagekit/updates.jsx:569
+#: pkg/networkmanager/interfaces.js:2500 pkg/packagekit/updates.jsx:569
+#: pkg/systemd/services/service-details.jsx:444
 msgid "Status"
 msgstr "מצב"
 
@@ -6825,13 +6765,13 @@ msgstr "מצב"
 msgid "Stick PC"
 msgstr "מחשב מקלון"
 
-#: pkg/networkmanager/index.html:377
+#: pkg/networkmanager/index.html:338
 msgid "Sticky"
 msgstr "דביק"
 
+#: pkg/storaged/mdraid-details.jsx:313 pkg/storaged/vdo-details.jsx:143
+#: pkg/storaged/vdo-details.jsx:260 pkg/storaged/content-views.jsx:307
 #: pkg/systemd/services/service-details.jsx:132
-#: pkg/storaged/vdo-details.jsx:143 pkg/storaged/vdo-details.jsx:260
-#: pkg/storaged/content-views.jsx:307 pkg/storaged/mdraid-details.jsx:313
 msgid "Stop"
 msgstr "עצירה"
 
@@ -6869,7 +6809,7 @@ msgstr "שטח ההחלפה $target נעצר"
 msgid "Storage"
 msgstr "אחסון"
 
-#: pkg/storaged/devices.jsx:75
+#: pkg/storaged/devices.jsx:82
 msgid "Storage can not be managed on this system."
 msgstr "לא ניתן לנהל את האחסון במערכת הזאת."
 
@@ -6907,8 +6847,8 @@ msgstr "אסור שגודל האחסון יהיה 0"
 msgid "Storage volume"
 msgstr "כרך אחסון"
 
-#: pkg/machines/components/vm/disks/diskAdd.jsx:312
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:64
+#: pkg/machines/components/vm/disks/diskAdd.jsx:312
 msgid "Storage volume size must not exceed the storage pool's capacity ($0 $1)"
 msgstr ""
 
@@ -6971,11 +6911,11 @@ msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "שטח החלפה"
 
-#: pkg/networkmanager/interfaces.js:2482 pkg/networkmanager/interfaces.js:3029
+#: pkg/networkmanager/interfaces.js:2380 pkg/networkmanager/interfaces.js:2943
 msgid "Switch off $0"
 msgstr "כיבוי $0"
 
-#: pkg/networkmanager/interfaces.js:2457 pkg/networkmanager/interfaces.js:3017
+#: pkg/networkmanager/interfaces.js:2355 pkg/networkmanager/interfaces.js:2931
 msgid "Switch on $0"
 msgstr "הדלקת $0"
 
@@ -6983,21 +6923,21 @@ msgstr "הדלקת $0"
 msgid "Switch to limited access"
 msgstr "העברה לגישה מוגבלת"
 
-#: pkg/networkmanager/interfaces.js:2481
+#: pkg/networkmanager/interfaces.js:2379
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 "כיבוי <b>$0</b> יקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/networkmanager/interfaces.js:3028
+#: pkg/networkmanager/interfaces.js:2942
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 "כיבוי <b>$0</b> יקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/networkmanager/interfaces.js:2456 pkg/networkmanager/interfaces.js:3016
+#: pkg/networkmanager/interfaces.js:2354 pkg/networkmanager/interfaces.js:2930
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7020,13 +6960,14 @@ msgstr "מתבצע סנכרון"
 msgid "Synchronizing RAID device $target"
 msgstr "התקן ה־RAID‏ $target מסונכרן"
 
-#: pkg/shell/index.html:22 pkg/shell/indexes.js:336 pkg/machines/helpers.js:207
+#: pkg/shell/index.html:21
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:38
+#: pkg/machines/helpers.js:207 pkg/shell/indexes.js:336
 msgid "System"
 msgstr "מערכת"
 
-#: pkg/systemd/hwinfo.jsx:321
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:105
+#: pkg/systemd/hwinfo.jsx:321
 msgid "System information"
 msgstr "פרטי המערכת"
 
@@ -7050,7 +6991,7 @@ msgstr "שעון המערכת"
 msgid "Systemd units"
 msgstr "יחידות Systemd"
 
-#: pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/firewall.jsx:187
 msgid "TCP"
 msgstr "TCP"
 
@@ -7079,20 +7020,20 @@ msgstr "נתיב היעד לא יכול להיות ריק"
 msgid "Targets"
 msgstr "יעדים"
 
-#: pkg/networkmanager/interfaces.js:2502 pkg/networkmanager/interfaces.js:2514
-#: pkg/networkmanager/interfaces.js:2803
+#: pkg/networkmanager/interfaces.js:2400 pkg/networkmanager/interfaces.js:2412
+#: pkg/networkmanager/interfaces.js:2701
 msgid "Team"
 msgstr "ציוות"
 
-#: pkg/networkmanager/interfaces.js:2831
+#: pkg/networkmanager/interfaces.js:2729
 msgid "Team port"
 msgstr "פתחת ציוות"
 
-#: pkg/networkmanager/index.html:592
+#: pkg/networkmanager/index.html:514
 msgid "Team port settings"
 msgstr "הגדרות פתחת ציוות"
 
-#: pkg/networkmanager/index.html:563
+#: pkg/networkmanager/index.html:485
 msgid "Team settings"
 msgstr "הגדרות ציוות"
 
@@ -7195,7 +7136,7 @@ msgid ""
 msgstr ""
 "לא ניתן לוודא את אמינות המארח {{#strong}}{{host}}{{/strong}}. להמשיך ולהתחבר?"
 
-#: pkg/networkmanager/firewall.jsx:711
+#: pkg/networkmanager/firewall.jsx:739
 msgid "The cockpit service is automatically included"
 msgstr "שירות ה־cockpit נכלל אוטומטית"
 
@@ -7353,7 +7294,7 @@ msgstr "הססמאות אינן תואמות."
 msgid "The pool is empty"
 msgstr "המאגר ריק"
 
-#: src/ws/login.html:67
+#: pkg/static/login.html:66
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7372,7 +7313,7 @@ msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
 msgstr "למערכת ההפעלה הנוכחית יש דרישות סף מבחינת אחסון של $0 $1"
 
-#: src/ws/login.js:801
+#: pkg/static/login.js:802
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7403,7 +7344,7 @@ msgstr ""
 "שם המשתמש יכול להיות מורכב מהתווים a-z, ספרות, נקודות, מינוסים וקווים "
 "תחתונים."
 
-#: src/ws/login.js:178
+#: pkg/static/login.js:178
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr "הגדרות הדפדפן מונעות מ־Cockpit לפעול ($0 בלתי נגיש)"
@@ -7418,7 +7359,7 @@ msgid ""
 "service is not running."
 msgstr "יש התקנים עם מגוון נתיבים במערכת אך שירות ריבוי הנתיבים אינו פועל."
 
-#: pkg/networkmanager/firewall.jsx:182
+#: pkg/networkmanager/firewall.jsx:190
 msgid "There are no active services in this zone"
 msgstr "אין שירותים פעילים באזור הזה"
 
@@ -7443,7 +7384,7 @@ msgstr[1] "היו $0 ניסיונות כניסה כושלים למערכת מא�
 msgstr[2] "היו $0 ניסיונות כניסה כושלים למערכת מאז הכניסה המוצלחת האחרונה."
 msgstr[3] "היו $0 ניסיונות כניסה כושלים למערכת מאז הכניסה המוצלחת האחרונה."
 
-#: pkg/shell/index.html:320
+#: pkg/shell/index.html:319
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "הייתה שגיאה בלתי צפויה בעת ההתחברות למכונה."
 
@@ -7470,7 +7411,7 @@ msgid ""
 msgstr ""
 "יום זה לא קיים בכל החודשים.<br> המתזמן יופעל רק בחודשים שיש בהם 31 ימים."
 
-#: pkg/networkmanager/interfaces.js:2613
+#: pkg/networkmanager/interfaces.js:2511
 msgid "This device cannot be managed here."
 msgstr "לא ניתן לנהל את ההתקן הזה כאן."
 
@@ -7539,7 +7480,7 @@ msgstr "בכרך לוגי זה לא נעשה שימוש מלא על ידי הת�
 msgid "This machine has already been added."
 msgstr "מכונה זו כבר נוספה."
 
-#: pkg/systemd/overview-cards/realmd-operation.html:85
+#: pkg/systemd/overview-cards/realmd-operation.html:94
 msgid "This may take a while"
 msgstr "פעולה זו עשויה לארוך זמן מה"
 
@@ -7596,9 +7537,8 @@ msgstr "כרך זה כבר בשימוש על ידי: "
 msgid "This volume needs to be activated before it can be resized."
 msgstr "יש להפעיל את הכרך הזה לפני שיתאפשר לשנות את גודלו."
 
-#: src/ws/login.js:163
+#: pkg/static/login.js:163
 #, fuzzy
-#| msgid "This web browser is too old to run Cockpit (missing $0)"
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "דפדפן זה מיושן מכדי להריץ את Cockpit (חסר $0)"
 
@@ -7619,7 +7559,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "פעולה זו תבדוק את ההגדרות של kdump על ידי הקרסת הליבה."
 
-#: pkg/networkmanager/firewall.jsx:809
+#: pkg/networkmanager/firewall.jsx:842
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7651,7 +7591,7 @@ msgstr "אזור זמן"
 msgid "Timers"
 msgstr "מתזמנים"
 
-#: pkg/shell/index.html:270
+#: pkg/shell/index.html:269
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7659,7 +7599,7 @@ msgstr ""
 "עצה: אפשר להגדיר את ססמת המפתח שלך כמו ססמת הכניסה שלך כדי להתאמת אוטומטית "
 "מול מערכות אחרות."
 
-#: src/ws/login.html:62
+#: pkg/static/login.html:61
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7673,7 +7613,7 @@ msgstr ""
 "כדי לקבל עדכוני תכנה, יש לרשום את המערכת הזאת ב־Red Hat, או דרך פורטל "
 "הלקוחות של Red Hat או דרך שרת מינוי מקומי."
 
-#: src/ws/login.js:651
+#: pkg/static/login.js:651
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7684,7 +7624,7 @@ msgstr ""
 msgid "Today"
 msgstr "היום"
 
-#: pkg/shell/index.html:64
+#: pkg/shell/index.html:63
 msgid "Toggle session settings"
 msgstr "החלפה בין ערכות הגדרות"
 
@@ -7720,8 +7660,8 @@ msgstr "מכונות וירטואליות זמניות לא תומכות בער�
 msgid "Triggered by"
 msgstr "מוקפץ על ידי"
 
-#: pkg/systemd/services/service-details.jsx:398
 #: pkg/systemd/services/services-list.jsx:54
+#: pkg/systemd/services/service-details.jsx:398
 msgid "Triggers"
 msgstr "הקפצות"
 
@@ -7733,11 +7673,11 @@ msgstr "איתור תקלות"
 msgid "Trust key"
 msgstr "לתת אמון במפתח"
 
-#: pkg/networkmanager/firewall.jsx:681
+#: pkg/networkmanager/firewall.jsx:705
 msgid "Trust level"
 msgstr "רמת אמון"
 
-#: src/ws/login.html:115
+#: pkg/static/login.html:114
 msgid "Try again"
 msgstr "לנסות שוב"
 
@@ -7780,19 +7720,19 @@ msgstr "Tuned כבוי"
 msgid "Turn on administrative access"
 msgstr "הפעלת גישה ניהולית"
 
-#: pkg/shell/index.html:227 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/hwinfo.jsx:305 pkg/storaged/format-dialog.jsx:200
-#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/part-tab.jsx:55
+#: pkg/shell/index.html:226 pkg/storaged/part-tab.jsx:55
+#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/format-dialog.jsx:200
 #: pkg/packagekit/autoupdates.jsx:348
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:75
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:78
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:199
 #: pkg/machines/components/vm/overview/bootOrder.jsx:113
 #: pkg/machines/components/vm/overview/bootOrder.jsx:124
 #: pkg/machines/components/vm/overview/bootOrder.jsx:130
 #: pkg/machines/components/vm/overview/bootOrder.jsx:136
 #: pkg/machines/components/vm/overview/bootOrder.jsx:143
 #: pkg/machines/components/vm/overview/bootOrder.jsx:149
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:199
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:75
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:78
+#: pkg/systemd/hwinfo.jsx:79 pkg/systemd/hwinfo.jsx:305
 msgid "Type"
 msgstr "סוג"
 
@@ -7804,7 +7744,7 @@ msgstr "מזהה סוג"
 msgid "Type to filter"
 msgstr "יש להקליד כדי לסנן"
 
-#: pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/firewall.jsx:187
 msgid "UDP"
 msgstr "UDP"
 
@@ -7816,7 +7756,7 @@ msgstr "כתובת"
 msgid "UUID"
 msgstr "מזהה ייחודי"
 
-#: pkg/storaged/vgroup-details.jsx:230 pkg/storaged/mdraid-details.jsx:328
+#: pkg/storaged/mdraid-details.jsx:328 pkg/storaged/vgroup-details.jsx:230
 msgctxt "storage"
 msgid "UUID"
 msgstr "מזהה ייחודי"
@@ -7829,7 +7769,7 @@ msgstr "לא ניתן להחיל את ההגדרות: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "לא ניתן להחיל את הפתרון הזה אוטומטית"
 
-#: src/ws/login.js:805
+#: pkg/static/login.js:806
 msgid "Unable to connect to that address"
 msgstr "לא ניתן להתחבר לכתובת הזו"
 
@@ -7915,7 +7855,7 @@ msgstr "לא ניתן לנתק את מערכת הקבצים"
 msgid "Unavailable"
 msgstr "לא זמין"
 
-#: pkg/networkmanager/index.html:763 pkg/users/dialog-utils.js:65
+#: pkg/networkmanager/index.html:685 pkg/users/dialog-utils.js:65
 #: pkg/shell/shell-modals.jsx:116
 msgid "Unexpected error"
 msgstr "שגיאה בלתי צפויה"
@@ -7937,15 +7877,15 @@ msgstr "יחידה"
 msgid "Unix group: $0"
 msgstr "קבוצת יוניקס: $0"
 
-#: pkg/networkmanager/interfaces.js:582 pkg/networkmanager/interfaces.js:1058
-#: pkg/networkmanager/interfaces.js:2522 pkg/networkmanager/interfaces.js:2524
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
+#: pkg/storaged/swap-tab.jsx:62 pkg/storaged/fsys-tab.jsx:390
+#: pkg/networkmanager/interfaces.js:583 pkg/networkmanager/interfaces.js:1059
+#: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:228
 msgid "Unknown"
 msgstr "לא ידוע"
 
-#: pkg/networkmanager/interfaces.js:2508 pkg/networkmanager/interfaces.js:2520
+#: pkg/networkmanager/interfaces.js:2406 pkg/networkmanager/interfaces.js:2418
 msgid "Unknown \"$0\""
 msgstr "„$0” לא ידוע"
 
@@ -7957,7 +7897,7 @@ msgstr "לא ידוע ($0)"
 msgid "Unknown application"
 msgstr "יישום לא ידוע"
 
-#: pkg/networkmanager/interfaces.js:2629
+#: pkg/networkmanager/interfaces.js:2527
 msgid "Unknown configuration"
 msgstr "הגדרות לא ידועות"
 
@@ -7973,7 +7913,7 @@ msgstr "מפתח מארח לא ידוע"
 msgid "Unknown host name"
 msgstr "שם המארח לא ידוע"
 
-#: pkg/networkmanager/firewall.jsx:386
+#: pkg/networkmanager/firewall.jsx:403
 msgid "Unknown service name"
 msgstr "שם השירות לא ידוע"
 
@@ -7990,7 +7930,7 @@ msgstr "שחרור"
 msgid "Unlock at boot"
 msgstr "שחרור עם העלייה"
 
-#: pkg/shell/index.html:171 pkg/shell/index.html:215
+#: pkg/shell/index.html:170 pkg/shell/index.html:214
 msgid "Unlock key"
 msgstr "שחרור מפתח"
 
@@ -8006,12 +7946,12 @@ msgstr "$target משוחרר"
 msgid "Unlocking disk..."
 msgstr "הכונן משוחרר…"
 
-#: pkg/networkmanager/index.html:144
+#: pkg/networkmanager/index.html:105
 msgid "Unmanaged interfaces"
 msgstr "מנשקים לא מנוהלים"
 
-#: pkg/storaged/nfs-details.jsx:309 pkg/storaged/fsys-tab.jsx:290
-#: pkg/storaged/content-views.jsx:375
+#: pkg/storaged/content-views.jsx:375 pkg/storaged/nfs-details.jsx:309
+#: pkg/storaged/fsys-tab.jsx:290
 msgid "Unmount"
 msgstr "ניתוק"
 
@@ -8082,7 +8022,6 @@ msgstr "ייתכן שהחבילות המעודכנות תדרושנה הפעלה
 
 #: pkg/packagekit/autoupdates.jsx:266
 #, fuzzy
-#| msgid "Update"
 msgid "Updates "
 msgstr "עדכון"
 
@@ -8110,9 +8049,9 @@ msgstr "זמן פעילות"
 msgid "Url"
 msgstr "כתובת"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:116
 #: pkg/storaged/unrecognized-tab.jsx:37
-#: pkg/machines/components/vm/vmDetailsPage.jsx:106 pkg/metrics/metrics.jsx:960
+#: pkg/machines/components/vm/vmDetailsPage.jsx:106
+#: pkg/systemd/overview-cards/usageCard.jsx:116 pkg/metrics/metrics.jsx:960
 #: pkg/metrics/metrics.jsx:961 pkg/metrics/metrics.jsx:962
 #: pkg/metrics/metrics.jsx:963
 msgid "Usage"
@@ -8126,11 +8065,11 @@ msgstr "להשתמש בהדמיית 512 בתים"
 msgid "Use existing"
 msgstr "להשתמש בקיים"
 
-#: pkg/shell/index.html:123
+#: pkg/shell/index.html:122
 msgid "Use the following keys to authenticate against other systems"
 msgstr "להשתמש במפתחות הבאים כדי להתאמת מול שרתים אחרים"
 
-#: pkg/storaged/fsys-tab.jsx:536 pkg/storaged/swap-tab.jsx:70
+#: pkg/storaged/swap-tab.jsx:70 pkg/storaged/fsys-tab.jsx:536
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:222
 #: pkg/metrics/metrics.jsx:457
 msgid "Used"
@@ -8144,18 +8083,18 @@ msgstr "בשימוש על ידי"
 msgid "User"
 msgstr "משתמש"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:57
-#: pkg/lib/machine-add.html:33 src/ws/login.html:72
+#: pkg/lib/machine-add.html:29
+#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:71
 #: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:289
 msgid "User name"
 msgstr "שם משתמש"
 
-#: src/ws/login.js:510
+#: pkg/static/login.js:510
 msgid "User name cannot be empty"
 msgstr "שם המשתמש לא יכול להיות ריק"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:60
-#: pkg/systemd/overview-cards/realmd-operation.js:336
+#: pkg/systemd/overview-cards/realmd-operation.js:340
 msgid "User password"
 msgstr "ססמת משתמש"
 
@@ -8184,20 +8123,20 @@ msgstr "אין אפשרות להקטין התקני גיבוי VDO"
 msgid "VDO device"
 msgstr "התקן VDO"
 
-#: pkg/storaged/vdo-details.jsx:257 pkg/storaged/utils.js:253
+#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:257
 msgid "VDO device $0"
 msgstr "התקן VDO‏ $0"
 
-#: pkg/networkmanager/interfaces.js:2504 pkg/networkmanager/interfaces.js:2516
-#: pkg/networkmanager/interfaces.js:2895
+#: pkg/networkmanager/interfaces.js:2402 pkg/networkmanager/interfaces.js:2414
+#: pkg/networkmanager/interfaces.js:2793
 msgid "VLAN"
 msgstr "VLAN"
 
-#: pkg/networkmanager/index.html:171
+#: pkg/networkmanager/index.html:132
 msgid "VLAN ID"
 msgstr "מזהה VLAN"
 
-#: pkg/networkmanager/index.html:679
+#: pkg/networkmanager/index.html:601
 msgid "VLAN settings"
 msgstr "הגדרות VLAN"
 
@@ -8217,8 +8156,8 @@ msgstr "כיבוי המכונה הווירטואלית $0 בכוח נכשל"
 msgid "VM $0 failed to get deleted"
 msgstr "מחיקת המכונה הווירטואלית $0 נכשלה"
 
-#: pkg/machines/libvirt-common.js:1098
 #: pkg/machines/components/vm/vmActions.jsx:88
+#: pkg/machines/libvirt-common.js:1106
 msgid "VM $0 failed to get installed"
 msgstr "התקנת המכונה הווירטואלית $0 נכשלה"
 
@@ -8250,27 +8189,31 @@ msgstr "הפעלת המכונה הווירטואלית $0 נכשלה"
 msgid "VM state"
 msgstr "מצב מכונה וירטואלית"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:187
-msgid "VNC"
-msgstr "VNC"
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:171
-msgid "VNC TLS port:"
-msgstr "פתחת TLS של VNC:"
-
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:159
-msgid "VNC address:"
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:49
+#, fuzzy
+msgid "VNC Address"
 msgstr "כתובת VNC:"
 
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:168
-msgid "VNC port:"
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:51
+#, fuzzy
+msgid "VNC Port"
 msgstr "פתחת VNC:"
+
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:53
+#, fuzzy
+msgid "VNC TLS Port"
+msgstr "פתחת TLS של VNC:"
+
+#: pkg/machines/components/vm/consoles/consoles.jsx:99
+#, fuzzy
+msgid "VNC console"
+msgstr "מסוף"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:166
 msgid "Validating address"
 msgstr "הכתובת מתוקפת"
 
-#: src/ws/login.html:109
+#: pkg/static/login.html:108
 msgid "Validating authentication token"
 msgstr "אסימון האימות מתוקף"
 
@@ -8278,9 +8221,9 @@ msgstr "אסימון האימות מתוקף"
 msgid "Validating key"
 msgstr "המפתח מתוקף"
 
-#: pkg/systemd/hwinfo.jsx:292
 #: pkg/machines/components/vm/overview/bootOrder.jsx:125
 #: pkg/machines/components/vm/overview/bootOrder.jsx:131
+#: pkg/systemd/hwinfo.jsx:292
 msgid "Vendor"
 msgstr "ספק"
 
@@ -8296,8 +8239,8 @@ msgstr "אימות מפתח"
 msgid "Verifying"
 msgstr "מתבצע אימות"
 
-#: pkg/shell/shell-modals.jsx:39 pkg/systemd/hwinfo.jsx:87
-#: pkg/packagekit/updates.jsx:392
+#: pkg/packagekit/updates.jsx:392 pkg/systemd/hwinfo.jsx:87
+#: pkg/shell/shell-modals.jsx:39
 msgid "Version"
 msgstr "גרסה"
 
@@ -8329,12 +8272,12 @@ msgstr "הצגת דוח"
 msgid "Virtual Machines"
 msgstr "מכונות וירטואליות"
 
+#: pkg/machines/components/networks/networkList.jsx:55
+#: pkg/machines/components/storagePools/storagePoolList.jsx:52
 #: pkg/machines/components/vm/vmDetailsPage.jsx:79
 #: pkg/machines/components/vm/vmDetailsPage.jsx:177
 #: pkg/machines/components/vms/hostvmslist.jsx:128
 #: pkg/machines/components/vms/hostvmslist.jsx:135
-#: pkg/machines/components/storagePools/storagePoolList.jsx:52
-#: pkg/machines/components/networks/networkList.jsx:55
 msgid "Virtual machines"
 msgstr "מכונות וירטואליות"
 
@@ -8355,10 +8298,10 @@ msgid "Virtualization service (libvirt) is not active"
 msgstr "שירות הווירטואליזציה (libvirt) אינו פעיל"
 
 #: pkg/storaged/content-views.jsx:145
-#: pkg/machines/components/vm/deleteDialog.jsx:50
-#: pkg/machines/components/vm/overview/bootOrder.jsx:97
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:46
 #: pkg/machines/components/vm/disks/diskAdd.jsx:81
+#: pkg/machines/components/vm/deleteDialog.jsx:50
+#: pkg/machines/components/vm/overview/bootOrder.jsx:97
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:531
 msgid "Volume"
 msgstr "כרך"
@@ -8367,11 +8310,11 @@ msgstr "כרך"
 msgid "Volume failed to be created"
 msgstr "יצירת הכרך נכשלה"
 
-#: pkg/storaged/vgroups-panel.jsx:40 pkg/storaged/pvol-tabs.jsx:41
+#: pkg/storaged/pvol-tabs.jsx:41 pkg/storaged/vgroups-panel.jsx:40
 msgid "Volume group"
 msgstr "קבוצת כרכים"
 
-#: pkg/storaged/vgroup-details.jsx:220 pkg/storaged/utils.js:248
+#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:220
 msgid "Volume group $0"
 msgstr "קבוצת כרכים $0"
 
@@ -8391,7 +8334,7 @@ msgstr "גודל הכרך הוא $0. גודל התוכן הוא $1."
 msgid "WWPN"
 msgstr "WWPN"
 
-#: pkg/networkmanager/interfaces.js:827
+#: pkg/networkmanager/interfaces.js:828
 msgid "Waiting"
 msgstr "בהמתנה"
 
@@ -8461,6 +8404,10 @@ msgstr "מה אם tang-show-keys אינו זמין?"
 msgid "When"
 msgstr ""
 
+#: pkg/lib/machine-add.html:34
+msgid "When empty, connect with the current user"
+msgstr ""
+
 #: pkg/systemd/terminal.jsx:102
 msgid "White"
 msgstr "לבן"
@@ -8478,29 +8425,25 @@ msgstr "כתיבה"
 msgid "Write-mostly"
 msgstr "בעיקר כתיבה"
 
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 #: pkg/machines/components/vm/disks/diskEdit.jsx:101
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 msgid "Writeable"
 msgstr "ניתן לכתיבה"
 
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 #: pkg/machines/components/vm/disks/diskEdit.jsx:110
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 msgid "Writeable and shared"
 msgstr "ניתן לכתיבה ומשותף"
 
-#: pkg/storaged/plot.jsx:315
-msgid "Writing"
-msgstr "מתבצעת כתיבה"
-
-#: src/ws/login.js:815
+#: pkg/static/login.js:816
 msgid "Wrong user name or password"
 msgstr "שם משתמש או ססמה שגויים"
 
-#: pkg/networkmanager/interfaces.js:1961
+#: pkg/networkmanager/interfaces.js:1914
 msgid "XOR"
 msgstr "XOR (קסור)"
 
-#: pkg/networkmanager/interfaces.js:2582 pkg/systemd/reporting.jsx:261
+#: pkg/networkmanager/interfaces.js:2480 pkg/systemd/reporting.jsx:261
 msgid "Yes"
 msgstr "כן"
 
@@ -8508,11 +8451,11 @@ msgstr "כן"
 msgid "Yesterday"
 msgstr "אתמול"
 
-#: src/ws/login.js:648
+#: pkg/static/login.js:648
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:151 pkg/networkmanager/firewall.jsx:899
+#: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
 msgid "You are not authorized to modify the firewall."
 msgstr "אין לך הרשאה לשנות את חומת האש."
 
@@ -8606,9 +8549,9 @@ msgstr "abrt"
 msgid "access"
 msgstr "גישה"
 
-#: pkg/shell/active-pages-dialog.jsx:50 pkg/tuned/change-profile.jsx:57
-#: pkg/machines/components/storagePools/storagePool.jsx:58
 #: pkg/machines/components/networks/network.jsx:56
+#: pkg/machines/components/storagePools/storagePool.jsx:58
+#: pkg/tuned/change-profile.jsx:57 pkg/shell/active-pages-dialog.jsx:50
 msgid "active"
 msgstr "פעיל"
 
@@ -8697,12 +8640,12 @@ msgstr "היטל ליבה"
 msgid "cpu"
 msgstr "מעבד"
 
-#: pkg/kdump/manifest.json.in:0 pkg/systemd/manifest.json.in:0
+#: pkg/systemd/manifest.json.in:0 pkg/kdump/manifest.json.in:0
 msgid "crash"
 msgstr "קריסה"
 
-#: pkg/machines/helpers.js:231
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:47
+#: pkg/machines/helpers.js:231
 msgid "custom"
 msgstr "מותאם אישית"
 
@@ -8759,16 +8702,16 @@ msgstr "כונן"
 msgid "e.g."
 msgstr "למשל:"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:298
-#: pkg/systemd/overview-cards/realmd-operation.js:304
+#: pkg/systemd/overview-cards/realmd-operation.js:302
+#: pkg/systemd/overview-cards/realmd-operation.js:308
 msgid "e.g. \"$0\""
 msgstr "למשל: „$0”"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:148
 #: pkg/machines/components/vm/overview/bootOrder.jsx:381
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:147
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:156
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:163
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:161
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:170
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:177
+#: pkg/systemd/overview-cards/configurationCard.jsx:148
 msgid "edit"
 msgstr "עריכה"
 
@@ -8850,7 +8793,6 @@ msgstr "התקן מארח"
 
 #: pkg/machines/helpers.js:233
 #, fuzzy
-#| msgid "to host path"
 msgid "host passthrough"
 msgstr "לנתיב המארח"
 
@@ -9015,10 +8957,10 @@ msgstr "יעד היטל ה־nfs אינו כתוב בצורה server:path"
 msgid "nice"
 msgstr "nice"
 
-#: pkg/machines/helpers.js:260
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
-#: pkg/machines/components/networks/networkOverviewTab.jsx:90
+#: pkg/machines/helpers.js:260
 msgid "no"
 msgstr "לא"
 
@@ -9258,8 +9200,8 @@ msgstr "לא מוגדר"
 msgid "unit"
 msgstr "יחידה"
 
-#: pkg/systemd/services/services.jsx:462 pkg/systemd/services/services.jsx:463
-#: pkg/systemd/services/services.jsx:485 pkg/systemd/services/services.jsx:486
+#: pkg/systemd/services/services.jsx:466 pkg/systemd/services/services.jsx:467
+#: pkg/systemd/services/services.jsx:489 pkg/systemd/services/services.jsx:490
 msgid "unknown"
 msgstr "לא ידוע"
 
@@ -9304,7 +9246,7 @@ msgstr "כמות מעבדים וירטואליים"
 msgid "vCPU maximum"
 msgstr "מעבד וירטואלי מרבי"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:211
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:225
 msgid "vCPUs"
 msgstr "מעבדים וירטואליים"
 
@@ -9322,15 +9264,11 @@ msgstr "vhostuser"
 
 #: pkg/machines/components/common/stateIcon.jsx:60
 #, fuzzy
-#| msgid "Read more..."
 msgid "view more..."
 msgstr "מידע נוסף…"
 
 #: pkg/machines/components/vm/vmActions.jsx:291
 #, fuzzy
-#| msgid ""
-#| "virt-install package needs to be installed on the system in order to "
-#| "create new VMs"
 msgid ""
 "virt-install package needs to be installed on the system in order to clone "
 "VMs"
@@ -9344,11 +9282,8 @@ msgid ""
 msgstr ""
 "יש להתקין את החבילה virt-install במערכת כדי ליצור מכונות וירטואליות חדשות"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:169
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:183
 #, fuzzy
-#| msgid ""
-#| "virt-install package needs to be installed on the system in order to "
-#| "create new VMs"
 msgid ""
 "virt-install package needs to be installed on the system in order to edit "
 "this attribute"
@@ -9375,10 +9310,10 @@ msgstr "אזהרה"
 msgid "will be applied $0 at $1"
 msgstr ""
 
-#: pkg/machines/helpers.js:259
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
-#: pkg/machines/components/networks/networkOverviewTab.jsx:90
+#: pkg/machines/helpers.js:259
 msgid "yes"
 msgstr "כן"
 
@@ -9389,6 +9324,53 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in:0
 msgid "zone"
 msgstr "אזור"
+
+#~ msgid "Address:"
+#~ msgstr "כתובת:"
+
+#~ msgid "At least $0 disks are needed."
+#~ msgstr "נדרשים $0 כוננים לפחות."
+
+#~ msgid "Connect with any SPICE or VNC viewer application."
+#~ msgstr "ניתן להתחבר עם כל יישום שמציג SPICE או VNC."
+
+#~ msgid "Download the MSI from $0"
+#~ msgstr "הורדת ה־MSI מ־$0"
+
+#~ msgid ""
+#~ "For the host, either specify the hostname, IP address, an alias name or a "
+#~ "unique resource identifier for the SSH destination."
+#~ msgstr ""
+#~ "למארח, יש לציין שאם מארח, כתובת IP, כינוי או מזה משאב ייחודי ליעד ה־SSH."
+
+#~ msgid "Graphics console (VNC)"
+#~ msgstr "מסוף גרפי (VNC)"
+
+#~ msgid "Graphics console in desktop viewer"
+#~ msgstr "מסוף גרפי במציג שולחנות העבודה"
+
+#~ msgid "More information"
+#~ msgstr "מידע נוסף"
+
+#~ msgid "No console defined for this virtual machine."
+#~ msgstr "לא מוגדר מסוף למכונה הווירטואלית הזאת."
+
+#~ msgid "Reading"
+#~ msgstr "מתבצעת קריאה"
+
+#~ msgid "SPICE"
+#~ msgstr "SPICE"
+
+#~ msgid ""
+#~ "Specify the host and the login user account for the host that you want to "
+#~ "add."
+#~ msgstr "נא לציין את המארח ואת שם הכניסה של המארח המיועד להוספה."
+
+#~ msgid "VNC"
+#~ msgstr "VNC"
+
+#~ msgid "Writing"
+#~ msgstr "מתבצעת כתיבה"
 
 #~ msgid "Apply security updates"
 #~ msgstr "החלת עדכוני אבטחה"

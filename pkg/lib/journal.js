@@ -203,6 +203,7 @@ journal.journalctl = function journalctl(/* ... */) {
         return this;
     };
     promise.stop = function stop() {
+        streamers = [];
         proc.close("cancelled");
     };
     return promise;

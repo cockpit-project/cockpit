@@ -343,8 +343,8 @@ class TestCurrentMetrics(MachineCase):
         b.wait_in_text("#current-cpu-usage", nproc + " CPU")
         # wait until system settles down
         b.wait(lambda: progressValue(b, "#current-cpu-usage") < 20)
-        m.execute("systemd-run --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
-        m.execute("systemd-run --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
         b.wait(lambda: progressValue(b, "#current-cpu-usage") > 75)
         # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
         b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
@@ -374,7 +374,7 @@ class TestCurrentMetrics(MachineCase):
 
         # HACK: debian-stable does not update load when done though systemd-run
         if m.image != "debian-stable":
-            m.execute("systemd-run --slice cockpittest --unit load-hog sh -ec "
+            m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                       "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
             b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
             m.execute("systemctl stop load-hog 2>/dev/null || true") # ok to fail, as the command exits by itself
@@ -400,7 +400,7 @@ class TestCurrentMetrics(MachineCase):
         self.assertLess(initial_usage, 80)
         # allocate an extra 300 MB; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
-        m.execute("systemd-run --slice cockpittest --unit mem-hog sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity'")
+        m.execute("systemd-run --collect --slice cockpittest --unit mem-hog sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity'")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 3s
         time.sleep(8)
@@ -429,7 +429,7 @@ class TestCurrentMetrics(MachineCase):
         # only some images have swap
         if m.execute("swapon --show").strip():
             # use even more memory to trigger swap
-            m.execute("systemd-run --slice cockpittest --unit mem-hog2 sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep infinity'")
+            m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep infinity'")
             b.wait(lambda: progressValue(b, "#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")
@@ -453,13 +453,13 @@ class TestCurrentMetrics(MachineCase):
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-write")))
         # reading lots of data
-        m.execute("systemd-run --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
+        m.execute("systemd-run --collect --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
         b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-write")))  # this should stay calm
         m.execute("systemctl stop disk-read-hog")
         b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-read")))  # back to quiet
         # writing lots of data
-        m.execute("systemd-run --slice cockpittest --unit disk-write-hog sh -ec "
+        m.execute("systemd-run --collect --slice cockpittest --unit disk-write-hog sh -ec "
                   " 'while true; do dd if=/dev/zero of=/var/tmp/blob bs=1M count=100; done'")
         self.addCleanup(m.execute, "rm -f /var/tmp/blob")
         b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-write")))
@@ -535,7 +535,7 @@ class TestCurrentMetrics(MachineCase):
         b.wait(lambda: rateMatches("In", r'^(0|[0-9.]+ (KiB|B)/s)$'))
         b.wait(lambda: rateMatches("Out", r'^(0|[0-9.]+ (KiB|B)/s)$'))
         # pipe lots of data through lo
-        m.execute("systemd-run --slice cockpittest --unit lo-hog sh -ec "
+        m.execute("systemd-run --collect --slice cockpittest --unit lo-hog sh -ec "
                   " 'nc -l 2000 > /dev/null & nc localhost 2000 </dev/zero'")
         b.wait(lambda: rateMatches("In", r'^[0-9.]+ (MiB|GiB)/s$'))
         b.wait(lambda: rateMatches("Out", r'^[0-9.]+ (MiB|GiB)/s$'))

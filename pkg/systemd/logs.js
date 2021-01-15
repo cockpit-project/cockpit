@@ -46,8 +46,8 @@ $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;
 
-    var update_services_list = true;
-    var current_services = new Set();
+    let update_services_list = true;
+    let current_services = new Set();
     let the_journal = null;
 
     function manage_start_box(loading, show_icon, title, text, action, onAction) {
@@ -66,16 +66,16 @@ $(function() {
     // Listing of all logs
     function journalbox(match, priority, tag, keep_following, grep, boot, since) {
         const self = {};
-        var out = new JournalOutput(cockpit.location.options);
+        const out = new JournalOutput(cockpit.location.options);
 
-        var query_count = 5000;
-        var query_more = 1000;
+        const query_count = 5000;
+        const query_more = 1000;
 
-        var renderer = journal.renderer(out);
-        var procs = [];
-        var following_procs = [];
+        const renderer = journal.renderer(out);
+        const procs = [];
+        const following_procs = [];
 
-        var loading_services = false;
+        let loading_services = false;
 
         let no_logs = true;
 
@@ -87,7 +87,7 @@ $(function() {
         function prepend_entries(entries) {
             if (entries.length > 0)
                 no_logs = false;
-            for (var i = 0; i < entries.length; i++) {
+            for (let i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
                 current_services.add(entries[i].SYSLOG_IDENTIFIER);
             }
@@ -99,7 +99,7 @@ $(function() {
         function append_entries(entries) {
             if (entries.length > 0)
                 no_logs = false;
-            for (var i = 0; i < entries.length; i++)
+            for (let i = 0; i < entries.length; i++)
                 renderer.append(entries[i]);
             renderer.append_flush();
             ReactDOM.render(React.createElement(JournalLogs, { logs: out.logs }), document.getElementById("journal-logs"));
@@ -113,8 +113,8 @@ $(function() {
                              no_logs ? _("You may try to load older entries.") : "",
                              _("Load earlier entries"),
                              () => {
-                                 var count = 0;
-                                 var stopped = null;
+                                 let count = 0;
+                                 let stopped = null;
                                  manage_start_box(true, false, no_logs ? ("Loading...") : null, "", "");
                                  procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first, priority: priority, grep: grep })
                                          .fail(query_error)
@@ -168,8 +168,8 @@ $(function() {
         function load_service_filters(match, options) {
             loading_services = true;
             current_services = new Set();
-            var service_options = Object.assign({ output: "verbose" }, options);
-            var cmd = journal.build_cmd(match, service_options)[0].join(" ");
+            const service_options = Object.assign({ output: "verbose" }, options);
+            let cmd = journal.build_cmd(match, service_options)[0].join(" ");
             cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
             cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
                     .then(function(entries) {
@@ -200,7 +200,7 @@ $(function() {
         ReactDOM.unmountComponentAtNode(document.getElementById("journal-logs"));
         manage_start_box(true, false, _("Loading..."), "", "");
 
-        var options = {
+        const options = {
             follow: false,
             reverse: true,
             priority: priority,
@@ -210,12 +210,12 @@ $(function() {
         };
 
         let last = keep_following ? null : 1;
-        var count = 0;
-        var oldest = null;
-        var stopped = false;
-        var all = boot === undefined && since === undefined;
+        let count = 0;
+        let oldest = null;
+        let stopped = false;
+        const all = boot === undefined && since === undefined;
 
-        var tags_match = [];
+        const tags_match = [];
         match.forEach(function (field) {
             if (!field.startsWith("SYSLOG_IDENTIFIER"))
                 tags_match.push(field);
@@ -294,7 +294,7 @@ $(function() {
     }
 
     function update_query() {
-        var match = [];
+        const match = [];
         const options = cockpit.location.options;
 
         const grep = options.grep || "";
@@ -363,7 +363,7 @@ $(function() {
     }
 
     function update() {
-        var path = cockpit.location.path;
+        const path = cockpit.location.path;
         if (path.length === 0) {
             ReactDOM.unmountComponentAtNode(document.getElementById('journal-entry'));
             update_query();

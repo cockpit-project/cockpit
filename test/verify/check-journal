@@ -245,7 +245,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b._wait_present("#journal-service-menu option[value='check-journal']")
+        b._wait_present("#journal-service-menu option[value='just-a-service']")
         b.set_val("#journal-service-menu", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")

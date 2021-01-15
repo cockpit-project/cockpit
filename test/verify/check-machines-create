@@ -333,6 +333,18 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                                      storage_pool="iscsi-pool",
                                                                      storage_volume="unit:0:0:0"))
 
+        # Click the install button through the VM details
+        runner.createThenInstallTest(TestMachinesCreate.VmDialog(self, sourceType='file',
+                                                                 location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                                 memory_size=256, memory_size_unit='MiB',
+                                                                 storage_pool="No storage"), True)
+
+        # Try performing an installation which will fail and ensure that the 'Install' button is still available
+        runner.createThenInstallTest(TestMachinesCreate.VmDialog(self, sourceType='file',
+                                                                 location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                                 memory_size=256, memory_size_unit='MiB',
+                                                                 storage_pool="No storage"), True, True)
+
     def testCreateFileSource(self):
         runner = TestMachinesCreate.CreateVmRunner(self)
         config = TestMachinesCreate.TestCreateConfig
@@ -1023,8 +1035,9 @@ class TestMachinesCreate(VirtualMachinesCase):
 
             return self
 
-        def _tryCreateThenInstall(self, dialog):
+        def _tryCreateThenInstall(self, dialog, installFromVmDetails, tryWithFailInstall):
             b = self.browser
+            m = self.machine
             dialog.start_vm = False
             name = dialog.name
 
@@ -1033,19 +1046,31 @@ class TestMachinesCreate(VirtualMachinesCase):
             self._create(dialog)
 
             self.test_obj.waitVmRow(name)
-            b.click("#vm-{0}-install".format(name))
 
-            b.wait_in_text("#vm-{}-state".format(name), "Running")
-            self._assertCorrectConfiguration(dialog)
+            if installFromVmDetails:
+                self.test_obj.goToVmPage(name)
+                b.click("#vm-{0}-install".format(name))
+            else:
+                b.click("#vm-{0}-install".format(name))
 
-            # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
-            wait(lambda: dialog.name in self.machine.execute("virsh list --persistent"), delay=3)
+            if tryWithFailInstall:
+                # Deleting the default network will make the installation to fail immediately
+                m.execute("virsh net-destroy default")
+                b.wait_in_text("#vm-{}-state".format(name), "Shut off")
+                b.wait_visible("#vm-{0}-install".format(name))
+                b.wait_in_text(".pf-c-alert", "failed to get installed")
+            else:
+                b.wait_in_text("#vm-{}-state".format(name), "Running")
+                self._assertCorrectConfiguration(dialog)
 
-            # unfinished install script runs indefinitelly, so we need to force it off
-            b.click("#vm-{0}-action-kebab button".format(name))
-            b.click("#vm-{0}-forceOff".format(name))
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
-            # After shutting it off virt-install will restart the domain and exit because of the above bug
+                # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
+                wait(lambda: dialog.name in self.machine.execute("virsh list --persistent"), delay=3)
+
+                # unfinished install script runs indefinitelly, so we need to force it off
+                b.click("#vm-{0}-action-kebab button".format(name))
+                b.click("#vm-{0}-forceOff".format(name))
+                # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
+                # After shutting it off virt-install will restart the domain and exit because of the above bug
 
             return self
 
@@ -1074,7 +1099,10 @@ class TestMachinesCreate(VirtualMachinesCase):
             b = self.browser
             name = dialog.name
 
-            self.test_obj.goToVmPage(name, dialog.connection or "system")
+            if not (b.is_present("#vm-details") and b.is_visible("#vm-details")):
+                self.test_obj.goToVmPage(name, dialog.connection or "system")
+
+            vm_state = b.text("#vm-{}-state".format(dialog.name))
 
             # check bus type
             if dialog.storage_pool != "No storage":
@@ -1107,7 +1135,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                     b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "disk")
                 else:
                     raise AssertionError("Unknown disk device")
-            elif dialog.start_vm and (((dialog.storage_pool == 'No storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url'):
+            elif (vm_state == "Running" and (((dialog.storage_pool == 'No storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url')):
                 if b.is_present("#vm-{0}-disks-sda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "cdrom")
                 elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
@@ -1217,8 +1245,8 @@ class TestMachinesCreate(VirtualMachinesCase):
             self._assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def createThenInstallTest(self,dialog):
-            self._tryCreateThenInstall(dialog) \
+        def createThenInstallTest(self, dialog, installFromVmDetails=False, tryWithFailInstall=False):
+            self._tryCreateThenInstall(dialog, installFromVmDetails, tryWithFailInstall) \
                   ._assertScriptFinished() \
                   ._assertDomainDefined(dialog.name, dialog.connection) \
                   ._deleteVm(dialog) \

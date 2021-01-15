@@ -3701,7 +3701,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if not tmp[1].startswith('00:') and not tmp[0] == "Today":
                 return False
 
-            diff = datetime.strptime(time1, '%H:%M:%S') - datetime.strptime(tmp[1] + tmp[2], '%I:%M%p')
+            diff = datetime.strptime(time1, '%H:%M:%S') - datetime.strptime("".join(tmp[-2:]), '%I:%M%p')
             return -difference < diff.total_seconds() < difference
 
         b = self.browser

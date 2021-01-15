@@ -113,19 +113,21 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             })
         );
     });
-    const onShutdown = () => dispatch(shutdownVm(vm)).catch(ex => {
-        setOperationInProgress(false);
-        dispatch(
-            updateVm({
-                connectionName: vm.connectionName,
-                name: vm.name,
-                error: {
-                    text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
-                    detail: ex.message,
-                }
-            })
-        );
-    });
+    const onShutdown = () => dispatch(shutdownVm(vm))
+            .then(() => !vm.persistent && cockpit.location.go(["vms"]))
+            .catch(ex => {
+                setOperationInProgress(false);
+                dispatch(
+                    updateVm({
+                        connectionName: vm.connectionName,
+                        name: vm.name,
+                        error: {
+                            text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
+                            detail: ex.message,
+                        }
+                    })
+                );
+            });
     const onPause = () => dispatch(pauseVm(vm)).catch(ex => {
         dispatch(
             updateVm({
@@ -150,18 +152,20 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             })
         );
     });
-    const onForceoff = () => dispatch(forceVmOff(vm)).catch(ex => {
-        dispatch(
-            updateVm({
-                connectionName: vm.connectionName,
-                name: vm.name,
-                error: {
-                    text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
-                    detail: ex.message,
-                }
-            })
-        );
-    });
+    const onForceoff = () => dispatch(forceVmOff(vm))
+            .then(() => !vm.persistent && cockpit.location.go(["vms"]))
+            .catch(ex => {
+                dispatch(
+                    updateVm({
+                        connectionName: vm.connectionName,
+                        name: vm.name,
+                        error: {
+                            text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
+                            detail: ex.message,
+                        }
+                    })
+                );
+            });
     const onSendNMI = () => dispatch(sendNMI(vm)).catch(ex => {
         dispatch(
             updateVm({

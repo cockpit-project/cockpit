@@ -174,7 +174,7 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                                                                  }))} />
                                                     )
                                                 },
-                                                { title: !vm.isUi ? vmActions : null },
+                                                { title: vmActions },
                                             ],
                                             rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
                                             props: {

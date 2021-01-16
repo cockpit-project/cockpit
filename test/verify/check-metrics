@@ -539,7 +539,7 @@ class TestCurrentMetrics(MachineCase):
         b.wait(lambda: rateMatches("Out", r'^(0|[0-9.]+ (KiB|B)/s)$'))
         # pipe lots of data through lo
         m.execute("systemd-run --collect --slice cockpittest --unit lo-hog sh -ec "
-                  " 'nc -l 2000 > /dev/null & nc localhost 2000 </dev/zero'")
+                  " 'nc -n -vv -l 2000 > /dev/null & sleep 1; nc -vv localhost 2000 </dev/zero'")
         b.wait(lambda: rateMatches("In", r'^[0-9.]+ (MiB|GiB)/s$'))
         b.wait(lambda: rateMatches("Out", r'^[0-9.]+ (MiB|GiB)/s$'))
         m.execute("systemctl stop lo-hog")

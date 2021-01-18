@@ -20,14 +20,14 @@
 
 <html>
 <head>
-    <title translate="yes">Networking</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="network.css" type="text/css" rel="stylesheet">
-    <script src="../base1/cockpit.js"></script>
-    <script src="../manifests.js"></script>
-    <script src="../*/po.js"></script>
-    <script src="network.js"></script>
+  <title translate="yes">Networking</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="network.css" type="text/css" rel="stylesheet">
+  <script src="../base1/cockpit.js"></script>
+  <script src="../manifests.js"></script>
+  <script src="../*/po.js"></script>
+  <script src="network.js"></script>
 </head>
 <body class="pf-m-redhat-font" hidden>
 
@@ -43,7 +43,7 @@
         <div class="pf-c-alert__icon">
           <span class="pficon pficon-error-circle-o"></span>
         </div>
-        <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> </h4>
+        <h4 class="pf-c-alert__title"><span translate="yes">NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a></h4>
         <div class="pf-c-alert__action">
           <button class="pf-c-button pf-m-secondary" type="submit" translate="yes">Start service</button>
         </div>
@@ -74,8 +74,7 @@
                 <button class="pf-c-button pf-m-secondary" id="networking-firewall-link" translate="yes">Edit rules and zones</button>
               </div>
             </div>
-            <div id="networking-firewall-summary" class="pf-c-card__body">
-            </div>
+            <div id="networking-firewall-summary" class="pf-c-card__body"></div>
           </article>
           <article class="pf-c-card" id="networking-interfaces">
             <div class="pf-c-card__header">
@@ -355,57 +354,58 @@
   <div id="network-interface" class="pf-c-page" hidden>
     <main class="pf-c-page__main" tabindex="-1">
       <section class="pf-c-page__main-breadcrumb pf-m-light">
-          <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
-              <ol class="pf-c-breadcrumb__list">
-                <li class="pf-c-breadcrumb__item"><a class="pf-c-breadcrumb__link" role="link" tabindex="0" translate="yes">Networking</a></li>
-                <li class="pf-c-breadcrumb__item">
-                    <span class="pf-c-breadcrumb__item-divider">
-                        <i class="fa fa-angle-right" aria-hidden="true"></i>
-                    </span>
-                    <a class="pf-c-breadcrumb__link pf-m-current"></a>
-                </li>
-              </ol>
-          </nav>
+        <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
+          <ol class="pf-c-breadcrumb__list">
+            <li class="pf-c-breadcrumb__item"><a class="pf-c-breadcrumb__link" role="link" tabindex="0" translate="yes">Networking</a></li>
+            <li class="pf-c-breadcrumb__item">
+              <span class="pf-c-breadcrumb__item-divider">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+              </span>
+              <a class="pf-c-breadcrumb__link pf-m-current"></a>
+            </li>
+          </ol>
+        </nav>
       </section>
+
       <section class="networking-graphs networking-graphs-interface pf-c-page__main-section pf-m-light">
         <div id="network-interface-graphs-element"></div>
       </section>
-        <section class="pf-c-page__main-section">
+
+      <section class="pf-c-page__main-section">
         <div class="pf-l-gallery pf-m-gutter">
-            <div class="pf-c-card network-interface-details">
-              <div class="pf-c-card__header">
-                <div class="pf-c-card__title network-interface-title">
-                  <span id="network-interface-name"></span>
-                  <span id="network-interface-hw"></span>
-                  <span id="network-interface-mac"></span>
-                </div>
-                <div class="pf-c-card__actions">
-                  <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
-                  <span id="network-interface-delete-switch" class="network-privileged">
-                  </span>
-                </div>
+          <div class="pf-c-card network-interface-details">
+            <div class="pf-c-card__header">
+              <div class="pf-c-card__title network-interface-title">
+                <span id="network-interface-name"></span>
+                <span id="network-interface-hw"></span>
+                <span id="network-interface-mac"></span>
               </div>
-              <div class="pf-c-card__body">
-                <table class="form-table-ct" id="network-interface-settings">
-                </table>
+              <div class="pf-c-card__actions">
+                <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
+                <span id="network-interface-delete-switch" class="network-privileged"></span>
               </div>
             </div>
-            <div class="pf-c-card network-interface-members" id="network-interface-members">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th translate="yes" class="networking-speed">Sending</th>
-                    <th translate="yes" class="networking-speed">Receiving</th>
-                    <th class="networking-spacer"></th>
-                    <th class="networking-action"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
+            <div class="pf-c-card__body">
+              <table class="form-table-ct" id="network-interface-settings">
               </table>
             </div>
           </div>
+          <div class="pf-c-card network-interface-members" id="network-interface-members">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th translate="yes" class="networking-speed">Sending</th>
+                  <th translate="yes" class="networking-speed">Receiving</th>
+                  <th class="networking-spacer"></th>
+                  <th class="networking-action"></th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -427,7 +427,7 @@
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-ip-settings-error">
               <div class="pf-c-alert__icon">
-                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
             </div>
@@ -440,39 +440,38 @@
   </div>
 
   <div hidden aria-hidden="true" id="network-bond-settings-dialog">
-   <div class="pf-c-backdrop">
-     <div class="pf-l-bullseye">
-       <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
-         <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bond-settings-close-button" translate="aria-label">
-           <i class="fa fa-times" aria-hidden="true"></i>
-         </button>
-         <header class="pf-c-modal-box__header pf-m-help">
-           <div class="pf-c-modal-box__header-main">
-             <h1 class="pf-c-modal-box__title" translate="yes">Bond settings</h1>
-           </div>
-           <div class="pf-c-modal-box__header-help">
-             <button id="bond-help-popup-button" class="pf-c-button pf-m-plain" type="button" aria-label="Help" tranlate="aria-label">
-               <i class="pficon pficon-help" aria-hidden="true" data-toggle="popover"></i>
-             </button>
-           </div>
-         </header>
-         <div class="pf-c-modal-box__body">
-           <div id="network-bond-settings-body">
-           </div>
-         </div>
-         <footer class="pf-c-modal-box__footer">
-           <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
-             <div class="pf-c-alert__icon">
-                 <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-             </div>
-             <h4 class="pf-c-alert__title"></h4>
-           </div>
-           <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
-           <button class="pf-c-button pf-m-link" translate="yes" id="network-bond-settings-cancel">Cancel</button>
-         </footer>
-       </div>
-     </div>
-   </div>
+    <div class="pf-c-backdrop">
+      <div class="pf-l-bullseye">
+        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bond-settings-close-button" translate="aria-label">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header pf-m-help">
+            <div class="pf-c-modal-box__header-main">
+              <h1 class="pf-c-modal-box__title" translate="yes">Bond settings</h1>
+            </div>
+            <div class="pf-c-modal-box__header-help">
+              <button id="bond-help-popup-button" class="pf-c-button pf-m-plain" type="button" aria-label="Help" tranlate="aria-label">
+                <i class="pficon pficon-help" aria-hidden="true" data-toggle="popover"></i>
+              </button>
+            </div>
+          </header>
+          <div class="pf-c-modal-box__body">
+            <div id="network-bond-settings-body"></div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
+              <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
+            </div>
+            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
+            <button class="pf-c-button pf-m-link" translate="yes" id="network-bond-settings-cancel">Cancel</button>
+          </footer>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div hidden aria-hidden="true" id="network-team-settings-dialog">
@@ -492,7 +491,7 @@
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
               <div class="pf-c-alert__icon">
-                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
             </div>
@@ -521,7 +520,7 @@
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-teamport-settings-error">
               <div class="pf-c-alert__icon">
-                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
             </div>
@@ -549,10 +548,10 @@
           </div>
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
-                <div class="pf-c-alert__icon">
-                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                </div>
-                <h4 class="pf-c-alert__title"></h4>
+              <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
@@ -578,10 +577,10 @@
           </div>
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
-                <div class="pf-c-alert__icon">
-                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                </div>
-                <h4 class="pf-c-alert__title"></h4>
+              <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
@@ -607,10 +606,10 @@
           </div>
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-vlan-settings-error">
-                <div class="pf-c-alert__icon">
-                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                </div>
-                <h4 class="pf-c-alert__title"></h4>
+              <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
@@ -637,7 +636,7 @@
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mtu-settings-error">
               <div class="pf-c-alert__icon">
-                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
             </div>
@@ -666,7 +665,7 @@
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mac-settings-error">
               <div class="pf-c-alert__icon">
-                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
               </div>
               <h4 class="pf-c-alert__title"></h4>
             </div>

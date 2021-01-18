@@ -1,5 +1,6 @@
 const path = require("path");
 const glob = require("glob");
+const fs = require("fs");
 const childProcess = require("child_process");
 const po2json = require('po2json');
 const Jed = require('jed');
@@ -24,15 +25,17 @@ module.exports = class {
         if (!header)
             return null;
 
-        var body, statement, ret = null;
+        var statement;
+        var ret = null;
         const plurals = header["plural-forms"];
 
         if (plurals) {
             try {
                 /* Check that the plural forms isn't being sneaky since we build a function here */
                 Jed.PF.parse(plurals);
-            } catch(ex) {
-                fatal("bad plural forms: " + ex.message, 1);
+            } catch (ex) {
+                console.error("bad plural forms: " + ex.message);
+                process.exit(1);
             }
 
             /* A function for the front end */
@@ -94,9 +97,9 @@ module.exports = class {
 
             output = this.wrapper.replace('PO_DATA', output) + '\n';
 
-            const lang = path.basename(po_file).slice(0, -3)
+            const lang = path.basename(po_file).slice(0, -3);
             compilation.assets[this.subdir + 'po.' + lang + '.js'] = { source: () => output, size: () => output.length };
             resolve();
         });
-    };
+    }
 };

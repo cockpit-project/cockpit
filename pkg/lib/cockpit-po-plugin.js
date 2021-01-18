@@ -9,6 +9,8 @@ const srcdir = process.env.SRCDIR || path.resolve(__dirname, '..', '..');
 
 module.exports = class {
     constructor(options) {
+        if (!options)
+            options = {};
         this.subdir = options.subdir || '';
         this.msggrep_options = options.msggrep_options;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';

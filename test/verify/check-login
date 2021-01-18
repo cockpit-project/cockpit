@@ -255,6 +255,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
 
+        # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
+        if not m.image.startswith('debian') and not m.image.startswith('ubuntu'):
+            self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/", "/etc/pam.d/password-auth")
+
         m.execute("chage -d 0 admin")
         m.start_cockpit()
         b.open("/system")

@@ -18,10 +18,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AlertGroup, Alert } from '@patternfly/react-core';
+import { AlertGroup, Alert, Button } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
 
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import HostVmsList from "./components/vms/hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import { NetworkList } from "./components/networks/networkList.jsx";
@@ -34,6 +36,8 @@ import {
     usageStartPolling,
     usageStopPolling,
 } from "./actions/provider-actions.js";
+
+const _ = cockpit.gettext;
 
 superuser.reload_page_on_change();
 
@@ -137,8 +141,18 @@ class App extends React.Component {
         let vmContent;
         if (path.length > 0 && path[0] == 'vm') {
             const vm = vms.find(vm => vm.name == cockpit.location.options.name && vm.connectionName == cockpit.location.options.connection);
-            if (!vm)
-                return null;
+            if (!vm) {
+                return (
+                    <EmptyStatePanel title={ cockpit.format(_("VM $0 does not exist on $1 connection"), cockpit.location.options.name, cockpit.location.options.connection) }
+                                     action={
+                                         <Button variant="link"
+                                                 onClick={() => cockpit.location.go(["vms"])}>
+                                             {_("Go to VMs list")}
+                                         </Button>
+                                     }
+                                     icon={ExclamationCircleIcon} />
+                );
+            }
 
             const connectionName = vm.connectionName;
             // If vm.isUi is set we show a dummy placeholder until libvirt gets a real domain object for newly created V

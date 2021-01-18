@@ -703,15 +703,12 @@ dump_value (const gchar   *name,
             JsonNode      *node,
             gsize         *length)
 {
-  GString *buffer;
-  GType type;
-
-  buffer = g_string_new ("");
+  g_autoptr(GString) buffer = g_string_new ("");
 
   if (name)
     g_string_append_printf (buffer, "\"%s\":", name);
 
-  type = json_node_get_value_type (node);
+  GType type = json_node_get_value_type (node);
   if (type == G_TYPE_INT64)
     {
       g_string_append_printf (buffer, "%" G_GINT64_FORMAT, json_node_get_int (node));
@@ -755,7 +752,7 @@ dump_value (const gchar   *name,
   if (length)
     *length = buffer->len;
 
-  return g_string_free (buffer, FALSE);
+  return g_string_free (g_steal_pointer (&buffer), FALSE);
 }
 
 static gchar *

@@ -341,19 +341,14 @@ cockpit_transport_read_from_pipe (CockpitTransport *self,
                                   GByteArray *input,
                                   gboolean end_of_data)
 {
-  GBytes *message;
-  GBytes *payload;
-  gchar *channel;
-  gssize size;
-  gsize i;
-
   /* This may be updated during the loop. */
   g_assert (closed != NULL);
   g_object_ref (self);
 
   while (!*closed)
     {
-      size = cockpit_frame_parse (input->data, input->len, &i);
+      gsize i;
+      gssize size = cockpit_frame_parse (input->data, input->len, &i);
 
       if (size == 0)
         {
@@ -373,16 +368,14 @@ cockpit_transport_read_from_pipe (CockpitTransport *self,
           break;
         }
 
-      message = cockpit_pipe_consume (input, i, size, 0);
-      payload = cockpit_transport_parse_frame (message, &channel);
+      g_autoptr(GBytes) message = cockpit_pipe_consume (input, i, size, 0);
+      g_autofree gchar *channel = NULL;
+      g_autoptr(GBytes) payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {
           g_debug ("%s: received a %d byte payload", logname, (int)size);
           cockpit_transport_emit_recv (self, channel, payload);
-          g_bytes_unref (payload);
-          g_free (channel);
         }
-      g_bytes_unref (message);
     }
 
   if (end_of_data)

@@ -58,6 +58,8 @@ def prepareArchive(machine, name, time):
                        hostnamectl set-hostname localhost.localdomain
                        rm -rf /var/log/pcp/pmlogger/*
                        tar -C / -xzvf /tmp/{0}
+                       # set-ntp off is asynchronous; wait until timesyncd stops before the time can be set
+                       while systemctl is-active systemd-timesyncd; do sleep 1; done
                        timedatectl set-time @{1}""".format(name, time))
 
 def login(self):

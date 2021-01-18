@@ -55,6 +55,8 @@ def prepareArchive(machine, name, time):
     machine.upload(["verify/files/metrics-archives/{0}".format(name)], "/tmp/")
     machine.execute("""timedatectl set-ntp off
                        systemctl stop pmlogger
+                       # don't let NM set transient host names from DHCP
+                       systemctl stop NetworkManager
                        hostnamectl set-hostname localhost.localdomain
                        rm -rf /var/log/pcp/pmlogger/*
                        tar -C / -xzvf /tmp/{0}

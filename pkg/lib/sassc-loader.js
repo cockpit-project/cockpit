@@ -14,12 +14,14 @@ module.exports = function() {
 
     childProcess.execFileSync(
         'sassc',
-        ['--load-path=' + path.resolve(srcdir, 'pkg/lib'),
-         '--load-path=' + nodedir,
-         '--load-path=' + path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
-         '--load-path=' + path.resolve(nodedir, 'patternfly/dist/sass'),
-         '--load-path=' + path.resolve(nodedir, 'bootstrap-sass/assets/stylesheets'),
-         '--style=compressed', '--sourcemap', this.resource, out],
+        [
+            '--load-path=' + path.resolve(srcdir, 'pkg/lib'),
+            '--load-path=' + nodedir,
+            '--load-path=' + path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
+            '--load-path=' + path.resolve(nodedir, 'patternfly/dist/sass'),
+            '--load-path=' + path.resolve(nodedir, 'bootstrap-sass/assets/stylesheets'),
+            '--style=compressed', '--sourcemap', this.resource, out
+        ],
         { stdio: ['pipe', 'inherit', 'inherit'] });
 
     const css = fs.readFileSync(out, 'utf8');

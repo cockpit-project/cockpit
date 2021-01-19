@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-14 10:05+0000\n"
-"PO-Revision-Date: 2021-01-14 10:36+0000\n"
+"POT-Creation-Date: 2021-01-18 06:24+0000\n"
+"PO-Revision-Date: 2021-01-19 06:36+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
 "master/de/>\n"
@@ -32,7 +32,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.4.1\n"
+"X-Generator: Weblate 4.4.2\n"
 
 #: pkg/metrics/metrics.jsx:365
 msgid "$0 CPU"
@@ -65,11 +65,11 @@ msgid_plural "$0 Storage pools"
 msgstr[0] "$0 Storage Pool"
 msgstr[1] "$0 Storage Pools"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2231
 msgid "$0 active zone"
 msgstr "$0 aktive Zone"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2231
 msgid "$0 active zones"
 msgstr "$0 aktive Zonen"
 
@@ -91,7 +91,7 @@ msgstr[1] "$0 Treffer, darunter kritische"
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 data + $1 Overhead verwendet von $2 ($3)"
 
-#: pkg/lib/plot.js:972
+#: pkg/lib/cockpit-components-plot.jsx:232
 msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "$0 Tag"
@@ -162,7 +162,7 @@ msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 von $1 aus $2"
 
-#: pkg/lib/plot.js:975
+#: pkg/lib/cockpit-components-plot.jsx:235
 msgid "$0 hour"
 msgid_plural "$0 hours"
 msgstr[0] "$0 Stunde"
@@ -214,7 +214,7 @@ msgstr[1] "$0 wenig unwichtige Treffer"
 msgid "$0 memory adjustment"
 msgstr "$0 Speicher-Anpassung"
 
-#: pkg/lib/plot.js:978
+#: pkg/lib/cockpit-components-plot.jsx:238
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "$0 Minute"
@@ -226,7 +226,7 @@ msgid_plural "$0 hits, including moderate"
 msgstr[0] "$0 Treffer"
 msgstr[1] "$0 Treffer, darunter moderate"
 
-#: pkg/lib/plot.js:966
+#: pkg/lib/cockpit-components-plot.jsx:226
 msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 Monat"
@@ -264,7 +264,7 @@ msgid_plural "$0 pages"
 msgstr[0] "$0 Seite"
 msgstr[1] "$0 Seiten"
 
-#: pkg/systemd/services/services.jsx:650
+#: pkg/systemd/services/services.jsx:654
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 Dienst ist fehlerhaft"
@@ -307,7 +307,7 @@ msgstr "$0 vCPU-Details"
 msgid "$0 virtual network interface settings"
 msgstr "$0 Virtuelle Netzwerkschnittstelle hinzufügen"
 
-#: pkg/lib/plot.js:969
+#: pkg/lib/cockpit-components-plot.jsx:229
 msgid "$0 week"
 msgid_plural "$0 weeks"
 msgstr[0] "$0 Woche"
@@ -317,7 +317,7 @@ msgstr[1] "$0 Wochen"
 msgid "$0 will be installed."
 msgstr "$0 wird installiert."
 
-#: pkg/lib/plot.js:963
+#: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 Jahr"
@@ -363,13 +363,11 @@ msgstr[1] ", einschließlich $1 Sicherheitsupdates"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/networkmanager/index.html:75 pkg/networkmanager/index.html:421
-#: pkg/storaged/plot.jsx:85
+#: pkg/lib/cockpit-components-plot.jsx:275
 msgid "1 day"
 msgstr "1 Tag"
 
-#: pkg/networkmanager/index.html:73 pkg/networkmanager/index.html:419
-#: pkg/storaged/plot.jsx:79
+#: pkg/lib/cockpit-components-plot.jsx:273
 msgid "1 hour"
 msgstr "1 Stunde"
 
@@ -381,8 +379,7 @@ msgstr "1 minute"
 msgid "1 minute"
 msgstr "1 minute"
 
-#: pkg/networkmanager/index.html:76 pkg/networkmanager/index.html:422
-#: pkg/storaged/plot.jsx:88
+#: pkg/lib/cockpit-components-plot.jsx:276
 msgid "1 week"
 msgstr "1 Woche"
 
@@ -526,8 +523,7 @@ msgstr "4."
 msgid "5 min"
 msgstr "5 Minuten"
 
-#: pkg/systemd/index.html:38 pkg/networkmanager/index.html:72
-#: pkg/networkmanager/index.html:418 pkg/storaged/plot.jsx:76
+#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 Minuten"
 
@@ -539,8 +535,7 @@ msgstr "512 KiB"
 msgid "5th"
 msgstr "5."
 
-#: pkg/networkmanager/index.html:74 pkg/networkmanager/index.html:420
-#: pkg/storaged/plot.jsx:82
+#: pkg/lib/cockpit-components-plot.jsx:274
 msgid "6 hours"
 msgstr "6 Stunden"
 
@@ -564,11 +559,11 @@ msgstr "7."
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1963
+#: pkg/networkmanager/interfaces.js:1915
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1980
+#: pkg/networkmanager/interfaces.js:1932
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
@@ -580,7 +575,7 @@ msgstr "8."
 msgid "9th"
 msgstr "9."
 
-#: pkg/lib/machine-not-supported.html:5
+#: pkg/shell/machines/machine-not-supported.html:5
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
@@ -592,14 +587,14 @@ msgstr ""
 msgid "A disk is needed."
 msgstr "Eine Diskette wird benötigt."
 
-#: pkg/static/login.html:117
+#: pkg/static/login.html:118
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
 "Ein moderner Browser ist für Sicherheit, Zuverlässigkeit und Leistung "
 "erforderlich."
 
-#: pkg/networkmanager/interfaces.js:1714
+#: pkg/networkmanager/interfaces.js:1646
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -607,7 +602,7 @@ msgstr ""
 "Ein gebündelter Netzwerkadapter kombiniert mehrere Netzweradapter zu einem "
 "logischen Netzwerkadapter mit mehr Durchsatz und Redundanz."
 
-#: pkg/lib/machine-dialogs.js:735
+#: pkg/shell/machines/machine-dialogs.js:736
 msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
@@ -621,15 +616,15 @@ msgstr ""
 "Eine Ersatzfestplatte muss zuerst hinzugefügt werden, bevor diese entfernt "
 "werden kann."
 
-#: pkg/networkmanager/interfaces.js:1971
+#: pkg/networkmanager/interfaces.js:1923
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2775
+#: pkg/networkmanager/interfaces.js:2672
 msgid "ARP monitoring"
 msgstr "ARP-Überwachung"
 
-#: pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1944
 msgid "ARP ping"
 msgstr "ARP-Ping"
 
@@ -640,6 +635,11 @@ msgstr "Über Web Console"
 #: pkg/lib/machine-info.js:255
 msgid "Absent"
 msgstr "Abwesend"
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:27
+#: pkg/shell/machines/machine-unknown-hostkey.html:19
+msgid "Accept key and connect"
+msgstr ""
 
 #: pkg/static/login.js:563
 msgid "Accept key and log in"
@@ -679,11 +679,11 @@ msgstr "Aktivieren"
 msgid "Activating $target"
 msgstr "Aktiviere $target"
 
-#: pkg/networkmanager/interfaces.js:829 pkg/networkmanager/interfaces.js:1986
+#: pkg/networkmanager/interfaces.js:829 pkg/networkmanager/interfaces.js:1938
 msgid "Active"
 msgstr "Aktiv"
 
-#: pkg/networkmanager/interfaces.js:1960 pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1912 pkg/networkmanager/interfaces.js:1929
 msgid "Active backup"
 msgstr "Aktive Sicherung"
 
@@ -700,15 +700,15 @@ msgstr "Aktiv seit"
 msgid "Active since "
 msgstr "Aktiviert seit "
 
-#: pkg/networkmanager/interfaces.js:1965
+#: pkg/networkmanager/interfaces.js:1917
 msgid "Adaptive load balancing"
 msgstr "Adaptiver Lastausgleich (alb)"
 
-#: pkg/networkmanager/interfaces.js:1964
+#: pkg/networkmanager/interfaces.js:1916
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptiver Sendeausgleich (tlb)"
 
-#: pkg/lib/machine-add.html:50 pkg/shell/index.html:134
+#: pkg/shell/machines/machine-add.html:50 pkg/shell/index.html:134
 #: pkg/storaged/nfs-details.jsx:196 pkg/storaged/iscsi-panel.jsx:137
 #: pkg/storaged/iscsi-panel.jsx:161 pkg/storaged/crypto-keyslots.jsx:238
 #: pkg/storaged/vgroup-details.jsx:76 pkg/storaged/mdraid-details.jsx:67
@@ -718,11 +718,11 @@ msgstr "Adaptiver Sendeausgleich (tlb)"
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: pkg/networkmanager/interfaces.js:3100
+#: pkg/networkmanager/interfaces.js:3016
 msgid "Add $0"
 msgstr "$0 hinzufügen"
 
-#: pkg/networkmanager/index.html:126
+#: pkg/networkmanager/index.html:87
 msgid "Add VLAN"
 msgstr "VLAN hinzufügen"
 
@@ -730,11 +730,11 @@ msgstr "VLAN hinzufügen"
 msgid "Add a new zone"
 msgstr "Neue Zone hinzufügen"
 
-#: pkg/networkmanager/index.html:123
+#: pkg/networkmanager/index.html:84
 msgid "Add bond"
 msgstr "Bündelung hinzufügen"
 
-#: pkg/networkmanager/index.html:125
+#: pkg/networkmanager/index.html:86
 msgid "Add bridge"
 msgstr "Bridge hinzufügen"
 
@@ -760,9 +760,9 @@ msgstr "Schlüssel hinzufügen"
 msgid "Add network interface"
 msgstr "Netzwerkschnittstelle hinzufügen"
 
-#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:212
+#: pkg/shell/machines/machine-add.html:5 pkg/shell/hosts.jsx:212
 msgid "Add new host"
-msgstr "Neue Zone hinzufügen"
+msgstr "Neuen Host hinzufügen"
 
 #: pkg/networkmanager/firewall.jsx:510
 msgid "Add ports"
@@ -788,7 +788,7 @@ msgstr "Services zu Zone $0 hinzufügen"
 msgid "Add services to zone $0"
 msgstr "Services zu Zone $0 hinzufügen"
 
-#: pkg/networkmanager/index.html:124
+#: pkg/networkmanager/index.html:85
 msgid "Add team"
 msgstr "Team hinzufügen"
 
@@ -801,7 +801,7 @@ msgstr "Virtuelle Netzwerkschnittstelle hinzufügen"
 msgid "Add zone"
 msgstr "Zone hinzufügen"
 
-#: pkg/networkmanager/interfaces.js:3099
+#: pkg/networkmanager/interfaces.js:3015
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -829,11 +829,11 @@ msgstr "Füge physikalischen Datenträger zu $target hinzu"
 msgid "Additional"
 msgstr "Mehr"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2542
 msgid "Additional DNS $val"
 msgstr "Zusätzliches DNS $val"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2545
 msgid "Additional DNS search domains $val"
 msgstr "Zusätzliche DNS-Suchdomänen $val"
 
@@ -841,7 +841,7 @@ msgstr "Zusätzliche DNS-Suchdomänen $val"
 msgid "Additional actions"
 msgstr "Weitere Aktionen"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2537
 msgid "Additional address $val"
 msgstr "Zusätzliche Adresse $val"
 
@@ -861,7 +861,7 @@ msgstr "Mehr Ports"
 msgid "Address"
 msgstr "Adresse"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2537
 msgid "Address $val"
 msgstr "Adresse $val"
 
@@ -880,7 +880,7 @@ msgstr "Adresse ist keine gültige URL"
 msgid "Address not within subnet"
 msgstr "Adresse befindet sich nicht im Subnetz"
 
-#: pkg/networkmanager/interfaces.js:3320 pkg/networkmanager/firewall.jsx:181
+#: pkg/networkmanager/interfaces.js:3234 pkg/networkmanager/firewall.jsx:181
 msgid "Addresses"
 msgstr "Adressen"
 
@@ -892,7 +892,7 @@ msgstr "Administration mit der Cockpit Web-Konsole"
 msgid "Administrative access"
 msgstr "Administrativer Zugang"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:335
+#: pkg/systemd/overview-cards/realmd-operation.js:339
 msgid "Administrator password"
 msgstr "Passwort des Administrators"
 
@@ -941,7 +941,7 @@ msgstr "Alarm"
 msgid "Alert and above"
 msgstr "Alarm und höher"
 
-#: pkg/systemd/logs.js:163 pkg/systemd/services/services.jsx:684
+#: pkg/systemd/logs.js:170 pkg/systemd/services/services.jsx:688
 #: pkg/machines/components/vms/hostvmslist.jsx:64
 #: pkg/machines/components/vms/hostvmslist.jsx:81
 msgid "All"
@@ -996,11 +996,11 @@ msgstr "Anwendungen"
 msgid "Applications list"
 msgstr "Anwendungen"
 
-#: pkg/networkmanager/index.html:511 pkg/networkmanager/index.html:547
-#: pkg/networkmanager/index.html:576 pkg/networkmanager/index.html:605
-#: pkg/networkmanager/index.html:634 pkg/networkmanager/index.html:663
-#: pkg/networkmanager/index.html:692 pkg/networkmanager/index.html:721
-#: pkg/networkmanager/index.html:750 pkg/storaged/fsys-tab.jsx:291
+#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
+#: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
+#: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
+#: pkg/networkmanager/index.html:672 pkg/storaged/fsys-tab.jsx:291
 #: pkg/storaged/fsys-tab.jsx:368 pkg/storaged/nfs-details.jsx:196
 #: pkg/storaged/crypto-tab.jsx:84 pkg/storaged/crypto-tab.jsx:114
 #: pkg/kdump/kdump-view.jsx:356
@@ -1078,11 +1078,11 @@ msgid "Authenticating"
 msgstr "Authentifiziere"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:48
-#: pkg/lib/machine-change-auth.html:37
+#: pkg/shell/machines/machine-change-auth.html:37
 msgid "Authentication"
 msgstr "Authentifizierung"
 
-#: pkg/lib/machine-auth-failed.html:2 pkg/static/login.js:814
+#: pkg/shell/machines/machine-auth-failed.html:2 pkg/static/login.js:814
 msgid "Authentication failed"
 msgstr "Authentifizierung fehlgeschlagen"
 
@@ -1100,7 +1100,7 @@ msgstr "Privilegierte Aktionen der Cockpit Web-Konsole benötigen Berechtigung"
 msgid "Authentication required"
 msgstr "Authentifikation erforderlich"
 
-#: pkg/lib/machine-dialogs.js:754
+#: pkg/shell/machines/machine-dialogs.js:755
 #, fuzzy
 msgid "Authorize SSH key."
 msgstr "Autorisierte öffentliche SSH-Schlüssel"
@@ -1109,24 +1109,25 @@ msgstr "Autorisierte öffentliche SSH-Schlüssel"
 msgid "Authorized public SSH keys"
 msgstr "Autorisierte öffentliche SSH-Schlüssel"
 
-#: pkg/networkmanager/index.html:186
-#: pkg/systemd/overview-cards/realmd-operation.js:338
+#: pkg/networkmanager/index.html:147
+#: pkg/systemd/overview-cards/realmd-operation.js:342
 #: pkg/machines/components/networks/createNetworkDialog.jsx:158
-#: pkg/networkmanager/interfaces.js:1950 pkg/networkmanager/interfaces.js:2748
-#: pkg/networkmanager/interfaces.js:3328 pkg/networkmanager/interfaces.js:3332
-#: pkg/networkmanager/interfaces.js:3338
+#: pkg/networkmanager/interfaces.js:1902 pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:3242 pkg/networkmanager/interfaces.js:3246
+#: pkg/networkmanager/interfaces.js:3252
 msgid "Automatic"
 msgstr "Automatisch"
 
-#: pkg/networkmanager/interfaces.js:1951
+#: pkg/networkmanager/interfaces.js:1903
 msgid "Automatic (DHCP only)"
 msgstr "Automatisch (nur DHCP)"
 
-#: pkg/networkmanager/interfaces.js:1941
+#: pkg/networkmanager/interfaces.js:1893
 msgid "Automatic (DHCP)"
 msgstr "Automatisch (DHCP)"
 
-#: pkg/lib/machine-change-auth.html:39 pkg/lib/machine-change-auth.html:57
+#: pkg/shell/machines/machine-change-auth.html:39
+#: pkg/shell/machines/machine-change-auth.html:57
 msgid "Automatic login"
 msgstr "Automatische Anmeldung"
 
@@ -1193,7 +1194,7 @@ msgstr "Zurück zu den Konten"
 msgid "Backing device"
 msgstr "Sicherungsgerät"
 
-#: pkg/networkmanager/index.html:343
+#: pkg/networkmanager/index.html:304
 msgid "Balancer"
 msgstr "Balancer"
 
@@ -1238,12 +1239,12 @@ msgstr "Gerät für Dateisysteme blockieren"
 msgid "Blocked"
 msgstr "Gesperrt"
 
-#: pkg/networkmanager/interfaces.js:2500 pkg/networkmanager/interfaces.js:2512
-#: pkg/networkmanager/interfaces.js:2780
+#: pkg/networkmanager/interfaces.js:2397 pkg/networkmanager/interfaces.js:2409
+#: pkg/networkmanager/interfaces.js:2677
 msgid "Bond"
 msgstr "Bond"
 
-#: pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:450
 msgid "Bond settings"
 msgstr "Bond-Einstellungen"
 
@@ -1260,28 +1261,28 @@ msgstr "Boot-Reihenfolge konnte nicht gespeichert werden"
 msgid "Bound by"
 msgstr "Gebunden"
 
-#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
-#: pkg/networkmanager/interfaces.js:2857
+#: pkg/networkmanager/interfaces.js:2403 pkg/networkmanager/interfaces.js:2415
+#: pkg/networkmanager/interfaces.js:2754
 msgid "Bridge"
 msgstr "Netzwerkbrücke"
 
-#: pkg/networkmanager/interfaces.js:2878
+#: pkg/networkmanager/interfaces.js:2775
 msgid "Bridge port"
 msgstr "Netzwerkbrücken-Port"
 
-#: pkg/networkmanager/index.html:650
+#: pkg/networkmanager/index.html:572
 msgid "Bridge port settings"
 msgstr "Netzwerkbrücke-Port-Einstellungen"
 
-#: pkg/networkmanager/index.html:621
+#: pkg/networkmanager/index.html:543
 msgid "Bridge settings"
 msgstr "Netzwerkbrücke-Einstellungen"
 
-#: pkg/networkmanager/interfaces.js:1962 pkg/networkmanager/interfaces.js:1979
+#: pkg/networkmanager/interfaces.js:1914 pkg/networkmanager/interfaces.js:1931
 msgid "Broadcast"
 msgstr "Broadcast"
 
-#: pkg/networkmanager/interfaces.js:2793 pkg/networkmanager/interfaces.js:2827
+#: pkg/networkmanager/interfaces.js:2690 pkg/networkmanager/interfaces.js:2724
 msgid "Broken configuration"
 msgstr "Fehlerhafte Konfiguration"
 
@@ -1308,7 +1309,7 @@ msgstr "Bus"
 msgid "Bus expansion chassis"
 msgstr "Bus-Erweiterungsgehäuse"
 
-#: pkg/lib/machine-dialogs.js:746
+#: pkg/shell/machines/machine-dialogs.js:747
 msgid ""
 "By changing the password of the SSH key ${key} to the login password of "
 "${luser} on ${lhost}, the key will be automatically made available and you "
@@ -1359,28 +1360,30 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Cache"
 
-#: pkg/lib/machine-add.html:26
+#: pkg/shell/machines/machine-add.html:26
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr ""
 
-#: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
+#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:267
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Es konnten keine Logeinträge für die aktuellen Filtereinstellungen gefunden "
 "werden"
 
 #: pkg/sosreport/index.html:74
-#: pkg/systemd/overview-cards/realmd-operation.html:84
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:281
-#: pkg/static/login.html:101 pkg/lib/machine-add.html:55
-#: pkg/lib/machine-change-port.html:26 pkg/lib/machine-change-auth.html:75
-#: pkg/lib/machine-unknown-hostkey.html:21 pkg/networkmanager/index.html:512
-#: pkg/networkmanager/index.html:548 pkg/networkmanager/index.html:577
-#: pkg/networkmanager/index.html:606 pkg/networkmanager/index.html:635
-#: pkg/networkmanager/index.html:664 pkg/networkmanager/index.html:693
-#: pkg/networkmanager/index.html:722 pkg/networkmanager/index.html:751
-#: pkg/playground/translate.html:39 pkg/sosreport/index.js:52
-#: pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/systemd/overview-cards/realmd-operation.html:93
+#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
+#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/shell/machines/machine-change-port.html:26
+#: pkg/shell/machines/machine-change-auth.html:75
+#: pkg/shell/machines/machine-invalid-hostkey.html:30
+#: pkg/shell/machines/machine-unknown-hostkey.html:22
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
+#: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
+#: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
+#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1425,7 +1428,7 @@ msgstr "Verbindung zu einer unbekannten Maschine nicht möglich"
 msgid "Cannot forward login credentials"
 msgstr "Anmeldeinformationen können nicht weitergeleitet werden"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:635
+#: pkg/systemd/overview-cards/realmd-operation.js:639
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Kann keiner Domäne beitreten, da realmd auf diesem System nicht installiert "
@@ -1445,7 +1448,7 @@ msgctxt "storage"
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: pkg/networkmanager/interfaces.js:2579
+#: pkg/networkmanager/interfaces.js:2476
 msgid "Carrier"
 msgstr "Träger"
 
@@ -1488,16 +1491,16 @@ msgstr "Profil ändern"
 msgid "Change system time"
 msgstr "Systemzeit ändern"
 
-#: pkg/lib/machine-dialogs.js:744
+#: pkg/shell/machines/machine-dialogs.js:745
 #, fuzzy
 msgid "Change the password of ${key}."
 msgstr "Passwort ändern"
 
-#: pkg/networkmanager/interfaces.js:3161
+#: pkg/networkmanager/interfaces.js:3075
 msgid "Change the settings"
 msgstr "Bridge Port-Einstellungen"
 
-#: pkg/static/login.html:57
+#: pkg/static/login.html:58
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1512,7 +1515,7 @@ msgstr ""
 msgid "Changes will take effect after shutting down the VM"
 msgstr "Änderungen werden nach dem Herunterfahren der VM wirksam"
 
-#: pkg/networkmanager/interfaces.js:3160
+#: pkg/networkmanager/interfaces.js:3074
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1573,7 +1576,7 @@ msgstr "$target wird aufgeräumt"
 msgid "Clear 'Failed to start'"
 msgstr "'Starten Fehlgeschlagen' zurücksetzen"
 
-#: pkg/systemd/services/services.jsx:775
+#: pkg/systemd/services/services.jsx:779
 msgid "Clear all filters"
 msgstr "Alle Filter entfernen"
 
@@ -1605,13 +1608,13 @@ msgstr "Client software"
 msgid "Clone"
 msgstr "Klonen"
 
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/lib/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:494 pkg/networkmanager/index.html:523
-#: pkg/networkmanager/index.html:559 pkg/networkmanager/index.html:588
-#: pkg/networkmanager/index.html:617 pkg/networkmanager/index.html:646
-#: pkg/networkmanager/index.html:675 pkg/networkmanager/index.html:704
-#: pkg/networkmanager/index.html:733 pkg/networkmanager/index.html:769
+#: pkg/shell/machines/machine-not-supported.html:8
+#: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
+#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
+#: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
+#: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
+#: pkg/networkmanager/index.html:655 pkg/networkmanager/index.html:691
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
 #: pkg/storaged/dialog.jsx:408 pkg/users/dialog-utils.js:58
@@ -1664,7 +1667,7 @@ msgstr ""
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit ist mit der Software auf dem System nicht kompatibel."
 
-#: pkg/lib/machine-not-supported.html:2
+#: pkg/shell/machines/machine-not-supported.html:2
 msgid "Cockpit is not installed"
 msgstr "Cockpit ist nicht installiert"
 
@@ -1686,7 +1689,7 @@ msgstr ""
 "gleichzeitig mehrere Server überwachen und verwalten. Fügen Sie weitere "
 "Maschinen mit einem Klick hinzu und Ihre Maschinen schauen zu ihren Kumpels."
 
-#: pkg/lib/machine-add.html:37
+#: pkg/shell/machines/machine-add.html:37
 msgid "Color"
 msgstr "Farbe"
 
@@ -1743,7 +1746,7 @@ msgstr "Bedingung fehlgeschlagen"
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: pkg/networkmanager/interfaces.js:2714
+#: pkg/networkmanager/interfaces.js:2611
 msgid "Configure"
 msgstr "Konfigurieren"
 
@@ -1768,12 +1771,12 @@ msgstr "Konfiguriere System-Einstellungen"
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: pkg/lib/machine-dialogs.js:738
+#: pkg/shell/machines/machine-dialogs.js:739
 #, fuzzy
 msgid "Confirm key password"
 msgstr "Neues Passwort wiederholen"
 
-#: pkg/lib/machine-dialogs.js:749
+#: pkg/shell/machines/machine-dialogs.js:750
 #, fuzzy
 msgid "Confirm new key password"
 msgstr "Neues Passwort wiederholen"
@@ -1803,16 +1806,15 @@ msgstr "Konflikt von"
 msgid "Conflicts"
 msgstr "Konflikte"
 
-#: pkg/lib/machine-unknown-hostkey.html:18
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:84
 msgid "Connect"
 msgstr "Verbinden"
 
-#: pkg/networkmanager/interfaces.js:2701
+#: pkg/networkmanager/interfaces.js:2598
 msgid "Connect automatically"
 msgstr "Verbindung automatisch herstellen"
 
-#: pkg/static/login.html:89
+#: pkg/static/login.html:90
 msgid "Connect to"
 msgstr "Verbinden zu"
 
@@ -1822,7 +1824,7 @@ msgstr "Verbinden zu"
 msgid "Connect with any viewer application for following protocols"
 msgstr "Verbinden Sie sich mit einem beliebigen $0 Viewer-Anwendung."
 
-#: pkg/lib/machine-add.html:46
+#: pkg/shell/machines/machine-add.html:46
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr ""
@@ -1861,7 +1863,7 @@ msgstr "Verbindung fehlgeschlagen"
 msgid "Connection has timed out."
 msgstr "Zeitüberschreitung bei der Verbindung."
 
-#: pkg/networkmanager/index.html:781
+#: pkg/networkmanager/index.html:703
 msgid "Connection will be lost"
 msgstr "Verbindung geht verloren"
 
@@ -1876,7 +1878,7 @@ msgstr "Besteht aus"
 msgid "Console"
 msgstr "Konsolen"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:275
+#: pkg/systemd/overview-cards/realmd-operation.js:279
 msgid "Contacted domain"
 msgstr "Kontaktierte Domain"
 
@@ -1922,7 +1924,7 @@ msgstr "In Zwischenablage kopieren"
 msgid "Cores per socket"
 msgstr "Kerne pro Socket"
 
-#: pkg/lib/machine-change-port.html:4
+#: pkg/shell/machines/machine-change-port.html:4
 msgid "Could not contact {{host}}"
 msgstr "Konnte Host {{host}} nicht erreichen"
 
@@ -1980,7 +1982,7 @@ msgstr "VM erstellen"
 msgid "Create a clone VM based on $0"
 msgstr "Partition auf $0 anlegen"
 
-#: pkg/lib/machine-dialogs.js:733
+#: pkg/shell/machines/machine-dialogs.js:734
 msgid "Create a new SSH key and authorize it."
 msgstr "Erzeugen Sie einen neuen SSH-Schlüssel und authentifizieren Sie ihn."
 
@@ -1994,8 +1996,8 @@ msgstr "Erstelle Geräte"
 msgid "Create diagnostic report                    "
 msgstr "Diagnosebericht erstellen"
 
-#: pkg/networkmanager/interfaces.js:3840 pkg/networkmanager/interfaces.js:4044
-#: pkg/networkmanager/interfaces.js:4301 pkg/networkmanager/interfaces.js:4509
+#: pkg/networkmanager/interfaces.js:3754 pkg/networkmanager/interfaces.js:3958
+#: pkg/networkmanager/interfaces.js:4215 pkg/networkmanager/interfaces.js:4423
 msgid "Create it"
 msgstr "Anlegen"
 
@@ -2066,7 +2068,7 @@ msgstr "Datenträger erstellen"
 msgid "Create thin volume"
 msgstr "Thin Volume erstellen"
 
-#: pkg/systemd/services/services.jsx:747
+#: pkg/systemd/services/services.jsx:751
 msgid "Create timer"
 msgstr "Timer erstellen"
 
@@ -2116,7 +2118,7 @@ msgstr "Erzeuge Partition $target"
 msgid "Creating snapshot of $target"
 msgstr "Erzeuge Snapshot von $target"
 
-#: pkg/networkmanager/interfaces.js:4508
+#: pkg/networkmanager/interfaces.js:4422
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2124,7 +2126,7 @@ msgstr ""
 "Das Erzeugen dieses VLANs wird die Verbindung zum Server unterbrechen und "
 "damit den Zugriff auf die Benutzeroberfläche unmöglich machen."
 
-#: pkg/networkmanager/interfaces.js:3839
+#: pkg/networkmanager/interfaces.js:3753
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2132,7 +2134,7 @@ msgstr ""
 "Durch das Erstellen dieser Verbindung wird die Verbindung zum Server "
 "unterbrochen und die Verwaltungsbenutzeroberfläche wird nicht verfügbar."
 
-#: pkg/networkmanager/interfaces.js:4300
+#: pkg/networkmanager/interfaces.js:4214
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2141,7 +2143,7 @@ msgstr ""
 "unterbrechen und damit den Zugriff auf die Benutzeroberfläche unmöglich "
 "machen."
 
-#: pkg/networkmanager/interfaces.js:4043
+#: pkg/networkmanager/interfaces.js:3957
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2221,19 +2223,19 @@ msgstr "DHCP Bereich"
 msgid "DISK IS FAILING"
 msgstr "Datenträger ist FEHLERHAFT"
 
-#: pkg/networkmanager/interfaces.js:3327
+#: pkg/networkmanager/interfaces.js:3241
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2542
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:3331
+#: pkg/networkmanager/interfaces.js:3245
 msgid "DNS search domains"
 msgstr "DNS Suchdomänen"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2545
 msgid "DNS search domains $val"
 msgstr "DNS-Suchdomänen $val"
 
@@ -2271,7 +2273,7 @@ msgstr "Deduplizierung"
 msgid "Delay"
 msgstr "Verzögerung"
 
-#: pkg/networkmanager/index.html:460 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -2291,7 +2293,7 @@ msgstr "Verzögerung"
 msgid "Delete"
 msgstr "Löschen"
 
-#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2425
+#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2322
 msgid "Delete $0"
 msgstr "$0 löschen"
 
@@ -2325,7 +2327,7 @@ msgstr "Das Volume in diesem Pool löschen"
 msgid "Deleting $target"
 msgstr "Lösche $target"
 
-#: pkg/networkmanager/interfaces.js:2424
+#: pkg/networkmanager/interfaces.js:2321
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2467,8 +2469,8 @@ msgid "Disable tuned"
 msgstr "Tuned deaktivieren"
 
 #: pkg/systemd/services/service-details.jsx:297
-#: pkg/systemd/services/services.jsx:523 pkg/systemd/services/services.jsx:686
-#: pkg/networkmanager/interfaces.js:1945
+#: pkg/systemd/services/services.jsx:527 pkg/systemd/services/services.jsx:690
+#: pkg/networkmanager/interfaces.js:1897
 msgid "Disabled"
 msgstr "Deaktiviert"
 
@@ -2571,7 +2573,7 @@ msgstr "Domain"
 msgid "Domain $0 could not be contacted"
 msgstr "Die Domain $0 konnte nicht kontaktiert werden"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:280
+#: pkg/systemd/overview-cards/realmd-operation.js:284
 msgid "Domain $0 is not supported"
 msgstr "Domain $0 wird nicht unterstützt"
 
@@ -2608,7 +2610,7 @@ msgstr "Nicht wiederholen"
 msgid "Done!"
 msgstr "Fertig!"
 
-#: pkg/static/login.html:120
+#: pkg/static/login.html:121
 msgid "Download a new browser for free"
 msgstr "Laden Sie kostenlos einen neuen Browser herunter"
 
@@ -2675,7 +2677,7 @@ msgstr "Host bearbeiten"
 msgid "Edit Tang keyserver"
 msgstr "Tang-Keyserver bearbeiten"
 
-#: pkg/lib/machine-add.html:8
+#: pkg/shell/machines/machine-add.html:8
 msgid "Edit host"
 msgstr "Host bearbeiten"
 
@@ -2689,7 +2691,7 @@ msgstr "Hosts bearbeiten"
 msgid "Edit motd"
 msgstr "Host bearbeiten"
 
-#: pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:74
 msgid "Edit rules and zones"
 msgstr "Regeln und Zonen bearbeiten"
 
@@ -2735,7 +2737,7 @@ msgstr "Gespeicherte Metriken aktivieren"
 msgid "Enable the firewall"
 msgstr "Firewall aktivieren"
 
-#: pkg/systemd/services/services.jsx:520 pkg/systemd/services/services.jsx:685
+#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:689
 msgid "Enabled"
 msgstr "Aktiviert"
 
@@ -2858,15 +2860,15 @@ msgstr "Fehler beim Löschen der Warnung: $0"
 msgid "Error while setting SELinux mode: '$0'"
 msgstr "Fehler beim Einstellen des SELinux-Modus: '$0'"
 
-#: pkg/networkmanager/index.html:737
+#: pkg/networkmanager/index.html:659
 msgid "Ethernet MAC"
 msgstr "Ethernet-MAC"
 
-#: pkg/networkmanager/index.html:708
+#: pkg/networkmanager/index.html:630
 msgid "Ethernet MTU"
 msgstr "Ethernet-MTU"
 
-#: pkg/networkmanager/interfaces.js:1991
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Ethtool"
 msgstr "Ethtool"
 
@@ -2908,7 +2910,7 @@ msgstr "Erweiterte Partition"
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
-#: pkg/lib/machine-dialogs.js:461
+#: pkg/shell/machines/machine-dialogs.js:461
 msgid "Failed to add machine: $0"
 msgstr "Maschine konnte nicht hinzugefügt werden: $0"
 
@@ -2951,7 +2953,7 @@ msgstr "Fehler beim Deaktivieren"
 msgid "Failed to disable tuned profile"
 msgstr "Das abgestimmte Profil konnte nicht deaktiviert werden"
 
-#: pkg/lib/machine-dialogs.js:557
+#: pkg/shell/machines/machine-dialogs.js:557
 msgid "Failed to edit machine: $0"
 msgstr "Maschine konnte nicht editiert werden: $0"
 
@@ -2978,7 +2980,7 @@ msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "Senden der Tastenkombination Strg+Alt+$0 an die VM $1 fehlgeschlagen"
 
 #: pkg/systemd/services/service-details.jsx:306
-#: pkg/systemd/services/services.jsx:514
+#: pkg/systemd/services/services.jsx:518
 msgid "Failed to start"
 msgstr "Starten fehlgeschlagen"
 
@@ -3014,7 +3016,7 @@ msgstr "Dateisystemname"
 msgid "Filesystems"
 msgstr "Dateisysteme"
 
-#: pkg/systemd/services/services.jsx:719
+#: pkg/systemd/services/services.jsx:723
 msgid "Filter"
 msgstr "Filter"
 
@@ -3023,7 +3025,7 @@ msgstr "Filter"
 msgid "Filter by name"
 msgstr "Filtere nach Name oder Beschreibung"
 
-#: pkg/systemd/services/services.jsx:727
+#: pkg/systemd/services/services.jsx:731
 msgid "Filter by name or description"
 msgstr "Filtere nach Name oder Beschreibung"
 
@@ -3031,11 +3033,11 @@ msgstr "Filtere nach Name oder Beschreibung"
 msgid "Filter services"
 msgstr "Filterdienste"
 
-#: pkg/lib/machine-unknown-hostkey.html:9 pkg/shell/index.html:230
+#: pkg/shell/index.html:230
 msgid "Fingerprint"
 msgstr "Fingerabdruck"
 
-#: pkg/networkmanager/index.html:109 pkg/networkmanager/firewall.html:22
+#: pkg/networkmanager/index.html:70 pkg/networkmanager/firewall.html:22
 #: pkg/networkmanager/firewall.jsx:949 pkg/networkmanager/firewall.jsx:955
 msgid "Firewall"
 msgstr "Firewall"
@@ -3107,7 +3109,7 @@ msgid "Formatting a storage device will erase all data on it."
 msgstr ""
 "Das Formatieren eines Speichergeräts löscht alle darauf vorhandenen Daten."
 
-#: pkg/networkmanager/interfaces.js:2850
+#: pkg/networkmanager/interfaces.js:2747
 msgid "Forward delay $forward_delay"
 msgstr "Weiterleitungsverzögerung $forward_delay"
 
@@ -3157,7 +3159,7 @@ msgstr "GNU LGPL version 2.1"
 #: pkg/systemd/abrtLog.jsx:248
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:202
 #: pkg/machines/components/networks/networkOverviewTab.jsx:85
-#: pkg/networkmanager/interfaces.js:2692
+#: pkg/networkmanager/interfaces.js:2589
 msgid "General"
 msgstr "Allgemein"
 
@@ -3179,12 +3181,11 @@ msgstr "GiB"
 msgid "Go to application"
 msgstr "Gehe zur Anwendung"
 
-#: pkg/networkmanager/index.html:70 pkg/networkmanager/index.html:416
-#: pkg/storaged/plot.jsx:72
+#: pkg/lib/cockpit-components-plot.jsx:269
 msgid "Go to now"
 msgstr "Zu 'Jetzt' gehen"
 
-#: pkg/networkmanager/interfaces.js:2756
+#: pkg/networkmanager/interfaces.js:2653
 msgid "Group"
 msgstr "Gruppe"
 
@@ -3210,11 +3211,11 @@ msgstr "Logisches Volumen erhöhen"
 msgid "Grow to take all space"
 msgstr "Wachsen Sie, um den gesamten Raum einzunehmen"
 
-#: pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:223
 msgid "Hair pin mode"
 msgstr "Hairpin Modus"
 
-#: pkg/networkmanager/interfaces.js:2876
+#: pkg/networkmanager/interfaces.js:2773
 msgid "Hairpin mode"
 msgstr "Hairpin-Modus"
 
@@ -3230,7 +3231,7 @@ msgstr "Hardware-Informationen"
 msgid "Health"
 msgstr "Meldungen"
 
-#: pkg/networkmanager/interfaces.js:2852
+#: pkg/networkmanager/interfaces.js:2749
 msgid "Hello time $hello_time"
 msgstr "Hello-Zeit $hello_time"
 
@@ -3242,7 +3243,7 @@ msgstr "Hilfe"
 msgid "Hide additional options"
 msgstr "Zusätzlichen Einstellungen verstecken"
 
-#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:514
+#: pkg/systemd/logs.js:413 pkg/systemd/logs.js:528
 msgid "Hide filters"
 msgstr "Filter verstecken"
 
@@ -3250,7 +3251,7 @@ msgstr "Filter verstecken"
 msgid "History package count"
 msgstr "History Packet-Anzahl"
 
-#: pkg/lib/machine-add.html:14
+#: pkg/shell/machines/machine-add.html:14
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:118
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:36
 #: pkg/machines/components/vm/overview/bootOrder.jsx:98
@@ -3271,7 +3272,7 @@ msgstr "Host-Schlüssel ist falsch"
 msgid "Host name"
 msgstr "Rechnername"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:612
+#: pkg/systemd/overview-cards/realmd-operation.js:616
 msgid "Host name should not be changed in a domain"
 msgstr "Host-Name sollte nicht in eine Domain gewechselt werden"
 
@@ -3313,12 +3314,12 @@ msgstr "Hypervisor-Details"
 msgid "ID"
 msgstr "ID"
 
-#: pkg/networkmanager/interfaces.js:2893
+#: pkg/networkmanager/interfaces.js:2790
 #, fuzzy
 msgid "ID $id"
 msgstr "ID $id"
 
-#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:150
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP-Adresse"
@@ -3333,11 +3334,11 @@ msgstr ""
 msgid "IP configuration"
 msgstr "IP-Konfiguration"
 
-#: pkg/networkmanager/index.html:498
+#: pkg/networkmanager/index.html:420
 msgid "IP settings"
 msgstr "IPv4-Einstellungen"
 
-#: pkg/networkmanager/interfaces.js:2901
+#: pkg/networkmanager/interfaces.js:2798
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3361,11 +3362,11 @@ msgstr "IPv4-Netzwerk sollte nicht leer sein"
 msgid "IPv4 only"
 msgstr "Nur IPv4"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3284
 msgid "IPv4 settings"
 msgstr "IPv4-Einstellungen"
 
-#: pkg/networkmanager/interfaces.js:2902
+#: pkg/networkmanager/interfaces.js:2799
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3385,7 +3386,7 @@ msgstr "IPv6-Netzwerk sollte nicht leer sein"
 msgid "IPv6 only"
 msgstr "Nur IPv6"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3284
 msgid "IPv6 settings"
 msgstr "IPv6-Einstellungen"
 
@@ -3401,13 +3402,20 @@ msgstr ""
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "Wenn Tang-Show-Keys nicht verfügbar sind, führen Sie Folgendes aus:"
 
-#: pkg/static/login.html:66
+#: pkg/shell/machines/machine-invalid-hostkey.html:21
+#: pkg/shell/machines/machine-unknown-hostkey.html:13
+msgid ""
+"If the fingerprint matches, click \"Accept key and connect\". Otherwise, do "
+"not connect and contact your administrator."
+msgstr ""
+
+#: pkg/static/login.html:67
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:506 pkg/networkmanager/interfaces.js:1954
+#: pkg/packagekit/updates.jsx:506 pkg/networkmanager/interfaces.js:1906
 msgid "Ignore"
 msgstr "Ignorieren"
 
@@ -3442,7 +3450,7 @@ msgid ""
 "communication."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:741
+#: pkg/shell/machines/machine-dialogs.js:742
 msgid ""
 "In order to allow log in to ${rhost} as ${ruser} without password in the "
 "future, use the login password of ${luser} on ${lhost} as the key password, "
@@ -3454,7 +3462,7 @@ msgid "In sync"
 msgstr "Synchron"
 
 #: pkg/networkmanager/interfaces.js:815 pkg/networkmanager/interfaces.js:1389
-#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2595
+#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2492
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -3469,10 +3477,6 @@ msgstr "Enthaltene Dienste"
 #: pkg/storaged/fsys-tab.jsx:504
 msgid "Inconsistent filesystem mount"
 msgstr "Inkonsistenter Dateisystem-Einhängepunkt"
-
-#: pkg/lib/machine-invalid-hostkey.html:2
-msgid "Incorrect host key"
-msgstr "Falscher Host-Schlüssel"
 
 #: pkg/storaged/vdos-panel.jsx:106 pkg/storaged/vdo-details.jsx:312
 msgid "Index memory"
@@ -3570,8 +3574,8 @@ msgstr "Schnittstelle"
 msgid "Interface type"
 msgstr "Art der Schnittstelle"
 
-#: pkg/networkmanager/index.html:121 pkg/networkmanager/index.html:276
-#: pkg/networkmanager/interfaces.js:2975 pkg/networkmanager/firewall.jsx:180
+#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
 msgstr "Schnittstellen"
@@ -3685,7 +3689,7 @@ msgstr "IoT-Gateway"
 msgid "Is 'pmlogger' service running?"
 msgstr ""
 
-#: pkg/lib/machine-change-port.html:10
+#: pkg/shell/machines/machine-change-port.html:10
 msgid "Is sshd running on a different port?"
 msgstr "Läuft sshd auf einem anderen Port?"
 
@@ -3705,15 +3709,15 @@ msgstr "Beitreten"
 msgid "Join a domain"
 msgstr "Einer Domäne beitreten"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:606
+#: pkg/systemd/overview-cards/realmd-operation.js:610
 msgid "Join domain"
 msgstr "Einer Domain beitreten"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:630
+#: pkg/systemd/overview-cards/realmd-operation.js:634
 msgid "Joining a domain requires installation of realmd"
 msgstr "Zum Beitritt einer Domäne wird realmd benötigt"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:514
+#: pkg/systemd/overview-cards/realmd-operation.js:518
 msgid "Joining this domain is not supported"
 msgstr "Der Beitritt zu dieser Domain wird nicht unterstützt"
 
@@ -3744,11 +3748,11 @@ msgstr ""
 "Kdump-Dienst nicht installiert. Bitte stellen Sie sicher, dass das Paket "
 "kexec-tools installiert ist."
 
-#: pkg/networkmanager/index.html:789
+#: pkg/networkmanager/index.html:711
 msgid "Keep connection"
 msgstr "Verbindung halten"
 
-#: pkg/lib/machine-auth-failed.html:10
+#: pkg/shell/machines/machine-auth-failed.html:10
 msgid "Kerberos based SSO"
 msgstr "Kerberos-basiertes SSO"
 
@@ -3761,8 +3765,9 @@ msgstr "Kernel dump"
 msgid "Kernel dump"
 msgstr "Kernel dump"
 
-#: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
-#: pkg/lib/machine-dialogs.js:736
+#: pkg/shell/machines/machine-change-auth.html:38
+#: pkg/shell/machines/machine-change-auth.html:53
+#: pkg/shell/machines/machine-dialogs.js:737
 #, fuzzy
 msgid "Key password"
 msgstr "Neues Passwort"
@@ -3793,7 +3798,7 @@ msgid "Keyserver removal may prevent unlocking $0."
 msgstr ""
 "Das Entfernen des Keyservers verhindert möglicherweise das Entsperren $0."
 
-#: pkg/networkmanager/index.html:387
+#: pkg/networkmanager/index.html:348
 msgid "LACP key"
 msgstr "LACP key"
 
@@ -3837,7 +3842,7 @@ msgstr "Starten Sie den Remote Viewer"
 
 #: pkg/systemd/logs.html:85 pkg/lib/cockpit-components-dialog.jsx:242
 #: pkg/lib/cockpit-components-dialog.jsx:249
-#: pkg/networkmanager/interfaces.js:1715
+#: pkg/networkmanager/interfaces.js:1647
 msgid "Learn more"
 msgstr "Mehr erfahren"
 
@@ -3884,23 +3889,23 @@ msgid ""
 "web console will have reduced functionality."
 msgstr ""
 
-#: pkg/networkmanager/index.html:321 pkg/networkmanager/index.html:365
+#: pkg/networkmanager/index.html:282 pkg/networkmanager/index.html:326
 msgid "Link down delay"
 msgstr "Verzögerung bei der Deaktivierung einer Verbindung"
 
-#: pkg/networkmanager/interfaces.js:1942 pkg/networkmanager/interfaces.js:1952
+#: pkg/networkmanager/interfaces.js:1894 pkg/networkmanager/interfaces.js:1904
 msgid "Link local"
 msgstr "Link local"
 
-#: pkg/networkmanager/index.html:304
+#: pkg/networkmanager/index.html:265
 msgid "Link monitoring"
 msgstr "Verbindungsüberwachung"
 
-#: pkg/networkmanager/index.html:317 pkg/networkmanager/index.html:361
+#: pkg/networkmanager/index.html:278 pkg/networkmanager/index.html:322
 msgid "Link up delay"
 msgstr "Verzögerung bei der Aktivierung einer Verbindung"
 
-#: pkg/networkmanager/index.html:348
+#: pkg/networkmanager/index.html:309
 #, fuzzy
 msgid "Link watch"
 msgstr "Link local"
@@ -3910,7 +3915,7 @@ msgstr "Link local"
 msgid "Load"
 msgstr "Last"
 
-#: pkg/networkmanager/interfaces.js:1978
+#: pkg/networkmanager/interfaces.js:1930
 #, fuzzy
 msgid "Load balancing"
 msgstr "Adaptives Load Balancing (alb)"
@@ -3921,7 +3926,7 @@ msgstr "Adaptives Load Balancing (alb)"
 msgid "Load earlier data"
 msgstr "Frühere Einträge laden"
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logs.js:115
 msgid "Load earlier entries"
 msgstr "Frühere Einträge laden"
 
@@ -3957,10 +3962,10 @@ msgstr "Lade Ressourcen"
 msgid "Loading system modifications..."
 msgstr "System-Änderungen laden..."
 
-#: pkg/systemd/logDetails.jsx:141 pkg/systemd/logs.js:158
-#: pkg/systemd/logs.js:201 pkg/systemd/services/services.jsx:664
-#: pkg/storaged/devices.jsx:69 pkg/metrics/metrics.jsx:975
-#: pkg/kdump/kdump-view.jsx:371
+#: pkg/systemd/services.html:282 pkg/systemd/logDetails.jsx:141
+#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:208
+#: pkg/systemd/services/services.jsx:668 pkg/storaged/devices.jsx:75
+#: pkg/metrics/metrics.jsx:975 pkg/kdump/kdump-view.jsx:371
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
 msgid "Loading..."
 msgstr "Lade..."
@@ -4007,12 +4012,12 @@ msgstr "Keine Geräte"
 msgid "Locking $target"
 msgstr "Sperren $target"
 
-#: pkg/static/login.html:99 pkg/lib/machine-change-auth.html:74
+#: pkg/static/login.html:100 pkg/shell/machines/machine-change-auth.html:74
 #: pkg/shell/index.html:307 pkg/static/login.js:563
 msgid "Log in"
 msgstr "Anmelden"
 
-#: pkg/lib/machine-change-auth.html:4
+#: pkg/shell/machines/machine-change-auth.html:4
 msgid "Log in to {{host}}"
 msgstr "Anmelden auf {{host}}"
 
@@ -4085,7 +4090,7 @@ msgstr "Low-Profile-Desktop"
 msgid "Lunch box"
 msgstr "Brotdose"
 
-#: pkg/networkmanager/index.html:202 pkg/networkmanager/index.html:281
+#: pkg/networkmanager/index.html:163 pkg/networkmanager/index.html:242
 #: pkg/machines/components/vm/overview/bootOrder.jsx:108
 msgid "MAC"
 msgstr "MAC"
@@ -4096,15 +4101,15 @@ msgstr "MAC"
 msgid "MAC address"
 msgstr "MAC-Adresse"
 
-#: pkg/networkmanager/interfaces.js:1970
+#: pkg/networkmanager/interfaces.js:1922
 msgid "MII (recommended)"
 msgstr "MII (empfohlen)"
 
-#: pkg/networkmanager/interfaces.js:2750
+#: pkg/networkmanager/interfaces.js:2647
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4575
+#: pkg/networkmanager/interfaces.js:4489
 msgid "MTU must be a positive number"
 msgstr "MTU muss eine positive Zahl sein"
 
@@ -4161,7 +4166,7 @@ msgstr "Benutzerkonten verwalten"
 msgid "Managing virtual machines"
 msgstr "Virtuelle Maschinen verwalten"
 
-#: pkg/networkmanager/interfaces.js:1943 pkg/networkmanager/interfaces.js:1953
+#: pkg/networkmanager/interfaces.js:1895 pkg/networkmanager/interfaces.js:1905
 msgid "Manual"
 msgstr "Manuell"
 
@@ -4213,7 +4218,7 @@ msgstr ""
 msgid "Maximum memory could not be saved"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2854
+#: pkg/networkmanager/interfaces.js:2751
 msgid "Maximum message age $max_age"
 msgstr "Maximales Alter der Nachrichten $max_age"
 
@@ -4335,7 +4340,7 @@ msgstr "Minute muss eine Zahl zwischen 0 und 59 sein"
 msgid "Mitigations"
 msgstr "Milderungen"
 
-#: pkg/networkmanager/index.html:294
+#: pkg/networkmanager/index.html:255
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:27
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:29
 msgid "Mode"
@@ -4369,15 +4374,15 @@ msgstr "Montag"
 msgid "Mondays"
 msgstr "Montags"
 
-#: pkg/networkmanager/index.html:309
+#: pkg/networkmanager/index.html:270
 msgid "Monitoring interval"
 msgstr "Überwachungsintervall"
 
-#: pkg/networkmanager/index.html:313
+#: pkg/networkmanager/index.html:274
 msgid "Monitoring targets"
 msgstr "Überwachungsziele"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:539
+#: pkg/systemd/overview-cards/realmd-operation.js:543
 msgid "More"
 msgstr "Mehr"
 
@@ -4484,7 +4489,7 @@ msgstr "NFS-Unterstützung nicht installiert"
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1993
+#: pkg/networkmanager/interfaces.js:1945
 msgid "NSNA ping"
 msgstr "NSNA-Ping"
 
@@ -4492,9 +4497,9 @@ msgstr "NSNA-Ping"
 msgid "NTP server"
 msgstr "NTP server"
 
-#: pkg/networkmanager/index.html:132 pkg/networkmanager/index.html:149
-#: pkg/networkmanager/index.html:175 pkg/networkmanager/index.html:219
-#: pkg/networkmanager/index.html:272 pkg/networkmanager/index.html:329
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
+#: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
 #: pkg/packagekit/updates.jsx:391 pkg/storaged/format-dialog.jsx:202
 #: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
@@ -4609,7 +4614,7 @@ msgstr "Netzwerk"
 msgid "Network I/O spike"
 msgstr "Netzwerke"
 
-#: pkg/networkmanager/interfaces.js:1722
+#: pkg/networkmanager/interfaces.js:1654
 #, fuzzy
 msgid "Network bond"
 msgstr "Netzwerk"
@@ -4635,7 +4640,7 @@ msgstr "Netzwerk-Dateisystem"
 msgid "Network interface settings could not be saved"
 msgstr "Netzwerkadaptereinstellungen konnten nicht gespeichert werden"
 
-#: pkg/networkmanager/interfaces.js:3133
+#: pkg/networkmanager/interfaces.js:3047
 #, fuzzy
 #| msgid "Networking logs"
 msgid "Network logs"
@@ -4655,12 +4660,12 @@ msgstr "Netzwerke"
 msgid "NetworkManager is not running."
 msgstr "NetworkManager wird nicht ausgeführt."
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:359
 #: pkg/networkmanager/firewall.jsx:948 pkg/networkmanager/manifest.json.in:0
 msgid "Networking"
 msgstr "Netzwerk"
 
-#: pkg/networkmanager/interfaces.js:1600 pkg/networkmanager/interfaces.js:2202
+#: pkg/networkmanager/interfaces.js:1584 pkg/networkmanager/interfaces.js:2154
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Netzwerk"
@@ -4688,13 +4693,13 @@ msgstr "Sperren Sie niemals Ihr Konto"
 msgid "New NFS mount"
 msgstr "Neuer NFS-Mount"
 
-#: pkg/static/login.js:646
+#: pkg/shell/machines/machine-unknown-hostkey.html:2 pkg/static/login.js:646
 #, fuzzy
 #| msgid "Add new host"
 msgid "New host"
 msgstr "Neue Zone hinzufügen"
 
-#: pkg/lib/machine-dialogs.js:747
+#: pkg/shell/machines/machine-dialogs.js:748
 #, fuzzy
 msgid "New key password"
 msgstr "Neues Passwort"
@@ -4715,12 +4720,12 @@ msgstr "Das neue Passwort wurde nicht akzeptiert"
 msgid "New volume name"
 msgstr "Neuer Volume-Name"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:83
+#: pkg/systemd/overview-cards/realmd-operation.html:91
 #: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Weiter"
 
-#: pkg/systemd/reporting.jsx:270 pkg/networkmanager/interfaces.js:2583
+#: pkg/systemd/reporting.jsx:270 pkg/networkmanager/interfaces.js:2480
 msgid "No"
 msgstr "Nein"
 
@@ -4851,11 +4856,11 @@ msgstr "Frühere Einträge laden"
 msgid "No logical volumes"
 msgstr "Keine logischen Volumes"
 
-#: pkg/systemd/logs.js:112 pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
+#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:267
 msgid "No logs found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:780
 msgid "No matching results"
 msgstr ""
 
@@ -4906,7 +4911,7 @@ msgstr "Es wurde kein echter Name angegeben"
 msgid "No results found"
 msgstr "Keine Ergebnisse gefunden"
 
-#: pkg/systemd/services/services.jsx:774
+#: pkg/systemd/services/services.jsx:778
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -5060,7 +5065,7 @@ msgid "Not registered"
 msgstr "Nicht registriert"
 
 #: pkg/systemd/services/service-details.jsx:327
-#: pkg/systemd/services/services.jsx:516 pkg/storaged/mdraid-details.jsx:346
+#: pkg/systemd/services/services.jsx:520 pkg/storaged/mdraid-details.jsx:346
 msgid "Not running"
 msgstr "Läuft nicht"
 
@@ -5134,7 +5139,7 @@ msgid ""
 msgstr ""
 
 #: pkg/systemd/overview-cards/realmd-operation.html:69
-#: pkg/systemd/overview-cards/realmd-operation.js:337
+#: pkg/systemd/overview-cards/realmd-operation.js:341
 msgid "One time password"
 msgstr "Einmalpasswort"
 
@@ -5184,7 +5189,7 @@ msgstr "Optisches Speichergerät"
 msgid "Options"
 msgstr "Einstellungen"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:128
 msgid "Or use a bundled browser"
 msgstr "Oder verwenden Sie einen gebündelten Browser"
 
@@ -5201,7 +5206,7 @@ msgstr "Andere Daten"
 msgid "Other devices"
 msgstr "Andere Geräte"
 
-#: pkg/static/login.html:83
+#: pkg/static/login.html:84
 msgid "Other options"
 msgstr "Andere Einstellungen"
 
@@ -5260,11 +5265,11 @@ msgstr "Paket"
 msgid "Page name"
 msgstr "Benutzername"
 
-#: pkg/networkmanager/index.html:166
+#: pkg/networkmanager/index.html:127
 msgid "Parent"
 msgstr "Parent"
 
-#: pkg/networkmanager/interfaces.js:2892
+#: pkg/networkmanager/interfaces.js:2789
 msgid "Parent $parent"
 msgstr "Parent $parent"
 
@@ -5293,7 +5298,7 @@ msgstr "Partition von $0"
 msgid "Partitioning"
 msgstr "Partitionierung"
 
-#: pkg/networkmanager/interfaces.js:1985
+#: pkg/networkmanager/interfaces.js:1937
 msgid "Passive"
 msgstr "Passiv"
 
@@ -5318,9 +5323,10 @@ msgstr ""
 msgid "Passphrases do not match"
 msgstr "Passphrasen stimmen nicht überein."
 
-#: pkg/static/login.html:75 pkg/lib/machine-change-auth.html:43
-#: pkg/lib/machine-change-auth.html:50 pkg/lib/machine-auth-failed.html:8
-#: pkg/shell/index.html:160 pkg/shell/index.html:189 pkg/shell/index.html:204
+#: pkg/static/login.html:76 pkg/shell/machines/machine-change-auth.html:43
+#: pkg/shell/machines/machine-change-auth.html:50
+#: pkg/shell/machines/machine-auth-failed.html:8 pkg/shell/index.html:160
+#: pkg/shell/index.html:189 pkg/shell/index.html:204
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:321
 #: pkg/shell/superuser.jsx:45
@@ -5361,11 +5367,11 @@ msgstr "Fügen Sie hier den Inhalt Ihrer öffentlichen SSH-Schlüsseldatei ein"
 msgid "Path"
 msgstr "Pfad"
 
-#: pkg/networkmanager/index.html:258
+#: pkg/networkmanager/index.html:219
 msgid "Path cost"
 msgstr "Pfadkosten"
 
-#: pkg/networkmanager/interfaces.js:2874
+#: pkg/networkmanager/interfaces.js:2771
 msgid "Path cost $path_cost"
 msgstr "Pfadkosten $path_cost"
 
@@ -5397,7 +5403,7 @@ msgstr "Pfad zur Datei"
 msgid "Paths"
 msgstr "Pfade"
 
-#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
+#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:336 pkg/systemd/logs.js:515
 #: pkg/machines/components/vm/vmActions.jsx:185
 msgid "Pause"
 msgstr "Pause"
@@ -5422,7 +5428,7 @@ msgstr "Leistungsprofil"
 msgid "Peripheral chassis"
 msgstr "Peripheriechassis"
 
-#: pkg/networkmanager/interfaces.js:3645
+#: pkg/networkmanager/interfaces.js:3559
 msgid "Permanent"
 msgstr "Permanent"
 
@@ -5474,12 +5480,12 @@ msgstr "Physikalische Volumen"
 msgid "Physical volumes can not be resized here."
 msgstr "Physische Datenträger können hier nicht geändert werden."
 
-#: pkg/networkmanager/index.html:353
+#: pkg/networkmanager/index.html:314
 #, fuzzy
 msgid "Ping interval"
 msgstr "Überwachungsintervall"
 
-#: pkg/networkmanager/index.html:357
+#: pkg/networkmanager/index.html:318
 #, fuzzy
 msgid "Ping target"
 msgstr "$target wird gelöscht"
@@ -5511,7 +5517,7 @@ msgstr "Bitte bestätigen Sie das Löschen von $0"
 msgid "Please confirm stopping of $0"
 msgstr "Bitte bestätigen Sie das Stoppen von $0"
 
-#: pkg/static/login.html:33
+#: pkg/static/login.html:34
 msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 
@@ -5574,7 +5580,8 @@ msgstr ""
 msgid "Pool's volumes are used by VMs "
 msgstr ""
 
-#: pkg/lib/machine-change-port.html:14 pkg/storaged/iscsi-panel.jsx:128
+#: pkg/shell/machines/machine-change-port.html:14
+#: pkg/storaged/iscsi-panel.jsx:128
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:192
 #: pkg/machines/components/vm/overview/bootOrder.jsx:99
 #: pkg/machines/components/vm/overview/bootOrder.jsx:115
@@ -5590,8 +5597,8 @@ msgstr "Portnummer und -typ passen nicht zusammen"
 msgid "Portable"
 msgstr "tragbar"
 
-#: pkg/networkmanager/index.html:223 pkg/networkmanager/index.html:333
-#: pkg/networkmanager/interfaces.js:2975
+#: pkg/networkmanager/index.html:184 pkg/networkmanager/index.html:294
+#: pkg/networkmanager/interfaces.js:2887
 msgid "Ports"
 msgstr "Ports"
 
@@ -5606,11 +5613,11 @@ msgid "Prefix"
 msgstr "Präfix"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:287
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3231
 msgid "Prefix length"
 msgstr "Präfixlänge"
 
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3231
 msgid "Prefix length or netmask"
 msgstr "Präfix oder Netzmaske"
 
@@ -5626,7 +5633,7 @@ msgstr "Vorbereitung läuft"
 msgid "Present"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3646
+#: pkg/networkmanager/interfaces.js:3560
 msgid "Preserve"
 msgstr "Beibehalten"
 
@@ -5644,16 +5651,16 @@ msgid ""
 "something goes wrong"
 msgstr ""
 
-#: pkg/networkmanager/index.html:299
+#: pkg/networkmanager/index.html:260
 msgid "Primary"
 msgstr "Primär"
 
-#: pkg/systemd/logs.html:49 pkg/networkmanager/index.html:254
-#: pkg/networkmanager/index.html:373 pkg/networkmanager/index.html:383
+#: pkg/systemd/logs.html:49 pkg/networkmanager/index.html:215
+#: pkg/networkmanager/index.html:334 pkg/networkmanager/index.html:344
 msgid "Priority"
 msgstr "Priorität"
 
-#: pkg/networkmanager/interfaces.js:2848 pkg/networkmanager/interfaces.js:2872
+#: pkg/networkmanager/interfaces.js:2745 pkg/networkmanager/interfaces.js:2769
 msgid "Priority $priority"
 msgstr "Priorität $priority"
 
@@ -5709,7 +5716,7 @@ msgstr "Propagiert reload to"
 msgid "Protocol"
 msgstr "Protokoll"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:188
+#: pkg/shell/machines/machine-auth-failed.html:9 pkg/shell/index.html:188
 msgid "Public key"
 msgstr "Öffentlicher Schlüssel"
 
@@ -5804,7 +5811,7 @@ msgstr ""
 msgid "Rack mount chassis"
 msgstr "Rack-Einbaugehäuse"
 
-#: pkg/networkmanager/interfaces.js:3647
+#: pkg/networkmanager/interfaces.js:3561
 msgid "Random"
 msgstr "Zufällig"
 
@@ -5840,10 +5847,6 @@ msgstr "Mehr lesen..."
 msgid "Read-only"
 msgstr "Nur-lesen"
 
-#: pkg/storaged/plot.jsx:312
-msgid "Reading"
-msgstr "lesen"
-
 #: pkg/kdump/kdump-view.jsx:417
 msgid "Reading..."
 msgstr "Lese..."
@@ -5877,9 +5880,8 @@ msgstr "Der tatsächliche Hostname darf höchstens 64 Zeichen umfassen"
 msgid "Reboot"
 msgstr "Neustart"
 
-#: pkg/networkmanager/index.html:99 pkg/networkmanager/index.html:135
-#: pkg/networkmanager/index.html:152 pkg/networkmanager/index.html:445
-#: pkg/networkmanager/index.html:476
+#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:398
 msgid "Receiving"
 msgstr "Empfange"
 
@@ -5963,7 +5965,7 @@ msgstr "Umzüge:"
 msgid "Remove"
 msgstr "Entfernen"
 
-#: pkg/networkmanager/interfaces.js:3046
+#: pkg/networkmanager/interfaces.js:2959
 msgid "Remove $0"
 msgstr "Entferne $0"
 
@@ -6011,7 +6013,7 @@ msgstr "Entfernen $0"
 msgid "Removing $target from RAID device"
 msgstr "Entferne $target vom RAID-Gerät"
 
-#: pkg/networkmanager/interfaces.js:3045
+#: pkg/networkmanager/interfaces.js:2958
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -6192,7 +6194,7 @@ msgstr "Neustart"
 msgid "Restoring connection"
 msgstr "Erneut verbinden"
 
-#: pkg/systemd/logs.js:325 pkg/systemd/logs.js:497
+#: pkg/systemd/logs.js:339 pkg/systemd/logs.js:511
 #: pkg/machines/components/vm/vmActions.jsx:196
 msgid "Resume"
 msgstr "Fortfahren"
@@ -6227,7 +6229,7 @@ msgstr "Rollen"
 msgid "Root password"
 msgstr "Root-Passwort"
 
-#: pkg/networkmanager/interfaces.js:1959 pkg/networkmanager/interfaces.js:1976
+#: pkg/networkmanager/interfaces.js:1911 pkg/networkmanager/interfaces.js:1928
 msgid "Round robin"
 msgstr "Round robin"
 
@@ -6239,7 +6241,7 @@ msgstr "Route zu $0"
 msgid "Routed network"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3336
+#: pkg/networkmanager/interfaces.js:3250
 msgid "Routes"
 msgstr "Routen"
 
@@ -6256,12 +6258,12 @@ msgstr "Installation im Hintergrund ausführen"
 msgid "Run when host boots"
 msgstr "Starten wenn Host hochfährt"
 
-#: pkg/networkmanager/index.html:338
+#: pkg/networkmanager/index.html:299
 msgid "Runner"
 msgstr "Runner"
 
 #: pkg/systemd/services/service-details.jsx:319
-#: pkg/systemd/services/services.jsx:512 pkg/storaged/mdraid-details.jsx:346
+#: pkg/systemd/services/services.jsx:516 pkg/storaged/mdraid-details.jsx:346
 #: pkg/machines/helpers.js:211
 msgid "Running"
 msgstr "Läuft"
@@ -6316,7 +6318,7 @@ msgstr "SPICE port:"
 msgid "SPICE TLS Port"
 msgstr "SPICE TLS-Port:"
 
-#: pkg/lib/machine-change-auth.html:46
+#: pkg/shell/machines/machine-change-auth.html:46
 #, fuzzy
 msgid "SSH key"
 msgstr "SSH Schlüssel"
@@ -6325,19 +6327,19 @@ msgstr "SSH Schlüssel"
 msgid "SSH keys"
 msgstr "SSH Schlüssel"
 
-#: pkg/networkmanager/index.html:238
+#: pkg/networkmanager/index.html:199
 msgid "STP forward delay"
 msgstr "STP Forward Delay"
 
-#: pkg/networkmanager/index.html:242
+#: pkg/networkmanager/index.html:203
 msgid "STP hello time"
 msgstr "STP Hello-Zeitintervall"
 
-#: pkg/networkmanager/index.html:246
+#: pkg/networkmanager/index.html:207
 msgid "STP maximum message age"
 msgstr "STP Maximum Message Age"
 
-#: pkg/networkmanager/index.html:234
+#: pkg/networkmanager/index.html:195
 msgid "STP priority"
 msgstr "STP Priorität"
 
@@ -6354,7 +6356,7 @@ msgstr "Samstag"
 msgid "Saturdays"
 msgstr "Samstags"
 
-#: pkg/systemd/services.html:280 pkg/storaged/crypto-keyslots.jsx:269
+#: pkg/systemd/services.html:288 pkg/storaged/crypto-keyslots.jsx:269
 #: pkg/storaged/crypto-keyslots.jsx:288
 #: pkg/machines/components/vm/nics/nicEdit.jsx:159
 #: pkg/machines/components/vm/overview/bootOrder.jsx:321
@@ -6454,9 +6456,8 @@ msgstr "Schlüssel senden"
 msgid "Send non-maskable interrupt"
 msgstr "Nicht maskierbare Unterbrechung senden"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:134
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:439
-#: pkg/networkmanager/index.html:475
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:397
 msgid "Sending"
 msgstr "Sende"
 
@@ -6469,7 +6470,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr ""
 
-#: pkg/static/login.html:139 pkg/storaged/nfs-details.jsx:326
+#: pkg/static/login.html:140 pkg/storaged/nfs-details.jsx:326
 #: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:121
 msgid "Server"
 msgstr "Server"
@@ -6551,7 +6552,7 @@ msgstr ""
 # document org.kie.workbench.widgets/kie-wb-common-
 # ui/org/kie/workbench/common/widgets/client/resources/i18n/HumanReadableConstants,
 # author jdimanos
-#: pkg/lib/machine-add.html:53
+#: pkg/shell/machines/machine-add.html:53
 msgid "Set"
 msgstr "Einstellen"
 
@@ -6576,7 +6577,7 @@ msgstr "Passwort setzen"
 msgid "Set time"
 msgstr "Zeit einsetzten"
 
-#: pkg/networkmanager/index.html:193
+#: pkg/networkmanager/index.html:154
 msgid "Set to"
 msgstr "Einstellen"
 
@@ -6609,7 +6610,7 @@ msgstr "Richte Loop Device $target ein"
 msgid "Severity"
 msgstr "Schweregrad"
 
-#: pkg/networkmanager/interfaces.js:1944
+#: pkg/networkmanager/interfaces.js:1896
 msgid "Shared"
 msgstr "Geteilt"
 
@@ -6651,7 +6652,7 @@ msgstr "Alle anzeigen"
 msgid "Show all threads"
 msgstr "Alle Bilder anzeigen"
 
-#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:397 pkg/systemd/logs.js:516
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:411 pkg/systemd/logs.js:530
 msgid "Show filters"
 msgstr "Filter anzeigen"
 
@@ -6847,11 +6848,11 @@ msgstr ""
 msgid "Space-saving computer"
 msgstr "Platzsparender Computer"
 
-#: pkg/networkmanager/interfaces.js:2846
+#: pkg/networkmanager/interfaces.js:2743
 msgid "Spanning tree protocol"
 msgstr "Spanning tree protocol"
 
-#: pkg/networkmanager/index.html:228
+#: pkg/networkmanager/index.html:189
 msgid "Spanning tree protocol (STP)"
 msgstr "Spanning tree protocol (STP)"
 
@@ -6867,7 +6868,7 @@ msgstr "Bestimmte Zeit"
 msgid "Speed"
 msgstr "Geschwindigkeit"
 
-#: pkg/networkmanager/interfaces.js:3648
+#: pkg/networkmanager/interfaces.js:3562
 msgid "Stable"
 msgstr "Stabil"
 
@@ -6933,12 +6934,12 @@ msgid "State"
 msgstr "Status"
 
 #: pkg/systemd/services/service-details.jsx:337
-#: pkg/systemd/services/services.jsx:526 pkg/systemd/services/services.jsx:687
+#: pkg/systemd/services/services.jsx:530 pkg/systemd/services/services.jsx:691
 msgid "Static"
 msgstr "Statisch"
 
 #: pkg/systemd/services/service-details.jsx:444 pkg/packagekit/updates.jsx:569
-#: pkg/networkmanager/interfaces.js:2602
+#: pkg/networkmanager/interfaces.js:2499
 msgid "Status"
 msgstr "Status"
 
@@ -6946,7 +6947,7 @@ msgstr "Status"
 msgid "Stick PC"
 msgstr "Stick PC"
 
-#: pkg/networkmanager/index.html:377
+#: pkg/networkmanager/index.html:338
 msgid "Sticky"
 msgstr "Sticky"
 
@@ -6990,7 +6991,7 @@ msgstr "Swapspace wird angehalten $target"
 msgid "Storage"
 msgstr "Speicher"
 
-#: pkg/storaged/devices.jsx:75
+#: pkg/storaged/devices.jsx:81
 msgid "Storage can not be managed on this system."
 msgstr ""
 
@@ -7096,11 +7097,11 @@ msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "Auslagerungsspeicher"
 
-#: pkg/networkmanager/interfaces.js:2482 pkg/networkmanager/interfaces.js:3029
+#: pkg/networkmanager/interfaces.js:2379 pkg/networkmanager/interfaces.js:2942
 msgid "Switch off $0"
 msgstr "$0 ausschalten"
 
-#: pkg/networkmanager/interfaces.js:2457 pkg/networkmanager/interfaces.js:3017
+#: pkg/networkmanager/interfaces.js:2354 pkg/networkmanager/interfaces.js:2930
 msgid "Switch on $0"
 msgstr "$0 anschalten"
 
@@ -7108,7 +7109,7 @@ msgstr "$0 anschalten"
 msgid "Switch to limited access"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2481
+#: pkg/networkmanager/interfaces.js:2378
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7116,7 +7117,7 @@ msgstr ""
 "Das Ausschalten von <b>$0</b> wird die Verbindung zum Server unterbrechen "
 "und damit den Zugriff auf die Benutzeroberfläche unmöglich machen."
 
-#: pkg/networkmanager/interfaces.js:3028
+#: pkg/networkmanager/interfaces.js:2941
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7124,7 +7125,7 @@ msgstr ""
 "Das Ausschalten von <b>$0</b> wird die Verbindung zum Server unterbrechen "
 "und damit den Zugriff auf die Benutzeroberfläche unmöglich machen."
 
-#: pkg/networkmanager/interfaces.js:2456 pkg/networkmanager/interfaces.js:3016
+#: pkg/networkmanager/interfaces.js:2353 pkg/networkmanager/interfaces.js:2929
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7211,20 +7212,20 @@ msgstr "Zielpfad sollte nicht leer sein"
 msgid "Targets"
 msgstr "Ziele"
 
-#: pkg/networkmanager/interfaces.js:2502 pkg/networkmanager/interfaces.js:2514
-#: pkg/networkmanager/interfaces.js:2803
+#: pkg/networkmanager/interfaces.js:2399 pkg/networkmanager/interfaces.js:2411
+#: pkg/networkmanager/interfaces.js:2700
 msgid "Team"
 msgstr "Team"
 
-#: pkg/networkmanager/interfaces.js:2831
+#: pkg/networkmanager/interfaces.js:2728
 msgid "Team port"
 msgstr "Netzwerk-Team Anschluss"
 
-#: pkg/networkmanager/index.html:592
+#: pkg/networkmanager/index.html:514
 msgid "Team port settings"
 msgstr "Team port Einstellungen"
 
-#: pkg/networkmanager/index.html:563
+#: pkg/networkmanager/index.html:485
 msgid "Team settings"
 msgstr "Team Einstellungen"
 
@@ -7264,7 +7265,7 @@ msgstr "$0 konnte nicht entfernt werden"
 msgid "The $0 package must be installed to create VDO devices."
 msgstr "Um VDO Geräte nutzen zu können muss das Paket $0 installiert werden."
 
-#: pkg/lib/machine-dialogs.js:406
+#: pkg/shell/machines/machine-dialogs.js:406
 #, fuzzy
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP Adresse oder Hostname darf keine Leerzeichen enthalten."
@@ -7282,20 +7283,20 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr "Das RAID-Gerät muss aktiv sein, um Festplatten entfernen zu können."
 
-#: pkg/lib/machine-dialogs.js:757
+#: pkg/shell/machines/machine-dialogs.js:758
 msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
 msgstr ""
 
-#: pkg/lib/machine-change-auth.html:28
+#: pkg/shell/machines/machine-change-auth.html:28
 msgid ""
 "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
 "protected. You can log in with either your login password or by providing "
 "the password of the key at {{#strong}}{{key}}{{/strong}}."
 msgstr ""
 
-#: pkg/lib/machine-change-auth.html:55
+#: pkg/shell/machines/machine-change-auth.html:55
 msgid ""
 "The SSH key {{#strong}}{{key}}{{/strong}} will be made available for the "
 "remainder of the session and will be available for login to other hosts as "
@@ -7316,14 +7317,6 @@ msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Das Konto '$0'wird gezwungen sein Passwort bei der nächsten Anmeldung zu "
 "ändern"
-
-#: pkg/lib/machine-unknown-hostkey.html:6
-msgid ""
-"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
-"established. Are you sure you want to continue connecting?"
-msgstr ""
-"Die Authentizität von Host {{#strong}}{{host}}{{/strong}} kann nicht "
-"bestätigt werden. Sind Sie sicher, dass Sie fortfahren wollen?"
 
 #: pkg/networkmanager/firewall.jsx:739
 msgid "The cockpit service is automatically included"
@@ -7439,23 +7432,12 @@ msgid ""
 "any third party."
 msgstr ""
 
-#: pkg/lib/machine-invalid-hostkey.html:8
-msgid ""
-"The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
-"in use. Unless this machine was recently replaced, it is likely that someone "
-"is trying to attack your connection to this machine."
-msgstr ""
-"Der Schlüssel von {{#strong}}{{host}}{{/strong}} stimmt nicht mit dem "
-"zuletzt benutzten Schlüssel überein. Falls die Maschine nicht kürzlich "
-"ausgetauscht wurde, ist ein Angriff auf die Verbindung zur Maschine sehr "
-"wahrscheinlich."
-
-#: pkg/lib/machine-dialogs.js:868
+#: pkg/shell/machines/machine-dialogs.js:869
 #, fuzzy
 msgid "The key password can not be empty"
 msgstr "Dieses Feld darf nicht leer sein."
 
-#: pkg/lib/machine-dialogs.js:876
+#: pkg/shell/machines/machine-dialogs.js:877
 #, fuzzy
 msgid "The key passwords do not match"
 msgstr "Die Passwörter stimmen nicht überein"
@@ -7486,12 +7468,12 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Die Maschine startet neu"
 
-#: pkg/lib/machine-dialogs.js:884
+#: pkg/shell/machines/machine-dialogs.js:885
 #, fuzzy
 msgid "The new key password can not be empty"
 msgstr "Der letzte Schlüsselschlitz kann nicht entfernt werden"
 
-#: pkg/lib/machine-dialogs.js:889
+#: pkg/shell/machines/machine-dialogs.js:890
 #, fuzzy
 msgid "The new key passwords do not match"
 msgstr "Die Passwörter stimmen nicht überein"
@@ -7508,7 +7490,8 @@ msgstr "Die Passwörter stimmen nicht überein."
 msgid "The pool is empty"
 msgstr "Der Pool ist leer"
 
-#: pkg/static/login.html:65
+#: pkg/static/login.html:66 pkg/shell/machines/machine-invalid-hostkey.html:20
+#: pkg/shell/machines/machine-unknown-hostkey.html:12
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7635,7 +7618,7 @@ msgstr ""
 "Dieser Tag ist nicht in allen Monaten vorhanden.<br> Die Aktion wird nur in "
 "Monaten mit 31 Tagen ausgeführt."
 
-#: pkg/networkmanager/interfaces.js:2613
+#: pkg/networkmanager/interfaces.js:2510
 msgid "This device cannot be managed here."
 msgstr "Dieses Gerät kann hier nicht verwaltet werden."
 
@@ -7705,11 +7688,11 @@ msgstr ""
 msgid "This logical volume is not completely used by its content."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:386
+#: pkg/shell/machines/machine-dialogs.js:386
 msgid "This machine has already been added."
 msgstr "Diese Maschine wurde bereits hinzugefügt"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:85
+#: pkg/systemd/overview-cards/realmd-operation.html:94
 msgid "This may take a while"
 msgstr "Dies kann eine Weile dauern"
 
@@ -7773,7 +7756,7 @@ msgstr ""
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "Dieser Webbrowser ist zu alt, um Cockpit auszuführen (fehlt) $0)"
 
-#: pkg/lib/machine-dialogs.js:759
+#: pkg/shell/machines/machine-dialogs.js:760
 msgid "This will allow you to log in without password in the future."
 msgstr ""
 
@@ -7830,7 +7813,8 @@ msgstr ""
 "Tipp: Wenn Ihr Schlüsselpasswort mit Ihrem Login-Passwort übereinstimmt, "
 "können Sie sich an anderen Systemen automatisiert anmelden."
 
-#: pkg/static/login.html:60
+#: pkg/static/login.html:61 pkg/shell/machines/machine-invalid-hostkey.html:15
+#: pkg/shell/machines/machine-unknown-hostkey.html:7
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7849,6 +7833,13 @@ msgstr ""
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
+msgstr ""
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:18
+#: pkg/shell/machines/machine-unknown-hostkey.html:10
+msgid ""
+"To verify a fingerprint, run the following on {{host}} while physically "
+"sitting at the machine or through a trusted network:"
 msgstr ""
 
 #: pkg/metrics/metrics.jsx:921
@@ -7914,7 +7905,7 @@ msgstr "Schlüssel vertrauen"
 msgid "Trust level"
 msgstr ""
 
-#: pkg/static/login.html:113
+#: pkg/static/login.html:114
 msgid "Try again"
 msgstr "Versuchen Sie es nochmal"
 
@@ -8011,7 +8002,7 @@ msgstr "Kann diese Lösung nicht automatisiert anwenden"
 msgid "Unable to connect to that address"
 msgstr "Es kann keine Verbindung zu dieser Adresse hergestellt werden"
 
-#: pkg/lib/machine-dialogs.js:478
+#: pkg/shell/machines/machine-dialogs.js:478
 #, fuzzy
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
@@ -8021,7 +8012,7 @@ msgstr ""
 "dass SSH auf Port $1 läuft oder geben Sie einen anderen Port in der Adresse "
 "an."
 
-#: pkg/lib/machine-change-port.html:9
+#: pkg/shell/machines/machine-change-port.html:9
 #, fuzzy
 msgid "Unable to contact {{#strong}}{{host}}{{/strong}}."
 msgstr ""
@@ -8036,20 +8027,20 @@ msgstr "Alarmdetails können nicht abgerufen werden."
 msgid "Unable to get alert: $0"
 msgstr "Alarm kann nicht abgerufen werden: $0"
 
-#: pkg/lib/machine-change-auth.html:16
+#: pkg/shell/machines/machine-change-auth.html:16
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key "
 "authentication. Please provide the password. You may want to set up your SSH "
 "keys for automatic login."
 msgstr ""
 
-#: pkg/lib/machine-change-auth.html:10
+#: pkg/shell/machines/machine-change-auth.html:10
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
 "not accept password login or any of your SSH keys."
 msgstr ""
 
-#: pkg/lib/machine-auth-failed.html:15
+#: pkg/shell/machines/machine-auth-failed.html:15
 #, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. For more authentication "
@@ -8062,7 +8053,7 @@ msgstr ""
 "Authentifizierungsoptionen und Unterstützung bei der Fehlerbehebung "
 "aktualisieren Sie bitte Cockpit-ws auf eine neuere Version."
 
-#: pkg/lib/machine-auth-failed.html:6
+#: pkg/shell/machines/machine-auth-failed.html:6
 #, fuzzy
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. To connect to this host "
@@ -8098,7 +8089,7 @@ msgstr "Das Aushängen des Dateisystems ist nicht möglich"
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
 
-#: pkg/networkmanager/index.html:763 pkg/users/dialog-utils.js:65
+#: pkg/networkmanager/index.html:685 pkg/users/dialog-utils.js:65
 #: pkg/shell/shell-modals.jsx:116
 msgid "Unexpected error"
 msgstr "Unerwarteter Fehler"
@@ -8124,11 +8115,11 @@ msgstr ""
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:228
 #: pkg/networkmanager/interfaces.js:582 pkg/networkmanager/interfaces.js:1058
-#: pkg/networkmanager/interfaces.js:2522 pkg/networkmanager/interfaces.js:2524
+#: pkg/networkmanager/interfaces.js:2419 pkg/networkmanager/interfaces.js:2421
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: pkg/networkmanager/interfaces.js:2508 pkg/networkmanager/interfaces.js:2520
+#: pkg/networkmanager/interfaces.js:2405 pkg/networkmanager/interfaces.js:2417
 msgid "Unknown \"$0\""
 msgstr "Unbekannte \"$0\""
 
@@ -8140,17 +8131,13 @@ msgstr "Unbekannt ($0)"
 msgid "Unknown application"
 msgstr "Unbekannte Anwendung"
 
-#: pkg/networkmanager/interfaces.js:2629
+#: pkg/networkmanager/interfaces.js:2526
 msgid "Unknown configuration"
 msgstr "Unbekannte Konfiguration"
 
 #: pkg/machines/components/vm/overview/firmware.jsx:113
 msgid "Unknown firmware"
 msgstr "Unbekannte Firmware"
-
-#: pkg/lib/machine-unknown-hostkey.html:2
-msgid "Unknown host key"
-msgstr "Unbekannter Host-Schlüssel"
 
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
@@ -8189,7 +8176,7 @@ msgstr "Entsperren $target"
 msgid "Unlocking disk..."
 msgstr "Festplatte wird entsperrt ..."
 
-#: pkg/networkmanager/index.html:144
+#: pkg/networkmanager/index.html:105
 msgid "Unmanaged interfaces"
 msgstr "Unverwaltete Schnittstellen"
 
@@ -8239,7 +8226,7 @@ msgstr "Nicht unterstützter Datenträger"
 msgid "Untrusted host"
 msgstr "Nicht vertrauenswürdiger Host"
 
-#: pkg/lib/machine-change-port.html:25
+#: pkg/shell/machines/machine-change-port.html:25
 msgid "Update"
 msgstr "Update"
 
@@ -8332,8 +8319,8 @@ msgstr "Benutzt von"
 msgid "User"
 msgstr "Benutzer"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:70
-#: pkg/lib/machine-add.html:29 pkg/users/account-create-dialog.js:49
+#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:71
+#: pkg/shell/machines/machine-add.html:29 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:289
 msgid "User name"
 msgstr "Benutzername"
@@ -8343,7 +8330,7 @@ msgid "User name cannot be empty"
 msgstr "Der Benutzername darf nicht leer sein"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:60
-#: pkg/systemd/overview-cards/realmd-operation.js:336
+#: pkg/systemd/overview-cards/realmd-operation.js:340
 msgid "User password"
 msgstr "Benutzerpasswort"
 
@@ -8376,17 +8363,17 @@ msgstr "VDO-Gerät"
 msgid "VDO device $0"
 msgstr "VDO-Gerät $0"
 
-#: pkg/networkmanager/interfaces.js:2504 pkg/networkmanager/interfaces.js:2516
-#: pkg/networkmanager/interfaces.js:2895
+#: pkg/networkmanager/interfaces.js:2401 pkg/networkmanager/interfaces.js:2413
+#: pkg/networkmanager/interfaces.js:2792
 msgid "VLAN"
 msgstr "VLAN"
 
-#: pkg/networkmanager/index.html:171
+#: pkg/networkmanager/index.html:132
 #, fuzzy
 msgid "VLAN ID"
 msgstr "VLAN Kennung"
 
-#: pkg/networkmanager/index.html:679
+#: pkg/networkmanager/index.html:601
 msgid "VLAN settings"
 msgstr "VLAN Einstellungen"
 
@@ -8468,7 +8455,7 @@ msgstr "Konsole"
 msgid "Validating address"
 msgstr "Validiere Adresse"
 
-#: pkg/static/login.html:107
+#: pkg/static/login.html:108
 msgid "Validating authentication token"
 msgstr "Authentifizierungstoken überprüfen"
 
@@ -8663,7 +8650,7 @@ msgstr "Was ist, wenn Tang-Show-Keys nicht verfügbar sind?"
 msgid "When"
 msgstr ""
 
-#: pkg/lib/machine-add.html:34
+#: pkg/shell/machines/machine-add.html:34
 msgid "When empty, connect with the current user"
 msgstr ""
 
@@ -8696,19 +8683,15 @@ msgstr "Beschreibbar"
 msgid "Writeable and shared"
 msgstr "Beschreibbar und geteilt"
 
-#: pkg/storaged/plot.jsx:315
-msgid "Writing"
-msgstr "Schreiben"
-
 #: pkg/static/login.js:816
 msgid "Wrong user name or password"
 msgstr "Benutzername oder Passwort falsch"
 
-#: pkg/networkmanager/interfaces.js:1961
+#: pkg/networkmanager/interfaces.js:1913
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/systemd/reporting.jsx:261 pkg/networkmanager/interfaces.js:2582
+#: pkg/systemd/reporting.jsx:261 pkg/networkmanager/interfaces.js:2479
 msgid "Yes"
 msgstr "Ja"
 
@@ -8718,6 +8701,10 @@ msgstr ""
 
 #: pkg/static/login.js:648
 msgid "You are connecting to $0 for the first time."
+msgstr ""
+
+#: pkg/shell/machines/machine-unknown-hostkey.html:6
+msgid "You are connecting to {{host}} for the first time."
 msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
@@ -8740,11 +8727,12 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Sie wurden wegen Inaktivität abgemeldet."
 
-#: pkg/systemd/logs.js:113
+#: pkg/systemd/logs.js:114
 msgid "You may try to load older entries."
 msgstr "Wollen sie probieren alte Einträge zu laden."
 
-#: pkg/lib/machine-change-auth.html:22 pkg/lib/machine-change-auth.html:29
+#: pkg/shell/machines/machine-change-auth.html:22
+#: pkg/shell/machines/machine-change-auth.html:29
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 
@@ -8976,8 +8964,8 @@ msgstr "Speichergerät"
 msgid "e.g."
 msgstr "z.B."
 
-#: pkg/systemd/overview-cards/realmd-operation.js:298
-#: pkg/systemd/overview-cards/realmd-operation.js:304
+#: pkg/systemd/overview-cards/realmd-operation.js:302
+#: pkg/systemd/overview-cards/realmd-operation.js:308
 msgid "e.g. \"$0\""
 msgstr "z.B. \"$0\""
 
@@ -9484,8 +9472,8 @@ msgstr "nicht definiert"
 msgid "unit"
 msgstr "Einheit"
 
-#: pkg/systemd/services/services.jsx:462 pkg/systemd/services/services.jsx:463
-#: pkg/systemd/services/services.jsx:485 pkg/systemd/services/services.jsx:486
+#: pkg/systemd/services/services.jsx:466 pkg/systemd/services/services.jsx:467
+#: pkg/systemd/services/services.jsx:489 pkg/systemd/services/services.jsx:490
 msgid "unknown"
 msgstr "unbekannt"
 
@@ -9621,6 +9609,41 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in:0
 msgid "zone"
 msgstr "Zone"
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:2
+#, fuzzy
+#| msgid "Force change"
+msgid "{{host}} key changed"
+msgstr "Änderung erzwingen"
+
+#~ msgid "Incorrect host key"
+#~ msgstr "Falscher Host-Schlüssel"
+
+#~ msgid "Reading"
+#~ msgstr "lesen"
+
+#~ msgid ""
+#~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
+#~ "established. Are you sure you want to continue connecting?"
+#~ msgstr ""
+#~ "Die Authentizität von Host {{#strong}}{{host}}{{/strong}} kann nicht "
+#~ "bestätigt werden. Sind Sie sicher, dass Sie fortfahren wollen?"
+
+#~ msgid ""
+#~ "The key of {{#strong}}{{host}}{{/strong}} does not match the key "
+#~ "previously in use. Unless this machine was recently replaced, it is "
+#~ "likely that someone is trying to attack your connection to this machine."
+#~ msgstr ""
+#~ "Der Schlüssel von {{#strong}}{{host}}{{/strong}} stimmt nicht mit dem "
+#~ "zuletzt benutzten Schlüssel überein. Falls die Maschine nicht kürzlich "
+#~ "ausgetauscht wurde, ist ein Angriff auf die Verbindung zur Maschine sehr "
+#~ "wahrscheinlich."
+
+#~ msgid "Unknown host key"
+#~ msgstr "Unbekannter Host-Schlüssel"
+
+#~ msgid "Writing"
+#~ msgstr "Schreiben"
 
 #~ msgid "Address:"
 #~ msgstr "Adresse:"

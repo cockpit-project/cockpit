@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-14 10:05+0000\n"
+"POT-Creation-Date: 2021-01-18 06:24+0000\n"
 "PO-Revision-Date: 2021-01-15 11:36+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
@@ -50,11 +50,11 @@ msgid_plural "$0 Storage pools"
 msgstr[0] "$0 Opslagpool"
 msgstr[1] "$0 Opslagpools"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2231
 msgid "$0 active zone"
 msgstr "$0 Actieve Zone"
 
-#: pkg/networkmanager/interfaces.js:2324
+#: pkg/networkmanager/interfaces.js:2231
 msgid "$0 active zones"
 msgstr "$0 Actieve Zones"
 
@@ -76,7 +76,7 @@ msgstr[1] "$0 treffers, inclusief de kritieke"
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 data + $1 overhead gebruikt van $2 ($3)"
 
-#: pkg/lib/plot.js:972
+#: pkg/lib/cockpit-components-plot.jsx:232
 msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "$0 dag"
@@ -147,7 +147,7 @@ msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 uit $1 op $2"
 
-#: pkg/lib/plot.js:975
+#: pkg/lib/cockpit-components-plot.jsx:235
 msgid "$0 hour"
 msgid_plural "$0 hours"
 msgstr[0] "$0 uur"
@@ -197,7 +197,7 @@ msgstr[1] "$0 treffers met lage ernst"
 msgid "$0 memory adjustment"
 msgstr "$0 geheugenaanpassing"
 
-#: pkg/lib/plot.js:978
+#: pkg/lib/cockpit-components-plot.jsx:238
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "$0 minuut"
@@ -209,7 +209,7 @@ msgid_plural "$0 hits, including moderate"
 msgstr[0] "$0 matige treffer"
 msgstr[1] "$0 treffers, inclusief de matige"
 
-#: pkg/lib/plot.js:966
+#: pkg/lib/cockpit-components-plot.jsx:226
 msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 maand"
@@ -246,7 +246,7 @@ msgid_plural "$0 pages"
 msgstr[0] "$0 pagina"
 msgstr[1] "$0 pagina's"
 
-#: pkg/systemd/services/services.jsx:650
+#: pkg/systemd/services/services.jsx:654
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 service is mislukt"
@@ -286,7 +286,7 @@ msgstr "$0 vCPU-details"
 msgid "$0 virtual network interface settings"
 msgstr "$0 virtueel netwerkinterface instellingen"
 
-#: pkg/lib/plot.js:969
+#: pkg/lib/cockpit-components-plot.jsx:229
 msgid "$0 week"
 msgid_plural "$0 weeks"
 msgstr[0] "$0 week"
@@ -296,7 +296,7 @@ msgstr[1] "$0 weken"
 msgid "$0 will be installed."
 msgstr "$0 zal geïnstalleerd worden."
 
-#: pkg/lib/plot.js:963
+#: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 jaar"
@@ -342,13 +342,11 @@ msgstr[1] ", inclusief $1 beveiligingsreparaties"
 msgid "1 MiB"
 msgstr "1 MiB"
 
-#: pkg/networkmanager/index.html:75 pkg/networkmanager/index.html:421
-#: pkg/storaged/plot.jsx:85
+#: pkg/lib/cockpit-components-plot.jsx:275
 msgid "1 day"
 msgstr "1 dag"
 
-#: pkg/networkmanager/index.html:73 pkg/networkmanager/index.html:419
-#: pkg/storaged/plot.jsx:79
+#: pkg/lib/cockpit-components-plot.jsx:273
 msgid "1 hour"
 msgstr "1 uur"
 
@@ -360,8 +358,7 @@ msgstr "1 min"
 msgid "1 minute"
 msgstr "1 minuut"
 
-#: pkg/networkmanager/index.html:76 pkg/networkmanager/index.html:422
-#: pkg/storaged/plot.jsx:88
+#: pkg/lib/cockpit-components-plot.jsx:276
 msgid "1 week"
 msgstr "1 week"
 
@@ -505,8 +502,7 @@ msgstr "4e"
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/systemd/index.html:38 pkg/networkmanager/index.html:72
-#: pkg/networkmanager/index.html:418 pkg/storaged/plot.jsx:76
+#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minuten"
 
@@ -518,8 +514,7 @@ msgstr "512 KiB"
 msgid "5th"
 msgstr "5e"
 
-#: pkg/networkmanager/index.html:74 pkg/networkmanager/index.html:420
-#: pkg/storaged/plot.jsx:82
+#: pkg/lib/cockpit-components-plot.jsx:274
 msgid "6 hours"
 msgstr "6 uren"
 
@@ -543,11 +538,11 @@ msgstr "7e"
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1963
+#: pkg/networkmanager/interfaces.js:1915
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1980
+#: pkg/networkmanager/interfaces.js:1932
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
@@ -559,7 +554,7 @@ msgstr "8e"
 msgid "9th"
 msgstr "9de"
 
-#: pkg/lib/machine-not-supported.html:5
+#: pkg/shell/machines/machine-not-supported.html:5
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
@@ -571,14 +566,14 @@ msgstr ""
 msgid "A disk is needed."
 msgstr "Er is een schijf nodig."
 
-#: pkg/static/login.html:117
+#: pkg/static/login.html:118
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
 "Een moderne browser is vereist voor goede beveiliging, betrouwbaarheid en "
 "prestaties."
 
-#: pkg/networkmanager/interfaces.js:1714
+#: pkg/networkmanager/interfaces.js:1646
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -586,7 +581,7 @@ msgstr ""
 "Een netwerkverbinding combineert meerdere netwerkinterfaces tot één logische "
 "interface met een hogere doorvoer of redundantie."
 
-#: pkg/lib/machine-dialogs.js:735
+#: pkg/shell/machines/machine-dialogs.js:736
 msgid ""
 "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it will "
 "be added to the ${afile} file of ${ruser} on ${rhost}."
@@ -600,15 +595,15 @@ msgstr ""
 "Een extra schijf dient toegevoegd te worden voordat deze schijf kan worden "
 "verwijderd."
 
-#: pkg/networkmanager/interfaces.js:1971
+#: pkg/networkmanager/interfaces.js:1923
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2775
+#: pkg/networkmanager/interfaces.js:2672
 msgid "ARP monitoring"
 msgstr "ARP-bewaking"
 
-#: pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1944
 msgid "ARP ping"
 msgstr "ARP-ping"
 
@@ -619,6 +614,13 @@ msgstr "Over Web Console"
 #: pkg/lib/machine-info.js:255
 msgid "Absent"
 msgstr "Afwezig"
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:27
+#: pkg/shell/machines/machine-unknown-hostkey.html:19
+#, fuzzy
+#| msgid "Accept key and log in"
+msgid "Accept key and connect"
+msgstr "Accepteer sleutel en log in"
 
 #: pkg/static/login.js:563
 msgid "Accept key and log in"
@@ -658,11 +660,11 @@ msgstr "Activeren"
 msgid "Activating $target"
 msgstr "Activeren $target"
 
-#: pkg/networkmanager/interfaces.js:829 pkg/networkmanager/interfaces.js:1986
+#: pkg/networkmanager/interfaces.js:829 pkg/networkmanager/interfaces.js:1938
 msgid "Active"
 msgstr "Actief"
 
-#: pkg/networkmanager/interfaces.js:1960 pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1912 pkg/networkmanager/interfaces.js:1929
 msgid "Active backup"
 msgstr "Actieve back-up"
 
@@ -679,15 +681,15 @@ msgstr "Actief sinds"
 msgid "Active since "
 msgstr "Actief sinds "
 
-#: pkg/networkmanager/interfaces.js:1965
+#: pkg/networkmanager/interfaces.js:1917
 msgid "Adaptive load balancing"
 msgstr "Adaptieve taakverdeling"
 
-#: pkg/networkmanager/interfaces.js:1964
+#: pkg/networkmanager/interfaces.js:1916
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptieve overdrachtstaakverdeling"
 
-#: pkg/lib/machine-add.html:50 pkg/shell/index.html:134
+#: pkg/shell/machines/machine-add.html:50 pkg/shell/index.html:134
 #: pkg/storaged/nfs-details.jsx:196 pkg/storaged/iscsi-panel.jsx:137
 #: pkg/storaged/iscsi-panel.jsx:161 pkg/storaged/crypto-keyslots.jsx:238
 #: pkg/storaged/vgroup-details.jsx:76 pkg/storaged/mdraid-details.jsx:67
@@ -697,11 +699,11 @@ msgstr "Adaptieve overdrachtstaakverdeling"
 msgid "Add"
 msgstr "Toevoegen"
 
-#: pkg/networkmanager/interfaces.js:3100
+#: pkg/networkmanager/interfaces.js:3016
 msgid "Add $0"
 msgstr "Toevoegen $0"
 
-#: pkg/networkmanager/index.html:126
+#: pkg/networkmanager/index.html:87
 msgid "Add VLAN"
 msgstr "VLAN toevoegen"
 
@@ -709,11 +711,11 @@ msgstr "VLAN toevoegen"
 msgid "Add a new zone"
 msgstr "Een nieuwe zone toevoegen"
 
-#: pkg/networkmanager/index.html:123
+#: pkg/networkmanager/index.html:84
 msgid "Add bond"
 msgstr "Binding toevoegen"
 
-#: pkg/networkmanager/index.html:125
+#: pkg/networkmanager/index.html:86
 msgid "Add bridge"
 msgstr "Brug toevoegen"
 
@@ -739,7 +741,7 @@ msgstr "Sleutel toevoegen"
 msgid "Add network interface"
 msgstr "Netwerkinterface toevoegen"
 
-#: pkg/lib/machine-add.html:5 pkg/shell/hosts.jsx:212
+#: pkg/shell/machines/machine-add.html:5 pkg/shell/hosts.jsx:212
 msgid "Add new host"
 msgstr "Nieuwe host toevoegen"
 
@@ -767,7 +769,7 @@ msgstr "Services toevoegen aan $0 zone"
 msgid "Add services to zone $0"
 msgstr "Services toevoegen aan zone $0"
 
-#: pkg/networkmanager/index.html:124
+#: pkg/networkmanager/index.html:85
 msgid "Add team"
 msgstr "Team toevoegen"
 
@@ -780,7 +782,7 @@ msgstr "Virtueel netwerkinterface toevoegen"
 msgid "Add zone"
 msgstr "Zone toevoegen"
 
-#: pkg/networkmanager/interfaces.js:3099
+#: pkg/networkmanager/interfaces.js:3015
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -808,11 +810,11 @@ msgstr "Toevoegen van fysieke volume aan $target"
 msgid "Additional"
 msgstr "Extra"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2542
 msgid "Additional DNS $val"
 msgstr "Extra DNS $val"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2545
 msgid "Additional DNS search domains $val"
 msgstr "Extra DNS-zoekdomeinen $val"
 
@@ -820,7 +822,7 @@ msgstr "Extra DNS-zoekdomeinen $val"
 msgid "Additional actions"
 msgstr "Extra acties"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2537
 msgid "Additional address $val"
 msgstr "Extra adres $val"
 
@@ -840,7 +842,7 @@ msgstr "Extra poorten"
 msgid "Address"
 msgstr "Adres"
 
-#: pkg/networkmanager/interfaces.js:2640
+#: pkg/networkmanager/interfaces.js:2537
 msgid "Address $val"
 msgstr "Adres $val"
 
@@ -859,7 +861,7 @@ msgstr "Adres is geen geldige URL"
 msgid "Address not within subnet"
 msgstr "Adres bevindt zich niet in subnet"
 
-#: pkg/networkmanager/interfaces.js:3320 pkg/networkmanager/firewall.jsx:181
+#: pkg/networkmanager/interfaces.js:3234 pkg/networkmanager/firewall.jsx:181
 msgid "Addresses"
 msgstr "Adressen"
 
@@ -871,7 +873,7 @@ msgstr "Beheer met Cockpit Web Console"
 msgid "Administrative access"
 msgstr "Administratieve toegang"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:335
+#: pkg/systemd/overview-cards/realmd-operation.js:339
 msgid "Administrator password"
 msgstr "Beheerderswachtwoord"
 
@@ -921,7 +923,7 @@ msgstr "Alarm"
 msgid "Alert and above"
 msgstr "Alert en hoger"
 
-#: pkg/systemd/logs.js:163 pkg/systemd/services/services.jsx:684
+#: pkg/systemd/logs.js:170 pkg/systemd/services/services.jsx:688
 #: pkg/machines/components/vms/hostvmslist.jsx:64
 #: pkg/machines/components/vms/hostvmslist.jsx:81
 msgid "All"
@@ -973,11 +975,11 @@ msgstr "Toepassingen"
 msgid "Applications list"
 msgstr "Toepassingenlijst"
 
-#: pkg/networkmanager/index.html:511 pkg/networkmanager/index.html:547
-#: pkg/networkmanager/index.html:576 pkg/networkmanager/index.html:605
-#: pkg/networkmanager/index.html:634 pkg/networkmanager/index.html:663
-#: pkg/networkmanager/index.html:692 pkg/networkmanager/index.html:721
-#: pkg/networkmanager/index.html:750 pkg/storaged/fsys-tab.jsx:291
+#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
+#: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
+#: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
+#: pkg/networkmanager/index.html:672 pkg/storaged/fsys-tab.jsx:291
 #: pkg/storaged/fsys-tab.jsx:368 pkg/storaged/nfs-details.jsx:196
 #: pkg/storaged/crypto-tab.jsx:84 pkg/storaged/crypto-tab.jsx:114
 #: pkg/kdump/kdump-view.jsx:356
@@ -1049,11 +1051,11 @@ msgid "Authenticating"
 msgstr "Authenticatie uitvoeren"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:48
-#: pkg/lib/machine-change-auth.html:37
+#: pkg/shell/machines/machine-change-auth.html:37
 msgid "Authentication"
 msgstr "Authenticatie"
 
-#: pkg/lib/machine-auth-failed.html:2 pkg/static/login.js:814
+#: pkg/shell/machines/machine-auth-failed.html:2 pkg/static/login.js:814
 msgid "Authentication failed"
 msgstr "Authenticatie mislukte"
 
@@ -1073,7 +1075,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Authenticatie is vereist"
 
-#: pkg/lib/machine-dialogs.js:754
+#: pkg/shell/machines/machine-dialogs.js:755
 msgid "Authorize SSH key."
 msgstr "Geautoriseerde openbare SSH-sleutels."
 
@@ -1081,24 +1083,25 @@ msgstr "Geautoriseerde openbare SSH-sleutels."
 msgid "Authorized public SSH keys"
 msgstr "Geautoriseerde openbare SSH-sleutels"
 
-#: pkg/networkmanager/index.html:186
-#: pkg/systemd/overview-cards/realmd-operation.js:338
+#: pkg/networkmanager/index.html:147
+#: pkg/systemd/overview-cards/realmd-operation.js:342
 #: pkg/machines/components/networks/createNetworkDialog.jsx:158
-#: pkg/networkmanager/interfaces.js:1950 pkg/networkmanager/interfaces.js:2748
-#: pkg/networkmanager/interfaces.js:3328 pkg/networkmanager/interfaces.js:3332
-#: pkg/networkmanager/interfaces.js:3338
+#: pkg/networkmanager/interfaces.js:1902 pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:3242 pkg/networkmanager/interfaces.js:3246
+#: pkg/networkmanager/interfaces.js:3252
 msgid "Automatic"
 msgstr "Automatisch"
 
-#: pkg/networkmanager/interfaces.js:1951
+#: pkg/networkmanager/interfaces.js:1903
 msgid "Automatic (DHCP only)"
 msgstr "Automatisch (alleen DHCP)"
 
-#: pkg/networkmanager/interfaces.js:1941
+#: pkg/networkmanager/interfaces.js:1893
 msgid "Automatic (DHCP)"
 msgstr "Automatisch (DHCP)"
 
-#: pkg/lib/machine-change-auth.html:39 pkg/lib/machine-change-auth.html:57
+#: pkg/shell/machines/machine-change-auth.html:39
+#: pkg/shell/machines/machine-change-auth.html:57
 msgid "Automatic login"
 msgstr "Automatisch inloggen"
 
@@ -1165,7 +1168,7 @@ msgstr "Terug naar accounts"
 msgid "Backing device"
 msgstr "Ondersteunend apparaat"
 
-#: pkg/networkmanager/index.html:343
+#: pkg/networkmanager/index.html:304
 msgid "Balancer"
 msgstr "Balancer"
 
@@ -1206,12 +1209,12 @@ msgstr "Blok apparaat voor bestandsystemen"
 msgid "Blocked"
 msgstr "Geblokkeerd"
 
-#: pkg/networkmanager/interfaces.js:2500 pkg/networkmanager/interfaces.js:2512
-#: pkg/networkmanager/interfaces.js:2780
+#: pkg/networkmanager/interfaces.js:2397 pkg/networkmanager/interfaces.js:2409
+#: pkg/networkmanager/interfaces.js:2677
 msgid "Bond"
 msgstr "Binding"
 
-#: pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:450
 msgid "Bond settings"
 msgstr "Bindingsinstellingen"
 
@@ -1228,28 +1231,28 @@ msgstr "Opstartvolgorde instellingen konden niet opgeslagen worden"
 msgid "Bound by"
 msgstr "Gebonden door"
 
-#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
-#: pkg/networkmanager/interfaces.js:2857
+#: pkg/networkmanager/interfaces.js:2403 pkg/networkmanager/interfaces.js:2415
+#: pkg/networkmanager/interfaces.js:2754
 msgid "Bridge"
 msgstr "Brug"
 
-#: pkg/networkmanager/interfaces.js:2878
+#: pkg/networkmanager/interfaces.js:2775
 msgid "Bridge port"
 msgstr "Brugpoort"
 
-#: pkg/networkmanager/index.html:650
+#: pkg/networkmanager/index.html:572
 msgid "Bridge port settings"
 msgstr "Brugpoort instellingen"
 
-#: pkg/networkmanager/index.html:621
+#: pkg/networkmanager/index.html:543
 msgid "Bridge settings"
 msgstr "Bruginstellingen"
 
-#: pkg/networkmanager/interfaces.js:1962 pkg/networkmanager/interfaces.js:1979
+#: pkg/networkmanager/interfaces.js:1914 pkg/networkmanager/interfaces.js:1931
 msgid "Broadcast"
 msgstr "Uitzending"
 
-#: pkg/networkmanager/interfaces.js:2793 pkg/networkmanager/interfaces.js:2827
+#: pkg/networkmanager/interfaces.js:2690 pkg/networkmanager/interfaces.js:2724
 msgid "Broken configuration"
 msgstr "Defecte configuratie"
 
@@ -1274,7 +1277,7 @@ msgstr "Bus"
 msgid "Bus expansion chassis"
 msgstr "Busuitbreidingschassis"
 
-#: pkg/lib/machine-dialogs.js:746
+#: pkg/shell/machines/machine-dialogs.js:747
 msgid ""
 "By changing the password of the SSH key ${key} to the login password of "
 "${luser} on ${lhost}, the key will be automatically made available and you "
@@ -1324,26 +1327,28 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Cache"
 
-#: pkg/lib/machine-add.html:26
+#: pkg/shell/machines/machine-add.html:26
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Kan een hostnaam, IP-adres, aliasnaam, of ssh:// URI zijn"
 
-#: pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
+#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:267
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 
 #: pkg/sosreport/index.html:74
-#: pkg/systemd/overview-cards/realmd-operation.html:84
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:281
-#: pkg/static/login.html:101 pkg/lib/machine-add.html:55
-#: pkg/lib/machine-change-port.html:26 pkg/lib/machine-change-auth.html:75
-#: pkg/lib/machine-unknown-hostkey.html:21 pkg/networkmanager/index.html:512
-#: pkg/networkmanager/index.html:548 pkg/networkmanager/index.html:577
-#: pkg/networkmanager/index.html:606 pkg/networkmanager/index.html:635
-#: pkg/networkmanager/index.html:664 pkg/networkmanager/index.html:693
-#: pkg/networkmanager/index.html:722 pkg/networkmanager/index.html:751
-#: pkg/playground/translate.html:39 pkg/sosreport/index.js:52
-#: pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/systemd/overview-cards/realmd-operation.html:93
+#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
+#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/shell/machines/machine-change-port.html:26
+#: pkg/shell/machines/machine-change-auth.html:75
+#: pkg/shell/machines/machine-invalid-hostkey.html:30
+#: pkg/shell/machines/machine-unknown-hostkey.html:22
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
+#: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
+#: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
+#: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
+#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1387,7 +1392,7 @@ msgstr "Kan niet verbinden met een onbekende host"
 msgid "Cannot forward login credentials"
 msgstr "Kan inloggegevens niet doorsturen"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:635
+#: pkg/systemd/overview-cards/realmd-operation.js:639
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Kan geen lid worden van een domein omdat realmd niet beschikbaar is op dit "
@@ -1407,7 +1412,7 @@ msgctxt "storage"
 msgid "Capacity"
 msgstr "Capaciteit"
 
-#: pkg/networkmanager/interfaces.js:2579
+#: pkg/networkmanager/interfaces.js:2476
 msgid "Carrier"
 msgstr "Carrier"
 
@@ -1450,15 +1455,15 @@ msgstr "Verander profiel"
 msgid "Change system time"
 msgstr "Verander systeemtijd"
 
-#: pkg/lib/machine-dialogs.js:744
+#: pkg/shell/machines/machine-dialogs.js:745
 msgid "Change the password of ${key}."
 msgstr "Verander wachtwoord van ${key}."
 
-#: pkg/networkmanager/interfaces.js:3161
+#: pkg/networkmanager/interfaces.js:3075
 msgid "Change the settings"
 msgstr "Verander de instellingen"
 
-#: pkg/static/login.html:57
+#: pkg/static/login.html:58
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1476,7 +1481,7 @@ msgstr ""
 msgid "Changes will take effect after shutting down the VM"
 msgstr "Wijzigingen worden van kracht na het afsluiten van de VM"
 
-#: pkg/networkmanager/interfaces.js:3160
+#: pkg/networkmanager/interfaces.js:3074
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1537,7 +1542,7 @@ msgstr "Opschonen voor $target"
 msgid "Clear 'Failed to start'"
 msgstr "Wis 'Kan niet starten'"
 
-#: pkg/systemd/services/services.jsx:775
+#: pkg/systemd/services/services.jsx:779
 msgid "Clear all filters"
 msgstr "Wis alle filters"
 
@@ -1569,13 +1574,13 @@ msgstr "Cliënt software"
 msgid "Clone"
 msgstr "Kloon"
 
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/lib/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:494 pkg/networkmanager/index.html:523
-#: pkg/networkmanager/index.html:559 pkg/networkmanager/index.html:588
-#: pkg/networkmanager/index.html:617 pkg/networkmanager/index.html:646
-#: pkg/networkmanager/index.html:675 pkg/networkmanager/index.html:704
-#: pkg/networkmanager/index.html:733 pkg/networkmanager/index.html:769
+#: pkg/shell/machines/machine-not-supported.html:8
+#: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
+#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
+#: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
+#: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
+#: pkg/networkmanager/index.html:655 pkg/networkmanager/index.html:691
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
 #: pkg/storaged/dialog.jsx:408 pkg/users/dialog-utils.js:58
@@ -1627,7 +1632,7 @@ msgstr "Cockpit is een interactieve Linux-serverbeheerinterface."
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit is niet compatibel met de software op het systeem."
 
-#: pkg/lib/machine-not-supported.html:2
+#: pkg/shell/machines/machine-not-supported.html:2
 msgid "Cockpit is not installed"
 msgstr "Cockpit is niet geïnstalleerd"
 
@@ -1649,7 +1654,7 @@ msgstr ""
 "tegelijkertijd bewaken en beheren. Voeg ze gewoon toe met een enkele klik en "
 "je machines zullen voor zijn maatjes zorgen."
 
-#: pkg/lib/machine-add.html:37
+#: pkg/shell/machines/machine-add.html:37
 msgid "Color"
 msgstr "Kleur"
 
@@ -1707,7 +1712,7 @@ msgstr "Conditie mislukte"
 msgid "Configuration"
 msgstr "Configuratie"
 
-#: pkg/networkmanager/interfaces.js:2714
+#: pkg/networkmanager/interfaces.js:2611
 msgid "Configure"
 msgstr "Configureer"
 
@@ -1732,11 +1737,11 @@ msgstr "Systeeminstellingen configureren"
 msgid "Confirm"
 msgstr "Bevestigen"
 
-#: pkg/lib/machine-dialogs.js:738
+#: pkg/shell/machines/machine-dialogs.js:739
 msgid "Confirm key password"
 msgstr "Bevestig sleutelwachtwoord"
 
-#: pkg/lib/machine-dialogs.js:749
+#: pkg/shell/machines/machine-dialogs.js:750
 msgid "Confirm new key password"
 msgstr "Bevestig nieuw sleutelwachtwoord"
 
@@ -1764,16 +1769,15 @@ msgstr "Conflict met"
 msgid "Conflicts"
 msgstr "Conflicten"
 
-#: pkg/lib/machine-unknown-hostkey.html:18
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:84
 msgid "Connect"
 msgstr "Verbinden"
 
-#: pkg/networkmanager/interfaces.js:2701
+#: pkg/networkmanager/interfaces.js:2598
 msgid "Connect automatically"
 msgstr "Verbind aurtomatisch"
 
-#: pkg/static/login.html:89
+#: pkg/static/login.html:90
 msgid "Connect to"
 msgstr "Verbinden met"
 
@@ -1781,7 +1785,7 @@ msgstr "Verbinden met"
 msgid "Connect with any viewer application for following protocols"
 msgstr "Maak verbinding met elke viewertoepassing voor de volgende protocollen"
 
-#: pkg/lib/machine-add.html:46
+#: pkg/shell/machines/machine-add.html:46
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr ""
@@ -1820,7 +1824,7 @@ msgstr "Verbinding mislukte"
 msgid "Connection has timed out."
 msgstr "Er is een time-out opgetreden voor de verbinding."
 
-#: pkg/networkmanager/index.html:781
+#: pkg/networkmanager/index.html:703
 msgid "Connection will be lost"
 msgstr "Verbinding wordt verbroken"
 
@@ -1833,7 +1837,7 @@ msgstr "Bestaat uit"
 msgid "Console"
 msgstr "Console"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:275
+#: pkg/systemd/overview-cards/realmd-operation.js:279
 msgid "Contacted domain"
 msgstr "Gecontacteerd domein"
 
@@ -1879,7 +1883,7 @@ msgstr "Kopiëren naar clipboard"
 msgid "Cores per socket"
 msgstr "Kernen per socket"
 
-#: pkg/lib/machine-change-port.html:4
+#: pkg/shell/machines/machine-change-port.html:4
 msgid "Could not contact {{host}}"
 msgstr "Kon geen contact opnemen met {{host}}"
 
@@ -1932,7 +1936,7 @@ msgstr "Maak VM aan"
 msgid "Create a clone VM based on $0"
 msgstr "Maak een kloon VM aan gebaseerd op $0"
 
-#: pkg/lib/machine-dialogs.js:733
+#: pkg/shell/machines/machine-dialogs.js:734
 msgid "Create a new SSH key and authorize it."
 msgstr "Maak een nieuwe SSH-sleutel en autoriseer deze."
 
@@ -1944,8 +1948,8 @@ msgstr "Maak apparaten aan"
 msgid "Create diagnostic report                    "
 msgstr "Maak diagnostisch rapport aan                    "
 
-#: pkg/networkmanager/interfaces.js:3840 pkg/networkmanager/interfaces.js:4044
-#: pkg/networkmanager/interfaces.js:4301 pkg/networkmanager/interfaces.js:4509
+#: pkg/networkmanager/interfaces.js:3754 pkg/networkmanager/interfaces.js:3958
+#: pkg/networkmanager/interfaces.js:4215 pkg/networkmanager/interfaces.js:4423
 msgid "Create it"
 msgstr "Maak het aan"
 
@@ -2012,7 +2016,7 @@ msgstr "Maak opslagvolume aan"
 msgid "Create thin volume"
 msgstr "Maak dun volume aan"
 
-#: pkg/systemd/services/services.jsx:747
+#: pkg/systemd/services/services.jsx:751
 msgid "Create timer"
 msgstr "Maak timer aan"
 
@@ -2062,7 +2066,7 @@ msgstr "Partitie $target aanmaken"
 msgid "Creating snapshot of $target"
 msgstr "Snapshot van $target aanmaken"
 
-#: pkg/networkmanager/interfaces.js:4508
+#: pkg/networkmanager/interfaces.js:4422
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2070,7 +2074,7 @@ msgstr ""
 "Het aanmaken van deze VLAN zal de verbinding met de server verbreken "
 "waardoor deze beheerdersinterface niet meer beschikbaar zal zijn."
 
-#: pkg/networkmanager/interfaces.js:3839
+#: pkg/networkmanager/interfaces.js:3753
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2078,7 +2082,7 @@ msgstr ""
 "Het aanmaken van deze binding zal de verbinding met de server verbreken "
 "waardoor deze beheerdersinterface niet meer beschikbaar zal zijn."
 
-#: pkg/networkmanager/interfaces.js:4300
+#: pkg/networkmanager/interfaces.js:4214
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2086,7 +2090,7 @@ msgstr ""
 "Het aanmaken van deze brug zal de verbinding met de server verbreken "
 "waardoor deze beheerdersinterface niet meer beschikbaar zal zijn."
 
-#: pkg/networkmanager/interfaces.js:4043
+#: pkg/networkmanager/interfaces.js:3957
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2164,19 +2168,19 @@ msgstr "DHCP-bereik"
 msgid "DISK IS FAILING"
 msgstr "SCHIJF SCHIET TE KORT"
 
-#: pkg/networkmanager/interfaces.js:3327
+#: pkg/networkmanager/interfaces.js:3241
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2542
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:3331
+#: pkg/networkmanager/interfaces.js:3245
 msgid "DNS search domains"
 msgstr "DNS zoekdomeinen"
 
-#: pkg/networkmanager/interfaces.js:2648
+#: pkg/networkmanager/interfaces.js:2545
 msgid "DNS search domains $val"
 msgstr "DNS zoekdomeinen $val"
 
@@ -2214,7 +2218,7 @@ msgstr "Deduplicatie"
 msgid "Delay"
 msgstr "Vertraging"
 
-#: pkg/networkmanager/index.html:460 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -2234,7 +2238,7 @@ msgstr "Vertraging"
 msgid "Delete"
 msgstr "Verwijderen"
 
-#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2425
+#: pkg/users/delete-account-dialog.js:53 pkg/networkmanager/interfaces.js:2322
 msgid "Delete $0"
 msgstr "Verwijder $0"
 
@@ -2268,7 +2272,7 @@ msgstr "Verwijder de volumes in deze pool"
 msgid "Deleting $target"
 msgstr "Verwijder $target"
 
-#: pkg/networkmanager/interfaces.js:2424
+#: pkg/networkmanager/interfaces.js:2321
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2404,8 +2408,8 @@ msgid "Disable tuned"
 msgstr "Schakel tuned uit"
 
 #: pkg/systemd/services/service-details.jsx:297
-#: pkg/systemd/services/services.jsx:523 pkg/systemd/services/services.jsx:686
-#: pkg/networkmanager/interfaces.js:1945
+#: pkg/systemd/services/services.jsx:527 pkg/systemd/services/services.jsx:690
+#: pkg/networkmanager/interfaces.js:1897
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
@@ -2504,7 +2508,7 @@ msgstr "Domein"
 msgid "Domain $0 could not be contacted"
 msgstr "Er kan geen contact gemaakt worden met domein $0"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:280
+#: pkg/systemd/overview-cards/realmd-operation.js:284
 msgid "Domain $0 is not supported"
 msgstr "Domein $0 wordt niet ondersteund"
 
@@ -2541,7 +2545,7 @@ msgstr "Niet herhalen"
 msgid "Done!"
 msgstr "Klaar!"
 
-#: pkg/static/login.html:120
+#: pkg/static/login.html:121
 msgid "Download a new browser for free"
 msgstr "Download gratis een nieuwe browser"
 
@@ -2600,7 +2604,7 @@ msgstr "Bewerk /etc/motd"
 msgid "Edit Tang keyserver"
 msgstr "Bewerk Tang sleutelserver"
 
-#: pkg/lib/machine-add.html:8
+#: pkg/shell/machines/machine-add.html:8
 msgid "Edit host"
 msgstr "Bewerk host"
 
@@ -2612,7 +2616,7 @@ msgstr "Bewerk hosts"
 msgid "Edit motd"
 msgstr "Bewerk motd"
 
-#: pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:74
 msgid "Edit rules and zones"
 msgstr "Bewerk regels en zones"
 
@@ -2658,7 +2662,7 @@ msgstr "Schakel opgeslagen metriek in"
 msgid "Enable the firewall"
 msgstr "Schakel de firewall in"
 
-#: pkg/systemd/services/services.jsx:520 pkg/systemd/services/services.jsx:685
+#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:689
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
@@ -2776,15 +2780,15 @@ msgstr "Fout tijdens het verwijderen van een waarschuwing: $0"
 msgid "Error while setting SELinux mode: '$0'"
 msgstr "Fout tijdens het instellen van SELinux modus: '$0'"
 
-#: pkg/networkmanager/index.html:737
+#: pkg/networkmanager/index.html:659
 msgid "Ethernet MAC"
 msgstr "Ethernet MAC"
 
-#: pkg/networkmanager/index.html:708
+#: pkg/networkmanager/index.html:630
 msgid "Ethernet MTU"
 msgstr "Ethernet MTU"
 
-#: pkg/networkmanager/interfaces.js:1991
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Ethtool"
 msgstr "Ethtool"
 
@@ -2826,7 +2830,7 @@ msgstr "Uitgebreide partitie"
 msgid "Failed"
 msgstr "Mislukt"
 
-#: pkg/lib/machine-dialogs.js:461
+#: pkg/shell/machines/machine-dialogs.js:461
 msgid "Failed to add machine: $0"
 msgstr "Kan machine niet toevoegen: $0"
 
@@ -2867,7 +2871,7 @@ msgstr "Kan tuned niet uitzetten"
 msgid "Failed to disable tuned profile"
 msgstr "Kan tuned profiel niet uitzetten"
 
-#: pkg/lib/machine-dialogs.js:557
+#: pkg/shell/machines/machine-dialogs.js:557
 msgid "Failed to edit machine: $0"
 msgstr "Kan machine niet bewerken: $0"
 
@@ -2892,7 +2896,7 @@ msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "Kan toets Ctrl+Alt+$0 niet verzenden naar VM $1"
 
 #: pkg/systemd/services/service-details.jsx:306
-#: pkg/systemd/services/services.jsx:514
+#: pkg/systemd/services/services.jsx:518
 msgid "Failed to start"
 msgstr "Starten mislukt"
 
@@ -2925,7 +2929,7 @@ msgstr "Bestandssysteemnaam"
 msgid "Filesystems"
 msgstr "Bestandssystemen"
 
-#: pkg/systemd/services/services.jsx:719
+#: pkg/systemd/services/services.jsx:723
 msgid "Filter"
 msgstr "Filter"
 
@@ -2933,7 +2937,7 @@ msgstr "Filter"
 msgid "Filter by name"
 msgstr "Filteren op naam"
 
-#: pkg/systemd/services/services.jsx:727
+#: pkg/systemd/services/services.jsx:731
 msgid "Filter by name or description"
 msgstr "Filteren op naam of beschrijving"
 
@@ -2941,11 +2945,11 @@ msgstr "Filteren op naam of beschrijving"
 msgid "Filter services"
 msgstr "Filter services"
 
-#: pkg/lib/machine-unknown-hostkey.html:9 pkg/shell/index.html:230
+#: pkg/shell/index.html:230
 msgid "Fingerprint"
 msgstr "Vingerafdruk"
 
-#: pkg/networkmanager/index.html:109 pkg/networkmanager/firewall.html:22
+#: pkg/networkmanager/index.html:70 pkg/networkmanager/firewall.html:22
 #: pkg/networkmanager/firewall.jsx:949 pkg/networkmanager/firewall.jsx:955
 msgid "Firewall"
 msgstr "Firewall"
@@ -3015,7 +3019,7 @@ msgstr "Het formatteren van een schijf zal alle data verwijderen."
 msgid "Formatting a storage device will erase all data on it."
 msgstr "Het formatteren van een opslagapparaat zal alle data verwijderen."
 
-#: pkg/networkmanager/interfaces.js:2850
+#: pkg/networkmanager/interfaces.js:2747
 msgid "Forward delay $forward_delay"
 msgstr "Voorwaartse vertraging $forward_delay"
 
@@ -3066,7 +3070,7 @@ msgstr "GNU LGPL versie 2.1"
 #: pkg/systemd/abrtLog.jsx:248
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:202
 #: pkg/machines/components/networks/networkOverviewTab.jsx:85
-#: pkg/networkmanager/interfaces.js:2692
+#: pkg/networkmanager/interfaces.js:2589
 msgid "General"
 msgstr "Algemeen"
 
@@ -3088,12 +3092,11 @@ msgstr "GiB"
 msgid "Go to application"
 msgstr "Ga naar toepassing"
 
-#: pkg/networkmanager/index.html:70 pkg/networkmanager/index.html:416
-#: pkg/storaged/plot.jsx:72
+#: pkg/lib/cockpit-components-plot.jsx:269
 msgid "Go to now"
 msgstr "Ga nu naar"
 
-#: pkg/networkmanager/interfaces.js:2756
+#: pkg/networkmanager/interfaces.js:2653
 msgid "Group"
 msgstr "Groep"
 
@@ -3119,11 +3122,11 @@ msgstr "Vergroot logische volume"
 msgid "Grow to take all space"
 msgstr "Vergroot om alle ruimte in te nemen"
 
-#: pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:223
 msgid "Hair pin mode"
 msgstr "Haarspeld modus"
 
-#: pkg/networkmanager/interfaces.js:2876
+#: pkg/networkmanager/interfaces.js:2773
 msgid "Hairpin mode"
 msgstr "Haarspeld modus"
 
@@ -3139,7 +3142,7 @@ msgstr "Hardware informatie"
 msgid "Health"
 msgstr "Gezondheid"
 
-#: pkg/networkmanager/interfaces.js:2852
+#: pkg/networkmanager/interfaces.js:2749
 msgid "Hello time $hello_time"
 msgstr "Hallo tijd $hello_time"
 
@@ -3151,7 +3154,7 @@ msgstr "Hulp"
 msgid "Hide additional options"
 msgstr "Verberg extra opties"
 
-#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:514
+#: pkg/systemd/logs.js:413 pkg/systemd/logs.js:528
 msgid "Hide filters"
 msgstr "Verberg filters"
 
@@ -3159,7 +3162,7 @@ msgstr "Verberg filters"
 msgid "History package count"
 msgstr "Geschiedenis van pakketaantallen"
 
-#: pkg/lib/machine-add.html:14
+#: pkg/shell/machines/machine-add.html:14
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:118
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:36
 #: pkg/machines/components/vm/overview/bootOrder.jsx:98
@@ -3180,7 +3183,7 @@ msgstr "Hostsleutel is onjuist"
 msgid "Host name"
 msgstr "Hostnaam"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:612
+#: pkg/systemd/overview-cards/realmd-operation.js:616
 msgid "Host name should not be changed in a domain"
 msgstr "Hostnaam mag niet worden gewijzigd in een domein"
 
@@ -3222,11 +3225,11 @@ msgstr "Hypervisor details"
 msgid "ID"
 msgstr "ID"
 
-#: pkg/networkmanager/interfaces.js:2893
+#: pkg/networkmanager/interfaces.js:2790
 msgid "ID $id"
 msgstr "ID $id"
 
-#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:150
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP-adres"
@@ -3243,11 +3246,11 @@ msgstr ""
 msgid "IP configuration"
 msgstr "IP-configuratie"
 
-#: pkg/networkmanager/index.html:498
+#: pkg/networkmanager/index.html:420
 msgid "IP settings"
 msgstr "IP-instellingen"
 
-#: pkg/networkmanager/interfaces.js:2901
+#: pkg/networkmanager/interfaces.js:2798
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3271,11 +3274,11 @@ msgstr "IPv4-netwerk mag niet leeg zijn"
 msgid "IPv4 only"
 msgstr "alleen IPv4"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3284
 msgid "IPv4 settings"
 msgstr "IPv4-instellingen"
 
-#: pkg/networkmanager/interfaces.js:2902
+#: pkg/networkmanager/interfaces.js:2799
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3295,7 +3298,7 @@ msgstr "IPv6-netwerk mag niet leeg zijn"
 msgid "IPv6 only"
 msgstr "Alleen IPv6"
 
-#: pkg/networkmanager/interfaces.js:3370
+#: pkg/networkmanager/interfaces.js:3284
 msgid "IPv6 settings"
 msgstr "IPv6-instellingen"
 
@@ -3311,7 +3314,20 @@ msgstr "Inactief"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "Als tang-show-keys niet beschikbaar is, voer je het volgende uit:"
 
-#: pkg/static/login.html:66
+#: pkg/shell/machines/machine-invalid-hostkey.html:21
+#: pkg/shell/machines/machine-unknown-hostkey.html:13
+#, fuzzy
+#| msgid ""
+#| "If the fingerprint matches, click \"Accept key and log in\". Otherwise, "
+#| "do not log in and contact your administrator."
+msgid ""
+"If the fingerprint matches, click \"Accept key and connect\". Otherwise, do "
+"not connect and contact your administrator."
+msgstr ""
+"Als de vingerafdruk overeenkomt, klik dan op \"Accepteer sleutel en log in"
+"\". Log anders niet in en neem contact op met je beheerder."
+
+#: pkg/static/login.html:67
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3319,7 +3335,7 @@ msgstr ""
 "Als de vingerafdruk overeenkomt, klik dan op \"Accepteer sleutel en log in"
 "\". Log anders niet in en neem contact op met je beheerder."
 
-#: pkg/packagekit/updates.jsx:506 pkg/networkmanager/interfaces.js:1954
+#: pkg/packagekit/updates.jsx:506 pkg/networkmanager/interfaces.js:1906
 msgid "Ignore"
 msgstr "Negeren"
 
@@ -3355,7 +3371,7 @@ msgstr ""
 "In de meeste configuraties werkt macvtap niet voor netwerkcommunicatie van "
 "host naar gast."
 
-#: pkg/lib/machine-dialogs.js:741
+#: pkg/shell/machines/machine-dialogs.js:742
 msgid ""
 "In order to allow log in to ${rhost} as ${ruser} without password in the "
 "future, use the login password of ${luser} on ${lhost} as the key password, "
@@ -3370,7 +3386,7 @@ msgid "In sync"
 msgstr "Synchroon"
 
 #: pkg/networkmanager/interfaces.js:815 pkg/networkmanager/interfaces.js:1389
-#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2595
+#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2492
 msgid "Inactive"
 msgstr "Inactief"
 
@@ -3385,10 +3401,6 @@ msgstr "Inbegrepen services"
 #: pkg/storaged/fsys-tab.jsx:504
 msgid "Inconsistent filesystem mount"
 msgstr "Inconsistente bestandssysteemkoppeling"
-
-#: pkg/lib/machine-invalid-hostkey.html:2
-msgid "Incorrect host key"
-msgstr "Onjuiste hostsleutel"
 
 #: pkg/storaged/vdos-panel.jsx:106 pkg/storaged/vdo-details.jsx:312
 msgid "Index memory"
@@ -3482,8 +3494,8 @@ msgstr "Interface"
 msgid "Interface type"
 msgstr "Interfacetype"
 
-#: pkg/networkmanager/index.html:121 pkg/networkmanager/index.html:276
-#: pkg/networkmanager/interfaces.js:2975 pkg/networkmanager/firewall.jsx:180
+#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
 msgstr "Interfaces"
@@ -3596,7 +3608,7 @@ msgstr "IoT gateway"
 msgid "Is 'pmlogger' service running?"
 msgstr "Draait de 'pmlogger' service?"
 
-#: pkg/lib/machine-change-port.html:10
+#: pkg/shell/machines/machine-change-port.html:10
 msgid "Is sshd running on a different port?"
 msgstr "Werkt sshd op een andere poort?"
 
@@ -3616,15 +3628,15 @@ msgstr "Toetreden"
 msgid "Join a domain"
 msgstr "Word lid van een domein"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:606
+#: pkg/systemd/overview-cards/realmd-operation.js:610
 msgid "Join domain"
 msgstr "Word lid van domein"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:630
+#: pkg/systemd/overview-cards/realmd-operation.js:634
 msgid "Joining a domain requires installation of realmd"
 msgstr "Lid worden van een domein vereist de installatie van realmd"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:514
+#: pkg/systemd/overview-cards/realmd-operation.js:518
 msgid "Joining this domain is not supported"
 msgstr "Deelnemen aan dit domein wordt niet ondersteund"
 
@@ -3655,11 +3667,11 @@ msgstr ""
 "Kdump-service niet geïnstalleerd. Zorg ervoor dat kexec-tools is "
 "geïnstalleerd."
 
-#: pkg/networkmanager/index.html:789
+#: pkg/networkmanager/index.html:711
 msgid "Keep connection"
 msgstr "Houd verbinding"
 
-#: pkg/lib/machine-auth-failed.html:10
+#: pkg/shell/machines/machine-auth-failed.html:10
 msgid "Kerberos based SSO"
 msgstr "Op Kerberos gebaseerde SSO"
 
@@ -3671,8 +3683,9 @@ msgstr "Kerneldump"
 msgid "Kernel dump"
 msgstr "Kerneldump"
 
-#: pkg/lib/machine-change-auth.html:38 pkg/lib/machine-change-auth.html:53
-#: pkg/lib/machine-dialogs.js:736
+#: pkg/shell/machines/machine-change-auth.html:38
+#: pkg/shell/machines/machine-change-auth.html:53
+#: pkg/shell/machines/machine-dialogs.js:737
 msgid "Key password"
 msgstr "Sleutelwachtwoord"
 
@@ -3700,7 +3713,7 @@ msgstr "Sleutelserveradres"
 msgid "Keyserver removal may prevent unlocking $0."
 msgstr "Het verwijderen van keyserver kan voorkomen dat $0 wordt ontgrendeld."
 
-#: pkg/networkmanager/index.html:387
+#: pkg/networkmanager/index.html:348
 msgid "LACP key"
 msgstr "LACP-sleutel"
 
@@ -3742,7 +3755,7 @@ msgstr "Start viewer op afstand"
 
 #: pkg/systemd/logs.html:85 pkg/lib/cockpit-components-dialog.jsx:242
 #: pkg/lib/cockpit-components-dialog.jsx:249
-#: pkg/networkmanager/interfaces.js:1715
+#: pkg/networkmanager/interfaces.js:1647
 msgid "Learn more"
 msgstr "Kom meer te weten"
 
@@ -3789,23 +3802,23 @@ msgstr ""
 "De beperkte toegangsmodus beperkt de beheerdersrechten. Sommige delen van de "
 "webconsole hebben een verminderde functionaliteit."
 
-#: pkg/networkmanager/index.html:321 pkg/networkmanager/index.html:365
+#: pkg/networkmanager/index.html:282 pkg/networkmanager/index.html:326
 msgid "Link down delay"
 msgstr "Link down vertraging"
 
-#: pkg/networkmanager/interfaces.js:1942 pkg/networkmanager/interfaces.js:1952
+#: pkg/networkmanager/interfaces.js:1894 pkg/networkmanager/interfaces.js:1904
 msgid "Link local"
 msgstr "Link lokaal"
 
-#: pkg/networkmanager/index.html:304
+#: pkg/networkmanager/index.html:265
 msgid "Link monitoring"
 msgstr "Link monitoring"
 
-#: pkg/networkmanager/index.html:317 pkg/networkmanager/index.html:361
+#: pkg/networkmanager/index.html:278 pkg/networkmanager/index.html:322
 msgid "Link up delay"
 msgstr "Link up vertraging"
 
-#: pkg/networkmanager/index.html:348
+#: pkg/networkmanager/index.html:309
 msgid "Link watch"
 msgstr "Link toezicht"
 
@@ -3814,7 +3827,7 @@ msgstr "Link toezicht"
 msgid "Load"
 msgstr "Belasting"
 
-#: pkg/networkmanager/interfaces.js:1978
+#: pkg/networkmanager/interfaces.js:1930
 msgid "Load balancing"
 msgstr "Taakverdeling"
 
@@ -3822,7 +3835,7 @@ msgstr "Taakverdeling"
 msgid "Load earlier data"
 msgstr "Laad eerdere data"
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logs.js:115
 msgid "Load earlier entries"
 msgstr "Laad eerdere ingangen"
 
@@ -3854,10 +3867,10 @@ msgstr "Bronnen laden"
 msgid "Loading system modifications..."
 msgstr "Systeemwijzigingen laden..."
 
-#: pkg/systemd/logDetails.jsx:141 pkg/systemd/logs.js:158
-#: pkg/systemd/logs.js:201 pkg/systemd/services/services.jsx:664
-#: pkg/storaged/devices.jsx:69 pkg/metrics/metrics.jsx:975
-#: pkg/kdump/kdump-view.jsx:371
+#: pkg/systemd/services.html:282 pkg/systemd/logDetails.jsx:141
+#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:208
+#: pkg/systemd/services/services.jsx:668 pkg/storaged/devices.jsx:75
+#: pkg/metrics/metrics.jsx:975 pkg/kdump/kdump-view.jsx:371
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
 msgid "Loading..."
 msgstr "Laden..."
@@ -3902,12 +3915,12 @@ msgstr "Vergrendelde apparaten"
 msgid "Locking $target"
 msgstr "$target vergrendelen"
 
-#: pkg/static/login.html:99 pkg/lib/machine-change-auth.html:74
+#: pkg/static/login.html:100 pkg/shell/machines/machine-change-auth.html:74
 #: pkg/shell/index.html:307 pkg/static/login.js:563
 msgid "Log in"
 msgstr "Inloggen"
 
-#: pkg/lib/machine-change-auth.html:4
+#: pkg/shell/machines/machine-change-auth.html:4
 msgid "Log in to {{host}}"
 msgstr "Log in op {{host}}"
 
@@ -3979,7 +3992,7 @@ msgstr "Laag profiel bureaublad"
 msgid "Lunch box"
 msgstr "Lunch box"
 
-#: pkg/networkmanager/index.html:202 pkg/networkmanager/index.html:281
+#: pkg/networkmanager/index.html:163 pkg/networkmanager/index.html:242
 #: pkg/machines/components/vm/overview/bootOrder.jsx:108
 msgid "MAC"
 msgstr "MAC"
@@ -3990,15 +4003,15 @@ msgstr "MAC"
 msgid "MAC address"
 msgstr "MAC adres"
 
-#: pkg/networkmanager/interfaces.js:1970
+#: pkg/networkmanager/interfaces.js:1922
 msgid "MII (recommended)"
 msgstr "MII (Aanbvevolen)"
 
-#: pkg/networkmanager/interfaces.js:2750
+#: pkg/networkmanager/interfaces.js:2647
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4575
+#: pkg/networkmanager/interfaces.js:4489
 msgid "MTU must be a positive number"
 msgstr "MTU moet een positief getal zijn"
 
@@ -4055,7 +4068,7 @@ msgstr "Gebruikersaccounts beheren"
 msgid "Managing virtual machines"
 msgstr "Virtuele machines beheren"
 
-#: pkg/networkmanager/interfaces.js:1943 pkg/networkmanager/interfaces.js:1953
+#: pkg/networkmanager/interfaces.js:1895 pkg/networkmanager/interfaces.js:1905
 msgid "Manual"
 msgstr "Handmatig"
 
@@ -4110,7 +4123,7 @@ msgstr "Maximale toewijzing"
 msgid "Maximum memory could not be saved"
 msgstr "Maximaal geheugen kon niet worden opgeslagen"
 
-#: pkg/networkmanager/interfaces.js:2854
+#: pkg/networkmanager/interfaces.js:2751
 msgid "Maximum message age $max_age"
 msgstr "Maximale berichtleeftijd $max_age"
 
@@ -4221,7 +4234,7 @@ msgstr "Minuten moet een getal zijn tussen 0 en 59"
 msgid "Mitigations"
 msgstr "Beperkende factoren"
 
-#: pkg/networkmanager/index.html:294
+#: pkg/networkmanager/index.html:255
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:27
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:29
 msgid "Mode"
@@ -4254,15 +4267,15 @@ msgstr "maandag"
 msgid "Mondays"
 msgstr "maandagen"
 
-#: pkg/networkmanager/index.html:309
+#: pkg/networkmanager/index.html:270
 msgid "Monitoring interval"
 msgstr "Bewakingsinterval"
 
-#: pkg/networkmanager/index.html:313
+#: pkg/networkmanager/index.html:274
 msgid "Monitoring targets"
 msgstr "Doelen controleren"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:539
+#: pkg/systemd/overview-cards/realmd-operation.js:543
 msgid "More"
 msgstr "Meer"
 
@@ -4368,7 +4381,7 @@ msgstr "NFS-ondersteuning niet geïnstalleerd"
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr "NIC $0 van VM $1 kon de status niet wijzigen"
 
-#: pkg/networkmanager/interfaces.js:1993
+#: pkg/networkmanager/interfaces.js:1945
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
@@ -4376,9 +4389,9 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "NTP-server"
 
-#: pkg/networkmanager/index.html:132 pkg/networkmanager/index.html:149
-#: pkg/networkmanager/index.html:175 pkg/networkmanager/index.html:219
-#: pkg/networkmanager/index.html:272 pkg/networkmanager/index.html:329
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
+#: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
 #: pkg/packagekit/updates.jsx:391 pkg/storaged/format-dialog.jsx:202
 #: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
@@ -4480,7 +4493,7 @@ msgstr "Netwerk I/O"
 msgid "Network I/O spike"
 msgstr "Netwerk I/O piek"
 
-#: pkg/networkmanager/interfaces.js:1722
+#: pkg/networkmanager/interfaces.js:1654
 msgid "Network bond"
 msgstr "Netwerkbinding"
 
@@ -4506,7 +4519,7 @@ msgstr "Netwerk bestandssyteem"
 msgid "Network interface settings could not be saved"
 msgstr "Netwerkinterface-instellingen konden niet opgeslagen worden"
 
-#: pkg/networkmanager/interfaces.js:3133
+#: pkg/networkmanager/interfaces.js:3047
 msgid "Network logs"
 msgstr "Netwerklogboeken"
 
@@ -4522,12 +4535,12 @@ msgstr "Netwerkgebruik"
 msgid "NetworkManager is not running."
 msgstr "NetworkManager is niet actief."
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:359
 #: pkg/networkmanager/firewall.jsx:948 pkg/networkmanager/manifest.json.in:0
 msgid "Networking"
 msgstr "Netwerken"
 
-#: pkg/networkmanager/interfaces.js:1600 pkg/networkmanager/interfaces.js:2202
+#: pkg/networkmanager/interfaces.js:1584 pkg/networkmanager/interfaces.js:2154
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Netwerken"
@@ -4555,11 +4568,11 @@ msgstr "Account nooit vergrendelen"
 msgid "New NFS mount"
 msgstr "Nieuwe NFS-aankoppeling"
 
-#: pkg/static/login.js:646
+#: pkg/shell/machines/machine-unknown-hostkey.html:2 pkg/static/login.js:646
 msgid "New host"
 msgstr "Nieuwe host"
 
-#: pkg/lib/machine-dialogs.js:747
+#: pkg/shell/machines/machine-dialogs.js:748
 msgid "New key password"
 msgstr "Nieuw sleutelwachtwoord"
 
@@ -4579,12 +4592,12 @@ msgstr "Nieuw wachtwoord is niet geaccepteerd"
 msgid "New volume name"
 msgstr "Nieuwe volumenaam"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:83
+#: pkg/systemd/overview-cards/realmd-operation.html:91
 #: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Volgende"
 
-#: pkg/systemd/reporting.jsx:270 pkg/networkmanager/interfaces.js:2583
+#: pkg/systemd/reporting.jsx:270 pkg/networkmanager/interfaces.js:2480
 msgid "No"
 msgstr "Nee"
 
@@ -4706,11 +4719,11 @@ msgstr "Geen logboekvermeldingen"
 msgid "No logical volumes"
 msgstr "Geen logische volumes"
 
-#: pkg/systemd/logs.js:112 pkg/systemd/logs.js:135 pkg/systemd/logs.js:256
+#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:267
 msgid "No logs found"
 msgstr "Geen logs gevonden"
 
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:780
 msgid "No matching results"
 msgstr "Geen overeenkomende resultaten"
 
@@ -4760,7 +4773,7 @@ msgstr "Geen echte naam opgegeven"
 msgid "No results found"
 msgstr "Geen resultaten gevonden"
 
-#: pkg/systemd/services/services.jsx:774
+#: pkg/systemd/services/services.jsx:778
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4912,7 +4925,7 @@ msgid "Not registered"
 msgstr "Niet geregistreerd"
 
 #: pkg/systemd/services/service-details.jsx:327
-#: pkg/systemd/services/services.jsx:516 pkg/storaged/mdraid-details.jsx:346
+#: pkg/systemd/services/services.jsx:520 pkg/storaged/mdraid-details.jsx:346
 msgid "Not running"
 msgstr "Niet actief"
 
@@ -4985,7 +4998,7 @@ msgstr ""
 "de schijven los om het volume te verwijderen."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:69
-#: pkg/systemd/overview-cards/realmd-operation.js:337
+#: pkg/systemd/overview-cards/realmd-operation.js:341
 msgid "One time password"
 msgstr "Eenmalig wachtwoord"
 
@@ -5035,7 +5048,7 @@ msgstr "Optisch station"
 msgid "Options"
 msgstr "Opties"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:128
 msgid "Or use a bundled browser"
 msgstr "Of gebruik een gebundelde browser"
 
@@ -5052,7 +5065,7 @@ msgstr "Andere data"
 msgid "Other devices"
 msgstr "Andere apparaten"
 
-#: pkg/static/login.html:83
+#: pkg/static/login.html:84
 msgid "Other options"
 msgstr "Andere opties"
 
@@ -5108,11 +5121,11 @@ msgstr "Pakketten"
 msgid "Page name"
 msgstr "Paginanaam"
 
-#: pkg/networkmanager/index.html:166
+#: pkg/networkmanager/index.html:127
 msgid "Parent"
 msgstr "Ouder"
 
-#: pkg/networkmanager/interfaces.js:2892
+#: pkg/networkmanager/interfaces.js:2789
 msgid "Parent $parent"
 msgstr "Ouder $parent"
 
@@ -5140,7 +5153,7 @@ msgstr "Partitie van $0"
 msgid "Partitioning"
 msgstr "Partitionering"
 
-#: pkg/networkmanager/interfaces.js:1985
+#: pkg/networkmanager/interfaces.js:1937
 msgid "Passive"
 msgstr "Passief"
 
@@ -5164,9 +5177,10 @@ msgstr "Verwijdering van wachtzin kan voorkomen dat $0 wordt ontgrendeld."
 msgid "Passphrases do not match"
 msgstr "Wachtzinnen komen niet overeen"
 
-#: pkg/static/login.html:75 pkg/lib/machine-change-auth.html:43
-#: pkg/lib/machine-change-auth.html:50 pkg/lib/machine-auth-failed.html:8
-#: pkg/shell/index.html:160 pkg/shell/index.html:189 pkg/shell/index.html:204
+#: pkg/static/login.html:76 pkg/shell/machines/machine-change-auth.html:43
+#: pkg/shell/machines/machine-change-auth.html:50
+#: pkg/shell/machines/machine-auth-failed.html:8 pkg/shell/index.html:160
+#: pkg/shell/index.html:189 pkg/shell/index.html:204
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:321
 #: pkg/shell/superuser.jsx:45
@@ -5207,11 +5221,11 @@ msgstr "Plak hier de inhoud van je openbare SSH-sleutelbestand"
 msgid "Path"
 msgstr "Pad"
 
-#: pkg/networkmanager/index.html:258
+#: pkg/networkmanager/index.html:219
 msgid "Path cost"
 msgstr "Padkosten"
 
-#: pkg/networkmanager/interfaces.js:2874
+#: pkg/networkmanager/interfaces.js:2771
 msgid "Path cost $path_cost"
 msgstr "Padkosten $0"
 
@@ -5243,7 +5257,7 @@ msgstr "Pad naar bestand"
 msgid "Paths"
 msgstr "Paden"
 
-#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:322 pkg/systemd/logs.js:501
+#: pkg/systemd/logs.html:106 pkg/systemd/logs.js:336 pkg/systemd/logs.js:515
 #: pkg/machines/components/vm/vmActions.jsx:185
 msgid "Pause"
 msgstr "Pauze"
@@ -5264,7 +5278,7 @@ msgstr "Prestatieprofiel"
 msgid "Peripheral chassis"
 msgstr "Randchassis"
 
-#: pkg/networkmanager/interfaces.js:3645
+#: pkg/networkmanager/interfaces.js:3559
 msgid "Permanent"
 msgstr "Blijvend"
 
@@ -5314,11 +5328,11 @@ msgstr "Fysieke volumes"
 msgid "Physical volumes can not be resized here."
 msgstr "Fysieke volumes kunnen hier niet aangepast worden."
 
-#: pkg/networkmanager/index.html:353
+#: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Ping interval"
 
-#: pkg/networkmanager/index.html:357
+#: pkg/networkmanager/index.html:318
 msgid "Ping target"
 msgstr "Ping doel"
 
@@ -5347,7 +5361,7 @@ msgstr "Bevestig verwijdering van $0"
 msgid "Please confirm stopping of $0"
 msgstr "Bevestig het stoppen van $0"
 
-#: pkg/static/login.html:33
+#: pkg/static/login.html:34
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "Zet JavaScript aan om de Webconsole te gebruiken."
 
@@ -5408,7 +5422,8 @@ msgstr "Pooltype ondersteunt geen volume-creatie"
 msgid "Pool's volumes are used by VMs "
 msgstr "De volumes van pool worden gebruikt door VM's "
 
-#: pkg/lib/machine-change-port.html:14 pkg/storaged/iscsi-panel.jsx:128
+#: pkg/shell/machines/machine-change-port.html:14
+#: pkg/storaged/iscsi-panel.jsx:128
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:192
 #: pkg/machines/components/vm/overview/bootOrder.jsx:99
 #: pkg/machines/components/vm/overview/bootOrder.jsx:115
@@ -5424,8 +5439,8 @@ msgstr "Poortnummer en type komen niet overeen"
 msgid "Portable"
 msgstr "Draagbaar"
 
-#: pkg/networkmanager/index.html:223 pkg/networkmanager/index.html:333
-#: pkg/networkmanager/interfaces.js:2975
+#: pkg/networkmanager/index.html:184 pkg/networkmanager/index.html:294
+#: pkg/networkmanager/interfaces.js:2887
 msgid "Ports"
 msgstr "Poorten"
 
@@ -5438,11 +5453,11 @@ msgid "Prefix"
 msgstr "Voorvoegsel"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:287
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3231
 msgid "Prefix length"
 msgstr "Voorvoegsel-lengte"
 
-#: pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3231
 msgid "Prefix length or netmask"
 msgstr "Voorvoegsel-lengte of netmasker"
 
@@ -5458,7 +5473,7 @@ msgstr "Voorbereiden"
 msgid "Present"
 msgstr "Aanwezig"
 
-#: pkg/networkmanager/interfaces.js:3646
+#: pkg/networkmanager/interfaces.js:3560
 msgid "Preserve"
 msgstr "Behouden"
 
@@ -5478,16 +5493,16 @@ msgstr ""
 "Met eerder gemaakte momentopnames kun je terugkeren naar een eerdere "
 "toestand als er iets misgaat"
 
-#: pkg/networkmanager/index.html:299
+#: pkg/networkmanager/index.html:260
 msgid "Primary"
 msgstr "Primair"
 
-#: pkg/systemd/logs.html:49 pkg/networkmanager/index.html:254
-#: pkg/networkmanager/index.html:373 pkg/networkmanager/index.html:383
+#: pkg/systemd/logs.html:49 pkg/networkmanager/index.html:215
+#: pkg/networkmanager/index.html:334 pkg/networkmanager/index.html:344
 msgid "Priority"
 msgstr "Prioriteit"
 
-#: pkg/networkmanager/interfaces.js:2848 pkg/networkmanager/interfaces.js:2872
+#: pkg/networkmanager/interfaces.js:2745 pkg/networkmanager/interfaces.js:2769
 msgid "Priority $priority"
 msgstr "Prioriteit $priority"
 
@@ -5542,7 +5557,7 @@ msgstr "Propageren herladen naar"
 msgid "Protocol"
 msgstr "Protocol"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:188
+#: pkg/shell/machines/machine-auth-failed.html:9 pkg/shell/index.html:188
 msgid "Public key"
 msgstr "Publieke sleutel"
 
@@ -5635,7 +5650,7 @@ msgstr "RAM"
 msgid "Rack mount chassis"
 msgstr "Rackmontagechassis"
 
-#: pkg/networkmanager/interfaces.js:3647
+#: pkg/networkmanager/interfaces.js:3561
 msgid "Random"
 msgstr "Willekeurig"
 
@@ -5668,10 +5683,6 @@ msgstr "Lees meer..."
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:256
 msgid "Read-only"
 msgstr "Alleen-lezen"
-
-#: pkg/storaged/plot.jsx:312
-msgid "Reading"
-msgstr "Lezend"
 
 #: pkg/kdump/kdump-view.jsx:417
 msgid "Reading..."
@@ -5706,9 +5717,8 @@ msgstr "Echte hostnaam moet 64 tekens of minder bevatten"
 msgid "Reboot"
 msgstr "Opnieuw opstarten"
 
-#: pkg/networkmanager/index.html:99 pkg/networkmanager/index.html:135
-#: pkg/networkmanager/index.html:152 pkg/networkmanager/index.html:445
-#: pkg/networkmanager/index.html:476
+#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
+#: pkg/networkmanager/index.html:398
 msgid "Receiving"
 msgstr "Ontvangen"
 
@@ -5789,7 +5799,7 @@ msgstr "Verwijderingen:"
 msgid "Remove"
 msgstr "Verwijderen"
 
-#: pkg/networkmanager/interfaces.js:3046
+#: pkg/networkmanager/interfaces.js:2959
 msgid "Remove $0"
 msgstr "Verwijder $0"
 
@@ -5837,7 +5847,7 @@ msgstr "$0 verwijderen"
 msgid "Removing $target from RAID device"
 msgstr "$target verwijderen uit RAID-apparaat"
 
-#: pkg/networkmanager/interfaces.js:3045
+#: pkg/networkmanager/interfaces.js:2958
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -6013,7 +6023,7 @@ msgstr "Herstarten"
 msgid "Restoring connection"
 msgstr "Verbinding herstellen"
 
-#: pkg/systemd/logs.js:325 pkg/systemd/logs.js:497
+#: pkg/systemd/logs.js:339 pkg/systemd/logs.js:511
 #: pkg/machines/components/vm/vmActions.jsx:196
 msgid "Resume"
 msgstr "Samenvatten"
@@ -6049,7 +6059,7 @@ msgstr "Rollen"
 msgid "Root password"
 msgstr "Rootwachtwoord"
 
-#: pkg/networkmanager/interfaces.js:1959 pkg/networkmanager/interfaces.js:1976
+#: pkg/networkmanager/interfaces.js:1911 pkg/networkmanager/interfaces.js:1928
 msgid "Round robin"
 msgstr "Round-robin"
 
@@ -6061,7 +6071,7 @@ msgstr "Route naar $0"
 msgid "Routed network"
 msgstr "Gerouteerd netwerk"
 
-#: pkg/networkmanager/interfaces.js:3336
+#: pkg/networkmanager/interfaces.js:3250
 msgid "Routes"
 msgstr "Routes"
 
@@ -6078,12 +6088,12 @@ msgstr "Voer een installatie zonder toezicht uit"
 msgid "Run when host boots"
 msgstr "Uitvoeren wanneer de host opstart"
 
-#: pkg/networkmanager/index.html:338
+#: pkg/networkmanager/index.html:299
 msgid "Runner"
 msgstr "Uitvoerder"
 
 #: pkg/systemd/services/service-details.jsx:319
-#: pkg/systemd/services/services.jsx:512 pkg/storaged/mdraid-details.jsx:346
+#: pkg/systemd/services/services.jsx:516 pkg/storaged/mdraid-details.jsx:346
 #: pkg/machines/helpers.js:211
 msgid "Running"
 msgstr "Uitvoeren"
@@ -6132,7 +6142,7 @@ msgstr "SPICE poort"
 msgid "SPICE TLS Port"
 msgstr "SPICE TLS poort"
 
-#: pkg/lib/machine-change-auth.html:46
+#: pkg/shell/machines/machine-change-auth.html:46
 msgid "SSH key"
 msgstr "SSH-sleutel"
 
@@ -6140,19 +6150,19 @@ msgstr "SSH-sleutel"
 msgid "SSH keys"
 msgstr "SSH sleutels"
 
-#: pkg/networkmanager/index.html:238
+#: pkg/networkmanager/index.html:199
 msgid "STP forward delay"
 msgstr "STP voorwaartse vertraging"
 
-#: pkg/networkmanager/index.html:242
+#: pkg/networkmanager/index.html:203
 msgid "STP hello time"
 msgstr "STP hallo tijd"
 
-#: pkg/networkmanager/index.html:246
+#: pkg/networkmanager/index.html:207
 msgid "STP maximum message age"
 msgstr "STP maximale berichtleeftijd"
 
-#: pkg/networkmanager/index.html:234
+#: pkg/networkmanager/index.html:195
 msgid "STP priority"
 msgstr "STP prioriteit"
 
@@ -6171,7 +6181,7 @@ msgstr "zaterdag"
 msgid "Saturdays"
 msgstr "zaterdagen"
 
-#: pkg/systemd/services.html:280 pkg/storaged/crypto-keyslots.jsx:269
+#: pkg/systemd/services.html:288 pkg/storaged/crypto-keyslots.jsx:269
 #: pkg/storaged/crypto-keyslots.jsx:288
 #: pkg/machines/components/vm/nics/nicEdit.jsx:159
 #: pkg/machines/components/vm/overview/bootOrder.jsx:321
@@ -6263,9 +6273,8 @@ msgstr "Verzend sleutel"
 msgid "Send non-maskable interrupt"
 msgstr "Verzend niet-maskeerbare onderbreking"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:134
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:439
-#: pkg/networkmanager/index.html:475
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:397
 msgid "Sending"
 msgstr "Verzenden"
 
@@ -6278,7 +6287,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Serienummer"
 
-#: pkg/static/login.html:139 pkg/storaged/nfs-details.jsx:326
+#: pkg/static/login.html:140 pkg/storaged/nfs-details.jsx:326
 #: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:121
 msgid "Server"
 msgstr "Server"
@@ -6355,7 +6364,7 @@ msgstr "Sessie"
 msgid "Session is about to expire"
 msgstr "Sessie verloopt binnenkort"
 
-#: pkg/lib/machine-add.html:53
+#: pkg/shell/machines/machine-add.html:53
 msgid "Set"
 msgstr "Instellen"
 
@@ -6380,7 +6389,7 @@ msgstr "Wachtwoord instellen"
 msgid "Set time"
 msgstr "Stel tijd in"
 
-#: pkg/networkmanager/index.html:193
+#: pkg/networkmanager/index.html:154
 msgid "Set to"
 msgstr "Stel in op"
 
@@ -6415,7 +6424,7 @@ msgstr "Loop apparaat $target instellen"
 msgid "Severity"
 msgstr "Strengheid"
 
-#: pkg/networkmanager/interfaces.js:1944
+#: pkg/networkmanager/interfaces.js:1896
 msgid "Shared"
 msgstr "Gedeeld"
 
@@ -6451,7 +6460,7 @@ msgstr "Toon alles"
 msgid "Show all threads"
 msgstr "Toon alle threads"
 
-#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:397 pkg/systemd/logs.js:516
+#: pkg/systemd/logs.html:103 pkg/systemd/logs.js:411 pkg/systemd/logs.js:530
 msgid "Show filters"
 msgstr "Toon filters"
 
@@ -6642,11 +6651,11 @@ msgstr "Bron volumegroep"
 msgid "Space-saving computer"
 msgstr "Ruimtebesparende computer"
 
-#: pkg/networkmanager/interfaces.js:2846
+#: pkg/networkmanager/interfaces.js:2743
 msgid "Spanning tree protocol"
 msgstr "Spanning tree protocol"
 
-#: pkg/networkmanager/index.html:228
+#: pkg/networkmanager/index.html:189
 msgid "Spanning tree protocol (STP)"
 msgstr "Spanning tree protocol (STP)"
 
@@ -6662,7 +6671,7 @@ msgstr "Specifieke tijd"
 msgid "Speed"
 msgstr "Snelheid"
 
-#: pkg/networkmanager/interfaces.js:3648
+#: pkg/networkmanager/interfaces.js:3562
 msgid "Stable"
 msgstr "Stabiel"
 
@@ -6727,12 +6736,12 @@ msgid "State"
 msgstr "Toestand"
 
 #: pkg/systemd/services/service-details.jsx:337
-#: pkg/systemd/services/services.jsx:526 pkg/systemd/services/services.jsx:687
+#: pkg/systemd/services/services.jsx:530 pkg/systemd/services/services.jsx:691
 msgid "Static"
 msgstr "Statisch"
 
 #: pkg/systemd/services/service-details.jsx:444 pkg/packagekit/updates.jsx:569
-#: pkg/networkmanager/interfaces.js:2602
+#: pkg/networkmanager/interfaces.js:2499
 msgid "Status"
 msgstr "Toestand"
 
@@ -6740,7 +6749,7 @@ msgstr "Toestand"
 msgid "Stick PC"
 msgstr "Stick PC"
 
-#: pkg/networkmanager/index.html:377
+#: pkg/networkmanager/index.html:338
 msgid "Sticky"
 msgstr "Kleverig"
 
@@ -6784,7 +6793,7 @@ msgstr "Swapspace $target stoppen"
 msgid "Storage"
 msgstr "Opslag"
 
-#: pkg/storaged/devices.jsx:75
+#: pkg/storaged/devices.jsx:81
 msgid "Storage can not be managed on this system."
 msgstr "Opslag kan op dit systeem niet beheerd worden."
 
@@ -6888,11 +6897,11 @@ msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "Swapruimte"
 
-#: pkg/networkmanager/interfaces.js:2482 pkg/networkmanager/interfaces.js:3029
+#: pkg/networkmanager/interfaces.js:2379 pkg/networkmanager/interfaces.js:2942
 msgid "Switch off $0"
 msgstr "Schakel $0 uit"
 
-#: pkg/networkmanager/interfaces.js:2457 pkg/networkmanager/interfaces.js:3017
+#: pkg/networkmanager/interfaces.js:2354 pkg/networkmanager/interfaces.js:2930
 msgid "Switch on $0"
 msgstr "Schakel $0 in"
 
@@ -6900,7 +6909,7 @@ msgstr "Schakel $0 in"
 msgid "Switch to limited access"
 msgstr "Schakel over naar beperkte toegang"
 
-#: pkg/networkmanager/interfaces.js:2481
+#: pkg/networkmanager/interfaces.js:2378
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -6908,7 +6917,7 @@ msgstr ""
 "Als je <b>$0</b> uitschakelt, wordt de verbinding met de server verbroken en "
 "wordt de beheerdersinterface onbereikbaar."
 
-#: pkg/networkmanager/interfaces.js:3028
+#: pkg/networkmanager/interfaces.js:2941
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -6916,7 +6925,7 @@ msgstr ""
 "Als je <b>$0</b> uitschakelt, wordt de verbinding met de server verbroken en "
 "wordt de beheerdersinterface onbereikbaar."
 
-#: pkg/networkmanager/interfaces.js:2456 pkg/networkmanager/interfaces.js:3016
+#: pkg/networkmanager/interfaces.js:2353 pkg/networkmanager/interfaces.js:2929
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7000,20 +7009,20 @@ msgstr "Doelpad mag niet leeg zijn"
 msgid "Targets"
 msgstr "Doelen"
 
-#: pkg/networkmanager/interfaces.js:2502 pkg/networkmanager/interfaces.js:2514
-#: pkg/networkmanager/interfaces.js:2803
+#: pkg/networkmanager/interfaces.js:2399 pkg/networkmanager/interfaces.js:2411
+#: pkg/networkmanager/interfaces.js:2700
 msgid "Team"
 msgstr "Team"
 
-#: pkg/networkmanager/interfaces.js:2831
+#: pkg/networkmanager/interfaces.js:2728
 msgid "Team port"
 msgstr "Teampoort"
 
-#: pkg/networkmanager/index.html:592
+#: pkg/networkmanager/index.html:514
 msgid "Team port settings"
 msgstr "Teampoortinstellingen"
 
-#: pkg/networkmanager/index.html:563
+#: pkg/networkmanager/index.html:485
 msgid "Team settings"
 msgstr "Teaminstellingen"
 
@@ -7053,7 +7062,7 @@ msgstr "De $0 kon niet verwijderd worden"
 msgid "The $0 package must be installed to create VDO devices."
 msgstr "Het $0 pakket moet worden geïnstalleerd om VDO-apparaten te maken."
 
-#: pkg/lib/machine-dialogs.js:406
+#: pkg/shell/machines/machine-dialogs.js:406
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "Het IP-adres of hostnaam mag geen spaties bevatten."
 
@@ -7073,7 +7082,7 @@ msgstr ""
 "Het RAID apparaat moet actief zijn om een extra schijven te kunnen "
 "verwijderen."
 
-#: pkg/lib/machine-dialogs.js:757
+#: pkg/shell/machines/machine-dialogs.js:758
 msgid ""
 "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
 "file of ${ruser} on ${rhost}."
@@ -7081,7 +7090,7 @@ msgstr ""
 "De SSH-sleutel ${key} van ${luser} op ${lhost} zal worden toegevoegd aan het "
 "${afile} bestand van ${ruser} op ${rhost}."
 
-#: pkg/lib/machine-change-auth.html:28
+#: pkg/shell/machines/machine-change-auth.html:28
 msgid ""
 "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
 "protected. You can log in with either your login password or by providing "
@@ -7091,7 +7100,7 @@ msgstr ""
 "beschermd. Je kunt inloggen met je inlogwachtwoord of door het wachtwoord "
 "van de sleutel op te geven op {{#strong}}{{key}}{{/strong}}."
 
-#: pkg/lib/machine-change-auth.html:55
+#: pkg/shell/machines/machine-change-auth.html:55
 msgid ""
 "The SSH key {{#strong}}{{key}}{{/strong}} will be made available for the "
 "remainder of the session and will be available for login to other hosts as "
@@ -7114,14 +7123,6 @@ msgstr "De VM moet actief of uitgeschakeld zijn om dit apparaat te ontkoppelen"
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Het account '$0' zal zijn wachtwoord moeten wijzigen bij de volgende inlog"
-
-#: pkg/lib/machine-unknown-hostkey.html:6
-msgid ""
-"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
-"established. Are you sure you want to continue connecting?"
-msgstr ""
-"De authenticiteit van host {{#strong}}{{host}}{{/strong}} kan niet worden "
-"vastgesteld. Weet je zeker dat je door wilt gaan met verbinden?"
 
 #: pkg/networkmanager/firewall.jsx:739
 msgid "The cockpit service is automatically included"
@@ -7239,22 +7240,11 @@ msgstr ""
 "inhoud ervan moet door de oorspronkelijke organisatie worden beoordeeld "
 "voordat deze aan derden wordt doorgegeven."
 
-#: pkg/lib/machine-invalid-hostkey.html:8
-msgid ""
-"The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
-"in use. Unless this machine was recently replaced, it is likely that someone "
-"is trying to attack your connection to this machine."
-msgstr ""
-"De sleutel van {{#strong}}{{host}}{{/strong}} komt niet overeen met de "
-"eerder gebruikte sleutel. Tenzij deze machine onlangs is vervangen, is het "
-"waarschijnlijk dat iemand je verbinding met deze machine probeert aan te "
-"vallen."
-
-#: pkg/lib/machine-dialogs.js:868
+#: pkg/shell/machines/machine-dialogs.js:869
 msgid "The key password can not be empty"
 msgstr "Het sleutelwachtwoord mag niet leeg zijn"
 
-#: pkg/lib/machine-dialogs.js:876
+#: pkg/shell/machines/machine-dialogs.js:877
 msgid "The key passwords do not match"
 msgstr "De sleutelwachtwoorden komen niet overeen"
 
@@ -7283,11 +7273,11 @@ msgstr "De ingelogde gebruiker mag geen systeemwijzigingen bekijken"
 msgid "The machine is restarting"
 msgstr "De machine wordt opnieuw opgestart"
 
-#: pkg/lib/machine-dialogs.js:884
+#: pkg/shell/machines/machine-dialogs.js:885
 msgid "The new key password can not be empty"
 msgstr "Het nieuwe sleutelwachtwoord mag niet leeg zijn"
 
-#: pkg/lib/machine-dialogs.js:889
+#: pkg/shell/machines/machine-dialogs.js:890
 msgid "The new key passwords do not match"
 msgstr "De nieuwe sleutelwachtwoorden komen niet overeen"
 
@@ -7303,7 +7293,8 @@ msgstr "De wachtwoorden komen niet overeen."
 msgid "The pool is empty"
 msgstr "De pool is leeg"
 
-#: pkg/static/login.html:65
+#: pkg/static/login.html:66 pkg/shell/machines/machine-invalid-hostkey.html:20
+#: pkg/shell/machines/machine-unknown-hostkey.html:12
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7443,7 +7434,7 @@ msgstr ""
 "Deze dag bestaat niet in alle maanden.<br> De timer wordt alleen uitgevoerd "
 "in maanden met 31e."
 
-#: pkg/networkmanager/interfaces.js:2613
+#: pkg/networkmanager/interfaces.js:2510
 msgid "This device cannot be managed here."
 msgstr "Dit apparaat kan hier niet beheerd worden."
 
@@ -7509,11 +7500,11 @@ msgstr "Deze host zal opnieuw opstarten nadat updates zijn geïnstalleerd."
 msgid "This logical volume is not completely used by its content."
 msgstr "Dit logische volume wordt niet volledig gebruikt door de inhoud."
 
-#: pkg/lib/machine-dialogs.js:386
+#: pkg/shell/machines/machine-dialogs.js:386
 msgid "This machine has already been added."
 msgstr "Deze machine is al toegevoegd."
 
-#: pkg/systemd/overview-cards/realmd-operation.html:85
+#: pkg/systemd/overview-cards/realmd-operation.html:94
 msgid "This may take a while"
 msgstr "Dit kan een tijdje duren"
 
@@ -7577,7 +7568,7 @@ msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 "Deze webbrowser is te oud om de Webconsole uit te voeren ($0 ontbreekt)"
 
-#: pkg/lib/machine-dialogs.js:759
+#: pkg/shell/machines/machine-dialogs.js:760
 msgid "This will allow you to log in without password in the future."
 msgstr "Hiermee kun je in de toekomst zonder wachtwoord inloggen."
 
@@ -7635,7 +7626,8 @@ msgstr ""
 "Tip: zorg ervoor dat je sleutelwachtwoord overeenkomt met je inlogwachtwoord "
 "om automatisch te verifiëren bij andere systemen."
 
-#: pkg/static/login.html:60
+#: pkg/static/login.html:61 pkg/shell/machines/machine-invalid-hostkey.html:15
+#: pkg/shell/machines/machine-unknown-hostkey.html:7
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7656,6 +7648,19 @@ msgstr ""
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
+msgstr ""
+"Om een vingerafdruk te verifiëren, voer je het volgende uit op $0 terwijl je "
+"fysiek achter de machine zit of via een vertrouwd netwerk:"
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:18
+#: pkg/shell/machines/machine-unknown-hostkey.html:10
+#, fuzzy
+#| msgid ""
+#| "To verify a fingerprint, run the following on $0 while physically sitting "
+#| "at the machine or through a trusted network:"
+msgid ""
+"To verify a fingerprint, run the following on {{host}} while physically "
+"sitting at the machine or through a trusted network:"
 msgstr ""
 "Om een vingerafdruk te verifiëren, voer je het volgende uit op $0 terwijl je "
 "fysiek achter de machine zit of via een vertrouwd netwerk:"
@@ -7720,7 +7725,7 @@ msgstr "Vertrouwenssleutel"
 msgid "Trust level"
 msgstr "Vertrouwensniveau"
 
-#: pkg/static/login.html:113
+#: pkg/static/login.html:114
 msgid "Try again"
 msgstr "Probeer opnieuw"
 
@@ -7819,7 +7824,7 @@ msgstr "Kan deze oplossing niet automatisch toepassen"
 msgid "Unable to connect to that address"
 msgstr "Kan niet verbinden met dat adres"
 
-#: pkg/lib/machine-dialogs.js:478
+#: pkg/shell/machines/machine-dialogs.js:478
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7827,7 +7832,7 @@ msgstr ""
 "Kan geen contact opnemen met opgegeven host $0. Zorg ervoor dat ssh wordt "
 "uitgevoerd op poort $1 of specificeer een andere poort in het adres."
 
-#: pkg/lib/machine-change-port.html:9
+#: pkg/shell/machines/machine-change-port.html:9
 msgid "Unable to contact {{#strong}}{{host}}{{/strong}}."
 msgstr "Kan geen contact krijgen met {{#strong}}{{host}}{{/strong}}."
 
@@ -7840,7 +7845,7 @@ msgstr "Kan geen alarmdetails krijgen."
 msgid "Unable to get alert: $0"
 msgstr "Kan geen melding krijgen: $0"
 
-#: pkg/lib/machine-change-auth.html:16
+#: pkg/shell/machines/machine-change-auth.html:16
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key "
 "authentication. Please provide the password. You may want to set up your SSH "
@@ -7850,7 +7855,7 @@ msgstr ""
 "sleutelverificatie. Geef het wachtwoord op. Mogelijk wil je jouw SSH-"
 "sleutels instellen voor automatisch inloggen."
 
-#: pkg/lib/machine-change-auth.html:10
+#: pkg/shell/machines/machine-change-auth.html:10
 msgid ""
 "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
 "not accept password login or any of your SSH keys."
@@ -7858,7 +7863,7 @@ msgstr ""
 "Kan niet inloggen op {{#strong}}{{full_address}}{{/strong}}. De host "
 "accepteert geen aanmelden met wachtwoord of een van je SSH-sleutels."
 
-#: pkg/lib/machine-auth-failed.html:15
+#: pkg/shell/machines/machine-auth-failed.html:15
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. For more authentication "
 "options and troubleshooting support please upgrade cockpit-ws to a newer "
@@ -7868,7 +7873,7 @@ msgstr ""
 "naar een nieuwere versie voor meer authenticatie-opties en ondersteuning "
 "voor probleemoplossing."
 
-#: pkg/lib/machine-auth-failed.html:6
+#: pkg/shell/machines/machine-auth-failed.html:6
 msgid ""
 "Unable to log in to {{#strong}}{{host}}{{/strong}}. To connect to this host "
 "you will need to enable one of the following authentication methods in the "
@@ -7902,7 +7907,7 @@ msgstr "Kan bestandssysteem niet afkoppelen"
 msgid "Unavailable"
 msgstr "Niet beschikbaar"
 
-#: pkg/networkmanager/index.html:763 pkg/users/dialog-utils.js:65
+#: pkg/networkmanager/index.html:685 pkg/users/dialog-utils.js:65
 #: pkg/shell/shell-modals.jsx:116
 msgid "Unexpected error"
 msgstr "Onverwachte fout"
@@ -7928,11 +7933,11 @@ msgstr "Unix groep: $0"
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:228
 #: pkg/networkmanager/interfaces.js:582 pkg/networkmanager/interfaces.js:1058
-#: pkg/networkmanager/interfaces.js:2522 pkg/networkmanager/interfaces.js:2524
+#: pkg/networkmanager/interfaces.js:2419 pkg/networkmanager/interfaces.js:2421
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: pkg/networkmanager/interfaces.js:2508 pkg/networkmanager/interfaces.js:2520
+#: pkg/networkmanager/interfaces.js:2405 pkg/networkmanager/interfaces.js:2417
 msgid "Unknown \"$0\""
 msgstr "Onbekend \"$0\""
 
@@ -7944,17 +7949,13 @@ msgstr "Onbekend ($0)"
 msgid "Unknown application"
 msgstr "Onbekende toepassing"
 
-#: pkg/networkmanager/interfaces.js:2629
+#: pkg/networkmanager/interfaces.js:2526
 msgid "Unknown configuration"
 msgstr "Onbekende configuratie"
 
 #: pkg/machines/components/vm/overview/firmware.jsx:113
 msgid "Unknown firmware"
 msgstr "Onbekende firmware"
-
-#: pkg/lib/machine-unknown-hostkey.html:2
-msgid "Unknown host key"
-msgstr "Onbekende hostsleutel"
 
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
@@ -7993,7 +7994,7 @@ msgstr "Ontgrendelen $target"
 msgid "Unlocking disk..."
 msgstr "Schijf ontgrendelen..."
 
-#: pkg/networkmanager/index.html:144
+#: pkg/networkmanager/index.html:105
 msgid "Unmanaged interfaces"
 msgstr "Onbeheerde interfaces"
 
@@ -8043,7 +8044,7 @@ msgstr "Niet-ondersteunde volume"
 msgid "Untrusted host"
 msgstr "Niet vertrouwde host"
 
-#: pkg/lib/machine-change-port.html:25
+#: pkg/shell/machines/machine-change-port.html:25
 msgid "Update"
 msgstr "Bijwerken"
 
@@ -8128,8 +8129,8 @@ msgstr "Gebruikt door"
 msgid "User"
 msgstr "Gebruiker"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:70
-#: pkg/lib/machine-add.html:29 pkg/users/account-create-dialog.js:49
+#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:71
+#: pkg/shell/machines/machine-add.html:29 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:289
 msgid "User name"
 msgstr "Gebruikersnaam"
@@ -8139,7 +8140,7 @@ msgid "User name cannot be empty"
 msgstr "Gebruikersnaam mag niet leeg zijn"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:60
-#: pkg/systemd/overview-cards/realmd-operation.js:336
+#: pkg/systemd/overview-cards/realmd-operation.js:340
 msgid "User password"
 msgstr "Gebruikerswachtwoord"
 
@@ -8172,16 +8173,16 @@ msgstr "VDO-apparaat"
 msgid "VDO device $0"
 msgstr "VDO-apparaat $0"
 
-#: pkg/networkmanager/interfaces.js:2504 pkg/networkmanager/interfaces.js:2516
-#: pkg/networkmanager/interfaces.js:2895
+#: pkg/networkmanager/interfaces.js:2401 pkg/networkmanager/interfaces.js:2413
+#: pkg/networkmanager/interfaces.js:2792
 msgid "VLAN"
 msgstr "VLAN"
 
-#: pkg/networkmanager/index.html:171
+#: pkg/networkmanager/index.html:132
 msgid "VLAN ID"
 msgstr "VLAN-ID"
 
-#: pkg/networkmanager/index.html:679
+#: pkg/networkmanager/index.html:601
 msgid "VLAN settings"
 msgstr "VLAN-instellingen"
 
@@ -8254,7 +8255,7 @@ msgstr "VNC-console"
 msgid "Validating address"
 msgstr "Adres valideren"
 
-#: pkg/static/login.html:107
+#: pkg/static/login.html:108
 msgid "Validating authentication token"
 msgstr "Verificatietoken valideren"
 
@@ -8447,7 +8448,7 @@ msgstr "Wat als tang-show-keys niet beschikbaar is?"
 msgid "When"
 msgstr "Wanneer"
 
-#: pkg/lib/machine-add.html:34
+#: pkg/shell/machines/machine-add.html:34
 msgid "When empty, connect with the current user"
 msgstr "Maak verbinding met de huidige gebruiker als deze leeg is"
 
@@ -8478,19 +8479,15 @@ msgstr "Beschrijfbaar"
 msgid "Writeable and shared"
 msgstr "Beschrijfbaar en gedeeld"
 
-#: pkg/storaged/plot.jsx:315
-msgid "Writing"
-msgstr "Schrijven"
-
 #: pkg/static/login.js:816
 msgid "Wrong user name or password"
 msgstr "Verkeerde gebruikersnaam of wachtwoord"
 
-#: pkg/networkmanager/interfaces.js:1961
+#: pkg/networkmanager/interfaces.js:1913
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/systemd/reporting.jsx:261 pkg/networkmanager/interfaces.js:2582
+#: pkg/systemd/reporting.jsx:261 pkg/networkmanager/interfaces.js:2479
 msgid "Yes"
 msgstr "Ja"
 
@@ -8500,6 +8497,12 @@ msgstr "Gisteren"
 
 #: pkg/static/login.js:648
 msgid "You are connecting to $0 for the first time."
+msgstr "Je maakt voor de eerste keer verbinding met $0."
+
+#: pkg/shell/machines/machine-unknown-hostkey.html:6
+#, fuzzy
+#| msgid "You are connecting to $0 for the first time."
+msgid "You are connecting to {{host}} for the first time."
 msgstr "Je maakt voor de eerste keer verbinding met $0."
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
@@ -8522,11 +8525,12 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Je bent uitgelogd vanwege inactiviteit."
 
-#: pkg/systemd/logs.js:113
+#: pkg/systemd/logs.js:114
 msgid "You may try to load older entries."
 msgstr "Je kunt proberen oudere items te laden."
 
-#: pkg/lib/machine-change-auth.html:22 pkg/lib/machine-change-auth.html:29
+#: pkg/shell/machines/machine-change-auth.html:22
+#: pkg/shell/machines/machine-change-auth.html:29
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 "Mogelijk wil je het wachtwoord van de sleutel wijzigen om automatisch in te "
@@ -8756,8 +8760,8 @@ msgstr "station"
 msgid "e.g."
 msgstr "b.v."
 
-#: pkg/systemd/overview-cards/realmd-operation.js:298
-#: pkg/systemd/overview-cards/realmd-operation.js:304
+#: pkg/systemd/overview-cards/realmd-operation.js:302
+#: pkg/systemd/overview-cards/realmd-operation.js:308
 msgid "e.g. \"$0\""
 msgstr "bijv. \"$0\""
 
@@ -9251,8 +9255,8 @@ msgstr "onbepaald"
 msgid "unit"
 msgstr "unit"
 
-#: pkg/systemd/services/services.jsx:462 pkg/systemd/services/services.jsx:463
-#: pkg/systemd/services/services.jsx:485 pkg/systemd/services/services.jsx:486
+#: pkg/systemd/services/services.jsx:466 pkg/systemd/services/services.jsx:467
+#: pkg/systemd/services/services.jsx:489 pkg/systemd/services/services.jsx:490
 msgid "unknown"
 msgstr "onbekend"
 
@@ -9375,6 +9379,41 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in:0
 msgid "zone"
 msgstr "zone"
+
+#: pkg/shell/machines/machine-invalid-hostkey.html:2
+#, fuzzy
+#| msgid "$0 key changed"
+msgid "{{host}} key changed"
+msgstr "$0 sleutel gewijzigd"
+
+#~ msgid "Incorrect host key"
+#~ msgstr "Onjuiste hostsleutel"
+
+#~ msgid "Reading"
+#~ msgstr "Lezend"
+
+#~ msgid ""
+#~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
+#~ "established. Are you sure you want to continue connecting?"
+#~ msgstr ""
+#~ "De authenticiteit van host {{#strong}}{{host}}{{/strong}} kan niet worden "
+#~ "vastgesteld. Weet je zeker dat je door wilt gaan met verbinden?"
+
+#~ msgid ""
+#~ "The key of {{#strong}}{{host}}{{/strong}} does not match the key "
+#~ "previously in use. Unless this machine was recently replaced, it is "
+#~ "likely that someone is trying to attack your connection to this machine."
+#~ msgstr ""
+#~ "De sleutel van {{#strong}}{{host}}{{/strong}} komt niet overeen met de "
+#~ "eerder gebruikte sleutel. Tenzij deze machine onlangs is vervangen, is "
+#~ "het waarschijnlijk dat iemand je verbinding met deze machine probeert aan "
+#~ "te vallen."
+
+#~ msgid "Unknown host key"
+#~ msgstr "Onbekende hostsleutel"
+
+#~ msgid "Writing"
+#~ msgstr "Schrijven"
 
 #~ msgid "Address:"
 #~ msgstr "Adres:"

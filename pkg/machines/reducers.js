@@ -394,6 +394,8 @@ function ui(state, action) {
                     ...state,
                     vms: [...state.vms.filter(vm => !(vm.name == action.vm.name && vm.connectionName == action.vm.connectionName)), updatedVm]
                 };
+            } else {
+                return state;
             }
         }
     };

@@ -526,7 +526,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0} && virsh pool-start myPoolTwo".format(v2))
 
-        m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
+        m.execute("virsh vol-create-as default_tmp defaultVol --capacity 10M --format raw")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 50M --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 50M --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
@@ -545,7 +545,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             pool_name='myPoolOne',
             volume_name='mydiskofpoolone_temporary',
             use_existing_volume=False,
-            volume_size=2048,
+            volume_size=10,
             volume_size_unit='MiB',
             permanent=False,
             expected_target=transient_targets[-1],

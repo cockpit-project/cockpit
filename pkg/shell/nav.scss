@@ -6,8 +6,18 @@ $phone-tiny: 360px;
 $phone: 767px;
 $desktop: $phone + 1px;
 
+:root {
+    --ct-color-nav            : #1b1b1b;
+    --ct-color-nav-sub        : var(--pf-global--BackgroundColor--dark-300);
+    --ct-color-nav-text       : var(--pf-global--BackgroundColor--light-300);
+    --ct-color-nav-active     : var(--pf-global--BackgroundColor--dark-400);
+    --ct-color-nav-active-text: var(--pf-global--BackgroundColor--light-100);
+    --ct-color-nav-cover-up   : linear-gradient(to bottom, var(--ct-color-nav-sub), rgba(21,21,21, 0));
+    --ct-color-nav-cover-down : linear-gradient(to top, var(--ct-color-nav-sub), rgba(21,21,21, 0));
+}
+
 .area-ct-subnav {
-    background: var(--color-ct-nav-sub);
+    background: var(--ct-color-nav-sub);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -16,7 +26,7 @@ $desktop: $phone + 1px;
         padding-left: 0;
         padding-right: 0;
         font-weight: bold;
-        color: var(--color-ct-nav-active-text);
+        color: var(--ct-color-nav-active-text);
         background: var(--pf-global--BackgroundColor--dark-400);
     }
 
@@ -24,25 +34,25 @@ $desktop: $phone + 1px;
         margin: 1rem 1.5rem;
 
         > input.form-control {
-            background: var(--color-ct-nav);
-            border: 0 solid var(--color-ct-nav);
+            background: var(--ct-color-nav);
+            border: 0 solid var(--ct-color-nav);
             border-width: 2px 0;
-            color: var(--color-ct-nav-main-text) !important;
+            color: var(--ct-color-nav-text) !important;
             padding: 0 0.5rem 0 32px !important;
             transition: var(--pf-global--Transition);
 
             &::placeholder {
-                color: var(--color-ct-nav-text);
+                color: var(--ct-color-nav-text);
                 opacity: 0.8;
             }
 
             &:focus {
-                border-bottom-color: var(--color-ct-nav-main-text);
+                border-bottom-color: var(--ct-color-nav-text);
             }
         }
 
         > .form-control-feedback {
-            color: var(--color-ct-nav-text);
+            color: var(--ct-color-nav-text);
             opacity: 0.7;
             margin: 0.5rem;
             right: auto;
@@ -54,7 +64,7 @@ $desktop: $phone + 1px;
         }
 
         > input.form-control:focus ~ .form-control-feedback {
-            color: var(--color-ct-nav-active-text);
+            color: var(--ct-color-nav-active-text);
             opacity: 1;
         }
     }
@@ -489,7 +499,7 @@ $desktop: $phone + 1px;
         // Set position for the icon sandwiching
         position: relative;
         // Add a shadow around the icon
-        text-shadow: 1px 0 1px var(--color-ct-nav), 0 1px 1px var(--color-ct-nav), -1px 0 1px var(--color-ct-nav), 0 -1px 1px var(--color-ct-nav);
+        text-shadow: 1px 0 1px var(--ct-color-nav), 0 1px 1px var(--ct-color-nav), -1px 0 1px var(--ct-color-nav), 0 -1px 1px var(--ct-color-nav);
 
         // Move the icon up the stack
         &::before {
@@ -501,7 +511,7 @@ $desktop: $phone + 1px;
         &::after {
             position: absolute;
             content: '';
-            background-color: var(--color-ct-nav);
+            background-color: var(--ct-color-nav);
             border-radius: 3px;
             top: 3px;
             right: 5px;

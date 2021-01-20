@@ -3,7 +3,7 @@
 @import "./patternfly/patternfly-4-overrides.scss";
 @import "@patternfly/patternfly/components/Page/page.scss";
 
-/* Globaly resize headings */
+/* Globally resize headings */
 h1 {
   font-size: var(--pf-global--FontSize--4xl);
 }
@@ -76,7 +76,7 @@ a.disabled:hover {
 .dropdown-menu > li > a.disabled,
 .dropdown-menu > li > a.disabled:hover,
 .dropdown-menu > li > a.disabled:focus {
-  color: var(--color-subtle-copy);
+  color: var(--ct-color-subtle-copy);
 }
 
 .dropdown-menu > li > a.disabled:hover,
@@ -85,7 +85,6 @@ a.disabled:hover {
   background-color: transparent;
   background-image: none;
   border-color: transparent;
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
   cursor: default;
 }
 
@@ -109,10 +108,8 @@ a.disabled:hover {
 }
 
 .highlight-ct {
-    background-color: var(--color-link-hover-bg);
+    background-color: var(--ct-color-link-hover-bg);
 }
-
-/* Well and Blankslate */
 
 .curtains-ct {
     top: 0px;
@@ -125,7 +122,7 @@ a.disabled:hover {
     margin-bottom: 0px;
     border: none;
     border-radius: 0px;
-    background-color: var(--color-gray-1);
+    background-color: var(--pf-global--palette--black-200);
 }
 
 .well.blank-slate-pf {
@@ -179,7 +176,7 @@ a.disabled:hover {
 
 .dialog-wait-ct .spinner {
     display: inline-block;
-    /* Add spacing betweem possible messages and the spinner */
+    /* Add spacing between possible messages and the spinner */
     margin-left: var(--pf-global--spacer--md);
 }
 
@@ -191,7 +188,7 @@ a.disabled:hover {
 .dialog-list-ct {
     max-height: 230px;
     overflow-x: auto;
-    border: 1px solid var(--color-light-gray);
+    border: 1px solid var(--pf-global--palette--black-300);
     margin-bottom: 0px;
 }
 
@@ -253,7 +250,7 @@ input[type=number]:not(.pf-c-form-control) {
 
 .ct-select optgroup,
 .ct-select option {
-    background-color: var(--color-bg);
+    background-color: var(--ct-color-bg);
 }
 
 .ct-select option:checked {
@@ -262,270 +259,48 @@ input[type=number]:not(.pf-c-form-control) {
 }
 
 :root {
-    /* Custom font aliases */
-    --font-family: var(--pf-global--FontFamily--sans-serif);
-    --font-family-mono: var(--pf-global--FontFamily--monospace);
-    --font-size: var(--pf-global--FontSize--md);
-    --font-size-s: var(--pf-global--FontSize--sm);
-    --font-size-xs: var(--pf-global--FontSize--xs);
-    --font-size-l: var(--pf-global--FontSize--lg);
-    --font-size-xl: var(--pf-global--FontSize--xl);
-    --font-size-2xl: var(--pf-global--FontSize--2xl);
-    --font-size-3xl: var(--pf-global--FontSize--3xl);
-
     /* Cockpit custom colors */
-    --color-ct-light-red-1: #f8cccc;
-    --color-ct-light-red-2: #f8acac;
-    --color-ct-light-red-3: #f98383;
-    --color-ct-brick-gold : #ffa763;
-    --color-ct-brick-red  : #a53131;
+    --ct-color-light-red: #f8cccc;
+    --ct-color-red-hat-red : #ee0000;
 
-    --color-ct-nav            : #1b1b1b;
-    --color-ct-nav-sub        : var(--pf-global--BackgroundColor--dark-300);
-    --color-ct-nav-text       : var(--pf-global--BackgroundColor--light-300);
-    --color-ct-nav-active     : var(--pf-global--BackgroundColor--dark-400);
-    --color-ct-nav-active-text: var(--pf-global--BackgroundColor--light-100);
-    --color-ct-nav-hover     : var(--pf-global--BackgroundColor--dark-400);
-    --color-ct-nav-hover-text: var(--pf-global--BackgroundColor--light-100);
-    --color-ct-nav-border     : var(--pf-global--BorderColor--100);
-    --color-ct-nav-cover-up   : linear-gradient(to bottom, var(--color-ct-nav-sub), rgba(21,21,21, 0));
-    --color-ct-nav-cover-down : linear-gradient(to top, var(--color-ct-nav-sub), rgba(21,21,21, 0));
-
-    --color-ct-nav-main            : #1b1b1b;
-    --color-ct-nav-main-text       : var(--color-ct-nav-text);
-    --color-ct-nav-main-border     : var(--pf-global--BackgroundColor--dark-200);
-    --color-ct-nav-main-active     : var(--color-ct-nav-sub);
-    --color-ct-nav-main-active-text: var(--color-ct-nav-active-text);
-    --color-ct-nav-main-hover      : var(--color-ct-nav-hover);
-    --color-ct-nav-main-hover-text : var(--color-ct-nav-hover-text);
-
-    --color-border: var(--pf-global--BorderColor--100);
-
-    --color-ct-list-text           : var(--color-text);
-    --color-ct-list-link           : var(--color-link);
-    --color-ct-list-bg             : var(--color-bg);
-    --color-ct-list-border         : var(--color-border);
-    --color-ct-list-hover-text     : var(--color-link);
-    --color-ct-list-hover-bg       : var(--pf-global--BackgroundColor--150);
-    --color-ct-list-hover-border   : var(--pf-global--BackgroundColor--150);
-    --color-ct-list-hover-icon     : var(--color-blue);
-    --color-ct-list-selected-text  : var(--color-link);
-    --color-ct-list-selected-bg    : var(--pf-global--BackgroundColor--150);
-    --color-ct-list-selected-border: var(--pf-global--BackgroundColor--150);
-    --color-ct-list-active-text    : var(--color-link-focus);
-    --color-ct-list-active-bg      : var(--color-bg);
-    --color-ct-list-active-border  : var(--color-ct-list-border);
-    --color-ct-list-critical-bg          : var(--pf-global--palette--red-50);
-    --color-ct-list-critical-border      : #e6bcbc; // red-500 mixed with white @ 50%
-    --color-ct-list-critical-alert-text  : var(--pf-global--palette--red-200);
-
-    --color-link-hover-bg  : var(--color-light-blue-2);
-    --color-link-hover-icon: var(--color-blue-5);
-
-    /* Red Hat Digital Design System 2019 named colors */
-    --color-red-hat-red : #ee0000;
-    --color-red-1       : #cc0000;
-    --color-red-2       : #a30000;
-    --color-red-3       : #820000;
-    --color-dark-red-4  : #5a0000;
-    --color-dark-red-5  : #460000;
-    --color-dark-red-6  : #320000;
-    --color-black       : #000000;
-    --color-white       : #ffffff;
-    --color-dark-blue   : #004153;
-    --color-light-blue  : #a3dbe8;
-    --color-dark-gray   : #4c4c4c;
-    --color-light-gray  : #dcdcdc;
-    --color-purple      : #3b0083;
-    --color-gold        : #f0ab00;
-    --color-teal        : #007987;
-    --color-blue        : #00b9e4;
-    --color-green       : #92d400;
-    --color-storage     : #ec7a08;
-    --color-infra       : #0088ce;
-    --color-app-dev     : #3f9c35;
-    --color-light-blue-1: #e8f6f9;
-    --color-light-blue-2: #d1edf4;
-    --color-light-blue-3: #b6e2ec;
-    --color-dark-blue-1 : #80a0a9;
-    --color-dark-blue-2 : #4e7a86;
-    --color-dark-blue-3 : #1b5764;
-    --color-blue-1      : #d9f5fb;
-    --color-blue-2      : #c0edf7;
-    --color-blue-3      : #9ae4f3;
-    --color-blue-4      : #82ddf1;
-    --color-blue-5      : #68d6ee;
-    --color-blue-6      : #38c8e8;
-    --color-teal-1      : #d9ebed;
-    --color-teal-2      : #cbe4f1;
-    --color-teal-3      : #b3d7db;
-    --color-teal-4      : #9acacf;
-    --color-teal-5      : #68afb6;
-    --color-teal-6      : #36959e;
-    --color-green-1     : #eaf5cd;
-    --color-green-2     : #dff1b4;
-    --color-green-3     : #d4ec9c;
-    --color-green-4     : #cae883;
-    --color-green-5     : #b5df56;
-    --color-green-6     : #aadb40;
-    --color-gold-1      : #fcedcd;
-    --color-gold-2      : #fae5b4;
-    --color-gold-3      : #f9dc9c;
-    --color-gold-4      : #f8d384;
-    --color-gold-5      : #f5c255;
-    --color-gold-6      : #f2b22d;
-    --color-purple-1    : #e2daec;
-    --color-purple-2    : #cdc0df;
-    --color-purple-3    : #b09bcc;
-    --color-purple-4    : #9c82c0;
-    --color-purple-5    : #8869b3;
-    --color-purple-6    : #7551a6;
-    --color-gray-1      : #f0f0f0;
-    --color-gray-2      : #e6e6e6;
-    --color-gray-3      : #d2d2d2;
-    --color-gray-4      : #bebebe;
-    --color-gray-5      : #aaaaaa;
-    --color-gray-6      : #969696;
-    --color-gray-7      : #828282;
-    --color-gray-8      : #6e6e6e;
-    --color-gray-9      : #5a5a5a;
-    --color-gray-10     : #464646;
-    --color-gray-11     : #323232;
-    --color-gray-12     : #1e1e1e;
+    // Blend between --pf-global--palette--black-200 and 300
+    --ct-global--palette--black-250: #e6e6e6;
 
     /* Semantic colors */
-    --color-fg: #151515;
-    --color-bg: #fff;
-    --color-text: var(--color-fg);
+    --ct-color-fg: var(--pf-global--color--100);
+    --ct-color-bg: var(--pf-global--BackgroundColor--100);
+    --ct-color-text: var(--ct-color-fg);
 
-    --color-link             : #0066cc;
-    --color-link-visited     : #0066cc;
-    --color-link-hover       : #004080;
-    --color-link-focus       : #004080;
-    --color-link-dark        : #73bcf7;
-    --color-link-visited-dark: #73bcf7;
-    --color-link-hover-dark  : #2b9af3;
-    --color-link-focus-dark  : #2b9af3;
+    --ct-color-link        : var(--pf-global--active-color--100);
+    --ct-color-link-visited: var(--pf-global--active-color--100);
 
-    --color-heading             : #151515;
-    --color-heading-dark        : #ffffff;
-    --color-body-copy           : #151515;
-    --color-body-copy-dark      : #cccccc;
-    --color-body-copy-dark-color: rbga(255,255,255,0.8);
-    --color-subtle-copy         : #72767b;
-    --color-subtle-text-dark    : #cccccc;
+    --ct-color-subtle-copy: var(--pf-global--disabled-color--100);
 
-    --color-alert-success-bg    : #ffffff;
-    --color-alert-sucess-icon   : #92d400;
-    --color-alert-sucess-border : #92d400;
-    --color-alert-success-text  : #486b00;
-    --color-alert-info-bg       : #ffffff;
-    --color-alert-info-icon     : #39a5dc;
-    --color-alert-info-border   : #39a5dc;
-    --color-alert-info-text     : #004368;
-    --color-alert-warning-bg    : #ffffff;
-    --color-alert-warning-icon  : #f0ab00;
-    --color-alert-warning-border: #f0ab00;
-    --color-alert-warning-text  : #795600;
-    --color-alert-danger-bg     : #ffffff;
-    --color-alert-danger-icon   : #c9190b;
-    --color-alert-danger-border : #c9190b;
-    --color-alert-danger-text   : #7d1007;
+    // General border color (semantic shortcut, instead of specifying the color directly)
+    --ct-color-border: var(--pf-global--BorderColor--100);
 
-    --color-low-severity-background      : #ffffff;
-    --color-low-severity-icon            : #72767b;
-    --color-low-severity-border          : #72767b;
-    --color-low-severity-text            : #151515;
-    --color-moderate-severity-background : #ffffff;
-    --color-moderate-severity-icon       : #f0ab00;
-    --color-moderate-severity-border     : #f0ab00;
-    --color-moderate-severity-text       : #795600;
-    --color-important-severity-background: #ffffff;
-    --color-important-severity-icon      : #df7409;
-    --color-important-severity-border    : #df7409;
-    --color-important-severity-text      : #8f4c09;
-    --color-critical-severity-background : #ffffff;
-    --color-critical-severity-icon       : #c9190b;
-    --color-critical-severity-border     : #c9190b;
-    --color-critical-severity-text       : #7d1007;
+    // Used for highlighting link blocks (with a light background blue)
+    --ct-color-link-hover-bg  : var(--pf-global--palette--light-blue-100);
 
-    --color-cta-default        : #0066cc;
-    --color-cta-default-hover  : #004080;
-    --color-cta-primary        : #ee0000;
-    --color-cta-primary-hover  : #d40000;
-    --color-cta-secondary      : #151515;
-    --color-cta-secondary-hover: #151515;
-    --color-cta-accent         : #0066cc;
-    --color-cta-accent-hover   : #0066cc;
-
-    --color-button-text           : #ffffff;
-    --color-button-text-dark      : #151515;
-    --color-button-default        : #151515;
-    --color-button-default-hover  : #151515;
-    --color-button-primary        : #0066cc;
-    --color-button-primary-hover  : #004080;
-    --color-button-secondary      : #0066cc;
-    --color-button-secondary-hover: #0066cc;
-    --color-button-disabled       : #d2d2d2;
-    --color-button-disabled-text  : #72767b;
-
-    --color-border-lighter: #d2d2d2;
-    --color-border-default: #d2d2d2;
-    --color-border-darker : #d2d2d2;
-
-    --color-potential-band-color: #f0f0f0;
-    --color-ui-hover-bg         : #ededed;
-    --color-ui-alternate-row-bg : #ededed;
-
-    --color-label                        : #151515;
-    --color-form-field-bottom-border     : #8b8d8f;
-    --color-form-field-border            : #0066cc;
-    --color-form-field-focus             : #0066cc;
-    --color-form-field-bg                : #ffffff;
-    --color-form-field-text              : #151515;
-    --color-form-field-error-border      : #a30000;
-    --color-form-field-error-bg          : #ffffff;
-    --color-form-field-error-text        : #a30000;
-    --color-form-field-active-border     : #0066cc;
-    --color-select-dropdown-bottom-border: #8b8d8f;
-    --color-select-dropdown-bg           : #ffffff;
-    --color-select-dropdown-arrow-color  : #151515;
-    --color-select-dropdown-text-color   : #151515;
-
-    --color-breadcrumb-link      : #0066cc;
-    --color-breadcrumb-link-hover: #004080;
-    --color-breadcrumb-text      : #151515;
-
-    --color-pagination-current-text: #393f44;
-
-    --color-chips          : #72767b;
-    --color-chips-secondary: #72767b;
-    --color-chips-hover    : #72767b;
-
-    --color-tab-link           : #007bba;
-    --color-tab-text           : #007bba;
-    --color-tab-indicator-color: #007bba;
-
-    --color-tab-bg                      : #ffffff;
-    --color-tab-border                  : #ededed;
-    --color-tab-selected-text           : #007bba;
-    --color-tab-selected-indicator-color: #007bba;
-    --color-tab-selected-bg             : #ffffff;
-    --color-tab-selected-border         : #ededed;
-
-    --color-tooltips-bg  : #ffffff;
-    --color-tooltips-text: #151515;
-
-    --color-modal-bg       : #ffffff;
-    --color-modal-header-bg: #151515;
-
-    --color-table-header-bg           : #ffffff;
-    --color-table-header-text         : #393f44;
-    --color-table-header-border       : #ededed;
-    --color-table-header-border-bottom: #ededed;
-    --color-table-border              : #ededed;
-    --color-table-border-bottom       : #ededed;
-    --color-table-text                : #393f44;
+    /* Colors used for custom lists */
+    // as seen in Journal, Listing, Table widgets and pages like Machines, Updates, Services
+    --ct-color-list-text               : var(--ct-color-text);
+    --ct-color-list-link               : var(--ct-color-link);
+    --ct-color-list-bg                 : var(--ct-color-bg);
+    --ct-color-list-border             : var(--ct-color-border);
+    --ct-color-list-hover-text         : var(--ct-color-link);
+    --ct-color-list-hover-bg           : var(--pf-global--BackgroundColor--150);
+    --ct-color-list-hover-border       : var(--pf-global--BackgroundColor--150);
+    --ct-color-list-hover-icon         : var(--pf-global--palette--light-blue-400);
+    --ct-color-list-selected-text      : var(--ct-color-link);
+    --ct-color-list-selected-bg        : var(--pf-global--BackgroundColor--150);
+    --ct-color-list-selected-border    : var(--pf-global--BackgroundColor--150);
+    --ct-color-list-active-text        : var(--pf-global--palette--blue-500);
+    --ct-color-list-active-bg          : var(--ct-color-bg);
+    --ct-color-list-active-border      : var(--ct-color-list-border);
+    --ct-color-list-critical-bg        : var(--pf-global--palette--red-50);
+    --ct-color-list-critical-border    : #e6bcbc; // red-500 mixed with white @ 50%
+    --ct-color-list-critical-alert-text: var(--pf-global--palette--red-200);
 }
 
 [hidden] { display: none !important; }

@@ -43,6 +43,18 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
+        con_id = wait(lambda: self.iface_con_id(iface))
+
+        # Toggle "Connect automatically"
+        #
+        b.wait_visible('label:contains(Connect automatically) input:checked')
+        b.set_checked('label:contains(Connect automatically) input', False)
+        self.assertEqual(m.execute("nmcli -g connection.autoconnect con show %s" % con_id), "no\n")
+        b.wait_visible('label:contains(Connect automatically) input:not(:checked)')
+        b.set_checked('label:contains(Connect automatically) input', True)
+        b.wait_visible('label:contains(Connect automatically) input:checked')
+        self.assertEqual(m.execute("nmcli -g connection.autoconnect con show %s" % con_id), "yes\n")
+
         # Configure a manual IP address
         #
         b.click("tr:contains('IPv4') a")
@@ -61,8 +73,6 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("#network-interface .pf-c-card:contains('%s')" % iface, "1.2.3.4/18")
-
-        con_id = wait(lambda: self.iface_con_id(iface))
 
         # Disconnect
         self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)

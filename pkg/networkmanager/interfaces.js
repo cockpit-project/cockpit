@@ -4673,6 +4673,9 @@ function init() {
         $(cockpit).on("locationchanged", navigate);
         navigate();
     });
+
+    $('#confirm-breaking-change-popup [data-dismiss]').click(() =>
+        $('#confirm-breaking-change-popup').prop('hidden', true));
 }
 
 $(init);

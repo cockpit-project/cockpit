@@ -28,24 +28,6 @@ from testlib import *
 @no_retry_when_changed
 class TestMachinesLifecycle(VirtualMachinesCase):
 
-    def testState(self):
-        b = self.browser
-        m = self.machine
-        name = "subVmTest1"
-        args = self.createVm(name)
-
-        self.login_and_go("/machines")
-        b.wait_in_text("body", "Virtual machines")
-        self.waitVmRow(name)
-
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
-        self.goToVmPage("subVmTest1")
-
-        m.execute('[ "$(virsh domstate {0})" = running ] || '
-                  '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
-
-        return args
-
     def testBasic(self):
         self._testBasic()
 

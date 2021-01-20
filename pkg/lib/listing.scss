@@ -4,7 +4,7 @@
 @import "./variables.scss";
 
 .ct-listing {
-    font-size: var(--font-size-s);
+    font-size: var(--pf-global--FontSize-s);
     min-width: 65%;
     // Some parts of Cockpit still float (Docker) and need clearing
     clear: both;
@@ -78,15 +78,15 @@
 /* A listing item is a row in the table */
 tbody > tr.listing-ct-item {
     border: 1px solid transparent;
-    border-top: 1px solid var(--color-ct-list-border);
+    border-top: 1px solid var(--ct-color-list-border);
     cursor: pointer;
 }
 
 .ct-listing > table > tbody:last-child {
-    border-bottom: 1px solid var(--color-ct-list-border);
+    border-bottom: 1px solid var(--ct-color-list-border);
 }
 .ct-listing > table > tbody + thead {
-    border-top: 1px solid var(--color-ct-list-border);
+    border-top: 1px solid var(--ct-color-list-border);
 }
 .ct-listing > table > tbody.open:last-child {
     border-bottom: none;
@@ -300,7 +300,7 @@ div.listing-ct-maybe div.listing-ct-body {
 }
 
 tbody.active .listing-ct-head {
-    border-top: $listing-ct-open-width solid var(--color-link);
+    border-top: $listing-ct-open-width solid var(--ct-color-link);
 }
 
 .listing-ct-head h3 {
@@ -544,7 +544,7 @@ tbody.open tr.listing-ct-head {
     border-color: $listing-ct-border;
     border-style: solid;
     border-width: 1px 1px 0 1px;
-    border-top: $listing-ct-open-width solid var(--color-link);
+    border-top: $listing-ct-open-width solid var(--ct-color-link);
     background-color: $listing-ct-open;
 }
 
@@ -558,11 +558,11 @@ tr.listing-ct-head + tr.listing-ct-head td {
 
 tr.listing-ct-body td {
     padding: $listing-ct-padding * 2 $listing-ct-padding + $listing-ct-spacing;
-    font-size: var(--font-size-s);
+    font-size: var(--pf-global--FontSize-s);
 }
 
 .listing-ct-empty {
-    color: var(--color-subtle-copy);
+    color: var(--ct-color-subtle-copy);
     text-align: center;
     border-top: 1px solid $listing-ct-border-light;
     border-bottom: 1px solid $listing-ct-border-light;

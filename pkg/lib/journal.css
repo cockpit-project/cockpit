@@ -32,12 +32,12 @@
 .cockpit-log-panel .pf-c-card__body .panel-heading,
 .cockpit-log-panel .panel-body .panel-heading {
     border-top: 0;
-    background-color: var(--color-bg);
+    background-color: var(--ct-color-bg);
     font-weight: var(--pf-global--FontWeight--normal);
     padding-top: var(--pf-global--spacer--sm);
     padding-bottom: var(--pf-global--spacer--sm);
     width: auto;
-    color: var(--color-ct-list-text);
+    color: var(--ct-color-list-text);
     display: flex;
 }
 
@@ -50,7 +50,7 @@
     content: '\a0';
     display: block;
     flex: auto;
-    background: linear-gradient(var(--color-bg) 50%, var(--color-border) calc(50% + 1px), var(--color-bg) calc(50% + 2px));
+    background: linear-gradient(var(--ct-color-bg) 50%, var(--ct-color-border) calc(50% + 1px), var(--ct-color-bg) calc(50% + 2px));
     margin: 0 0 0 0.5rem;
 }
 
@@ -60,7 +60,7 @@
     --log-message: 1fr;
     --log-service-min: 0;
     --log-service: minmax(var(--log-service-min), max-content);
-    background-color: var(--color-ct-list-bg);
+    background-color: var(--ct-color-list-bg);
     font-size: var(--font-small);
     padding: 0.5rem 1rem;
     display: grid;
@@ -70,12 +70,12 @@
 }
 
 .cockpit-log-panel .cockpit-logline:hover {
-    background-color: var(--color-ct-list-hover-bg);
+    background-color: var(--ct-color-list-hover-bg);
     cursor: pointer;
 }
 
 .cockpit-log-panel .cockpit-logline:hover .cockpit-log-message:not(.cockpit-logmsg-reboot) {
-    color: var(--color-ct-list-hover-text);
+    color: var(--ct-color-list-hover-text);
     text-decoration: underline;
 }
 

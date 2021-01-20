@@ -515,6 +515,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         m = self.machine
 
         used_targets = ['vda']
+        transient_targets = []
 
         # prepare libvirt storage pools
         v1 = os.path.join(self.vm_tmpdir, "vm_one")
@@ -538,6 +539,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
+        transient_targets.append(get_next_free_target(used_targets)[-1])
         self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
@@ -546,7 +548,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             volume_size=2048,
             volume_size_unit='MiB',
             permanent=False,
-            expected_target=get_next_free_target(used_targets)[-1],
+            expected_target=transient_targets[-1],
         ).execute()
 
         self.VMAddDiskDialog(
@@ -574,12 +576,13 @@ class TestMachinesDisks(VirtualMachinesCase):
         # check the autoselected options
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
+        transient_targets.append(get_next_free_target(used_targets)[-1])
         self.VMAddDiskDialog(
             self,
             pool_name='default_tmp',
             volume_name='defaultVol',
             use_existing_volume=True,
-            expected_target=get_next_free_target(used_targets)[-1],
+            expected_target=transient_targets[-1],
             volume_format='raw',
         ).open().add_disk().verify_disk_added()
 
@@ -589,12 +592,13 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check if the just added non-permanent disks are gone
-        b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
-        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
-        release_target(used_targets, "vdb")
-        release_target(used_targets, "vdd")
-        b.wait_visible("#vm-subVmTest1-disks-vda-device")
-        b.wait_visible("#vm-subVmTest1-disks-vdc-device")
+        for target in transient_targets:
+            b.wait_not_present("#vm-subVmTest1-disks-{0}-device".format(target))
+            release_target(used_targets, target)
+
+        permanent_targets = [t for t in used_targets if t not in transient_targets]
+        for target in permanent_targets:
+            b.wait_visible("#vm-subVmTest1-disks-{0}-device".format(target))
 
         # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
         # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398

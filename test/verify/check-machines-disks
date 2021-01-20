@@ -552,17 +552,6 @@ class TestMachinesDisks(VirtualMachinesCase):
         self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
-            volume_name='mydiskofpoolone_permanent',
-            use_existing_volume=False,
-            volume_size=2,
-            permanent=True,
-            cache_mode='writeback',
-            expected_target=get_next_free_target(used_targets)[-1],
-        ).execute()
-
-        self.VMAddDiskDialog(
-            self,
-            pool_name='myPoolOne',
             use_existing_volume=True,
         ).open()
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
@@ -594,24 +583,6 @@ class TestMachinesDisks(VirtualMachinesCase):
             volume_format='raw',
         ).open().add_disk().verify_disk_added()
 
-        self.VMAddDiskDialog(
-            self,
-            pool_name='myPoolOne',
-            volume_name='scsi_bus_disk',
-            use_existing_volume=False,
-            bus_type='scsi',
-            expected_target='sda',
-        ).execute()
-
-        self.VMAddDiskDialog(
-            self,
-            pool_name='myPoolOne',
-            volume_name='usb_bus_disk',
-            use_existing_volume=False,
-            bus_type='usb',
-            expected_target='sdb',
-        ).execute()
-
         # shut off
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
@@ -619,21 +590,11 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # check if the just added non-permanent disks are gone
         b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
-        b.wait_not_present("#vm-subVmTest1-disks-vde-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
         release_target(used_targets, "vdb")
-        release_target(used_targets, "vde")
+        release_target(used_targets, "vdd")
+        b.wait_visible("#vm-subVmTest1-disks-vda-device")
         b.wait_visible("#vm-subVmTest1-disks-vdc-device")
-        b.wait_visible("#vm-subVmTest1-disks-vdd-device")
-
-        # testing sata disk after VM shutoff because sata disk cannot be hotplugged
-        self.VMAddDiskDialog(
-            self,
-            pool_name='myPoolOne',
-            volume_name='sata_bus_disk',
-            use_existing_volume=False,
-            bus_type='sata',
-            expected_target='sda',
-        ).execute()
 
         # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
         # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398
@@ -681,6 +642,72 @@ class TestMachinesDisks(VirtualMachinesCase):
         # AppArmor doesn't like the non-standard path for our storage pools
         if m.image in ["debian-testing"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
+
+    def testAddDiskAdditionalOptions(self):
+        b = self.browser
+        m = self.machine
+
+        used_targets = ['vda']
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        # prepare libvirt storage pools
+        v1 = os.path.join(self.vm_tmpdir, "vm_one")
+        m.execute("mkdir --mode 777 {0}".format(v1))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
+
+        # Configure cache mode from the UI
+        self.VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='writeback_cache_disk',
+            use_existing_volume=False,
+            volume_size=2,
+            permanent=True,
+            cache_mode='writeback',
+            expected_target=get_next_free_target(used_targets)[-1],
+        ).execute()
+
+        # Configure scsi bus type from the UI
+        self.VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='scsi_bus_disk',
+            use_existing_volume=False,
+            bus_type='scsi',
+            expected_target='sda',
+        ).execute()
+
+        # Configure usb bus type from the UI
+        self.VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='usb_bus_disk',
+            use_existing_volume=False,
+            bus_type='usb',
+            expected_target='sdb',
+        ).execute()
+
+        # shut off
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # testing sata disk after VM shutoff because sata disk cannot be hotplugged
+        self.VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='sata_bus_disk',
+            use_existing_volume=False,
+            bus_type='sata',
+            expected_target='sda',
+        ).execute()
 
     def testDetachDisk(self):
         b = self.browser

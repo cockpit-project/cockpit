@@ -1,0 +1,691 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2021 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+
+import parent
+from machineslib import *
+from testlib import *
+
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
+@nondestructive
+@no_retry_when_changed
+class TestMachinesStoragePools(VirtualMachinesCase):
+
+    def testStoragePools(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "1 Storage pool")
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pool")
+
+        # prepare libvirt storage pools
+        p1 = os.path.join(self.vm_tmpdir, "vm_one")
+        p2 = os.path.join(self.vm_tmpdir, "vm_two")
+        p3 = os.path.join(self.vm_tmpdir, "vm_three")
+        m.execute("mkdir --mode 777 {0} {1} {2}".format(p1, p2, p3))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0}; virsh pool-start myPoolOne".format(p1))
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
+        m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
+
+        b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "3 Storage pools")
+
+        m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo VolumeThree --capacity 1G --format qcow2")
+        wait(lambda: all(volume in m.execute("virsh vol-list myPoolTwo") for volume in ["VolumeOne", "VolumeTwo", "VolumeThree"]))
+        m.execute('virsh pool-refresh myPoolOne; virsh pool-refresh myPoolTwo')
+
+        connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+
+        diskXML = """'<disk type="volume" device="disk">
+          <driver name="qemu"/>
+          <source pool="myPoolTwo" volume="VolumeOne"/>
+          <target dev="vdc" bus="virtio"/>
+        </disk>'""".replace("\n", "")
+
+        m.execute("echo {0} > /tmp/disk.xml; virsh attach-device --config --file /tmp/disk.xml subVmTest1".format(diskXML))
+
+        # Shuf off the VM in order to allow deleting volumes that are used as
+        # disks later
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # Click on Storage pools card
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
+
+        # Check that all defined pools are there
+        b.wait_in_text("body", "Storage pools")
+        self.waitPoolRow("myPoolOne", connectionName)
+        self.waitPoolRow("myPoolTwo", connectionName)
+
+        # Check basic pool properties
+        self.togglePoolRow("myPoolOne", connectionName)
+        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), p1)
+        b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
+
+        # Check storage volumes of a pool
+        b.wait_visible("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolOne-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        b.wait_in_text("tr[data-row-id=pool-myPoolOne-{0}] + tr table td".format(connectionName),
+                       "No storage volumes defined for this storage pool")
+
+        # Close expanded row for this pool
+        self.togglePoolRow("myPoolOne", connectionName)
+
+        # Expand row for second storage pool and check list of storage volumes
+        self.togglePoolRow("myPoolTwo", connectionName)
+        b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName), "VolumeThree")
+        b.wait_not_present("#storage-volumes-delete")
+
+        # Delete a volume from terminal and verify that refresh worked by reloading the browser page
+        m.execute("rm -f {0}".format(os.path.join(p2, "VolumeThree")))
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
+        b.reload()
+        b.enter_page('/machines')
+        self.togglePoolRow("myPoolTwo", connectionName)
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
+
+        # Delete Storage Volume that is not used by any VM
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
+        b.click("tbody input[aria-label='Select row 1']")
+        b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
+        b.click("#storage-volumes-delete")
+        b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName))
+
+        # Try to Delete Storage Volume which is used by a VM
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
+        b.click("tbody input[aria-label='Select row 0']")
+        b.wait_visible("#storage-volumes-delete:disabled")
+        b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
+
+        # Test operations on storage pools
+        self.togglePoolRow("myPoolOne", connectionName)
+
+        # Try deactivating and activating a pool
+        b.click("#deactivate-pool-myPoolOne-{0}".format(connectionName))
+        b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "inactive")
+        b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
+        b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
+
+        # See deletion of Pool is disabled because this pool is referenced by VM's disk
+        b.wait_visible("#delete-pool-myPoolTwo-{0}:disabled".format(connectionName))
+
+        # Detach disk so pool can be deleted
+        m.execute("virsh detach-disk --domain subVmTest1 --target vdc --config")
+        b.reload()
+        b.enter_page('/machines')
+        self.togglePoolRow("myPoolTwo", connectionName)
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+
+        # Backup pool XML to redefine right after
+        m.execute("virsh pool-dumpxml myPoolTwo > /tmp/myPoolTwo.xml")
+
+        b.click("#deactivate-pool-myPoolTwo-{0}".format(connectionName))
+
+        # Delete an inactive Pool. It's volumes won't be deleted
+        b.wait_visible("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_in_text("div.pf-c-modal-box div.pf-c-modal-box__body", "Its content will not be deleted.")
+        b.click('.pf-c-modal-box__footer button:contains("Delete")')
+        b.wait_not_present("div.pf-c-modal-box")
+        b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
+        self.assertNotEqual(m.execute("ls -A {0}".format(p2)), "")
+
+        # Redefine the deleted Pool
+        m.execute("virsh pool-define /tmp/myPoolTwo.xml")
+        self.waitPoolRow("myPoolTwo", connectionName)
+
+        # Activate the Pool
+        self.togglePoolRow("myPoolTwo", connectionName)
+        b.click("#activate-pool-myPoolTwo-{0}".format(connectionName))
+
+        # Delete and active Pool and also its volumes
+        b.wait_visible("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_visible("div.pf-c-modal-box")
+        b.set_checked("input#storage-pool-delete-volumes", True)
+        b.click('.pf-c-modal-box__footer button:contains("Delete")')
+        b.wait_not_present("div.pf-c-modal-box")
+        b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
+        self.assertEqual(m.execute("ls -A {0}".format(p2)), "")
+        self.waitPoolRow("myPoolTwo", connectionName, False)
+
+        # Recreate the myPoolTwo to test Used By column
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
+        m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2 && virsh pool-refresh myPoolTwo")
+
+        wait(lambda: "VolumeOne" in m.execute("virsh vol-list myPoolTwo"))
+        diskXML = """'<disk type="volume" device="disk">
+          <driver name="qemu"/>
+          <source pool="myPoolTwo" volume="VolumeOne"/>
+          <target dev="vdd" bus="virtio"/>
+        </disk>'""".replace("\n", "")
+
+        m.execute("echo {0} > /tmp/disk.xml; virsh attach-device --config --file /tmp/disk.xml subVmTest1".format(diskXML))
+
+        # VM is not running, so we need to reload the page
+        b.reload()
+        b.enter_page('/machines')
+
+        # Expand row for myPoolTwo and check list of storage volumes
+        self.togglePoolRow("myPoolTwo", connectionName)
+        b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+
+        b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "subVmTest1")
+
+        m.execute("virsh detach-disk --config --target vdd subVmTest1")
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
+
+        # Check activate button when pool activation is pending
+        m.execute("virsh pool-define-as mypool --type netfs --source-host 127.0.0.10 --source-path /mnt/pool --target /mnt/pool")
+        self.togglePoolRow("mypool", connectionName)
+        b.click("#activate-pool-mypool-system")
+        b.wait_visible("#activate-pool-mypool-system:disabled")
+
+        # Transient network
+        self.togglePoolRow("myPoolThree", connectionName)
+        b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName)) # Transient pool shouldn't have autostart option
+        b.wait_visible('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName)) # Transient pool cannot be deleted
+        b.click('#deactivate-pool-myPoolThree-{0}'.format(connectionName)) # Deactivate transient pool
+        # Check it's not present after deactivation
+        self.waitPoolRow("myPoolThree", connectionName, False)
+
+    def testStoragePoolsCreate(self):
+        b = self.browser
+        m = self.machine
+
+        p1 = os.path.join(self.vm_tmpdir, "my_dir_pool_one")
+        p2 = os.path.join(self.vm_tmpdir, "my_dir_pool_two")
+        mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
+        m.execute("mkdir {0} {1} {2}".format(p1, p2, mnt_exports))
+        self.restore_file("/etc/exports")
+        m.execute("echo '{0} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports".format(mnt_exports))
+        m.execute("systemctl restart nfs-server")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        # Click on Storage pools card
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pools")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
+
+        class StoragePoolCreateDialog(object):
+            def __init__(
+                self, test_obj, name, pool_type=None, target=None, source={},
+                autostart=None, xfail=False, xfail_error=None, remove=True,
+            ):
+                self.test_obj = test_obj
+                self.name = name
+                self.pool_type = pool_type
+                self.target = target
+                self.source = source
+                self.autostart = autostart
+                self.xfail = xfail
+                self.xfail_error = xfail_error
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                if not self.xfail:
+                    self.verify_dialog()
+                    self.verify_overview()
+                    if self.remove:
+                        self.cleanup()
+
+            def open(self):
+                b.click("#create-storage-pool")
+                b.wait_visible("#create-storage-pool-dialog")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
+
+            def fill(self):
+                b.set_input_text("#storage-pool-dialog-name", self.name)
+
+                if self.pool_type:
+                    b.set_val("#storage-pool-dialog-type", self.pool_type)
+
+                if self.target:
+                    b.set_file_autocomplete_val("#storage-pool-dialog-target-group", self.target)
+
+                if 'source_path' in self.source:
+                    if self.pool_type != 'disk':
+                        b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
+                    else:
+                        b.set_file_autocomplete_val("#storage-pool-dialog-source-group", self.source['source_path'])
+
+                if 'format' in self.source:
+                    b.select_from_dropdown("#storage-pool-dialog-source-format", self.source['format'])
+
+                if 'host' in self.source:
+                    b.set_input_text("#storage-pool-dialog-host", self.source['host'])
+
+                if 'initiator' in self.source:
+                    b.set_input_text('#storage-pool-dialog-initiator', self.source['initiator'])
+
+                if (self.autostart):
+                    b.click("storage-pool-dialog-autostart")
+
+            def cancel(self):
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#create-storage-pool-dialog")
+
+            def create(self):
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
+
+                if not self.xfail:
+                    b.wait_not_present("#create-storage-pool-dialog")
+                else:
+                    # Check incomplete dialog
+                    if (not self.name):
+                        b.wait_visible("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-name + .pf-c-form__helper-text.pf-m-error")
+
+                    if (not self.target):
+                        b.wait_visible("#create-storage-pool-dialog .pf-c-modal-box__body #storage-pool-dialog-target-group .pf-c-form__helper-text.pf-m-error")
+                    # Check errors from backend
+                    if self.xfail_error:
+                        error_location = "#create-storage-pool-dialog .pf-c-modal-box__footer .pf-m-danger"
+                        b.wait_visible(error_location)
+                        error_message = b.text(error_location)
+                        self.test_obj.assertIn(self.xfail_error, error_message)
+
+                    self.cancel()
+
+                    # If pool creation failed make sure that the pool is not shown in the UI
+                    if self.xfail_error and 'already exists' not in self.xfail_error:
+                        self.test_obj.waitPoolRow(self.name, "system", False)
+
+            def verify_dialog(self):
+                # Check that the defined pools is now visible
+                b.wait_in_text("body", "Storage pools")
+                self.test_obj.waitPoolRow(self.name)
+
+                # Verify libvirt XML
+                pool_xml = "virsh -c qemu:///system pool-dumpxml {0}".format(self.name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//pool/{{prop}})' - 2>&1 || true".format(pool_xml)
+
+                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                if (self.target):
+                    self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')).strip() + '/')
+                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')).strip())
+
+                host = m.execute(xmllint_element.format(prop='source/host/@name')).strip()
+                if "host" in self.source:
+                    self.test_obj.assertEqual(self.source["host"], host)
+                else:
+                    self.test_obj.assertEqual("", host.rstrip())
+
+                source_path_dir = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
+                source_path_device = m.execute(xmllint_element.format(prop="source/device/@path")).strip()
+                source_name = m.execute(xmllint_element.format(prop="source/name")).strip()
+                if "source_path" in self.source:
+                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device, source_name])
+                else:
+                    self.test_obj.assertEqual("", host.rstrip())
+
+                initiator = m.execute(xmllint_element.format(prop='source/initiator/iqn/@name')).strip()
+                if "initiator" in self.source:
+                    self.test_obj.assertEqual(self.source["initiator"], initiator)
+                else:
+                    self.test_obj.assertEqual("", initiator.rstrip())
+
+                sourceFormat = m.execute(xmllint_element.format(prop='source/format/@type')).strip()
+                if "format" in self.source:
+                    self.test_obj.assertEqual(self.source["format"], sourceFormat)
+                else:
+                    if self.pool_type == 'netfs':
+                        self.test_obj.assertEqual("auto", sourceFormat)
+                    elif self.pool_type == 'logical':
+                        self.test_obj.assertEqual("lvm2", sourceFormat)
+                    else:
+                        self.test_obj.assertEqual("", sourceFormat.rstrip())
+
+            def verify_overview(self):
+                # Check basic pool properties
+                connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+                self.test_obj.togglePoolRow(self.name, connectionName)
+
+                if self.target:
+                    b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
+                b.wait_in_text("#pool-{0}-{1}-type".format(self.name, connectionName), self.pool_type)
+                if "host" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-host".format(self.name, connectionName), self.source["host"])
+                if "source_path" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
+
+                # Check on the volume tab of the storage pool
+                b.click("#pool-{}-{}-storage-volumes".format(self.name, connectionName))
+                if "iscsi" in self.pool_type:
+                    b.wait_visible('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
+                else:
+                    b.wait_visible('#{}-{}-create-volume-button:enabled'.format(self.name, connectionName))
+
+            def cleanup(self):
+                m.execute("virsh pool-undefine {0}".format(self.name))
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_one",
+            pool_type="dir",
+            target=p1 + "/",
+            remove=False,
+        ).execute()
+
+        # XFAIL: Try to create a pool with used name
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_one",
+            pool_type="dir",
+            target=p1 + "/",
+            xfail=True,
+            xfail_error="pool 'my_dir_pool_one' already exists"
+        ).execute()
+
+        # Manually remove the created pool
+        m.execute("virsh pool-undefine my_dir_pool_one")
+
+        # XFAIL: Try to create a pool with incomplete modal dialog
+        StoragePoolCreateDialog(
+            self,
+            name="",
+            pool_type="dir",
+            target="",
+            xfail=True,
+        ).execute()
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_two",
+            pool_type="netfs",
+            target=p2 + "/",
+            source={"host": "127.0.0.1", "source_path": mnt_exports}
+        ).execute()
+
+        # Prepare a disk with gpt partition table to test the disk storage pool type
+        dev = self.add_ram_disk()
+        m.execute("parted %s mklabel gpt" % dev)
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_disk_pool",
+            pool_type="disk",
+            target="/media/",
+            source={"source_path": dev, "format": "gpt"},
+        ).execute()
+
+        # Debian images' -cloud kernel don't have target-cli-mod kmod
+        if "debian" not in m.image:
+            # Preparations for testing ISCSI pools
+
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            orig_iqn = self.prepareStorageDeviceOnISCSI(target_iqn)
+
+            StoragePoolCreateDialog(
+                self,
+                name="my_iscsi_pool",
+                pool_type="iscsi",
+                target="/dev/disk/by-id/",
+                source={"host": "127.0.0.1", "source_path": target_iqn}
+            ).execute()
+
+            if "debian" not in m.image and "ubuntu" not in m.image and float(m.execute("virsh --version").strip()[:3]) >= 4.7:
+                # iscsi-direct pool type is available since libvirt 4.7, but not in Debian/Ubuntu (https://bugs.debian.org/918728)
+                StoragePoolCreateDialog(
+                    self,
+                    name="my_iscsi_direct_pool",
+                    pool_type="iscsi-direct",
+                    source={"host": "127.0.0.1",
+                            "source_path": target_iqn,
+                            "initiator": orig_iqn}
+                ).execute()
+            else:
+                # Ensure that iscsi-direct is absent from the types dropdown
+                b.click("#create-storage-pool")
+                b.wait_visible("#create-storage-pool-dialog")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage pool")
+                b.click("#storage-pool-dialog-type")
+                b.wait_not_present("#storage-pool-dialog-type option[value*='isci-direct']")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#create-storage-pool-dialog")
+
+        # Prepare a Volume Group to be used as source for the LVM pool
+        m.execute("wipefs -a {0} && pvcreate {0} && vgcreate vol_grp1 {0}".format(dev))
+        b.go("/machines#/storages")
+        b.enter_page("/machines")
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_logical_pool",
+            pool_type="logical",
+            source={"source_path": "vol_grp1"},
+        ).execute()
+
+    def testStorageVolumesCreate(self):
+        b = self.browser
+        m = self.machine
+
+        # Prepare dir pool
+        dir_pool = os.path.join(self.vm_tmpdir, "dir_pool")
+        m.execute("mkdir --mode 777 {0}".format(dir_pool))
+        m.execute("virsh pool-define-as dir-pool --type dir --target {0} && virsh pool-start dir-pool".format(dir_pool))
+
+        # Prepare net-fs pool
+        nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
+        mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
+        self.restore_file("/etc/exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
+        m.execute("systemctl restart nfs-server")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true") # Destroy pool as it block removal of `nfs_pool`
+
+        # Prepare disk/block pool
+        dev = self.add_ram_disk()
+        cmds = [
+            "virsh pool-define-as disk-pool disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
+            "virsh pool-build disk-pool --overwrite",
+            "virsh pool-start disk-pool",
+        ]
+        self.machine.execute(" && ".join(cmds))
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        # Click on Storage pools card
+        b.wait_in_text("#card-pf-storage-pools .pf-c-card__header button", "Storage pools")
+        b.click(".pf-c-card .pf-c-card__header button:contains(Storage pools)")
+
+        class StorageVolumeCreateDialog(object):
+            def __init__(
+                self, test_obj, pool_name, vol_name, size="128", unit="MiB", format='qcow2',
+                pool_type = "dir", xfail=False, xfail_object=None, xfail_error=None, remove=True,
+            ):
+                self.test_obj = test_obj
+                self.pool_name = pool_name
+                self.pool_type = pool_type
+                self.vol_name = vol_name
+                self.size = size
+                self.unit = unit
+                self.format = format
+                self.xfail = xfail
+                self.xfail_object = xfail_object
+                self.xfail_error = xfail_error
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                if not self.xfail:
+                    self.verify()
+                self.close()
+
+            def open(self):
+                self.test_obj.togglePoolRow(self.pool_name)
+
+                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
+
+                b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage volumes" subtab
+
+                b.wait_visible("#create-volume-dialog-modal")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage volume")
+
+            def fill(self):
+                b.set_input_text("#create-volume-dialog-name", self.vol_name)
+
+                if self.size:
+                    b.set_input_text("#create-volume-dialog-size", self.size)
+
+                if self.unit:
+                    b.select_from_dropdown("#create-volume-dialog-unit", self.unit)
+
+                if self.format:
+                    b.select_from_dropdown("#create-volume-dialog-format", self.format)
+
+            def cancel(self):
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#create-storage-pool-dialog")
+
+            def create(self):
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
+
+                if not self.xfail:
+                    # Creation of volumes might take longer for some pool types
+                    if self.pool_type  in ["disk", "netfs"]:
+                        b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
+                        b.wait_visible(".pf-c-modal-box__footer button:contains(Create):disabled")
+                    b.wait_not_present("#create-volume-dialog-modal")
+                else:
+                    if "size" == self.xfail_object:
+                        b.wait_in_text("#create-volume-dialog-size-group .pf-c-form__helper-text.pf-m-error", self.xfail_error)
+
+            def verify(self):
+                # Check that the defined volume is now visible
+                b.wait_visible("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.vol_name))
+
+                # Verify libvirt XML
+                vol_xml = "virsh -c qemu:///system vol-dumpxml --pool {0} --vol {1}".format(self.pool_name, self.vol_name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//volume/{{prop}})' - 2>&1 || true".format(vol_xml)
+
+                self.test_obj.assertEqual(self.vol_name, m.execute(xmllint_element.format(prop='name')).strip())
+
+                if (self.format):
+                    self.test_obj.assertEqual(self.format, m.execute(xmllint_element.format(prop='target/format/@type')).strip())
+
+                size = int(m.execute(xmllint_element.format(prop='capacity')).strip())
+                if self.unit == "GiB":
+                   size = round(size / (1024**3))
+                else:
+                   size = round(size / (1024**2))
+                self.test_obj.assertEqual(size, int(self.size))
+
+            def cleanup(self):
+                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.pool_name))
+
+            def close(self):
+                b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage volumes" subtab
+
+                self.test_obj.togglePoolRow(self.pool_name)
+
+        # Check size validation
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool",
+            size="1000",
+            unit="GiB",
+            format="qcow2",
+            remove=True,
+            xfail=True,
+            xfail_object='size',
+            xfail_error = "exceed the storage pool",
+        ).execute()
+
+        # Check volume creation for various pool types
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool",
+            size="256",
+            unit="MiB",
+            format="qcow2",
+            remove=True,
+        ).execute()
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="nfs-pool",
+            pool_type="netfs",
+            vol_name="volume_of_nfs_dir",
+            size="10", #Creation of big nfs vol might take so long it will result in timetout
+            unit="MiB",
+            format="raw", #Creation of qcow2 nfs vol might take so long it will result in timetout
+            remove=True,
+        ).execute()
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="disk-pool",
+            pool_type="disk",
+            vol_name="sda1", # Partition names must follow pattern of sda1, sda2...
+            size="10", # Only 50MiB available on disk-pool
+            unit="MiB",
+            format="none",
+            remove=True,
+        ).execute()
+
+        # Try raw format
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool2",
+            format="raw",
+            remove=True,
+        ).execute()
+
+        # create disk for lvm-pool
+        m.execute("wipefs -a {0} && pvcreate {0} && vgcreate vol_grp1 {0}".format(dev))
+        m.execute("virsh pool-define-as lvm-pool --type logical --source-name vol_grp1 && virsh pool-start lvm-pool")
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="lvm-pool",
+            vol_name="lvm_vol",
+            size="20",
+            format="",
+            remove=True,
+        ).execute()
+
+if __name__ == '__main__':
+    test_main()

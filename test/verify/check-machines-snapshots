@@ -1,0 +1,255 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2021 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from machineslib import *
+from testlib import *
+from datetime import datetime
+import time
+
+distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable"]
+
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
+@nondestructive
+@no_retry_when_changed
+class TestMachinesSnapshots(VirtualMachinesCase):
+
+    def testSnapshots(self):
+        # Checks if difference of @time1 and @time2 is not greater than @difference (in seconds)
+        def checkTimeDiff(time1, time2, difference):
+            tmp = time2.split(' ') # split "Today 13:13:13" into day and time
+            if not tmp[1].startswith('00:') and not tmp[0] == "Today":
+                return False
+
+            diff = datetime.strptime(time1, '%H:%M:%S') - datetime.strptime("".join(tmp[-2:]), '%I:%M%p')
+            return -difference < diff.total_seconds() < difference
+
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        self.goToVmPage("subVmTest1")
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
+
+        b.wait_in_text(".no-snapshots", "No snapshots")
+
+        # Check snapshot for running VM
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
+        time1 = datetime.now().strftime("%H:%M:%S")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB' --disk-only")
+
+        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.enter_page('/machines')
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshotB")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshotB")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "no state saved")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "No parent")
+        time2 = b.text("#vm-subVmTest1-snapshot-0-date")
+        self.assertTrue(checkTimeDiff(time1, time2, 60))
+
+        # Check snapshot for shutoff VM
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        time1 = datetime.now().strftime("%H:%M:%S")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
+
+        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.enter_page('/machines')
+
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshotC")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshotC")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "shut off")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "snapshotB")
+        time2 = b.text("#vm-subVmTest1-snapshot-0-date")
+        self.assertTrue(checkTimeDiff(time1, time2, 60))
+
+    def testSnapshotCreate(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
+        self.goToVmPage("subVmTest1")
+        b.wait_visible("#vm-subVmTest1-snapshots")
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        class SnapshotCreateDialog(object):
+            def __init__(
+                self, test_obj, name=None, description=None, state="shutoff", snap_num=0, remove=True
+            ):
+                self.test_obj = test_obj
+                self.name = name
+                self.description = description
+                self.state = state
+                self.snap_num = snap_num
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                self.verify_frontend()
+                self.verify_backend()
+                if self.remove:
+                    self.cleanup()
+
+            def open(self):
+                b.click("#vm-subVmTest1-add-snapshot-button")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create snapshot")
+
+            def fill(self):
+                if self.name:
+                    b.set_input_text("#name", self.name)
+                if self.description:
+                    b.set_input_text("#description", self.description)
+
+            def cancel(self):
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
+
+            def create(self):
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
+                b.wait_not_present("#vm-subVmTest1-create-snapshot-modal")
+
+            def verify_frontend(self):
+                if self.name:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-name".format(self.snap_num), self.name)
+                else:
+                    self.name = b.text("#vm-subVmTest1-snapshot-{0}-name".format(self.snap_num))
+                if self.description:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-description".format(self.snap_num), self.description)
+                else:
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-description".format(self.snap_num), "No description")
+                if self.state:
+                    if self.state == "shutoff":
+                        state = "shut off"
+                    else:
+                        state = self.state
+                    b.wait_in_text("#vm-subVmTest1-snapshot-{0}-type".format(self.snap_num), state)
+
+            def verify_backend(self):
+                # Verify libvirt XML
+                snap_xml = "virsh -c qemu:///system snapshot-dumpxml --domain {0} --snapshotname {1}".format("subVmTest1", self.name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//domainsnapshot/{{prop}})' - 2>&1 || true".format(snap_xml)
+
+                if (self.name):
+                    self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                if (self.description):
+                    self.test_obj.assertEqual(self.description, m.execute(xmllint_element.format(prop='description')).strip())
+                if (self.state):
+                    self.test_obj.assertEqual(self.state, m.execute(xmllint_element.format(prop='state')).strip())
+
+            def cleanup(self):
+                b.click("#delete-vm-subVmTest1-snapshot-{0}".format(self.snap_num))
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Snapshot {0}".format(self.name))
+                b.click('.pf-c-modal-box__footer button:contains("Delete")')
+                b.wait_not_present("#vm-subVmTest1-snapshot-{0}-name:contains({1})".format(self.snap_num, self.name))
+
+        # No Snapshots present
+        b.wait_visible("#vm-subVmTest1-add-snapshot-button")
+
+        # Test snapshot creation with pre-generated values
+        SnapshotCreateDialog(
+            self,
+        ).execute()
+
+        # Test snapshot creation with predefined values
+        SnapshotCreateDialog(
+            self,
+            name = "test_snap_1",
+            description = "Description of test_snap_1",
+            state = "shutoff",
+        ).execute()
+
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        # Test snapshot creation on running VM
+        SnapshotCreateDialog(
+            self,
+            name = "test_snap_2",
+            description = "Description of test_snap_2",
+            state = "running",
+        ).execute()
+
+    def testSnapshotRevert(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        # Check snapshot for running VM
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotA --description 'Description of snapshotA'")
+        time.sleep(1)
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB'")
+        # snapshotB is the current snapshot
+        m.execute("virsh snapshot-current --domain subVmTest1 --snapshotname snapshotA")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+        self.goToVmPage("subVmTest1")
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
+
+        b.wait_visible("#vm-subVmTest1-snapshot-1-current")
+        b.wait_not_present("#vm-subVmTest1-snapshot-0-current")
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
+
+        b.click("#vm-subVmTest1-snapshot-0-revert")
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Revert to snapshot snapshotB")
+        b.click('.pf-c-modal-box__footer button:contains("Revert")')
+
+        b.wait_not_present("#vm-subVmTest1-snapshot-1-current")
+        b.wait_visible("#vm-subVmTest1-snapshot-0-current")
+        self.assertEqual("no", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotA | grep 'Current:' | awk '{print $2}'").strip())
+        self.assertEqual("yes", m.execute("virsh snapshot-info --domain subVmTest1 --snapshotname snapshotB | grep 'Current:' | awk '{print $2}'").strip())
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,274 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2021 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from machineslib import *
+from testlib import *
+from machinesxmls import *
+
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
+@nondestructive
+@no_retry_when_changed
+class TestMachinesNICs(VirtualMachinesCase):
+
+    def testVmNICs(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        # Wait for the dynamic IP address to be assigned before logging in
+        # If the IP will change or get assigned after fetching the domain data the user will not see any
+        # changes until they refresh the page, since there is not any signal associated with this change
+        wait(lambda: "1" in self.machine.execute("virsh domifaddr subVmTest1  | grep 192.168.122. | wc -l"), delay=3)
+        self.goToVmPage("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-ipaddress", "192.168.122.")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-state", "up")
+
+        # Test add network
+        m.execute("virsh attach-interface --domain subVmTest1 --type network --source default --model virtio --mac 52:54:00:4b:73:5f --config --live")
+
+        b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-2-source", "default")
+        b.wait_in_text("#vm-subVmTest1-network-2-model", "virtio")
+        b.wait_in_text("#vm-subVmTest1-network-2-mac", "52:54:00:4b:73:5f")
+
+        b.wait_in_text("#vm-subVmTest1-network-2-state", "up")
+
+    def testNICAdd(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
+
+        args = self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        self.goToVmPage("subVmTest1")
+
+        class NICAddDialog(object):
+            def __init__(
+                # We have always have to specify mac and source_type to identify the device in xml and $virsh detach-interface
+                self, test_obj, source_type="Direct attachment", source=None, model=None, nic_num=2,
+                permanent=False, mac="52:54:00:a5:f8:c0", remove=True, persistent_vm=True
+            ):
+                self.test_obj = test_obj
+                self.source_type = source_type
+                self.source = source
+                self.model = model
+                self.permanent = permanent
+                self.mac = mac
+                self.remove = remove
+                self.persistent_vm = persistent_vm
+                self.nic_num = nic_num
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                self.verify()
+                self.verify_overview()
+                if self.remove:
+                    self.cleanup()
+
+            def open(self):
+                b.click("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Add virtual network interface")
+
+            def fill(self):
+                b.select_from_dropdown("#vm-subVmTest1-add-iface-select-type", self.source_type)
+                if self.source:
+                    b.select_from_dropdown("#vm-subVmTest1-add-iface-select-source", self.source)
+                if self.model:
+                    b.select_from_dropdown("#vm-subVmTest1-add-iface-select-model", self.model, substring=True)
+
+                if self.mac:
+                    b.click("#vm-subVmTest1-add-iface-set-mac")
+                    b.set_input_text("#vm-subVmTest1-add-iface-mac", self.mac)
+
+                if self.permanent:
+                    b.click("#vm-subVmTest1-add-iface-permanent")
+
+                if not self.persistent_vm:
+                    b.wait_not_present("#vm-subVmTest1-add-iface-permanent")
+
+            def cancel(self):
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
+
+            def create(self):
+                b.click(".pf-c-modal-box__footer button:contains(Add)")
+
+                b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
+
+            def verify(self):
+                # Verify libvirt XML
+                dom_xml = "virsh -c qemu:///system dumpxml --domain {0}".format("subVmTest1")
+                mac_string = '"{0}"'.format(self.mac)
+                xmllint_element = "{0} | xmllint --xpath 'string(//domain/devices/interface[starts-with(mac/@address,{1})]/{{prop}})' - 2>&1 || true".format(dom_xml, mac_string)
+
+                if (self.source_type == "Virtual network"):
+                    self.test_obj.assertEqual("network", m.execute(xmllint_element.format(prop='@type')).strip())
+                    if self.source:
+                        self.test_obj.assertEqual(self.source, m.execute(xmllint_element.format(prop='source/@network')).strip())
+                elif (self.source_type == "Direct attachment"):
+                    self.test_obj.assertEqual("direct", m.execute(xmllint_element.format(prop='@type')).strip())
+                    if self.source:
+                        self.test_obj.assertEqual(self.source, m.execute(xmllint_element.format(prop='source/@dev')).strip())
+
+                if (self.model):
+                    self.test_obj.assertEqual(self.model, m.execute(xmllint_element.format(prop='model/@type')).strip())
+
+            def verify_overview(self):
+                # The first NIC is default, our new NIC is second in row
+                if (self.source_type == "Virtual network"):
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "network")
+                elif (self.source_type == "Direct attachment"):
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "direct")
+                if self.model:
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-model".format(self.nic_num), self.model)
+                if self.source:
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-source".format(self.nic_num), self.source)
+                if self.mac:
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-mac".format(self.nic_num), self.mac)
+
+            def cleanup(self):
+                if self.permanent:
+                    source_type = "direct"
+                    if (self.source_type == "Virtual network"):
+                        source_type = "network"
+                    if (self.source_type == "Bridge to LAN"):
+                        source_type = "bridge"
+                    m.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
+
+                    # we don't get any signal for interface detaching right now
+                    b.reload()
+                    b.enter_page('/machines')
+                    b.wait_in_text("body", "Virtual machines")
+                else:
+                    b.click("#delete-vm-subVmTest1-iface-{0}".format(self.nic_num))
+                    # Confirm in confirmation window
+                    b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Network Interface")
+                    vm_state = b.text("#vm-subVmTest1-state")
+                    b.click(".pf-c-modal-box__footer button:contains(Delete)")
+                    # On a running VM detaching NIC takes longer and we can see the spinner
+                    if vm_state == "Running":
+                        b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
+
+                    # Check NIC is no longer in list
+                    b.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))
+                    b.wait_not_present(".pf-c-modal-box")
+
+        # No NICs present
+        b.wait_visible("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+
+        NICAddDialog(
+            self,
+            source_type="Virtual network",
+            source="test_network",
+        ).execute()
+
+        # Test Direct attachment
+        NICAddDialog(
+            self,
+            source_type="Direct attachment",
+        ).execute()
+
+        # Test Bridge
+        NICAddDialog(
+            self,
+            source_type="Bridge to LAN",
+            source="virbr0",
+        ).execute()
+
+        # Test model
+        NICAddDialog(
+            self,
+            model="e1000e",
+        ).execute()
+
+        # Start vm and wait until kernel is booted
+        m.execute("> {0}".format(args["logfile"])) # clear logfile
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        # Test permanent attachment to running VM
+        NICAddDialog(
+            self,
+            source_type="Virtual network",
+            source="test_network",
+            permanent=True,
+        ).execute()
+
+        # Test NIC attaching to non-persistent VM
+        m.execute("virsh dumpxml --inactive subVmTest1 > /tmp/subVmTest1.xml; virsh undefine subVmTest1")
+        NICAddDialog(
+            self,
+            source_type="Virtual network",
+            source="test_network",
+            mac="52:54:00:a5:f8:c1",
+            nic_num=3,
+            persistent_vm=False,
+        ).execute()
+        m.execute("virsh define /tmp/subVmTest1.xml")
+
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        NICAddDialog(
+            self,
+            remove=False,
+        ).execute()
+
+        NICAddDialog(
+            self,
+            remove=False,
+        ).execute()
+
+        # Now there are three NICs present - try to delete the second one and make sure that it's deleted and the dialog is not present anymore
+        b.wait_visible("#vm-subVmTest1-network-3-mac")
+        b.click("#delete-vm-subVmTest1-iface-2")
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Delete Network Interface")
+        b.click(".pf-c-modal-box__footer button:contains(Delete)")
+        # Check NIC is no longer in list
+        b.wait_not_present("#vm-subVmTest1-network-3-mac")
+        b.wait_not_present(".pf-c-modal-box")
+
+if __name__ == '__main__':
+    test_main()

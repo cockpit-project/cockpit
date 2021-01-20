@@ -1,0 +1,435 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from machineslib import *
+from machinesxmls import *
+
+# If this test fails to run, the host machine needs:
+# echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
+# rmmod kvm-intel && modprobe kvm-intel || true
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
+@nondestructive
+@no_retry_when_changed
+class TestMachinesSettings(VirtualMachinesCase):
+
+    def testVCPU(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        b.click("#vm-subVmTest1-vcpus-count button") # open VCPU modal detail window
+
+        b.wait_visible(".pf-c-modal-box__body")
+
+        # Test basic vCPU properties
+        b.wait_val("#machines-vcpu-count-field", "1")
+        b.wait_val("#machines-vcpu-max-field", "1")
+
+        # Set new values
+        b.set_input_text("#machines-vcpu-max-field", "4")
+        b.set_input_text("#machines-vcpu-count-field", "3")
+
+        # Set new socket value
+        b.wait_val("#socketsSelect", "4")
+        b.set_val("#socketsSelect", "2")
+        b.wait_val("#coresSelect", "1")
+        b.wait_val("#threadsSelect", "2")
+
+        # Save
+        b.click("#machines-vcpu-modal-dialog-apply")
+        b.wait_not_present(".pf-c-modal-box__body")
+
+        # Make sure warning next to vcpus appears
+        b.wait_visible("#vcpus-tooltip")
+
+        # Shut off VM for applying changes after save
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # Make sure warning is gone after shut off
+        b.wait_not_present("#vcpus-tooltip")
+
+        # Check changes
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
+        # Check after boot
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        # Check VCPU count
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
+        # Open dialog window
+        b.click("#vm-subVmTest1-vcpus-count button")
+        b.wait_visible(".pf-c-modal-box__body")
+
+        # Check basic values
+        b.wait_val("#machines-vcpu-count-field", "3")
+        b.wait_val("#machines-vcpu-max-field", "4")
+
+        # Check sockets, cores and threads
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#coresSelect", "1")
+        b.wait_val("#threadsSelect", "2")
+
+        b.click("#machines-vcpu-modal-dialog-cancel")
+        b.wait_not_present("#machines-vcpu-modal-dialog")
+
+        # Shut off VM
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # Open dialog
+        b.click("#vm-subVmTest1-vcpus-count button")
+
+        b.wait_visible(".pf-c-modal-box__body")
+
+        b.set_input_text("#machines-vcpu-count-field", "2")
+
+        # Set new socket value
+        b.set_val("#coresSelect", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#threadsSelect", "1")
+
+        # Save
+        b.click("#machines-vcpu-modal-dialog-apply")
+        b.wait_not_present("#machines-vcpu-modal-dialog")
+
+        wait(lambda: m.execute(
+            "virsh dumpxml subVmTest1 | tee /tmp/subVmTest1.xml | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
+
+        # Run VM - this ensures that the internal state is updated before we move on.
+        # We need this here because we can't wait for UI updates after we open the modal dialog.
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        # Wait for the VCPUs link to get new values before opening the dialog
+        b.wait_visible("#vm-subVmTest1-vcpus-count")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
+
+        # Open dialog
+        b.click("#vm-subVmTest1-vcpus-count button")
+
+        b.wait_visible(".pf-c-modal-box__body")
+
+        # Set new socket value
+        b.wait_val("#coresSelect", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#threadsSelect", "1")
+
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
+
+        # Check value of sockets, threads and cores from VM dumpxml
+        m.execute(
+            "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
+
+        # non-persistent VM doesn't have configurable vcpu
+        m.execute("virsh undefine subVmTest1")
+        b.wait_visible("#vm-subVmTest1-vcpus-count button:disabled")
+
+    def testAutostart(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+
+        def checkAutostart(vm_name, running):
+            self.createVm(vm_name, running=running)
+            self.waitVmRow(vm_name)
+            b.wait_in_text("#vm-{}-state".format(vm_name), "Running" if running else "Shut off")
+            self.goToVmPage(vm_name)
+
+            # set checkbox state and check state of checkbox
+            b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True) # don't know the initial state of checkbox, so set it to checked
+            b.wait_visible("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
+
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_not_present("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "disable")
+
+            # change checkbox state and check state of checkbox
+            b.click("#vm-{}-autostart-checkbox".format(vm_name))
+            b.wait_visible("#vm-{}-autostart-checkbox:checked".format(vm_name))
+            # check virsh state
+            autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
+            self.assertEqual(autostartState, "enable")
+
+            # non-persistent VM doesn't have autostart
+            if running:
+                m.execute("virsh undefine {}".format(vm_name))
+                b.wait_not_present("#vm-{}-autostart-checkbox".format(vm_name))
+
+            self.goToMainPage()
+
+        checkAutostart("subVmTest1", True)
+        checkAutostart("subVmTest2", False)
+
+    def testCPUModel(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        self.goToVmPage("subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+
+        # Copy host CPU configuration
+        b.wait_visible("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
+        b.click("#cpu-config-dialog-apply")
+        # Warning about about difference in persistent and non-persitent XML shoud appear
+        b.wait_visible("#cpu-tooltip")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        # Warning should dissapear and changes should be visible in the UI
+        b.wait_not_present("#cpu-tooltip")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
+
+        # Choose manually a CPU model
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "coreduo")
+        b.click("#cpu-config-dialog-apply")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom (coreduo)")
+
+        # Verify libvirt XML
+        dom_xml = "virsh dumpxml {0}".format("subVmTest1")
+        xmllint_element = "{0} | xmllint --xpath 'string(//domain/{{prop}})' - 2>&1 || true".format(dom_xml)
+        self.assertEqual("coreduo", m.execute(xmllint_element.format(prop='cpu/model')).strip())
+
+        # Host-model gets expanded  to custom mode when the VM is running
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "host-model")
+        b.click("#cpu-config-dialog-apply")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom")
+        # In the test ENV libvirt does not properly set the CPU model so we see a tooltip https://bugzilla.redhat.com/show_bug.cgi?id=1913337
+        # b.wait_not_present("#cpu-tooltip")
+
+    def testBootOrder(self):
+        b = self.browser
+        m = self.machine
+
+        self.createVm("subVmTest1")
+        self.machine.execute("touch /var/lib/libvirt/images/phonycdrom; virsh attach-disk subVmTest1 /var/lib/libvirt/images/phonycdrom sdb --type cdrom --config")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        # Wait for the edit button
+        bootOrder = b.text("#vm-subVmTest1-boot-order")
+
+        # Open dialog
+        b.click("#vm-subVmTest1-boot-order button")
+        b.wait_visible("#vm-subVmTest1-order-modal-window")
+        # Make sure the footer warning does not appear
+        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
+        # Check a cdrom attributes are shown correctly
+        cdrom_row = b.text("#vm-subVmTest1-order-modal-device-row-2 .list-view-pf-additional-info")
+        self.assertTrue("cdrom" and "/var/lib/libvirt/images/phonycdrom" in cdrom_row)
+        # Move first device down and check whetever succeeded
+        row = b.text("#vm-subVmTest1-order-modal-device-row-1 .list-view-pf-additional-info")
+        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down")
+        b.wait_in_text("#vm-subVmTest1-order-modal-device-row-0 .list-view-pf-additional-info", row)
+        # Make sure the footer warning does appear
+        b.wait_visible("#vm-subVmTest1-order-modal-min-message")
+
+        # Save
+        b.click("#vm-subVmTest1-order-modal-save")
+        b.wait_not_present("#vm-subVmTest1-order-modal-window")
+        # Make sure warning next to boot order appears
+        b.wait_visible("#boot-order-tooltip")
+
+        # Shut off domain and check changes are applied
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # Check boot order has changed and no warning is shown
+        b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
+        b.wait_not_present("#boot-order-tooltip")
+
+        bootOrder = b.text("#vm-subVmTest1-boot-order")
+
+        # Open dialog
+        b.click("#vm-subVmTest1-boot-order button")
+        b.wait_visible("#vm-subVmTest1-order-modal-window")
+        # Make sure the footer warning does not appear
+        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
+        # Unselect second device
+        b.click("#vm-subVmTest1-order-modal-device-row-1 input")
+        # Make sure the footer warning still does not appear, since machine is shut down
+        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
+
+        # Save
+        b.click("#vm-subVmTest1-order-modal-save")
+        b.wait_not_present("#vm-subVmTest1-order-modal-window")
+
+        # Check boot order has changed and no warning is shown
+        b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
+        b.wait_not_present("#boot-order-tooltip")
+
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        # Non-persistent VM doesn't have configurable boot order
+        m.execute("virsh undefine subVmTest1")
+        b.wait_visible("#vm-subVmTest1-boot-order button:disabled")
+
+    def testDomainMemorySettings(self):
+        b = self.browser
+        m = self.machine
+
+        args = self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        # Wait for the edit link
+        b.click("#vm-subVmTest1-memory-count button")
+
+        # Change memory
+        b.wait_visible("#vm-subVmTest1-memory-modal-memory")
+
+        b.wait_attr("#vm-subVmTest1-memory-modal-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
+        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
+
+        # VM initially should have 256MiB
+        current_memory = int(b.attr("#vm-subVmTest1-memory-modal-memory", "value"))
+        self.assertEqual(current_memory, 256)
+        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "disabled", "")
+
+        # Check memory hotunplugging
+        # The balloon driver needs to be loaded to descrease memory
+        wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        b.set_input_text("#vm-subVmTest1-memory-modal-memory", str(current_memory - 10))
+        b.blur("#vm-subVmTest1-memory-modal-memory")
+        # Save the memory settings
+        b.click("#vm-subVmTest1-memory-modal-save")
+        b.wait_not_present("#vm-memory-modal")
+
+        b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
+
+        # Shut off domain and check changes are  still there
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
+
+        # Click for the edit link
+        b.click("#vm-subVmTest1-memory-count button")
+
+        # Verify that limiting max memory in offline VMs bellow memory will decrease memory as well
+        b.set_input_text("#vm-subVmTest1-memory-modal-max-memory", str(current_memory - 20))
+        b.blur("#vm-subVmTest1-memory-modal-max-memory")
+        self.assertEqual(int(b.attr("#vm-subVmTest1-memory-modal-memory", "value")), current_memory - 20)
+
+        # Verify that increasing current memory in offline VMs above max memory will increase max memory as well
+        b.set_input_text("#vm-subVmTest1-memory-modal-memory", str(current_memory))
+        b.blur("#vm-subVmTest1-memory-modal-memory")
+        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "value", str(current_memory))
+
+        # Verify that unit conversions work
+        b.select_from_dropdown("#vm-subVmTest1-memory-modal-memory-unit-select", "GiB")
+        b.wait_attr("#vm-subVmTest1-memory-modal-memory", "value", "0")
+
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        # Non-persistent VM doesn't have configurable memory
+        m.execute("virsh undefine subVmTest1")
+        b.wait_visible("#vm-subVmTest1-memory-count button:disabled")
+
+    def testMultipleSettings(self):
+        b = self.browser
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual machines")
+        self.waitVmRow("subVmTest1")
+
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.goToVmPage("subVmTest1")
+
+        # Change Boot Order setting
+        bootOrder = b.text("#vm-subVmTest1-boot-order")
+        b.click("#vm-subVmTest1-boot-order button") # Open dialog
+        b.wait_visible(".pf-c-modal-box__body")
+        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
+        b.click("#vm-subVmTest1-order-modal-save") # Save
+        b.wait_not_present(".pf-c-modal-box__body")
+
+        # Change vCPUs setting
+        b.click("#vm-subVmTest1-vcpus-count button") # Open dialog
+        b.wait_visible(".pf-c-modal-box__body")
+        b.set_input_text("#machines-vcpu-max-field", "3") # Change values
+        b.set_input_text("#machines-vcpu-count-field", "3")
+        b.click("#machines-vcpu-modal-dialog-apply") # Save
+        b.wait_not_present(".pf-c-modal-box__body")
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
+        # Check both changes have been applied
+        b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
+
+if __name__ == '__main__':
+    test_main()

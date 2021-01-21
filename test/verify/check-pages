@@ -290,6 +290,7 @@ OnCalendar=daily
                 });
                 return correct;
             })""", language)
+            b.wait_attr(".index-page", "lang", language)
 
     def testPtBRLocale(self):
         m = self.machine

@@ -624,6 +624,11 @@ if (document.documentElement.getAttribute("class") === "index-page") {
         window.messages = null;
     };
 
+    let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!language)
+        language = "en-us";
+    document.documentElement.lang = language;
+
     window.addEventListener("message", message_queue, false);
 }
 

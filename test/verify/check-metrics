@@ -53,7 +53,10 @@ def topServiceValue(browser, aria_label, col_label, row):
 
 def prepareArchive(machine, name, time):
     machine.upload(["verify/files/metrics-archives/{0}".format(name)], "/tmp/")
-    machine.execute("""timedatectl set-ntp off
+    machine.execute("""ntp=`timedatectl show --property NTP --value`
+                       if [ $ntp == "yes" ]; then
+                           timedatectl set-ntp off
+                       fi
                        systemctl stop pmlogger
                        # don't let NM set transient host names from DHCP
                        systemctl stop NetworkManager
@@ -112,7 +115,10 @@ class TestHistoryMetrics(MachineCase):
         m = self.machine
 
         m.execute("systemctl stop pmlogger")
-        m.execute("timedatectl set-ntp off")
+        m.execute("""ntp=`timedatectl show --property NTP --value`
+             if [ $ntp == "yes" ]; then
+                 timedatectl set-ntp off
+             fi""")
         m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
         m.execute("timedatectl set-time '2020-11-24 09:24:05'")
 

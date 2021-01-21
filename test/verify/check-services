@@ -762,7 +762,10 @@ class TestTimers(MachineCase):
 
         # set an initial baseline date/time, to ensure that we never jump backwards in subsequent tests
         m.execute("timedatectl set-timezone UTC")
-        m.execute("timedatectl set-ntp off")
+        m.execute("""ntp=`timedatectl show --property NTP --value`
+                     if [ $ntp == "yes" ]; then
+                         timedatectl set-ntp off
+                     fi""")
         wait(lambda: "false" in m.execute(
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")

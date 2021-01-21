@@ -488,25 +488,26 @@ class TestSystemInfo(MachineCase):
             m.execute('chmod +x /usr/local/bin/lscpu')
             if cmdline:
                 m.write('/run/cmdline', cmdline)
-                m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi && mount --bind /run/cmdline /proc/cmdline')
+                m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi')
+                m.execute('mount --bind /run/cmdline /proc/cmdline && rm /run/cmdline')
 
-            b.reload()
-            b.enter_page('/system/hwinfo')
+            try:
+                b.reload()
+                b.enter_page('/system/hwinfo')
 
-            if not expect_link_present:
-                b.wait_visible('#hwinfo th:contains(CPU)')
-                b.wait_not_present('#hwinfo th:contains(CPU security)')
-            else:
-                b.click('#hwinfo button:contains(Mitigations)')
+                if not expect_link_present:
+                    b.wait_visible('#hwinfo th:contains(CPU)')
+                    b.wait_not_present('#hwinfo th:contains(CPU security)')
+                else:
+                    b.click('#hwinfo button:contains(Mitigations)')
 
-            if expect_smt_state is not None:
-                b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
-                b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                               (expect_smt_state and ":checked" or ":not(:checked)"))
-
-            if cmdline:
-                m.execute('while ! umount /proc/cmdline; do sleep 1; done')
-                m.execute('rm /run/cmdline')
+                if expect_smt_state is not None:
+                    b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+                    b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
+                                (expect_smt_state and ":checked" or ":not(:checked)"))
+            finally:
+                if cmdline:
+                    m.execute('while ! umount /proc/cmdline; do sleep 1; done')
 
         spoof_threads(1, False)
         spoof_threads(2, True, True, 'param1 param2 nosmt param3=value3')

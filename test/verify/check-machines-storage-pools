@@ -25,7 +25,6 @@ from testlib import *
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
-@no_retry_when_changed
 class TestMachinesStoragePools(VirtualMachinesCase):
 
     def testStoragePools(self):

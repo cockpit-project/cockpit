@@ -479,9 +479,7 @@ class TestSystemInfo(MachineCase):
         m = self.machine
 
         self.restore_dir("/usr/local/bin")
-
-        self.login_and_go('/system/hwinfo')
-        b.wait_in_text("#hwinfo", "CPU")
+        m.start_cockpit()
 
         def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
             m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
@@ -492,8 +490,7 @@ class TestSystemInfo(MachineCase):
                 m.execute('mount --bind /run/cmdline /proc/cmdline && rm /run/cmdline')
 
             try:
-                b.reload()
-                b.enter_page('/system/hwinfo')
+                b.login_and_go('/system/hwinfo')
 
                 if not expect_link_present:
                     b.wait_visible('#hwinfo th:contains(CPU)')
@@ -505,6 +502,8 @@ class TestSystemInfo(MachineCase):
                     b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
                     b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                                 (expect_smt_state and ":checked" or ":not(:checked)"))
+
+                b.logout()
             finally:
                 if cmdline:
                     m.execute('while ! umount /proc/cmdline; do sleep 1; done')

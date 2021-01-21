@@ -24,7 +24,6 @@ from testlib import *
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestNetworkingOther(NetworkCase):
-
     def testOther(self):
         b = self.browser
         m = self.machine
@@ -38,19 +37,19 @@ class TestNetworkingOther(NetworkCase):
 
         self.login_and_go("/network")
         self.wait_for_iface(iface, active=False)
-        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        self.select_iface(iface)
         b.wait_visible("#network-interface")
 
         # Configure a manual IP address
         #
-        b.click("tr:contains('IPv4') a")
+        self.configure_iface_setting('IPv4')
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "24")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
+        self.wait_for_iface_setting('Status', '1.2.3.4/24')
 
 
 if __name__ == '__main__':

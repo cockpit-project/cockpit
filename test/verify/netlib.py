@@ -153,12 +153,24 @@ class NetworkCase(MachineCase, NetworkHelpers):
             print(self.machine.execute("grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show %s || true" % iface))
             raise e
 
+    def select_iface(self, iface):
+        b = self.browser
+        b.click("#networking-interfaces tr[data-interface='%s'] button" % iface)
+
     def iface_con_id(self, iface):
         con_id = self.machine.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
         if con_id == "" or con_id == "--":
             return None
         else:
             return con_id
+
+    def wait_for_iface_setting(self, setting_title, setting_value):
+        b = self.browser
+        b.wait_in_text("dt:contains('%s') + dd" % setting_title, setting_value)
+
+    def configure_iface_setting(self, setting_title):
+        b = self.browser
+        b.click("dt:contains('%s') + dd button" % setting_title)
 
     def ensure_nm_uses_dhclient(self):
         m = self.machine
@@ -180,7 +192,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         self.browser.wait_visible(sel + " input" + (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self, sel):
-        self.browser.click(sel + " input")
+        self.browser.click(sel + " input[type=checkbox]")
 
     def login_and_go(self, *args, **kwargs):
         super().login_and_go(*args, **kwargs)

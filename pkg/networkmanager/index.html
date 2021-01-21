@@ -29,7 +29,7 @@
   <script src="../*/po.js"></script>
   <script src="network.js"></script>
 </head>
-<body class="pf-m-redhat-font" hidden>
+<body class="pf-m-redhat-font">
 
   <div id="testing-connection-curtain" class="curtains-ct blank-slate-pf" hidden>
     <h1><div class="spinner spinner-lg"></div></h1>
@@ -37,89 +37,7 @@
     <h1 id="testing-connection-curtain-restoring" translate="yes">Restoring connection</h1>
   </div>
 
-  <div id="networking" class="pf-c-page" hidden>
-    <main class="pf-c-page__main" tabindex="-1">
-      <div id="networking-nm-crashed" class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert" hidden>
-        <div class="pf-c-alert__icon">
-          <span class="pficon pficon-error-circle-o"></span>
-        </div>
-        <h4 class="pf-c-alert__title"><span translate="yes">NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a></h4>
-        <div class="pf-c-alert__action">
-          <button class="pf-c-button pf-m-secondary" type="submit" translate="yes">Start service</button>
-        </div>
-      </div>
-
-      <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
-        <div class="pf-c-alert__icon">
-          <span class="pficon pficon-info"></span>
-        </div>
-        <h4 class="pf-c-alert__title" translate="yes">Network devices and graphs require NetworkManager.</h4>
-        <div class="pf-c-alert__action">
-          <button class="pf-c-button pf-m-secondary" type="submit" translate="yes">Enable service</button>
-        </div>
-      </div>
-
-      <section id="networking-graphs" class="networking-graphs pf-c-page__main-section pf-m-light">
-        <div id="network-graphs-element"></div>
-      </section>
-
-      <section class="networking-page pf-c-page__main-section">
-        <div class="pf-l-gallery pf-m-gutter">
-          <article class="pf-c-card" id="networking-firewall" hidden>
-            <div class="pf-c-card__header">
-              <div class="pf-c-card__title" translate="yes">Firewall</div>
-              <div class="firewall-switch">
-              </div>
-              <div class="pf-c-card__actions">
-                <button class="pf-c-button pf-m-secondary" id="networking-firewall-link" translate="yes">Edit rules and zones</button>
-              </div>
-            </div>
-            <div id="networking-firewall-summary" class="pf-c-card__body"></div>
-          </article>
-          <article class="pf-c-card" id="networking-interfaces">
-            <div class="pf-c-card__header">
-              <div class="pf-c-card__title" translate="yes">Interfaces</div>
-              <div class="pf-c-card__actions">
-                <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add bond</button>
-                <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add team</button>
-                <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add bridge</button>
-                <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
-              </div>
-            </div>
-            <table class="pf-c-table pf-m-grid-md pf-m-compact table-hover" role="grid">
-              <thead>
-                <tr role="row">
-                  <th role="columnheader" scope="col" translate="yes">Name</th>
-                  <th role="columnheader" scope="col" translate="yes">IP address</th>
-                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
-                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
-                </tr>
-              </thead>
-              <tbody role="rowgroup">
-              </tbody>
-            </table>
-          </article>
-          <article class="pf-c-card" id="networking-unmanaged-interfaces">
-            <div class="pf-c-card__header">
-              <div class="pf-c-card__title" translate="yes">Unmanaged interfaces</div>
-            </div>
-            <table class="pf-c-table pf-m-compact pf-m-grid-md" role="grid">
-              <thead>
-                <tr role="row">
-                  <th role="columnheader" scope="col" translate="yes">Name</th>
-                  <th role="columnheader" scope="col" translate="yes">IP address</th>
-                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Sending</th>
-                  <th role="columnheader" scope="col" translate="yes" class="networking-speed">Receiving</th>
-                </tr>
-              </thead>
-              <tbody role="rowgroup">
-              </tbody>
-            </table>
-          </article>
-          <div id="networking-log"></div>
-        </div>
-      </section>
-    </main>
+  <div id="network-page" class="network-page">
   </div>
 
   <script id="network-vlan-settings-template" type="x-template/mustache">
@@ -350,65 +268,6 @@
              type="text" value="{{lacp_key}}"/>
     </form>
   </script>
-
-  <div id="network-interface" class="pf-c-page" hidden>
-    <main class="pf-c-page__main" tabindex="-1">
-      <section class="pf-c-page__main-breadcrumb pf-m-light">
-        <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
-          <ol class="pf-c-breadcrumb__list">
-            <li class="pf-c-breadcrumb__item"><a class="pf-c-breadcrumb__link" role="link" tabindex="0" translate="yes">Networking</a></li>
-            <li class="pf-c-breadcrumb__item">
-              <span class="pf-c-breadcrumb__item-divider">
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
-              </span>
-              <a class="pf-c-breadcrumb__link pf-m-current"></a>
-            </li>
-          </ol>
-        </nav>
-      </section>
-
-      <section class="networking-graphs networking-graphs-interface pf-c-page__main-section pf-m-light">
-        <div id="network-interface-graphs-element"></div>
-      </section>
-
-      <section class="pf-c-page__main-section">
-        <div class="pf-l-gallery pf-m-gutter">
-          <div class="pf-c-card network-interface-details">
-            <div class="pf-c-card__header">
-              <div class="pf-c-card__title network-interface-title">
-                <span id="network-interface-name"></span>
-                <span id="network-interface-hw"></span>
-                <span id="network-interface-mac"></span>
-              </div>
-              <div class="pf-c-card__actions">
-                <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
-                <span id="network-interface-delete-switch" class="network-privileged"></span>
-              </div>
-            </div>
-            <div class="pf-c-card__body">
-              <table class="form-table-ct" id="network-interface-settings">
-              </table>
-            </div>
-          </div>
-          <div class="pf-c-card network-interface-members" id="network-interface-members">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th translate="yes" class="networking-speed">Sending</th>
-                  <th translate="yes" class="networking-speed">Receiving</th>
-                  <th class="networking-spacer"></th>
-                  <th class="networking-action"></th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
 
   <div hidden aria-hidden="true" id="network-ip-settings-dialog">
     <div class="pf-c-backdrop">

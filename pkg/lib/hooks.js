@@ -268,7 +268,7 @@ export function useObject(create, destroy, deps, comps) {
     return ref.current;
 }
 
-/* - useEvent(obj, event)
+/* - useEvent(obj, event, handler)
  *
  * function Component(proxy) {
  *   useEvent(proxy, "changed");
@@ -278,19 +278,24 @@ export function useObject(create, destroy, deps, comps) {
  *
  * The component will be re-rendered whenever "proxy" emits the
  * "changed" signal.  The "proxy" parameter can be null.
+ *
+ * When the optional "handler" is given, it will be called with the
+ * arguments of the event.
  */
 
-export function useEvent(obj, event) {
+export function useEvent(obj, event, handler) {
     // We toggle a (otherwise unused) state boolean whenever the event
     // happens.  That reliably triggers a re-render.
 
     const [, setToggler] = useState(false);
     useEffect(() => {
         function update() {
+            if (handler)
+                handler.apply(null, arguments);
             setToggler(toggle => !toggle);
         }
 
         obj && obj.addEventListener(event, update);
         return () => obj && obj.removeEventListener(event, update);
-    }, [obj, event]);
+    }, [obj, event, handler]);
 }

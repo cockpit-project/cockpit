@@ -70,9 +70,7 @@ class Bonding(NeworkTestSuite):
         self.bond.remove_connections("^" + self.if_prefix)
 
     def testMemberRemove(self):
-        self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable)
-        self.click(self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable))
-        self.click(self.wait_xpath("//tr[@data-interface='%s']//button" % self.veth1.left.name, cond=clickable))
+        self.wait_css("#networking-interfaces tr[data-interface='%s'] button" % self.bond.name, cond=clickable)
+        self.click(self.wait_css("#networking-interfaces tr[data-interface='%s'] button" % self.bond.name, cond=clickable))
+        self.click(self.wait_css("tr[data-interface='%s'] button" % self.veth1.left.name, cond=clickable))
         self.click(self.wait_link("Networking", cond=clickable))
-
-        self.wait_xpath("//tr[@data-interface='%s']//td[contains(text(), 'Configuring IP')]" % self.veth1.left.name, cond=clickable)

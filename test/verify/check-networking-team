@@ -32,7 +32,7 @@ class TestTeam(NetworkCase):
 
         self.login_and_go("/network")
 
-        b.wait_attr("#networking-add-team", "data-test-stable", "yes")
+        b.wait_attr("#networking-add-team", "data-test-stable", "true")
 
         iface1 = "cockpit1"
         self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
@@ -59,7 +59,7 @@ class TestTeam(NetworkCase):
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
 
         # Check that the members are displayed
-        b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
+        self.select_iface('tteam')
         b.wait_visible("#network-interface")
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface1)
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface2)
@@ -69,7 +69,7 @@ class TestTeam(NetworkCase):
         b.wait_text_not("#network-interface-mac", "")
         self.wait_onoff(".pf-c-card__header:contains('tteam')", True)
         self.toggle_onoff(".pf-c-card__header:contains('tteam')")
-        b.wait_in_text("tr:contains('Status')", "Inactive")
+        self.wait_for_iface_setting('Status', 'Inactive')
         b.reload()
         b.enter_page("/network")
         b.wait_text("#network-interface-name", "tteam")
@@ -94,6 +94,7 @@ class TestTeam(NetworkCase):
         b = self.browser
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         iface = "cockpit1"
         self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
@@ -111,7 +112,7 @@ class TestTeam(NetworkCase):
         b.wait_popdown("network-team-settings-dialog")
 
         # Check that it has the interface and the right IP address
-        b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
+        self.select_iface('tteam')
         b.wait_visible("#network-interface")
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")

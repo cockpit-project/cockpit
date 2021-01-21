@@ -30,6 +30,7 @@ class TestBridge(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         # These are two independent networks. Thus there is no loop between the
         # bridge that all VMs are connected to, and the bridge we are creating here.
@@ -58,13 +59,13 @@ class TestBridge(NetworkCase):
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
         # Check that the members are displayed and both On
-        b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
+        b.click("#networking-interfaces tr[data-interface='tbridge'] button")
         b.wait_visible("#network-interface")
         self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface1, True)
         self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
 
         b.wait_text_not("#network-interface-mac", "")
-        b.click("#network-interface-settings a:contains('Configure')")
+        self.configure_iface_setting('Bridge')
         b.click("#network-bridge-settings-dialog button:contains('Cancel')")
         b.wait_not_present("network-bridge-settings-dialog")
 
@@ -81,6 +82,7 @@ class TestBridge(NetworkCase):
         b = self.browser
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         iface = "cockpit1"
         self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
@@ -98,7 +100,7 @@ class TestBridge(NetworkCase):
         b.wait_popdown("network-bridge-settings-dialog")
 
         # Check that it has the interface and the right IP address
-        b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
+        b.click("#networking-interfaces tr[data-interface='tbridge'] th button")
         b.wait_visible("#network-interface")
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tbridge')", "10.111")

@@ -560,6 +560,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             item = compiled.items[component_manifest];
             label = item ? item.label : "";
             update_title(label, machine);
+            if (label)
+                $(frame).attr('title', label);
         }
     }
 

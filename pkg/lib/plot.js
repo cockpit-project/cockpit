@@ -504,7 +504,12 @@ class SinglePlotState {
         if (!this._stacked_instances_series) {
             this._stacked_instances_series = this._plot.add_metrics_stacked_instances_series(metric, { });
         } else if (reset) {
-            this._stacked_instances_series.clear_instances();
+            // We can't remove individual instances, only clear the
+            // whole thing (because of limitations of Metrics_stacked_instances_series above).
+            // So we do that, but only when there is at least one instance
+            // that needs to be removed.  That avoids a lot of events and React warnings.
+            if (Object.keys(this._stacked_instances_series.instances).some(old => insts.indexOf(old) == -1))
+                this._stacked_instances_series.clear_instances();
         }
 
         for (var i = 0; i < insts.length; i++) {

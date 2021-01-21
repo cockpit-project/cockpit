@@ -48,19 +48,16 @@ export class EditNICModal extends React.Component {
         super(props);
 
         let defaultNetworkSource;
-        let currentSource;
+        const currentSource = this.getNetworkSource(props.network);
         let availableSources = [];
 
-        if (props.network.type === "network") {
-            currentSource = props.network.source.network;
+        if (props.network.type === "network")
             availableSources = props.availableSources.network;
-        } else if (props.network.type === "direct") {
-            currentSource = props.network.source.dev;
+        else if (props.network.type === "direct")
             availableSources = props.availableSources.device;
-        } else if (props.network.type === "bridge") {
-            currentSource = props.network.source.bridge;
+        else if (props.network.type === "bridge")
             availableSources = props.availableSources.device;
-        }
+
         if (availableSources.includes(currentSource))
             defaultNetworkSource = currentSource;
         else
@@ -77,6 +74,15 @@ export class EditNICModal extends React.Component {
         this.save = this.save.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
+    }
+
+    getNetworkSource(network) {
+        if (network.type === "network")
+            return network.source.network;
+        else if (network.type === "direct")
+            return network.source.dev;
+        else if (network.type === "bridge")
+            return network.source.bridge;
     }
 
     onValueChanged(key, value) {
@@ -142,7 +148,7 @@ export class EditNICModal extends React.Component {
         const showWarning = () => {
             if (vm.state === 'running' && (
                 this.state.networkType !== network.type ||
-                this.state.networkSource !== network.source[network.type] ||
+                this.state.networkSource !== this.getNetworkSource(network) ||
                 this.state.networkModel !== network.model)
             ) {
                 return <Alert isInline variant='warning' id={`${idPrefix}-edit-dialog-idle-message`} title={_("Changes will take effect after shutting down the VM")} />;

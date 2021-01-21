@@ -241,14 +241,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             document.getElementById("main").style.removeProperty('--ct-color-host-accent');
         }
 
-        let component_manifest = state.component;
-        // If `state.component` is not known to any manifest, find where it comes from
-        if (compiled.items[state.component] == undefined) {
-            let s = state.component;
-            while (s && compiled.items[s] == undefined)
-                s = s.substring(0, s.lastIndexOf("/"));
-            component_manifest = s;
-        }
+        const component_manifest = find_component(state, compiled);
 
         // Filtering of navigation by term
         function keyword_filter(item, term) {
@@ -460,6 +453,18 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         document.title = label + suffix;
     }
 
+    function find_component(state, compiled) {
+        let component = state.component;
+        // If `state.component` is not known to any manifest, find where it comes from
+        if (compiled.items[state.component] === undefined) {
+            let s = state.component;
+            while (s && compiled.items[s] === undefined)
+                s = s.substring(0, s.lastIndexOf("/"));
+            component = s;
+        }
+        return component;
+    }
+
     function update_frame(machine, state, compiled) {
         var title, message, connecting, restarting;
         var current_frame = index.current_frame();
@@ -550,7 +555,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
             $(frame).css('display', 'block');
             $(frame).attr('data-active', 'true');
-            item = compiled.items[state.component];
+
+            const component_manifest = find_component(state, compiled);
+            item = compiled.items[component_manifest];
             label = item ? item.label : "";
             update_title(label, machine);
         }

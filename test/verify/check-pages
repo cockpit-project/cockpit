@@ -181,6 +181,8 @@ OnCalendar=daily
 
         # Systemd timer localization
         b.go("/system/services")
+        b.switch_to_top()
+        b.wait_js_cond('document.title.indexOf("Dienste") === 0')
         b.enter_page("/system/services")
         b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
@@ -194,6 +196,7 @@ OnCalendar=daily
         # Check the playground page
         b.switch_to_top()
         b.go("/playground/translate")
+        b.wait_js_cond('document.title.indexOf("Entwicklung") === 0')
         b.enter_page("/playground/translate")
 
         # HTML section

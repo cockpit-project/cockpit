@@ -82,6 +82,15 @@ class TestBonding(NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Cancel')")
         b.wait_not_present("network-bond-settings-dialog")
 
+        # Navigate to the first member, check it, navigate back
+        b.click("#network-interface-members tr[data-interface='%s'] td:first-child" % iface1)
+        b.wait_in_text("#network-interface-name", iface1)
+        b.wait_in_text("#network-interface-settings", "MTU")
+        b.wait_not_in_text("#network-interface-settings", "IPv4")
+        b.wait_not_in_text("#network-interface-settings", "IPv6")
+        b.click("#network-interface-settings a:contains(tbond)")
+        b.wait_in_text("#network-interface-name", "tbond")
+
         # Deactivate the bond and make sure it is still there after a
         # reload.
         self.wait_onoff(".pf-c-card__header:contains('tbond')", True)

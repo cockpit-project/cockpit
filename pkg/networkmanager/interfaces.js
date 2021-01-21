@@ -588,7 +588,7 @@ function NetworkManagerModel() {
             }
         };
 
-        if (!settings.connection.group) {
+        if (!settings.connection.master) {
             result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, utils.ip4_to_text);
             result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, utils.ip6_to_text);
         }

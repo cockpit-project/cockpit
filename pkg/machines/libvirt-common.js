@@ -1007,9 +1007,7 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
         ], opts)
                 .done(() => {
                     finishVmCreateInProgress(dispatch, vmName, connectionName);
-                    if (startVm) {
-                        clearVmUiState(dispatch, vmName, connectionName);
-                    }
+                    clearVmUiState(dispatch, vmName, connectionName);
                 })
                 .fail((exception, data) => {
                     clearVmUiState(dispatch, vmName, connectionName); // inProgress cleanup

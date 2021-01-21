@@ -232,6 +232,10 @@ OnCalendar=daily
         self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
         self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
 
+        # Frame title
+        b.switch_to_top()
+        b.wait_attr("iframe[name='cockpit1:localhost/system']", "title", "Überblick")
+
         # Log out and check that login page is translated now
         b.logout()
         b.wait_visible('#password-group')

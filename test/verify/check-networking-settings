@@ -36,13 +36,14 @@ class TestNetworkingSettings(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         iface = self.add_iface(activate=False)
         self.wait_for_iface(iface, active=False)
         # checkpoints are realtime sensitive, avoid long NM operations
         self.settle_cpu()
 
-        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        self.select_iface(iface)
         b.wait_visible("#network-interface")
 
         # Check that there is no connection for the device
@@ -50,14 +51,14 @@ class TestNetworkingSettings(NetworkCase):
         self.assertEqual(cons.strip(), "")
 
         # Edit and apply the ghost settings
-        b.click("tr:contains('IPv4') a")
+        self.configure_iface_setting('IPv4')
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "24")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        b.wait_in_text("tr:contains('IPv4')", "Address 1.2.3.4/24")
+        self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
 
         # Check that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
@@ -65,18 +66,18 @@ class TestNetworkingSettings(NetworkCase):
                          "manual")
 
         # The interface will be activated. Deactivate it.
-        b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
+        self.wait_for_iface_setting('Status', '1.2.3.4/24')
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        b.wait_in_text("tr:contains('Status')", "Inactive")
+        self.wait_for_iface_setting('Status', 'Inactive')
 
         # Delete the connection settings again and wait for the ghost
         # settings to be re-created.
         m.execute('nmcli con del "%s"' % con_id)
-        b.wait_in_text("tr:contains('IPv4')", "Automatic")
+        self.wait_for_iface_setting('IPv4', 'Automatic')
 
         # Activate with ghost settings
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        b.wait_in_text("tr:contains('Status')", "10.111.")
+        self.wait_for_iface_setting('Status', '10.111.')
 
         # Check again that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
@@ -96,10 +97,10 @@ class TestNetworkingSettings(NetworkCase):
 
         # IPv4 address sharing
 
-        b.click("#networking-interfaces tr[data-interface='%s'] td:first-child" % iface)
+        self.select_iface(iface)
         b.wait_visible("#network-interface")
 
-        b.click("tr:contains('IPv4') a")
+        self.configure_iface_setting('IPv4')
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Shared")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
@@ -116,7 +117,7 @@ class TestNetworkingSettings(NetworkCase):
         show_cmd = "ip -6 route show dev %s" % iface
         wait(lambda: "fe80::/64" in m.execute(show_cmd))
         # add a manual one
-        b.click("tr:contains('IPv6') a")
+        self.configure_iface_setting('IPv6')
         b.wait_popup("network-ip-settings-dialog")
         b.click('.network-ip-settings-row[data-field="routes"] button')  # +
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2::")
@@ -135,7 +136,7 @@ class TestNetworkingSettings(NetworkCase):
         self.assertIn("fe80::/64", out)
 
         # dialog prefills fields with current settings
-        b.click("tr:contains('IPv6') a")
+        self.configure_iface_setting('IPv6')
         b.wait_popup("network-ip-settings-dialog")
 
         b.wait_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2:0:0:0:0:0:0")

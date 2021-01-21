@@ -42,14 +42,3 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("services-list")
         self.wait_text("sshd")
         self.mainframe()
-
-    def test70ChangeTabNetworking(self):
-        self.login()
-        out = self.machine.execute("/usr/sbin/ip r |grep default | head -1 | cut -d ' ' -f 5").strip()
-        self.click(self.wait_link('Network', cond=clickable))
-        self.wait_frame("network")
-        self.wait_id("networking-interfaces")
-
-        self.click(self.wait_xpath("//tr[@data-interface='%s']" % out, cond=clickable))
-        self.wait_text("Carrier", element="td")
-        self.mainframe()

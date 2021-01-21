@@ -16,61 +16,37 @@
 // Pull in variables (especially for breakpoints)
 @import "_global-variables.scss";
 
+@import "../lib/ct-card.scss";
+
+#network-page {
+    height: 100%;
+    .pf-c-card {
+        @extend .ct-card;
+    }
+}
+
 #networking, #network-interface {
     .pf-l-gallery {
         --pf-l-gallery--GridTemplateColumns: 1fr;
     }
 }
 
-// Mixin to extend for both Firewall switches:
-// In the Network Overview page and the Firewall page
-%firewall-switch {
-    padding-left: var(--pf-global--spacer--md);
+// Add space before the firewall switch in the Overview and Firewall pages
+.networking-firewall-switch {
+    margin-left: var(--pf-global--spacer--md);
 }
 
 // General networking page overview
-.networking-page {
-    .firewall-switch {
-        @extend %firewall-switch;
-    }
-
-    .pf-c-card__header {
-        flex-wrap: wrap;
-
-        .pf-c-card__actions {
-            flex-wrap: wrap;
-        }
-
-        button,
-        .pf-c-card__actions button {
-            margin-bottom: 0.5rem;
-        }
-    }
- 
-    .pf-c-card__header > .pf-c-card__title {
-        padding: 0;
-        font-weight: normal;
-        font-size: var(--pf-global--FontSize--2xl);
-    }
-
+.network-page {
     .cockpit-log-panel {
         max-width: 100vw;
     }
 }
 
 #network-interface {
-    section.pf-c-page__main-breadcrumb {
-        padding-bottom: var(--pf-global--spacer--xl);
-    }
-
-    .pf-c-card__header > .pf-c-card__title {
-        padding: 0;
-    }
-
     @at-root {
-        #network-interface-hw, #network-interface-mac {
-            font-size: var(--pf-global--FontSize--md);
-            font-weight: var(--pf-global--FontWeight--normal);
+        #network-interface-name {
+            font-weight: var(--pf-c-card__title--FontWeight);
         }
 
         .network-interface-status > span {
@@ -170,34 +146,31 @@ th {
             margin-left: 0px;
         }
     }
-
-#networking-interfaces, #networking-unmanaged-interfaces {
-    td[data-label=Name] {
-        font-weight: var(--pf-global--FontWeight--bold);
-    }
 }
 
+#networking-interfaces, #networking-unmanaged-interfaces {
+    th[data-label=Name] button {
+        font-weight: var(--pf-global--FontWeight--bold);
+
+        // Expand the link to the container, for easier clickability
+        display: block;
+        text-align: left;
+    }
 }
 
 .network-interface-members {
-    // Align network-interface-members toggle to the right
-    .networking-row-configure {
-        text-align: right;
+    .pf-c-switch {
+        margin-right: var(--pf-global--spacer--md);
     }
-
-    // Old-style table shouldn't have margins on the card
-    .table:last-child {
-        margin-bottom: 0;
+    .pf-c-table > tbody > tr > td:last-child {
+        text-align: right;
+        --pf-c-table--cell--Width: 10%;
     }
 }
 
-// Dropdown menu that's behind an add button on the network interface members section _and_ the network bonds dialog
-// ideally, this should be a dropdown button with a caret to indicate there are choices underneith
-ul.add-button {
-    right: 0px;
-    left: auto;
-    min-width: 0;
-    text-align: left;
+// If the button is not the first item in the DescriptionListDescription all left padding
+.network-interface-settings dd .pf-c-description-list__text button:not(:first-child) {
+    padding-left: var(--pf-global--spacer--md);
 }
 
 // IPv4 / IPv6 settings
@@ -207,7 +180,7 @@ ul.add-button {
         .inverted-switchbox {
             margin-right: var(--pf-global--spacer--md);
         }
-     
+
         .network-ip-settings-row {
             border-bottom: 1px solid lightgray;
             padding-bottom: 10px;
@@ -238,7 +211,7 @@ ul.add-button {
                 &:last-child {
                     width: 28px;
                 }
-                
+
                 .pf-m-secondary {
                     margin-right: 4px;
                 }
@@ -334,16 +307,6 @@ ul.add-button {
 
 /********** Firewall section **********/
 
-// Firewall's toggle
-h2 + .onoff-ct {
-    @extend %firewall-switch;
-}
-
-#networking-firewall-summary:hover {
-    cursor: pointer;
-    background-color: var(--color-ct-list-hover-bg);
-}
-
 #add-services-dialog {
     .dialog-list-ct {
         height: 100vh;
@@ -422,10 +385,6 @@ h2 + .onoff-ct {
         &-group {
             display: flex;
             align-items: center;
-
-            h1 {
-                margin: 0 2rem 0 0;
-            }
         }
     }
 }
@@ -525,7 +484,7 @@ h2 + .onoff-ct {
         &:first-of-type::after {
             left: 50%;
         }
-    
+
         /* End line at the midpoint for the last radio */
         &:last-of-type::after {
             right: 50%;

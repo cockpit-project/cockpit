@@ -29,41 +29,42 @@ class TestNetworkingBasic(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         iface = 'cockpit1'
         self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
         self.nm_activate_eth(iface)
         self.wait_for_iface(iface)
-        b.wait_not_visible("#network-interface")
+        b.wait_not_present("#network-interface")
 
-        b.wait_in_text("#network-graphs-element", "Transmitting")
-        b.wait_in_text("#network-graphs-element", "Receiving")
+        b.wait_in_text("#networking-graphs", "Transmitting")
+        b.wait_in_text("#networking-graphs", "Receiving")
 
         # Details of test iface
-        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        self.select_iface(iface)
         b.wait_visible("#network-interface")
 
         con_id = wait(lambda: self.iface_con_id(iface))
 
         # Toggle "Connect automatically"
         #
-        b.wait_visible('label:contains(Connect automatically) input:checked')
-        b.set_checked('label:contains(Connect automatically) input', False)
+        b.wait_visible('#autoreconnect:checked')
+        b.set_checked('#autoreconnect', False)
         self.assertEqual(m.execute("nmcli -g connection.autoconnect con show %s" % con_id), "no\n")
-        b.wait_visible('label:contains(Connect automatically) input:not(:checked)')
-        b.set_checked('label:contains(Connect automatically) input', True)
-        b.wait_visible('label:contains(Connect automatically) input:checked')
+        b.wait_visible('#autoreconnect:not(:checked)')
+        b.set_checked('#autoreconnect', True)
+        b.wait_visible('#autoreconnect:checked')
         self.assertEqual(m.execute("nmcli -g connection.autoconnect con show %s" % con_id), "yes\n")
 
         # Configure a manual IP address
         #
-        b.click("tr:contains('IPv4') a")
+        self.configure_iface_setting('IPv4')
         b.wait_popup("network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
         # Manual mode  disables automatic switches
-        b.wait_visible("#network-ip-settings-dialog [data-field='dns'] .onoff-ct :disabled")
-        b.wait_visible("#network-ip-settings-dialog [data-field='dns_search'] .onoff-ct :disabled")
-        b.wait_visible("#network-ip-settings-dialog [data-field='routes'] .onoff-ct :disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns'] input[type=checkbox]:disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns_search'] input[type=checkbox]:disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='routes'] input[type=checkbox]:disabled")
 
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "255.255.0.8")
@@ -77,20 +78,20 @@ class TestNetworkingBasic(NetworkCase):
         # Disconnect
         self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        b.wait_in_text("tr:contains('Status')", "Inactive")
+        self.wait_for_iface_setting('Status','Inactive')
 
         # Switch it back to "auto" from the command line and bring it
         # up again
         #
         m.execute("nmcli connection modify '%s' ipv4.method auto" % con_id)
         m.execute("nmcli connection modify '%s' ipv4.addresses ''" % con_id)
-        b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
+        self.wait_for_iface_setting('IPv4', "Automatic (DHCP)")
         m.execute("nmcli connection up '%s'" % con_id)
-        b.wait_in_text("tr:contains('Status')", "10.111.")
+        self.wait_for_iface_setting('Status', '10.111.')
 
         # Switch off automatic DNS
         #
-        b.click("tr:contains('IPv4') a")
+        self.configure_iface_setting('IPv4')
         b.wait_popup("network-ip-settings-dialog")
         self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", True)
         self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
@@ -110,21 +111,21 @@ class TestNetworkingBasic(NetworkCase):
         self.addCleanup(m.execute, "systemctl enable --now NetworkManager")
 
         def assert_running():
-            b.wait_not_visible("#networking-nm-crashed")
-            b.wait_not_visible("#networking-nm-disabled")
+            b.wait_not_present("#networking-nm-crashed")
+            b.wait_not_present("#networking-nm-disabled")
             b.wait_visible("#networking-graphs")
             b.wait_visible("#networking-interfaces")
             b.wait_in_text("#networking-interfaces", iface)
 
         def assert_stopped(enabled):
             # should hide graphs and actions and show the appropriate notification
-            b.wait_not_visible("#networking-graphs")
-            b.wait_not_visible("#networking-interfaces")
+            b.wait_not_present("#networking-graphs")
+            b.wait_not_present("#networking-interfaces")
             if enabled:
                 b.wait_visible("#networking-nm-crashed")
-                b.wait_not_visible("#networking-nm-disabled")
+                b.wait_not_present("#networking-nm-disabled")
             else:
-                b.wait_not_visible("#networking-nm-crashed")
+                b.wait_not_present("#networking-nm-crashed")
                 b.wait_visible("#networking-nm-disabled")
 
         self.login_and_go("/network")

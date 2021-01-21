@@ -29,7 +29,7 @@ const info = {
         ],
 
         "networkmanager/network": [
-            "networkmanager/interfaces.js",
+            "networkmanager/app.jsx",
             "networkmanager/utils.js"
         ],
 

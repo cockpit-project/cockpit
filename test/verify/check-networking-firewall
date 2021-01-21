@@ -71,21 +71,21 @@ class TestFirewall(NetworkCase):
 
         # Zones should be visible as unprivileged user
         self.login_and_go("/network", superuser=False)
-        self.wait_onoff("#networking-firewall-switch", True)
+        self.wait_onoff("#networking-firewall-summary", True)
         wait_unit_state(m, "firewalld", "active")
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
         m.execute("systemctl stop firewalld")
         b.relogin("/network", superuser=True)
 
-        self.wait_onoff("#networking-firewall-switch", False)
-        self.toggle_onoff("#networking-firewall-switch")
-        self.wait_onoff("#networking-firewall-switch", True)
+        self.wait_onoff("#networking-firewall-summary", False)
+        self.toggle_onoff("#networking-firewall-summary")
+        self.wait_onoff("#networking-firewall-summary", True)
         wait_unit_state(m, "firewalld", "active")
 
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
 
-        self.toggle_onoff("#networking-firewall-switch")
-        self.wait_onoff("#networking-firewall-switch", False)
+        self.toggle_onoff("#networking-firewall-summary")
+        self.wait_onoff("#networking-firewall-summary", False)
         wait_unit_state(m, "firewalld", "inactive")
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 
@@ -98,7 +98,7 @@ class TestFirewall(NetworkCase):
             print(m.execute("systemctl status firewalld"))
             raise
 
-        self.wait_onoff("#networking-firewall-switch", True)
+        self.wait_onoff("#networking-firewall-summary", True)
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
 
         try:
@@ -109,7 +109,7 @@ class TestFirewall(NetworkCase):
             print(m.execute("systemctl status firewalld"))
             raise
 
-        self.wait_onoff("#networking-firewall-switch", False)
+        self.wait_onoff("#networking-firewall-summary", False)
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 
         b.click("#networking-firewall-link")

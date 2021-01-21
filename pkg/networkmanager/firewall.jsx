@@ -36,9 +36,9 @@ import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { FirewallSwitch } from "./firewall-switch.jsx";
 
 import { superuser } from "superuser";
 
@@ -810,7 +810,6 @@ export class Firewall extends React.Component {
         };
 
         this.onFirewallChanged = this.onFirewallChanged.bind(this);
-        this.onSwitchChanged = this.onSwitchChanged.bind(this);
         this.openServicesDialog = this.openServicesDialog.bind(this);
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
         this.onRemoveZone = this.onRemoveZone.bind(this);
@@ -825,15 +824,6 @@ export class Firewall extends React.Component {
 
             return { firewall };
         });
-    }
-
-    onSwitchChanged(value) {
-        this.setState({ pendingTarget: value });
-
-        if (value)
-            firewall.enable();
-        else
-            firewall.disable();
     }
 
     onRemoveZone(zone) {
@@ -924,23 +914,7 @@ export class Firewall extends React.Component {
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
         ).map(id => this.state.firewall.zones[id]);
 
-        var enabled = this.state.pendingTarget !== null ? this.state.pendingTarget : this.state.firewall.enabled;
-
-        let firewallOnOff;
-        if (firewall.readonly) {
-            firewallOnOff = <Tooltip id="tip-auth"
-                                     content={ _("You are not authorized to modify the firewall.") }>
-                <OnOffSwitch state={enabled}
-                             onChange={this.onSwitchChanged}
-                             aria-label={enabled ? _("Not authorized to disable the firewall") : _("Not authorized to enable the firewall")}
-                             disabled />
-            </Tooltip>;
-        } else {
-            firewallOnOff = <OnOffSwitch state={enabled}
-                                         disabled={!!this.state.pendingTarget}
-                                         onChange={this.onSwitchChanged}
-                                         aria-label={enabled ? _("Disable the firewall") : _("Enable the firewall")} />;
-        }
+        const enabled = this.state.firewall.enabled;
 
         return (
             <Page breadcrumb={
@@ -954,7 +928,7 @@ export class Firewall extends React.Component {
                             <Title headingLevel="h2" size="3xl">
                                 {_("Firewall")}
                             </Title>
-                            { firewallOnOff }
+                            <FirewallSwitch firewall={firewall} />
                         </span>
                         { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                     </div>

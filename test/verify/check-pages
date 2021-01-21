@@ -249,7 +249,7 @@ OnCalendar=daily
         b.wait_visible('#overview')
 
         self.open_lang_modal()
-        languages = b.eval_js("ph_select('#display-language-modal-list option').map(function(e) { return e.value })")
+        languages = b.eval_js("ph_select('#display-language-list option').map(function(e) { return e.value })")
         b.click("#display-language-modal footer button.pf-m-link") # Close the menu
 
         for language in languages:

@@ -143,14 +143,12 @@ test_parse_req (void)
       "GET  /path/part  HTTP/1.0  \r\n  ",
   };
 
-  gchar *path;
-  gchar *method;
-  gssize ret;
-  gint i;
-
-  for (i = 0; i < G_N_ELEMENTS (reqs); i++)
+  for (gint i = 0; i < G_N_ELEMENTS (reqs); i++)
     {
-      ret = web_socket_util_parse_req_line (reqs[i], strlen (reqs[i]), &method, &path);
+      gchar *path;
+      gchar *method;
+
+      gssize ret = web_socket_util_parse_req_line (reqs[i], strlen (reqs[i]), &method, &path);
       g_assert_cmpint (ret, ==, strlen (reqs[i]) - 2);
       g_assert_cmpstr (method, ==, "GET");
       g_assert_cmpstr (path, ==, "/path/part");
@@ -210,14 +208,12 @@ test_parse_status (void)
       "HTTP/1.1  101  Switching Protocols  \r\n  ",
   };
 
-  guint status;
-  gchar *reason;
-  gssize ret;
-  gint i;
-
-  for (i = 0; i < G_N_ELEMENTS (lines); i++)
+  for (gint i = 0; i < G_N_ELEMENTS (lines); i++)
     {
-      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, &status, &reason);
+      guint status;
+      gchar *reason;
+
+      gssize ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, &status, &reason);
       g_assert_cmpint (ret, ==, strlen (lines[i]) - 2);
       g_assert_cmpuint (status, ==, 101);
       g_assert_cmpstr (reason, ==, "Switching Protocols");

@@ -890,6 +890,7 @@ test_multi_step_success (Test *test,
   if (headers)
     g_hash_table_destroy (headers);
   g_object_unref (service);
+  g_free (id);
 }
 
 static void

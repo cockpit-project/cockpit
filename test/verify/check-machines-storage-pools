@@ -217,12 +217,6 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         m.execute("virsh detach-disk --config --target vdd subVmTest1")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
 
-        # Check activate button when pool activation is pending
-        m.execute("virsh pool-define-as mypool --type netfs --source-host 127.0.0.10 --source-path /mnt/pool --target /mnt/pool")
-        self.togglePoolRow("mypool", connectionName)
-        b.click("#activate-pool-mypool-system")
-        b.wait_visible("#activate-pool-mypool-system:disabled")
-
         # Transient network
         self.togglePoolRow("myPoolThree", connectionName)
         b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName)) # Transient pool shouldn't have autostart option

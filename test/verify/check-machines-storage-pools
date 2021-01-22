@@ -557,6 +557,8 @@ class TestMachinesStoragePools(VirtualMachinesCase):
                 self.create()
                 if not self.xfail:
                     self.verify()
+                else:
+                    self.cancel()
                 self.close()
 
             def open(self):

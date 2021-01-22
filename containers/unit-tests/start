@@ -1,21 +1,29 @@
 #!/bin/sh -e
 
-top_srcdir=$(realpath -m "$0"/../../..)
+top_srcdir="$(realpath -m "$0"/../../..)"
+workdir="$top_srcdir/containers/unit-tests/workdir"
+
 image=ghcr.io/cockpit-project/unit-tests:latest
 no_npm=''
 scenario=''
 flags=''
 cmd=''
+dirty_ok=''
 
 while test $# -gt 0; do
   case "$1" in
     --docker) docker="docker";;
     --podman) docker="podman";;
+    --dirty-ok) dirty_ok=1;;
     NO_NPM=1) no_npm='--env=NO_NPM=1';;
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
     distcheck|check-memory) scenario="--env=TEST_SCENARIO=$1";;
+    clean)
+        rm -rfv "${workdir}"
+        exit $?
+        ;;
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
@@ -31,6 +39,15 @@ if test -z "${docker:=$(which podman || which docker || true)}"; then
   exit 1
 fi
 
+if test -e "${workdir}" -a -z "${dirty_ok}"; then
+  echo "${workdir} already exists; try '$0 clean' or '--dirty-ok'"
+  exit 1
+fi
+
+mkdir "${workdir}" || true
+git clone "${top_srcdir}" "${workdir}" || true
+cp -a "${top_srcdir}/node_modules" "${workdir}/node_modules" || true
+
 set -ex
-exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
+exec ${docker} run --shm-size=512M --volume "${workdir}":/source:ro,z \
        ${ccarg:+"$ccarg"} $scenario $no_npm $flags -- "$image" $cmd

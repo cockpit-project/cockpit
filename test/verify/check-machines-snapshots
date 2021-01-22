@@ -27,7 +27,6 @@ distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedo
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
-@no_retry_when_changed
 class TestMachinesSnapshots(VirtualMachinesCase):
 
     def testSnapshots(self):

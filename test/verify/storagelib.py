@@ -167,29 +167,41 @@ class StorageHelpers:
             tab = row + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
             cell = tab + " dt:contains(%s) + *" % title
 
-            if not b.is_present(row + ".pf-m-expanded"):
-                if not b.is_present(row_item):
-                    return False
-                b.click(row_item)
+            # The DOM might change at any time while we are inspecting
+            # it, so we can't reliably test for a elements existence
+            # before clicking on it, for example.  Instead, we just
+            # click and catch the testlib.Error that happens when it
+            # is not there.  However, the click itself will wait for a
+            # timeout when the element is missing, so we check anyway
+            # before trying, just to speed things up.
+
+            try:
                 if not b.is_present(row + ".pf-m-expanded"):
+                    if not b.is_present(row_item):
+                        return False
+                    b.click(row_item)
+                    if not b.is_present(row + ".pf-m-expanded"):
+                        return False
+
+                if not b.is_present(tab) or not b.is_visible(tab):
+                    if not b.is_present(tab_btn):
+                        return False
+                    b.click(tab_btn)
+                    if not b.is_visible(tab):
+                        return False
+
+                if not b.is_present(cell) or not b.is_visible(cell):
                     return False
 
-            if not b.is_present(tab) or not b.is_visible(tab):
-                if not b.is_present(tab_btn):
-                    return False
-                b.click(tab_btn)
-                if not b.is_visible(tab):
-                    return False
-
-            if not b.is_present(cell) or not b.is_visible(cell):
+                if val is not None and val in b.text(cell):
+                    return True
+                if alternate_val is not None and alternate_val in b.text(cell):
+                    return True
+                if cond is not None and cond(cell):
+                    return True
                 return False
-            if val is not None and val in b.text(cell):
-                return True
-            if alternate_val is not None and alternate_val in b.text(cell):
-                return True
-            if cond is not None and cond(cell):
-                return True
-            return False
+            except Error:
+                return False
 
         def teardown():
             pass

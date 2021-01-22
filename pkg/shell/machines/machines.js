@@ -42,12 +42,31 @@ export function host_superuser_storage_key(host) {
         return null;
 }
 
-export function get_host_superuser_value(host) {
-    const key = host_superuser_storage_key(host);
+export function get_init_superuser_for_options(options) {
+    let value = null;
+    const key = host_superuser_storage_key(options.host);
     if (key)
-        return window.localStorage.getItem(key);
-    else
-        return null;
+        value = window.localStorage.getItem(key);
+
+    /* When connecting, we can optionally try to start a privileged
+     * bridge immediately.  However, it is quite likely that that
+     * needs a password and if we don't have one, it will likely fail.
+     * That would be okay, but sudo is very noisy about failures and
+     * might send nasty emails to your parents.  For that reason we
+     * pass "init-superuser": "none" here when there is no password.
+     *
+     * The downside is that if sudo is configured to not require a
+     * password, we could start it successfully immediately as part
+     * of the connection process, which would be convenient.  However,
+     * if sudo works without password, gaining admin privs is just a
+     * single click, and the convenience loss is not that of a big deal,
+     * hopefully.
+     */
+
+    if (value == "sudo" && !options.password)
+        value = "none";
+
+    return value;
 }
 
 function Machines() {
@@ -514,8 +533,9 @@ function Loader(machines, session_only) {
         var options = {
             host: machine.connection_string,
             payload: "echo",
-            "init-superuser": get_host_superuser_value(machine.connection_string)
         };
+
+        options["init-superuser"] = get_init_superuser_for_options(options);
 
         if (!machine.on_disk && machine.host_key) {
             options['temp-session'] = false; /* Compatibility option */

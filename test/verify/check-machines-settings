@@ -26,7 +26,6 @@ from machinesxmls import *
 # rmmod kvm-intel && modprobe kvm-intel || true
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
-@no_retry_when_changed
 class TestMachinesSettings(VirtualMachinesCase):
 
     def testVCPU(self):

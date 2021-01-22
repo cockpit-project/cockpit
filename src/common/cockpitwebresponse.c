@@ -1601,10 +1601,12 @@ load_file (const gchar *filename,
            GError **error)
 {
   GError *local_error = NULL;
-  GMappedFile *mapped;
-  GBytes *bytes;
 
-  mapped = g_mapped_file_new (filename, FALSE, &local_error);
+  g_autoptr(GMappedFile) mapped = g_mapped_file_new (filename, FALSE, &local_error);
+
+  if (mapped)
+    /* success! */
+    return g_mapped_file_get_bytes (mapped);
 
   if (g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
       g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
@@ -1613,20 +1615,15 @@ load_file (const gchar *filename,
       g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
     {
       g_clear_error (&local_error);
-      return NULL;
     }
 
   /* A real error to stop on */
-  else if (local_error)
+  else
     {
       g_propagate_error (error, local_error);
-      return NULL;
     }
 
-  bytes = g_mapped_file_get_bytes (mapped);
-  g_mapped_file_unref (mapped);
-
-  return bytes;
+  return NULL;
 }
 
 /**

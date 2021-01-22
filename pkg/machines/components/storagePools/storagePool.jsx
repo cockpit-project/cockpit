@@ -64,26 +64,18 @@ export const getStoragePoolRow = ({ storagePool, vms, dispatch, onAddErrorNotifi
                    }))} />
     );
 
-    const overviewTabName = (
-        <div id={`${idPrefix}-overview`}>
-            {_("Overview")}
-        </div>
-    );
-    const storageVolsTabName = (
-        <div id={`${idPrefix}-storage-volumes`}>
-            {_("Storage volumes")}
-        </div>
-    );
     const tabRenderers = [
         {
-            name: overviewTabName,
+            name: _("Overview"),
             renderer: StoragePoolOverviewTab,
-            data: { storagePool }
+            data: { storagePool },
+            id: `${idPrefix}-overview`
         },
         {
-            name: storageVolsTabName,
+            name: _("Storage volumes"),
             renderer: StoragePoolVolumesTab,
-            data: { storagePool, vms }
+            data: { storagePool, vms },
+            id: `${idPrefix}-storage-volumes`
         },
     ];
     const expandedContent = (

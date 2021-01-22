@@ -27,6 +27,12 @@ from testlib import *
 @nondestructive
 class TestMachinesStoragePools(VirtualMachinesCase):
 
+    def gotoVolumesTab(self, poolName, connectionName="system"):
+        self.browser.click("#pool-{0}-{1}-storage-volumes".format(poolName, connectionName))
+
+    def gotoOverviewTab(self, poolName, connectionName="system"):
+        self.browser.click("#pool-{0}-{1}-storage-overview".format(poolName, connectionName))
+
     def testStoragePools(self):
         b = self.browser
         m = self.machine
@@ -88,7 +94,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
         # Check storage volumes of a pool
         b.wait_visible("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
-        b.click("#pool-myPoolOne-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        self.gotoVolumesTab("myPoolOne")
         b.wait_in_text("tr[data-row-id=pool-myPoolOne-{0}] + tr table td".format(connectionName),
                        "No storage volumes defined for this storage pool")
 
@@ -98,7 +104,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         # Expand row for second storage pool and check list of storage volumes
         self.togglePoolRow("myPoolTwo", connectionName)
         b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
-        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        self.gotoVolumesTab("myPoolTwo")
         b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
@@ -111,7 +117,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         b.reload()
         b.enter_page('/machines')
         self.togglePoolRow("myPoolTwo", connectionName)
-        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        self.gotoVolumesTab("myPoolTwo")
         b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
 
         # Delete Storage Volume that is not used by any VM
@@ -144,7 +150,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         b.reload()
         b.enter_page('/machines')
         self.togglePoolRow("myPoolTwo", connectionName)
-        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        self.gotoVolumesTab("myPoolTwo")
 
         # Backup pool XML to redefine right after
         m.execute("virsh pool-dumpxml myPoolTwo > /tmp/myPoolTwo.xml")
@@ -199,7 +205,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         # Expand row for myPoolTwo and check list of storage volumes
         self.togglePoolRow("myPoolTwo", connectionName)
         b.wait_visible("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
-        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage volumes" subtab
+        self.gotoVolumesTab("myPoolTwo")
 
         b.wait_visible("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "subVmTest1")
@@ -384,8 +390,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
                 if "source_path" in self.source:
                     b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
-                # Check on the volume tab of the storage pool
-                b.click("#pool-{}-{}-storage-volumes".format(self.name, connectionName))
+                self.test_obj.gotoVolumesTab(self.name)
                 if "iscsi" in self.pool_type:
                     b.wait_visible('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
                 else:
@@ -553,7 +558,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             def open(self):
                 self.test_obj.togglePoolRow(self.pool_name)
 
-                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
+                self.test_obj.gotoVolumesTab(self.pool_name)
 
                 b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage volumes" subtab
 
@@ -613,7 +618,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
                 m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.pool_name))
 
             def close(self):
-                b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage volumes" subtab
+                self.test_obj.gotoOverviewTab(self.pool_name)
 
                 self.test_obj.togglePoolRow(self.pool_name)
 

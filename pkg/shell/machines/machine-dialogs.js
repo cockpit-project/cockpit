@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import { mustache } from "mustache";
 
-import { machines, get_host_superuser_value } from "./machines";
+import { machines, get_init_superuser_for_options } from "./machines";
 import * as credentials from "credentials";
 import "patterns";
 
@@ -162,12 +162,9 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
 
     self.try_to_connect = function(address, options) {
         var dfd = $.Deferred();
-        var conn_options = $.extend({
-            payload: "echo",
-            host: address,
-            "init-superuser": get_host_superuser_value(address)
-        },
-                                    options);
+        var conn_options = $.extend({ payload: "echo", host: address }, options);
+
+        conn_options["init-superuser"] = get_init_superuser_for_options(conn_options);
 
         var machine = self.machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {

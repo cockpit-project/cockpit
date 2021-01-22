@@ -28,10 +28,14 @@ from testlib import *
 class TestMachinesStoragePools(VirtualMachinesCase):
 
     def gotoVolumesTab(self, poolName, connectionName="system"):
-        self.browser.click("#pool-{0}-{1}-storage-volumes".format(poolName, connectionName))
+        selector = "#pool-{0}-{1}-storage-volumes".format(poolName, connectionName)
+        self.browser.click(selector)
+        self.browser.wait_attr(selector, "class", "pf-c-nav__link pf-m-current")
 
     def gotoOverviewTab(self, poolName, connectionName="system"):
-        self.browser.click("#pool-{0}-{1}-storage-overview".format(poolName, connectionName))
+        selector = "#pool-{0}-{1}-overview".format(poolName, connectionName)
+        self.browser.click(selector)
+        self.browser.wait_attr(selector, "class", "pf-c-nav__link pf-m-current")
 
     def testStoragePools(self):
         b = self.browser

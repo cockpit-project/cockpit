@@ -25,7 +25,7 @@ def browser_path(browser, show_browser):
 
 def browser_path_firefox():
     """ Return path to Firefox browser """
-    p = subprocess.check_output("which firefox || true",
+    p = subprocess.check_output("which firefox-nightly || which firefox || true",
                                 shell=True, universal_newlines=True).strip()
     if p:
         return p

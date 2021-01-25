@@ -483,13 +483,14 @@ function Loader(machines, session_only) {
         if (!$.isEmptyObject(overlay))
             machines.overlay(host, overlay);
 
-        /* Don't automatically reconnect failed machines */
+        /* Don't automatically reconnect failed machines, and don't
+         * automatically connect to new machines.  The navigation will
+         * explicitly connect as necessary.
+         */
         if (machine.visible) {
             if (old_conns && machine.connection_string != old_conns) {
                 cockpit.kill(old_conns);
                 self.disconnect(host);
-                self.connect(host);
-            } else if (!machine.problem) {
                 self.connect(host);
             }
         } else {

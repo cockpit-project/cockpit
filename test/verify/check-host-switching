@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import time
 
 import parent
 from testlib import *
@@ -77,8 +78,13 @@ class HostSwitcherHelpers:
             b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_popdown('hosts_setup_server_dialog')
 
-    def wait_connected(self, b, address):
+    def connect_and_wait(self, b, address):
+        b.click("a[href='/@{0}']".format(address))
+        b.click("#hosts-sel button")
         b.wait_visible(".connected a[href='/@{0}']".format(address))
+        # Switch back to localhost, since the rest of the test expects that
+        b.click("a[href='/@localhost']")
+        b.click("#hosts-sel button")
 
     def get_pubkey(self, machine, account):
         return machine.execute("cat /home/%s/.ssh/id_rsa.pub" % account)
@@ -143,7 +149,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         self.add_machine(b, "10.111.113.2")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.2")
+        self.connect_and_wait(b, "10.111.113.2")
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
@@ -159,7 +165,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3")
 
         # Remove two
         self.machine_remove(b, "10.111.113.2", m2)
@@ -174,7 +180,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # Add one back, check addresses on both browsers
         self.add_machine(b, "10.111.113.2", True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.2")
+        self.connect_and_wait(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
 
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
@@ -182,7 +188,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # And the second one, check addresses
         self.add_machine(b, "10.111.113.3", True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.wait_connected(b, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
 
         # Test change user, not doing in edit to reuse machines
@@ -264,8 +270,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.add_machine(b, "10.111.113.2")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.2")
-        self.wait_connected(b2, "10.111.113.2")
+        self.connect_and_wait(b, "10.111.113.2")
+        self.connect_and_wait(b2, "10.111.113.2")
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
@@ -282,8 +288,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.3")
-        self.wait_connected(b2, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3")
+        self.connect_and_wait(b2, "10.111.113.3")
 
         # Remove two
         self.machine_remove(b, "10.111.113.2", m2)
@@ -303,7 +309,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.add_machine(b, "10.111.113.2", True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
-        self.wait_connected(b, "10.111.113.2")
+        self.connect_and_wait(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
         self.check_discovered_addresses(b2, ["10.111.113.3"])
 
@@ -313,7 +319,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.add_machine(b, "10.111.113.3", True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.wait_connected(b, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
@@ -339,7 +345,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#hosts-sel button")
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
-        self.wait_connected(b, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3")
 
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
@@ -389,6 +395,23 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.3']")
         b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
 
+    def testNoAutoconnect(self):
+        b = self.browser
+        m2 = self.machines["machine2"]
+
+        self.login_and_go(None)
+
+        # And and connect to a second machine
+        b.click("#hosts-sel button")
+        self.add_machine(b, "10.111.113.2")
+        b.click("a[href='/@10.111.113.2']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
+        self.assertIn("admin", m2.execute("loginctl"))
+        b.click("#hosts-sel button")
+        b.click("a[href='/@localhost']")
+        b.relogin()
+        time.sleep(60)
+        self.assertNotIn(m2.execute("loginctl"), "admin")
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestHostEditing(MachineCase, HostSwitcherHelpers):

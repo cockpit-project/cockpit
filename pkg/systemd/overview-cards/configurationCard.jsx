@@ -29,7 +29,7 @@ import * as packagekit from "packagekit.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { Privileged } from "cockpit-components-privileged.jsx";
-import { ServerTimeConfig } from './serverTime.js';
+import { ServerTimeConfig } from 'serverTime.js';
 import * as realmd from "./realmd-operation.js";
 import { superuser } from "superuser";
 

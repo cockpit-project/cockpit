@@ -231,6 +231,11 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (!machine)
             machine = machines.lookup(state.host);
 
+        if (!machine || machine.state != "connected") {
+            ReactDOM.unmountComponentAtNode(document.getElementById("host-apps"));
+            return;
+        }
+
         if (!compiled)
             compiled = compile(machine);
 

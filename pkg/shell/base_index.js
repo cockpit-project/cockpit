@@ -793,7 +793,7 @@ function Index() {
             self.navigate(ev.state, true);
         });
 
-        self.navigate();
+        self.navigate(null, true);
         cockpit.translate();
         $("body").prop("hidden", false);
     };

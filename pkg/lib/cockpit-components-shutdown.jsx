@@ -25,9 +25,9 @@ import {
     Divider, FormGroup, TextArea, TextInput, DatePicker
 } from '@patternfly/react-core';
 
-import { ServerTime } from './overview-cards/serverTime.js';
+import { ServerTime } from 'serverTime.js';
 
-import "./shutdown.scss";
+import "cockpit-components-shutdown.scss";
 
 const _ = cockpit.gettext;
 

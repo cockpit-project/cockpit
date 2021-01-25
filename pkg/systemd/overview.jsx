@@ -40,7 +40,7 @@ import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
 import { SuperuserAlert } from './superuser-alert.jsx';
 import { SuperuserIndicator } from "../shell/superuser.jsx";
-import { ShutdownModal } from "./shutdown.jsx";
+import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 
 const _ = cockpit.gettext;
 

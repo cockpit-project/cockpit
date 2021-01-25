@@ -216,4 +216,3 @@ class VirtualMachinesCase(MachineCase, VirtualMachinesCaseHelpers, StorageHelper
 
         # avoid error noise about resources getting cleaned up
         self.addCleanup(self.browser.logout)
-        self.allow_authorize_journal_messages()

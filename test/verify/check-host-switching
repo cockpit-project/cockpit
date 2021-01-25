@@ -127,8 +127,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.machines["machine1"].execute("hostnamectl set-hostname localhost")
         self.machines["machine2"].execute("hostnamectl set-hostname machine2")
         self.machines["machine3"].execute("hostnamectl set-hostname machine3")
-
-        self.allow_authorize_journal_messages()
         self.setup_ssh_auth()
 
     def testBasic(self):

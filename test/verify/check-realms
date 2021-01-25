@@ -234,7 +234,6 @@ class CommonTests:
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
-        self.allow_authorize_journal_messages()
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
@@ -295,7 +294,6 @@ class CommonTests:
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
 
-        self.allow_authorize_journal_messages()
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
@@ -363,7 +361,6 @@ class CommonTests:
             m.stop_cockpit()
 
         self.allow_journal_messages("alice is not allowed to run sudo on x0.  This incident will be reported.")
-        self.allow_authorize_journal_messages()
 
         # cert auth should not be enabled by default
         do_test(alice_cert_key, ["HTTP/1.1 401 Authentication required", '"authorize"'])
@@ -789,7 +786,6 @@ ExecStart=/bin/true
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testNegotiate(self):
-        self.allow_authorize_journal_messages()
         self.allow_hostkey_messages()
         b = self.browser
         m = self.machine

@@ -119,7 +119,6 @@ class TestFirewall(NetworkCase):
 
         b.enter_page("/network")
 
-        self.allow_authorize_journal_messages()
         self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
                                     ".*org.fedoraproject.FirewallD1: couldn't introspect /org/fedoraproject/FirewallD1/config: GDBus.Error:org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying.*")
 
@@ -192,8 +191,6 @@ class TestFirewall(NetworkCase):
         wait_unit_state(m, "firewalld", "inactive")
         # "Add services" button should be hidden again
         b.wait_not_present(".zone-section[data-id='public'] .add-services-button")
-
-        self.allow_authorize_journal_messages()
 
     def testAddServices(self):
         b = self.browser

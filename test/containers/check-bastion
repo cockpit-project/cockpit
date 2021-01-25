@@ -62,8 +62,6 @@ class TestBastion(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.allow_authorize_journal_messages()
-
         m.start_cockpit(key_based=True)
 
         b.open("/")

@@ -108,8 +108,6 @@ session include system-auth
     def testWrongPasswd(self):
         b = self.browser
 
-        self.allow_authorize_journal_messages()
-
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.wait_text("#super-user-indicator", "Limited access")

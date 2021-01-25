@@ -340,7 +340,6 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__footer", "must wait longer")
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
     @skipImage("ssh root login not allowed", "fedora-coreos")
     def testRootLogin(self):
@@ -378,7 +377,6 @@ class TestAccounts(MachineCase):
             b.wait_visible('#content')
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
     def accountExpiryInfo(self, account, field):
         for line in self.machine.execute("LC_ALL=C chage -l {0}".format(account)).split("\n"):
@@ -464,7 +462,6 @@ class TestAccounts(MachineCase):
         b.wait_not_present("#password-expiration")
 
         b.logout()
-        self.allow_authorize_journal_messages()
         self.login_and_go("/users", user="scruffy")
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")

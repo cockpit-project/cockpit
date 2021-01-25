@@ -52,7 +52,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
     def testBasicWheelUserUnprivileged(self):
         user = self.createUser(user_group='wheel')
         self._testBasic(user, False, True)
-        self.allow_authorize_journal_messages()
 
     def _testBasic(self, user=None, superuser=True, expect_empty_list=False):
         b = self.browser
@@ -60,7 +59,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         args = self.createVm("subVmTest1")
 
-        self.allow_authorize_journal_messages()
         self.login_and_go("/machines", user=user, superuser=superuser)
 
         if expect_empty_list:

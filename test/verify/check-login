@@ -170,7 +170,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
 
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
@@ -346,7 +345,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     'sudo: Account or password is expired, reset your password and try again',
                                     'sudo: sorry, you must have a tty to run sudo')
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
     def testConversation(self):
         m = self.machine
@@ -387,7 +385,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#current-username', 'admin')
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
                "rhel-8-3", "rhel-8-4", "centos-8-stream", "fedora-coreos")
@@ -404,7 +401,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
 
         self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*")
-        self.allow_authorize_journal_messages()
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
@@ -463,7 +459,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_in_text('#last-login', "web console")
 
         b.logout()
-        self.allow_authorize_journal_messages()
         # not allowed to restricted users
         self.allow_journal_messages("sudo:.* Operation not permitted")
         self.allow_journal_messages("sudo:.* Permission denied")
@@ -521,7 +516,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages("received request from bad Origin: .*",
                                     "connection unexpectedly closed by peer",
                                     "Received invalid handshake request from the client")
-        self.allow_authorize_journal_messages()
         self.allow_browser_errors(".*")
 
         m.start_cockpit()
@@ -768,7 +762,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             m.stop_cockpit()
 
         self.allow_journal_messages("alice is not allowed to run sudo.*")
-        self.allow_authorize_journal_messages()
 
         # cert auth should not be enabled by default
         do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed"])

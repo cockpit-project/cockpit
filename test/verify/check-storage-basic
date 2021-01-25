@@ -29,7 +29,6 @@ class TestStorageBasic(StorageCase):
         m = self.machine
         b = self.browser
 
-        self.allow_authorize_journal_messages()
         self.login_and_go("/storage", superuser=False)
 
         b.wait_visible("#devices")

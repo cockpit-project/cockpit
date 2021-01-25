@@ -38,7 +38,6 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
         # Create a user that is not in wheel but can sudo
@@ -101,7 +100,6 @@ class TestShutdownRestart(MachineCase):
         b.wait_visible("#login")
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 

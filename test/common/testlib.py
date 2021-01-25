@@ -1086,22 +1086,6 @@ class MachineCase(unittest.TestCase):
                                     'which: no python in .*'
                                     )
 
-    def allow_authorize_journal_messages(self):
-        self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:admin.*",
-                                    "cannot reauthorize identity\(s\).*:.*unix-user:.*",
-                                    ".*: pam_authenticate failed: Authentication failure",
-                                    ".*is not in the sudoers file.  This incident will be reported.",
-                                    ".*: a password is required",
-                                    "user user was reauthorized",
-                                    "sudo: no password was provided",
-                                    "sudo: unable to resolve host .*",
-                                    "sudo: unable to open /run/sudo/ts/unpriv: Permission denied",
-                                    "sudo: unable to stat /var/db/sudo: Permission denied",
-                                    ".*: sorry, you must have a tty to run sudo",
-                                    ".*/pkexec: bridge exited",
-                                    ".*Sorry, try again.",
-                                    ".*incorrect password attempt.*")
-
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine

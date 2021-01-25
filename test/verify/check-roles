@@ -97,7 +97,6 @@ class TestRoles(MachineCase):
         b.wait_visible(admin_role_sel + ":checked")
 
         self.allow_restart_journal_messages()
-        self.allow_authorize_journal_messages()
 
     def testDynamic(self):
         m = self.machine

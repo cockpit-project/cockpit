@@ -281,7 +281,6 @@ Unit=test.service
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
 
         # Check without permissions
-        self.allow_authorize_journal_messages()
         b.relogin('/system/services#/test.service', superuser=False)
         self.wait_page_load()
 

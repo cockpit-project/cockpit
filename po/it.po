@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 06:24+0000\n"
+"POT-Creation-Date: 2021-01-19 19:00+0000\n"
 "PO-Revision-Date: 2020-11-04 10:35+0000\n"
 "Last-Translator: Roberto Bellingeri <bellingeri@netguru.it>\n"
 "Language-Team: Italian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -142,12 +142,12 @@ msgstr "I $0 filesystem non possono essere ridimensionati qui."
 msgid "$0 free"
 msgstr "$0 liberi"
 
-#: pkg/systemd/overview.jsx:99
+#: pkg/systemd/overview.jsx:98
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
 msgstr "$0 da $1"
 
-#: pkg/systemd/overview.jsx:97
+#: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 da $1 su $2"
@@ -239,7 +239,7 @@ msgstr[1] "$1 occorrenze"
 msgid "$0 of $1"
 msgstr "$0 di $1"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:100
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 su $1"
@@ -369,7 +369,7 @@ msgstr "1 ora"
 msgid "1 min"
 msgstr "1 min"
 
-#: pkg/systemd/index.html:33 pkg/systemd/index.html:37
+#: pkg/systemd/shutdown.jsx:166
 msgid "1 minute"
 msgstr "1 minuto"
 
@@ -437,7 +437,7 @@ msgstr "1°"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/index.html:39
+#: pkg/systemd/shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 minuti"
 
@@ -505,7 +505,7 @@ msgstr "3°"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/index.html:40
+#: pkg/systemd/shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 minuti"
 
@@ -517,7 +517,7 @@ msgstr "4°"
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/systemd/shutdown.jsx:167 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minuti"
 
@@ -533,7 +533,7 @@ msgstr "5°"
 msgid "6 hours"
 msgstr "6 ore"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 minuti"
 
@@ -717,7 +717,7 @@ msgstr "Aggiungi"
 msgid "Add $0"
 msgstr "Aggiungi $0"
 
-#: pkg/networkmanager/index.html:87
+#: pkg/networkmanager/index.html:86
 msgid "Add VLAN"
 msgstr "Aggiungi VLAN"
 
@@ -725,11 +725,11 @@ msgstr "Aggiungi VLAN"
 msgid "Add a new zone"
 msgstr "Aggiungi una nuova zona"
 
-#: pkg/networkmanager/index.html:84
+#: pkg/networkmanager/index.html:83
 msgid "Add bond"
 msgstr "Aggiungi bond"
 
-#: pkg/networkmanager/index.html:86
+#: pkg/networkmanager/index.html:85
 msgid "Add bridge"
 msgstr "Aggiungi bridge"
 
@@ -783,7 +783,7 @@ msgstr "Aggiungi servizi alla zona $0"
 msgid "Add services to zone $0"
 msgstr "Aggiungi servizi alla zona $0"
 
-#: pkg/networkmanager/index.html:85
+#: pkg/networkmanager/index.html:84
 msgid "Add team"
 msgstr "Aggiungi Team"
 
@@ -980,8 +980,10 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Documentazione sui ruoli Ansible"
 
-#: pkg/systemd/terminal.jsx:94
-msgid "Appearance:"
+#: pkg/systemd/terminal.jsx:100
+#, fuzzy
+#| msgid "Appearance:"
+msgid "Appearance"
 msgstr "Aspetto:"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
@@ -993,7 +995,7 @@ msgstr "Applicazioni"
 msgid "Applications list"
 msgstr "Lista applicazioni"
 
-#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:469
 #: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
 #: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
 #: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
@@ -1207,7 +1209,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
 
-#: pkg/systemd/terminal.jsx:99
+#: pkg/systemd/terminal.jsx:106
 msgid "Black"
 msgstr "Nero"
 
@@ -1236,7 +1238,7 @@ msgstr "Bloccato"
 msgid "Bond"
 msgstr "Bond"
 
-#: pkg/networkmanager/index.html:450
+#: pkg/networkmanager/index.html:451
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Bond settings"
@@ -1367,18 +1369,19 @@ msgstr ""
 
 #: pkg/sosreport/index.html:74
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
-#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/systemd/services.html:290 pkg/static/login.html:102
+#: pkg/shell/machines/machine-add.html:55
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:435 pkg/networkmanager/index.html:470
 #: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
 #: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
 #: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
-#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/sosreport/index.js:52 pkg/systemd/shutdown.jsx:183
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1428,7 +1431,7 @@ msgstr ""
 "Impossibile accedere a un dominio perché realmd non è disponibile su questo "
 "sistema"
 
-#: pkg/systemd/shutdown.js:176
+#: pkg/systemd/shutdown.jsx:136
 msgid "Cannot schedule event in the past"
 msgstr "Non è possibile programmare eventi del passato"
 
@@ -1603,7 +1606,7 @@ msgstr ""
 
 #: pkg/shell/machines/machine-not-supported.html:8
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:417 pkg/networkmanager/index.html:446
 #: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
 #: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
 #: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
@@ -2226,7 +2229,7 @@ msgstr "Domini di ricerca DNS"
 msgid "DNS search domains $val"
 msgstr "Domini di ricerca DNS $val"
 
-#: pkg/systemd/terminal.jsx:100
+#: pkg/systemd/terminal.jsx:107
 msgid "Dark"
 msgstr "Scuro"
 
@@ -2256,11 +2259,11 @@ msgstr "Debug e superiore"
 msgid "Deduplication"
 msgstr "Deduplicazione"
 
-#: pkg/systemd/index.html:28
+#: pkg/systemd/shutdown.jsx:195
 msgid "Delay"
 msgstr "Ritardo"
 
-#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:384 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -3310,7 +3313,7 @@ msgstr "ID"
 msgid "ID $id"
 msgstr "ID $id"
 
-#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "Indirizzo IP"
@@ -3327,7 +3330,7 @@ msgstr ""
 msgid "IP configuration"
 msgstr "Configurazione IP"
 
-#: pkg/networkmanager/index.html:420
+#: pkg/networkmanager/index.html:421
 #, fuzzy
 #| msgid "IPv4 settings"
 msgid "IP settings"
@@ -3576,7 +3579,7 @@ msgstr "Interfaccia"
 msgid "Interface type"
 msgstr "Tipo di interfaccia"
 
-#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:237
 #: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
@@ -3614,11 +3617,11 @@ msgstr "Prefisso IPv6 non valido"
 msgid "Invalid address $0"
 msgstr "Indirizzo non valido $0"
 
-#: pkg/systemd/overview-cards/serverTime.js:617 pkg/systemd/shutdown.js:155
+#: pkg/systemd/shutdown.jsx:121 pkg/systemd/overview-cards/serverTime.js:617
 msgid "Invalid date format"
 msgstr "Formato data non valido"
 
-#: pkg/systemd/shutdown.js:151
+#: pkg/systemd/shutdown.jsx:115
 msgid "Invalid date format and invalid time format"
 msgstr "Formato data non valido e formato ora non valido"
 
@@ -3670,7 +3673,7 @@ msgstr "Prefisso o maschera di rete non validi $0"
 msgid "Invalid range"
 msgstr "Intervallo non valido"
 
-#: pkg/systemd/shutdown.js:153
+#: pkg/systemd/shutdown.jsx:118
 msgid "Invalid time format"
 msgstr "Formato ora non valido"
 
@@ -3821,7 +3824,7 @@ msgstr "Ultimi 7 giorni"
 msgid "Last checked: $0"
 msgstr "Ultimo controllo: $0"
 
-#: pkg/systemd/overview.jsx:136
+#: pkg/systemd/overview.jsx:135
 msgid "Last failed login:"
 msgstr "Ultimo accesso fallito:"
 
@@ -3829,7 +3832,7 @@ msgstr "Ultimo accesso fallito:"
 msgid "Last login"
 msgstr "Ultimo accesso"
 
-#: pkg/systemd/overview.jsx:135
+#: pkg/systemd/overview.jsx:134
 msgid "Last login:"
 msgstr "Ultimo accesso:"
 
@@ -3870,7 +3873,7 @@ msgstr "Libvirt o hypervisor non supportano UEFI"
 msgid "Licensed under:"
 msgstr "Concesso in licenza:"
 
-#: pkg/systemd/terminal.jsx:101
+#: pkg/systemd/terminal.jsx:108
 msgid "Light"
 msgstr "Chiaro"
 
@@ -4281,7 +4284,7 @@ msgstr "Tecnologia di memoria"
 msgid "Memory usage"
 msgstr "Utilizzo memoria"
 
-#: pkg/systemd/shutdown.js:84
+#: pkg/systemd/shutdown.jsx:192
 msgid "Message to logged in users"
 msgstr "Messaggio agli utenti registrati"
 
@@ -4489,7 +4492,7 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "Server NTP"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:92 pkg/networkmanager/index.html:109
 #: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
 #: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
@@ -4770,7 +4773,7 @@ msgstr "Non disponibile"
 msgid "No data available between $0 and $1"
 msgstr "Si è verificato tra $0 e $1"
 
-#: pkg/systemd/index.html:43
+#: pkg/systemd/shutdown.jsx:172
 msgid "No delay"
 msgstr "Nessun ritardo"
 
@@ -5479,6 +5482,12 @@ msgstr "Volumi fisici"
 msgid "Physical volumes can not be resized here."
 msgstr "I volumi fisici non possono essere ridimensionati qui."
 
+#: pkg/systemd/shutdown.jsx:204
+#, fuzzy
+#| msgid "date"
+msgid "Pick date"
+msgstr "data"
+
 #: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Intervallo ping"
@@ -5871,8 +5880,8 @@ msgstr "Il nome host reale deve essere di 64 caratteri o meno"
 msgid "Reboot"
 msgstr "Riavvia"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
-#: pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:399
 msgid "Receiving"
 msgstr "Ricevuti"
 
@@ -6137,7 +6146,7 @@ msgstr "Requisito di"
 msgid "Reserved memory"
 msgstr "Memoria riservata"
 
-#: pkg/systemd/terminal.jsx:106
+#: pkg/systemd/terminal.jsx:115
 msgid "Reset"
 msgstr "Azzera"
 
@@ -6161,8 +6170,8 @@ msgstr ""
 "disco. Fornire la passphrase corrente del disco."
 
 # ctx::sourcefile::/rhn/admin/config/Restart.do
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
-#: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
+#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
 #: pkg/systemd/services/service-details.jsx:129
 #: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
@@ -6448,8 +6457,8 @@ msgstr "Invia combinazione di tasti"
 msgid "Send non-maskable interrupt"
 msgstr "Invia Interruzione non mascherabile"
 
-#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
-#: pkg/networkmanager/index.html:397
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:398
 msgid "Sending"
 msgstr "Invio"
 
@@ -6667,7 +6676,7 @@ msgstr "Riduci il Volume"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
 #: pkg/machines/components/vm/vmActions.jsx:210
 #: pkg/machines/components/vm/vmActions.jsx:217
 msgid "Shut down"
@@ -6681,7 +6690,7 @@ msgstr "Spegni"
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr "Spegnere la VM per modificare la configurazione del firmware"
 
-#: pkg/systemd/overview.jsx:212
+#: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
 msgstr "Spegnere"
 
@@ -6854,7 +6863,7 @@ msgstr "Protocollo dell'albero di scansione (STP)"
 msgid "Spare"
 msgstr "Ricambio"
 
-#: pkg/systemd/index.html:44
+#: pkg/systemd/shutdown.jsx:173
 msgid "Specific time"
 msgstr "Tempo specifico"
 
@@ -7584,7 +7593,7 @@ msgstr ""
 "Non c'è abbastanza spazio libero altrove per rimuovere questo volume fisico. "
 "È necessario almeno $0più spazio libero."
 
-#: pkg/systemd/overview.jsx:127
+#: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
@@ -8184,7 +8193,7 @@ msgstr "Sbloccaggio $target"
 msgid "Unlocking disk..."
 msgstr "Sblocco disco....."
 
-#: pkg/networkmanager/index.html:105
+#: pkg/networkmanager/index.html:104
 msgid "Unmanaged interfaces"
 msgstr "Interfacce non gestite"
 
@@ -8669,7 +8678,7 @@ msgstr ""
 msgid "When empty, connect with the current user"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:102
+#: pkg/systemd/terminal.jsx:109
 msgid "White"
 msgstr "Bianco"
 
@@ -9363,7 +9372,7 @@ msgstr "riavvia"
 msgid "roles"
 msgstr "ruoli"
 
-#: pkg/systemd/overview.jsx:253
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "$0 in esecuzione"
 

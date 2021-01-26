@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 06:24+0000\n"
+"POT-Creation-Date: 2021-01-19 19:00+0000\n"
 "PO-Revision-Date: 2020-12-05 09:04+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -150,12 +150,12 @@ msgstr "$0 souborovým systémům nelze změnit velikost zde."
 msgid "$0 free"
 msgstr "$0 volné"
 
-#: pkg/systemd/overview.jsx:99
+#: pkg/systemd/overview.jsx:98
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
 msgstr "$0 z $1"
 
-#: pkg/systemd/overview.jsx:97
+#: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 z $1 na $2"
@@ -251,7 +251,7 @@ msgstr[2] "$0 výskytů"
 msgid "$0 of $1"
 msgstr "$0 z $1"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:100
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 na $1"
@@ -390,7 +390,7 @@ msgstr "1 hodina"
 msgid "1 min"
 msgstr "1 minuta"
 
-#: pkg/systemd/index.html:33 pkg/systemd/index.html:37
+#: pkg/systemd/shutdown.jsx:166
 msgid "1 minute"
 msgstr "1 minuta"
 
@@ -458,7 +458,7 @@ msgstr "1."
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/index.html:39
+#: pkg/systemd/shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 minut"
 
@@ -526,7 +526,7 @@ msgstr "3."
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/index.html:40
+#: pkg/systemd/shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 minut"
 
@@ -538,7 +538,7 @@ msgstr "4."
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/systemd/shutdown.jsx:167 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minut"
 
@@ -554,7 +554,7 @@ msgstr "5."
 msgid "6 hours"
 msgstr "6 hodin"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 minut"
 
@@ -739,7 +739,7 @@ msgstr "Přidat"
 msgid "Add $0"
 msgstr "Přidat $0"
 
-#: pkg/networkmanager/index.html:87
+#: pkg/networkmanager/index.html:86
 msgid "Add VLAN"
 msgstr "Přidat VLAN"
 
@@ -747,11 +747,11 @@ msgstr "Přidat VLAN"
 msgid "Add a new zone"
 msgstr "Přidat novou zónu"
 
-#: pkg/networkmanager/index.html:84
+#: pkg/networkmanager/index.html:83
 msgid "Add bond"
 msgstr "Přidat sloučení linek"
 
-#: pkg/networkmanager/index.html:86
+#: pkg/networkmanager/index.html:85
 msgid "Add bridge"
 msgstr "Přidat síťový most"
 
@@ -805,7 +805,7 @@ msgstr "Přidat služby do zóny $0"
 msgid "Add services to zone $0"
 msgstr "Přidat služby do zóny $0"
 
-#: pkg/networkmanager/index.html:85
+#: pkg/networkmanager/index.html:84
 msgid "Add team"
 msgstr "Přidat tým"
 
@@ -1005,8 +1005,10 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Dokumentace k Ansible rolím"
 
-#: pkg/systemd/terminal.jsx:94
-msgid "Appearance:"
+#: pkg/systemd/terminal.jsx:100
+#, fuzzy
+#| msgid "Appearance:"
+msgid "Appearance"
 msgstr "Vzhled:"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
@@ -1020,7 +1022,7 @@ msgstr "Seznam aplikací"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:469
 #: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
 #: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
 #: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
@@ -1241,7 +1243,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitová mapa"
 
-#: pkg/systemd/terminal.jsx:99
+#: pkg/systemd/terminal.jsx:106
 msgid "Black"
 msgstr "Černá"
 
@@ -1272,7 +1274,7 @@ msgstr "Blokované"
 msgid "Bond"
 msgstr "Vazba"
 
-#: pkg/networkmanager/index.html:450
+#: pkg/networkmanager/index.html:451
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Bond settings"
@@ -1404,18 +1406,19 @@ msgstr ""
 
 #: pkg/sosreport/index.html:74
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
-#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/systemd/services.html:290 pkg/static/login.html:102
+#: pkg/shell/machines/machine-add.html:55
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:435 pkg/networkmanager/index.html:470
 #: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
 #: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
 #: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
-#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/sosreport/index.js:52 pkg/systemd/shutdown.jsx:183
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1463,7 +1466,7 @@ msgstr "Nedaří přeposlat přístupové údaje"
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "Nelze přidat do domény, protože na tomto systému chybí nástroj realmd"
 
-#: pkg/systemd/shutdown.js:176
+#: pkg/systemd/shutdown.jsx:136
 msgid "Cannot schedule event in the past"
 msgstr "Nelze naplánovat událost v minulosti"
 
@@ -1646,7 +1649,7 @@ msgstr ""
 # po/ipa
 #: pkg/shell/machines/machine-not-supported.html:8
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:417 pkg/networkmanager/index.html:446
 #: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
 #: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
 #: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
@@ -2279,7 +2282,7 @@ msgstr "DNS prohledávané domény"
 msgid "DNS search domains $val"
 msgstr "Prohledávat DNS domény $val"
 
-#: pkg/systemd/terminal.jsx:100
+#: pkg/systemd/terminal.jsx:107
 msgid "Dark"
 msgstr "Tmavý"
 
@@ -2309,13 +2312,13 @@ msgstr "Ladící a závažnější"
 msgid "Deduplication"
 msgstr "Deduplikace"
 
-#: pkg/systemd/index.html:28
+#: pkg/systemd/shutdown.jsx:195
 msgid "Delay"
 msgstr "Prodleva"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:384 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -3422,7 +3425,7 @@ msgstr "Identif. $id"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP adresa"
@@ -3439,7 +3442,7 @@ msgstr ""
 msgid "IP configuration"
 msgstr "Nastavení IP"
 
-#: pkg/networkmanager/index.html:420
+#: pkg/networkmanager/index.html:421
 #, fuzzy
 #| msgid "IPv4 settings"
 msgid "IP settings"
@@ -3699,7 +3702,7 @@ msgstr "Typ rozhraní"
 
 # auto translated by TM merge from project: firewalld, version: master, DocId:
 # po/firewalld
-#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:237
 #: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
@@ -3739,11 +3742,11 @@ msgstr "Neplatná IPv6 předpona"
 msgid "Invalid address $0"
 msgstr "Neplatná adresa $0"
 
-#: pkg/systemd/overview-cards/serverTime.js:617 pkg/systemd/shutdown.js:155
+#: pkg/systemd/shutdown.jsx:121 pkg/systemd/overview-cards/serverTime.js:617
 msgid "Invalid date format"
 msgstr "Neplatný formát data"
 
-#: pkg/systemd/shutdown.js:151
+#: pkg/systemd/shutdown.jsx:115
 msgid "Invalid date format and invalid time format"
 msgstr "Neplatný formát data a času"
 
@@ -3795,7 +3798,7 @@ msgstr "Neplatná předpona nebo maska sítě $0"
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
-#: pkg/systemd/shutdown.js:153
+#: pkg/systemd/shutdown.jsx:118
 msgid "Invalid time format"
 msgstr "Neplatný formát času"
 
@@ -3952,7 +3955,7 @@ msgstr "Uplynulých 7 dnů"
 msgid "Last checked: $0"
 msgstr "Naposledy zkontrolováno: $0"
 
-#: pkg/systemd/overview.jsx:136
+#: pkg/systemd/overview.jsx:135
 msgid "Last failed login:"
 msgstr "Poslední nezdařené přihlášení:"
 
@@ -3960,7 +3963,7 @@ msgstr "Poslední nezdařené přihlášení:"
 msgid "Last login"
 msgstr "Poslední přihlášení"
 
-#: pkg/systemd/overview.jsx:135
+#: pkg/systemd/overview.jsx:134
 msgid "Last login:"
 msgstr "Poslední přihlášení:"
 
@@ -3999,7 +4002,7 @@ msgstr "Libvirt nebo hypervizor nepodporuje UEFI"
 msgid "Licensed under:"
 msgstr "Licencováno pod:"
 
-#: pkg/systemd/terminal.jsx:101
+#: pkg/systemd/terminal.jsx:108
 msgid "Light"
 msgstr "Světlý"
 
@@ -4420,7 +4423,7 @@ msgstr "Technologie paměti"
 msgid "Memory usage"
 msgstr "Využití paměti"
 
-#: pkg/systemd/shutdown.js:84
+#: pkg/systemd/shutdown.jsx:192
 msgid "Message to logged in users"
 msgstr "Zpráva přihlášeným uživatelům"
 
@@ -4644,7 +4647,7 @@ msgstr "NTP server"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:92 pkg/networkmanager/index.html:109
 #: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
 #: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
@@ -4922,7 +4925,7 @@ msgstr "Nejsou k dispozici žádná data"
 msgid "No data available between $0 and $1"
 msgstr "Nejsou k dispozici žádná data z rozmezí $0 až $1"
 
-#: pkg/systemd/index.html:43
+#: pkg/systemd/shutdown.jsx:172
 msgid "No delay"
 msgstr "Bez prodlevy"
 
@@ -5640,6 +5643,12 @@ msgstr "Fyzické svazky"
 msgid "Physical volumes can not be resized here."
 msgstr "Zde není možné měnit velikost fyzických svazků."
 
+#: pkg/systemd/shutdown.jsx:204
+#, fuzzy
+#| msgid "date"
+msgid "Pick date"
+msgstr "datum"
+
 #: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Interval pro ping"
@@ -6052,8 +6061,8 @@ msgstr "Je třeba, aby skutečný název stroje byl nanejvýš 64 znaků dlouhý
 msgid "Reboot"
 msgstr "Restartovat"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
-#: pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:399
 msgid "Receiving"
 msgstr "Příchozí"
 
@@ -6324,7 +6333,7 @@ msgstr "Vyhrazená paměť"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/terminal.jsx:106
+#: pkg/systemd/terminal.jsx:115
 msgid "Reset"
 msgstr "Reset"
 
@@ -6345,8 +6354,8 @@ msgstr ""
 "Změna velikost šifrovaného souborového systému vyžaduje jeho odemčení. "
 "Zadejte heslovou frázi."
 
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
-#: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
+#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
 #: pkg/systemd/services/service-details.jsx:129
 #: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
@@ -6641,8 +6650,8 @@ msgstr "Poslat stisk klávesy"
 msgid "Send non-maskable interrupt"
 msgstr "Poslat nemaskovatelné přerušení"
 
-#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
-#: pkg/networkmanager/index.html:397
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:398
 msgid "Sending"
 msgstr "Odchozí"
 
@@ -6872,7 +6881,7 @@ msgstr "Zmenšit oddíl"
 
 # auto translated by TM merge from project: virt-manager, version: master,
 # DocId: virt-manager
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
 #: pkg/machines/components/vm/vmActions.jsx:210
 #: pkg/machines/components/vm/vmActions.jsx:217
 msgid "Shut down"
@@ -6890,7 +6899,7 @@ msgstr ""
 "Aby bylo možné upravovat nastavení firmware, je třeba virt. stroj nejprve "
 "vypnout"
 
-#: pkg/systemd/overview.jsx:212
+#: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
 msgstr "Vypnout"
 
@@ -7063,7 +7072,7 @@ msgstr "Spanning tree protocol (STP)"
 msgid "Spare"
 msgstr "Náhradní"
 
-#: pkg/systemd/index.html:44
+#: pkg/systemd/shutdown.jsx:173
 msgid "Specific time"
 msgstr "Konkrétní čas"
 
@@ -7788,7 +7797,7 @@ msgstr ""
 "Pro odebrání tohoto fyzického svazku není k dispozici dostatek volného "
 "místa. Je třeba alespoň $0 dalšího volného prostoru."
 
-#: pkg/systemd/overview.jsx:127
+#: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
@@ -8391,7 +8400,7 @@ msgstr "Odemyká se $target"
 msgid "Unlocking disk..."
 msgstr "Odemykání disku…"
 
-#: pkg/networkmanager/index.html:105
+#: pkg/networkmanager/index.html:104
 msgid "Unmanaged interfaces"
 msgstr "Nespravovaná rozhraní"
 
@@ -8893,7 +8902,7 @@ msgstr ""
 msgid "When empty, connect with the current user"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:102
+#: pkg/systemd/terminal.jsx:109
 msgid "White"
 msgstr "Bílá"
 
@@ -9587,7 +9596,7 @@ msgstr "restartovat"
 msgid "roles"
 msgstr "role"
 
-#: pkg/systemd/overview.jsx:253
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "spuštěné $0"
 

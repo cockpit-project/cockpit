@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 06:24+0000\n"
+"POT-Creation-Date: 2021-01-19 19:00+0000\n"
 "PO-Revision-Date: 2020-09-20 17:29+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -155,12 +155,12 @@ msgstr "$0文件系统不能在这里改变大小。"
 msgid "$0 free"
 msgstr "$0, $1 可用"
 
-#: pkg/systemd/overview.jsx:99
+#: pkg/systemd/overview.jsx:98
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
 msgstr "$0 来自 $1"
 
-#: pkg/systemd/overview.jsx:97
+#: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 来自 $1 于 $2"
@@ -245,7 +245,7 @@ msgstr[0] "$0 概率"
 msgid "$0 of $1"
 msgstr "$1 的 $0"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:100
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$1 于 $0"
@@ -369,7 +369,7 @@ msgstr "1 小时"
 msgid "1 min"
 msgstr "1 分钟"
 
-#: pkg/systemd/index.html:33 pkg/systemd/index.html:37
+#: pkg/systemd/shutdown.jsx:166
 msgid "1 minute"
 msgstr "1 分钟"
 
@@ -439,7 +439,7 @@ msgstr "第1"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/index.html:39
+#: pkg/systemd/shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 分钟"
 
@@ -507,7 +507,7 @@ msgstr "第3"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/index.html:40
+#: pkg/systemd/shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 分钟"
 
@@ -519,7 +519,7 @@ msgstr "第4"
 msgid "5 min"
 msgstr "5 分钟"
 
-#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/systemd/shutdown.jsx:167 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 分钟"
 
@@ -535,7 +535,7 @@ msgstr "第5"
 msgid "6 hours"
 msgstr "6 小时"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 分钟"
 
@@ -710,7 +710,7 @@ msgstr "添加"
 msgid "Add $0"
 msgstr "添加 $0"
 
-#: pkg/networkmanager/index.html:87
+#: pkg/networkmanager/index.html:86
 msgid "Add VLAN"
 msgstr "添加 VLAN"
 
@@ -718,11 +718,11 @@ msgstr "添加 VLAN"
 msgid "Add a new zone"
 msgstr "添加一个新区"
 
-#: pkg/networkmanager/index.html:84
+#: pkg/networkmanager/index.html:83
 msgid "Add bond"
 msgstr "添加绑定"
 
-#: pkg/networkmanager/index.html:86
+#: pkg/networkmanager/index.html:85
 msgid "Add bridge"
 msgstr "添加网桥"
 
@@ -776,7 +776,7 @@ msgstr "将服务添加到$0区"
 msgid "Add services to zone $0"
 msgstr "将服务添加到$0区"
 
-#: pkg/networkmanager/index.html:85
+#: pkg/networkmanager/index.html:84
 msgid "Add team"
 msgstr "添加组"
 
@@ -966,8 +966,10 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Ansible 角色文档"
 
-#: pkg/systemd/terminal.jsx:94
-msgid "Appearance:"
+#: pkg/systemd/terminal.jsx:100
+#, fuzzy
+#| msgid "Appearance:"
+msgid "Appearance"
 msgstr "外观："
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
@@ -979,7 +981,7 @@ msgstr "应用"
 msgid "Applications list"
 msgstr "应用列表"
 
-#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:469
 #: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
 #: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
 #: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
@@ -1188,7 +1190,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
 
-#: pkg/systemd/terminal.jsx:99
+#: pkg/systemd/terminal.jsx:106
 msgid "Black"
 msgstr "黑色"
 
@@ -1217,7 +1219,7 @@ msgstr "受阻"
 msgid "Bond"
 msgstr "绑定"
 
-#: pkg/networkmanager/index.html:450
+#: pkg/networkmanager/index.html:451
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Bond settings"
@@ -1346,18 +1348,19 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 
 #: pkg/sosreport/index.html:74
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
-#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/systemd/services.html:290 pkg/static/login.html:102
+#: pkg/shell/machines/machine-add.html:55
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:435 pkg/networkmanager/index.html:470
 #: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
 #: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
 #: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
-#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/sosreport/index.js:52 pkg/systemd/shutdown.jsx:183
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1405,7 +1408,7 @@ msgstr "无法转发登录凭证"
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "无法加入域，因为 realmd 在此系统上不可用"
 
-#: pkg/systemd/shutdown.js:176
+#: pkg/systemd/shutdown.jsx:136
 msgid "Cannot schedule event in the past"
 msgstr "无法调度以前的事件"
 
@@ -1576,7 +1579,7 @@ msgstr ""
 
 #: pkg/shell/machines/machine-not-supported.html:8
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:417 pkg/networkmanager/index.html:446
 #: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
 #: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
 #: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
@@ -2181,7 +2184,7 @@ msgstr "DNS 搜索域"
 msgid "DNS search domains $val"
 msgstr "DNS 搜索域 $val"
 
-#: pkg/systemd/terminal.jsx:100
+#: pkg/systemd/terminal.jsx:107
 msgid "Dark"
 msgstr "暗色"
 
@@ -2211,11 +2214,11 @@ msgstr "Debug 及更高级别"
 msgid "Deduplication"
 msgstr "复制"
 
-#: pkg/systemd/index.html:28
+#: pkg/systemd/shutdown.jsx:195
 msgid "Delay"
 msgstr "延时"
 
-#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:384 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -3235,7 +3238,7 @@ msgstr "ID"
 msgid "ID $id"
 msgstr "ID $id"
 
-#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP 地址"
@@ -3251,7 +3254,7 @@ msgstr ""
 msgid "IP configuration"
 msgstr "IP 配置"
 
-#: pkg/networkmanager/index.html:420
+#: pkg/networkmanager/index.html:421
 #, fuzzy
 #| msgid "IPv4 settings"
 msgid "IP settings"
@@ -3493,7 +3496,7 @@ msgstr "接口"
 msgid "Interface type"
 msgstr "接口类型"
 
-#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:237
 #: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
@@ -3531,11 +3534,11 @@ msgstr "无效的 IPv6 前缀"
 msgid "Invalid address $0"
 msgstr "无效的地址 $0"
 
-#: pkg/systemd/overview-cards/serverTime.js:617 pkg/systemd/shutdown.js:155
+#: pkg/systemd/shutdown.jsx:121 pkg/systemd/overview-cards/serverTime.js:617
 msgid "Invalid date format"
 msgstr "无效的日期格式"
 
-#: pkg/systemd/shutdown.js:151
+#: pkg/systemd/shutdown.jsx:115
 msgid "Invalid date format and invalid time format"
 msgstr "无效的日期格式和时间格式"
 
@@ -3587,7 +3590,7 @@ msgstr "无效的前缀或掩码 $0"
 msgid "Invalid range"
 msgstr "无效范围"
 
-#: pkg/systemd/shutdown.js:153
+#: pkg/systemd/shutdown.jsx:118
 msgid "Invalid time format"
 msgstr "无效的时间格式"
 
@@ -3734,7 +3737,7 @@ msgstr "最近 7 天"
 msgid "Last checked: $0"
 msgstr "最后检查于： $0"
 
-#: pkg/systemd/overview.jsx:136
+#: pkg/systemd/overview.jsx:135
 msgid "Last failed login:"
 msgstr "最后失败登录："
 
@@ -3742,7 +3745,7 @@ msgstr "最后失败登录："
 msgid "Last login"
 msgstr "最近登陆"
 
-#: pkg/systemd/overview.jsx:135
+#: pkg/systemd/overview.jsx:134
 msgid "Last login:"
 msgstr "最后登录："
 
@@ -3781,7 +3784,7 @@ msgstr "Libvirt 或虚拟机管理器不支持 UEFI"
 msgid "Licensed under:"
 msgstr "许可证："
 
-#: pkg/systemd/terminal.jsx:101
+#: pkg/systemd/terminal.jsx:108
 msgid "Light"
 msgstr "亮色"
 
@@ -4190,7 +4193,7 @@ msgstr "内存拓扑"
 msgid "Memory usage"
 msgstr "内存使用："
 
-#: pkg/systemd/shutdown.js:84
+#: pkg/systemd/shutdown.jsx:192
 msgid "Message to logged in users"
 msgstr "发送给登录用户的信息"
 
@@ -4398,7 +4401,7 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "NTP 服务器"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:92 pkg/networkmanager/index.html:109
 #: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
 #: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
@@ -4677,7 +4680,7 @@ msgstr "不可用"
 msgid "No data available between $0 and $1"
 msgstr "在 $0 和 $1 间发生"
 
-#: pkg/systemd/index.html:43
+#: pkg/systemd/shutdown.jsx:172
 msgid "No delay"
 msgstr "无延时"
 
@@ -5362,6 +5365,12 @@ msgstr "物理卷"
 msgid "Physical volumes can not be resized here."
 msgstr "物理卷不能在这里改变大小。"
 
+#: pkg/systemd/shutdown.jsx:204
+#, fuzzy
+#| msgid "date"
+msgid "Pick date"
+msgstr "日期"
+
 #: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Ping 周期"
@@ -5749,8 +5758,8 @@ msgstr "实际主机名必须小于等于64个字符"
 msgid "Reboot"
 msgstr "重启"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
-#: pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:399
 msgid "Receiving"
 msgstr "接收中"
 
@@ -6010,7 +6019,7 @@ msgstr "必备的"
 msgid "Reserved memory"
 msgstr "保留内存"
 
-#: pkg/systemd/terminal.jsx:106
+#: pkg/systemd/terminal.jsx:115
 msgid "Reset"
 msgstr "重置"
 
@@ -6031,8 +6040,8 @@ msgid ""
 "a current disk passphrase."
 msgstr "对一个加密的文件系统调整大小需要解锁磁盘。请提供磁盘的密码。"
 
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
-#: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
+#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
 #: pkg/systemd/services/service-details.jsx:129
 #: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
@@ -6313,8 +6322,8 @@ msgstr "发送密钥"
 msgid "Send non-maskable interrupt"
 msgstr "发送不可屏蔽中断"
 
-#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
-#: pkg/networkmanager/index.html:397
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:398
 msgid "Sending"
 msgstr "发送中"
 
@@ -6520,7 +6529,7 @@ msgstr "缩小逻辑卷"
 msgid "Shrink volume"
 msgstr "缩小卷"
 
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
 #: pkg/machines/components/vm/vmActions.jsx:210
 #: pkg/machines/components/vm/vmActions.jsx:217
 msgid "Shut down"
@@ -6534,7 +6543,7 @@ msgstr "关闭"
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr "关闭 VM 以编辑固件配置"
 
-#: pkg/systemd/overview.jsx:212
+#: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
 msgstr "关机"
 
@@ -6702,7 +6711,7 @@ msgstr "生成树协议 (STP)"
 msgid "Spare"
 msgstr "备用"
 
-#: pkg/systemd/index.html:44
+#: pkg/systemd/shutdown.jsx:173
 msgid "Specific time"
 msgstr "指定时间"
 
@@ -7373,7 +7382,7 @@ msgid ""
 msgstr ""
 "其它地方没有足够的空闲空间来移除这个物理卷。至少需要 $0 或更多空闲空间。"
 
-#: pkg/systemd/overview.jsx:127
+#: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
@@ -7938,7 +7947,7 @@ msgstr "解锁 $target"
 msgid "Unlocking disk..."
 msgstr "解锁磁盘......"
 
-#: pkg/networkmanager/index.html:105
+#: pkg/networkmanager/index.html:104
 msgid "Unmanaged interfaces"
 msgstr "未管理的接口"
 
@@ -8404,7 +8413,7 @@ msgstr ""
 msgid "When empty, connect with the current user"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:102
+#: pkg/systemd/terminal.jsx:109
 msgid "White"
 msgstr "白"
 
@@ -9087,7 +9096,7 @@ msgstr "重启"
 msgid "roles"
 msgstr "角色"
 
-#: pkg/systemd/overview.jsx:253
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "运行中 $0"
 

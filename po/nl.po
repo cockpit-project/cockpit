@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 06:24+0000\n"
-"PO-Revision-Date: 2021-01-15 11:36+0000\n"
+"POT-Creation-Date: 2021-01-19 19:00+0000\n"
+"PO-Revision-Date: 2021-01-23 16:36+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "master/nl/>\n"
@@ -137,12 +137,12 @@ msgstr "De grootte van bestandssystemen kan hier niet gewijzigd worden."
 msgid "$0 free"
 msgstr "$0 vrij"
 
-#: pkg/systemd/overview.jsx:99
+#: pkg/systemd/overview.jsx:98
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
 msgstr "$0 uit $1"
 
-#: pkg/systemd/overview.jsx:97
+#: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 uit $1 op $2"
@@ -229,7 +229,7 @@ msgstr[1] "$0 voorvallen"
 msgid "$0 of $1"
 msgstr "$0 van $1"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:100
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 op $1"
@@ -354,7 +354,7 @@ msgstr "1 uur"
 msgid "1 min"
 msgstr "1 min"
 
-#: pkg/systemd/index.html:33 pkg/systemd/index.html:37
+#: pkg/systemd/shutdown.jsx:166
 msgid "1 minute"
 msgstr "1 minuut"
 
@@ -422,7 +422,7 @@ msgstr "1e"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/index.html:39
+#: pkg/systemd/shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 minuten"
 
@@ -490,7 +490,7 @@ msgstr "3e"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/index.html:40
+#: pkg/systemd/shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 minuten"
 
@@ -502,7 +502,7 @@ msgstr "4e"
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/systemd/shutdown.jsx:167 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minuten"
 
@@ -518,7 +518,7 @@ msgstr "5e"
 msgid "6 hours"
 msgstr "6 uren"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 minuten"
 
@@ -617,10 +617,8 @@ msgstr "Afwezig"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:27
 #: pkg/shell/machines/machine-unknown-hostkey.html:19
-#, fuzzy
-#| msgid "Accept key and log in"
 msgid "Accept key and connect"
-msgstr "Accepteer sleutel en log in"
+msgstr "Accepteer sleutel en verbind"
 
 #: pkg/static/login.js:563
 msgid "Accept key and log in"
@@ -703,7 +701,7 @@ msgstr "Toevoegen"
 msgid "Add $0"
 msgstr "Toevoegen $0"
 
-#: pkg/networkmanager/index.html:87
+#: pkg/networkmanager/index.html:86
 msgid "Add VLAN"
 msgstr "VLAN toevoegen"
 
@@ -711,11 +709,11 @@ msgstr "VLAN toevoegen"
 msgid "Add a new zone"
 msgstr "Een nieuwe zone toevoegen"
 
-#: pkg/networkmanager/index.html:84
+#: pkg/networkmanager/index.html:83
 msgid "Add bond"
 msgstr "Binding toevoegen"
 
-#: pkg/networkmanager/index.html:86
+#: pkg/networkmanager/index.html:85
 msgid "Add bridge"
 msgstr "Brug toevoegen"
 
@@ -769,7 +767,7 @@ msgstr "Services toevoegen aan $0 zone"
 msgid "Add services to zone $0"
 msgstr "Services toevoegen aan zone $0"
 
-#: pkg/networkmanager/index.html:85
+#: pkg/networkmanager/index.html:84
 msgid "Add team"
 msgstr "Team toevoegen"
 
@@ -962,9 +960,9 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Ansible rollen documentatie"
 
-#: pkg/systemd/terminal.jsx:94
-msgid "Appearance:"
-msgstr "Uiterlijk:"
+#: pkg/systemd/terminal.jsx:100
+msgid "Appearance"
+msgstr "Uiterlijk"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
 #: pkg/apps/application.jsx:148 pkg/apps/manifest.json.in:0
@@ -975,7 +973,7 @@ msgstr "Toepassingen"
 msgid "Applications list"
 msgstr "Toepassingenlijst"
 
-#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:469
 #: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
 #: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
 #: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
@@ -1185,7 +1183,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
 
-#: pkg/systemd/terminal.jsx:99
+#: pkg/systemd/terminal.jsx:106
 msgid "Black"
 msgstr "Zwart"
 
@@ -1214,7 +1212,7 @@ msgstr "Geblokkeerd"
 msgid "Bond"
 msgstr "Binding"
 
-#: pkg/networkmanager/index.html:450
+#: pkg/networkmanager/index.html:451
 msgid "Bond settings"
 msgstr "Bindingsinstellingen"
 
@@ -1337,18 +1335,19 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 
 #: pkg/sosreport/index.html:74
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
-#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/systemd/services.html:290 pkg/static/login.html:102
+#: pkg/shell/machines/machine-add.html:55
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:435 pkg/networkmanager/index.html:470
 #: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
 #: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
 #: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
-#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/sosreport/index.js:52 pkg/systemd/shutdown.jsx:183
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1398,7 +1397,7 @@ msgstr ""
 "Kan geen lid worden van een domein omdat realmd niet beschikbaar is op dit "
 "systeem"
 
-#: pkg/systemd/shutdown.js:176
+#: pkg/systemd/shutdown.jsx:136
 msgid "Cannot schedule event in the past"
 msgstr "Kan evenement niet in het verleden plannen"
 
@@ -1576,7 +1575,7 @@ msgstr "Kloon"
 
 #: pkg/shell/machines/machine-not-supported.html:8
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:417 pkg/networkmanager/index.html:446
 #: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
 #: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
 #: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
@@ -2184,7 +2183,7 @@ msgstr "DNS zoekdomeinen"
 msgid "DNS search domains $val"
 msgstr "DNS zoekdomeinen $val"
 
-#: pkg/systemd/terminal.jsx:100
+#: pkg/systemd/terminal.jsx:107
 msgid "Dark"
 msgstr "Donker"
 
@@ -2214,11 +2213,11 @@ msgstr "Debug en hoger"
 msgid "Deduplication"
 msgstr "Deduplicatie"
 
-#: pkg/systemd/index.html:28
+#: pkg/systemd/shutdown.jsx:195
 msgid "Delay"
 msgstr "Vertraging"
 
-#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:384 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -3229,7 +3228,7 @@ msgstr "ID"
 msgid "ID $id"
 msgstr "ID $id"
 
-#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP-adres"
@@ -3246,7 +3245,7 @@ msgstr ""
 msgid "IP configuration"
 msgstr "IP-configuratie"
 
-#: pkg/networkmanager/index.html:420
+#: pkg/networkmanager/index.html:421
 msgid "IP settings"
 msgstr "IP-instellingen"
 
@@ -3316,16 +3315,12 @@ msgstr "Als tang-show-keys niet beschikbaar is, voer je het volgende uit:"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:21
 #: pkg/shell/machines/machine-unknown-hostkey.html:13
-#, fuzzy
-#| msgid ""
-#| "If the fingerprint matches, click \"Accept key and log in\". Otherwise, "
-#| "do not log in and contact your administrator."
 msgid ""
 "If the fingerprint matches, click \"Accept key and connect\". Otherwise, do "
 "not connect and contact your administrator."
 msgstr ""
-"Als de vingerafdruk overeenkomt, klik dan op \"Accepteer sleutel en log in"
-"\". Log anders niet in en neem contact op met je beheerder."
+"Als de vingerafdruk overeenkomt, klik dan op \"Accepteer sleutel en verbind\""
+". Verbind anders niet in en neem contact op met je beheerder."
 
 #: pkg/static/login.html:67
 msgid ""
@@ -3494,7 +3489,7 @@ msgstr "Interface"
 msgid "Interface type"
 msgstr "Interfacetype"
 
-#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:237
 #: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
@@ -3532,11 +3527,11 @@ msgstr "Ongeldig IPv6-voorvoegsel"
 msgid "Invalid address $0"
 msgstr "Ongeldig adres $0"
 
-#: pkg/systemd/overview-cards/serverTime.js:617 pkg/systemd/shutdown.js:155
+#: pkg/systemd/shutdown.jsx:121 pkg/systemd/overview-cards/serverTime.js:617
 msgid "Invalid date format"
 msgstr "Ongeldige datum"
 
-#: pkg/systemd/shutdown.js:151
+#: pkg/systemd/shutdown.jsx:115
 msgid "Invalid date format and invalid time format"
 msgstr "Ongeldige datumnotatie en ongeldige tijdnotatie"
 
@@ -3588,7 +3583,7 @@ msgstr "Ongeldig voorvoegsel of netmasker $0"
 msgid "Invalid range"
 msgstr "Ongeldig bereik"
 
-#: pkg/systemd/shutdown.js:153
+#: pkg/systemd/shutdown.jsx:118
 msgid "Invalid time format"
 msgstr "Ongeldige tijdnotatie"
 
@@ -3737,7 +3732,7 @@ msgstr "Laatste 7 dagen"
 msgid "Last checked: $0"
 msgstr "Laatst gecontroleerd: $0"
 
-#: pkg/systemd/overview.jsx:136
+#: pkg/systemd/overview.jsx:135
 msgid "Last failed login:"
 msgstr "Laatste mislukte aanmelding:"
 
@@ -3745,7 +3740,7 @@ msgstr "Laatste mislukte aanmelding:"
 msgid "Last login"
 msgstr "Laatste aanmelding"
 
-#: pkg/systemd/overview.jsx:135
+#: pkg/systemd/overview.jsx:134
 msgid "Last login:"
 msgstr "Laatste aanmelding:"
 
@@ -3782,7 +3777,7 @@ msgstr "Libvirt of hypervisor ondersteunt UEFI niet"
 msgid "Licensed under:"
 msgstr "Licentie onder:"
 
-#: pkg/systemd/terminal.jsx:101
+#: pkg/systemd/terminal.jsx:108
 msgid "Light"
 msgstr "Licht"
 
@@ -4182,7 +4177,7 @@ msgstr "Geheugen technologie"
 msgid "Memory usage"
 msgstr "Geheugengebruik"
 
-#: pkg/systemd/shutdown.js:84
+#: pkg/systemd/shutdown.jsx:192
 msgid "Message to logged in users"
 msgstr "Bericht aan ingelogde gebruikers"
 
@@ -4389,7 +4384,7 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "NTP-server"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:92 pkg/networkmanager/index.html:109
 #: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
 #: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
@@ -4649,7 +4644,7 @@ msgstr "Geen data beschikbaar"
 msgid "No data available between $0 and $1"
 msgstr "Geen data beschikbaar tussen $0 en $1"
 
-#: pkg/systemd/index.html:43
+#: pkg/systemd/shutdown.jsx:172
 msgid "No delay"
 msgstr "Geen vertraging"
 
@@ -5328,6 +5323,10 @@ msgstr "Fysieke volumes"
 msgid "Physical volumes can not be resized here."
 msgstr "Fysieke volumes kunnen hier niet aangepast worden."
 
+#: pkg/systemd/shutdown.jsx:204
+msgid "Pick date"
+msgstr "Kies datum"
+
 #: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Ping interval"
@@ -5717,8 +5716,8 @@ msgstr "Echte hostnaam moet 64 tekens of minder bevatten"
 msgid "Reboot"
 msgstr "Opnieuw opstarten"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
-#: pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:399
 msgid "Receiving"
 msgstr "Ontvangen"
 
@@ -5979,7 +5978,7 @@ msgstr "Vereiste van"
 msgid "Reserved memory"
 msgstr "Gereserveerd geheugen"
 
-#: pkg/systemd/terminal.jsx:106
+#: pkg/systemd/terminal.jsx:115
 msgid "Reset"
 msgstr "Reset"
 
@@ -6000,8 +5999,8 @@ msgstr ""
 "Het wijzigen van de grootte van een versleuteld bestandssysteem vereist dat "
 "de schijf wordt ontgrendeld. Geef een huidige wachtzin voor de schijf op."
 
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
-#: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
+#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
 #: pkg/systemd/services/service-details.jsx:129
 #: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
@@ -6273,8 +6272,8 @@ msgstr "Verzend sleutel"
 msgid "Send non-maskable interrupt"
 msgstr "Verzend niet-maskeerbare onderbreking"
 
-#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
-#: pkg/networkmanager/index.html:397
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:398
 msgid "Sending"
 msgstr "Verzenden"
 
@@ -6480,7 +6479,7 @@ msgstr "Krimp logische volume"
 msgid "Shrink volume"
 msgstr "Krimp volume"
 
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
 #: pkg/machines/components/vm/vmActions.jsx:210
 #: pkg/machines/components/vm/vmActions.jsx:217
 msgid "Shut down"
@@ -6494,7 +6493,7 @@ msgstr "Uitzetten"
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr "Schakel de VM uit om de firmwareconfiguratie te bewerken"
 
-#: pkg/systemd/overview.jsx:212
+#: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
 msgstr "Afsluiten"
 
@@ -6663,7 +6662,7 @@ msgstr "Spanning tree protocol (STP)"
 msgid "Spare"
 msgstr "Reserve"
 
-#: pkg/systemd/index.html:44
+#: pkg/systemd/shutdown.jsx:173
 msgid "Specific time"
 msgstr "Specifieke tijd"
 
@@ -7392,7 +7391,7 @@ msgstr ""
 "Er is elders onvoldoende vrije ruimte om dit fysieke volume te verwijderen. "
 "Er is minimaal $0 meer vrije ruimte nodig."
 
-#: pkg/systemd/overview.jsx:127
+#: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
@@ -7654,16 +7653,12 @@ msgstr ""
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:18
 #: pkg/shell/machines/machine-unknown-hostkey.html:10
-#, fuzzy
-#| msgid ""
-#| "To verify a fingerprint, run the following on $0 while physically sitting "
-#| "at the machine or through a trusted network:"
 msgid ""
 "To verify a fingerprint, run the following on {{host}} while physically "
 "sitting at the machine or through a trusted network:"
 msgstr ""
-"Om een vingerafdruk te verifiëren, voer je het volgende uit op $0 terwijl je "
-"fysiek achter de machine zit of via een vertrouwd netwerk:"
+"Om een vingerafdruk te verifiëren, voer je het volgende uit op {{host}} "
+"terwijl je fysiek achter de machine zit of via een vertrouwd netwerk:"
 
 #: pkg/metrics/metrics.jsx:921
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:40
@@ -7994,7 +7989,7 @@ msgstr "Ontgrendelen $target"
 msgid "Unlocking disk..."
 msgstr "Schijf ontgrendelen..."
 
-#: pkg/networkmanager/index.html:105
+#: pkg/networkmanager/index.html:104
 msgid "Unmanaged interfaces"
 msgstr "Onbeheerde interfaces"
 
@@ -8452,7 +8447,7 @@ msgstr "Wanneer"
 msgid "When empty, connect with the current user"
 msgstr "Maak verbinding met de huidige gebruiker als deze leeg is"
 
-#: pkg/systemd/terminal.jsx:102
+#: pkg/systemd/terminal.jsx:109
 msgid "White"
 msgstr "Wit"
 
@@ -8500,10 +8495,8 @@ msgid "You are connecting to $0 for the first time."
 msgstr "Je maakt voor de eerste keer verbinding met $0."
 
 #: pkg/shell/machines/machine-unknown-hostkey.html:6
-#, fuzzy
-#| msgid "You are connecting to $0 for the first time."
 msgid "You are connecting to {{host}} for the first time."
-msgstr "Je maakt voor de eerste keer verbinding met $0."
+msgstr "Je maakt voor de eerste keer verbinding met {{host}}."
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
 msgid "You are not authorized to modify the firewall."
@@ -9131,7 +9124,7 @@ msgstr "herstarten"
 msgid "roles"
 msgstr "rollen"
 
-#: pkg/systemd/overview.jsx:253
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "$0 wordt uitgevoerd"
 
@@ -9381,10 +9374,8 @@ msgid "zone"
 msgstr "zone"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
-#, fuzzy
-#| msgid "$0 key changed"
 msgid "{{host}} key changed"
-msgstr "$0 sleutel gewijzigd"
+msgstr "{{host}} sleutel gewijzigd"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Onjuiste hostsleutel"

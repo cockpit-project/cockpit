@@ -23,7 +23,7 @@ expects to find it (do NOT run the build step as root):
 To run the integration tests run the following (do NOT run the integration tests
 as root):
 
-    $ ./test/verify/run-tests
+    $ ./test/common/run-tests
 
 The tests will automatically download the VM images they need, so expect
 that the initial run may take a couple of hours (there are quite a few
@@ -64,7 +64,7 @@ ssh and web.  See the "Helpful tips" section below.
 
 The verify test suite is the main test suite:
 
- * `test/verify/run-tests`: Run all tests
+ * `test/common/run-tests`: Run all tests
  * `test/verify/check-*`: Run the selected tests
 
 ## Test Configuration

@@ -1463,7 +1463,7 @@ def timeout(seconds):
     """Change default test timeout of 600s, for long running tests
 
     Can be applied to an individual test method or the entire class. This only
-    applies to test/verify/run-tests, not to calling check-* directly.
+    applies to test/common/run-tests, not to calling check-* directly.
     """
     def wrapper(testEntity):
         testEntity.__timeout = seconds

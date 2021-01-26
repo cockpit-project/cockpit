@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 06:24+0000\n"
-"PO-Revision-Date: 2021-01-15 11:36+0000\n"
+"POT-Creation-Date: 2021-01-19 19:00+0000\n"
+"PO-Revision-Date: 2021-01-23 16:37+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/master/uk/>\n"
@@ -146,12 +146,12 @@ msgstr "Тут не можна змінювати розмір файлових 
 msgid "$0 free"
 msgstr "Вільно $0"
 
-#: pkg/systemd/overview.jsx:99
+#: pkg/systemd/overview.jsx:98
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
 msgstr "$0 з $1"
 
-#: pkg/systemd/overview.jsx:97
+#: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
 msgstr "$0 з $1 на $2"
@@ -246,7 +246,7 @@ msgstr[2] "$0 відповідників"
 msgid "$0 of $1"
 msgstr "$0 з $1"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:100
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 на $1"
@@ -381,7 +381,7 @@ msgstr "1 година"
 msgid "1 min"
 msgstr "1 хв."
 
-#: pkg/systemd/index.html:33 pkg/systemd/index.html:37
+#: pkg/systemd/shutdown.jsx:166
 msgid "1 minute"
 msgstr "1 хвилина"
 
@@ -449,7 +449,7 @@ msgstr "1-е"
 msgid "2 MiB"
 msgstr "2 МіБ"
 
-#: pkg/systemd/index.html:39
+#: pkg/systemd/shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 хвилин"
 
@@ -517,7 +517,7 @@ msgstr "3-є"
 msgid "4 KiB"
 msgstr "4 КіБ"
 
-#: pkg/systemd/index.html:40
+#: pkg/systemd/shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 хвилин"
 
@@ -529,7 +529,7 @@ msgstr "4-е"
 msgid "5 min"
 msgstr "5 хв."
 
-#: pkg/systemd/index.html:38 pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/systemd/shutdown.jsx:167 pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 хвилин"
 
@@ -545,7 +545,7 @@ msgstr "5-е"
 msgid "6 hours"
 msgstr "6 годин"
 
-#: pkg/systemd/index.html:41
+#: pkg/systemd/shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 хвилин"
 
@@ -641,10 +641,8 @@ msgstr "Відсутній"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:27
 #: pkg/shell/machines/machine-unknown-hostkey.html:19
-#, fuzzy
-#| msgid "Accept key and log in"
 msgid "Accept key and connect"
-msgstr "Прийняти ключ і увійти"
+msgstr "Прийняти ключ і з'єднатися"
 
 #: pkg/static/login.js:563
 msgid "Accept key and log in"
@@ -727,7 +725,7 @@ msgstr "Додати"
 msgid "Add $0"
 msgstr "Додати $0"
 
-#: pkg/networkmanager/index.html:87
+#: pkg/networkmanager/index.html:86
 msgid "Add VLAN"
 msgstr "Додати VLAN"
 
@@ -735,11 +733,11 @@ msgstr "Додати VLAN"
 msgid "Add a new zone"
 msgstr "Додати нову зону"
 
-#: pkg/networkmanager/index.html:84
+#: pkg/networkmanager/index.html:83
 msgid "Add bond"
 msgstr "Додати зв’язок"
 
-#: pkg/networkmanager/index.html:86
+#: pkg/networkmanager/index.html:85
 msgid "Add bridge"
 msgstr "Додати місток"
 
@@ -793,7 +791,7 @@ msgstr "Додати служби до зони $0"
 msgid "Add services to zone $0"
 msgstr "Додати служби до зони $0"
 
-#: pkg/networkmanager/index.html:85
+#: pkg/networkmanager/index.html:84
 msgid "Add team"
 msgstr "Додати команду"
 
@@ -985,9 +983,9 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Документація з ролей Ansible"
 
-#: pkg/systemd/terminal.jsx:94
-msgid "Appearance:"
-msgstr "Вигляд:"
+#: pkg/systemd/terminal.jsx:100
+msgid "Appearance"
+msgstr "Вигляд"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:169
 #: pkg/apps/application.jsx:148 pkg/apps/manifest.json.in:0
@@ -998,7 +996,7 @@ msgstr "Програми"
 msgid "Applications list"
 msgstr "Список програм"
 
-#: pkg/networkmanager/index.html:433 pkg/networkmanager/index.html:469
+#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:469
 #: pkg/networkmanager/index.html:498 pkg/networkmanager/index.html:527
 #: pkg/networkmanager/index.html:556 pkg/networkmanager/index.html:585
 #: pkg/networkmanager/index.html:614 pkg/networkmanager/index.html:643
@@ -1209,7 +1207,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Бітова карта"
 
-#: pkg/systemd/terminal.jsx:99
+#: pkg/systemd/terminal.jsx:106
 msgid "Black"
 msgstr "Чорний"
 
@@ -1238,7 +1236,7 @@ msgstr "Заблоковано"
 msgid "Bond"
 msgstr "Прив’язка"
 
-#: pkg/networkmanager/index.html:450
+#: pkg/networkmanager/index.html:451
 msgid "Bond settings"
 msgstr "Параметри прив'язки"
 
@@ -1361,18 +1359,19 @@ msgstr "Не вдалося знайти журналів на основі по
 
 #: pkg/sosreport/index.html:74
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/systemd/index.html:57 pkg/systemd/services.html:290
-#: pkg/static/login.html:102 pkg/shell/machines/machine-add.html:55
+#: pkg/systemd/services.html:290 pkg/static/login.html:102
+#: pkg/shell/machines/machine-add.html:55
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/networkmanager/index.html:434 pkg/networkmanager/index.html:470
+#: pkg/networkmanager/index.html:435 pkg/networkmanager/index.html:470
 #: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:528
 #: pkg/networkmanager/index.html:557 pkg/networkmanager/index.html:586
 #: pkg/networkmanager/index.html:615 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:673 pkg/playground/translate.html:39
-#: pkg/sosreport/index.js:52 pkg/systemd/overview-cards/motdCard.jsx:102
+#: pkg/sosreport/index.js:52 pkg/systemd/shutdown.jsx:183
+#: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:434
 #: pkg/systemd/hwinfo.jsx:239 pkg/systemd/reporting.jsx:419
 #: pkg/systemd/services/service-details.jsx:70 pkg/packagekit/updates.jsx:201
@@ -1420,7 +1419,7 @@ msgstr "Не вдалося переспрямувати реєстраційн�
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "Неможливо долучитися до домену, оскільки у цій системі немає realmd"
 
-#: pkg/systemd/shutdown.js:176
+#: pkg/systemd/shutdown.jsx:136
 msgid "Cannot schedule event in the past"
 msgstr "Не можна планувати подію на минуле"
 
@@ -1598,7 +1597,7 @@ msgstr "Клонувати"
 
 #: pkg/shell/machines/machine-not-supported.html:8
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:289
-#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:417 pkg/networkmanager/index.html:446
 #: pkg/networkmanager/index.html:481 pkg/networkmanager/index.html:510
 #: pkg/networkmanager/index.html:539 pkg/networkmanager/index.html:568
 #: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:626
@@ -2208,7 +2207,7 @@ msgstr "Домени пошуку DNS"
 msgid "DNS search domains $val"
 msgstr "Домени пошуку DNS $val"
 
-#: pkg/systemd/terminal.jsx:100
+#: pkg/systemd/terminal.jsx:107
 msgid "Dark"
 msgstr "Темний"
 
@@ -2238,11 +2237,11 @@ msgstr "Діагностика і вище"
 msgid "Deduplication"
 msgstr "Скасування дублювання"
 
-#: pkg/systemd/index.html:28
+#: pkg/systemd/shutdown.jsx:195
 msgid "Delay"
 msgstr "Затримка"
 
-#: pkg/networkmanager/index.html:382 pkg/systemd/abrtLog.jsx:242
+#: pkg/networkmanager/index.html:384 pkg/systemd/abrtLog.jsx:242
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:224
 #: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/mdraid-details.jsx:317
@@ -3262,7 +3261,7 @@ msgstr "Ід."
 msgid "ID $id"
 msgstr "Ід. $id"
 
-#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP-адреса"
@@ -3279,7 +3278,7 @@ msgstr ""
 msgid "IP configuration"
 msgstr "Налаштування IP"
 
-#: pkg/networkmanager/index.html:420
+#: pkg/networkmanager/index.html:421
 msgid "IP settings"
 msgstr "Параметри IP"
 
@@ -3349,16 +3348,12 @@ msgstr "Якщо програма tang-show-keys є недоступною, ві
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:21
 #: pkg/shell/machines/machine-unknown-hostkey.html:13
-#, fuzzy
-#| msgid ""
-#| "If the fingerprint matches, click \"Accept key and log in\". Otherwise, "
-#| "do not log in and contact your administrator."
 msgid ""
 "If the fingerprint matches, click \"Accept key and connect\". Otherwise, do "
 "not connect and contact your administrator."
 msgstr ""
-"Якщо відбиток є відповідним, натисніть «Прийняти ключ і увійти». Якщо ж це "
-"не так, не входьте і повідомте про подію адміністратору."
+"Якщо відбиток є відповідним, натисніть «Прийняти ключ і з'єднатися». Якщо ж "
+"це не так, не встановлюйте з'єднання і повідомте про подію адміністратору."
 
 #: pkg/static/login.html:67
 msgid ""
@@ -3528,7 +3523,7 @@ msgstr "Інтерфейс"
 msgid "Interface type"
 msgstr "Тип інтерфейсу"
 
-#: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:237
+#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:237
 #: pkg/networkmanager/interfaces.js:2887 pkg/networkmanager/firewall.jsx:180
 #: pkg/networkmanager/firewall.jsx:742
 msgid "Interfaces"
@@ -3566,11 +3561,11 @@ msgstr "Некоректний префікс IPv6"
 msgid "Invalid address $0"
 msgstr "Некоректна адреса $0"
 
-#: pkg/systemd/overview-cards/serverTime.js:617 pkg/systemd/shutdown.js:155
+#: pkg/systemd/shutdown.jsx:121 pkg/systemd/overview-cards/serverTime.js:617
 msgid "Invalid date format"
 msgstr "Некоректний формат дати"
 
-#: pkg/systemd/shutdown.js:151
+#: pkg/systemd/shutdown.jsx:115
 msgid "Invalid date format and invalid time format"
 msgstr "Некоректний формат дати і часу"
 
@@ -3622,7 +3617,7 @@ msgstr "Некоректний префікс або маска мережі $0"
 msgid "Invalid range"
 msgstr "Некоректний діапазон"
 
-#: pkg/systemd/shutdown.js:153
+#: pkg/systemd/shutdown.jsx:118
 msgid "Invalid time format"
 msgstr "Некоректний формат визначення часу"
 
@@ -3771,7 +3766,7 @@ msgstr "Попередні 7 днів"
 msgid "Last checked: $0"
 msgstr "Востаннє перевірено: $0"
 
-#: pkg/systemd/overview.jsx:136
+#: pkg/systemd/overview.jsx:135
 msgid "Last failed login:"
 msgstr "Останній невдалий вхід:"
 
@@ -3779,7 +3774,7 @@ msgstr "Останній невдалий вхід:"
 msgid "Last login"
 msgstr "Останній вхід"
 
-#: pkg/systemd/overview.jsx:135
+#: pkg/systemd/overview.jsx:134
 msgid "Last login:"
 msgstr "Останній вхід:"
 
@@ -3820,7 +3815,7 @@ msgstr "У libvirt або гіпервізорі не передбачено п�
 msgid "Licensed under:"
 msgstr "Умови ліцензування:"
 
-#: pkg/systemd/terminal.jsx:101
+#: pkg/systemd/terminal.jsx:108
 msgid "Light"
 msgstr "Світлий"
 
@@ -4220,7 +4215,7 @@ msgstr "Технологія пам'яті"
 msgid "Memory usage"
 msgstr "Використання пам'яті"
 
-#: pkg/systemd/shutdown.js:84
+#: pkg/systemd/shutdown.jsx:192
 msgid "Message to logged in users"
 msgstr "Повідомлення користувачам, які увійшли"
 
@@ -4426,7 +4421,7 @@ msgstr "Луна-імпульс NSNA"
 msgid "NTP server"
 msgstr "Сервер NTP"
 
-#: pkg/networkmanager/index.html:93 pkg/networkmanager/index.html:110
+#: pkg/networkmanager/index.html:92 pkg/networkmanager/index.html:109
 #: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:180
 #: pkg/networkmanager/index.html:233 pkg/networkmanager/index.html:290
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/services/services-list.jsx:52
@@ -4688,7 +4683,7 @@ msgstr "Немає доступним даних"
 msgid "No data available between $0 and $1"
 msgstr "Немає доступних даних між $0 і $1"
 
-#: pkg/systemd/index.html:43
+#: pkg/systemd/shutdown.jsx:172
 msgid "No delay"
 msgstr "Без затримки"
 
@@ -5366,6 +5361,10 @@ msgstr "Фізичні томи"
 msgid "Physical volumes can not be resized here."
 msgstr "Тут не можна змінювати розміри фізичних томів."
 
+#: pkg/systemd/shutdown.jsx:204
+msgid "Pick date"
+msgstr "Вибрати дату"
+
 #: pkg/networkmanager/index.html:314
 msgid "Ping interval"
 msgstr "Проміжок між імпульсами"
@@ -5758,8 +5757,8 @@ msgstr "Назва справжнього вузла має складатися
 msgid "Reboot"
 msgstr "Перезавантажити"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:113
-#: pkg/networkmanager/index.html:398
+#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
+#: pkg/networkmanager/index.html:399
 msgid "Receiving"
 msgstr "Отримання"
 
@@ -6020,7 +6019,7 @@ msgstr "Потрібний для"
 msgid "Reserved memory"
 msgstr "Зарезервована пам’ять"
 
-#: pkg/systemd/terminal.jsx:106
+#: pkg/systemd/terminal.jsx:115
 msgid "Reset"
 msgstr "Скинути"
 
@@ -6041,8 +6040,8 @@ msgstr ""
 "Зміна розмірів зашифрованої системи потребує розблокування диска. Будь "
 "ласка, вкажіть поточний пароль до диска."
 
-#: pkg/systemd/shutdown.js:100 pkg/systemd/shutdown.js:101
-#: pkg/systemd/overview.jsx:209 pkg/systemd/overview.jsx:226
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
+#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
 #: pkg/systemd/services/service-details.jsx:129
 #: pkg/machines/components/vm/vmActions.jsx:243
 msgid "Restart"
@@ -6314,8 +6313,8 @@ msgstr "Надіслати ключ"
 msgid "Send non-maskable interrupt"
 msgstr "Надіслати немасковане переривання"
 
-#: pkg/networkmanager/index.html:95 pkg/networkmanager/index.html:112
-#: pkg/networkmanager/index.html:397
+#: pkg/networkmanager/index.html:94 pkg/networkmanager/index.html:111
+#: pkg/networkmanager/index.html:398
 msgid "Sending"
 msgstr "Надсилання"
 
@@ -6523,7 +6522,7 @@ msgstr "Стиснути логічний том"
 msgid "Shrink volume"
 msgstr "Стиснути том"
 
-#: pkg/systemd/shutdown.js:97 pkg/systemd/shutdown.js:98
+#: pkg/systemd/shutdown.jsx:180 pkg/systemd/shutdown.jsx:182
 #: pkg/machines/components/vm/vmActions.jsx:210
 #: pkg/machines/components/vm/vmActions.jsx:217
 msgid "Shut down"
@@ -6539,7 +6538,7 @@ msgstr ""
 "Вимкніть віртуальну машину, щоб розпочати редагування налаштувань "
 "мікропрограми"
 
-#: pkg/systemd/overview.jsx:212
+#: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
 msgstr "Вимкнути"
 
@@ -6708,7 +6707,7 @@ msgstr "Протокол пересування ієрархією (STP)"
 msgid "Spare"
 msgstr "Запас"
 
-#: pkg/systemd/index.html:44
+#: pkg/systemd/shutdown.jsx:173
 msgid "Specific time"
 msgstr "У визначений час"
 
@@ -7432,7 +7431,7 @@ msgstr ""
 "Для вилучення цього фізичного тому недостатньо вільного місця. Потрібно "
 "принаймні $0 вільного місця."
 
-#: pkg/systemd/overview.jsx:127
+#: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
@@ -7699,15 +7698,11 @@ msgstr ""
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:18
 #: pkg/shell/machines/machine-unknown-hostkey.html:10
-#, fuzzy
-#| msgid ""
-#| "To verify a fingerprint, run the following on $0 while physically sitting "
-#| "at the machine or through a trusted network:"
 msgid ""
 "To verify a fingerprint, run the following on {{host}} while physically "
 "sitting at the machine or through a trusted network:"
 msgstr ""
-"Щоб перевірити відбиток, віддайте вказану нижче команду для $0 під час "
+"Щоб перевірити відбиток, віддайте вказану нижче команду для {{host}} під час "
 "безпосередньої роботи на комп'ютері або з використанням надійної мережі:"
 
 #: pkg/metrics/metrics.jsx:921
@@ -8039,7 +8034,7 @@ msgstr "Розблокуємо $target"
 msgid "Unlocking disk..."
 msgstr "Розблоковуємо диск…"
 
-#: pkg/networkmanager/index.html:105
+#: pkg/networkmanager/index.html:104
 msgid "Unmanaged interfaces"
 msgstr "Некеровані інтерфейси"
 
@@ -8497,7 +8492,7 @@ msgstr "Якщо"
 msgid "When empty, connect with the current user"
 msgstr "Якщо не вказано, з'єднатися із поточним користувачем"
 
-#: pkg/systemd/terminal.jsx:102
+#: pkg/systemd/terminal.jsx:109
 msgid "White"
 msgstr "Білий"
 
@@ -8545,10 +8540,8 @@ msgid "You are connecting to $0 for the first time."
 msgstr "Ви вперше встановлюєте з'єднання із $0."
 
 #: pkg/shell/machines/machine-unknown-hostkey.html:6
-#, fuzzy
-#| msgid "You are connecting to $0 for the first time."
 msgid "You are connecting to {{host}} for the first time."
-msgstr "Ви вперше встановлюєте з'єднання із $0."
+msgstr "Ви вперше встановлюєте з'єднання із {{host}}."
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:932
 msgid "You are not authorized to modify the firewall."
@@ -9180,7 +9173,7 @@ msgstr "перезапуск"
 msgid "roles"
 msgstr "ролі"
 
-#: pkg/systemd/overview.jsx:253
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "запущено $0"
 
@@ -9430,10 +9423,8 @@ msgid "zone"
 msgstr "зона"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
-#, fuzzy
-#| msgid "$0 key changed"
 msgid "{{host}} key changed"
-msgstr "Змінено ключ $0"
+msgstr "Змінено ключ {{host}}"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Неправильний ключ вузла"

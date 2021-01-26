@@ -307,9 +307,10 @@ function Machines() {
     };
 
     self.overlay = function overlay(host, values) {
+        var address = self.split_connection_string(host).address;
         var changes = { };
-        changes[host] = $.extend({ }, last.overlay[host] || { });
-        merge(changes[host], values);
+        changes[address] = $.extend({ }, last.overlay[address] || { });
+        merge(changes[address], values);
         refresh({
             content: last.content,
             overlay: $.extend({ }, last.overlay, changes)

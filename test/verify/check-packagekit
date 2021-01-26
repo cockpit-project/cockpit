@@ -371,7 +371,7 @@ class TestUpdates(NoSubManCase):
         assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
-        m.execute("systemctl kill --signal=KILL packagekit.service")
+        m.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
         # new security versions are now installed
         m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2 && test -f /stamp-sevcritical-5-2")

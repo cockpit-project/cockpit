@@ -68,7 +68,9 @@ class PackageCase(MachineCase):
             self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 
         # have PackageKit start from a clean slate
+        self.machine.execute("systemctl stop packagekit")
         self.machine.execute("systemctl kill --signal=SIGKILL packagekit; rm -rf /var/cache/PackageKit")
+        self.machine.execute("systemctl reset-failed packagekit || true")
         self.restore_file("/var/lib/PackageKit/transactions.db")
 
         if self.image in ["debian-stable", "debian-testing"]:

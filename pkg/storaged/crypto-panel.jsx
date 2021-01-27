@@ -73,7 +73,7 @@ export class LockedCryptoPanel extends React.Component {
                 <ListingTable variant='compact'
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Locked devices")}
-                    className='table-hover'
+                    className={locked_cryptos.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
                         { title: _("Name"), transforms: [cellWidth(30)], sortable: true },

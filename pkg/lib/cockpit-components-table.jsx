@@ -29,6 +29,7 @@ import {
     sortable,
     expandable,
 } from '@patternfly/react-table';
+import { EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 
 import './cockpit-components-table.scss';
 
@@ -48,6 +49,7 @@ import './cockpit-components-table.scss';
  *      rowId: an identifier for the row which will be set as "data-row-id" and attribute on the <tr>
  *   }[]
  * - emptyCaption: header caption to show if list is empty
+ * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
@@ -191,12 +193,14 @@ export class ListingTable extends React.Component {
         tableProps.className = "ct-table";
         if (this.props.className)
             tableProps.className = tableProps.className + " " + this.props.className;
+        if (this.props.rows.length == 0)
+            tableProps.className += ' ct-table-empty';
         tableProps.rowWrapper = this.rowWrapper;
         if (this.props.columns.some(col => col.sortable)) {
             tableProps.onSort = this.onSort;
             tableProps.sortBy = this.state.sortBy;
         }
-        if (this.props.onSelect)
+        if (this.props.onSelect && this.props.rows.length)
             tableProps.onSelect = this.props.onSelect;
         if (this.props.caption || this.props.actions.length != 0) {
             tableProps.header = (
@@ -221,25 +225,34 @@ export class ListingTable extends React.Component {
             tableProps['aria-label'] = this.props['aria-label'];
 
         const tableBodyProps = { rowKey: ({ rowData, rowIndex }) => (rowData.props && rowData.props.key) ? rowData.props.key : rowIndex };
-        if (this.props.onRowClick)
+        if (this.props.onRowClick && this.props.rows.length)
             tableBodyProps.onRowClick = this.props.onRowClick;
-        if (this.props.rows.length > 0) {
-            return (
-                <Table {...tableProps}>
-                    {this.props.showHeader && <TableHeader />}
-                    <TableBody {...tableBodyProps} />
-                </Table>
-            );
-        } else {
-            tableProps.borders = false;
-            return (
-                <Table {...tableProps}>
-                    <thead className='ct-table-empty'>
-                        <tr><td> {this.props.emptyCaption} </td></tr>
-                    </thead>
-                </Table>
-            );
+        if (this.props.rows.length == 0) {
+            tableProps.rows = [
+                {
+                    heightAuto: true,
+                    cells: [{
+                        props: { colSpan: this.props.columns.length },
+                        title: (
+                            <EmptyState>
+                                <Title headingLevel="h5" size="md">
+                                    {this.props.emptyCaption}
+                                </Title>
+                                {this.props.emptyCaptionDetail && <EmptyStateBody>
+                                    {this.props.emptyCaptionDetail}
+                                </EmptyStateBody>}
+                            </EmptyState>
+                        )
+                    }]
+                }
+            ];
         }
+        return (
+            <Table {...tableProps}>
+                {this.props.showHeader && <TableHeader />}
+                <TableBody {...tableBodyProps} />
+            </Table>
+        );
     }
 }
 ListingTable.defaultProps = {
@@ -253,6 +266,7 @@ ListingTable.defaultProps = {
 ListingTable.propTypes = {
     caption: PropTypes.string,
     emptyCaption: PropTypes.node,
+    emptyCaptionDetail: PropTypes.node,
     columns: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.string])),
     rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object })),
     actions: PropTypes.node,

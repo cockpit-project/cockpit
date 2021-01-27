@@ -64,7 +64,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         self.login_and_go("/machines", user=user, superuser=superuser)
 
         if expect_empty_list:
-            b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+            b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
             return
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
@@ -146,7 +146,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         self.goToVmPage("subVmTest1")
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+        b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
         m.execute("virsh define --file /tmp/subVmTest1.xml")
 
         # clone
@@ -302,7 +302,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
         self.login_and_go("/machines", user="nonadmin", superuser=False)
         b.wait_in_text("body", "Virtual machines")
-        b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+        b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
 
     def testDelete(self):
         b = self.browser

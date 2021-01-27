@@ -36,7 +36,7 @@ class TestStorageNfs(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .ct-table-empty")
+        b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
         # Add /home/foo
         b.click("#nfs-mounts button .fa-plus")
@@ -181,7 +181,7 @@ class TestStorageNfs(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .ct-table-empty")
+        b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
         # Add /home/foo
         b.click("#nfs-mounts .fa-plus")

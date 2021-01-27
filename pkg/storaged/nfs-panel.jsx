@@ -96,7 +96,7 @@ export class NFSPanel extends React.Component {
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("NFS mounts")}
                     onRowClick={onRowClick}
-                    className='table-hover'
+                    className={mounts.length ? 'table-hover' : ''}
                     emptyCaption={_("No NFS mounts set up")}
                     columns={[
                         { title: _("Server"), transforms: [cellWidth(30)], sortable: true },

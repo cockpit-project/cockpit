@@ -25,6 +25,7 @@ import ReactDOM from 'react-dom';
 import {
     Button,
     Bullseye,
+    FormSelect, FormSelectOption,
     Page, PageSection, PageSectionVariants,
     TextInput,
     Card,
@@ -35,7 +36,6 @@ import {
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 
-import * as Select from "cockpit-components-select.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
@@ -140,7 +140,7 @@ class ServicesPage extends React.Component {
             /* State related to the toolbar/tabs components */
             activeTab: 'service',
             stateDropdownIsExpanded: false,
-            currentTypeFilter: null,
+            currentTypeFilter: 'all',
             currentTextFilter: '',
 
             unit_by_path: {},
@@ -424,7 +424,7 @@ class ServicesPage extends React.Component {
     }
 
     onClearAllFilters() {
-        this.setState({ currentTextFilter: '', currentTypeFilter: null });
+        this.setState({ currentTextFilter: '', currentTypeFilter: 'all' });
     }
 
     onInputChange(newValue) {
@@ -685,13 +685,13 @@ class ServicesPage extends React.Component {
         }
 
         const typeDropdownOptions = [
-            { key: 'all', value: _("All") },
-            { key: 'enabled', value: _("Enabled") },
-            { key: 'disabled', value: _("Disabled") },
-            { key: 'static', value: _("Static") },
+            { value: 'all', label: _("All") },
+            { value: 'enabled', label: _("Enabled") },
+            { value: 'disabled', label: _("Disabled") },
+            { value: 'static', label: _("Static") },
         ];
         const { currentTextFilter, activeTab } = this.state;
-        const currentTypeFilter = this.state.currentTypeFilter || typeDropdownOptions[0];
+        const currentTypeFilter = this.state.currentTypeFilter || typeDropdownOptions[0].value;
 
         const units = Object.keys(this.path_by_id)
                 .filter(unit_id => {
@@ -710,7 +710,7 @@ class ServicesPage extends React.Component {
                         unit_id.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1))
                         return false;
 
-                    if (currentTypeFilter.key !== 'all' && currentTypeFilter.key !== unit.AutomaticStartupKey)
+                    if (currentTypeFilter != 'all' && currentTypeFilter !== unit.AutomaticStartupKey)
                         return false;
 
                     return true;
@@ -731,15 +731,16 @@ class ServicesPage extends React.Component {
                             placeholder={_("Filter by name or description")} />
                 </ToolbarItem>
                 <ToolbarItem variant="search-filter">
-                    <Select.StatelessSelect id="services-dropdown"
-                            selected={currentTypeFilter.key}
-                            onChange={value => this.onTypeDropdownSelect(typeDropdownOptions.find(option => option.key == value))}>
-                        {typeDropdownOptions.map(option => (
-                            <Select.SelectEntry key={option.key} data={option.key}>
-                                {option.value}
-                            </Select.SelectEntry>
-                        ))}
-                    </Select.StatelessSelect>
+                    <FormSelect id="services-dropdown"
+                                aria-label={_("Select unit state")}
+                                value={currentTypeFilter}
+                                onChange={this.onTypeDropdownSelect}>
+                        {typeDropdownOptions.map(option => <FormSelectOption key={option.value}
+                                                                             value={option.value}
+                                                                             label={option.label}
+                                                                             data-value={option.label}
+                                                                             data={option.value} />)}
+                    </FormSelect>
                 </ToolbarItem>
             </ToolbarGroup>
             {activeTab == "timer" &&

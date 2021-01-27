@@ -49,6 +49,11 @@ class MDRaidSidebar extends React.Component {
             return block && block.MDRaid != mdraid.path;
         }
 
+        function rescan(path) {
+            // mdraid often forgets to trigger udev, let's do it explicitly
+            return client.wait_for(() => client.blocks[path]).then(block => block.Rescan({ }));
+        }
+
         function add_disk() {
             dialog_open({
                 Title: _("Add disks"),
@@ -67,7 +72,7 @@ class MDRaidSidebar extends React.Component {
                     Title: _("Add"),
                     action: function(vals) {
                         return utils.prepare_available_spaces(client, vals.disks).then(paths =>
-                            Promise.all(paths.map(p => mdraid.AddDevice(p, {}))));
+                            Promise.all(paths.map(p => mdraid.AddDevice(p, {}).then(() => rescan(p)))));
                     }
                 }
             });

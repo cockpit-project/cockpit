@@ -98,11 +98,6 @@ export class VmSnapshotsCard extends React.Component {
         const { vm, dispatch } = this.props;
         const id = vmId(vm.name);
 
-        const emptyCaption = (<div className="no-snapshots">
-            <h3>{_("No snapshots")}</h3>
-            {_("Previously taken snapshots allow you to revert to an earlier state if something goes wrong")}
-        </div>);
-
         let detailMap = [
             {
                 name: _("Creation time"), value: (snap, snapId) => {
@@ -246,7 +241,8 @@ export class VmSnapshotsCard extends React.Component {
                 <ListingTable aria-label={`VM ${vm.name} Snapshots Cards`}
                     gridBreakPoint='grid-xl'
                     variant="compact"
-                    emptyCaption={emptyCaption}
+                    emptyCaption={_("No snapshots defined for this VM")}
+                    emptyCaptionDetail={_("Previously taken snapshots allow you to revert to an earlier state if something goes wrong")}
                     columns={columnTitles}
                     rows={rows} />
             </>

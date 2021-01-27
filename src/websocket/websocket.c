@@ -369,7 +369,7 @@ web_socket_util_parse_headers (const gchar *data,
               consumed = -1;
               break;
             }
-          g_hash_table_insert (parsed_headers, g_steal_pointer(&name), g_steal_pointer(&value));
+          g_hash_table_insert (parsed_headers, g_steal_pointer (&name), g_steal_pointer (&value));
         }
 
       consumed += line_len;

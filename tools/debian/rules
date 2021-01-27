@@ -5,8 +5,10 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # only ship deprecated PatternFly API for stable releases (backports); Debian sid/testing has no VERSION_ID
 SHIP_PF_API = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),10 20.04)
 
-# this is an emulated architecture for now, and too slow to run expensive unit tests
-ifeq ($(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64)
+# riscv is an emulated architecture for now, and too slow to run expensive unit tests
+# hppa's threading is absurdly slow (#981127)
+SLOW_ARCHES = $(filter $(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64 hppa)
+ifneq ($(SLOW_ARCHES),)
 	export COCKPIT_SKIP_SLOW_TESTS=1
 endif
 

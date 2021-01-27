@@ -73,8 +73,10 @@ function process_result(err, stats) {
     }
 
     // Failure exit code when compilation fails
-    if (stats.hasErrors() || stats.hasWarnings()) {
+    if (stats.hasErrors() || stats.hasWarnings())
         console.log(stats.toString("normal"));
+
+    if (stats.hasErrors()) {
         if (!ops.watch)
             process.exit(1);
         return;

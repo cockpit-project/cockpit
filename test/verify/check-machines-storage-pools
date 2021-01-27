@@ -662,7 +662,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             self,
             pool_name="disk-pool",
             pool_type="disk",
-            vol_name="sda1", # Partition names must follow pattern of sda1, sda2...
+            vol_name=dev.split("/")[-1] + "1", # Partition names must follow pattern of sda1, sda2...
             size="10", # Only 50MiB available on disk-pool
             unit="MiB",
             format="none",

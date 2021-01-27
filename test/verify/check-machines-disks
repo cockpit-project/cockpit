@@ -98,6 +98,7 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # Changing readonly with running VM
         b.set_checked("#vm-subVmTest1-disks-vde-edit-readonly", True)
+        b.wait_attr("#vm-subVmTest1-disks-vde-edit-access", "data-access", "readonly")
 
         # Tooltip in dialog should show
         b.wait_visible("#vm-subVmTest1-disks-vde-edit-idle-message")
@@ -123,6 +124,7 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # Changing readonly
         b.set_checked("#vm-subVmTest1-disks-vde-edit-writable-shareable", True)
+        b.wait_attr("#vm-subVmTest1-disks-vde-edit-access", "data-access", "shareable")
         # Tooltip in dialog should not be present
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit-idle-message")
 

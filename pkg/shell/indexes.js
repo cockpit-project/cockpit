@@ -198,7 +198,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         } else if (!machine.visible) {
             machine.state = "failed";
             machine.problem = "not-found";
-        } else if (reconnect && machine.state !== "connected") {
+        } else if (reconnect) {
             loader.connect(state.host);
         }
 

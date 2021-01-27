@@ -208,11 +208,10 @@ export class VmDisksCard extends React.Component {
     render() {
         const { vm, disks, renderCapacity, dispatch, onAddErrorNotification } = this.props;
         let renderCapacityUsed, renderAccess, renderAdditional;
-        const columnTitles = [];
+        const columnTitles = [_("Device")];
         const idPrefix = `${vmId(vm.name)}-disks`;
 
         if (disks && disks.length > 0) {
-            columnTitles.push(_("Device"));
             renderCapacityUsed = !!disks.find(disk => (!!disk.used));
             renderAccess = !!disks.find(disk => (typeof disk.readonly !== "undefined") || (typeof disk.shareable !== "undefined"));
             renderAdditional = !!disks.find(disk => (!!disk.diskExtras));

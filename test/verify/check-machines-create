@@ -1143,11 +1143,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                # On smaller resolutions empty message is hidden. Firefox opens up in smaller window then chrome.
-                if b.cdp.browser == "firefox":
-                    b.wait_not_visible("#vm-{0}-disks .ct-table-empty:contains('No disks defined')".format(name))
-                else:
-                    b.wait_in_text("#vm-{0}-disks .ct-table-empty".format(name), "No disks defined")
+                b.wait_in_text("#vm-{0}-disks .pf-c-empty-state".format(name), "No disks defined")
                 b.click("#vm-{0}-disks-adddisk".format(name))
                 b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self
@@ -1173,7 +1169,7 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         def checkEnvIsEmpty(self):
             b = self.browser
-            b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+            b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
             # wait for the vm and disks to be deleted
             self.machine.execute("until test -z $(virsh list --all --name); do sleep 1; done")
             self.machine.execute("until test -z $(ls /home/admin/.local/share/libvirt/images/ 2>/dev/null); do sleep 1; done")

@@ -71,11 +71,13 @@
         }
     }
 
+    // https://github.com/patternfly/patternfly-react/issues/5379
     &-empty {
-        tr td {
-            font-weight: normal;
-            // FIXME removing !important will result in this not getting applied
-            text-align: center !important;
+        [data-label] {
+            display: revert;
+        }
+        [data-label]::before {
+            display: none;
         }
     }
 

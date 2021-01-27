@@ -54,7 +54,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
             b.wait_not_present("#vm-subVmTest1-snapshots")
             return
 
-        b.wait_in_text(".no-snapshots", "No snapshots")
+        b.wait_in_text("#vm-subVmTest1-snapshots .pf-c-empty-state", "No snapshots")
 
         # Check snapshot for running VM
         m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent") # vda is raw disk, which are not supported by internal snapshots

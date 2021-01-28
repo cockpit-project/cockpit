@@ -42,20 +42,20 @@ const DesktopConsoleDownload = ({ displays, onDesktopConsole }) => {
                        vnc={displays.vnc}
                        onDownload={onDesktopConsole}
                        textManualConnection={_("Manual connection")}
-                       textNoProtocol={_("No connection available.")}
+                       textNoProtocol={_("No connection available")}
                        textConnectWith={_("Connect with any viewer application for following protocols")}
                        textAddress={_("Address")}
-                       textSpiceAddress={_("SPICE Address")}
-                       textVNCAddress={_("VNC Address")}
-                       textSpicePort={_("SPICE Port")}
-                       textVNCPort={_("VNC Port")}
-                       textSpiceTlsPort={_("SPICE TLS Port")}
-                       textVNCTlsPort={_("VNC TLS Port")}
+                       textSpiceAddress={_("SPICE address")}
+                       textVNCAddress={_("VNC address")}
+                       textSpicePort={_("SPICE port")}
+                       textVNCPort={_("VNC port")}
+                       textSpiceTlsPort={_("SPICE TLS port")}
+                       textVNCTlsPort={_("VNC TLS port")}
                        textConnectWithRemoteViewer={_("Launch remote viewer")}
                        textMoreInfo={_("Remote viewer details")}
                        textMoreInfoContent={<>
                            <p>
-                               {fmt_to_fragments(_("Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."), <i>Remote Viewer</i>)}
+                               {fmt_to_fragments(_("Clicking \"Launch remote viewer\" will download a .vv file and launch $0."), <i>Remote Viewer</i>)}
                            </p>
                            <p>
                                {fmt_to_fragments(_("$0 is available for most operating systems. To install it, search for it in GNOME Software or run the following:"), <i>Remote Viewer</i>)}

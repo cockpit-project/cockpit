@@ -403,13 +403,20 @@ class StorageHelpers:
             self.dialog_wait_close()
         self.retry(setup, check, teardown)
 
-    def dialog_apply_with_retry(self):
+    def dialog_apply_with_retry(self, expected_errors=None):
         def step():
             try:
                 self.dialog_apply()
                 self.dialog_wait_close()
             except Error:
-                return False
+                if expected_errors is None:
+                    return False
+                err = self.browser.text('#dialog')
+                print(err)
+                for exp in expected_errors:
+                    if exp in err:
+                        return False
+                raise
             return True
         self.browser.wait(step)
 

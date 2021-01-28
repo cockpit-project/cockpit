@@ -19,10 +19,13 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Button, Modal, Tooltip } from '@patternfly/react-core';
+import {
+    Button,
+    FormSelect, FormSelectOption,
+    Modal, Tooltip
+} from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import * as Select from "cockpit-components-select.jsx";
 import LibvirtDBus, { setOSFirmware } from "../../../libvirt-dbus.js";
 import { supportsUefiXml, labelForFirmwarePath } from './helpers.js';
 
@@ -65,16 +68,13 @@ class FirmwareModal extends React.Component {
                        </>
                    }>
                 <>
-                    <Select.Select onChange={value => this.setState({ firmware: value })}
-                                   initial={this.props.firmware == 'efi' ? this.props.firmware : 'bios' }
-                                   extraClass='form-control'>
-                        <Select.SelectEntry data='bios' key='bios'>
-                            BIOS
-                        </Select.SelectEntry>
-                        <Select.SelectEntry data='efi' key='efi'>
-                            UEFI
-                        </Select.SelectEntry>
-                    </Select.Select>
+                    <FormSelect onChange={value => this.setState({ firmware: value })}
+                                value={this.props.firmware }>
+                        <FormSelectOption value='bios' key='bios'
+                                          label='BIOS' />
+                        <FormSelectOption value='efi' key='efi'
+                                          label='UEFI' />
+                    </FormSelect>
                 </>
             </Modal>
         );

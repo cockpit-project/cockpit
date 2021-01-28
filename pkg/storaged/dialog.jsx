@@ -216,12 +216,12 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import {
     Alert, Tooltip, TooltipPosition,
+    FormSelect, FormSelectOption,
     Select as TypeAheadSelect, SelectOption, SelectVariant,
     DataList, DataListItem, DataListItemRow, DataListItemCells, DataListCell,
 } from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
 
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
@@ -543,10 +543,10 @@ export const SelectOne = (tag, title, options) => {
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="select" data-value={val}>
-                    <StatelessSelect extraClass="form-control" selected={val} onChange={change}>
-                        { options.choices.map(c => <SelectEntry data={c.value} disabled={c.disabled}
-                                                                key={c.title}>{c.title}</SelectEntry>) }
-                    </StatelessSelect>
+                    <FormSelect value={val} onChange={change}>
+                        { options.choices.map(c => <FormSelectOption value={c.value} isDisabled={c.disabled}
+                                                                     key={c.title} label={c.title} />) }
+                    </FormSelect>
                 </div>
             );
         }
@@ -886,9 +886,9 @@ class SizeSliderElement extends React.Component {
                 <input className="size-text form-control"
                        value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
                        onChange={change_text} />
-                <StatelessSelect extraClass="size-unit" selected={unit} onChange={change_unit}>
-                    { this.units.map(u => <SelectEntry data={u.factor} key={u.name}>{u.name}</SelectEntry>) }
-                </StatelessSelect>
+                <FormSelect className="size-unit" value={unit} onChange={change_unit}>
+                    { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
+                </FormSelect>
             </div>
         );
     }

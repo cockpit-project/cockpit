@@ -20,9 +20,12 @@
 import cockpit from "cockpit";
 import React from "react";
 import PropTypes from 'prop-types';
-import { Alert, Button, Form, FormGroup, Modal, Radio, Text, TextVariants } from '@patternfly/react-core';
+import {
+    Alert, Button, Form, FormGroup,
+    FormSelect, FormSelectOption,
+    Modal, Radio, Text, TextVariants
+} from '@patternfly/react-core';
 
-import * as Select from "cockpit-components-select.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -287,7 +290,7 @@ export class AutoUpdates extends React.Component {
             supported: undefined,
             enabled: undefined,
             type: undefined,
-            day: undefined,
+            day: "everyday",
             time: undefined,
         };
         this.handleChange = this.handleChange.bind(this);
@@ -368,25 +371,24 @@ export class AutoUpdates extends React.Component {
 
                 {this.state.enabled && <>
                     <FormGroup fieldId="when" label={_("When")}>
-                        <Select.Select id="auto-update-day" enabled={enabled} initial={this.state.day}
-                                       onChange={d => this.setState({ day: d })}>
-                            <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
-                            <Select.SelectDivider />
-                            <Select.SelectEntry data="mon">{_("Mondays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="tue">{_("Tuesdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="wed">{_("Wednesdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="thu">{_("Thursdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="fri">{_("Fridays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="sat">{_("Saturdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="sun">{_("Sundays")}</Select.SelectEntry>
-                        </Select.Select>
+                        <FormSelect id="auto-update-day" isDisabled={!enabled} value={this.state.day == "" ? "everyday" : this.state.day}
+                                    onChange={d => this.setState({ day: d == "everyday" ? "" : d })}>
+                            <FormSelectOption value="everyday" label={_("every day")} />
+                            <FormSelectOption value="mon" label={_("Mondays")} />
+                            <FormSelectOption value="tue" label={_("Tuesdays")} />
+                            <FormSelectOption value="wed" label={_("Wednesdays")} />
+                            <FormSelectOption value="thu" label={_("Thursdays")} />
+                            <FormSelectOption value="fri" label={_("Fridays")} />
+                            <FormSelectOption value="sat" label={_("Saturdays")} />
+                            <FormSelectOption value="sun" label={_("Sundays")} />
+                        </FormSelect>
 
                         <span className="auto-conf-text">{_("at")}</span>
 
-                        <Select.Select id="auto-update-time" enabled={enabled} initial={this.state.time}
-                                       onChange={t => this.setState({ time: t })}>
-                            {hours.map(h => <Select.SelectEntry key={h} data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
-                        </Select.Select>
+                        <FormSelect id="auto-update-time" isDisabled={!enabled} value={this.state.time}
+                                    onChange={t => this.setState({ time: t })}>
+                            {hours.map(h => <FormSelectOption key={h} value={h + ":00"} label={('0' + h).slice(-2) + ":00"} />)}
+                        </FormSelect>
                     </FormGroup>
 
                     <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />

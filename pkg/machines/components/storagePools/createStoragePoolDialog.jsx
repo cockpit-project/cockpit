@@ -19,13 +19,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Form, FormGroup, FormSection, Modal, TextInput } from '@patternfly/react-core';
+import {
+    Button, Checkbox,
+    Form, FormGroup, FormSection,
+    FormSelect, FormSelectOption,
+    Modal, TextInput
+} from '@patternfly/react-core';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../common/machinesConnectionSelector.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
-import * as Select from 'cockpit-components-select.jsx';
 import { createStoragePool } from '../../actions/provider-actions.js';
 import cockpit from 'cockpit';
 
@@ -73,20 +77,18 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
 
     return (
         <FormGroup fieldId='storage-pool-dialog-type' label={_("Type")}>
-            <Select.Select id='storage-pool-dialog-type'
-                           extraClass='pf-c-form-control'
-                           initial={dialogValues.type}
-                           onChange={value => onValueChanged('type', value)}>
+            <FormSelect id='storage-pool-dialog-type'
+                        value={dialogValues.type}
+                        onChange={value => onValueChanged('type', value)}>
                 { poolTypes
                         .map(pool => {
                             return (
-                                <Select.SelectEntry data={pool.type} key={pool.type}>
-                                    {pool.detail}
-                                </Select.SelectEntry>
+                                <FormSelectOption value={pool.type} key={pool.type}
+                                                  label={pool.detail} />
                             );
                         })
                 }
-            </Select.Select>
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -195,20 +197,18 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                                       onChange={value => onValueChanged('source', { device: value })} />
                 </FormGroup>
                 <FormGroup fieldId='storage-pool-dialog-source-format' label={_("Format")}>
-                    <Select.Select id='storage-pool-dialog-source-format'
-                                   extraClass='pf-c-form-control'
-                                   initial={dialogValues.source.format}
-                                   onChange={value => onValueChanged('source', { format: value })}>
+                    <FormSelect id='storage-pool-dialog-source-format'
+                                value={dialogValues.source.format}
+                                onChange={value => onValueChanged('source', { format: value })}>
                         { diskPoolSourceFormatTypes
                                 .map(format => {
                                     return (
-                                        <Select.SelectEntry data={format} key={format}>
-                                            {format}
-                                        </Select.SelectEntry>
+                                        <FormSelectOption value={format} key={format}
+                                                          label={format} />
                                     );
                                 })
                         }
-                    </Select.Select>
+                    </FormSelect>
                 </FormGroup>
             </FormSection>
         );

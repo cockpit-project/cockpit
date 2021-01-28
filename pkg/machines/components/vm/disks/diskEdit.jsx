@@ -20,11 +20,12 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import {
-    Alert, Button, Form, FormGroup, Modal, Popover, Radio,
+    Alert, Button, Form, FormGroup,
+    FormSelect, FormSelectOption,
+    Modal, Popover, Radio,
 } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
-import * as Select from 'cockpit-components-select.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import { updateDiskAttributes } from '../../../libvirt-dbus.js';
@@ -63,19 +64,17 @@ const BusRow = ({ onValueChanged, dialogValues, idPrefix, shutoff }) => {
                                <InfoAltIcon noVerticalAlign />
                            </button>
                        </Popover>}>
-            <Select.Select id={`${idPrefix}-bus-type`}
+            <FormSelect id={`${idPrefix}-bus-type`}
                 onChange={value => onValueChanged('busType', value)}
-                initial={dialogValues.busType}
-                extraClass='pf-c-form-control'
-                enabled={shutoff}>
+                value={dialogValues.busType}
+                isDisabled={!shutoff}>
                 {busTypes.map(busType => {
                     return (
-                        <Select.SelectEntry data={busType} key={busType}>
-                            {busType}
-                        </Select.SelectEntry>
+                        <FormSelectOption value={busType} key={busType}
+                                          label={busType} />
                     );
                 })}
-            </Select.Select>
+            </FormSelect>
         </FormGroup>
     );
 };

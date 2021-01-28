@@ -70,7 +70,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.cancelDialogTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                             location=config.TREE_URL,
                                                             memory_size=256, memory_size_unit='MiB',
-                                                            storage_pool="No storage",
+                                                            storage_pool="NoStorage",
                                                             os_name=config.FEDORA_28,
                                                             start_vm=False))
 
@@ -110,7 +110,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # When switching from PXE mode to anything else make sure that the source input is empty
         runner.checkDialogFormValidationTest(TestMachinesCreate.VmDialog(self, storage_size=1,
                                                                          sourceType='pxe',
-                                                                         location="Host device {0}: macvtap".format(iface),
+                                                                         location="type=direct,source={0}".format(iface),
                                                                          sourceTypeSecondChoice='url',
                                                                          start_vm=False),
                                              {"source-url": "Installation source must not be empty"})
@@ -124,25 +124,25 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         # try to CREATE few machines
         if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
-            self.browser.wait_not_present('select option[data-value="Download an OS"]')
+            self.browser.wait_not_present('select option[value=os]')
         else:
-            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='downloadOS',
+            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
                                                                       expected_memory_size=256,
                                                                       expected_storage_size=256,
                                                                       os_name=config.FEDORA_28,
                                                                       os_short_id=config.FEDORA_28_SHORTID,
                                                                       start_vm=True))
 
-            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='downloadOS',
-                                                                      is_unattended=True, profile="Workstation",
+            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
+                                                                      is_unattended=True, profile="desktop",
                                                                       root_password="dogsaremybestfr13nds",
                                                                       storage_size=246, storage_size_unit='MiB',
                                                                       os_name=config.FEDORA_28,
                                                                       os_short_id=config.FEDORA_28_SHORTID))
 
             # Don't create user account
-            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='downloadOS',
-                                                                      is_unattended=True, profile="Server",
+            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
+                                                                      is_unattended=True, profile="jeos",
                                                                       root_password="catsaremybestfr13nds",
                                                                       storage_size=256, storage_size_unit='MiB',
                                                                       os_name=config.FEDORA_28,
@@ -150,11 +150,11 @@ class TestMachinesCreate(VirtualMachinesCase):
 
             # name already used from a VM that is currently being created
             # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
-            # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
+            # os option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
             if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
-                self.browser.wait_not_present('select option[data-value="Download an OS"]')
+                self.browser.wait_not_present('select option[value=os]')
             else:
-                runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, name='existing-name', sourceType='downloadOS',
+                runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, name='existing-name', sourceType='os',
                                                                           expected_memory_size=256,
                                                                           expected_storage_size=256,
                                                                           os_name=config.FEDORA_28,
@@ -176,7 +176,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # check that the pxe booting is not available on session connection
         runner.checkPXENotAvailableSessionTest(TestMachinesCreate.VmDialog(self, name='pxe-guest',
                                                                            sourceType='pxe',
-                                                                           storage_pool="No storage",
+                                                                           storage_pool="NoStorage",
                                                                            connection="session"))
 
         self.machine.execute("virsh net-destroy default && virsh net-undefine default")
@@ -209,9 +209,9 @@ class TestMachinesCreate(VirtualMachinesCase):
         # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
         # to have serial console at bios and also redirect serial console to a file
         runner.createTest(TestMachinesCreate.VmDialog(self, name='pxe-guest', sourceType='pxe',
-                                                      location="Virtual network pxe-nat: NAT",
+                                                      location="network=pxe-nat",
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=True, delete=False))
 
         # We don't want to use start_vm == False because if we get a separate install phase
@@ -273,7 +273,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # Check that host network devices are appearing in the options for PXE boot sources
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='pxe',
                                                       name="pxe-guest",
-                                                      location="Host device {0}: macvtap".format(iface),
+                                                      location="type=direct,source={0}".format(iface),
                                                       storage_size=128, storage_size_unit='MiB',
                                                       start_vm=True,
                                                       delete=False))
@@ -332,13 +332,13 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createThenInstallTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                                  location=config.NOVELL_MOCKUP_ISO_PATH,
                                                                  memory_size=256, memory_size_unit='MiB',
-                                                                 storage_pool="No storage"), True)
+                                                                 storage_pool="NoStorage"), True)
 
         # Try performing an installation which will fail and ensure that the 'Install' button is still available
         runner.createThenInstallTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                                  location=config.NOVELL_MOCKUP_ISO_PATH,
                                                                  memory_size=256, memory_size_unit='MiB',
-                                                                 storage_pool="No storage"), True, True)
+                                                                 storage_pool="NoStorage"), True, True)
 
     def testCreateFileSource(self):
         runner = TestMachinesCreate.CreateVmRunner(self)
@@ -353,7 +353,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # Check that when there is no storage pool defined a VM can still be created
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                       location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=True))
 
         self.browser.switch_to_top()
@@ -374,7 +374,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                       location=config.NOVELL_MOCKUP_ISO_PATH,
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=False,
                                                       connection='session'))
 
@@ -391,7 +391,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                       location=config.NOVELL_MOCKUP_ISO_PATH,
                                                       memory_size=100000, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=False))
         cmds = [
             "mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool",
@@ -414,11 +414,11 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                       storage_volume="vmTmpDestination.qcow2",
                                                       start_vm=True,))
 
-        # Check "No storage" option (only define VM)
+        # Check "NoStorage" option (only define VM)
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                       location=config.NOVELL_MOCKUP_ISO_PATH,
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=True,))
 
         self.machine.execute("touch '{0}'".format(config.PATH_WITH_SPACE))
@@ -426,7 +426,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
                                                       location=config.PATH_WITH_SPACE,
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=True,))
 
     def testCreateImportDisk(self):
@@ -484,13 +484,13 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                       location=config.VALID_URL,
                                                       memory_size=512, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       os_name=config.FEDORA_28))
 
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                       location=config.VALID_URL,
                                                       memory_size=512, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       os_name=config.FEDORA_28,
                                                       start_vm=False))
 
@@ -504,7 +504,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                       location=config.ISO_URL,
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      storage_pool="No storage",
+                                                      storage_pool="NoStorage",
                                                       start_vm=True))
 
         # This functionality works on debian only because of extra dep.
@@ -515,7 +515,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             runner.checkDialogErrorTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                                     location=config.ISO_URL,
                                                                     memory_size=256, memory_size_unit='MiB',
-                                                                    storage_pool="No storage",
+                                                                    storage_pool="NoStorage",
                                                                     start_vm=True), ["qemu", "protocol"])
 
     def testDisabledCreate(self):
@@ -568,7 +568,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                      profile=None,
                      root_password=None,
                      user_password=None,
-                     storage_pool='Create new volume', storage_volume='',
+                     storage_pool='NewVolume', storage_volume='',
                      start_vm=False,
                      delete=True,
                      env_is_empty=True,
@@ -641,7 +641,7 @@ class TestMachinesCreate(VirtualMachinesCase):
 
             # select "Installation Type" for more complete OS list
             if self.sourceType != "disk_image":
-                b.select_from_dropdown("#source-type", "Local install media")
+                b.select_from_dropdown("#source-type", "file")
             # input an OS and check there is no Ooops
             b.set_input_text("#os-select-group input", self.os_name)
             b.click("#os-select li button:contains('{}')".format(self.os_name))
@@ -680,13 +680,13 @@ class TestMachinesCreate(VirtualMachinesCase):
         def checkPXENotAvailableSession(self):
             self.browser.set_checked("#connectionName-{0}".format(self.connection), True)
             # Our custom select does not respond on the click function
-            self.browser._wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
+            self.browser.wait_not_present("#source-type option[value='{0}']".format(self.sourceType))
             return self
 
         def createAndVerifyVirtInstallArgs(self):
             self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
             self.browser.wait_not_present("#create-vm-dialog")
-            if self.storage_pool != "No storage":
+            if self.storage_pool != "NoStorage":
                 self.goToVmPage(self.name)
                 self.browser.wait_text("#vm-{}-disks-vda-bus".format(self.name), "virtio")
                 self.goToMainPage()
@@ -696,31 +696,17 @@ class TestMachinesCreate(VirtualMachinesCase):
             virt_install_cmd_out = self.machine.execute(virt_install_cmd)
             self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)
             if self.is_unattended:
-                self.assertIn("profile={0}".format('desktop' if self.profile == 'Workstation' else 'jeos'), virt_install_cmd_out)
+                self.assertIn("profile={0}".format(self.profile), virt_install_cmd_out)
                 if self.root_password:
                     root_password_file = virt_install_cmd_out.split("admin-password-file=", 1)[1].split(",")[0]
                     self.assertIn(self.machine.execute("cat {0}".format(root_password_file)).rstrip(), self.root_password)
 
         def fill(self):
-            def getSourceTypeLabel(sourceType):
-                if sourceType == 'file':
-                    expected_source_type = 'Local install media'
-                elif sourceType == 'disk_image':
-                    expected_source_type = 'Existing Disk Image'
-                elif sourceType == 'pxe':
-                    expected_source_type = 'Network boot (PXE)'
-                elif sourceType == 'downloadOS':
-                    expected_source_type = 'Download an OS'
-                else:
-                    expected_source_type = 'URL'
-
-                return expected_source_type
-
             b = self.browser
             b.set_input_text("#vm-name", self.name)
 
             if self.sourceType != 'disk_image':
-                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+                b.select_from_dropdown("#source-type", self.sourceType)
             else:
                 b.wait_not_present("#source-type")
             if self.sourceType == 'file':
@@ -733,7 +719,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 b.set_input_text("#source-url", self.location)
 
             if self.sourceTypeSecondChoice:
-                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
+                b.select_from_dropdown("#source-type", self.sourceTypeSecondChoice)
 
             # For the mocked fedora URL installation wait to see that the OS section is automatically filed
             if self.sourceType == "url" and self.location == TestMachinesCreate.TestCreateConfig.TREE_URL:
@@ -754,13 +740,13 @@ class TestMachinesCreate(VirtualMachinesCase):
                     b.wait_visible("#storage-pool-select")
                     b.select_from_dropdown("#storage-pool-select", self.storage_pool)
 
-                    if self.storage_pool == 'Create new volume' or self.storage_pool == 'No storage':
+                    if self.storage_pool == 'NewVolume' or self.storage_pool == 'NoStorage':
                         b.wait_not_present("#storage-volume-select")
                     else:
                         b.wait_visible("#storage-volume-select")
                         b.select_from_dropdown("#storage-volume-select", self.storage_volume)
 
-                    if self.storage_pool != 'Create new volume':
+                    if self.storage_pool != 'NewVolume':
                         b.wait_not_present("#storage-size")
                     else:
                         b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
@@ -1100,7 +1086,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             vm_state = b.text("#vm-{}-state".format(dialog.name))
 
             # check bus type
-            if dialog.storage_pool != "No storage":
+            if dialog.storage_pool != "NoStorage":
                 self.browser.wait_in_text("#vm-{}-disks-vda-bus".format(dialog.name), "virtio")
             # check memory
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
@@ -1121,7 +1107,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 else:
                     raise AssertionError("Unknown disk device")
             # New volume was created or existing volume was already chosen as destination
-            elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["No storage", "Create new volume"]:
+            elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["NoStorage", "NewVolume"]:
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
                 elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
@@ -1130,7 +1116,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                     b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "disk")
                 else:
                     raise AssertionError("Unknown disk device")
-            elif (vm_state == "Running" and (((dialog.storage_pool == 'No storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url')):
+            elif (vm_state == "Running" and (((dialog.storage_pool == 'NoStorage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url')):
                 if b.is_present("#vm-{0}-disks-sda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "cdrom")
                 elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
@@ -1321,7 +1307,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
             b.wait_visible(".pf-c-modal-box__body")
-            b.select_from_dropdown("select", "UEFI")
+            b.select_from_dropdown(".pf-c-modal-box__body select", "efi")
             b.click("#firmware-dialog-apply")
             b.wait_not_present(".pf-c-modal-box__body")
             b.wait_in_text("#vm-VmNotInstalled-firmware", "UEFI")

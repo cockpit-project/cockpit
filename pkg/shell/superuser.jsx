@@ -19,9 +19,8 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, FormSelect, FormSelectOption, Modal } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { StatelessSelect, SelectEntry } from 'cockpit-components-select.jsx';
 import { host_superuser_storage_key } from './machines/machines';
 
 import "form-layout.scss";
@@ -56,11 +55,10 @@ class UnlockDialog extends React.Component {
         } else if (state.method)
             body = <form className="ct-form" onSubmit={state.apply}>
                 <label className="control-label">{_("Method")}</label>
-                <StatelessSelect extraClass="form-control"
-                                 selected={state.method}
-                                 onChange={state.change}>
-                    { state.methods.map(m => <SelectEntry key={m} data={m}>{m}</SelectEntry>) }
-                </StatelessSelect>
+                <FormSelect value={state.method}
+                            onChange={state.change}>
+                    {state.methods.map(m => <FormSelectOption key={m} value={m} label={m} />)}
+                </FormSelect>
             </form>;
         else if (state.message)
             body = <p>{state.message}</p>;

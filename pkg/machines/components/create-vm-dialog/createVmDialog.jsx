@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import {
     Checkbox,
     Form, FormGroup,
+    FormSelect, FormSelectOption, FormSelectOptionGroup,
     Modal,
     Select as PFSelect, SelectOption, SelectVariant,
     TextInput,
@@ -30,7 +31,6 @@ import {
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../common/machinesConnectionSelector.jsx';
-import * as CockpitSelect from "cockpit-components-select.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
 import {
@@ -253,12 +253,11 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
 
         installationSource = (
             <>
-                <CockpitSelect.StatelessSelect id="network-select"
-                    extraClass="pf-c-form-control"
-                    selected={source || 'no-resource'}
-                    onChange={value => onValueChanged('source', value)}>
+                <FormSelect id="network-select"
+                            value={source || 'no-resource'}
+                            onChange={value => onValueChanged('source', value)}>
                     {getPXENetworkRows(nodeDevices, networks)}
-                </CockpitSelect.StatelessSelect>
+                </FormSelect>
 
                 {installationSourceWarning && <p className="text-warning">{installationSourceWarning}</p>}
             </>
@@ -285,23 +284,20 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
             <FormGroup label={_("Installation type")}
                        id="source-type-group"
                        fieldId="source-type">
-                <CockpitSelect.Select id="source-type"
-                                      extraClass="pf-c-form-control"
-                                      initial={sourceType}
-                                      onChange={value => onValueChanged('sourceType', value)}>
+                <FormSelect id="source-type"
+                            value={sourceType}
+                            onChange={value => onValueChanged('sourceType', value)}>
                     {downloadOSSupported
-                        ? <CockpitSelect.SelectEntry data={DOWNLOAD_AN_OS}
-                                                     key={DOWNLOAD_AN_OS}>{_("Download an OS")}</CockpitSelect.SelectEntry> : null}
-                    <CockpitSelect.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                                               key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local install media")}</CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectEntry data={URL_SOURCE}
-                                               key={URL_SOURCE}>{_("URL")}</CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectEntry title={connectionName == 'session' ? _("Network boot is available only when using system connection") : null}
-                                               disabled={connectionName == 'session'}
-                                               data={PXE_SOURCE}
-                                               key={PXE_SOURCE}>{_("Network boot (PXE)")}
-                    </CockpitSelect.SelectEntry>
-                </CockpitSelect.Select>
+                        ? <FormSelectOption value={DOWNLOAD_AN_OS}
+                                            label={_("Download an OS")} /> : null}
+                    <FormSelectOption value={LOCAL_INSTALL_MEDIA_SOURCE}
+                                      label={_("Local install media")} />
+                    <FormSelectOption value={URL_SOURCE}
+                                      label={_("URL")} />
+                    {connectionName == 'system' &&
+                    <FormSelectOption value={PXE_SOURCE}
+                                      label={_("Network boot (PXE)")} />}
+                </FormSelect>
             </FormGroup>}
 
             {sourceType != DOWNLOAD_AN_OS
@@ -441,10 +437,9 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                 {os.profiles.length > 0 &&
                 <FormGroup fieldId="profile-select"
                            label={_("Profile")}>
-                    <CockpitSelect.Select id="profile-select"
-                                          extraClass="pf-c-form-control"
-                                          initial={os.profiles && os.profiles[0]}
-                                          onChange={e => onValueChanged('profile', e)}>
+                    <FormSelect id="profile-select"
+                                value={profile || (os.profiles && os.profiles[0])}
+                                onChange={e => onValueChanged('profile', e)}>
                         { (os.profiles || []).sort()
                                 .reverse() // Let jeos (Server) appear always first on the list since in osinfo-db it's not consistent
                                 .map(profile => {
@@ -455,9 +450,11 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                                         profileName = 'Workstation';
                                     else
                                         profileName = profile;
-                                    return <CockpitSelect.SelectEntry data={profile} key={profile}>{profileName}</CockpitSelect.SelectEntry>;
+                                    return <FormSelectOption value={profile}
+                                                             key={profile}
+                                                             label={profileName} />;
                                 }) }
-                    </CockpitSelect.Select>
+                    </FormSelect>
                 </FormGroup>}
                 <PasswordFormFields password={rootPassword}
                                     password_label={_("Root password")}
@@ -497,7 +494,9 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
 
         isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
         volumeEntries = (
-            storagePool.volumes.map(vol => <CockpitSelect.SelectEntry data={vol.name} key={vol.name}>{vol.name}</CockpitSelect.SelectEntry>)
+            storagePool.volumes.map(vol => <FormSelectOption value={vol.name}
+                                                             key={vol.name}
+                                                             label={vol.name} />)
         );
     }
 
@@ -506,24 +505,18 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
     return (
         <>
             <FormGroup label={_("Storage")} fieldId="storage-pool-select">
-                <CockpitSelect.Select id="storage-pool-select"
-                                      extraClass="pf-c-form-control"
-                                      initial={storagePoolName}
-                                      onChange={e => onValueChanged('storagePool', e)}>
-                    <CockpitSelect.SelectEntry data="NewVolume" key="NewVolume">
-                        {_("Create new volume")}
-                    </CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectEntry data="NoStorage" key="NoStorage">
-                        {_("No storage")}
-                    </CockpitSelect.SelectEntry>
-                    <CockpitSelect.SelectDivider />
-                    <optgroup key="Storage pools" label="Storage pools">
+                <FormSelect id="storage-pool-select"
+                            value={storagePoolName}
+                            onChange={e => onValueChanged('storagePool', e)}>
+                    <FormSelectOption value="NewVolume" key="NewVolume" label={_("Create new volume")} />
+                    <FormSelectOption value="NoStorage" key="NoStorage" label={_("No storage")} />
+                    <FormSelectOptionGroup key="Storage pools" label="Storage pools">
                         { storagePools.map(pool => {
                             if (pool.volumes && pool.volumes.length)
-                                return <CockpitSelect.SelectEntry data={pool.name} key={pool.name}>{pool.name}</CockpitSelect.SelectEntry>;
+                                return <FormSelectOption value={pool.name} key={pool.name} label={pool.name} />;
                         })}
-                    </optgroup>
-                </CockpitSelect.Select>
+                    </FormSelectOptionGroup>
+                </FormSelect>
             </FormGroup>
 
             { storagePoolName !== "NewVolume" &&
@@ -532,13 +525,12 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                        fieldId="storage-volume-select"
                        helperText={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) && _("This volume is already used by another VM.")}
                        validated={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) ? "warning" : "default"}>
-                <CockpitSelect.Select id="storage-volume-select"
-                                      extraClass="pf-c-form-control"
-                                      value={storageVolume}
-                                      validated={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) ? "warning" : "default"}
-                                      onChange={value => onValueChanged('storageVolume', value)}>
+                <FormSelect id="storage-volume-select"
+                            value={storageVolume}
+                            validated={(isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0) ? "warning" : "default"}
+                            onChange={value => onValueChanged('storageVolume', value)}>
                     {volumeEntries}
-                </CockpitSelect.Select>
+                </FormSelect>
             </FormGroup>}
 
             { storagePoolName === "NewVolume" &&

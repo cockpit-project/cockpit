@@ -305,17 +305,12 @@ class Browser:
             args["type"] = "keyUp"
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
-    def select_from_dropdown(self, selector, value, substring=False):
-        # This is a backwards compat helper method; new code should use .set_val()
-
+    def select_from_dropdown(self, selector, value):
         self.wait_visible(selector + ':not([disabled])')
-
-        # translate text value into <option value=".."> ID
-        text_selector = "{0} option[data-value{1}='{2}']".format(selector, substring and "*" or "", value)
+        text_selector = "{0} option[value='{1}']".format(selector, value)
         self._wait_present(text_selector)
-        value_id = self.attr(text_selector, "value")
-        self.set_val(selector, value_id)
-        self.wait_val(selector, value_id)
+        self.set_val(selector, value)
+        self.wait_val(selector, value)
 
     def select_PF4(self, selector, value):
         self.click(selector + ':not([disabled])')

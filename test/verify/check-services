@@ -320,7 +320,7 @@ Unit=test.service
             b.set_input_text("#services-text-filter", "")
             self.wait_service_present("test.service")
             self.wait_service_present("test-fail.service")
-            b.select_from_dropdown("#services-dropdown", "All")
+            b.select_from_dropdown("#services-dropdown", "all")
 
         b.go("#/")
 
@@ -349,13 +349,13 @@ Unit=test.service
 
         # Select only static services
         init_filter_state()
-        b.select_from_dropdown("#services-dropdown", "Static")
+        b.select_from_dropdown("#services-dropdown", "static")
         wait_service_not_present("test.service")
         wait_service_not_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
 
         # Select only disabled services
-        b.select_from_dropdown("#services-dropdown", "Disabled")
+        b.select_from_dropdown("#services-dropdown", "disabled")
         self.wait_service_present("test.service")
         wait_service_not_present("test-fail.service")
         wait_service_not_present("systemd-halt.service")

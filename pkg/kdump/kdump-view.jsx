@@ -25,10 +25,9 @@ import {
     Page, PageSection, PageSectionVariants,
     Bullseye,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
-    Switch,
+    Switch, FormSelect, FormSelectOption,
 } from "@patternfly/react-core";
 
-import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import "form-layout.scss";
@@ -147,12 +146,15 @@ class KdumpTargetBody extends React.Component {
         return (
             <form className="ct-form">
                 <label className="control-label" htmlFor="kdump-settings-location">{_("Location")}</label>
-                <Select.Select key="location" onChange={this.changeLocation}
-                               id="kdump-settings-location" initial={storageDest}>
-                    <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
-                    <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
-                    <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
-                </Select.Select>
+                <FormSelect key="location" onChange={this.changeLocation}
+                            id="kdump-settings-location" value={storageDest}>
+                    <FormSelectOption value='local'
+                                      label={targetDescription.local} />
+                    <FormSelectOption value='ssh'
+                                      label={targetDescription.ssh} />
+                    <FormSelectOption value='nfs'
+                                      label={targetDescription.nfs} />
+                </FormSelect>
 
                 {detailRows}
                 <hr />

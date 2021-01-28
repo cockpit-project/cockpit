@@ -20,11 +20,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Form, FormGroup, FormSection, Modal, TextInput } from '@patternfly/react-core';
+import {
+    Button, Checkbox,
+    Form, FormGroup, FormSection,
+    FormSelect, FormSelectOption, FormSelectOptionGroup,
+    Modal, TextInput
+} from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { networkCreate } from '../../libvirt-dbus.js';
-import * as Select from 'cockpit-components-select.jsx';
 import { isEmpty, LIBVIRT_SYSTEM_CONNECTION, rephraseUI } from '../../helpers.js';
 import * as utils from './utils';
 import cockpit from 'cockpit';
@@ -129,19 +133,17 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
 
     return (
         <FormGroup fieldId='create-network-forward-mode' label={_("Forward mode")}>
-            <Select.Select id='create-network-forward-mode'
-                           extraClass="pf-c-form-control"
-                           initial={dialogValues.forwardMode}
-                           onChange={value => onValueChanged('forwardMode', value)}>
+            <FormSelect id='create-network-forward-mode'
+                        value={dialogValues.forwardMode}
+                        onChange={value => onValueChanged('forwardMode', value)}>
                 { forwardModes.map(mode => {
                     return (
-                        <Select.SelectEntry data={mode} key={mode}>
-                            {rephraseUI('networkForward', mode)}
-                        </Select.SelectEntry>
+                        <FormSelectOption value={mode} key={mode}
+                                          label={rephraseUI('networkForward', mode)} />
                     );
                 })
                 }
-            </Select.Select>
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -149,25 +151,21 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
 const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
     return (
         <FormGroup fieldId='create-network-device' label={_("Device")}>
-            <Select.Select id='create-network-device'
-                           extraClass='pf-c-form-control'
-                           enabled={devices.length > 0}
-                           initial={dialogValues.device}
-                           onChange={value => onValueChanged('device', value)}>
-                <Select.SelectEntry data='automatic' key='automatic'>
-                    {_("Automatic")}
-                </Select.SelectEntry>
-                <Select.SelectDivider />
-                <optgroup key="Devices" label="Devices">
+            <FormSelect id='create-network-device'
+                        isDisabled={!devices.length}
+                        value={dialogValues.device}
+                        onChange={value => onValueChanged('device', value)}>
+                <FormSelectOption value='automatic' key='automatic'
+                                  label={_("Automatic")} />
+                <FormSelectOptionGroup key="Devices" label={_("Devices")}>
                     { devices.map(dev => {
                         return (
-                            <Select.SelectEntry data={dev} key={dev}>
-                                {dev}
-                            </Select.SelectEntry>
+                            <FormSelectOption value={dev} key={dev}
+                                              label={dev} />
                         );
                     })}
-                </optgroup>
-            </Select.Select>
+                </FormSelectOptionGroup>
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -175,24 +173,15 @@ const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
 const IpRow = ({ onValueChanged, dialogValues, validationFailed }) => {
     return (
         <FormGroup fieldId='create-network-ip-configuration' label={_("IP configuration")}>
-            <Select.Select id='create-network-ip-configuration'
-                           extraClass='pf-c-form-control'
-                           initial={dialogValues.ip}
-                           onChange={value => onValueChanged('ip', value)}>
-                { (dialogValues.forwardMode === "none") &&
-                <Select.SelectEntry data='None' key='None'>
-                    {_("None")}
-                </Select.SelectEntry>}
-                <Select.SelectEntry data='IPv4 only' key='IPv4 only'>
-                    {_("IPv4 only")}
-                </Select.SelectEntry>
-                <Select.SelectEntry data='IPv6 only' key='IPv6 only'>
-                    {_("IPv6 only")}
-                </Select.SelectEntry>
-                <Select.SelectEntry data='IPv4 and IPv6' key='IPv4 and IPv6'>
-                    {_("IPv4 and IPv6")}
-                </Select.SelectEntry>
-            </Select.Select>
+            <FormSelect id='create-network-ip-configuration'
+                        value={dialogValues.ip}
+                        onChange={value => onValueChanged('ip', value)}>
+                {dialogValues.forwardMode === "none" &&
+                <FormSelectOption value='None' key='None' label={_("None")} />}
+                <FormSelectOption value='IPv4 only' key='IPv4 only' label={_("IPv4 only")} />
+                <FormSelectOption value='IPv6 only' key='IPv6 only' label={_("IPv6 only")} />
+                <FormSelectOption value='IPv4 and IPv6' key='IPv4 and IPv6' label={_("IPv4 and IPv6")} />
+            </FormSelect>
             { (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") &&
             <Ipv4Row dialogValues={dialogValues}
                      onValueChanged={onValueChanged}

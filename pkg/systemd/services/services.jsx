@@ -737,9 +737,7 @@ class ServicesPage extends React.Component {
                                 onChange={this.onTypeDropdownSelect}>
                         {typeDropdownOptions.map(option => <FormSelectOption key={option.value}
                                                                              value={option.value}
-                                                                             label={option.label}
-                                                                             data-value={option.label}
-                                                                             data={option.value} />)}
+                                                                             label={option.label} />)}
                     </FormSelect>
                 </ToolbarItem>
             </ToolbarGroup>

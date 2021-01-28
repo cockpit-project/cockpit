@@ -3,12 +3,12 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
+    FormSelect, FormSelectOption,
     Toolbar, ToolbarContent, ToolbarItem
 } from "@patternfly/react-core";
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import { Terminal } from "cockpit-components-terminal.jsx";
-import { Select, SelectEntry } from "cockpit-components-select.jsx";
 
 const _ = cockpit.gettext;
 
@@ -100,14 +100,14 @@ const _ = cockpit.gettext;
                                     {_("Appearance")}
                                 </ToolbarItem>
                                 <ToolbarItem>
-                                    <Select onChange={this.onThemeChanged}
-                                        ariaLabelledBy="theme-select"
-                                        initial={this.state.theme}>
-                                        <SelectEntry data='black-theme'>{_("Black")}</SelectEntry>
-                                        <SelectEntry data='dark-theme'>{_("Dark")}</SelectEntry>
-                                        <SelectEntry data='light-theme'>{_("Light")}</SelectEntry>
-                                        <SelectEntry data='white-theme'>{_("White")}</SelectEntry>
-                                    </Select>
+                                    <FormSelect onChange={this.onThemeChanged}
+                                                aria-labelledby="theme-select"
+                                                value={this.state.theme}>
+                                        <FormSelectOption value='black-theme' label={_("Black")} />
+                                        <FormSelectOption value='dark-theme' label={_("Dark")} />
+                                        <FormSelectOption value='light-theme' label={_("Light")} />
+                                        <FormSelectOption value='white-theme' label={_("White")} />
+                                    </FormSelect>
                                 </ToolbarItem>
                                 <ToolbarItem>
                                     <button ref="resetButton"

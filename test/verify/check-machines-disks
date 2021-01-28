@@ -265,7 +265,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 else:
                     b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
                     # Our custom select does not respond on the click function
-                    b._wait_present(".pf-c-modal-box option[data-value={0}]:disabled".format(self.pool_name))
+                    b._wait_present(".pf-c-modal-box option[value={0}]:disabled".format(self.pool_name))
                     return self
 
                 # Insert name for the new volume

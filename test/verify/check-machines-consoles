@@ -50,7 +50,7 @@ class TestMachinesConsoles(VirtualMachinesCase):
         # Check "More information"
         b.click('.pf-c-console__remote-viewer .pf-c-expandable-section__toggle')
         b.wait_in_text('.pf-c-expandable-section__content',
-                       'Clicking "Launch Remote Viewer" will download')
+                       'Clicking "Launch remote viewer" will download')
 
         # HACK: clicking 'Launch Remote Viewer' kills execution context and thus CDP fails
         b.reload()

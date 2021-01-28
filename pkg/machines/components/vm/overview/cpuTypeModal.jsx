@@ -37,15 +37,13 @@ export const CPUTypeModal = ({ vm, models, close }) => {
                                 }
                             }}>
                     <FormSelectOption key="host-model"
-                                      data-value="host-model"
                                       value="host-model"
                                       label="host-model" />
                     <FormSelectOption key="host-passthrough"
-                                      data-value="host-passthrough"
                                       value="host-passthrough"
                                       label="host-passthrough" />
                     <FormSelectOptionGroup key="custom" label={_("custom")}>
-                        {models.map(model => <FormSelectOption key={model} data-value={model} value={model} label={model} />)}
+                        {models.map(model => <FormSelectOption key={model} value={model} label={model} />)}
                     </FormSelectOptionGroup>
                 </FormSelect>
             </FormGroup>

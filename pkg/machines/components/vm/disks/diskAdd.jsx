@@ -20,11 +20,11 @@ import React from 'react';
 import {
     Alert, Button, Checkbox,
     ExpandableSection, Form, FormGroup, FormSection,
+    FormSelect, FormSelectOption,
     Modal, Radio, Spinner,
 } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
-import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../../../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../../../actions/provider-actions.js';
@@ -62,30 +62,27 @@ const SelectExistingVolume = ({ idPrefix, storagePoolName, existingVolumeName, o
     if (filteredVolumes.length > 0) {
         content = filteredVolumes.map(volume => {
             return (
-                <Select.SelectEntry data={volume.name} key={volume.name}>
-                    {volume.name}
-                </Select.SelectEntry>
+                <FormSelectOption value={volume.name} key={volume.name}
+                                  label={volume.name} />
             );
         });
         initiallySelected = existingVolumeName;
     } else {
         content = (
-            <Select.SelectEntry data="empty" key="empty-list">
-                {_("The pool is empty")}
-            </Select.SelectEntry>
+            <FormSelectOption value="empty" key="empty-list"
+                              label={_("The pool is empty")} />
         );
         initiallySelected = "empty";
     }
 
     return (
         <FormGroup fieldId={`${idPrefix}-select-volume`} label={_("Volume")}>
-            <Select.Select id={`${idPrefix}-select-volume`}
-                           onChange={value => onValueChanged('existingVolumeName', value)}
-                           initial={initiallySelected}
-                           enabled={filteredVolumes.length > 0}
-                           extraClass='pf-c-form-control'>
+            <FormSelect id={`${idPrefix}-select-volume`}
+                        onChange={value => onValueChanged('existingVolumeName', value)}
+                        value={initiallySelected}
+                        isDisabled={!filteredVolumes.length}>
                 {content}
-            </Select.Select>
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -110,24 +107,21 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
     return (
         <FormGroup fieldId={`${idPrefix}-select-pool`}
                    label={_("Pool")}>
-            <Select.Select id={`${idPrefix}-select-pool`}
-                           enabled={vmStoragePools.length > 0 && vmStoragePools.every(pool => pool.volumes !== undefined)}
+            <FormSelect id={`${idPrefix}-select-pool`}
+                           isDisabled={!vmStoragePools.length || !vmStoragePools.every(pool => pool.volumes !== undefined)}
                            onChange={value => onValueChanged('storagePoolName', value)}
-                           initial={storagePoolName || _("No storage pools available")}
-                           extraClass="pf-c-form-control">
+                           value={storagePoolName || 'no-resource'}>
                 {vmStoragePools.length > 0 ? vmStoragePools
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map(pool => {
                             return (
-                                <Select.SelectEntry disabled={pool.disabled} title={pool.disabled ? _("This pool type does not support storage volume creation") : null} data={pool.name} key={pool.name}>
-                                    {pool.name}
-                                </Select.SelectEntry>
+                                <FormSelectOption isDisabled={pool.disabled} value={pool.name} key={pool.name}
+                                                  label={pool.name} />
                             );
                         })
-                    : [<Select.SelectEntry data='no-resource' key='no-resource'>
-                        {_("No storage pools available")}
-                    </Select.SelectEntry>]}
-            </Select.Select>
+                    : [<FormSelectOption value='no-resource' key='no-resource'
+                                         label={_("No storage pools available")} />]}
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -147,33 +141,31 @@ class AdditionalOptions extends React.Component {
                                onToggle={() => this.setState({ expanded: !this.state.expanded })} isExpanded={this.state.expanded} className="add-disk-additional-options">
                 <FormSection className="ct-form-split">
                     <FormGroup fieldId='cache-mode' label={_("Cache")}>
-                        <Select.Select id='cache-mode'
+                        <FormSelect id='cache-mode'
                             onChange={value => this.props.onValueChanged('cacheMode', value)}
-                            initial={this.props.cacheMode}
-                            extraClass='pf-c-form-control ct-form-split'>
+                            value={this.props.cacheMode}
+                            className='ct-form-split'>
                             {cacheModes.map(cacheMode => {
                                 return (
-                                    <Select.SelectEntry data={cacheMode} key={cacheMode}>
-                                        {cacheMode}
-                                    </Select.SelectEntry>
+                                    <FormSelectOption value={cacheMode} key={cacheMode}
+                                                      label={cacheMode} />
                                 );
                             })}
-                        </Select.Select>
+                        </FormSelect>
                     </FormGroup>
 
                     <FormGroup fieldId='bus-type' label={_("Bus")}>
-                        <Select.Select id='bus-type'
+                        <FormSelect id='bus-type'
                             onChange={value => this.props.onValueChanged('busType', value)}
-                            initial={this.props.busType}
-                            extraClass='pf-c-form-control ct-form-split'>
+                            value={this.props.busType}
+                            className='ct-form-split'>
                             {busTypes.map(busType => {
                                 return (
-                                    <Select.SelectEntry data={busType} key={busType}>
-                                        {busType}
-                                    </Select.SelectEntry>
+                                    <FormSelectOption value={busType} key={busType}
+                                                      label={busType} />
                                 );
                             })}
-                        </Select.Select>
+                        </FormSelect>
                     </FormGroup>
                 </FormSection>
             </ExpandableSection>

@@ -19,7 +19,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 
-import * as Select from 'cockpit-components-select.jsx';
+import { FormSelectOption } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -155,31 +155,24 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
 
     const virtualNetworkRows = virtualNetworks.map(network => {
         const data = cockpit.format('network=$0', network.name);
+        const label = cockpit.format("$0 $1: $2", _("Virtual network"), network.name, getVirtualNetworkDescription(network));
 
-        return (
-            <Select.SelectEntry data={data} key={data}>
-                {cockpit.format("$0 $1: $2", _("Virtual network"), network.name, getVirtualNetworkDescription(network))}
-            </Select.SelectEntry>
-        );
+        return <FormSelectOption key={data} value={data} label={label} />;
     });
 
     const netNodeDevicesRows = netNodeDevices.map(netNodeDevice => {
         const iface = netNodeDevice.capability.interface;
         const data = cockpit.format('type=direct,source=$0', iface);
+        const label = cockpit.format("$0 $1: macvtap", _("Host device"), iface);
 
-        return (
-            <Select.SelectEntry data={data} key={data}>
-                {cockpit.format("$0 $1: macvtap", _("Host device"), iface)}
-            </Select.SelectEntry>
-        );
+        return <FormSelectOption key={data} value={data} label={label} />;
     });
 
-    if (virtualNetworkRows.length == 0 && netNodeDevicesRows.length == 0)
-        return ([
-            <Select.SelectEntry disabled data='no-resource' key='no-resource'>
-                {_("No networks available")}
-            </Select.SelectEntry>
-        ]);
+    if (virtualNetworkRows.length == 0 && netNodeDevicesRows.length == 0) {
+        const label = _("No networks available");
+
+        return [<FormSelectOption key='not-resource' value='no-resource' label={label} />];
+    }
 
     return [virtualNetworkRows, netNodeDevicesRows];
 }

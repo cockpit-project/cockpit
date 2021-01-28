@@ -19,9 +19,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, FormSection, InputGroup, TextInput } from "@patternfly/react-core";
+import {
+    FormGroup, FormSection,
+    FormSelect, FormSelectOption,
+    InputGroup, TextInput
+} from "@patternfly/react-core";
 
-import * as Select from "cockpit-components-select.jsx";
 import { convertToUnit, units, digitFilter } from '../../helpers.js';
 import cockpit from 'cockpit';
 
@@ -64,12 +67,12 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolCapacity, stor
     if (validVolumeFormats) {
         formatRow = (
             <FormGroup fieldId={`${idPrefix}-fileformat`} label={_("Format")}>
-                <Select.Select id={`${idPrefix}-format`}
+                <FormSelect id={`${idPrefix}-format`}
                     onChange={value => onValueChanged('format', value)}
-                    initial={format}
-                    extraClass='form-control ct-form-split'>
-                    { validVolumeFormats.map(format => <Select.SelectEntry data={format} key={format}>{format}</Select.SelectEntry>) }
-                </Select.Select>
+                    value={format}
+                    classname='ct-form-split'>
+                    { validVolumeFormats.map(format => <FormSelectOption value={format} key={format} label={format} />) }
+                </FormSelect>
             </FormGroup>
         );
     }
@@ -91,16 +94,15 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolCapacity, stor
                                max={volumeMaxSize}
                                validated={validationStateSize}
                                onChange={value => onValueChanged('size', value)} />
-                    <Select.Select id={`${idPrefix}-unit`}
-                                   initial={unit}
-                                   onChange={value => onValueChanged('unit', value)}>
-                        <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                            {_("MiB")}
-                        </Select.SelectEntry>
-                        <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                            {_("GiB")}
-                        </Select.SelectEntry>
-                    </Select.Select>
+                    <FormSelect id={`${idPrefix}-unit`}
+                                className="ct-machines-select-unit"
+                                value={unit}
+                                onChange={value => onValueChanged('unit', value)}>
+                        <FormSelectOption value={units.MiB.name} key={units.MiB.name}
+                                          label={_("MiB")} />
+                        <FormSelectOption value={units.GiB.name} key={units.GiB.name}
+                                          label={_("GiB")} />
+                    </FormSelect>
                 </InputGroup>
             </FormGroup>
             {formatRow}

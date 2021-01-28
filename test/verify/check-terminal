@@ -186,10 +186,10 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # Check that color theme changes
         white_style = "background-color: rgb(255, 255, 255);"
 
-        check_theme_select("Black", "background-color: rgb(0, 0, 0);")
-        check_theme_select("Dark", "background-color: rgb(0, 43, 54);")
-        check_theme_select("Light", "background-color: rgb(253, 246, 227);")
-        check_theme_select("White", white_style)
+        check_theme_select("black-theme", "background-color: rgb(0, 0, 0);")
+        check_theme_select("dark-theme", "background-color: rgb(0, 43, 54);")
+        check_theme_select("light-theme", "background-color: rgb(253, 246, 227);")
+        check_theme_select("white-theme", white_style)
 
         # Relogin and white-style should be remembered
         # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site

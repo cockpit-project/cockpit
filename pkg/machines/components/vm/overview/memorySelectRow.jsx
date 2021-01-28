@@ -18,10 +18,11 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
-import { FormHelperText } from '@patternfly/react-core';
+import {
+    FormHelperText,
+    FormSelect, FormSelectOption,
+} from '@patternfly/react-core';
 import { Slider } from 'patternfly-react';
-
-import * as Select from "cockpit-components-select.jsx";
 
 import { digitFilter, units } from "../../../helpers.js";
 
@@ -76,17 +77,15 @@ class MemorySelectRow extends React.Component {
                             onBlur={e => { onValueChange(e.target.value); this.setState({ inputHasFocus: false }) } }
                             onClick={e => onValueChange(e.target.value)}
                             onChange={e => this.setState({ memory: e.target.value })} />
-                        <Select.Select id={id + "-unit-select"}
-                                    initial={initialUnit}
-                                    enabled={!readOnly}
+                        <FormSelect id={id + "-unit-select"}
+                                    value={initialUnit}
+                                    isDisabled={readOnly}
                                     onChange={onUnitChange}>
-                            <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                                {_("MiB")}
-                            </Select.SelectEntry>
-                            <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                                {_("GiB")}
-                            </Select.SelectEntry>
-                        </Select.Select>
+                            <FormSelectOption value={units.MiB.name} key={units.MiB.name}
+                                              label={_("MiB")} />
+                            <FormSelectOption value={units.GiB.name} key={units.GiB.name}
+                                              label={_("GiB")} />
+                        </FormSelect>
                     </div>
                 </div>
                 {helperText && <FormHelperText isHidden={false}>{helperText}</FormHelperText>}

@@ -85,20 +85,20 @@ class TestMachinesNICs(VirtualMachinesCase):
 
         self.NICAddDialog(
             self,
-            source_type="Virtual network",
+            source_type="network",
             source="test_network",
         ).execute()
 
-        # Test Direct attachment
+        # Test direct
         self.NICAddDialog(
             self,
-            source_type="Direct attachment",
+            source_type="direct",
         ).execute()
 
         # Test Bridge
         self.NICAddDialog(
             self,
-            source_type="Bridge to LAN",
+            source_type="bridge",
             source="virbr0",
         ).execute()
 
@@ -117,7 +117,7 @@ class TestMachinesNICs(VirtualMachinesCase):
         # Test permanent attachment to running VM
         self.NICAddDialog(
             self,
-            source_type="Virtual network",
+            source_type="network",
             source="test_network",
             permanent=True,
         ).execute()
@@ -129,7 +129,7 @@ class TestMachinesNICs(VirtualMachinesCase):
         self.goToVmPage("subVmTest1")
         self.NICAddDialog(
             self,
-            source_type="Virtual network",
+            source_type="network",
             source="test_network",
             mac="52:54:00:a5:f8:c1",
             nic_num=3,
@@ -178,7 +178,7 @@ class TestMachinesNICs(VirtualMachinesCase):
         # Test Warning message when changes are done in a running VM
         self.NICAddDialog(
             self,
-            source_type="Direct attachment",
+            source_type="direct",
             source="eth42",
             remove=False
         ).execute()
@@ -194,7 +194,7 @@ class TestMachinesNICs(VirtualMachinesCase):
 
         def __init__(
             # We have always have to specify mac and source_type to identify the device in xml and $virsh detach-interface
-            self, test_obj, source_type="Direct attachment", source=None, model=None, nic_num=2,
+            self, test_obj, source_type="direct", source=None, model=None, nic_num=2,
             permanent=False, mac="52:54:00:a5:f8:c0", remove=True, persistent_vm=True
         ):
             self.source_type = source_type
@@ -228,7 +228,7 @@ class TestMachinesNICs(VirtualMachinesCase):
             if self.source:
                 self.browser.select_from_dropdown("#vm-subVmTest1-add-iface-select-source", self.source)
             if self.model:
-                self.browser.select_from_dropdown("#vm-subVmTest1-add-iface-select-model", self.model, substring=True)
+                self.browser.select_from_dropdown("#vm-subVmTest1-add-iface-select-model", self.model)
 
             if self.mac:
                 self.browser.click("#vm-subVmTest1-add-iface-set-mac")
@@ -255,11 +255,11 @@ class TestMachinesNICs(VirtualMachinesCase):
             mac_string = '"{0}"'.format(self.mac)
             xmllint_element = "{0} | xmllint --xpath 'string(//domain/devices/interface[starts-with(mac/@address,{1})]/{{prop}})' - 2>&1 || true".format(dom_xml, mac_string)
 
-            if (self.source_type == "Virtual network"):
+            if (self.source_type == "network"):
                 self.assertEqual("network", self.machine.execute(xmllint_element.format(prop='@type')).strip())
                 if self.source:
                     self.assertEqual(self.source, self.machine.execute(xmllint_element.format(prop='source/@network')).strip())
-            elif (self.source_type == "Direct attachment"):
+            elif (self.source_type == "direct"):
                 self.assertEqual("direct", self.machine.execute(xmllint_element.format(prop='@type')).strip())
                 if self.source:
                     self.assertEqual(self.source, self.machine.execute(xmllint_element.format(prop='source/@dev')).strip())
@@ -269,10 +269,7 @@ class TestMachinesNICs(VirtualMachinesCase):
 
         def verify_overview(self):
             # The first NIC is default, our new NIC is second in row
-            if (self.source_type == "Virtual network"):
-                self.browser.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "network")
-            elif (self.source_type == "Direct attachment"):
-                self.browser.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "direct")
+            self.browser.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), self.source_type)
             if self.model:
                 self.browser.wait_in_text("#vm-subVmTest1-network-{0}-model".format(self.nic_num), self.model)
             if self.source:
@@ -282,12 +279,7 @@ class TestMachinesNICs(VirtualMachinesCase):
 
         def cleanup(self):
             if self.permanent:
-                source_type = "direct"
-                if (self.source_type == "Virtual network"):
-                    source_type = "network"
-                if (self.source_type == "Bridge to LAN"):
-                    source_type = "bridge"
-                self.machine.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
+                self.machine.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, self.source_type))
 
                 # we don't get any signal for interface detaching right now
                 self.browser.reload()

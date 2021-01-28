@@ -521,12 +521,12 @@ class TestMachinesNetworks(VirtualMachinesCase):
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # Change network model type of a running domain
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-model", "e1000e", substring=True)
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-model", "e1000e")
         # Wait for the footer warning to appear
         b.wait_visible("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
-        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "network")
-        b.wait_in_text("#vm-subVmTest1-network-1-select-source", "default")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "network")
+        b.wait_val("#vm-subVmTest1-network-1-select-source", "default")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
@@ -571,8 +571,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
-        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Direct attachment")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "bridge")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "direct")
         source = b.val("#vm-subVmTest1-network-1-select-source")
 
         # Save the network settings
@@ -586,8 +586,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
-        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Direct attachment")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "direct")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "bridge")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "virbr0")
 
         # Save the network settings
@@ -607,8 +607,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
-        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Direct attachment")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "direct")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "network")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
 
         # Save the network settings
@@ -648,8 +648,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # And ensure that the network sources dropdown is disabled
-        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "bridge")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "network")
         b.wait_visible("#vm-subVmTest1-network-1-edit-dialog-save:disabled")
         b.click(".pf-c-modal-box__footer button:contains(Cancel)")
 
@@ -667,7 +667,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
 
         # Try to edit the interface changing the source to a non deleted network
         b.click("#vm-subVmTest1-network-1-edit-dialog")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "network")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")

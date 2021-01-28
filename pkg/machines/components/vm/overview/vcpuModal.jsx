@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Alert, Button, Form, FormGroup, Modal, Popover, TextInput } from '@patternfly/react-core';
+import {
+    Alert, Button,
+    Form, FormGroup,
+    FormSelect, FormSelectOption,
+    Modal, Popover, TextInput
+} from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import * as SelectComponent from 'cockpit-components-select.jsx';
 import { setVCPUSettings } from "../../../actions/provider-actions.js";
 import { digitFilter } from "../../../helpers.js";
 
@@ -31,14 +35,6 @@ const dividers = (num) => {
 
 const clamp = (value, max, min) => {
     return value < min || isNaN(value) ? min : (value > max ? max : value);
-};
-
-const Select = function ({ extraClass, id, items, onChange, value }) {
-    return (<SelectComponent.Select extraClass={extraClass} id={id} initial={value} onChange={onChange}>
-        {items.map((t) => (
-            <SelectComponent.SelectEntry key={t} data={t}>{t}</SelectComponent.SelectEntry>
-        ))}
-    </SelectComponent.Select>);
 };
 
 export class VCPUModal extends React.Component {
@@ -219,15 +215,27 @@ export class VCPUModal extends React.Component {
                                            <InfoAltIcon noVerticalAlign />
                                        </button>
                                    </Popover>}>
-                        <Select extraClass="pf-c-form-control" id="socketsSelect" value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <FormSelect id="socketsSelect"
+                                    value={this.state.sockets.toString()}
+                                    onChange={this.onSocketChange}>
+                            {dividers(this.state.max).map((t) => <FormSelectOption key={t.toString()} value={t.toString()} label={t.toString()} />)}
+                        </FormSelect>
                     </FormGroup>
 
                     <FormGroup fieldId="coresSelect" label={_("Cores per socket")}>
-                        <Select extraClass="pf-c-form-control" id="coresSelect" value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <FormSelect id="coresSelect"
+                                    value={this.state.cores.toString()}
+                                    onChange={this.onCoresChange}>
+                            {dividers(this.state.max).map((t) => <FormSelectOption key={t.toString()} value={t.toString()} label={t.toString()} />)}
+                        </FormSelect>
                     </FormGroup>
 
                     <FormGroup fieldId="threadsSelect" label={_("Threads per core")}>
-                        <Select extraClass="pf-c-form-control" id="threadsSelect" value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <FormSelect id="threadsSelect"
+                                    value={this.state.threads.toString()}
+                                    onChange={this.onThreadsChange}>
+                            {dividers(this.state.max).map((t) => <FormSelectOption key={t.toString()} value={t.toString()} label={t.toString()} />)}
+                        </FormSelect>
                     </FormGroup>
                 </Form>
             </div>

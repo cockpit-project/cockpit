@@ -19,9 +19,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup } from '@patternfly/react-core';
+import {
+    FormGroup,
+    FormSelect, FormSelectOption,
+} from '@patternfly/react-core';
 
-import * as Select from "cockpit-components-select.jsx";
 import cockpit from 'cockpit';
 
 import './nic.css';
@@ -41,19 +43,17 @@ export const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, osType
 
     return (
         <FormGroup fieldId={`${idPrefix}-select-model`} label={_("Model")}>
-            <Select.Select id={`${idPrefix}-select-model`}
-                           onChange={value => onValueChanged('networkModel', value)}
-                           initial={defaultModelType}
-                           extraClass='pf-c-form-control'>
+            <FormSelect id={`${idPrefix}-select-model`}
+                        onChange={value => onValueChanged('networkModel', value)}
+                        value={defaultModelType}>
                 {availableModelTypes
                         .map(networkModel => {
                             return (
-                                <Select.SelectEntry data={networkModel.name} key={networkModel.name}>
-                                    {networkModel.name} {networkModel.desc && '(' + networkModel.desc + ')'}
-                                </Select.SelectEntry>
+                                <FormSelectOption value={networkModel.name} key={networkModel.name}
+                                                  label={networkModel.name && '(' + networkModel.desc + ')'} />
                             );
                         })}
-            </Select.Select>
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -100,9 +100,8 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
         if (sources.length > 0) {
             networkSourcesContent = sources.map(networkSource => {
                 return (
-                    <Select.SelectEntry data={networkSource} key={networkSource}>
-                        {networkSource}
-                    </Select.SelectEntry>
+                    <FormSelectOption value={networkSource} key={networkSource}
+                                      label={networkSource} />
                 );
             });
         } else {
@@ -112,9 +111,8 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
                 defaultNetworkSource = _("No network devices");
 
             networkSourcesContent = (
-                <Select.SelectEntry data='empty-list' key='empty-list'>
-                    {defaultNetworkSource}
-                </Select.SelectEntry>
+                <FormSelectOption value='empty-list' key='empty-list'
+                                  label={defaultNetworkSource} />
             );
             networkSourceEnabled = false;
         }
@@ -122,28 +120,26 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
 
     return (
         <FormGroup fieldId={`${idPrefix}-select-type`} label={_("Interface type")}>
-            <Select.Select id={`${idPrefix}-select-type`}
-                           onChange={value => onValueChanged('networkType', value)}
-                           initial={defaultNetworkType}
-                           extraClass='pf-c-form-control'>
+            <FormSelect id={`${idPrefix}-select-type`}
+                        onChange={value => onValueChanged('networkType', value)}
+                        value={defaultNetworkType}>
                 {availableNetworkTypes
                         .map(networkType => {
                             return (
-                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false}>
-                                    {networkType.desc}
-                                </Select.SelectEntry>
+                                <FormSelectOption value={networkType.name} key={networkType.name}
+                                                  isDisabled={networkType.disabled || false}
+                                                  label={networkType.desc} />
                             );
                         })}
-            </Select.Select>
+            </FormSelect>
             {["network", "direct", "bridge"].includes(dialogValues.networkType) && (
                 <FormGroup fieldId={`${idPrefix}-select-source`} label={_("Source")}>
-                    <Select.Select id={`${idPrefix}-select-source`}
-                                   onChange={value => onValueChanged('networkSource', value)}
-                                   enabled={networkSourceEnabled}
-                                   initial={defaultNetworkSource}
-                                   extraClass='pf-c-form-control'>
+                    <FormSelect id={`${idPrefix}-select-source`}
+                                onChange={value => onValueChanged('networkSource', value)}
+                                isDisabled={!networkSourceEnabled}
+                                value={defaultNetworkSource}>
                         {networkSourcesContent}
-                    </Select.Select>
+                    </FormSelect>
                 </FormGroup>
             )}
         </FormGroup>

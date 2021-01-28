@@ -39,7 +39,7 @@ class TestStorageNfs(StorageCase):
         b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
         # Add /home/foo
-        b.click("#nfs-mounts button .fa-plus")
+        b.click("#nfs-mounts button[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -56,7 +56,7 @@ class TestStorageNfs(StorageCase):
                          "127.0.0.1:/home/foo /mnt nfs defaults")
 
         # Add /home/bar
-        b.click("#nfs-mounts button .fa-plus")
+        b.click("#nfs-mounts button[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/bar")
@@ -157,7 +157,7 @@ class TestStorageNfs(StorageCase):
         m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
         m.execute("systemctl restart nfs-server")
 
-        b.click("#nfs-mounts .fa-plus")
+        b.click("#nfs-mounts [aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
 
@@ -184,7 +184,7 @@ class TestStorageNfs(StorageCase):
         b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
         # Add /home/foo
-        b.click("#nfs-mounts .fa-plus")
+        b.click("#nfs-mounts [aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -276,7 +276,7 @@ class TestStoragePackagesNFS(PackageCase, StorageHelpers):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts button .fa-plus")
+        b.wait_visible("#nfs-mounts button[aria-label=Add]")
 
 
 if __name__ == '__main__':

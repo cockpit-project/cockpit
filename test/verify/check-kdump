@@ -170,7 +170,7 @@ class TestKdump(MachineCase):
         b.click(crashButton)
 
         # wait until we've actuall triggered a crash
-        b.wait_visible("div.spinner")
+        b.wait_visible(".dialog-wait-ct")
 
         # wait for disconnect and then try connecting again
         b.switch_to_top()

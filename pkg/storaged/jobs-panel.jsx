@@ -20,7 +20,11 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardTitle, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Card, CardBody, CardTitle,
+    DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
+    Text, TextVariants
+} from "@patternfly/react-core";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { block_name, mdraid_name, lvol_name, format_delay } from "./utils.js";
@@ -118,14 +122,26 @@ class JobRow extends React.Component {
         }
 
         return (
-            <tr>
-                <td className="job-description">{make_description(this.props.client, job)}</td>
-                <td>{job.ProgressValid && (job.Progress * 100).toFixed() + "%"}</td>
-                <td>{remaining}</td>
-                <td className="job-action">
-                    { job.Cancelable ? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
-                </td>
-            </tr>
+            <DataListItem>
+                <DataListItemRow>
+                    <DataListItemCells
+                        dataListCells={[
+                            <DataListCell key="desc" className="job-description" isFilled={false}>
+                                {make_description(this.props.client, job)}
+                            </DataListCell>,
+                            <DataListCell key="progress" isFilled={false}>
+                                <td>{job.ProgressValid && (job.Progress * 100).toFixed() + "%"}</td>
+                            </DataListCell>,
+                            <DataListCell key="remaining">
+                                {remaining}
+                            </DataListCell>,
+                            <DataListCell key="job-action" isFilled={false} alignRight>
+                                { job.Cancelable ? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
+                            </DataListCell>,
+                        ]}
+                    />
+                </DataListItemRow>
+            </DataListItem>
         );
     }
 }
@@ -188,11 +204,9 @@ export class JobsPanel extends React.Component {
             <Card className="detail-jobs">
                 <CardTitle><Text component={TextVariants.h2}>{_("Jobs")}</Text></CardTitle>
                 <CardBody className="contains-list">
-                    <table className="table">
-                        <tbody>
-                            { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
-                        </tbody>
-                    </table>
+                    <DataList isCompact aria-label={_("Jobs")}>
+                        { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
+                    </DataList>
                 </CardBody>
             </Card>
         );

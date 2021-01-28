@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert, Button, Modal, Popover } from "@patternfly/react-core";
+import { Alert, Button, Modal, Popover, Spinner } from "@patternfly/react-core";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import "page.scss";
@@ -160,7 +160,7 @@ export class DialogFooter extends React.Component {
                 cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct">
                 <span>{ this.state.action_progress_message }</span>
-                <div className="spinner spinner-sm" />
+                <Spinner isSVG className="dialog-wait-ct-spinner" size="md" />
             </div>;
         } else if (this.props.idle_message) {
             wait_element = <div className="dialog-wait-ct">

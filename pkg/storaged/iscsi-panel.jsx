@@ -20,6 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Button } from "@patternfly/react-core";
+import { CheckIcon, EditIcon, PlusIcon, TrashIcon } from "@patternfly/react-icons";
+
 import { SidePanel, SidePanelRow } from "./side-panel.jsx";
 import { } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
@@ -218,7 +221,7 @@ export class IscsiPanel extends React.Component {
             if (self.state.armed)
                 actions = (
                     <StorageButton kind="danger" onClick={iscsi_remove}>
-                        <span className="pficon pficon-delete" />
+                        <TrashIcon className="ct-TrashIcon" />
                     </StorageButton>
                 );
 
@@ -245,16 +248,16 @@ export class IscsiPanel extends React.Component {
         var actions = (
             <>
                 { sessions.length > 0
-                    ? <button className={"pf-c-button pf-m-secondary toggle-armed" + (this.state.armed ? " active" : "")}
-                  onClick={toggle_armed}><span className="fa fa-check" /></button> : null
+                    ? <Button aria-label={_("Toggle")} variant="secondary" className={"toggle-armed" + (this.state.armed ? " active" : "")}
+                  onClick={toggle_armed}><CheckIcon /></Button> : null
                 }
                 { "\n" }
-                <StorageButton onClick={iscsi_change_name} id="edit-iscsi">
-                    <span className="pficon pficon-edit" />
+                <StorageButton ariaLabel={_("Edit")} onClick={iscsi_change_name} id="edit-iscsi">
+                    <EditIcon />
                 </StorageButton>
                 { "\n" }
-                <StorageButton kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
-                    <span className="fa fa-plus" />
+                <StorageButton ariaLabel={_("Add")} kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
+                    <PlusIcon />
                 </StorageButton>
             </>
         );

@@ -36,8 +36,8 @@ class TestStorageVDO(StorageCase):
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices [data-toggle=dropdown]")
-            b.wait_not_present("#devices .dropdown a:contains('VDO')")
+            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
+            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")
@@ -126,8 +126,8 @@ class TestStorageVDO(StorageCase):
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices [data-toggle=dropdown]")
-            b.wait_not_present("#devices .dropdown a:contains('VDO')")
+            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
+            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")
@@ -183,8 +183,8 @@ config: !Configuration
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices [data-toggle=dropdown]")
-            b.wait_not_present("#devices .dropdown a:contains('VDO')")
+            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
+            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")

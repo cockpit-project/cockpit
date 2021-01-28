@@ -248,10 +248,6 @@ td.storage-icon {
     width: 48px;
 }
 
-td.storage-icon .spinner {
-    margin-top: 5px;
-}
-
 span.rate-gap {
     display: inline-block;
     width: 1em;
@@ -298,6 +294,10 @@ td.job-action {
     text-align: left;
 }
 
+.content-nav-item-warning:first-child {
+    padding-right: var(--pf-global--spacer--sm);
+}
+
 .content-item {
     width: 100%;
 }
@@ -306,22 +306,8 @@ td.job-action {
     width: 100%;
 }
 
-td.content-name {
-    text-align: left;
-}
-
-td.content-action {
+.content-action {
     text-align: right;
-}
-
-td.content-action > div {
-    display: inline-block;
-    margin-right: 5px;
-    vertical-align: middle;
-}
-
-td.content-action .spinner {
-    visibility: hidden;
 }
 
 table.mdraid-item {
@@ -366,25 +352,21 @@ td.vgroup-action {
 
 .dialog-item-tooltip {
     margin-left: 5px;
+    padding: 0;
     white-space: nowrap;
 }
 
-.dialog-checkbox-text {
-    width: 100%;
+.ct-storage-checkbox {
+    > .pf-c-check {
+        width: 100%;
+    }
     display: flex;
     flex-direction: row;
-}
-
-.dialog-checkbox-text :nth-child(2) {
-    flex: 1;
-    margin-left: 0.5em;
-}
-
-.form-control[hidden] {
-    display: none;
+    column-gap: var(--pf-global--spacer--sm);
 }
 
 .modal-footer-teardown {
+    padding-bottom: var(--pf-global--spacer--md);
     text-align: left;
 }
 
@@ -488,11 +470,6 @@ td.storage-action {
     word-break: break-all;
 }
 
-.panel-heading .spinner-inline {
-    vertical-align: middle;
-    margin-left: 0.5ex;
-}
-
 .just-installed {
     margin-right: 1em;
 }
@@ -520,19 +497,6 @@ td.storage-action {
     margin-right: 1em;
 }
 
-.shrink {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.key-slot-panel .key-type {
-    padding-right: 1em;
-}
-
-.key-slot-panel .key-slot {
-    padding-right: 2em;
-}
-
 .sigkey-hash {
     font-family: monospace;
     font-size: 200%;
@@ -546,10 +510,6 @@ td.storage-action {
 .pf-c-modal-box h3 {
     margin-top: 0;
     line-height: 24px;
-}
-
-.pficon.large {
-    font-size: 200%;
 }
 
 .progressive-disclosure .form-group {
@@ -606,20 +566,6 @@ td.storage-action {
     width: 5em !important;
 }
 
-.select-space-row {
-    display: flex;
-    align-items: center;
-}
-
-.select-space-row :nth-child(1) {
-    margin-top: 0px;
-}
-
-.select-space-row :nth-child(2) {
-    flex-grow: 1;
-    margin-left: 10px;
-}
-
 .ct-form-box {
     margin-bottom: 1em;
 }
@@ -647,14 +593,22 @@ td.storage-action {
     font-size: var(--pf-global--FontSize--xs);
 }
 
-.sidepanel-row .spinner {
-    display: inline-block;
-}
-
 .panel-heading {
     position: static;
 }
 
 .storage_alert_action_buttons button {
     margin: 0.5rem 0.2rem 0.2rem 0;
+}
+
+// We wrap the data list row with a label to make checkboxes clickable from the whole row
+// we need this HACK in order to make alignRight property take effect
+.data-list-row-checkbox-label {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+}
+
+.crypto-keyslots-list {
+    border: none;
 }

@@ -250,6 +250,31 @@ uninstall-local::
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 
+# this makes it possible to `make check`
+JUMPSTART_EXTRAS = \
+	node_modules/chrome-remote-interface \
+	node_modules/ws \
+	$(NULL)
+
+# We extract with `tar -m` so the order of files equals the order of
+# timestamps.  Make sure the stamp files stay at the end so that they
+# are the "newest".
+JUMPSTART_CONTENTS = \
+	$(JUMPSTART_EXTRAS) \
+	$(WEBPACK_INPUTS) \
+	$(WEBPACK_OUTPUTS) \
+	$(WEBPACK_DEPS) \
+	$(WEBPACK_STAMPS)
+
+cockpit-jumpstart.tar: $(JUMPSTART_CONTENTS)
+	tar cf $@ $^
+
+cockpit-jumpstart.tar.xz: cockpit-jumpstart.tar
+	xz --extreme < $< > $@
+
+jumpstart:
+	tar xmf cockpit-jumpstart.tar.xz
+
 #
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}

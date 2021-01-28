@@ -61,7 +61,8 @@ mkpart logical ext2 24 48"""
         # are offered as free block devices.
 
         def check_free_block_devices():
-            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-row')")
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")
+            print("blocks", blocks)
             # On Ubuntu we see /dev/ram devices as well
             # On Fedora 33 also /dev/zram0 - see https://github.com/cockpit-project/cockpit/issues/14516
             blocks = [block for block in blocks if "/dev/ram" not in block and "/dev/zram" not in block]

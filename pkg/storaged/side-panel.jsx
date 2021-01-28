@@ -24,6 +24,7 @@ import { OptionalPanel } from "./optional-panel.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
 
 import { Button, Spinner, Flex, FlexItem } from '@patternfly/react-core';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
@@ -104,9 +105,9 @@ export class SidePanelRow extends React.Component {
                     {this.props.actions}
                 </div>);
         else if (client.path_jobs[job_path])
-            decoration = <Spinner size="sm" />;
+            decoration = <Spinner size="md" />;
         else if (client.path_warnings[job_path])
-            decoration = <div className="pficon pficon-warning-triangle-o" />;
+            decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />;
 
         return (
             <FlexItem data-testkey={this.props.testkey}

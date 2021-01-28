@@ -154,7 +154,7 @@ function PageStatus({ status, name }) {
                  position={TooltipPosition.right}>
             <span id={desc} className="nav-status">
                 {status.type == "error" ? <ExclamationCircleIcon color="#f54f42" />
-                    : status.type == "warning" ? <ExclamationTriangleIcon color="#f0ab00" />
+                    : status.type == "warning" ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" color="#f0ab00" />
                         : <InfoCircleIcon color="#73bcf7" />}
             </span>
         </Tooltip>

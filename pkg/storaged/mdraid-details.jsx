@@ -27,6 +27,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription
 } from "@patternfly/react-core";
+import { MinusIcon, PlusIcon } from "@patternfly/react-icons";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
@@ -138,8 +139,8 @@ class MDRaidSidebar extends React.Component {
             let action = null;
             if (dynamic_members)
                 action = (
-                    <StorageButton onClick={remove} excuse={remove_excuse}>
-                        <span className="fa fa-minus" />
+                    <StorageButton ariaLabel={_("Remove")} onClick={remove} excuse={remove_excuse}>
+                        <MinusIcon />
                     </StorageButton>);
 
             return (
@@ -157,8 +158,8 @@ class MDRaidSidebar extends React.Component {
         let action = null;
         if (dynamic_members)
             action = (
-                <StorageButton onClick={add_disk} excuse={add_excuse}>
-                    <span className="fa fa-plus" />
+                <StorageButton ariaLabel={_("Add")} onClick={add_disk} excuse={add_excuse}>
+                    <PlusIcon />
                 </StorageButton>);
 
         return (

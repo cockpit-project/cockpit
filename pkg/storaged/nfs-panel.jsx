@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { cellWidth, SortByDirection } from '@patternfly/react-table';
+import { PlusIcon } from '@patternfly/react-icons';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
@@ -62,8 +63,8 @@ export class NFSPanel extends React.Component {
         }
 
         var actions = (
-            <StorageButton kind="primary" onClick={add}>
-                <span className="fa fa-plus" />
+            <StorageButton ariaLabel={_("Add")} kind="primary" onClick={add}>
+                <PlusIcon />
             </StorageButton>
         );
 

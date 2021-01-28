@@ -328,3 +328,20 @@ html:not(.index-page) body {
     height: 100% !important;
   }
 }
+
+/* Add some spacing to nested form groups - PF4 does not support them */
+/* https://github.com/patternfly/patternfly-react/issues/5023 */
+.pf-c-form__group-control {
+    > .pf-c-form__group, .pf-c-form__section {
+        padding-top: var(--pf-global--spacer--md);
+    }
+}
+
+// When there is an Alert above the Form add some spacing
+.pf-c-modal-box .pf-c-alert + .pf-c-form {
+    padding-top: var(--pf-global--FontSize--sm);
+}
+
+.ct-icon-exclamation-triangle {
+    color: var(--pf-global--warning-color--100);
+}

@@ -83,8 +83,8 @@ class StorageHelpers:
         self.machine.execute('echo 1 > /sys/block/%s/device/delete' % os.path.basename(device))
 
     def devices_dropdown(self, title):
-        self.browser.click("#devices .dropdown [data-toggle=dropdown]")
-        self.browser.click("#devices .dropdown a:contains('%s')" % title)
+        self.browser.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
+        self.browser.click("#devices .pf-c-dropdown a:contains('%s')" % title)
 
     # Content
 
@@ -118,8 +118,8 @@ class StorageHelpers:
 
     def content_dropdown_action(self, index, title):
         self.content_row_expand(index)
-        dropdown = self.content_row_tbody(index) + " .ct-listing-panel-actions .dropdown"
-        self.browser.click(dropdown + " [data-toggle=dropdown]")
+        dropdown = self.content_row_tbody(index) + " .ct-listing-panel-actions .pf-c-dropdown"
+        self.browser.click(dropdown + " button.pf-c-dropdown__toggle")
         self.browser.click(dropdown + " a:contains('%s')" % title)
 
     def content_tab_expand(self, row_index, tab_index):
@@ -234,7 +234,7 @@ class StorageHelpers:
             if self.browser.is_present(sel + " input[type=checkbox]:not(:checked)"):
                 return False
             else:
-                return self.browser.val(sel + "+ input[type=text]")
+                return self.browser.val(sel + " input[type=text]")
         elif ftype == "select":
             return self.browser.attr(sel, "data-value")
         else:
@@ -262,7 +262,7 @@ class StorageHelpers:
                 self.browser.set_checked(sel + " input[type=checkbox]", False)
             else:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)
-                self.browser.set_input_text(sel + "+ input[type=text]", val)
+                self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
             self.browser.click(sel + " button.pf-c-select__toggle-button")
             self.browser.click(sel + " .pf-c-select__menu li:contains('{0}') button".format(val))
@@ -294,7 +294,7 @@ class StorageHelpers:
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
-        self.browser.wait_in_text('#dialog .dialog-error', val)
+        self.browser.wait_in_text('#dialog .pf-c-form__helper-text.pf-m-error', val)
 
     def dialog_wait_not_visible(self, field):
         self.browser.wait_not_visible(self.dialog_field(field))

@@ -109,7 +109,8 @@ export class CryptoTab extends React.Component {
             edit_config(function (config, commit) {
                 dialog_open({
                     Title: _("Encryption options"),
-                    Fields: crypto_options_dialog_fields(old_options),
+                    Fields: crypto_options_dialog_fields(old_options, undefined, undefined, false),
+                    isFormHorizontal: false,
                     Action: {
                         Title: _("Apply"),
                         action: function (vals) {

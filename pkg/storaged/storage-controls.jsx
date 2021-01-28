@@ -17,12 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, { useState } from 'react';
+
 import {
-    Button,
+    Button, Dropdown, DropdownItem, DropdownToggle,
+    Tooltip, TooltipPosition,
     Progress, ProgressMeasureLocation, ProgressVariant,
     Switch,
-    Tooltip, TooltipPosition,
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 
@@ -94,14 +95,15 @@ function checked(callback) {
     };
 }
 
-export const StorageButton = ({ id, kind, excuse, onClick, children }) => (
+export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel }) => (
     <StorageControl excuse={excuse}
                     content={excuse => (
                         <Button id={id}
-                                    onClick={checked(onClick)}
-                                    variant={kind || "secondary"}
-                                    isDisabled={!!excuse}
-                                    style={excuse ? { pointerEvents: 'none' } : null}>
+                                aria-label={ariaLabel}
+                                onClick={checked(onClick)}
+                                variant={kind || "secondary"}
+                                isDisabled={!!excuse}
+                                style={excuse ? { pointerEvents: 'none' } : null}>
                             {children}
                         </Button>
                     )} />
@@ -208,21 +210,26 @@ export const StorageUsageBar = ({ stats, critical }) => {
 };
 
 export const StorageMenuItem = ({ onClick, children }) => (
-    <li><a role="link" tabIndex="0" onKeyPress={checked(onClick)} onClick={checked(onClick)}>{children}</a></li>
+    <DropdownItem onKeyPress={checked(onClick)} onClick={checked(onClick)}>{children}</DropdownItem>
 );
 
-export const StorageBarMenu = ({ label, children }) => {
-    const toggle = excuse => (
-        <Button variant="primary" isDisabled={!!excuse} data-toggle="dropdown" aria-label={label}>
-            <BarsIcon />
-        </Button>
-    );
+export const StorageBarMenu = ({ label, menuItems }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    if (!client.superuser.allowed)
+        return null;
 
     return (
-        <div className="dropdown btn-group">
-            <StorageControl content={toggle} excuse_placement="bottom" />
-            <ul className="dropdown-menu dropdown-menu-right" role="menu">
-                {children}
-            </ul>
-        </div>);
+        <Dropdown onSelect={() => setIsOpen(!isOpen)}
+                  toggle={
+                      <DropdownToggle className="pf-m-primary" toggleIndicator={null}
+                                      onToggle={setIsOpen} aria-label={label}>
+                          <BarsIcon color="white" />
+                      </DropdownToggle>
+                  }
+                  isOpen={isOpen}
+                  isPlain
+                  position="right"
+                  dropdownItems={menuItems} />
+    );
 };

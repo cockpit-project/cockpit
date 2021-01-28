@@ -55,7 +55,7 @@ export class ThingsPanel extends React.Component {
                 }
             }
 
-            return <StorageMenuItem onClick={install_then_action}>{title}</StorageMenuItem>;
+            return <StorageMenuItem key={title} onClick={install_then_action}>{title}</StorageMenuItem>;
         }
 
         const lvm2_feature = {
@@ -63,11 +63,11 @@ export class ThingsPanel extends React.Component {
         };
 
         const actions = (
-            <StorageBarMenu id="devices-menu" label={_("Create devices")}>
-                { menu_item(null, _("Create RAID device"), () => create_mdraid(client)) }
-                { menu_item(lvm2_feature, _("Create volume group"), () => create_vgroup(client)) }
-                { menu_item(vdo_feature(client), _("Create VDO device"), () => create_vdo(client)) }
-            </StorageBarMenu>);
+            <StorageBarMenu id="devices-menu" label={_("Create devices")} menuItems={[
+                menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
+                menu_item(lvm2_feature, _("Create volume group"), () => create_vgroup(client)),
+                menu_item(vdo_feature(client), _("Create VDO device"), () => create_vdo(client))].filter(item => item !== null)} />
+        );
 
         var devices = [].concat(
             mdraid_rows(client),

@@ -27,6 +27,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription
 } from "@patternfly/react-core";
+import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
@@ -117,15 +118,15 @@ class VGroupSidebar extends React.Component {
                                     detail={cockpit.format(_("$0, $1 free"),
                                                            utils.fmt_size(pvol.Size),
                                                            utils.fmt_size(pvol.FreeSize))}
-                                    actions={<StorageButton onClick={remove_action} excuse={remove_excuse}>
-                                        <span className="fa fa-minus" />
+                                    actions={<StorageButton aria-label={_("Remove")} onClick={remove_action} excuse={remove_excuse}>
+                                        <MinusIcon />
                                     </StorageButton>}
                                     key={pvol.path} />);
         }
 
         return (
             <SidePanel title={_("Physical volumes")}
-                       actions={<StorageButton onClick={add_disk}><span className="fa fa-plus" /></StorageButton>}>
+                       actions={<StorageButton aria-label={_("Add")} onClick={add_disk}><PlusIcon /></StorageButton>}>
                 { pvols.map(render_pvol) }
             </SidePanel>
         );

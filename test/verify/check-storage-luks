@@ -58,7 +58,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("name", "ENCRYPTED")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
-        self.dialog_set_val("crypto_options.store_passphrase", True)
+        self.dialog_set_val("store_passphrase.on", True)
         self.dialog_set_val("crypto_options.extra", "crypto,options")
         self.dialog_set_val("mount_point", mount_point_secret)
         self.dialog_set_val("mount_options.auto", False)
@@ -182,11 +182,11 @@ class TestStorageLuks(StorageCase):
         tab = self.content_tab_expand(1, 1)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
-        b.wait_in_text(panel + ".table tr:nth-child(1)", "Passphrase")
+        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 
         # Add a key
         #
-        b.click(panel + ".fa-plus")
+        b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "tang")
@@ -197,8 +197,8 @@ class TestStorageLuks(StorageCase):
         b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_visible(panel + ".table tr:nth-child(2)")
-        b.wait_in_text(panel + ".table tr:nth-child(2)", "127.0.0.1")
+        b.wait_visible(panel + "ul li:nth-child(2)")
+        b.wait_in_text(panel + "ul li:nth-child(2)", "127.0.0.1")
 
         # Unlock it.  This should succeed without prompting.
         #
@@ -207,7 +207,7 @@ class TestStorageLuks(StorageCase):
 
         # Edit the key, without providing an existing passphrase
         #
-        b.click(panel + ".table tr:nth-child(2) .pficon-edit")
+        b.click(panel + "ul li:nth-child(2) [aria-label=Edit]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_wait_val("tang_url", "127.0.0.1")
@@ -217,13 +217,13 @@ class TestStorageLuks(StorageCase):
         b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text(panel + ".table tr:nth-child(2)", "http://127.0.0.1/")
+        b.wait_in_text(panel + "ul li:nth-child(2)", "http://127.0.0.1/")
 
         # Remove key on client
         #
-        b.click(panel + ".table tr:nth-child(2) .fa-minus")
+        b.click(panel + "ul li:nth-child(2) button[aria-label=Remove]")
         self.confirm()
-        b.wait_not_present(panel + ".table tr:nth-child(2)")
+        b.wait_not_present(panel + "ul li:nth-child(2)")
 
     @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testSlots(self):
@@ -258,7 +258,7 @@ class TestStorageLuks(StorageCase):
         tab = self.content_tab_expand(1, 1)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
-        b.click(panel + ".fa-plus")
+        b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "luks-passphrase")
@@ -280,7 +280,7 @@ class TestStorageLuks(StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
         self.content_row_wait_in_col(2, 1, "ext4 file system")
         # delete second key slot by providing passphrase
-        b.click(panel + "tr:nth-child(2) .fa-minus")
+        b.click(panel + "li:nth-child(2) button[aria-label=Remove]")
         self.dialog_wait_open()
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
@@ -298,7 +298,7 @@ class TestStorageLuks(StorageCase):
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
         for i in range(1, 8):
-            b.click(panel + ".fa-plus")
+            b.click(panel + "button[aria-label=Add]")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("type", "luks-passphrase")
@@ -312,21 +312,21 @@ class TestStorageLuks(StorageCase):
             # check if add button is inactive
             b.wait_visible(panel + ".pf-c-card__header button:disabled")
             # check if edit button is inactive
-            slots_table = tab + " .pf-c-card table tr:first-child"
-            b.wait_visible(slots_table + " button:disabled")
+            slots_row = tab + " .pf-c-card ul li:first-child"
+            b.wait_visible(slots_row + " button:disabled")
 
         # remove one slot
-        slots_table = tab + " .pf-c-card table "
-        b.wait_visible(slots_table + "tbody tr:last-child .fa-minus")
-        b.click(slots_table + "tbody tr:last-child .fa-minus")
+        slots_list = tab + " .pf-c-card ul "
+        b.wait_visible(slots_list + "li:last-child button[aria-label=Remove]")
+        b.click(slots_list + "li:last-child button[aria-label=Remove]")
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
         self.dialog_apply()
         self.dialog_wait_close()
         # check if buttons have become enabled after removing last slot
-        b.wait_not_present(slots_table + ":disabled")
+        b.wait_not_present(slots_list + ":disabled")
         b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
-        b.click(slots_table + "tbody tr:nth-child(1) .fa-minus")
+        b.click(slots_list + "li:nth-child(1) button[aria-label=Remove]")
         b.click(self.dialog_field("passphrase") + " label:contains(Force remove passphrase in key slot 0)")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -339,8 +339,8 @@ class TestStorageLuks(StorageCase):
         self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
         # change one of the passphrases
-        b.wait_visible(slots_table + "tbody tr:last-child .pficon-edit")
-        b.click(slots_table + "tbody tr:last-child .pficon-edit")
+        b.wait_visible(slots_list + "li:last-child [aria-label=Edit]")
+        b.click(slots_list + "li:last-child [aria-label=Edit]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja-6")

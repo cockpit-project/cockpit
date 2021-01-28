@@ -54,23 +54,14 @@ export function extract_option(split, opt) {
     }
 }
 
-export function crypto_options_dialog_fields(options, visible, include_store_passphrase) {
+export function crypto_options_dialog_fields(options, visible, include_store_passphrase, showLabel) {
     var split_options = parse_options(options);
     var opt_auto = !extract_option(split_options, "noauto");
     var opt_ro = extract_option(split_options, "readonly");
     var extra_options = unparse_options(split_options);
 
-    var fields = [
-        { title: _("Unlock at boot"), tag: "auto" },
-        { title: _("Unlock read only"), tag: "ro" },
-        { title: _("Custom encryption options"), tag: "extra", type: "checkboxWithInput" },
-    ];
-
-    if (include_store_passphrase)
-        fields = [{ title: _("Store passphrase"), tag: "store_passphrase" }].concat(fields);
-
-    return [
-        CheckBoxes("crypto_options", "",
+    let fields = [
+        CheckBoxes("crypto_options", showLabel ? _("Encryption options") : "",
                    {
                        visible: visible,
                        value: {
@@ -78,10 +69,26 @@ export function crypto_options_dialog_fields(options, visible, include_store_pas
                            ro: opt_ro,
                            extra: extra_options === "" ? false : extra_options
                        },
-                       fields: fields
+                       fields: [
+                           { title: _("Unlock at boot"), tag: "auto" },
+                           { title: _("Unlock read only"), tag: "ro" },
+                           { title: _("Custom encryption options"), tag: "extra", type: "checkboxWithInput" },
+                       ]
                    },
-        ),
+        )
     ];
+
+    if (include_store_passphrase)
+        fields = [
+            CheckBoxes("store_passphrase", "",
+                       {
+                           visible: visible,
+                           fields: [{ title: _("Store passphrase"), tag: "on" }]
+                       }
+            )
+        ].concat(fields);
+
+    return fields;
 }
 
 export function crypto_options_dialog_options(vals) {
@@ -227,7 +234,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               },
                               visible: is_encrypted
                           })
-            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true)),
+            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true, true)),
             TextInput("mount_point", _("Mount point"),
                       {
                           visible: is_filesystem,
@@ -282,7 +289,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                         options: { t: 'ay', v: utils.encode_filename(crypto_options_dialog_options(vals)) },
                         "track-parents": { t: 'b', v: true }
                     };
-                    if (vals.crypto_options && vals.crypto_options.store_passphrase) {
+                    if (vals.crypto_options && vals.store_passphrase.on) {
                         item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename(vals.passphrase) };
                     } else {

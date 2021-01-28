@@ -215,11 +215,19 @@ import cockpit from "cockpit";
 
 import React, { useState } from "react";
 import {
-    Alert, Tooltip, TooltipPosition,
+    Alert,
     FormSelect, FormSelectOption,
+    Button,
+    Checkbox,
+    DataList, DataListItem, DataListCheck, DataListItemRow, DataListItemCells, DataListCell,
+    Form, FormGroup,
+    Radio,
     Select as TypeAheadSelect, SelectOption, SelectVariant,
-    DataList, DataListItem, DataListItemRow, DataListItemCells, DataListCell,
+    Spinner,
+    TextInput as TextInputPF4,
+    Tooltip, TooltipPosition,
 } from "@patternfly/react-core";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -230,48 +238,43 @@ import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
-const Validated = ({ errors, error_key, explanation, children }) => {
-    var error = errors && errors[error_key];
-    var text = error || explanation;
-    // We need to always render the <div> for the has-error
-    // class so that the input field keeps the focus when
-    // errors are cleared.  Otherwise the DOM changes enough
-    // for the Browser to remove focus.
-    return (
-        <div className={error ? "ct-validation-wrapper has-error" : "ct-validation-wrapper"}>
-            { children }
-            { (text && text !== true) ? <span className="help-block dialog-error">{text}</span> : null }
-        </div>
-    );
-};
+const Row = ({ field, values, errors, onChange }) => {
+    const { tag, title, options } = field;
 
-const Row = ({ tag, title, errors, options, children }) => {
-    if (tag) {
-        const validated = (
-            <Validated errors={errors} error_key={tag} explanation={options.explanation}>
-                { children }
-            </Validated>
-        );
+    const error = errors && errors[tag];
+    const explanation = options && options.explanation;
+    const validated = (tag && errors && errors[tag]) ? 'error' : 'default';
 
-        if (title || title == "") {
-            if (options.widest_title)
-                title = (
-                    <>
-                        <div className="widest-title">{options.widest_title}</div>
-                        <div>{title}</div>
-                    </>
-                );
-            return (
+    function change(val) {
+        values[tag] = val;
+        onChange(tag);
+    }
+
+    const children = field.render(values[tag], change, validated);
+
+    if (title || title == "") {
+        let titleLabel = title;
+
+        if (options.widest_title)
+            titleLabel = (
                 <>
-                    <label className="control-label">{title}</label>
-                    <>{validated}</>
+                    <div className="widest-title">{options.widest_title}</div>
+                    <div>{title}</div>
                 </>
             );
-        } else {
-            return validated;
-        }
+        return (
+            <FormGroup label={titleLabel} validated={validated}
+                       helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
+                { children }
+            </FormGroup>
+        );
     } else {
-        return children;
+        return (
+            <FormGroup validated={validated}
+                       helperTextInvalid={error || explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
+                { children }
+            </FormGroup>
+        );
     }
 };
 
@@ -279,22 +282,13 @@ function is_visible(field, values) {
     return !field.options || field.options.visible == undefined || field.options.visible(values);
 }
 
-const Body = ({ body, fields, values, errors, onChange }) => {
+const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
     function make_row(field, index) {
         if (field.length !== undefined)
             return make_rows(field, index);
 
-        function change(val) {
-            values[field.tag] = val;
-            onChange(field.tag);
-        }
-
         if (is_visible(field, values))
-            return (
-                <Row key={index} tag={field.tag} title={field.title} errors={errors} options={field.options}>
-                    { field.render(values[field.tag], change) }
-                </Row>
-            );
+            return <Row key={index} field={field} values={values} errors={errors} onChange={onChange} />;
     }
 
     function make_rows(fields, index) {
@@ -302,9 +296,9 @@ const Body = ({ body, fields, values, errors, onChange }) => {
         if (rows.length === 0)
             return null;
         else if (index === undefined) // top-level
-            return <form className="ct-form">{ rows }</form>;
+            return <Form isHorizontal={isFormHorizontal !== false}>{ rows }</Form>;
         else // nested
-            return <div key={index} className="ct-form ct-form-box">{ rows }</div>;
+            return <FormGroup key={index}>{ rows }</FormGroup>;
     }
 
     return (
@@ -345,6 +339,7 @@ export const dialog_open = (def) => {
                         fields={nested_fields}
                         values={values}
                         errors={errors}
+                        isFormHorizontal={def.isFormHorizontal}
                         onChange={trigger => update(null, trigger)} />
         };
     };
@@ -400,7 +395,7 @@ export const dialog_open = (def) => {
             idle_message: (running_promise
                 ? <>
                     <span>{running_title}</span>
-                    <div className="spinner spinner-sm" />
+                    <Spinner className="dialog-wait-ct-spinner" isSVG size="md" />
                 </>
                 : null),
             extra_element: extra,
@@ -478,11 +473,13 @@ export const TextInput = (tag, title, options) => {
         options: options,
         initial_value: options.value || "",
 
-        render: (val, change) =>
-            <input data-field={tag} data-field-type="text-input"
-                   className="form-control" type="text" value={val}
-                   disabled={options.disabled}
-                   onChange={event => change(event.target.value)} />
+        render: (val, change, validated) =>
+            <TextInputPF4 data-field={tag} data-field-type="text-input"
+                          validated={validated}
+                          aria-label={title}
+                          value={val}
+                          isDisabled={options.disabled}
+                          onChange={change} />
     };
 };
 
@@ -493,10 +490,12 @@ export const PassInput = (tag, title, options) => {
         options: options,
         initial_value: options.value || "",
 
-        render: (val, change) =>
-            <input data-field={tag} data-field-type="text-input"
-                   className="form-control" type="password" value={val}
-                   onChange={event => change(event.target.value)} />
+        render: (val, change, validated) =>
+            <TextInputPF4 data-field={tag} data-field-type="text-input"
+                   validated={validated}
+                   aria-label={title}
+                   type="password" value={val}
+                   onChange={change} />
     };
 };
 
@@ -540,10 +539,12 @@ export const SelectOne = (tag, title, options) => {
         options: options,
         initial_value: options.value || options.choices[0].value,
 
-        render: (val, change) => {
+        render: (val, change, validated) => {
             return (
                 <div data-field={tag} data-field-type="select" data-value={val}>
-                    <FormSelect value={val} aria-label={tag} onChange={change}>
+                    <FormSelect value={val} aria-label={tag}
+                                validated={validated}
+                                onChange={change}>
                         { options.choices.map(c => <FormSelectOption value={c.value} isDisabled={c.disabled}
                                                                      key={c.title} label={c.title} />) }
                     </FormSelect>
@@ -562,14 +563,13 @@ export const SelectOneRadio = (tag, title, options) => {
 
         render: (val, change) => {
             return (
-                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio">
+                <FormGroup isInline data-field={tag} data-field-type="select-radio">
                     { options.choices.map(c => (
-                        <label key={c.value}>
-                            <input type="radio" checked={val == c.value} data-data={c.value}
-                                     onChange={event => change(c.value)} />{c.title}
-                        </label>))
+                        <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
+                            id={tag + '.' + c.value}
+                            onChange={event => change(c.value)} label={c.title} />))
                     }
-                </span>
+                </FormGroup>
             );
         }
     };
@@ -618,32 +618,44 @@ export const SelectSpaces = (tag, title, options) => {
                 return <span className="text-danger">{options.empty_warning}</span>;
 
             return (
-                <ul className="list-group dialog-list-ct"
+                <DataList isCompact
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
                         const selected = (val.indexOf(spc) >= 0);
                         const block = spc.block ? block_name(spc.block) : "";
                         const desc = block === spc.desc ? "" : spc.desc;
 
-                        const on_change = (event) => {
-                            if (event.target.checked && !selected)
+                        const on_change = (checked) => {
+                            if (checked && !selected)
                                 change(val.concat(spc));
-                            else if (!event.target.checked && selected)
+                            else if (!checked && selected)
                                 change(val.filter(v => (v != spc)));
                         };
 
                         return (
-                            <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
-                                <label className="select-space-row">
-                                    <input type="checkbox" checked={selected} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
-                                    <span className="select-space-details">{block}</span>
-                                </label>
-                            </li>
+                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
+                                <DataListItemRow>
+                                    <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
+                                                   isChecked={selected} onChange={on_change} />
+                                    <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
+                                           className='data-list-row-checkbox-label'>
+                                        <DataListItemCells
+                                            dataListCells={[
+                                                <DataListCell key="select-space-name" className="select-space-name">
+                                                    {format_size_and_text(spc.size, desc)}
+                                                </DataListCell>,
+                                                <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
+                                                    {block}
+                                                </DataListCell>,
+                                            ]}
+                                        />
+                                    </label>
+                                </DataListItemRow>
+                            </DataListItem>
                         );
                     })
                     }
-                </ul>
+                </DataList>
             );
         }
     };
@@ -661,7 +673,7 @@ export const SelectSpace = (tag, title, options) => {
                 return <span className="text-danger">{options.empty_warning}</span>;
 
             return (
-                <ul className="list-group dialog-list-ct"
+                <DataList isCompact
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
                         const block = spc.block ? block_name(spc.block) : "";
@@ -672,17 +684,29 @@ export const SelectSpace = (tag, title, options) => {
                         };
 
                         return (
-                            <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
-                                <label className="select-space-row">
-                                    <input type="radio" checked={val == spc} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
-                                    <span className="select-space-details">{block}</span>
-                                </label>
-                            </li>
+                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
+                                <DataListItemRow>
+                                    <div className="pf-c-data-list__item-control">
+                                        <div className="pf-c-data-list__check">
+                                            <input type='radio' value={desc} name='space' checked={val == spc} onChange={on_change} />
+                                        </div>
+                                    </div>
+                                    <DataListItemCells
+                                        dataListCells={[
+                                            <DataListCell key="select-space-name" className="select-space-name">
+                                                {format_size_and_text(spc.size, desc)}
+                                            </DataListCell>,
+                                            <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
+                                                {block}
+                                            </DataListCell>,
+                                        ]}
+                                    />
+                                </DataListItemRow>
+                            </DataListItem>
                         );
                     })
                     }
-                </ul>
+                </DataList>
             );
         }
     };
@@ -690,19 +714,22 @@ export const SelectSpace = (tag, title, options) => {
 
 const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
     return (
-        <div key={tag} className="checkbox">
-            <label key={tag}>
-                <input type="checkbox" data-field={tag} data-field-type="checkbox"
-                       checked={val}
-                       onChange={event => update_function(event.target.checked)} />
-                {title}
-            </label>
-            { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
-                <button className="dialog-item-tooltip link-button">
-                    <span className="fa fa-lg fa-info-circle" />
-                </button>
-            </Tooltip>
-            }
+        <div key={tag} className="ct-storage-checkbox">
+            <Checkbox data-field={tag} data-field-type="checkbox"
+                      id={tag}
+                      isChecked={val}
+                      label={
+                          <>
+                              {title}
+                              { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
+                                  <Button className="dialog-item-tooltip" variant="link">
+                                      <InfoCircleIcon />
+                                  </Button>
+                              </Tooltip>
+                              }
+                          </>
+                      }
+                      onChange={update_function} />
         </div>
     );
 };
@@ -713,6 +740,7 @@ export const CheckBoxes = (tag, title, options) => {
         title: title,
         options: options,
         initial_value: options.value || { },
+        hasNoPaddingTop: true,
 
         render: (val, change) => {
             const fieldset = options.fields.map(field => {
@@ -739,8 +767,11 @@ export const CheckBoxes = (tag, title, options) => {
                                                       update_function={fchange} />;
             });
 
+            if (options.fields.length == 1)
+                return fieldset;
+
             return (
-                <div role="group" className="ct-form-vertical">
+                <div role="group">
                     { fieldset }
                 </div>
             );
@@ -750,17 +781,13 @@ export const CheckBoxes = (tag, title, options) => {
 
 const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
     return (
-        <React.Fragment key={tag}>
-            <div className="checkbox ct-form-split dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
-                <label>
-                    <input type="checkbox" checked={val !== false}
-                        onChange={event => update_function(event.target.checked ? "" : false)} />
-                    {title}
-                </label>
-            </div>
-            <input className="form-control ct-form-split" type="text" hidden={val === false}
-                   value={val} onChange={event => update_function(event.target.value)} />
-        </React.Fragment>
+        <div className="ct-storage-checkbox" data-field={tag} data-field-type="text-input-checked" key={tag}>
+            <Checkbox isChecked={val !== false}
+                      id={tag}
+                      label={title}
+                      onChange={checked => update_function(checked ? "" : false)} />
+            {val !== false && <TextInputPF4 id={tag + "-input"} value={val} onChange={update_function} />}
+        </div>
     );
 };
 
@@ -844,37 +871,35 @@ class SizeSliderElement extends React.Component {
             onChange(Math.max(min, value));
         };
 
-        const change_text = (event) => {
-            if (event.type == "change") {
-                let val = Number(event.target.value) * unit;
-                if (event.target.value === "" || isNaN(val)) {
-                    /* If there something else than a number in the
-                       input element, we use that as the value
-                       directly so that it sticks around.  It will be
-                       rejected by the validate function below.
-                     */
-                    onChange(event.target.value);
-                } else {
-                    // As a special case, if the user types something that
-                    // looks like the maximum (or minimum) when formatted,
-                    // always use exactly the maximum (or minimum).  Otherwise
-                    // we have the confusing possibility that with the exact
-                    // same string in the text input, the size is sometimes
-                    // too large (or too small) and sometimes not.
+        const change_text = (value) => {
+            let val = Number(value) * unit;
+            if (value === "" || isNaN(val)) {
+                /* If there something else than a number in the
+                   input element, we use that as the value
+                   directly so that it sticks around.  It will be
+                   rejected by the validate function below.
+                 */
+                onChange(value);
+            } else {
+                // As a special case, if the user types something that
+                // looks like the maximum (or minimum) when formatted,
+                // always use exactly the maximum (or minimum).  Otherwise
+                // we have the confusing possibility that with the exact
+                // same string in the text input, the size is sometimes
+                // too large (or too small) and sometimes not.
 
-                    const sanitize = (limit) => {
-                        var fmt = cockpit.format_number(limit / unit);
-                        var parse = +fmt * unit;
+                const sanitize = (limit) => {
+                    var fmt = cockpit.format_number(limit / unit);
+                    var parse = +fmt * unit;
 
-                        if (val == parse)
-                            val = limit;
-                    };
+                    if (val == parse)
+                        val = limit;
+                };
 
-                    sanitize(min);
-                    sanitize(max);
+                sanitize(min);
+                sanitize(max);
 
-                    onChange(val);
-                }
+                onChange(val);
             }
         };
 
@@ -883,7 +908,7 @@ class SizeSliderElement extends React.Component {
         return (
             <div className="size-sliderx">
                 <StatelessSlider fraction={val / max} onChange={change_slider} />
-                <input className="size-text form-control"
+                <TextInputPF4 className="size-text"
                        value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
                        onChange={change_text} />
                 <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
@@ -954,7 +979,7 @@ function add_usage_message(parts, list, text, c1, c2) {
                     <DataListItemCells
                         dataListCells={[
                             <DataListCell key={elt[c2]} id={elt[c2]}>{elt[c2]}</DataListCell>,
-                            <DataListCell alignRight key={elt[c1]}>{elt[c1]}</DataListCell>
+                            <DataListCell alignRight isFilled={false} key={elt[c1]}>{elt[c1]}</DataListCell>
                         ]}
                     />
                 </DataListItemRow>

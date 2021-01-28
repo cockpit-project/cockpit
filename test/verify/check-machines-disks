@@ -237,6 +237,15 @@ class TestMachinesDisks(VirtualMachinesCase):
             self.volume_format = volume_format
             self.persistent_vm = persistent_vm
 
+        def getExpectedFormat(selfi, pool_type):
+            # Guess by the name of the pool it's format to avoid passing more parameters
+            if pool_type == 'iscsi':
+                return 'unknown'
+            elif pool_type == 'disk':
+                return 'none'
+            else:
+                return 'qcow2'
+
         def execute(self):
             self.open()
             self.fill()
@@ -276,6 +285,8 @@ class TestMachinesDisks(VirtualMachinesCase):
 
                 if self.volume_format:
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
+                else:
+                    b.wait_val("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.getExpectedFormat(self.pool_type))
 
                 # Configure persistency - by default the check box in unchecked for running VMs
                 if self.permanent:
@@ -348,15 +359,8 @@ class TestMachinesDisks(VirtualMachinesCase):
             b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
             if self.cache_mode:
                 b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
-            # Guess by the name of the pool it's format to avoid passing more parameters
-            if self.pool_type == 'iscsi':
-                expected_format = 'unknown'
-            else:
-                expected_format = 'qcow2'
 
-            if self.pool_type == 'disk':
-                expected_format = 'none'
-
+            expected_format = self.getExpectedFormat(self.pool_type)
             # Unknown pool format isn't present in xml anymore
             if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
                 m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")

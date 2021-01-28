@@ -638,21 +638,14 @@ class Browser:
             self.cdp.command("clearExceptions()")
 
             filename = "{0}-{1}.png".format(label or self.label, title)
-            if self.cdp.browser == "chromium":
-                ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
-                if "data" in ret:
-                    with open(filename, 'wb') as f:
-                        f.write(base64.standard_b64decode(ret["data"]))
-                    attach(filename)
-                    print("Wrote screenshot to " + filename)
-                else:
-                    print("Screenshot not available")
-            elif self.cdp.browser == "firefox":
-                # API not yet supported
-                # https://bugzilla.mozilla.org/show_bug.cgi?id=1549466
-                # TODO: Possible workaround could be something like:
-                # Runtime.execute(':screenshot --file <path>)
-                pass
+            ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
+            if "data" in ret:
+                with open(filename, 'wb') as f:
+                    f.write(base64.standard_b64decode(ret["data"]))
+                attach(filename)
+                print("Wrote screenshot to " + filename)
+            else:
+                print("Screenshot not available")
 
             filename = "{0}-{1}.html".format(label or self.label, title)
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",

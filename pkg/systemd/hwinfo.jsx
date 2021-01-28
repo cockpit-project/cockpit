@@ -36,10 +36,9 @@ import {
     Page, PageSection, PageSectionVariants,
     Text, TextVariants,
     Breadcrumb, BreadcrumbItem,
-    Modal,
+    Modal, Switch,
 } from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
@@ -223,7 +222,9 @@ class CPUSecurityMitigationsDialog extends React.Component {
                         />
                         <DataListAction>
                             <div id="nosmt-switch">
-                                <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
+                                <Switch isDisabled={this.state.rebooting}
+                                        onChange={ value => this.setState({ nosmt: value }) }
+                                        isChecked={ this.state.nosmt } />
                             </div>
                         </DataListAction>
                     </DataListItemRow>

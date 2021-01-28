@@ -160,7 +160,7 @@ class TestKeys(MachineCase):
             b.wait_visible("%s input[type=checkbox]%s" % (selector, enabled and ":checked" or ":not(:checked)"))
 
         def toggleKeyState(selector, on_area=False):
-            b.click(selector + " .onoff-ct input")
+            b.click(selector + " .pf-c-switch__input")
 
         # Operating systems where auto loading doesn't work
         auto_load = not m.ostree_image

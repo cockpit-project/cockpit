@@ -202,7 +202,7 @@ export class MDRaidDetails extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("storage", "Bitmap")}</DescriptionListTerm>
                     <DescriptionListDescription>
-                        <StorageOnOff state={value} onChange={toggle_bitmap} />
+                        <StorageOnOff state={value} aria-label={_("Toggle bitmap")} onChange={toggle_bitmap} />
                     </DescriptionListDescription>
                 </DescriptionListGroup>
             );

@@ -22,11 +22,11 @@ import cockpit from "cockpit";
 import React from "react";
 import {
     Alert, AlertActionCloseButton, Button,
-    Page, PageSection, PageSectionVariants
+    Page, PageSection, PageSectionVariants,
+    Switch
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -286,14 +286,14 @@ class SELinuxStatus extends React.Component {
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
-        const statusMsg = this.props.selinuxStatus.enforcing ? _("Enforcing") : _("Permissive");
-
         return (
             <div className="selinux-policy-ct">
                 <div className="selinux-state">
                     <h2>{_("SELinux policy")}</h2>
-                    <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
-                    <span className="status">{ statusMsg }</span>
+                    <Switch isChecked={this.props.selinuxStatus.enforcing}
+                            label={_("Enforcing")}
+                            labelOff={_("Permissive")}
+                            onChange={this.props.changeSelinuxMode} />
                 </div>
                 { note !== null &&
                     <label className="note">

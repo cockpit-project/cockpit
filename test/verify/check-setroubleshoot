@@ -284,14 +284,14 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "SELinux policy")
 
         def assertEnforce(active):
-            b.wait_visible(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        b.click(".onoff-ct input")
+        b.click(".pf-c-switch__input")
         assertEnforce(False)
         m.execute("getenforce | grep -q 'Permissive'")
 

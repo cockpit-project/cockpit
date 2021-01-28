@@ -19,10 +19,9 @@
 import React from 'react';
 import {
     Card, CardBody, Button, CardTitle, Modal, Alert,
-    Form, FormGroup, TextInput
+    Form, FormGroup, Switch, TextInput
 } from '@patternfly/react-core';
 
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as service from "service.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
@@ -208,10 +207,11 @@ export class ConfigurationCard extends React.Component {
                                 <tr>
                                     <th scope="row">{_("Store metrics")}</th>
                                     <td>
-                                        <OnOffSwitch
+                                        <Switch
                                             id="server-pmlogger-switch"
-                                            state={this.pmlogger_service.state === "running"}
-                                            disabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
+                                            aria-label={_("Store metrics")}
+                                            isChecked={this.pmlogger_service.state === "running"}
+                                            isDisabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
                                             onChange={this.onPmLoggerSwitchChange} />
                                     </td>
                                 </tr>}

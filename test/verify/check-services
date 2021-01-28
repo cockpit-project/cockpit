@@ -43,10 +43,10 @@ class TestServices(MachineCase):
         self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
 
     def wait_onoff(self, val):
-        self.browser.wait_visible(".service-top-panel .onoff-ct input" + (":checked" if val else ":not(:checked)"))
+        self.browser.wait_visible(".service-top-panel .pf-c-switch__input" + (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self):
-        self.browser.click(".service-top-panel .onoff-ct input")
+        self.browser.click(".service-top-panel .pf-c-switch__input")
 
     def do_action(self, action):
         self.browser.click(".service-top-panel .pf-c-dropdown button")
@@ -57,7 +57,7 @@ class TestServices(MachineCase):
         if onoff:
             self.wait_onoff(enabled)
         else:
-            self.browser.wait_not_present(".service-top-panel .onoff-ct")
+            self.browser.wait_not_present(".service-top-panel .pf-c-switch")
 
         if kebab:
             self.browser.click(".service-top-panel .pf-c-dropdown button")

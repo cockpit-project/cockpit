@@ -70,7 +70,7 @@ class TestKdump(MachineCase):
         b.wait_visible("#app")
 
         def assertActive(active):
-            b.wait_visible(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         if m.image in ["rhel-8-3", "rhel-8-4", "centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)

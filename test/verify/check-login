@@ -55,6 +55,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Test that we don't show banner when not specified
         b.wait_visible("#login-user-input")
         b.wait_not_visible("#banner")
+        self.assertTrue(False)
 
         m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()

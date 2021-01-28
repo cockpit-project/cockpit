@@ -66,6 +66,10 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
+V_XZ = $(V_XZ_$(V))
+V_XZ_ = $(V_XZ_$(AM_DEFAULT_VERBOSITY))
+V_XZ_0 = @echo "  XZ      " $@;
+
 V_COPY = $(V_COPY_$(V))
 V_COPY_ = $(V_COPY_$(AM_DEFAULT_VERBOSITY))
 V_COPY_0 = @echo "  COPY    " $@;
@@ -113,6 +117,14 @@ CAT_RULE = \
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
+
+XZ_RULE = \
+	$(V_XZ) $(MKDIR_P) $(dir $@) && \
+	xz $(XZ_COMPRESS_FLAGS) -c $< > $@.tmp && $(MV) $@.tmp $@
+
+TAR_RULE = \
+	$(V_TAR) $(MKDIR_P) $(dir $@) && \
+	tar c $^ > $@.tmp && $(MV) $@.tmp $@
 
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
@@ -267,10 +279,10 @@ JUMPSTART_CONTENTS = \
 	$(WEBPACK_STAMPS)
 
 cockpit-jumpstart.tar: $(JUMPSTART_CONTENTS)
-	tar cf $@ $^
+	$(TAR_RULE)
 
 cockpit-jumpstart.tar.xz: cockpit-jumpstart.tar
-	xz --extreme < $< > $@
+	$(XZ_RULE)
 
 jumpstart:
 	tar xmf cockpit-jumpstart.tar.xz

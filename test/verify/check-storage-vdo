@@ -110,7 +110,8 @@ class TestStorageVDO(StorageCase):
         # Delete
 
         b.click('.pf-c-card__header:contains("VDO") button:contains("Delete")')
-        self.confirm()
+        self.dialog_wait_open()
+        self.dialog_apply_with_retry(expected_errors=["Device or resource busy"])
         b.wait_visible("#storage")
         b.wait_not_in_text("#devices", "vdo0")
 

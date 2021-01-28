@@ -20,12 +20,12 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import {
     Button, Tooltip, TooltipPosition,
     Page, PageSection, PageSectionVariants,
     Bullseye,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    Switch,
 } from "@patternfly/react-core";
 
 import * as Select from "cockpit-components-select.jsx";
@@ -500,8 +500,10 @@ export class KdumpPage extends React.Component {
                                 <DescriptionListTerm>{_("kdump status")}</DescriptionListTerm>
                                 <DescriptionListDescription>
                                     <div role="group">
-                                        <OnOffSwitch state={!!serviceRunning} onChange={this.props.onSetServiceState}
-                                            disabled={this.props.stateChanging} />
+                                        <Switch isChecked={!!serviceRunning}
+                                                onChange={this.props.onSetServiceState}
+                                                aria-label={_("kdump status")}
+                                                isDisabled={this.props.stateChanging} />
                                         {serviceWaiting}
                                         {kdumpServiceDetails}
                                     </div>

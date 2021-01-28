@@ -17,16 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
 import * as sshFile from "./ssh-file-autocomplete.jsx";
 import * as credentials from "credentials";
 import $ from "jquery";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
 
 import "listing.scss";
 import "patterns";
+
+const _ = cockpit.gettext;
 
 export function setup() {
     var keys;
@@ -67,9 +70,10 @@ export function setup() {
 
     function renderKeyOnOff(id, state, disabled, tbody) {
         ReactDOM.render(
-            React.createElement(OnOffSwitch, {
-                state: state,
-                disabled: disabled,
+            React.createElement(Switch, {
+                isChecked: state,
+                isDisabled: disabled,
+                'aria-label': _("Use key"),
                 onChange: enable => onToggleKey(id, enable, tbody)
             }),
             document.querySelector('table.credential-listing tbody[data-id="' + id + '"] .listing-ct-actions'));

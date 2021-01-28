@@ -18,14 +18,17 @@
  */
 
 import React from "react";
-import { Button, Tooltip, TooltipPosition, Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
+import {
+    Button,
+    Progress, ProgressMeasureLocation, ProgressVariant,
+    Switch,
+    Tooltip, TooltipPosition,
+} from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 import client from "./client.js";
-
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 import { dialog_open } from "./dialog.jsx";
 import { fmt_to_fragments } from "./utilsx.jsx";
@@ -172,11 +175,11 @@ export class StorageOnOff extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                <OnOffSwitch state={this.state.promise
+                                <Switch isChecked={this.state.promise
                                     ? this.state.promise_goal_state
                                     : this.props.state}
-                                                 disabled={!!(excuse || this.state.promise)}
-                                                 style={(excuse || this.state.promise) ? { pointerEvents: 'none' } : null}
+                                                 aria-label={this.props['aria-label']}
+                                                 isDisabled={!!(excuse || this.state.promise)}
                                                  onChange={onChange} />
                             )} />
         );

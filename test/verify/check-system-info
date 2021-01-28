@@ -759,12 +759,12 @@ class TestPcp(packagelib.PackageCase):
         b.wait_not_present("#system-configuration-enable-pcp-link")
 
         # Turn stored metrics on
-        b.wait_visible("#server-pmlogger-switch input:not(:checked)")
-        b.click("#server-pmlogger-switch input")
-        b.wait_visible("#server-pmlogger-switch input:disabled")
+        b.wait_visible("#server-pmlogger-switch:not(:checked)")
+        b.click("#server-pmlogger-switch")
+        b.wait_visible("#server-pmlogger-switch:disabled")
         m.execute("touch /tmp/pmlogger.start")
-        b.wait_visible("#server-pmlogger-switch input:not(:disabled)")
-        b.wait_visible("#server-pmlogger-switch input:checked")
+        b.wait_visible("#server-pmlogger-switch:not(:disabled)")
+        b.wait_visible("#server-pmlogger-switch:checked")
 
 if __name__ == '__main__':
     test_main()

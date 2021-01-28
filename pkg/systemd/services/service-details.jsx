@@ -26,11 +26,10 @@ import {
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
-    Modal
+    Modal, Switch
 } from "@patternfly/react-core";
 
 import cockpit from "cockpit";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
 
 import './service-details.scss';
@@ -430,7 +429,9 @@ export class ServiceDetails extends React.Component {
                                     { !masked && !isStatic &&
                                         <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
                                             <span>
-                                                <OnOffSwitch state={enabled} disabled={this.state.waitsAction || this.state.waitsFileAction} onChange={this.onOnOffSwitch} />
+                                                <Switch isChecked={enabled}
+                                                        isDisabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                        onChange={this.onOnOffSwitch} />
                                             </span>
                                         </Tooltip>
                                     }

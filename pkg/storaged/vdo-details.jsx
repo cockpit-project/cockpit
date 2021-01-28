@@ -317,6 +317,7 @@ export class VDODetails extends React.Component {
                             <DescriptionListTerm>{_("Compression")}</DescriptionListTerm>
                             <DescriptionListDescription>
                                 <StorageOnOff state={vdo.compression}
+                                              aria-label={_("Use compression")}
                                               onChange={() => vdo.set_compression(!vdo.compression)} />
                             </DescriptionListDescription>
                         </DescriptionListGroup>
@@ -325,7 +326,8 @@ export class VDODetails extends React.Component {
                             <DescriptionListTerm>{_("Deduplication")}</DescriptionListTerm>
                             <DescriptionListDescription>
                                 <StorageOnOff state={vdo.deduplication}
-                                               onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
+                                              aria-label={_("Use deduplication")}
+                                              onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
                             </DescriptionListDescription>
                         </DescriptionListGroup>
                     </DescriptionList>

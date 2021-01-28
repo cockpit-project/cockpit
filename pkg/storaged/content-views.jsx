@@ -25,7 +25,8 @@ import {
 import * as utils from "./utils.js";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardBody, CardActions, Text, TextVariants } from "@patternfly/react-core";
+import { Card, CardHeader, CardTitle, CardBody, CardActions, Spinner, Text, TextVariants } from "@patternfly/react-core";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
@@ -93,7 +94,7 @@ function create_tabs(client, target, is_partition) {
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
         if (tab_warnings.length > 0)
-            name = <><span className="pficon pficon-warning-triangle-o" /> {name}</>;
+            name = <><ExclamationTriangleIcon /> {name}</>;
         tabs.push(
             {
                 name: name,
@@ -430,10 +431,10 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     // place.
 
     var last_column = null;
-    if (job_object)
+    if (job_object && client.path_jobs[job_object])
         last_column = (
-            <span className="spinner spinner-sm spinner-inline"
-                  style={{ visibility: client.path_jobs[job_object] ? "visible" : "hidden" }} />);
+            <Spinner size="sm" />
+        );
     if (tabs.row_action) {
         if (last_column) {
             last_column = <span>{last_column}{tabs.row_action}</span>;
@@ -443,7 +444,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     }
 
     if (tabs.has_warnings) {
-        last_column = <span>{last_column}<span className="pficon pficon-warning-triangle-o" /></span>;
+        last_column = <span>{last_column}<ExclamationTriangleIcon /></span>;
     }
 
     var cols = [
@@ -462,7 +463,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
 
     var menu = null;
     if (tabs.menu_actions && tabs.menu_actions.length > 0)
-        menu = <StorageBarMenu id={"menu-" + name}>{tabs.menu_actions.map(menuitem)}</StorageBarMenu>;
+        menu = <StorageBarMenu id={"menu-" + name} menuItems={tabs.menu_actions.map(menuitem)} />;
 
     var actions = <>{tabs.actions}{menu}</>;
 

@@ -186,7 +186,7 @@ class TestStorageLuks(StorageCase):
 
         # Add a key
         #
-        b.click(panel + ".fa-plus")
+        b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "tang")
@@ -221,7 +221,7 @@ class TestStorageLuks(StorageCase):
 
         # Remove key on client
         #
-        b.click(panel + ".table tr:nth-child(2) .fa-minus")
+        b.click(panel + ".table tr:nth-child(2) button[aria-label=Remove]")
         self.confirm()
         b.wait_not_present(panel + ".table tr:nth-child(2)")
 
@@ -258,7 +258,7 @@ class TestStorageLuks(StorageCase):
         tab = self.content_tab_expand(1, 1)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
-        b.click(panel + ".fa-plus")
+        b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "luks-passphrase")
@@ -280,7 +280,7 @@ class TestStorageLuks(StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
         self.content_row_wait_in_col(2, 1, "ext4 file system")
         # delete second key slot by providing passphrase
-        b.click(panel + "tr:nth-child(2) .fa-minus")
+        b.click(panel + "tr:nth-child(2) button[aria-label=Remove]")
         self.dialog_wait_open()
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
@@ -298,7 +298,7 @@ class TestStorageLuks(StorageCase):
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
         for i in range(1, 8):
-            b.click(panel + ".fa-plus")
+            b.click(panel + "button[aria-label=Add]")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("type", "luks-passphrase")
@@ -317,8 +317,8 @@ class TestStorageLuks(StorageCase):
 
         # remove one slot
         slots_table = tab + " .pf-c-card table "
-        b.wait_visible(slots_table + "tbody tr:last-child .fa-minus")
-        b.click(slots_table + "tbody tr:last-child .fa-minus")
+        b.wait_visible(slots_table + "tbody tr:last-child button[aria-label=Remove]")
+        b.click(slots_table + "tbody tr:last-child button[aria-label=Remove]")
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -326,7 +326,7 @@ class TestStorageLuks(StorageCase):
         b.wait_not_present(slots_table + ":disabled")
         b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
-        b.click(slots_table + "tbody tr:nth-child(1) .fa-minus")
+        b.click(slots_table + "tbody tr:nth-child(1) button[aria-label=Remove]")
         b.click(self.dialog_field("passphrase") + " label:contains(Force remove passphrase in key slot 0)")
         self.dialog_apply()
         self.dialog_wait_close()

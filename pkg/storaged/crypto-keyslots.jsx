@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants } from "@patternfly/react-core";
+import { EditIcon, MinusIcon, PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import sha1 from "js-sha1";
 import stable_stringify from "json-stable-stringify-without-jsonify";
@@ -353,7 +354,7 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
 const RemovePassphraseField = (tag, key, dev) => {
     return {
         tag: tag,
-        title: <span className="pficon pficon-warning-triangle-o large" />,
+        title: <ExclamationTriangleIcon className="ct-ExclamationTriangleIcon" size="lg" />,
         options: { },
         initial_value: "",
 
@@ -416,7 +417,7 @@ function remove_passphrase_dialog(block, key) {
 const RemoveClevisField = (tag, key, dev) => {
     return {
         tag: tag,
-        title: <span className="pficon pficon-warning-triangle-o large" />,
+        title: <ExclamationTriangleIcon className="ct-ExclamationTriangleIcon" size="lg" />,
         options: { },
         initial_value: "",
 
@@ -547,15 +548,17 @@ export class CryptoKeyslots extends React.Component {
                         <td className="shrink key-slot">{ cockpit.format(_("Slot $0"), slot) }</td>
                         <td className="shrink text-right">
                             <StorageButton onClick={edit}
+                                           ariaLabel={_("Edit")}
                                            excuse={(keys.length == this.state.max_slots)
                                                ? _("Editing a key requires a free slot")
                                                : null}>
-                                <span className="pficon pficon-edit" />
+                                <EditIcon />
                             </StorageButton>
                             { "\n" }
                             <StorageButton onClick={remove}
+                                           ariaLabel={_("Remove")}
                                            excuse={keys.length == 1 ? _("The last key slot can not be removed") : null}>
-                                <span className="fa fa-minus" />
+                                <MinusIcon />
                             </StorageButton>
                         </td>
                     </tr>
@@ -592,10 +595,11 @@ export class CryptoKeyslots extends React.Component {
                             { remaining < 6 ? (remaining ? cockpit.format(cockpit.ngettext("$0 slot remains", "$0 slots remain", remaining), remaining) : _("No available slots")) : null }
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
+                                       ariaLabel={_("Add")}
                                        excuse={(keys.length == this.state.max_slots)
                                            ? _("No free key slots")
                                            : null}>
-                            <span className="fa fa-plus" />
+                            <PlusIcon />
                         </StorageButton>
                     </CardActions>
                     <CardTitle><Text component={TextVariants.h2}>{_("Keys")}</Text></CardTitle>

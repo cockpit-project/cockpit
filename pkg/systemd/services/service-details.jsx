@@ -464,9 +464,11 @@ export class ServiceDetails extends React.Component {
                                 {relationships.map(rel =>
                                     rel.Units && rel.Units.length > 0 &&
                                         <DescriptionListGroup key={rel.Name.split().join("")}>
-                                            <DescriptionListTerm className="closer-lines">{rel.Name}</DescriptionListTerm>
-                                            <DescriptionListDescription id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
-                                                {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                            <DescriptionListTerm>{rel.Name}</DescriptionListTerm>
+                                            <DescriptionListDescription id={rel.Name.split(" ").join("")}>
+                                                <ul className="comma-list">
+                                                    {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                                </ul>
                                             </DescriptionListDescription>
                                         </DescriptionListGroup>
                                 )}

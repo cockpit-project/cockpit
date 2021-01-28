@@ -181,8 +181,8 @@ class EditDiskModalBody extends React.Component {
 
         const showWarning = () => {
             if (vm.state === 'running' && (
-                this.state.readonly !== disk.readonly ||
-                this.state.shareable !== disk.shareable)) {
+                (this.state.access == 'readonly' && !disk.readonly) ||
+                (this.state.access == 'shareable' && !disk.shareable))) {
                 return <Alert isInline variant='warning' id={`${idPrefix}-idle-message`} title={_("Changes will take effect after shutting down the VM")} />;
             }
         };

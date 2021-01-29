@@ -810,9 +810,9 @@ ExecStart=/bin/true
         # Make sure negotiate auth is not offered first
         m.start_cockpit()
 
-        output = m.execute(['/usr/bin/curl', '-v', '-s',
-                            '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
-                            'http://x0.cockpit.lan:9090/cockpit/login', '2>&1'])
+        output = m.execute('/usr/bin/curl -v -s '
+                           '--resolve x0.cockpit.lan:9090:10.111.113.1 '
+                           'http://x0.cockpit.lan:9090/cockpit/login 2>&1')
         self.assertIn("HTTP/1.1 401", output)
         self.assertNotIn("WWW-Authenticate: Negotiate", output)
 

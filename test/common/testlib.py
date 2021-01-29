@@ -1197,8 +1197,7 @@ class MachineCase(unittest.TestCase):
         will be appended to the file name, which is useful if you call this
         more than once within one test.
         """
-        # only run this on the default OS test, that's enough
-        if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
+        if not checkRunAxe():
             return
         # HACK: We cannot test axe on Firefox since `axe.run()` returns promise
         # and Firefox CDP cannot wait for it to resolve
@@ -1461,11 +1460,23 @@ def no_retry_when_changed(testEntity):
     return testEntity
 
 
+def checkRunAxe():
+    # only run this on the default OS test, that's enough
+    if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
+        return False
+
+    # when running from release tarballs, module is not available
+    if not os.path.exists(os.path.join(TEST_DIR, "common/axe.js")):
+        print('# enableAxe: axe is not installed, skipping')
+        return False
+
+    return True
+
+
 def enableAxe(method):
     """Enable aXe accessibility test code injection for this test case"""
 
-    # only run this on the default OS test, that's enough
-    if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
+    if not checkRunAxe():
         return method
 
     def wrapper(*args):

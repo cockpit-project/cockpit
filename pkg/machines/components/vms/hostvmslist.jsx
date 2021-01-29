@@ -28,7 +28,6 @@ import {
     Select, SelectOption, SelectVariant,
     Page, PageSection, Text, TextVariants,
 } from '@patternfly/react-core';
-import { cellWidth } from '@patternfly/react-table';
 
 import VmActions from '../vm/vmActions.jsx';
 import { updateVm } from '../../actions/store-actions.js';
@@ -135,10 +134,10 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                         <ListingTable aria-label={_("Virtual machines")}
                             variant='compact'
                             columns={[
-                                { title: _("Name"), header: true, transforms: [cellWidth(25)] },
-                                { title: _("Connection"), transforms: [cellWidth(25)] },
-                                { title: _("State"), transforms: [cellWidth(25)] },
-                                { title: "", transforms: [cellWidth(25)] },
+                                { title: _("Name"), header: true, props: { width: 25 } },
+                                { title: _("Connection"), props: { width: 25 } },
+                                { title: _("State"), props: { width: 25 } },
+                                { title: "", props: { width: 25 } },
                             ]}
                             emptyCaption={_("No VM is running or defined on this host")}
                             rows={ combinedVmsFiltered

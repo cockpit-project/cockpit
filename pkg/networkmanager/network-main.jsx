@@ -28,7 +28,6 @@ import {
     Page, PageSection, PageSectionVariants,
     Text, TextVariants,
 } from "@patternfly/react-core";
-import { cellWidth } from '@patternfly/react-table';
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -177,10 +176,10 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                         <ListingTable aria-label={_("Managed interfaces")}
                                       variant='compact'
                                       columns={[
-                                          { title: _("Name"), header: true, transforms: [cellWidth(25)] },
-                                          { title: _("IP address"), transforms: [cellWidth(25)] },
-                                          { title: _("Sending"), transforms: [cellWidth(25)] },
-                                          { title: _("Receiving"), transforms: [cellWidth(25)] },
+                                          { title: _("Name"), header: true, props: { width: 25 } },
+                                          { title: _("IP address"), props: { width: 25 } },
+                                          { title: _("Sending"), props: { width: 25 } },
+                                          { title: _("Receiving"), props: { width: 25 } },
                                       ]}
                                       rows={managed} />
                     </Card>
@@ -192,10 +191,10 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                         <ListingTable aria-label={_("Unmanaged interfaces")}
                                       variant='compact'
                                       columns={[
-                                          { title: _("Name"), header: true, transforms: [cellWidth(25)] },
-                                          { title: _("IP address"), transforms: [cellWidth(25)] },
-                                          { title: _("Sending"), transforms: [cellWidth(25)] },
-                                          { title: _("Receiving"), transforms: [cellWidth(25)] },
+                                          { title: _("Name"), header: true, props: { width: 25 } },
+                                          { title: _("IP address"), props: { width: 25 } },
+                                          { title: _("Sending"), props: { width: 25 } },
+                                          { title: _("Receiving"), props: { width: 25 } },
                                       ]}
                                       rows={unmanaged} />
                     </Card>}

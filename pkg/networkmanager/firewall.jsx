@@ -31,7 +31,6 @@ import {
     TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
     Tooltip, Page, PageSection, PageSectionVariants, Modal,
 } from '@patternfly/react-core';
-import { cellWidth } from '@patternfly/react-table';
 import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
@@ -182,7 +181,7 @@ function ZoneSection(props) {
             { !firewall.readonly && <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div> }
         </div>
         {props.zone.services.length > 0 &&
-        <ListingTable columns={[{ title: _("Service"), transforms: [cellWidth(40)] }, { title: _("TCP"), transforms: [cellWidth(30)] }, { title: _("UDP"), transforms: [cellWidth(30)] }]}
+        <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
                       aria-label={props.zone.id}
                       variant="compact"
                       emptyCaption={_("There are no active services in this zone")}

@@ -18,7 +18,6 @@
  */
 import cockpit from "cockpit";
 import React, { useState, useContext } from "react";
-import { cellWidth } from '@patternfly/react-table';
 import {
     Button,
     Card, CardActions, CardTitle, CardHeader,
@@ -214,10 +213,10 @@ export const NetworkInterfaceMembers = ({
             <ListingTable aria-label={_("Interface members")}
                           variant='compact'
                           columns={[
-                              { title: (cs && cs.type == "bond") ? _("Interfaces") : _("Ports"), transforms: [cellWidth(25)] },
-                              { title: _("Sending"), transforms: [cellWidth(25)] },
-                              { title: _("Receiving"), transforms: [cellWidth(25)] },
-                              { title: "", transforms: [cellWidth(25)] },
+                              { title: (cs && cs.type == "bond") ? _("Interfaces") : _("Ports"), props: { width: 25 } },
+                              { title: _("Sending"), props: { width: 25 } },
+                              { title: _("Receiving"), props: { width: 25 } },
+                              { title: "", props: { width: 25 } },
                           ]}
                           rows={renderMemberRows()} />
         </Card>

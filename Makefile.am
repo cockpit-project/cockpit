@@ -151,8 +151,6 @@ SUBST_RULE = \
 	$(GZ_RULE)
 .js.js.gz:
 	$(GZ_RULE)
-.json.in.json:
-	$(SUBST_RULE)
 .map.map.gz:
 	$(GZ_RULE)
 .service.in.service:
@@ -232,8 +230,8 @@ dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modu
 	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
 
-dist/%/manifest.json: pkg/%/manifest.json
-	$(COPY_RULE)
+dist/%/manifest.json: pkg/%/manifest.json.in
+	$(SUBST_RULE)
 
 -include $(WEBPACK_DEPS)
 

@@ -135,6 +135,8 @@ with open(template_file, encoding='UTF-8') as f:
 license_ids = template_licenses(template)
 paragraphs = []
 for module in sorted(os.listdir(args.node_modules)):
+    if module.startswith('.'):
+        continue
     if module == 'README':
         continue
     moddir = os.path.join(args.node_modules, module)

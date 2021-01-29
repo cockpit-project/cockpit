@@ -413,6 +413,7 @@ Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
+Obsoletes: cockpit-dashboard
 %if 0%{?rhel}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Obsoletes: cockpit-networkmanager
@@ -426,7 +427,6 @@ Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 Requires: sos
-Obsoletes: cockpit-dashboard
 %endif
 %if 0%{?fedora} >= 29
 # 0.7.0 (actually) supports task cancellation.

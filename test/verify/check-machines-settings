@@ -250,7 +250,6 @@ class TestMachinesSettings(VirtualMachinesCase):
 
     def testBootOrder(self):
         b = self.browser
-        m = self.machine
 
         self.createVm("subVmTest1")
         self.machine.execute("touch /var/lib/libvirt/images/phonycdrom; virsh attach-disk subVmTest1 /var/lib/libvirt/images/phonycdrom sdb --type cdrom --config")
@@ -265,11 +264,15 @@ class TestMachinesSettings(VirtualMachinesCase):
         # Wait for the edit button
         bootOrder = b.text("#vm-subVmTest1-boot-order")
 
+        # Ensure that it's disabled for running VMs
+        b.wait_visible("#vm-subVmTest1-boot-order button[aria-disabled=true]")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+
         # Open dialog
         b.click("#vm-subVmTest1-boot-order button")
         b.wait_visible("#vm-subVmTest1-order-modal-window")
-        # Make sure the footer warning does not appear
-        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
         # Check a cdrom attributes are shown correctly
         cdrom_row = b.text("#vm-subVmTest1-order-modal-device-row-2 .list-view-pf-additional-info")
         self.assertTrue("cdrom" and "/var/lib/libvirt/images/phonycdrom" in cdrom_row)
@@ -277,35 +280,21 @@ class TestMachinesSettings(VirtualMachinesCase):
         row = b.text("#vm-subVmTest1-order-modal-device-row-1 .list-view-pf-additional-info")
         b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down")
         b.wait_in_text("#vm-subVmTest1-order-modal-device-row-0 .list-view-pf-additional-info", row)
-        # Make sure the footer warning does appear
-        b.wait_visible("#vm-subVmTest1-order-modal-min-message")
 
         # Save
         b.click("#vm-subVmTest1-order-modal-save")
         b.wait_not_present("#vm-subVmTest1-order-modal-window")
-        # Make sure warning next to boot order appears
-        b.wait_visible("#boot-order-tooltip")
-
-        # Shut off domain and check changes are applied
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Check boot order has changed and no warning is shown
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
-        b.wait_not_present("#boot-order-tooltip")
 
         bootOrder = b.text("#vm-subVmTest1-boot-order")
 
         # Open dialog
         b.click("#vm-subVmTest1-boot-order button")
         b.wait_visible("#vm-subVmTest1-order-modal-window")
-        # Make sure the footer warning does not appear
-        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
         # Unselect second device
         b.click("#vm-subVmTest1-order-modal-device-row-1 input")
-        # Make sure the footer warning still does not appear, since machine is shut down
-        b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
 
         # Save
         b.click("#vm-subVmTest1-order-modal-save")
@@ -313,14 +302,6 @@ class TestMachinesSettings(VirtualMachinesCase):
 
         # Check boot order has changed and no warning is shown
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
-        b.wait_not_present("#boot-order-tooltip")
-
-        # Run VM
-        b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
-        # Non-persistent VM doesn't have configurable boot order
-        m.execute("virsh undefine subVmTest1")
-        b.wait_visible("#vm-subVmTest1-boot-order button:disabled")
 
     def testDomainMemorySettings(self):
         b = self.browser
@@ -404,17 +385,14 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        # Change Boot Order setting
-        bootOrder = b.text("#vm-subVmTest1-boot-order")
-        b.click("#vm-subVmTest1-boot-order button") # Open dialog
-        b.wait_visible(".pf-c-modal-box__body")
-        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
-        b.click("#vm-subVmTest1-order-modal-save") # Save
-        b.wait_not_present(".pf-c-modal-box__body")
+        # Change CPU model setting
+        b.wait_visible("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
+        b.click("#vm-subVmTest1-cpu-model button")
+        b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
+        b.click("#cpu-config-dialog-apply")
 
         # Change vCPUs setting
         b.click("#vm-subVmTest1-vcpus-count button") # Open dialog
-        b.wait_visible(".pf-c-modal-box__body")
         b.set_input_text("#machines-vcpu-max-field", "3") # Change values
         b.set_input_text("#machines-vcpu-count-field", "3")
         b.click("#machines-vcpu-modal-dialog-apply") # Save
@@ -426,7 +404,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # Check both changes have been applied
-        b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
+        b.wait_in_text("#vm-subVmTest1-cpu-model", "host passthrough")
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
 

@@ -26,11 +26,9 @@ import {
     ListViewItem,
 } from 'patternfly-react';
 
-import { Button, Alert, Modal } from '@patternfly/react-core';
-import WarningInactive from '../../common/warningInactive.jsx';
+import { Button, Modal, Tooltip } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
-    getBootOrderDevices,
     findHostNodeDevice,
     getSortedBootOrderDevices,
     rephraseUI,
@@ -255,37 +253,6 @@ class BootOrderModal extends React.Component {
     render() {
         const { nodeDevices, vm } = this.props;
         const idPrefix = vmId(vm.name) + '-order-modal';
-
-        /**
-         * Returns whetever state of device represented in UI has changed
-         *
-         * @param {object} device
-         * @param {number} index order of device in list
-         * @returns {boolean}
-         */
-        function deviceStateHasChanged(device, index) {
-            // device was selected
-            if (device.checked && !device.initialOrder)
-                return true;
-
-            // device was unselected
-            if (!device.checked && device.initialOrder)
-                return true;
-
-            // device was moved in boot order list
-            if (device.initialOrder && device.initialOrder !== index + 1)
-                return true;
-
-            return false;
-        }
-
-        const showWarning = () => {
-            if (vm.state === "running" &&
-                this.state.devices.some((device, index) => deviceStateHasChanged(device, index))) {
-                return <Alert isInline variant='warning' id={`${idPrefix}-min-message`} title={_("Changes will take effect after shutting down the VM")} />;
-            }
-        };
-
         const defaultBody = (
             <div className="list-group dialog-list-ct">
                 <ListView className="boot-order-list-view">
@@ -326,7 +293,6 @@ class BootOrderModal extends React.Component {
                        </>
                    }>
                 <>
-                    {showWarning()}
                     {defaultBody}
                 </>
             </Modal>
@@ -360,26 +326,17 @@ function getBootOrder(vm) {
 
 export const BootOrderLink = ({ vm, idPrefix, close, dispatch, nodeDevices }) => {
     const [bootOrderShow, setBootOrderShow] = useState(false);
-    const bootOrderChanged = () => {
-        const activeDevices = getBootOrderDevices(vm);
-        const inactiveDevices = getBootOrderDevices(vm.inactiveXML);
-
-        // check if number bootable devices has changed
-        if (inactiveDevices.length !== activeDevices.length)
-            return true;
-        else
-            // check if boot order of any device has changed
-            return !inactiveDevices.every((element, index) => element.bootOrder === activeDevices[index].bootOrder);
-    };
+    const modalButton = (
+        <Button variant="link" className="edit-inline" isInline isAriaDisabled={vm.state != 'shut off'} onClick={setBootOrderShow}>
+            {_("edit")}
+        </Button>
+    );
 
     return (
         <>
             {bootOrderShow && <BootOrderModal close={() => setBootOrderShow(false)} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} />}
             {getBootOrder(vm)}
-            { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
-            <Button variant="link" className="edit-inline" isInline isDisabled={!vm.persistent} onClick={setBootOrderShow}>
-                {_("edit")}
-            </Button>
+            {vm.state == 'shut off' ? modalButton : <Tooltip content={_("Only editable when the guest is shut off")}>{modalButton}</Tooltip>}
         </>
     );
 };

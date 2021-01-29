@@ -279,14 +279,9 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                       delete=False))
         self.machine.execute("virsh destroy pxe-guest")
 
-        # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is marked as non bootable
-        b.click("#vm-pxe-guest-overview")
-        b.click("#vm-pxe-guest-boot-order button")
-        b.wait_visible("#vm-pxe-guest-order-modal-window")
-        b.wait_visible("#vm-pxe-guest-order-modal-device-row-0 input:checked")
-        b.wait_in_text("#vm-pxe-guest-order-modal-device-row-0 .list-group-item-heading", "disk")
-        b.wait_visible("#vm-pxe-guest-order-modal-device-row-1 input:not(checked)")
-        b.wait_in_text("#vm-pxe-guest-order-modal-device-row-1 .list-group-item-heading", "network")
+        # Verify that the newly created disk is first in the boot order and the network used for the PXE boot is not on the bootable devices list
+        b.wait_in_text("#vm-pxe-guest-boot-order", "disk")
+        b.wait_not_in_text("#vm-pxe-guest-boot-order", "network")
 
     def testCreateThenInstall(self):
         runner = TestMachinesCreate.CreateVmRunner(self)

@@ -199,6 +199,14 @@ WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
+# required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
+WEBPACK_TEST_DEPS = \
+	node_modules/chrome-remote-interface \
+	node_modules/commander \
+	node_modules/sizzle \
+	node_modules/ws \
+	$(NULL)
+
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
 MAINTAINERCLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
@@ -246,7 +254,7 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 
 #

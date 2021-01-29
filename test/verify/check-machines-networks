@@ -607,7 +607,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
-        b.wait_val("#vm-subVmTest1-network-1-select-type", "direct")
+        b.wait_val("#vm-subVmTest1-network-1-select-type", "bridge")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "network")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
 

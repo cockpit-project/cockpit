@@ -316,6 +316,25 @@ test_parse_headers (void)
 }
 
 static void
+test_parse_duplicate_headers (void)
+{
+  GHashTable *headers;
+  gssize ret;
+
+  const gchar *input =
+      "header1: value2\r\n"
+      "Header1: value3\r\n"
+      "\r\n"
+      "BODY  ";
+
+  ret = web_socket_util_parse_headers (input, strlen (input), &headers);
+  g_assert_cmpint (ret, ==, strlen (input) - 6);
+  g_assert_cmpstr (g_hash_table_lookup (headers, "header1"), ==, "value3");
+  g_assert (g_hash_table_lookup (headers, "Something else") == NULL);
+  g_hash_table_unref (headers);
+}
+
+static void
 test_parse_headers_no_out (void)
 {
   const gchar *input =
@@ -1314,6 +1333,7 @@ main (int argc,
   g_test_add_func ("/web-socket/parse-version-1-0", test_parse_version_1_0);
   g_test_add_func ("/web-socket/parse-version-1-1", test_parse_version_1_1);
   g_test_add_func ("/web-socket/parse-headers", test_parse_headers);
+  g_test_add_func ("/web-socket/parse-duplicate-headers", test_parse_duplicate_headers);
   g_test_add_func ("/web-socket/parse-headers-no-out", test_parse_headers_no_out);
   g_test_add_func ("/web-socket/parse-headers-bad", test_parse_headers_bad);
   g_test_add_func ("/web-socket/parse-headers-not-enough", test_parse_headers_not_enough);

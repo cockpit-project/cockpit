@@ -27,7 +27,6 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	$(srcdir)/Makefile \
-	node_modules/README \
 	cockpit-cache-*.tar.xz \
 	$(NULL)
 
@@ -352,16 +351,14 @@ COMMITTED_DIST = \
 	test \
 	$(NULL)
 
-node_modules/README: tools/README.node_modules
-	$(COPY_RULE)
-
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
-dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json) node_modules/README
+dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
+	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/node_modules > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 

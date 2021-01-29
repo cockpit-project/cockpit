@@ -22,11 +22,15 @@ import subprocess
 import parent
 from machineslib import *
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
-@nondestructive
 @no_retry_when_changed
 class TestMachinesLifecycle(VirtualMachinesCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
+        "destination_host": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dns": "10.111.112.100"},
+    }
 
     def testBasic(self):
         self._testBasic()
@@ -98,30 +102,39 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Send Non-Maskable Interrupt (no change in VM state is expected)
-        self.performAction("subVmTest1", "sendNMI")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-sendNMI")
 
         b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # pause
-        self.performAction("subVmTest1", "pause")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-pause")
+        b.wait_in_text("#vm-subVmTest1-state", "Paused")
 
         # resume
-        self.performAction("subVmTest1", "resume")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-resume")
+        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
-        self.performAction("subVmTest1", "reboot")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-reboot")
         wait(lambda: "reboot: Power down" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # force reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
-        self.performAction("subVmTest1", "forceReboot")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceReboot")
         wait(lambda: "Initializing cgroup subsys" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # shut off
-        self.performAction("subVmTest1", "forceOff")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
@@ -131,12 +144,14 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         m.execute("virsh dumpxml subVmTest1 > /tmp/subVmTest1.xml")
         m.execute("virsh start {0} && virsh undefine {0}".format("subVmTest1"))
         b.wait_visible("div[data-vm-transient=\"true\"]")
-        self.performAction("subVmTest1", "forceOff", False)
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
         m.execute("virsh define --file /tmp/subVmTest1.xml")
 
         # clone
-        self.performAction("subVmTest1", "clone")
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-clone a[aria-disabled=false]")
 
         b.wait_text(".pf-c-modal-box__title-text", "Create a clone VM based on subVmTest1")
         b.click("footer button.pf-m-primary")
@@ -166,7 +181,9 @@ class TestMachinesLifecycle(VirtualMachinesCase):
             b.wait_in_text("#vm-subVmTest2-state", "Running")
 
         # stop second VM, event handling should still work
-        self.performAction("subVmTest2", "forceOff")
+        b.click("#vm-subVmTest2-action-kebab button")
+        b.click("#vm-subVmTest2-forceOff")
+        b.wait_in_text("#vm-subVmTest2-state", "Shut off")
 
         b.click("#vm-subVmTest2-run")
 
@@ -330,7 +347,8 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         addDisk(secondDiskVolName, poolName)
 
-        self.performAction(name, "delete")
+        b.click("#vm-{0}-action-kebab button".format(name))
+        b.click("#vm-{0}-delete".format(name))
 
         b.wait_visible("#vm-{0}-delete-modal-dialog .modal-body:contains(The VM is running)".format(name))
         b.wait_visible("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
@@ -358,7 +376,8 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "Paused")
-        self.performAction(name, "delete")
+        b.click("#vm-{0}-action-kebab button".format(name))
+        b.click("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         self.waitVmRow(name, 'system', False)
 
@@ -377,6 +396,51 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         self.allow_browser_errors("Disconnection timed out.")
         self.allow_journal_messages(".* couldn't shutdown fd: Transport endpoint is not connected")
 
+    def testMigrate(self):
+        b = self.browser
+        m = self.machines['destination_host']
+
+        self.createVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        m.execute("echo '10.111.113.1 destination-host' >> /etc/hosts")
+        self.machines['machine1'].execute("echo '10.111.113.1 destination-host' >> /etc/hosts")
+
+        self.machines['machine1'].execute("echo 'migration_host = \"10.111.113.1\"' >> /etc/libvirt/qemu.conf")
+        self.machines['machine1'].execute("systemctl restart libvirtd.service")
+
+        # setup key authentization
+        m.execute("mkdir -p $HOME/.ssh")
+        m.execute("chmod 0700 $HOME/.ssh")
+        m.execute("ssh-keygen -t rsa -N \"\" -f $HOME/.ssh/id_rsa")
+        m.execute("echo 'StrictHostKeyChecking no' > $HOME/.ssh/config")
+        m.execute("sshpass -p 'foobar' ssh-copy-id -i $HOME/.ssh/id_rsa.pub admin@destination-host")
+        self.machines['machine1'].execute("mkdir -p $HOME/.ssh")
+        self.machines['machine1'].execute("chmod 0700 $HOME/.ssh")
+        self.machines['machine1'].execute("ssh-keygen -t rsa -N \"\" -f $HOME/.ssh/id_rsa")
+        self.machines['machine1'].execute("echo 'StrictHostKeyChecking no' > $HOME/.ssh/config")
+        self.machines['machine1'].execute("sshpass -p 'foobar' ssh-copy-id -i $HOME/.ssh/id_rsa.pub admin@destination-host")
+        self.machines['machine1'].execute("usermod --append --groups libvirt admin")
+
+        xml = POOL_XML.format(path="/var/lib/libvirt/images")
+        self.machines['machine1'].execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
+
+        self.waitVmRow("subVmTest1")
+        self.goToVmPage("subVmTest1")
+
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-migrate")
+
+        b.wait_visible(".pf-c-modal-box")
+        b.set_input_text("#dest-uri-input", "qemu+ssh://admin@destination-host/system")
+        b.click("#type #offline")
+
+        output = self.machines['machine1'].execute("virsh list --all")
+        self.assertFalse("subVmTest1" in output)
+        b.click("footer button.pf-m-primary")
+        b.wait_not_present(".pf-c-modal-box")
+        output = self.machines['machine1'].execute("virsh list --all")
+        self.assertTrue("subVmTest1" in output)
 
 if __name__ == '__main__':
     test_main()

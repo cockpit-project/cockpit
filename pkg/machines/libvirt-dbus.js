@@ -165,6 +165,25 @@ const Enum = {
     VIR_NETWORK_EVENT_LAST: 4,
     // Keycodes
     VIR_KEYCODE_SET_LINUX: 0,
+    // Migrate
+    VIR_MIGRATE_LIVE: 1,
+    VIR_MIGRATE_PEER2PEER: 2,
+    VIR_MIGRATE_TUNNELLED: 4,
+    VIR_MIGRATE_PERSIST_DEST: 8,
+    VIR_MIGRATE_UNDEFINE_SOURCE: 16,
+    VIR_MIGRATE_PAUSED: 32,
+    VIR_MIGRATE_NON_SHARED_DISK: 64,
+    VIR_MIGRATE_NON_SHARED_INC: 128,
+    VIR_MIGRATE_CHANGE_PROTECTION: 256,
+    VIR_MIGRATE_UNSAFE: 512,
+    VIR_MIGRATE_OFFLINE: 1024,
+    VIR_MIGRATE_COMPRESSED: 2048,
+    VIR_MIGRATE_ABORT_ON_ERROR: 4096,
+    VIR_MIGRATE_AUTO_CONVERGE: 8192,
+    VIR_MIGRATE_RDMA_PIN_ALL: 16384,
+    VIR_MIGRATE_POSTCOPY: 32768,
+    VIR_MIGRATE_TLS: 65536,
+    VIR_MIGRATE_PARALLEL: 131072,
 };
 
 const LIBVIRT_DBUS_PROVIDER = {
@@ -1520,6 +1539,28 @@ function initResource(connectionName, method, updateOrAddMethod, flags) {
                 return Promise.all(objPaths[0].map(() => updateOrAddMethod({})));
             })
             .catch(ex => console.warn('initResource action failed:', ex.toString()));
+}
+
+export function migrateToUri(connectionName, objPath, destUri, storage, live, temporary) {
+    // direct migration is not supported by QEMU, so it's opposite, the P2P migration should always be used
+    let flags = Enum.VIR_MIGRATE_PEER2PEER;
+
+    if (!live) {
+        flags = flags | Enum.VIR_MIGRATE_OFFLINE | Enum.VIR_MIGRATE_PERSIST_DEST;
+    } else {
+        flags = flags | Enum.VIR_MIGRATE_LIVE;
+
+        if (!temporary)
+            flags = flags | Enum.VIR_MIGRATE_PERSIST_DEST;
+    }
+
+    if (storage === "copy")
+        flags = flags | Enum.VIR_MIGRATE_NON_SHARED_DISK;
+
+    if (temporary)
+        flags = flags | Enum.VIR_MIGRATE_UNDEFINE_SOURCE;
+
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'MigrateToURI3', [destUri, {}, flags], { timeout, type: 'sa{sv}u' });
 }
 
 export function networkActivate(connectionName, objPath) {

@@ -43,6 +43,7 @@ import {
 
 import { CloneDialog } from './vmCloneDialog.jsx';
 import { DeleteDialog } from "./deleteDialog.jsx";
+import { MigrateDialog } from './vmMigrateDialog.jsx';
 import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
@@ -50,6 +51,7 @@ const _ = cockpit.gettext;
 const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetailsPage }) => {
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [showDeleteDialog, toggleDeleteModal] = useState(false);
+    const [showMigrateDialog, toggleMigrateDialog] = useState(false);
     const [showCloneDialog, toggleCloneModal] = useState(false);
     const [operationInProgress, setOperationInProgress] = useState(false);
     const [prevVmState, setPrevVmState] = useState(vm.state);
@@ -312,6 +314,27 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
         );
     }
 
+    if (vm.state !== "shut off") {
+        dropdownItems.push(
+            <DropdownItem key={`${id}-migrate`}
+                          id={`${id}-migrate`}
+                          onClick={() => toggleMigrateDialog(true)}>
+                {_("Migrate")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-migrate" />);
+    }
+
+    let migrateAction;
+    if (showMigrateDialog) {
+        migrateAction = (
+            <MigrateDialog key='action-migrate'
+                           vmId={vm.id}
+                           connectionName={vm.connectionName}
+                           toggleModal={() => toggleMigrateDialog(!showMigrateDialog)} />
+        );
+    }
+
     let deleteAction = null;
     if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
         if (!vm.persistent) {
@@ -345,6 +368,7 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             {install}
             {deleteAction}
             {cloneAction}
+            {migrateAction}
             <Dropdown onSelect={() => setIsActionOpen(!isActionOpen)}
                       id={`${id}-action-kebab`}
                       toggle={<KebabToggle isDisabled={vm.isUi} onToggle={isOpen => setIsActionOpen(isOpen)} />}

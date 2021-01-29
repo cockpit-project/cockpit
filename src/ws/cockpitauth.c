@@ -1074,6 +1074,13 @@ cockpit_session_create (CockpitAuth *self,
   return session;
 }
 
+static gboolean
+is_localhost (const char *host)
+{
+  // XXX
+  return g_strcmp0 (host, "localhost") == 0;
+}
+
 static CockpitSession *
 cockpit_session_launch (CockpitAuth *self,
                         GIOStream *connection,
@@ -1107,6 +1114,16 @@ cockpit_session_launch (CockpitAuth *self,
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
+      goto out;
+    }
+
+  gboolean require_host = cockpit_conf_bool ("WebService", "RequireHost", FALSE);
+  gboolean allow_localhost = cockpit_conf_bool ("WebService", "AllowLocalHost", FALSE);
+
+  if (require_host && (!host || (!allow_localhost && is_localhost(host))))
+    {
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "remote-host-required");
       goto out;
     }
 

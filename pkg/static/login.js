@@ -810,6 +810,8 @@ if (window.NodeList && !NodeList.prototype.forEach)
                         host_failure(_("Refusing to connect. Host is unknown"));
                     } else if (xhr.statusText.indexOf("invalid-hostkey") > -1) {
                         host_failure(_("Refusing to connect. Hostkey does not match"));
+                    } else if (xhr.statusText.indexOf("remote-host-required") > -1) {
+                        login_failure(_("Remote host required"));
                     } else if (is_conversation) {
                         login_failure(_("Authentication failed"));
                     } else {

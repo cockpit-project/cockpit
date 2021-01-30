@@ -1156,7 +1156,6 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#available-updates button#install-all")
         b.click(".pf-c-empty-state button.pf-m-link")
 
-        self.assertFalse(b.is_present("#available-updates"))
         if self.backend == 'dnf':
             b.is_present('#automatic-updates')
         else:

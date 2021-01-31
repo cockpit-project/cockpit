@@ -208,10 +208,11 @@ def run(opts, image):
     # Build list of affected tests
     # If file from `test-dir` was changed in the PR, all tests from it are considered affected
     changed_tests = []
-    cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", opts.test_dir]
-    r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    if r.returncode == 0:
-        changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
+    if os.path.exists(os.path.join(os.path.dirname(testvm.TEST_DIR), ".git")):
+        cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", opts.test_dir]
+        r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        if r.returncode == 0:
+            changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
 
     # If more than 3 test files were changed don't consider any of them as affected
     # as it might be a PR that changes more unrelated things.

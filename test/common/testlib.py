@@ -1288,7 +1288,8 @@ class MachineCase(unittest.TestCase):
                 except OSError as ex:
                     if ex.errno == errno.ENOTEMPTY:
                         print("Core dumps downloaded to %s" % (dest))
-                        attach(dest)
+                        # Enable this to temporarily(!) create artifacts for core dumps, if a crash is hard to reproduce
+                        # attach(dest)
 
     def settle_cpu(self):
         '''Wait until CPU usage in the VM settles down

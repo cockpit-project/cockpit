@@ -53,10 +53,10 @@ sed -e "/^Version:.*/d" -e "1i\
 tmpdir=$(mktemp -d $PWD/srpm-build.XXXXXX)
 tar xaf "$source" -O cockpit-$version/tools/cockpit.spec | modify_spec > $tmpdir/cockpit.spec
 
-# on RHEL/CentOS, cockpit is delivered as two mostly identical source packages.
+# on RHEL/CentOS 8 (only), cockpit is delivered as two mostly identical source packages.
 # "cockpit" with build_basic=1, and "cockpit-appstream" with build_optional=1
 # the spec has proper build_* defaults depending on the Name:
-if grep -qE '^ID=.*(rhel|centos)' /etc/os-release; then
+if grep -qE '^ID=.*(rhel|centos)' /etc/os-release && grep -qE '^VERSION_ID="8' /etc/os-release; then
     sed '/^Name:/ s/$/-appstream/' < $tmpdir/cockpit.spec > $tmpdir/cockpit-appstream.spec
 fi
 

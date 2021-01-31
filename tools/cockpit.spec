@@ -66,10 +66,11 @@ Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
 
-# in RHEL the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
+# in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
 # This split does not apply to EPEL/COPR.
-%if 0%{?rhel} && 0%{?epel} == 0
+# In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
+%if 0%{?rhel} == 8 && 0%{?epel} == 0
 
 %if "%{name}" == "cockpit"
 %define build_basic 1

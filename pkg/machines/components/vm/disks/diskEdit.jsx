@@ -111,7 +111,7 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
     );
 };
 
-class EditDiskModalBody extends React.Component {
+export class EditDiskAction extends React.Component {
     constructor(props) {
         super(props);
         let access;
@@ -151,7 +151,7 @@ class EditDiskModalBody extends React.Component {
             busType: this.state.busType,
             existingTargets
         })
-                .then(() => this.props.close())
+                .then(() => this.setState({ isOpen: false }))
                 .fail((exc) => {
                     this.dialogErrorSet(_("Disk settings could not be saved"), exc.message);
                 });
@@ -188,58 +188,32 @@ class EditDiskModalBody extends React.Component {
         };
 
         return (
-            <Modal position="top" variant="medium" id={`${idPrefix}-dialog`} isOpen onClose={this.props.close}
-                   title={cockpit.format(_("Edit $0 attributes"), getDiskPrettyName(vm.disks[disk.target]))}
-                   footer={
-                       <>
-                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                           <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
-                               {_("Save")}
-                           </Button>
-                           <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                               {_("Cancel")}
-                           </Button>
-                       </>
-                   }>
-                <>
-                    { showWarning() }
-                    {defaultBody}
-                </>
-            </Modal>
-        );
-    }
-}
-
-const EditDiskActionShowModal = { };
-
-export class EditDiskAction extends React.Component {
-    constructor(props) {
-        super(props);
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
-    }
-
-    close() {
-        EditDiskActionShowModal[this.props.idPrefix] = false;
-        this.setState({ });
-    }
-
-    open() {
-        EditDiskActionShowModal[this.props.idPrefix] = true;
-        this.setState({ });
-    }
-
-    render() {
-        const { disk, vm } = this.props;
-        const idPrefix = `${this.props.idPrefix}`;
-        const showModal = EditDiskActionShowModal[this.props.idPrefix];
-
-        return (
             <>
-                <Button id={`${idPrefix}-edit`} variant='secondary' onClick={this.open}>
+                <Button id={idPrefix} variant='secondary' onClick={() => this.setState({ isOpen: true })}>
                     {_("Edit")}
                 </Button>
-                { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} /> }
+                {this.state.isOpen &&
+                <Modal position="top" variant="medium" id={`${idPrefix}-dialog`}
+                       isOpen
+                       onClose={() => this.setState({ isOpen: false })}
+                       title={cockpit.format(_("Edit $0 attributes"), getDiskPrettyName(vm.disks[disk.target]))}
+                       footer={
+                           <>
+                               {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                               <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
+                                   {_("Save")}
+                               </Button>
+                               <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={() => this.setState({ isOpen: false })}>
+                                   {_("Cancel")}
+                               </Button>
+                           </>
+                       }
+                >
+                    <>
+                        {showWarning()}
+                        {defaultBody}
+                    </>
+                </Modal>}
             </>
         );
     }

@@ -31,7 +31,8 @@ FMF_ATTRIBUTES = {"summary": str,
                   "tag": (list, str,),
                   "link": (list, str, dict),
                   "duration": str,
-                  "tier": str
+                  "tier": str,
+                  "component": (list, str,)
                   }
 FMF_ATTR_PREFIX = "_fmf__"
 FMF_POSTFIX = ("+", "-", "")
@@ -224,6 +225,17 @@ def __get_fmf_attr_name(method, attribute):
     return fmf_prefixed_name(attribute)
 
 
+def __find_fmf_root(path):
+    root = os.path.abspath(path)
+    FMF_ROOT_DIR = ".fmf"
+    while True:
+        if os.path.exists(os.path.join(root, FMF_ROOT_DIR)):
+            return root
+        if root == os.path.sep:
+            raise FMFError("Unable to find FMF tree root for '{0}'.".format(os.path.abspath(path)))
+        root = os.path.dirname(root)
+
+
 def yaml_fmf_output(path, testfile_globs, fmf_file=None):
     fmf_dict = dict()
     if fmf_file and os.path.exists(fmf_file):
@@ -256,7 +268,8 @@ def yaml_fmf_output(path, testfile_globs, fmf_file=None):
 
                 default_key(test_dict, ENVIRONMENT_KEY, empty_obj={})
                 test_dict[ENVIRONMENT_KEY]["TEST_NAMES"] = "{}.{}".format(class_name, test_name)
-                test_dict[ENVIRONMENT_KEY]["TEST_DIR"] = os.path.dirname(filename)
+                relative_test_dir = (os.path.dirname(os.path.abspath(filename)).lstrip(__find_fmf_root(filename)))
+                test_dict[ENVIRONMENT_KEY]["TEST_DIR"] = relative_test_dir
                 # special cockpit items
                 for key, fmf_key in SELECTED_KW.items():
                     __update_dict_key(items2["method"], key, fmf_key, test_dict)

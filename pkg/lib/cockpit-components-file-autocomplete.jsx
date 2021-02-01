@@ -28,40 +28,50 @@ const _ = cockpit.gettext;
 export class FileAutoComplete extends React.Component {
     constructor(props) {
         super(props);
-        this.updateFiles(props.value || "/");
         this.state = {
             directory: '', // The current directory we list files/dirs from
             displayFiles: [],
             isOpen: false,
+            value: null,
         };
+        this.updateFiles(props.value || '/');
+        this.typeaheadInputValue = "";
         this.allowFilesUpdate = true;
         this.updateFiles = this.updateFiles.bind(this);
         this.finishUpdate = this.finishUpdate.bind(this);
-        this.onFilter = this.onFilter.bind(this);
         this.onToggle = this.onToggle.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
 
         this.debouncedChange = debounce(300, (value) => {
+            if (!value)
+                return;
+
+            this.typeaheadInputValue = value;
+
             const cb = (dirPath) => this.updateFiles(dirPath == '' ? '/' : dirPath);
 
-            const parentDir = value.slice(0, value.lastIndexOf('/'));
+            let path = value;
+            if (value.lastIndexOf('/') == value.length - 1)
+                path = value.slice(0, value.length - 1);
 
-            if (parentDir + '/' == this.state.directory) {
+            const match = this.state.displayFiles
+                    .find(entry => (entry.type == 'directory' && entry.path == path + '/') || (entry.type == 'file' && entry.path == path));
+
+            if (match) {
                 // If the inserted string corresponds to a directory listed in the results
                 // update the current directory and refetch results
-                let path = value;
-                if (value.lastIndexOf('/') == value.length - 1)
-                    path = value.slice(0, value.length - 1);
-
-                if (this.state.displayFiles
-                        .filter(entry => entry.type == 'directory')
-                        .find(entry => entry.path == path + '/')) {
-                    this.setState({ directory: path + '/' });
-                    cb(path);
-                }
+                if (match.type == 'directory')
+                    cb(match.path);
+                else
+                    this.setState({ value: match.path });
             } else {
-                this.setState({ directory: parentDir + '/' });
-                cb(parentDir);
+                // If the inserted string's parent directory is not maching the `directory`
+                // in the state object we need to update the parent directory and recreate the displayFiles
+                const parentDir = value.slice(0, value.lastIndexOf('/'));
+
+                if (parentDir + '/' != this.state.directory) {
+                    return this.updateFiles(parentDir + '/');
+                }
             }
         });
     }
@@ -71,20 +81,22 @@ export class FileAutoComplete extends React.Component {
     }
 
     updateFiles(path) {
-        var channel = cockpit.channel({
+        if (this.state.directory == path)
+            return;
+
+        const channel = cockpit.channel({
             payload: "fslist1",
             path,
             superuser: this.props.superuser
         });
-        var results = [];
-        var error = null;
+        const results = [];
 
         channel.addEventListener("ready", () => {
-            this.finishUpdate(results, null);
+            this.finishUpdate(results, null, path);
         });
 
         channel.addEventListener("close", (ev, data) => {
-            this.finishUpdate(results, error || cockpit.format(cockpit.message(data)));
+            this.finishUpdate(results, cockpit.format(cockpit.message(data)), path);
         });
 
         channel.addEventListener("message", (ev, data) => {
@@ -96,45 +108,32 @@ export class FileAutoComplete extends React.Component {
         });
     }
 
-    finishUpdate(results, error) {
+    finishUpdate(results, error, directory) {
         if (!this.allowFilesUpdate)
             return;
         results = results.sort((a, b) => a.path.localeCompare(b.path, { sensitivity: 'base' }));
 
         const listItems = results.map(file => ({
             type: file.type,
-            path: (this.state.directory == '' ? '/' : this.state.directory) + file.path
+            path: (directory == '' ? '/' : directory) + file.path
         }));
 
-        const currentDir = this.state.value && this.state.directory === this.state.value.path;
-        if (this.state.directory && !error && !currentDir) {
+        if (directory) {
             listItems.unshift({
                 type: "directory",
-                path: this.state.directory
+                path: directory
             });
         }
 
+        if (error || !this.state.value)
+            this.props.onChange('');
+
+        if (!error)
+            this.setState({ directory: directory });
         this.setState({
             displayFiles: listItems,
             error: error,
         });
-    }
-
-    onFilter(event) {
-        if (event.target.value == "" || (event.target.value && event.target.value.slice(-1) == "/")) {
-            this.setState({ directory: event.target.value || "/" });
-            this.updateFiles(event.target.value || "/");
-        }
-
-        const res = event.target.value !== '' ? this.state.displayFiles.filter(file => file.path.startsWith(event.target.value)) : this.state.displayFiles;
-        return res.map(option => (
-            <SelectOption key={option.path}
-                          className={option.type}
-                          value={{
-                              ...option,
-                              toString: function() { return this.path },
-                          }} />
-        ));
     }
 
     onToggle(isOpen) {
@@ -142,52 +141,41 @@ export class FileAutoComplete extends React.Component {
     }
 
     clearSelection() {
+        this.typeaheadInputValue = "";
         this.updateFiles("/");
         this.setState({
-            directory: "",
             value: null,
             isOpen: false
         });
+        this.props.onChange('');
     }
 
     render() {
         const placeholder = this.props.placeholder || _("Path to file");
-        let noResultsFoundText = _("No such file or directory");
-        if (this.state.value && this.state.value.type === 'directory') {
-            if (this.state.displayFiles.length === 0)
-                noResultsFoundText = _("This directory is empty");
-            else
-                noResultsFoundText = cockpit.format(_("No such file found in directory '$0'"), this.state.value.path);
-        }
 
+        const selectOptions = this.state.displayFiles
+                .map(option => <SelectOption key={option.path}
+                                             className={option.type}
+                                             value={option.path} />);
         return (
             <Select
                 variant={SelectVariant.typeahead}
+                ref='typeahead'
                 id={this.props.id}
+                onTypeaheadInputChanged={this.debouncedChange}
                 placeholderText={placeholder}
-                noResultsFoundText={noResultsFoundText}
-                onFilter={this.onFilter}
+                noResultsFoundText={this.state.error || _("No such file or directory")}
                 selections={this.state.value}
-                onSelect={(event, value) => {
-                    const stateDelta = { value };
-                    if (value.type == 'file')
-                        stateDelta.isOpen = false;
-                    this.setState(stateDelta);
-                    this.onFilter({ target: { value: value.path } });
-                    this.props.onChange && this.props.onChange(value.path);
+                onSelect={(_, value) => {
+                    this.setState({ value, isOpen: false });
+                    this.debouncedChange(value);
+                    this.props.onChange(value || '');
                 }}
                 onToggle={this.onToggle}
                 onClear={this.clearSelection}
                 isOpen={this.state.isOpen}
                 menuAppendTo="parent">
-                {this.state.displayFiles.map((option, index) => (
-                    <SelectOption key={option.path}
-                                  className={option.type}
-                                  value={{
-                                      ...option,
-                                      toString: function() { return this.path },
-                                  }} />
-                ))}
+                {selectOptions}
             </Select>
         );
     }
@@ -197,4 +185,7 @@ FileAutoComplete.propTypes = {
     placeholder: PropTypes.string,
     superuser: PropTypes.string,
     onChange: PropTypes.func,
+};
+FileAutoComplete.defaultProps = {
+    onChange: () => '',
 };

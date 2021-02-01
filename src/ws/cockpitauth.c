@@ -1075,10 +1075,40 @@ cockpit_session_create (CockpitAuth *self,
 }
 
 static gboolean
+inet_addr_in_list (GInetAddress *addr, GList *list)
+{
+  for (GList *l = list; l; l = l->next)
+    if (g_inet_address_equal (addr, l->data))
+      return TRUE;
+  return FALSE;
+}
+
+static gboolean
 is_localhost (const char *host)
 {
-  // XXX
-  return g_strcmp0 (host, "localhost") == 0;
+  gchar *hostname = g_malloc0 (HOST_NAME_MAX + 1);
+  GResolver *resolver = g_resolver_get_default ();
+  GList *target_addrs = g_resolver_lookup_by_name (resolver, host, NULL, NULL);
+  gethostname (hostname, HOST_NAME_MAX);
+  hostname[HOST_NAME_MAX] = '\0';
+  GList *local_addrs = g_resolver_lookup_by_name (resolver, hostname, NULL, NULL);
+  gboolean local = FALSE;
+
+  for (GList *t = target_addrs; t; t = t->next)
+    {
+      if (g_inet_address_get_is_loopback (t->data)
+          || inet_addr_in_list (t->data, local_addrs))
+        {
+          local = TRUE;
+          break;
+        }
+    }
+
+  g_resolver_free_addresses (target_addrs);
+  g_resolver_free_addresses (local_addrs);
+  g_free (hostname);
+
+  return local;
 }
 
 static CockpitSession *

@@ -293,14 +293,16 @@ function updateItem(info, pkgNames, key) {
     );
 
     return {
-        extraClasses: info.severity === PK.Enum.INFO_SECURITY ? ["error"] : [],
         columns: [
             { title: pkgsTruncated },
             { title: info.version, props: { className: "version truncating" } },
             { title: type, props: { className: "type" } },
             { title: descriptionFirstLine, props: { className: "changelog" } },
         ],
-        props: { key },
+        props: {
+            key,
+            className: info.severity === PK.Enum.INFO_SECURITY ? ["error"] : [],
+        },
         hasPadding: true,
         expandedContent,
     };

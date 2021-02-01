@@ -85,8 +85,8 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                 { title: activeConnection ? activeConnection[0].innerHTML : activeConnection },
             ],
             rowId: iface.Name,
-            extraClasses: highlight == iface.Name ? ["highlight-ct"] : [],
             props: {
+                className: highlight == iface.Name ? ["highlight-ct"] : [],
                 key: iface.Name,
                 "data-interface": encodeURIComponent(iface.Name),
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null

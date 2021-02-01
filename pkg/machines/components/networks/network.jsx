@@ -82,7 +82,6 @@ export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => 
             data: { network, dispatch, }
         },
     ];
-    const extraClasses = [];
 
     const expandedContent = (
         <ListingPanel
@@ -91,7 +90,6 @@ export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => 
     );
 
     return {
-        extraClasses,
         columns: cols,
         rowId: idPrefix,
         props: { key: idPrefix },

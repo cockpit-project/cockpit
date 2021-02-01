@@ -42,8 +42,7 @@ import './cockpit-components-table.scss';
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
  * - rows: {
  *      columns: (React.Node or string)[],
- *      extraClasses: string[],
- *      props: { key: string, ...extraProps: object } - this property is mandatory and should contain a unique `key`, all additional properties are optional
+ *      props: { key: string, className: 'test', ...extraProps: object } - this property is mandatory and should contain a unique `key`, all additional properties are optional
  *      expandedContent: (React.Node)[])
  *      initiallyExpanded : the entry will be initially rendered as expanded, but then behaves normally
  *      rowId: an identifier for the row which will be set as "data-row-id" and attribute on the <tr>
@@ -107,12 +106,7 @@ export class ListingTable extends React.Component {
 
     rowWrapper(...args) {
         const props = args[0];
-        let className = '';
-
-        if (props.row.extraClasses)
-            className = props.row.extraClasses.join(' ');
-
-        return <RowWrapper {...props} {...props.row.props} data-row-id={props.row.rowId} className={className} />;
+        return <RowWrapper {...props} {...props.row.props} data-row-id={props.row.rowId} />;
     }
 
     reformatColumns(columns, isExpandable) {

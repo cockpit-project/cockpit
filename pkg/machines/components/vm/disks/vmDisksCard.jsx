@@ -234,7 +234,7 @@ export class VmDisksCard extends React.Component {
         }
 
         const rows = disks.map(disk => {
-            const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
+            const idPrefixRow = `${idPrefix}-${(disk.target || disk.device)}`;
             const columns = [
                 { title: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} key={`${idPrefixRow}-device`} /> },
 
@@ -299,7 +299,7 @@ export class VmDisksCard extends React.Component {
                 </div>
             );
             columns.push({ title: diskActions });
-            return { columns, props: { key: disk.target } };
+            return { columns, props: { key: idPrefixRow } };
         });
 
         return (

@@ -66,7 +66,6 @@ class TestBastion(MachineCase):
 
         b.open("/")
         b.wait_visible("#login")
-        b.wait_not_visible("#option-group")
         b.wait_visible("#server-field")
         b.wait_text("#server-name", "Cockpit Bastion")
 
@@ -81,7 +80,6 @@ class TestBastion(MachineCase):
         # With a url, host is already there
         b.open("/=10.111.113.1")
         b.wait_visible("#login")
-        b.wait_visible("#option-group")
         b.wait_visible("#server-field")
         b.wait_val("#server-field", "10.111.113.1")
         b.wait_text("#server-name", "10.111.113.1")
@@ -123,7 +121,6 @@ class TestBastion(MachineCase):
 
         b.open("/")
         b.wait_visible("#login")
-        b.wait_not_visible("#option-group")
         b.wait_visible("#server-field")
         b.wait_text("#server-name", "Cockpit Bastion")
 

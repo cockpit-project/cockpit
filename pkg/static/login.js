@@ -564,7 +564,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
         id("login-password-input").value = '';
 
         if (need_host()) {
-            hide("#option-group");
+            toggle_options(null, true);
             expanded = true;
         } else {
             hideToggle("#option-group", !connectable || form != "login");

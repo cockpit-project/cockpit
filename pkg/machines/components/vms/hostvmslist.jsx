@@ -176,9 +176,9 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                                                 },
                                                 { title: vmActions },
                                             ],
-                                            rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
                                             props: {
                                                 key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName),
+                                                'data-row-id': cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
                                                 'data-row-transient': !vm.persistent,
                                             },
                                         };

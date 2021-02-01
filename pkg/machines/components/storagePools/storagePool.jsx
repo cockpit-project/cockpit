@@ -91,8 +91,7 @@ export const getStoragePoolRow = ({ storagePool, vms, dispatch, onAddErrorNotifi
             { title: rephraseUI('connections', storagePool.connectionName) },
             { title: state },
         ],
-        rowId: idPrefix,
-        props: { key: idPrefix },
+        props: { key: idPrefix, 'data-row-id': idPrefix },
         expandedContent: expandedContent,
     };
 };

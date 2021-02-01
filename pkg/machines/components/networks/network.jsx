@@ -91,8 +91,7 @@ export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => 
 
     return {
         columns: cols,
-        rowId: idPrefix,
-        props: { key: idPrefix },
+        props: { key: idPrefix, 'data-row-id': idPrefix },
         expandedContent: expandedContent,
     };
 };

@@ -45,7 +45,6 @@ import './cockpit-components-table.scss';
  *      props: { key: string, className: 'test', ...extraProps: object } - this property is mandatory and should contain a unique `key`, all additional properties are optional
  *      expandedContent: (React.Node)[])
  *      initiallyExpanded : the entry will be initially rendered as expanded, but then behaves normally
- *      rowId: an identifier for the row which will be set as "data-row-id" and attribute on the <tr>
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
@@ -106,7 +105,7 @@ export class ListingTable extends React.Component {
 
     rowWrapper(...args) {
         const props = args[0];
-        return <RowWrapper {...props} {...props.row.props} data-row-id={props.row.rowId} />;
+        return <RowWrapper {...props} {...props.row.props} />;
     }
 
     reformatColumns(columns, isExpandable) {
@@ -151,7 +150,6 @@ export class ListingTable extends React.Component {
             };
             rowFormatted.extraClasses = currentValue.extraClasses;
             rowFormatted.props = currentValue.props;
-            rowFormatted.rowId = currentValue.rowId;
 
             // For selectable rows
             if ('selected' in currentValue)
@@ -169,7 +167,6 @@ export class ListingTable extends React.Component {
                     parent: rowIndex - 1,
                     cells: [{ title: currentValue.expandedContent }],
                     fullWidth: true, noPadding: !currentValue.hasPadding,
-                    rowId: currentValue.rowId ? (currentValue.rowId + "-expanded") : undefined,
                     props: { key: currentValue.props.key + "-expanded" },
                 });
                 rowIndex++;

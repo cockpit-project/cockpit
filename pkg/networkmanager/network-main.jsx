@@ -84,12 +84,12 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                 { title: (!dev || is_managed(dev)) ? <Button variant="link" isInline onClick={() => cockpit.location.go([iface.Name])}>{iface.Name}</Button> : iface.Name },
                 { title: activeConnection ? activeConnection[0].innerHTML : activeConnection },
             ],
-            rowId: iface.Name,
             props: {
                 className: highlight == iface.Name ? ["highlight-ct"] : [],
                 key: iface.Name,
                 "data-interface": encodeURIComponent(iface.Name),
-                "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
+                "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null,
+                "data-row-id": iface.Name,
             }
         };
 

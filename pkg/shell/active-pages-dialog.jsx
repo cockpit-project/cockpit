@@ -52,9 +52,12 @@ export class ActivePagesDialogBody extends React.Component {
                 </Split>,
             }];
             return ({
-                props: { key: frame.name, frame },
+                props: {
+                    key: frame.name,
+                    frame,
+                    'data-row-id': frame.name
+                },
                 columns,
-                rowId: frame.name,
                 selected: frame.selected,
             });
         });

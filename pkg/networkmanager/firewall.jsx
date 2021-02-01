@@ -107,8 +107,7 @@ function serviceRow(props) {
     </Split>;
 
     return ({
-        props: { key: props.service.id },
-        rowId: props.service.id,
+        props: { key: props.service.id, 'data-row-id': props.service.id },
         columns,
         hasPadding: true,
         expandedContent: simpleBody,
@@ -134,8 +133,7 @@ function portRow(props) {
         },
     ];
     return ({
-        props: { key: props.zone.id + "-ports" },
-        rowId: props.zone.id + "-ports",
+        props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
         columns
     });
 }

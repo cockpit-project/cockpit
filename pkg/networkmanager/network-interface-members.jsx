@@ -131,12 +131,12 @@ export const NetworkInterfaceMembers = ({
                         )
                     }
                 ],
-                rowId: iface.Name,
                 props: {
                     className: highlight == iface.Name ? ["highlight-ct"] : [],
                     key: iface.Name,
                     "data-interface": encodeURIComponent(iface.Name),
-                    "data-sample-id": isActive ? encodeURIComponent(iface.Name) : null
+                    "data-sample-id": isActive ? encodeURIComponent(iface.Name) : null,
+                    "data-row-id": iface.Name,
                 }
             });
 

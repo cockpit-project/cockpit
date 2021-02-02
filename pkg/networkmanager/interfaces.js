@@ -205,6 +205,7 @@ export function NetworkManagerModel() {
     var objects = { };
 
     function complain() {
+        self.ready = false;
         console.warn.apply(console, arguments);
     }
 
@@ -1284,7 +1285,7 @@ export function NetworkManagerModel() {
     get_object("/org/freedesktop/NetworkManager", type_Manager);
     get_object("/org/freedesktop/NetworkManager/Settings", type_Settings);
 
-    self.ready = false;
+    self.ready = undefined;
     return self;
 }
 

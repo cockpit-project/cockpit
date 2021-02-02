@@ -59,7 +59,7 @@ const App = () => {
     const plot_state_main = useObject(() => new PlotState(), null, []);
     const plot_state_iface = useObject(() => new PlotState(), null, []);
 
-    if (!model.ready || nmRunning_ref.current === undefined)
+    if (model.ready === undefined)
         return <EmptyStatePanel loading />;
 
     /* Show EmptyStatePanel when nm is not running */
@@ -78,6 +78,14 @@ const App = () => {
                                              {_("Troubleshoot…")}
                                          </Button>
                                      } />
+                </div>
+            );
+        } else if (!nmService.exists) {
+            return (
+                <div id="networking-nm-not-found">
+                    <EmptyStatePanel icon={ ExclamationCircleIcon }
+                                     title={ _("NetworkManager is not installed") } />
+
                 </div>
             );
         } else {

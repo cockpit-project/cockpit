@@ -28,7 +28,6 @@ from testlib import *
 
 @skipDistroPackage()
 class TestConnection(MachineCase):
-
     def setUp(self):
         super().setUp()
         self.ws_executable = f"{self.libexecdir}/cockpit-ws"
@@ -479,11 +478,19 @@ class TestConnection(MachineCase):
         m.execute(
             'mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
         m.start_cockpit()
-        output = m.execute('curl -s -f -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://other-origin:9090" -H "Host: localhost:9090" -H "Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H "Sec-Websocket-Version: 13" http://localhost:9090/cockpit/socket')
+        headers = {
+            'Connection': 'Upgrade',
+            'Upgrade': 'websocket',
+            'Host': 'localhost:9090',
+            'Origin': 'http://other-origin:9090',
+            'Sec-Websocket-Key': '3sc2c9IzwRUc3BlSIYwtSA==',
+            'Sec-Websocket-Version': 13
+        }
+        output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
         self.assertIn('"no-session"', output)
 
         # The socket should also answer at /socket
-        output = m.execute('curl -s -f -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://other-origin:9090" -H "Host: localhost:9090" -H "Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H "Sec-Websocket-Version: 13" http://localhost:9090/socket')
+        output = m.curl('-f', '-N', 'http://localhost:9090/socket', headers=headers)
         self.assertIn('"no-session"', output)
 
         self.allow_journal_messages('peer did not close io when expected')
@@ -664,10 +671,11 @@ class TestConnection(MachineCase):
 
         # Large requests are processed correctly with plain HTTP through cockpit-tls
         m.start_cockpit(tls=True)
-        self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
+        large_headers = {'Authorization': f'Negotiate {1:07000}'}
+        self.assertIn('id="login"', m.curl('http://localhost:9090/', headers=large_headers))
 
         # Large requests are processed correctly with TLS through cockpit-tls
-        self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
+        self.assertIn('id="login"', m.curl('-k', 'https://localhost:9090/', headers=large_headers))
         m.stop_cockpit()
 
         self.restore_dir("/etc/cockpit")
@@ -680,16 +688,16 @@ class TestConnection(MachineCase):
         m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
 
         # The port may not be available immediately, so wait for it
-        wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))
+        wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))
 
         output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
         self.assertIn('Connection refused', output)
 
         # Large requests are processed correctly with plain HTTP
-        self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
+        self.assertIn('A Custom Title', m.curl('http://localhost:9000/', headers=large_headers))
 
         # Large requests are processed correctly with TLS
-        self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
+        self.assertIn('A Custom Title', m.curl('-k', 'https://localhost:9000/', headers=large_headers))
 
     @nondestructive
     def testHeadRequest(self):

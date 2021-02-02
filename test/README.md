@@ -10,7 +10,7 @@ will handle that.
 
 If test failures are encountered that look like they may be related to problems
 with nested virtualization, refer to
-[this Fedora guide](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
+[this Fedora guide](https://docs.fedoraproject.org/en-US/quick-docs/using-nested-virtualization-in-kvm/index.html)
 for more details and recommendations on ensuring it is enabled correctly.
 
 ## Introduction

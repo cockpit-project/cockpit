@@ -69,7 +69,7 @@ export const VmDetailsPage = ({
                            onAddErrorNotification={onAddErrorNotification}
                            isDetailsPage />
             </div>
-            {notifications && <AlertGroup className="vm-notifications">{notifications}</AlertGroup>}
+            {notifications && <AlertGroup isToast>{notifications}</AlertGroup>}
         </PageSection>
     );
 

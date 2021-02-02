@@ -337,9 +337,9 @@ class Browser:
 
         path = ''
         index = 0
-        self.click("{0} > div button".format(group_identifier))
-        self._wait_present(group_identifier + " .pf-c-select__menu")
         for path_part in filter(None, location.split('/')):
+            self.click("{0} > div .pf-c-select__toggle-button".format(group_identifier))
+            self._wait_present(group_identifier + " .pf-c-select__menu")
             path += '/' + path_part
             file_item_selector = file_item_selector_template.format(group_identifier, path)
             self.click(file_item_selector)

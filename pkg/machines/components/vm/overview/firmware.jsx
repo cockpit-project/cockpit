@@ -71,7 +71,7 @@ class FirmwareModal extends React.Component {
                     <FormGroup label={_("Firmware")} fieldId="firmware-dialog-select">
                         <FormSelect onChange={value => this.setState({ firmware: value })}
                                     id='firmware-dialog-select'
-                                    value={this.props.firmware }>
+                                    value={this.state.firmware }>
                             <FormSelectOption value='bios' key='bios'
                                               label='BIOS' />
                             <FormSelectOption value='efi' key='efi'

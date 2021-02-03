@@ -324,8 +324,6 @@ web_socket_util_parse_headers (const gchar *data,
   gsize consumed = 0;
   gboolean end = FALSE;
   gsize line_len;
-  gchar *name;
-  gchar *value;
 
   parsed_headers = web_socket_util_new_headers ();
 
@@ -360,11 +358,10 @@ web_socket_util_parse_headers (const gchar *data,
               break;
             }
 
-          name = g_strndup (data, colon - data);
+          g_autofree gchar *name = g_strndup (data, colon - data);
           g_strstrip (name);
-          value = g_strndup (colon + 1, line - (colon + 1));
+          g_autofree gchar *value = g_strndup (colon + 1, line - (colon + 1));
           g_strstrip (value);
-          g_hash_table_insert (parsed_headers, name, value);
 
           if (!is_valid_line (name, -1) || !g_utf8_validate (value, -1, NULL))
             {
@@ -372,6 +369,7 @@ web_socket_util_parse_headers (const gchar *data,
               consumed = -1;
               break;
             }
+          g_hash_table_insert (parsed_headers, g_steal_pointer (&name), g_steal_pointer (&value));
         }
 
       consumed += line_len;

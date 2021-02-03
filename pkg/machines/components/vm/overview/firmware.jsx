@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import {
     Button,
-    FormSelect, FormSelectOption,
+    Form, FormGroup, FormSelect, FormSelectOption,
     Modal, Tooltip
 } from '@patternfly/react-core';
 
@@ -67,15 +67,18 @@ class FirmwareModal extends React.Component {
                            </Button>
                        </>
                    }>
-                <>
-                    <FormSelect onChange={value => this.setState({ firmware: value })}
-                                value={this.props.firmware }>
-                        <FormSelectOption value='bios' key='bios'
-                                          label='BIOS' />
-                        <FormSelectOption value='efi' key='efi'
-                                          label='UEFI' />
-                    </FormSelect>
-                </>
+                <Form isHorizontal>
+                    <FormGroup label={_("Firmware")} fieldId="firmware-dialog-select">
+                        <FormSelect onChange={value => this.setState({ firmware: value })}
+                                    id='firmware-dialog-select'
+                                    value={this.props.firmware }>
+                            <FormSelectOption value='bios' key='bios'
+                                              label='BIOS' />
+                            <FormSelectOption value='efi' key='efi'
+                                              label='UEFI' />
+                        </FormSelect>
+                    </FormGroup>
+                </Form>
             </Modal>
         );
     }

@@ -2,15 +2,8 @@
 @import "../lib/journal.css";
 @import "./system-global.scss";
 
-body {
-    // Ensure journal UI fills the entire page (and does not run over)
-    display: grid;
-}
-
 #journal {
-    display: grid;
     grid-template-rows: auto 1fr;
-    height: 100%;
 
     .cockpit-log-panel {
         border: none;
@@ -18,8 +11,6 @@ body {
 }
 
 #journal-entry {
-    height: 100%;
-
     .pf-l-gallery {
         --pf-l-gallery--GridTemplateColumns: 1fr;
     }

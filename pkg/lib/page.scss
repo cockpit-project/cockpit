@@ -108,12 +108,6 @@ a.disabled:hover {
     padding-top: 4px;
 }
 
-/* HACK: Workaround for https://github.com/patternfly/patternfly/issues/174*/
-
-.page-ct {
-    margin-top: 20px;
-}
-
 .highlight-ct {
     background-color: var(--color-link-hover-bg);
 }
@@ -548,4 +542,14 @@ input[type=number]:not(.pf-c-form-control) {
     font-size: .875rem;
     line-height: 1.5;
     border-radius: .2rem;
+}
+
+// Let PF4 handle the scrolling through page component otherwise we might get double scrollbar
+html:not(.index-page) body {
+  overflow-y: hidden;
+
+  // Ensure UI fills the entire page (and does not run over)
+  .ct-page-fill {
+    height: 100% !important;
+  }
 }

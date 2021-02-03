@@ -27,12 +27,21 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <script type="text/javascript" src="sosreport.js"></script>
   </head>
   <body class="pf-m-redhat-font" hidden>
-    <div class="page-ct">
-      <img src="sosreport.png" alt="">
-      <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
-      <p translate="yes">The collected information will be stored locally on the system.</p>
-      <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
-      <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
+    <div class="pf-c-page">
+      <main class="pf-c-page__main" tabindex="-1">
+        <section class="pf-c-page__main-section pf-m-light">
+          <div class="pf-c-empty-state">
+            <div class="pf-c-empty-state__content">
+              <img class="pf-c-empty-state__icon" aria-hidden="true" src="sosreport.png" alt="">
+              <div class="pf-c-empty-state__body">
+                <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
+                <p translate="yes">The collected information will be stored locally on the system.</p>
+                <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
+            </div>
+            <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
+          </div>
+        </section>
+      </main>
     </div>
 
     <div hidden aria-hidden="true" id="sos">

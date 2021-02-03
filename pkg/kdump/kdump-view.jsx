@@ -23,7 +23,7 @@ import React from "react";
 import {
     Button, Tooltip, TooltipPosition,
     Page, PageSection, PageSectionVariants,
-    Bullseye,
+    Flex,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Switch, FormSelect, FormSelectOption,
 } from "@patternfly/react-core";
@@ -496,7 +496,7 @@ export class KdumpPage extends React.Component {
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
-                    <Bullseye>
+                    <Flex justifyContent={{ default: "justifyContentCenter" }}>
                         <DescriptionList>
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{_("kdump status")}</DescriptionListTerm>
@@ -538,7 +538,7 @@ export class KdumpPage extends React.Component {
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
                         </DescriptionList>
-                    </Bullseye>
+                    </Flex>
                 </PageSection>
             </Page>
         );

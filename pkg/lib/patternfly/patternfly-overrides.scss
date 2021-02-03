@@ -431,7 +431,6 @@ small {
 
 // Bump content away from cards
 .content,
-.page-ct,
 .container {
   --container-padding-x: var(--pf-global--spacer--md);
   --container-padding-y: var(--pf-global--spacer--lg);
@@ -446,7 +445,6 @@ small {
 @media screen and (min-width: 768px) {
   // Add PF4 padding to desktop mode
   .content,
-  .page-ct,
   .container {
     --container-padding-x: var(--pf-global--spacer--lg);
     --container-padding-y: var(--pf-global--spacer--xl);
@@ -457,12 +455,6 @@ small {
     }
   }
 
-  // Rely on page-ct padding; don't duplicate
-  .page-ct .container,
-  .page-ct {
-    padding: 0;
-  }
-
   // Remove excess padding from dialogs
   .modal-dialog .content {
     padding: 0;
@@ -471,7 +463,6 @@ small {
 
 // Bump content away from cards
 .content,
-.page-ct,
 .container {
   .cards-pf + & {
     padding-top: 1rem;

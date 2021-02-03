@@ -301,13 +301,13 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
  * Returns: Icon classes; put them into <span class="returnvalue">&nbsp;</span>
  *
  */
-export function getSeverityIcon(info, secSeverity) {
+export function getSeverityIcon(info, secSeverity, iconSize = "fa-sm") {
     if (info == Enum.INFO_SECURITY)
-        return "pficon pficon-security" + (secSeverity ? " severity-" + secSeverity : "");
+        return "pficon pficon-security" + (secSeverity ? " severity-" + secSeverity : "") + " " + iconSize;
     else if (info >= Enum.INFO_NORMAL)
-        return "fa fa-bug";
+        return `fa fa-bug ${iconSize}`;
     else
-        return "pficon pficon-enhancement";
+        return `pficon pficon-enhancement ${iconSize}`;
 }
 
 const yum_plugin_enabled_re = /^\s*enabled\s*=\s*1\s*$/m;

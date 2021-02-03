@@ -932,9 +932,6 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <PageSection variant={PageSectionVariants.light}>
-                        <h2 id="page-title">{_("Software updates")}</h2>
-                    </PageSection>
                     <PageSection>
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
@@ -990,9 +987,6 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <PageSection variant={PageSectionVariants.light}>
-                        <h2 id="page-title">{_("Software updates")}</h2>
-                    </PageSection>
                     <PageSection>
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh} {...this.state} />

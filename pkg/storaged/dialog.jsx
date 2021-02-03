@@ -543,7 +543,7 @@ export const SelectOne = (tag, title, options) => {
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="select" data-value={val}>
-                    <FormSelect value={val} onChange={change}>
+                    <FormSelect value={val} aria-label={tag} onChange={change}>
                         { options.choices.map(c => <FormSelectOption value={c.value} isDisabled={c.disabled}
                                                                      key={c.title} label={c.title} />) }
                     </FormSelect>
@@ -824,7 +824,7 @@ class SizeSliderElement extends React.Component {
     }
 
     render() {
-        const { val, max, round, onChange } = this.props;
+        const { val, max, round, onChange, tag } = this.props;
         const min = this.props.min || 0;
         const { unit } = this.state;
 
@@ -886,7 +886,7 @@ class SizeSliderElement extends React.Component {
                 <input className="size-text form-control"
                        value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
                        onChange={change_text} />
-                <FormSelect className="size-unit" value={unit} onChange={change_unit}>
+                <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
                     { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
                 </FormSelect>
             </div>
@@ -933,6 +933,7 @@ export const SizeSlider = (tag, title, options) => {
                                        max={all_options.max}
                                        min={all_options.min}
                                        round={all_options.round}
+                                       tag={tag}
                                        onChange={change} />
                 </div>
             );

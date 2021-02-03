@@ -54,8 +54,9 @@ class UnlockDialog extends React.Component {
             </form>;
         } else if (state.method)
             body = <form className="ct-form" onSubmit={state.apply}>
-                <label className="control-label">{_("Method")}</label>
+                <label className="control-label" htmlFor="unlock-dialog-method">{_("Method")}</label>
                 <FormSelect value={state.method}
+                            id="unlock-dialog-method"
                             onChange={state.change}>
                     {state.methods.map(m => <FormSelectOption key={m} value={m} label={m} />)}
                 </FormSelect>

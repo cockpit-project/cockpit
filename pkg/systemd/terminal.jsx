@@ -101,6 +101,7 @@ const _ = cockpit.gettext;
                                 </ToolbarItem>
                                 <ToolbarItem>
                                     <FormSelect onChange={this.onThemeChanged}
+                                                aria-label={_("Appearance")}
                                                 aria-labelledby="theme-select"
                                                 value={this.state.theme}>
                                         <FormSelectOption value='black-theme' label={_("Black")} />

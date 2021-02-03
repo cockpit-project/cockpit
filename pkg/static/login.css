@@ -144,16 +144,21 @@ p {
   margin-left: auto;
 }
 
-#option-group {
+/* Bump options & connection away from user/pass */
+#option-group,
+#option-group[hidden] + #server-group {
   margin-top: 2rem;
-  margin-bottom: 2rem;
 }
+
+#option-group {
+  margin-bottom: 1rem;
+}
+
 #server-group {
-  margin-top: -1rem;
   margin-bottom: 2rem;
 }
 
-.form-group:not([hidden]) + .form-group {
+.form-group:not(:first-child) {
   margin-top: 1rem;
 }
 

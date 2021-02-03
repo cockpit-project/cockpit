@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AlertGroup, Alert, Button, AlertActionCloseButton } from '@patternfly/react-core';
+import { AlertGroup, Button } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
@@ -165,10 +165,12 @@ class App extends React.Component {
                                 .filter(notification => notification.resourceId == vm.id)
                                 .map(notification => {
                                     return (
-                                        <Alert variant='danger' key={notification.index}
-                                               isInline
-                                               actionClose={<AlertActionCloseButton onClose={() => this.onDismissErrorNotification(notification.index)} />}
-                                               title={notification.text}>{notification.detail}</Alert>
+                                        <InlineNotification type='danger' key={notification.index}
+                                               isLiveRegion
+                                               isInline={false}
+                                               onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                               text={notification.text}
+                                               detail={notification.detail} />
                                     );
                                 })
                         : undefined}

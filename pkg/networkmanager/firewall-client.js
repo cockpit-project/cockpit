@@ -23,6 +23,7 @@ import { debounce } from 'throttle-debounce';
 import * as utils from './utils';
 
 var firewall = {
+    owner: null,
     installed: true,
     enabled: false,
     readonly: true,
@@ -71,6 +72,10 @@ function initFirewalldDbus() {
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
         console.info("OWNER", owner);
+        if (firewall.owner == owner)
+            return;
+
+        firewall.owner = owner;
         firewall.enabled = !!owner;
 
         firewall.zones = {};

@@ -70,6 +70,7 @@ function initFirewalldDbus() {
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
+        console.info("OWNER", owner);
         firewall.enabled = !!owner;
 
         firewall.zones = {};
@@ -84,10 +85,10 @@ function initFirewalldDbus() {
             return;
         }
 
-        getZones()
+        getZones("owner")
                 .then(() => getServices())
-                .then(() => { console.info('debouncedEvent changed'); firewall.debouncedEvent('changed') })
-                .catch(error => console.warn(JSON.stringify(error)));
+                .then(() => { console.info('debouncedEvent changed'); return firewall.debouncedEvent('changed') })
+                .catch(error => console.warn("Error, zones after owner change", JSON.stringify(error)));
     });
 
     firewalld_dbus.subscribe({
@@ -101,7 +102,7 @@ function initFirewalldDbus() {
                 .then(() => fetchServiceInfos([service]))
                 .then(info => firewall.enabledServices.add(info[0].id))
                 .then(() => firewall.debouncedEvent('changed'))
-                .catch(error => console.warn(JSON.stringify(error)));
+                .catch(error => console.warn("fetchZINFo", JSON.stringify(error)));
     });
 
     firewalld_dbus.subscribe({
@@ -201,12 +202,12 @@ firewalld_service.addEventListener('changed', () => {
     firewall.dispatchEvent('changed');
 });
 
-function getZones() {
-    console.info('getZones');
+function getZones(caller) {
+    console.info('getZones', caller || "-");
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                'org.fedoraproject.FirewallD1.zone',
                                'getActiveZones', [])
-            .then(reply => { console.info('getZones', JSON.stringify(reply[0])); return fetchZoneInfos(Object.keys(reply[0])) })
+            .then(reply => { console.info('ACTIVE ZONES', caller || "-", JSON.stringify(reply[0])); return fetchZoneInfos(Object.keys(reply[0])) })
             .then(zones => {
                 firewall.activeZones = new Set(zones.map(z => z.id));
             })

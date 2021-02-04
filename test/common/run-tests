@@ -208,19 +208,31 @@ def run(opts, image):
     # Build list of affected tests
     # If file from `test-dir` was changed in the PR, all tests from it are considered affected
     changed_tests = []
+    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
     if os.path.exists(os.path.join(os.path.dirname(testvm.TEST_DIR), ".git")):
+        # Detect affected tests from changed test files
         cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", opts.test_dir]
         r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if r.returncode == 0:
             changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
 
-    # If more than 3 test files were changed don't consider any of them as affected
-    # as it might be a PR that changes more unrelated things.
-    if len(changed_tests) > 3:
-        changed_tests = []
+        # If more than 3 test files were changed don't consider any of them as affected
+        # as it might be a PR that changes more unrelated things.
+        if len(changed_tests) > 3:
+            changed_tests = []
+
+        # Detect affected tests from changed pkg/* subdirectories
+        # If affected tests get detected from pkg/* changes, don't apply the
+        # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
+        cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", "pkg/"]
+        r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        if r.returncode == 0:
+            changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in r.stdout.strip().splitlines())
+
+        changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     seen_classes = {}
-    for filename in glob.glob(os.path.join(opts.test_dir, "check-*")):
+    for filename in test_files:
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue

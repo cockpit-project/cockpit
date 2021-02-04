@@ -23,6 +23,7 @@ import { debounce } from 'throttle-debounce';
 import * as utils from './utils';
 
 var firewall = {
+    owner: null,
     installed: true,
     enabled: false,
     readonly: true,
@@ -70,6 +71,10 @@ function initFirewalldDbus() {
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
+        if (firewall.owner == owner)
+            return;
+
+        firewall.owner = owner;
         firewall.enabled = !!owner;
 
         firewall.zones = {};

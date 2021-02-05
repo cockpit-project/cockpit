@@ -33,6 +33,9 @@ class BasicTestSuite(SeleniumTest):
         self.wait_frame("services")
         self.wait_id("services-list")
         self.click(self.wait_text("Socket", cond=clickable))
+        if os.environ.get("BROWSER") == 'edge':
+            # HACK: Edge does not see elements (kdump menu entry) which are below the visible window area
+            self.driver.execute_script('document.getElementById("systemd-udevd-control.socket").scrollIntoView()')
         self.wait_text("udev")
         self.wait_id("services-list")
         self.click(self.wait_text("Target", cond=clickable))

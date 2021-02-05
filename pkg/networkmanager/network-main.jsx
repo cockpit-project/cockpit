@@ -140,8 +140,6 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
     const url = "/system/logs/#/?prio=debug&_SYSTEMD_UNIT=NetworkManager.service,firewalld.service";
     /* End of properties for the LogsPanel component */
 
-    console.log("RENDER", firewall.activeZones.size);
-
     return (
         <Page id="networking">
             <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>

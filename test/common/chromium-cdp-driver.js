@@ -84,7 +84,7 @@ function setupLogging(client) {
 
         messages.push([ info.type, msg ]);
         if (shownMessages.indexOf(msg) == -1) {
-            shownMessages.push(msg);
+            // shownMessages.push(msg);
             process.stderr.write("> " + info.type + ": " + msg + "\n")
         }
 

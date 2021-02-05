@@ -72,8 +72,10 @@ function initFirewalldDbus() {
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
         console.info("OWNER", owner);
-        if (firewall.owner == owner)
+        if (firewall.owner == owner) {
+            console.log("no change");
             return;
+        }
 
         firewall.owner = owner;
         firewall.enabled = !!owner;
@@ -82,8 +84,6 @@ function initFirewalldDbus() {
         firewall.activeZones = new Set();
         firewall.services = {};
         firewall.enabledServices = new Set();
-
-        console.info('initFirewalldDbus', JSON.stringify({ firewall, event, owner }));
 
         if (!firewall.enabled) {
             firewall.dispatchEvent('changed');
@@ -344,9 +344,9 @@ cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all
             firewall.debouncedGetZones();
         });
 
-firewall.enable = () => Promise.all([firewalld_service.enable(), firewalld_service.start()]);
+firewall.enable = () => { console.log("ENABLE"); return Promise.all([firewalld_service.enable(), firewalld_service.start()]).then(() => console.log("EN done")) };
 
-firewall.disable = () => Promise.all([firewalld_service.stop(), firewalld_service.disable()]);
+firewall.disable = () => { console.log("DISABLE"); return Promise.all([firewalld_service.stop(), firewalld_service.disable()]).then(() => console.log("DIS done")) };
 
 firewall.getAvailableServices = () => {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',

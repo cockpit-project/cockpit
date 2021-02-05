@@ -123,6 +123,25 @@ class TestFirewall(NetworkCase):
         self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
                                     ".*org.fedoraproject.FirewallD1: couldn't introspect /org/fedoraproject/FirewallD1/config: GDBus.Error:org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying.*")
 
+    def testStress(self):
+        b = self.browser
+        m = self.machine
+        active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
+
+        self.login_and_go("/network")
+
+        for i in range(200):
+            self.wait_onoff("#networking-firewall-summary", True)
+            self.toggle_onoff("#networking-firewall-summary")
+            self.wait_onoff("#networking-firewall-summary", False)
+            wait_unit_state(m, "firewalld", "inactive")
+            b.wait_in_text("#networking-firewall-summary", "0 active zones")
+
+            self.toggle_onoff("#networking-firewall-summary")
+            self.wait_onoff("#networking-firewall-summary", True)
+            wait_unit_state(m, "firewalld", "active")
+            b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
+
     def testFirewallPage(self):
         b = self.browser
         m = self.machine

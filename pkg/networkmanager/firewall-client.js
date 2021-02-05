@@ -335,9 +335,8 @@ cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all
             firewall.debouncedGetZones();
         });
 
-firewall.enable = () => Promise.all([firewalld_service.enable(), firewalld_service.start()]);
-
-firewall.disable = () => Promise.all([firewalld_service.stop(), firewalld_service.disable()]);
+firewall.enable = () => firewalld_service.enable().then(() => firewalld_service.start());
+firewall.disable = () => firewalld_service.disable().then(() => firewalld_service.stop());
 
 firewall.getAvailableServices = () => {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',

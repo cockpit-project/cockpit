@@ -50,10 +50,10 @@ const firewalld_service = service.proxy('firewalld');
 var firewalld_dbus = null;
 
 firewall.debouncedGetZones = debounce(300, () => {
-    getZones()
+    getZones("signal")
             .then(() => getServices())
-            .then(() => firewall.debouncedEvent('changed'))
-            .catch(error => console.warn(JSON.stringify(error)));
+            .then(() => { console.log("SIGNAL event"); return firewall.debouncedEvent('changed') })
+            .catch(error => console.warn("SIGNAL error", JSON.stringify(error)));
 });
 
 /* As certain dbus signal callbacks might change the firewall frequently
@@ -92,8 +92,8 @@ function initFirewalldDbus() {
 
         getZones("owner")
                 .then(() => getServices())
-                .then(() => { console.info('debouncedEvent changed'); return firewall.debouncedEvent('changed') })
-                .catch(error => console.warn("Error, zones after owner change", JSON.stringify(error)));
+                .then(() => { console.info('OWNER event'); return firewall.debouncedEvent('changed') })
+                .catch(error => console.warn("OWNER error", JSON.stringify(error)));
     });
 
     firewalld_dbus.subscribe({
@@ -344,9 +344,17 @@ cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all
             firewall.debouncedGetZones();
         });
 
-firewall.enable = () => { console.log("ENABLE"); return Promise.all([firewalld_service.enable(), firewalld_service.start()]).then(() => console.log("EN done")) };
+firewall.enable = () => {
+    console.log("ENABLE");
+    return firewalld_service.enable().then(() => firewalld_service.start())
+            .then(() => console.log("EN done"));
+};
 
-firewall.disable = () => { console.log("DISABLE"); return Promise.all([firewalld_service.stop(), firewalld_service.disable()]).then(() => console.log("DIS done")) };
+firewall.disable = () => {
+    console.log("DISABLE");
+    return firewalld_service.disable().then(() => firewalld_service.stop())
+            .then(() => console.log("DIS done"));
+};
 
 firewall.getAvailableServices = () => {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',

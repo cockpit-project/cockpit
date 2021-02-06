@@ -123,10 +123,8 @@ class TestMachinesNICs(VirtualMachinesCase):
         ).execute()
 
         # Test NIC attaching to non-persistent VM
-        self.goToMainPage()
         m.execute("virsh dumpxml --inactive subVmTest1 > /tmp/subVmTest1.xml; virsh undefine subVmTest1")
-        b.wait_visible("tr[data-row-id=vm-subVmTest1-system][data-row-transient=true]")
-        self.goToVmPage("subVmTest1")
+        b.wait_visible("div[data-vm-transient=\"true\"]")
         self.NICAddDialog(
             self,
             source_type="network",
@@ -135,10 +133,8 @@ class TestMachinesNICs(VirtualMachinesCase):
             nic_num=3,
             persistent_vm=False,
         ).execute()
-        self.goToMainPage()
         m.execute("virsh define /tmp/subVmTest1.xml")
-        b.wait_visible("tr[data-row-id=vm-subVmTest1-system][data-row-transient=false]")
-        self.goToVmPage("subVmTest1")
+        b.wait_visible("div[data-vm-transient=\"false\"]")
         b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")

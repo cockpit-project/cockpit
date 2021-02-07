@@ -880,6 +880,10 @@ test_resolve (TestCase *tc,
   path = cockpit_packages_resolve (tc->packages, "test", "/sub/file.ext", NULL);
   g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test-priority/sub/file.ext", ==, path);
   g_free (path);
+
+  path = cockpit_packages_resolve (tc->packages, "test", "/_modules/@testorg/toolkit.js", NULL);
+  g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test-priority/_modules/@testorg/toolkit.js", ==, path);
+  g_free (path);
 }
 
 static void

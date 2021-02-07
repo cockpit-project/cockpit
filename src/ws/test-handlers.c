@@ -40,7 +40,7 @@
  * To recalculate the checksums found in this file, do something like:
  * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
-#define CHECKSUM "$6d675909f0b33b83a48e67e29cea9797012ded09394546634b9cd967bbe3fbf5"
+#define CHECKSUM "$025e419da72456a49bc60c042b2e983a4a7a44e78eac1fffd062e046e8d4cf3b"
 
 /* Mock override this from cockpitconf.c */
 extern const gchar *cockpit_config_file;
@@ -634,6 +634,13 @@ static const DefaultFixture fixture_resource_application = {
     "These are the contents of file.ext*"
 };
 
+static const DefaultFixture fixture_resource_application_specialchars = {
+  .path = "/cockpit+application/@localhost/test/_modules/@testorg/toolkit.js",
+  .auth = "/cockpit+application",
+  .expect = "HTTP/1.1 200*"
+    "the.code()*"
+};
+
 static const DefaultFixture fixture_resource_application_short = {
   .path = "/cockpit+/@localhost/test/sub/file.ext",
   .auth = "/cockpit+",
@@ -863,6 +870,8 @@ main (int argc,
   g_test_add ("/handlers/resource/host-short", Test, &fixture_resource_host_short,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/application", Test, &fixture_resource_application,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/resource/application-specialchars", Test, &fixture_resource_application_specialchars,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/application-short", Test, &fixture_resource_application_short,
               setup_default, test_default, teardown_default);

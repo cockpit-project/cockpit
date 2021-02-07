@@ -177,7 +177,7 @@ validate_package (const gchar *name)
 static gboolean
 validate_path (const gchar *name)
 {
-  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,/";
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,@/";
   gsize len = strspn (name, allowed);
   return len && name[len] == '\0';
 }

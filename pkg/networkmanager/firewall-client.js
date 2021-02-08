@@ -52,8 +52,8 @@ var firewalld_dbus = null;
 firewall.debouncedGetZones = debounce(300, () => {
     getZones("signal")
             .then(() => getServices())
-            .then(() => { console.log("SIGNAL event"); return firewall.debouncedEvent('changed') })
-            .catch(error => console.warn("SIGNAL error", JSON.stringify(error)));
+            .catch(error => console.warn("SIGNAL error", JSON.stringify(error)))
+            .then(() => { console.log("SIGNAL event"); return firewall.debouncedEvent('changed') });
 });
 
 /* As certain dbus signal callbacks might change the firewall frequently
@@ -92,8 +92,8 @@ function initFirewalldDbus() {
 
         getZones("owner")
                 .then(() => getServices())
-                .then(() => { console.info('OWNER event'); return firewall.debouncedEvent('changed') })
-                .catch(error => console.warn("OWNER error", JSON.stringify(error)));
+                .catch(error => console.warn("OWNER error", JSON.stringify(error)))
+                .then(() => { console.info('OWNER event'); return firewall.debouncedEvent('changed') });
     });
 
     firewalld_dbus.subscribe({
@@ -106,8 +106,8 @@ function initFirewalldDbus() {
         fetchZoneInfos([zone])
                 .then(() => fetchServiceInfos([service]))
                 .then(info => firewall.enabledServices.add(info[0].id))
-                .then(() => firewall.debouncedEvent('changed'))
-                .catch(error => console.warn("fetchZINFo", JSON.stringify(error)));
+                .catch(error => console.warn("fetchZINFo", JSON.stringify(error)))
+                .then(() => firewall.debouncedEvent('changed'));
     });
 
     firewalld_dbus.subscribe({

@@ -52,7 +52,7 @@ firewall.debouncedGetZones = debounce(300, () => {
     getZones()
             .then(() => getServices())
             .then(() => firewall.debouncedEvent('changed'))
-            .catch(error => console.warn(error));
+            .catch(error => console.warn(JSON.stringify(error)));
 });
 
 /* As certain dbus signal callbacks might change the firewall frequently
@@ -77,6 +77,8 @@ function initFirewalldDbus() {
         firewall.services = {};
         firewall.enabledServices = new Set();
 
+        console.info('initFirewalldDbus', JSON.stringify({ firewall, event, owner }));
+
         if (!firewall.enabled) {
             firewall.dispatchEvent('changed');
             return;
@@ -84,8 +86,8 @@ function initFirewalldDbus() {
 
         getZones()
                 .then(() => getServices())
-                .then(() => firewall.debouncedEvent('changed'))
-                .catch(error => console.warn(error));
+                .then(() => { console.info('debouncedEvent changed'); firewall.debouncedEvent('changed') })
+                .catch(error => console.warn(JSON.stringify(error)));
     });
 
     firewalld_dbus.subscribe({
@@ -99,7 +101,7 @@ function initFirewalldDbus() {
                 .then(() => fetchServiceInfos([service]))
                 .then(info => firewall.enabledServices.add(info[0].id))
                 .then(() => firewall.debouncedEvent('changed'))
-                .catch(error => console.warn(error));
+                .catch(error => console.warn(JSON.stringify(error)));
     });
 
     firewalld_dbus.subscribe({
@@ -200,10 +202,11 @@ firewalld_service.addEventListener('changed', () => {
 });
 
 function getZones() {
+    console.info('getZones');
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                'org.fedoraproject.FirewallD1.zone',
                                'getActiveZones', [])
-            .then(reply => fetchZoneInfos(Object.keys(reply[0])))
+            .then(reply => { console.info('getZones', JSON.stringify(reply[0])); return fetchZoneInfos(Object.keys(reply[0])) })
             .then(zones => {
                 firewall.activeZones = new Set(zones.map(z => z.id));
             })
@@ -220,6 +223,7 @@ function getZones() {
 }
 
 function getServices() {
+    console.info('getServices');
     if (firewall.readonly)
         return Promise.resolve();
     firewall.enabledServices = new Set();
@@ -231,6 +235,10 @@ function getServices() {
                 .then(services => {
                     const promises = [];
                     for (const s of services) {
+                        if (!s) {
+                            console.warn('getServices returned undefined', s);
+                            continue;
+                        }
                         firewall.enabledServices.add(s.id);
                         if (s.includes.length)
                             promises.push(fetchServiceInfos(s.includes));
@@ -339,7 +347,7 @@ firewall.getAvailableServices = () => {
                                'org.fedoraproject.FirewallD1',
                                'listServices', [])
             .then(reply => fetchServiceInfos(reply[0]))
-            .catch(error => console.warn(error));
+            .catch(error => console.warn(JSON.stringify(error)));
 };
 
 /*
@@ -350,7 +358,7 @@ firewall.reload = () => {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                'org.fedoraproject.FirewallD1',
                                'reload', [])
-            .catch(error => console.warn(error));
+            .catch(error => console.warn(JSON.stringify(error)));
 };
 
 /*
@@ -495,7 +503,7 @@ firewall.deactiveateZone = (zone) => {
                 });
     });
 
-    return p.catch(error => console.warn(error));
+    return p.catch(error => console.warn(JSON.stringify(error)));
 };
 
 export default firewall;

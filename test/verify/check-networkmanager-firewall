@@ -65,6 +65,7 @@ class TestFirewall(NetworkCase):
             m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
 
     def testNetworkingPage(self):
+        # This is just to trigger the test 3 times
         b = self.browser
         m = self.machine
         active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())

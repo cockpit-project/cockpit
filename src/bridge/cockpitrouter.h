@@ -65,6 +65,7 @@ void                cockpit_router_dbus_startup                    (CockpitRoute
 void                cockpit_router_prompt                          (CockpitRouter *self,
                                                                     const gchar *user,
                                                                     const gchar *prompt,
+                                                                    const gchar *previous_error,
                                                                     CockpitRouterPromptAnswerFunction *answer,
                                                                     gpointer data);
 

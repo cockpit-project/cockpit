@@ -1261,15 +1261,21 @@ superuser_notify_property (CockpitRouter *self, const gchar *prop)
 }
 
 static void
-superuser_start_done (const gchar *error, gpointer user_data)
+superuser_start_done (const gchar *error, const gchar *stderr, gpointer user_data)
 {
   CockpitRouter *router = user_data;
 
   if (error)
     {
+      const gchar *message;
+      if (g_strcmp0 (error, "cancelled") == 0 || stderr == NULL || *stderr == '\0')
+        message = error;
+      else
+        message = stderr;
+
       router->superuser_rule = NULL;
       g_dbus_method_invocation_return_error (router->superuser_start_invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             "%s", error);
+                                             "%s", message);
     }
   else
     g_dbus_method_invocation_return_value (router->superuser_start_invocation, NULL);
@@ -1559,7 +1565,7 @@ cockpit_router_dbus_startup (CockpitRouter *router)
 /* Superuser init */
 
 static void
-superuser_init_done (const gchar *error, gpointer user_data)
+superuser_init_done (const gchar *error, const gchar *stderr, gpointer user_data)
 {
   CockpitRouter *router = user_data;
 
@@ -1608,7 +1614,7 @@ superuser_init_start (CockpitRouter *router,
         g_warning ("No such superuser bridge: %s", id);
     }
 
-  superuser_init_done (NULL, g_object_ref (router));
+  superuser_init_done (NULL, NULL, g_object_ref (router));
 }
 
 static void
@@ -1621,7 +1627,7 @@ superuser_init (CockpitRouter *router,
       || id == NULL)
     {
       g_warning ("invalid superuser options in \"init\" message");
-      superuser_init_done (NULL, g_object_ref (router));
+      superuser_init_done (NULL, NULL, g_object_ref (router));
       return;
     }
 
@@ -1645,6 +1651,7 @@ void
 cockpit_router_prompt (CockpitRouter *self,
                        const gchar *user,
                        const gchar *prompt,
+                       const gchar *previous_error,
                        CockpitRouterPromptAnswerFunction *answer,
                        gpointer data)
 {
@@ -1667,7 +1674,7 @@ cockpit_router_prompt (CockpitRouter *self,
                                      "/superuser",
                                      "cockpit.Superuser",
                                      "Prompt",
-                                     g_variant_new ("(sssb)", prompt, "", "", FALSE),
+                                     g_variant_new ("(sssbs)", prompt, "", "", FALSE, previous_error),
                                      NULL);
     }
   else if (self->superuser_init_in_progress)

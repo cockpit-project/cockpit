@@ -84,13 +84,13 @@ class TestFirewall(NetworkCase):
         wait_unit_state(m, "firewalld", "active")
 
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
-        time.sleep(10)
+        # time.sleep(10)
 
         self.toggle_onoff("#networking-firewall-summary")
         self.wait_onoff("#networking-firewall-summary", False)
         wait_unit_state(m, "firewalld", "inactive")
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
-        time.sleep(10)
+        # time.sleep(10)
 
         # toggle the service from CLI, page should react
         try:
@@ -103,7 +103,7 @@ class TestFirewall(NetworkCase):
 
         self.wait_onoff("#networking-firewall-summary", True)
         b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
-        time.sleep(10)
+        # time.sleep(10)
 
         try:
             m.execute("systemctl stop firewalld")
@@ -115,7 +115,7 @@ class TestFirewall(NetworkCase):
 
         self.wait_onoff("#networking-firewall-summary", False)
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
-        time.sleep(10)
+        # time.sleep(10)
 
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
@@ -140,13 +140,13 @@ class TestFirewall(NetworkCase):
             self.wait_onoff("#networking-firewall-summary", False)
             wait_unit_state(m, "firewalld", "inactive")
             b.wait_in_text("#networking-firewall-summary", "0 active zones")
-            time.sleep(10)
+            # time.sleep(10)
 
             self.toggle_onoff("#networking-firewall-summary")
             self.wait_onoff("#networking-firewall-summary", True)
             wait_unit_state(m, "firewalld", "active")
             b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
-            time.sleep(10)
+            # time.sleep(10)
 
     def testFirewallPage(self):
         b = self.browser

@@ -212,8 +212,9 @@ function getZones(caller) {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                'org.fedoraproject.FirewallD1.zone',
                                'getActiveZones', [])
-            .then(reply => { console.info('ACTIVE ZONES', caller || "-", JSON.stringify(reply[0])); return fetchZoneInfos(Object.keys(reply[0])) })
+            .then(reply => { return fetchZoneInfos(Object.keys(reply[0])) })
             .then(zones => {
+                console.info('ACTIVE ZONES', caller || "-", firewall.enabled || "-", JSON.stringify(zones));
                 firewall.activeZones = new Set(zones.map(z => z.id));
             })
             .then(() => firewalld_dbus.call('/org/fedoraproject/FirewallD1',

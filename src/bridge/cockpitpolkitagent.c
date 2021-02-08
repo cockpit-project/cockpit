@@ -220,7 +220,7 @@ on_request (PolkitAgentSession *session,
       polkit_agent_session_response (session, "");
     }
   else if (caller->self->router)
-    cockpit_router_prompt (caller->self->router, caller->user, NULL, on_answer, caller);
+    cockpit_router_prompt (caller->self->router, caller->user, NULL, NULL, on_answer, caller);
 }
 
 static void

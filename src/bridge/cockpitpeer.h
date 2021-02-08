@@ -30,7 +30,7 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitPeer        CockpitPeer;
 
-typedef void CockpitPeerDoneFunction (const gchar *error, gpointer data);
+typedef void CockpitPeerDoneFunction (const gchar *error, const gchar *stderr, gpointer data);
 
 typedef struct _CockpitPeerClass {
   GObjectClass parent_class;

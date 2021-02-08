@@ -23,6 +23,7 @@
 
 #include "cockpitflow.h"
 #include "cockpitunixfd.h"
+#include "cockpitunicode.h"
 
 #include <glib-unix.h>
 
@@ -104,6 +105,7 @@ typedef struct {
   gboolean err_done;
   GSource *err_source;
   GByteArray *err_buffer;
+  gboolean err_forward_to_log;
 
   gboolean is_user_fd;
 
@@ -372,6 +374,24 @@ dispatch_input (gint fd,
   return TRUE;
 }
 
+static void
+forward_error (CockpitPipe *self)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  guint8 *data = priv->err_buffer->data;
+  guint len = priv->err_buffer->len;
+  while (len > 0)
+    {
+      ssize_t n = TEMP_FAILURE_RETRY (write (2, data, len));
+      if (n <= 0)
+        break;
+      len -= n;
+      data += n;
+    }
+  g_byte_array_set_size (priv->err_buffer, 0);
+}
+
 static gboolean
 dispatch_error (gint fd,
                 GIOCondition cond,
@@ -405,6 +425,10 @@ dispatch_error (gint fd,
               close_immediately (self, "internal-error");
               return FALSE;
             }
+
+          if (priv->err_forward_to_log)
+            forward_error (self);
+
           return TRUE;
         }
     }
@@ -1503,6 +1527,47 @@ cockpit_pipe_get_stderr (CockpitPipe *self)
 
   g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
   return priv->err_buffer;
+}
+
+gchar *
+cockpit_pipe_take_stderr_as_utf8 (CockpitPipe *self)
+{
+  GByteArray *buffer;
+  GBytes *bytes;
+  GBytes *clean;
+  gchar *data;
+  gsize length;
+
+  buffer = cockpit_pipe_get_stderr (self);
+  if (!buffer)
+    return NULL;
+
+  /* A little more complicated to avoid big copies */
+  g_byte_array_ref (buffer);
+  g_byte_array_append (buffer, (guint8 *)"x", 1); /* place holder for null terminate */
+  bytes = g_byte_array_free_to_bytes (buffer);
+  clean = cockpit_unicode_force_utf8 (bytes);
+  g_bytes_unref (bytes);
+
+  data = g_bytes_unref_to_data (clean, &length);
+
+  /* Fill in null terminate, for x above */
+  g_assert (length > 0);
+  data[length - 1] = '\0';
+
+  return data;
+}
+
+void
+cockpit_pipe_stop_stderr_capture (CockpitPipe *self)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  if (priv->err_buffer)
+    {
+      priv->err_forward_to_log = TRUE;
+      forward_error (self);
+    }
 }
 
 /**

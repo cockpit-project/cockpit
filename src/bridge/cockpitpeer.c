@@ -94,15 +94,35 @@ enum {
 
 G_DEFINE_TYPE (CockpitPeer, cockpit_peer, G_TYPE_OBJECT);
 
+static gchar *
+startup_take_stderr (CockpitPeer *self)
+{
+  if (!self->other)
+    return NULL;
+
+  CockpitPipe *pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (self->other));
+  return cockpit_pipe_take_stderr_as_utf8 (pipe);
+}
+
 static void
 startup_done (CockpitPeer *self,
               const gchar *problem)
 {
+  gchar *stderr = startup_take_stderr (self);
+
+  if (self->other)
+    {
+      CockpitPipe *pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (self->other));
+      cockpit_pipe_stop_stderr_capture (pipe);
+    }
+
   if (self->startup_done_function)
     {
-      self->startup_done_function (problem, self->startup_done_data);
+      self->startup_done_function (problem, stderr, self->startup_done_data);
       self->startup_done_function = NULL;
     }
+
+  g_free (stderr);
 }
 
 static void
@@ -280,16 +300,16 @@ on_other_control (CockpitTransport *transport,
         g_source_remove (self->authorize_values_timeout);
       self->authorize_values_timeout = g_timeout_add (2*60*1000, cockpit_peer_delete_authorize_values, self);
 
-      startup_done (self, problem);
-
       if (problem)
         {
+          startup_done (self, problem);
           cockpit_transport_close (transport, problem);
         }
       else
         {
           g_debug ("%s: received init message from peer bridge", self->name);
           self->inited = TRUE;
+          startup_done (self, NULL);
 
           if (!self->last_init)
             {
@@ -366,12 +386,15 @@ on_other_control (CockpitTransport *transport,
             {
               gchar *user_hex;
               gchar *user;
+              gchar *stderr;
               self->startup_auth_cookie = g_strdup (cookie);
               cockpit_authorize_subject (challenge, &user_hex);
               user = cockpit_hex_decode (user_hex, -1, NULL);
-              cockpit_router_prompt (self->router, user, prompt, on_answer, self);
+              stderr = startup_take_stderr (self);
+              cockpit_router_prompt (self->router, user, prompt, stderr, on_answer, self);
               g_free (user);
               g_free (user_hex);
+              g_free (stderr);
             }
         }
 
@@ -540,6 +563,8 @@ on_other_closed (CockpitTransport *transport,
         }
     }
 
+  startup_done (self, problem ? problem : startup_problem);
+
   g_signal_handler_disconnect (self->other, self->other_closed);
   g_signal_handler_disconnect (self->other, self->other_recv);
   g_signal_handler_disconnect (self->other, self->other_control);
@@ -547,8 +572,6 @@ on_other_closed (CockpitTransport *transport,
   self->other = NULL;
 
   self->closed = TRUE;
-
-  startup_done (self, problem ? problem : startup_problem);
 
   /* Handle any remaining open channels */
   channels = g_hash_table_get_values (self->channels);
@@ -842,7 +865,8 @@ spawn_setup (gpointer data)
 }
 
 static CockpitPipe *
-spawn_process_for_config (CockpitPeer *self)
+spawn_process_for_config (CockpitPeer *self,
+                          gboolean capture_stderr)
 {
   const gchar *default_argv[] = { "/bin/false", NULL };
   CockpitPipe *pipe = NULL;
@@ -853,6 +877,7 @@ spawn_process_for_config (CockpitPeer *self)
   GError *error = NULL;
   GPid pid = 0;
   int fds[2];
+  int stderr_fd = -1;
 
   if (socketpair (PF_LOCAL, SOCK_STREAM, 0, fds) < 0)
     {
@@ -872,7 +897,7 @@ spawn_process_for_config (CockpitPeer *self)
       g_spawn_async_with_pipes (directory, (gchar **)argv, env,
                                 G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
                                 spawn_setup, GINT_TO_POINTER (fds[0]),
-                                &pid, NULL, NULL, NULL, &error);
+                                &pid, NULL, NULL, capture_stderr ? &stderr_fd : NULL, &error);
 
       if (error)
         {
@@ -894,6 +919,7 @@ spawn_process_for_config (CockpitPeer *self)
                                "name", self->name,
                                "in-fd", fds[1],
                                "out-fd", fds[1],
+                               "err-fd", stderr_fd,
                                "pid", pid,
                                NULL);
           fds[1] = -1;
@@ -1073,7 +1099,7 @@ cockpit_peer_ensure_with_done (CockpitPeer *self,
       self->startup_done_function = done_function;
       self->startup_done_data = done_data;
 
-      pipe = spawn_process_for_config (self);
+      pipe = spawn_process_for_config (self, done_function != NULL);
       if (!pipe)
         {
           self->closed = TRUE;
@@ -1091,7 +1117,7 @@ cockpit_peer_ensure_with_done (CockpitPeer *self,
   else
     {
       if (done_function)
-        done_function (NULL, done_data);
+        done_function (NULL, NULL, done_data);
     }
 
   return self->other;

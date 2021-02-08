@@ -23,6 +23,7 @@
 
 #include "cockpitflow.h"
 #include "cockpitunixfd.h"
+#include "cockpitunicode.h"
 
 #include <glib-unix.h>
 
@@ -32,6 +33,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <poll.h>
 #include <pty.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,6 +106,7 @@ typedef struct {
   gboolean err_done;
   GSource *err_source;
   GByteArray *err_buffer;
+  gboolean err_forward_to_log;
 
   gboolean is_user_fd;
 
@@ -372,6 +375,18 @@ dispatch_input (gint fd,
   return TRUE;
 }
 
+static void
+forward_error (CockpitPipe *self)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  if (priv->err_buffer->len > 0)
+    {
+      g_warning ("%s: unexpected stderr output: %.*s", priv->name, priv->err_buffer->len, priv->err_buffer->data);
+      g_byte_array_set_size (priv->err_buffer, 0);
+    }
+}
+
 static gboolean
 dispatch_error (gint fd,
                 GIOCondition cond,
@@ -405,11 +420,18 @@ dispatch_error (gint fd,
               close_immediately (self, "internal-error");
               return FALSE;
             }
+
+          if (priv->err_forward_to_log)
+            forward_error (self);
+
           return TRUE;
         }
     }
 
   g_byte_array_set_size (priv->err_buffer, len + ret);
+
+  if (priv->err_forward_to_log)
+    forward_error (self);
 
   if (ret == 0)
     {
@@ -425,6 +447,22 @@ dispatch_error (gint fd,
 
   g_object_unref (self);
   return TRUE;
+}
+
+static gboolean
+fd_readable (int fd)
+{
+  struct pollfd pfd = { .fd = fd, .events = POLLIN };
+  return poll (&pfd, 1, 0) > 0 && (pfd.revents & POLLIN);
+}
+
+static void
+drain_error (CockpitPipe *self)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  while (priv->err_source && fd_readable (priv->err_fd))
+    dispatch_error (priv->err_fd, G_IO_IN, self);
 }
 
 static void
@@ -1503,6 +1541,50 @@ cockpit_pipe_get_stderr (CockpitPipe *self)
 
   g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
   return priv->err_buffer;
+}
+
+gchar *
+cockpit_pipe_take_stderr_as_utf8 (CockpitPipe *self)
+{
+  GByteArray *buffer;
+  GBytes *clean;
+  gchar *data;
+  gsize length;
+
+  drain_error (self);
+
+  buffer = cockpit_pipe_get_stderr (self);
+  if (!buffer)
+    return NULL;
+
+  /* A little more complicated to avoid big copies */
+  g_byte_array_ref (buffer);
+  g_byte_array_append (buffer, (guint8 *)"x", 1); /* place holder for null terminate */
+
+  {
+    g_autoptr(GBytes) bytes = g_byte_array_free_to_bytes (buffer);
+    clean = cockpit_unicode_force_utf8 (bytes);
+  }
+
+  data = g_bytes_unref_to_data (clean, &length);
+
+  /* Fill in null terminate, for x above */
+  g_assert (length > 0);
+  data[length - 1] = '\0';
+
+  return data;
+}
+
+void
+cockpit_pipe_stop_stderr_capture (CockpitPipe *self)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  if (priv->err_buffer)
+    {
+      priv->err_forward_to_log = TRUE;
+      forward_error (self);
+    }
 }
 
 /**

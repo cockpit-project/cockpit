@@ -87,6 +87,10 @@ GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
 GByteArray *       cockpit_pipe_get_stderr   (CockpitPipe *self);
 
+gchar *            cockpit_pipe_take_stderr_as_utf8 (CockpitPipe *self);
+
+void               cockpit_pipe_stop_stderr_capture (CockpitPipe *self);
+
 gboolean           cockpit_pipe_get_pid      (CockpitPipe *self,
                                               GPid *pid);
 

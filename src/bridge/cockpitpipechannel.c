@@ -302,28 +302,11 @@ return_stderr_message (CockpitChannel *channel,
                        CockpitPipe *pipe)
 {
   JsonObject *options;
-  GByteArray *buffer;
-  GBytes *bytes;
-  GBytes *clean;
   gchar *data;
-  gsize length;
 
-  buffer = cockpit_pipe_get_stderr (pipe);
-  if (!buffer)
+  data = cockpit_pipe_take_stderr_as_utf8 (pipe);
+  if (data == NULL)
     return;
-
-  /* A little more complicated to avoid big copies */
-  g_byte_array_ref (buffer);
-  g_byte_array_append (buffer, (guint8 *)"x", 1); /* place holder for null terminate */
-  bytes = g_byte_array_free_to_bytes (buffer);
-  clean = cockpit_unicode_force_utf8 (bytes);
-  g_bytes_unref (bytes);
-
-  data = g_bytes_unref_to_data (clean, &length);
-
-  /* Fill in null terminate, for x above */
-  g_assert (length > 0);
-  data[length - 1] = '\0';
 
   options = cockpit_channel_close_options (channel);
   json_object_set_string_member (options, "message", data);

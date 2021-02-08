@@ -24,7 +24,7 @@ import {
     Alert, Button
 } from '@patternfly/react-core';
 
-import { SuperuserDialogs, can_do_sudo } from "../shell/superuser.jsx";
+import { SuperuserDialogs } from "../shell/superuser.jsx";
 
 const _ = cockpit.gettext;
 
@@ -33,18 +33,13 @@ export class SuperuserAlert extends React.Component {
         super();
         this.superuser = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser");
         this.superuser.addEventListener("changed", () => { this.setState({}) });
-        this.state = { can_do_sudo: false };
-        can_do_sudo().then(can_do => this.setState({ can_do_sudo: can_do }));
     }
 
     render () {
         const actions =
-            <SuperuserDialogs create_trigger={(unlocked, onclick) => {
-                if (this.state.can_do_sudo)
-                    return <Button onClick={onclick}>{_("Turn on administrative access")}</Button>;
-                else
-                    return null;
-            }} />;
+            <SuperuserDialogs create_trigger={(unlocked, onclick) =>
+                <Button onClick={onclick}>{_("Turn on administrative access")}</Button>}
+            />;
 
         // The SuperuserDialogs element above needs to be in the DOM
         // regardless of the superuser level so that the dialogs are

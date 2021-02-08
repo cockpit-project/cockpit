@@ -27,12 +27,6 @@ import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
-export function can_do_sudo(host) {
-    return cockpit.spawn(["sudo", "-v", "-n"], { err: "out", environ: ["LC_ALL=C"], host: host })
-            .then(() => true,
-                  (err, out) => !(err.exit_status == 1 && out.match("Sorry, user .+ may not run sudo on .+\\.")));
-}
-
 class UnlockDialog extends React.Component {
     render() {
         const { state } = this.props;
@@ -221,15 +215,7 @@ export class SuperuserDialogs extends React.Component {
 
     unlock(error) {
         this.superuser.Stop().always(() => {
-            can_do_sudo(this.props.host).then(can_do => {
-                if (!can_do)
-                    this.set_unlock_state({
-                        message: _("You can not gain administrative access."),
-                        cancel: () => this.set_unlock_state({ closed: true })
-                    });
-                else
-                    this.start("sudo", error);
-            });
+            this.start("sudo", error);
         });
     }
 
@@ -248,13 +234,13 @@ export class SuperuserDialogs extends React.Component {
 
         let did_prompt = false;
 
-        const onprompt = (event, message, prompt, def, echo) => {
+        const onprompt = (event, message, prompt, def, echo, error) => {
             did_prompt = true;
             const p = { message: message, prompt: prompt, value: def, echo: echo };
             this.set_unlock_state({
                 prompt: p,
 
-                error: this.state.unlock_dialog_state.error,
+                error: error || this.state.unlock_dialog_state.error,
                 change: val => {
                     p.value = val;
                     this.update_unlock_state({ prompt: p });
@@ -290,14 +276,11 @@ export class SuperuserDialogs extends React.Component {
                     console.warn(err);
                     this.superuser.removeEventListener("Prompt", onprompt);
                     if (err && err.message != "cancelled") {
-                        if (did_prompt)
-                            this.unlock(_("This didn't work, please try again"));
-                        else
-                            this.set_unlock_state({
-                                message: _("Something went wrong"),
-                                error: err.toString(),
-                                cancel: () => this.set_unlock_state({ closed: true })
-                            });
+                        this.set_unlock_state({
+                            message: _("This did not work."),
+                            error: err.toString(),
+                            cancel: () => this.set_unlock_state({ closed: true })
+                        });
                     } else
                         this.set_unlock_state({ closed: true });
                 });

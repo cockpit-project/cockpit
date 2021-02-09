@@ -731,3 +731,9 @@ th > label {
 :root {
   font-size: $font-size-base;
 }
+
+/* Reset PF3 margin for PF4; needs to be specificity of 2 to override PF3 and let PF4 set margins too */
+input.pf-c-checkbox__input,
+input.pf-c-radio__input {
+  margin: unset;
+}

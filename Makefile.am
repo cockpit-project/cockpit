@@ -186,7 +186,7 @@ dist/%/Makefile.deps:
 # This is the primary rule for running webpack; some pkgs like ssh or pcp only
 # have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
-	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG) && touch $@
+	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
 
 dist/%/manifest.json: pkg/%/manifest.json
 	@$(MKDIR_P) $(dir $@)

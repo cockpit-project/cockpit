@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -eu
 
 top_srcdir=$(realpath -m "$0"/../../..)
 image=ghcr.io/cockpit-project/unit-tests:latest
@@ -6,6 +7,7 @@ no_npm=''
 scenario=''
 flags=''
 cmd=''
+results_vol=''
 
 while test $# -gt 0; do
   case "$1" in
@@ -16,6 +18,12 @@ while test $# -gt 0; do
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
     distcheck|check-memory) scenario="--env=TEST_SCENARIO=$1";;
+    dist)
+        scenario="--env=TEST_SCENARIO=$1"
+        results_vol="--volume=${top_srcdir}/tmp/dist:/results:Z"
+        mkdir -m 777 -p "${top_srcdir}/tmp/dist"
+        ;;
+
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
@@ -33,4 +41,5 @@ fi
 
 set -ex
 exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
+       ${results_vol:+"$results_vol"} \
        ${ccarg:+"$ccarg"} $scenario $no_npm $flags -- "$image" $cmd

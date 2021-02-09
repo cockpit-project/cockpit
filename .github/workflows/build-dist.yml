@@ -1,0 +1,28 @@
+name: build-dist
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Run unit-tests container
+        run: containers/unit-tests/start dist
+
+      - name: Create dist tarball artifact
+        uses: actions/upload-artifact@v2
+        with:
+          # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
+          # for pull_requests, use HEAD of the proposed branch, for pushes to origin the current SHA
+          name: "dist-${{ github.event.pull_request.head.sha || github.sha }}"
+          path: tmp/dist/cockpit-*.tar.xz
+          retention-days: 7

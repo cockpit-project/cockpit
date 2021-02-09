@@ -626,6 +626,15 @@ class TestMultiCPU(MachineCase):
         self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 0.5)
         self.assertLessEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 1.0)
 
+        # Test current usage of cores
+        b.wait(lambda: progressValue(b, "#current-cpu-usage") < 20)
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
+        b.wait(lambda: progressValue(b, "#current-cpu-usage") > 40)
+        b.mouse("#current-cpu-usage", "mouseenter")
+        b.wait(lambda: int(b.text(".pf-c-tooltip .pf-l-flex:first-child div:nth-child(2)")[:-1]) > 50)
+        b.wait(lambda: int(b.text(".pf-c-tooltip .pf-l-flex:nth-child(2) div:nth-child(2)")[:-1]) > 20)
+
 
 if __name__ == '__main__':
     test_main()

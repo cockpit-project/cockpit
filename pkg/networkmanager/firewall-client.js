@@ -240,6 +240,7 @@ function getServices() {
                                    'getServices', [z])
                 .then(reply => fetchServiceInfos(reply[0]))
                 .then(services => {
+                    console.log("FSI result", z, JSON.stringify(services));
                     const promises = [];
                     for (const s of services) {
                         if (!s) {
@@ -292,6 +293,7 @@ function fetchServiceInfos(services) {
                     return info;
                 })
                 .catch(error => {
+                    console.log("FSI error", JSON.stringify(error));
                     if (error.name === 'org.freedesktop.DBus.Error.UnknownMethod')
                         return info;
                     Promise.reject(error);

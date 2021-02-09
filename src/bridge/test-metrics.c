@@ -28,6 +28,8 @@
 #include "common/cockpitjson.h"
 #include "common/mock-transport.h"
 
+#include <unistd.h>
+
 typedef struct {
   MockTransport *transport;
   CockpitMetrics *channel;
@@ -782,6 +784,72 @@ test_cgroup (void)
   g_object_unref (transport);
 }
 
+static void
+test_cpu_cores (void)
+{
+  MockTransport *transport = mock_transport_new ();
+  CockpitChannel *channel;
+
+  JsonObject *options = json_obj ("{ 'metrics': [ { 'name': 'cpu.core.nice', 'derive': 'rate' }, "
+                                  "               { 'name': 'cpu.core.user', 'derive': 'rate' }, "
+                                  "               { 'name': 'cpu.core.system', 'derive': 'rate' }, "
+                                  "               { 'name': 'cpu.core.iowait', 'derive': 'rate' } ], "
+                                  "  'interval': 1000"
+                                  "}");
+  GBytes *msg;
+  JsonObject *res, *description;
+  JsonArray *metrics, *instances, *all, *nice;
+  JsonArray *samples;
+  GError *error = NULL;
+
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+  channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+
+  cockpit_channel_prepare (channel);
+
+  /* receive meta information */
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  res = cockpit_json_parse_bytes (msg, &error);
+  g_assert_no_error (error);
+  g_assert (res != NULL);
+  g_assert (json_object_has_member (res, "metrics"));
+
+  /* metrics should have the form [{"name":"...","instances":[[1, 0, ...], ...]}] */
+  metrics = json_object_get_array_member (res, "metrics");
+  g_assert_cmpint (json_array_get_length (metrics), ==, 4);
+  description = json_array_get_object_element (metrics, 0);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "cpu.core.nice");
+  g_assert_cmpstr (json_object_get_string_member (description, "units"), ==, "millisec");
+
+  /* Array contains value for each core */
+  instances = json_object_get_array_member (description, "instances");
+  g_assert_cmpint (json_array_get_length (instances), ==, sysconf(_SC_NPROCESSORS_ONLN));
+
+  /* Value of each core is somewhere between 0 and 1000 */
+  samples = recv_array (transport);
+  g_assert_cmpint (json_array_get_length (samples), ==, 1);
+  all = json_array_get_array_element (samples, 0);
+  g_assert_cmpint (json_array_get_length (all), ==, 4);
+  nice = json_array_get_array_element (all, 0);
+  g_assert_cmpint (json_array_get_length (nice), ==, sysconf(_SC_NPROCESSORS_ONLN));
+  g_assert_cmpint (json_array_get_int_element (nice, 0), >=, 0);
+  g_assert_cmpint (json_array_get_int_element (nice, 0), <=, 1000);
+
+  json_array_unref (samples);
+
+  json_object_unref (res);
+  g_object_unref (channel);
+  json_object_unref (options);
+  g_object_unref (transport);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -809,6 +877,8 @@ main (int argc,
 
   g_test_add_func ("/metrics/deprecated-net-all", test_deprecated_net_all);
   g_test_add_func ("/metrics/cgroup-memory", test_cgroup);
+
+  g_test_add_func ("/metrics/cpu-cores", test_cpu_cores);
 
   return g_test_run ();
 }

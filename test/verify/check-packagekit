@@ -164,7 +164,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#status #last-checked", "Last checked: a few seconds ago")
 
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "2 updates")
+        self.assertEqual(b.text("#state"), "2 updates available")
 
         b.wait_in_text("table[aria-label='Available updates']", "vanilla")
         self.check_nth_update(1, "chocolate", "2.0-2", arch=self.secondary_arch)
@@ -264,7 +264,7 @@ class TestUpdates(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
+        self.assertEqual(b.text("#state"), "6 updates available, including 3 security fixes")
 
         b.wait_in_text("table[aria-label='Available updates']", "sevcritical")
 
@@ -357,7 +357,7 @@ class TestUpdates(NoSubManCase):
         b.click("#app .pf-c-empty-state button.pf-m-link:contains('Ignore')")
 
         # should have succeeded; 3 non-security updates left
-        b.wait_in_text("#state", "3 updates")
+        b.wait_in_text("#state", "3 updates available")
         b.wait_visible("#available-updates")
         b.wait_in_text("table[aria-label='Available updates']", "norefs-doc")
         self.assertIn("buggy", b.text("table[aria-label='Available updates']"))
@@ -429,7 +429,7 @@ class TestUpdates(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "1 security fix")
+        self.assertEqual(b.text("#state"), "1 security fix available")
 
         # should only have one button (only security updates)
         b.wait_not_present("#available-updates button#install-all")
@@ -522,7 +522,7 @@ class TestUpdates(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "1 update")
+        self.assertEqual(b.text("#state"), "1 update available")
 
         b.click("#available-updates button#install-all")
 
@@ -603,7 +603,7 @@ class TestUpdates(NoSubManCase):
 
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
-        b.wait_text("#state", "1 update")
+        b.wait_text("#state", "1 update available")
         b.wait_visible("#available-updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
@@ -629,7 +629,7 @@ class TestUpdates(NoSubManCase):
 
         # page adjusts automatically to privilege change
         b.switch_to_frame("cockpit1:localhost/updates")
-        b.wait_text("#state", "1 update")
+        b.wait_text("#state", "1 update available")
         b.wait_visible("#available-updates")
 
         # applying updates works now
@@ -698,7 +698,7 @@ class TestWsUpdate(NoSubManCase):
         b.click("#status button")
 
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "2 updates")
+        self.assertEqual(b.text("#state"), "2 updates available")
         b.wait_in_text("table[aria-label='Available updates']", "cockpit-ws")
 
         #TODO redesign this functionality in a new design

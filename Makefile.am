@@ -358,9 +358,9 @@ install-data-local:: dist/guide/html/index.html
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
 
-# See bots/make-source
-dump-dist-gzip:
-	@echo "$(abs_builddir)/$(distdir).tar.gz"
+# See test/image-prepare
+dump-dist:
+	@echo "$(abs_builddir)/$(distdir).tar.xz"
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
@@ -390,9 +390,6 @@ DIST_ARCHIVES = \
 # used from containers/unit-tests/run.sh
 XZ_COMPRESS_FLAGS = --extreme
 
-dist-gzip: distdir
-	$(DIST_TAR_MAIN) | GZIP=$(GZIP_ENV) gzip -c > $(distdir).tar.gz
-	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 dist-xz: distdir
 	$(DIST_TAR_MAIN) | xz $(XZ_COMPRESS_FLAGS) > $(distdir).tar.xz
 	[ -n "$$NO_DIST_CACHE" ] || $(DIST_TAR_CACHE) | xz $(XZ_COMPRESS_FLAGS) > cockpit-cache-$(VERSION).tar.xz

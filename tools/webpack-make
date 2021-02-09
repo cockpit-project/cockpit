@@ -2,7 +2,7 @@
 
 /*
  * Builds with webpack and generates a Makefile include that
- * lists all dependencies, inputs, outputs, and installable files
+ * lists all dependencies, inputs, and installable files
  */
 
 function fatal(message, code) {
@@ -102,7 +102,6 @@ function generateDeps(makefile, stats) {
 
     // Note that these are cheap ways of doing a set
     var inputs = { };
-    var outputs = { };
     var installs = { };
     var tests = { };
     var debugs = { };
@@ -154,8 +153,6 @@ function generateDeps(makefile, stats) {
          */
         if (endsWith(output, "manifest.json"))
 	    fs.unlinkSync(output);
-	else
-            outputs[output] = output;
 
 	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {
             tests[output] = output;
@@ -188,7 +185,6 @@ function generateDeps(makefile, stats) {
 
     // Finalize all the sets into arrays
     inputs = Object.keys(inputs).sort();
-    outputs = Object.keys(outputs).sort();
     installs = Object.keys(installs).sort();
     tests = Object.keys(tests).sort();
     debugs = Object.keys(debugs).sort();
@@ -205,7 +201,6 @@ function generateDeps(makefile, stats) {
     }
 
     makeArray(prefix + "_INPUTS", inputs);
-    makeArray(prefix + "_OUTPUTS", outputs);
 
     makeArray(prefix + "_INSTALL", installs);
     makeArray(prefix + "_DEBUG", debugs);
@@ -214,27 +209,18 @@ function generateDeps(makefile, stats) {
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
     lines.push("");
 
-    outputs.forEach(function(name) {
-        lines.push(name + ": " + stampfile);
-        lines.push("")
-    });
-
     inputs.forEach(function(name) {
         lines.push(name + ":");
         lines.push("")
     });
 
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
-    lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
     lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
     lines.push("");
 
     lines.push(prefix + ": " + stampfile);
-    lines.push("maintainer-clean-" + prefix + ": ");
-    lines.push("\trm -rf $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL) " + stampfile);
-    lines.push("maintainer-clean-local:: clean-" + prefix);
 
     data = lines.join("\n") + "\n";
     fs.writeFileSync(makefile, data);

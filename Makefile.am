@@ -192,7 +192,6 @@ WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspa
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
-WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
@@ -207,8 +206,7 @@ WEBPACK_TEST_DEPS = \
 	$(NULL)
 
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
-MAINTAINERCLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
-EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
+EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 
 PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
 PRINT_COPY_MSG_ = $(PRINT_COPY_MSG_$(AM_DEFAULT_VERBOSITY))
@@ -263,8 +261,9 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
+	$(V_TAR) tar -cf - dist | tar -C $(distdir) -xf -
 
 #
 

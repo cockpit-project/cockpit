@@ -284,7 +284,7 @@ function fetchServiceInfos(services) {
                 .catch(error => {
                     if (error.name === 'org.freedesktop.DBus.Error.UnknownMethod')
                         return info;
-                    Promise.reject(error);
+                    return Promise.reject(error);
                 });
     }));
 }

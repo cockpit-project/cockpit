@@ -69,6 +69,10 @@ static MetricDescription metric_descriptions[] = {
   { "cpu.basic.user",   "millisec", "counter", FALSE, CPU_SAMPLER },
   { "cpu.basic.system", "millisec", "counter", FALSE, CPU_SAMPLER },
   { "cpu.basic.iowait", "millisec", "counter", FALSE, CPU_SAMPLER },
+  { "cpu.core.nice",   "millisec", "counter", TRUE, CPU_SAMPLER },
+  { "cpu.core.user",   "millisec", "counter", TRUE, CPU_SAMPLER },
+  { "cpu.core.system", "millisec", "counter", TRUE, CPU_SAMPLER },
+  { "cpu.core.iowait", "millisec", "counter", TRUE, CPU_SAMPLER },
 
   { "memory.free",      "bytes", "instant", FALSE, MEMORY_SAMPLER },
   { "memory.used",      "bytes", "instant", FALSE, MEMORY_SAMPLER },

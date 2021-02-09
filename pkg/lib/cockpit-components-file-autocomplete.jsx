@@ -41,6 +41,7 @@ export class FileAutoComplete extends React.Component {
         this.finishUpdate = this.finishUpdate.bind(this);
         this.onToggle = this.onToggle.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
+        this.onCreateOption = this.onCreateOption.bind(this);
 
         this.debouncedChange = debounce(300, (value) => {
             if (!value)
@@ -78,6 +79,12 @@ export class FileAutoComplete extends React.Component {
 
     componentWillUnmount() {
         this.allowFilesUpdate = false;
+    }
+
+    onCreateOption(newValue) {
+        this.setState({
+            displayFiles: [...this.state.displayFiles, { type: "file", path: newValue }]
+        });
     }
 
     updateFiles(path) {
@@ -174,6 +181,9 @@ export class FileAutoComplete extends React.Component {
                 onToggle={this.onToggle}
                 onClear={this.clearSelection}
                 isOpen={this.state.isOpen}
+                isCreatable={this.props.isOptionCreatable}
+                createText={_("Create")}
+                onCreateOption={this.onCreateOption}
                 menuAppendTo="parent">
                 {selectOptions}
             </Select>
@@ -184,8 +194,10 @@ FileAutoComplete.propTypes = {
     id: PropTypes.string,
     placeholder: PropTypes.string,
     superuser: PropTypes.string,
+    isOptionCreatable: PropTypes.bool,
     onChange: PropTypes.func,
 };
 FileAutoComplete.defaultProps = {
+    isOptionCreatable: false,
     onChange: () => '',
 };

@@ -296,7 +296,7 @@ function fetchServiceInfos(services) {
                     console.log("FSI error", JSON.stringify(error));
                     if (error.name === 'org.freedesktop.DBus.Error.UnknownMethod')
                         return info;
-                    Promise.reject(error);
+                    return Promise.reject(error);
                 });
     }));
 }

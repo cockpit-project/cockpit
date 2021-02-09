@@ -3905,10 +3905,10 @@ function factory() {
     var po_data = { };
     var po_plural;
 
-    cockpit.language = undefined;
+    cockpit.language = "en";
 
     cockpit.locale = function locale(po) {
-        var lang = cockpit.language || "en";
+        var lang = cockpit.language;
         var header;
 
         if (po) {

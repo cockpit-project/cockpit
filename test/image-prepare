@@ -18,6 +18,7 @@
 
 import argparse
 import errno
+import multiprocessing
 import os
 import sys
 import subprocess
@@ -152,13 +153,23 @@ def build_and_install(build_image, build_results, skips, args):
                                  memory_mb=2048, cpus=4, maintain=True, networking=networking)
     completed = False
 
-    # While the machine is booting, make a tarball
+    # While the machine is booting, make a dist tarball
+
+    # we need to support completely clean git trees, unpacked release tarballs, and already configured trees
+    if not os.path.exists("Makefile"):
+        if os.path.exists('./configure'):
+            subprocess.check_call('./configure')
+        else:
+            subprocess.check_call('./autogen.sh')
+
     # Do a development build on the latest Fedora image so that we can spot React and other dev-only warnings
     env = os.environ.copy()
     if os.path.basename(build_image) == TEST_OS_DEFAULT:
         env["NODE_ENV"] = "development"
-    source = subprocess.check_output([os.path.join(BOTS, "make-source")],
-                                     universal_newlines=True, env=env).strip()
+    # this is for a development build, not a release, so we care about speed, not best size
+    subprocess.check_call(["make", "--silent", "-j%i" % multiprocessing.cpu_count(),
+                           "NO_DIST_CACHE=1", "XZ_COMPRESS_FLAGS=-0", "dist"], env=env)
+    source = subprocess.check_output(["make", "dump-dist"], universal_newlines=True).strip()
     machine.start()
     completed = False
 

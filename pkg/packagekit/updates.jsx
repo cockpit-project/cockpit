@@ -474,9 +474,9 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh }) => {
     if (numUpdates == 0)
         stateStr = STATE_HEADINGS.uptodate;
     else if (numUpdates == numSecurity)
-        stateStr = cockpit.ngettext("$1 security fix", "$1 security fixes", numSecurity);
+        stateStr = cockpit.ngettext("$1 security fix available", "$1 security fixes available", numSecurity);
     else {
-        stateStr = cockpit.ngettext("$0 update", "$0 updates", numUpdates);
+        stateStr = cockpit.ngettext("$0 update available", "$0 updates available", numUpdates);
         if (numSecurity > 0)
             stateStr += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", numSecurity);
     }

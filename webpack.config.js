@@ -260,6 +260,7 @@ const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
+const StampfilePlugin = require("./pkg/lib/stampfile-plugin.js");
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
@@ -349,6 +350,7 @@ function get_msggrep_options () {
 }
 
 const plugins = [
+    new StampfilePlugin(),
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),

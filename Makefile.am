@@ -225,8 +225,7 @@ dist/%/Makefile.deps:
 # have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
 	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
-	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
-	  touch $@
+	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/stamp; fi )
 
 dist/%/manifest.json: pkg/%/manifest.json.in
 	$(SUBST_RULE)

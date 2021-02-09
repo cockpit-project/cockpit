@@ -27,6 +27,7 @@ import {
     Button,
     Card, CardTitle, CardBody, Gallery,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    Flex, FlexItem,
     Page, PageSection,
     Progress, ProgressVariant,
     Select, SelectOption,
@@ -132,6 +133,9 @@ const CURRENT_METRICS = [
     { name: "network.interface.tx", units: "bytes", derive: "rate" },
     { name: "cgroup.cpu.usage", derive: "rate" },
     { name: "cgroup.memory.usage" },
+    { name: "cpu.core.user", derive: "rate" },
+    { name: "cpu.core.system", derive: "rate" },
+    { name: "cpu.core.nice", derive: "rate" },
 ];
 
 const HISTORY_METRICS = [
@@ -195,6 +199,7 @@ class CurrentMetrics extends React.Component {
             memUsed: 0, // GiB
             swapUsed: null, // GiB
             cpuUsed: 0, // percentage
+            cpuCoresUsed: [], // [ percentage ]
             loadAvg: null, // string
             disksRead: 0, // B/s
             disksWritten: 0, // B/s
@@ -323,6 +328,15 @@ class CurrentMetrics extends React.Component {
         newState.netInterfacesRx = this.samples[7];
         newState.netInterfacesTx = this.samples[8];
 
+        // Collect CPU cores
+        newState.cpuCoresUsed = [];
+        if (this.samples[11] && this.samples[11].length == this.samples[12].length && this.samples[12].length == this.samples[13].length) {
+            for (let i = 0; i < this.samples[11].length; i++) {
+                // CPU cores metrics are in ms/s; divide by 10 to get percentage
+                newState.cpuCoresUsed[i] = Math.round((this.samples[11][i] + this.samples[12][i] + this.samples[13][i]) / 10);
+            }
+        }
+
         // return [ { [key, value] } ] list of the biggest n values
         function n_biggest(names, values, n) {
             const merged = [];
@@ -390,20 +404,35 @@ class CurrentMetrics extends React.Component {
                 </Tooltip>);
         }
 
+        let cores = null;
+        if (this.state.cpuCoresUsed.length > 1) {
+            const top_cores = this.state.cpuCoresUsed.map((v, i) => [i, v]).sort((a, b) => b[1] - a[1])
+                    .slice(0, 16);
+            cores = top_cores.map(c => <Flex key={c[0]} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                <FlexItem>{ cockpit.format(_("Core $0"), c[0]) }</FlexItem>
+                <FlexItem>{c[1]}%</FlexItem></Flex>
+            );
+        }
+
+        const cpu_usage = (
+            <Progress
+                id="current-cpu-usage"
+                value={this.state.cpuUsed}
+                className="pf-m-sm"
+                min={0} max={100}
+                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                title={ num_cpu_str }
+                label={ this.state.cpuUsed + '% ' } />);
+
         return (
             <Gallery className="current-metrics" hasGutter>
                 <Card id="current-metrics-card-cpu">
                     <CardTitle>{ _("CPU") }</CardTitle>
                     <CardBody>
                         <div className="progress-stack">
-                            <Progress
-                                id="current-cpu-usage"
-                                value={this.state.cpuUsed}
-                                className="pf-m-sm"
-                                min={0} max={100}
-                                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
-                                title={ num_cpu_str }
-                                label={ this.state.cpuUsed + '% ' } />
+                            {cores !== null ? <Tooltip content={ cores } position="bottom">
+                                {cpu_usage}
+                            </Tooltip> : cpu_usage }
                         </div>
 
                         { this.state.loadAvg &&

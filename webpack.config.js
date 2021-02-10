@@ -259,6 +259,7 @@ const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
+const IncludedModulesPlugin = require("./pkg/lib/included-modules-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
@@ -348,6 +349,7 @@ function get_msggrep_options () {
 }
 
 const plugins = [
+    new IncludedModulesPlugin((section || "") + "included-modules"),
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),

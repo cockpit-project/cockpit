@@ -118,19 +118,11 @@ function generateDeps(makefile, stats) {
         parts.concat(module.fileDependencies || []).forEach(function(part) {
             var input = part.split("?")[0];
             maybePushInput(inputs, input);
-
-            /* We distribute licenses, so treat them as inputs */
-            moduleLicenses(input).forEach(function(input) {
-                maybePushInput(inputs, input);
-            });
         });
     });
 
     stats.compilation.fileDependencies.forEach(function(file) {
         maybePushInput(inputs, file);
-        moduleLicenses(file).forEach(function(input) {
-            maybePushInput(inputs, input);
-        });
     });
 
     // All the dependent files
@@ -182,7 +174,7 @@ function generateDeps(makefile, stats) {
         // Debug output and tests gets installed separately
         if (endsWith(install, ".map"))
             debugs[install] = install;
-        else if (output.indexOf("/test-") === -1)
+        else if (output.indexOf("/test-") === -1 && !output.includes("included-modules"))
             installs[install] = install;
     }
 
@@ -240,22 +232,6 @@ function generateDeps(makefile, stats) {
     fs.writeFileSync(makefile, data);
 }
 
-function moduleLicenses(input) {
-    var parts = input.split(path.sep);
-    var pos = parts.indexOf("node_modules");
-    var directory, results = [];
-    if (pos !== -1) {
-        directory = parts.slice(0, pos + 2).join(path.sep);
-        fs.readdirSync(directory).forEach(function(name) {
-            if (name.indexOf("COPYING") !== -1 || name.indexOf("LICENSE") !== -1 ||
-                name.indexOf("README.md") !== -1 || name.indexOf("package.json") !== -1)
-                results.push(path.join(directory, name));
-        });
-    }
-
-    return results;
-}
-
 function maybePushInput(inputs, input) {
     // Don't include or external refs
     if (endsWith(input, '/') || endsWith(input, 'manifest.json.in') ||
@@ -263,14 +239,9 @@ function maybePushInput(inputs, input) {
         return;
     }
 
-    // Don't include node devDependencies
-    var parts = input.split(path.sep);
-    var pos = parts.indexOf("node_modules");
-    if (pos !== -1) {
-        deps = npm["dependencies"] || { };
-        have = parts[pos + 1] in deps;
-        if (!have)
-            return;
+    // Don't include node_modules
+    if (input.includes("/node_modules/")) {
+        return;
     }
 
     // The latest modified date

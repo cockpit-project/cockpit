@@ -409,58 +409,32 @@ AC_MSG_RESULT($asan_status)
 # User and group for running cockpit web server (cockpit-tls or -ws in customized setups)
 
 AC_ARG_WITH(cockpit_user,
-	    AS_HELP_STRING([--with-cockpit-user=<user>],
-			   [User for running cockpit (root)]
-                          )
-           )
+            AS_HELP_STRING([--with-cockpit-user=<user>],
+                           [User for running cockpit (root)]),
+            [cockpit_user=$withval], [cockpit_user=root])
 AC_ARG_WITH(cockpit_group,
-	    AS_HELP_STRING([--with-cockpit-group=<group>],
-			   [Group for running cockpit]
-                          )
-           )
-if test -z "$with_cockpit_user"; then
-    COCKPIT_USER=root
-    COCKPIT_GROUP=
-else
-    COCKPIT_USER=$with_cockpit_user
-    if test -z "$with_cockpit_group"; then
-        COCKPIT_GROUP=$with_cockpit_user
-    else
-	COCKPIT_GROUP=$with_cockpit_group
-    fi
-fi
-
-AC_SUBST(COCKPIT_USER)
-AC_SUBST(COCKPIT_GROUP)
+            AS_HELP_STRING([--with-cockpit-group=<group>],
+                           [Group for running cockpit]),
+            [cockpit_group=$withval], [cockpit_group=$with_cockpit_user])
 
 # User for running cockpit-ws instances from cockpit-tls
 
 AC_ARG_WITH(cockpit_ws_instance_user,
-	    AS_HELP_STRING([--with-cockpit-ws-instance-user=<user>],
-			   [User for running cockpit-ws instances from cockpit-tls (root)]
-                          )
+            AS_HELP_STRING([--with-cockpit-ws-instance-user=<user>],
+                           [User for running cockpit-ws instances from cockpit-tls (root)]),
+            [cockpit_ws_instance_user=$withval],
+            [cockpit_ws_instance_user=root]
            )
 AC_ARG_WITH(cockpit_ws_instance_group,
-	    AS_HELP_STRING([--with-cockpit-ws-instance-group=<group>],
-			   [Group for running cockpit-ws instances from cockpit-tls]
-                          )
+            AS_HELP_STRING([--with-cockpit-ws-instance-group=<group>],
+                           [Group for running cockpit-ws instances from cockpit-tls]),
+            [cockpit_ws_instance_group=$withval],
+            [cockpit_ws_instance_group=$cockpit_ws_instance_user]
            )
-if test -z "$with_cockpit_ws_instance_user"; then
-    if test "$COCKPIT_USER" != "root"; then
-        AC_MSG_ERROR([--with-cockpit-ws-instance-user is required when setting --with-cockpit-user])
-    fi
-    COCKPIT_WSINSTANCE_USER=root
-else
-    COCKPIT_WSINSTANCE_USER=$with_cockpit_ws_instance_user
-    if test -z "$with_cockpit_ws_instance_group"; then
-        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_user
-    else
-        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_group
-    fi
-fi
 
-AC_SUBST(COCKPIT_WSINSTANCE_USER)
-AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
+if test "$cockpit_ws_instance_user" = "root" -a "$cockpit_user" != "root"; then
+    AC_MSG_ERROR([--with-cockpit-ws-instance-user is required when setting --with-cockpit-user])
+fi
 
 # admin users group
 AC_ARG_WITH([admin-group],
@@ -478,17 +452,18 @@ AC_ARG_WITH([admin-group],
                 AC_MSG_ERROR([none of '${CANDIDATE_GROUPS}' exist: please specify a group with --with-admin-group=])
               fi
             ])
+
+AC_SUBST(cockpit_user)
+AC_SUBST(cockpit_group)
+AC_SUBST(cockpit_ws_instance_user)
+AC_SUBST(cockpit_ws_instance_group)
 AC_SUBST(admin_group)
 
-
 AC_ARG_WITH(selinux_config_type,
-	    AS_HELP_STRING([--with-selinux-config-type=<type>],
-			   [SELinux context type for cockpit config files]
-                          )
-           )
-
-COCKPIT_SELINUX_CONFIG_TYPE=$with_selinux_config_type
-AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
+            AS_HELP_STRING([--with-selinux-config-type=<type>],
+                           [SELinux context type for cockpit config files]),
+            [selinux_config_type=$withval], [])
+AC_SUBST(selinux_config_type)
 
 # Documentation
 
@@ -595,16 +570,61 @@ AC_MSG_RESULT($enable_strict)
 m4_define_default([_AM_PYTHON_INTERPRETER_LIST], [python3 python2 python])
 AM_PATH_PYTHON([2.7])
 
+abs_expand() {
+  test "$prefix" = NONE && local prefix=$ac_default_prefix
+  test "$exec_prefix" = NONE && local exec_prefix="${prefix}"
+  local result=$1
+  for in in 0 1 2 3 4 5; do
+      eval result=${result}
+  done
+  echo "$result"
+}
+
+# for direct substitution in unit files and manifest.json
+AC_SUBST(abs_libexecdir, $(abs_expand $libexecdir))
+AC_SUBST(abs_datadir, $(abs_expand $datadir))
+AC_SUBST(abs_sbindir, $(abs_expand $sbindir))
+
 # Generate
 #
 
 AC_SUBST(PAM_LIBS)
 
 AC_OUTPUT([
-Makefile
-doc/guide/version
+    src/ws/cockpit-desktop
+    src/ws/cockpit-motd.service
+    src/ws/cockpit-tempfiles.conf
+    src/ws/cockpit-wsinstance-http-redirect.service
+    src/ws/cockpit-wsinstance-http-redirect.socket
+    src/ws/cockpit-wsinstance-http.service
+    src/ws/cockpit-wsinstance-http.socket
+    src/ws/cockpit-wsinstance-https-factory.socket
+    src/ws/cockpit-wsinstance-https-factory@.service
+    src/ws/cockpit-wsinstance-https@.service
+    src/ws/cockpit-wsinstance-https@.socket
+    src/ws/cockpit.service
+    src/ws/cockpit.socket
+    pkg/apps/manifest.json
+    pkg/base1/manifest.json
+    pkg/kdump/manifest.json
+    pkg/machines/manifest.json
+    pkg/metrics/manifest.json
+    pkg/networkmanager/manifest.json
+    pkg/packagekit/manifest.json
+    pkg/pcp/manifest.json
+    pkg/playground/manifest.json
+    pkg/selinux/manifest.json
+    pkg/shell/manifest.json
+    pkg/sosreport/manifest.json
+    pkg/ssh/manifest.json
+    pkg/static/manifest.json
+    pkg/storaged/manifest.json
+    pkg/systemd/manifest.json
+    pkg/tuned/manifest.json
+    pkg/users/manifest.json
+    doc/guide/version
+    Makefile
 ])
-
 
 dnl ==========================================================================
 echo "
@@ -614,11 +634,11 @@ echo "
         prefix:                     ${prefix}
         exec_prefix:                ${exec_prefix}
         libdir:                     ${libdir}
-        libexecdir:                 ${libexecdir}
+        libexecdir:                 ${libexecdir} (${abs_libexecdir})
         bindir:                     ${bindir}
-        sbindir:                    ${sbindir}
+        sbindir:                    ${sbindir} (${abs_sbindir})
         datarootdir:                ${datarootdir}
-        datadir:                    ${datadir}
+        datadir:                    ${datadir} (${abs_datadir})
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
         pamdir:                     ${pamdir}
@@ -630,8 +650,8 @@ echo "
 
         cockpit-ws user:            ${COCKPIT_USER}
         cockpit-ws group:           ${COCKPIT_GROUP}
-        cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
-        cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
+        cockpit-ws instance user:   ${wsinstanceuser}
+        cockpit-ws instance group:  ${wsinstancegroup}
         admin group:                ${admin_group}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 

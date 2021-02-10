@@ -4,6 +4,6 @@ BindsTo=cockpit.service
 Documentation=man:cockpit-ws(8)
 
 [Service]
-ExecStart=@libexecdir@/cockpit-ws --proxy-tls-redirect --no-tls --port 0
-User=@wsinstanceuser@
-Group=@wsinstancegroup@
+ExecStart=@abs_libexecdir@/cockpit-ws --proxy-tls-redirect --no-tls --port 0
+User=@cockpit_ws_instance_user@
+Group=@cockpit_ws_instance_group@

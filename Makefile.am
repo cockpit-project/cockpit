@@ -15,9 +15,6 @@ noinst_DATA =
 nodist_noinst_DATA =
 nodist_noinst_SCRIPTS =
 
-dist_systemdunit_DATA   =
-nodist_systemdunit_DATA =
-
 TESTS = $(NULL)
 
 CLEANFILES = \
@@ -48,12 +45,9 @@ SUFFIXES = \
 	.css .css.gz \
 	.html .html.gz \
 	.js .js.gz \
-	.json .json.in \
 	.jsx \
 	.map .map.gz \
 	.mo .po \
-	.service .service.in \
-	.socket .socket.in \
 	.svg .svg.gz \
 	.1 .8 .5 \
 	$(NULL)
@@ -114,37 +108,6 @@ GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
-SUBST_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
-	-e 's,[@]datadir[@],$(datadir),g' \
-	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-	-e 's,[@]libdir[@],$(libdir),g' \
-	-e 's,[@]includedir[@],$(includedir),g' \
-	-e 's,[@]bindir[@],$(bindir),g' \
-	-e 's,[@]sbindir[@],$(sbindir),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
-	-e 's,[@]exec_prefix[@],$(exec_prefix),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
-	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
-	-e 's,[@]VERSION[@],$(VERSION),g' \
-	-e 's,[@]PKEXEC[@],$(PKEXEC),g' \
-	-e 's,[@]SUDO[@],$(SUDO),g' \
-	-e 's,[@]user[@],$(COCKPIT_USER),g' \
-	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
-	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
-	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
-	-e 's,[@]admin_group[@],$(admin_group),g' \
-	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
-	-e 's,[@]with_networkmanager_needs_root[@],$(with_networkmanager_needs_root),g' \
-	-e 's,[@]with_storaged_iscsi_sessions[@],$(with_storaged_iscsi_sessions),g' \
-	-e 's,[@]with_appstream_config_packages[@],$(with_appstream_config_packages),g' \
-	-e 's,[@]with_appstream_data_packages[@],$(with_appstream_data_packages),g' \
-	-e 's,[@]with_nfs_client_package[@],$(with_nfs_client_package),g' \
-	-e 's,[@]with_vdo_package[@],$(with_vdo_package),g' \
-	$< > $@.tmp && $(MV) $@.tmp $@ \
-	$(NULL)
-
 .css.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
@@ -153,10 +116,6 @@ SUBST_RULE = \
 	$(GZ_RULE)
 .map.map.gz:
 	$(GZ_RULE)
-.service.in.service:
-	$(SUBST_RULE)
-.socket.in.socket:
-	$(SUBST_RULE)
 .svg.svg.gz:
 	$(GZ_RULE)
 
@@ -196,7 +155,6 @@ WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
-WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
@@ -208,7 +166,7 @@ WEBPACK_TEST_DEPS = \
 
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
 MAINTAINERCLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
-EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
+EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) webpack.config.js
 
 PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
 PRINT_COPY_MSG_ = $(PRINT_COPY_MSG_$(AM_DEFAULT_VERBOSITY))
@@ -230,8 +188,9 @@ dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modu
 	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
 
-dist/%/manifest.json: pkg/%/manifest.json.in
-	$(SUBST_RULE)
+dist/%/manifest.json: pkg/%/manifest.json
+	@$(MKDIR_P) $(dir $@)
+	$(AM_V_GEN) ln -sfrT $< $@
 
 -include $(WEBPACK_DEPS)
 
@@ -254,7 +213,7 @@ node_modules/.stamp: package.json
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
-	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+	$(V_TAR) tar -chf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
 	$(V_TAR) tar -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::

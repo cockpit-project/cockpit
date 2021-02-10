@@ -73,7 +73,7 @@ def download_dist():
 
     # task.api defaults to the current checkout's origin, but the artifacts are on cockpit-project
     # except if a developer wants to change the artifact building workflow on their fork, support that with $GITHUB_BASE
-    api = task.github.GitHub(repo=os.getenv("GITHUB_BASE", "cockpit-project/cockpit"))
+    api = task.github.GitHub(repo=os.getenv("GITHUB_BASE", "KKoukiou/cockpit"))
 
     # downloading GitHub artifacts requires a token
     if not api.token:

@@ -220,7 +220,7 @@ uninstall-local::
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 dist-hook:: $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS) $(MANIFEST_FILES)
-	$(V_COPY) cp -rT dist $(distdir)/dist && find $(distdir)/dist -type l -delete
+	$(V_COPY) cp -rnT dist $(distdir)/dist && find $(distdir)/dist -type l -delete
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 
 #
@@ -321,6 +321,7 @@ dump-dist-gzip:
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
+	pkg/ \
 	tools/ \
 	test \
 	$(NULL)

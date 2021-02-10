@@ -14,6 +14,9 @@ jobs:
         with:
           # need this to also fetch tags
           fetch-depth: 0
+          # avoid checking out the default pull/NNN/head ref, as that gives
+          # mismatching SHAs in generated tarballs
+          ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Run unit-tests container
         run: containers/unit-tests/start dist

@@ -214,7 +214,6 @@ function generateDeps(makefile, stats) {
         lines.push("")
     });
 
-    lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
     lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");

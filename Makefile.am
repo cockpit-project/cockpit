@@ -152,7 +152,6 @@ WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspa
 	       timeout 15m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
-WEBPACK_INPUTS =
 WEBPACK_INSTALL =
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
@@ -220,7 +219,7 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS) $(MANIFEST_FILES)
+dist-hook:: $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS) $(MANIFEST_FILES)
 	$(V_COPY) cp -rT dist $(distdir)/dist && find $(distdir)/dist -type l -delete
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 

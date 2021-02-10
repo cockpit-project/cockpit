@@ -128,19 +128,21 @@ WEBPACK_PACKAGES = \
 	machines \
 	metrics \
 	networkmanager \
-	pcp \
 	packagekit \
 	playground \
 	selinux \
 	shell \
 	sosreport \
-	ssh \
 	static \
 	storaged \
 	systemd \
 	tuned \
 	users \
 	$(NULL)
+
+MANIFEST_ONLY_PACKAGES = ssh pcp
+MANIFEST_PACKAGES = $(WEBPACK_PACKAGES) $(MANIFEST_ONLY_PACKAGES)
+MANIFEST_FILES = $(MANIFEST_PACKAGES:%=dist/%/manifest.json)
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
@@ -151,7 +153,7 @@ WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspa
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
-WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
+WEBPACK_INSTALL =
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 
@@ -163,7 +165,7 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
+noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL) $(MANIFEST_FILES)
 EXTRA_DIST += $(WEBPACK_STAMPS) webpack.config.js
 
 PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
@@ -182,8 +184,7 @@ dist/%/Makefile.deps:
 # This is the primary rule for running webpack; some pkgs like ssh or pcp only
 # have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
-	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
-	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/stamp; fi )
+	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
 
 dist/%/manifest.json: pkg/%/manifest.json
 	@$(MKDIR_P) $(dir $@)
@@ -208,7 +209,7 @@ node_modules/.stamp: package.json
 	@echo ''
 	@false
 
-install-data-local:: $(WEBPACK_INSTALL)
+install-data-local:: $(WEBPACK_INSTALL) $(MANIFEST_FILES)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(WEBPACK_DEBUG)
@@ -219,7 +220,7 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_TEST_DEPS) $(WEBPACK_STAMPS) $(MANIFEST_FILES)
 	$(V_COPY) cp -rT dist $(distdir)/dist && find $(distdir)/dist -type l -delete
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 

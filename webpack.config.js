@@ -196,7 +196,6 @@ const info = {
 
         "networkmanager/index.html",
         "networkmanager/firewall.html",
-        "networkmanager/manifest.json",
 
         "packagekit/index.html",
 

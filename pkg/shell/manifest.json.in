@@ -29,7 +29,7 @@
         {
             "privileged": true,
             "environ": [
-                "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
+                "SUDO_ASKPASS=@abs_libexecdir@/cockpit-askpass"
             ],
             "spawn": [
                 "@SUDO@",

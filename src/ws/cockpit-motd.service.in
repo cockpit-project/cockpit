@@ -6,4 +6,4 @@ After=network-online.target cockpit.socket
 
 [Service]
 Type=oneshot
-ExecStart=-@datadir@/@PACKAGE@/motd/update-motd
+ExecStart=-@abs_datadir@/@PACKAGE@/motd/update-motd

@@ -101,22 +101,19 @@ remotectl_LDADD = \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
-systemd_units_in = \
-	src/ws/cockpit-motd.service.in \
-	src/ws/cockpit.service.in \
-	src/ws/cockpit.socket.in \
-	src/ws/cockpit-wsinstance-http.service.in \
-	src/ws/cockpit-wsinstance-http.socket.in \
-	src/ws/cockpit-wsinstance-http-redirect.service.in \
-	src/ws/cockpit-wsinstance-http-redirect.socket.in \
-	src/ws/cockpit-wsinstance-https-factory@.service.in \
-	src/ws/cockpit-wsinstance-https-factory.socket.in \
-	src/ws/cockpit-wsinstance-https@.service.in \
-	src/ws/cockpit-wsinstance-https@.socket.in \
+systemdunit_DATA = \
+	src/ws/cockpit-motd.service \
+	src/ws/cockpit.service \
+	src/ws/cockpit.socket \
+	src/ws/cockpit-wsinstance-http.service \
+	src/ws/cockpit-wsinstance-http.socket \
+	src/ws/cockpit-wsinstance-http-redirect.service \
+	src/ws/cockpit-wsinstance-http-redirect.socket \
+	src/ws/cockpit-wsinstance-https-factory@.service \
+	src/ws/cockpit-wsinstance-https-factory.socket \
+	src/ws/cockpit-wsinstance-https@.service \
+	src/ws/cockpit-wsinstance-https@.socket \
 	$(NULL)
-
-nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
-dist_systemdunit_DATA += src/ws/system-cockpithttps.slice
 
 motddir = $(datadir)/$(PACKAGE)/motd/
 dist_motd_DATA = src/ws/inactive.motd
@@ -130,11 +127,7 @@ install-exec-hook::
 	$(LN_S) -nf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
-nodist_tempconf_DATA = src/ws/cockpit-tempfiles.conf
-tempconf_in = src/ws/cockpit-tempfiles.conf.in
-
-$(nodist_tempconf_DATA): $(tempconf_in)
-	$(SUBST_RULE)
+tempconf_DATA = src/ws/cockpit-tempfiles.conf
 
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
@@ -158,22 +151,7 @@ install-exec-local::
 uninstall-local::
 	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
 
-libexec_SCRIPTS = cockpit-desktop
-
-cockpit-desktop: src/ws/cockpit-desktop.in
-	$(SUBST_RULE)
-
-EXTRA_DIST += \
-	$(systemd_units_in) \
-	src/ws/cockpit-desktop.in \
-	$(tempconf_in) \
-	$(NULL)
-
-CLEANFILES += \
-	$(patsubst %.in,%,$(systemd_units_in)) \
-	$(nodist_tempconf_DATA) \
-	cockpit-desktop \
-	$(NULL)
+libexec_SCRIPTS = src/ws/cockpit-desktop
 
 appdatadir = $(datadir)/metainfo
 nodist_appdata_DATA = src/ws/cockpit.appdata.xml

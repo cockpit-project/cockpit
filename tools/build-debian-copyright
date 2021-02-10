@@ -20,7 +20,7 @@ template_file = os.path.join(debian_dir, 'copyright.template')
 
 def parse_args():
     p = argparse.ArgumentParser(description='Generate debian/copyright file from template and node_modules')
-    p.add_argument('node_modules', help='path to node_modules directory')
+    p.add_argument('distdir', help='path to toplevel distribution directory')
     return p.parse_args()
 
 
@@ -71,18 +71,29 @@ def module_copyright(moddir):
         out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*\([1-9][0-9]\+\|(c)\)'],
                                       cwd=moddir).decode('UTF-8')
         for l in out.splitlines():
-            # ignore compiled .css.map files
-            if l.startswith('{"version":') or '*//*!' in l:
-                continue
             # weed out some noise
-            if 'grunt.template.today' in l or 'copyright-mark' in l or '@font-face' in l or 'Binary file' in l:
+            reject_substr = ['Binary file',
+                             '{"version":',
+                             'function(',
+                             'eval("',
+                             '*//*!',
+                             '"!="',
+                             'Code released under the',
+                             'Add copyright statements',
+                             'grunt.template.today',
+                             'copyright-mark',
+                             '@font-face',
+                             '<name of author>',
+                             'glyph-name=',
+                             'copyright holder',
+                             'WIPO copyright treaty']
+            if any(substr in l for substr in reject_substr):
                 continue
-            if '<name of author>' in l:
-                continue
+
             l = l.replace('<copyright>', '').replace('</copyright>', '')
             l = l.replace('&copy;', '(c)').replace('copyright = ', '')
             l = re.sub('@license.*Copyright', '', l)
-            l = l.strip(' \t*/\'|,')
+            l = l.strip(' \t*/\'|,#')
             if not l.endswith('Inc.'):
                 # avoids some duplicated lines which only differ in trailing dot
                 l = l.strip('.')
@@ -116,6 +127,9 @@ def module_copyright(moddir):
         except (IOError, KeyError):
             pass
 
+    if not copyrights and moddir.startswith('node_modules/@patternfly/'):
+        return module_copyright('node_modules/patternfly')
+
     if not copyrights:
         raise SystemError('Did not find any copyrights in %s' % moddir)
     return copyrights
@@ -130,25 +144,40 @@ with open(template_file, encoding='UTF-8') as f:
     template = f.read()
 
 license_ids = template_licenses(template)
-paragraphs = []
-for module in sorted(os.listdir(args.node_modules)):
-    if module.startswith('.'):
+module_users = {}
+
+for pkg in sorted(os.listdir(f'{args.distdir}/dist')):
+    if pkg in ['guide', 'ssh', 'pcp']:
         continue
-    if module == 'README':
-        continue
-    moddir = os.path.join(args.node_modules, module)
+    with open(f'{args.distdir}/dist/{pkg}/included-modules') as included_modules:
+        for module in included_modules:
+            module = module.strip()
+            # collect all packages pointing to one node module
+            if module not in module_users:
+                module_users[module] = set()
+            module_users[module].add(f'dist/{pkg}/*')
+
+paragraphs = {}
+for moddir in module_users:
     license = module_license(moddir)
     if license.lower() not in license_ids:
-        raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
-    copyrights = module_copyright(moddir)
-    paragraphs.append('''Files: node_modules/%s/*
-Copyright:%s
-License: %s''' % (module, '\n'.join(sorted(copyrights)), license))
+        raise KeyError('%s has license %s which is not in %s' % (moddir, license, template_file))
+    copyrights = '\n'.join(sorted(module_copyright(moddir)))
+    paragraph = f'Copyright:{copyrights}\nLicense: {license}'
+    # collect all modules with identical licence/copyright
+    if paragraph not in paragraphs:
+        paragraphs[paragraph] = set()
+    paragraphs[paragraph].update(module_users[moddir])
+
+output = []
+for paragraph in sorted(paragraphs):
+    files = '\n '.join(f'{dir}' for dir in sorted(paragraphs[paragraph]))
+    output.append(f'Files: {files}\n{paragraph}')
 
 # force UTF-8 output, even when running in C locale
 for l in template.splitlines():
     if '#NPM' in l:
-        sys.stdout.buffer.write('\n\n'.join(paragraphs).encode('UTF-8'))
+        sys.stdout.buffer.write('\n\n'.join(output).encode('UTF-8'))
     else:
         sys.stdout.buffer.write(l.encode('UTF-8'))
     sys.stdout.buffer.write(b'\n')

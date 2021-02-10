@@ -376,7 +376,7 @@ dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
-	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/node_modules > $(distdir)/tools/debian/copyright
+	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir) > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"

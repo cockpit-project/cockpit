@@ -43,9 +43,6 @@ def module_license(moddir):
             l = json.load(f)['license']
             if l.startswith('(MIT OR'):
                 return 'MIT'
-            if l == 'MPL 2.0':
-                # https://github.com/novnc/noVNC/pull/819
-                return 'MPL-2.0'
             return l
     except (IOError, KeyError):
         pass

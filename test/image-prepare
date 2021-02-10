@@ -18,12 +18,12 @@
 
 import argparse
 import errno
-import multiprocessing
 import os
 import sys
 import subprocess
 
 from verify import parent
+import make_dist
 import testvm
 
 parent  # pyflakes
@@ -154,18 +154,8 @@ def build_and_install(build_image, build_results, skips, args):
     completed = False
 
     # While the machine is booting, make a dist tarball
+    source = make_dist.make_dist()
 
-    # we need to support completely clean git trees, unpacked release tarballs, and already configured trees
-    if not os.path.exists("Makefile"):
-        if os.path.exists('./configure'):
-            subprocess.check_call('./configure')
-        else:
-            subprocess.check_call('./autogen.sh')
-
-    # this is for a development build, not a release, so we care about speed, not best size
-    subprocess.check_call(["make", "--silent", "-j%i" % multiprocessing.cpu_count(),
-                           "NO_DIST_CACHE=1", "XZ_COMPRESS_FLAGS=-0", "dist"])
-    source = subprocess.check_output(["make", "dump-dist"], universal_newlines=True).strip()
     machine.start()
     completed = False
 

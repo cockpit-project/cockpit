@@ -146,7 +146,7 @@ function generateDeps(makefile, stats) {
          */
         if (endsWith(output, "manifest.json"))
 	    fs.unlinkSync(output);
-	else
+	else if (!output.endsWith(".map"))
             outputs[output] = output;
 
 	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {

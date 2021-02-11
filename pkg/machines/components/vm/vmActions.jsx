@@ -244,14 +244,14 @@ const VmActions = ({ vm, dispatch, storagePools, onAddErrorNotification, isDetai
             <DropdownItem key={`${id}-reboot`}
                           id={`${id}-reboot`}
                           onClick={() => onReboot()}>
-                {_("Restart")}
+                {_("Reboot")}
             </DropdownItem>
         );
         dropdownItems.push(
             <DropdownItem key={`${id}-forceReboot`}
                           id={`${id}-forceReboot`}
                           onClick={() => onForceReboot()}>
-                {_("Force restart")}
+                {_("Force reboot")}
             </DropdownItem>
         );
         dropdownItems.push(<DropdownSeparator key="separator-reset" />);

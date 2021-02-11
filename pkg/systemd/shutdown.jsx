@@ -177,9 +177,9 @@ export class ShutdownModal extends React.Component {
             <Modal isOpen position="top" variant="medium"
                    onClose={this.props.onClose}
                    id="shutdown-dialog"
-                   title={this.props.shutdown ? _("Shut down") : _("Restart")}
+                   title={this.props.shutdown ? _("Shut down") : _("Reboot")}
                    footer={<>
-                       <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Restart")}</Button>
+                       <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Reboot")}</Button>
                        <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
                    </>}
             >

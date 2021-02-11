@@ -177,7 +177,7 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text(".ct-overview-header", "Neustarten")
+        b.wait_in_text(".ct-overview-header", "Neustart")
 
         # Systemd timer localization
         b.go("/system/services")
@@ -518,7 +518,7 @@ OnCalendar=daily
         b.wait_visible("#content")
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text(".ct-overview-header", "Neustarten")
+        b.wait_in_text(".ct-overview-header", "Neustart")
 
         b.switch_to_top()
         b.wait_visible("#host-apps li a:contains('Dienste')")

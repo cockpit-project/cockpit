@@ -283,13 +283,13 @@ class CommonTests:
         b.enter_page('/system')
         # shutdown button should be enabled and working
         # it takes a while for the permission check to finish, it is always enabled at first
-        b.click("#overview #restart-button")
+        b.click("#overview #reboot-button")
 
         b.wait_popup("shutdown-dialog")
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
-        b.click("#shutdown-dialog button:contains(Restart)")
+        b.click("#shutdown-dialog button:contains(Reboot)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()

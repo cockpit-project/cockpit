@@ -57,9 +57,9 @@ class TestShutdownRestart(MachineCase):
         b.enter_page("/system")
 
         # shutdown button should be enabled and working
-        b.click("#restart-button")
+        b.click("#reboot-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
+        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
@@ -82,9 +82,9 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
-        b.click("#restart-button")
+        b.click("#reboot-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
+        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
@@ -123,10 +123,10 @@ class TestShutdownRestart(MachineCase):
         b2.enter_page("/system", host="10.111.113.1")
         b2.wait_text("#system_information_hostname_text", "machine1")
 
-        # Check auto reconnect on restart
-        b2.click("#restart-button")
+        # Check auto reconnect on reboot
+        b2.click("#reboot-button")
         b2.wait_popup("shutdown-dialog")
-        b2.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
+        b2.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
         b2.click("#delay")
         b2.click("button:contains('No delay')")
         b2.wait_text("#delay .pf-c-select__toggle-text", "No delay")
@@ -135,7 +135,7 @@ class TestShutdownRestart(MachineCase):
 
         b2.wait_visible(".curtains-ct")
         b2.wait_visible(".curtains-ct .spinner")
-        b2.wait_in_text(".curtains-ct h1", "restarting")
+        b2.wait_in_text(".curtains-ct h1", "rebooting")
 
         m.wait_reboot()
 

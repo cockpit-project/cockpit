@@ -203,8 +203,8 @@ class OverviewPage extends React.Component {
     render() {
         const { actionIsOpen } = this.state;
         const dropdownItems = [
-            <DropdownItem key="restart" id="restart" onClick={() => this.setState({ restartModal: true })} component="button">
-                {_("Restart")}
+            <DropdownItem key="reboot" id="reboot" onClick={() => this.setState({ rebootModal: true })} component="button">
+                {_("Reboot")}
             </DropdownItem>,
             <DropdownItem key="shutdown" id="shutdown" onClick={() => this.setState({ shutdownModal: true })} component="button">
                 {_("Shutdown")}
@@ -218,10 +218,10 @@ class OverviewPage extends React.Component {
                           toggle={
                               <DropdownToggle
                             splitButtonItems={[
-                                <DropdownToggleAction id='restart-button' variant="secondary"
-                                    key='restart-button'
-                                    onClick={() => this.setState({ restartModal: true })}>
-                                    {_("Restart")}
+                                <DropdownToggleAction id='reboot-button' variant="secondary"
+                                    key='reboot-button'
+                                    onClick={() => this.setState({ rebootModal: true })}>
+                                    {_("Reboot")}
                                 </DropdownToggleAction>
                             ]}
                             splitButtonVariant="action"
@@ -240,7 +240,7 @@ class OverviewPage extends React.Component {
 
         return (
             <>
-                {this.state.restartModal && <ShutdownModal onClose={() => this.setState({ restartModal: false })} />}
+                {this.state.rebootModal && <ShutdownModal onClose={() => this.setState({ rebootModal: false })} />}
                 {this.state.shutdownModal && <ShutdownModal shutdown onClose={() => this.setState({ shutdownModal: false })} />}
                 <Page>
                     <SuperuserAlert />

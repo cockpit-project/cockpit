@@ -131,7 +131,17 @@ def download_dist():
         if len(names) != 1 or not names[0].endswith(".tar.xz"):
             print("make_dist: expected zip artifact with exactly one tar.xz member")
             return None
-        return fzip.extract(names[0])
+        tar_path = fzip.extract(names[0])
+
+    # Extract node_modules and dist locally for speeding up the build and allowing integration tests to run
+    unpack_dirs = [d for d in ["dist", "node_modules"] if not os.path.exists(d)]
+    if unpack_dirs:
+        print("make_dist: Extracting directories from tarball:", ' '.join(unpack_dirs))
+        prefix = os.path.basename(tar_path).split('.tar')[0] + '/'
+        prefixed_unpack_dirs = [prefix + d for d in unpack_dirs]
+        subprocess.check_call(["tar", "--touch", "--strip-components=1", "-xf", tar_path] + prefixed_unpack_dirs)
+
+    return tar_path
 
 
 def make_dist():

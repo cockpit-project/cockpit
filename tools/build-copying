@@ -1,18 +1,23 @@
 #!/bin/sh
 
-set -euf
+set -eu
+distdir="$1"
 
-if [ -f $1/README ]; then
-    cat $1/README
-fi
+cat "${distdir}/node_modules/README"
+
+# include license information for
+#   a) all directly-shipped node_modules
+#   b) all node modules included by things we ship in dist/
+modules="${distdir}/node_modules $(cat ${distdir}/dist/*/included-modules)"
+files="$(find ${modules} -name 'COPYING' -o -name '*LICENSE*' | LC_ALL=C sort)"
 
 found=""
-find $1 -name 'COPYING' -o -name '*LICENSE*' -print | LC_ALL=C sort | while read filename; do
+for filename in ${files}; do
     directory=$(dirname $filename)
     name=$(basename $directory)
 
-    case $found in
-    "* $name *")
+    case "$found" in
+    *" $name "*)
         # skip
         ;;
     *)

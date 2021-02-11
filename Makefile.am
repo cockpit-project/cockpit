@@ -265,6 +265,8 @@ uninstall-local::
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
+	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
+	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node
 
 #
 
@@ -374,8 +376,6 @@ dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
-	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
-	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir) > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 

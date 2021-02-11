@@ -140,6 +140,7 @@ def finish_test(opts, test, affected_tests):
         print_test(test, print_tap=opts.thorough)
         return retry_reason, 0
     else:
+        test.output += b"\n"
         print_test(test, print_tap=opts.thorough)
     return None, 1
 

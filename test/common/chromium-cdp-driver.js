@@ -78,9 +78,6 @@ function setupLogging(client) {
 
     client.Runtime.consoleAPICalled(info => {
         let msg = info.args.map(v => (v.value || "").toString()).join(" ");
-        // HACK: https://github.com/cockpit-project/cockpit/issues/14871
-        if (msg.indexOf("Rendering components directly into document.body is discouraged") > -1)
-            return
 
         messages.push([ info.type, msg ]);
         if (shownMessages.indexOf(msg) == -1) {

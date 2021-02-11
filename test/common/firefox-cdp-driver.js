@@ -126,10 +126,6 @@ function setupLogging(client) {
             if (text[0] && typeof text[0] === "string")
                 text = text[0];
 
-        // HACK: https://github.com/cockpit-project/cockpit/issues/14871
-        if (typeof text === "string" && text.indexOf("Rendering components directly into document.body is discouraged") > -1)
-            return;
-
         if (msg.stackTrace !== undefined &&
             typeof text === "string" &&
             text.indexOf("Error: ") !== -1) {

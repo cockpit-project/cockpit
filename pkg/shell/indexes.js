@@ -481,7 +481,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
             connecting = (machine.state == "connecting");
             if (machine.restarting) {
-                title = _("The machine is restarting");
+                title = _("The machine is rebooting");
                 message = "";
             } else if (connecting) {
                 title = _("Connecting to the machine");

@@ -31,13 +31,13 @@ import {
 } from '@patternfly/react-core';
 import "./cockpit-components-empty-state.css";
 
-export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary }) => {
+export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary, headingLevel, titleSize }) => {
     const slimType = title || paragraph ? "" : "slim";
     return (
         <EmptyState variant={EmptyStateVariant.full}>
             { loading && <Spinner size="xl" /> }
             { icon && <EmptyStateIcon icon={icon} /> }
-            <Title headingLevel="h1" size="lg">
+            <Title headingLevel={headingLevel} size={titleSize}>
                 {title}
             </Title>
             <EmptyStateBody>
@@ -57,4 +57,9 @@ EmptyStatePanel.propTypes = {
     action: PropTypes.node,
     onAction: PropTypes.func,
     secondary: PropTypes.node,
+};
+
+EmptyStatePanel.defaultProps = {
+    headingLevel: "h1",
+    titleSize: "lg",
 };

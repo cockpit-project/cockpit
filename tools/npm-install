@@ -19,6 +19,9 @@ if test ${npm_version%%.*} -lt 3; then
   exit 1
 fi
 
+# causes devDependencies to be skipped
+unset NODE_ENV
+
 test -d node_modules && npm prune
 
 retries='3'

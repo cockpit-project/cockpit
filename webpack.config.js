@@ -348,11 +348,13 @@ function get_msggrep_options () {
     return undefined;
 }
 
+const cssProcessorOptions = production ? { } : { map: {inline: false} };
+
 const plugins = [
     new IncludedModulesPlugin((section || "") + "included-modules"),
     new copy(info.files),
+    new OptimizeCSSAssetsPlugin({cssProcessorOptions: cssProcessorOptions}),
     new miniCssExtractPlugin("[name].css"),
-    new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
     new CockpitPoPlugin({
         subdir: section,
         msggrep_options: get_msggrep_options(),
@@ -439,7 +441,7 @@ module.exports = {
     externals: { "cockpit": "cockpit" },
     plugins: plugins,
 
-    devtool: "source-map",
+    devtool: production ? false : "source-map",
     stats: "errors-warnings",
 
     // disable noisy warnings about exceeding the recommended size limit
@@ -507,7 +509,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: !production,
                             url: false,
                         },
                     },
@@ -548,7 +550,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: !production,
                             url: false,
                         },
                     },
@@ -578,7 +580,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: !production,
                             url: false
                         }
                     },

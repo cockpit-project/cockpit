@@ -39,6 +39,7 @@ static gchar *sscg_path = NULL;
 typedef struct {
   gint ret;
   gchar *cert_dir;
+  gchar *group;
 } TestCase;
 
 typedef struct {
@@ -135,6 +136,7 @@ setup (TestCase *tc,
   g_assert (gr);
   g_ptr_array_add (ptr, "--group");
   g_ptr_array_add (ptr, gr->gr_name);
+  tc->group = g_strdup (gr->gr_name);
 
   for (i = 0; fix->files[i] != NULL; i++)
     g_ptr_array_add (ptr, (gchar *) fix->files[i]);
@@ -158,6 +160,7 @@ teardown (TestCase *tc,
   delete_all(tc);
   cockpit_assert_expected ();
   g_free (tc->cert_dir);
+  g_free (tc->group);
 }
 
 
@@ -177,6 +180,7 @@ test_valid_selfsigned (TestCase *test,
   const gchar *fname;
   g_autofree gchar *path = NULL;
   g_autoptr(GTlsCertificate) certificate = NULL;
+  GStatBuf statbuf;
 
   if (!openssl_path)
     {
@@ -207,6 +211,11 @@ test_valid_selfsigned (TestCase *test,
   g_assert_no_error (error);
   /* set cert as its own CA, as it's self-signed */
   g_assert_cmpint (g_tls_certificate_verify (certificate, NULL, certificate), ==, 0);
+
+  /* has secure permissions */
+  g_assert_cmpint (g_stat (path, &statbuf), ==, 0);
+  g_assert (S_ISREG (statbuf.st_mode));
+  g_assert_cmpint (statbuf.st_mode & ACCESSPERMS, ==, 0640);
 }
 
 static void
@@ -217,7 +226,7 @@ test_refresh_expired (TestCase *test,
   g_autofree gchar *oldpath = g_build_filename (test->cert_dir, "alice-expired.cert", NULL);
   g_autofree gchar *selfsigned_path = g_build_filename (test->cert_dir, "0-self-signed.cert", NULL);
   g_autoptr(GTlsCertificate) certificate = NULL;
-  char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--ensure", NULL };
+  char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--group", test->group, "--ensure", NULL };
   int ret;
 
   if (!openssl_path)
@@ -236,7 +245,7 @@ test_refresh_expired (TestCase *test,
   g_assert_cmpint (g_tls_certificate_verify (certificate, NULL, certificate), ==, G_TLS_CERTIFICATE_EXPIRED);
 
   /* call with --ensure again, refreshes the cert */
-  ret = cockpit_remotectl_certificate (4, argv);
+  ret = cockpit_remotectl_certificate (g_strv_length (argv), argv);
   g_assert_cmpint (ret, ==, 0);
 
   /* now it's a valid certificate again */

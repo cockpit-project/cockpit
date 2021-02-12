@@ -212,7 +212,7 @@ def run(opts, image):
     test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
     if os.path.exists(os.path.join(os.path.dirname(testvm.TEST_DIR), ".git")):
         # Detect affected tests from changed test files
-        cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", opts.test_dir]
+        cmd = ["git", "diff", "--name-only", "origin/master", opts.test_dir]
         r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if r.returncode == 0:
             changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
@@ -225,7 +225,7 @@ def run(opts, image):
         # Detect affected tests from changed pkg/* subdirectories
         # If affected tests get detected from pkg/* changes, don't apply the
         # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
-        cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", "pkg/"]
+        cmd = ["git", "diff", "--name-only", "origin/master", "pkg/"]
         r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if r.returncode == 0:
             changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in r.stdout.strip().splitlines())

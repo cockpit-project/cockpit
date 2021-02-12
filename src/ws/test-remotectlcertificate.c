@@ -226,6 +226,7 @@ test_refresh_expired (TestCase *test,
   g_autofree gchar *oldpath = g_build_filename (test->cert_dir, "alice-expired.cert", NULL);
   g_autofree gchar *selfsigned_path = g_build_filename (test->cert_dir, "0-self-signed.cert", NULL);
   g_autoptr(GTlsCertificate) certificate = NULL;
+  GStatBuf statbuf;
   char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--group", test->group, "--ensure", NULL };
   int ret;
 
@@ -244,22 +245,31 @@ test_refresh_expired (TestCase *test,
   g_assert_no_error (error);
   g_assert_cmpint (g_tls_certificate_verify (certificate, NULL, certificate), ==, G_TLS_CERTIFICATE_EXPIRED);
 
+  /* change cert permissions */
+  g_assert_cmpint (g_chmod (selfsigned_path, 0660), ==, 0);
+
   /* call with --ensure again, refreshes the cert */
   ret = cockpit_remotectl_certificate (g_strv_length (argv), argv);
   g_assert_cmpint (ret, ==, 0);
 
   /* now it's a valid certificate again */
   test_valid_selfsigned (test, data);
+
+  /* self-managed certificate, should adjust permissions */
+  g_assert_cmpint (g_stat (selfsigned_path, &statbuf), ==, 0);
+  g_assert (S_ISREG (statbuf.st_mode));
+  g_assert_cmpint (statbuf.st_mode & ACCESSPERMS, ==, 0640);
 }
 
 static void
-test_keep_custom_expired (TestCase *test,
-                          gconstpointer data)
+test_keep_custom_cert (TestCase *test,
+                       gconstpointer data)
 {
   GError *error = NULL;
   g_autofree gchar *path = g_build_filename (test->cert_dir, "alice-expired.cert", NULL);
   g_autofree gchar *orig_content = NULL;
   g_autofree gchar *new_content = NULL;
+  GStatBuf statbuf;
   char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--ensure", NULL };
   int ret;
 
@@ -267,12 +277,23 @@ test_keep_custom_expired (TestCase *test,
   g_file_get_contents (path, &orig_content, NULL, &error);
   g_assert_no_error (error);
 
+  /* remotectl uses secure default permissions for private keys */
+  g_assert_cmpint (g_stat (path, &statbuf), ==, 0);
+  g_assert (S_ISREG (statbuf.st_mode));
+  g_assert_cmpint (statbuf.st_mode & ACCESSPERMS, ==, 0640);
+  /* customize that */
+  g_assert_cmpint (g_chmod (path, 0660), ==, 0);
+
   /* call with --ensure again; this is a custom certificate, should *not* be touched */
   ret = cockpit_remotectl_certificate (4, argv);
   g_assert_cmpint (ret, ==, 0);
   g_file_get_contents (path, &new_content, NULL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (orig_content, ==, new_content);
+
+  g_assert_cmpint (g_stat (path, &statbuf), ==, 0);
+  g_assert (S_ISREG (statbuf.st_mode));
+  g_assert_cmpint (statbuf.st_mode & ACCESSPERMS, ==, 0660);
 }
 
 static void
@@ -399,8 +420,8 @@ main (int argc,
               setup, test_failure, teardown);
   g_test_add ("/remotectl-certificate/refresh-expired", TestCase, &fixture_expired,
               setup, test_refresh_expired, teardown);
-  g_test_add ("/remotectl-certificate/keep-custom-expired", TestCase, &fixture_expired,
-              setup, test_keep_custom_expired, teardown);
+  g_test_add ("/remotectl-certificate/keep-custom-cert", TestCase, &fixture_expired,
+              setup, test_keep_custom_cert, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-first", TestCase, &fixture_preinstall_combined_key_first,
               setup, test_success, teardown);
   g_test_add ("/remotectl-certificate/load-combined-key-last", TestCase, &fixture_preinstall_combined_key_last,

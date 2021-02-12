@@ -185,7 +185,13 @@ ensure_certificate (const gchar *user,
         g_warning ("Failed to remove %s: %m", path);
     }
 
-  ret = set_cert_attributes (path, user, group, selinux);
+  /* adjust permissions of the certificates that we manage automatically;
+   * don't touch admin-provided certs, they are often shared between multiple services */
+  if (g_str_has_suffix (path, "/0-self-signed.cert") ||
+      g_str_has_suffix (path, "/10-ipa.cert"))
+    ret = set_cert_attributes (path, user, group, selinux);
+  else
+    ret = 0;
 
 out:
   g_clear_object (&certificate);

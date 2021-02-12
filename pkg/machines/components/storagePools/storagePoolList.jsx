@@ -45,15 +45,17 @@ export class StoragePoolList extends React.Component {
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
         return (
-            <Page breadcrumb={
-                <Breadcrumb className='machines-listing-breadcrumb'>
-                    <BreadcrumbItem to='#'>
-                        {_("Virtual machines")}
-                    </BreadcrumbItem>
-                    <BreadcrumbItem isActive>
-                        {_("Storage pools")}
-                    </BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb className='machines-listing-breadcrumb'>
+                          <BreadcrumbItem to='#'>
+                              {_("Virtual machines")}
+                          </BreadcrumbItem>
+                          <BreadcrumbItem isActive>
+                              {_("Storage pools")}
+                          </BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection id='storage-pools-listing'>
                     <Card>
                         <CardHeader>

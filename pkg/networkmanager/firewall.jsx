@@ -914,11 +914,13 @@ export class Firewall extends React.Component {
         const enabled = this.state.firewall.enabled;
 
         return (
-            <Page breadcrumb={
-                <Breadcrumb>
-                    <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__item" to="#">{_("Networking")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__item" to="#">{_("Networking")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection id="firewall-heading" className="firewall-heading" variant={PageSectionVariants.light}>
                     <div id="firewall-heading-title" className="firewall-heading-title">
                         <span id="firewall-heading-title-group" className="firewall-heading-title-group">

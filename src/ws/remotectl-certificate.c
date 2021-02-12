@@ -150,12 +150,10 @@ ensure_certificate (const gchar *user,
                     const gchar *selinux,
                     gboolean check_expired)
 {
-  GError *error = NULL;
-  GTlsCertificate *certificate = NULL;
-  gchar *path = NULL;
-  gint ret = 1;
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GTlsCertificate) certificate = NULL;
 
-  path = cockpit_certificate_locate_gerror (&error);
+  g_autofree gchar *path = cockpit_certificate_locate_gerror (&error);
   if (path == NULL && g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
     {
       /* no certificate? create a self-signed one */
@@ -168,7 +166,7 @@ ensure_certificate (const gchar *user,
   if (!certificate)
     {
       g_message ("%s", error->message);
-      goto out;
+      return 1;
     }
 
   /* auto-renew our expired auto-created certificates */
@@ -189,15 +187,9 @@ ensure_certificate (const gchar *user,
    * don't touch admin-provided certs, they are often shared between multiple services */
   if (g_str_has_suffix (path, "/0-self-signed.cert") ||
       g_str_has_suffix (path, "/10-ipa.cert"))
-    ret = set_cert_attributes (path, user, group, selinux);
+    return set_cert_attributes (path, user, group, selinux);
   else
-    ret = 0;
-
-out:
-  g_clear_object (&certificate);
-  g_clear_error (&error);
-  g_free (path);
-  return ret;
+    return 0;
 }
 
 static gint

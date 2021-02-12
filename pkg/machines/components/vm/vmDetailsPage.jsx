@@ -74,24 +74,28 @@ export const VmDetailsPage = ({
     );
 
     if (cockpit.location.path[1] == "console") {
-        return (<Page breadcrumb={
-            <Breadcrumb className='machines-listing-breadcrumb'>
-                <BreadcrumbItem to='#'>
-                    {_("Virtual machines")}
-                </BreadcrumbItem>
-                <BreadcrumbItem onClick={() => cockpit.location.go(["vm"], Object.assign(cockpit.location.options, { name: vm.name, connection: vm.connectionName }))}>
-                    <a className="pf-c-breadcrumb__link">{vm.name}</a>
-                </BreadcrumbItem>
-                <BreadcrumbItem isActive>
-                    {_("Console")}
-                </BreadcrumbItem>
-            </Breadcrumb>}>
-            {vmActionsPageSection}
-            <PageSection variant={PageSectionVariants.light}>
-                <Consoles vm={vm} config={config} dispatch={dispatch}
-                          onAddErrorNotification={onAddErrorNotification} />
-            </PageSection>
-        </Page>);
+        return (
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb className='machines-listing-breadcrumb'>
+                          <BreadcrumbItem to='#'>
+                              {_("Virtual machines")}
+                          </BreadcrumbItem>
+                          <BreadcrumbItem onClick={() => cockpit.location.go(["vm"], Object.assign(cockpit.location.options, { name: vm.name, connection: vm.connectionName }))}>
+                              <a className="pf-c-breadcrumb__link">{vm.name}</a>
+                          </BreadcrumbItem>
+                          <BreadcrumbItem isActive>
+                              {_("Console")}
+                          </BreadcrumbItem>
+                      </Breadcrumb>}>
+                {vmActionsPageSection}
+                <PageSection variant={PageSectionVariants.light}>
+                    <Consoles vm={vm} config={config} dispatch={dispatch}
+                        onAddErrorNotification={onAddErrorNotification} />
+                </PageSection>
+            </Page>
+        );
     }
 
     const cardContents = [

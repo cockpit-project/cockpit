@@ -48,15 +48,17 @@ export class NetworkList extends React.Component {
         const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} />);
 
         return (
-            <Page breadcrumb={
-                <Breadcrumb variant={PageSectionVariants.light} className='machines-listing-breadcrumb'>
-                    <BreadcrumbItem to='#'>
-                        {_("Virtual machines")}
-                    </BreadcrumbItem>
-                    <BreadcrumbItem isActive>
-                        {_("Networks")}
-                    </BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb variant={PageSectionVariants.light} className='machines-listing-breadcrumb'>
+                          <BreadcrumbItem to='#'>
+                              {_("Virtual machines")}
+                          </BreadcrumbItem>
+                          <BreadcrumbItem isActive>
+                              {_("Networks")}
+                          </BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection id='networks-listing'>
                     <Card>
                         <CardHeader>

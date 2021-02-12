@@ -603,8 +603,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
         elif m.image == 'debian-testing':
             # enable pam_faillock.  see example in pam_faillock(8), adopted for sss
-            self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail/;
-                             s/re.*pam_permit.so/sufficient pam_faillock.so authsucc/;
+            self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail deny=4/;
+                             s/re.*pam_permit.so/sufficient pam_faillock.so authsucc deny=4/;
                           """, "/etc/pam.d/common-auth")
         else:
             # see https://access.redhat.com/solutions/62949

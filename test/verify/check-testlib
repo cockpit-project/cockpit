@@ -28,6 +28,11 @@ from testlib import *
 dirname = os.path.dirname(__file__)
 run_tests = os.path.join(TEST_DIR, "common", "run-tests")
 VERIFY_DIR = os.path.join(TEST_DIR, "verify")
+ROOT_DIR = os.path.dirname(TEST_DIR)
+
+def writeFile(file, content):
+    with open(file, 'w') as f:
+        f.write(content)
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestRunTestListing(unittest.TestCase):
@@ -105,6 +110,75 @@ class TestRunTest(MachineCase):
         self.assertIn(b"1..0", out)
         self.assertNotIn(b"TestExample", out)
 
+    def testRetry(self):
+        # Don't test this if not in git repo as we use `git diff` for this logic
+        if not os.path.exists(os.path.join(ROOT_DIR, ".git")):
+            return
+
+        env = os.environ.copy()
+        env["TEST_FAILURES"] = "1"
+        try:
+            del env["TEST_JOBS"]
+        except KeyError:
+            pass
+
+        # Check that we retry 3 times failing tests
+        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestExample.testFail", "TestExample.testSkip"],
+                                 env=env, capture_output=True)
+        stdout = process.stdout
+        self.assertRegex(stdout, b"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail # RETRY 1 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, b"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail # RETRY 2 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, b"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail\n")
+        self.assertNotRegex(stdout, b"RETRY 3")
+        self.assertRegex(stdout, b"\nok 2 .*test\/verify\/check-example TestExample.testSkip # SKIP testSkip \(__main__\.TestExample\)\n")
+        self.assertRegex(stdout, b"# 1 TESTS FAILED \[\d*s on .*, 0 serial tests: \]")
+
+        # Check retry logic for changed tests
+        test_file = os.path.join(VERIFY_DIR, "check-testlib")
+        with open(test_file, 'r') as f:
+            original_test = f.read()
+
+        self.addCleanup(writeFile, test_file, original_test)
+        writeFile(test_file, original_test.replace("class NoTest", "class Test"))
+
+        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestRetryExample.testFail", "TestRetryExample.testBasic",
+                                  "TestRetryExample.testNoRetry"], env=env, capture_output=True)
+        stdout = process.stdout
+
+        # Changed test need to succeed 3 times
+        self.assertRegex(stdout, b"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, b"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, b"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic\n")
+        self.assertNotRegex(stdout, b"RETRY 3")
+
+        # Changed test is never retried
+        self.assertRegex(stdout, b"\nnot ok 2 .*test\/verify\/check-testlib TestRetryExample.testFail\n")
+        self.assertNotRegex(stdout, b"testFail # RETRY")
+
+        # Using @no_retry_when_changed prevents this retry logic
+        self.assertRegex(stdout, b"\nok 3 .*test\/verify\/check-testlib TestRetryExample.testNoRetry\n")
+        self.assertNotRegex(stdout, b"testNoRetry # RETRY")
+
+        # Check retry logic for changed source
+        shell = os.path.join("pkg", "shell", "hosts.jsx")
+        self.assertTrue(os.path.exists(shell))
+
+        with open(shell, 'r') as f:
+            original_source = f.read()
+
+        self.addCleanup(writeFile, shell, original_source)
+        writeFile(shell, original_source + "\n")
+
+        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "--list", "TestHostEditing.testLimits",
+                                  "TestHostSwitching.testEdit"], env=env, capture_output=True)
+        stdout = process.stdout
+        self.assertRegex(stdout, b"\nTestHostEditing.testLimits # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, b"\nTestHostEditing.testLimits # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, b"\nTestHostEditing.testLimits\n")
+        self.assertNotRegex(stdout, b"RETRY 3")
+        self.assertRegex(stdout, b"\nTestHostSwitching.testEdit\n")
+        self.assertNotRegex(stdout, b"TestHostSwitching.testEdit # RETRY")
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestTestlib(MachineCase):
@@ -151,6 +225,21 @@ class TestTestlib(MachineCase):
         # NSS/home got restored
         self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
         self.machine.execute("test ! -e /home/cockpittest")
+
+@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+class NoTestRetryExample(unittest.TestCase):
+
+    def testFail(self):
+        if os.environ.get('TEST_FAILURES'):
+            self.assertFalse(True)
+
+    @no_retry_when_changed
+    def testNoRetry(self):
+        self.assertTrue(True)
+
+    def testBasic(self):
+        self.assertTrue(True)
+
 
 
 if __name__ == '__main__':

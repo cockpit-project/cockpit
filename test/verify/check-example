@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import time
 import unittest
@@ -32,9 +33,14 @@ from fmf_metadata import FMF
 class TestExample(MachineCase):
 
     @unittest.expectedFailure
-    def testFail(self):
+    def testExpectedFail(self):
         self.login_and_go("/system")
         self.assertFalse(True)
+
+    def testFail(self):
+        self.login_and_go("/system")
+        if os.environ.get('TEST_FAILURES'):
+            self.assertFalse(True)
 
     @unittest.skip
     def testSkip(self):

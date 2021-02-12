@@ -742,7 +742,9 @@ export const NetworkInterfacePage = ({
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
     return (
-        <Page id="network-interface"
+        <Page groupProps={{ sticky: 'top' }}
+              isBreadcrumbGrouped
+              id="network-interface"
               breadcrumb={
                   <Breadcrumb>
                       <BreadcrumbItem to='#'>

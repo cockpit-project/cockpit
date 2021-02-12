@@ -1,0 +1,15 @@
+#!/bin/sh -eu
+
+# printf 'ls-dist %s\n' "$*" >&2
+
+top="$(realpath -m "$0"/../..)"
+cd "${top}"
+
+add=""
+for ext in "$@"; do
+    if test "${ext}" = ".gz"; then
+        add=".gz"
+    else
+        find dist/ -name "*.${ext}" -printf "%p${add}\n"
+    fi
+done

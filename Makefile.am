@@ -148,14 +148,8 @@ V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/stamp=%)";
 
-WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspath $(builddir)) \
-	       timeout 15m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
-WEBPACK_INPUTS =
-WEBPACK_OUTPUTS =
-WEBPACK_INSTALL =
-WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
@@ -166,33 +160,21 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
+noinst_SCRIPTS += $(WEBPACK_STAMPS)
 MAINTAINERCLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) webpack.config.js
 
 PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
 PRINT_COPY_MSG_ = $(PRINT_COPY_MSG_$(AM_DEFAULT_VERBOSITY))
 
-# Copy an original copy of each Makefile.deps from the srcdir, in case
-# of an out-of-tree build from a tarball.  This is needed because the
-# 'include' below won't find the file in srcdir.
-# This rule needs to have a successful exit, or make will become unhappy.
-dist/%/Makefile.deps:
-	$(AM_V_at)test "$(srcdir)" == "$(builddir)" -o ! $(srcdir)/$@ -nt $@ || ( \
-	  $(PRINT_COPY_MSG_$(V))$(MKDIR_P) $(dir $@) && \
-	  cp -p $(srcdir)/$@ $@.tmp && \
-	  mv $@.tmp $@)
-
-# This is the primary rule for running webpack; some pkgs like ssh or pcp only
-# have a manifest, no actual webpack, so don't call webpack-make for these
-dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
-	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
+dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/node_modules/.stamp
+	$(V_WEBPACK) NODE_ENV='$(NODE_ENV)' ONLYDIR='$*/' webpack
 
 dist/%/manifest.json: pkg/%/manifest.json
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) ln -sfrT $< $@
 
--include $(WEBPACK_DEPS)
+-include $(wildcard $(top_srcdir)/dist/*/Makefile.deps)
 
 # the rules above copy a lot of stuff into builddir; clean it up so that distcleancheck works
 clean-local::
@@ -211,17 +193,25 @@ node_modules/.stamp: package.json
 	@echo ''
 	@false
 
+WEBPACK_PLAIN_EXTS = gif png ttf woff woff2
+WEBPACK_GZIP_EXTS = css html js svg
+
+LS_DIST = $(top_srcdir)/tools/ls-dist
+WEBPACK_DIST = $(shell $(LS_DIST) $(WEBPACK_PLAIN_EXTS) $(WEBPACK_GZIP_EXTS))
+WEBPACK_INSTALL = $(shell $(LS_DIST) $(WEBPACK_PLAIN_EXTS) .gz $(WEBPACK_GZIP_EXTS))
+WEBPACK_DEBUG = $(shell $(LS_DIST) map)
+
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFEST_SYMLINKS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar -chf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
+install-data-local:: $(WEBPACK_DEBUG)
 	$(V_TAR) tar -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
+dist-hook:: $(WEBPACK_DIST) $(WEBPACK_TEST_DEPS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node

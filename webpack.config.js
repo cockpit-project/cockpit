@@ -261,6 +261,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
 const IncludedModulesPlugin = require("./pkg/lib/included-modules-plugin");
 const StampfilePlugin = require("./pkg/lib/stampfile-plugin.js");
+const MakefileDepsPlugin = require("./pkg/lib/makefile-deps-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
@@ -352,6 +353,7 @@ function get_msggrep_options () {
 const cssProcessorOptions = production ? { } : { map: {inline: false} };
 
 const plugins = [
+    new MakefileDepsPlugin("Makefile.deps"),
     new IncludedModulesPlugin((section || "") + "included-modules"),
     new StampfilePlugin(),
     new copy(info.files),

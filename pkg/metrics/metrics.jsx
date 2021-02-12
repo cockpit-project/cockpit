@@ -1008,12 +1008,14 @@ class MetricsHistory extends React.Component {
 }
 
 export const Application = () => (
-    <Page breadcrumb={
-        <Breadcrumb>
-            <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
-            <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
-        </Breadcrumb>
-    }>
+    <Page groupProps={{ sticky: 'top' }}
+          isBreadcrumbGrouped
+          breadcrumb={
+              <Breadcrumb>
+                  <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
+                  <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
+              </Breadcrumb>
+          }>
         <PageSection>
             <CurrentMetrics />
         </PageSection>

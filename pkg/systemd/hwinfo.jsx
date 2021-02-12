@@ -312,11 +312,13 @@ class HardwareInfo extends React.Component {
         }
 
         return (
-            <Page breadcrumb={
-                <Breadcrumb>
-                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__item" to="#">{ _("Overview") }</BreadcrumbItem>
-                    <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__item" to="#">{ _("Overview") }</BreadcrumbItem>
+                          <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
+                      </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <PageSection variant={PageSectionVariants.light}>
                     <h2>{ _("System information") }</h2>

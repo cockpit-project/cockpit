@@ -245,7 +245,9 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         last_login = moment(details.logged.last).format('LLL');
 
     return (
-        <Page id="account"
+        <Page groupProps={{ sticky: 'top' }}
+              isBreadcrumbGrouped
+              id="account"
               breadcrumb={
                   <Breadcrumb>
                       <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Accounts")}</BreadcrumbItem>

@@ -538,7 +538,7 @@ if test "$enable_debug" != "no"; then
   AC_DEFINE_UNQUOTED(_DEBUG, 1, [In debug mode])
   CFLAGS="$CFLAGS -g"
 fi
-debugdir=${prefix}/src/debug
+debugdir='${prefix}/src/debug'
 if test "$enable_debug" = "yes"; then
   debug_status="yes"
   debugdir=

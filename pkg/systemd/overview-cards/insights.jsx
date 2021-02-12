@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import { Button } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import * as service from "service.js";
@@ -181,7 +182,7 @@ export class InsightsStatus extends React.Component {
         return (
             <li className="system-health-insights">
                 {icon}
-                <a tabIndex='0' target="_blank" rel="noopener noreferrer" href={url}>{_("Insights: ")} {text}</a>
+                <Button variant="link" component='a' href={url}>{_("Insights: ")} {text}</Button>
             </li>);
     }
 }

@@ -90,7 +90,7 @@ def finish_test(opts, test, affected_tests):
     Return (retry_reason, exit_code). retry_reason can be None or a string.
     """
 
-    affected = test.command[0] in affected_tests
+    affected = any([test.command[0].endswith(t) for t in affected_tests])
 
     # Try affected tests 3 times
     if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:

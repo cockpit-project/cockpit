@@ -37,8 +37,7 @@ export function autodetectOS(url) {
     // which blocked us from using GIO calls over cockpit-bridge.
     // Overwrite the env vars here, until commit https://github.com/cockpit-project/cockpit/commit/86c1fcb46291c83d6c6903e60fe4bee82598d3a9
     // exists in all supported distros.
-    return python.spawn(autoDetectOSScript, url, { environ: ['GIO_USE_VFS=gvfs', 'LC_ALL=C.UTF-8'], err: 'message' })
-            .then(out => out.trim());
+    return python.spawn(autoDetectOSScript, url, { environ: ['GIO_USE_VFS=gvfs', 'LC_ALL=C.UTF-8'], err: 'message' });
 }
 
 export function getOSStringRepresentation(os) {

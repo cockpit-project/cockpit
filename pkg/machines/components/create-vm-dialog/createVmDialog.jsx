@@ -19,6 +19,7 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { debounce } from 'throttle-debounce';
 import {
     Checkbox,
     Form, FormGroup,
@@ -588,6 +589,32 @@ class CreateVmModal extends React.Component {
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.onOsAutodetect = debounce(250, (installMedia) => {
+            this.setState({ autodetectOSInProgress: true });
+            if (this.autodetectOSPromise)
+                this.autodetectOSPromise.close("cancelled");
+
+            this.autodetectOSPromise = autodetectOS(installMedia);
+            this.autodetectOSPromise.then(resJSON => {
+                const res = JSON.parse(resJSON.trim());
+                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res.os);
+
+                if (osEntry && osEntry[0]) {
+                    this.onValueChanged('os', osEntry[0]);
+                    this.onValueChanged('sourceMediaID', res.media);
+                }
+                this.setState({ autodetectOSInProgress: false });
+                this.autodetectOSPromise = null;
+            });
+            this.autodetectOSPromise.catch(ex => {
+                if (ex.problem == "cancelled")
+                    return;
+
+                this.setState({ autodetectOSInProgress: false });
+                this.autodetectOSPromise = null;
+                console.log("osinfo-detect command failed: ", ex.message);
+            });
+        });
     }
 
     onValueChanged(key, value) {
@@ -597,29 +624,8 @@ class CreateVmModal extends React.Component {
             break;
         case 'source':
             this.setState({ [key]: value });
-
-            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && value != '' && value != undefined) {
-                // Clears the previously set timer.
-                clearTimeout(this.typingTimeout);
-
-                const onOsAutodetect = (os) => {
-                    this.setState({ autodetectOSInProgress: true });
-                    autodetectOS(os)
-                            .then(resJSON => {
-                                const res = JSON.parse(resJSON);
-                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res.os);
-
-                                if (osEntry && osEntry[0]) {
-                                    this.onValueChanged('os', osEntry[0]);
-                                    this.onValueChanged('sourceMediaID', res.media);
-                                }
-                            }, ex => {
-                                console.log("osinfo-detect command failed: ", ex.message);
-                            })
-                            .always(() => this.setState({ autodetectOSInProgress: false }));
-                };
-                this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
-            }
+            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && value != '' && value != undefined)
+                this.onOsAutodetect(value);
             break;
         case 'sourceType':
             this.setState({ [key]: value });

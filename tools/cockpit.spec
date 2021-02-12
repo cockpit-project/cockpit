@@ -262,7 +262,6 @@ find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users metrics; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
-    rm -rf %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
 for data in doc locale man pixmaps polkit-1; do
@@ -283,7 +282,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
 for pkg in apps machines packagekit pcp playground storaged; do
-    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg %{buildroot}/usr/src/debug/%{_datadir}/cockpit/$pkg
+    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
 rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets
@@ -311,18 +310,6 @@ install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
 
 %define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} %{?_debugsource_packages:-S debugsourcefiles.list} "%{_builddir}/%{?buildsubdir}"
 
-# Redefine how debug info is built to slip in our extra debug files
-%define __debug_install_post   \
-   %{find_debug_info} \
-   cat debug.partial >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
-%{nil}
-
-# Build the package lists for debug package, and move debug files to installed locations
-find %{buildroot}/usr/src/debug%{_datadir}/cockpit -type f -o -type l > debug.partial
-sed -i "s|%{buildroot}/usr/src/debug||" debug.partial
-sed -n 's/\.map\(\.gz\)\?$/\0/p' *.list >> debug.partial
-sed -i '/\.map\(\.gz\)\?$/d' *.list
-tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 %endif
 # /suse_version
 rm -rf %{buildroot}/usr/src/debug

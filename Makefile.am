@@ -255,9 +255,8 @@ node_modules/.stamp: package.json
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-install-data-local:: $(WEBPACK_DEBUG)
-	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
-	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
+install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
+	$(V_TAR) tar -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete

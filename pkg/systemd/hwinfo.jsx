@@ -27,13 +27,15 @@ import ReactDOM from 'react-dom';
 
 import {
     Alert, AlertActionCloseButton, Button,
+    Card, CardHeader, CardTitle, CardBody,
     DataList,
     DataListItem,
     DataListCell,
     DataListItemRow,
     DataListItemCells,
     DataListAction,
-    Page, PageSection, PageSectionVariants,
+    Gallery,
+    Page, PageSection,
     Text, TextVariants,
     Breadcrumb, BreadcrumbItem,
     Modal, Switch,
@@ -285,7 +287,7 @@ class HardwareInfo extends React.Component {
             const sortedPci = this.props.info.pci.concat();
 
             pci = (
-                <ListingTable caption={ _("PCI") }
+                <ListingTable aria-label={ _("PCI") }
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     columns={ [
                         { title: _("Class"), sortable: true },
@@ -302,7 +304,7 @@ class HardwareInfo extends React.Component {
 
         if (this.props.info.memory.length > 0) {
             memory = (
-                <ListingTable caption={ _("Memory") }
+                <ListingTable aria-label={ _("Memory") }
                     columns={ [_("ID"), _("Memory technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
                     rows={ this.props.info.memory.map(dimm => ({
                         props: { key: dimm.locator },
@@ -320,17 +322,40 @@ class HardwareInfo extends React.Component {
                           <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                       </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
-                <PageSection variant={PageSectionVariants.light}>
-                    <h2>{ _("System information") }</h2>
-                    <SystemInfo info={this.props.info.system}
-                                onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
-
-                    <div id="pci-listing">
-                        { pci }
-                    </div>
-                    <div id="memory-listing">
-                        { memory }
-                    </div>
+                <PageSection>
+                    <Gallery hasGutter>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>
+                                    <Text component={TextVariants.h2}>{_("System information")}</Text>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody>
+                                <SystemInfo info={this.props.info.system}
+                                            onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
+                            </CardBody>
+                        </Card>
+                        <Card id="pci-listing">
+                            <CardHeader>
+                                <CardTitle>
+                                    <Text component={TextVariants.h2}>{_("PCI")}</Text>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="contains-list">
+                                { pci }
+                            </CardBody>
+                        </Card>
+                        <Card id="memory-listing">
+                            <CardHeader>
+                                <CardTitle>
+                                    <Text component={TextVariants.h2}>{_("Memory")}</Text>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="contains-list">
+                                { memory }
+                            </CardBody>
+                        </Card>
+                    </Gallery>
                 </PageSection>
             </Page>
         );

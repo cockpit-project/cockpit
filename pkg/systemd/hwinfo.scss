@@ -1,6 +1,18 @@
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "./system-global.scss";
 @import "../lib/table.css";
+@import "../lib/ct-card.scss";
+
+#hwinfo {
+    /* Style the list cards as ct-cards */
+    .pf-c-page__main-section .pf-c-card {
+        @extend .ct-card;
+    }
+
+    .pf-l-gallery {
+        --pf-l-gallery--GridTemplateColumns: 1fr;
+    }
+}
 
 /* show tbodys side by side on wide screens */
 @media screen and (min-width: 70rem) {
@@ -20,10 +32,6 @@ table.listing-ct thead th:last-child {
 
 tr.listing-ct-item td:last-child {
     text-align: left;
-}
-
-section.pf-c-page__main-breadcrumb {
-    padding-bottom: var(--pf-global--spacer--xl);
 }
 
 .nosmt-read-more-link {

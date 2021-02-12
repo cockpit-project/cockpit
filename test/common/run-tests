@@ -215,12 +215,18 @@ def run(opts, image):
         cmd = ["git", "diff", "--name-only", "origin/master", opts.test_dir]
         r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if r.returncode == 0:
-            changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
+            # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
+            # This file provides only examples, there is no place for it being flaky, no need to retry
+            changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines() if not test.endswith(b"check-example")]
 
         # If more than 3 test files were changed don't consider any of them as affected
         # as it might be a PR that changes more unrelated things.
         if len(changed_tests) > 3:
-            changed_tests = []
+            # If 'test/verify/check-testlib' is affected, keep just that one - our tests for tests count on that
+            if "test/verify/check-testlib" in changed_tests:
+                changed_tests = ["test/verify/check-testlib"]
+            else:
+                changed_tests = []
 
         # Detect affected tests from changed pkg/* subdirectories
         # If affected tests get detected from pkg/* changes, don't apply the

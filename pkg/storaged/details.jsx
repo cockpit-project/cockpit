@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Page, PageSection, PageSectionVariants, Grid, GridItem, Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
+import { Page, PageSection, Grid, GridItem, Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
 
 import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
@@ -123,13 +123,14 @@ export class Details extends React.Component {
             body = <GridItem span={12}>{_("Not found")}</GridItem>;
 
         return (
-            <Page id="storage-detail">
-                <PageSection variant={PageSectionVariants.light} type='nav'>
-                    <Breadcrumb>
-                        <BreadcrumbItem onClick={go_up} to="#">{_("Storage")}</BreadcrumbItem>
-                        <BreadcrumbItem isActive>{name}</BreadcrumbItem>
-                    </Breadcrumb>
-                </PageSection>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  id="storage-detail"
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem onClick={go_up} to="#">{_("Storage")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>{name}</BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection>
                     <Grid hasGutter>
                         {body}

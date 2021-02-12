@@ -34,8 +34,10 @@ class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
         # nondestructive tests are sorted alphabetically; ascending or descending depending on $TEST_OS 1-bit hash
-        forward_sort_env = {"TEST_OS": "evenstring", "PATH": os.environ["PATH"]}
-        rev_sort_env = {"TEST_OS": "oddstring1", "PATH": os.environ["PATH"]}
+        forward_sort_env = os.environ.copy()
+        forward_sort_env["TEST_OS"] = "evenstring"
+        rev_sort_env = os.environ.copy()
+        rev_sort_env["TEST_OS"] = "oddstring1"
 
         # Listing on check-* file
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),

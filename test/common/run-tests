@@ -57,8 +57,8 @@ def flush_stdout():
             time.sleep(0.1)
 
 
-def print_test(test, print_tap=True):
-    for line in test.output.splitlines(keepends=True):
+def print_test(test, print_tap=True, retry_reason=""):
+    for line in test.output.strip().splitlines(keepends=True):
         while line:
             try:
                 sys.stdout.buffer.write(line)
@@ -69,17 +69,20 @@ def print_test(test, print_tap=True):
     flush_stdout()
 
     if not print_tap:
+        print(retry_reason)
         return
 
+    print()  # Tap needs to start on a separate line
     if test.process.returncode == 0:
-        print("ok " +  test_name(test))
+        print("ok " +  test_name(test) + retry_reason)
     elif test.process.returncode == 77 or b"# SKIP " in test.output:
         # If the test was skipped, add the last line (which contains the reason
         # for the skip) to the result
-        print("ok {0} {1}".format(test_name(test),
-                                  test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else ""))
+        print("ok {0} {1}{2}".format(test_name(test),
+                                  test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else "",
+                                  retry_reason))
     else:
-        print("not ok " + test_name(test))
+        print("not ok " + test_name(test) + retry_reason)
     flush_stdout()
 
 def finish_test(opts, test, affected_tests):
@@ -96,8 +99,7 @@ def finish_test(opts, test, affected_tests):
     if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
         retry_reason = b"test affected tests 3 times"
         test.retries += 1
-        test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
-        print_test(test, not opts.list)
+        print_test(test, not opts.list, " # RETRY {0} ({1})".format(test.retries, retry_reason.decode("utf-8")))
         return retry_reason, 0
     elif test.process.returncode in [0, 77]:
         print_test(test, not opts.list)
@@ -136,8 +138,7 @@ def finish_test(opts, test, affected_tests):
     unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in test.output
     if test.retries < 2 and not unexpected_message and retry_reason:
         test.retries += 1
-        test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
-        print_test(test, print_tap=opts.thorough)
+        print_test(test, opts.thorough, " # RETRY {0} ({1})".format(test.retries, retry_reason.decode("utf-8")))
         return retry_reason, 0
     else:
         test.output += b"\n"

@@ -151,6 +151,7 @@ V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/stamp=%)";
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
+WEBPACK_INCLUDED_MODULES = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/included-modules)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
@@ -211,7 +212,7 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-dist-hook:: $(WEBPACK_DIST) $(WEBPACK_TEST_DEPS)
+dist-hook:: $(WEBPACK_DIST) $(WEBPACK_TEST_DEPS) $(WEBPACK_INCLUDED_MODULES)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node

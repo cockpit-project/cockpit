@@ -920,18 +920,19 @@ export class Firewall extends React.Component {
                       <Breadcrumb>
                           <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__item" to="#">{_("Networking")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
-                      </Breadcrumb>}>
-                <PageSection id="firewall-heading" className="firewall-heading" variant={PageSectionVariants.light}>
-                    <div id="firewall-heading-title" className="firewall-heading-title">
-                        <span id="firewall-heading-title-group" className="firewall-heading-title-group">
-                            <Title headingLevel="h2" size="3xl">
-                                {_("Firewall")}
-                            </Title>
-                            <FirewallSwitch firewall={firewall} />
-                        </span>
-                        { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
-                    </div>
-                </PageSection>
+                      </Breadcrumb>}
+                  additionalGroupedContent={
+                      <PageSection id="firewall-heading" className="firewall-heading" variant={PageSectionVariants.light}>
+                          <div id="firewall-heading-title" className="firewall-heading-title">
+                              <span id="firewall-heading-title-group" className="firewall-heading-title-group">
+                                  <Title headingLevel="h2" size="3xl">
+                                      {_("Firewall")}
+                                  </Title>
+                                  <FirewallSwitch firewall={firewall} />
+                              </span>
+                              { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
+                          </div>
+                      </PageSection>}>
                 <PageSection id="zones-listing">
                     { enabled && <>
                         {

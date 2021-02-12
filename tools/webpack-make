@@ -105,7 +105,6 @@ function generateDeps(makefile, stats) {
     var outputs = { };
     var installs = { };
     var tests = { };
-    var debugs = { };
 
     var pkgdir = path.dirname(makefile);
     var stampfile = pkgdir + '/stamp';
@@ -171,10 +170,8 @@ function generateDeps(makefile, stats) {
             install += ".gz";
         }
 
-        // Debug output and tests gets installed separately
-        if (endsWith(install, ".map"))
-            debugs[install] = install;
-        else if (output.indexOf("/test-") === -1 && !output.includes("included-modules"))
+        // Debug output gets installed separately
+        if (!output.endsWith(".map") && !output.includes("included-modules"))
             installs[install] = install;
     }
 
@@ -183,7 +180,6 @@ function generateDeps(makefile, stats) {
     outputs = Object.keys(outputs).sort();
     installs = Object.keys(installs).sort();
     tests = Object.keys(tests).sort();
-    debugs = Object.keys(debugs).sort();
 
     var lines = [ "# Generated Makefile data for " + prefix, "# Stamp: " + latest, "" ];
 
@@ -200,7 +196,6 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_OUTPUTS", outputs);
 
     makeArray(prefix + "_INSTALL", installs);
-    makeArray(prefix + "_DEBUG", debugs);
     makeArray(prefix + "_TESTS", tests);
 
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
@@ -219,7 +214,6 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
-    lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
     lines.push("");
 

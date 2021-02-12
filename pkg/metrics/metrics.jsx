@@ -394,7 +394,6 @@ class CurrentMetrics extends React.Component {
                 <Tooltip content={ cockpit.format(_("$0 GiB total"), swapTotal) } position="bottom">
                     <Progress
                         id="current-swap-usage"
-                        tabIndex="0"
                         title={ _("Swap") }
                         value={this.state.swapUsed}
                         className="pf-m-sm"
@@ -466,7 +465,6 @@ class CurrentMetrics extends React.Component {
                                 position="bottom">
                                 <Progress
                                     id="current-memory-usage"
-                                    tabIndex="0"
                                     title={ _("RAM") }
                                     value={this.state.memUsed}
                                     className="pf-m-sm"

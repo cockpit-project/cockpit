@@ -71,13 +71,16 @@ export class Service extends React.Component {
         const url = "/system/logs/#/?prio=debug&service=" + cur_unit_id;
 
         return (
-            <Page id="service-details" breadcrumb={
-                <Breadcrumb>
-                    <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>
-                        {this.props.unit.Id}
-                    </BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  id="service-details"
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>
+                              {this.props.unit.Id}
+                          </BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection>
                     <Gallery hasGutter>
                         <GalleryItem>{serviceDetails}</GalleryItem>

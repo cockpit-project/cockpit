@@ -156,13 +156,16 @@ export class LogEntry extends React.Component {
         }
 
         return (
-            <Page id="log-details" breadcrumb={
-                <Breadcrumb>
-                    <BreadcrumbItem onClick={this.goHome} to="#">{_("Logs")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>
-                        {breadcrumb}
-                    </BreadcrumbItem>
-                </Breadcrumb>}>
+            <Page groupProps={{ sticky: 'top' }}
+                  isBreadcrumbGrouped
+                  id="log-details"
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem onClick={this.goHome} to="#">{_("Logs")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>
+                              {breadcrumb}
+                          </BreadcrumbItem>
+                      </Breadcrumb>}>
                 <PageSection>
                     <Gallery hasGutter>
                         {content}

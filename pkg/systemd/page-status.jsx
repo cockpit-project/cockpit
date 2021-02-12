@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
+import { Button } from "@patternfly/react-core";
 import { page_status } from "notifications";
 
 function icon_class_for_type(type) {
@@ -54,13 +55,13 @@ export class PageStatusNotifications extends React.Component {
                 let action;
                 if (status.details && status.details.link !== undefined) {
                     if (status.details.link)
-                        action = <a href="#"
-                                    onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + status.details.link) } }>{status.title}</a>;
+                        action = <Button variant="link" component="a" href="#"
+                                         onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + status.details.link) } }>{status.title}</Button>;
                     else
                         action = <span>{status.title}</span>; // no link
                 } else {
-                    action = <a href="#"
-                                onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + page) } }>{status.title}</a>;
+                    action = <Button variant="link" component="a" href="#"
+                                     onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + page) } }>{status.title}</Button>;
                 }
 
                 let icon = status.details && status.details.icon;

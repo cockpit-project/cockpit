@@ -43,7 +43,7 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if install script fails')
-    parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+    parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
     parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
     parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')

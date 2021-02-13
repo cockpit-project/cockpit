@@ -90,7 +90,7 @@ def main():
         if not args.install_only:
             build_and_install(build_image, results, skips, args)
         if not args.build_only and build_image != base_image:
-            only_install(base_image, results, skips, args, args.address)
+            only_install(base_image, results, skips, args)
     except (RuntimeError, testvm.Failure) as ex:
         sys.stderr.write("image-prepare: {0}\n".format(str(ex)))
         return 2
@@ -191,7 +191,7 @@ def build_and_install(build_image, build_results, skips, args):
             machine.stop()
 
 
-def only_install(image, build_results, skips, args, address):
+def only_install(image, build_results, skips, args):
     """Install Cockpit into a test image"""
     started = False
     if args.address:

@@ -26,8 +26,8 @@ case $TEST_SCENARIO in
         test/containers/run-tests --container ${TEST_SCENARIO#*-}
         ;;
     dnf-copr*)
-        test/image-prepare --verbose $TEST_OS
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y update' $TEST_OS
+        test/image-prepare --verbose --overlay $TEST_OS
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     *)

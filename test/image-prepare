@@ -44,6 +44,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if install script fails')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
+    parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
     parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
     parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
     parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
@@ -107,20 +108,21 @@ def upload_scripts(machine, args):
 
 
 # Create the necessary layered image for the build/install
-def prepare_install_image(base_image):
+def prepare_install_image(base_image, overlay=False):
     if "/" not in base_image:
         base_image = os.path.join(testvm.IMAGES_DIR, base_image)
     test_images = os.path.join(TEST, "images")
     os.makedirs(test_images, exist_ok=True)
     install_image = os.path.join(test_images, os.path.basename(base_image))
-    base_image = os.path.realpath(testvm.get_test_image(base_image))
-    qcow2_image = "{0}.qcow2".format(install_image)
-    subprocess.check_call(["qemu-img", "create", "-q", "-f", "qcow2",
-                           "-o", "backing_file={0},backing_fmt=qcow2".format(base_image),
-                           qcow2_image])
-    if os.path.lexists(install_image):
-        os.unlink(install_image)
-    os.symlink(os.path.basename(qcow2_image), install_image)
+    if not os.path.exists(install_image) or not overlay:
+        base_image = os.path.realpath(testvm.get_test_image(base_image))
+        qcow2_image = "{0}.qcow2".format(install_image)
+        subprocess.check_call(["qemu-img", "create", "-q", "-f", "qcow2",
+                               "-o", "backing_file={0},backing_fmt=qcow2".format(base_image),
+                               qcow2_image])
+        if os.path.lexists(install_image):
+            os.unlink(install_image)
+        os.symlink(os.path.basename(qcow2_image), install_image)
     return install_image
 
 
@@ -147,7 +149,7 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
-    build_image = prepare_install_image(build_image)
+    build_image = prepare_install_image(build_image, args.overlay)
     machine = testvm.VirtMachine(verbose=args.verbose, image=build_image,
                                  memory_mb=2048, cpus=4, maintain=True, networking=networking)
     completed = False
@@ -197,7 +199,7 @@ def only_install(image, build_results, skips, args):
     if args.address:
         machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
     else:
-        image = prepare_install_image(image)
+        image = prepare_install_image(image, args.overlay)
         machine = testvm.VirtMachine(verbose=args.verbose, image=image, networking=networking, maintain=True)
         machine.start()
         started = True

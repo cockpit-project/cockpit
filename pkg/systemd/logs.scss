@@ -8,6 +8,11 @@
     .cockpit-log-panel {
         border: none;
     }
+
+    .pf-c-page__main {
+        // Constrain page to viewport height, so journal can overflow
+        max-height: 100vh;
+    }
 }
 
 #journal-entry {
@@ -48,16 +53,20 @@
     margin-right: var(--pf-global--spacer--md);
 }
 
-#journal-box .panel-heading {
-    position: sticky;
-    top: 0;
-    color: var(--pf-global--Color--300);
-    background-color: var(--pf-global--BackgroundColor--100);
-    border: none;
-    font-size: var(--pf-global--FontSize--md);
-    font-family: var(--pf-global--FontFamily--heading--sans-serif);
-    font-weight: var(--pf-global--FontWeight--semi-bold);
-    padding: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+#journal-box {
+    flex: auto;
+    
+    .panel-heading {
+        position: sticky;
+        top: 0;
+        color: var(--pf-global--Color--300);
+        background-color: var(--pf-global--BackgroundColor--100);
+        border: none;
+        font-size: var(--pf-global--FontSize--md);
+        font-family: var(--pf-global--FontFamily--heading--sans-serif);
+        font-weight: var(--pf-global--FontWeight--semi-bold);
+        padding: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+    }
 }
 
 /* Set min width for services in the journal view */

@@ -575,7 +575,7 @@ const SvgGraph = ({ data, resource, have_sat }) => {
 };
 
 // data: type → SAMPLES_PER_H objects from startTime
-const MetricsHour = ({ startTime, data }) => {
+const MetricsHour = ({ startTime, data, clipLeading }) => {
     // compute graphs
     const graphs = [];
 
@@ -617,7 +617,21 @@ const MetricsHour = ({ startTime, data }) => {
             </dl>);
     }
 
-    for (let minute = 59; minute >= 0; --minute) {
+    let minutes = 60;
+    if (clipLeading) {
+        // When clipping of empty leading minutes is allowed, find the highest 5 minute interval with valid data
+        let m = 55;
+        for (; m >= 0; m = m - 5) {
+            const dataOffset = m * SAMPLES_PER_MIN;
+            const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN * 5);
+            if (dataSlice.find(i => i !== null)) {
+                break;
+            }
+        }
+        minutes = m + 5;
+    }
+
+    for (let minute = minutes - 1; minute >= 0; --minute) {
         const dataOffset = minute * SAMPLES_PER_MIN;
         const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
         const first = dataSlice.find(i => i !== null);
@@ -698,7 +712,7 @@ const MetricsHour = ({ startTime, data }) => {
     };
 
     return (
-        <div id={ "metrics-hour-" + startTime.toString() } className="metrics-hour" onMouseMove={updateTooltip}>
+        <div id={ "metrics-hour-" + startTime.toString() } style={{ "--metrics-minutes": minutes }} className="metrics-hour" onMouseMove={updateTooltip}>
             { events }
             { graphs }
             <h3 className="metrics-time"><time>{ moment(startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
@@ -993,7 +1007,7 @@ class MetricsHistory extends React.Component {
                 { this.state.hours.length > 0 &&
                     <Card>
                         <CardBody className="metrics-history">
-                            { this.state.hours.map(time => <MetricsHour key={time} startTime={parseInt(time)} data={this.data[time]} />) }
+                            { this.state.hours.map((time, i) => <MetricsHour key={time} startTime={parseInt(time)} data={this.data[time]} clipLeading={i === 0} />) }
                         </CardBody>
                     </Card> }
                 {nodata_alert}

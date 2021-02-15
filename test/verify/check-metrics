@@ -103,11 +103,27 @@ class TestHistoryMetrics(MachineCase):
         # should only have at most <current_max> valid minutes, the rest should be empty
         valid_start = self.browser.call_js_func("ph_count", ".metrics-data-cpu.valid-data")
         self.assertLessEqual(valid_start, current_max)
-        # leave one minute wiggle room, in case the page updates between these two checks
-        self.assertGreaterEqual(self.browser.call_js_func("ph_count", ".metrics-data-cpu.empty-data"), 59 - valid_start)
         # page auto-updates every minute
         with self.browser.wait_timeout(90):
             self.browser.wait_js_func("(exp => ph_count('.metrics-data-cpu.valid-data') == exp)", valid_start + 1)
+
+        # Should never show more then 4 empty leading minutes (block of 5 minutes but always at least one used)
+        leading_empty = self.browser.call_js_func("""(function () {
+            const lines = document.getElementsByClassName("metrics-data-cpu");
+            let counter = 0;
+
+            Array.from(lines).every(l => {
+                if (l.classList.contains("empty-data")) {
+                    counter++;
+                    return true;
+                } else {
+                    return false;;
+                }
+            });
+
+            return counter;
+        })""")
+        self.assertLessEqual(leading_empty, 4)
 
     @skipImage("no PCP support", "fedora-coreos")
     def testBasic(self):
@@ -200,6 +216,10 @@ class TestHistoryMetrics(MachineCase):
         # swap usage is not shown if there is no swap
         b.wait_visible("#current-memory-usage")
         self.assertFalse(b.is_present("#current-swap-usage"))
+
+        # Check that we don't show too much empty minutes in the first hour
+        self.assertLessEqual(b.call_js_func("ph_count", ".metrics-data-cpu"), 35)
+
         b.logout()
 
         #

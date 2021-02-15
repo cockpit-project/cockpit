@@ -244,7 +244,7 @@
 
     &-hour {
         grid-gap: var(--data-gap);
-        grid-template-rows: repeat(60, minmax(var(--data-min-height), auto));
+        grid-template-rows: repeat(var(--metrics-minutes), minmax(var(--data-min-height), auto));
     }
 
     &-time,
@@ -288,7 +288,7 @@
 
     &-events {
         grid-column: events;
-        grid-row: calc(60 - var(--metrics-minute));
+        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
         display: grid;
         grid-template-columns: [info] 1fr [time] 1fr;
         align-items: baseline;
@@ -305,12 +305,12 @@
     }
 
     &-info {
-        grid-row: calc(60 - var(--metrics-minute));
+        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
         grid-column: information;
     }
 
     &-data {
-        grid-row: calc(60 - var(--metrics-minute));
+        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
         display: grid;
         contain: strict;
         margin-left: 0.5rem;

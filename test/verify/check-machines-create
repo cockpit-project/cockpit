@@ -81,6 +81,9 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         runner.checkFilteredOsTest(TestMachinesCreate.VmDialog(self, os_name=config.MAGEIA_3_FILTERED_OS))
 
+        # check that newer oses are present and searchable with substring match
+        runner.checkFilteredOsTest(TestMachinesCreate.VmDialog(self, os_name=config.WINDOWS_SERVER_10, os_search_name=config.WINDOWS_SERVER_10_SHORT))
+
         # try to CREATE WITH DIALOG ERROR
         # name
         runner.checkDialogFormValidationTest(TestMachinesCreate.VmDialog(self, "", storage_size=1), {"vm-name": "Name must not be empty"})
@@ -553,6 +556,9 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
+        WINDOWS_SERVER_10 = 'Microsoft Windows 10'
+        WINDOWS_SERVER_10_SHORT = 'win'
+
     class VmDialog:
         vmId = 0
 
@@ -563,6 +569,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                      storage_size=None, storage_size_unit='GiB',
                      expected_storage_size=None,
                      os_name="Fedora 28",
+                     os_search_name=None,
                      os_short_id="fedora28",
                      is_unattended=None,
                      profile=None,
@@ -599,6 +606,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.storage_size_unit = storage_size_unit
             self.expected_storage_size = expected_storage_size
             self.os_name = os_name
+            self.os_search_name = os_search_name
             self.os_short_id = os_short_id
             self.is_unattended = is_unattended
             self.profile = profile
@@ -663,19 +671,23 @@ class TestMachinesCreate(VirtualMachinesCase):
 
             return self
 
-        def checkOsFiltered(self):
+        def checkOsFiltered(self, present=False):
             b = self.browser
 
             b.focus("#os-select-group input")
-            b.key_press(self.os_name)
+            # os_search_name is meant to be used to test substring much
+            b.key_press(self.os_search_name or self.os_name)
 
-            try:
-                with b.wait_timeout(5):
-                    b.wait_in_text("#os-select li button", "No results found")
-                return self
-            except AssertionError:
-                # os found which is not ok
-                raise AssertionError("{0} was not filtered".format(self.os_name))
+            if not present:
+                try:
+                    with b.wait_timeout(5):
+                        b.wait_in_text("#os-select li button", "No results found")
+                    return self
+                except AssertionError:
+                    # os found which is not ok
+                    raise AssertionError("{0} was not filtered".format(self.os_name))
+            else:
+                b.wait_visible("#os-select li button:contains({0})".format(self.os_search_name))
 
         def checkPXENotAvailableSession(self):
             self.browser.set_checked("#connectionName-{0}".format(self.connection), True)

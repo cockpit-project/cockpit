@@ -73,7 +73,7 @@ export class IscsiPanel extends React.Component {
                                     if (cancelled)
                                         return;
 
-                                    // HACK - https://github.com/storaged-project/storaged/issues/26
+                                    // HACK - https://github.com/storaged-project/udisks/issues/26
                                     if (error.message.indexOf("initiator failed authorization") != -1)
                                         error = {
                                             username: true, // make it red without text below
@@ -162,7 +162,7 @@ export class IscsiPanel extends React.Component {
                     action: function (vals) {
                         return iscsi_login(login_vals.target, vals)
                                 .catch(err => {
-                                    // HACK - https://github.com/storaged-project/storaged/issues/26
+                                    // HACK - https://github.com/storaged-project/udisks/issues/26
                                     if (err.message.indexOf("authorization") != -1)
                                         err = {
                                             username: true, // makes it red without text below

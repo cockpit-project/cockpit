@@ -340,7 +340,7 @@ AC_CHECK_FUNCS(fdwalk)
 # HACK - Storaged before 2.5.3 doesn't tell us when it supports
 #        sessions, so we allow it to be switched off explicitly.
 #
-# https://github.com/storaged-project/storaged/pull/68
+# https://github.com/storaged-project/udisks/pull/68
 
 AC_ARG_WITH(storaged-iscsi-sessions,
             AC_HELP_STRING([--with-storaged-iscsi-sessions=yes/no],

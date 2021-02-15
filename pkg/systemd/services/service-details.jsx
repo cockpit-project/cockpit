@@ -257,7 +257,7 @@ export class ServiceDetails extends React.Component {
                     if (results.length == 2 && !results[0])
                         this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
                     /* Executing daemon reload after file operations is necessary -
-                     * see https://github.com/systemd/systemd/blob/master/src/systemctl/systemctl.c [enable_unit function]
+                     * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
                     systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null)
                             .then(() => this.setState({ waitsFileAction: false }));

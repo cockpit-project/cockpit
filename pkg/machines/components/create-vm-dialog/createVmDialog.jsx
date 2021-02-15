@@ -340,7 +340,10 @@ class OSRow extends React.Component {
             return ({
                 toString: function() { return this.displayName },
                 compareTo: function(value) {
-                    return value.shortId.toLowerCase().includes(this.shortId) || value.displayName.toLowerCase().includes(this.displayName);
+                    if (typeof value == "string")
+                        return this.shortId.toLowerCase().includes(value.toLowerCase()) || this.displayName.toLowerCase().includes(value.toLowerCase());
+                    else
+                        return this.shortId == value.shortId;
                 },
                 ...os,
                 displayName: getOSStringRepresentation(os),

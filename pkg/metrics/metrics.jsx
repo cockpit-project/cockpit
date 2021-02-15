@@ -617,7 +617,7 @@ const MetricsHour = ({ startTime, data }) => {
             </dl>);
     }
 
-    for (let minute = 0; minute < 60; ++minute) {
+    for (let minute = 59; minute >= 0; --minute) {
         const dataOffset = minute * SAMPLES_PER_MIN;
         const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
         const first = dataSlice.find(i => i !== null);

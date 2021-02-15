@@ -111,7 +111,7 @@ function init() {
             event.preventDefault();
 
             // see "an almost cross-browser solution" at
-            // https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload
+            // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event
             event.returnValue = '';
             return '';
         }

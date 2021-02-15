@@ -33,7 +33,7 @@ import { find_warnings } from "./warnings.jsx";
 /* STORAGED CLIENT
  */
 
-/* HACK: https://github.com/storaged-project/storaged/pull/68 */
+/* HACK: https://github.com/storaged-project/udisks/pull/68 */
 var hacks = { };
 if (cockpit.manifests.storage && cockpit.manifests.storage.hacks)
     hacks = cockpit.manifests.storage.hacks;

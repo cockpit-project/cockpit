@@ -71,7 +71,7 @@ export class NetworkPageDialogs extends React.Component {
 
         const desc = _("A network bond combines multiple network interfaces into one logical interface with higher throughput or redundancy.");
         const lm = _("Learn more");
-        const url = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-networking-in-the-web-console_system-management-using-the-rhel-8-web-console#configuring-network-bonds-using-the-web-console_managing-networking-in-the-web-console";
+        const url = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console";
         const popover_content = desc + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link fa-xs"></i>' + lm + '</a>';
 
         const popover_options = {

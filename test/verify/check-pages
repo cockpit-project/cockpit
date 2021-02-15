@@ -107,7 +107,7 @@ OnCalendar=daily
         b.click("#navbar-docs > a")
         b.wait_not_visible("#navbar-docs-items")
         b.go("/network")
-        self.checkDocs(["Managing networking", "Managing firewall"])
+        self.checkDocs(["Managing networking bonds", "Managing networking teams", "Managing networking bridges", "Managing VLANs", "Managing firewall"])
         b.go("/system/services")
 
         m.restart_cockpit()

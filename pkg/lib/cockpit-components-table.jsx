@@ -35,7 +35,7 @@ import { EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 import './cockpit-components-table.scss';
 
 /* This is a wrapper around PF Table component
- * See https://www.patternfly.org/v4/components/table
+ * See https://www.patternfly.org/v4/components/table/
  * Properties (all optional unless specified otherwise):
  * - caption
  * - className: additional classes added to the Table

@@ -179,7 +179,7 @@ function array_to_raw_string(data) {
  * These are the polyfills from Mozilla. It's pretty nasty that
  * these weren't in the typed array standardization.
  *
- * https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+ * https://developer.mozilla.org/en-US/docs/Glossary/Base64
  */
 
 function uint6_to_b64 (x) {
@@ -2383,7 +2383,7 @@ function factory() {
              * at all, but I guess that is ok.
              *
              * For example,
-             * https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout
+             * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
              * says:
              *
              *    Browsers including Internet Explorer, Chrome,

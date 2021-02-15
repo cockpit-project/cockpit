@@ -225,7 +225,7 @@ function create_tabs(client, target, is_partition) {
          * use it unconditionally.  So we don't ask for one in
          * that case.
          *
-         * https://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-method-org-freedesktop-UDisks2-Block.GetSecretConfiguration
+         * http://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-method-org-freedesktop-UDisks2-Block.GetSecretConfiguration
          */
         return block.GetSecretConfiguration({}).then(function (items) {
             for (var i = 0; i < items.length; i++) {

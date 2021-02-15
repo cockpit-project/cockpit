@@ -35,6 +35,9 @@ sys.dont_write_bytecode = True
 DAYS = 7
 TASK_NAME = "Validate all URLs"
 
+known_redirects = ["https://access.redhat.com/security/updates/classification/#",
+                   "https://firefox.com/", "https://www.microsoft.com/"]
+
 def main():
     parser = argparse.ArgumentParser(description=TASK_NAME)
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
@@ -85,6 +88,7 @@ def main():
 def check_urls(verbose):
     command = r'git grep -IEho "(https?)://[-a-zA-Z0-9@:%_\+.~#?&=/]+" -- pkg ":!*.svg" | sort -u'
     urls = subprocess.check_output(command, shell=True, universal_newlines=True).split("\n")
+    redirects = []
     failed = []
     for url in urls:
         if not url:
@@ -99,7 +103,10 @@ def check_urls(verbose):
         try:
             # Specify agent as some websites otherwise block requests
             req = Request(url=url, headers={"User-Agent": "Mozilla/5.0"})
-            if urlopen(req).getcode() >= 400:
+            resp =  urlopen(req)
+            if resp.geturl() != url and url not in known_redirects:
+                redirects.append(url)
+            if resp.getcode() >= 400:
                 failed.append(url)
         except urllib.error.URLError:
             failed.append(url)
@@ -109,7 +116,9 @@ def check_urls(verbose):
     if failed:
         err = "Checked {0} URLs out of which {1} is/are invalid:\n{2}".format(len(urls), len(failed), "\n".join(failed))
     else:
-        success = "Checked {0} URLs and all are valid".format(len(urls))
+        success = "Checked {0} URLs and all are valid.".format(len(urls))
+        if redirects:
+            success += "\nFollowing URLs are redirected:\n    {0}".format("\n    ".join(redirects))
     return (success, err)
 
 if __name__ == '__main__':

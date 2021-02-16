@@ -143,7 +143,7 @@ export class StorageVolumeCreate extends React.Component {
         const poolTypesNotSupportingVolumeCreation = ['iscsi', 'iscsi-direct', 'gluster', 'mpath'];
 
         const createButton = () => {
-            if (!poolTypesNotSupportingVolumeCreation.includes(this.props.storagePool.type)) {
+            if (!poolTypesNotSupportingVolumeCreation.includes(this.props.storagePool.type) && this.props.storagePool.active) {
                 return (
                     <Button id={`${idPrefix}-button`}
                         variant='secondary'
@@ -154,7 +154,7 @@ export class StorageVolumeCreate extends React.Component {
             } else {
                 return (
                     <Tooltip id='create-tooltip'
-                             content={_("Pool type doesn't support volume creation")}>
+                             content={this.props.storagePool.active ? _("Pool type doesn't support volume creation") : _("Pool needs to be active to create volume")}>
                         <span>
                             <Button id={`${idPrefix}-button`}
                                     variant='secondary'

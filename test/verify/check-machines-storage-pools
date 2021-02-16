@@ -139,12 +139,16 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
         # Test operations on storage pools
         self.togglePoolRow("myPoolOne", connectionName)
+        self.gotoVolumesTab("myPoolOne")
 
         # Try deactivating and activating a pool
         b.click("#deactivate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "inactive")
+        b.wait_in_text("tr[data-row-id=pool-myPoolOne-{0}] + tr table td".format(connectionName), "Activate the storage pool to administer volumes")
+        b.wait_visible('#myPoolOne-{0}-create-volume-button:disabled'.format(connectionName))
         b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
+        b.wait_visible('#myPoolOne-{0}-create-volume-button:enabled'.format(connectionName))
 
         # See deletion of Pool is disabled because this pool is referenced by VM's disk
         b.wait_visible("#delete-pool-myPoolTwo-{0}:disabled".format(connectionName))
@@ -389,10 +393,14 @@ class TestMachinesStoragePools(VirtualMachinesCase):
                     b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
                 self.test_obj.gotoVolumesTab(self.name)
+                b.click("#activate-pool-{}-{}".format(self.name, connectionName))
+                b.wait_in_text("#pool-{}-{}-state".format(self.name, connectionName), "active")
                 if "iscsi" in self.pool_type:
                     b.wait_visible('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
                 else:
                     b.wait_visible('#{}-{}-create-volume-button:enabled'.format(self.name, connectionName))
+                b.click("#deactivate-pool-{}-{}".format(self.name, connectionName))
+                b.wait_in_text("#pool-{}-{}-state".format(self.name, connectionName), "inactive")
 
             def cleanup(self):
                 m.execute("virsh pool-undefine {0}".format(self.name))

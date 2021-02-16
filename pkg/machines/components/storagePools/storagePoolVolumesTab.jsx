@@ -112,7 +112,7 @@ export class StoragePoolVolumesTab extends React.Component {
                 <ListingTable variant='compact'
                     actions={actions}
                     aria-label={`Storage pool ${storagePool.name} Volumes`}
-                    emptyCaption={_("No storage volumes defined for this storage pool")}
+                    emptyCaption={storagePool.active ? _("No storage volumes defined for this storage pool") : _("Activate the storage pool to administer volumes")}
                     columns={columnTitles}
                     onSelect={this.onSelect}
                     rows={rows} />

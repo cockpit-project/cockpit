@@ -1117,6 +1117,10 @@ class MachineCase(unittest.TestCase):
             # Fedora switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
+        if self.image in ['fedora-34']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1929259
+            self.allow_journal_messages('audit:.*denied.*comm="pmdakvm" lockdown_reason="debugfs access".*')
+
         if self.image in ['debian-testing', 'ubuntu-stable']:
             # HACK: https://bugs.debian.org/951477
             self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')

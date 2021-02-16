@@ -220,7 +220,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # We don't want to use start_vm == False because if we get a separate install phase
         # virt-install will overwrite our changes.
 
-        if self.machine.image not in ["fedora-33", "fedora-testing", "debian-testing"]:
+        if self.machine.image not in ["fedora-33", "fedora-34", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
             self.machine.execute("virsh destroy pxe-guest")
@@ -1310,7 +1310,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", "rhel-8-4-distropkg", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
+        supports_firmware_config = m.image in ['fedora-32', 'fedora-33', 'fedora-34', 'fedora-testing', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", "rhel-8-4-distropkg", 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
@@ -1338,7 +1338,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
             def hack_broken_caps():
-                if m.image in ["fedora-32", "fedora-33", "fedora-testing", "centos-8-stream", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
+                if m.image in ["fedora-32", "fedora-33", "fedora-34", "fedora-testing", "centos-8-stream", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable", "debian-testing"]:
                     m.execute("systemctl restart libvirtd")
                     # We don't get events for shut off VMs so reload the page
                     b.reload()
@@ -1364,7 +1364,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
         m.execute("> {0}".format(logfile)) # clear logfile
         self.performAction("VmNotInstalled", "forceOff", False)
-        if m.image not in ["fedora-33", "fedora-testing", "debian-testing"]:
+        if m.image not in ["fedora-33", "fedora-34", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
             # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration

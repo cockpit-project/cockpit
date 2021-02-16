@@ -118,23 +118,25 @@ export class UsageCard extends React.Component {
                     <table className="pf-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
                             <tr>
-                                <th scope="row">{_("CPU")}</th>
+                                <th id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>
                                 <td>
                                     <Progress value={this.state.cpuUsed}
                                         className="pf-m-sm"
                                         min={0} max={100}
                                         variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
                                         label={ this.state.cpuUsed + '% ' + cores_str }
+                                        aria-labelledby="system-usage-cpu-progress"
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row">{_("Memory")}</th>
+                                <th id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
                                 <td>
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={Number(this.state.memTotal)}
                                         variant={fraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
+                                        aria-labelledby="system-usage-memory-progress"
                                         label={cockpit.format("$0 / $1 GiB", this.state.memUsed, this.state.memTotal)}
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>

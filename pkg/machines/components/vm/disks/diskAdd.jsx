@@ -350,7 +350,7 @@ export class AddDiskModalBody extends React.Component {
         const stateDelta = { existingVolumeName: value };
         const pool = storagePools.find(pool => pool.name === poolName && pool.connectionName === vm.connectionName);
         stateDelta.format = getDefaultVolumeFormat(pool);
-        if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
+        if (pool && ['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
             const volume = pool.volumes.find(vol => vol.name === value);
             if (volume && volume.format)
                 stateDelta.format = volume.format;

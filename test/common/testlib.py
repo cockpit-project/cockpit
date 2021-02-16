@@ -323,7 +323,12 @@ class Browser:
     def set_input_text(self, selector, val, append=False, value_check=True):
         self.focus(selector)
         if not append:
-            self.key_press("a", 2) # Ctrl + a
+            if self.cdp.browser != "chromium":
+                self.key_press("a", 2) # Ctrl + a to select all
+            else:
+                # HACK: Chromium headless 88 crashes on the above: https://bugs.chromium.org/p/chromium/issues/detail?id=1170634
+                for i in range(len(self.val(selector))):
+                    self.key_press("\b") # Backspace
         if val == "":
             self.key_press("\b") # Backspace
         else:

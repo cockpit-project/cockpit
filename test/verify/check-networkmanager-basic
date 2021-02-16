@@ -128,6 +128,12 @@ class TestNetworkingBasic(NetworkCase):
                 b.wait_not_present("#networking-nm-crashed")
                 b.wait_visible("#networking-nm-disabled")
 
+        def assert_not_found():
+            # should hide graphs and actions and show the appropriate notification
+            b.wait_not_present("#networking-graphs")
+            b.wait_not_present("#networking-interfaces")
+            b.wait_visible("#networking-nm-not-found")
+
         self.login_and_go("/network")
         assert_running()
 
@@ -164,6 +170,14 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#networking-nm-disabled button")
         assert_running()
         wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
+
+        # /usr in coreos is readonly
+        if m.image not in ["fedora-coreos"]:
+        # remove the NM service file, test 'no-found' notification
+            # This works for ND tests since there is a self.addCleanup(m.execute, "systemctl enable --now NetworkManager") in the start of the test
+            self.restore_file('/usr/lib/systemd/system/NetworkManager.service')
+            m.execute("rm /usr/lib/systemd/system/NetworkManager.service && systemctl daemon-reload && systemctl stop NetworkManager")
+            assert_not_found()
 
         self.allow_journal_messages(".*org.freedesktop.NetworkManager.*")
 

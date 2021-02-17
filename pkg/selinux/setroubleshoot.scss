@@ -18,9 +18,10 @@
  */
 
 @import "../lib/page.scss";
+@import "../lib/ct-card.scss";
 
-#app .ct-listing {
-    margin-bottom: var(--pf-global--spacer--lg);
+#app .pf-c-card {
+    @extend .ct-card;
 }
 
 .setroubleshoot-log {
@@ -45,11 +46,6 @@
     color: #c00;
     vertical-align: middle;
     font-size: 150%;
-}
-
-/* if we have an error at the top of the page, give it some space */
-.alert-ct-top {
-    margin: 1rem 0;
 }
 
 .list-group-item .alert {

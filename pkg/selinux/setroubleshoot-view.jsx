@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 
 import React from "react";
 import {
-    Alert, AlertActionCloseButton, Button,
+    Alert, AlertGroup, AlertActionCloseButton, Button,
     Page, PageSection, PageSectionVariants,
     Switch, Stack, StackItem,
 } from "@patternfly/react-core";
@@ -465,30 +465,35 @@ export class SETroubleshootPage extends React.Component {
         let errorMessage;
         if (this.props.error) {
             errorMessage = (
-                <Alert isInline
-                    variant='danger' title={this.props.error}
-                    actionClose={<AlertActionCloseButton onClose={this.handleDismissError} />} />
+                <AlertGroup isToast>
+                    <Alert
+                        isLiveRegion
+                        variant='danger' title={this.props.error}
+                        actionClose={<AlertActionCloseButton onClose={this.handleDismissError} />} />
+                </AlertGroup>
             );
         }
 
         return (
-            <Page>
+            <>
                 {errorMessage}
-                <PageSection variant={PageSectionVariants.light}>
-                    <SELinuxStatus
-                        selinuxStatus={this.props.selinuxStatus}
-                        selinuxStatusError={this.props.selinuxStatusError}
-                        changeSelinuxMode={this.props.changeSelinuxMode}
-                        dismissError={this.props.dismissStatusError}
-                    />
-                </PageSection>
-                <PageSection>
-                    <Stack hasGutter>
-                        <StackItem>{modifications}</StackItem>
-                        <StackItem>{troubleshooting}</StackItem>
-                    </Stack>
-                </PageSection>
-            </Page>
+                <Page>
+                    <PageSection variant={PageSectionVariants.light}>
+                        <SELinuxStatus
+                            selinuxStatus={this.props.selinuxStatus}
+                            selinuxStatusError={this.props.selinuxStatusError}
+                            changeSelinuxMode={this.props.changeSelinuxMode}
+                            dismissError={this.props.dismissStatusError}
+                        />
+                    </PageSection>
+                    <PageSection>
+                        <Stack hasGutter>
+                            <StackItem>{modifications}</StackItem>
+                            <StackItem>{troubleshooting}</StackItem>
+                        </Stack>
+                    </PageSection>
+                </Page>
+            </>
         );
     }
 }

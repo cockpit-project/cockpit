@@ -34,7 +34,7 @@ import {
     ToolbarItem,
     ToolbarGroup,
 } from '@patternfly/react-core';
-import { SearchIcon } from '@patternfly/react-icons';
+import { SearchIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
@@ -673,8 +673,11 @@ class ServicesPage extends React.Component {
             const get_unit_path = (unit_id) => this.path_by_id[unit_id];
             const unit_path = get_unit_path(unit_id);
 
-            if (unit_path === undefined)
-                return null;
+            if (unit_path === undefined) {
+                return <EmptyStatePanel
+                            icon={ExclamationCircleIcon}
+                            title={_("Unit not found")} />;
+            }
 
             const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}

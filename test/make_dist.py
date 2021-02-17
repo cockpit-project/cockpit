@@ -24,6 +24,7 @@ import urllib
 import subprocess
 import sys
 import zipfile
+import argparse
 
 
 def build_dist():
@@ -144,16 +145,23 @@ def download_dist():
     return tar_path
 
 
-def make_dist():
+def make_dist(download_only):
     # first try to download a pre-generated dist tarball; this is a lot faster
     # but these tarballs are built for production NPM mode
     source = None
     if os.getenv("NODE_ENV") != "development":
         source = download_dist()
     if not source:
-        source = build_dist()
+        if not download_only:
+            source = build_dist()
+        else:
+            print("make_dist: Download failed: artifact does not exist")
+            sys.exit(2)
     return source
 
 
 if __name__ == '__main__':
-    print(make_dist())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', dest='download-only', action='store_true')
+    args = parser.parse_args()
+    print(make_dist(getattr(args, 'download-only')))

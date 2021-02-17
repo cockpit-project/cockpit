@@ -23,7 +23,7 @@ import React from "react";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
 
-import { Spinner } from '@patternfly/react-core';
+import { Button, Spinner, Flex, FlexItem } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -39,13 +39,13 @@ export class SidePanel extends React.Component {
 
         if (this.state.collapsed && children.length > 20) {
             show_all_button = (
-                <tr role="button" tabIndex="0"
-                    onKeyPress={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
-                    onClick={() => { this.setState({ collapsed: false }) }}>
-                    <td>
+                <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
+                    <Button variant='link'
+                            onKeyPress={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
+                            onClick={() => { this.setState({ collapsed: false }) }}>
                         {this.props.show_all_text || _("Show all")}
-                    </td>
-                </tr>);
+                    </Button>
+                </FlexItem>);
             children = children.slice(0, 20);
         }
 
@@ -58,13 +58,11 @@ export class SidePanel extends React.Component {
                            not_installed_text={this.props.not_installed_text}
                            install_title={this.props.install_title}>
                 { this.props.children.length > 0
-                    ? <table className={"pf-c-table pf-m-compact" + (this.props.hover !== false ? " table-hover" : "")}>
-                        <tbody>
-                            { children }
-                            { show_all_button }
-                        </tbody>
-                    </table>
-
+                    ? <Flex direction={{ default: 'column' }}
+                          spaceItems={{ default: 'spaceItemsNone' }}>
+                        { children }
+                        { show_all_button }
+                    </Flex>
                     : <div className="empty-panel-text">{this.props.empty_text}</div>
                 }
             </OptionalPanel>
@@ -111,23 +109,20 @@ export class SidePanelRow extends React.Component {
             decoration = <div className="pficon pficon-warning-triangle-o" />;
 
         return (
-            <tr data-testkey={this.props.testkey}
-                role="link" tabIndex="0"
-                onKeyPress={this.props.go ? go : null}
-                onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
-                <td className={this.props.highlight ? "highlight-ct" : ""}>
-                    <div className="sidepanel-row">
-                        <div className="sidepanel-row-body">
-                            <div className="sidepanel-row-name">{this.props.name}</div>
-                            <div className="sidepanel-row-info">
-                                <div className="sidepanel-row-detail">{this.props.detail}</div>
-                                <div className="sidepanel-row-devname">{this.props.devname}</div>
-                            </div>
-                        </div>
-                        {decoration}
-                    </div>
-                </td>
-            </tr>
+            <FlexItem data-testkey={this.props.testkey}
+                      className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}
+                      role="link" tabIndex="0"
+                      onKeyPress={this.props.go ? go : null}
+                      onClick={this.props.go ? go : null}>
+                <Flex flexWrap={{ default: 'nowrap' }}>
+                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name">{this.props.name}</FlexItem>
+                    <FlexItem>{decoration}</FlexItem>
+                </Flex>
+                <Flex className="sidepanel-row-info">
+                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-detail">{this.props.detail}</FlexItem>
+                    <FlexItem className="sidepanel-row-devname">{this.props.devname}</FlexItem>
+                </Flex>
+            </FlexItem>
         );
     }
 }

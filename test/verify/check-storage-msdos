@@ -33,7 +33,7 @@ class TestStorageMsDOS(StorageCase):
         # Add a disk
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
 
         # Format it with a DOS partition table

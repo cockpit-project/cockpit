@@ -44,7 +44,7 @@ class TestStorageLvm2(StorageCase):
         self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
         b.wait_in_text("#devices", "TEST1")
         b.wait_in_text("#devices", "/dev/TEST1/")
-        b.click('tr:contains("TEST1")')
+        b.click('.sidepanel-row:contains("TEST1")')
         b.wait_visible("#storage-detail")
         b.wait_in_text("#detail-sidebar", "scsi_debug")
         b.wait_in_text("#detail-sidebar", dev_2)
@@ -74,7 +74,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_not_in_text("#detail-sidebar", dev_2)
 
         # The remaining lone disk is not removable
-        b.wait_visible('#detail-sidebar tr:nth-child(1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -121,7 +121,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click('tr:contains("vgroup0")')
+        b.click('.sidepanel-row:contains("vgroup0")')
         b.wait_visible('#storage-detail')
 
         # create a logical volume
@@ -165,7 +165,7 @@ class TestStorageLvm2(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk2
-        b.click('#detail-sidebar tr:contains(%s) button.pf-m-secondary' % dev_2)
+        b.click('#detail-sidebar .sidepanel-row:contains(%s) button.pf-m-secondary' % dev_2)
         b.wait_not_in_text("#detail-sidebar", dev_2)
         b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "48 MiB")
 
@@ -199,8 +199,8 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"size": 70})
 
         # There is not enough free space to remove any of the disks.
-        b.wait_visible('#detail-sidebar tr:nth-child(1) button:disabled')
-        b.wait_visible('#detail-sidebar tr:nth-child(2) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(2) button:disabled')
 
         # use almost all of the pool by erasing the thin volume
         self.content_head_action(2, "Format")
@@ -238,7 +238,7 @@ class TestStorageLvm2(StorageCase):
                                values={"disks": {disk1: True}})
 
         b.wait_in_text("#devices", "vgroup0")
-        b.click('tr:contains("vgroup0")')
+        b.click('.sidepanel-row:contains("vgroup0")')
         b.wait_visible('#storage-detail')
 
         # Check the we are really using a partition on disk1 now
@@ -263,7 +263,7 @@ class TestStorageLvm2(StorageCase):
         m.execute("vgcreate TEST %s" % disk)
         self.addCleanup(m.execute, "vgremove --force TEST")
         b.wait_in_text("#devices", "TEST")
-        b.click('tr:contains("TEST")')
+        b.click('.sidepanel-row:contains("TEST")')
         b.wait_visible("#storage-detail")
 
         # Create a thinpool and a thin volume in it

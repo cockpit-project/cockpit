@@ -67,7 +67,7 @@ class TestStorageMultipath(StorageCase):
         m.add_disk("10M", serial="MYSERIAL")
 
         b.wait_in_text("#drives", "MYSERIAL")
-        b.click('tr:contains("MYSERIAL")')
+        b.click('.sidepanel-row:contains("MYSERIAL")')
         b.wait_visible('#storage-detail')
         wait_detail_row(5, "Device file")
         b.wait_in_text(detail_row_value(5), "/dev/sda")

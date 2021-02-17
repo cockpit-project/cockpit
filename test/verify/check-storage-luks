@@ -41,7 +41,7 @@ class TestStorageLuks(StorageCase):
         # Add a disk and partition it
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
@@ -159,7 +159,7 @@ class TestStorageLuks(StorageCase):
         # Add a disk and format it with luks
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
 
         self.content_head_action(1, "Format")
@@ -240,7 +240,7 @@ class TestStorageLuks(StorageCase):
 
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
         # create volume and passphrase
         self.content_head_action(1, "Format")
@@ -363,7 +363,7 @@ class TestStorageLuks(StorageCase):
         # Add a disk and format it with luks, but without filesystem
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
 
         self.content_head_action(1, "Format")
@@ -384,7 +384,7 @@ class TestStorageLuks(StorageCase):
 
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
 
         self.content_head_action(1, "Format")

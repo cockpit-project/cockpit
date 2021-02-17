@@ -95,7 +95,7 @@ class TestStorageISCSI(StorageCase):
 
         # Make a filesystem on it to prove that the disk really works.
 
-        b.click('#drives tr:contains("LIO-ORG test")')
+        b.click('#drives .sidepanel-row:contains("LIO-ORG test")')
         b.wait_visible('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
         self.content_head_action(1, "Format")
@@ -132,12 +132,12 @@ class TestStorageISCSI(StorageCase):
         b.wait_in_text('#iscsi-sessions', "172.27.0.15")
 
         b.click('#iscsi-sessions .toggle-armed')
-        b.click('#iscsi-sessions tr:contains(127.0.0.1) button.pf-m-danger')
-        b.wait_not_present('#iscsi-sessions tr:contains(127.0.0.1)')
+        b.click('#iscsi-sessions .sidepanel-row:contains(127.0.0.1) button.pf-m-danger')
+        b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(127.0.0.1)')
 
         b.click('#iscsi-sessions .toggle-armed')
-        b.click('#iscsi-sessions tr:contains(172.27.0.15) button.pf-m-danger')
-        b.wait_not_present('#iscsi-sessions tr:contains(172.27.0.15)')
+        b.click('#iscsi-sessions .sidepanel-row:contains(172.27.0.15) button.pf-m-danger')
+        b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(172.27.0.15)')
 
         b.wait_not_in_text('#drives', "LIO-ORG test")
 

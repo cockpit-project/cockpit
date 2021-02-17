@@ -41,8 +41,7 @@ class TestStorageBasic(StorageCase):
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()
 
-        b.wait_in_text("#drives", disk)
-        b.click('tr:contains("%s")' % disk)
+        b.click('.sidepanel-row:contains("%s")' % disk)
         b.wait_visible('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
 

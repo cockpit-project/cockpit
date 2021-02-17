@@ -214,9 +214,9 @@ class TestMachinesDisks(VirtualMachinesCase):
         def __init__(
             self, test_obj, pool_name=None, volume_name=None,
             vm_name='subVmTest1',
-            source_type='volume', file_path=None, device='disk',
+            file_path=None, device='disk',
             volume_size=10, volume_size_unit='MiB',
-            use_existing_volume=False,
+            mode="create-new",
             expected_target='vda', permanent=False, cache_mode=None,
             bus_type='virtio', verify=True, pool_type=None,
             volume_format=None,
@@ -224,11 +224,10 @@ class TestMachinesDisks(VirtualMachinesCase):
         ):
             self.test_obj = test_obj
             self.vm_name = vm_name
-            self.source_type = source_type
             self.file_path = file_path
             self.device = device
             self.pool_name = pool_name
-            self.use_existing_volume = use_existing_volume
+            self.mode = mode
             self.volume_name = volume_name
             self.volume_size = volume_size
             self.volume_size_unit = volume_size_unit
@@ -263,16 +262,16 @@ class TestMachinesDisks(VirtualMachinesCase):
             b.wait_in_text(".pf-c-modal-box__title", "Add disk")
 
             b.wait_visible("label:contains(Create new)")
-            if self.use_existing_volume:
+            if self.mode == "use-existing":
                 b.click("label:contains(Use existing)")
-            if self.file_path:
-                  b.click("label:contains(Custom path)")
+            elif self.mode == "custom-path":
+                b.click("label:contains(Custom path)")
 
             return self
 
         def fill(self):
             b = self.test_obj.browser
-            if not self.use_existing_volume:
+            if self.mode == "create-new":
                 # Choose storage pool
                 if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
                     b.wait_visible("#vm-{0}-disks-adddisk-new-select-pool:enabled".format(self.vm_name))
@@ -293,26 +292,21 @@ class TestMachinesDisks(VirtualMachinesCase):
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
                 else:
                     b.wait_val("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.getExpectedFormat(self.pool_type))
+            elif self.mode == "custom-path":
+                b.wait_visible("#vm-{0}-disks-adddisk-file".format(self.vm_name))
+                # Type in file path
+                b.set_file_autocomplete_val("#vm-{0}-disks-adddisk-file".format(self.vm_name), self.file_path)
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-select-device".format(self.vm_name), self.device)
+            elif self.mode == "use-existing":
+                b.wait_visible("#vm-{0}-disks-adddisk-existing-select-pool:enabled".format(self.vm_name))
+                # Choose storage pool
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
+                # Select from the available volumes
+                b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-volume".format(self.vm_name), self.volume_name)
 
-                # Configure persistency - by default the check box in unchecked for running VMs
-                if self.permanent:
-                    b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
-            else:
-                if self.file_path:
-                    b.wait_visible("#vm-{0}-disks-adddisk-file".format(self.vm_name))
-                    # Type in file path
-                    b.set_file_autocomplete_val("#vm-{0}-disks-adddisk-file".format(self.vm_name), self.file_path)
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-select-device".format(self.vm_name), self.device)
-                else:
-                    b.wait_visible("#vm-{0}-disks-adddisk-existing-select-pool:enabled".format(self.vm_name))
-                    # Choose storage pool
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
-                    # Select from the available volumes
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-volume".format(self.vm_name), self.volume_name)
-
-                # Configure persistency - by default the check box in unchecked for running VMs
-                if self.permanent:
-                    b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
+            # Configure persistency - by default the check box in unchecked for running VMs
+            if self.permanent:
+                b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
 
             # Check non-persistent VM cannot have permanent disk attached
             if not self.persistent_vm:
@@ -350,7 +344,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), self.device)
 
             # Check volume was added to pool's volume list
-            if not self.use_existing_volume:
+            if self.mode == "create-new":
                 self.test_obj.goToMainPage()
                 b.click(".pf-c-card .pf-c-card__header button:contains(Storage pool)")
 
@@ -365,7 +359,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 self.test_obj.goToVmPage("subVmTest1")
 
             # Detect volume format
-            if self.source_type == "volume":
+            if not self.mode == "custom-path":
                 volume_xml = m.execute("virsh vol-dumpxml {0} {1} ".format(self.volume_name, self.pool_name))
                 detect_format_cmd = "echo \"{0}\" | xmllint --xpath '{1}' -"
 
@@ -378,7 +372,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 else:
                     vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip();
                     self.test_obj.assertEqual(vol_xml, '<format type="{0}"/>'.format(self.volume_format or expected_format))
-            elif self.file_path:
+            else:
                 b.wait_in_text('#vm-{0}-disks-{1}-source-file'.format(self.vm_name, self.expected_target), self.file_path)
 
             if self.cache_mode:
@@ -431,7 +425,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 pool_type='iscsi',
                 volume_name='unit:0:0:0',
                 expected_target=get_next_free_target(used_targets)[-1],
-                use_existing_volume=True,
+                mode='use-existing',
             ).execute()
 
             # Detach the iscsi disk before reaching teardown because shutting of the domains would sometimes hang when iscsi disks are attached
@@ -472,7 +466,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='nfs-pool',
             volume_name='nfs-volume-0',
-            use_existing_volume=True,
+            mode='use-existing',
             volume_size=1,
             volume_size_unit='MiB',
             expected_target=get_next_free_target(used_targets)[-1],
@@ -565,7 +559,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='myPoolOne',
             volume_name='mydiskofpoolone_temporary',
-            use_existing_volume=False,
+            mode='create-new',
             volume_size=10,
             volume_size_unit='MiB',
             permanent=False,
@@ -575,7 +569,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         self.VMAddDiskDialog(
             self,
             pool_name='myPoolOne',
-            use_existing_volume=True,
+            mode='use-existing',
         ).open()
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         # since both disks are already attached
@@ -590,7 +584,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             volume_name='mydiskofpooltwo_permanent',
             volume_size=2,
             permanent=True,
-            use_existing_volume=True,
+            mode='use-existing',
             expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
 
@@ -602,7 +596,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='default_tmp',
             volume_name='defaultVol',
-            use_existing_volume=True,
+            mode='use-existing',
             expected_target=transient_targets[-1],
             volume_format='raw',
         ).open().add_disk().verify_disk_added()
@@ -687,23 +681,21 @@ class TestMachinesDisks(VirtualMachinesCase):
         # check disk device type
         self.VMAddDiskDialog(
             self,
-            source_type='file',
             device='disk',
             bus_type='scsi',
             expected_target='sda',
             file_path='/var/lib/libvirt/novell.iso',
-            use_existing_volume=True
+            mode='custom-path'
         ).execute()
 
         # non iso file
         self.VMAddDiskDialog(
             self,
-            source_type='file',
             device='disk',
             bus_type='scsi',
             expected_target='sdb',
             file_path='/var/lib/libvirt/novell.qcow2',
-            use_existing_volume=True
+            mode='custom-path'
         ).execute()
 
         # shut off
@@ -714,12 +706,11 @@ class TestMachinesDisks(VirtualMachinesCase):
         # check cdrom device (cdrom can be only added to shut off VM)
         self.VMAddDiskDialog(
             self,
-            source_type='file',
             device='cdrom',
             bus_type='scsi',
             expected_target='sda',
             file_path='/var/lib/libvirt/novell.iso',
-            use_existing_volume=True
+            mode='custom-path'
         ).execute()
 
     def testAddDiskAdditionalOptions(self):
@@ -746,7 +737,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='myPoolOne',
             volume_name='writeback_cache_disk',
-            use_existing_volume=False,
+            mode='create-new',
             volume_size=2,
             permanent=True,
             cache_mode='writeback',
@@ -758,7 +749,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='myPoolOne',
             volume_name='scsi_bus_disk',
-            use_existing_volume=False,
+            mode='create-new',
             bus_type='scsi',
             expected_target='sda',
         ).execute()
@@ -768,7 +759,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='myPoolOne',
             volume_name='usb_bus_disk',
-            use_existing_volume=False,
+            mode='create-new',
             bus_type='usb',
             expected_target='sdb',
         ).execute()
@@ -783,7 +774,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             self,
             pool_name='myPoolOne',
             volume_name='sata_bus_disk',
-            use_existing_volume=False,
+            mode='create-new',
             bus_type='sata',
             expected_target='sda',
         ).execute()

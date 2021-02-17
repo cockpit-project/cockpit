@@ -23,7 +23,7 @@ import React from "react";
 import {
     Alert, AlertActionCloseButton, Button,
     Page, PageSection, PageSectionVariants,
-    Switch
+    Switch, Stack, StackItem,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
@@ -462,7 +462,7 @@ export class SETroubleshootPage extends React.Component {
             />
         );
 
-        var errorMessage;
+        let errorMessage;
         if (this.props.error) {
             errorMessage = (
                 <Alert isInline
@@ -473,6 +473,7 @@ export class SETroubleshootPage extends React.Component {
 
         return (
             <Page>
+                {errorMessage}
                 <PageSection variant={PageSectionVariants.light}>
                     <SELinuxStatus
                         selinuxStatus={this.props.selinuxStatus}
@@ -480,9 +481,12 @@ export class SETroubleshootPage extends React.Component {
                         changeSelinuxMode={this.props.changeSelinuxMode}
                         dismissError={this.props.dismissStatusError}
                     />
-                    {errorMessage}
-                    {modifications}
-                    {troubleshooting}
+                </PageSection>
+                <PageSection>
+                    <Stack hasGutter>
+                        <StackItem>{modifications}</StackItem>
+                        <StackItem>{troubleshooting}</StackItem>
+                    </Stack>
                 </PageSection>
             </Page>
         );

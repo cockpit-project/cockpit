@@ -31,10 +31,10 @@ class TestStorageMdRaid(StorageCase):
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
-          var trs = ph_select('#detail-sidebar tr');
-          for (i = 0; i < trs.length; ++i) {
-            var name = trs[i].querySelector('.sidepanel-row-name').textContent;
-            var state = trs[i].querySelector('.sidepanel-row-detail').textContent;
+          var rows = ph_select('#detail-sidebar .sidepanel-row');
+          for (i = 0; i < rows.length; ++i) {
+            var name = rows[i].querySelector('.sidepanel-row-name').textContent;
+            var state = rows[i].querySelector('.sidepanel-row-detail').textContent;
             found[name] = state;
           };
           for (s in states) {
@@ -51,7 +51,7 @@ class TestStorageMdRaid(StorageCase):
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#detail-sidebar tr:contains("%s") button.pf-m-secondary' % name)
+        self.browser.click('#detail-sidebar .sidepanel-row:contains("%s") button.pf-m-secondary' % name)
 
     def raid_action(self, action):
         self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
@@ -120,7 +120,7 @@ class TestStorageMdRaid(StorageCase):
         self.dialog_wait_close()
         b.wait_in_text("#devices", "ARR")
 
-        b.click('#devices tr:contains("ARR")')
+        b.click('#devices .sidepanel-row:contains("ARR")')
         b.wait_visible('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
@@ -263,7 +263,7 @@ class TestStorageMdRaid(StorageCase):
         self.dialog_wait_close()
         b.wait_in_text("#devices", "ARR")
 
-        b.click('#devices tr:contains("ARR")')
+        b.click('#devices .sidepanel-row:contains("ARR")')
         b.wait_visible('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
@@ -275,39 +275,39 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text(info_field("State", m.image), "Not running")
 
         b.wait_visible('#detail-sidebar .pf-c-card__header button:disabled')
-        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State", m.image), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present('#detail-sidebar .pf-c-card__header button:disabled')
-        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
         # Adding a spare will allow removal of the "in-sync" disks.
         self.raid_add_disk("DISK3")
         self.wait_states({"QEMU QEMU HARDDISK (DISK3)": "Spare"})
-        b.wait_not_present('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_not_present('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
+        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
         # Removing the spare will make them un-removable again
         self.raid_remove_disk("DISK3")
         b.wait_not_in_text('#detail-sidebar', "DISK3")
-        b.wait_visible('#detail-sidebar tr:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
         # A failed disk can be removed
         dev = b.text(info_field("Device", m.image))
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
-        b.wait_not_present('#detail-sidebar tr:contains(DISK1) button:disabled')
+        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         # The last disk can not be removed
-        b.wait_visible('#detail-sidebar tr:contains(DISK2) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
 
 if __name__ == '__main__':

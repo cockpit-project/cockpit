@@ -34,7 +34,7 @@ class TestStorageFormat(StorageCase):
 
         m.add_disk("5M", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
-        b.click('#drives tr:contains("DISK1")')
+        b.click('#drives .sidepanel-row:contains("DISK1")')
         b.wait_visible('#storage-detail')
 
         self.content_head_action(1, "Format")
@@ -54,7 +54,7 @@ class TestStorageFormat(StorageCase):
 
         m.add_disk("50M", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
-        b.click('#drives tr:contains("DISK1")')
+        b.click('#drives .sidepanel-row:contains("DISK1")')
         b.wait_visible('#storage-detail')
 
         def check_type(type, label_limit, head_action=False):
@@ -102,7 +102,7 @@ class TestStorageFormat(StorageCase):
 
         disk = self.add_ram_disk()
         m.execute("""disk=%s; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""" % disk)
-        b.click("#others tr:contains('/dev/mapper/superslow')")
+        b.click("#others .sidepanel-row:contains('/dev/mapper/superslow')")
         b.wait_visible('#storage-detail')
 
         self.content_head_action(1, "Format")

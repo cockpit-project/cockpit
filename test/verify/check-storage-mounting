@@ -48,7 +48,7 @@ class TestStorageMounting(StorageCase):
         # Add a disk
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('#drives tr:contains("MYDISK")')
+        b.click('#drives .sidepanel-row:contains("MYDISK")')
         b.wait_visible('#storage-detail')
 
         # Format it
@@ -124,7 +124,7 @@ class TestStorageMounting(StorageCase):
         # Add a disk
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('#drives tr:contains("MYDISK")')
+        b.click('#drives .sidepanel-row:contains("MYDISK")')
         b.wait_visible('#storage-detail')
 
         # Open format dialog and play with the checkboxes
@@ -187,7 +187,7 @@ class TestStorageMounting(StorageCase):
         # Add a disk
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
-        b.click('#drives tr:contains("MYDISK")')
+        b.click('#drives .sidepanel-row:contains("MYDISK")')
         b.wait_visible('#storage-detail')
 
         # Format it
@@ -254,7 +254,7 @@ class TestStorageMounting(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         m.execute("vgcreate test /dev/sda && lvcreate test -n one -L 20M && lvcreate test -n two -L 20M")
-        b.click('#devices tr:contains("test")')
+        b.click('#devices .sidepanel-row:contains("test")')
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/test/one")
         self.content_row_wait_in_col(2, 2, "/dev/test/two")
@@ -294,7 +294,7 @@ class TestStorageMounting(StorageCase):
         self.login_and_go("/storage")
 
         m.add_disk("50M", serial="MYDISK")
-        b.click("#drives tr:contains(MYDISK)")
+        b.click("#drives .sidepanel-row:contains(MYDISK)")
         b.wait_visible("#storage-detail")
 
         m.execute("mkfs.ext4 /dev/sda")

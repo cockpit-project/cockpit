@@ -44,7 +44,7 @@ class TestStorageUsed(StorageCase):
 
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
 
-        b.click('tr:contains("%s")' % disk)
+        b.click('.sidepanel-row:contains("%s")' % disk)
         b.wait_visible("#storage-detail")
 
         self.content_dropdown_action(2, "Format")

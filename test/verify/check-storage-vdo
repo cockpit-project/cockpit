@@ -54,7 +54,7 @@ class TestStorageVDO(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text("#devices", "vdo0")
-        b.click("#devices tr:contains(vdo0)")
+        b.click("#devices .sidepanel-row:contains(vdo0)")
         b.wait_visible("#storage-detail")
 
         def detail(index):
@@ -166,7 +166,7 @@ config: !Configuration
 """)
 
         b.wait_in_text("#devices", "vdo0")
-        b.click("#devices tr:contains(vdo0)")
+        b.click("#devices .sidepanel-row:contains(vdo0)")
 
         b.click("#storage-detail .pf-m-danger button:contains('Remove device')")
         b.wait_visible("#storage")

@@ -48,7 +48,7 @@ class TestStorageHidden(StorageCase):
         self.dialog_wait_close()
         b.wait_in_text('#devices', "TEST")
 
-        b.click('#devices tr:contains("TEST")')
+        b.click('#devices .sidepanel-row:contains("TEST")')
         b.wait_visible('#storage-detail')
         b.click("button:contains(Create new logical volume)")
         self.dialog({'purpose': "block",
@@ -118,7 +118,7 @@ class TestStorageHidden(StorageCase):
                                                  "DISK2": True}})
         b.wait_in_text('#devices', "ARR")
 
-        b.click('#devices tr:contains("ARR")')
+        b.click('#devices .sidepanel-row:contains("ARR")')
         b.wait_visible('#storage-detail')
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",

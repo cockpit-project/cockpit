@@ -626,19 +626,17 @@ td.storage-action {
 
 /* Overview side panels */
 
-#storage .storage-sidebar table {
-    table-layout: fixed;
-}
-
 .sidepanel-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: var(--pf-global--spacer--sm);
+    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+    border-bottom: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
-.sidepanel-row-detail {
-    margin-right: 0.5em;
+.sidepanel-row:last-child {
+    border-bottom: none;
+}
+
+.sidepanel-row:hover {
+    background-color: var(--color-link-hover-bg);
 }
 
 .sidepanel-row-name {
@@ -647,9 +645,6 @@ td.storage-action {
 
 .sidepanel-row-info {
     font-size: var(--pf-global--FontSize--xs);
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
 }
 
 .sidepanel-row .spinner {

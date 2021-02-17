@@ -19,7 +19,11 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Button, Modal, Tabs, Tab } from '@patternfly/react-core';
+import {
+    Button, Card, CardHeader, CardTitle, CardActions, CardBody,
+    DataList, DataListItem, DataListItemRow, DataListCell, DataListItemCells,
+    Modal, Tabs, Tab, Text, TextVariants
+} from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import './listing.scss';
@@ -138,44 +142,48 @@ export class Modifications extends React.Component {
         let fail_message = this.props.permitted ? _("No system modifications") : _("The logged in user is not permitted to view system modifications");
         fail_message = this.props.failed ? _("Error running semanage to discover system modifications") : fail_message;
         if (this.props.entries === null) {
-            emptyRow = <thead className="listing-ct-empty">
-                <tr className="modification-row">
-                    <td>
-                        <div className="spinner spinner-sm" />
-                        <span>{_("Loading system modifications...")}</span>
-                    </td>
-                </tr>
-            </thead>;
+            emptyRow = <DataListItem>
+                <DataListItemRow>
+                    <DataListItemCells dataListCells={[<DataListCell key="loading">{_("Loading system modifications...")}</DataListCell>]} />
+                </DataListItemRow>
+            </DataListItem>;
         }
         if (this.props.entries !== null && this.props.entries.length === 0) {
-            emptyRow = <thead className="listing-ct-empty">
-                <tr className="modification-row">
-                    <td>
-                        { fail_message }
-                    </td>
-                </tr>
-            </thead>;
+            emptyRow = <DataListItem>
+                <DataListItemRow>
+                    <DataListItemCells dataListCells={[<DataListCell key={fail_message}>{fail_message}</DataListCell>]} />
+                </DataListItemRow>
+            </DataListItem>;
         }
 
         return (
-            <section className="ct-listing">
+            <>
                 <ModificationsExportDialog show={this.state.showDialog} shell={this.props.shell} ansible={this.props.ansible} onClose={ () => this.setState({ showDialog: false }) } />
-                <header>
-                    <h3 className="listing-ct-heading">{this.props.title}</h3>
-                    <div className="listing-ct-actions">
+                <Card className="modifications-table">
+                    <CardHeader>
+                        <CardTitle><Text component={TextVariants.h2}>{this.props.title}</Text></CardTitle>
                         { !emptyRow &&
-                            <button className="link-button modifications-export" onClick={ () => this.setState({ showDialog: true }) }>{_("View automation script")}</button>
+                        <CardActions>
+                            <Button variant="link" onClick={() => this.setState({ showDialog: true }) }>
+                                {_("View automation script")}
+                            </Button>
+                        </CardActions>
                         }
-                    </div>
-                </header>
-                <table className="listing-ct listing-ct-wide modifications-table">
-                    { emptyRow ||
-                        <tbody>
-                            {this.props.entries.map(entry => <tr className="modification-row" key={entry.split(' ').join('')}><td>{entry}</td></tr>)}
-                        </tbody>
-                    }
-                </table>
-            </section>
+                    </CardHeader>
+                    <CardBody className="contains-list">
+                        <DataList aria-label={this.props.title} isCompact>
+                            { emptyRow ||
+                                this.props.entries.map(entry => <DataListItem key={entry}>
+                                    <DataListItemRow>
+                                        <DataListItemCells dataListCells={[<DataListCell key={entry}>{entry}</DataListCell>]} />
+                                    </DataListItemRow>
+                                </DataListItem>
+                                )
+                            }
+                        </DataList>
+                    </CardBody>
+                </Card>
+            </>
         );
     }
 }

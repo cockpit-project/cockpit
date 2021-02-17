@@ -22,8 +22,9 @@ import cockpit from "cockpit";
 import React from "react";
 import {
     Alert, AlertGroup, AlertActionCloseButton, Button,
+    Card, CardHeader, CardTitle, CardBody,
     Page, PageSection, PageSectionVariants,
-    Switch, Stack, StackItem,
+    Switch, Stack, StackItem, Text, TextVariants,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
@@ -443,12 +444,19 @@ export class SETroubleshootPage extends React.Component {
         }
 
         troubleshooting = (
-            <ListingTable caption={ title }
-                          emptyCaption={ emptyCaption }
-                          columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
-                          showHeader={false}
-                          variant="compact"
-                          rows={entries} />
+            <Card>
+                <CardHeader>
+                    <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <ListingTable aria-label={ title }
+                                  emptyCaption={ emptyCaption }
+                                  columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
+                                  showHeader={false}
+                                  variant="compact"
+                                  rows={entries} />
+                </CardBody>
+            </Card>
         );
 
         modifications = (

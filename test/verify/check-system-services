@@ -263,6 +263,12 @@ Unit=test.service
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
 
+        b.click(".cockpit-logline:contains('WORKING')")
+        b.enter_page("/system/logs")
+        b.click("button:contains('Go to test.service')")
+        b.enter_page("/system/services")
+        b.wait_js_cond('window.location.hash === "#/test.service"')
+
         # Stop and disable and back again
         self.toggle_onoff()
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)

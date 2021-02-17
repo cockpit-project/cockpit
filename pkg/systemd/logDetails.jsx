@@ -26,8 +26,8 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { AbrtLogDetails } from "./abrtLog.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
-    Breadcrumb, BreadcrumbItem,
-    Card, CardBody, CardHeader, CardHeaderMain, CardTitle,
+    Breadcrumb, BreadcrumbItem, Button,
+    Card, CardBody, CardHeader, CardHeaderMain, CardTitle, CardActions,
     Page, PageSection,
     Gallery, GalleryItem
 } from '@patternfly/react-core';
@@ -39,6 +39,11 @@ const LogDetails = ({ entry }) => {
     general.sort();
 
     const id = entry.PROBLEM_BINARY || entry.SYSLOG_IDENTIFIER || entry._SYSTEMD_UNIT || "";
+    let service = entry.UNIT || entry.COREDUMP_UNIT || entry._SYSTEMD_UNIT || "";
+
+    // Only show redirect for unit types we show
+    if (["service", "target", "socket", "timer", "path"].indexOf(service.split(".").slice(-1)[0]) === -1)
+        service = undefined;
 
     return (
         <GalleryItem>
@@ -47,6 +52,13 @@ const LogDetails = ({ entry }) => {
                     <CardHeaderMain>
                         <h2 id="entry-heading">{id}</h2>
                     </CardHeaderMain>
+                    { service &&
+                        <CardActions>
+                            <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service) }>
+                                {cockpit.format(_("Go to $0"), service)}
+                            </Button>
+                        </CardActions>
+                    }
                 </CardHeader>
                 <CardTitle>{journal.printable(entry.MESSAGE)}</CardTitle>
                 <CardBody>

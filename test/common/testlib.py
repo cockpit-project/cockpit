@@ -693,10 +693,16 @@ class _DebugOutcome(unittest.case._Outcome):
                         assert err_case == test_case
                         # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
                         traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
-                        test_case.snapshot("FAIL")
-                        test_case.copy_js_log("FAIL")
-                        test_case.copy_journal("FAIL")
-                        test_case.copy_cores("FAIL")
+                        try:
+                            test_case.snapshot("FAIL")
+                            test_case.copy_js_log("FAIL")
+                            test_case.copy_journal("FAIL")
+                            test_case.copy_cores("FAIL")
+                        except (OSError, RuntimeError):
+                            # failures in these debug artifacts should not skip cleanup actions
+                            sys.stderr.write("Failed to generate debug artifact:\n")
+                            traceback.print_exc(file=sys.stderr)
+
                         if opts.sit:
                             sit(test_case.machines)
 

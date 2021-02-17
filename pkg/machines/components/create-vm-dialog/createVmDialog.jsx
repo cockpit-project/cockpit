@@ -418,7 +418,7 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
     }, [rootPassword, validationFailed]);
 
     let unattendedInstallationCheckbox = (
-        <FormGroup fieldId="unattended-installation" isInline>
+        <FormGroup fieldId="unattended-installation">
             <Checkbox id="unattended-installation"
                       isChecked={unattendedInstallation}
                       isDisabled={unattendedDisabled}

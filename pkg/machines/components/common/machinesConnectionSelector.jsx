@@ -30,7 +30,7 @@ export const MachinesConnectionSelector = ({ onValueChanged, loggedUser, connect
         return null;
 
     return (
-        <FormGroup label={_("Connection")} isInline id={id} className="machines-connection-selector">
+        <FormGroup label={_("Connection")} isInline hasNoPaddingTop id={id} className="machines-connection-selector">
             <Radio isChecked={connectionName === LIBVIRT_SYSTEM_CONNECTION}
                    onChange={() => onValueChanged('connectionName', LIBVIRT_SYSTEM_CONNECTION)}
                    name="connectionName"

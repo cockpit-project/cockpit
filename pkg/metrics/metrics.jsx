@@ -638,7 +638,11 @@ const MetricsHour = ({ startTime, data, clipLeading }) => {
 
         ['cpu', 'memory', 'disks', 'network'].forEach(resource => {
             // not all resources have a saturation metric
-            const have_sat = !!RESOURCES["sat_" + resource];
+            let have_sat = !!RESOURCES["sat_" + resource];
+
+            // If there is no swap, don't render it
+            if (resource === "memory" && swapTotal === undefined)
+                have_sat = false;
 
             let graph;
             if (minute_events[minute]) {
@@ -712,7 +716,7 @@ const MetricsHour = ({ startTime, data, clipLeading }) => {
     };
 
     return (
-        <div id={ "metrics-hour-" + startTime.toString() } style={{ "--metrics-minutes": minutes }} className="metrics-hour" onMouseMove={updateTooltip}>
+        <div id={ "metrics-hour-" + startTime.toString() } style={{ "--metrics-minutes": minutes, "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour" onMouseMove={updateTooltip}>
             { events }
             { graphs }
             <h3 className="metrics-time"><time>{ moment(startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
@@ -986,7 +990,7 @@ class MetricsHistory extends React.Component {
         return (
             <div className="metrics">
                 <div className="metrics-history-heading-sticky">
-                    <section className="metrics-history metrics-history-heading">
+                    <section className="metrics-history metrics-history-heading" style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }}>
                         <Select
                             className="select-min metrics-label"
                             aria-label={_("Jump to")}
@@ -999,7 +1003,7 @@ class MetricsHistory extends React.Component {
                             {options}
                         </Select>
                         <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
-                        <Label label={_("Memory")} items={[_("Usage"), _("Swap")]} />
+                        <Label label={_("Memory")} items={[_("Usage"), ...swapTotal !== undefined ? [_("Swap")] : []]} />
                         <Label label={_("Disks")} items={[_("Usage")]} />
                         <Label label={_("Network")} items={[_("Usage")]} />
                     </section>

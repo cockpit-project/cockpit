@@ -163,13 +163,14 @@ export class ShutdownModal extends React.Component {
 
     render() {
         const options = [
+            <SelectOption value="0" key="0">{_("No delay")}</SelectOption>,
+            <Divider key="divider" component="li" />,
             <SelectOption value="1" key="1">{_("1 minute")}</SelectOption>,
             <SelectOption value="5" key="5">{_("5 minutes")}</SelectOption>,
             <SelectOption value="20" key="20">{_("20 minutes")}</SelectOption>,
             <SelectOption value="40" key="40">{_("40 minutes")}</SelectOption>,
             <SelectOption value="60" key="60">{_("60 minutes")}</SelectOption>,
             <Divider key="divider" component="li" />,
-            <SelectOption value="0" key="0">{_("No delay")}</SelectOption>,
             <SelectOption value="x" key="x">{_("Specific time")}</SelectOption>
         ];
 

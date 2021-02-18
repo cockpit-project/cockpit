@@ -237,7 +237,7 @@
     &-hour {
         display: grid;
         grid-template: "events cpu memory disks net";
-        grid-template-columns: [events] 3fr [cpu] var(--column-size) [memory] var(--column-size) [disks] var(--half-column-size) [network] var(--half-column-size);
+        grid-template-columns: [events] 3fr [cpu] var(--column-size) [memory] var(--has-swap) [disks] var(--half-column-size) [network] var(--half-column-size);
         grid-column: 1 / -1;
         position: relative;
     }

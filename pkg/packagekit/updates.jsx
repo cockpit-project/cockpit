@@ -1323,7 +1323,24 @@ class OsUpdates extends React.Component {
                     icon: "fa fa-exclamation-circle"
                 }
             });
-            return this.state.errorMessages.map(m => <pre key={m}>{m}</pre>);
+
+            return (
+                <>
+                    <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
+                                     icon={ ExclamationCircleIcon }
+                                     paragraph={
+                                         <TextContent>
+                                             <Text component={TextVariants.p}>
+                                                 {this.state.errorMessages.map(m => <span key={m}>{m}</span>)}
+                                             </Text>
+                                             <Text component={TextVariants.p}>
+                                                 {_("Please reload the page after resolving the issue.")}
+                                             </Text>
+                                         </TextContent>
+                                     }
+                    />;
+                </>
+            );
 
         case "applying":
             page_status.set_own(null);
@@ -1439,13 +1456,8 @@ class OsUpdates extends React.Component {
         if (!["available", "uptodate"].includes(this.state.state))
             content = <PageSection variant={PageSectionVariants.light}>{content}</PageSection>;
 
-        let header;
-        if (["updateError", "loadError"].includes(this.state.state))
-            header = <PageSection>{STATE_HEADINGS[this.state.state]}</PageSection>;
-
         return (
             <Page>
-                {header}
                 {content}
             </Page>
         );

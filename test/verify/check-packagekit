@@ -783,9 +783,9 @@ ExecStart=/usr/local/bin/{0}
         b.click("#available-updates button#install-all")
 
         # error message visible
-        b.wait_visible("#app .pf-c-page pre")
+        b.wait_visible("#app .pf-c-page .pf-c-empty-state__body")
 
-        self.assertRegex(b.text("#app .pf-c-page pre:first-of-type"),
+        self.assertRegex(b.text("#app .pf-c-page .pf-c-empty-state__body span:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory")
 
         # not expecting any buttons
@@ -816,7 +816,7 @@ ExecStart=/usr/local/bin/{0}
         m.execute("systemctl kill --signal=SEGV packagekit.service")
 
         # error message visible
-        b.wait_in_text("#app .pf-c-page pre", "PackageKit crashed")
+        b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
         self.allow_journal_messages("Process .* dumped core.*")
@@ -840,7 +840,7 @@ ExecStart=/usr/local/bin/{0}
         b.login_and_go("/updates")
 
         # error message present
-        b.wait_in_text(".pf-c-page__main-section pre", "PackageKit is not installed")
+        b.wait_in_text(".pf-c-page__main-section .pf-c-empty-state__body", "PackageKit is not installed")
 
         # update status on front page should be invisible
         b.go("/system")
@@ -865,7 +865,7 @@ ExecStart=/usr/local/bin/{0}
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#available-updates button#install-all")
         # error message visible
-        b.wait_in_text("#app pre", "authentication")
+        b.wait_in_text("#app .pf-c-empty-state__body", "authentication")
 
         # become superuser
         b.switch_to_top()

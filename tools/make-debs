@@ -64,14 +64,13 @@ fi
 builddir=tmp/builddeb
 rm -rf "$builddir"
 mkdir -p "$builddir"
-olddir=$(pwd)
 cd "$builddir"
 tar --strip-components=1 -xf "$source"
 cp -r tools/debian .
 # plug in our version
 sed -i "1 s/(0-/(${version}-/" debian/changelog
 dpkg-buildpackage -us -uc -b -j$(nproc)
-cd "$olddir"
+cd -
 
 find "$builddir"/.. -name '*.deb' -printf '%f\n' -exec mv {} . \;
 

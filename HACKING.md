@@ -241,8 +241,7 @@ In a Fedora/RHEL build environment you can build binary RPMs with
 
 In a Debian/Ubuntu build environment you can build debs with
 
-    cp -r tools/debian .
-    dpkg-buildpackage -us -uc -b
+    tools/make-debs --quick
 
 ## Contributing a change
 

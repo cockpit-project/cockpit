@@ -997,8 +997,6 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # make sure that rhsm skips certificate checks for the server
         self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
-        # enable subscriptions in dnf
-        self.sed_file("s/^enabled=0/enabled=1/", "/etc/yum/pluginconf.d/subscription-manager.conf")
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})

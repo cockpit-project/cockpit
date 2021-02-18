@@ -26,6 +26,10 @@ import sys
 import zipfile
 
 
+def message(*args):
+    print(*args, file=sys.stderr)
+
+
 def build_dist():
     '''Build a dist tarball for CI testing
 
@@ -59,12 +63,12 @@ def download_dist():
     try:
         sha = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
     except subprocess.CalledProcessError:
-        print("make_dist: not a git repository")
+        message("make_dist: not a git repository")
         return None
 
     dists = glob.glob(f"cockpit-*{sha[:8]}*.tar.xz")
     if dists:
-        print("make_dist: already downloaded " + dists[0])
+        message("make_dist: already downloaded", dists[0])
         return os.path.abspath(dists[0])
 
     # autogen.sh does that for build_dist()
@@ -80,7 +84,7 @@ def download_dist():
 
     # downloading GitHub artifacts requires a token
     if not api.token:
-        print("make_dist: no GitHub API token available")
+        message("make_dist: no GitHub API token available")
         return None
 
     # iterate artifacts and search our SHA
@@ -98,15 +102,15 @@ def download_dist():
         page += 1
 
     if not download_url:
-        print(f"make_dist: no download available for commit {sha}")
+        message(f"make_dist: no download available for commit {sha}")
         return None
 
-    print(f"make_dist: Downloading dist tarball from {download_url} ...")
+    sys.stderr.write(f"make_dist: Downloading dist tarball from {download_url} ...\n")
     request = urllib.request.Request(download_url, headers={"Authorization": "token " + api.token})
     zipio = io.BytesIO()
     try:
         with urllib.request.urlopen(request) as response:
-            if os.isatty(sys.stdout.fileno()):
+            if os.isatty(sys.stderr.fileno()):
                 total_size = 0
             else:
                 total_size = None
@@ -118,29 +122,29 @@ def download_dist():
                     break
                 if total_size is not None:
                     total_size += len(block)
-                    sys.stdout.write(f"\r{ total_size // MB } MB")
+                    sys.stderr.write(f"\r{ total_size // MB } MB")
 
                 zipio.write(block)
 
             # clear the download progress in tty mode
             if total_size is not None:
-                sys.stdout.write("\r                             \r")
+                sys.stderr.write("\r                             \r")
 
     except urllib.error.HTTPError as e:
-        print("make_dist: Download failed:", e)
+        message("make_dist: Download failed:", e)
         return None
 
     with zipfile.ZipFile(zipio) as fzip:
         names = fzip.namelist()
         if len(names) != 1 or not names[0].endswith(".tar.xz"):
-            print("make_dist: expected zip artifact with exactly one tar.xz member")
+            message("make_dist: expected zip artifact with exactly one tar.xz member")
             return None
         tar_path = fzip.extract(names[0])
 
     # Extract node_modules and dist locally for speeding up the build and allowing integration tests to run
     unpack_dirs = [d for d in ["dist", "node_modules"] if not os.path.exists(d)]
     if unpack_dirs:
-        print("make_dist: Extracting directories from tarball:", ' '.join(unpack_dirs))
+        message("make_dist: Extracting directories from tarball:", ' '.join(unpack_dirs))
         prefix = os.path.basename(tar_path).split('.tar')[0] + '/'
         prefixed_unpack_dirs = [prefix + d for d in unpack_dirs]
         subprocess.check_call(["tar", "--touch", "--strip-components=1", "-xf", tar_path] + prefixed_unpack_dirs)

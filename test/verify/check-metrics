@@ -11,6 +11,8 @@ import parent
 import packagelib
 from testlib import *
 
+from machine_core.constants import TEST_OS_DEFAULT
+
 
 def getMaximumSpike(browser, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
@@ -51,8 +53,13 @@ def topServiceValue(browser, aria_label, col_label, row):
     return float(browser.text(sel).split(' ')[0])
 
 
-def prepareArchive(machine, name, time):
+def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
     machine.upload(["verify/files/metrics-archives/{0}".format(name)], "/tmp/")
+
+    command = "tar -C / -xzvf /tmp/{0}".format(name)
+    if name.endswith("zip"):
+        command = "unzip /tmp/{0} -d /".format(name)
+
     machine.execute("""ntp=`timedatectl show --property NTP --value`
                        if [ $ntp == "yes" ]; then
                            timedatectl set-ntp off
@@ -60,12 +67,12 @@ def prepareArchive(machine, name, time):
                        systemctl stop pmlogger
                        # don't let NM set transient host names from DHCP
                        systemctl stop NetworkManager
-                       hostnamectl set-hostname localhost.localdomain
+                       hostnamectl set-hostname {2}
                        rm -rf /var/log/pcp/pmlogger/*
-                       tar -C / -xzvf /tmp/{0}
+                       {0}
                        # set-ntp off is asynchronous; wait until timesyncd stops before the time can be set
                        while systemctl is-active systemd-timesyncd; do sleep 1; done
-                       timedatectl set-time @{1}""".format(name, time))
+                       timedatectl set-time @{1}""".format(command, time, hostname))
 
 def login(self):
     # HACK: Ubuntu and Debian need some time until metrics channel is available
@@ -344,6 +351,26 @@ class TestHistoryMetrics(MachineCase):
         b.click(".pf-c-select__menu-item:contains('Today')")
         b.wait_text(".pf-c-select__toggle-text", "Today")
         # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
+
+        b.logout()
+
+        #
+        # Check that for every minute only one event is present
+        #
+
+        if self.machine.image == TEST_OS_DEFAULT:  # Debian/Ubuntu is unhappy about this archive, one Fedora test is enough though
+            prepareArchive(m, "double_events.zip", 1602345600, "m1.cockpit.lan")
+            login(self)
+            b.wait_in_text(".metrics-history-heading", "CPU")
+            b.wait_in_text("#metrics-hour-1602334800000", "CPU spike")
+            self.assertTrue(self.browser.call_js_func("""(function () {
+                const min_events = document.getElementsByClassName("metrics-events");
+                return Array.from(min_events).every(l => {
+                    const events = Array.from(l.getElementsByTagName("dd")).map(d => d.innerHTML);
+                    return (new Set(events)).size === events.length;
+                });
+            })"""))
+
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")

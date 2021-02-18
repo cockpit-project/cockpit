@@ -602,7 +602,9 @@ const MetricsHour = ({ startTime, data, clipLeading }) => {
                 const minute = Math.floor(i / SAMPLES_PER_MIN);
                 if (minute_events[minute] === undefined)
                     minute_events[minute] = [];
-                minute_events[minute].push(type);
+                // For every minute show each type of event max once
+                if (minute_events[minute].indexOf(type) === -1)
+                    minute_events[minute].push(type);
             }
             prev_val = value;
         });

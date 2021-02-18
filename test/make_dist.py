@@ -66,6 +66,10 @@ def download_dist():
         message("make_dist: not a git repository")
         return None
 
+    if subprocess.call(["git", "diff", "--quiet"]) > 0:
+        message("make_dist: uncommitted local changes, skipping download")
+        return None
+
     dists = glob.glob(f"cockpit-*{sha[:8]}*.tar.xz")
     if dists:
         message("make_dist: already downloaded", dists[0])

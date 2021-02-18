@@ -67,6 +67,10 @@ def download_dist():
         print("make_dist: already downloaded " + dists[0])
         return os.path.abspath(dists[0])
 
+    # autogen.sh does that for build_dist()
+    if not os.path.exists("bots"):
+        subprocess.check_call(['tools/make-bots'])
+
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots"))
     import task
 

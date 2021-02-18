@@ -29,6 +29,7 @@ import {
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
+    Spinner,
     Page, PageSection, PageSectionVariants,
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
@@ -538,7 +539,7 @@ class ApplyUpdates extends React.Component {
             <>
                 <div className="progress-main-view">
                     <div className="progress-description">
-                        <div className="spinner spinner-xs spinner-inline" />
+                        <Spinner isSVG size="sm" />
                         <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                         &nbsp;{lastAction.package}
                     </div>

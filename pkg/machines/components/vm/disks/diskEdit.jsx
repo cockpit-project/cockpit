@@ -81,7 +81,7 @@ const BusRow = ({ onValueChanged, dialogValues, idPrefix, shutoff }) => {
 
 const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
     return (
-        <FormGroup fieldId={`${idPrefix}-access`} label={_("Access")} isInline>
+        <FormGroup fieldId={`${idPrefix}-access`} label={_("Access")} isInline hasNoPaddingTop>
             <Radio id={`${idPrefix}-readonly`}
                    name="access"
                    value="readonly"

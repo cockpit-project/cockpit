@@ -24,7 +24,7 @@ if [ $# -gt 1 ]; then
 fi
 
 # When running in an external make this breaks our use
-# of make in the make-srpm lib tool and make-source
+# of make in the make-srpm lib tool and make_dist.py
 
 export MAKEFLAGS=
 export MAKELEVEL=
@@ -33,7 +33,7 @@ export MFLAGS=
 base=$(cd $(dirname $0)/..; pwd -P)
 
 if [ -z ${1-} ]; then
-    source=$("$base/bots/make-source")
+    source=$("$base/test/make_dist.py" | tail -n1)
 else
     source="$1"
 fi

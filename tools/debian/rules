@@ -17,7 +17,6 @@ endif
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--with-networkmanager-needs-root=yes \
 		--with-cockpit-user=cockpit-ws \
 		--with-cockpit-ws-instance-user=cockpit-wsinstance \
 		--with-appstream-config-packages='[ "appstream" ]' \

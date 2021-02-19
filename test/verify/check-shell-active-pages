@@ -19,28 +19,20 @@
 
 import parent
 from testlib import *
-from machine_core.constants import TEST_OS_DEFAULT
 
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@nondestructive
 class TestActivePages(MachineCase):
 
     def testBasic(self):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/system")
+        # disable preloads; they are different between OSes, make the counting hard, and happen asynchronously
+        self.disable_preload("packagekit", "playground", "systemd")
 
-        # Preloading via manifests only happens with #12534
-        if m.ostree_image:
-            # /playground/preloaded and /system/services
-            n_extra_preloaded = 2
-        elif m.image == TEST_OS_DEFAULT:
-            # /playground/preloaded
-            n_extra_preloaded = 1
-        else:
-            # /playground/preloaded, /system/services, and /updates
-            n_extra_preloaded = 3
+        self.login_and_go("/system")
 
         b.wait_visible("#overview")
 
@@ -51,8 +43,8 @@ class TestActivePages(MachineCase):
             b.wait_visible("#active-pages-dialog")
             b.wait_js_func("ph_count_check", "#active-pages-dialog tr", count)
 
-        # Initially we have /system and maybe /playground/preloaded
-        showPagesAssertCount(1 + n_extra_preloaded)
+        # Initially we have /system
+        showPagesAssertCount(1)
         b.click("button.cancel")
         b.wait_not_present("#active-pages-dialog")
 
@@ -60,8 +52,8 @@ class TestActivePages(MachineCase):
         b.enter_page("/users")
         b.wait_visible("#accounts-list")
 
-        # now we want a third page to be present in the pages menu
-        showPagesAssertCount(2 + n_extra_preloaded)
+        # now we have the users page be present in the pages menu
+        showPagesAssertCount(2)
         b.click("button.cancel")
         b.wait_not_present("#active-pages-dialog")
 
@@ -83,8 +75,7 @@ class TestActivePages(MachineCase):
         m.execute("until pgrep -afx kitten; do sleep 1; done")
 
         # now close the page
-        showPagesAssertCount(3 + n_extra_preloaded)
-
+        showPagesAssertCount(3)
         # terminal should be pre-checked by default
         b.wait_visible('tr[data-row-id="cockpit1:localhost/system/terminal"] input[type=checkbox]:checked')
         # click on the main page as well
@@ -102,8 +93,8 @@ class TestActivePages(MachineCase):
         # running shell command should disappear on the system
         m.execute("while pgrep -afx kitten; do sleep 1; done")
 
-        # there should only be the original pages left
-        showPagesAssertCount(1 + n_extra_preloaded)
+        # there should only be the original page left
+        showPagesAssertCount(1)
 
 
 if __name__ == '__main__':

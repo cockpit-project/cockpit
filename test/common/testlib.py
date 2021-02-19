@@ -220,17 +220,17 @@ class Browser:
         self.call_js_func('ph_mouse', selector, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
     def click(self, selector):
-        self.mouse(selector + ":not([disabled])", "click", 0, 0, 0)
+        self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click", 0, 0, 0)
 
     def mousedown(self, selector):
-        self.mouse(selector + ":not([disabled])", "mousedown", 0, 0, 0)
+        self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "mousedown", 0, 0, 0)
 
     def val(self, selector):
         self.wait_visible(selector)
         return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector, val):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
@@ -242,23 +242,23 @@ class Browser:
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
-        self._wait_present(selector + ':not([disabled])')
+        self._wait_present(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def get_checked(self, selector):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         return self.call_js_func('ph_get_checked', selector)
 
     def set_checked(self, selector, val):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_focus', selector)
 
     def blur(self, selector):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_blur', selector)
 
     # TODO: Unify them so we can have only one
@@ -308,14 +308,14 @@ class Browser:
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     def select_from_dropdown(self, selector, value):
-        self.wait_visible(selector + ':not([disabled])')
+        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         text_selector = "{0} option[value='{1}']".format(selector, value)
         self._wait_present(text_selector)
         self.set_val(selector, value)
         self.wait_val(selector, value)
 
     def select_PF4(self, selector, value):
-        self.click(selector + ':not([disabled])')
+        self.click(selector + ':not([disabled]):not([aria-disabled=true])')
         select_entry = "{0} + ul button:contains({1})".format(selector, value)
         self.click(select_entry)
         self.wait_text(selector + " .pf-c-select__toggle-text", value)

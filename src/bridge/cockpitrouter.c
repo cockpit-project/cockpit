@@ -32,6 +32,7 @@
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittemplate.h"
 #include "common/cockpithex.h"
+#include "common/cockpitmemory.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -846,7 +847,12 @@ process_open (CockpitRouter *self,
         }
     }
   if (new_payload)
-    g_bytes_unref (new_payload);
+    {
+      gsize size;
+      gpointer data = g_bytes_unref_to_data (new_payload, &size);
+      cockpit_memory_clear (data, size);
+      g_free (data);
+    }
 }
 
 static void

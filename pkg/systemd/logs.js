@@ -64,7 +64,7 @@ $(function() {
     }
 
     // Listing of all logs
-    function journalbox(match, priority, tag, keep_following, grep, boot, since) {
+    function journalbox(match, priority, tag, keep_following, grep, boot, since, until) {
         const self = {};
         const out = new JournalOutput(cockpit.location.options);
 
@@ -145,7 +145,7 @@ $(function() {
         }
 
         function follow(cursor) {
-            following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority, grep: grep })
+            following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority, until: until, grep: grep })
                     .fail(query_error)
                     .stream(function(entries) {
                         if (!running)
@@ -214,13 +214,14 @@ $(function() {
             grep: grep,
             boot: boot,
             since: since,
+            until: until,
         };
 
         let last = keep_following ? null : 1;
         let count = 0;
         let oldest = null;
         let stopped = false;
-        const all = boot === undefined && since === undefined;
+        const all = boot === undefined && since === undefined && until === undefined;
 
         const tags_match = [];
         match.forEach(function (field) {
@@ -272,6 +273,7 @@ $(function() {
                             follow: true, count: 0,
                             boot: options.boot,
                             since: options.since,
+                            until: options.until,
                             priority: priority,
                             grep: grep,
                         })
@@ -357,7 +359,10 @@ $(function() {
             full_grep += "boot:" + options.boot + " ";
 
         if (options.since)
-            full_grep += "since:" + options.since + " ";
+            full_grep += "since:" + options.since.replace(" ", "\\ ") + " ";
+
+        if (options.until)
+            full_grep += "until:" + options.until.replace(" ", "\\ ") + " ";
 
         // Other filters may be passed as well
         Object.keys(options).forEach(k => {
@@ -373,7 +378,7 @@ $(function() {
         if (the_journal)
             the_journal.stop();
 
-        the_journal = journalbox(match, prio_level, options.tag, follow, grep, options.boot, options.since);
+        the_journal = journalbox(match, prio_level, options.tag, follow, grep, options.boot, options.since, options.until);
     }
 
     function update() {
@@ -414,9 +419,27 @@ $(function() {
         }
     }
 
+    function split_search(text) {
+        let last_i = 0;
+        const words = [];
+
+        // Add space so the following loop can always pick group on space (without trailing
+        // space the last group would not be recognized and it would need a special check)
+        if (text.length && text[text.length - 1] !== " ")
+            text += " ";
+
+        for (let i = 1; i < text.length; i++) {
+            if (text[i] === " " && text[i - 1] !== "\\") {
+                words.push(text.substring(last_i, i).replace("\\ ", " "));
+                last_i = i + 1;
+            }
+        }
+        return words;
+    }
+
     function parse_search(value) {
         const new_items = {};
-        const values = value.split(" ")
+        const values = split_search(value)
                 .filter(item => {
                     let s = item.split("=");
                     if (s.length === 2 && s[0] === s[0].toUpperCase()) {
@@ -424,7 +447,7 @@ $(function() {
                         return false;
                     }
 
-                    const well_know_keys = ["since", "boot", "priority", "follow", "service", "identifier"];
+                    const well_know_keys = ["since", "until", "boot", "priority", "follow", "service", "identifier"];
                     const map_keys = (key) => {
                         if (key === "priority")
                             return "prio";
@@ -432,8 +455,8 @@ $(function() {
                             return "tag";
                         return key;
                     };
-                    s = item.split(":");
-                    if (s.length === 2 && well_know_keys.includes(s[0])) {
+                    s = item.split(/:(.*)/);
+                    if (s.length >= 2 && well_know_keys.includes(s[0])) {
                         new_items[map_keys(s[0])] = s[1];
                         return false;
                     }
@@ -474,7 +497,6 @@ $(function() {
     });
 
     function onFilter(e) {
-        console.log(e);
         if (e.type == "keyup" && e.keyCode !== 13) // Only accept enter for entering
             return;
 

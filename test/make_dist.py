@@ -66,7 +66,7 @@ def download_dist():
         message("make_dist: not a git repository")
         return None
 
-    if subprocess.call(["git", "diff", "--quiet"]) > 0:
+    if subprocess.call(["git", "diff", "--quiet", "--", ":^test"]) > 0:
         message("make_dist: uncommitted local changes, skipping download")
         return None
 

@@ -215,6 +215,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.click("#vm-subVmTest1-cpu-model")
         b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
         b.click("#cpu-config-dialog-apply")
+        b.wait_not_present("#cpu-config-dialog-apply")
 
         # Warning about about difference in persistent and non-persitent XML shoud appear
         b.wait_visible("#cpu-tooltip")

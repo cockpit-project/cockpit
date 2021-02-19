@@ -11,15 +11,20 @@ export const CPUTypeModal = ({ vm, models, close }) => {
     const [error, setError] = useState({});
     const [cpuMode, setCpuMode] = useState(vm.cpu.mode);
     const [cpuModel, setCpuModel] = useState(vm.cpu.model);
+    const [isLoading, setIsLoading] = useState(false);
 
     function save() {
+        setIsLoading(true);
         setCpuModeLibvirt({
             name: vm.name,
             id: vm.id,
             connectionName: vm.connectionName,
             mode: cpuMode,
             model: cpuModel
-        }).then(close, exc => setError({ dialogError: _("CPU configuration could not be saved"), dialogErrorDetail: exc.message }));
+        }).then(close, exc => {
+            setIsLoading(false);
+            setError({ dialogError: _("CPU configuration could not be saved"), dialogErrorDetail: exc.message });
+        });
     }
 
     const defaultBody = (
@@ -56,7 +61,7 @@ export const CPUTypeModal = ({ vm, models, close }) => {
                footer={
                    <>
                        {error && error.dialogError && <ModalError dialogError={error.dialogError} dialogErrorDetail={error.dialogErrorDetail} />}
-                       <Button variant='primary' id="cpu-config-dialog-apply" onClick={save}>
+                       <Button variant='primary' isDisabled={isLoading} isLoading={isLoading} id="cpu-config-dialog-apply" onClick={save}>
                            {_("Apply")}
                        </Button>
                        <Button variant='link' onClick={close}>

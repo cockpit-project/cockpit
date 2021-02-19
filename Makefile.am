@@ -136,7 +136,6 @@ SUBST_RULE = \
 	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]admin_group[@],$(admin_group),g' \
 	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
-	-e 's,[@]with_networkmanager_needs_root[@],$(with_networkmanager_needs_root),g' \
 	-e 's,[@]with_storaged_iscsi_sessions[@],$(with_storaged_iscsi_sessions),g' \
 	-e 's,[@]with_appstream_config_packages[@],$(with_appstream_config_packages),g' \
 	-e 's,[@]with_appstream_data_packages[@],$(with_appstream_data_packages),g' \

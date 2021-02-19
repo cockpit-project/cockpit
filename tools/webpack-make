@@ -170,8 +170,8 @@ function generateDeps(makefile, stats) {
             install += ".gz";
         }
 
-        // Debug output gets installed separately
-        if (!output.endsWith(".map") && !output.includes("included-modules"))
+        // Debug output and tests gets installed separately
+        if (!output.endsWith(".map") && output.indexOf("/test-") === -1 && !output.includes("included-modules"))
             installs[install] = install;
     }
 

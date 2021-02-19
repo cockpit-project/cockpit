@@ -298,14 +298,6 @@ fi
 AC_PATH_PROG([CHPASSWD], [chpasswd], [/usr/sbin/chpasswd], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_CHPASSWD],["$CHPASSWD"],[Location of chpasswd binary])
 
-# pkexec
-AC_PATH_PROG([PKEXEC], [pkexec], [/usr/bin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_SUBST(PKEXEC)
-
-# sudo
-AC_PATH_PROG([SUDO], [sudo], [/usr/bin/sudo], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_SUBST(SUDO)
-
 # ssh-add
 AC_PATH_PROG([SSH_ADD], [ssh-add], [/usr/bin/ssh-add], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_SSH_ADD], ["$SSH_ADD"], [Location of ssh-add binary])
@@ -635,10 +627,8 @@ echo "
         cockpit-ssh:                ${enable_ssh}
         Supports key auth:          ${key_auth}
 
-        pkexec:                     ${PKEXEC}
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}
-        sudo:                       ${SUDO}
         usermod:                    ${USERMOD}
         chcon:                      ${CHCON}
 "

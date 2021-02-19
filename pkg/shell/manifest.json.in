@@ -32,7 +32,7 @@
                 "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
             ],
             "spawn": [
-                "@SUDO@",
+                "sudo",
                 "-A",
                 "cockpit-bridge",
                 "--privileged"
@@ -41,7 +41,7 @@
         {
             "privileged": true,
             "spawn": [
-                "@PKEXEC@",
+                "pkexec",
                 "--disable-internal-agent",
                 "cockpit-bridge",
                 "--privileged"

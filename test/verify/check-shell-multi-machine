@@ -24,7 +24,7 @@ import time
 import parent
 from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
-
+from cracklib import assert_no_password_in_bridges
 
 def break_hostkey(m, address):
     filename = "/home/admin/.ssh/known_hosts"
@@ -891,6 +891,17 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog', "The SSH key")
         b.wait_not_visible('.password-change-advice')
         b.wait_not_visible('.login-setup-auto')
+
+
+    def testCleanMemory(self):
+        b = self.browser
+        m1 = self.machine
+
+        self.login_and_go(None)
+        add_machine(b, "10.111.113.2", password="foobar")
+
+        assert_no_password_in_bridges(m1, "admin", "foobar")
+
 
 if __name__ == '__main__':
     test_main()

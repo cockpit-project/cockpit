@@ -212,10 +212,10 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # Copy host CPU configuration
-        b.wait_visible("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
-        b.click("#vm-subVmTest1-cpu-model button")
+        b.click("#vm-subVmTest1-cpu-model")
         b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
         b.click("#cpu-config-dialog-apply")
+
         # Warning about about difference in persistent and non-persitent XML shoud appear
         b.wait_visible("#cpu-tooltip")
         b.click("#vm-subVmTest1-action-kebab button")
@@ -386,7 +386,6 @@ class TestMachinesSettings(VirtualMachinesCase):
         self.goToVmPage("subVmTest1")
 
         # Change CPU model setting
-        b.wait_visible("#vm-subVmTest1-cpu-model button[aria-disabled=false]")
         b.click("#vm-subVmTest1-cpu-model button")
         b.select_from_dropdown("#cpu-model-select-group select", "host-passthrough")
         b.click("#cpu-config-dialog-apply")

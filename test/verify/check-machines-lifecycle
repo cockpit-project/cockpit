@@ -147,7 +147,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # clone
         b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-clone a[aria-disabled=false]")
+        b.click("#vm-subVmTest1-clone")
 
         b.wait_text(".pf-c-modal-box__title-text", "Create a clone VM based on subVmTest1")
         b.click("footer button.pf-m-primary")

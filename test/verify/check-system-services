@@ -1004,6 +1004,7 @@ class TestTimers(MachineCase):
         self.assertIn("2036-04-10 23:59", m.execute("systemctl list-timers"))
 
         # creates a boot timer that runs after 10 sec from boot
+        b.eval_js("window.debugging = 'dbus'")
         b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_popup("timer-dialog")
@@ -1015,6 +1016,7 @@ class TestTimers(MachineCase):
         b.set_val("#boot-time", "2")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
+        print(m.execute("systemctl list-timers --all"))
         b.wait_visible(self.svc_sel('boot_timer.timer'))
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
@@ -1024,6 +1026,27 @@ class TestTimers(MachineCase):
         self.assertIn("hello", m.execute("cat /tmp/hello"))
 
         self.allow_restart_journal_messages()
+
+    def testCreate2(self):
+        self.testCreate()
+
+    def testCreate3(self):
+        self.testCreate()
+
+    def testCreate4(self):
+        self.testCreate()
+
+    def testCreate5(self):
+        self.testCreate()
+
+    def testCreate6(self):
+        self.testCreate()
+
+    def testCreate7(self):
+        self.testCreate()
+
+    def testCreate8(self):
+        self.testCreate()
 
 
 if __name__ == '__main__':

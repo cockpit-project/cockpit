@@ -998,7 +998,8 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdateDetails(pkg_ids) {
-        PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
+        const limit = 500; // Load iteratively to avoid exceeding cockpit-ws frame size
+        PK.cancellableTransaction("GetUpdateDetail", [pkg_ids.slice(0, limit)], null, {
             UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                 update_text, changelog /* state, issued, updated */) => {
                 const u = this.state.updates[packageId];
@@ -1024,7 +1025,12 @@ class OsUpdates extends React.Component {
                 this.setState({ updates: this.state.updates });
             },
         })
-                .then(() => this.setState({ state: "available" }))
+                .then(() => {
+                    if (pkg_ids.length <= limit)
+                        this.setState({ state: "available" });
+                    else
+                        this.loadUpdateDetails(pkg_ids.slice(limit));
+                })
                 .catch(ex => {
                     console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
                     // still show available updates, with reduced detail

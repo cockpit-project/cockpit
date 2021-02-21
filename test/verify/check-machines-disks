@@ -210,6 +210,18 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_visible("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
+        # Check when no storage pool and adding existed disk 
+        # delete the default pool
+        m.execute("virsh pool-destroy images && virsh pool-undefine images")
+        # Open "add disk" dialog
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.click("#vm-subVmTest1-disks-adddisk-useexisting")
+        # Check
+        b.wait_not_present("#navbar-oops")
+        b.wait_visible("#vm-subVmTest1-disks-adddisk-existing-select-pool:disabled")
+        b.wait_in_text("#vm-subVmTest1-disks-adddisk-existing-select-pool:disabled", "No storage pools available")
+        b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+
     class VMAddDiskDialog(object):
         def __init__(
             self, test_obj, pool_name=None, volume_name=None,

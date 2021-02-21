@@ -795,6 +795,9 @@ class MachineCase(unittest.TestCase):
         for pkg in packages:
             path = "/usr/share/cockpit/%s" % pkg
             if self.machine.execute("if test -e %s; then echo yes; fi" % path):
+                if self.machine.ostree_image:
+                    # get a writable directory
+                    self.restore_dir(path)
                 self.write_file("%s/override.json" % path, '{ "preload": [ ] }')
 
     def enable_preload(self, package, *pages):

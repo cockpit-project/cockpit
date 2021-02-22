@@ -27,7 +27,6 @@ QUnit.test("simple request", function (assert) {
     cockpit.http({ internal: "/test-server" }).get("/pkg/playground/manifest.json.in")
             .done(function(data) {
                 assert.deepEqual(JSON.parse(data), {
-                    version: "@VERSION@",
                     requires: {
                         cockpit: "122"
                     },

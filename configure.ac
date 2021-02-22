@@ -326,23 +326,6 @@ changequote([,])dnl
 
 AC_CHECK_FUNCS(fdwalk)
 
-
-# Package specific settings
-
-AC_ARG_WITH(appstream-config-packages,
-            AC_HELP_STRING([--with-appstream-config-packages=JSON],
-                           [List of packages that configure the system to retrieve AppStream collection metadata]),
-            [],
-            [with_appstream_config_packages='[[]]'])
-AC_SUBST(with_appstream_config_packages)
-
-AC_ARG_WITH(appstream-data-packages,
-            AC_HELP_STRING([--with-appstream-data-packages=JSON],
-                           [List of packages that contain AppStream collection metadata]),
-            [],
-            [with_appstream_data_packages='[[]]'])
-AC_SUBST(with_appstream_data_packages)
-
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])

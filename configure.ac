@@ -350,13 +350,6 @@ AC_ARG_WITH(nfs-client-package,
             [with_nfs_client_package='false'])
 AC_SUBST(with_nfs_client_package)
 
-AC_ARG_WITH(vdo-package,
-            AC_HELP_STRING([--with-vdo-package=JSON],
-                           [Package that is necessary to use VDO, or 'false']),
-            [],
-            [with_vdo_package='false'])
-AC_SUBST(with_vdo_package)
-
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])

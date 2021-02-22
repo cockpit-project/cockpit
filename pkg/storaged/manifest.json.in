@@ -53,7 +53,7 @@
 
     "config": {
         "nfs_client_package": @with_nfs_client_package@,
-        "vdo_package": @with_vdo_package@
+        "vdo_package": { "rhel": "vdo", "centos": "vdo" }
     },
     "content-security-policy": "img-src 'self' data:"
 }

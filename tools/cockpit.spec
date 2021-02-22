@@ -41,10 +41,6 @@
 
 %define __lib lib
 
-%if 0%{?rhel}
-%define vdo_on_demand 1
-%endif
-
 %if 0%{?suse_version}
 %define pamdir /%{_lib}/security
 %else
@@ -168,7 +164,7 @@ exec 2>&1
 %if 0%{?build_basic} == 0
     --disable-ssh \
 %endif
-    %{?vdo_on_demand:--with-vdo-package='"vdo"'}
+
 make -j4 %{?extra_flags} all
 
 %check

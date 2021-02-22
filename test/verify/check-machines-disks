@@ -109,8 +109,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_visible("#vm-subVmTest1-disks-vde-access-tooltip")
 
         # Shut off VM and see state has changed
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         # Check change has been applied after shutoff
         b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Read-only")
@@ -204,8 +203,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         # Test remove disk - by external action
         m.execute("virsh detach-disk subVmTest1 vdc")
         print("Restarting vm-subVmTest1, might take a while")
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceReboot")
+        self.performAction("subVmTest1", "forceReboot")
 
         b.wait_visible("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
@@ -602,8 +600,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         ).open().add_disk().verify_disk_added()
 
         # shut off
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check if the just added non-permanent disks are gone
@@ -699,8 +696,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         ).execute()
 
         # shut off
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check cdrom device (cdrom can be only added to shut off VM)
@@ -765,8 +761,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         ).execute()
 
         # shut off
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # testing sata disk after VM shutoff because sata disk cannot be hotplugged
@@ -826,8 +821,7 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 

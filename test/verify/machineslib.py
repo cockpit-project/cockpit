@@ -24,6 +24,12 @@ from machinesxmls import *
 class VirtualMachinesCaseHelpers:
     created_pool = False
 
+    def performAction(self, vmName, action):
+        b = self.browser
+        b.click("#vm-{0}-action-kebab button".format(vmName))
+        b.wait_visible("#vm-{0}-action-kebab > .pf-c-dropdown__menu".format(vmName))
+        b.click("#vm-{0}-{1}".format(vmName, action))
+
     def goToVmPage(self, vmName, connectionName='system'):
         self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
 

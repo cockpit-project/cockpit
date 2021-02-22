@@ -76,7 +76,6 @@ class TestMachinesSnapshots(VirtualMachinesCase):
 
         # Check snapshot for shutoff VM
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         time1 = datetime.now().strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
@@ -108,7 +107,6 @@ class TestMachinesSnapshots(VirtualMachinesCase):
 
         # Shut off domain
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         class SnapshotCreateDialog(object):
             def __init__(

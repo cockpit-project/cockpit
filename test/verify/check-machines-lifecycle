@@ -104,11 +104,9 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # pause
         self.performAction("subVmTest1", "pause")
-        b.wait_in_text("#vm-subVmTest1-state", "Paused")
 
         # resume
         self.performAction("subVmTest1", "resume")
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
@@ -124,7 +122,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # shut off
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
@@ -134,7 +131,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         m.execute("virsh dumpxml subVmTest1 > /tmp/subVmTest1.xml")
         m.execute("virsh start {0} && virsh undefine {0}".format("subVmTest1"))
         b.wait_visible("div[data-vm-transient=\"true\"]")
-        self.performAction("subVmTest1", "forceOff")
+        self.performAction("subVmTest1", "forceOff", False)
         b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
         m.execute("virsh define --file /tmp/subVmTest1.xml")
 
@@ -170,7 +167,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # stop second VM, event handling should still work
         self.performAction("subVmTest2", "forceOff")
-        b.wait_in_text("#vm-subVmTest2-state", "Shut off")
 
         b.click("#vm-subVmTest2-run")
 

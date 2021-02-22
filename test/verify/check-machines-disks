@@ -110,7 +110,6 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # Shut off VM and see state has changed
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         # Check change has been applied after shutoff
         b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Read-only")
         # See tooltip no longer present in disk listing table
@@ -601,7 +600,6 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # shut off
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check if the just added non-permanent disks are gone
         for target in transient_targets:
@@ -697,7 +695,6 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # shut off
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # check cdrom device (cdrom can be only added to shut off VM)
         self.VMAddDiskDialog(
@@ -762,7 +759,6 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         # shut off
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
 
         # testing sata disk after VM shutoff because sata disk cannot be hotplugged
         self.VMAddDiskDialog(
@@ -822,7 +818,6 @@ class TestMachinesDisks(VirtualMachinesCase):
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
         self.performAction("subVmTest1", "forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
         # Test detaching permanent disk of a stopped domain

@@ -40,7 +40,7 @@ import inspect
 
 import testvm
 import cdp
-from fmf_metadata import set_obj_attribute, is_test_function, generic_metadata_setter
+from fmf_metadata.base import set_obj_attribute, is_test_function, generic_metadata_setter
 
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))

@@ -23,6 +23,10 @@ from storagelib import *
 from testlib import *
 
 
+# vdo only exists on RHEL
+SUPPORTED_OS = ["centos-8-stream", "rhel-8-4", "rhel-8-4-distropkg"]
+
+
 class TestStorageVDO(StorageCase):
 
     def testVdo(self):
@@ -31,7 +35,7 @@ class TestStorageVDO(StorageCase):
 
         self.login_and_go("/storage")
 
-        if m.execute("which vdo || true") == "":
+        if m.image not in SUPPORTED_OS:
             b.click("#devices [data-toggle=dropdown]")
             b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
@@ -121,7 +125,7 @@ class TestStorageVDO(StorageCase):
 
         self.login_and_go("/storage")
 
-        if m.execute("which vdo || true") == "":
+        if m.image not in SUPPORTED_OS:
             b.click("#devices [data-toggle=dropdown]")
             b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
@@ -178,7 +182,7 @@ config: !Configuration
 
         self.login_and_go("/storage")
 
-        if m.execute("which vdo || true") == "":
+        if m.image not in SUPPORTED_OS:
             b.click("#devices [data-toggle=dropdown]")
             b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
@@ -274,7 +278,7 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
         m = self.machine
         b = self.browser
 
-        if m.execute("which vdo || true") == "":
+        if m.image not in SUPPORTED_OS:
             self.skipTest("No vdo available")
 
         m.execute("pkcon remove -y vdo")

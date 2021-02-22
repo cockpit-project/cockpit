@@ -740,7 +740,11 @@ export function teardown_active_usage(client, usage) {
 
 export function get_config(name, def) {
     if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
-        var val = cockpit.manifests.storage.config[name];
+        let val = cockpit.manifests.storage.config[name];
+        if (typeof val === 'object' && val !== null) {
+            const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
+            val = val[os_release.ID];
+        }
         return val !== undefined ? val : def;
     } else {
         return def;

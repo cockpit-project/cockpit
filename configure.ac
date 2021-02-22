@@ -329,18 +329,6 @@ AC_CHECK_FUNCS(fdwalk)
 
 # Package specific settings
 
-# HACK - Storaged before 2.5.3 doesn't tell us when it supports
-#        sessions, so we allow it to be switched off explicitly.
-#
-# https://github.com/storaged-project/udisks/pull/68
-
-AC_ARG_WITH(storaged-iscsi-sessions,
-            AC_HELP_STRING([--with-storaged-iscsi-sessions=yes/no],
-                           [Whether storaged supports listing iSCSI sessions]),
-            [],
-            [with_storaged_iscsi_sessions=yes])
-AC_SUBST(with_storaged_iscsi_sessions)
-
 AC_ARG_WITH(appstream-config-packages,
             AC_HELP_STRING([--with-appstream-config-packages=JSON],
                            [List of packages that configure the system to retrieve AppStream collection metadata]),

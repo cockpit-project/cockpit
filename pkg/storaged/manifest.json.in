@@ -52,7 +52,11 @@
     },
 
     "config": {
-        "nfs_client_package": @with_nfs_client_package@,
+        "nfs_client_package": {
+            "rhel": "nfs-utils", "fedora": "nfs-utils",
+            "opensuse": "nfs-client", "opensuse-leap": "nfs-client",
+            "debian": "nfs-common", "ubuntu": "nfs-common"
+        },
         "vdo_package": { "rhel": "vdo", "centos": "vdo" }
     },
     "content-security-policy": "img-src 'self' data:"

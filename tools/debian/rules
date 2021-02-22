@@ -20,7 +20,6 @@ override_dh_auto_configure:
 		--with-cockpit-user=cockpit-ws \
 		--with-cockpit-ws-instance-user=cockpit-wsinstance \
 		--with-appstream-config-packages='[ "appstream" ]' \
-		--with-nfs-client-packages='"nfs-common"' \
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 

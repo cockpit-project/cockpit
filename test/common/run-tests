@@ -117,7 +117,7 @@ def finish_test(opts, test, affected_tests):
                 test.output = changed
         except OSError as ex:
             if ex.errno != errno.ENOENT:
-                sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
+                sys.stderr.write("\nCouldn't run tests-policy: {0}\n".format(str(ex)))
 
         if b"# SKIP" in test.output:
             print_test(test, print_tap=False)
@@ -374,7 +374,7 @@ def run(opts, image):
                     # restart it to avoid an unbounded number of test retries and follow-up errors
                     if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
                         # try hard to keep the test output consistent
-                        sys.stderr.write("Restarting global machine %s\n" % test.serial_machine)
+                        sys.stderr.write("\nRestarting global machine %s\n" % test.serial_machine)
                         sys.stderr.flush()
                         batch_tests[test.serial_machine]["machine"].reset()
 

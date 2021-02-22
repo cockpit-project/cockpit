@@ -129,11 +129,23 @@ export class ApplicationList extends React.Component {
             comps.push(this.props.metainfo_db.components[id]);
         comps.sort((a, b) => a.name.localeCompare(b.name));
 
+        function get_config(name, distro_id, def) {
+            if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
+                let val = cockpit.manifests.apps.config[name];
+                if (typeof val === 'object' && val !== null && !Array.isArray(val))
+                    val = val[distro_id];
+                return val !== undefined ? val : def;
+            } else {
+                return def;
+            }
+        }
+
         function refresh() {
-            var config = cockpit.manifests.apps.config || { };
+            const distro_id = JSON.parse(window.localStorage['os-release'] || "{}").ID;
+
             PackageKit.refresh(self.props.metainfo_db.origin_files,
-                               config.appstream_config_packages || [],
-                               config.appstream_data_packages || [],
+                               get_config('appstream_config_packages', distro_id, []),
+                               get_config('appstream_data_packages', distro_id, []),
                                data => self.setState({ progress: data }))
                     .finally(() => self.setState({ progress: false }))
                     .catch(show_error);

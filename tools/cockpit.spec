@@ -155,7 +155,6 @@ exec 2>&1
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
     --with-selinux-config-type=etc_t \
-    --with-appstream-data-packages='[ "appstream-data" ]' \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
 %endif

@@ -18,8 +18,11 @@
     "content-security-policy": "img-src *",
 
     "config": {
-        "appstream_config_packages": @with_appstream_config_packages@,
-        "appstream_data_packages": @with_appstream_data_packages@
+        "appstream_config_packages": {
+            "debian": ["appstream"], "ubuntu": ["appstream"]
+        },
+        "appstream_data_packages": {
+            "fedora": ["appstream-data"], "rhel": ["appstream-data"]
+        }
     }
-
 }

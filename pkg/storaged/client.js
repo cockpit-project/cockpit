@@ -33,11 +33,6 @@ import { find_warnings } from "./warnings.jsx";
 /* STORAGED CLIENT
  */
 
-/* HACK: https://github.com/storaged-project/udisks/pull/68 */
-var hacks = { };
-if (cockpit.manifests.storage && cockpit.manifests.storage.hacks)
-    hacks = cockpit.manifests.storage.hacks;
-
 var client = {
     busy: 0
 };
@@ -401,9 +396,8 @@ function init_model(callback) {
                 wait_all([client.manager_lvm2, client.manager_iscsi],
                          function () {
                              client.features.lvm2 = client.manager_lvm2.valid;
-                             client.features.iscsi = (hacks.with_storaged_iscsi_sessions != "no" &&
-                                                     client.manager_iscsi.valid &&
-                                                     client.manager_iscsi.SessionsSupported !== false);
+                             client.features.iscsi = (client.manager_iscsi.valid &&
+                                                      client.manager_iscsi.SessionsSupported !== false);
                              defer.resolve();
                          });
                 return defer.promise;

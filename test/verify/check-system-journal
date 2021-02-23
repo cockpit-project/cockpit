@@ -31,12 +31,25 @@ class TestJournal(MachineCase):
 
         if self.is_nondestructive():
             # we need persistent journal for the rebooting tests
-            self.restore_dir("/run/log/journal", post_restore_action="systemctl try-restart systemd-journald")
-            self.restore_dir("/var/log/journal", post_restore_action="systemctl try-restart systemd-journald")
-            self.machine.execute("systemctl stop systemd-journald")
-            self.machine.execute("rm -rf /run/log/journal/* /var/log/journal/*")
-            self.machine.execute("systemctl start systemd-journald")
+            self.addCleanup(self.machine.execute, "systemctl try-restart systemd-journald")
+            self.restore_dir("/run/log/journal")
+            self.restore_dir("/var/log/journal")
+            self.machine.execute("""
+            UNITS=""
+            for u in systemd-journald.socket systemd-journald-dev-log.socket systemd-journald.service; do
+                if systemctl --quiet is-active $u; then
+                    UNITS="$UNITS $u"
+                fi
+            done
+            systemctl stop $UNITS
+            # avoid running into startup limit
+            systemctl reset-failed $UNITS
+            rm -rf /run/log/journal/* /var/log/journal/*
+            systemctl start $UNITS
+            """)
             self.allow_journal_messages("Specifying boot ID or boot offset has no effect, no persistent journal was found.*")
+            # restarting systemd-journald-dev-log.socket causes this
+            self.allow_journal_messages('.*avc:  denied  { accept } for  pid=1 comm="systemd" path="/run/systemd/journal/dev-log".*')
 
     def injectExtras(self):
         self.browser.inject_js("""

@@ -81,6 +81,9 @@ void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,
                                                        gboolean valid_utf8);
 
+void                cockpit_channel_internal_recv     (CockpitChannel *self,
+                                                       GBytes *payload);
+
 JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);

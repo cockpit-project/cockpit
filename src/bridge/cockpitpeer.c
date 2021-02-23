@@ -52,6 +52,9 @@ struct _CockpitPeer {
   GHashTable *channels;
   GQueue *frozen;
 
+  /* Channel redirections */
+  GHashTable *channel_redirects;
+
   /* Authorize types we will reply to */
   GHashTable *authorize_values;
   guint authorize_values_timeout;
@@ -154,7 +157,25 @@ on_other_recv (CockpitTransport *transport,
 
   if (channel)
     {
-      cockpit_transport_send (self->transport, channel, payload);
+      /* Check whether the channel isn't supposed to be redirected */
+      CockpitRedirect *redirect = g_hash_table_lookup (self->channel_redirects, channel);
+      if (redirect)
+        {
+          if (!cockpit_redirect_send (redirect, payload))
+            {
+              /* Can't write to redirect target - close the channel */
+              JsonObject *object = cockpit_transport_build_json ("command", "close", NULL);
+              json_object_set_string_member (object, "channel", channel);
+              json_object_set_string_member (object, "problem", "redirect-target-closed");
+              GBytes *close_payload = cockpit_json_write_bytes (object);
+              json_object_unref (object);
+
+              cockpit_transport_send (transport, NULL, close_payload);
+              g_bytes_unref (close_payload);
+            }
+        }
+      else
+        cockpit_transport_send (self->transport, channel, payload);
       return TRUE;
     }
 
@@ -433,7 +454,11 @@ on_other_control (CockpitTransport *transport,
     }
 
   g_free (type);
-  return TRUE;
+
+  /* Note: close command on a redirect target should trigger the closing of the source channel.
+   * Therefore it is necessary not to stop signal emission in case of a close command.
+   */
+  return !g_str_equal (command, "close");
 }
 
 static const gchar *
@@ -624,6 +649,7 @@ static void
 cockpit_peer_init (CockpitPeer *self)
 {
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  self->channel_redirects = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   self->authorize_values = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                   g_free, clear_authorize_value);
 }
@@ -708,6 +734,7 @@ cockpit_peer_finalize (GObject *object)
   CockpitPeer *self = COCKPIT_PEER (object);
 
   g_hash_table_destroy (self->channels);
+  g_hash_table_destroy (self->channel_redirects);
   g_hash_table_destroy (self->authorize_values);
 
   if (self->config)
@@ -904,6 +931,7 @@ spawn_process_for_config (CockpitPeer *self)
  * @peer: The peer object
  * @channel: The channel to handle
  * @options: The parsed "open" message
+ * @redirect_target: Channel or transport this channel is redirected to (or null)
  * @data: The raw payload for the "open" message
  *
  * Tell the peer bridge to handle this channel.
@@ -914,6 +942,7 @@ gboolean
 cockpit_peer_handle (CockpitPeer *self,
                      const gchar *channel,
                      JsonObject *options,
+                     CockpitRedirect *redirect_target,
                      GBytes *data)
 {
   const gchar *user = NULL;
@@ -921,6 +950,7 @@ cockpit_peer_handle (CockpitPeer *self,
   const gchar *host = NULL;
   const gchar *host_key = NULL;
   const gchar *superuser = NULL;
+  g_autoptr(GBytes) new_payload = NULL;
 
   g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
   g_return_val_if_fail (channel != NULL, FALSE);
@@ -998,6 +1028,26 @@ cockpit_peer_handle (CockpitPeer *self,
     }
 
   g_hash_table_add (self->channels, g_strdup (channel));
+  if (redirect_target)
+    {
+      g_hash_table_insert (self->channel_redirects, g_strdup (channel), g_object_ref (redirect_target));
+
+      // Check if the redirect channel exists on the peer. If not, modify the open message so it doesn't include the
+      // redirect option, which would otherwise cause an error.
+      const gchar *redirect_channel = NULL;
+      cockpit_json_get_string (options, "redirect", NULL, &redirect_channel);
+      g_assert (redirect_channel != NULL);
+
+      if (!g_hash_table_lookup (self->channel_redirects, redirect_channel))
+        {
+          JsonObject *open_command = cockpit_json_parse_bytes (data, NULL);
+          g_assert (open_command != NULL);
+          json_object_remove_member (open_command, "redirect");
+
+          new_payload = cockpit_json_write_bytes (open_command);
+          json_object_unref (open_command);
+        }
+    }
 
   if (self->timeout)
     {
@@ -1009,7 +1059,7 @@ cockpit_peer_handle (CockpitPeer *self,
   if (self->inited)
     {
       g_debug ("%s: handling channel \"%s\" on peer", self->name, channel);
-      on_transport_control (self->transport, "open", channel, options, data, self);
+      on_transport_control (self->transport, "open", channel, options, new_payload ? new_payload : data, self);
     }
 
   /* Not yet inited, so freeze this channel and push back into the queue */
@@ -1020,7 +1070,7 @@ cockpit_peer_handle (CockpitPeer *self,
         self->frozen = g_queue_new ();
       g_queue_push_tail (self->frozen, g_strdup (channel));
       cockpit_transport_freeze (self->transport, channel);
-      cockpit_transport_emit_recv (self->transport, NULL, data);
+      cockpit_transport_emit_recv (self->transport, NULL, new_payload ? new_payload : data);
     }
 
   return TRUE;

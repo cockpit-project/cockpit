@@ -21,6 +21,7 @@
 #define __COCKPIT_PEER_H__
 
 #include "common/cockpittransport.h"
+#include "common/cockpitredirect.h"
 
 G_BEGIN_DECLS
 
@@ -56,6 +57,7 @@ CockpitTransport *  cockpit_peer_ensure_with_done                (CockpitPeer *p
 gboolean            cockpit_peer_handle                          (CockpitPeer *peer,
                                                                   const gchar *channel,
                                                                   JsonObject *options,
+                                                                  CockpitRedirect *redirect_target,
                                                                   GBytes *data);
 
 void                cockpit_peer_reset                           (CockpitPeer *peer);

@@ -138,7 +138,7 @@ on_transport_control (CockpitTransport *transport,
 
   if (channel && g_str_equal (command, "open"))
     {
-      if (tc->peer && cockpit_peer_handle (tc->peer, channel, options, message))
+      if (tc->peer && cockpit_peer_handle (tc->peer, channel, options, NULL, message))
         {
           return TRUE;
         }

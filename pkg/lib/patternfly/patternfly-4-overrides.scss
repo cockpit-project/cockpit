@@ -98,3 +98,11 @@ svg {
     // PF3 sets a margin which messes with PF4, so set PF4's rule again here (Cockpit-specific mix of PF3+PF4)
     margin-top: var(--pf-c-radio__input--MarginTop);
 }
+
+// Add some spacing to nested form groups - PF4 does not support these yet
+// https://github.com/patternfly/patternfly-design/issues/1012
+.pf-c-form__group-control {
+    > .pf-c-form__group, .pf-c-form__section {
+        padding-top: var(--pf-global--spacer--md);
+    }
+}

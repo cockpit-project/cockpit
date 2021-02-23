@@ -40,7 +40,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
-import { onCreateTimer, timerDialogSetup } from "./timer-dialog.js";
+import { CreateTimerDialog } from "./timer-dialog.jsx";
 import moment from "moment";
 import { page_status } from "notifications";
 import cockpit from "cockpit";
@@ -180,9 +180,6 @@ class ServicesPage extends React.Component {
 
         cockpit.addEventListener("locationchanged", this.on_navigate);
         this.on_navigate();
-
-        /* Prepare the "Create timer" dialog - TODO: this needs to be rewritten in React */
-        timerDialogSetup();
 
         this.systemd_subscription = systemd_client.call(SD_OBJ, SD_MANAGER, "Subscribe", null)
                 .finally(this.listUnits)
@@ -748,10 +745,7 @@ class ServicesPage extends React.Component {
             <>
                 <ToolbarItem variant="separator" />
                 <ToolbarItem>
-                    { this.state.privileged && <Button key='create-timer-action' variant="secondary"
-                                                       id="create-timer"
-                                                       onClick={onCreateTimer}>{_("Create timer")}</Button>
-                    }
+                    { this.state.privileged && <CreateTimerDialog /> }
                 </ToolbarItem>
             </>}
         </>;

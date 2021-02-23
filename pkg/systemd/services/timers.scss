@@ -1,0 +1,29 @@
+.timer-dialog {
+    .delay-group > .pf-c-form__group-control {
+        display: inline-flex;
+        column-gap: var(--pf-global--spacer--sm);
+    }
+
+    .specific-no-repeat {
+        margin-top: var(--pf-global--spacer--xs);
+    }
+
+    .specific-repeat-group {
+        margin-top: var(--pf-global--spacer--sm);
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: var(--pf-global--spacer--sm);
+        row-gap: var(--pf-global--spacer--sm);
+
+        // Move row add/remove buttons to the right
+        > .action-group {
+            margin-left: auto;
+        }
+
+        // Limit the width of the components so that they fit in a singe row
+        .pf-c-date-picker, .delay-number, select {
+            width: 10rem;
+            max-width: 10rem;
+        }
+    }
+}

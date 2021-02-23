@@ -2,7 +2,6 @@ debianbrandingdir = $(datadir)/cockpit/branding/debian
 
 debianbranding_DATA = \
 	src/branding/debian/branding.css \
-	src/branding/debian/favicon.ico \
 	$(NULL)
 
 EXTRA_DIST += $(debianbranding_DATA)

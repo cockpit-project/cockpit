@@ -629,8 +629,7 @@ add_dynamic_args_to_array (gchar ***key,
     {
       GString *s = g_string_new ("");
       GBytes *input = g_bytes_new_static (config_args[i], strlen(config_args[i]) + 1);
-      GList *output = cockpit_template_expand (input, substitute_json_string,
-                                               "${", "}", options);
+      GList *output = cockpit_template_expand (input, "${", "}", substitute_json_string, options);
       GList *l;
       for (l = output; l != NULL; l = g_list_next (l))
         {
@@ -1251,8 +1250,7 @@ cockpit_router_add_bridge (CockpitRouter *self,
 
   /* See if we have any variables in the JSON */
   bytes = cockpit_json_write_bytes (config);
-  output = cockpit_template_expand (bytes, substitute_json_string,
-                                    "${", "}", NULL);
+  output = cockpit_template_expand (bytes, "${", "}", substitute_json_string, NULL);
   rule = g_new0 (RouterRule, 1);
   rule->config = json_object_ref (config);
 

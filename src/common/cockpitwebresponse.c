@@ -1184,8 +1184,7 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   if (!input)
     input = g_bytes_new_static (default_failure_template, strlen (default_failure_template));
-  output = cockpit_template_expand (input, substitute_message,
-                                    "@@", "@@", (gpointer)message);
+  output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
   g_bytes_unref (input);
 
   /* If sending arbitrary messages, make sure they're escaped */
@@ -1380,7 +1379,7 @@ again:
   body = g_mapped_file_get_bytes (file);
   if (template_func)
     {
-      output = cockpit_template_expand (body, template_func, "${", "}", user_data);
+      output = cockpit_template_expand (body, "${", "}", template_func, user_data);
     }
   else
     {

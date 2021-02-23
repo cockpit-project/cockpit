@@ -35,6 +35,7 @@ jobs:
         with:
           path: weblate
           repository: ${{ github.repository }}-weblate
+          ref: "rhel-9.0"
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Commit .pot to weblate repo

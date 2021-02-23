@@ -30,6 +30,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: ${{ github.repository }}-weblate
+          ref: "rhel-9.0"
           path: weblate
 
       - name: Copy .po files from weblate repository

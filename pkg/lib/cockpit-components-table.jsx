@@ -55,6 +55,7 @@ import './cockpit-components-table.scss';
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
+ * - style: object of additional css rules
  */
 export class ListingTable extends React.Component {
     constructor(props) {
@@ -270,6 +271,9 @@ export class ListingTable extends React.Component {
                 tableProps.rows = [{ cells: emptyStateCell }];
         }
 
+        if (this.props.style)
+            tableProps.style = this.props.style;
+
         if (!isTableBasic) {
             return (
                 <Table {...tableProps}>
@@ -299,6 +303,7 @@ ListingTable.propTypes = {
     actions: PropTypes.node,
     variant: PropTypes.string,
     showHeader: PropTypes.bool,
+    style: PropTypes.object,
 };
 
 const ComposableTableBasic = ({

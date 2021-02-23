@@ -60,12 +60,12 @@ class _TestCls:
         self.file = filename
         self.cls = test_class
         self.name = test_class.__name__
-        self.tests: List[_Test] = []
+        self.tests = []
 
 
 def filepath_tests(filename) -> List[_TestCls]:
     test_loader = unittest.TestLoader()
-    output: List[_TestCls] = []
+    output = []
     loader = importlib.machinery.SourceFileLoader("non_important", filename)
     module = importlib.util.module_from_spec(
         importlib.util.spec_from_loader(loader.name, loader)

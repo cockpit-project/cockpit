@@ -967,3 +967,165 @@ cockpit_json_to_hash_table (JsonObject *object,
 
   return hash_table;
 }
+
+typedef const struct {
+  CockpitJsonWalkCallback callback;
+  gpointer                user_data;
+} WalkClosure;
+
+static JsonNode *
+cockpit_json_walk_node (JsonNode    *node,
+                        WalkClosure *closure);
+
+static JsonArray *
+cockpit_json_walk_array (JsonArray   *array,
+                         WalkClosure *closure)
+{
+  gint n = json_array_get_length (array);
+  JsonArray *copy = NULL;
+
+  for (gint i = 0; i < n; i++)
+    {
+      JsonNode *element = json_array_get_element (array, i);
+      JsonNode *node = cockpit_json_walk_node (element, closure);
+
+      if (node && !copy)
+        {
+          /* We've decided we need to copy now, so revisit everything up
+           * to this point and add it to the copy.
+           */
+          copy = json_array_sized_new (n);
+          for (gint j = 0; j < i; j++)
+            json_array_add_element (copy, json_array_dup_element (array, j));
+        }
+
+      if (copy)
+        json_array_add_element (copy, node ?: json_node_ref (element));
+    }
+
+  return copy;
+}
+
+static JsonObject *
+cockpit_json_walk_object (JsonObject  *object,
+                          WalkClosure *closure)
+{
+  JsonObject *copy = NULL;
+  JsonObjectIter iter;
+  const gchar *key;
+  JsonNode *value;
+
+  json_object_iter_init (&iter, object);
+  while (json_object_iter_next (&iter, &key, &value))
+    {
+      JsonNode *node = cockpit_json_walk_node (value, closure);
+
+      if (node && !copy)
+        {
+          const gchar *this_key = key;
+
+          /* We've decided we need to copy now, so revisit everything up
+           * to this point and add it to the copy.
+           */
+          copy = json_object_new ();
+          json_object_iter_init (&iter, object);
+          while (json_object_iter_next (&iter, &key, &value) && key != this_key)
+            json_object_set_member (copy, key, json_node_ref (value));
+
+          /* ...now key and value will be where they were before we entered */
+          g_assert (key == this_key);
+        }
+
+      if (copy)
+        json_object_set_member (copy, key, node ?: json_node_ref (value));
+    }
+
+  return copy;
+}
+
+static JsonNode *
+cockpit_json_walk_node (JsonNode    *node,
+                        WalkClosure *closure)
+{
+  JsonNode *new_node = NULL;
+
+  switch (json_node_get_node_type (node))
+    {
+    case JSON_NODE_ARRAY:
+      {
+        JsonArray *array = json_node_get_array (node);
+        JsonArray *copy = cockpit_json_walk_array (array, closure);
+
+        if (copy)
+          {
+            new_node = json_node_new (JSON_NODE_ARRAY);
+            json_node_take_array (new_node, copy ?: json_array_ref (array));
+          }
+
+        break;
+      }
+
+    case JSON_NODE_OBJECT:
+      {
+        JsonObject *object = json_node_get_object (node);
+        JsonObject *copy = cockpit_json_walk_object (object, closure);
+
+        if (copy)
+          {
+            new_node = json_node_new (JSON_NODE_OBJECT);
+            json_node_take_object (new_node, copy ?: json_object_ref (object));
+          }
+
+        break;
+      }
+
+    default:
+      {
+        new_node = (* closure->callback) (node, closure->user_data);
+        break;
+      }
+    }
+
+  return new_node;
+}
+
+/**
+ * cockpit_json_walk:
+ * @object: an immutable #JsonObject
+ * @callback: a #CockpitJsonWalkCallback
+ * @user_data: user data for @callback
+ *
+ * Recursively visits each node contained in @object, calling @callback
+ * on each simple value type to allow point replacements of values.
+ * @object must be immutable; the resulting value will be returned.
+ *
+ * If @callback returns %NULL then no replacement is performed.
+ * Otherwise, the #JsonNode returned by @callback is used in place of
+ * the value which was previously found.
+ *
+ * @object must be immutable, and the result will also be immutable.
+ * The two trees will be shared to the extent possible, which means that
+ * if a particular branch of the original tree contained no
+ * replacements, then that branch will be used.  In particular, if no
+ * replacements are performed at all, then this function is equivalent
+ * to json_object_ref().
+ *
+ * Returns: (transfer full): the resulting tree (immutable)
+ */
+JsonObject *
+cockpit_json_walk (JsonObject              *object,
+                   CockpitJsonWalkCallback  callback,
+                   gpointer                 user_data)
+{
+  g_return_val_if_fail (json_object_is_immutable (object), NULL);
+
+  WalkClosure closure = { callback, user_data };
+  JsonObject *copy = cockpit_json_walk_object (object, &closure);
+
+  if (!copy)
+    return json_object_ref (object);
+
+  json_object_seal (copy);
+
+  return copy;
+}

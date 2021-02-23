@@ -310,56 +310,51 @@ export function getSeverityIcon(info, secSeverity, iconSize = "fa-sm") {
         return `pficon pficon-enhancement ${iconSize}`;
 }
 
-const yum_plugin_enabled_re = /^\s*enabled\s*=\s*1\s*$/m;
-
 /**
  * Check Red Hat subscription-manager if if this is an unregistered RHEL
- * system. If subscription-manager is not installed or enabled in yum/dnf,
- * nothing happens.
+ * system. If subscription-manager is not installed or required (not a
+ * Red Hat product), nothing happens.
  *
  * callback: Called with a boolean (true: registered, false: not registered)
  *           after querying subscription-manager once, and whenever the value
  *           changes.
  */
 export function watchRedHatSubscription(callback) {
-    // first check if subscription-manager is enabled in yum/dnf
-    cockpit.file("/etc/yum/pluginconf.d/subscription-manager.conf").read()
-            .then(contents => {
-                if (!contents || !yum_plugin_enabled_re.test(contents))
+    const sm = cockpit.dbus("com.redhat.RHSM1");
+
+    function check() {
+        sm.call(
+            "/com/redhat/RHSM1/Entitlement", "com.redhat.RHSM1.Entitlement", "GetStatus", ["", ""])
+                .then(result => {
+                    const status = JSON.parse(result[0]);
+                    callback(status.valid);
+                })
+                .catch(ex => console.warn("Failed to query RHEL subscription status:", JSON.stringify(ex)));
+    }
+
+    // check if subscription is required on this system, i.e. whether there are any installed products
+    sm.call("/com/redhat/RHSM1/Products", "com.redhat.RHSM1.Products", "ListInstalledProducts", ["", {}, ""])
+            .then(result => {
+                const products = JSON.parse(result[0]);
+                if (products.length === 0)
                     return;
 
-                var sm = cockpit.dbus("com.redhat.RHSM1");
-
-                // check if this is an unregistered RHEL system; if
-                // subscription-manager is not installed, ignore
-
-                function check() {
-                    sm.call(
-                        "/com/redhat/RHSM1/Entitlement", "com.redhat.RHSM1.Entitlement", "GetStatus", ["", ""])
-                            .then(result => {
-                                const status = JSON.parse(result[0]);
-                                callback(status.valid);
-                            })
-                            .catch(ex => {
-                                if (ex.problem != "not-found")
-                                    console.warn("Failed to query RHEL subscription status:", JSON.stringify(ex));
-                            });
-                }
-
+                // check if this is an unregistered RHEL system
                 sm.subscribe(
                     {
                         path: "/com/redhat/RHSM1/Entitlement",
                         interface: "com.redhat.RHSM1.Entitlement",
                         member: "EntitlementChanged"
                     },
-                    (path, iface, signal, args) => {
-                        check();
-                    });
+                    () => check()
+                );
 
                 check();
             })
-            // non-existing files don't error (contents is null for them), so we don't expect this
-            .catch(ex => console.warn("Failed to read /etc/yum/pluginconf.d/subscription-manager.conf:", ex));
+            .catch(ex => {
+                if (ex.problem != "not-found")
+                    console.warn("Failed to query RHSM products:", JSON.stringify(ex));
+            });
 }
 
 /* Support for installing missing packages.

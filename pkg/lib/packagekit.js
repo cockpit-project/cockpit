@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import { superuser } from 'superuser';
+import { superuser } from './superuser';
 
 const _ = cockpit.gettext;
 
@@ -279,7 +279,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                             progress_cb = null;
                             reject(new TransactionError(cancelled ? "cancelled" : code, detail));
                         },
-                        Finished: (exit, runtime) => {
+                        Finished: exit => {
                             progress_cb = null;
                             resolve(exit);
                         },

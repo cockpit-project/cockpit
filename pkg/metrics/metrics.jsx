@@ -20,7 +20,10 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import moment from "moment";
+
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
+import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import {
     Alert,
     Breadcrumb, BreadcrumbItem,
@@ -39,6 +42,9 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import * as machine_info from "../lib/machine-info.js";
 import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+
+import { journal } from "journal";
+import "journal.css";
 
 const MSEC_PER_H = 3600000;
 const INTERVAL = 5000;
@@ -603,7 +609,24 @@ class MetricsMinute extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            expanded: false,
+            logs: null,
+            logsUrl: null,
+        };
+
+        this.expand = this.expand.bind(this);
         this.onHover = this.onHover.bind(this);
+        this.findLogs = this.findLogs.bind(this);
+    }
+
+    componentDidUpdate(_, prevState) {
+        if (prevState.expanded === false && this.state.expanded === true)
+            this.findLogs(this.props.events.start - 4, this.props.events.end + 4); // +- 20s
+    }
+
+    expand(isOpenCurrent) {
+        this.setState({ expanded: isOpenCurrent });
     }
 
     onHover(ev) {
@@ -622,6 +645,40 @@ class MetricsMinute extends React.Component {
                 tooltip += `${RESOURCES[t].name}: ${RESOURCES[t].format(v)}\n`;
         });
         ev.target.setAttribute("title", tooltip);
+    }
+
+    findLogs(start, end) {
+        const timestamp = this.props.startTime + (this.props.minute * 60000);
+        const time = moment.utc(timestamp);
+        const start_minute = Math.floor(start / SAMPLES_PER_MIN);
+        const start_second = (start - (start_minute * SAMPLES_PER_MIN)) * (60 / SAMPLES_PER_MIN);
+        const end_minute = Math.floor(end / SAMPLES_PER_MIN);
+        const end_second = (end - (end_minute * SAMPLES_PER_MIN)) * (60 / SAMPLES_PER_MIN);
+
+        time.set({ minute: start_minute, second: start_second });
+        const since = time.format("YYYY-MM-DD HH:mm:ss UTC");
+
+        time.set({ minute: end_minute, second: end_second });
+        const until = time.format("YYYY-MM-DD HH:mm:ss UTC");
+
+        const match = { priority: "info", since: since, until: until, follow: false, count: 10 };
+        const journalctl = journal.journalctl(match);
+
+        const out = new JournalOutput(match);
+        out.render_day_header = () => { return null };
+        const render = journal.renderer(out);
+
+        const logsUrl = `/system/logs/#/?priority=info&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&follow=false`;
+
+        journalctl.stream((entries) => {
+            entries.forEach(entry => render.prepend(entry));
+            render.prepend_flush();
+            this.setState({ logs: out.logs, logsUrl: logsUrl });
+        })
+                .then(() => {
+                    if (out.logs.length === 0)
+                        this.setState({ logs: [], logsUrl: logsUrl });
+                });
     }
 
     render() {
@@ -663,10 +720,38 @@ class MetricsMinute extends React.Component {
         let events = null;
         if (this.props.events) {
             const timestamp = this.props.startTime + (this.props.minute * 60000);
-            events = <dl className="metrics-events" style={{ "--metrics-minute": this.props.minute }}>
-                <dt><time>{ moment(timestamp).format('LT') }</time></dt>
-                { this.props.events.map(t => <dd key={ t }>{ RESOURCES[t].event_description }</dd>) }
-            </dl>;
+            const desc = <div className="description">
+                { this.props.events.events.map(t => <span className="type" key={ t }>{ RESOURCES[t].event_description }</span>) }
+                <div className="details">
+                    <time>{ moment(timestamp).format('LT') }</time>
+                    {this.state.expanded && this.state.logsUrl ? <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>{_("All logs")}</Button> : null}
+                </div>
+            </div>;
+
+            let body = " "; // Cannot be false-y, otherwise table does not show '>'
+            if (this.state.expanded) {
+                body = <div className="cockpit-log-panel">
+                    {this.state.logs === null ? _("Loading...") : this.state.logs.length === 0 ? _("No logs found") : this.state.logs}
+                </div>;
+            }
+
+            const entry = [{
+                props: { key: timestamp, 'data-row-id': timestamp },
+                columns: [{ title: desc }],
+                hasPadding: false,
+                expandedContent: body,
+            }];
+
+            events = <ListingTable aria-label={ _("Event logs") }
+                                   className="metrics-events"
+                                   style={{ "--metrics-minute": this.props.minute, "--pf-c-table--BorderColor": "#fff" }}
+                                   showHeader={false}
+                                   variant="compact"
+                                   afterToggle={this.expand}
+                                   columns={[
+                                       { title: _("Event") },
+                                   ]}
+                                   rows={entry} />;
         }
 
         return (
@@ -743,10 +828,13 @@ class MetricsHour extends React.Component {
                 if (prev_val !== null && (value - prev_val > 0.25 || (prev_val < 0.75 && value >= 0.8))) {
                     const minute = Math.floor(i / SAMPLES_PER_MIN);
                     if (minute_events[minute] === undefined)
-                        minute_events[minute] = [];
+                        minute_events[minute] = { events: [], start: i - 1 };
+
+                    minute_events[minute].end = i;
+
                     // For every minute show each type of event max once
-                    if (minute_events[minute].indexOf(type) === -1)
-                        minute_events[minute].push(type);
+                    if (minute_events[minute].events.indexOf(type) === -1)
+                        minute_events[minute].events.push(type);
                 }
                 prev_val = value;
             });

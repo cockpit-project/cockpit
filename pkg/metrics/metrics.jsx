@@ -599,71 +599,35 @@ const SvgGraph = ({ data, resource, have_sat }) => {
     );
 };
 
-// data: type → SAMPLES_PER_H objects from startTime
-const MetricsHour = ({ startTime, data, clipLeading }) => {
-    // compute graphs
-    const graphs = [];
+class MetricsMinute extends React.Component {
+    constructor(props) {
+        super(props);
 
-    // normalize data
-    const normData = data.map(sample => {
-        if (sample === null)
-            return null;
-        const n = {};
-        for (const type in sample)
-            n[type] = (sample[type] !== null && sample[type] !== undefined) ? RESOURCES[type].normalize(sample[type]) : null;
-        return n;
-    });
+        this.onHover = this.onHover.bind(this);
+    }
 
-    // compute spike events
-    const minute_events = {};
-    for (const type in RESOURCES) {
-        let prev_val = data[0] ? data[0][type] : null;
-        normData.forEach((samples, i) => {
-            if (samples === null)
-                return;
-            const value = samples[type];
-            // either high enough slope, or crossing the 80% threshold
-            if (prev_val !== null && (value - prev_val > 0.25 || (prev_val < 0.75 && value >= 0.8))) {
-                const minute = Math.floor(i / SAMPLES_PER_MIN);
-                if (minute_events[minute] === undefined)
-                    minute_events[minute] = [];
-                // For every minute show each type of event max once
-                if (minute_events[minute].indexOf(type) === -1)
-                    minute_events[minute].push(type);
-            }
-            prev_val = value;
+    onHover(ev) {
+        // FIXME - throttle debounce this
+        const bounds = ev.target.getBoundingClientRect();
+        const offsetY = (ev.clientY - bounds.y) / bounds.height;
+        const indexOffset = Math.floor((1 - offsetY) * SAMPLES_PER_MIN);
+        const sample = this.props.rawData[indexOffset];
+        if (!sample)
+            return;
+
+        const time = moment(this.props.startTime + this.props.minute * 60000 + indexOffset * INTERVAL).format("LTS");
+        let tooltip = time + "\n\n";
+        Object.entries(sample).forEach(([t, v]) => {
+            if (v !== null && v !== undefined)
+                tooltip += `${RESOURCES[t].name}: ${RESOURCES[t].format(v)}\n`;
         });
+        ev.target.setAttribute("title", tooltip);
     }
 
-    const events = [];
-    for (const minute in minute_events) {
-        events.push(
-            <dl key={minute} className="metrics-events" style={{ "--metrics-minute": minute }}>
-                <dt><time>{ moment(startTime + (minute * 60000)).format('LT') }</time></dt>
-                { minute_events[minute].map(t => <dd key={ t }>{ RESOURCES[t].event_description }</dd>) }
-            </dl>);
-    }
+    render() {
+        const first = this.props.data.find(i => i !== null);
 
-    let minutes = 60;
-    if (clipLeading) {
-        // When clipping of empty leading minutes is allowed, find the highest 5 minute interval with valid data
-        let m = 55;
-        for (; m >= 0; m = m - 5) {
-            const dataOffset = m * SAMPLES_PER_MIN;
-            const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN * 5);
-            if (dataSlice.find(i => i !== null)) {
-                break;
-            }
-        }
-        minutes = m + 5;
-    }
-
-    for (let minute = minutes - 1; minute >= 0; --minute) {
-        const dataOffset = minute * SAMPLES_PER_MIN;
-        const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
-        const first = dataSlice.find(i => i !== null);
-
-        ['cpu', 'memory', 'disks', 'network'].forEach(resource => {
+        const graphs = ['cpu', 'memory', 'disks', 'network'].map(resource => {
             // not all resources have a saturation metric
             let have_sat = !!RESOURCES["sat_" + resource];
 
@@ -671,85 +635,144 @@ const MetricsHour = ({ startTime, data, clipLeading }) => {
             if (resource === "memory" && swapTotal === undefined)
                 have_sat = false;
 
-            let graph;
-            if (minute_events[minute]) {
+            let graph = null;
+            if (this.props.events) {
                 // render full SVG graphs for "expanded" minutes with events
-                graph = <SvgGraph data={dataSlice} resource={resource} have_sat={have_sat} />;
-            } else if (!first) {
-                // no data, just render .metrics-data container for the dotted line
-                graph = null;
-            } else {
+                graph = <SvgGraph key={resource} data={this.props.data} resource={resource} have_sat={have_sat} />;
+            } else if (first) {
                 // render simple bars for "compressed" minutes without events
-                graph = (
-                    <div className="compressed" style={{ "--utilization": first["use_" + resource] || 0, "--saturation": first["sat_" + resource] || 0 }}>
-                        <div className="utilization" />
-                        { have_sat && <div className="saturation" /> }
-                    </div>);
+                graph = <div key={resource} className="compressed" style={{ "--utilization": first["use_" + resource] || 0, "--saturation": first["sat_" + resource] || 0 }}>
+                    <div className="utilization" />
+                    { have_sat && <div className="saturation" /> }
+                </div>;
             }
 
-            graphs.push(
+            return (
                 <div
-                    key={ resource + startTime + minute }
+                    key={ resource + this.props.startTime + this.props.minute }
                     className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") }
-                    style={{ "--metrics-minute": minute }}
+                    style={{ "--metrics-minute": this.props.minute }}
                     aria-hidden="true"
+                    onMouseMove={this.onHover}
                 >
                     {graph}
-                </div>);
+                </div>
+            );
         });
+
+        let events = null;
+        if (this.props.events) {
+            const timestamp = this.props.startTime + (this.props.minute * 60000);
+            events = <dl className="metrics-events" style={{ "--metrics-minute": this.props.minute }}>
+                <dt><time>{ moment(timestamp).format('LT') }</time></dt>
+                { this.props.events.map(t => <dd key={ t }>{ RESOURCES[t].event_description }</dd>) }
+            </dl>;
+        }
+
+        return (
+            <>
+                { events }
+                { graphs }
+            </>
+        );
+    }
+}
+
+class MetricsHour extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            minuteGraphs: [],
+            minutes: 0,
+            dataItems: 0,
+        };
+
+        this.updateGraphs = this.updateGraphs.bind(this);
     }
 
-    // FIXME: throttle-debounce this
-    const updateTooltip = ev => {
-        // event usually happens on an <svg> or its child, so also consider the parent elements
-        let el = ev.target;
-        let dataElement = null;
-        for (let i = 0; i < 3; ++i) {
-            if (el.classList.contains("metrics-data")) {
-                dataElement = el;
-                break;
-            } else {
-                if (el.parentElement)
-                    el = el.parentElement;
-                else
+    componentDidMount() {
+        this.updateGraphs(this.props.data, this.props.startTime);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (this.state.dataItems !== nextProps.data.length || this.props.startTime !== nextProps.startTime) {
+            this.updateGraphs(nextProps.data, nextProps.startTime);
+            return false;
+        }
+
+        return true;
+    }
+
+    // data: type → SAMPLES_PER_H objects from startTime
+    updateGraphs(data, startTime) {
+        // Normalize data
+        const normData = data.map(sample => {
+            if (sample === null)
+                return null;
+            const n = {};
+            for (const type in sample)
+                n[type] = (sample[type] !== null && sample[type] !== undefined) ? RESOURCES[type].normalize(sample[type]) : null;
+            return n;
+        });
+
+        // Count minutes to render
+        let minutes = 60;
+        if (this.props.clipLeading) {
+            // When clipping of empty leading minutes is allowed, find the highest 5 minute interval with valid data
+            let m = 55;
+            for (; m >= 0; m = m - 5) {
+                const dataOffset = m * SAMPLES_PER_MIN;
+                const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN * 5);
+                if (dataSlice.find(i => i !== null)) {
                     break;
+                }
             }
+            minutes = m + 5;
         }
 
-        const hourElement = document.getElementById("metrics-hour-" + startTime.toString());
-
-        if (dataElement) {
-            const minute = parseInt(el.style.getPropertyValue("--metrics-minute"));
-            const bounds = dataElement.getBoundingClientRect();
-            const offsetY = (ev.clientY - bounds.y) / bounds.height;
-            const indexOffset = Math.floor((1 - offsetY) * SAMPLES_PER_MIN);
-            const sample = data[minute * SAMPLES_PER_MIN + indexOffset];
-            if (sample === null) {
-                hourElement.removeAttribute("title");
-                return;
-            }
-
-            const time = moment(startTime + minute * 60000 + indexOffset * INTERVAL).format("LTS");
-            let tooltip = time + "\n\n";
-            for (const t in sample) {
-                const v = sample[t];
-                if (v !== null && v !== undefined)
-                    tooltip += `${RESOURCES[t].name}: ${RESOURCES[t].format(v)}\n`;
-            }
-            hourElement.setAttribute("title", tooltip);
-        } else {
-            hourElement.removeAttribute("title");
+        // Compute spike events
+        const minute_events = {};
+        for (const type in RESOURCES) {
+            let prev_val = data[0] ? data[0][type] : null;
+            normData.forEach((samples, i) => {
+                if (samples === null)
+                    return;
+                const value = samples[type];
+                // either high enough slope, or crossing the 80% threshold
+                if (prev_val !== null && (value - prev_val > 0.25 || (prev_val < 0.75 && value >= 0.8))) {
+                    const minute = Math.floor(i / SAMPLES_PER_MIN);
+                    if (minute_events[minute] === undefined)
+                        minute_events[minute] = [];
+                    // For every minute show each type of event max once
+                    if (minute_events[minute].indexOf(type) === -1)
+                        minute_events[minute].push(type);
+                }
+                prev_val = value;
+            });
         }
-    };
 
-    return (
-        <div id={ "metrics-hour-" + startTime.toString() } style={{ "--metrics-minutes": minutes, "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour" onMouseMove={updateTooltip}>
-            { events }
-            { graphs }
-            <h3 className="metrics-time"><time>{ moment(startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
-        </div>
-    );
-};
+        const minuteGraphs = [];
+
+        for (let minute = minutes - 1; minute >= 0; --minute) {
+            const dataOffset = minute * SAMPLES_PER_MIN;
+            const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
+            const rawSlice = this.props.data.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
+            minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} />);
+        }
+
+        this.setState({ minuteGraphs: minuteGraphs, minutes: minutes, dataItems: this.props.data.length });
+    }
+
+    render() {
+        return (
+            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--metrics-minutes": this.state.minutes, "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour">
+                { this.state.minuteGraphs }
+                <h3 className="metrics-time"><time>{ moment(this.props.startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
+            </div>
+        );
+    }
+}
 
 class MetricsHistory extends React.Component {
     constructor(props) {
@@ -1038,7 +1061,9 @@ class MetricsHistory extends React.Component {
                 { this.state.hours.length > 0 &&
                     <Card>
                         <CardBody className="metrics-history">
-                            { this.state.hours.map((time, i) => <MetricsHour key={time} startTime={parseInt(time)} data={this.data[time]} clipLeading={i === 0} />) }
+                            { this.state.hours.map((time, i) => <MetricsHour key={time} startTime={parseInt(time)}
+                                                                             data={this.data[time]} clipLeading={i === 0}
+                            />) }
                         </CardBody>
                     </Card> }
                 {nodata_alert}

@@ -368,6 +368,38 @@ class TestHistoryMetrics(MachineCase):
                 });
             })"""))
 
+            b.logout()
+
+        #
+        # Journal logs
+        #
+
+        # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
+        # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
+        if self.machine.image in ["centos-8-stream", "rhel-8-4", "ubuntu-2004", "ubuntu-stable", "debian-stable", "debian-testing"]:
+            return
+
+        prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")
+        m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
+        m.execute('''gunzip /tmp/journal.journal.gz
+                     cp /tmp/journal.journal /var/log/journal/*/''')
+
+        login(self)
+        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.click("#metrics-hour-1615197600000 .metrics-events[style='--metrics-minute:39;'] button")
+        b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
+        b.wait_in_text(".cockpit-logline:first-child .cockpit-log-message", "cpu-piglet")
+        b.click(".cockpit-logline:first-child .cockpit-log-message")
+        b.enter_page("/system/logs")
+        b.wait_in_text(".pf-c-card__title", "cpu-piglet")
+        b.click("a:contains('Logs')")
+        b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
+
+        b.go("/metrics")
+        b.enter_page("/metrics")
+        b.click("button:contains('All logs')")
+        b.enter_page("/system/logs")
+        b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")

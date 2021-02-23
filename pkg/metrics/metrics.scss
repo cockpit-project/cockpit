@@ -1,4 +1,5 @@
 @import "../lib/page.scss";
+@import "../lib/ct-card.scss";
 @import "@patternfly/patternfly/components/Table/table.scss";
 
 #app {
@@ -242,6 +243,10 @@
         position: relative;
     }
 
+    &-history {
+        padding: 0;
+    }
+
     &-hour {
         grid-gap: var(--data-gap);
         grid-template-rows: repeat(var(--metrics-minutes), minmax(var(--data-min-height), auto));
@@ -284,23 +289,39 @@
         grid-row: 0;
         grid-column: 1 / -1;
         background: #eee;
+        margin-left: var(--pf-global--spacer--md);
     }
 
     &-events {
         grid-column: events;
         grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
-        display: grid;
-        grid-template-columns: [info] 1fr [time] 1fr;
-        align-items: baseline;
 
-        dt {
-            grid-column: time;
-            font-size: var(--pf-global--FontSize--sm);
-            grid-row: 1;
+        .description {
+            display: grid;
+            grid-template-columns: [info] 1fr [time] 1fr;
+
+            .details {
+                grid-column: time;
+                grid-row: 1;
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .type {
+                grid-column: info;
+            }
         }
 
-        dd {
-            grid-column: info;
+        // Make messages such as `Loading...` or `No logs found` centered
+        .cockpit-log-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            .cockpit-logline {
+                flex: 0 0 100%;
+            }
         }
     }
 

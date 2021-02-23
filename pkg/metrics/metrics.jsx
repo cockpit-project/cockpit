@@ -598,7 +598,7 @@ const MetricsHour = ({ startTime, data, clipLeading }) => {
                 return;
             const value = samples[type];
             // either high enough slope, or crossing the 80% threshold
-            if (prev_val !== null && (value - prev_val > 0.25 || (prev_val < 0.8 && value >= 0.8))) {
+            if (prev_val !== null && (value - prev_val > 0.25 || (prev_val < 0.75 && value >= 0.8))) {
                 const minute = Math.floor(i / SAMPLES_PER_MIN);
                 if (minute_events[minute] === undefined)
                     minute_events[minute] = [];

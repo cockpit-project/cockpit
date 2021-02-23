@@ -318,12 +318,9 @@ class TestHistoryMetrics(MachineCase):
         self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 47), 0.6)
         self.assertIn("Memory spike", events_at(1600236000000, 47))
 
-        # bigger memory spike in :53
-        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 53), 0.8)
-        self.assertIn("Memory spike", events_at(1600236000000, 53))
-
-        # continued memory spike in :54, but no new events
+        # at :54 the machine is loaded to ~80% so no event even if elevated
         self.assertGreater(getCompressedMinuteValue(b, "memory", False, 1600236000000, 54), 0.8)
+        b.wait_not_present("#metrics-hour-1600236000000 .metrics-events[style='--metrics-minute:54;']")
         if have_swap:
             self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 54), 0.0)
 
@@ -344,8 +341,8 @@ class TestHistoryMetrics(MachineCase):
         b.wait_text(".pf-c-select__toggle-text", "Today")
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, Sep 16, 2020")
-        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 53), 0.8)
-        self.assertIn("Memory spike", events_at(1600236000000, 53))
+        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 51), 0.5)
+        self.assertIn("Memory spike", events_at(1600236000000, 51))
 
         b.click(".pf-c-select__toggle")
         b.click(".pf-c-select__menu-item:contains('Today')")

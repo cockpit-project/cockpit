@@ -536,7 +536,7 @@ static const gchar *patch_data =
  "{"
   "   \"string\": \"value\","
   "   \"number\": 55,"
-  "   \"array\": [ \"one\", \"two\", \"three\" ],"
+  "   \"array\": [ \"one\", \"two\", \"three\", 4, \"five\", \"six\" ],"
   "   \"bool\": true,"
   "   \"null\": null,"
   "   \"object\": {"
@@ -561,7 +561,7 @@ static PatchFixture patch_fixtures[] = {
     "{"
      "   \"string\": 5,"
      "   \"number\": 55,"
-     "   \"array\": [ \"one\", \"two\", \"three\" ],"
+     "   \"array\": [ \"one\", \"two\", \"three\", 4, \"five\", \"six\" ],"
      "   \"bool\": true,"
      "   \"null\": null,"
      "   \"object\": {"
@@ -621,7 +621,7 @@ static PatchFixture patch_fixtures[] = {
     "{"
      "   \"string\": \"value\","
      "   \"number\": 55,"
-     "   \"array\": [ \"one\", \"two\", \"three\" ],"
+     "   \"array\": [ \"one\", \"two\", \"three\", 4, \"five\", \"six\" ],"
      "   \"bool\": true,"
      "   \"null\": null,"
      "   \"object\": {"
@@ -674,6 +674,155 @@ test_write_infinite_nan (void)
 
   json_node_free (node);
   g_free (string);
+}
+
+static JsonNode *
+flip_integer (JsonNode *node,
+              gpointer  user_data)
+{
+  int *counter = user_data;
+
+  if (json_node_get_value_type (node) != G_TYPE_INT64)
+    return NULL;
+
+  int value = json_node_get_int (node);
+
+  (*counter)++;
+
+  return json_node_init_int (json_node_alloc(), -value);
+}
+
+/* replace all three-character strings with the word 'three' */
+static JsonNode *
+three_subst (JsonNode *node,
+             gpointer  user_data)
+{
+  int *counter = user_data;
+
+  const gchar *value = json_node_get_string (node);
+
+  if (value == NULL || strlen (value) != 3)
+    return NULL;
+
+  (*counter)++;
+
+  return json_node_init_string (json_node_alloc(), "three");
+}
+
+static JsonNode *
+null_subst (JsonNode *node,
+            gpointer  user_data)
+{
+  int *counter = user_data;
+
+  (*counter)++;
+
+  return NULL;
+}
+
+static void
+test_walk (void)
+{
+  GError *error = NULL;
+
+  g_autoptr(JsonObject) source = cockpit_json_parse_object (patch_data, -1, &error);
+  g_assert_no_error (error);
+  json_object_seal (source);
+
+  /* for the nul case, we should get exactly the same object back */
+  {
+    int counter = 0;
+    g_autoptr(JsonObject) result = cockpit_json_walk (source, null_subst, &counter);
+    g_assert_cmpint (counter, ==, 13);
+    g_assert (result == source);
+  }
+
+  /* try flipping some ints */
+  {
+    const char expected[] =
+    "{"
+     "   \"string\": \"value\","
+     "   \"number\": -55,"
+     "   \"array\": [ \"one\", \"two\", \"three\", -4, \"five\", \"six\" ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": -1,"
+     "       \"two\": -2,"
+     "       \"nested\": {"
+     "           \"three\": -3"
+     "       }"
+     "   }"
+     "}";
+    int counter = 0;
+    g_autoptr(JsonObject) result = cockpit_json_walk (source, flip_integer, &counter);
+    g_assert_cmpint (counter, ==, 5);
+    cockpit_assert_json_eq (result, expected);
+  }
+
+  /* try replacing some strings */
+  {
+    const char expected[] =
+    "{"
+     "   \"string\": \"value\","
+     "   \"number\": 55,"
+     "   \"array\": [ \"three\", \"three\", \"three\", 4, \"five\", \"three\" ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": 1,"
+     "       \"two\": 2,"
+     "       \"nested\": {"
+     "           \"three\": 3"
+     "       }"
+     "   }"
+     "}";
+    int counter = 0;
+    g_autoptr(JsonObject) result = cockpit_json_walk (source, three_subst, &counter);
+    g_assert_cmpint (counter, ==, 3);
+    cockpit_assert_json_eq (result, expected);
+  }
+
+  /* try stacking multiple operations */
+  {
+    const char expected[] =
+    "{"
+     "   \"string\": \"value\","
+     "   \"number\": -55,"
+     "   \"array\": [ \"three\", \"three\", \"three\", -4, \"five\", \"three\" ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": -1,"
+     "       \"two\": -2,"
+     "       \"nested\": {"
+     "           \"three\": -3"
+     "       }"
+     "   }"
+     "}";
+
+    {
+      int counter = 0;
+      g_autoptr(JsonObject) result1 = cockpit_json_walk (source, three_subst, &counter);
+      g_assert_cmpint (counter, ==, 3);
+      counter = 0;
+      g_autoptr(JsonObject) result2 = cockpit_json_walk (result1, flip_integer, &counter);
+      g_assert_cmpint (counter, ==, 5);
+      cockpit_assert_json_eq (result2, expected);
+    }
+
+    /* ...and the other way around */
+    {
+      int counter = 0;
+      g_autoptr(JsonObject) result1 = cockpit_json_walk (source, flip_integer, &counter);
+      g_assert_cmpint (counter, ==, 5);
+      counter = 0;
+      g_autoptr(JsonObject) result2 = cockpit_json_walk (result1, three_subst, &counter);
+      g_assert_cmpint (counter, ==, 3);
+      cockpit_assert_json_eq (result2, expected);
+    }
+  }
+
 }
 
 int
@@ -737,6 +886,7 @@ main (int argc,
   g_test_add_func ("/json/write/infinite-nan", test_write_infinite_nan);
   g_test_add_func ("/json/hashtable-objects", test_hashtable_objects);
 
+  g_test_add_func ("/json/walk", test_walk);
 
   return g_test_run ();
 }

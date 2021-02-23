@@ -103,4 +103,11 @@ JsonObject *   cockpit_json_from_hash_table   (GHashTable *hash_table,
 
 GHashTable *   cockpit_json_to_hash_table     (JsonObject *object,
                                                const gchar **fields);
+
+typedef JsonNode * (* CockpitJsonWalkCallback) (JsonNode *node, gpointer user_data);
+
+JsonObject *   cockpit_json_walk              (JsonObject              *object,
+                                               CockpitJsonWalkCallback  callback,
+                                               gpointer                 user_data);
+
 #endif /* COCKPIT_JSON_H__ */

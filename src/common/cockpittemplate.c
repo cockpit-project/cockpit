@@ -78,9 +78,9 @@ find_variable (const gchar *start_marker,
 
 GList *
 cockpit_template_expand (GBytes *input,
-                         CockpitTemplateFunc func,
                          const gchar *start_marker,
                          const gchar *end_marker,
+                         CockpitTemplateFunc func,
                          gpointer user_data)
 {
   GList *output = NULL;

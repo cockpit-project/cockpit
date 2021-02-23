@@ -101,7 +101,7 @@ test_expand (TestCase *tc,
 
   input = g_bytes_new_static (fixture->input, strlen (fixture->input));
 
-  output = cockpit_template_expand (input, lookup_table, fixture->start, fixture->end, tc->variables);
+  output = cockpit_template_expand (input, fixture->start, fixture->end, lookup_table, tc->variables);
   g_bytes_unref (input);
 
   for (i = 0, l = output; fixture->output[i] != NULL; i++, l = g_list_next (l))

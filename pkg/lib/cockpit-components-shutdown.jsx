@@ -185,11 +185,7 @@ export class ShutdownModal extends React.Component {
                    </>}
             >
                 <>
-                    <Form isHorizontal onSubmit={e => {
-                        // HACK: https://github.com/patternfly/patternfly-react/issues/5299
-                        e.preventDefault();
-                        return false;
-                    }}>
+                    <Form isHorizontal>
                         <FormGroup fieldId="message" label={_("Message to logged in users")}>
                             <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={v => this.setState({ message: v })} />
                         </FormGroup>

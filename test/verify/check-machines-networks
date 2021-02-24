@@ -539,9 +539,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
         b.wait_visible("#vm-subVmTest1-network-1-source-tooltip")
 
         # Shut off domain and check changes are applied
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-network-1-model", "e1000e")
         b.wait_not_present("#vm-subVmTest1-network-1-model-tooltip")
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
@@ -661,9 +659,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
         m.execute("virsh net-define /tmp/net-test-network.xml && virsh net-start test_network")
 
         # First shut of the VM otherwise the interface will not be the same in the live and config XML https://www.redhat.com/archives/libvir-list/2019-August/msg01034.html
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # Try to edit the interface changing the source to a non deleted network
         b.click("#vm-subVmTest1-network-1-edit-dialog")

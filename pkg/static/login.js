@@ -854,30 +854,6 @@ if (window.NodeList && !NodeList.prototype.forEach)
         };
     }
 
-    function machine_application_login_reload (wanted) {
-        var base = '/' + application + '/@localhost/';
-        if (url_root)
-            base = '/' + url_root + base;
-        var embedded_url = base + 'shell/index.html';
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", base + 'manifests.json', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
-                    var resp = JSON.parse(xhr.responseText);
-                    var base1 = resp ? resp.base1 : {};
-                    if (!base1.version || base1.version < "119.x") {
-                        login_reload(embedded_url);
-                    } else
-                        login_reload(wanted);
-                } else {
-                    login_reload(embedded_url);
-                }
-            }
-        };
-        xhr.send();
-    }
-
     function clear_storage (storage, prefix, full) {
         var i = 0;
         while (i < storage.length) {
@@ -942,15 +918,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
         clear_storage(window.sessionStorage, application, false);
 
         setup_localstorage(response);
-
-        /* Make sure that the base1 version is new enough to handle
-         * urls that reference machines.
-         */
-        if (application.indexOf("cockpit+=") === 0) {
-            machine_application_login_reload(wanted);
-        } else {
-            login_reload(wanted);
-        }
+        login_reload(wanted);
     }
 
     window.onload = boot;

@@ -191,8 +191,12 @@ function validateParams(vmParams) {
             );
         }
     }
-    if (vmParams.unattendedInstallation && !vmParams.rootPassword)
-        validationFailed.password = _("Please set a root password");
+    if (vmParams.unattendedInstallation && !vmParams.userPassword && vmParams.userLogin) {
+        validationFailed.userPassword = _("User password must not be empty when user login is set");
+    }
+    if (vmParams.unattendedInstallation && vmParams.userPassword && !vmParams.userLogin) {
+        validationFailed.userLogin = _("User login must not be empty when user password is set");
+    }
 
     return validationFailed;
 }
@@ -390,32 +394,67 @@ class OSRow extends React.Component {
     }
 }
 
-const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstallation, os, profile, rootPassword, onValueChanged }) => {
-    const [password_strength, setPasswordStrength] = useState('');
-    const [password_message, setPasswordMessage] = useState('');
-    const [errors, setPasswordErrors] = useState({});
+const UnattendedRow = ({
+    onValueChanged,
+    os, profile,
+    rootPassword,
+    unattendedDisabled,
+    unattendedInstallation,
+    unattendedUserLogin,
+    userLogin, userPassword,
+    validationFailed,
+}) => {
+    const [root_pwd_strength, setRootPasswordStrength] = useState('');
+    const [root_pwd_message, setRootPasswordMessage] = useState('');
+    const [root_pwd_errors, setRootPasswordErrors] = useState({});
+
+    const [user_pwd_strength, setUserPasswordStrength] = useState('');
+    const [user_pwd_message, setUserPasswordMessage] = useState('');
+    const [user_pwd_errors, setUserPasswordErrors] = useState({});
 
     useEffect(() => {
         if (rootPassword) {
             password_quality(rootPassword)
                     .then(strength => {
-                        setPasswordErrors({});
-                        setPasswordStrength(strength.value);
-                        setPasswordMessage(strength.message || '');
+                        setRootPasswordErrors({});
+                        setRootPasswordStrength(strength.value);
+                        setRootPasswordMessage(strength.message || '');
                     })
                     .catch(ex => {
                         if (validationFailed !== undefined) {
                             const errors = {};
                             errors.password = (ex.message || ex.toString()).replace("\n", " ");
-                            setPasswordErrors(errors);
+                            setRootPasswordErrors(errors);
                         }
-                        setPasswordStrength(0);
-                        setPasswordMessage('');
+                        setRootPasswordStrength(0);
+                        setRootPasswordMessage('');
                     });
         } else {
-            setPasswordStrength('');
+            setRootPasswordStrength('');
         }
     }, [rootPassword, validationFailed]);
+
+    useEffect(() => {
+        if (userPassword) {
+            password_quality(userPassword)
+                    .then(strength => {
+                        setUserPasswordErrors({});
+                        setUserPasswordStrength(strength.value);
+                        setUserPasswordMessage(strength.message || '');
+                    })
+                    .catch(ex => {
+                        if (validationFailed !== undefined) {
+                            const errors = {};
+                            errors.password = (ex.message || ex.toString()).replace("\n", " ");
+                            setUserPasswordErrors(errors);
+                        }
+                        setUserPasswordStrength(0);
+                        setUserPasswordMessage('');
+                    });
+        } else {
+            setUserPasswordStrength('');
+        }
+    }, [userPassword, validationFailed]);
 
     let unattendedInstallationCheckbox = (
         <FormGroup fieldId="unattended-installation">
@@ -462,12 +501,31 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                 </FormGroup>}
                 <PasswordFormFields password={rootPassword}
                                     password_label={_("Root password")}
-                                    password_strength={password_strength}
+                                    password_strength={root_pwd_strength}
                                     idPrefix="create-vm-dialog-root-password"
-                                    password_message={password_message}
-                                    password_label_info={profile == 'desktop' ? _("Leave the password blank if you do not wish to have a root account created") : ""}
-                                    error_password={validationFailed && (validationFailed.password ? validationFailed.password : errors.password)}
+                                    password_message={root_pwd_message}
+                                    password_label_info={_("Leave the password blank if you do not wish to have a root account created")}
+                                    error_password={validationFailed && root_pwd_errors.password}
                                     change={(_, value) => onValueChanged('rootPassword', value)} />
+                {unattendedUserLogin && <>
+                    <FormGroup fieldId="user-login"
+                               helperTextInvalid={validationFailed.userLogin}
+                               validated={validationFailed.userLogin ? "error" : "default"}
+                               label={_("User login")}>
+                        <TextInput id='user-login'
+                                   validated={validationFailed.userLogin ? "error" : "default"}
+                                   value={userLogin || ''}
+                                   onChange={value => onValueChanged('userLogin', value)} />
+                    </FormGroup>
+                    <PasswordFormFields password={userPassword}
+                                        password_label={_("User password")}
+                                        password_strength={user_pwd_strength}
+                                        idPrefix="create-vm-dialog-user-password"
+                                        password_message={user_pwd_message}
+                                        password_label_info={_("Leave the password blank if you do not wish to have a user account created")}
+                                        error_password={validationFailed && (validationFailed.userLogin ? validationFailed.userLogin : user_pwd_errors.password)}
+                                        change={(_, value) => onValueChanged('userPassword', value)} />
+                </>}
             </>}
         </>
     );
@@ -588,7 +646,11 @@ class CreateVmModal extends React.Component {
             minimumMemory: 0,
             recommendedStorage: undefined,
             minimumStorage: 0,
+
+            // Unattended installation options
+            userPassword: '',
             rootPassword: '',
+            userLogin: '',
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -776,7 +838,9 @@ class CreateVmModal extends React.Component {
                 storageVolume: this.state.storageVolume,
                 startVm: this.state.startVm,
                 unattended: this.state.unattendedInstallation,
+                userPassword: this.state.userPassword,
                 rootPassword: this.state.rootPassword,
+                userLogin: this.state.userLogin,
             };
 
             return timeoutedPromise(
@@ -900,8 +964,11 @@ class CreateVmModal extends React.Component {
                      <UnattendedRow
                          validationFailed={validationFailed}
                          rootPassword={this.state.rootPassword}
+                         userLogin={this.state.userLogin}
+                         userPassword={this.state.userPassword}
                          unattendedDisabled={unattendedDisabled}
                          unattendedInstallation={this.state.unattendedInstallation}
+                         unattendedUserLogin={this.props.unattendedUserLogin}
                          os={this.state.os}
                          profile={this.state.profile}
                          onValueChanged={this.onValueChanged} />
@@ -941,7 +1008,8 @@ export class CreateVmAction extends React.Component {
             showModal: false,
             virtInstallAvailable: undefined,
             downloadOSSupported: undefined,
-            unattendedSupported: undefined
+            unattendedSupported: undefined,
+            unattendedUserLogin: undefined,
         };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
@@ -956,7 +1024,7 @@ export class CreateVmAction extends React.Component {
                                   () => this.setState({ downloadOSSupported: false }));
 
                     cockpit.spawn(['virt-install', '--unattended=?'], { err: 'ignore' })
-                            .then(() => this.setState({ unattendedSupported: true }),
+                            .then(options => this.setState({ unattendedSupported: true, unattendedUserLogin: options.includes('user-login') }),
                                   () => this.setState({ unattendedSupported: false }));
                 },
                       () => this.setState({ virtInstallAvailable: false }));
@@ -1023,6 +1091,7 @@ export class CreateVmAction extends React.Component {
                     onAddErrorNotification={this.props.onAddErrorNotification}
                     downloadOSSupported={this.state.downloadOSSupported}
                     unattendedSupported={this.state.unattendedSupported}
+                    unattendedUserLogin={this.state.unattendedUserLogin}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
             </>
         );

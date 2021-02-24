@@ -81,19 +81,6 @@
         }
     }
 
-    // https://github.com/patternfly/patternfly-react/issues/4613
-    .pf-c-table__expandable-row {
-        th {
-            &.pf-m-no-padding {
-                padding: 0 0 0 var(--pf-c-table__expandable-row--after--border-width--base); // set padding-left to adjust for left border.
-
-                .pf-c-table__expandable-row-content {
-                    padding: 0;
-                }
-            }
-        }
-    }
-
     .pf-c-table__expandable-row {
         [data-label]::before {
             display: None;

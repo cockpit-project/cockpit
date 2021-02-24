@@ -1243,7 +1243,7 @@ cockpit_router_add_bridge (CockpitRouter *self,
   GBytes *bytes = NULL;
 
   g_return_if_fail (COCKPIT_IS_ROUTER (self));
-  g_return_if_fail (config != NULL);
+  g_return_if_fail (config && json_object_is_immutable (config));
 
   /* Actual descriptive warning displayed elsewhere */
   if (!cockpit_json_get_object (config, "match", NULL, &match))

@@ -403,6 +403,8 @@ read_package_manifest (const gchar *directory,
           cockpit_json_patch (manifest, override);
           json_object_unref (override);
         }
+
+      json_object_seal (manifest);
     }
 
   return manifest;

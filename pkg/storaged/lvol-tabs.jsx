@@ -440,7 +440,7 @@ export class PoolVolTab extends React.Component {
         }
 
         return (
-            <DescriptionList>
+            <DescriptionList isHorizontal>
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                     <DescriptionListDescription>

@@ -488,7 +488,7 @@ cockpit_json_int_equal (gconstpointer v1,
  * @length: length of @data or -1
  * @error: optional location to return an error
  *
- * Parses JSON into a JsonNode.
+ * Parses JSON into an immutable JsonNode.
  *
  * Returns: (transfer full): the parsed node or %NULL
  */
@@ -504,7 +504,7 @@ cockpit_json_parse (const gchar *data,
   parser = g_private_get (&cached_parser);
   if (parser == NULL)
     {
-      parser = json_parser_new ();
+      parser = json_parser_new_immutable ();
       g_private_set (&cached_parser, parser);
     }
 
@@ -519,6 +519,8 @@ cockpit_json_parse (const gchar *data,
       return NULL;
     }
 
+  g_assert (json_node_is_immutable (root));
+
   return root;
 }
 
@@ -531,6 +533,8 @@ cockpit_json_parse (const gchar *data,
  * Parses JSON GBytes into a JsonObject. This is a helper function
  * combining cockpit_json_parse(), json_node_get_type() and
  * json_node_get_object().
+ *
+ * The returned JsonObject will be marked immutable.
  *
  * Returns: (transfer full): the parsed object or %NULL
  */
@@ -554,6 +558,7 @@ cockpit_json_parse_object (const gchar *data,
   else
     {
       object = json_node_dup_object (node);
+      g_assert (json_object_is_immutable (object));
     }
 
   json_node_free (node);
@@ -568,6 +573,8 @@ cockpit_json_parse_object (const gchar *data,
  * Parses JSON GBytes into a JsonObject. This is a helper function
  * combining cockpit_json_parse(), json_node_get_type() and
  * json_node_get_object().
+ *
+ * The returned JsonObject will be marked immutable.
  *
  * Returns: (transfer full): the parsed object or %NULL
  */

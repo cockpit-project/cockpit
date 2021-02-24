@@ -98,39 +98,30 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Send Non-Maskable Interrupt (no change in VM state is expected)
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-sendNMI")
+        self.performAction("subVmTest1", "sendNMI")
 
         b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # pause
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-pause")
-        b.wait_in_text("#vm-subVmTest1-state", "Paused")
+        self.performAction("subVmTest1", "pause")
 
         # resume
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-resume")
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.performAction("subVmTest1", "resume")
 
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-reboot")
+        self.performAction("subVmTest1", "reboot")
         wait(lambda: "reboot: Power down" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # force reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceReboot")
+        self.performAction("subVmTest1", "forceReboot")
         wait(lambda: "Initializing cgroup subsys" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
         # shut off
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
@@ -140,14 +131,12 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         m.execute("virsh dumpxml subVmTest1 > /tmp/subVmTest1.xml")
         m.execute("virsh start {0} && virsh undefine {0}".format("subVmTest1"))
         b.wait_visible("div[data-vm-transient=\"true\"]")
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
+        self.performAction("subVmTest1", "forceOff", False)
         b.wait_in_text("#virtual-machines-listing .pf-c-empty-state", "No VM is running")
         m.execute("virsh define --file /tmp/subVmTest1.xml")
 
         # clone
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-clone")
+        self.performAction("subVmTest1", "clone")
 
         b.wait_text(".pf-c-modal-box__title-text", "Create a clone VM based on subVmTest1")
         b.click("footer button.pf-m-primary")
@@ -177,9 +166,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
             b.wait_in_text("#vm-subVmTest2-state", "Running")
 
         # stop second VM, event handling should still work
-        b.click("#vm-subVmTest2-action-kebab button")
-        b.click("#vm-subVmTest2-forceOff")
-        b.wait_in_text("#vm-subVmTest2-state", "Shut off")
+        self.performAction("subVmTest2", "forceOff")
 
         b.click("#vm-subVmTest2-run")
 
@@ -343,8 +330,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         addDisk(secondDiskVolName, poolName)
 
-        b.click("#vm-{0}-action-kebab button".format(name))
-        b.click("#vm-{0}-delete".format(name))
+        self.performAction(name, "delete")
 
         b.wait_visible("#vm-{0}-delete-modal-dialog .modal-body:contains(The VM is running)".format(name))
         b.wait_visible("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
@@ -372,8 +358,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "Paused")
-        b.click("#vm-{0}-action-kebab button".format(name))
-        b.click("#vm-{0}-delete".format(name))
+        self.performAction(name, "delete")
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         self.waitVmRow(name, 'system', False)
 

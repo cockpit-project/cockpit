@@ -67,9 +67,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_visible("#vcpus-tooltip")
 
         # Shut off VM for applying changes after save
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # Make sure warning is gone after shut off
         b.wait_not_present("#vcpus-tooltip")
@@ -102,9 +100,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_not_present("#machines-vcpu-modal-dialog")
 
         # Shut off VM
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count button")
@@ -219,9 +215,7 @@ class TestMachinesSettings(VirtualMachinesCase):
 
         # Warning about about difference in persistent and non-persitent XML shoud appear
         b.wait_visible("#cpu-tooltip")
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
         # Warning should dissapear and changes should be visible in the UI
         b.wait_not_present("#cpu-tooltip")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
@@ -242,9 +236,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.select_from_dropdown("#cpu-model-select-group select", "host-model")
         b.click("#cpu-config-dialog-apply")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-run")
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
+        self.performAction("subVmTest1", "run")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom")
         # In the test ENV libvirt does not properly set the CPU model so we see a tooltip https://bugzilla.redhat.com/show_bug.cgi?id=1913337
         # b.wait_not_present("#cpu-tooltip")
@@ -267,9 +259,7 @@ class TestMachinesSettings(VirtualMachinesCase):
 
         # Ensure that it's disabled for running VMs
         b.wait_visible("#vm-subVmTest1-boot-order button[aria-disabled=true]")
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # Open dialog
         b.click("#vm-subVmTest1-boot-order button")
@@ -344,10 +334,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
 
         # Shut off domain and check changes are  still there
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.wait_visible("#vm-subVmTest1-forceOff")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
         b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
 
         # Click for the edit link
@@ -399,9 +386,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Shut off domain
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         # Check both changes have been applied
         b.wait_in_text("#vm-subVmTest1-cpu-model", "host passthrough")

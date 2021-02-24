@@ -1060,8 +1060,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 wait(lambda: dialog.name in self.machine.execute("virsh list --persistent"), delay=3)
 
                 # unfinished install script runs indefinitelly, so we need to force it off
-                b.click("#vm-{0}-action-kebab button".format(name))
-                b.click("#vm-{0}-forceOff".format(name))
+                self.test_obj.performAction(name, "forceOff", False)
                 # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
                 # After shutting it off virt-install will restart the domain and exit because of the above bug
 
@@ -1069,10 +1068,8 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         def _deleteVm(self, dialog):
             b = self.browser
-            vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
-            b.click("#vm-{0}-action-kebab button".format(dialog.name))
-            b.click(vm_delete_button)
+            self.test_obj.performAction(dialog.name, "delete")
             b.wait_visible("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
             b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
@@ -1366,15 +1363,13 @@ class TestMachinesCreate(VirtualMachinesCase):
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
         m.execute("> {0}".format(logfile)) # clear logfile
-        b.click("#vm-VmNotInstalled-action-kebab button")
-        b.click("#vm-VmNotInstalled-forceOff")
+        self.performAction("VmNotInstalled", "forceOff", False)
         if m.image not in ["fedora-33", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
             # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration
             wait(lambda: "char device" in self.machine.execute("cat {0}".format(logfile)), delay=3)
-            b.click("#vm-VmNotInstalled-action-kebab button")
-            b.click("#vm-VmNotInstalled-forceOff")
+            self.performAction("VmNotInstalled", "forceOff", False)
         b.wait_in_text("#vm-VmNotInstalled-state", "Shut off")
         wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1) # Wait until memory parameters get adjusted after shutting the VM
 

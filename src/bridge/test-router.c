@@ -81,6 +81,7 @@ setup (TestCase *tc,
     {
       json_object_set_boolean_member (tc->mock_config, "privileged", TRUE);
     }
+  json_object_seal (tc->mock_config);
 
   tc->mock_match = json_object_new ();
   json_object_set_string_member (tc->mock_match, "payload", payload);
@@ -120,6 +121,7 @@ setup_dynamic (TestCase *tc,
       json_array_add_string_element (env, "COCKPIT_TEST_PARAM_ENV=${payload}");
       json_object_set_array_member (tc->mock_config, "environ", env);
     }
+  json_object_seal (tc->mock_config);
 
   json_object_set_null_member (match, "payload");
   json_object_set_object_member (tc->mock_config, "match", match);
@@ -570,6 +572,7 @@ make_bridge_configs (const gchar *payload, ...)
       JsonObject *config = json_object_new ();
       json_object_set_object_member (config, "match", match);
       json_object_set_array_member (config, "spawn", spawn);
+      json_object_seal (config);
 
       configs = g_list_prepend (configs, config);
 

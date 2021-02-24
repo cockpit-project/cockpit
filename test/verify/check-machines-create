@@ -122,11 +122,14 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner = TestMachinesCreate.CreateVmRunner(self)
         config = TestMachinesCreate.TestCreateConfig
 
+        b = self.browser
+        m = self.machine
+
         self.login_and_go("/machines")
         self.browser.wait_in_text("body", "Virtual machines")
 
         # try to CREATE few machines
-        if self.machine.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
+        if m.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
             self.browser.wait_not_present('select option[value=os]')
         else:
             runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
@@ -136,12 +139,35 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                                       os_short_id=config.FEDORA_28_SHORTID,
                                                                       start_vm=True))
 
-            runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
-                                                                      is_unattended=True, profile="desktop",
-                                                                      root_password="dogsaremybestfr13nds",
-                                                                      storage_size=246, storage_size_unit='MiB',
-                                                                      os_name=config.FEDORA_28,
-                                                                      os_short_id=config.FEDORA_28_SHORTID))
+            # user-login option exists since virt-install >= 3.0.0
+            if m.image not in ['fedora-32', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", "rhel-8-4-distropkg", 'ubuntu-stable', 'ubuntu-2004']:
+                runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
+                                                                          is_unattended=True, profile="desktop",
+                                                                          user_password="catsaremybestfr13nds",
+                                                                          user_login="foo",
+                                                                          root_password="dogsaremybestfr13nds",
+                                                                          storage_size=246, storage_size_unit='MiB',
+                                                                          os_name=config.FEDORA_28,
+                                                                          os_short_id=config.FEDORA_28_SHORTID))
+
+                # Don't create root account
+                runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
+                                                                          is_unattended=True, profile="desktop",
+                                                                          user_login="foo",
+                                                                          user_password="catsaremybestfr13nds",
+                                                                          storage_size=256, storage_size_unit='MiB',
+                                                                          os_name=config.FEDORA_28,
+                                                                          os_short_id=config.FEDORA_28_SHORTID))
+            else:
+                b.click("#create-new-vm")
+                b.wait_visible("#create-vm-dialog")
+                b.click("#os-select-group > div button")
+                b.click("#os-select li:contains('{0}') button".format(config.FEDORA_28))
+                b.click("#unattended-installation")
+                b.wait_not_present("#create-vm-dialog-user-password-pw1")
+                b.wait_not_present("#user-login")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present("#create-vm-dialog")
 
             # Don't create user account
             runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
@@ -575,6 +601,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                      profile=None,
                      root_password=None,
                      user_password=None,
+                     user_login=None,
                      storage_pool='NewVolume', storage_volume='',
                      start_vm=False,
                      delete=True,
@@ -612,6 +639,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.profile = profile
             self.root_password = root_password
             self.user_password = user_password
+            self.user_login = user_login
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
@@ -712,6 +740,12 @@ class TestMachinesCreate(VirtualMachinesCase):
                 if self.root_password:
                     root_password_file = virt_install_cmd_out.split("admin-password-file=", 1)[1].split(",")[0]
                     self.assertIn(self.machine.execute("cat {0}".format(root_password_file)).rstrip(), self.root_password)
+                if self.user_password:
+                    user_password_file = virt_install_cmd_out.split("user-password-file=", 1)[1].split(",")[0]
+                    self.assertIn(self.machine.execute("cat {0}".format(user_password_file)).rstrip(), self.user_password)
+                if self.user_login:
+                    user_login = virt_install_cmd_out.split("user-login=", 1)[1].split(",")[0].rstrip()
+                    self.assertIn(user_login, self.user_login)
 
         def fill(self):
             b = self.browser
@@ -804,6 +838,10 @@ class TestMachinesCreate(VirtualMachinesCase):
                 b.click("#unattended-installation")
                 if self.profile:
                     b.select_from_dropdown("#profile-select", self.profile)
+                if self.user_password:
+                    b.set_input_text("#create-vm-dialog-user-password-pw1", self.user_password)
+                if self.user_login:
+                    b.set_input_text("#user-login", self.user_login)
                 if self.root_password:
                     b.set_input_text("#create-vm-dialog-root-password-pw1", self.root_password)
 

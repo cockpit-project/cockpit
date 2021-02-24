@@ -13,7 +13,9 @@ STORAGE_POOL="$9"
 STORAGE_VOLUME="${10}"
 UNATTENDED="${11}"
 ROOT_PASSWORD="${12}"
-PROFILE="${13}"
+USER_PASSWORD="${13}"
+USER_LOGIN="${14}"
+PROFILE="${15}"
 
 vmExists(){
    virsh -c "$CONNECTION_URI" list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
@@ -31,20 +33,32 @@ trap err_handler EXIT
 
 XMLS_FILE="`mktemp`"
 ROOT_PASSWORD_FILE="`mktemp`"
+USER_PASSWORD_FILE="`mktemp`"
 
 if [ "$UNATTENDED" = "true" ]; then
+    if [ -z "$PROFILE" ]; then
+        PROFILE_PARAM=""
+    else
+        PROFILE_PARAM="profile=$PROFILE"
+    fi
     if [ -z "$ROOT_PASSWORD" ]; then
         ROOT_PASSWORD_PARAM=''
     else
         echo "$ROOT_PASSWORD" > "$ROOT_PASSWORD_FILE"
-        ROOT_PASSWORD_PARAM="admin-password-file=$ROOT_PASSWORD_FILE"
+        ROOT_PASSWORD_PARAM=",admin-password-file=$ROOT_PASSWORD_FILE"
     fi
-    if [ -z "$PROFILE" ]; then
-        PROFILE_PARAM=""
+    if [ -z "$USER_PASSWORD" ]; then
+        USER_PASSWORD_PARAM=''
     else
-        PROFILE_PARAM=",profile=$PROFILE"
+        echo "$USER_PASSWORD" > "$USER_PASSWORD_FILE"
+        USER_PASSWORD_PARAM=",user-password-file=$USER_PASSWORD_FILE"
     fi
-    UNATTENDED_PARAMS="--unattended $ROOT_PASSWORD_PARAM$PROFILE_PARAM"
+    if [ -z "$USER_LOGIN" ]; then
+        USER_LOGIN_PARAM=""
+    else
+        USER_LOGIN_PARAM=",user-login=$USER_LOGIN"
+    fi
+    UNATTENDED_PARAMS="--unattended $PROFILE_PARAM$ROOT_PASSWORD_PARAM$USER_PASSWORD_PARAM$USER_LOGIN_PARAM"
 else
     UNATTENDED_PARAMS=""
 fi

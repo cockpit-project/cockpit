@@ -56,6 +56,7 @@ import './cockpit-components-table.scss';
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
  * - style: object of additional css rules
+ * - afterToggle: function to be called when content is toggled
  */
 export class ListingTable extends React.Component {
     constructor(props) {
@@ -100,6 +101,9 @@ export class ListingTable extends React.Component {
 
         isOpen[rowData.props.key] = isOpenCurrent;
         this.setState({ isOpen });
+
+        if (this.props.afterToggle)
+            this.props.afterToggle(isOpenCurrent);
     }
 
     sortRows(rows) {
@@ -304,6 +308,7 @@ ListingTable.propTypes = {
     variant: PropTypes.string,
     showHeader: PropTypes.bool,
     style: PropTypes.object,
+    afterToggle: PropTypes.func,
 };
 
 const ComposableTableBasic = ({

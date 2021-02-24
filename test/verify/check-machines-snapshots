@@ -75,9 +75,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         self.assertTrue(checkTimeDiff(time1, time2, 60))
 
         # Check snapshot for shutoff VM
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         time1 = datetime.now().strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
@@ -108,9 +106,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         b.wait_visible("#vm-subVmTest1-snapshots")
 
         # Shut off domain
-        b.click("#vm-subVmTest1-action-kebab button")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "Shut off")
+        self.performAction("subVmTest1", "forceOff")
 
         class SnapshotCreateDialog(object):
             def __init__(

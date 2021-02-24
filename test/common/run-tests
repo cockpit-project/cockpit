@@ -66,10 +66,10 @@ def print_test(test, print_tap=True, retry_reason=""):
             except BlockingIOError as e:
                 line = line[e.characters_written:]
                 time.sleep(0.1)
-    flush_stdout()
 
     if not print_tap:
         print(retry_reason)
+        flush_stdout()
         return
 
     print()  # Tap needs to start on a separate line

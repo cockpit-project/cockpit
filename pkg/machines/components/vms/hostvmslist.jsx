@@ -115,8 +115,6 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
         </ToolbarContent>
     </Toolbar>;
 
-    // table-hover class is needed till PF4 Table has proper support for clickable rows
-    // https://github.com/patternfly/patternfly-react/issues/3267
     return (<Page>
         <PageSection>
             <Gallery className="ct-cards-grid" hasGutter>

@@ -333,8 +333,7 @@ const ComposableTableBasic = ({
 
                                     if (cells[cellIndex].header)
                                         return (
-                                            /* FIXME: https://github.com/patternfly/patternfly-react/pull/5406 */
-                                            <Th key={key || `row_${rowKey}_cell_${dataLabel}`} data-label={dataLabel} {...cellProps}>
+                                            <Th key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
                                                 {typeof cell == 'object' ? cell.title : cell}
                                             </Th>
                                         );

@@ -1432,10 +1432,10 @@ export function attachIface({ connectionName, vmId, mac, permanent, hotplug, sou
     return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
 }
 
-export function updateDiskAttributes({ connectionName, objPath, target, readonly, shareable, busType, existingTargets }) {
+export function updateDiskAttributes({ connectionName, objPath, target, readonly, shareable, busType, existingTargets, cache }) {
     return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], { timeout, type: 'u' })
             .then(domXml => {
-                const updatedXML = updateDisk({ diskTarget: target, domXml, readonly, shareable, busType, existingTargets });
+                const updatedXML = updateDisk({ diskTarget: target, domXml, readonly, shareable, busType, existingTargets, cache });
                 return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], { timeout, type: 's' });
             });
 }

@@ -29,7 +29,7 @@ import { InfoAltIcon } from '@patternfly/react-icons';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import { updateDiskAttributes } from '../../../libvirt-dbus.js';
-import { getDiskPrettyName, getDiskFullName } from '../../../helpers.js';
+import { diskCacheModes, getDiskPrettyName, getDiskFullName } from '../../../helpers.js';
 
 import 'form-layout.scss';
 
@@ -49,6 +49,31 @@ const NameRow = ({ idPrefix, name, diskType }) => {
             <samp id={`${idPrefix}-name`}>
                 {name}
             </samp>
+        </FormGroup>
+    );
+};
+
+const CacheRow = ({ onValueChanged, dialogValues, idPrefix, shutoff }) => {
+    return (
+        <FormGroup fieldId={`${idPrefix}-cache-mode`}
+                   label={_("Cache")}
+                   labelIcon={!shutoff &&
+                       <Popover bodyContent={_("Machine must be shut off before changing cache mode")}>
+                           <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                               <InfoAltIcon noVerticalAlign />
+                           </button>
+                       </Popover>}>
+            <FormSelect id={`${idPrefix}-cache-mode`}
+                        onChange={value => onValueChanged('cacheMode', value)}
+                        isDisabled={!shutoff}
+                        value={dialogValues.cacheMode}>
+                {diskCacheModes.map(cacheMode => {
+                    return (
+                        <FormSelectOption value={cacheMode} key={cacheMode}
+                                          label={cacheMode} />
+                    );
+                })}
+            </FormSelect>
         </FormGroup>
     );
 };
@@ -125,6 +150,7 @@ export class EditDiskAction extends React.Component {
         this.state = {
             access,
             busType: props.disk.bus,
+            cacheMode: props.disk.driver.cache,
         };
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
@@ -149,6 +175,7 @@ export class EditDiskAction extends React.Component {
             readonly: this.state.access == "readonly",
             shareable: this.state.access == "shareable",
             busType: this.state.busType,
+            cache: this.state.cacheMode,
             existingTargets
         })
                 .then(() => this.setState({ isOpen: false }))
@@ -173,6 +200,11 @@ export class EditDiskAction extends React.Component {
                            onValueChanged={this.onValueChanged} />
 
                 <BusRow dialogValues={this.state}
+                        idPrefix={idPrefix}
+                        onValueChanged={this.onValueChanged}
+                        shutoff={vm.state == 'shut off'} />
+
+                <CacheRow dialogValues={this.state}
                         idPrefix={idPrefix}
                         onValueChanged={this.onValueChanged}
                         shutoff={vm.state == 'shut off'} />

@@ -37,6 +37,8 @@ export function toReadableNumber(number) {
     }
 }
 
+export const diskCacheModes = ['default', 'none', 'writethrough', 'writeback', 'directsync', 'unsafe'];
+
 export const units = {
     B: {
         name: "B",

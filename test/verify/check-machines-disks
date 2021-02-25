@@ -131,25 +131,29 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_not_present("#vm-subVmTest1-disks-vde-access-tooltip")
 
         b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
-        # Change bus type to scsi
+        b.wait_not_present("#vm-subVmTest1-disks-vde-cache")
+        # Change bus type to scsi and cache mode to writeback
         b.click("#vm-subVmTest1-disks-vde-edit")
         b.wait_visible("#vm-subVmTest1-disks-vde-edit-dialog")
         b.select_from_dropdown("#vm-subVmTest1-disks-vde-edit-bus-type", "scsi")
+        b.select_from_dropdown("#vm-subVmTest1-disks-vde-edit-cache-mode", "writeback")
 
         # Close dialog
         b.click("#vm-subVmTest1-disks-vde-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit-dialog")
         # Target has changed from vdX to sdX
         b.wait_in_text("#vm-subVmTest1-disks-sda-bus", "scsi")
+        b.wait_in_text("#vm-subVmTest1-disks-sda-cache", "writeback")
 
         # Start Vm
         b.click("#vm-subVmTest1-run")
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
-        # Test disk's bus cannot be changed on running VM
+        # Test disk's bus and cache cannot be changed on running VM
         b.click("#vm-subVmTest1-disks-sda-edit")
         b.wait_visible("#vm-subVmTest1-disks-sda-edit-dialog")
         b.wait_visible("#vm-subVmTest1-disks-sda-edit-bus-type:disabled")
+        b.wait_visible("#vm-subVmTest1-disks-sda-edit-cache-mode:disabled")
 
         # Disks on non-persistent VM cannot be edited
         m.execute("virsh undefine subVmTest1")

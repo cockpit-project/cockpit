@@ -1,7 +1,7 @@
 import { getElem, getSingleOptionalElem } from './libvirt-common.js';
 import { getNextAvailableTarget } from './helpers.js';
 
-export function updateDisk({ domXml, diskTarget, readonly, shareable, busType, existingTargets }) {
+export function updateDisk({ domXml, diskTarget, readonly, shareable, busType, existingTargets, cache }) {
     const domainElem = getElem(domXml);
     if (!domainElem)
         throw new Error("updateBootOrder: domXML has no domain element");
@@ -39,6 +39,10 @@ export function updateDisk({ domXml, diskTarget, readonly, shareable, busType, e
                 const addressElem = getSingleOptionalElem(disk, "address");
                 addressElem.remove();
             }
+
+            const driverElem = disk.getElementsByTagName("driver")[0];
+            if (cache)
+                driverElem.setAttribute("cache", cache);
         }
     }
 

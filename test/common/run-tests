@@ -229,15 +229,15 @@ def run(opts, image):
             else:
                 changed_tests = []
 
-        # Detect affected tests from changed pkg/* subdirectories
+        # Detect affected tests from changed pkg/* subdirectories in cockpit
         # If affected tests get detected from pkg/* changes, don't apply the
         # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
-        cmd = ["git", "diff", "--name-only", "origin/master", "pkg/"]
+        # (this does not apply to other projects)
+        cmd = ["git", "diff", "--name-only", "origin/master", "--", "pkg/"]
         r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if r.returncode == 0:
             changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in r.stdout.strip().splitlines())
-
-        changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
+            changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     seen_classes = {}
     for filename in test_files:

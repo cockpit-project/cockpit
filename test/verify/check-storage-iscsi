@@ -31,6 +31,9 @@ class TestStorageISCSI(StorageCase):
         b = self.browser
         b.wait_timeout(120)
 
+        # ensure that we generate a /etc/iscsi/initiatorname.iscsi
+        m.execute("systemctl start iscsid && systemctl stop iscsid")
+
         target_iqn = "iqn.2015-09.cockpit.lan"
         initiator_iqn = "iqn.2015-10.cockpit.lan"
 
@@ -59,7 +62,6 @@ class TestStorageISCSI(StorageCase):
         self.login_and_go("/storage")
 
         # Set initiator IQN
-        #
         orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
         b.click('#edit-iscsi')
         self.dialog(expect={"name": orig_iqn},

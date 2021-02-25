@@ -457,13 +457,11 @@ const UnattendedRow = ({
     }, [userPassword, validationFailed]);
 
     let unattendedInstallationCheckbox = (
-        <FormGroup fieldId="unattended-installation">
-            <Checkbox id="unattended-installation"
-                      isChecked={unattendedInstallation}
-                      isDisabled={unattendedDisabled}
-                      onChange={checked => onValueChanged('unattendedInstallation', checked)}
-                      label={_("Run unattended installation")} />
-        </FormGroup>
+        <Checkbox id="unattended-installation"
+                  isChecked={unattendedInstallation}
+                  isDisabled={unattendedDisabled}
+                  onChange={checked => onValueChanged('unattendedInstallation', checked)}
+                  label={_("Run unattended installation")} />
     );
     if (unattendedDisabled) {
         unattendedInstallationCheckbox = (
@@ -474,7 +472,7 @@ const UnattendedRow = ({
     }
 
     return (
-        <>
+        <FormGroup fieldId="unattended-installation">
             {unattendedInstallationCheckbox}
             {!unattendedDisabled && unattendedInstallation && <>
                 {os.profiles.length > 0 &&
@@ -527,7 +525,7 @@ const UnattendedRow = ({
                                         change={(_, value) => onValueChanged('userPassword', value)} />
                 </>}
             </>}
-        </>
+        </FormGroup>
     );
 };
 

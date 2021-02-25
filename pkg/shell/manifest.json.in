@@ -1,6 +1,6 @@
 {
     "requires": {
-        "cockpit": "134.x"
+        "cockpit": "238.1.1"
     },
     "locales": {
         "cs-cz": "čeština",
@@ -28,7 +28,7 @@
         {
             "privileged": true,
             "environ": [
-                "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
+                "SUDO_ASKPASS=${libexecdir}/cockpit-askpass"
             ],
             "spawn": [
                 "sudo",

@@ -119,15 +119,14 @@ class TestSelinux(MachineCase):
         # b.wait_in_text(row_selector, "2 occurrences")
 
         panel_selector = row_selector + " tr.pf-m-expanded .ct-listing-panel-body"
-        sebool_selector1 = panel_selector + " .selinux-details:nth-of-type(1)"
-        sebool_selector2 = panel_selector + " .selinux-details:nth-of-type(2)"
-        fallback_selector1 = panel_selector + " .selinux-details:nth-of-type(3)"
 
-        # fallback solution is present
-        b.wait_in_text(fallback_selector1, "You need to change the label on public_html to public_content_t")
-        b.wait_in_text(fallback_selector1, "Unable to apply this solution automatically")
+        # manual label change solution is present
+        relabel_selector = panel_selector + " .selinux-details:contains('public_content_t')"
+        b.wait_in_text(relabel_selector, "You need to change the label on public_html to public_content_t")
+        b.wait_in_text(relabel_selector, "Unable to apply this solution automatically")
 
-        # an automatic default solution is present for sebool
+        # an automatic solution is present for sebool
+        sebool_selector1 = panel_selector + " .selinux-details:contains('httpd_enable_homedirs')"
         b.wait_in_text(sebool_selector1, "by enabling the 'httpd_enable_homedirs' boolean.")
 
         b.click(sebool_selector1 + " button" + self.default_btn_class)
@@ -135,7 +134,9 @@ class TestSelinux(MachineCase):
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
         # system modifications automatically update for this new sebool
         b.wait_in_text(".modifications-table", "Allow httpd to enable homedirs")
-        # Second solution can still be applied separatelly
+
+        # Second sebool solution can still be applied separately
+        sebool_selector2 = panel_selector + " .selinux-details:contains('httpd_unified')"
         b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
 
         # now dismiss the alert

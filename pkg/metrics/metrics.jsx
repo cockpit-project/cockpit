@@ -708,7 +708,6 @@ class MetricsMinute extends React.Component {
                 <div
                     key={ resource + this.props.startTime + this.props.minute }
                     className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") }
-                    style={{ "--metrics-minute": this.props.minute }}
                     aria-hidden="true"
                     onMouseMove={this.onHover}
                 >
@@ -717,7 +716,7 @@ class MetricsMinute extends React.Component {
             );
         });
 
-        let events = null;
+        let events = <div className="metrics-events" />;
         if (this.props.events) {
             const timestamp = this.props.startTime + (this.props.minute * 60000);
             const desc = <div className="description">
@@ -742,23 +741,28 @@ class MetricsMinute extends React.Component {
                 expandedContent: body,
             }];
 
-            events = <ListingTable aria-label={ _("Event logs") }
-                                   className="metrics-events"
-                                   style={{ "--metrics-minute": this.props.minute, "--pf-c-table--BorderColor": "#fff" }}
-                                   showHeader={false}
-                                   variant="compact"
-                                   afterToggle={this.expand}
-                                   columns={[
-                                       { title: _("Event") },
-                                   ]}
-                                   rows={entry} />;
+            events = <div className="metrics-events-wrapper">
+                <ListingTable aria-label={ _("Event logs") }
+                                      className="metrics-events"
+                                      style={{ "--pf-c-table--BorderColor": "#fff" }}
+                                      showHeader={false}
+                                      variant="compact"
+                                      afterToggle={this.expand}
+                                      gridBreakPoint=''
+                                      columns={[
+                                          { title: _("Event") },
+                                      ]}
+                                      rows={entry} />
+            </div>;
         }
 
         return (
-            <>
+            <div className="metrics-minute" data-minute={this.props.minute}>
                 { events }
-                { graphs }
-            </>
+                <div className="metrics-graphs">
+                    { graphs }
+                </div>
+            </div>
         );
     }
 }
@@ -854,7 +858,7 @@ class MetricsHour extends React.Component {
 
     render() {
         return (
-            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--metrics-minutes": this.state.minutes, "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour">
+            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour">
                 { this.state.minuteGraphs }
                 <h3 className="metrics-time"><time>{ moment(this.props.startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
             </div>
@@ -1127,8 +1131,8 @@ class MetricsHistory extends React.Component {
 
         return (
             <div className="metrics">
-                <div className="metrics-history-heading-sticky">
-                    <section className="metrics-history metrics-history-heading" style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }}>
+                <div className="metrics-heading-sticky">
+                    <section className="metrics-heading" style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }}>
                         <Select
                             className="select-min metrics-label"
                             aria-label={_("Jump to")}
@@ -1140,10 +1144,12 @@ class MetricsHistory extends React.Component {
                         >
                             {options}
                         </Select>
-                        <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
-                        <Label label={_("Memory")} items={[_("Usage"), ...swapTotal !== undefined ? [_("Swap")] : []]} />
-                        <Label label={_("Disks")} items={[_("Usage")]} />
-                        <Label label={_("Network")} items={[_("Usage")]} />
+                        <div className="metrics-graphs">
+                            <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
+                            <Label label={_("Memory")} items={[_("Usage"), ...swapTotal !== undefined ? [_("Swap")] : []]} />
+                            <Label label={_("Disks")} items={[_("Usage")]} />
+                            <Label label={_("Network")} items={[_("Usage")]} />
+                        </div>
                     </section>
                 </div>
                 { this.state.hours.length > 0 &&

@@ -230,37 +230,37 @@
 }
 
 .metrics {
-    --column-size: minmax(5rem, 10vw);
-    --half-column-size: minmax(2.5rem, 5vw);
-    --data-min-height:5px;
-    --data-gap: 0;
-    &-history,
-    &-hour {
-        display: grid;
-        grid-template: "events cpu memory disks net";
-        grid-template-columns: [events] 3fr [cpu] var(--column-size) [memory] var(--has-swap) [disks] var(--half-column-size) [network] var(--half-column-size);
-        grid-column: 1 / -1;
-        position: relative;
-    }
+    --column-size: 10vw;
+    --half-column-size: 5vw;
+    --data-min-height: 5px;
 
-    &-history {
-        padding: 0;
-    }
-
-    &-hour {
-        grid-gap: var(--data-gap);
-        grid-template-rows: repeat(var(--metrics-minutes), minmax(var(--data-min-height), auto));
-    }
-
-    &-time,
-    &-label {
-        padding: 0.5rem 1rem;
-        width: calc(100% + var(--pf-c-card--child--PaddingRight) + var(--pf-c-card--child--PaddingBottom));
-        right: var(--pf-c-card--child--PaddingRight);
-        position: inherit;
+    &-heading,
+    &-minute {
         display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
+        justify-content: space-between;
+    }
+
+    &-graphs {
+        display: inherit;
+
+        .metrics-data,
+        .metrics-label {
+            width: var(--half-column-size);
+        }
+
+        .metrics-data.have-saturation,
+        .metrics-label.have-saturation {
+            width: var(--column-size);
+        }
+
+        .metrics-data {
+            min-height: var(--data-min-height);
+        }
+
+    }
+
+    &-label {
+        margin: 0.5rem;
     }
 
     &-sublabels {
@@ -285,16 +285,12 @@
         }
     }
 
-    &-time {
-        grid-row: 0;
-        grid-column: 1 / -1;
-        background: #eee;
-        margin-left: var(--pf-global--spacer--md);
+    &-events-wrapper {
+        width: 100%;
     }
 
     &-events {
-        grid-column: events;
-        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
+        width: 100%;
 
         .description {
             display: grid;
@@ -325,13 +321,43 @@
         }
     }
 
-    &-info {
-        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
-        grid-column: information;
+    &-time,
+    &-heading {
+        position: relative;
+        width: calc(100% + var(--pf-c-page__main-section--PaddingRight) + var(--pf-c-page__main-section--PaddingLeft));
+        right: var(--pf-c-page__main-section--PaddingRight);
+
+        padding-right: var(--pf-c-page__main-section--PaddingRight);
+        padding-left: var(--pf-c-page__main-section--PaddingLeft);
+
+    }
+
+    &-time {
+        background: #eee;
+
+        padding: 0.5rem 1rem;
+        margin-left: var(--pf-global--spacer--md);
+    }
+
+    &-heading {
+        background: #fff;
+
+        margin-bottom: 1rem;
+
+        box-shadow: var(--pf-global--BoxShadow--sm);
+
+        &-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+    }
+
+    &-history {
+        padding: 0;
     }
 
     &-data {
-        grid-row: calc(var(--metrics-minutes) - var(--metrics-minute));
         display: grid;
         contain: strict;
         margin-left: 0.5rem;
@@ -342,9 +368,9 @@
             content: "";
             position: absolute;
             z-index: 1;
+            width: 100%;
             top: 0;
             bottom: 0;
-            width: 100%;
             border-right: 1px solid rgba(0,0,0,0.3);
             border-top: 1px solid rgba(0,0,0,0.3);
         }
@@ -359,8 +385,6 @@
             content: "";
             position: absolute;
             z-index: 1;
-            top: 0;
-            bottom: 0;
             width: 50%;
             left: 50%;
             border-top: 1px solid rgba(0,0,0,0.3);
@@ -375,29 +399,21 @@
 
         &-cpu {
             --color: plum;
-            grid-column: cpu;
-            --mult: 1;
         }
 
         &-memory {
             --color: lightblue;
-            grid-column: memory;
-            --mult: 0.5;
         }
 
         &-disks {
             --color: lightgreen;
-            grid-column: disks;
-            --mult: 0.25;
         }
 
         &-network {
             --color: lightsalmon;
-            grid-column: network;
-            --mult: 0.15;
         }
 
-        /* compressed minutes without events are simple bars */
+        // compressed minutes without events are simple bars
         .compressed {
             display: grid;
             grid-template-areas: ". utilization .";
@@ -451,26 +467,6 @@
 
     .pf-c-card__body:first-child {
         padding-top: 0;
-    }
-
-    &-history-heading {
-        background: #fff;
-
-        padding-right: calc(var(--pf-global--spacer--lg) + var(--pf-c-page__main-section--PaddingRight));
-        padding-left: calc(var(--pf-global--spacer--lg) + var(--pf-c-page__main-section--PaddingLeft));
-        margin-bottom: 1rem;
-
-        position: relative;
-        width: calc(100% + var(--pf-c-page__main-section--PaddingRight) + var(--pf-c-page__main-section--PaddingLeft));
-        right: var(--pf-c-page__main-section--PaddingRight);
-
-        box-shadow: var(--pf-global--BoxShadow--sm);
-
-        &-sticky {
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
     }
 }
 

@@ -16,7 +16,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 def getMaximumSpike(browser, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
-    sel = "#metrics-hour-{0} div.metrics-data-{1}[style='--metrics-minute:{2};'] polygon".format(hour, g_type, minute)
+    sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} polygon".format(hour, g_type, minute)
     if saturation:
         sel += ":nth-child(2)"
     else:
@@ -32,7 +32,7 @@ def getMaximumSpike(browser, g_type, saturation, hour, minute):
 def getCompressedMinuteValue(browser, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
-    sel = "#metrics-hour-{0} div.metrics-data-{1}[style='--metrics-minute:{2};'] .compressed".format(hour, g_type, minute)
+    sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} .compressed".format(hour, g_type, minute)
     m = re.search("--%s:([0-9.]+);" % (saturation and "saturation" or "utilization"), browser.attr(sel, "style"))
     assert m
     return float(m.group(1))
@@ -150,7 +150,7 @@ class TestHistoryMetrics(MachineCase):
 
         login(self)
         # eventually finishes data loading and shows heading
-        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_in_text(".metrics-heading", "CPU")
 
         # only shows current hour
         b.wait_js_func("ph_count_check", ".metrics-hour", 1)
@@ -187,7 +187,7 @@ class TestHistoryMetrics(MachineCase):
         m = self.machine
 
         def events_at(hour, minute):
-            return b.text("#metrics-hour-{0} .metrics-events[style='--metrics-minute:{1};']".format(hour, minute))
+            return b.text("#metrics-hour-{0} div.metrics-minute[data-minute={1}] .metrics-events".format(hour, minute))
 
         #
         # Disks
@@ -203,7 +203,7 @@ class TestHistoryMetrics(MachineCase):
 
         login(self)
         # eventually finishes data loading and shows heading
-        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_in_text(".metrics-heading", "CPU")
 
         # Big spike lasting 3 minutes
         self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 25), 0.9)
@@ -237,7 +237,7 @@ class TestHistoryMetrics(MachineCase):
 
         login(self)
         # eventually finishes data loading and shows heading
-        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_in_text(".metrics-heading", "CPU")
 
         # Test network - Big spike lasting 2 minutes
         self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 3), 0.5)
@@ -293,7 +293,7 @@ class TestHistoryMetrics(MachineCase):
 
         prepareArchive(m, "memory.tar.gz", 1600248000)
         login(self)
-        b.wait_in_text(".metrics-history-heading", "CPU")
+        b.wait_in_text(".metrics-heading", "CPU")
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
         self.assertLessEqual(getMaximumSpike(b, "memory", False, 1600236000000, 44), 0.3)
@@ -311,7 +311,7 @@ class TestHistoryMetrics(MachineCase):
 
         else:
             # If no swap, the column is hidden
-            self.assertNotIn(b.text(".metrics-history-heading"), "Swap")
+            self.assertNotIn(b.text(".metrics-heading"), "Swap")
             b.wait_not_present(".metrics-data-memory .saturation")
 
         # memory spike in :47
@@ -320,7 +320,7 @@ class TestHistoryMetrics(MachineCase):
 
         # at :54 the machine is loaded to ~80% so no event even if elevated
         self.assertGreater(getCompressedMinuteValue(b, "memory", False, 1600236000000, 54), 0.8)
-        b.wait_not_present("#metrics-hour-1600236000000 .metrics-events[style='--metrics-minute:54;']")
+        b.wait_text("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events", "")
         if have_swap:
             self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 54), 0.0)
 
@@ -358,7 +358,7 @@ class TestHistoryMetrics(MachineCase):
         if self.machine.image == TEST_OS_DEFAULT:  # Debian/Ubuntu is unhappy about this archive, one Fedora test is enough though
             prepareArchive(m, "double_events.zip", 1602345600, "m1.cockpit.lan")
             login(self)
-            b.wait_in_text(".metrics-history-heading", "CPU")
+            b.wait_in_text(".metrics-heading", "CPU")
             b.wait_in_text("#metrics-hour-1602334800000", "CPU spike")
             self.assertTrue(self.browser.call_js_func("""(function () {
                 const min_events = document.getElementsByClassName("metrics-events");
@@ -385,8 +385,8 @@ class TestHistoryMetrics(MachineCase):
                      cp /tmp/journal.journal /var/log/journal/*/''')
 
         login(self)
-        b.wait_in_text(".metrics-history-heading", "CPU")
-        b.click("#metrics-hour-1615197600000 .metrics-events[style='--metrics-minute:39;'] button")
+        b.wait_in_text(".metrics-heading", "CPU")
+        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
         b.wait_in_text(".cockpit-logline:first-child .cockpit-log-message", "cpu-piglet")
         b.click(".cockpit-logline:first-child .cockpit-log-message")

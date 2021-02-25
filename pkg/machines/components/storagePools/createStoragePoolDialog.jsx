@@ -21,8 +21,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     Button, Checkbox,
-    Form, FormGroup, FormSection,
+    Form, FormGroup,
     FormSelect, FormSelectOption,
+    Grid,
     Modal, TextInput
 } from '@patternfly/react-core';
 
@@ -186,8 +187,9 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
         );
     else if (dialogValues.type == 'disk')
         return (
-            <FormSection className='ct-form-split-2-1'>
+            <Grid hasGutter>
                 <FormGroup fieldId='storage-pool-dialog-source' label={_("Source path")}
+                           className="pf-m-8-col"
                            id="storage-pool-dialog-source-group"
                            helperTextInvalid={_("Source path should not be empty")}
                            validated={validationState}>
@@ -196,7 +198,8 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                                       placeholder={placeholder}
                                       onChange={value => onValueChanged('source', { device: value })} />
                 </FormGroup>
-                <FormGroup fieldId='storage-pool-dialog-source-format' label={_("Format")}>
+                <FormGroup fieldId='storage-pool-dialog-source-format' label={_("Format")}
+                           className="pf-m-4-col">
                     <FormSelect id='storage-pool-dialog-source-format'
                                 value={dialogValues.source.format}
                                 onChange={value => onValueChanged('source', { format: value })}>
@@ -210,7 +213,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                         }
                     </FormSelect>
                 </FormGroup>
-            </FormSection>
+            </Grid>
         );
     else if (dialogValues.type == 'logical')
         return (

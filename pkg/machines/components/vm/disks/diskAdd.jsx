@@ -19,8 +19,9 @@
 import React from 'react';
 import {
     Alert, Button, Checkbox,
-    ExpandableSection, Form, FormGroup, FormSection,
+    ExpandableSection, Form, FormGroup,
     FormSelect, FormSelectOption,
+    Grid,
     Modal, Radio, Spinner,
 } from '@patternfly/react-core';
 import cockpit from 'cockpit';
@@ -32,7 +33,6 @@ import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '..
 import { VolumeCreateBody } from '../../storagePools/storageVolumeCreateBody.jsx';
 import LibvirtDBus, { updateDiskAttributes } from '../../../libvirt-dbus.js';
 
-import 'form-layout.scss';
 import './diskAdd.css';
 
 const _ = cockpit.gettext;
@@ -143,12 +143,11 @@ class AdditionalOptions extends React.Component {
         return (
             <ExpandableSection toggleText={ this.state.expanded ? _("Hide additional options") : _("Show additional options")}
                                onToggle={() => this.setState({ expanded: !this.state.expanded })} isExpanded={this.state.expanded} className="add-disk-additional-options">
-                <FormSection className="ct-form-split">
+                <Grid hasGutter md={6}>
                     <FormGroup fieldId='cache-mode' label={_("Cache")}>
                         <FormSelect id='cache-mode'
                             onChange={value => this.props.onValueChanged('cacheMode', value)}
-                            value={this.props.cacheMode}
-                            className='ct-form-split'>
+                            value={this.props.cacheMode}>
                             {diskCacheModes.map(cacheMode => {
                                 return (
                                     <FormSelectOption value={cacheMode} key={cacheMode}
@@ -161,8 +160,7 @@ class AdditionalOptions extends React.Component {
                     <FormGroup fieldId='bus-type' label={_("Bus")}>
                         <FormSelect id='bus-type'
                             onChange={value => this.props.onValueChanged('busType', value)}
-                            value={this.props.busType}
-                            className='ct-form-split'>
+                            value={this.props.busType}>
                             {busTypes[this.props.device].map(busType => {
                                 return (
                                     <FormSelectOption value={busType}
@@ -172,7 +170,7 @@ class AdditionalOptions extends React.Component {
                             })}
                         </FormSelect>
                     </FormGroup>
-                </FormSection>
+                </Grid>
             </ExpandableSection>
         );
     }

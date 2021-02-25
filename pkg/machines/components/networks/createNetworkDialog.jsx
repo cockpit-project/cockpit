@@ -22,8 +22,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     Button, Checkbox,
-    Form, FormGroup, FormSection,
+    Form, FormGroup,
     FormSelect, FormSelectOption, FormSelectOptionGroup,
+    Grid,
     Modal, TextInput
 } from '@patternfly/react-core';
 
@@ -207,7 +208,7 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
                           label={_("Set DHCP range")}
                           onChange={() => onValueChanged('ipv' + ipVersion + 'DhcpEnabled', !expanded)} />
             </FormGroup>
-            {expanded && <FormSection className="ct-form-split">
+            {expanded && <Grid hasGutter md={6}>
                 <FormGroup fieldId={'network-ipv' + ipVersion + '-dhcp-range-start'} label={_("Start")}
                            helperTextInvalid={validationFailed['ipv' + ipVersion + 'DhcpRangeStart']}
                            validated={validationStart}>
@@ -222,7 +223,7 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
                                value={rangeEnd}
                                onChange={value => onValueChanged('ipv' + ipVersion + 'DhcpRangeEnd', value)} />
                 </FormGroup>
-            </FormSection>}
+            </Grid>}
         </>
     );
 };

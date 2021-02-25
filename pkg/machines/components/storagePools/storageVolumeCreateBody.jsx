@@ -20,8 +20,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    FormGroup, FormSection,
+    FormGroup,
     FormSelect, FormSelectOption,
+    Grid,
     InputGroup, TextInput
 } from "@patternfly/react-core";
 
@@ -69,8 +70,7 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolCapacity, stor
             <FormGroup fieldId={`${idPrefix}-fileformat`} label={_("Format")}>
                 <FormSelect id={`${idPrefix}-format`}
                     onChange={value => onValueChanged('format', value)}
-                    value={format}
-                    classname='ct-form-split'>
+                    value={format}>
                     { validVolumeFormats.map(format => <FormSelectOption value={format} key={format} label={format} />) }
                 </FormSelect>
             </FormGroup>
@@ -78,7 +78,7 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolCapacity, stor
     }
 
     return (
-        <FormSection className="ct-form-split">
+        <Grid hasGutter md={6}>
             <FormGroup fieldId={`${idPrefix}-size`}
                        id={`${idPrefix}-size-group`}
                        validated={validationStateSize}
@@ -106,7 +106,7 @@ const VolumeDetails = ({ idPrefix, size, unit, format, storagePoolCapacity, stor
                 </InputGroup>
             </FormGroup>
             {formatRow}
-        </FormSection>
+        </Grid>
     );
 };
 

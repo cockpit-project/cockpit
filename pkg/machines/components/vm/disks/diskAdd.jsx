@@ -27,7 +27,7 @@ import cockpit from 'cockpit';
 
 import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../../../helpers.js';
+import { diskCacheModes, units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../../../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../../../actions/provider-actions.js';
 import { VolumeCreateBody } from '../../storagePools/storageVolumeCreateBody.jsx';
 import LibvirtDBus, { updateDiskAttributes } from '../../../libvirt-dbus.js';
@@ -140,8 +140,6 @@ class AdditionalOptions extends React.Component {
     }
 
     render() {
-        const cacheModes = ['default', 'none', 'writethrough', 'writeback', 'directsync', 'unsafe'];
-
         return (
             <ExpandableSection toggleText={ this.state.expanded ? _("Hide additional options") : _("Show additional options")}
                                onToggle={() => this.setState({ expanded: !this.state.expanded })} isExpanded={this.state.expanded} className="add-disk-additional-options">
@@ -151,7 +149,7 @@ class AdditionalOptions extends React.Component {
                             onChange={value => this.props.onValueChanged('cacheMode', value)}
                             value={this.props.cacheMode}
                             className='ct-form-split'>
-                            {cacheModes.map(cacheMode => {
+                            {diskCacheModes.map(cacheMode => {
                                 return (
                                     <FormSelectOption value={cacheMode} key={cacheMode}
                                                       label={cacheMode} />

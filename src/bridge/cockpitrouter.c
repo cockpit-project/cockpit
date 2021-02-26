@@ -1188,6 +1188,9 @@ void cockpit_router_set_bridges (CockpitRouter *self,
       rule = l->data;
       if (rule->config)
         {
+          if (rule == self->superuser_rule)
+            self->superuser_rule = NULL;
+
           router_rule_destroy (rule);
         }
       else

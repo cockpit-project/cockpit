@@ -31,6 +31,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlocale.h"
 #include "common/cockpitsystem.h"
+#include "common/cockpittemplate.h"
 #include "common/cockpitversion.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebresponse.h"
@@ -363,6 +364,16 @@ read_json_file (const gchar *directory,
   return object;
 }
 
+static GBytes *
+expand_libexec (const gchar *variable,
+                gpointer     user_data)
+{
+  if (g_str_equal (variable, "libexecdir"))
+    return g_bytes_new (LIBEXECDIR, strlen (LIBEXECDIR));
+
+  return NULL;
+}
+
 static JsonObject *
 read_package_manifest (const gchar *directory,
                        const gchar *package)
@@ -405,6 +416,12 @@ read_package_manifest (const gchar *directory,
         }
 
       json_object_seal (manifest);
+
+      JsonObject *expanded = cockpit_template_expand_json (manifest, "${", "}",
+                                                           expand_libexec, NULL);
+      json_object_unref (manifest);
+
+      manifest = expanded;
     }
 
   return manifest;

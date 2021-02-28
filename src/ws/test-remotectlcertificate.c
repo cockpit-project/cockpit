@@ -63,6 +63,8 @@ delete_all (TestCase *tc)
   if (!dir)
     goto out;
 
+  g_assert (g_chmod (tc->cert_dir, 0755) == 0);
+
   while ((name = g_dir_read_name (dir)) != NULL)
     {
       gchar *path = g_build_filename (tc->cert_dir, name, NULL);
@@ -262,6 +264,31 @@ test_refresh_expired (TestCase *test,
 }
 
 static void
+test_ensure_no_permission (TestCase *test,
+                           gconstpointer data)
+{
+  char *argv[] = { "certificate", "--user", (gchar *) g_get_user_name (), "--group", test->group, "--ensure", NULL };
+
+  if (!openssl_path)
+    {
+      g_test_skip ("openssl not available");
+      return;
+    }
+
+  /* initial creation succeeds */
+  test_success (test, data);
+
+  /* make directory and certificate read-only */
+  g_assert_cmpint (g_chmod (test->cert_dir, 0555), ==, 0);
+  g_autofree gchar *cert_path = g_build_filename (test->cert_dir, "0-self-signed.cert", NULL);
+  g_assert_cmpint (g_chmod (cert_path, 0444), ==, 0);
+
+  /* ensure should succeed */
+  test->ret = cockpit_remotectl_certificate (g_strv_length (argv), argv);
+  test_success (test, data);
+}
+
+static void
 test_keep_custom_cert (TestCase *test,
                        gconstpointer data)
 {
@@ -418,6 +445,8 @@ main (int argc,
               setup, test_valid_selfsigned, teardown);
   g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
               setup, test_failure, teardown);
+  g_test_add ("/remotectl-certificate/ensure-no-permission", TestCase, &fixture_create,
+              setup, test_ensure_no_permission, teardown);
   g_test_add ("/remotectl-certificate/refresh-expired", TestCase, &fixture_expired,
               setup, test_refresh_expired, teardown);
   g_test_add ("/remotectl-certificate/keep-custom-cert", TestCase, &fixture_expired,

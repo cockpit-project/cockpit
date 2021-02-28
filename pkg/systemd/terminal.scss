@@ -76,3 +76,8 @@
         padding: 0;
     }
 }
+
+// HACK for https://forum.patternfly.org/t/read-only-number-input/422
+.font-size .pf-c-form-control[readonly] {
+    cursor: default;
+}

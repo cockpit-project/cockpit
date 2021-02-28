@@ -191,7 +191,14 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         check_theme_select("light-theme", "background-color: rgb(253, 246, 227);")
         check_theme_select("white-theme", white_style)
 
-        # Relogin and white-style should be remembered
+        # Test changing of font size
+        b.wait_val("#toolbar input", 16)
+        current_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
+        b.click("#toolbar button[aria-label='Increase by one']")
+        new_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
+        self.assertNotEqual(current_style, new_style)
+
+        # Relogin and white-style and bigger font should be remembered
         # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
         b.go("/system")
         b.relogin("/system")
@@ -199,6 +206,17 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.enter_page("/system/terminal")
         b.wait_visible('.terminal')
         b.wait_attr(".xterm-viewport", "style", white_style)
+        b.wait_val("#toolbar input", 17)
+        b.wait_attr(".xterm-accessibility-tree div:first-child", "style", new_style)
+        b.click("#toolbar button[aria-label='Decrease by one']")
+        b.wait_val("#toolbar input", 16)
+        b.wait_attr(".xterm-accessibility-tree div:first-child", "style", current_style)
+
+        # Check limit for font size
+        for i in range(15, 5, -1):
+            b.click("#toolbar button[aria-label='Decrease by one']")
+            b.wait_val("#toolbar input", i)
+        b.wait_visible("#toolbar button[aria-label='Decrease by one']:disabled")
 
     @nondestructive
     def testOnlyTerminal(self):

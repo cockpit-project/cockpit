@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    FormSelect, FormSelectOption,
+    FormSelect, FormSelectOption, NumberInput,
     Toolbar, ToolbarContent, ToolbarItem
 } from "@patternfly/react-core";
 
@@ -39,13 +39,20 @@ const _ = cockpit.gettext;
         constructor(props) {
             super(props);
             var theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+            var size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
             this.state = {
                 title: 'Terminal',
-                theme: theme || "black-theme"
+                theme: theme || "black-theme",
+                size: parseInt(size) || 16,
             };
             this.onTitleChanged = this.onTitleChanged.bind(this);
             this.onResetClick = this.onResetClick.bind(this);
             this.onThemeChanged = this.onThemeChanged.bind(this);
+            this.onPlus = this.onPlus.bind(this);
+            this.onMinus = this.onMinus.bind(this);
+
+            this.minSize = 6;
+            this.maxSize = 40;
         }
 
         componentDidMount() {
@@ -58,11 +65,29 @@ const _ = cockpit.gettext;
             this.setState({ title: title });
         }
 
-        onThemeChanged(value) {
-            this.setState({ theme: value });
-            var cookie = "theme_cookie=" + encodeURIComponent(value) +
+        setCookie(key, value) {
+            const cookie = key + "=" + encodeURIComponent(value) +
                          "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
             document.cookie = cookie;
+        }
+
+        onPlus() {
+            this.setState((state, _) => {
+                this.setCookie("size_cookie", state.size + 1);
+                return { size: state.size + 1 };
+            });
+        }
+
+        onMinus() {
+            this.setState((state, _) => {
+                this.setCookie("size_cookie", state.size - 1);
+                return { size: state.size - 1 };
+            });
+        }
+
+        onThemeChanged(value) {
+            this.setState({ theme: value });
+            this.setCookie("theme_cookie", value);
         }
 
         onResetClick(event) {
@@ -85,6 +110,7 @@ const _ = cockpit.gettext;
                 terminal = (<Terminal ref="terminal"
                      channel={this.state.channel}
                      theme={this.state.theme}
+                     fontSize={this.state.size}
                      parentId="the-terminal"
                      onTitleChanged={this.onTitleChanged} />);
             else
@@ -96,12 +122,28 @@ const _ = cockpit.gettext;
                         <tt className="terminal-title">{this.state.title}</tt>
                         <Toolbar id="toolbar">
                             <ToolbarContent>
+                                <ToolbarItem variant="label" id="size-select">
+                                    {_("Font size")}
+                                </ToolbarItem>
+                                <ToolbarItem>
+                                    <NumberInput
+                                        className="font-size"
+                                        value={this.state.size}
+                                        min={this.minSize}
+                                        max={this.maxSize}
+                                        onMinus={this.onMinus}
+                                        onPlus={this.onPlus}
+                                        inputAriaLabel={_("Font size")}
+                                        minusBtnAriaLabel={_("Decrease by one")}
+                                        plusBtnAriaLabel={_("Increase by one")}
+                                        widthChars={2}
+                                    />
+                                </ToolbarItem>
                                 <ToolbarItem variant="label" id="theme-select">
                                     {_("Appearance")}
                                 </ToolbarItem>
                                 <ToolbarItem>
                                     <FormSelect onChange={this.onThemeChanged}
-                                                aria-label={_("Appearance")}
                                                 aria-labelledby="theme-select"
                                                 value={this.state.theme}>
                                         <FormSelectOption value='black-theme' label={_("Black")} />

@@ -536,16 +536,20 @@ class TestCurrentMetrics(MachineCase):
 
         # Disk usage
 
-        # add 50 MB loopback disk
+        # add 50 MB loopback disk; mount it once rw and once ro
         m.execute("""set -e
                   F=$(mktemp /var/tmp/loop.XXXX)
                   dd if=/dev/zero of=$F bs=1M count=50
                   mkfs -t ext3 $F
-                  mkdir -p /var/cockpittest
+                  mkdir -p /var/cockpittest /var/cockpit-ro-test
                   mount -o loop $F /var/cockpittest
+                  RODEV=$(losetup -f --show $F)
+                  mount -r $RODEV /var/cockpit-ro-test
+                  losetup -d $RODEV
                   rm $F
                   """)
-        self.addCleanup(m.execute, "umount /var/cockpittest")
+        self.addCleanup(m.execute, "umount /var/cockpittest /var/cockpit-ro-test")
+
         self.assertLess(progressValue(b, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
         progress_sel = ".pf-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-c-progress__status"
         # free size is anything between 40 and 50 MB
@@ -556,6 +560,8 @@ class TestCurrentMetrics(MachineCase):
         # total size is anything between 40 and 50 MB
         self.assertRegex(b.text(".pf-c-tooltip"), "^4\d\.\d MB total$")
         b.mouse(progress_sel, "mouseleave")
+        # read-only loop devices are not shown
+        self.assertFalse(b.is_present(".pf-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))
 
         m.execute("dd if=/dev/zero of=/var/cockpittest/blob bs=1M count=40")
         b.wait(lambda: progressValue(b, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)

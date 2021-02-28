@@ -240,15 +240,37 @@ class CurrentMetrics extends React.Component {
         }
     }
 
+    /* Return Set of mount points which should not be shown in Disks card */
+    hideMounts(procMounts) {
+        const result = new Set();
+        procMounts.trim().split("\n")
+                .forEach(line => {
+                    // looks like this: /dev/loop1 /var/mnt iso9660 ro,relatime,nojoliet,check=s,map=n,blocksize=2048 0 0
+                    const fields = line.split(' ');
+                    const options = fields[3].split(',');
+
+                    /* hide read-only loop mounts; these are often things like snaps or iso images
+                     * which are always at 100% capacity, but are uninteresting for disk usage alerts */
+                    if ((fields[0].indexOf("/loop") >= 0 && options.indexOf('ro') >= 0))
+                        result.add(fields[1]);
+                });
+        return result;
+    }
+
     updateMounts() {
-        /* df often exits with non-zero if it encounters any file system it can't read; but that's fine, get info about all the
-         * others */
-        cockpit.script("df --local --exclude-type=tmpfs --exclude-type=devtmpfs --block-size=1 --output=target,size,avail,pcent || true",
-                       { err: "message" })
-                .then(output => {
+        Promise.all([
+            /* df often exits with non-zero if it encounters any file system it can't read;
+               but that's fine, get info about all the others */
+            cockpit.script("df --local --exclude-type=tmpfs --exclude-type=devtmpfs --block-size=1 --output=target,size,avail,pcent || true",
+                           { err: "message" }),
+            cockpit.file("/proc/mounts").read()
+        ])
+                .then(([df_out, mounts_out]) => {
+                    const hide = this.hideMounts(mounts_out);
+
                     // skip first line with the headings
                     const mounts = [];
-                    output.trim()
+                    df_out.trim()
                             .split("\n")
                             .slice(1)
                             .forEach(s => {
@@ -257,6 +279,9 @@ class CurrentMetrics extends React.Component {
                                     console.warn("Invalid line in df:", s);
                                     return;
                                 }
+
+                                if (hide.has(fields[0]))
+                                    return;
                                 mounts.push({
                                     target: fields[0],
                                     size: Number(fields[1]),
@@ -272,7 +297,7 @@ class CurrentMetrics extends React.Component {
                     window.setTimeout(this.updateMounts, 10000);
                 })
                 .catch(ex => {
-                    console.warn("Failed to run df:", ex.toString());
+                    console.warn("Failed to run df or read /proc/mounts:", ex.toString());
                     this.setState({ mounts: [] });
                 });
     }

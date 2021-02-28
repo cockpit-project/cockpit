@@ -73,6 +73,7 @@ set_cert_attributes (const gchar *path,
   struct passwd *pwd = NULL;
   struct group *gr = NULL;
   gint status = 0;
+  GStatBuf statbuf;
   mode_t mode;
   int ret = 1;
 
@@ -106,16 +107,23 @@ set_cert_attributes (const gchar *path,
         }
     }
 
+  if (g_stat (path, &statbuf) < 0)
+    {
+      g_message ("could not stat certificate: %s: %s", path, g_strerror (errno));
+      goto out;
+    }
+
   /* If group specified then group readable */
   mode = S_IRUSR | S_IWUSR;
   if (gr)
     mode |= S_IRGRP;
-  if (chmod (path, mode) < 0)
+  if ((statbuf.st_mode & ACCESSPERMS) != mode && chmod (path, mode) < 0)
     {
       g_message ("couldn't set certificate permissions: %s: %s", path, g_strerror (errno));
       goto out;
     }
-  if (chown (path, pwd->pw_uid, gr ? gr->gr_gid : -1) < 0)
+  if ((statbuf.st_uid != pwd->pw_uid || (gr && statbuf.st_gid != gr->gr_gid)) &&
+      chown (path, pwd->pw_uid, gr ? gr->gr_gid : -1) < 0)
     {
       g_message ("couldn't set certificate ownership: %s: %s", path, g_strerror (errno));
       goto out;

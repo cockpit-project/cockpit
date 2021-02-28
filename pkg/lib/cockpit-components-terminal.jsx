@@ -98,12 +98,12 @@ export class Terminal extends React.Component {
         super(props);
         this.onChannelMessage = this.onChannelMessage.bind(this);
         this.onChannelClose = this.onChannelClose.bind(this);
-        this.onWindowResize = this.onWindowResize.bind(this);
         this.connectChannel = this.connectChannel.bind(this);
         this.disconnectChannel = this.disconnectChannel.bind(this);
         this.reset = this.reset.bind(this);
         this.focus = this.focus.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
+        this.resizeTerminal = this.resizeTerminal.bind(this);
         this.onFocusIn = this.onFocusIn.bind(this);
         this.onFocusOut = this.onFocusOut.bind(this);
         this.setText = this.setText.bind(this);
@@ -115,7 +115,7 @@ export class Terminal extends React.Component {
             rows: props.rows || 25,
             screenKeys: true,
             cursorBlink: true,
-            fontSize: 16,
+            fontSize: props.fontSize || 16,
             fontFamily: 'Menlo, Monaco, Consolas, monospace',
             screenReaderMode: true
         });
@@ -143,16 +143,32 @@ export class Terminal extends React.Component {
         this.state.terminal.focus();
     }
 
+    resizeTerminal(cols, rows) {
+        this.state.terminal.resize(cols, rows);
+        this.props.channel.control({
+            window: {
+                rows: rows,
+                cols: cols
+            }
+        });
+    }
+
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.cols !== this.state.cols || prevState.rows !== this.state.rows) {
-            this.state.terminal.resize(this.state.cols, this.state.rows);
-            this.props.channel.control({
-                window: {
-                    rows: this.state.rows,
-                    cols: this.state.cols
-                }
-            });
+        if (prevProps.fontSize !== this.props.fontSize) {
+            this.state.terminal.setOption("fontSize", this.props.fontSize);
+
+            // After font size is changed, resize needs to be triggered
+            const dimensions = this.calculateDimensions();
+            if (dimensions.cols !== this.state.cols || dimensions.rows !== this.state.rows) {
+                this.onWindowResize();
+            } else {
+                // When font size changes but dimensions are the same, we need to force `resize`
+                this.resizeTerminal(dimensions.cols - 1, dimensions.rows);
+            }
         }
+
+        if (prevState.cols !== this.state.cols || prevState.rows !== this.state.rows)
+            this.resizeTerminal(this.state.cols, this.state.rows);
 
         if (prevProps.theme !== this.props.theme)
             this.setTerminalTheme(this.props.theme);
@@ -252,17 +268,23 @@ export class Terminal extends React.Component {
             this.state.terminal.focus();
     }
 
-    onWindowResize() {
-        var padding = 2 * 11;
-        var node = ReactDOM.findDOMNode(this);
+    calculateDimensions() {
+        const padding = 2 * 11;
+        const node = ReactDOM.findDOMNode(this);
 
-        var realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
-        var realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
+        const realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
+        const realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
         if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
-            this.setState({
+            return {
                 rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
                 cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
-            });
+            };
+
+        return { rows: this.state.rows, cols: this.state.cols };
+    }
+
+    onWindowResize() {
+        this.setState(this.calculateDimensions());
     }
 
     setTerminalTheme(theme) {

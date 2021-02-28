@@ -43,6 +43,10 @@ The following should work in a fresh Git clone:
       sudo dnf builddep --spec $TEMPFILE && \
       rm $TEMPFILE
 
+For running the browser unit tests, the following dependencies are required:
+
+    $ sudo dnf chromium-headless dbus-daemon
+
 For running integration tests, the following dependencies are required:
 
     $ sudo dnf install curl expect xz rpm-build chromium-headless \

@@ -250,10 +250,12 @@ install-data-local:: $(WEBPACK_INSTALL)
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
 	$(V_TAR) tar -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::
-	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
-	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
-	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
-	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
+	test ! -d $(DESTDIR)$(pkgdatadir) || \
+	  (find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \; && \
+	   find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
+	test ! -d $(DESTDIR)$(debugdir)$(pkgdatadir) || \
+	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
+	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README

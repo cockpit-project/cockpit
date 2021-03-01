@@ -24,7 +24,7 @@ QUnit.test("simple request", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ internal: "/test-server" }).get("/pkg/playground/manifest.json.in")
+    cockpit.http({ internal: "/test-server" }).get("/pkg/playground/manifest.json")
             .done(function(data) {
                 assert.deepEqual(JSON.parse(data), {
                     requires: {

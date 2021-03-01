@@ -48,7 +48,6 @@ SUFFIXES = \
 	.css .css.gz \
 	.html .html.gz \
 	.js .js.gz \
-	.json .json.in \
 	.jsx \
 	.map .map.gz \
 	.mo .po \
@@ -161,19 +160,24 @@ WEBPACK_PACKAGES = \
 	machines \
 	metrics \
 	networkmanager \
-	pcp \
 	packagekit \
 	playground \
 	selinux \
 	shell \
 	sosreport \
-	ssh \
 	static \
 	storaged \
 	systemd \
 	tuned \
 	users \
 	$(NULL)
+
+MANIFESTS = \
+	pkg/pcp/manifest.json \
+	pkg/ssh/manifest.json \
+	$(NULL)
+
+MANIFESTS += $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
@@ -185,10 +189,9 @@ WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspa
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
-WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
+WEBPACK_INSTALL =
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
-WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
@@ -215,15 +218,9 @@ dist/%/Makefile.deps:
 	  cp -p $(srcdir)/$@ $@.tmp && \
 	  mv $@.tmp $@)
 
-# This is the primary rule for running webpack; some pkgs like ssh or pcp only
-# have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
-	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
-	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
+	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG) && \
 	  touch $@
-
-dist/%/manifest.json: pkg/%/manifest.json.in
-	$(SUBST_RULE)
 
 -include $(WEBPACK_DEPS)
 
@@ -244,7 +241,7 @@ node_modules/.stamp: package.json
 	@echo ''
 	@false
 
-install-data-local:: $(WEBPACK_INSTALL)
+install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
@@ -256,7 +253,7 @@ uninstall-local::
 	test ! -d $(DESTDIR)$(debugdir)$(pkgdatadir) || \
 	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
 	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
 	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node
@@ -365,7 +362,7 @@ COMMITTED_DIST = \
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
-dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
+dist-hook:: $(MANIFESTS)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball

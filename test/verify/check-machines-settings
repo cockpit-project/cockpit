@@ -236,7 +236,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.select_from_dropdown("#cpu-model-select-group select", "host-model")
         b.click("#cpu-config-dialog-apply")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "host")
-        self.performAction("subVmTest1", "run")
+        b.click("#vm-subVmTest1-run")
         b.wait_in_text("#vm-subVmTest1-cpu-model .pf-c-description-list__text", "custom")
         # In the test ENV libvirt does not properly set the CPU model so we see a tooltip https://bugzilla.redhat.com/show_bug.cgi?id=1913337
         # b.wait_not_present("#cpu-tooltip")

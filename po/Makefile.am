@@ -74,7 +74,7 @@ po/cockpit.js.pot:
 
 po/cockpit.manifest.pot:
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
-		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in')
+		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 
 po/cockpit.appstream.pot:
 	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \

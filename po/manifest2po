@@ -67,7 +67,7 @@ function step() {
         return;
     }
 
-    if (path.basename(filename) != "manifest.json.in")
+    if (path.basename(filename) != "manifest.json")
         return step();
 
     /* Qualify the filename if necessary */

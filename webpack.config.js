@@ -313,6 +313,10 @@ info.files.forEach(value => {
     if (!section || value.indexOf(section) === 0)
         files.push({ from: vpath("pkg", value), to: value });
 });
+if (section) {
+    const manifest = section + "manifest.json";
+    files.push({ from: vpath("pkg", manifest), to: manifest });
+}
 info.files = files;
 
 // base1 fonts for cockpit-bridge package
@@ -342,7 +346,7 @@ const opensans_fonts = ["Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "I
 function get_msggrep_options () {
     // shell needs all manifest translations for search
     if (section === 'shell/')
-        return ['-N', 'pkg/*/manifest.json.in'];
+        return ['-N', 'pkg/*/manifest.json'];
     if (section === 'static/')
         return ['-N', 'src/ws/*'];
     return undefined;

@@ -29,7 +29,7 @@ proj_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 max_version = ''
 
-for manifest in glob('dist/*/manifest.json'):
+for manifest in glob('pkg/*/manifest.json'):
     # if pkg names are given on the command line, then only look at those,
     # otherwise on all of them
     if len(sys.argv) > 1:

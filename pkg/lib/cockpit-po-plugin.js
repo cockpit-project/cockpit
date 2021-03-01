@@ -65,7 +65,7 @@ module.exports = class {
     }
 
     filterMessages(po_file, compilation) {
-        // all translations for that page, including manifest.json.in and *.html
+        // all translations for that page, including manifest.json and *.html
         const argv = ["-N", "*/" + this.subdir + "*"];
         // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
         argv.push("-N", "pkg/base1/cockpit.js");

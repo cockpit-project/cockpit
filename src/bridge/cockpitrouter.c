@@ -100,6 +100,7 @@ enum {
 
 static void superuser_init (CockpitRouter *self, JsonObject *options);
 static void superuser_legacy_init (CockpitRouter *self);
+static void superuser_transport_closed (CockpitRouter *self);
 
 typedef struct {
   JsonObject *config;
@@ -1189,7 +1190,7 @@ void cockpit_router_set_bridges (CockpitRouter *self,
       if (rule->config)
         {
           if (rule == self->superuser_rule)
-            self->superuser_rule = NULL;
+            superuser_transport_closed (self);
 
           router_rule_destroy (rule);
         }
@@ -1281,6 +1282,17 @@ superuser_start_done (const gchar *error, gpointer user_data)
 }
 
 static void
+superuser_transport_closed (CockpitRouter *self)
+{
+  if (self->superuser_stop_invocation)
+    g_dbus_method_invocation_return_value (self->superuser_stop_invocation, NULL);
+  self->superuser_stop_invocation = NULL;
+  self->superuser_rule = NULL;
+  self->superuser_transport = NULL;
+  superuser_notify_property (self, "Current");
+}
+
+static void
 on_superuser_transport_closed (CockpitTransport *transport,
                                const gchar *problem,
                                gpointer user_data)
@@ -1288,14 +1300,7 @@ on_superuser_transport_closed (CockpitTransport *transport,
   CockpitRouter *router = user_data;
 
   if (router->superuser_transport == transport)
-    {
-      if (router->superuser_stop_invocation)
-        g_dbus_method_invocation_return_value (router->superuser_stop_invocation, NULL);
-      router->superuser_stop_invocation = NULL;
-      router->superuser_rule = NULL;
-      router->superuser_transport = NULL;
-      superuser_notify_property (router, "Current");
-    }
+    superuser_transport_closed (router);
 }
 
 static void

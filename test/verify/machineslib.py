@@ -28,7 +28,7 @@ class VirtualMachinesCaseHelpers:
         b = self.browser
         b.click("#vm-{0}-action-kebab button".format(vmName))
         b.wait_visible("#vm-{0}-action-kebab > .pf-c-dropdown__menu".format(vmName))
-        b.click("#vm-{0}-{1}".format(vmName, action))
+        b.click("#vm-{0}-{1} a".format(vmName, action))
 
         if not checkExpectedState:
             return

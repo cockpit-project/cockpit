@@ -813,9 +813,8 @@ class MetricsHour extends React.Component {
             for (; m >= 0; m = m - 5) {
                 const dataOffset = m * SAMPLES_PER_MIN;
                 const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN * 5);
-                if (dataSlice.find(i => i !== null)) {
+                if (dataSlice.some(i => i !== null && i !== undefined))
                     break;
-                }
             }
             minutes = m + 5;
         }

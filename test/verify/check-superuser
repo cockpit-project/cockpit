@@ -182,6 +182,27 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
+    def testRemoveBridgeConfig(self):
+        b = self.browser
+        m = self.machine
+
+        m.needs_writable_usr()
+
+        self.login_and_go("/playground/pkgs", superuser=True)
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+        m.write("/usr/share/cockpit/shell/override.json", """
+{
+  "bridges": [ ]
+}
+""")
+
+        b.enter_page("/playground/pkgs")
+        b.click("#reload")
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Limited access")
+
     def testOverview(self):
         b = self.browser
 

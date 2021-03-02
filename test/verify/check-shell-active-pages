@@ -58,6 +58,8 @@ class TestActivePages(MachineCase):
         b.wait_not_present("#active-pages-dialog")
 
         # open the terminal page and start a session we can see on the machine
+        # Remove failed units which will show up in the first terminal line
+        m.execute("systemctl reset-failed")
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
 

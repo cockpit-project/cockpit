@@ -96,11 +96,6 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
         client_machine.execute("KRB5RCACHEDIR=\"/var/cache/krb5rcache\" KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
 
-        # configure gssapi authentication for sudo
-        sshd_machine.write('/etc/sudoers.d/cockpit-krb5-sudo', """
-Defaults    env_keep += "KRB5CCNAME"
-        """)
-
         sshd_machine.write('/etc/pam.d/sudo', """
 auth       sufficient   pam_sss_gss.so
 auth       required     pam_deny.so

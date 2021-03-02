@@ -122,9 +122,6 @@ function Machines() {
         if (!shared)
             return;
 
-        var emit_ready = !self.ready;
-
-        self.ready = true;
         last = shared;
         flat = null;
 
@@ -201,8 +198,6 @@ function Machines() {
         var len = events.length;
         for (i = 0; i < len; i++)
             sel.triggerHandler(events[i][0], events[i][1]);
-        if (emit_ready)
-            $(self).triggerHandler("ready");
     }
 
     function update_session_machine(machine, host, values) {
@@ -240,6 +235,13 @@ function Machines() {
 
         return mod;
     }
+
+    self.set_ready = function ready() {
+        if (!self.ready) {
+            self.ready = true;
+            $(self).triggerHandler("ready");
+        }
+    };
 
     self.add_key = function(host_key) {
         return cockpit.script(ssh_add_key_sh, [host_key.trim(), "known_hosts"], { err: "message" });
@@ -735,10 +737,12 @@ function Loader(machines, session_only) {
             machines.data(data_unwrap);
             if (!session_loaded)
                 load_from_session_storage();
+            machines.set_ready();
         });
     } else {
         load_from_session_storage();
         machines.data({});
+        machines.set_ready();
     }
 }
 

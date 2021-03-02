@@ -316,7 +316,8 @@ $(function() {
         const grep = options.grep || "";
         let full_grep = "";
 
-        const prio_level = options.prio || "err";
+        // `prio` is a legacy name. Accept it, but don't generate it
+        const prio_level = options.priority || options.prio || "err";
         full_grep += "priority:" + prio_level + " ";
 
         // Set selected item into priority select menu
@@ -449,8 +450,6 @@ $(function() {
 
                     const well_know_keys = ["since", "until", "boot", "priority", "follow", "service", "identifier"];
                     const map_keys = (key) => {
-                        if (key === "priority")
-                            return "prio";
                         if (key === "identifier")
                             return "tag";
                         return key;
@@ -518,7 +517,7 @@ $(function() {
     $('#journal-prio-menu').on('change', function() {
         const options = parse_search(document.getElementById("journal-grep").value);
         update_services_list = true;
-        cockpit.location.go([], $.extend(options, { prio: $(this).val() }));
+        cockpit.location.go([], $.extend(options, { priority: $(this).val() }));
     });
 
     $('#journal-service-menu').on("change", function() {

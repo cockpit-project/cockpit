@@ -175,7 +175,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         def wait_journal_empty():
             wait_log_lines(["No logs foundCan not find any logs using the current combination of filters."])
 
-        b.go("#/?prio=debug&service=log123.service")
+        b.go("#/?priority=debug&service=log123.service")
         wait_journal_empty()
 
         def wait_log123():
@@ -218,13 +218,13 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         wait_log123()
 
-        b.go("#/?prio=debug&service=nonexisting.service")
+        b.go("#/?priority=debug&service=nonexisting.service")
         wait_journal_empty()
 
-        b.go("#/?prio=debug&service=log123")
+        b.go("#/?priority=debug&service=log123")
         wait_log123()
 
-        b.go("#/?prio=debug&service=slow10.service")
+        b.go("#/?priority=debug&service=slow10.service")
         wait_journal_empty()
 
         def wait_slow10():
@@ -249,12 +249,12 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         wait_slow10()
 
-        b.go("#/?prio=debug&service=nonexisting.service")
+        b.go("#/?priority=debug&service=nonexisting.service")
         wait_journal_empty()
-        b.go("#/?prio=debug&service=slow10.service")
+        b.go("#/?priority=debug&service=slow10.service")
         wait_slow10()
 
-        b.go("#/?prio=debug")
+        b.go("#/?priority=debug")
 
         m.execute("logger -p user.err --tag check-journal JUST ERROR")
         m.execute("logger -p 5 --tag just-a-service THE SERVICE")
@@ -276,7 +276,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.set_val("#journal-service-menu", "check-journal")
         b.wait_not_present("#journal-service-menu option[value='just-a-service']")
 
-        b.go("#/?tag=test-stream&prio=notice")
+        b.go("#/?tag=test-stream&priority=notice")
         wait_journal_empty()
 
         # Test inline help
@@ -312,7 +312,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         b.focus("#journal-grep")
         b.key_press("1\r")
-        b.wait_js_cond('window.location.hash === "#/?prio=notice&tag=test-stream&grep=1"')
+        b.wait_js_cond('window.location.hash === "#/?priority=notice&tag=test-stream&grep=1"')
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")

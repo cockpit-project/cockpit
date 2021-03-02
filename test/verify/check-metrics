@@ -467,8 +467,8 @@ class TestCurrentMetrics(MachineCase):
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
         size = 300 if have_swap else 200
-        m.execute("systemd-run --collect --slice cockpittest --unit mem-hog sh -ec "
-                  f"'MEMBLOB=$(yes | dd bs=1M count={size} iflag=fullblock); touch /tmp/hogged; sleep infinity'")
+        m.execute("systemd-run --collect --slice cockpittest --unit mem-hog awk "
+                  """'BEGIN { x = sprintf("%""" + str(size) + """000000s",""); system("touch /tmp/hogged; sleep infinity") }'""")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 3s
         time.sleep(8)
@@ -488,7 +488,7 @@ class TestCurrentMetrics(MachineCase):
         b.click("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service'] a span")
         b.enter_page("/system/services")
         b.wait_in_text("#path", "/mem-hog.service")
-        b.wait_in_text(".service-name", "MEMBLOB=")
+        b.wait_in_text(".service-name", "/tmp/hogged")
 
         b.go("/metrics")
         b.enter_page("/metrics")
@@ -496,7 +496,8 @@ class TestCurrentMetrics(MachineCase):
 
         if have_swap:
             # use even more memory to trigger swap
-            m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 sh -ec 'MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); sleep infinity'")
+            m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
+                    """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
             b.wait(lambda: progressValue(b, "#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")

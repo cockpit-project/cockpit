@@ -138,7 +138,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         get_details(user).then(setDetails);
 
         // Watch `/var/run/utmp` to register when user logs in or out
-        const handle = cockpit.file("/var/run/utmp", { superuser: "try" });
+        const handle = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
         handle.watch(() => {
             get_details(user).then(setDetails);
         });

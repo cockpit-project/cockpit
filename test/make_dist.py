@@ -142,11 +142,12 @@ def download_dist(wait=False):
 
 
 def make_dist(download_only=False, wait_download=False):
-    # first try to download a pre-generated dist tarball; this is a lot faster
-    # but these tarballs are built for production NPM mode
     source = None
-    if os.getenv("NODE_ENV") != "development":
+    # on an unbuilt tree, try to download a pre-generated dist tarball; this is a lot faster
+    # these tarballs are built for production NPM mode
+    if not os.path.exists("dist") and os.getenv("NODE_ENV") != "development":
         source = download_dist(wait_download)
+
     if not source:
         if not download_only and not wait_download:
             source = build_dist()

@@ -132,8 +132,10 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
                 update_machines();
                 preload_frames();
-                if (ready)
+                if (ready) {
+                    console.log("MACHINES READY NAV");
                     navigate();
+                }
             })
             .on("removed", function(ev, machine) {
                 index.frames.remove(machine);
@@ -174,6 +176,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     /* Handles navigation */
     function navigate(state, reconnect) {
         var machine;
+
+        console.log("NAVIGATE", JSON.stringify(reconnect), JSON.stringify(state));
 
         /* If this is a watchdog problem or we are troubleshooting
          * let the dialog handle it */

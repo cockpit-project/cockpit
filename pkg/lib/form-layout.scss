@@ -18,11 +18,6 @@
 // There are additional classes and attributes you can add to each
 // control directly under `ct-form`:
 //
-// `ct-form-split`: The grid can be split on a `form-control`
-// level by adding a this class. If you want two elements next to each
-// other, both should have this class. Widths are equal by default.
-// See ct-form-minmax & ct-form-maxmin for alternate sizing.
-//
 // `ct-form-relax`: Form elements normally stretch to take up the
 // full space. You can relax their width by adding this class to the
 // control. Inputs with a size attribute are auto-relaxed and do not
@@ -100,7 +95,7 @@
 
   // Put all control elements to the right of the labels,
   // stretching to the rightmost column
-  > :not(.control-label):not(.pf-c-form__label):not(hr):not(.ct-form-split):not(.ct-form-full) {
+  > :not(.control-label):not(.pf-c-form__label):not(hr):not(.ct-form-full) {
     grid-column: 2 / -1;
   }
 
@@ -198,13 +193,6 @@
     // Only support 2 splits for now (can change to 3 later, if needed)
     grid-template-columns: repeat(2, auto);
 
-    &.ct-form-vertical {
-      > :not(.ct-form-split) {
-        // Stretch across the grid (unless it's a split)
-        grid-column: 1 / -1;
-      }
-    }
-
     > .checkbox,
     > .radio {
         // Spacing is handled by grid, not margin
@@ -272,10 +260,6 @@
   }
 
   // Relax split elements to only take up one column
-  > .ct-form-split {
-    grid-column: auto / auto;
-  }
-
   // Stretch to full width
   > .ct-form-full {
     grid-column: 1 / -1;
@@ -320,13 +304,6 @@
 // Instruct a `form-control` to not stretch.
 .ct-form-relax {
   justify-self: start;
-}
-
-// Reset .ct-form-split for small dialogs, as they don't have
-// much width. This allows for using the same HTML layout in both
-// narrow and normal dialogs.
-.modal-dialog.modal-sm .ct-form > .ct-form-split {
-  grid-column: 2 / -1;
 }
 
 @mixin deconstruct() {
@@ -377,12 +354,6 @@
 // Second form widget is as small as possible
 .ct-form-maxmin {
   grid-template-columns: max-content 1fr max-content min-content;
-}
-
-// Alternate layout, vertical form approach, used at ct-form grid-level
-// Similar to the responsive layout, but used even for large sizes.
-.ct-form-vertical {
-  @include deconstruct();
 }
 
 // Alternate to reduce spacing, used at ct-form grid-level

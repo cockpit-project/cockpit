@@ -130,7 +130,7 @@ class JobRow extends React.Component {
                                 {make_description(this.props.client, job)}
                             </DataListCell>,
                             <DataListCell key="progress" isFilled={false}>
-                                <td>{job.ProgressValid && (job.Progress * 100).toFixed() + "%"}</td>
+                                {job.ProgressValid && (job.Progress * 100).toFixed() + "%"}
                             </DataListCell>,
                             <DataListCell key="remaining">
                                 {remaining}

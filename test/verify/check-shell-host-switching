@@ -123,6 +123,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
             self.machines["machine2"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
             self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
+        # Also, quick logouts cause async preloads to run into "ReferenceError: cockpit is not defined"
+        self.disable_preload("packagekit", "playground", "systemd")
 
         self.machines["machine1"].execute("hostnamectl set-hostname localhost")
         self.machines["machine2"].execute("hostnamectl set-hostname machine2")

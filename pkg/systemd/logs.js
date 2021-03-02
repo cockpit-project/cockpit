@@ -360,10 +360,10 @@ $(function() {
             full_grep += "boot:" + options.boot + " ";
 
         if (options.since)
-            full_grep += "since:" + options.since.replace(" ", "\\ ") + " ";
+            full_grep += "since:" + options.since.replaceAll(" ", "\\ ") + " ";
 
         if (options.until)
-            full_grep += "until:" + options.until.replace(" ", "\\ ") + " ";
+            full_grep += "until:" + options.until.replaceAll(" ", "\\ ") + " ";
 
         // Other filters may be passed as well
         Object.keys(options).forEach(k => {
@@ -431,7 +431,7 @@ $(function() {
 
         for (let i = 1; i < text.length; i++) {
             if (text[i] === " " && text[i - 1] !== "\\") {
-                words.push(text.substring(last_i, i).replace("\\ ", " "));
+                words.push(text.substring(last_i, i).replaceAll("\\ ", " "));
                 last_i = i + 1;
             }
         }

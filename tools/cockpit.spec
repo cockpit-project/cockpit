@@ -492,16 +492,15 @@ getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance 
 
 %post ws
 %tmpfiles_create cockpit-tempfiles.conf
-%systemd_post cockpit.socket
+%systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %preun ws
-%systemd_preun cockpit.socket
+%systemd_preun cockpit.socket cockpit.service
 
 %postun ws
-%systemd_postun_with_restart cockpit.socket
-%systemd_postun_with_restart cockpit.service
+%systemd_postun_with_restart cockpit.socket cockpit.service
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora

@@ -151,7 +151,6 @@ def make_dist(download_only=False, wait_download=False):
         if not download_only and not wait_download:
             source = build_dist()
         else:
-            print("make_dist: Download failed: pre-built dist tarball does not exist")
             sys.exit(1)
     return source
 

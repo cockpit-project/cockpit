@@ -36,6 +36,9 @@ PS1="\\u@\\h \\W]\$ "
 PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
 """, append=True)
 
+        # Remove failed units which will show up in the first terminal line
+        self.machine.execute("systemctl reset-failed")
+
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
     @nondestructive
     def testBasic(self):

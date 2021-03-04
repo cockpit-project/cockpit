@@ -410,46 +410,38 @@ export class AddDiskModalBody extends React.Component {
         case 'busType': {
             const existingTargets = Object.getOwnPropertyNames(this.props.vm.disks);
             const availableTarget = getNextAvailableTarget(existingTargets, value);
-            // use onValueChange instead of setState in order to perform subsequent state change logic
-            this.onValueChanged('target', availableTarget);
-            this.setState({ busType: value });
+            this.setState({ busType: value, target: availableTarget });
             break;
         }
         case 'file': {
-            stateDelta.file = value;
-            this.setState(prevState => {
-                if (value.endsWith(".iso")) {
-                    // use onValueChange instead of setState in order to perform subsequent state change logic
-                    this.onValueChanged("device", "cdrom");
-                }
-                return stateDelta;
-            });
+            if (value.endsWith(".iso")) {
+                // use onValueChange instead of setState in order to perform subsequent state change logic
+                this.onValueChanged("device", "cdrom");
+            }
+            this.setState({ file: value });
             break;
         }
         case 'device': {
-            stateDelta.device = value;
-            this.setState(prevState => {
-                let newBus;
-                // If disk with the same device exists, use the same bus too
-                for (const disk of Object.values(this.props.vm.disks)) {
-                    if (disk.device === value) {
-                        newBus = disk.bus;
-                        break;
-                    }
+            this.setState({ device: value });
+            let newBus;
+            // If disk with the same device exists, use the same bus too
+            for (const disk of Object.values(this.props.vm.disks)) {
+                if (disk.device === value) {
+                    newBus = disk.bus;
+                    break;
                 }
+            }
 
-                if (newBus)
-                    this.onValueChanged("busType", newBus);
+            if (newBus) {
+                this.onValueChanged("busType", "scsi");
                 // Disk device "cdrom" and bus "virtio" are incompatible, see:
                 // https://listman.redhat.com/archives/libvir-list/2019-January/msg01104.html
-                else if (value === "cdrom" && prevState.busType === "virtio") {
-                    // use onValueChange instead of setState in order to perform subsequent state change logic
-                    // According to https://libvirt.org/formatdomain.html#hard-drives-floppy-disks-cdroms (section about 'target'),
-                    // scsi is the default option for libvirt in this case too
-                    this.onValueChanged("busType", "scsi");
-                }
-                return stateDelta;
-            });
+            } else if (value === "cdrom" && this.state.busType === "virtio") {
+                // use onValueChange instead of setState in order to perform subsequent state change logic
+                // According to https://libvirt.org/formatdomain.html#hard-drives-floppy-disks-cdroms (section about 'target'),
+                // scsi is the default option for libvirt in this case too
+                this.onValueChanged("busType", newBus);
+            }
             break;
         }
         default:

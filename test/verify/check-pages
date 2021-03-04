@@ -260,6 +260,9 @@ OnCalendar=daily
         b.click("#display-language-modal footer button.pf-m-link") # Close the menu
 
         for language in languages:
+            # Remove failed units which will show up in the first terminal line
+            m.execute("systemctl reset-failed")
+
             b.go("/system")
             b.enter_page("/system")
 

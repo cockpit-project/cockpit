@@ -450,6 +450,7 @@ export class SETroubleshootPage extends React.Component {
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable aria-label={ title }
+                                  gridBreakPoint=''
                                   emptyCaption={ emptyCaption }
                                   columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
                                   showHeader={false}

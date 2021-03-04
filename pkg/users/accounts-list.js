@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { superuser } from "superuser";
 
-import { Button, Badge, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { Button, Badge, Card, CardBody, Gallery, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { UserIcon } from '@patternfly/react-icons';
 import { account_create_dialog } from "./account-create-dialog.js";
 
@@ -42,14 +42,16 @@ function AccountItem({ account, current }) {
     }
 
     return (
-        <li className="cockpit-account" role="presentation" onClick={click} onKeyPress={click}>
-            <UserIcon className="cockpit-account-pic" />
-            <div className="cockpit-account-real-name">{account.gecos.split(',')[0]}</div>
-            <div className="cockpit-account-user-name">
-                <a href={"#/" + account.name}>{account.name}</a>
-                {current && <Badge className="cockpit-account-badge">{_("Your account")}</Badge>}
-            </div>
-        </li>
+        <Card onClick={click} onKeyPress={click} isSelectable isCompact>
+            <CardBody className="cockpit-account">
+                <UserIcon className="cockpit-account-pic" />
+                <div className="cockpit-account-real-name">{account.gecos.split(',')[0]}</div>
+                <div className="cockpit-account-user-name">
+                    <a href={"#/" + account.name}>{account.name}</a>
+                    {current && <Badge className="cockpit-account-badge">{_("Your account")}</Badge>}
+                </div>
+            </CardBody>
+        </Card>
     );
 }
 
@@ -70,15 +72,17 @@ export function AccountsList({ accounts, current_user }) {
 
     return (
         <Page id="accounts">
-            <PageSection variant={PageSectionVariants.light}>
-                { superuser.allowed &&
-                <Button id="accounts-create" onClick={() => account_create_dialog(accounts)}>
-                    {_("Create new account")}
-                </Button>
-                }
-                <ul id="accounts-list">
+            { superuser.allowed &&
+                <PageSection variant={PageSectionVariants.light}>
+                    <Button id="accounts-create" onClick={() => account_create_dialog(accounts)}>
+                        {_("Create new account")}
+                    </Button>
+                </PageSection>
+            }
+            <PageSection id="accounts-list">
+                <Gallery className='ct-system-overview' hasGutter>
                     { filtered_accounts.map(a => <AccountItem key={a.name} account={a} current={current_user == a.name} />) }
-                </ul>
+                </Gallery>
             </PageSection>
         </Page>);
 }

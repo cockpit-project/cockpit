@@ -86,7 +86,7 @@ export const PasswordFormFields = ({
                               size={ProgressSize.sm}
                               measureLocation={ProgressMeasureLocation.none}
                               variant={variant}
-                              value={isNaN(password_strength) ? 1 : password_strength} />
+                              value={Number.isInteger(password_strength) ? password_strength : 0} />
                     <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
                 </div>
             </FormGroup>

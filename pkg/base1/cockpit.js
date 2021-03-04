@@ -3839,10 +3839,11 @@ function factory() {
                 if (watch_channel)
                     return;
 
-                var opts = extend({ }, base_channel_options, {
+                const opts = {
                     payload: "fswatch1",
-                    path: path
-                });
+                    path: path,
+                    superuser: base_channel_options.superuser,
+                };
                 watch_channel = cockpit.channel(opts);
                 watch_channel.addEventListener("message", function (event, message_string) {
                     var message;

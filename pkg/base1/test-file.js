@@ -404,6 +404,30 @@ QUnit.test("watching", function (assert) {
     }
 });
 
+QUnit.test("binary watching", function (assert) {
+    const done = assert.async();
+    assert.expect(3);
+
+    var file = cockpit.file(dir + "/foobar", { binary: true });
+    var watch = file.watch(changed);
+
+    var n = 0;
+    function changed(content, tag) {
+        n += 1;
+        if (n == 1) {
+            assert.equal(content, null, "initially non-existent");
+            cockpit.spawn(["bash", "-c", "cd " + dir + " && echo '//8BAg==' | base64 -d > foobar.tmp && mv foobar.tmp foobar"]);
+        } else if (n == 2) {
+            assert.deepEqual(content, new Uint8Array([255, 255, 1, 2]), "correct new content");
+            cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
+        } else if (n == 3) {
+            assert.equal(content, null, "finally non-existent");
+            watch.remove();
+            done();
+        }
+    }
+});
+
 QUnit.test("syntax watching", function (assert) {
     const done = assert.async();
     assert.expect(3);

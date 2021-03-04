@@ -163,11 +163,9 @@ export class Modifications extends React.Component {
                     <CardHeader>
                         <CardTitle><Text component={TextVariants.h2}>{this.props.title}</Text></CardTitle>
                         { !emptyRow &&
-                        <CardActions>
-                            <Button variant="link" onClick={() => this.setState({ showDialog: true }) }>
+                            <Button variant="secondary" onClick={() => this.setState({ showDialog: true }) }>
                                 {_("View automation script")}
                             </Button>
-                        </CardActions>
                         }
                     </CardHeader>
                     <CardBody className="contains-list">

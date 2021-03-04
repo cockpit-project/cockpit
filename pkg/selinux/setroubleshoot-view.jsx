@@ -26,7 +26,7 @@ import {
     Page, PageSection, PageSectionVariants,
     Switch, Stack, StackItem, Text, TextVariants,
 } from "@patternfly/react-core";
-import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
+import { ExclamationCircleIcon, InfoCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -361,22 +361,14 @@ export class SETroubleshootPage extends React.Component {
         var modifications;
         var title = _("SELinux access control errors");
         var emptyCaption = _("No SELinux alerts.");
+        let emptyState;
         if (!this.props.connected) {
             if (this.props.connecting) {
-                emptyCaption = (
-                    <div>
-                        <div className="spinner spinner-sm" />
-                        <span>{_("Connecting to SETroubleshoot daemon...")}</span>
-                    </div>
-                );
+                emptyState = <EmptyStatePanel paragraph={ _("Connecting to SETroubleshoot daemon...") } loading />;
             } else {
                 // if we don't have setroubleshoot-server, be more subtle about saying that
-                title = "";
-                emptyCaption = (
-                    <span>
-                        {_("Install setroubleshoot-server to troubleshoot SELinux events.")}
-                    </span>
-                );
+                emptyState = <EmptyStatePanel icon={ InfoCircleIcon }
+                                              paragraph={_("Install setroubleshoot-server to troubleshoot SELinux events.")} />;
             }
         } else {
             entries = this.props.entries.map(function(itm, index) {
@@ -449,13 +441,14 @@ export class SETroubleshootPage extends React.Component {
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">
-                    <ListingTable aria-label={ title }
+                    {!emptyState
+                        ? <ListingTable aria-label={ title }
                                   gridBreakPoint=''
                                   emptyCaption={ emptyCaption }
                                   columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
                                   showHeader={false}
                                   variant="compact"
-                                  rows={entries} />
+                                  rows={entries} /> : emptyState}
                 </CardBody>
             </Card>
         );

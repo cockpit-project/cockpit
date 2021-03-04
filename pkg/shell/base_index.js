@@ -440,7 +440,8 @@ function Router(index) {
                 index.show_oops();
                 return;
             } else if (control.command == "notify") {
-                index.handle_notifications(source.default_host, source.page, control);
+                if (source)
+                    index.handle_notifications(source.default_host, source.page, control);
                 return;
 
             /* Only control messages with a channel are forwardable */

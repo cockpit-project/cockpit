@@ -82,7 +82,7 @@ export const PasswordFormFields = ({
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
-                              title="password quality"
+                              title={_("password quality")}
                               size={ProgressSize.sm}
                               measureLocation={ProgressMeasureLocation.none}
                               variant={variant}

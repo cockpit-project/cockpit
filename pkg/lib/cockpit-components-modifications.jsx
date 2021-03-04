@@ -20,7 +20,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
-    Button, Card, CardHeader, CardTitle, CardActions, CardBody,
+    Button, Card, CardHeader, CardTitle, CardBody,
     DataList, DataListItem, DataListItemRow, DataListCell, DataListItemCells,
     Modal, Tabs, Tab, Text, TextVariants
 } from '@patternfly/react-core';

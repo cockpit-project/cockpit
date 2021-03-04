@@ -47,11 +47,6 @@
 
 #accounts-list {
     --ct-account-pic-size: 3rem;
-    display: grid;
-    align-items: stretch;
-    grid-gap: 0.5rem;
-    margin: 2rem 0 0;
-    grid-template-columns: repeat(auto-fit, minmax(calc(8rem + var(--ct-account-pic-size)), 1fr));
 }
 
 @media (max-width: 640px) {
@@ -61,10 +56,6 @@
 }
 
 .cockpit-account {
-    align-content: center;
-    background: var(--ct-color-bg);
-    border: 1px solid var(--ct-color-border);
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
     display: grid;
     grid-template-areas: "pic name"
                          "pic account";
@@ -72,12 +63,6 @@
     grid-gap: 0 0.25rem;
     min-height: 4rem;
     padding: 0.5rem;
-}
-
-.cockpit-account:hover,
-.cockpit-account:focus-within {
-    background-color: var(--ct-color-link-hover-bg);
-    cursor: pointer;
 }
 
 .cockpit-account > .cockpit-account-pic {
@@ -98,8 +83,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     grid-area: account;
-    /* We're using an underline on focus and focus-within above for focus indication */
     outline: none;
+    align-self: end;
+    display: flex;
+    justify-content: space-between;
 
     > a {
         margin-right: 0.5rem;

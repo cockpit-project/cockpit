@@ -48,7 +48,7 @@ class TestAccounts(MachineCase):
         b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
 
         # The current account is the first in the list
-        b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
+        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
 
         # Set a real name
         b.go("#/anton")
@@ -204,7 +204,7 @@ class TestAccounts(MachineCase):
         b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
 
         # The current account is the first in the list
-        b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
+        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")

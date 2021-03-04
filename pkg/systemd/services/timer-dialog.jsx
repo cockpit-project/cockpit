@@ -250,7 +250,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                                                         arr[idx].day = day;
                                                         setRepeatPatterns(arr);
                                                     }}
-                                                    aria-label={_("Repeat monthtly")}>
+                                                    aria-label={_("Repeat monthly")}>
                                             {[_("1st"), _("2nd"), _("3rd"), _("4th"), _("5th"),
                                                 _("6th"), _("7th"), _("8th"), _("9th"), _("10th"),
                                                 _("11th"), _("12th"), _("13th"), _("14th"), _("15th"),

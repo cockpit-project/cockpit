@@ -45,7 +45,7 @@ const NameRow = ({ idPrefix, name, diskType }) => {
         label = _("Storage volume");
 
     return (
-        <FormGroup fieldId={`${idPrefix}-name`} label={label}>
+        <FormGroup fieldId={`${idPrefix}-name`} label={label} hasNoPaddingTop>
             <samp id={`${idPrefix}-name`}>
                 {name}
             </samp>

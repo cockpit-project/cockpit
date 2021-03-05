@@ -1,0 +1,23 @@
+summary: Run browser integration tests on the host
+require:
+  - cockpit
+  - cockpit-tests
+  - cockpit-machines
+  - cockpit-sosreport
+  - cockpit-storaged
+  - createrepo_c
+  - cryptsetup
+  - dnf-automatic
+  - firewalld
+  - git
+  - libvirt-daemon-config-network
+  - libvirt-python3
+  - make
+  - NetworkManager-team
+  - npm
+  - python3
+  - sssd-dbus
+  - targetcli
+  - tlog
+test: ./run-verify-host.sh
+duration: 2h

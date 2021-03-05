@@ -137,7 +137,7 @@ function generateDeps(makefile, stats) {
         output = path.join(dir, asset);
         fs.utimesSync(output, now, now);
 
-	if (!output.endsWith(".map"))
+        if (!output.endsWith("/manifest.json") && !output.endsWith(".map"))
             outputs[output] = output;
 
 	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {

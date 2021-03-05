@@ -190,7 +190,7 @@ WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL =
-WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/Makefile.deps)
+WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=$(top_srcdir)/dist/%/Makefile.deps)
 WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
@@ -204,18 +204,11 @@ WEBPACK_TEST_DEPS = \
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
 EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) webpack.config.js
 
-PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
-PRINT_COPY_MSG_ = $(PRINT_COPY_MSG_$(AM_DEFAULT_VERBOSITY))
-
-# Copy an original copy of each Makefile.deps from the srcdir, in case
-# of an out-of-tree build from a tarball.  This is needed because the
-# 'include' below won't find the file in srcdir.
-# This rule needs to have a successful exit, or make will become unhappy.
+# Nothing generates this directly, but it's included as a dependency in
+# various places.  It will automatically appear as part of the webpack
+# build.
 dist/%/Makefile.deps:
-	$(AM_V_at)test "$(srcdir)" == "$(builddir)" -o ! $(srcdir)/$@ -nt $@ || ( \
-	  $(PRINT_COPY_MSG_$(V))$(MKDIR_P) $(dir $@) && \
-	  cp -p $(srcdir)/$@ $@.tmp && \
-	  mv $@.tmp $@)
+	@true
 
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
 	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG) && \

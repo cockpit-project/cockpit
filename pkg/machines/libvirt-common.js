@@ -991,7 +991,8 @@ export function CREATE_VM({
     rootPassword,
     userPassword,
     userLogin,
-    profile
+    profile,
+    useCloudInit,
 }) {
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
@@ -1022,6 +1023,7 @@ export function CREATE_VM({
             userPassword,
             userLogin,
             profile,
+            useCloudInit,
         ], opts)
                 .done(() => {
                     finishVmCreateInProgress(dispatch, vmName, connectionName);

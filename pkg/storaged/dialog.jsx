@@ -542,7 +542,7 @@ export const SelectOne = (tag, title, options) => {
         render: (val, change, validated) => {
             return (
                 <div data-field={tag} data-field-type="select" data-value={val}>
-                    <FormSelect value={val} aria-label={tag}
+                    <FormSelect value={val} aria-label={title}
                                 validated={validated}
                                 onChange={change}>
                         { options.choices.map(c => <FormSelectOption value={c.value} isDisabled={c.disabled}
@@ -851,7 +851,7 @@ class SizeSliderElement extends React.Component {
     }
 
     render() {
-        const { val, max, round, onChange, tag } = this.props;
+        const { val, max, round, title, onChange } = this.props;
         const min = this.props.min || 0;
         const { unit } = this.state;
 
@@ -909,9 +909,10 @@ class SizeSliderElement extends React.Component {
             <div className="size-sliderx">
                 <StatelessSlider fraction={val / max} onChange={change_slider} />
                 <TextInputPF4 className="size-text"
-                       value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
-                       onChange={change_text} />
-                <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
+                              aria-label={title}
+                              value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
+                              onChange={change_text} />
+                <FormSelect className="size-unit" value={unit} aria-label={title} onChange={change_unit}>
                     { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
                 </FormSelect>
             </div>
@@ -958,7 +959,7 @@ export const SizeSlider = (tag, title, options) => {
                                        max={all_options.max}
                                        min={all_options.min}
                                        round={all_options.round}
-                                       tag={tag}
+                                       title={title}
                                        onChange={change} />
                 </div>
             );

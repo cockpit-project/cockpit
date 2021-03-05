@@ -127,6 +127,33 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                                          start_vm=False),
                                              {"source-url": "Installation source must not be empty"})
 
+    def testCreateCloudBaseImage(self):
+        runner = TestMachinesCreate.CreateVmRunner(self)
+        config = TestMachinesCreate.TestCreateConfig
+
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/machines")
+        self.browser.wait_in_text("body", "Virtual machines")
+
+        # try to CREATE few machines
+        # --cloud-init user-data option exists since virt-install >= 3.0.0
+        if m.image in ['fedora-32', 'centos-8-stream', 'rhel-8-3', 'rhel-8-3-distropkg', "rhel-8-4", "rhel-8-4-distropkg", 'ubuntu-stable', 'ubuntu-2004', 'debian-stable']:
+            b.click("#create-new-vm")
+            b.wait_visible("#create-vm-dialog")
+            self.browser.wait_not_present('select option[value=cloud]')
+        else:
+            runner.createCloudBaseImageTest(TestMachinesCreate.VmDialog(self, sourceType='cloud',
+                                                                        storage_size=10, storage_size_unit='MiB',
+                                                                        location=config.VALID_DISK_IMAGE_PATH,
+                                                                        os_name=config.FEDORA_28,
+                                                                        os_short_id=config.FEDORA_28_SHORTID,
+                                                                        user_password="catsaremybestfr13nds",
+                                                                        user_login="foo",
+                                                                        root_password="dogsaremybestfr13nds",
+                                                                        start_vm=True))
+
     def testCreateDownloadAnOS(self):
         runner = TestMachinesCreate.CreateVmRunner(self)
         config = TestMachinesCreate.TestCreateConfig
@@ -716,7 +743,23 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.browser.wait_not_present("#source-type option[value='{0}']".format(self.sourceType))
             return self
 
-        def createAndVerifyVirtInstallArgs(self):
+        def createAndVerifyVirtInstallArgsCloudInit(self):
+            self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
+            self.browser.wait_not_present("#create-vm-dialog")
+
+            self.goToVmPage(self.name)
+            self.browser.wait_text("#vm-{}-disks-vda-bus".format(self.name), "virtio")
+            # A cloud-init NoCloud ISO file is generated, and attached to the VM as a CDROM device.
+            self.browser.wait_text("#vm-{}-disks-sda-device".format(self.name), "cdrom")
+            self.goToMainPage()
+
+            virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
+
+            wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
+            virt_install_cmd_out = self.machine.execute(virt_install_cmd)
+            self.assertIn("--cloud-init user-data=", virt_install_cmd_out)
+
+        def createAndVerifyVirtInstallArgsUnattended(self):
             self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
             self.browser.wait_not_present("#create-vm-dialog")
             if self.storage_pool != "NoStorage":
@@ -748,7 +791,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 b.select_from_dropdown("#source-type", self.sourceType)
             else:
                 b.wait_not_present("#source-type")
-            if self.sourceType == 'file':
+            if self.sourceType == 'file' or self.sourceType == 'cloud':
                 b.set_file_autocomplete_val("#source-file-group", self.location)
             elif self.sourceType == 'disk_image':
                 b.set_file_autocomplete_val("#source-disk-group", self.location)
@@ -802,16 +845,22 @@ class TestMachinesCreate(VirtualMachinesCase):
             else:
                 b.wait_val("#memory-size", self.expected_memory_size)
 
-            b.wait_visible("#start-vm")
-            if not self.start_vm:
-                b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
-            # b.set_checked("#start-vm", self.start_vm)
+            if self.sourceType == "cloud":
+                b.wait_not_present("#start-vm")
+            else:
+                b.wait_visible("#start-vm")
+                if not self.start_vm:
+                    b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
 
             if (self.connection):
                 b.set_checked("#connectionName-{0}".format(self.connection), True)
 
-            if self.is_unattended:
-                b.click("#unattended-installation")
+            if self.is_unattended or self.sourceType == "cloud":
+                if self.is_unattended:
+                    b.click("#unattended-installation")
+                else:
+                    b.click("#cloud-init-checkbox")
+
                 if self.profile:
                     b.select_from_dropdown("#profile-select", self.profile)
                 if self.user_password:
@@ -1227,10 +1276,18 @@ class TestMachinesCreate(VirtualMachinesCase):
             self._assertScriptFinished() \
                 .checkEnvIsEmpty()
 
+        def createCloudBaseImageTest(self, dialog):
+            dialog.open() \
+                .fill() \
+                .createAndVerifyVirtInstallArgsCloudInit()
+            if dialog.delete:
+                self._deleteVm(dialog) \
+                      .checkEnvIsEmpty()
+
         def createDownloadAnOSTest(self, dialog):
             dialog.open() \
                 .fill() \
-                .createAndVerifyVirtInstallArgs()
+                .createAndVerifyVirtInstallArgsUnattended()
             if dialog.delete:
                 self._deleteVm(dialog) \
                       .checkEnvIsEmpty()

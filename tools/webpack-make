@@ -89,7 +89,7 @@ function process_result(err, stats) {
             // Force "make" to re-create everything.  The results of
             // incremental building are not good enough for building
             // RPMs, for example.
-            var stamp = makefile.split("/").slice(0, -1).concat(["stamp"]).join("/");
+            var stamp = makefile.split("/").slice(0, -1).concat(["manifest.json"]).join("/");
             if (fs.existsSync(makefile))
                 fs.unlinkSync(makefile);
             if (fs.existsSync(stamp))
@@ -107,7 +107,7 @@ function generateDeps(makefile, stats) {
     var tests = { };
 
     var pkgdir = path.dirname(makefile);
-    var stampfile = pkgdir + '/stamp';
+    var stampfile = pkgdir + '/manifest.json';
 
     stats.compilation.modules.forEach(function(module) {
         // skip external, multi, and other "not quite" modules

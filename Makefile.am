@@ -181,7 +181,7 @@ MANIFESTS += $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/stamp=%)";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/manifest.json=%)";
 
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspath $(builddir)) \
 	       timeout 15m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
@@ -191,7 +191,6 @@ WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL =
 WEBPACK_DEPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=$(top_srcdir)/dist/%/Makefile.deps)
-WEBPACK_STAMPS = $(WEBPACK_PACKAGES$(SKIP_NODE):%=dist/%/stamp)
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
@@ -201,8 +200,8 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
-EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) webpack.config.js
+noinst_SCRIPTS += $(MANIFESTS$(SKIP_NODE))
+EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
 
 # Nothing generates this directly, but it's included as a dependency in
 # various places.  It will automatically appear as part of the webpack
@@ -210,9 +209,8 @@ EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) webpack.config.js
 dist/%/Makefile.deps:
 	@true
 
-dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
-	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG) && \
-	  touch $@
+dist/%/manifest.json: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
+	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
 
 -include $(WEBPACK_DEPS)
 

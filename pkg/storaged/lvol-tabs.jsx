@@ -50,11 +50,12 @@ function lvol_rename(lvol) {
     });
 }
 
-function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
+function lvol_and_fsys_resize(client, lvol, targetSize, offline, passphrase) {
     var block, crypto, fsys;
     var crypto_overhead;
     var vdo;
     var orig_size = lvol.Size;
+    var size = parseInt(targetSize);
 
     block = client.lvols_block[lvol.path];
     if (!block)

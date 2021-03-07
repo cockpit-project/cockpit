@@ -20,6 +20,12 @@
 import parent
 from testlib import *
 
+def allow_old_cockpit_ws_messsages(test):
+    # noisy debug message from old cockpit-ws
+    test.allow_journal_messages("logged in user session",
+                                "New connection to session from.*")
+
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuser(MachineCase):
 
@@ -127,6 +133,8 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
+        self.allow_failed_sudo_journal_messages()
+
     def testNotAdmin(self):
         b = self.browser
         m = self.machine
@@ -139,7 +147,7 @@ session include system-auth
             m.execute("sed -i -e '/^%admin/d' /etc/sudoers")
 
         m.execute("gpasswd -d admin %s" % m.get_admin_group())
-        self.allow_journal_messages("admin is not in the sudoers file.  This incident will be reported.")
+        self.allow_failed_sudo_journal_messages()
 
         self.login_and_go()
         b.wait_text("#super-user-indicator", "Limited access")
@@ -293,6 +301,8 @@ class TestSuperuserOldWebserver(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+        allow_old_cockpit_ws_messsages(self)
+
     def testNotAuth(self):
         b = self.browser
         m = self.machine
@@ -340,6 +350,9 @@ class TestSuperuserOldWebserver(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        allow_old_cockpit_ws_messsages(self)
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserDashboard(MachineCase):
@@ -462,6 +475,9 @@ class TestSuperuserOldDashboard(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        allow_old_cockpit_ws_messsages(self)
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserDashboardOldMachine(MachineCase):

@@ -80,6 +80,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.try_login("user", "gfedcba")
         b.wait_text_not("#login-error-message", "")
         self.assertNotIn("web", m.execute("who"))
+        self.allow_journal_messages(".* user: Authentication failure.*")
 
         # Try to login as user with correct password
         b.try_login("user", "abcdefg")
@@ -167,7 +168,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages("Returning error-response ... with reason .*",
                                     "pam_unix\(cockpit:auth\): authentication failure; .*",
                                     "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    "noise-rc-.*")
 
         self.allow_restart_journal_messages()
 
@@ -339,11 +341,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#content")
         b.wait_text('#current-username', 'admin')
 
-        self.allow_journal_messages('Error executing command as another user: Not authorized',
-                                    'This incident has been reported.',
-                                    'sudo: a password is required',
-                                    'sudo: Account or password is expired, reset your password and try again',
-                                    'sudo: sorry, you must have a tty to run sudo')
+        self.allow_journal_messages('.*You are required to change your password immediately.*',
+                                    '.*user account or password has expired.*',
+                                    '.*BAD PASSWORD.*',
+                                    '.*Sorry, passwords do not match.')
+        self.allow_failed_sudo_journal_messages()
         self.allow_restart_journal_messages()
 
     def testConversation(self):
@@ -400,7 +402,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
         b.logout()
 
-        self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*")
+        self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*",
+                                    "Locale charset is ANSI.*",
+                                    "Assuming locale environment is lost.*",
+                                    "ATTENTION! Your session is being recorded!")
+        self.allow_failed_sudo_journal_messages()
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
@@ -460,8 +466,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.logout()
         # not allowed to restricted users
-        self.allow_journal_messages("sudo:.* Operation not permitted")
-        self.allow_journal_messages("sudo:.* Permission denied")
+        self.allow_failed_sudo_journal_messages()
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
 
@@ -538,6 +543,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_visible("#safari-cert-help")
         else:
             b.wait_not_visible("#safari-cert-help")
+
+        self.allow_failed_sudo_journal_messages()
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
     @skipImage("Starting on OSTree is weird", "fedora-coreos")
@@ -676,6 +683,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             expect_successful_login("root", "foobar")
 
         self.allow_restart_journal_messages()
+        self.allow_journal_messages(".*Account locked due to .* failed logins")
 
     @skipImage("sssd not available", "fedora-coreos")
     @skipImage("sssd can't do cert mapping yet", "debian-stable")
@@ -756,6 +764,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
             m.stop_cockpit()
 
+        self.allow_failed_sudo_journal_messages()
+        # from sssd
         self.allow_journal_messages("alice is not allowed to run sudo.*")
 
         # cert auth should not be enabled by default

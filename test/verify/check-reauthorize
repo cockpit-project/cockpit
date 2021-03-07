@@ -102,6 +102,7 @@ class TestReauthorize(MachineCase):
         m.execute("useradd user -s /bin/bash -c 'Barney' || true")
         m.execute("echo user:foobar | chpasswd")
 
+        self.allow_failed_sudo_journal_messages()
         b.default_user = "user"
         self.login_and_go("/playground/test")
         b.click(".super-channel button")

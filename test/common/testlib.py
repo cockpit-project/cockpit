@@ -975,7 +975,7 @@ class MachineCase(unittest.TestCase):
 
     allow_core_dumps = False
 
-    # Whitelist of allowed journal messages during tests; these need to match the *entire* message
+    # List of allowed journal messages during tests; these need to match the *entire* message
     allowed_messages = [
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
@@ -999,7 +999,15 @@ class MachineCase(unittest.TestCase):
         # Will go away with glib 2.43.2
         ".*: couldn't write web output: Error sending data: Connection reset by peer",
 
-        # pam_lastlog outdated complaints
+        # PAM noise
+        "cockpit-session: pam: Creating directory .*",
+        "cockpit-session: pam: Changing password for .*",
+
+        # btmp tracking
+        "cockpit-session: pam: Last failed login:.*",
+        "cockpit-session: pam: There .* failed login attempts? since the last successful login.",
+
+        # pam_lastlog complaints
         ".*/var/log/lastlog: No such file or directory",
 
         # ssh messages may be dropped when closing
@@ -1040,6 +1048,9 @@ class MachineCase(unittest.TestCase):
         # Something crashed, but we don't have more info. Don't fail on that
         "Failed to get (COMM|EXE).*: No such process",
 
+        # several tests change the host name
+        "sudo: unable to resolve host.*",
+
         # The usual sudo finger wagging
         "We trust you have received the usual lecture from the local System",
         "Administrator. It usually boils down to these three things:",
@@ -1050,7 +1061,7 @@ class MachineCase(unittest.TestCase):
 
     allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
 
-    # Whitelist of allowed console.error() messages during tests; these match substrings
+    # List of allowed console.error() messages during tests; these match substrings
     allowed_console_errors = [
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
@@ -1097,6 +1108,19 @@ class MachineCase(unittest.TestCase):
                                     'which: no python in .*'
                                     )
 
+    def allow_failed_sudo_journal_messages(self):
+        self.allow_journal_messages(".* is not in the sudoers file.  This incident will be reported.",
+                                    "sudo:.* Operation not permitted",
+                                    "sudo:.* Permission denied",
+                                    "Error executing command as another user: Not authorized",
+                                    "This incident has been reported.",
+                                    "sudo: a password is required",
+                                    "sudo: Account or password is expired, reset your password and try again",
+                                    "sudo: sorry, you must have a tty to run sudo",
+                                    "Sorry, try again.",
+                                    "sudo: no password was provided",
+                                    ".*incorrect password attempt.*")
+
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
@@ -1105,7 +1129,7 @@ class MachineCase(unittest.TestCase):
         syslog_ids = ["cockpit-ws", "cockpit-bridge"]
         if not self.allow_core_dumps:
             syslog_ids += ["systemd-coredump"]
-        messages = machine.journal_messages(syslog_ids, 5, cursor=cursor)
+        messages = machine.journal_messages(syslog_ids, 6, cursor=cursor)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 

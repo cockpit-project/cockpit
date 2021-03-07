@@ -236,6 +236,7 @@ class CommonTests:
 
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
+        self.allow_failed_sudo_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
@@ -296,6 +297,7 @@ class CommonTests:
 
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
+        self.allow_failed_sudo_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
@@ -360,6 +362,8 @@ class CommonTests:
 
             m.stop_cockpit()
 
+        self.allow_failed_sudo_journal_messages()
+        # from sssd
         self.allow_journal_messages("alice is not allowed to run sudo on x0.  This incident will be reported.")
 
         # cert auth should not be enabled by default
@@ -877,6 +881,7 @@ ExecStart=/bin/true
                             '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                             'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 401 Authentication disabled", output)
+        self.allow_journal_messages(".*Request ticket server HTTP/x0.cockpit.lan@COCKPIT.LAN not found in keytab.*")
 
 
 @skipImage("Package (un)install does not work on OSTree", "fedora-coreos")

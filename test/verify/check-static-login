@@ -807,7 +807,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         m = self.machine
         b = self.browser
 
-        m.execute("useradd user")
+        m.execute("useradd --create-home user")
         m.execute("echo user:foobar | chpasswd")
         m.start_cockpit()
 

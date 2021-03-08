@@ -931,6 +931,7 @@ build_session_credentials (CockpitAuth *self,
                            GIOStream *connection,
                            GHashTable *headers,
                            const char *application,
+                           const char *host,
                            const char *type,
                            const char *authorization)
 {
@@ -946,17 +947,29 @@ build_session_credentials (CockpitAuth *self,
 
   superuser = g_hash_table_lookup (headers, "X-Superuser");
   if (!superuser)
-    superuser = "any";
+    superuser = "none";
 
   /* Prepare various credentials */
   if (g_strcmp0 (type, "basic") == 0)
     {
       raw = cockpit_authorize_parse_basic (authorization, &user);
 
-      /* If X-Superuser is not "none" (and we are not root), we keep
-         the password.
+      /* If we are not root, we might want to keep the password around
+         so that the session can immediately gain admin privileges by
+         reusing the password.
+
+         We keep it when X-Superuser is not none, but also when
+         directly connecting to a remote machine since that machine
+         might run a old version of Cockpit that will never do the
+         things necessary to set X-Superuser to anything but "none".
+         We still want to give it the password because otherwise
+         people can never get admin privs on that machine.
+
+         When the remote machine is new enough, we will remove the
+         password immediately after the session has been initialized.
       */
-      if ((strcmp (superuser, "none") != 0 && user && strcmp (user, "root") != 0) && raw)
+
+      if (user && strcmp (user, "root") != 0 && (strcmp (superuser, "none") != 0 || host) && raw)
         {
           password = g_bytes_new_take (raw, strlen (raw));
           raw = NULL;
@@ -1109,7 +1122,7 @@ cockpit_session_launch (CockpitAuth *self,
 
   /* These are the credentials we'll carry around for this session */
   creds = build_session_credentials (self, connection, headers,
-                                     application, type, authorization);
+                                     application, host, type, authorization);
 
   if (host)
     section = COCKPIT_CONF_SSH_SECTION;

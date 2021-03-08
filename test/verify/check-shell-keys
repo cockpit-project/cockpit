@@ -106,7 +106,26 @@ class TestKeys(MachineCase):
         # Log in as admin
         login("admin", "foobar", "Administrator")
         b.go("#/user")
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                           "You do not have permission to view the authorized public keys for this account.")
+
+        # Get admin privs
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Limited access")
+        b.click("#super-user-indicator button")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        # users page reloads on superuser change
+        b.expect_load_frame("cockpit1:localhost/users")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.enter_page("/users")
+
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                       "no authorized public keys")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
 
         # Adding keys sets permissions properly

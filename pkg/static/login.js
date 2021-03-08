@@ -532,7 +532,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
             var password = id("login-password-input").value;
 
             var superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
-            var superuser = localStorage.getItem(superuser_key) || "any";
+            var superuser = localStorage.getItem(superuser_key) || "none";
             localStorage.setItem("superuser-key", superuser_key);
             localStorage.setItem(superuser_key, superuser);
 

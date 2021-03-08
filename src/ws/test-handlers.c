@@ -304,7 +304,7 @@ test_login_accept (Test *test,
   g_assert (service != NULL);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (cockpit_creds_get_user (creds), ==, "me");
-  g_assert_cmpstr (g_bytes_get_data (cockpit_creds_get_password (creds), NULL), ==, PASSWORD);
+  g_assert_null (cockpit_creds_get_password (creds));
 
   token = cockpit_creds_get_csrf_token (creds);
   g_assert (strstr (output, token));

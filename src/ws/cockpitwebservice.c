@@ -552,16 +552,6 @@ process_transport_authorize (CockpitWebService *self,
         {
           g_info ("received \"authorize\" %s \"challenge\", but for wrong user", type);
         }
-      else if (g_str_equal ("plain1", type) && g_str_equal (cockpit_creds_get_superuser (self->creds), "none"))
-        {
-          // Older versions of the bridge will send "plain1"
-          // challenges when trying to start a privileged sub-bridge,
-          // but not for anything else.  We use that fact to prevent
-          // them from starting the privileged sub-bridge when the
-          // user has selected that option on the login screen.
-
-          g_info ("received \"plain1\" authorize challenge, but superuser is \"none\"");
-        }
       else
         {
           password = g_bytes_get_data (data, NULL);
@@ -618,7 +608,6 @@ process_transport_init (CockpitWebService *self,
   JsonObject *object;
   JsonObject *capabilities;
   gboolean explicit_superuser_capability = FALSE;
-  const gchar *superuser;
   GBytes *payload;
   gint64 version;
 
@@ -657,19 +646,22 @@ process_transport_init (CockpitWebService *self,
       json_object_set_int_member (object, "version", 1);
       json_object_set_string_member (object, "host", "localhost");
 
-      superuser = getenv("COCKPIT_SUPERUSER") ?: cockpit_creds_get_superuser (self->creds);
-      if (superuser && *superuser && !g_str_equal (superuser, "none"))
+      if (explicit_superuser_capability)
         {
-          JsonObject *superuser_options;
+          const gchar *superuser = getenv("COCKPIT_SUPERUSER") ?: cockpit_creds_get_superuser (self->creds);
+          if (superuser && *superuser && !g_str_equal (superuser, "none"))
+            {
+              JsonObject *superuser_options;
 
-          superuser_options = json_object_new ();
-          json_object_set_string_member (superuser_options, "id", superuser);
-          json_object_set_object_member (object, "superuser", superuser_options);
-        }
-      else
-        {
-          json_object_set_boolean_member (object, "superuser", FALSE);
-          cockpit_creds_poison (self->creds);
+              superuser_options = json_object_new ();
+              json_object_set_string_member (superuser_options, "id", superuser);
+              json_object_set_object_member (object, "superuser", superuser_options);
+            }
+          else
+            {
+              json_object_set_boolean_member (object, "superuser", FALSE);
+              cockpit_creds_poison (self->creds);
+            }
         }
 
       payload = cockpit_json_write_bytes (object);

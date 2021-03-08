@@ -450,6 +450,7 @@ ExecStart=/bin/true
         # HACK: Figure out why this happens
         self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
                                     'cockpit-session:$')
+        self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''
@@ -650,6 +651,7 @@ class TestAD(TestRealms, CommonTests):
         # HACK: Figure out why this happens
         self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
                                     'cockpit-session:$')
+        self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''

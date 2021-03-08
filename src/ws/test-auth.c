@@ -152,10 +152,21 @@ test_application (Test *test,
   g_clear_pointer (&application, g_free);
 }
 
+typedef struct {
+  const gchar *superuser_mode;
+  gboolean expect_stored_password;
+} UserpassFixture;
+
+static const UserpassFixture fixture_superuser_any = {
+  .superuser_mode = "any",
+  .expect_stored_password = TRUE
+};
+
 static void
 test_userpass_cookie_check (Test *test,
                             gconstpointer data)
 {
+  const UserpassFixture *fix = data;
   GAsyncResult *result = NULL;
   CockpitWebService *service;
   CockpitWebService *prev_service;
@@ -166,6 +177,8 @@ test_userpass_cookie_check (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "this is the password");
+  if (fix && fix->superuser_mode)
+    g_hash_table_insert (headers, g_strdup ("X-Superuser"), g_strdup (fix->superuser_mode));
   cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -187,7 +200,10 @@ test_userpass_cookie_check (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
-  g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
+  if (fix && fix->expect_stored_password)
+    g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
+  else
+    g_assert_null (cockpit_creds_get_password (creds));
 
   prev_service = service;
   g_object_unref (service);
@@ -205,7 +221,10 @@ test_userpass_cookie_check (Test *test,
   g_assert (prev_creds == creds);
 
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
+  if (fix && fix->expect_stored_password)
+    g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
+  else
+    g_assert_null (cockpit_creds_get_password (creds));
 
   g_hash_table_destroy (headers);
   g_object_unref (service);
@@ -459,6 +478,7 @@ typedef struct {
   const gchar *user;
   const gchar *application;
   const gchar *cookie_name;
+  gboolean     expect_stored_password;
 } SuccessFixture;
 
 static void
@@ -549,7 +569,6 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  g_hash_table_insert (headers, g_strdup ("X-Superuser"), g_strdup ("none"));
   cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -568,7 +587,10 @@ test_custom_success (Test *test,
   service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
-  g_assert_null (cockpit_creds_get_password (creds));
+  if (fix->expect_stored_password)
+    g_assert_cmpstr ("this is the machine password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
+  else
+    g_assert_null (cockpit_creds_get_password (creds));
 
   login_data = cockpit_creds_get_login_data (creds);
   if (fix->data)
@@ -600,7 +622,8 @@ static const SuccessFixture fixture_ssh_remote_basic = {
   .path = "/cockpit+=machine",
   .user = "remote-user",
   .application = "cockpit+=machine",
-  .cookie_name = "machine-cockpit+machine"
+  .cookie_name = "machine-cockpit+machine",
+  .expect_stored_password = TRUE
 };
 
 static const SuccessFixture fixture_ssh_no_data = {
@@ -1172,6 +1195,7 @@ main (int argc,
 
   g_test_add ("/auth/application", Test, NULL, NULL, test_application, NULL);
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);
+  g_test_add ("/auth/userpass-store-check", Test, &fixture_superuser_any, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-bad", Test, NULL, setup, test_userpass_bad, teardown);
   g_test_add ("/auth/userpass-emptypass", Test, NULL, setup, test_userpass_emptypass, teardown);
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);

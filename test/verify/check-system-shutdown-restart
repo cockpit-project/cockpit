@@ -43,17 +43,9 @@ class TestShutdownRestart(MachineCase):
         m.execute("useradd user -s /bin/bash -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")
         m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
+        self.password = "foobar"
 
-        m.start_cockpit()
-
-        # login
-        b.open("/system")
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "user")
-        b.set_val("#login-password-input", "foobar")
-        b.click('#login-button')
-        b.expect_load()
-        b.enter_page("/system")
+        self.login_and_go("/system", user="user")
 
         # shutdown button should be enabled and working
         b.click("#reboot-button")

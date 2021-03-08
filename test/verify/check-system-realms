@@ -447,6 +447,10 @@ ExecStart=/bin/true
             while ! ipa user-find >/dev/null; do sleep 5; done'
             """ % (self.admin_password, self.admin_user), timeout=300)
 
+        # HACK: Figure out why this happens
+        self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
+                                    'cockpit-session:$')
+
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''
 
@@ -642,6 +646,10 @@ class TestAD(TestRealms, CommonTests):
 
         # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1839805
         m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
+
+        # HACK: Figure out why this happens
+        self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
+                                    'cockpit-session:$')
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''

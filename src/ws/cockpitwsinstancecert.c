@@ -34,6 +34,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "../tls/utils.h"
+
 #define CGROUP_REGEX         "^(0:|1:name=systemd):/system.slice/system-cockpithttps.slice/" \
                              "cockpit-wsinstance-https@([0-9a-f]{64}).service$"
 #define CGROUP_REGEX_FLAGS   (REG_EXTENDED | REG_NEWLINE)
@@ -132,6 +134,8 @@ https_instance_has_certificate_file (char   *contents,
   ssize_t r;
 
   if (https_instance == NULL) /* already warned */
+    goto out;
+  if (strcmp (https_instance, SHA256_NIL) == 0)
     goto out;
 
   dirfd = open ("/run/cockpit/tls", O_PATH | O_DIRECTORY | O_NOFOLLOW);

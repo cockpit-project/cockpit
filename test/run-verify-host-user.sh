@@ -66,18 +66,13 @@ if [ -n "$test_optional" ]; then
 fi
 
 if [ -n "$test_basic" ]; then
-    # still too unstable
-    EXCLUDES="$EXCLUDES TestFirewall.testNetworkingPage"
-
     # TODO: fix for CI environment
     EXCLUDES="$EXCLUDES TestLogin.testTally"
     EXCLUDES="$EXCLUDES TestAccounts.testBasic"
+    EXCLUDES="$EXCLUDES TestLogin.testServer"
 
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
-
-    # Known issue #1008
-    EXCLUDES="$EXCLUDES TestTuned.testBasic"
 
     TESTS="$TESTS
         TestAccounts

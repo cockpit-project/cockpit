@@ -1,0 +1,50 @@
+name: publish-dist
+on:
+  workflow_run:
+    workflows: build-dist
+    types: [completed]
+
+jobs:
+  run:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build-dist artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-dist
+          run_id: ${{ github.event.workflow_run.id }}
+
+      - name: Set up configuration and secrets
+        run: |
+          printf '[user]\n\tname = Cockpit Project\n\temail=cockpituous@gmail.com\n' > ~/.gitconfig
+          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/github-token
+          # we push to -dist repo via https://github.com, that needs our cockpituous token
+          git config --global credential.helper store
+          echo 'https://token:${{ secrets.COCKPITUOUS_TOKEN }}@github.com' >> ~/.git-credentials
+
+      - name: Commit dist tarball dist repo
+        run: |
+          set -ex
+
+          # we need a fully predictable name/URL, and git introduces these
+          # additional numbers into the version; so wrap it in a predictable named tar
+          sha=$(ls -d dist-* | sed 's/dist-//')
+          git clone https://github.com/${{ github.repository }}-dist.git dist-repo
+          tar -cvf "dist-repo/${sha}.tar" -C "dist-$sha" .
+
+          # freshly created empty repo?
+          cd dist-repo
+          git rev-parse HEAD >/dev/null 2>&1 || git init
+          git add "${sha}.tar"
+          git commit -m "Build for $sha"
+
+          # remove tarballs older than a week
+          now=$(date +%s)
+          for f in *.tar; do
+              fmtime=$(git log --pretty=%at -n1 -- $f)
+              [ $(($now - $fmtime)) -lt 604800 ] || git rm $f
+          done
+          [ -z "$(git status --short)" ] || git commit -m 'Drop old builds'
+
+          git push

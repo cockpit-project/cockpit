@@ -1,0 +1,18 @@
+specfile_path: cockpit.spec
+actions:
+  create-archive:
+    # the upstream git spec file has unresolved macros which are normally put
+    # in at `make dist` time; they are not important for CI
+    - sh -c 'sed "s/%{npm-version:.*}/0/" tools/cockpit.spec > cockpit.spec'
+    # this is being triggered immediately on a pull_request event; wait for
+    # build-dist.yml to generate the dist tarball
+    - test/make_dist.py --wait
+    # packit service insists of a single line of output
+    - sh -c 'ls cockpit-*.tar.xz'
+jobs:
+  - job: tests
+    trigger: pull_request
+    metadata:
+      targets:
+      # once this works, move to fedora-all
+      - fedora-33

@@ -24,6 +24,7 @@ import urllib.request
 import subprocess
 import sys
 import tarfile
+import time
 import argparse
 
 
@@ -51,7 +52,7 @@ def build_dist():
     return subprocess.check_output(["make", "dump-dist"], universal_newlines=True).strip()
 
 
-def download_dist():
+def download_dist(wait=False):
     '''Download dists tarball for current git SHA from GitHub
 
     These are produced by .github/workflows/build-dist.yml for every PR and push.
@@ -79,32 +80,42 @@ def download_dist():
     download_url = f"https://github.com/{ os.getenv('GITHUB_BASE', 'cockpit-project/cockpit') }-dist/raw/master/{sha}.tar"
     request = urllib.request.Request(download_url)
     tario = io.BytesIO()
-    try:
-        with urllib.request.urlopen(request) as response:
-            sys.stderr.write(f"make_dist: Downloading dist tarball from {download_url} ...\n")
-            if os.isatty(sys.stderr.fileno()):
-                total_size = 0
-            else:
-                total_size = None
-            MB = 10**6
-            # read tar into a stringio, as the stream is not seekable and tar requires that
-            while True:
-                block = response.read(MB)
-                if len(block) == 0:
-                    break
+    retries = 50 if wait else 1  # 25 minutes, once every 30s
+    while retries > 0:
+        try:
+            with urllib.request.urlopen(request) as response:
+                sys.stderr.write(f"make_dist: Downloading dist tarball from {download_url} ...\n")
+                if os.isatty(sys.stderr.fileno()):
+                    total_size = 0
+                else:
+                    total_size = None
+                MB = 10**6
+                # read tar into a stringio, as the stream is not seekable and tar requires that
+                while True:
+                    block = response.read(MB)
+                    if len(block) == 0:
+                        break
+                    if total_size is not None:
+                        total_size += len(block)
+                        sys.stderr.write(f"\r{ total_size // MB } MB")
+
+                    tario.write(block)
+
+                # clear the download progress in tty mode
                 if total_size is not None:
-                    total_size += len(block)
-                    sys.stderr.write(f"\r{ total_size // MB } MB")
+                    sys.stderr.write("\r                             \r")
 
-                tario.write(block)
+                break
 
-            # clear the download progress in tty mode
-            if total_size is not None:
-                sys.stderr.write("\r                             \r")
+        except urllib.error.HTTPError as e:
+            retries -= 1
 
-    except urllib.error.HTTPError as e:
-        message(f"make_dist: Downloading {download_url} failed:", e)
-        return None
+            if retries == 0:
+                message(f"make_dist: Downloading {download_url} failed:", e)
+                return None
+
+            message(f"make_dist: {download_url} not yet available, waiting...")
+            time.sleep(30)
 
     tario.seek(0)
     with tarfile.open(fileobj=tario) as ftar:
@@ -130,14 +141,14 @@ def download_dist():
     return tar_path
 
 
-def make_dist(download_only=False):
+def make_dist(download_only=False, wait_download=False):
     # first try to download a pre-generated dist tarball; this is a lot faster
     # but these tarballs are built for production NPM mode
     source = None
     if os.getenv("NODE_ENV") != "development":
-        source = download_dist()
+        source = download_dist(wait_download)
     if not source:
-        if not download_only:
+        if not download_only and not wait_download:
             source = build_dist()
         else:
             print("make_dist: Download failed: pre-built dist tarball does not exist")
@@ -148,5 +159,6 @@ def make_dist(download_only=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Download or build release tarbal")
     parser.add_argument('-d', '--download-only', action='store_true', help="Fail instead of build locally if download is not available")
+    parser.add_argument('-w', '--wait', action='store_true', help="Wait for up to 20 minutes for download tarball (implies -d)")
     args = parser.parse_args()
-    print(make_dist(args.download_only))
+    print(make_dist(args.download_only, args.wait))

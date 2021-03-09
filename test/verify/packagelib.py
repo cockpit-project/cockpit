@@ -89,20 +89,25 @@ class PackageCase(MachineCase):
     #
 
     def createPackage(self, name, version, release, install=False,
-                      postinst=None, depends="", content=None, arch=None, **updateinfo):
+                      postinst=None, depends="", content=None, arch=None, provides=None, **updateinfo):
         '''Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         '''
-        if self.backend == "apt":
-            self.createDeb(name, version + '-' + release, depends, postinst, install, content, arch)
+        if provides:
+            provides = "Provides: {0}".format(provides)
         else:
-            self.createRpm(name, version, release, depends, postinst, install, content, arch)
+            provides = ""
+
+        if self.backend == "apt":
+            self.createDeb(name, version + '-' + release, depends, postinst, install, content, arch, provides)
+        else:
+            self.createRpm(name, version, release, depends, postinst, install, content, arch, provides)
         if updateinfo:
             self.updateInfo[(name, version, release)] = updateinfo
 
-    def createDeb(self, name, version, depends, postinst, install, content, arch):
+    def createDeb(self, name, version, depends, postinst, install, content, arch, provides):
         '''Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -125,18 +130,18 @@ class PackageCase(MachineCase):
                 else:
                     self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
-                 printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: {arch}\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
+                 printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: {arch}\nDescription: dummy {name}\n{provides}\n" > /tmp/b/DEBIAN/control
                  {post}
                  touch /tmp/b/stamp-{name}-{ver}
                  dpkg -b /tmp/b {deb}
                  rm -r /tmp/b
-                 '''.format(name=name, ver=version, deps=depends, deb=deb, post=postinstcode, repo=self.repo_dir, arch=arch)
+                 '''.format(name=name, ver=version, deps=depends, deb=deb, post=postinstcode, repo=self.repo_dir, arch=arch, provides=provides)
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
         self.addCleanup(self.machine.execute, "dpkg -P --force-depends --force-remove-reinstreq %s 2>/dev/null || true" % name)
 
-    def createRpm(self, name, version, release, requires, post, install, content, arch):
+    def createRpm(self, name, version, release, requires, post, install, content, arch, provides):
         '''Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -170,6 +175,7 @@ Name: {0}
 Version: {1}
 Release: {2}
 License: BSD
+{8}
 {7}
 {4}
 
@@ -183,7 +189,7 @@ Test package.
 {6}
 
 {3}
-""".format(name, version, release, postcode, requires, installcmds, installedfiles, architecture)
+""".format(name, version, release, postcode, requires, installcmds, installedfiles, architecture, provides)
         self.machine.write("/tmp/spec", spec)
         cmd = """
 rpmbuild --quiet -bb /tmp/spec

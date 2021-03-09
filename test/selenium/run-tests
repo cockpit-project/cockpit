@@ -25,13 +25,16 @@ import datetime
 import glob
 import time
 
-from testlib_avocado.machine_core import testvm
-from testlib_avocado.machine_core.constants import TEST_OS_DEFAULT
 
-BASE_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(CURRENT_DIR, "testlib_avocado"))
+
+from testlib_avocado.machine.machine_core import testvm
+from testlib_avocado.machine.machine_core.constants import TEST_OS_DEFAULT
+
 if CURRENT_DIR not in sys.path:
     sys.path.insert(1, CURRENT_DIR)
+BASE_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
 
 TEST_TIMEOUT = 600
 

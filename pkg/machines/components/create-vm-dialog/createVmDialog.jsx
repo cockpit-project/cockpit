@@ -298,9 +298,9 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                     {cloudInitSupported ? <FormSelectOption value={CLOUD_IMAGE}
                                       label={_("Cloud base image")} /> : null}
                     <FormSelectOption value={LOCAL_INSTALL_MEDIA_SOURCE}
-                                      label={_("Local install media")} />
+                                      label={_("Local install media (ISO image or distro install tree)")} />
                     <FormSelectOption value={URL_SOURCE}
-                                      label={_("URL")} />
+                                      label={_("URL (ISO image or distro install tree)")} />
                     {connectionName == 'system' &&
                     <FormSelectOption value={PXE_SOURCE}
                                       label={_("Network boot (PXE)")} />}

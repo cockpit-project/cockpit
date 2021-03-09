@@ -20,10 +20,10 @@ import glob
 import io
 import multiprocessing
 import os
-import urllib
+import urllib.request
 import subprocess
 import sys
-import zipfile
+import tarfile
 import argparse
 
 
@@ -59,7 +59,7 @@ def download_dist():
 
     Returns path to downloaded tarball, or None if it isn't available.
     This can happen because the current directory is not a git checkout, or it is
-    a SHA which is not pushed/PRed, or there is no ~/.config/github-token available.
+    a SHA which is not pushed/PRed.
     '''
     try:
         sha = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
@@ -76,51 +76,18 @@ def download_dist():
         message("make_dist: already downloaded", dists[0])
         return os.path.abspath(dists[0])
 
-    # autogen.sh does that for build_dist()
-    if not os.path.exists("bots"):
-        subprocess.check_call(['tools/make-bots'])
-
-    sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots"))
-    import task
-
-    # task.api defaults to the current checkout's origin, but the artifacts are on cockpit-project
-    # except if a developer wants to change the artifact building workflow on their fork, support that with $GITHUB_BASE
-    api = task.github.GitHub(repo=os.getenv("GITHUB_BASE", "cockpit-project/cockpit"))
-
-    # downloading GitHub artifacts requires a token
-    if not api.token:
-        message("make_dist: no GitHub API token available")
-        return None
-
-    # iterate artifacts and search our SHA
-    page = 1
-    batch_size = 100
-    download_url = None
-    while not download_url and batch_size == 100:
-        batch = api.get(f"actions/artifacts?per_page={batch_size}&page={page}")["artifacts"]
-        for artifact in batch:
-            if artifact["name"] == "dist-" + sha:
-                download_url = artifact["archive_download_url"]
-                break
-        # if the current batch is < 100, we have the last page and can stop
-        batch_size = len(batch)
-        page += 1
-
-    if not download_url:
-        message(f"make_dist: no download available for commit {sha}")
-        return None
-
-    sys.stderr.write(f"make_dist: Downloading dist tarball from {download_url} ...\n")
-    request = urllib.request.Request(download_url, headers={"Authorization": "token " + api.token})
-    zipio = io.BytesIO()
+    download_url = f"https://github.com/{ os.getenv('GITHUB_BASE', 'cockpit-project/cockpit') }-dist/raw/master/{sha}.tar"
+    request = urllib.request.Request(download_url)
+    tario = io.BytesIO()
     try:
         with urllib.request.urlopen(request) as response:
+            sys.stderr.write(f"make_dist: Downloading dist tarball from {download_url} ...\n")
             if os.isatty(sys.stderr.fileno()):
                 total_size = 0
             else:
                 total_size = None
             MB = 10**6
-            # read zip into a stringio, as the stream is not seekable and zip requires that
+            # read tar into a stringio, as the stream is not seekable and tar requires that
             while True:
                 block = response.read(MB)
                 if len(block) == 0:
@@ -129,22 +96,28 @@ def download_dist():
                     total_size += len(block)
                     sys.stderr.write(f"\r{ total_size // MB } MB")
 
-                zipio.write(block)
+                tario.write(block)
 
             # clear the download progress in tty mode
             if total_size is not None:
                 sys.stderr.write("\r                             \r")
 
     except urllib.error.HTTPError as e:
-        message("make_dist: Download failed:", e)
+        message(f"make_dist: Downloading {download_url} failed:", e)
         return None
 
-    with zipfile.ZipFile(zipio) as fzip:
-        names = fzip.namelist()
+    tario.seek(0)
+    with tarfile.open(fileobj=tario) as ftar:
+        names = ftar.getnames()
+        try:
+            names.remove('.')
+        except ValueError:
+            pass
         if len(names) != 1 or not names[0].endswith(".tar.xz"):
-            message("make_dist: expected zip artifact with exactly one tar.xz member")
+            message("make_dist: expected tar with exactly one tar.xz member")
             return None
-        tar_path = fzip.extract(names[0])
+        ftar.extract(names[0])
+        tar_path = os.path.realpath(names[0])
 
     # Extract node_modules and dist locally for speeding up the build and allowing integration tests to run
     unpack_dirs = [d for d in ["dist", "node_modules"] if not os.path.exists(d)]
@@ -167,7 +140,7 @@ def make_dist(download_only=False):
         if not download_only:
             source = build_dist()
         else:
-            print("make_dist: Download failed: artifact does not exist")
+            print("make_dist: Download failed: pre-built dist tarball does not exist")
             sys.exit(1)
     return source
 

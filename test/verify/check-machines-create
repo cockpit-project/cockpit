@@ -165,8 +165,10 @@ class TestMachinesCreate(VirtualMachinesCase):
         self.browser.wait_in_text("body", "Virtual machines")
 
         # try to CREATE few machines
-        if m.image in ['debian-stable', 'debian-testing', 'centos-8-stream']:
-            self.browser.wait_not_present('select option[value=os]')
+        if m.image in ['debian-stable']:
+            b.click("#create-new-vm")
+            b.wait_visible("#create-vm-dialog")
+            b.wait_not_present('select option[value=os]')
         else:
             runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
                                                                       expected_memory_size=128,

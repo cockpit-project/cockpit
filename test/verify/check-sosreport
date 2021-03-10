@@ -119,6 +119,8 @@ only-plugins=release,date,host,cgroups,networking
         m = self.machine
 
         self.allow_journal_messages("invalid or unusable locale.*")
+        # chromium rpm has broken appstream data, which causes various parser errors
+        self.allow_journal_messages(".*xml.*")
 
         self.login_and_go("/apps")
         b.wait_not_present(".app-list-empty .spinner")

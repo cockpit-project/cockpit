@@ -22,8 +22,9 @@ import React from 'react';
 import {
     Button, Card, CardHeader, CardTitle, CardBody,
     DataList, DataListItem, DataListItemRow, DataListCell, DataListItemCells,
-    Modal, Tabs, Tab, Text, TextVariants
+    Modal, Tabs, Tab, Text, TextArea, TextVariants
 } from '@patternfly/react-core';
+import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import './listing.scss';
@@ -71,9 +72,8 @@ class ModificationsExportDialog extends React.Component {
     render() {
         const footer = (
             <>
-                <Button variant='secondary' onClick={this.copyToClipboard}>
-                    { this.state.copied ? <span className="fa fa-check fa-xs green-icon" /> : <span className="fa fa-clipboard fa-xs" /> }
-                    <span>{ _("Copy to clipboard") }</span>
+                <Button variant='secondary' className="btn-clipboard" onClick={this.copyToClipboard} icon={this.state.copied ? <CheckIcon className="green-icon" /> : <CopyIcon />}>
+                    { _("Copy to clipboard") }
                 </Button>
                 <Button variant='secondary' className='btn-cancel' onClick={this.props.onClose}>
                     { _("Close") }
@@ -88,22 +88,18 @@ class ModificationsExportDialog extends React.Component {
                    title={_("Automation script") }>
                 <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
                     <Tab eventKey="shell" title={_("Shell script")}>
-                        <pre>
-                            {this.props.shell.trim()}
-                        </pre>
+                        <TextArea resizeOrientation='vertical' isReadOnly defaultValue={this.props.shell.trim()} />
                     </Tab>
                     <Tab eventKey="ansible" title={_("Ansible")}>
-                        <pre>
-                            {this.props.ansible.trim()}
-                        </pre>
-                        <div>
-                            <span className="fa fa-question-circle fa-xs" />
+                        <TextArea resizeOrientation='vertical' isReadOnly defaultValue={this.props.ansible.trim()} />
+                        <div className="ansible-docs-link">
+                            <OutlinedQuestionCircleIcon />
                             { _("Create new task file with this content.") }
-                            <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
-                                target="_blank" rel="noopener noreferrer">
-                                <i className="fa fa-external-link fa-xs" />
+                            <Button variant="link" component="a" href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
+                                    target="_blank" rel="noopener noreferrer"
+                                    icon={<ExternalLinkAltIcon />}>
                                 { _("Ansible roles documentation") }
-                            </a>
+                            </Button>
                         </div>
                     </Tab>
                 </Tabs>

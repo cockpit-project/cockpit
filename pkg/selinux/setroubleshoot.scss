@@ -48,6 +48,11 @@
     font-size: 150%;
 }
 
+/* Table cells should collapse on mobile */
+.ct-table.pf-c-table tbody > tr > * {
+    word-break: break-word;
+}
+
 .list-group-item .alert {
     margin-top: 10px;
 }
@@ -56,12 +61,23 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+
+    > div:first-child {
+        width: 70%;
+    }
+
+    + hr {
+        margin-bottom: var(--pf-global--spacer--sm);
+    }
+
+    .pf-c-expandable-section__content {
+        margin-top: unset;
+    }
 }
 
-.selinux-details pre {
-    width: 100%;
-    margin: 5px 0px 10px 0px;
-    padding: 10px;
+.selinux-details textarea {
+    margin-top: var(--pf-global--spacer--xs);
+    resize: none;
 }
 
 .selinux-state {

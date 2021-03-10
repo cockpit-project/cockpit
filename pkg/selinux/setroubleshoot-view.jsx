@@ -21,12 +21,14 @@ import cockpit from "cockpit";
 
 import React from "react";
 import {
-    Alert, AlertGroup, AlertActionCloseButton, Button,
+    Alert, AlertGroup, AlertActionCloseButton, Badge, Button,
+    Divider,
     Card, CardHeader, CardTitle, CardBody,
+    ExpandableSection,
     Page, PageSection, PageSectionVariants,
-    Switch, Stack, StackItem, Text, TextVariants,
+    Switch, Stack, StackItem, Text, TextArea, TextVariants,
 } from "@patternfly/react-core";
-import { ExclamationCircleIcon, InfoCircleIcon, TrashIcon } from "@patternfly/react-icons";
+import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -39,33 +41,7 @@ const _ = cockpit.gettext;
  * Props correspond to an item in the setroubleshoot dataStore
  */
 class SELinuxEventDetails extends React.Component {
-    constructor(props) {
-        super(props);
-        var expanded;
-        // all details are collapsed by default
-        if (props.details)
-            expanded = props.details.pluginAnalysis.map(function() { return false });
-
-        this.state = {
-            solutionExpanded: expanded, // show details for solution
-        };
-    }
-
-    handleSolutionDetailsClick(itmIdx, e) {
-        var solutionExpanded = this.state.solutionExpanded;
-        solutionExpanded[itmIdx] = !solutionExpanded[itmIdx];
-        this.setState({ solutionExpanded: solutionExpanded });
-        e.stopPropagation();
-        e.preventDefault();
-    }
-
     runFix(itmIdx, runCommand) {
-        // make sure the details for the solution are collapsed, or they can hide the progress and result
-        var solutionExpanded = this.state.solutionExpanded;
-        if (solutionExpanded[itmIdx]) {
-            solutionExpanded[itmIdx] = false;
-            this.setState({ solutionExpanded: solutionExpanded });
-        }
         var localId = this.props.details.localId;
         var analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;
         this.props.runFix(localId, analysisId, itmIdx, runCommand);
@@ -136,15 +112,14 @@ class SELinuxEventDetails extends React.Component {
                 );
             }
 
-            // Formatted solution
             let doElement = "";
 
             // One line usually means one command
             if (itm.doText && itm.doText.indexOf("\n") < 0)
-                doElement = <pre>{itm.doText}</pre>;
+                doElement = <TextArea aria-label={_("solution")} isReadOnly defaultValue={itm.doText} />;
 
             // There can be text with commands. Command always starts on a new line with '#'
-            // Group subsequent commands into one `<pre>` element.
+            // Group subsequent commands into one `<TextArea>` element.
             if (itm.doText && itm.doText.indexOf("\n") >= 0) {
                 const parts = [];
                 const lines = itm.doText.split("\n");
@@ -161,45 +136,36 @@ class SELinuxEventDetails extends React.Component {
                         lastCommand = false;
                     }
                 });
-                doElement = parts.map(p => p[0] == "#" ? <pre key={p}>{p.substr(2)}</pre> : <span key={p}>{p}</span>);
+                doElement = parts.map((p, index) => p[0] == "#"
+                    ? <TextArea aria-label={_("solution")}
+                                isReadOnly
+                                key={p}
+                                defaultValue={p.substr(2)} />
+                    : <span key={p}>{p}</span>);
             }
 
-            var detailsLink = <Button variant="link" isInline onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</Button>;
-            var doState;
-            var doElem;
-            var caret;
-
-            if (self.state.solutionExpanded[itmIdx]) {
-                caret = <i className="fa fa-angle-down" />;
-                doState = <div>{caret} {detailsLink}</div>;
-                doElem = doElement;
-            } else {
-                caret = <i className="fa fa-angle-right" />;
-                doState = <div>{caret} {detailsLink}</div>;
-                doElem = null;
-            }
             return (
-                <div className="list-group-item selinux-details" key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
-                    <div>
+                <React.Fragment key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
+                    <div className="selinux-details">
                         <div>
-                            <span>{itm.ifText}</span>
+                            <div>
+                                <span>{itm.ifText}</span>
+                            </div>
+                            <div>
+                                {itm.thenText}
+                            </div>
+                            <ExpandableSection toggleText={_("solution details")}>
+                                {doElement}
+                            </ExpandableSection>
+                            {msg}
                         </div>
-                        <div>
-                            {itm.thenText}
-                        </div>
-                        {doState}
-                        {doElem}
-                        {msg}
+                        {fixit}
                     </div>
-                    {fixit}
-                </div>
+                    {itmIdx != self.props.details.pluginAnalysis.length - 1 && <Divider />}
+                </React.Fragment>
             );
         });
-        return (
-            <div className="list-group">
-                {fixEntries}
-            </div>
-        );
+        return fixEntries;
     }
 }
 
@@ -412,16 +378,15 @@ export class SETroubleshootPage extends React.Component {
                 // if the alert has level "red", it's critical
                 var criticalAlert = null;
                 if (itm.details && 'level' in itm.details && itm.details.level == "red")
-                    criticalAlert = <span className="fa fa-exclamation-triangle" />;
+                    criticalAlert = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />;
                 var columns = [
                     { title: criticalAlert },
                     { title: itm.description }
                 ];
-                var title;
                 if (itm.count > 1) {
                     title = cockpit.format(cockpit.ngettext("$0 occurrence", "$0 occurrences", itm.count),
                                            itm.count);
-                    columns.push({ title: <span className="badge" title={title}>{itm.count}</span> });
+                    columns.push({ title: <Badge isRead>{itm.count}</Badge> });
                 } else {
                     columns.push({ title: <span /> });
                 }

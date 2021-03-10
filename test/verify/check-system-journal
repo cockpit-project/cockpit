@@ -68,7 +68,7 @@ class TestJournal(MachineCase):
                     if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
                         ident = e.querySelector('.cockpit-log-service-reduced').textContent;
                         // we need to slice the whitespace
-                        count = e.querySelector('.badge').textContent.slice(0, -1);
+                        count = e.querySelector('.pf-c-badge').textContent.slice(0, -1);
                     } else {
                         ident = e.querySelector('.cockpit-log-service');
                         ident = ident ? ident.textContent : "";

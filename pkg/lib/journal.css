@@ -138,19 +138,17 @@
 
 .cockpit-log-message,
 .cockpit-log-service,
-.cockpit-log-service-reduced,
-.cockpit-log-service-container > .badge {
+.cockpit-log-service-reduced {
     font-size: var(--pf-global--FontSize--sm);
+}
+
+.cockpit-log-service-container > .pf-c-badge {
+    margin-left: var(--pf-global--spacer--xs);
 }
 
 .cockpit-log-service-container {
     display: flex;
     align-items: baseline;
-}
-
-.cockpit-log-service-container > .badge {
-    min-width: 2.5em;
-    text-align: right;
 }
 
 @media screen and (max-width: 428px) {

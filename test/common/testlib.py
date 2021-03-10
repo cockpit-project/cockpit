@@ -1215,11 +1215,12 @@ class MachineCase(unittest.TestCase):
         will be appended to the file name, which is useful if you call this
         more than once within one test.
         """
-        if not checkRunAxe():
+
+        # Only test Axe on chromium browsers
+        if self.browser.cdp.browser != "chromium":
             return
-        # HACK: We cannot test axe on Firefox since `axe.run()` returns promise
-        # and Firefox CDP cannot wait for it to resolve
-        if self.browser.cdp.browser == "firefox":
+
+        if not checkRunAxe():
             return
 
         report = self.browser.eval_js("axe.run()", no_trace=True)
@@ -1474,7 +1475,7 @@ def checkRunAxe():
 
     # when running from release tarballs, module is not available
     if not os.path.exists(os.path.join(TEST_DIR, "common/axe.js")):
-        print('# enableAxe: axe is not installed, skipping')
+        sys.stderr.write('# enableAxe: axe is not installed, skipping\n')
         return False
 
     return True

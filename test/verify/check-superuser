@@ -124,13 +124,15 @@ session include system-auth
         b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wrong")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Sorry, try again")
         b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wronger")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Sorry, try again")
         b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "wrongest")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "This didn't work")
-        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Cancel')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "sudo: 3 incorrect password attempts")
+        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")
 
@@ -154,7 +156,9 @@ session include system-auth
         b.wait_text("#super-user-indicator", "Limited access")
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You can not gain administrative access")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "admin is not in the sudoers file.  This incident will be reported.")
         b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
 
@@ -179,14 +183,11 @@ session include system-auth
 }
 """)
 
-        self.allow_journal_messages("sudo: no askpass program specified, try setting SUDO_ASKPASS")
-
         self.login_and_go(superuser=False)
         b.wait_text("#super-user-indicator", "Limited access")
 
         b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Something went wrong")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "internal-error")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "sudo: no askpass program specified, try setting SUDO_ASKPASS")
         b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Limited access")

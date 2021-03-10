@@ -1,24 +1,31 @@
 summary: Run browser integration tests on the host
 require:
   - cockpit
-  - cockpit-tests
+  - cockpit-kdump
   - cockpit-machines
+  - cockpit-networkmanager
+  - cockpit-packagekit
   - cockpit-sosreport
   - cockpit-storaged
+  - cockpit-tests
+  # build/test infra dependencies
+  - git
+  - make
+  - npm
+  - python3
+  # required by tests
+  - NetworkManager-team
   - createrepo_c
   - cryptsetup
   - dnf-automatic
   - firewalld
-  - git
   - libvirt-daemon-config-network
   - libvirt-python3
-  - make
-  - NetworkManager-team
-  - npm
-  - python3
+  - rpm-build
   - sssd-dbus
   - targetcli
   - tlog
   - tuned
+
 test: ./run-verify-host.sh
 duration: 2h

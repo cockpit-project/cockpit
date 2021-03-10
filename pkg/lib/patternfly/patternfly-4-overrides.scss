@@ -40,11 +40,13 @@ svg {
     }
 }
 
-// When using horizontal ruler inside description list it's just for the spacing - don't show it
-.pf-c-description-list {
-    // The default gap between the rows is too large
+// The default gap between the rows in horizonal lists is too large
+.pf-c-description-list.pf-m-horizontal {
     --pf-c-description-list--RowGap: 1rem;
+}
 
+.pf-c-description-list {
+    // When using horizontal ruler inside description list it's just for the spacing - don't show it
     > hr {
         border-top: none;
     }

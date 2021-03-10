@@ -175,17 +175,26 @@ $(function() {
         function load_service_filters(match, options) {
             loading_services = true;
             current_services = new Set();
+            // Ideally this would use `--output cat --output-fields SYSLOG_IDENTIFIER` and do
+            // without `sh -ec`, grep, sort, replaceAll and all of those ugly stuff
+            // For that we however need newer systemd that includes https://github.com/systemd/systemd/issues/13937
             const service_options = Object.assign({ output: "verbose" }, options);
-            let cmd = journal.build_cmd(match, service_options)[0].join(" ");
-            cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
-            cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
+            let cmd = journal.build_cmd(match, service_options)[0];
+            cmd = cmd.map(i => i.replaceAll(" ", "\\ ")).join(" ");
+            cmd = "set -o pipefail; " + cmd + " | grep SYSLOG_IDENTIFIER= | sort -u";
+            cockpit.spawn(["/bin/bash", "-ec", cmd], { superuser: "try", err: "message" })
                     .then(function(entries) {
                         entries.split("\n").forEach(function(entry) {
                             if (entry)
                                 current_services.add(entry.substr(entry.indexOf('=') + 1));
                         });
                     })
-                    .done(function () {
+                    .catch(e => {
+                        // grep returns `1` when nothing to match, but in that case message is empty
+                        if (e.message)
+                            console.log("Failed to load services:", e.message);
+                    })
+                    .finally(() => {
                         loading_services = false;
                         show_service_filters();
                     });

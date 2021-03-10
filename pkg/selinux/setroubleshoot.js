@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 import * as troubleshootClient from "./setroubleshoot-client";
 import * as selinuxClient from "./selinux-client.js";

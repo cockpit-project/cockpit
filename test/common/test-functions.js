@@ -111,7 +111,7 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     let el = ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
-    if (el.offsetWidth <= 0 && el.offsetHeight <= 0)
+    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
         throw sel + " is not visible";
 
     /* The event has to actually work */
@@ -123,8 +123,8 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     el.addEventListener(type, handler, true);
 
     let elp = el;
-    let left = elp.offsetLeft;
-    let top = elp.offsetTop;
+    let left = elp.offsetLeft || 0;
+    let top = elp.offsetTop || 0;
     while (elp.offsetParent) {
         elp = elp.offsetParent;
         left += elp.offsetLeft;
@@ -184,7 +184,7 @@ function ph_set_checked (sel, val)
 function ph_is_visible (sel)
 {
     var el = ph_find(sel);
-    return (el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none");
+    return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
 }
 
 function ph_is_present(sel)

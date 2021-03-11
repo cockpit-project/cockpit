@@ -1119,6 +1119,7 @@ class MachineCase(unittest.TestCase):
                                     "sudo: sorry, you must have a tty to run sudo",
                                     "Sorry, try again.",
                                     "sudo: no password was provided",
+                                    "sudo: account validation failure.*",
                                     ".*incorrect password attempt.*")
 
     def check_journal_messages(self, machine=None):

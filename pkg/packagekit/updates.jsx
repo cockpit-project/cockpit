@@ -772,7 +772,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
             id: "processes-need-restart",
             stateStr: _("Some software needs to be restarted manually"),
             icon: <ProcessAutomationIcon id="icon" size="md" />,
-            secondary: <Text id="last-checked" component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
+            secondary: <Text component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
         });
     }
 

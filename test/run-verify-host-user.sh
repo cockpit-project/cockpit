@@ -71,6 +71,9 @@ if [ -n "$test_basic" ]; then
     EXCLUDES="$EXCLUDES TestAccounts.testBasic"
     EXCLUDES="$EXCLUDES TestLogin.testServer"
 
+    # Testing Farm machines often have pending restarts/reboot
+    EXCLUDES="$EXCLUDES TestUpdates.testBasic"
+
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
 

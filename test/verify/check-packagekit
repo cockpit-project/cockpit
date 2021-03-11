@@ -156,7 +156,7 @@ class TestUpdates(NoSubManCase):
         b.wait_not_present("#automatic-updates")
         b.wait_in_text("#status #state", "System is up to date")
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
-        b.wait_in_text("#status #last-checked", "Last checked: a few seconds ago")
+        b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
 
         install_lockfile = "/tmp/finish-pk"
         # create two updates; force installing chocolate before vanilla
@@ -170,7 +170,7 @@ class TestUpdates(NoSubManCase):
         # check again
         b.click("#status button")
 
-        b.wait_in_text("#status #last-checked", "Last checked: a few seconds ago")
+        b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
 
         b.wait_visible("#available-updates")
         self.assertEqual(b.text("#state"), "2 updates available")
@@ -224,7 +224,7 @@ class TestUpdates(NoSubManCase):
 
         # should go back to updates overview, nothing pending any more
         b.wait_in_text("#state", "System is up to date")
-        b.wait_in_text("#status #last-checked", "Last checked")
+        b.wait_in_text("#last-checked", "Last checked")
 
         # TODO make Packagekit GetUpdates work for tests properly
         b.wait_not_present("#available-updates")

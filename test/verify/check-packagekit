@@ -168,7 +168,7 @@ class TestUpdates(NoSubManCase):
         self.enableRepo()
 
         # check again
-        b.click("#status button")
+        b.click("#status .pf-c-card__header button")
 
         b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
 
@@ -699,8 +699,7 @@ ExecStart=/usr/local/bin/{0}
             self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
             self.enableRepo()
             # check for updates
-            b.wait_in_text("#status button")
-            b.click("#status button")
+            b.click("#status .pf-c-card__header button")
             b.wait_visible("#available-updates")
             b.wait_in_text("#state", "2")
 
@@ -947,8 +946,7 @@ class TestWsUpdate(NoSubManCase):
         self.createPackage("cockpit", "999", "1")
         m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
-        b.wait_visible("#status button")
-        b.click("#status button")
+        b.click("#status .pf-c-card__header button")
 
         b.wait_visible("#available-updates")
         self.assertEqual(b.text("#state"), "2 updates available")
@@ -1031,7 +1029,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         # check updates
-        b.wait_visible("#status button")
+        b.wait_visible("#status .pf-c-card__header button")
         b.wait_in_text("#state", "System is up to date")
 
         # same on system page
@@ -1077,7 +1075,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertFalse(b.is_present("table.updates-history"))
 
         # has action buttons
-        b.wait_visible("#status button")
+        b.wait_visible("#status .pf-c-card__header button")
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
         # show available updates on system page too

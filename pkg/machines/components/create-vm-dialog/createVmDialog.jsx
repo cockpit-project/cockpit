@@ -24,6 +24,7 @@ import {
     Checkbox,
     Form, FormGroup,
     FormSelect, FormSelectOption, FormSelectOptionGroup,
+    InputGroup,
     Modal,
     Select as PFSelect, SelectOption, SelectVariant,
     TextInput,
@@ -36,6 +37,7 @@ import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
 import {
     isEmpty,
+    digitFilter,
     convertToUnit,
     timeoutedPromise,
     units,
@@ -57,7 +59,6 @@ import {
     filterReleaseEolDates,
     getOSStringRepresentation,
 } from "./createVmDialogUtils.js";
-import MemorySelectRow from '../vm/overview/memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
 import { PasswordFormFields, password_quality } from 'cockpit-components-password.jsx';
 
@@ -164,32 +165,18 @@ function validateParams(vmParams) {
 
     if (vmParams.memorySize === 0) {
         validationFailed.memory = _("Memory must not be 0");
-    } else {
-        if (vmParams.os &&
-            vmParams.os.minimumResources.ram &&
-            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < vmParams.os.minimumResources.ram)) {
-            validationFailed.memory = (
-                cockpit.format(
-                    _("The selected operating system has minimum memory requirement of $0 $1"),
-                    convertToUnit(vmParams.os.minimumResources.ram, units.B, vmParams.memorySizeUnit),
-                    vmParams.memorySizeUnit)
-            );
-        }
     }
 
-    if (vmParams.sourceType != EXISTING_DISK_IMAGE_SOURCE && vmParams.storagePool === "NewVolume") {
-        if (vmParams.storageSize === 0) {
-            validationFailed.storage = _("Storage size must not be 0");
-        } else if (vmParams.os &&
-                   vmParams.os.minimumResources.storage &&
-                   (convertToUnit(vmParams.storageSize, vmParams.storageSizeUnit, units.B) < vmParams.os.minimumResources.storage)) {
-            validationFailed.storage = (
-                cockpit.format(
-                    _("The selected operating system has minimum storage size requirement of $0 $1"),
-                    convertToUnit(vmParams.os.minimumResources.storage, units.B, vmParams.storageSizeUnit),
-                    vmParams.storageSizeUnit)
-            );
-        }
+    if (vmParams.storagePool == 'NewVolume' && vmParams.storageSize === 0) {
+        validationFailed.storage = _("Storage size must not be 0");
+    }
+
+    if (vmParams.nodeMaxMemory && vmParams.memorySize > Math.floor(convertToUnit(vmParams.nodeMaxMemory, units.KiB, vmParams.memorySizeUnit))) {
+        validationFailed.memory = cockpit.format(
+            _("Up to $0 $1 available on the host"),
+            Math.floor(convertToUnit(vmParams.nodeMaxMemory, units.KiB, vmParams.memorySizeUnit)),
+            vmParams.memorySizeUnit
+        );
     }
     if (vmParams.unattendedInstallation && !vmParams.userPassword && vmParams.userLogin) {
         validationFailed.userPassword = _("User password must not be empty when user login is set");
@@ -533,23 +520,76 @@ const UnattendedRow = ({
     );
 };
 
-const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, minimumMemory, onValueChanged, validationFailed }) => {
-    const validationStateMemory = validationFailed.memory ? 'error' : 'default';
+const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, minimumMemory, onValueChanged, validationFailed }) => {
+    let validationStateMemory = validationFailed.memory ? 'error' : 'default';
+    let helperText = (
+        nodeMaxMemory
+            ? cockpit.format(
+                _("Up to $0 $1 available on the host"),
+                Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
+                memorySizeUnit
+            ) : ""
+    );
+
+    if (validationStateMemory != 'error' && minimumMemory && convertToUnit(memorySize, memorySizeUnit, units.B) < minimumMemory) {
+        validationStateMemory = 'warning';
+        helperText = (
+            cockpit.format(
+                _("The selected operating system has minimum memory requirement of $0 $1"),
+                convertToUnit(minimumMemory, units.B, memorySizeUnit),
+                memorySizeUnit)
+        );
+    }
+
     return (
-        <FormGroup label={_("Memory")} validated={validationStateMemory} helperTextInvalid={validationFailed.memory} fieldId='memory' id='memory-group'>
-            <MemorySelectRow id='memory-size'
-                value={Math.max(memorySize, Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit)))}
-                maxValue={nodeMaxMemory && Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit))}
-                minValue={Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit))}
-                initialUnit={memorySizeUnit}
-                onValueChange={value => onValueChanged('memorySize', value)}
-                onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
-        </FormGroup>
+        <>
+            <FormGroup label={_("Memory")} validated={validationStateMemory}
+                       helperText={helperText}
+                       helperTextInvalid={validationFailed.memory}
+                       fieldId='memory-size' id='memory-group'>
+                <InputGroup>
+                    <TextInput id='memory-size' value={memorySize}
+                               className="size-input"
+                               onKeyPress={digitFilter}
+                               onChange={value => onValueChanged('memorySize', Number(value))} />
+                    <FormSelect id="memory-size-unit-select"
+                                className="unit-select"
+                                value={memorySizeUnit}
+                                onChange={value => onValueChanged('memorySizeUnit', value)}>
+                        <FormSelectOption value={units.MiB.name} key={units.MiB.name}
+                                          label={_("MiB")} />
+                        <FormSelectOption value={units.GiB.name} key={units.GiB.name}
+                                          label={_("GiB")} />
+                    </FormSelect>
+                </InputGroup>
+            </FormGroup>
+        </>
     );
 };
 
-const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, recommendedStorage, minimumStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
-    const validationStateStorage = validationFailed.storage ? 'error' : 'default';
+const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, minimumStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
+    let validationStateStorage = validationFailed.storage ? 'error' : 'default';
+    const poolSpaceAvailable = getSpaceAvailable(storagePools, connectionName);
+    let helperTextNewVolume = (
+        poolSpaceAvailable
+            ? cockpit.format(
+                _("Up to $0 $1 available on the default location"),
+                Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)),
+                storageSizeUnit
+            )
+            : ""
+    );
+
+    if (validationStateStorage != 'error' && minimumStorage && convertToUnit(storageSize, storageSizeUnit, units.B) < minimumStorage) {
+        validationStateStorage = 'warning';
+        helperTextNewVolume = (
+            cockpit.format(
+                _("The selected operating system has minimum storage size requirement of $0 $1"),
+                convertToUnit(minimumStorage, units.B, storageSizeUnit),
+                storageSizeUnit)
+        );
+    }
+
     let volumeEntries;
     let isVolumeUsed = {};
     // Existing storage pool is chosen
@@ -563,8 +603,6 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                                                              label={vol.name} />)
         );
     }
-
-    const poolSpaceAvailable = getSpaceAvailable(storagePools, connectionName);
 
     return (
         <>
@@ -598,18 +636,29 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
             </FormGroup>}
 
             { storagePoolName === "NewVolume" &&
-            <FormGroup label={_("Size")} fieldId='storage'
-                       id='storage-group'
-                       validated={poolSpaceAvailable && validationStateStorage}
-                       helperTextInvalid={validationFailed.storage}>
-                <MemorySelectRow id="storage-size"
-                    value={Math.max(storageSize, Math.floor(convertToUnit(minimumStorage || 0, units.B, storageSizeUnit)))}
-                    maxValue={poolSpaceAvailable && Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit))}
-                    minValue={minimumStorage && Math.floor(convertToUnit(minimumStorage, units.B, storageSizeUnit))}
-                    initialUnit={storageSizeUnit}
-                    onValueChange={value => onValueChanged('storageSize', value)}
-                    onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
-            </FormGroup>}
+            <>
+                <FormGroup label={_("Size")} fieldId='storage-size'
+                           id='storage-group'
+                           validated={validationStateStorage}
+                           helperText={helperTextNewVolume}
+                           helperTextInvalid={validationFailed.storage}>
+                    <InputGroup>
+                        <TextInput id='storage-size' value={storageSize}
+                                   className="size-input"
+                                   onKeyPress={digitFilter}
+                                   onChange={value => onValueChanged('storageSize', Number(value))} />
+                        <FormSelect id="storage-size-unit-select"
+                                    className="unit-select"
+                                    value={storageSizeUnit}
+                                    onChange={value => onValueChanged('storageSizeUnit', value)}>
+                            <FormSelectOption value={units.MiB.name} key={units.MiB.name}
+                                               label={_("MiB")} />
+                            <FormSelectOption value={units.GiB.name} key={units.GiB.name}
+                                               label={_("GiB")} />
+                        </FormSelect>
+                    </InputGroup>
+                </FormGroup>
+            </>}
         </>
     );
 };
@@ -643,9 +692,7 @@ class CreateVmModal extends React.Component {
             storagePool: 'NewVolume',
             storageVolume: '',
             startVm: true,
-            recommendedMemory: undefined,
             minimumMemory: 0,
-            recommendedStorage: undefined,
             minimumStorage: 0,
 
             // Unattended installation options
@@ -718,26 +765,6 @@ class CreateVmModal extends React.Component {
         case 'storageVolume':
             this.setState({ [key]: value });
             break;
-        case 'memorySize':
-            value = Math.min(
-                value,
-                Math.floor(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
-            );
-            this.setState({ [key]: value });
-            break;
-        case 'storageSize': {
-            const storagePools = this.props.storagePools.filter(pool => pool.connectionName === this.state.connectionName);
-            const spaceAvailable = getSpaceAvailable(storagePools, this.state.connectionName);
-            if (spaceAvailable) {
-                value = Math.min(
-                    value,
-                    Math.floor(convertToUnit(spaceAvailable, units.B, this.state.storageSizeUnit))
-                );
-            }
-            this.setState({ [key]: value });
-            value = convertToUnit(value, this.state.storageSizeUnit, units.GiB);
-            break;
-        }
         case 'memorySizeUnit':
             this.setState({ [key]: value });
             key = 'memorySize';
@@ -770,35 +797,27 @@ class CreateVmModal extends React.Component {
         case 'os': {
             const stateDelta = { [key]: value };
 
-            if (value && value.minimumResources.ram)
-                stateDelta.minimumMemory = value.minimumResources.ram;
-
             if (value && value.profiles)
                 stateDelta.profile = value.profiles.sort().reverse()[0];
 
-            if (value && value.recommendedResources.ram) {
-                stateDelta.recommendedMemory = value.recommendedResources.ram;
-                const converted = convertToUnit(stateDelta.recommendedMemory, units.B, units.GiB);
-                if (converted == 0 || converted % 1 !== 0) // If recommended memory is not a whole number in GiB, set value in MiB
-                    this.setState({ memorySizeUnit: units.MiB.name }, () => this.onValueChanged("memorySize", Math.floor(convertToUnit(stateDelta.recommendedMemory, units.B, units.MiB))));
+            if (value && value.minimumResources.ram) {
+                stateDelta.minimumMemory = value.minimumResources.ram;
+
+                const converted = convertToUnit(stateDelta.minimumMemory, units.B, units.GiB);
+                if (converted == 0 || converted % 1 !== 0) // If minimum memory is not a whole number in GiB, set value in MiB
+                    this.setState({ memorySizeUnit: units.MiB.name }, () => this.onValueChanged("memorySize", Math.floor(convertToUnit(stateDelta.minimumMemory, units.B, units.MiB))));
                 else
                     this.setState({ memorySizeUnit: units.GiB.name }, () => this.onValueChanged("memorySize", converted));
-            } else {
-                stateDelta.recommendedMemory = undefined;
             }
 
-            if (value && value.minimumResources.storage)
+            if (value && value.minimumResources.storage) {
                 stateDelta.minimumStorage = value.minimumResources.storage;
 
-            if (value && value.recommendedResources.storage) {
-                stateDelta.recommendedStorage = value.recommendedResources.storage;
-                const converted = convertToUnit(stateDelta.recommendedStorage, units.B, this.state.storageSizeUnit);
-                if (converted == 0 || converted % 1 !== 0) // If recommended storage is not a whole number in GiB, set value in MiB
-                    this.setState({ storageSizeUnit: units.MiB.name }, () => this.onValueChanged("storageSize", Math.floor(convertToUnit(stateDelta.recommendedStorage, units.B, units.MiB))));
+                const converted = convertToUnit(stateDelta.minimumStorage, units.B, this.state.storageSizeUnit);
+                if (converted == 0 || converted % 1 !== 0) // If minimum storage is not a whole number in GiB, set value in MiB
+                    this.setState({ storageSizeUnit: units.MiB.name }, () => this.onValueChanged("storageSize", Math.floor(convertToUnit(stateDelta.minimumStorage, units.B, units.MiB))));
                 else
                     this.setState({ storageSizeUnit: units.GiB.name }, () => this.onValueChanged("storageSize", converted));
-            } else {
-                stateDelta.recommendedStorage = undefined;
             }
             if (!value || !value.unattendedInstallable)
                 this.onValueChanged('unattendedInstallation', false);
@@ -815,9 +834,9 @@ class CreateVmModal extends React.Component {
     }
 
     onCreateClicked() {
-        const { dispatch, storagePools, close, onAddErrorNotification, osInfoList, vms } = this.props;
+        const { dispatch, storagePools, close, onAddErrorNotification, osInfoList, nodeMaxMemory, vms } = this.props;
 
-        const validation = validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
+        const validation = validateParams({ ...this.state, osInfoList, nodeMaxMemory, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         if (Object.getOwnPropertyNames(validation).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
@@ -868,7 +887,7 @@ class CreateVmModal extends React.Component {
 
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, storagePools, vms } = this.props;
-        const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
+        const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, nodeMaxMemory, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         let startVmCheckbox = (
             <FormGroup fieldId="start-vm">
                 <Checkbox id="start-vm"
@@ -943,7 +962,6 @@ class CreateVmModal extends React.Component {
                     storagePools={storagePools.filter(pool => pool.connectionName === this.state.connectionName)}
                     storageVolume={this.state.storageVolume}
                     vms={vms}
-                    recommendedStorage={this.state.recommendedStorage}
                     minimumStorage={this.state.minimumStorage}
                     validationFailed={validationFailed}
                 />}
@@ -954,7 +972,6 @@ class CreateVmModal extends React.Component {
                     nodeMaxMemory={nodeMaxMemory}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed}
-                    recommendedMemory={this.state.recommendedMemory}
                     minimumMemory={this.state.minimumMemory}
                 />
 

@@ -99,6 +99,15 @@ class TestMachinesCreate(VirtualMachinesCase):
         # storage
         runner.checkDialogFormValidationTest(TestMachinesCreate.VmDialog(self, storage_size=0), {"storage": "Storage size must not be 0"})
 
+        # Try setting the memory to value bigger than it's available on the OS
+        # The dialog should auto-adjust it to match the OS'es total memory
+        runner.checkDialogFormValidationTest(TestMachinesCreate.VmDialog(self, sourceType='file',
+                                                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                                         memory_size=100000, memory_size_unit='MiB',
+                                                                         storage_pool="NoStorage",
+                                                                         start_vm=False),
+                                             {"memory": "Up to "})
+
         # start vm
         runner.checkDialogFormValidationTest(TestMachinesCreate.VmDialog(self, storage_size=1,
                                                                          os_name=config.FEDORA_28, start_vm=True),
@@ -133,8 +142,8 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.browser.wait_not_present('select option[value=os]')
         else:
             runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, sourceType='os',
-                                                                      expected_memory_size=256,
-                                                                      expected_storage_size=256,
+                                                                      expected_memory_size=128,
+                                                                      expected_storage_size=128,
                                                                       os_name=config.FEDORA_28,
                                                                       os_short_id=config.FEDORA_28_SHORTID,
                                                                       start_vm=True))
@@ -184,8 +193,8 @@ class TestMachinesCreate(VirtualMachinesCase):
                 self.browser.wait_not_present('select option[value=os]')
             else:
                 runner.createDownloadAnOSTest(TestMachinesCreate.VmDialog(self, name='existing-name', sourceType='os',
-                                                                          expected_memory_size=256,
-                                                                          expected_storage_size=256,
+                                                                          expected_memory_size=128,
+                                                                          expected_storage_size=128,
                                                                           os_name=config.FEDORA_28,
                                                                           os_short_id=config.FEDORA_28_SHORTID,
                                                                           start_vm=True, delete=False))
@@ -406,22 +415,6 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                       storage_pool="NoStorage",
                                                       start_vm=False,
                                                       connection='session'))
-
-        # Try setting the storage size to value bigger than it's available
-        # The dialog should auto-adjust it to match the pool's available space
-        runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
-                                                      location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                      memory_size=256, memory_size_unit='MiB',
-                                                      storage_size=100000, storage_size_unit='GiB',
-                                                      start_vm=False))
-
-        # Try setting the memory to value bigger than it's available on the OS
-        # The dialog should auto-adjust it to match the OS'es total memory
-        runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='file',
-                                                      location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                      memory_size=100000, memory_size_unit='MiB',
-                                                      storage_pool="NoStorage",
-                                                      start_vm=False))
         cmds = [
             "mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool",
             "virsh pool-define-as tmp\ pool --type dir --target /var/lib/libvirt/pools/tmp\ pool",
@@ -798,14 +791,6 @@ class TestMachinesCreate(VirtualMachinesCase):
                         b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
                         if self.storage_size is not None:
                             b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
-                            b.blur("#storage-size")
-                            # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
-                            # test images sometimes may not have default storage pool defined for session connection
-                            if self.connection != "session":
-                                space_available = int(b.text("#storage-size-slider ~ b"))
-                                # Write the final storage size back to self so that other function can read it
-                                self.storage_size = min(self.storage_size, space_available)
-                                b.wait_val("#storage-size", self.storage_size)
                 else:
                     b.wait_val("#storage-size", self.expected_storage_size)
 
@@ -814,17 +799,8 @@ class TestMachinesCreate(VirtualMachinesCase):
             if not self.expected_memory_size:
                 b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
                 b.set_input_text("#memory-size", str(self.memory_size), value_check=True)
-                b.blur('#memory-size')
-                host_total_memory = int(b.text("#memory-size-slider ~ b"))
-                # Write the final memory back to self so that other function can read it
-                self.memory_size = min(self.memory_size, host_total_memory)
-                b.wait_val("#memory-size", self.memory_size)
             else:
                 b.wait_val("#memory-size", self.expected_memory_size)
-
-            # check minimum memory is correctly set in the slider - the following are fake data
-            if self.os_name in [TestMachinesCreate.TestCreateConfig.FEDORA_28]:
-                b.wait_attr("#memory-size-slider  div[role=slider].hide", "aria-valuemin", "128")
 
             b.wait_visible("#start-vm")
             if not self.start_vm:
@@ -1002,8 +978,6 @@ class TestMachinesCreate(VirtualMachinesCase):
             root = ET.fromstring(fedora_28_xml)
             root.find('os').find('resources').find('minimum').find('ram').text = '134217728'
             root.find('os').find('resources').find('minimum').find('storage').text = '134217728'
-            root.find('os').find('resources').find('recommended').find('ram').text = '268435456'
-            root.find('os').find('resources').find('recommended').find('storage').text = '268435456'
             if self.machine.image not in ["debian-stable"]:
                 root.find('os').find('eol-date').text = '9999-12-31'
             new_fedora_28_xml = ET.tostring(root)

@@ -413,6 +413,7 @@ def run(opts, image):
             print("# {0} TESTS FAILED {1}".format(result, details))
         else:
             print("# TESTS PASSED {0}".format(details))
+        flush_stdout()
 
     return result
 

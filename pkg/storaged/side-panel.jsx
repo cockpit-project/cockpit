@@ -107,7 +107,7 @@ export class SidePanelRow extends React.Component {
         else if (client.path_jobs[job_path])
             decoration = <Spinner size="md" />;
         else if (client.path_warnings[job_path])
-            decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />;
+            decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 
         return (
             <FlexItem data-testkey={this.props.testkey}

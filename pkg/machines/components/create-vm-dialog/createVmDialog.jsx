@@ -634,8 +634,7 @@ class CreateVmModal extends React.Component {
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
                                  Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
             memorySizeUnit: units.GiB.name,
-            storageSize: Math.min(convertToUnit(10 * 1024, units.MiB, units.GiB), // tied to Unit
-                                  Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
+            storageSize: convertToUnit(10 * 1024, units.MiB, units.GiB), // tied to Unit
             storageSizeUnit: units.GiB.name,
             storagePool: 'NewVolume',
             storageVolume: '',

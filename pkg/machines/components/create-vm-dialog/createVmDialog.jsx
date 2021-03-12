@@ -574,7 +574,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                             onChange={e => onValueChanged('storagePool', e)}>
                     <FormSelectOption value="NewVolume" key="NewVolume" label={_("Create new volume")} />
                     <FormSelectOption value="NoStorage" key="NoStorage" label={_("No storage")} />
-                    <FormSelectOptionGroup key="Storage pools" label="Storage pools">
+                    <FormSelectOptionGroup key="Storage pools" label={_("Storage pools")}>
                         { storagePools.map(pool => {
                             if (pool.volumes && pool.volumes.length)
                                 return <FormSelectOption value={pool.name} key={pool.name} label={pool.name} />;

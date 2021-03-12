@@ -109,6 +109,9 @@
    The second argument has all values of all fields, in case you need
    to look at more than one field.
 
+   It is permissible to overwrite fields of "vals" to change the final
+   value of a field.
+
    The validate function can also return a promise which resolves to
    null or an error message.  If that promise is rejected, that error
    is shown globally in the dialog as if the action function had
@@ -843,6 +846,19 @@ const StatelessSlider = ({ fraction, onChange }) => {
     );
 };
 
+function size_slider_round(value, round) {
+    if (round) {
+        if (typeof round == "function")
+            value = round(value);
+        else
+            value = Math.round(value / round) * round;
+    } else {
+        // Only produce integers by default
+        value = Math.round(value);
+    }
+    return value;
+}
+
 class SizeSliderElement extends React.Component {
     constructor(props) {
         super();
@@ -856,61 +872,34 @@ class SizeSliderElement extends React.Component {
         const { unit } = this.state;
 
         const change_slider = (f) => {
-            let value = f * max;
-
-            if (round) {
-                if (typeof round == "function")
-                    value = round(value);
-                else
-                    value = Math.round(value / round) * round;
-            } else {
-                // Only produce integers by default
-                value = Math.round(value);
-            }
-
-            onChange(Math.max(min, value));
+            onChange(Math.max(min, size_slider_round(f * max, round)));
         };
 
         const change_text = (value) => {
-            let val = Number(value) * unit;
-            if (value === "" || isNaN(val)) {
-                /* If there something else than a number in the
-                   input element, we use that as the value
-                   directly so that it sticks around.  It will be
-                   rejected by the validate function below.
-                 */
-                onChange(value);
-            } else {
-                // As a special case, if the user types something that
-                // looks like the maximum (or minimum) when formatted,
-                // always use exactly the maximum (or minimum).  Otherwise
-                // we have the confusing possibility that with the exact
-                // same string in the text input, the size is sometimes
-                // too large (or too small) and sometimes not.
-
-                const sanitize = (limit) => {
-                    var fmt = cockpit.format_number(limit / unit);
-                    var parse = +fmt * unit;
-
-                    if (val == parse)
-                        val = limit;
-                };
-
-                sanitize(min);
-                sanitize(max);
-
-                onChange(val);
-            }
+            /* We keep the literal string as the value and only
+             * interpret it below in the validate function inside
+             * SizeSlider.  This allows people to freely interact with
+             * the text input without getting the text changed all the
+             * time by rounding, etc.
+             */
+            onChange({ text: value, unit: unit });
         };
 
         const change_unit = (u) => this.setState({ unit: Number(u) });
 
+        let slider_val, text_val;
+        if (val.text && val.unit) {
+            slider_val = Number(val.text) * val.unit;
+            text_val = val.text;
+        } else {
+            slider_val = val;
+            text_val = cockpit.format_number(val / unit);
+        }
+
         return (
             <div className="size-sliderx">
-                <StatelessSlider fraction={val / max} onChange={change_slider} />
-                <TextInputPF4 className="size-text"
-                       value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
-                       onChange={change_text} />
+                <StatelessSlider fraction={slider_val / max} onChange={change_slider} />
+                <TextInputPF4 className="size-text" value={text_val} onChange={change_text} />
                 <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
                     { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
                 </FormSelect>
@@ -923,7 +912,35 @@ export const SizeSlider = (tag, title, options) => {
     const validate = (val, vals) => {
         let msg = null;
 
-        if (val === "" || isNaN(val))
+        if (val.text && val.unit) {
+            // Convert to number.
+            const unit = val.unit;
+
+            val = Number(val.text) * unit;
+
+            // As a special case, if the user types something that
+            // looks like the maximum (or minimum) when formatted,
+            // always use exactly the maximum (or minimum).  Otherwise
+            // we have the confusing possibility that with the exact
+            // same string in the text input, the size is sometimes
+            // too large (or too small) and sometimes not.
+
+            const sanitize = (limit) => {
+                var fmt = cockpit.format_number(limit / unit);
+                var parse = +fmt * unit;
+
+                if (val == parse)
+                    val = limit;
+            };
+
+            sanitize(all_options.min || 0);
+            sanitize(all_options.max);
+
+            val = size_slider_round(val, all_options.round);
+            vals[tag] = val;
+        }
+
+        if (isNaN(val))
             msg = _("Size must be a number");
         else if (val === 0)
             msg = _("Size cannot be zero");

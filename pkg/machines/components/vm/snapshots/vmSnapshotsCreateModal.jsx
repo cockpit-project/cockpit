@@ -68,6 +68,7 @@ export class CreateSnapshotModal extends React.Component {
             name: props.vm.name + '_' + moment().format("YYYY-MM-DD_hh:mma"),
             description: "",
             validationError: {},
+            inProgress: false,
         };
 
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -103,13 +104,17 @@ export class CreateSnapshotModal extends React.Component {
 
         this.onValidate();
         if (!validationError.name) {
+            this.setState({ inProgress: true });
             createSnapshot({ connectionName: vm.connectionName, vmId: vm.id, name, description })
                     .then(() => {
                         // VM Snapshots do not trigger any events so we have to refresh them manually
                         dispatch(getVmSnapshots({ connectionName: vm.connectionName, domainPath: vm.id }));
                         onClose();
                     })
-                    .catch(exc => this.dialogErrorSet(_("Snapshot failed to be created"), exc.message));
+                    .catch(exc => {
+                        this.setState({ inProgress: false });
+                        this.dialogErrorSet(_("Snapshot failed to be created"), exc.message);
+                    });
         }
     }
 
@@ -129,7 +134,7 @@ export class CreateSnapshotModal extends React.Component {
                    footer={
                        <>
                            {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                           <Button variant="primary" onClick={this.onCreate}>
+                           <Button variant="primary" isLoading={this.state.inProgress} isDisabled={this.state.inProgress} onClick={this.onCreate}>
                                {_("Create")}
                            </Button>
                            <Button variant="link" className="btn-cancel" onClick={onClose}>

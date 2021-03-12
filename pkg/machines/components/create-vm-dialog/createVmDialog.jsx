@@ -223,7 +223,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
-    const validationStateSource = validationFailed.source ? 'error' : 'default';
+    let validationStateSource = validationFailed.source ? 'error' : 'default';
 
     switch (sourceType) {
     case LOCAL_INSTALL_MEDIA_SOURCE:
@@ -248,24 +248,26 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
         installationSourceId = "network";
         if (source && source.includes('type=direct')) {
             installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
+            if (validationStateSource !== 'error')
+                validationStateSource = 'warning';
         } else if (source && source.includes('network=')) {
             const netObj = getVirtualNetworkByName(source.split('network=')[1],
                                                    networks);
 
-            if (!netObj || !getVirtualNetworkPXESupport(netObj))
+            if (!netObj || !getVirtualNetworkPXESupport(netObj)) {
                 installationSourceWarning = _("Network selection does not support PXE.");
+                if (validationStateSource !== 'error')
+                    validationStateSource = 'warning';
+            }
         }
 
         installationSource = (
-            <>
-                <FormSelect id="network-select"
-                            value={source || 'no-resource'}
-                            onChange={value => onValueChanged('source', value)}>
-                    {getPXENetworkRows(nodeDevices, networks)}
-                </FormSelect>
-
-                {installationSourceWarning && <p className="text-warning">{installationSourceWarning}</p>}
-            </>
+            <FormSelect id="network-select"
+                        validated={validationStateSource}
+                        value={source || 'no-resource'}
+                        onChange={value => onValueChanged('source', value)}>
+                {getPXENetworkRows(nodeDevices, networks)}
+            </FormSelect>
         );
         break;
     case URL_SOURCE:
@@ -307,7 +309,9 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
 
             {sourceType != DOWNLOAD_AN_OS
                 ? <FormGroup label={_("Installation source")} id={installationSourceId + "-group"} fieldId={installationSourceId}
-                             helperTextInvalid={validationFailed.source} validated={validationStateSource}>
+                             helperText={installationSourceWarning}
+                             helperTextInvalid={validationFailed.source}
+                             validated={validationStateSource}>
                     {installationSource}
                 </FormGroup>
                 : <OSRow os={os}

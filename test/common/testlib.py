@@ -1110,17 +1110,11 @@ class MachineCase(unittest.TestCase):
 
     def allow_failed_sudo_journal_messages(self):
         self.allow_journal_messages(".* is not in the sudoers file.  This incident will be reported.",
-                                    "sudo:.* Operation not permitted",
-                                    "sudo:.* Permission denied",
                                     "Error executing command as another user: Not authorized",
                                     "This incident has been reported.",
-                                    "sudo: a password is required",
-                                    "sudo: Account or password is expired, reset your password and try again",
-                                    "sudo: sorry, you must have a tty to run sudo",
                                     "Sorry, try again.",
-                                    "sudo: no password was provided",
-                                    "sudo: account validation failure.*",
-                                    ".*incorrect password attempt.*")
+                                    ".*incorrect password attempt.*",
+                                    "sudo:.*")
 
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""

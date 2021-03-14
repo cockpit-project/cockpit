@@ -30,21 +30,35 @@ jobs:
           # we need a fully predictable name/URL, and git introduces these
           # additional numbers into the version; so wrap it in a predictable named tar
           sha=$(ls -d dist-* | sed 's/dist-//')
-          git clone https://github.com/${{ github.repository }}-dist.git dist-repo
-          tar -cvf "dist-repo/${sha}.tar" -C "dist-$sha" .
 
-          # freshly created empty repo?
-          cd dist-repo
-          git rev-parse HEAD >/dev/null 2>&1 || git init
-          git add "${sha}.tar"
-          git commit -m "Build for $sha"
+          # multiple parallel workflows race against each other, so the final
+          # `git push` may fail
+          rc=1
+          for retry in $(seq 5); do
+              git clone https://github.com/${{ github.repository }}-dist.git dist-repo
+              tar -cvf "dist-repo/${sha}.tar" -C "dist-$sha" .
 
-          # remove tarballs older than a week
-          now=$(date +%s)
-          for f in *.tar; do
-              fmtime=$(git log --pretty=%at -n1 -- $f)
-              [ $(($now - $fmtime)) -lt 604800 ] || git rm $f
+              # freshly created empty repo?
+              cd dist-repo
+              git rev-parse HEAD >/dev/null 2>&1 || git init
+              git add "${sha}.tar"
+              git commit -m "Build for $sha"
+
+              # remove tarballs older than a week
+              now=$(date +%s)
+              for f in *.tar; do
+                  fmtime=$(git log --pretty=%at -n1 -- $f)
+                  [ $(($now - $fmtime)) -lt 604800 ] || git rm $f
+              done
+              [ -z "$(git status --short)" ] || git commit -m 'Drop old builds'
+
+              if git push; then
+                  rc=0
+                  break
+              else
+                  echo "ERROR: conflict? Retrying git commit"
+                  rm -rf dist-repo
+              fi
           done
-          [ -z "$(git status --short)" ] || git commit -m 'Drop old builds'
+          exit $rc
 
-          git push

@@ -108,3 +108,9 @@ svg {
         padding-top: var(--pf-global--spacer--md);
     }
 }
+
+// Make sure focus ring is not truncated when input group element is focused.
+// https://github.com/patternfly/patternfly/issues/3926
+.pf-c-input-group :focus {
+    z-index: 2;
+}

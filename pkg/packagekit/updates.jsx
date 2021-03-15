@@ -252,7 +252,7 @@ function updateItem(info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    <span className={iconClasses + ' severity-icon'} />
+                    <span aria-label={secSeverity || _("security")} className={iconClasses + ' severity-icon'} />
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </Tooltip>
             </>);
@@ -260,7 +260,7 @@ function updateItem(info, pkgNames, key) {
         const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
         type = (
             <Tooltip id="tip-severity" content={tip}>
-                <span className={iconClasses + ' severity-icon'} />
+                <span aria-label={tip} className={iconClasses + ' severity-icon'} />
                 { bugs ? info.bug_urls.length : "" }
             </Tooltip>
         );

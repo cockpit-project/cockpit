@@ -549,10 +549,10 @@ ExecStart=/usr/local/bin/{0}
             self.assertIn("RHSA-2000:0001", details)
             self.assertIn("RHSA-2000:0002", details)
             # icon has critical class
-            self.assertIn("severity-critical", b.attr(sel + " td.type span", "class"))
-            b.mouse(sel + " td.type span", "mouseenter")
+            self.assertIn("severity-critical", b.attr(sel + " .severity-icon", "class"))
+            b.mouse(sel + " .severity-icon", "mouseenter")
             b.wait_text(".pf-c-tooltip", "critical")
-            b.mouse(sel + " td.type span", "mouseleave")
+            b.mouse(sel + " .severity-icon", "mouseleave")
             b.wait_not_present(".pf-c-tooltip")
             # details has link to severity definition
             self.assertIn("access.redhat.com", b.attr(sel + " .pf-m-expanded dd.severity a:first-of-type", "href"))
@@ -564,10 +564,10 @@ ExecStart=/usr/local/bin/{0}
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
         # should show bug fix icon and pf-c-tooltip
-        self.assertIn("fa-bug", b.attr(sel + " td.type span", "class"))
-        b.mouse(sel + " td.type span", "mouseenter")
+        self.assertIn("fa-bug", b.attr(sel + " .severity-icon", "class"))
+        b.mouse(sel + " .severity-icon", "mouseenter")
         b.wait_text(".pf-c-tooltip", "bug fix")
-        b.mouse(sel + " td.type span", "mouseleave")
+        b.mouse(sel + " .severity-icon", "mouseleave")
         b.wait_not_present(".pf-c-tooltip")
 
         # norefs: just changelog, show both binary packages

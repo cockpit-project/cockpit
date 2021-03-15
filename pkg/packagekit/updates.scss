@@ -69,35 +69,8 @@ table.listing-ct thead th {
 }
 
 .ct-table tr {
-    td.type {
-        min-width: 10ch;
-    }
-
-    @media screen and (min-width: 641px) {
-        /* Desktop: Truncate version by default and untruncate on hover */
-        td.version {
-            width: 18ex;
-            /* Tables are stretchy, so we *also* need the max-width */
-            max-width: 18ex;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-
-            /* Expand version string when hovering */
-            &:hover {
-                overflow: visible;
-
-                .truncating {
-                    background: linear-gradient(to left, rgba(237, 248, 255, 0), var(--ct-color-list-hover-bg) 3em);
-                    position: relative;
-                    padding: 0.5em 4em 0.5em 0;
-                }
-            }
-        }
-    }
-
-    td.type {
-        white-space: nowrap;
+    .severity-icon {
+        margin-right: var(--pf-global--spacer--xs);
     }
 
     td.changelog {

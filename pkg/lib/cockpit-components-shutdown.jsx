@@ -22,7 +22,8 @@ import cockpit from "cockpit";
 import React from 'react';
 import {
     Button, Select, SelectOption, Modal, Alert, Form,
-    Divider, FormGroup, TextArea, TextInput, DatePicker
+    Divider, FormGroup, TextArea, DatePicker,
+    TimePicker,
 } from '@patternfly/react-core';
 
 import { ServerTime } from 'serverTime.js';
@@ -43,12 +44,10 @@ export class ShutdownModal extends React.Component {
             selected: "1",
             date: "",
             today: "",
-            minute: 0,
-            hour: 0,
+            time: "",
             when: "+1",
         };
         this.onSubmit = this.onSubmit.bind(this);
-        this.onBlur = this.onBlur.bind(this);
         this.updateDatetime = this.updateDatetime.bind(this);
         this.calculate = this.calculate.bind(this);
 
@@ -63,19 +62,9 @@ export class ShutdownModal extends React.Component {
             this.setState({
                 date: date,
                 today: date,
-                minute: minute,
-                hour: hour,
+                time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
             });
         });
-    }
-
-    onBlur() {
-        if (this.state.dateError)
-            return;
-
-        const m = parseInt(this.state.minute, 10);
-        if (m < 10)
-            this.setState({ minute: "0" + m });
     }
 
     updateDatetime(key, value) {
@@ -95,8 +84,8 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const h = parseInt(this.state.hour, 10);
-        const m = parseInt(this.state.minute, 10);
+        const h = parseInt(this.state.time.split(":")[0], 10);
+        const m = parseInt(this.state.time.split(":")[1], 10);
 
         let time_error = false;
         if (isNaN(h) || h < 0 || h > 23 ||
@@ -122,7 +111,7 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const cmd = ["date", "--date=" + moment(date).format('YYYY-MM-DD') + " " + this.state.hour + ":" + this.state.minute, "+%s"];
+        const cmd = ["date", "--date=" + moment(date).format('YYYY-MM-DD') + " " + this.state.time, "+%s"];
         this.date_spawn = cockpit.spawn(cmd, { err: "message" });
         this.date_spawn.then(data => {
             const input_timestamp = parseInt(data, 10);
@@ -201,9 +190,11 @@ export class ShutdownModal extends React.Component {
                                 <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
                                     invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
                                     value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
-                                <TextInput id="shutdown-hour" value={this.state.hour} onChange={h => this.updateDatetime("hour", h)} />
-                                :
-                                <TextInput id="shutdown-minute" value={this.state.minute} onChange={m => this.updateDatetime("minute", m)} onBlur={this.onBlur} />
+                                <TimePicker defaultTime={this.state.time} is24Hour
+                                            id="shutdown-time"
+                                            invalidFormatErrorMessage=""
+                                            menuAppendTo={() => document.body}
+                                            onChange={time => this.updateDatetime("time", time) } />
                             </>}
                         </FormGroup>
                     </Form>

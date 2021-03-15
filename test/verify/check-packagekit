@@ -1162,7 +1162,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#automatic-updates button")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
-        b.wait_in_text("#auto-update-time", "06:00")
+        b.wait_val("#auto-update-time-input", "06:00")
         b.wait_in_text("#auto-update-day", "every day")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
         b.wait_in_text("#automatic-updates p", "Updates will be applied")
@@ -1199,7 +1199,7 @@ class TestAutoUpdates(NoSubManCase):
         # change time
         b.click("#automatic-updates button")
         b.wait_visible("#automatic-updates-dialog")
-        b.select_from_dropdown("#auto-update-time", "21:00")
+        b.set_input_text("#auto-update-time-input", "21:00")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
         b.wait_in_text("#automatic-updates", "Updates will be applied every Thursday at 21:00")
         assertType("all")

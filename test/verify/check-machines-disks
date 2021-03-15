@@ -728,7 +728,10 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         used_targets = ['vda']
 
-        self.createVm("subVmTest1")
+        args = self.createVm("subVmTest1")
+
+        # Wait for the login prompt before we try to live attach disks - we need the OS to be fully responsive
+        wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")

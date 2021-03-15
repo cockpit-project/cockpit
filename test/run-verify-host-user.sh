@@ -29,7 +29,7 @@ fi
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 # HACK: upstream does not yet know about rawhide
 if [ "$TEST_OS" = "fedora-35" ]; then
-    export TEST_OS=fedora-33
+    export TEST_OS=fedora-34
 fi
 
 # HACK: CI hits this selinux denial. Unrelated to our tests.

@@ -67,7 +67,6 @@ fi
 
 if [ -n "$test_basic" ]; then
     # TODO: fix for CI environment
-    EXCLUDES="$EXCLUDES TestLogin.testTally"
     EXCLUDES="$EXCLUDES TestAccounts.testBasic"
     EXCLUDES="$EXCLUDES TestLogin.testServer"
 

@@ -78,9 +78,9 @@ class TestKdump(MachineCase):
             assertActive(True)
         else:
             # right now we have no memory reserved
-            b.mouse(".service-link-ct-kdump + .popover-ct-kdump", "mouseenter")
+            b.mouse("span + .popover-ct-kdump", "mouseenter")
             b.wait_in_text(".pf-c-tooltip", "No memory reserved.")
-            b.mouse(".service-link-ct-kdump + .popover-ct-kdump", "mouseleave")
+            b.mouse("span + .popover-ct-kdump", "mouseleave")
             # newer kdump.service have `ConditionKernelCommandLine=crashkernel` which fails gracefully
             unit = m.execute("systemctl cat kdump.service")
             if 'ConditionKernelCommandLine=crashkernel' in unit:

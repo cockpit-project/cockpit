@@ -17,18 +17,20 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
 
 import React from "react";
 import {
     Button, Checkbox,
+    Card, CardBody,
+    Flex,
     Form, FormGroup, FormSection,
     FormSelect, FormSelectOption,
     Page, PageSection, PageSectionVariants,
-    Flex,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Spinner, Switch,
-    TextInput, Tooltip, TooltipPosition,
+    TextInput, Title, Tooltip, TooltipPosition,
 } from "@patternfly/react-core";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
@@ -444,8 +446,6 @@ export class KdumpPage extends React.Component {
                 serviceDescription = <span>{_("Service is starting")}</span>;
             else if (this.props.kdumpStatus.state == "stopping")
                 serviceDescription = <span>{_("Service is stopping")}</span>;
-            else
-                serviceDescription = <span>{_("More details")}</span>;
             if (this.props.reservedMemory == 0) {
                 const tooltip = _("No memory reserved. Append a crashkernel option to the kernel command line (e.g. in /etc/default/grub) to reserve memory at boot time. Example: crashkernel=512M");
                 serviceHint = (
@@ -456,8 +456,9 @@ export class KdumpPage extends React.Component {
             }
             kdumpServiceDetails = (
                 <>
-                    <Button variant="link" isInline className="service-link-ct-kdump" onClick={this.handleServiceDetailsClick}>{serviceDescription}</Button>
+                    {serviceDescription}
                     {serviceHint}
+                    <Button variant="link" isInline className="service-link-ct-kdump" onClick={this.handleServiceDetailsClick}>{_("more details")}</Button>
                 </>
             );
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
@@ -494,47 +495,58 @@ export class KdumpPage extends React.Component {
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
-                    <Flex justifyContent={{ default: "justifyContentCenter" }}>
-                        <DescriptionList>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{_("kdump status")}</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                    <div role="group">
-                                        <Switch isChecked={!!serviceRunning}
-                                                onChange={this.props.onSetServiceState}
-                                                aria-label={_("kdump status")}
-                                                isDisabled={this.props.stateChanging} />
-                                        {serviceWaiting}
-                                        {kdumpServiceDetails}
-                                    </div>
-                                </DescriptionListDescription>
-                            </DescriptionListGroup>
-
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{_("Reserved memory")}</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                    {reservedMemory}
-                                </DescriptionListDescription>
-                            </DescriptionListGroup>
-
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{_("Crash dump location")}</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                    {settingsLink}
-                                </DescriptionListDescription>
-                            </DescriptionListGroup>
-
-                            <DescriptionListGroup>
-                                <DescriptionListTerm />
-                                <DescriptionListDescription>
-                                    {testButton}
-                                    <Tooltip id="tip-test-info" content={tooltip_info}>
-                                        <OutlinedQuestionCircleIcon className="popover-ct-kdump" />
-                                    </Tooltip>
-                                </DescriptionListDescription>
-                            </DescriptionListGroup>
-                        </DescriptionList>
+                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                        <Title headingLevel="h2" size="3xl">
+                            {_("Kernel crash dump")}
+                        </Title>
+                        <Switch isChecked={!!serviceRunning}
+                                onChange={this.props.onSetServiceState}
+                                aria-label={_("kdump status")}
+                                isDisabled={this.props.stateChanging} />
                     </Flex>
+                </PageSection>
+                <PageSection>
+                    <Card>
+                        <CardBody>
+                            <DescriptionList className="pf-m-horizontal-on-sm">
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                            {serviceWaiting}
+                                            {kdumpServiceDetails}
+                                        </Flex>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{_("Reserved memory")}</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        {reservedMemory}
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{_("Crash dump location")}</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        {settingsLink}
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm />
+                                    <DescriptionListDescription>
+                                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                            {testButton}
+                                            <Tooltip id="tip-test-info" content={tooltip_info}>
+                                                <OutlinedQuestionCircleIcon className="popover-ct-kdump" />
+                                            </Tooltip>
+                                        </Flex>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                            </DescriptionList>
+                        </CardBody>
+                    </Card>
                 </PageSection>
             </Page>
         );

@@ -102,11 +102,6 @@ done
 test/common/run-tests --test-dir test/verify --nondestructive $exclude_options \
     --machine localhost:22 --browser localhost:9090 $TESTS || RC=$?
 
-# check-shell-menu is not @nondestructive yet, keep it last
-if [ -n "$test_basic" ]; then
-    test/verify/check-shell-menu --machine localhost:22 --browser localhost:9090 || RC=$?
-fi
-
 echo $RC > "$LOGS/exitcode"
 cp --verbose Test* "$LOGS" || true
 # deliver test result via exitcode file

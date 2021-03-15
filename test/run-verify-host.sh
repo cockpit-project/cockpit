@@ -13,6 +13,11 @@ LOGS="$(pwd)/logs"
 mkdir -p "$LOGS"
 chmod a+w "$LOGS"
 
+# show some system info
+nproc
+free -h
+rpm -q cockpit-system
+
 # install browser; on RHEL, use chromium from epel
 # HACK: chromium-headless ought to be enough, but version 88 has a crash: https://bugs.chromium.org/p/chromium/issues/detail?id=1170634
 if ! rpm -q chromium; then

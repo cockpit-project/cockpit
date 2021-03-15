@@ -41,6 +41,7 @@ import {
     RedoIcon,
     ProcessAutomationIcon
 } from "@patternfly/react-icons";
+import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdates, AutoUpdatesBody } from "./autoupdates.jsx";
@@ -251,19 +252,18 @@ function updateItem(info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    <span className={iconClasses} />
+                    <span className={iconClasses + ' severity-icon'} />
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </Tooltip>
             </>);
     } else {
         const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
         type = (
-            <>
-                <Tooltip id="tip-severity" content={tip}>
-                    <span className={iconClasses} />
-                    { bugs ? info.bug_urls.length : "" }
-                </Tooltip>
-            </>);
+            <Tooltip id="tip-severity" content={tip}>
+                <span className={iconClasses + ' severity-icon'} />
+                { bugs ? info.bug_urls.length : "" }
+            </Tooltip>
+        );
     }
 
     const pkgList = pkgNames.map((n, index) => (
@@ -274,7 +274,7 @@ function updateItem(info, pkgNames, key) {
     const pkgs = pkgList;
     let pkgsTruncated = pkgs;
     if (pkgList.length > 4)
-        pkgsTruncated = pkgList.slice(0, 4).concat("…");
+        pkgsTruncated = pkgList.slice(0, 4).concat(<span>…</span>);
 
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)
@@ -319,8 +319,8 @@ function updateItem(info, pkgNames, key) {
     return {
         columns: [
             { title: pkgsTruncated },
-            { title: info.version, props: { className: "version truncating" } },
-            { title: type, props: { className: "type" } },
+            { title: <TableText wrapModifier="truncate">{info.version}</TableText>, props: { className: "version" } },
+            { title: <TableText wrapModifier="nowrap">{type}</TableText>, props: { className: "type" } },
             { title: descriptionFirstLine, props: { className: "changelog" } },
         ],
         props: {
@@ -367,10 +367,10 @@ const UpdatesList = ({ updates }) => {
         <ListingTable aria-label={_("Available updates")}
                 gridBreakPoint='grid-lg'
                 columns={[
-                    { title: _("Name") },
-                    { title: _("Version") },
-                    { title: _("Severity") },
-                    { title: _("Details") },
+                    { title: _("Name"), transforms: [cellWidth(40)] },
+                    { title: _("Version"), transforms: [cellWidth(15)] },
+                    { title: _("Severity"), transforms: [cellWidth(15)] },
+                    { title: _("Details"), transforms: [cellWidth(30)] },
                 ]}
                 rows={update_ids.map(id => updateItem(updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
     );
@@ -778,7 +778,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
 
     return (<>
         { notifications.map(notification => (
-            <Flex direction={{ default: 'column', lg: 'row' }} key={notification.id} id={notification.id} className="status-notification">
+            <Flex direction={{ default: 'column', sm: 'row' }} key={notification.id} id={notification.id} className="status-notification">
                 <FlexItem>{notification.icon}</FlexItem>
                 <Flex flex={{ default: 'flex_1' }} direction={{ default: 'column' }}>
                     <FlexItem>

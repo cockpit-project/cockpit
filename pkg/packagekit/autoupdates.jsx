@@ -356,19 +356,19 @@ export class AutoUpdates extends React.Component {
                 <FormGroup fieldId="type" label={_("Type")}>
                     <Radio isChecked={!this.state.enabled}
                            onChange={e => this.setState({ enabled: false, type: null })}
-                           enabled={enabled}
+                           isDisabled={!enabled}
                            label={_("No updates")}
                            id="no-updates"
                            name="type" />
                     <Radio isChecked={this.state.enabled && this.state.type === "security"}
                            onChange={e => this.setState({ enabled: true, type: "security" })}
-                           enabled={enabled}
+                           isDisabled={!enabled}
                            label={_("Security updates only")}
                            id="security-updates"
                            name="type" />
                     <Radio isChecked={this.state.enabled && this.state.type === "all"}
                            onChange={e => this.setState({ enabled: true, type: "all" })}
-                           enabled={enabled}
+                           isDisabled={!enabled}
                            label={_("All updates")}
                            id="all-updates"
                            name="type" />

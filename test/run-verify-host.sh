@@ -23,6 +23,12 @@ if ! rpm -q chromium; then
     dnf install -y chromium
 fi
 
+# HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
+# and is hard to disable as it does not use systemd
+if rpm -q setroubleshoot-server; then
+    dnf remove -y setroubleshoot-server
+fi
+
 # make libpwquality less aggressive, so that our "foobar" password works
 printf 'dictcheck = 0\nminlen = 6\n' >> /etc/security/pwquality.conf
 

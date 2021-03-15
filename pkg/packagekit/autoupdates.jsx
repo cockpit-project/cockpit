@@ -23,7 +23,8 @@ import PropTypes from 'prop-types';
 import {
     Alert, Button, Form, FormGroup,
     FormSelect, FormSelectOption,
-    Modal, Radio, Text, TextVariants
+    Modal, Radio, Text, TextVariants,
+    TimePicker,
 } from '@patternfly/react-core';
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
@@ -34,6 +35,26 @@ function debug() {
     if (window.debugging == "all" || window.debugging == "packagekit")
         console.debug.apply(console, arguments);
 }
+
+// FIXME: https://github.com/patternfly/patternfly-react/issues/5564
+// Copied from: https://github.com/patternfly/patternfly-react/blob/master/packages/react-core/src/components/TimePicker/TimePickerUtils.tsx
+// and slightly adjusted
+export const validateTime = (time) => {
+    // ISO 8601 format is valid
+    const date = new Date(time);
+    if (!isNaN(date.getDate()) && time.includes('T')) {
+        return true;
+    }
+    // hours only valid if they are [0-23] or [0-12]
+    const hours = parseInt(time.split(":")[0]);
+    const validHours = hours >= 0 && hours <= 23;
+
+    // minutes verified by timeRegex
+    const timeRegex = new RegExp(`^\\s*\\d\\d?:[0-5]\\d\\s*$`);
+
+    // empty string is valid
+    return time !== '' && (timeRegex.test(time) && validHours);
+};
 
 /**
  * Package manager specific implementations; PackageKit does not cover
@@ -291,7 +312,7 @@ export class AutoUpdates extends React.Component {
             enabled: undefined,
             type: undefined,
             day: "everyday",
-            time: undefined,
+            time: "00:00",
         };
         this.handleChange = this.handleChange.bind(this);
         this.initializeBackend();
@@ -299,7 +320,7 @@ export class AutoUpdates extends React.Component {
 
     initializeBackend(forceReinit) {
         return getBackend(forceReinit).then(b => {
-            const promise = this.setState({ backend: b, enabled: b && b.enabled, type: b && b.type, day: b && b.day, time: b && b.time }, () => {
+            const promise = this.setState({ backend: b, enabled: b && b.enabled, type: b && b.type, day: b && b.day, time: b && b.time && b.time.padStart(5, "0") }, () => {
                 this.debugBackendState("AutoUpdates: backend initialized");
                 return null;
             });
@@ -324,6 +345,10 @@ export class AutoUpdates extends React.Component {
         const { backend, enabled, type, day, time } = this.state;
 
         this.debugBackendState(`handleChange(${enabled}, ${type}, ${day}, ${time})`);
+
+        if (!validateTime(time))
+            return;
+
         this.setState({ pending: true });
         backend.setConfig(enabled, type, day, time)
                 .always((b) => {
@@ -345,7 +370,6 @@ export class AutoUpdates extends React.Component {
             return null;
 
         const enabled = !this.state.pending && this.props.privileged;
-        const hours = Array.from(Array(24).keys());
         const body = (
             <Form isHorizontal>
                 <FormGroup fieldId="type" label={_("Type")}>
@@ -385,10 +409,11 @@ export class AutoUpdates extends React.Component {
 
                         <span className="auto-conf-text">{_("at")}</span>
 
-                        <FormSelect id="auto-update-time" isDisabled={!enabled} value={this.state.time}
-                                    onChange={t => this.setState({ time: t })}>
-                            {hours.map(h => <FormSelectOption key={h} value={h + ":00"} label={('0' + h).slice(-2) + ":00"} />)}
-                        </FormSelect>
+                        <TimePicker defaultTime={this.state.time} is24Hour
+                                    invalidFormatErrorMessage={_("Invalid time format")}
+                                    menuAppendTo={() => document.body}
+                                    id="auto-update-time" isDisabled={!enabled}
+                                    onChange={t => this.setState({ time: t })} />
                     </FormGroup>
 
                     <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />

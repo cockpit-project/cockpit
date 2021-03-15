@@ -29,6 +29,11 @@ if rpm -q setroubleshoot-server; then
     dnf remove -y setroubleshoot-server
 fi
 
+if grep -q 'ID=.*fedora' /etc/os-release; then
+    # required by TestLogin.testBasic, but tcsh is not available in CentOS/RHEL
+    dnf install -y tcsh
+fi
+
 # make libpwquality less aggressive, so that our "foobar" password works
 printf 'dictcheck = 0\nminlen = 6\n' >> /etc/security/pwquality.conf
 

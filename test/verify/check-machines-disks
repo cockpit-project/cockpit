@@ -728,15 +728,11 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         used_targets = ['vda']
 
-        args = self.createVm("subVmTest1")
-
-        # Wait for the login prompt before we try to live attach disks - we need the OS to be fully responsive
-        wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        self.createVm("subVmTest1", running=False)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
         # prepare libvirt storage pools
@@ -751,7 +747,6 @@ class TestMachinesDisks(VirtualMachinesCase):
             volume_name='writeback_cache_disk',
             mode='create-new',
             volume_size=2,
-            permanent=True,
             cache_mode='writeback',
             expected_target=get_next_free_target(used_targets)[-1],
         ).execute()
@@ -776,9 +771,6 @@ class TestMachinesDisks(VirtualMachinesCase):
             expected_target='sdb',
         ).execute()
 
-        # shut off
-        self.performAction("subVmTest1", "forceOff")
-
         # testing sata disk after VM shutoff because sata disk cannot be hotplugged
         self.VMAddDiskDialog(
             self,
@@ -786,7 +778,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             volume_name='sata_bus_disk',
             mode='create-new',
             bus_type='sata',
-            expected_target='sda',
+            expected_target='sdc',
         ).execute()
 
     def testDetachDisk(self):

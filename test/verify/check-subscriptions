@@ -62,23 +62,11 @@ for x in $(seq 1 200); do
 done
 """
 
-ACTIVATION_KEY_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/activation_keys | python -c "
-import sys
-import json
+ACTIVATION_KEY_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/activation_keys |
+    jq -r '.[] | select(.name == "awesome_os_pool") | select(.owner.displayName == "Admin Owner") | .id' """
 
-data = json.loads(sys.stdin.read())
-print [e['id'] for e in data if e['name'] == 'awesome_os_pool' and e['owner']['displayName'] == 'Admin Owner'][0]
-"
-"""
-
-POOL_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/pools | python -c "
-import sys
-import json
-
-data = json.loads(sys.stdin.read())
-print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNumber'] == '0' and [p for p in e['providedProducts'] if p['productId'] == '88888'] ][0]
-"
-"""
+POOL_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/pools |
+    jq -r '.[] | select(.owner.key == "admin") | select(.contractNumber == "0") | select(.providedProducts[0].productId == "88888") | .id' """
 
 class SubscriptionsCase(MachineCase):
     provision = {
@@ -91,7 +79,7 @@ class SubscriptionsCase(MachineCase):
         self.candlepin = self.machines['services']
 
         # wait for candlepin to be active and verify
-        self.candlepin.execute("systemctl start tomcat")
+        self.candlepin.execute("/root/run-candlepin")
 
         # download product info from the candlepin machine
         product_file_one = os.path.join(self.tmpdir, "6050.pem")
@@ -105,7 +93,7 @@ class SubscriptionsCase(MachineCase):
 
         # Install Candlepin CA cert to where curl,
         # subscription-manager, and insights-client can find it.
-        candlepin_ca_cert = self.candlepin.execute("cat /etc/candlepin/certs/candlepin-ca.crt")
+        candlepin_ca_cert = self.candlepin.execute("podman exec candlepin cat /etc/candlepin/certs/candlepin-ca.crt")
         m.write("/tmp/candlepin-ca.crt", candlepin_ca_cert)
         m.execute("cat /tmp/candlepin-ca.crt >>/etc/rhsm/ca/redhat-uep.pem")
         m.execute("cat /tmp/candlepin-ca.crt >>/etc/pki/tls/certs/ca-bundle.crt")

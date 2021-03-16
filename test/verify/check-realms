@@ -75,7 +75,7 @@ class TestRealms(MachineCase):
             self.op_address = "#realms-op-address"
             self.op_admin = "#realms-op-admin"
             self.op_admin_password = "#realms-op-admin-password"
-        self.machines['services'].execute("/run-freeipa")
+        self.machines['services'].execute("/root/run-freeipa")
 
     def testIpa(self):
         m = self.machine
@@ -453,7 +453,7 @@ class TestKerberos(MachineCase):
     }
 
     def configure_kerberos(self, keytab):
-        self.machines["services"].execute("/run-freeipa")
+        self.machines["services"].execute("/root/run-freeipa")
 
         # Setup a place for kerberos caches
         args = {"addr": "10.111.112.100", "password": "foobarfoo", "keytab": keytab}

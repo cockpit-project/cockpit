@@ -12,9 +12,11 @@ To contribute to this component, run a test domain which ends
 up being rather easy. Install the stuff in ```test/README``` near the
 top. And then do the following:
 
-    $ bots/vm-run --network ipa
+    $ bots/vm-run --network services
 
-That runs an IPA domain. Now in another terminal do the following:
+In that VM, start `/run-freeipa` to start an IPA domain controller, or
+`/run-samba-domain` for a Samba AD domain controller. Now in
+another terminal do the following:
 
     $ sudo /bin/sh -c "echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver 10.111.112.100\n' > /etc/resolv.conf"
 
@@ -22,8 +24,9 @@ Make sure this works:
 
     $ realm discover cockpit.lan
 
-And now you're ready to use the feature. There's an account called
-"admin" with the password "foobarfoo".
+And now you're ready to use the feature. For IPA there's an account called
+"admin" with the password "foobarfoo", for Samba AD it is user "Administrator"
+with password "foobarFoo123".
 
 To test your DNS, the following should succeed without any error messages
 on your server with cockpit:
@@ -35,6 +38,19 @@ above.
 
     $ kinit admin@COCKPIT.LAN
     Password for admin@COCKPIT.LAN:
+
+## Running a Microsoft AD server in AWS
+
+If you want to test against Microsoft Active Directory instead of Samba or FreeIPA, the
+simplest way is to start a temporary
+[managed AD in AWS](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/directory_microsoft_ad.html)
+(or another cloud provider). Just follow the few
+[setup steps](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/ms_ad_getting_started_create_directory.html):
+Select the smallest edition, specify a directory DNS name (e. g. `ad.cockpit.lan`) and a password for the `Admin` user,
+and about 20 minutes later the domain server should be set up. The details page
+of the created domain shows the DNS server's IP; put that into `/etc/resolv.conf`.
+
+From then on, joining that domain with `realm` or Cockpit works in the same way.
 
 ## Setting up Single Sign on
 
@@ -53,7 +69,7 @@ the domain name. If it does not, then rename the computer Cockpit is running on:
 
     $ sudo hostnamectl set-hostname my-server.domain.com
 
-**BUG:** If your domain is an IPA domain, then you need to explictly add a service
+**BUG:** If your domain is an IPA domain, then you need to explicitly add a service
 before Cockpit can be used with Single Sign on. The following must be done on
 the computer running Cockpit.
 [realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144292)

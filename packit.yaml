@@ -6,7 +6,7 @@ actions:
     - sh -c 'sed "s/%{npm-version:.*}/0/" tools/cockpit.spec > cockpit.spec'
     # this is being triggered immediately on a pull_request event; wait for
     # build-dist.yml to generate the dist tarball
-    - test/make_dist.py --wait
+    - GITHUB_BASE=martinpitt/cockpit test/make_dist.py --wait
     # packit service insists of a single line of output
     - sh -c 'ls cockpit-*.tar.xz'
 jobs:
@@ -14,6 +14,4 @@ jobs:
     trigger: pull_request
     metadata:
       targets:
-      # once this works, move to fedora-all
-      - fedora-33
-      - fedora-34
+      - fedora-all

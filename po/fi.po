@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-02 18:25+0000\n"
-"PO-Revision-Date: 2021-03-02 14:40+0000\n"
+"POT-Creation-Date: 2021-03-09 18:32+0000\n"
+"PO-Revision-Date: 2021-03-10 14:47+0000\n"
 "Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "master/fi/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.4.2\n"
+"X-Generator: Weblate 4.5.1\n"
 
 #: pkg/metrics/metrics.jsx:404
 msgid "$0 CPU"
@@ -82,8 +82,8 @@ msgid_plural "$0 days"
 msgstr[0] "$0 päivä"
 msgstr[1] "$0 päivää"
 
-#: pkg/storaged/mdraid-details.jsx:215 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31
+#: pkg/playground/translate.js:28 pkg/playground/translate.js:31
+#: pkg/storaged/mdraid-details.jsx:215
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 levyä ei löydy"
@@ -167,11 +167,11 @@ msgstr ""
 "$0 on saatavilla useimmille käyttöjärjestelmille. Asentaaksesi sen, hae sitä "
 "GNOME Softwaresta, tai aja seuraava komento:"
 
-#: pkg/storaged/vgroup-details.jsx:191 pkg/storaged/format-dialog.jsx:172
+#: pkg/storaged/format-dialog.jsx:172 pkg/storaged/vdo-details.jsx:131
+#: pkg/storaged/vdo-details.jsx:162 pkg/storaged/vgroup-details.jsx:191
+#: pkg/storaged/mdraid-details.jsx:237 pkg/storaged/mdraid-details.jsx:289
 #: pkg/storaged/content-views.jsx:337 pkg/storaged/content-views.jsx:581
 #: pkg/storaged/lvol-tabs.jsx:209 pkg/storaged/lvol-tabs.jsx:271
-#: pkg/storaged/vdo-details.jsx:131 pkg/storaged/vdo-details.jsx:162
-#: pkg/storaged/mdraid-details.jsx:237 pkg/storaged/mdraid-details.jsx:289
 msgid "$0 is in active use"
 msgstr "$0 on aktiivisessa käytössä"
 
@@ -219,7 +219,7 @@ msgstr[1] "$0 kuukautta"
 msgid "$0 network"
 msgstr "$0 verkko"
 
-#: pkg/selinux/setroubleshoot-view.jsx:430
+#: pkg/selinux/setroubleshoot-view.jsx:422
 msgid "$0 occurrence"
 msgid_plural "$0 occurrences"
 msgstr[0] "$0 tapahtuma"
@@ -521,8 +521,8 @@ msgstr "4."
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/lib/cockpit-components-plot.jsx:272
 #: pkg/lib/cockpit-components-shutdown.jsx:169
+#: pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minuuttia"
 
@@ -662,9 +662,9 @@ msgstr "Hyväksy avain ja muodosta yhteys"
 msgid "Accept key and log in"
 msgstr "Hyväksy avain ja kirjaudu sisään"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:307
-#: pkg/machines/components/vm/disks/diskEdit.jsx:109
+#: pkg/users/account-details.js:307 pkg/users/account-create-dialog.js:69
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:227
+#: pkg/machines/components/vm/disks/diskEdit.jsx:109
 msgid "Access"
 msgstr "Pääsy"
 
@@ -686,9 +686,9 @@ msgstr "Käyttäjätilit"
 msgid "Actions"
 msgstr "Toimet"
 
-#: pkg/storaged/content-views.jsx:291
-#: pkg/machines/components/storagePools/storagePool.jsx:165
 #: pkg/machines/components/networks/network.jsx:171
+#: pkg/machines/components/storagePools/storagePool.jsx:165
+#: pkg/storaged/content-views.jsx:291
 msgid "Activate"
 msgstr "Aktivoi"
 
@@ -729,16 +729,17 @@ msgstr "Mukautuva kuorman tasapainottaja (balance-alb)"
 msgid "Adaptive transmit load balancing"
 msgstr "Mukautuva lähtevän kuorman tasapainottaja (balance-tlb)"
 
-#: pkg/shell/index.html:134 pkg/shell/machines/machine-add.html:50
-#: pkg/systemd/services/timer-dialog.jsx:280 pkg/storaged/iscsi-panel.jsx:140
-#: pkg/storaged/iscsi-panel.jsx:164 pkg/storaged/iscsi-panel.jsx:259
-#: pkg/storaged/vgroup-details.jsx:77 pkg/storaged/vgroup-details.jsx:129
-#: pkg/storaged/nfs-panel.jsx:66 pkg/storaged/crypto-keyslots.jsx:243
-#: pkg/storaged/crypto-keyslots.jsx:614 pkg/storaged/nfs-details.jsx:199
-#: pkg/storaged/mdraid-details.jsx:73 pkg/storaged/mdraid-details.jsx:161
+#: pkg/shell/machines/machine-add.html:50 pkg/shell/index.html:134
 #: pkg/users/authorized-keys-panel.js:63
-#: pkg/machines/components/vm/nics/nicAdd.jsx:172
 #: pkg/machines/components/vm/disks/diskAdd.jsx:618
+#: pkg/machines/components/vm/nics/nicAdd.jsx:172
+#: pkg/storaged/iscsi-panel.jsx:140 pkg/storaged/iscsi-panel.jsx:164
+#: pkg/storaged/iscsi-panel.jsx:259 pkg/storaged/nfs-panel.jsx:66
+#: pkg/storaged/nfs-details.jsx:199 pkg/storaged/vgroup-details.jsx:77
+#: pkg/storaged/vgroup-details.jsx:129 pkg/storaged/crypto-keyslots.jsx:243
+#: pkg/storaged/crypto-keyslots.jsx:614 pkg/storaged/mdraid-details.jsx:73
+#: pkg/storaged/mdraid-details.jsx:161
+#: pkg/systemd/services/timer-dialog.jsx:280
 msgid "Add"
 msgstr "Lisää"
 
@@ -775,8 +776,8 @@ msgstr "Lisää levyjä"
 msgid "Add iSCSI portal"
 msgstr "Lisää iSCSI-portaali"
 
-#: pkg/shell/index.html:126 pkg/storaged/crypto-keyslots.jsx:210
-#: pkg/users/authorized-keys-panel.js:153
+#: pkg/shell/index.html:126 pkg/users/authorized-keys-panel.js:153
+#: pkg/storaged/crypto-keyslots.jsx:210
 msgid "Add key"
 msgstr "Lisää avain"
 
@@ -883,11 +884,11 @@ msgstr "Ylimääräiset paketit:"
 msgid "Additional ports"
 msgstr "Ylimääräiset portit"
 
-#: pkg/storaged/iscsi-panel.jsx:131
-#: pkg/machines/components/vm/consoles/desktopConsole.jsx:47
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:191
 #: pkg/machines/components/networks/networkOverviewTab.jsx:120
 #: pkg/machines/components/networks/networkOverviewTab.jsx:145
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:191
+#: pkg/machines/components/vm/consoles/desktopConsole.jsx:47
+#: pkg/storaged/iscsi-panel.jsx:131
 msgid "Address"
 msgstr "Osoite"
 
@@ -934,9 +935,9 @@ msgstr "Edistynyt TCA"
 msgid "Affected locations"
 msgstr "Koskettaa paikkoja"
 
-#: pkg/systemd/services/service-details.jsx:395
 #: pkg/systemd/services/timer-dialog.jsx:165
 #: pkg/systemd/services/timer-dialog.jsx:172
+#: pkg/systemd/services/service-details.jsx:395
 msgid "After"
 msgstr "Jälkeen"
 
@@ -960,7 +961,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "Järjestelmän käynnistyksen jälkeen"
 
-#: pkg/selinux/setroubleshoot-view.jsx:454
+#: pkg/selinux/setroubleshoot-view.jsx:448
 msgid "Alert"
 msgstr "Hälytys"
 
@@ -968,9 +969,9 @@ msgstr "Hälytys"
 msgid "Alert and above"
 msgstr "Varoitus ja yli"
 
-#: pkg/systemd/services/services.jsx:688 pkg/systemd/logs.js:170
 #: pkg/machines/components/vms/hostvmslist.jsx:63
-#: pkg/machines/components/vms/hostvmslist.jsx:80
+#: pkg/machines/components/vms/hostvmslist.jsx:80 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:688
 msgid "All"
 msgstr "Kaikki"
 
@@ -994,8 +995,8 @@ msgstr "Salli, että suoritetaan (paljastaa)"
 msgid "Allowed addresses"
 msgstr "Sallitut osoitteet"
 
-#: pkg/machines/components/vm/nics/nicAdd.jsx:62
 #: pkg/machines/components/vm/disks/diskAdd.jsx:107
+#: pkg/machines/components/vm/nics/nicAdd.jsx:62
 msgid "Always attach"
 msgstr "Kiinnitä aina"
 
@@ -1007,7 +1008,7 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Ansible -roolien dokumentointi"
 
-#: pkg/systemd/terminal.jsx:100 pkg/systemd/terminal.jsx:104
+#: pkg/systemd/terminal.jsx:143
 msgid "Appearance"
 msgstr "Ulkomuoto"
 
@@ -1024,12 +1025,12 @@ msgstr "Sovellusten luettelo"
 #: pkg/networkmanager/index.html:357 pkg/networkmanager/index.html:386
 #: pkg/networkmanager/index.html:415 pkg/networkmanager/index.html:444
 #: pkg/networkmanager/index.html:473 pkg/networkmanager/index.html:502
-#: pkg/networkmanager/index.html:531 pkg/kdump/kdump-view.jsx:358
-#: pkg/storaged/fsys-tab.jsx:291 pkg/storaged/fsys-tab.jsx:368
-#: pkg/storaged/nfs-details.jsx:199 pkg/storaged/crypto-tab.jsx:84
-#: pkg/storaged/crypto-tab.jsx:115
+#: pkg/networkmanager/index.html:531
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:65
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:251
+#: pkg/storaged/fsys-tab.jsx:291 pkg/storaged/fsys-tab.jsx:368
+#: pkg/storaged/nfs-details.jsx:199 pkg/storaged/crypto-tab.jsx:84
+#: pkg/storaged/crypto-tab.jsx:115 pkg/kdump/kdump-view.jsx:358
 msgid "Apply"
 msgstr "Toteuta"
 
@@ -1083,7 +1084,7 @@ msgstr ""
 "Sen liittäminen tekee levystä jaettavan jokaiselle sitä käyttävälle "
 "virtuaalikoneelle."
 
-#: pkg/selinux/setroubleshoot-view.jsx:415
+#: pkg/selinux/setroubleshoot-view.jsx:407
 msgid "Audit log"
 msgstr "Audit-loki"
 
@@ -1128,12 +1129,12 @@ msgstr "Valtuuta SSH-avain."
 msgid "Authorized public SSH keys"
 msgstr "Valtuutetut julkiset SSH-avaimet"
 
-#: pkg/networkmanager/index.html:65
-#: pkg/systemd/overview-cards/realmd-operation.js:342
-#: pkg/machines/components/networks/createNetworkDialog.jsx:160
-#: pkg/networkmanager/interfaces.js:1455 pkg/networkmanager/interfaces.js:1892
-#: pkg/networkmanager/interfaces.js:1896 pkg/networkmanager/interfaces.js:1902
+#: pkg/networkmanager/index.html:65 pkg/networkmanager/interfaces.js:1455
+#: pkg/networkmanager/interfaces.js:1892 pkg/networkmanager/interfaces.js:1896
+#: pkg/networkmanager/interfaces.js:1902
 #: pkg/networkmanager/network-interface.jsx:427
+#: pkg/machines/components/networks/createNetworkDialog.jsx:160
+#: pkg/systemd/overview-cards/realmd-operation.js:342
 msgid "Automatic"
 msgstr "Automaattinen"
 
@@ -1150,7 +1151,7 @@ msgstr "Automaattinen (DHCP)"
 msgid "Automatic login"
 msgstr "Automaattinen sisäänkirjautuminen"
 
-#: pkg/packagekit/autoupdates.jsx:416 pkg/packagekit/updates.jsx:825
+#: pkg/packagekit/updates.jsx:825 pkg/packagekit/autoupdates.jsx:416
 msgid "Automatic updates"
 msgstr "Automaattiset päivitykset"
 
@@ -1162,8 +1163,8 @@ msgstr "Automaattiset päivitykset eivät ole määritetty"
 msgid "Automatically start libvirt on boot"
 msgstr "Käynnistä libvirt automaattisesti käynnistyksen yhteydessä"
 
-#: pkg/systemd/services/service-details.jsx:363
 #: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/service-details.jsx:363
 msgid "Automatically starts"
 msgstr "Käynnistyy automaattisesti"
 
@@ -1179,9 +1180,9 @@ msgstr "Käytetään automaattisesti tiettyjä NTP-palvelimia"
 msgid "Automation script"
 msgstr "Automaatio-komentosarja"
 
+#: pkg/machines/components/networks/networkOverviewTab.jsx:94
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:245
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:73
-#: pkg/machines/components/networks/networkOverviewTab.jsx:94
 msgid "Autostart"
 msgstr "Automaattikäynnistys"
 
@@ -1230,7 +1231,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
 
-#: pkg/systemd/terminal.jsx:107
+#: pkg/systemd/terminal.jsx:149
 msgid "Black"
 msgstr "Musta"
 
@@ -1250,7 +1251,7 @@ msgstr "Lohko"
 msgid "Block device for filesystems"
 msgstr "Lohkolaite tiedostojärjestelmille"
 
-#: pkg/storaged/mdraid-details.jsx:112 pkg/machines/helpers.js:221
+#: pkg/machines/helpers.js:221 pkg/storaged/mdraid-details.jsx:112
 msgid "Blocked"
 msgstr "Estetty"
 
@@ -1264,8 +1265,8 @@ msgstr "Side"
 msgid "Bond settings"
 msgstr "Sidoksen-asetukset"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:235
 #: pkg/machines/components/vm/overview/bootOrder.jsx:279
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:235
 msgid "Boot order"
 msgstr "Käynnistysjärjestys"
 
@@ -1312,12 +1313,12 @@ msgstr "Virheenkorjauspäivityksiä saatavilla"
 msgid "Bugs"
 msgstr "Viat"
 
+#: pkg/machines/components/vm/disks/diskAdd.jsx:160
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:225
+#: pkg/machines/components/vm/disks/diskEdit.jsx:85
 #: pkg/machines/components/vm/overview/bootOrder.jsx:100
 #: pkg/machines/components/vm/overview/bootOrder.jsx:112
 #: pkg/machines/components/vm/overview/bootOrder.jsx:135
-#: pkg/machines/components/vm/disks/diskAdd.jsx:160
-#: pkg/machines/components/vm/disks/diskEdit.jsx:85
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:225
 msgid "Bus"
 msgstr "Väylä"
 
@@ -1339,9 +1340,9 @@ msgstr ""
 msgid "CD/DVD disc"
 msgstr ""
 
-#: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:113
-#: pkg/metrics/metrics.jsx:454 pkg/metrics/metrics.jsx:1032
 #: pkg/machines/components/vm/vmUsageCard.jsx:71
+#: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:113
+#: pkg/metrics/metrics.jsx:454 pkg/metrics/metrics.jsx:1055
 msgid "CPU"
 msgstr "Suoritin"
 
@@ -1387,48 +1388,49 @@ msgstr "Voi olla isäntänimi, IP-osoite, aliaksen nimi tai ssh:// URI"
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 
+#: pkg/networkmanager/index.html:294 pkg/networkmanager/index.html:329
+#: pkg/networkmanager/index.html:358 pkg/networkmanager/index.html:387
+#: pkg/networkmanager/index.html:416 pkg/networkmanager/index.html:445
+#: pkg/networkmanager/index.html:474 pkg/networkmanager/index.html:503
+#: pkg/networkmanager/index.html:532 pkg/playground/translate.html:39
 #: pkg/systemd/overview-cards/realmd-operation.html:93
-#: pkg/static/login.html:102 pkg/sosreport/index.html:83
-#: pkg/playground/translate.html:39 pkg/networkmanager/index.html:294
-#: pkg/networkmanager/index.html:329 pkg/networkmanager/index.html:358
-#: pkg/networkmanager/index.html:387 pkg/networkmanager/index.html:416
-#: pkg/networkmanager/index.html:445 pkg/networkmanager/index.html:474
-#: pkg/networkmanager/index.html:503 pkg/networkmanager/index.html:532
-#: pkg/shell/machines/machine-add.html:55
+#: pkg/sosreport/index.html:83
 #: pkg/shell/machines/machine-unknown-hostkey.html:22
-#: pkg/shell/machines/machine-invalid-hostkey.html:30
-#: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-change-port.html:26
-#: pkg/packagekit/autoupdates.jsx:429 pkg/packagekit/updates.jsx:463
-#: pkg/packagekit/updates.jsx:526 pkg/systemd/overview-cards/motdCard.jsx:102
-#: pkg/systemd/overview-cards/configurationCard.jsx:434
-#: pkg/systemd/reporting.jsx:419 pkg/systemd/services/service-details.jsx:69
-#: pkg/systemd/services/timer-dialog.jsx:123 pkg/systemd/hwinfo.jsx:242
-#: pkg/lib/cockpit-components-shutdown.jsx:184
-#: pkg/lib/cockpit-components-dialog.jsx:148 pkg/storaged/dialog.jsx:403
-#: pkg/storaged/jobs-panel.jsx:139 pkg/sosreport/index.js:52
-#: pkg/apps/utils.jsx:75 pkg/machines/components/vm/vmCloneDialog.jsx:75
-#: pkg/machines/components/vm/nics/nicAdd.jsx:175
-#: pkg/machines/components/vm/nics/nicEdit.jsx:168
-#: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:71
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:136
-#: pkg/machines/components/vm/deleteDialog.jsx:140
-#: pkg/machines/components/vm/overview/memoryModal.jsx:142
-#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:68
-#: pkg/machines/components/vm/overview/firmware.jsx:66
-#: pkg/machines/components/vm/overview/bootOrder.jsx:291
-#: pkg/machines/components/vm/overview/vcpuModal.jsx:254
+#: pkg/shell/machines/machine-change-auth.html:75
+#: pkg/shell/machines/machine-add.html:55
+#: pkg/shell/machines/machine-invalid-hostkey.html:30 pkg/static/login.html:102
+#: pkg/packagekit/updates.jsx:463 pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/autoupdates.jsx:429 pkg/networkmanager/firewall.jsx:527
+#: pkg/networkmanager/firewall.jsx:697 pkg/networkmanager/firewall.jsx:789
+#: pkg/machines/components/networks/createNetworkDialog.jsx:407
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:993
 #: pkg/machines/components/vm/disks/diskAdd.jsx:621
 #: pkg/machines/components/vm/disks/diskEdit.jsx:239
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:928
+#: pkg/machines/components/vm/deleteDialog.jsx:140
+#: pkg/machines/components/vm/nics/nicAdd.jsx:175
+#: pkg/machines/components/vm/nics/nicEdit.jsx:168
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:136
+#: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:71
+#: pkg/machines/components/vm/overview/bootOrder.jsx:291
+#: pkg/machines/components/vm/overview/cpuTypeModal.jsx:68
+#: pkg/machines/components/vm/overview/vcpuModal.jsx:254
+#: pkg/machines/components/vm/overview/firmware.jsx:66
+#: pkg/machines/components/vm/overview/memoryModal.jsx:142
+#: pkg/machines/components/vm/vmCloneDialog.jsx:75
 #: pkg/machines/components/common/deleteResource.jsx:68
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:440
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:105
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:224
-#: pkg/machines/components/networks/createNetworkDialog.jsx:407
-#: pkg/networkmanager/firewall.jsx:527 pkg/networkmanager/firewall.jsx:697
-#: pkg/networkmanager/firewall.jsx:789 pkg/shell/shell-modals.jsx:87
-#: pkg/shell/superuser.jsx:76 pkg/shell/superuser.jsx:133
+#: pkg/storaged/jobs-panel.jsx:139 pkg/storaged/dialog.jsx:403
+#: pkg/systemd/overview-cards/configurationCard.jsx:434
+#: pkg/systemd/overview-cards/motdCard.jsx:102 pkg/systemd/hwinfo.jsx:242
+#: pkg/systemd/services/timer-dialog.jsx:123
+#: pkg/systemd/services/service-details.jsx:69 pkg/systemd/reporting.jsx:419
+#: pkg/lib/cockpit-components-dialog.jsx:148
+#: pkg/lib/cockpit-components-shutdown.jsx:184 pkg/apps/utils.jsx:75
+#: pkg/sosreport/index.js:52 pkg/shell/superuser.jsx:76
+#: pkg/shell/superuser.jsx:133 pkg/shell/shell-modals.jsx:87
 msgid "Cancel"
 msgstr "Peru"
 
@@ -1440,7 +1442,7 @@ msgstr "Ei voida ottaa käyttöön"
 msgid "Cannot connect to an unknown host"
 msgstr "Ei voida yhdistää tuntemattomaan isäntään"
 
-#: pkg/base1/cockpit.js:4063
+#: pkg/base1/cockpit.js:4064
 msgid "Cannot forward login credentials"
 msgstr "Kirjautumistietoja ei voi välittää eteenpäin"
 
@@ -1458,8 +1460,8 @@ msgstr "Tapahtumaa ei voi aikatauluttaa menneisyyteen"
 msgid "Capacity"
 msgstr "Koko"
 
-#: pkg/storaged/vgroup-details.jsx:236 pkg/storaged/drive-details.jsx:84
-#: pkg/storaged/block-details.jsx:48 pkg/storaged/mdraid-details.jsx:339
+#: pkg/storaged/drive-details.jsx:84 pkg/storaged/block-details.jsx:48
+#: pkg/storaged/vgroup-details.jsx:236 pkg/storaged/mdraid-details.jsx:339
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Koko"
@@ -1468,9 +1470,10 @@ msgstr "Koko"
 msgid "Carrier"
 msgstr "Kuljetin"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:433
-#: pkg/lib/serverTime.js:685 pkg/storaged/iscsi-panel.jsx:191
 #: pkg/users/expiration-dialogs.js:103 pkg/users/expiration-dialogs.js:206
+#: pkg/storaged/iscsi-panel.jsx:191
+#: pkg/systemd/overview-cards/configurationCard.jsx:433
+#: pkg/lib/serverTime.js:685
 msgid "Change"
 msgstr "Vaihda"
 
@@ -1524,9 +1527,9 @@ msgstr ""
 "uudelleenasennuksesta. Odottamaton muutos voi kuitenkin tarkoittaa kolmannen "
 "osapuolen yritystä siepata yhteys."
 
+#: pkg/machines/components/vm/disks/diskEdit.jsx:218
 #: pkg/machines/components/vm/nics/nicEdit.jsx:154
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:176
-#: pkg/machines/components/vm/disks/diskEdit.jsx:218
 #: pkg/machines/components/common/warningInactive.jsx:12
 msgid "Changes will take effect after shutting down the VM"
 msgstr "Muutokset tulevat voimaan virtuaalikoneen sammuttamisen jälkeen"
@@ -1577,8 +1580,8 @@ msgstr "Tarkistetaan asennettu ohjelmisto"
 msgid "Checking software status"
 msgstr "Tarkistetaan $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:370
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:371
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:374
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:375
 msgid "Choose an operating system"
 msgstr "Valitse käyttöjärjestelmä"
 
@@ -1610,7 +1613,7 @@ msgstr "Tyhjennä liitoskohdan kokoonpano"
 msgid "Clear search"
 msgstr "Tyhjennä haku"
 
-#: pkg/users/account-create-dialog.js:209 pkg/users/password-dialogs.js:213
+#: pkg/users/password-dialogs.js:213 pkg/users/account-create-dialog.js:209
 msgid "Click $0 again to use the password anyway."
 msgstr "Napsauta $0 uudelleen käyttääksesi salasanaa joka tapauksessa."
 
@@ -1626,8 +1629,8 @@ msgstr "Painamalla \"Launch Remote Viewer\" lataat .vv-tiedoston ja avaat $0."
 msgid "Client software"
 msgstr "Asiakasohjelmisto"
 
-#: pkg/machines/components/vm/vmCloneDialog.jsx:72
 #: pkg/machines/components/vm/vmActions.jsx:289
+#: pkg/machines/components/vm/vmCloneDialog.jsx:72
 msgid "Clone"
 msgstr "Kloonaa"
 
@@ -1636,13 +1639,14 @@ msgstr "Kloonaa"
 #: pkg/networkmanager/index.html:398 pkg/networkmanager/index.html:427
 #: pkg/networkmanager/index.html:456 pkg/networkmanager/index.html:485
 #: pkg/networkmanager/index.html:514 pkg/networkmanager/index.html:550
-#: pkg/shell/index.html:289 pkg/shell/machines/machine-auth-failed.html:20
-#: pkg/shell/machines/machine-not-supported.html:8
+#: pkg/shell/machines/machine-auth-failed.html:20
+#: pkg/shell/machines/machine-not-supported.html:8 pkg/shell/index.html:289
+#: pkg/users/dialog-utils.js:58 pkg/storaged/dialog.jsx:403
 #: pkg/systemd/overview-cards/configurationCard.jsx:339
-#: pkg/lib/cockpit-components-modifications.jsx:79 pkg/storaged/dialog.jsx:403
-#: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128 pkg/apps/utils.jsx:93
-#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:34
-#: pkg/shell/shell-modals.jsx:117 pkg/shell/superuser.jsx:76
+#: pkg/lib/cockpit-components-modifications.jsx:79 pkg/apps/utils.jsx:93
+#: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
+#: pkg/shell/superuser.jsx:76 pkg/shell/shell-modals.jsx:34
+#: pkg/shell/shell-modals.jsx:117
 msgid "Close"
 msgstr "Sulje"
 
@@ -1658,7 +1662,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpitin tunnistautuminen on konfiguroitu virheellisesti."
 
-#: pkg/base1/cockpit.js:4069
+#: pkg/base1/cockpit.js:4070
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit ei saanut yhteyttä isäntään."
 
@@ -1685,7 +1689,7 @@ msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit on vuorovaikutteinen Linux-palvelimen ylläpitäjän käyttöliittymä."
 
-#: pkg/base1/cockpit.js:4067
+#: pkg/base1/cockpit.js:4068
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit ei ole yhteensopiva järjestelmän ohjelmiston kanssa."
 
@@ -1693,7 +1697,7 @@ msgstr "Cockpit ei ole yhteensopiva järjestelmän ohjelmiston kanssa."
 msgid "Cockpit is not installed"
 msgstr "Cockpit ei ole asennettu"
 
-#: pkg/base1/cockpit.js:4061
+#: pkg/base1/cockpit.js:4062
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit ei ole asennettu järjestelmässä."
 
@@ -1748,8 +1752,8 @@ msgstr ""
 msgid "Compress crash dumps to save space"
 msgstr "Tiivistä kaatumisen tyhjennys säästääksesi tilaa"
 
-#: pkg/kdump/kdump-view.jsx:162 pkg/storaged/vdos-panel.jsx:120
-#: pkg/storaged/vdo-details.jsx:317
+#: pkg/storaged/vdos-panel.jsx:120 pkg/storaged/vdo-details.jsx:317
+#: pkg/kdump/kdump-view.jsx:162
 msgid "Compression"
 msgstr "Pakkaus"
 
@@ -1785,8 +1789,8 @@ msgstr "kdump:n määrittäminen"
 msgid "Configuring system settings"
 msgstr "Järjestelmäasetusten määrittäminen"
 
-#: pkg/shell/index.html:260 pkg/storaged/format-dialog.jsx:229
-#: pkg/users/account-create-dialog.js:61
+#: pkg/shell/index.html:260 pkg/users/account-create-dialog.js:61
+#: pkg/storaged/format-dialog.jsx:229
 msgid "Confirm"
 msgstr "Vahvista"
 
@@ -1845,7 +1849,7 @@ msgstr ""
 "Samanaikainen yhdistäminen useampaan kuin {{ limit }} koneeseen ei ole "
 "tuettu."
 
-#: pkg/selinux/setroubleshoot-view.jsx:369
+#: pkg/selinux/setroubleshoot-view.jsx:367
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Yhdistetään SETroubleshoot daemoniin..."
 
@@ -1857,11 +1861,11 @@ msgstr "Yhdistetään koneeseen"
 msgid "Connecting to virtualization service"
 msgstr "Yhdistetään virtualisointipalveluun"
 
-#: pkg/machines/components/common/machinesConnectionSelector.jsx:33
-#: pkg/machines/components/storagePools/storagePoolList.jsx:75
 #: pkg/machines/components/networks/createNetworkDialog.jsx:43
 #: pkg/machines/components/networks/networkList.jsx:78
+#: pkg/machines/components/common/machinesConnectionSelector.jsx:33
 #: pkg/machines/components/vms/hostvmslist.jsx:136
+#: pkg/machines/components/storagePools/storagePoolList.jsx:75
 msgid "Connection"
 msgstr "Yhteys"
 
@@ -1873,7 +1877,7 @@ msgstr "Yhteysvirhe"
 msgid "Connection failed"
 msgstr "Yhteys epäonnistui"
 
-#: pkg/base1/cockpit.js:4059
+#: pkg/base1/cockpit.js:4060
 msgid "Connection has timed out."
 msgstr "Yhteys aikakatkaistiin."
 
@@ -1972,17 +1976,17 @@ msgstr "Kaatumisjärjestelmä"
 msgid "Crashed"
 msgstr "Kaatui"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:185
-#: pkg/storaged/mdraids-panel.jsx:123 pkg/storaged/content-views.jsx:133
-#: pkg/storaged/content-views.jsx:279 pkg/storaged/content-views.jsx:786
-#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/vdos-panel.jsx:146
 #: pkg/users/account-create-dialog.js:209
 #: pkg/users/account-create-dialog.js:253
+#: pkg/machines/components/networks/createNetworkDialog.jsx:404
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:988
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:133
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:923
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:437
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:102
-#: pkg/machines/components/networks/createNetworkDialog.jsx:404
+#: pkg/storaged/mdraids-panel.jsx:123 pkg/storaged/vdos-panel.jsx:146
+#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/content-views.jsx:133
+#: pkg/storaged/content-views.jsx:279 pkg/storaged/content-views.jsx:786
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:185
 msgid "Create"
 msgstr "Luo"
 
@@ -1994,7 +1998,7 @@ msgstr "Luo RAID-laite"
 msgid "Create VDO device"
 msgstr "Luo VDO-laite"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:995
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1061
 msgid "Create VM"
 msgstr "Luo VM"
 
@@ -2027,7 +2031,7 @@ msgstr "Luo looginen taltio"
 msgid "Create new"
 msgstr "Luo uusi"
 
-#: pkg/users/accounts-list.js:76 pkg/users/account-create-dialog.js:246
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:246
 msgid "Create new account"
 msgstr "Luo uusi tili"
 
@@ -2039,11 +2043,11 @@ msgstr "Luo uusi looginen taltio"
 msgid "Create new task file with this content."
 msgstr "Luo uusi tehtävätiedosto tällä sisällöllä."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:916
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:981
 msgid "Create new virtual machine"
 msgstr "Luo uusi virtuaalikone"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:515
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:571
 msgid "Create new volume"
 msgstr "Luo uusi taltio"
 
@@ -2063,9 +2067,9 @@ msgstr "Luo osiotaulukko"
 msgid "Create report"
 msgstr "Luo raportti"
 
-#: pkg/storaged/content-views.jsx:273 pkg/storaged/content-views.jsx:294
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:128
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:78
+#: pkg/storaged/content-views.jsx:273 pkg/storaged/content-views.jsx:294
 msgid "Create snapshot"
 msgstr "Luo tilannevedos"
 
@@ -2100,7 +2104,7 @@ msgstr "Luo virtuaaliverkko"
 msgid "Create volume"
 msgstr "Luo taltio"
 
-#: pkg/storaged/vgroups-panel.jsx:72 pkg/storaged/things-panel.jsx:68
+#: pkg/storaged/things-panel.jsx:68 pkg/storaged/vgroups-panel.jsx:72
 msgid "Create volume group"
 msgstr "Luo taltioryhmä"
 
@@ -2168,7 +2172,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Luodaan taltioryhmä $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:796
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:858
 msgid "Creation of VM $0 failed"
 msgstr "Virtuaalikoneen $0 luominen epäonnistui"
 
@@ -2212,7 +2216,7 @@ msgstr "Mukautetut salausvalinnat"
 msgid "Custom firmware: $0"
 msgstr "Mukautettu laiteohjelmisto: $0"
 
-#: pkg/storaged/fsys-tab.jsx:262 pkg/storaged/format-dialog.jsx:255
+#: pkg/storaged/format-dialog.jsx:255 pkg/storaged/fsys-tab.jsx:262
 #: pkg/storaged/nfs-details.jsx:184
 msgid "Custom mount options"
 msgstr "Mukautetut liitosvalinnat"
@@ -2265,7 +2269,7 @@ msgstr ""
 msgid "Danger alert:"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:108
+#: pkg/systemd/terminal.jsx:150
 msgid "Dark"
 msgstr "Tumma"
 
@@ -2273,9 +2277,9 @@ msgstr "Tumma"
 msgid "Data used"
 msgstr "Dataa käytetty"
 
-#: pkg/storaged/content-views.jsx:289
-#: pkg/machines/components/storagePools/storagePool.jsx:156
 #: pkg/machines/components/networks/network.jsx:167
+#: pkg/machines/components/storagePools/storagePool.jsx:156
+#: pkg/storaged/content-views.jsx:289
 msgid "Deactivate"
 msgstr "Deaktivoi"
 
@@ -2291,6 +2295,10 @@ msgstr "Deaktivoidaan $target"
 msgid "Debug and above"
 msgstr "Virheenkorjaus ja yli"
 
+#: pkg/systemd/terminal.jsx:137
+msgid "Decrease by one"
+msgstr ""
+
 #: pkg/storaged/vdos-panel.jsx:124 pkg/storaged/vdo-details.jsx:326
 msgid "Deduplication"
 msgstr "Päällekkäisyyden poisto"
@@ -2299,12 +2307,9 @@ msgstr "Päällekkäisyyden poisto"
 msgid "Delay"
 msgstr "Viive"
 
-#: pkg/systemd/abrtLog.jsx:242 pkg/storaged/vgroup-details.jsx:203
-#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/content-views.jsx:348
-#: pkg/storaged/content-views.jsx:364 pkg/storaged/vdo-details.jsx:201
-#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/mdraid-details.jsx:300
-#: pkg/storaged/mdraid-details.jsx:323 pkg/users/delete-account-dialog.js:60
-#: pkg/users/account-details.js:270
+#: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:270
+#: pkg/networkmanager/firewall.jsx:786
+#: pkg/networkmanager/network-interface.jsx:774
 #: pkg/machines/components/vm/deleteDialog.jsx:137
 #: pkg/machines/components/vm/vmActions.jsx:323
 #: pkg/machines/components/vm/vmActions.jsx:330
@@ -2315,8 +2320,11 @@ msgstr "Viive"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:193
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:203
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:221
-#: pkg/networkmanager/firewall.jsx:786
-#: pkg/networkmanager/network-interface.jsx:774
+#: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/vgroup-details.jsx:203 pkg/storaged/vgroup-details.jsx:225
+#: pkg/storaged/mdraid-details.jsx:300 pkg/storaged/mdraid-details.jsx:323
+#: pkg/storaged/content-views.jsx:348 pkg/storaged/content-views.jsx:364
+#: pkg/systemd/abrtLog.jsx:242
 msgid "Delete"
 msgstr "Poista"
 
@@ -2395,11 +2403,11 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Tuhotaan taltioryhmä $target"
 
-#: pkg/systemd/services/services-list.jsx:53
-#: pkg/systemd/services/timer-dialog.jsx:137
+#: pkg/networkmanager/firewall.jsx:726
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:54
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:125
-#: pkg/networkmanager/firewall.jsx:726
+#: pkg/systemd/services/timer-dialog.jsx:137
+#: pkg/systemd/services/services-list.jsx:53
 msgid "Description"
 msgstr "Kuvaus"
 
@@ -2431,14 +2439,14 @@ msgstr "Yksityiskohdat"
 msgid "Development"
 msgstr "Kehitys"
 
-#: pkg/storaged/crypto-panel.jsx:80
-#: pkg/machines/components/vm/overview/bootOrder.jsx:92
-#: pkg/machines/components/vm/overview/bootOrder.jsx:99
-#: pkg/machines/components/vm/disks/diskAdd.jsx:252
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:43
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:211
 #: pkg/machines/components/networks/createNetworkDialog.jsx:154
 #: pkg/machines/components/networks/networkList.jsx:77
+#: pkg/machines/components/vm/disks/diskAdd.jsx:252
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:211
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:43
+#: pkg/machines/components/vm/overview/bootOrder.jsx:92
+#: pkg/machines/components/vm/overview/bootOrder.jsx:99
+#: pkg/storaged/crypto-panel.jsx:80
 msgid "Device"
 msgstr "Laite"
 
@@ -2460,8 +2468,8 @@ msgstr "Laitetiedosto"
 msgid "Device is read-only"
 msgstr "Laite on vain-luku-muotoa"
 
-#: pkg/storaged/things-panel.jsx:79
 #: pkg/machines/components/networks/createNetworkDialog.jsx:161
+#: pkg/storaged/things-panel.jsx:79
 msgid "Devices"
 msgstr "Laitteet"
 
@@ -2493,9 +2501,9 @@ msgstr "Poista palomuuri käytöstä"
 msgid "Disable tuned"
 msgstr "Poista tuned käytöstä"
 
+#: pkg/networkmanager/interfaces.js:1450 pkg/systemd/services/services.jsx:524
+#: pkg/systemd/services/services.jsx:690
 #: pkg/systemd/services/service-details.jsx:296
-#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:690
-#: pkg/networkmanager/interfaces.js:1450
 msgid "Disabled"
 msgstr "Ei käytössä"
 
@@ -2563,15 +2571,15 @@ msgstr "Levyn asetuksia ei voitu tallentaa"
 msgid "Disk-only snapshot"
 msgstr "Vain levy -tilannevedos"
 
-#: pkg/storaged/vgroup-details.jsx:66 pkg/storaged/mdraids-panel.jsx:110
+#: pkg/machines/components/vm/vmDetailsPage.jsx:132
+#: pkg/storaged/mdraids-panel.jsx:110 pkg/storaged/vgroup-details.jsx:66
 #: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/mdraid-details.jsx:62
 #: pkg/storaged/mdraid-details.jsx:166 pkg/metrics/metrics.jsx:518
-#: pkg/metrics/metrics.jsx:1034
-#: pkg/machines/components/vm/vmDetailsPage.jsx:132
+#: pkg/metrics/metrics.jsx:1057
 msgid "Disks"
 msgstr "Levyt"
 
-#: pkg/selinux/setroubleshoot-view.jsx:402
+#: pkg/selinux/setroubleshoot-view.jsx:394
 msgid "Dismiss"
 msgstr "Hylkää"
 
@@ -2592,8 +2600,8 @@ msgid "Does not automatically start"
 msgstr "Ei käynnisty automaattisesti"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:12
-#: pkg/systemd/overview-cards/realmd-operation.js:124
 #: pkg/systemd/overview-cards/configurationCard.jsx:187
+#: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Toimialue"
 
@@ -2641,7 +2649,7 @@ msgstr "Valmis!"
 msgid "Download a new browser for free"
 msgstr "Lataa uusi selain ilmaiseksi"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:293
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
 msgid "Download an OS"
 msgstr "Lataa käyttöjärjestelmä"
 
@@ -2677,11 +2685,12 @@ msgstr "Kaksinkertainen sijoitus"
 msgid "Dying"
 msgstr "Kuolemassa"
 
-#: pkg/packagekit/autoupdates.jsx:413 pkg/storaged/iscsi-panel.jsx:255
-#: pkg/storaged/crypto-keyslots.jsx:564 pkg/storaged/nfs-details.jsx:318
-#: pkg/storaged/crypto-tab.jsx:137
+#: pkg/packagekit/autoupdates.jsx:413
+#: pkg/machines/components/vm/disks/diskEdit.jsx:225
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:287
-#: pkg/machines/components/vm/disks/diskEdit.jsx:225 pkg/shell/indexes.js:343
+#: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/nfs-details.jsx:318
+#: pkg/storaged/crypto-keyslots.jsx:564 pkg/storaged/crypto-tab.jsx:137
+#: pkg/shell/indexes.js:343
 msgid "Edit"
 msgstr "Muokkaa"
 
@@ -2746,7 +2755,7 @@ msgstr "Sulautettu kone"
 #: pkg/networkmanager/network-interface.jsx:732
 #, fuzzy
 #| msgid "Failed to disable tuned"
-msgid "Enable or disabnle the device"
+msgid "Enable or disable the device"
 msgstr "tuned:n käytöstä poistaminen epäonnistui"
 
 #: pkg/networkmanager/app.jsx:96
@@ -2842,9 +2851,9 @@ msgid "Errata"
 msgstr "Virhe"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services/service-details.jsx:415 pkg/storaged/fsys-tab.jsx:304
-#: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
-#: pkg/storaged/multipath.jsx:61 pkg/apps/utils.jsx:87
+#: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/storage-controls.jsx:90
+#: pkg/storaged/storage-controls.jsx:168 pkg/storaged/multipath.jsx:61
+#: pkg/systemd/services/service-details.jsx:415 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Virhe"
 
@@ -2852,13 +2861,13 @@ msgstr "Virhe"
 msgid "Error and above"
 msgstr "Virhe ja yli"
 
-#: pkg/metrics/metrics.jsx:974
+#: pkg/metrics/metrics.jsx:997
 msgid "Error has occurred"
 msgstr "Tapahtui virhe"
 
+#: pkg/selinux/setroubleshoot-view.jsx:448
 #: pkg/systemd/overview-cards/configurationCard.jsx:317
 #: pkg/lib/cockpit-components-inline-notification.jsx:92
-#: pkg/selinux/setroubleshoot-view.jsx:454
 msgid "Error message"
 msgstr "Virheviesti"
 
@@ -2902,7 +2911,7 @@ msgstr "Esimerkki: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "Erinomainen salasana"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:238
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:242
 msgid "Existing disk image on host's file system"
 msgstr "Poistutaan levykuvasta isännän tiedostojärjestelmässä"
 
@@ -2922,9 +2931,9 @@ msgstr "Laajennettu tieto"
 msgid "Extended partition"
 msgstr "Laajennettu osio"
 
-#: pkg/storaged/mdraid-details.jsx:108
-#: pkg/machines/components/common/stateIcon.jsx:59
 #: pkg/networkmanager/interfaces.js:763
+#: pkg/machines/components/common/stateIcon.jsx:59
+#: pkg/storaged/mdraid-details.jsx:108
 msgid "Failed"
 msgstr "Epäonnistui"
 
@@ -2948,8 +2957,8 @@ msgstr "Vyöhykkeen lisääminen epäonnistui"
 msgid "Failed to change firmware"
 msgstr "Laiteohjelmiston vaihtaminen epäonnistui"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
-#: pkg/users/password-dialogs.js:125
+#: pkg/users/password-dialogs.js:103 pkg/users/password-dialogs.js:125
+#: pkg/lib/credentials.js:242
 msgid "Failed to change password"
 msgstr "Salasanan vaihtaminen epäonnistui"
 
@@ -2999,8 +3008,8 @@ msgstr "Muutosten tallentaminen /etc/motd:een epäonnistui"
 msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "Näppäimen Ctrl+Alt+$0 lähettäminen virtuaalikoneeseen $1 epäonnistui"
 
-#: pkg/systemd/services/service-details.jsx:305
 #: pkg/systemd/services/services.jsx:515
+#: pkg/systemd/services/service-details.jsx:305
 msgid "Failed to start"
 msgstr "Käynnistäminen epäonnistui"
 
@@ -3012,8 +3021,8 @@ msgstr "Profiilin vaihtaminen epäonnistui"
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr "Alle virtuaalisten suorittimien enimmäismäärän tulisi olla käytössä."
 
-#: pkg/machines/components/vm/overview/bootOrder.jsx:91
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:42
+#: pkg/machines/components/vm/overview/bootOrder.jsx:91
 msgid "File"
 msgstr "Tiedosto"
 
@@ -3053,8 +3062,8 @@ msgstr "Suodata palveluja"
 msgid "Fingerprint"
 msgstr "Sormenjälki"
 
-#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/firewall.jsx:922
-#: pkg/networkmanager/firewall.jsx:929 pkg/networkmanager/network-main.jsx:152
+#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:152
+#: pkg/networkmanager/firewall.jsx:922 pkg/networkmanager/firewall.jsx:929
 msgid "Firewall"
 msgstr "Palomuuri"
 
@@ -3072,12 +3081,18 @@ msgctxt "storage"
 msgid "Firmware version"
 msgstr "Laiteohjelmiston versio"
 
+#: pkg/systemd/terminal.jsx:126 pkg/systemd/terminal.jsx:136
+#, fuzzy
+#| msgid "Chunk size"
+msgid "Font size"
+msgstr "Palan koko"
+
 #: pkg/storaged/vdos-panel.jsx:129
 msgid "For legacy applications only. Reduces performance."
 msgstr "Vain vanhoja sovelluksia varten. Vähentää suorituskykyä."
 
-#: pkg/systemd/services/service-details.jsx:287
 #: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/service-details.jsx:287
 msgid "Forbidden from running"
 msgstr "Kielletty suorittamasta"
 
@@ -3103,10 +3118,10 @@ msgstr "Pakota salalauseen poisto $0:ssa"
 msgid "Force shut down"
 msgstr "Pakota sammutus"
 
-#: pkg/storaged/format-dialog.jsx:267 pkg/storaged/content-views.jsx:369
-#: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:612
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:70
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:201
+#: pkg/storaged/format-dialog.jsx:267 pkg/storaged/content-views.jsx:369
+#: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:612
 msgid "Format"
 msgstr "Alusta"
 
@@ -3162,7 +3177,7 @@ msgstr ""
 msgid "Fridays"
 msgstr "Perjantai"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:277
+#: pkg/users/account-details.js:277 pkg/users/account-create-dialog.js:40
 msgid "Full name"
 msgstr "Koko nimi"
 
@@ -3170,10 +3185,10 @@ msgstr "Koko nimi"
 msgid "GNU LGPL version 2.1"
 msgstr "GNU LGPL -versio 2.1"
 
-#: pkg/systemd/abrtLog.jsx:248
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:202
-#: pkg/machines/components/networks/networkOverviewTab.jsx:85
 #: pkg/networkmanager/network-interface.jsx:368
+#: pkg/machines/components/networks/networkOverviewTab.jsx:85
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:202
+#: pkg/systemd/abrtLog.jsx:248
 msgid "General"
 msgstr "Yleinen"
 
@@ -3185,8 +3200,8 @@ msgstr "Luo automaattisesti"
 msgid "Generating report"
 msgstr "Luodaan raporttia"
 
-#: pkg/machines/components/vm/overview/memorySelectRow.jsx:87
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:51
+#: pkg/machines/components/vm/overview/memorySelectRow.jsx:87
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:104
 msgid "GiB"
 msgstr "GiB"
@@ -3213,9 +3228,9 @@ msgstr "Mene nyt"
 msgid "Group"
 msgstr "Ryhmä"
 
+#: pkg/storaged/vdo-details.jsx:231 pkg/storaged/vdo-details.jsx:307
 #: pkg/storaged/lvol-tabs.jsx:246 pkg/storaged/lvol-tabs.jsx:399
-#: pkg/storaged/lvol-tabs.jsx:456 pkg/storaged/vdo-details.jsx:231
-#: pkg/storaged/vdo-details.jsx:307
+#: pkg/storaged/lvol-tabs.jsx:456
 msgid "Grow"
 msgstr "Kasvata"
 
@@ -3267,7 +3282,7 @@ msgstr "Ohjeita"
 msgid "Hide additional options"
 msgstr "Piilota lisävaihtoehdot"
 
-#: pkg/systemd/logs.js:418 pkg/systemd/logs.js:550
+#: pkg/systemd/logs.js:419 pkg/systemd/logs.js:549
 msgid "Hide filters"
 msgstr "Piilota suodattimet"
 
@@ -3276,8 +3291,8 @@ msgid "History package count"
 msgstr "Historian pakettien määrä"
 
 #: pkg/shell/machines/machine-add.html:14
-#: pkg/machines/components/vm/overview/bootOrder.jsx:96
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:47
+#: pkg/machines/components/vm/overview/bootOrder.jsx:96
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:36
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:121
 #: pkg/shell/hosts.jsx:199
@@ -3288,7 +3303,7 @@ msgstr "Kone"
 msgid "Host device"
 msgstr "Isäntälaite"
 
-#: pkg/base1/cockpit.js:4055
+#: pkg/base1/cockpit.js:4056
 msgid "Host key is incorrect"
 msgstr "Koneen avain on väärin"
 
@@ -3330,8 +3345,8 @@ msgstr "Tunnin on oltava luku välillä 0 ja 23"
 msgid "Hypervisor details"
 msgstr "Hypervisorin yksityiskohdat"
 
-#: pkg/systemd/hwinfo.jsx:308 pkg/machines/components/vm/disks/diskEdit.jsx:39
 #: pkg/networkmanager/firewall.jsx:605
+#: pkg/machines/components/vm/disks/diskEdit.jsx:39 pkg/systemd/hwinfo.jsx:308
 msgid "ID"
 msgstr "Tunniste"
 
@@ -3339,9 +3354,9 @@ msgstr "Tunniste"
 msgid "ID $id"
 msgstr "Tunnus $id"
 
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 #: pkg/networkmanager/network-main.jsx:180
 #: pkg/networkmanager/network-main.jsx:195
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:222
 msgid "IP address"
 msgstr "IP-osoite"
 
@@ -3452,19 +3467,19 @@ msgstr "Ohita"
 msgid "Image builder"
 msgstr "Kuvanrakentaja"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:812
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:874
 msgid "Immediately start VM"
 msgstr "Käynnistä virtuaalikone välittömästi"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:923
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:988
 msgid "Import"
 msgstr "Tuo"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:995
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1061
 msgid "Import VM"
 msgstr "Tuo virtuaalikone"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:916
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:981
 msgid "Import a virtual machine"
 msgstr "Tuo virtuaalikone"
 
@@ -3472,7 +3487,7 @@ msgstr "Tuo virtuaalikone"
 msgid "In"
 msgstr "Siinä"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:246
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:250
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3511,6 +3526,10 @@ msgstr "Mukana olevat palvelut"
 msgid "Inconsistent filesystem mount"
 msgstr "Epäjohdonmukainen tiedostojärjestelmän liitos"
 
+#: pkg/systemd/terminal.jsx:138
+msgid "Increase by one"
+msgstr ""
+
 #: pkg/storaged/vdos-panel.jsx:106 pkg/storaged/vdo-details.jsx:312
 msgid "Index memory"
 msgstr "Indeksin muisti"
@@ -3539,9 +3558,9 @@ msgstr "Aloittaja IQN ei saa olla tyhjä"
 msgid "Insights: "
 msgstr "Oivalluksia: "
 
+#: pkg/machines/components/vm/vmActions.jsx:280
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/apps/application.jsx:117 pkg/apps/application-list.jsx:90
-#: pkg/machines/components/vm/vmActions.jsx:280
 msgid "Install"
 msgstr "Asennus"
 
@@ -3557,7 +3576,7 @@ msgstr "Asenna VDO-tuki"
 msgid "Install all updates"
 msgstr "Asenna kaikki päivitykset"
 
-#: pkg/metrics/metrics.jsx:962
+#: pkg/metrics/metrics.jsx:985
 msgid "Install cockpit-pcp"
 msgstr "Asenna cockpit-pcp"
 
@@ -3565,7 +3584,7 @@ msgstr "Asenna cockpit-pcp"
 msgid "Install security updates"
 msgstr "Asenna tietoturvapäivitykset"
 
-#: pkg/selinux/setroubleshoot-view.jsx:377
+#: pkg/selinux/setroubleshoot-view.jsx:371
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 "Asenna setroubleshoot-server tehdäksesi vianetsinnän SELinux-tapahtumista."
@@ -3574,7 +3593,7 @@ msgstr ""
 msgid "Install software"
 msgstr "Asennetaan ohjelmistoja"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:305
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:309
 msgid "Installation source"
 msgstr "Asennuslähde"
 
@@ -3582,7 +3601,7 @@ msgstr "Asennuslähde"
 msgid "Installation source must not be empty"
 msgstr "Asennuslähteen ei tulisi olla tyhjä"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:285
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
 msgid "Installation type"
 msgstr "Asennustyyppi"
 
@@ -3614,14 +3633,13 @@ msgstr "Liitännät"
 msgid "Interface type"
 msgstr "Liitäntätyyppi"
 
-#: pkg/networkmanager/index.html:155 pkg/networkmanager/firewall.jsx:177
-#: pkg/networkmanager/firewall.jsx:739
+#: pkg/networkmanager/index.html:155 pkg/networkmanager/network-main.jsx:173
 #: pkg/networkmanager/network-interface-members.jsx:216
-#: pkg/networkmanager/network-main.jsx:173
+#: pkg/networkmanager/firewall.jsx:177 pkg/networkmanager/firewall.jsx:739
 msgid "Interfaces"
 msgstr "Liitännät"
 
-#: pkg/base1/cockpit.js:4057
+#: pkg/base1/cockpit.js:4058
 msgid "Internal error"
 msgstr "Sisäinen virhe"
 
@@ -3717,7 +3735,7 @@ msgstr "Virheellinen käyttäjätunnus tai salasana"
 msgid "IoT gateway"
 msgstr "IoT -yhdyskäytävä"
 
-#: pkg/metrics/metrics.jsx:968
+#: pkg/metrics/metrics.jsx:991
 msgid "Is 'pmlogger' service running?"
 msgstr "Onko pmlogger-palvelu käynnissä?"
 
@@ -3769,7 +3787,7 @@ msgstr "Päiväkirjan tietue"
 msgid "Journal entry not found"
 msgstr "Päiväkirjan tietuetta ei löytynyt"
 
-#: pkg/metrics/metrics.jsx:1023
+#: pkg/metrics/metrics.jsx:1046
 msgid "Jump to"
 msgstr "Hyppää sinne"
 
@@ -3866,9 +3884,9 @@ msgstr "Edellinen kirjautuminen:"
 msgid "Launch remote viewer"
 msgstr "Käynnistä etäkatselin"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:242
+#: pkg/systemd/logs.html:86 pkg/networkmanager/network-main-dialogs.jsx:73
+#: pkg/lib/cockpit-components-dialog.jsx:242
 #: pkg/lib/cockpit-components-dialog.jsx:249
-#: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
 msgstr "Opi lisää"
 
@@ -3877,9 +3895,17 @@ msgstr "Opi lisää"
 msgid "Leave domain"
 msgstr "Jätä toimialue"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:505
 msgid ""
 "Leave the password blank if you do not wish to have a root account created"
+msgstr "Jätä salasana tyhjäksi, jos et halua root:n tilin luomista"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:523
+#, fuzzy
+#| msgid ""
+#| "Leave the password blank if you do not wish to have a root account created"
+msgid ""
+"Leave the password blank if you do not wish to have a user account created"
 msgstr "Jätä salasana tyhjäksi, jos et halua root:n tilin luomista"
 
 #: pkg/machines/components/vm/overview/firmware.jsx:157
@@ -3896,7 +3922,7 @@ msgstr "Libvirt tai hypervisori ei tue UEFI:a"
 msgid "Licensed under:"
 msgstr "Lisensoitu:"
 
-#: pkg/systemd/terminal.jsx:109
+#: pkg/systemd/terminal.jsx:151
 msgid "Light"
 msgstr "Kevyt"
 
@@ -3937,7 +3963,7 @@ msgid "Link watch"
 msgstr "Linkki katselu"
 
 #: pkg/metrics/metrics.jsx:87 pkg/metrics/metrics.jsx:465
-#: pkg/metrics/metrics.jsx:1032
+#: pkg/metrics/metrics.jsx:1055
 msgid "Load"
 msgstr "Lataa"
 
@@ -3945,7 +3971,7 @@ msgstr "Lataa"
 msgid "Load balancing"
 msgstr "Kuorman tasapainotus"
 
-#: pkg/metrics/metrics.jsx:1048
+#: pkg/metrics/metrics.jsx:1073
 msgid "Load earlier data"
 msgstr "Lataa aiemmat tiedot"
 
@@ -3981,11 +4007,11 @@ msgstr "Ladataan resursseja"
 msgid "Loading system modifications..."
 msgstr "Ladataan järjestelmän muutoksia ..."
 
-#: pkg/kdump/kdump-view.jsx:373 pkg/systemd/services/services.jsx:665
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:208
-#: pkg/systemd/logDetails.jsx:153 pkg/storaged/devices.jsx:75
-#: pkg/metrics/metrics.jsx:1047
 #: pkg/machines/components/vm/consoles/serialConsole.jsx:68
+#: pkg/storaged/devices.jsx:75 pkg/kdump/kdump-view.jsx:373
+#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:208
+#: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:665
+#: pkg/metrics/metrics.jsx:1072
 msgid "Loading..."
 msgstr "Ladataan..."
 
@@ -3997,7 +4023,7 @@ msgstr "Paikalliset tilit"
 msgid "Local filesystem"
 msgstr "Paikallinen tiedostojärjestelmä"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:295
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:299
 msgid "Local install media"
 msgstr "Paikallinen asennusmedia"
 
@@ -4013,11 +4039,11 @@ msgstr "Sijainti"
 msgid "Lock"
 msgstr "Lukitse"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:313
+#: pkg/users/account-details.js:313 pkg/users/account-create-dialog.js:71
 msgid "Lock account"
 msgstr "Lukitse tili"
 
-#: pkg/users/account-details.js:104 pkg/users/expiration-dialogs.js:61
+#: pkg/users/expiration-dialogs.js:61 pkg/users/account-details.js:104
 msgid "Lock account on $0"
 msgstr "Lukitse tili $0"
 
@@ -4029,8 +4055,8 @@ msgstr "Lukitut laitteet"
 msgid "Locking $target"
 msgstr "Lukitaan $target"
 
-#: pkg/static/login.html:100 pkg/shell/index.html:307
-#: pkg/shell/machines/machine-change-auth.html:74 pkg/static/login.js:563
+#: pkg/shell/machines/machine-change-auth.html:74 pkg/shell/index.html:307
+#: pkg/static/login.html:100 pkg/static/login.js:563
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
@@ -4046,7 +4072,7 @@ msgstr "Kirjaudu sisään palvelimesi käyttäjätilillä."
 msgid "Log messages"
 msgstr "Kirjaa viestit"
 
-#: pkg/shell/index.html:80 pkg/metrics/metrics.jsx:956
+#: pkg/shell/index.html:80 pkg/metrics/metrics.jsx:979
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
@@ -4082,7 +4108,7 @@ msgstr "Loogiset taltiot"
 msgid "Login again"
 msgstr "Kirjaudu sisään uudelleen"
 
-#: pkg/base1/cockpit.js:4047
+#: pkg/base1/cockpit.js:4048
 msgid "Login failed"
 msgstr "Kirjautuminen epäonnistui"
 
@@ -4324,12 +4350,12 @@ msgid "Member of RAID device $0"
 msgstr "RAID-laitteen $0 jäsenenä"
 
 #: pkg/playground/translate.html:90
-#: pkg/systemd/overview-cards/usageCard.jsx:132 pkg/systemd/hwinfo.jsx:307
-#: pkg/systemd/hwinfo.jsx:351 pkg/metrics/metrics.jsx:485
-#: pkg/metrics/metrics.jsx:1033
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:220
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:535
 #: pkg/machines/components/vm/vmUsageCard.jsx:60
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:479
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:220
+#: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:307
+#: pkg/systemd/hwinfo.jsx:351 pkg/metrics/metrics.jsx:485
+#: pkg/metrics/metrics.jsx:1056
 msgid "Memory"
 msgstr "Muisti"
 
@@ -4370,7 +4396,7 @@ msgstr "Metadataa käytetty"
 msgid "Method"
 msgstr "Menetelmä"
 
-#: pkg/metrics/metrics.jsx:967
+#: pkg/metrics/metrics.jsx:990
 msgid "Metrics history could not be loaded"
 msgstr "Muuttujien historiaa ei voitu ladata"
 
@@ -4409,8 +4435,9 @@ msgstr "Lievennykset"
 msgid "Mode"
 msgstr "Tila"
 
+#: pkg/machines/components/vm/nics/nicBody.jsx:45
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:110
-#: pkg/systemd/hwinfo.jsx:294 pkg/machines/components/vm/nics/nicBody.jsx:45
+#: pkg/systemd/hwinfo.jsx:294
 msgid "Model"
 msgstr "Malli"
 
@@ -4458,8 +4485,8 @@ msgstr "Lisätietoja"
 msgid "More info..."
 msgstr "Lisää tietoja"
 
-#: pkg/kdump/kdump-view.jsx:103 pkg/storaged/fsys-tab.jsx:289
-#: pkg/storaged/content-views.jsx:378 pkg/storaged/nfs-details.jsx:313
+#: pkg/storaged/fsys-tab.jsx:289 pkg/storaged/nfs-details.jsx:313
+#: pkg/storaged/content-views.jsx:378 pkg/kdump/kdump-view.jsx:103
 msgid "Mount"
 msgstr "Liitos"
 
@@ -4483,7 +4510,7 @@ msgstr "Liitoksen kokoonpano"
 msgid "Mount filesystem"
 msgstr "Liitoksen tiedostojärjestelmä"
 
-#: pkg/storaged/fsys-tab.jsx:484 pkg/storaged/format-dialog.jsx:253
+#: pkg/storaged/format-dialog.jsx:253 pkg/storaged/fsys-tab.jsx:484
 msgid "Mount now"
 msgstr "Liitä nyt"
 
@@ -4491,14 +4518,14 @@ msgstr "Liitä nyt"
 msgid "Mount on $0 now"
 msgstr "Liitä $0:een nyt"
 
-#: pkg/storaged/fsys-tab.jsx:254 pkg/storaged/format-dialog.jsx:244
+#: pkg/storaged/format-dialog.jsx:244 pkg/storaged/fsys-tab.jsx:254
 #: pkg/storaged/nfs-details.jsx:179
 msgid "Mount options"
 msgstr "Liitosvalinnat"
 
-#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/fsys-panel.jsx:95
-#: pkg/storaged/fsys-tab.jsx:249 pkg/storaged/fsys-tab.jsx:526
-#: pkg/storaged/format-dialog.jsx:238 pkg/storaged/nfs-details.jsx:334
+#: pkg/storaged/format-dialog.jsx:238 pkg/storaged/fsys-tab.jsx:249
+#: pkg/storaged/fsys-tab.jsx:526 pkg/storaged/nfs-panel.jsx:104
+#: pkg/storaged/nfs-details.jsx:334 pkg/storaged/fsys-panel.jsx:95
 msgid "Mount point"
 msgstr "Liitoskohta"
 
@@ -4518,7 +4545,7 @@ msgstr "Liitoskohta on jo käytetty $0:ta varten"
 msgid "Mount point must start with \"/\"."
 msgstr "Liitoskohdan täytyy alkaa \"/\":lla."
 
-#: pkg/storaged/fsys-tab.jsx:261 pkg/storaged/format-dialog.jsx:254
+#: pkg/storaged/format-dialog.jsx:254 pkg/storaged/fsys-tab.jsx:261
 #: pkg/storaged/nfs-details.jsx:183
 msgid "Mount read only"
 msgstr "Liitä vain-luku:ksi"
@@ -4566,31 +4593,30 @@ msgstr "NTP-palvelin"
 
 #: pkg/networkmanager/index.html:54 pkg/networkmanager/index.html:98
 #: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:208
-#: pkg/packagekit/updates.jsx:370 pkg/systemd/services/services-list.jsx:52
-#: pkg/systemd/hwinfo.jsx:84 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/vgroup-details.jsx:167 pkg/storaged/mdraids-panel.jsx:61
-#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:361
-#: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/format-dialog.jsx:209
-#: pkg/storaged/content-views.jsx:119 pkg/storaged/content-views.jsx:275
-#: pkg/storaged/content-views.jsx:648 pkg/storaged/content-views.jsx:732
-#: pkg/storaged/content-views.jsx:817 pkg/storaged/lvol-tabs.jsx:41
-#: pkg/storaged/lvol-tabs.jsx:387 pkg/storaged/lvol-tabs.jsx:445
-#: pkg/storaged/crypto-panel.jsx:79 pkg/storaged/vgroups-panel.jsx:74
-#: pkg/storaged/vdos-panel.jsx:82
-#: pkg/machines/components/vm/vmCloneDialog.jsx:80
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
-#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:116
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:204
-#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:40
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:45
-#: pkg/machines/components/storagePools/storagePoolList.jsx:73
-#: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
+#: pkg/packagekit/updates.jsx:370 pkg/networkmanager/network-main.jsx:179
+#: pkg/networkmanager/network-main.jsx:194
 #: pkg/machines/components/networks/createNetworkDialog.jsx:120
 #: pkg/machines/components/networks/networkList.jsx:76
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:208
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:40
+#: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:116
+#: pkg/machines/components/vm/vmCloneDialog.jsx:80
 #: pkg/machines/components/vms/hostvmslist.jsx:135
-#: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
+#: pkg/machines/components/storagePools/storagePoolList.jsx:73
+#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:40
+#: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:45
+#: pkg/storaged/format-dialog.jsx:209 pkg/storaged/mdraids-panel.jsx:61
+#: pkg/storaged/fsys-tab.jsx:361 pkg/storaged/fsys-tab.jsx:518
+#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:167
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/crypto-panel.jsx:79
+#: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/content-views.jsx:119
+#: pkg/storaged/content-views.jsx:275 pkg/storaged/content-views.jsx:648
+#: pkg/storaged/content-views.jsx:732 pkg/storaged/content-views.jsx:817
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/lvol-tabs.jsx:41
+#: pkg/storaged/lvol-tabs.jsx:387 pkg/storaged/lvol-tabs.jsx:445
+#: pkg/systemd/hwinfo.jsx:84 pkg/systemd/services/services-list.jsx:52
 msgid "Name"
 msgstr "Nimi"
 
@@ -4626,14 +4652,14 @@ msgstr "Nimi ei voi sisältää välilyöntiä."
 msgid "Name contains invalid characters"
 msgstr "Nimi sisältää laittomia merkkejä"
 
-#: pkg/machines/components/vm/vmCloneDialog.jsx:39
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:133
+#: pkg/machines/components/vm/vmCloneDialog.jsx:39
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:61
 msgid "Name must not be empty"
 msgstr "Nimi ei saa olla tyhjä"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:46
 #: pkg/machines/components/networks/createNetworkDialog.jsx:55
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:46
 msgid "Name should not be empty"
 msgstr "Nime ei tulisi olla tyhjä"
 
@@ -4649,7 +4675,7 @@ msgstr "Tarvitaan vähintään yksi NTP-palvelin"
 msgid "Netmask"
 msgstr "Verkkopeite"
 
-#: pkg/metrics/metrics.jsx:559 pkg/metrics/metrics.jsx:1035
+#: pkg/metrics/metrics.jsx:559 pkg/metrics/metrics.jsx:1058
 msgid "Network"
 msgstr "Verkko"
 
@@ -4673,7 +4699,7 @@ msgstr "Verkon I/O -piikki"
 msgid "Network bond"
 msgstr "Verkkosidos"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:300
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:304
 msgid "Network boot (PXE)"
 msgstr "Verkkokäynnistys (PXE)"
 
@@ -4694,7 +4720,7 @@ msgstr "Verkkoliitännän asetuksia ei voitu tallentaa"
 msgid "Network logs"
 msgstr "Verkkolokit"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:252
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:256
 msgid "Network selection does not support PXE."
 msgstr "Verkon valinta ei tue PXE:ta."
 
@@ -4720,10 +4746,10 @@ msgstr "Tuned ei ole käynnissä"
 msgid "Networking"
 msgstr "Verkko"
 
-#: pkg/machines/components/vm/vmDetailsPage.jsx:141
 #: pkg/machines/components/networks/networkList.jsx:59
 #: pkg/machines/components/networks/networkList.jsx:66
 #: pkg/machines/components/networks/networkList.jsx:73
+#: pkg/machines/components/vm/vmDetailsPage.jsx:141
 msgid "Networks"
 msgstr "Verkot"
 
@@ -4731,11 +4757,11 @@ msgstr "Verkot"
 msgid "Never"
 msgstr "Ei koskaan"
 
-#: pkg/users/account-details.js:93 pkg/users/expiration-dialogs.js:142
+#: pkg/users/expiration-dialogs.js:142 pkg/users/account-details.js:93
 msgid "Never expire password"
 msgstr "Älä koskaan vanhenna salasanaa"
 
-#: pkg/users/account-details.js:101 pkg/users/expiration-dialogs.js:36
+#: pkg/users/expiration-dialogs.js:36 pkg/users/account-details.js:101
 msgid "Never lock account"
 msgstr "Älä koskaan lukitse tiliä"
 
@@ -4759,7 +4785,7 @@ msgstr "Uusi tunnuslause"
 msgid "New password"
 msgstr "Uusi salasana"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/users/password-dialogs.js:86 pkg/lib/credentials.js:251
 msgid "New password was not accepted"
 msgstr "Uutta salasanaa ei hyväksytty"
 
@@ -4772,7 +4798,7 @@ msgstr "Uusi taltion nimi"
 msgid "Next"
 msgstr "Seuraava"
 
-#: pkg/systemd/reporting.jsx:270 pkg/networkmanager/network-interface.jsx:248
+#: pkg/networkmanager/network-interface.jsx:248 pkg/systemd/reporting.jsx:270
 msgid "No"
 msgstr "Ei"
 
@@ -4818,11 +4844,11 @@ msgstr "Konfigurointitietoja ei löytynyt"
 msgid "No connection available"
 msgstr "Yhteyksia ei ole saatavilla."
 
-#: pkg/metrics/metrics.jsx:991
+#: pkg/metrics/metrics.jsx:1014
 msgid "No data available"
 msgstr "Ei tietoja saatavilla"
 
-#: pkg/metrics/metrics.jsx:987
+#: pkg/metrics/metrics.jsx:1010
 msgid "No data available between $0 and $1"
 msgstr "Tietoja ei ole saatavilla välillä $0 ja $1"
 
@@ -4846,8 +4872,8 @@ msgstr "Kuvausta ei annettu."
 msgid "No devices"
 msgstr "Ei laiteita"
 
-#: pkg/storaged/vgroup-details.jsx:68 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/vgroups-panel.jsx:81 pkg/storaged/vdos-panel.jsx:92
+#: pkg/storaged/mdraids-panel.jsx:112 pkg/storaged/vdos-panel.jsx:92
+#: pkg/storaged/vgroup-details.jsx:68 pkg/storaged/vgroups-panel.jsx:81
 #: pkg/storaged/mdraid-details.jsx:64
 msgid "No disks are available."
 msgstr "Levyjä ei ole saatavilla."
@@ -4971,7 +4997,7 @@ msgstr "Tälle virtuaalikoneelle ei ole määritetty levyjä"
 msgid "No state"
 msgstr "Ei tilaa"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:516
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:572
 msgid "No storage"
 msgstr "Ei tallennustilaa"
 
@@ -4987,8 +5013,8 @@ msgstr "Ei varastointivarantoja saatavilla"
 msgid "No storage volumes defined for this storage pool"
 msgstr "Tälle varastointivarannolle ei ole määritetty varastointitaltioita"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:174
 #: pkg/lib/credentials.js:190
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:174
 msgid "No such file or directory"
 msgstr "Ei tällaista tiedostoa tai hakemistoa"
 
@@ -5024,9 +5050,9 @@ msgstr ""
 "Ei-pysyvää varastointivarantoa ei voida poistaa. Se lakkaa olemasta, kun se "
 "deaktivoidaan."
 
-#: pkg/kdump/kdump-view.jsx:425 pkg/tuned/dialog.js:230
-#: pkg/machines/components/networks/createNetworkDialog.jsx:181
 #: pkg/networkmanager/firewall.jsx:734
+#: pkg/machines/components/networks/createNetworkDialog.jsx:181
+#: pkg/kdump/kdump-view.jsx:425 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "Ei yhtään"
 
@@ -5082,7 +5108,7 @@ msgstr "Ei liittynyt"
 msgid "Not mounted"
 msgstr "Ei liitetty"
 
-#: pkg/base1/cockpit.js:4045
+#: pkg/base1/cockpit.js:4046
 msgid "Not permitted to perform this action."
 msgstr "Ei oikeutta suorittaa tätä toimintoa."
 
@@ -5094,8 +5120,8 @@ msgstr "Ei valmiina"
 msgid "Not registered"
 msgstr "Ei rekisteröity"
 
+#: pkg/storaged/mdraid-details.jsx:352 pkg/systemd/services/services.jsx:517
 #: pkg/systemd/services/service-details.jsx:326
-#: pkg/systemd/services/services.jsx:517 pkg/storaged/mdraid-details.jsx:352
 msgid "Not running"
 msgstr "Ei käynnissä"
 
@@ -5115,15 +5141,15 @@ msgstr "Muistikirja"
 msgid "Notice and above"
 msgstr "Ilmoitus ja yli"
 
-#: pkg/selinux/setroubleshoot-view.jsx:454
+#: pkg/selinux/setroubleshoot-view.jsx:448
 msgid "Occurances"
 msgstr "Tapahtumat"
 
-#: pkg/selinux/setroubleshoot-view.jsx:392
+#: pkg/selinux/setroubleshoot-view.jsx:384
 msgid "Occurred $0"
 msgstr "Tapahtui $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:387
+#: pkg/selinux/setroubleshoot-view.jsx:379
 msgid "Occurred between $0 and $1"
 msgstr "Tapahtui välillä $0 ja $1"
 
@@ -5139,7 +5165,7 @@ msgstr "Vanha tunnuslause"
 msgid "Old password"
 msgstr "Vanha salasana"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/users/password-dialogs.js:53 pkg/lib/credentials.js:231
 msgid "Old password not accepted"
 msgstr "Vanhaa salasanaa ei hyväksytty"
 
@@ -5180,8 +5206,8 @@ msgstr "Vain $0 ja $1 ovat käytössä."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr ""
 
-#: pkg/machines/components/vm/overview/memoryModal.jsx:126
 #: pkg/machines/components/vm/overview/bootOrder.jsx:339
+#: pkg/machines/components/vm/overview/memoryModal.jsx:126
 msgid "Only editable when the guest is shut off"
 msgstr "Muokattavissa vain, kun vieras on sammutettuna"
 
@@ -5197,7 +5223,7 @@ msgstr "Hups!"
 msgid "Open"
 msgstr "Avaa"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:363
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:367
 msgid "Operating system"
 msgstr "Käyttöjärjestelmä"
 
@@ -5244,10 +5270,11 @@ msgstr "Muut valinnat"
 msgid "Out"
 msgstr "Ulos"
 
-#: pkg/systemd/hwinfo.jsx:321 pkg/metrics/metrics.jsx:1060
+#: pkg/machines/components/networks/network.jsx:74
 #: pkg/machines/components/vm/vmDetailsPage.jsx:104
 #: pkg/machines/components/storagePools/storagePool.jsx:69
-#: pkg/machines/components/networks/network.jsx:74 pkg/systemd/manifest.json:0
+#: pkg/systemd/hwinfo.jsx:321 pkg/metrics/metrics.jsx:1085
+#: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Esittely"
 
@@ -5263,7 +5290,7 @@ msgstr "PCI"
 msgid "PCP"
 msgstr "PCP"
 
-#: pkg/metrics/metrics.jsx:961
+#: pkg/metrics/metrics.jsx:984
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Paketti cockpit-pcp puuttuu mittarihistoriasta"
 
@@ -5327,8 +5354,8 @@ msgstr "Osiointi"
 msgid "Passive"
 msgstr "Passiivinen"
 
-#: pkg/storaged/format-dialog.jsx:221 pkg/storaged/content-views.jsx:243
-#: pkg/storaged/crypto-keyslots.jsx:217 pkg/storaged/crypto-keyslots.jsx:587
+#: pkg/storaged/format-dialog.jsx:221 pkg/storaged/crypto-keyslots.jsx:217
+#: pkg/storaged/crypto-keyslots.jsx:587 pkg/storaged/content-views.jsx:243
 msgid "Passphrase"
 msgstr "Tunnuslause"
 
@@ -5347,12 +5374,12 @@ msgstr "Salalauseen poisto voi estää lukituksen avaamisen $0."
 msgid "Passphrases do not match"
 msgstr "Tunnuslauseet eivät täsmää"
 
-#: pkg/static/login.html:76 pkg/shell/index.html:160 pkg/shell/index.html:189
-#: pkg/shell/index.html:204 pkg/shell/machines/machine-change-auth.html:43
-#: pkg/shell/machines/machine-change-auth.html:50
 #: pkg/shell/machines/machine-auth-failed.html:8
+#: pkg/shell/machines/machine-change-auth.html:43
+#: pkg/shell/machines/machine-change-auth.html:50 pkg/shell/index.html:160
+#: pkg/shell/index.html:189 pkg/shell/index.html:204 pkg/static/login.html:76
+#: pkg/users/account-details.js:323 pkg/users/account-create-dialog.js:60
 #: pkg/storaged/iscsi-panel.jsx:50 pkg/storaged/iscsi-panel.jsx:160
-#: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:323
 #: pkg/shell/superuser.jsx:44
 msgid "Password"
 msgstr "Salasana"
@@ -5385,9 +5412,9 @@ msgstr "Siirrä"
 msgid "Paste the contents of your public SSH key file here"
 msgstr "Liitä julkisen SSH-avaintiedostosi sisältö tähän"
 
-#: pkg/systemd/services/service-details.jsx:452
-#: pkg/machines/components/vm/deleteDialog.jsx:45
 #: pkg/machines/components/vm/disks/diskEdit.jsx:41
+#: pkg/machines/components/vm/deleteDialog.jsx:45
+#: pkg/systemd/services/service-details.jsx:452
 msgid "Path"
 msgstr "Polku"
 
@@ -5415,7 +5442,7 @@ msgstr "Polku palvelimella ei voi olla tyhjä."
 msgid "Path on server must start with \"/\"."
 msgstr "Polun palvelimella täytyy alkaa \"/\"."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:229
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:233
 msgid "Path to ISO file on host's file system"
 msgstr "Polku ISO-tiedostoon isännän tiedostojärjestelmässä"
 
@@ -5431,8 +5458,8 @@ msgstr ""
 msgid "Paths"
 msgstr "Polut"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:338 pkg/systemd/logs.js:537
-#: pkg/machines/components/vm/vmActions.jsx:189
+#: pkg/systemd/logs.html:107 pkg/machines/components/vm/vmActions.jsx:189
+#: pkg/systemd/logs.js:339 pkg/systemd/logs.js:536
 msgid "Pause"
 msgstr "Keskeytä"
 
@@ -5440,7 +5467,7 @@ msgstr "Keskeytä"
 msgid "Paused"
 msgstr "Keskeytetty"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1061
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1086
 msgid "Performance Metrics"
 msgstr "Suorituskykymittarit"
 
@@ -5464,13 +5491,13 @@ msgstr "Käyttö estetty"
 msgid "Permissive"
 msgstr "Salliva"
 
-#: pkg/machines/components/vm/nics/nicAdd.jsx:59
 #: pkg/machines/components/vm/disks/diskAdd.jsx:104
+#: pkg/machines/components/vm/nics/nicAdd.jsx:59
 msgid "Persistence"
 msgstr "Pysyvyys"
 
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:68
 #: pkg/machines/components/networks/networkOverviewTab.jsx:89
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:68
 msgid "Persistent"
 msgstr "Pysyvä"
 
@@ -5530,8 +5557,8 @@ msgstr "Valitse tallennusvaranto"
 msgid "Please choose a volume"
 msgstr "Valitse taltio"
 
-#: pkg/storaged/vgroup-details.jsx:199 pkg/storaged/content-views.jsx:344
-#: pkg/storaged/vdo-details.jsx:197 pkg/storaged/mdraid-details.jsx:296
+#: pkg/storaged/vdo-details.jsx:197 pkg/storaged/vgroup-details.jsx:199
+#: pkg/storaged/mdraid-details.jsx:296 pkg/storaged/content-views.jsx:344
 msgid "Please confirm deletion of $0"
 msgstr "Vahvista kohteen $0 poistaminen"
 
@@ -5555,10 +5582,6 @@ msgstr "Asenna $0-paketti"
 msgid "Please reload the page after resolving the issue."
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:195
-msgid "Please set a root password"
-msgstr "Aseta root:n salasana"
-
 #: pkg/users/expiration-dialogs.js:82
 msgid "Please specify an expiration date"
 msgstr "Määritä vanhenemispäivä"
@@ -5575,11 +5598,11 @@ msgstr "Käynnistä virtuaalikone päästäksesi sen konsoliin."
 msgid "Plug"
 msgstr "Kytke"
 
-#: pkg/storaged/content-views.jsx:143
-#: pkg/machines/components/vm/deleteDialog.jsx:53
-#: pkg/machines/components/vm/overview/bootOrder.jsx:94
 #: pkg/machines/components/vm/disks/diskAdd.jsx:116
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:45
+#: pkg/machines/components/vm/deleteDialog.jsx:53
+#: pkg/machines/components/vm/overview/bootOrder.jsx:94
+#: pkg/storaged/content-views.jsx:143
 msgid "Pool"
 msgstr "Varanto"
 
@@ -5593,7 +5616,7 @@ msgstr "Varanto ohuita taltioita varten"
 
 #: pkg/storaged/content-views.jsx:745
 msgid "Pool for thinly provisioned volumes"
-msgstr ""
+msgstr "Varanto ohuesti varautuja taltioita varten"
 
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:157
 msgid "Pool needs to be active to create volume"
@@ -5606,24 +5629,24 @@ msgstr "Varannon tyyppi ei tue taltion luomista"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:150
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:177
 msgid "Pool's volumes are used by VMs "
-msgstr ""
+msgstr "Varannon taltioita käyttävät virtuaalikoneet "
 
 #: pkg/shell/machines/machine-change-port.html:14
-#: pkg/storaged/iscsi-panel.jsx:131
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:48
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:192
 #: pkg/machines/components/vm/overview/bootOrder.jsx:97
 #: pkg/machines/components/vm/overview/bootOrder.jsx:113
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:48
+#: pkg/storaged/iscsi-panel.jsx:131
 msgid "Port"
 msgstr "Portti"
 
 #: pkg/networkmanager/firewall.jsx:406
 msgid "Port number and type do not match"
-msgstr ""
+msgstr "Portin numero ja tyyppi eivät täsmää"
 
 #: pkg/lib/machine-info.js:74
 msgid "Portable"
-msgstr ""
+msgstr "Kannettava"
 
 #: pkg/networkmanager/index.html:102 pkg/networkmanager/index.html:212
 #: pkg/networkmanager/network-interface-members.jsx:216
@@ -5632,16 +5655,16 @@ msgstr "Portit"
 
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:213
 msgid "Preferred number of sockets to expose to the guest."
-msgstr ""
+msgstr "Vieraalle altistettavaksi haluttu pistokkeiden määrä ."
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:150
 msgid "Prefix"
 msgstr "Etuliite"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:277
 #: pkg/networkmanager/interfaces.js:1881
+#: pkg/machines/components/networks/createNetworkDialog.jsx:277
 msgid "Prefix length"
-msgstr ""
+msgstr "Etuliitteen pituus"
 
 #: pkg/networkmanager/interfaces.js:1881
 msgid "Prefix length or netmask"
@@ -5657,7 +5680,7 @@ msgstr "Valmistellaan"
 
 #: pkg/lib/machine-info.js:255
 msgid "Present"
-msgstr ""
+msgstr "Nykyinen"
 
 #: pkg/networkmanager/interfaces.js:2210
 msgid "Preserve"
@@ -5669,7 +5692,7 @@ msgstr "Pretty-isäntänimi"
 
 #: pkg/systemd/logs.html:43
 msgid "Previous boot"
-msgstr ""
+msgstr "Edellinen käynnistys"
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:245
 msgid ""
@@ -5683,8 +5706,8 @@ msgstr ""
 msgid "Primary"
 msgstr "Ensisijainen"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.html:50
 msgid "Priority"
 msgstr "Prioriteeetti"
 
@@ -5695,7 +5718,7 @@ msgstr "Prioriteetti $priority"
 
 #: pkg/machines/helpers.js:255
 msgid "Private"
-msgstr ""
+msgstr "Yksityinen"
 
 #: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
@@ -5703,7 +5726,7 @@ msgstr "Ongelman yksityiskohdat"
 
 #: pkg/systemd/abrtLog.jsx:260
 msgid "Problem info"
-msgstr ""
+msgstr "Ongelmatiedot"
 
 #: pkg/storaged/dialog.jsx:1070
 msgid "Process"
@@ -5714,7 +5737,7 @@ msgstr "Prosessi"
 msgid "Product"
 msgstr "Tuote"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:480
 msgid "Profile"
 msgstr "Profiili"
 
@@ -5736,15 +5759,15 @@ msgstr "Kysely 'ssh-keygen':in kautta aikakatkaistiin"
 
 #: pkg/systemd/services/service-details.jsx:399
 msgid "Propagates reload to"
-msgstr ""
+msgstr "Laajentaa latausta kohteeseen"
 
+#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:44
 #: pkg/machines/components/vm/overview/bootOrder.jsx:93
 #: pkg/machines/components/vm/overview/bootOrder.jsx:142
-#: pkg/machines/components/vm/disks/vmDiskColumns.jsx:44
 msgid "Protocol"
 msgstr "Protokolla"
 
-#: pkg/shell/index.html:188 pkg/shell/machines/machine-auth-failed.html:9
+#: pkg/shell/machines/machine-auth-failed.html:9 pkg/shell/index.html:188
 msgid "Public key"
 msgstr "Julkinen avain"
 
@@ -5762,7 +5785,7 @@ msgstr "RAID 0"
 
 #: pkg/storaged/mdraids-panel.jsx:68
 msgid "RAID 0 (stripe)"
-msgstr ""
+msgstr "RAID 0 (raita)"
 
 #: pkg/storaged/mdraid-details.jsx:181
 msgid "RAID 1"
@@ -5770,7 +5793,7 @@ msgstr "RAID 1"
 
 #: pkg/storaged/mdraids-panel.jsx:72
 msgid "RAID 1 (mirror)"
-msgstr ""
+msgstr "RAID 1 (peili)"
 
 #: pkg/storaged/mdraid-details.jsx:185
 msgid "RAID 10"
@@ -5778,7 +5801,7 @@ msgstr "RAID 10"
 
 #: pkg/storaged/mdraids-panel.jsx:88
 msgid "RAID 10 (stripe of mirrors)"
-msgstr ""
+msgstr "RAID 10 (peilien raita)"
 
 #: pkg/storaged/mdraid-details.jsx:182
 msgid "RAID 4"
@@ -5786,7 +5809,7 @@ msgstr "RAID 4"
 
 #: pkg/storaged/mdraids-panel.jsx:76
 msgid "RAID 4 (dedicated parity)"
-msgstr ""
+msgstr "RAID 4 (omistettu pariteetti)"
 
 #: pkg/storaged/mdraid-details.jsx:183
 msgid "RAID 5"
@@ -5794,7 +5817,7 @@ msgstr "RAID 5"
 
 #: pkg/storaged/mdraids-panel.jsx:80
 msgid "RAID 5 (distributed parity)"
-msgstr ""
+msgstr "RAID 5 (hajautettu pariteetti)"
 
 #: pkg/storaged/mdraid-details.jsx:184
 msgid "RAID 6"
@@ -5802,11 +5825,11 @@ msgstr "RAID 6"
 
 #: pkg/storaged/mdraids-panel.jsx:84
 msgid "RAID 6 (double distributed parity)"
-msgstr ""
+msgstr "RAID 6 (kaksinkertainen hajautettu pariteetti)"
 
 #: pkg/lib/machine-info.js:88
 msgid "RAID chassis"
-msgstr ""
+msgstr "RAID-runko"
 
 #: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/pvol-tabs.jsx:66
 msgid "RAID device"
@@ -5831,11 +5854,11 @@ msgstr "RAID-jäsen"
 
 #: pkg/metrics/metrics.jsx:493
 msgid "RAM"
-msgstr ""
+msgstr "RAM-muisti"
 
 #: pkg/lib/machine-info.js:89
 msgid "Rack mount chassis"
-msgstr ""
+msgstr "Telineen kiinnitysrunko"
 
 #: pkg/networkmanager/interfaces.js:2211
 msgid "Random"
@@ -5843,19 +5866,19 @@ msgstr "Satunnainen"
 
 #: pkg/networkmanager/firewall.jsx:768
 msgid "Range"
-msgstr ""
+msgstr "Alue"
 
 #: pkg/networkmanager/firewall.jsx:438
 msgid "Range must be strictly ordered"
-msgstr ""
+msgstr "Alueen on oltava tiukasti järjestetty"
 
 #: pkg/systemd/hwinfo.jsx:308
 msgid "Rank"
-msgstr ""
+msgstr "Sijoitus"
 
 #: pkg/kdump/kdump-view.jsx:394
 msgid "Raw to a device"
-msgstr ""
+msgstr "Raw laitteeseen"
 
 #: pkg/metrics/metrics.jsx:522
 msgid "Read"
@@ -5863,13 +5886,13 @@ msgstr "Lue"
 
 #: pkg/systemd/hwinfo.jsx:218
 msgid "Read more..."
-msgstr ""
+msgstr "Lue lisää..."
 
-#: pkg/systemd/services/service-details.jsx:353
-#: pkg/machines/components/vm/disks/diskEdit.jsx:117
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:255
+#: pkg/machines/components/vm/disks/diskEdit.jsx:117
+#: pkg/systemd/services/service-details.jsx:353
 msgid "Read-only"
-msgstr ""
+msgstr "Luku-vain"
 
 #: pkg/kdump/kdump-view.jsx:419
 msgid "Reading..."
@@ -5898,13 +5921,12 @@ msgstr ""
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:407
 msgid "Real host name must be 64 characters or less"
-msgstr ""
+msgstr "Oikea isäntänimi saa sisältää enintään 64 merkkiä"
 
-#: pkg/systemd/overview.jsx:207 pkg/systemd/overview.jsx:224
-#: pkg/lib/cockpit-components-logs-panel.jsx:101
+#: pkg/machines/components/vm/vmActions.jsx:247 pkg/systemd/overview.jsx:207
+#: pkg/systemd/overview.jsx:224 pkg/lib/cockpit-components-logs-panel.jsx:101
 #: pkg/lib/cockpit-components-shutdown.jsx:181
 #: pkg/lib/cockpit-components-shutdown.jsx:183
-#: pkg/machines/components/vm/vmActions.jsx:247
 msgid "Reboot"
 msgstr "Käynnistä uudelleen"
 
@@ -5919,15 +5941,15 @@ msgstr "Uudelleenkäynnistystä suositellaan"
 msgid "Reboot system..."
 msgstr ""
 
-#: pkg/networkmanager/network-interface-members.jsx:218
 #: pkg/networkmanager/network-main.jsx:182
 #: pkg/networkmanager/network-main.jsx:197
+#: pkg/networkmanager/network-interface-members.jsx:218
 msgid "Receiving"
 msgstr "Vastaanotetaan"
 
 #: pkg/storaged/format-dialog.jsx:160
 msgid "Recommended default"
-msgstr ""
+msgstr "Suositeltu oletus"
 
 #: pkg/shell/index.html:306
 msgid "Reconnect"
@@ -5947,15 +5969,15 @@ msgstr "Päivitetään pakettitietoja"
 
 #: pkg/static/login.js:810
 msgid "Refusing to connect. Host is unknown"
-msgstr ""
+msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntä on tuntematon"
 
 #: pkg/static/login.js:812
 msgid "Refusing to connect. Hostkey does not match"
-msgstr ""
+msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntäavain ei täsmää"
 
 #: pkg/static/login.js:808
 msgid "Refusing to connect. Hostkey is unknown"
-msgstr ""
+msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntäavain on tuntematon"
 
 #: pkg/packagekit/updates.jsx:1235
 msgid "Register…"
@@ -5967,13 +5989,13 @@ msgstr "Lataa uudelleen"
 
 #: pkg/systemd/services/service-details.jsx:400
 msgid "Reload propagated from"
-msgstr ""
+msgstr "Uudelleenlataus levitetty tältä"
 
 #: pkg/packagekit/updates.jsx:431
 msgid "Reloading the state of remaining services"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:273
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:277
 msgid "Remote URL"
 msgstr "Etä-URL"
 
@@ -5998,14 +6020,14 @@ msgstr "Irrotettava asema"
 msgid "Removals:"
 msgstr "Poistot:"
 
-#: pkg/systemd/services/timer-dialog.jsx:273
-#: pkg/storaged/vgroup-details.jsx:121 pkg/storaged/crypto-keyslots.jsx:410
-#: pkg/storaged/crypto-keyslots.jsx:447 pkg/storaged/crypto-keyslots.jsx:572
-#: pkg/storaged/nfs-details.jsx:320 pkg/storaged/mdraid-details.jsx:142
-#: pkg/apps/application.jsx:114 pkg/apps/application-list.jsx:88
 #: pkg/users/authorized-keys-panel.js:137
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:283
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:293
+#: pkg/storaged/nfs-details.jsx:320 pkg/storaged/vgroup-details.jsx:121
+#: pkg/storaged/crypto-keyslots.jsx:410 pkg/storaged/crypto-keyslots.jsx:447
+#: pkg/storaged/crypto-keyslots.jsx:572 pkg/storaged/mdraid-details.jsx:142
+#: pkg/systemd/services/timer-dialog.jsx:273 pkg/apps/application.jsx:114
+#: pkg/apps/application-list.jsx:88
 msgid "Remove"
 msgstr "Poista"
 
@@ -6015,7 +6037,7 @@ msgstr "Poista $0"
 
 #: pkg/networkmanager/firewall.jsx:850
 msgid "Remove $0 service from $1 zone"
-msgstr ""
+msgstr "Poista palvelu $0 vyöhykkeeltä $1"
 
 #: pkg/storaged/crypto-keyslots.jsx:431
 msgid "Remove $0?"
@@ -6031,19 +6053,19 @@ msgstr "Poista laite"
 
 #: pkg/storaged/crypto-keyslots.jsx:404
 msgid "Remove passphrase"
-msgstr ""
+msgstr "Poista tunnuslause"
 
 #: pkg/storaged/crypto-keyslots.jsx:370
 msgid "Remove passphrase in $0?"
-msgstr ""
+msgstr "Poistetaanko tunnuslause $0:ssa?"
 
 #: pkg/networkmanager/firewall.jsx:72
 msgid "Remove service $0"
-msgstr ""
+msgstr "Poista palvelu $0"
 
 #: pkg/networkmanager/firewall.jsx:162 pkg/networkmanager/firewall.jsx:833
 msgid "Remove zone $0"
-msgstr ""
+msgstr "Poista vyöhyke $0"
 
 #: pkg/apps/application.jsx:63 pkg/apps/application-list.jsx:59
 msgid "Removing"
@@ -6055,7 +6077,7 @@ msgstr "Poistetaan $0"
 
 #: pkg/storaged/jobs-panel.jsx:68
 msgid "Removing $target from RAID device"
-msgstr ""
+msgstr "$Target poistetaan RAID-laitteesta"
 
 #: pkg/networkmanager/network-interface-members.jsx:121
 msgid ""
@@ -6067,7 +6089,7 @@ msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:81
 msgid "Removing physical volume from $target"
-msgstr ""
+msgstr "Fyysinen taltio poistetaan $Target:sta"
 
 #: pkg/networkmanager/firewall.jsx:848
 msgid ""
@@ -6081,7 +6103,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:831
 msgid "Removing the zone will remove all services within it."
-msgstr ""
+msgstr "Vyöhykkeen poistaminen poistaa kaikki sen sisäiset palvelut."
 
 #: pkg/storaged/vgroup-details.jsx:174 pkg/storaged/vgroup-details.jsx:223
 #: pkg/storaged/lvol-tabs.jsx:45
@@ -6114,7 +6136,7 @@ msgstr "Toista joka päivä"
 #: pkg/systemd/services/timer-dialog.jsx:253
 #, fuzzy
 #| msgid "Repeat monthly"
-msgid "Repeat monthtly"
+msgid "Repeat monthly"
 msgstr "Toista joka kuukausi"
 
 #: pkg/storaged/crypto-keyslots.jsx:215 pkg/storaged/crypto-keyslots.jsx:227
@@ -6132,19 +6154,19 @@ msgstr "Ilmoita"
 
 #: pkg/systemd/reporting.jsx:152
 msgid "Report to ABRT Analytics"
-msgstr ""
+msgstr "Ilmoita ABRT Analytics :lle"
 
 #: pkg/systemd/reporting.jsx:409
 msgid "Reported; no links available"
-msgstr ""
+msgstr "Ilmoitettu; linkkejä ei ole saatavilla"
 
 #: pkg/systemd/reporting.jsx:305
 msgid "Reporting failed"
-msgstr ""
+msgstr "Raportointi epäonnistui"
 
 #: pkg/systemd/reporting.jsx:205
 msgid "Reporting was canceled"
-msgstr ""
+msgstr "Raportointi peruutettiin"
 
 #: pkg/systemd/reporting.jsx:407
 msgid "Reports:"
@@ -6160,33 +6182,33 @@ msgstr "Vaadi salasanan vaihto $0"
 
 #: pkg/systemd/services/service-details.jsx:387
 msgid "Required by"
-msgstr ""
+msgstr "Tämän edellyttämänä"
 
 #: pkg/systemd/services/service-details.jsx:339
 msgid "Required by "
-msgstr ""
+msgstr "Tämän edellyttämänä "
 
 #: pkg/systemd/services/service-details.jsx:382
 msgid "Requires"
-msgstr ""
+msgstr "Vaatii"
 
 #: pkg/systemd/services/service-details.jsx:354
 msgid "Requires administration access to edit"
-msgstr ""
+msgstr "Muokkaaminen edellyttää järjestelmänvalvojan käyttöoikeuksia"
 
 #: pkg/systemd/services/service-details.jsx:383
 msgid "Requisite"
-msgstr ""
+msgstr "Vaaditaan"
 
 #: pkg/systemd/services/service-details.jsx:388
 msgid "Requisite of"
-msgstr ""
+msgstr "Tämä vaaditaan"
 
 #: pkg/kdump/kdump-view.jsx:516
 msgid "Reserved memory"
 msgstr "Varattu muisti"
 
-#: pkg/systemd/terminal.jsx:116
+#: pkg/systemd/terminal.jsx:158
 msgid "Reset"
 msgstr "Nollaa"
 
@@ -6204,6 +6226,8 @@ msgid ""
 "Resizing an encrypted filesystem requires unlocking the disk. Please provide "
 "a current disk passphrase."
 msgstr ""
+"Salatun tiedostojärjestelmän koon muuttaminen edellyttää levyn lukituksen "
+"avaamista. Anna nykyinen levyn tunnuslause."
 
 #: pkg/systemd/services/service-details.jsx:128
 msgid "Restart"
@@ -6229,13 +6253,13 @@ msgstr "Käynnistetään uudelleen"
 msgid "Restoring connection"
 msgstr "Palautetaan yhteys"
 
-#: pkg/systemd/logs.js:341 pkg/systemd/logs.js:533
-#: pkg/machines/components/vm/vmActions.jsx:200
+#: pkg/machines/components/vm/vmActions.jsx:200 pkg/systemd/logs.js:342
+#: pkg/systemd/logs.js:532
 msgid "Resume"
 msgstr "Palauta"
 
-#: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:68
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:192
+#: pkg/machines/components/vm/snapshots/vmSnapshotsRevertModal.jsx:68
 msgid "Revert"
 msgstr "Palaa"
 
@@ -6261,13 +6285,13 @@ msgstr "Tarkistetaan lokeja"
 msgid "Roles"
 msgstr "Roolit"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:464
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:501
 msgid "Root password"
 msgstr "Root:n salasana"
 
 #: pkg/networkmanager/interfaces.js:1464 pkg/networkmanager/interfaces.js:1481
 msgid "Round robin"
-msgstr ""
+msgstr "robin-kierros"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:98
 msgid "Route to $0"
@@ -6281,38 +6305,38 @@ msgstr "Reititetty verkko"
 msgid "Routes"
 msgstr "Reitit"
 
+#: pkg/machines/components/vm/vmActions.jsx:269
 #: pkg/systemd/services/timer-dialog.jsx:155
 #: pkg/systemd/services/timer-dialog.jsx:159
-#: pkg/machines/components/vm/vmActions.jsx:269
 msgid "Run"
 msgstr "Suorita"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:426
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:464
 msgid "Run unattended installation"
-msgstr ""
+msgstr "Suorita asennus ilman valvontaa"
 
-#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:153
 #: pkg/machines/components/networks/networkOverviewTab.jsx:101
+#: pkg/machines/components/vm/overview/vmOverviewCard.jsx:153
 msgid "Run when host boots"
-msgstr ""
+msgstr "Suorita, kun isäntä käynnistyy"
 
 #: pkg/networkmanager/index.html:217
 msgid "Runner"
-msgstr ""
+msgstr "Suorittaja"
 
+#: pkg/machines/helpers.js:213 pkg/storaged/mdraid-details.jsx:352
+#: pkg/systemd/services/services.jsx:513
 #: pkg/systemd/services/service-details.jsx:318
-#: pkg/systemd/services/services.jsx:513 pkg/storaged/mdraid-details.jsx:352
-#: pkg/machines/helpers.js:213
 msgid "Running"
 msgstr "Käynnissä"
 
 #: pkg/selinux/manifest.json:0
 msgid "SELinux"
-msgstr ""
+msgstr "SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:362
 msgid "SELinux access control errors"
-msgstr ""
+msgstr "SELinux-pääsynvalvontavirheet"
 
 #: pkg/selinux/setroubleshoot-view.jsx:356
 msgid "SELinux is disabled on the system"
@@ -6336,7 +6360,7 @@ msgstr "SELinux-ongelmanratkaisu"
 
 #: pkg/storaged/jobs-panel.jsx:42
 msgid "SMART self-test of $target"
-msgstr ""
+msgstr "$target:n SMART-itsetesti"
 
 #: pkg/machines/components/vm/consoles/desktopConsole.jsx:52
 #, fuzzy
@@ -6366,15 +6390,15 @@ msgstr "SSH-avaimet"
 
 #: pkg/networkmanager/index.html:117
 msgid "STP forward delay"
-msgstr ""
+msgstr "STP-ohjauksen viive"
 
 #: pkg/networkmanager/index.html:121
 msgid "STP hello time"
-msgstr ""
+msgstr "STP-hello-aika"
 
 #: pkg/networkmanager/index.html:125
 msgid "STP maximum message age"
-msgstr ""
+msgstr "STP-viestin enimmäisikä"
 
 #: pkg/networkmanager/index.html:113
 msgid "STP priority"
@@ -6384,24 +6408,26 @@ msgstr "STP:n prioriteetti"
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
+"Safarin käyttäjien on tuotava itse allekirjoittavan varmentajan varmenne ja "
+"luotettava siihen:"
 
 #: pkg/packagekit/autoupdates.jsx:382 pkg/systemd/services/timer-dialog.jsx:240
 msgid "Saturdays"
 msgstr "Lauantai"
 
-#: pkg/systemd/services/timer-dialog.jsx:120
-#: pkg/storaged/crypto-keyslots.jsx:274 pkg/storaged/crypto-keyslots.jsx:293
-#: pkg/machines/components/vm/nics/nicEdit.jsx:165
-#: pkg/machines/components/vm/overview/memoryModal.jsx:139
-#: pkg/machines/components/vm/overview/firmware.jsx:63
-#: pkg/machines/components/vm/overview/bootOrder.jsx:288
 #: pkg/machines/components/vm/disks/diskEdit.jsx:236
+#: pkg/machines/components/vm/nics/nicEdit.jsx:165
+#: pkg/machines/components/vm/overview/bootOrder.jsx:288
+#: pkg/machines/components/vm/overview/firmware.jsx:63
+#: pkg/machines/components/vm/overview/memoryModal.jsx:139
+#: pkg/storaged/crypto-keyslots.jsx:274 pkg/storaged/crypto-keyslots.jsx:293
+#: pkg/systemd/services/timer-dialog.jsx:120
 msgid "Save"
 msgstr "Tallenna"
 
 #: pkg/systemd/hwinfo.jsx:239
 msgid "Save and reboot"
-msgstr ""
+msgstr "Tallenna ja käynnistä uudelleen"
 
 #: pkg/packagekit/autoupdates.jsx:424
 #: pkg/systemd/overview-cards/motdCard.jsx:98
@@ -6410,21 +6436,23 @@ msgstr "Tallenna muutokset"
 
 #: pkg/storaged/vdos-panel.jsx:121
 msgid "Save space by compressing individual blocks with LZ4"
-msgstr ""
+msgstr "Säästä tilaa pakkaamalla yksittäisiä lohkoja LZ4:llä"
 
 #: pkg/storaged/vdos-panel.jsx:125
 msgid "Save space by storing identical data blocks just once"
-msgstr ""
+msgstr "Säästä tilaa tallentamalla identtiset tietolohkot vain kerran"
 
 #: pkg/storaged/crypto-keyslots.jsx:241 pkg/storaged/crypto-keyslots.jsx:291
 msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
 msgstr ""
+"Uuden salasanan tallentaminen edellyttää levyn lukituksen avaamista. Anna "
+"nykyinen levyn tunnuslause."
 
 #: pkg/lib/machine-info.js:90
 msgid "Sealed-case PC"
-msgstr ""
+msgstr "Suljettu tietokonekotelo"
 
 #: pkg/shell/nav.jsx:108
 msgid "Search"
@@ -6432,7 +6460,7 @@ msgstr "Haku"
 
 #: pkg/systemd/logs.html:79
 msgid "Search the logs with a combination of terms:"
-msgstr ""
+msgstr "Hae lokista termien yhdistelmällä:"
 
 #: pkg/systemd/services/timer-dialog.jsx:173
 msgid "Seconds"
@@ -6440,11 +6468,11 @@ msgstr "Sekunnit"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:197
 msgid "Secure shell keys"
-msgstr ""
+msgstr "Suojaa komentotulkin avaimet"
 
 #: pkg/storaged/jobs-panel.jsx:63
 msgid "Securely erasing $target"
-msgstr ""
+msgstr "Poistaa turvallisesti $target"
 
 #: pkg/packagekit/autoupdates.jsx:269
 msgid "Security updates "
@@ -6478,15 +6506,15 @@ msgstr "Lähetä"
 
 #: pkg/machines/components/vm/consoles/vnc.jsx:149
 msgid "Send key"
-msgstr ""
+msgstr "Lähetä avain"
 
 #: pkg/machines/components/vm/vmActions.jsx:236
 msgid "Send non-maskable interrupt"
-msgstr ""
+msgstr "Lähetä ei-peitettävä keskeytys"
 
-#: pkg/networkmanager/network-interface-members.jsx:217
 #: pkg/networkmanager/network-main.jsx:181
 #: pkg/networkmanager/network-main.jsx:196
+#: pkg/networkmanager/network-interface-members.jsx:217
 msgid "Sending"
 msgstr "Lähetetään"
 
@@ -6499,8 +6527,8 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Sarjanumero"
 
-#: pkg/static/login.html:140 pkg/kdump/kdump-view.jsx:120
-#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/nfs-details.jsx:329
+#: pkg/static/login.html:140 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/nfs-details.jsx:329 pkg/kdump/kdump-view.jsx:120
 msgid "Server"
 msgstr "Palvelin"
 
@@ -6520,7 +6548,7 @@ msgstr "Palvelimen ylläpitäjä"
 msgid "Server cannot be empty."
 msgstr "Palvelin ei voi olla tyhjä."
 
-#: pkg/base1/cockpit.js:4065
+#: pkg/base1/cockpit.js:4066
 msgid "Server has closed the connection."
 msgstr "Palvelin on sulkenut yhteyden."
 
@@ -6528,8 +6556,8 @@ msgstr "Palvelin on sulkenut yhteyden."
 msgid "Server software"
 msgstr "Palvelinohjelmisto"
 
-#: pkg/storaged/dialog.jsx:1074 pkg/metrics/metrics.jsx:476
-#: pkg/metrics/metrics.jsx:509 pkg/networkmanager/firewall.jsx:184
+#: pkg/networkmanager/firewall.jsx:184 pkg/storaged/dialog.jsx:1074
+#: pkg/metrics/metrics.jsx:476 pkg/metrics/metrics.jsx:509
 msgid "Service"
 msgstr "Palvelu"
 
@@ -6561,23 +6589,24 @@ msgstr "Palvelulokit"
 msgid "Service name"
 msgstr "Palvelun nimi"
 
-#: pkg/systemd/services.html:4 pkg/systemd/services/service.jsx:79
-#: pkg/networkmanager/firewall.jsx:538 pkg/systemd/manifest.json:0
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:538
+#: pkg/systemd/services/service.jsx:79 pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Palvelut"
 
-#: pkg/storaged/dialog.jsx:1070 pkg/machines/helpers.js:210
+#: pkg/machines/helpers.js:210
 #: pkg/machines/components/common/machinesConnectionSelector.jsx:43
+#: pkg/storaged/dialog.jsx:1070
 msgid "Session"
 msgstr "Istunto"
 
 #: pkg/shell/shell-modals.jsx:104
 msgid "Session is about to expire"
-msgstr ""
+msgstr "Istunto on päättymässä"
 
 #: pkg/shell/machines/machine-add.html:53
 msgid "Set"
-msgstr ""
+msgstr "Aseta"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:208
 msgid "Set DHCP range"
@@ -6589,7 +6618,7 @@ msgstr "Määritä isäntänimi"
 
 #: pkg/machines/components/vm/nics/nicAdd.jsx:45
 msgid "Set manually"
-msgstr ""
+msgstr "Aseta käsin"
 
 #: pkg/users/password-dialogs.js:213 pkg/users/password-dialogs.js:223
 #: pkg/users/password-dialogs.js:230 pkg/users/account-details.js:329
@@ -6602,34 +6631,37 @@ msgstr "Aseta aika"
 
 #: pkg/networkmanager/index.html:72
 msgid "Set to"
-msgstr ""
+msgstr "Aseta tähän"
 
 #: pkg/packagekit/updates.jsx:93
 msgid "Set up"
-msgstr ""
+msgstr "Perustaa"
 
 #: pkg/selinux/setroubleshoot-view.jsx:288
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
+"Asetus poikkeaa määritetystä tilasta ja palaa seuraavalla käynnistyskerralla."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:820
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:882
 msgid ""
 "Setting the user passwords for unattended installation requires starting the "
 "VM when creating it"
 msgstr ""
+"Käyttäjän salasanojen asettaminen valvomatonta asennusta varten edellyttää "
+"virtuaalikoneen käynnistämistä sen luomisen yhteydessä"
 
 #: pkg/packagekit/updates.jsx:85
 msgid "Setting up"
-msgstr ""
+msgstr "Asettaa"
 
 #: pkg/storaged/jobs-panel.jsx:58
 msgid "Setting up loop device $target"
-msgstr ""
+msgstr "Silmukkalaitteen $target asettaminen"
 
 #: pkg/packagekit/updates.jsx:303 pkg/packagekit/updates.jsx:372
 msgid "Severity"
-msgstr ""
+msgstr "Vakavuus"
 
 #: pkg/networkmanager/interfaces.js:1449
 msgid "Shared"
@@ -6641,7 +6673,7 @@ msgstr "Komentotulkin komentosarja"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:108
 msgid "Shift+Insert"
-msgstr ""
+msgstr "Vaihto + Syöttö"
 
 #: pkg/storaged/things-panel.jsx:82
 msgid "Show $0 device"
@@ -6652,8 +6684,8 @@ msgstr[1] "Näytä kaikki $0 laitetta"
 #: pkg/storaged/drives-panel.jsx:104
 msgid "Show $0 drive"
 msgid_plural "Show all $0 drives"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Näytä $0 asema"
+msgstr[1] "Näytä kaikki $0 asemaa"
 
 #: pkg/machines/components/vm/disks/diskAdd.jsx:144
 msgid "Show additional options"
@@ -6661,13 +6693,13 @@ msgstr "Näytä lisävaihtoehdot"
 
 #: pkg/storaged/side-panel.jsx:47
 msgid "Show all"
-msgstr ""
+msgstr "Näytä kaikki"
 
 #: pkg/systemd/abrtLog.jsx:214
 msgid "Show all threads"
 msgstr "Näytä kaikki ketjut"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:416 pkg/systemd/logs.js:552
+#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:417 pkg/systemd/logs.js:551
 msgid "Show filters"
 msgstr "Näytä suodattimet"
 
@@ -6687,10 +6719,10 @@ msgstr "Kutista looginen taltio"
 msgid "Shrink volume"
 msgstr "Kutista taltio"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:181
-#: pkg/lib/cockpit-components-shutdown.jsx:183
 #: pkg/machines/components/vm/vmActions.jsx:214
 #: pkg/machines/components/vm/vmActions.jsx:221
+#: pkg/lib/cockpit-components-shutdown.jsx:181
+#: pkg/lib/cockpit-components-shutdown.jsx:183
 msgid "Shut down"
 msgstr "Sammuta"
 
@@ -6700,7 +6732,7 @@ msgstr "Sammuta"
 
 #: pkg/machines/components/vm/overview/firmware.jsx:138
 msgid "Shut off the VM in order to edit firmware configuration"
-msgstr ""
+msgstr "Sammuta virtuaalikone, jotta voit muokata laiteohjelmiston kokoonpanoa"
 
 #: pkg/systemd/overview.jsx:210
 msgid "Shutdown"
@@ -6713,18 +6745,18 @@ msgstr "Sammutetaan"
 
 #: pkg/lib/machine-info.js:246
 msgid "Single rank"
-msgstr ""
+msgstr "Yksi sijoitus"
 
-#: pkg/systemd/hwinfo.jsx:308 pkg/storaged/part-tab.jsx:45
-#: pkg/storaged/nfs-panel.jsx:105 pkg/storaged/fsys-panel.jsx:96
-#: pkg/storaged/format-dialog.jsx:192 pkg/storaged/content-views.jsx:124
-#: pkg/storaged/content-views.jsx:779 pkg/storaged/lvol-tabs.jsx:219
-#: pkg/storaged/lvol-tabs.jsx:281 pkg/storaged/lvol-tabs.jsx:394
-#: pkg/storaged/lvol-tabs.jsx:452 pkg/storaged/nfs-details.jsx:339
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:541
-#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:86
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:597
 #: pkg/machines/components/storagePools/storagePoolList.jsx:74
+#: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:86
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
+#: pkg/storaged/format-dialog.jsx:192 pkg/storaged/nfs-panel.jsx:105
+#: pkg/storaged/nfs-details.jsx:339 pkg/storaged/fsys-panel.jsx:96
+#: pkg/storaged/content-views.jsx:124 pkg/storaged/content-views.jsx:779
+#: pkg/storaged/part-tab.jsx:45 pkg/storaged/lvol-tabs.jsx:219
+#: pkg/storaged/lvol-tabs.jsx:281 pkg/storaged/lvol-tabs.jsx:394
+#: pkg/storaged/lvol-tabs.jsx:452 pkg/systemd/hwinfo.jsx:308
 msgid "Size"
 msgstr "Koko"
 
@@ -6750,7 +6782,7 @@ msgstr "Koon tulee olla vähintään $0"
 
 #: pkg/shell/index.html:16
 msgid "Skip main navigation"
-msgstr ""
+msgstr "Ohita päävalikko"
 
 #: pkg/shell/index.html:15
 msgid "Skip to content"
@@ -6758,11 +6790,11 @@ msgstr "Siirry sisältöön"
 
 #: pkg/systemd/hwinfo.jsx:296
 msgid "Slot"
-msgstr ""
+msgstr "Aukko"
 
 #: pkg/storaged/crypto-keyslots.jsx:560 pkg/storaged/mdraid-details.jsx:120
 msgid "Slot $0"
-msgstr ""
+msgstr "Aukko $0"
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCreateModal.jsx:112
 msgid "Snapshot failed to be created"
@@ -6772,10 +6804,10 @@ msgstr "Tilannevedoksen luominen epäonnistui"
 msgid "Snapshots"
 msgstr "Tilannevedokset"
 
-#: pkg/systemd/services/service-tabs.jsx:40
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:211
+#: pkg/systemd/services/service-tabs.jsx:40
 msgid "Sockets"
-msgstr ""
+msgstr "Pistokkeet"
 
 #: pkg/packagekit/manifest.json:0
 msgid "Software Updates"
@@ -6791,23 +6823,26 @@ msgid ""
 "mitigations have the side effect of reducing performance. Change these "
 "settings at your own risk."
 msgstr ""
+"Ohjelmistopohjaiset ratkaisut auttavat estämään suorittimen "
+"tietoturvaongelmia. Näillä lievennyksillä on sivuvaikutus suorituskyvyn "
+"heikentämisessä. Muuta näitä asetuksia omalla vastuullasi."
 
 #: pkg/selinux/setroubleshoot-view.jsx:109
 msgid "Solution applied successfully"
-msgstr ""
+msgstr "Ratkaisun soveltaminen onnistui"
 
 #: pkg/selinux/setroubleshoot-view.jsx:115
 msgid "Solution failed"
-msgstr ""
+msgstr "Ratkaisu epäonnistui"
 
-#: pkg/selinux/setroubleshoot-view.jsx:410
+#: pkg/selinux/setroubleshoot-view.jsx:402
 msgid "Solutions"
-msgstr ""
+msgstr "Ratkaisut"
 
 #: pkg/packagekit/updates.jsx:73
 msgid ""
 "Some other program is currently using the package manager, please wait..."
-msgstr ""
+msgstr "Joku muu ohjelma käyttää tällä hetkellä paketinhallintaa, odota ..."
 
 #: pkg/packagekit/updates.jsx:669 pkg/packagekit/updates.jsx:773
 #: pkg/packagekit/updates.jsx:1372
@@ -6816,16 +6851,16 @@ msgstr ""
 
 #: pkg/shell/superuser.jsx:297
 msgid "Something went wrong"
-msgstr ""
+msgstr "Jotain meni pieleen"
 
 #: pkg/networkmanager/firewall.jsx:705
 msgid "Sorted from least to most trusted"
-msgstr ""
+msgstr "Lajiteltu vähiten luotettavista luotetuimpiin"
 
-#: pkg/machines/components/vm/nics/nicBody.jsx:136
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:239
 #: pkg/machines/components/vm/disks/diskAdd.jsx:559
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:229
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:239
+#: pkg/machines/components/vm/nics/nicBody.jsx:136
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:53
 msgid "Source"
 msgstr "Lähde"
@@ -6844,11 +6879,11 @@ msgstr "Lähteen polku"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:174
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:194
 msgid "Source path should not be empty"
-msgstr ""
+msgstr "Lähdepolku ei saa olla tyhjä"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:157
 msgid "Source should start with http, ftp or nfs protocol"
-msgstr ""
+msgstr "Lähteen tulisi alkaa http-, ftp- tai nfs-protokollalla"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:220
 msgid "Source volume group"
@@ -6856,19 +6891,19 @@ msgstr "Lähteen taltioryhmä"
 
 #: pkg/lib/machine-info.js:81
 msgid "Space-saving computer"
-msgstr ""
+msgstr "Tilaa säästävä tietokone"
 
 #: pkg/networkmanager/network-interface.jsx:541
 msgid "Spanning tree protocol"
-msgstr ""
+msgstr "Spanning tree -protokolla"
 
 #: pkg/networkmanager/index.html:107
 msgid "Spanning tree protocol (STP)"
-msgstr ""
+msgstr "Spanning tree -protokolla (STP)"
 
 #: pkg/storaged/mdraid-details.jsx:110
 msgid "Spare"
-msgstr ""
+msgstr "Varaosa"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Specific time"
@@ -6880,12 +6915,12 @@ msgstr "Nopeus"
 
 #: pkg/networkmanager/interfaces.js:2212
 msgid "Stable"
-msgstr ""
+msgstr "Vakaa"
 
-#: pkg/systemd/services/service-details.jsx:135
-#: pkg/storaged/content-views.jsx:310 pkg/storaged/vdo-details.jsx:261
-#: pkg/storaged/mdraid-details.jsx:320
 #: pkg/machines/components/networks/createNetworkDialog.jsx:212
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/mdraid-details.jsx:320
+#: pkg/storaged/content-views.jsx:310
+#: pkg/systemd/services/service-details.jsx:135
 msgid "Start"
 msgstr "Käynnistä"
 
@@ -6903,9 +6938,9 @@ msgstr "Käynnistä monipolku"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:238
 msgid "Start pool when host boots"
-msgstr ""
+msgstr "Käynnistä varanto, kun isäntä käynnistyy"
 
-#: pkg/systemd/services/service-details.jsx:307 pkg/networkmanager/app.jsx:72
+#: pkg/networkmanager/app.jsx:72 pkg/systemd/services/service-details.jsx:307
 msgid "Start service"
 msgstr "Käynnistä palvelu"
 
@@ -6920,19 +6955,19 @@ msgstr "Käynnistetään RAID-laite $target"
 
 #: pkg/storaged/jobs-panel.jsx:48
 msgid "Starting swapspace $target"
-msgstr ""
+msgstr "Aloitetaan sivutustila $target"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:236
 msgid "Startup"
-msgstr ""
+msgstr "Aloittaa"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/machines/components/networks/networkList.jsx:80
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:265
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:206
-#: pkg/machines/components/storagePools/storagePoolList.jsx:76
-#: pkg/machines/components/networks/networkList.jsx:80
 #: pkg/machines/components/vms/hostvmslist.jsx:95
 #: pkg/machines/components/vms/hostvmslist.jsx:137
+#: pkg/machines/components/storagePools/storagePoolList.jsx:76
+#: pkg/systemd/hwinfo.jsx:308 pkg/systemd/services/services-list.jsx:98
 msgid "State"
 msgstr "Tila"
 
@@ -6941,13 +6976,13 @@ msgctxt "storage"
 msgid "State"
 msgstr "Tila"
 
-#: pkg/systemd/services/service-details.jsx:336
 #: pkg/systemd/services/services.jsx:527 pkg/systemd/services/services.jsx:691
+#: pkg/systemd/services/service-details.jsx:336
 msgid "Static"
-msgstr ""
+msgstr "Staattinen"
 
-#: pkg/packagekit/updates.jsx:812 pkg/systemd/services/service-details.jsx:445
-#: pkg/networkmanager/network-interface.jsx:272
+#: pkg/packagekit/updates.jsx:812 pkg/networkmanager/network-interface.jsx:272
+#: pkg/systemd/services/service-details.jsx:445
 msgid "Status"
 msgstr "Tila"
 
@@ -6957,11 +6992,11 @@ msgstr "Tikku-PC"
 
 #: pkg/networkmanager/index.html:256
 msgid "Sticky"
-msgstr ""
+msgstr "Tahmea"
 
+#: pkg/storaged/vdo-details.jsx:143 pkg/storaged/vdo-details.jsx:260
+#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/content-views.jsx:308
 #: pkg/systemd/services/service-details.jsx:131
-#: pkg/storaged/content-views.jsx:308 pkg/storaged/vdo-details.jsx:143
-#: pkg/storaged/vdo-details.jsx:260 pkg/storaged/mdraid-details.jsx:319
 msgid "Stop"
 msgstr "Pysäytä"
 
@@ -6983,7 +7018,7 @@ msgstr "Pysäytä laite"
 
 #: pkg/shell/hosts.jsx:211
 msgid "Stop editing hosts"
-msgstr ""
+msgstr "Lopeta isäntien muokkaaminen"
 
 #: pkg/storaged/jobs-panel.jsx:65
 msgid "Stopping RAID device $target"
@@ -6991,17 +7026,17 @@ msgstr "Pysäytetään RAID-laite $target"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Stopping swapspace $target"
-msgstr ""
+msgstr "Lopetetaan sivutustilan $target"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:131
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:511
-#: pkg/storaged/manifest.json:0
+#: pkg/storaged/index.html:23
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:567
+#: pkg/storaged/details.jsx:131 pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Tallennustila"
 
 #: pkg/storaged/devices.jsx:81
 msgid "Storage can not be managed on this system."
-msgstr ""
+msgstr "Tallennustilaa ei voida hallita tässä järjestelmässä."
 
 #: pkg/storaged/logs-panel.jsx:39
 msgid "Storage logs"
@@ -7009,11 +7044,11 @@ msgstr "Tallennustilan lokit"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:118
 msgid "Storage pool $0 failed to get activated"
-msgstr ""
+msgstr "Tallennusvarannon $0 aktivointi epäonnistui"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:138
 msgid "Storage pool $0 failed to get deactivated"
-msgstr ""
+msgstr "Tallennusvarannon $0 aktivoinnin poisto epäonnistui"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:396
 msgid "Storage pool failed to be created"
@@ -7031,7 +7066,7 @@ msgstr "Tallennustilavarannot"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:182
 msgid "Storage size must not be 0"
-msgstr ""
+msgstr "Tallennuskoko ei saa olla 0"
 
 #: pkg/machines/components/vm/disks/diskEdit.jsx:45
 msgid "Storage volume"
@@ -7041,6 +7076,7 @@ msgstr "Varastointivarannon taltio"
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:64
 msgid "Storage volume size must not exceed the storage pool's capacity ($0 $1)"
 msgstr ""
+"Tallennustaltion koko ei saa ylittää tallennusvarannon kapasiteettia ($0 $1)"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:75
 msgid "Storage volumes"
@@ -7053,24 +7089,24 @@ msgstr "Varastointitaltioita ei voitu poistaa"
 #: pkg/systemd/overview-cards/configurationCard.jsx:208
 #: pkg/systemd/overview-cards/configurationCard.jsx:212
 msgid "Store metrics"
-msgstr ""
+msgstr "Tallenna mittarit"
 
 #: pkg/storaged/format-dialog.jsx:86
 msgid "Store passphrase"
-msgstr ""
+msgstr "Tallenna tunnuslause"
 
 #: pkg/storaged/crypto-tab.jsx:74 pkg/storaged/crypto-tab.jsx:76
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
-msgstr ""
+msgstr "Tallennettu tunnuslause"
 
 #: pkg/lib/machine-info.js:85
 msgid "Sub-Chassis"
-msgstr ""
+msgstr "Alirunko"
 
 #: pkg/lib/machine-info.js:80
 msgid "Sub-Notebook"
-msgstr ""
+msgstr "Ali -kannettava tietokone"
 
 #: pkg/packagekit/autoupdates.jsx:383 pkg/systemd/services/timer-dialog.jsx:241
 msgid "Sundays"
@@ -7078,25 +7114,25 @@ msgstr "Sunnuntai"
 
 #: pkg/storaged/optional-panel.jsx:100
 msgid "Support is installed."
-msgstr ""
+msgstr "Tuki on asennettu."
 
 #: pkg/machines/helpers.js:220
 msgid "Suspended (PM)"
 msgstr "Pysäytetty (PM)"
 
 #: pkg/storaged/content-views.jsx:169 pkg/metrics/metrics.jsx:102
-#: pkg/metrics/metrics.jsx:422 pkg/metrics/metrics.jsx:1033
+#: pkg/metrics/metrics.jsx:422 pkg/metrics/metrics.jsx:1056
 msgid "Swap"
-msgstr ""
+msgstr "Sivutus"
 
 #: pkg/metrics/metrics.jsx:101
 msgid "Swap out"
-msgstr ""
+msgstr "Sivutuksen ulkona"
 
 #: pkg/storaged/content-views.jsx:412
 msgctxt "storage-id-desc"
 msgid "Swap space"
-msgstr ""
+msgstr "Sivutuksen tila"
 
 #: pkg/networkmanager/network-interface-members.jsx:70
 msgid "Switch of $0"
@@ -7105,16 +7141,16 @@ msgstr ""
 #: pkg/networkmanager/network-interface-members.jsx:96
 #: pkg/networkmanager/network-interface.jsx:167
 msgid "Switch off $0"
-msgstr ""
+msgstr "Kytke $0 pois päältä"
 
 #: pkg/networkmanager/network-interface-members.jsx:84
 #: pkg/networkmanager/network-interface.jsx:146
 msgid "Switch on $0"
-msgstr ""
+msgstr "Kytke $0 päälle"
 
 #: pkg/shell/superuser.jsx:142
 msgid "Switch to limited access"
-msgstr ""
+msgstr "Vaihda rajoitettuun pääsyyn"
 
 #: pkg/networkmanager/network-interface.jsx:166
 msgid ""
@@ -7172,7 +7208,7 @@ msgstr "Järjestelmätiedot"
 msgid "System is up to date"
 msgstr "Järjestelmä on ajan tasalla"
 
-#: pkg/selinux/setroubleshoot-view.jsx:464
+#: pkg/selinux/setroubleshoot-view.jsx:458
 msgid "System modifications"
 msgstr "Järjestelmän muutokset"
 
@@ -7211,7 +7247,7 @@ msgstr "Kohteen polku"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:104
 msgid "Target path should not be empty"
-msgstr ""
+msgstr "Kohdepolku ei saa olla tyhjä"
 
 #: pkg/systemd/services/service-tabs.jsx:39
 msgid "Targets"
@@ -7249,7 +7285,7 @@ msgstr "Testimääritys"
 
 #: pkg/kdump/kdump-view.jsx:486
 msgid "Test is only available while the kdump service is running."
-msgstr ""
+msgstr "Testi on käytettävissä vain kdump-palvelun ollessa käynnissä."
 
 #: pkg/kdump/kdump-view.jsx:298
 msgid "Test kdump settings"
@@ -7265,11 +7301,11 @@ msgstr "Teksti"
 
 #: pkg/machines/components/common/deleteResource.jsx:47
 msgid "The $0 could not be deleted"
-msgstr ""
+msgstr "$0:ta ei voitu poistaa"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
-msgstr ""
+msgstr "Paketti $0 on asennettava VDO-laitteiden luomiseen."
 
 #: pkg/shell/machines/machine-dialogs.js:403
 msgid "The IP address or hostname cannot contain whitespace."
@@ -7277,15 +7313,15 @@ msgstr "IP-osoite tai isäntänimi ei voi sisältää välilyöntiä."
 
 #: pkg/storaged/mdraid-details.jsx:219
 msgid "The RAID array is in a degraded state"
-msgstr ""
+msgstr "RAID-taulukko on heikentyneessä tilassa"
 
 #: pkg/storaged/mdraid-details.jsx:156
 msgid "The RAID device must be running in order to add spare disks."
-msgstr ""
+msgstr "RAID-laitteen on oltava käynnissä voidakseen lisätä varalevyjä."
 
 #: pkg/storaged/mdraid-details.jsx:127
 msgid "The RAID device must be running in order to remove disks."
-msgstr ""
+msgstr "RAID-laitteen on oltava käynnissä levyjen poistamiseksi."
 
 #: pkg/shell/machines/machine-dialogs.js:755
 msgid ""
@@ -7317,11 +7353,13 @@ msgstr ""
 #: pkg/machines/components/vm/deleteDialog.jsx:64
 msgid "The VM is running and will be forced off before deletion."
 msgstr ""
+"Virtuaalikone on käynnissä ja se pakotetaan pois päältä ennen poistamista."
 
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:303
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:292
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:303
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
+"Virtuaalikoneen on oltava käynnissä tai sammutettuna laitteen irrottamiseksi"
 
 #: pkg/users/password-dialogs.js:264
 msgid "The account '$0' will be forced to change their password on next login"
@@ -7331,7 +7369,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:736
 msgid "The cockpit service is automatically included"
-msgstr ""
+msgstr "Palvelu cockpit sisältyy automaattisesti"
 
 #: pkg/sosreport/index.html:38
 msgid "The collected information will be stored locally on the system."
@@ -7340,16 +7378,19 @@ msgstr "Kerätyt tiedot tallennetaan paikallisesti järjestelmään."
 #: pkg/selinux/setroubleshoot-view.jsx:286
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr ""
+"Määritetty tila on tuntematon, se saattaa muuttua seuraavalla "
+"käynnistyskerralla."
 
 #: pkg/storaged/vdo-details.jsx:108
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
-msgstr ""
+msgstr "Tämän VDO-laitteen luominen ei päättynyt eikä laitetta voida käyttää."
 
 #: pkg/storaged/crypto-keyslots.jsx:537
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
+"Tällä hetkellä kirjautuneena oleva käyttäjä ei saa nähdä tietoja avaimista."
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:159
 msgid "The directory on the server being exported"
@@ -7357,59 +7398,74 @@ msgstr "Viedyn palvelimen hakemisto"
 
 #: pkg/storaged/fsys-tab.jsx:413
 msgid "The filesystem has no permanent mount point."
-msgstr ""
+msgstr "Tiedostojärjestelmällä ei ole pysyvää liitoskohtaa."
 
 #: pkg/storaged/fsys-tab.jsx:277
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
-msgstr ""
+msgstr "Tiedostojärjestelmä on jo liitetty $0:een. Jatkaminen irrottaa sen."
 
 #: pkg/storaged/fsys-tab.jsx:494
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
 msgstr ""
+"Tiedostojärjestelmä on määritetty asennettavaksi automaattisesti "
+"käynnistykseen, mutta sen salauskontin lukitusta ei avata silloin."
 
 #: pkg/storaged/fsys-tab.jsx:486
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr ""
+"Tiedostojärjestelmä on tällä hetkellä liitettynä, mutta sitä ei liitetä "
+"seuraavan käynnistyksen jälkeen."
 
 #: pkg/storaged/fsys-tab.jsx:478
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr ""
+"Tiedostojärjestelmä on tällä hetkellä $0:een liitettynä, mutta sitä ei $1:"
+"een liitetä seuraavan käynnistyksen jälkeen."
 
 #: pkg/storaged/fsys-tab.jsx:490
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr ""
+"Tiedostojärjestelmä on tällä hetkellä $0:een liitettynä, mutta sitä ei "
+"liitetä seuraavan käynnistyksen jälkeen."
 
 #: pkg/storaged/fsys-tab.jsx:482
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
+"Tiedostojärjestelmä ei tällä hetkellä ole liitettynä, mutta se liitetään "
+"seuraavan käynnistyksen jälkeen."
 
 #: pkg/storaged/dialog.jsx:1039
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
 msgstr ""
+"Tiedostojärjestelmää käyttävät sisäänkirjautumisistunnot ja "
+"järjestelmäpalvelut. Jatkaminen lopettaa nämä."
 
 #: pkg/storaged/dialog.jsx:1041
 msgid "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
+"Tiedostojärjestelmää käyttävät sisäänkirjautumisistunnot. Jatkaminen "
+"lopettaa nämä."
 
 #: pkg/storaged/dialog.jsx:1043
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr ""
+"Tiedostojärjestelmää käyttävät järjestelmäpalvelut. Jatkaminen lopettaa nämä."
 
 #: pkg/storaged/fsys-tab.jsx:415
 msgid "The filesystem is not mounted."
-msgstr ""
+msgstr "Tiedostojärjestelmä ei ole liitettynä."
 
 #: pkg/packagekit/updates.jsx:435
 msgid "The following service will be restarted:"
@@ -7423,6 +7479,9 @@ msgid ""
 "should be reviewed by the originating organization before being passed to "
 "any third party."
 msgstr ""
+"Luotu arkisto sisältää arkaluonteisina pidettyjä tietoja, ja alkuperäisen "
+"organisaation tulisi tarkistaa sen sisältö ennen sen välittämistä "
+"kolmannelle osapuolelle."
 
 #: pkg/shell/machines/machine-dialogs.js:866
 msgid "The key password can not be empty"
@@ -7438,19 +7497,19 @@ msgstr "Antamasi avain ei ollut kelvollinen."
 
 #: pkg/storaged/mdraid-details.jsx:133
 msgid "The last disk of a RAID device cannot be removed."
-msgstr ""
+msgstr "RAID-laitteen viimeistä levyä ei voida poistaa."
 
 #: pkg/storaged/crypto-keyslots.jsx:573
 msgid "The last key slot can not be removed"
-msgstr ""
+msgstr "Viimeistä avaimen aukkoa ei voida poistaa"
 
 #: pkg/storaged/vgroup-details.jsx:102
 msgid "The last physical volume of a volume group cannot be removed."
-msgstr ""
+msgstr "Taltioryhmän viimeistä fyysistä taltiota ei voida poistaa."
 
 #: pkg/lib/cockpit-components-modifications.jsx:142
 msgid "The logged in user is not permitted to view system modifications"
-msgstr ""
+msgstr "Sisäänkirjautunut käyttäjä ei saa tarkastella järjestelmän muutoksia"
 
 #: pkg/shell/indexes.js:484
 #, fuzzy
@@ -7466,7 +7525,7 @@ msgstr "Uuden avaimen salasana ei voi olla tyhjä"
 msgid "The new key passwords do not match"
 msgstr "Uudet avainsalasanat eivät täsmää"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:208
+#: pkg/users/password-dialogs.js:208 pkg/users/account-create-dialog.js:202
 msgid "The passwords do not match"
 msgstr "Salasanat eivät täsmää"
 
@@ -7476,27 +7535,29 @@ msgstr "Salasanat eivät täsmää."
 
 #: pkg/machines/components/vm/disks/diskAdd.jsx:80
 msgid "The pool is empty"
-msgstr ""
+msgstr "Varanto on tyhjä"
 
-#: pkg/static/login.html:66 pkg/shell/machines/machine-unknown-hostkey.html:12
-#: pkg/shell/machines/machine-invalid-hostkey.html:20
+#: pkg/shell/machines/machine-unknown-hostkey.html:12
+#: pkg/shell/machines/machine-invalid-hostkey.html:20 pkg/static/login.html:66
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
 msgstr ""
+"Tuloksena oleva sormenjälki sopii jakaa julkisilla menetelmillä, mukaan "
+"lukien sähköposti."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:431
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
 msgid "The selected operating system does not support unattended installation"
-msgstr ""
+msgstr "Valittu käyttöjärjestelmä ei tue valvomatonta asennusta"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:173
 msgid "The selected operating system has minimum memory requirement of $0 $1"
-msgstr ""
+msgstr "Valitulla käyttöjärjestelmällä on vähimmäismäärä muistia $0 $1"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:188
 msgid ""
 "The selected operating system has minimum storage size requirement of $0 $1"
-msgstr ""
+msgstr "Valitun käyttöjärjestelmän tallennustilan vähimmäisvaatimus on $0 $1"
 
 #: pkg/static/login.js:802
 msgid ""
@@ -7506,7 +7567,7 @@ msgstr ""
 "Palvelin kieltäytyi todentamasta '$0' salasanatodennusta käyttäen, eikä "
 "muita tuettuja todennustapoja ole käytettävissä."
 
-#: pkg/base1/cockpit.js:4049
+#: pkg/base1/cockpit.js:4050
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Palvelin kieltäytyi tunnistautumista käyttäen mitään tuetuista tavoista."
@@ -7514,40 +7575,48 @@ msgstr ""
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:125
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:129
 msgid "The storage pool could not be deleted"
-msgstr ""
+msgstr "Tallennusvarantoa ei voitu poistaa"
 
 #: pkg/systemd/hwinfo.jsx:69
 msgid "The user $0 is not permitted to change cpu security mitigations"
-msgstr ""
+msgstr "Käyttäjä $0 ei saa muuttaa suorittimen suojauksen lievennyksiä"
 
 #: pkg/users/account-roles.js:95
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
+"Käyttäjän on kirjauduttava ulos ja kirjauduttava sisään, jotta roolit "
+"voidaan täysin muuttaa."
 
 #: pkg/users/account-create-dialog.js:91
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
 msgstr ""
+"Käyttäjänimi voi koostua vain a–z-kirjaimista, numeroista, pisteistä, "
+"viivoista ja alaviivoista."
 
 #: pkg/static/login.js:178
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
+"Verkkoselaimen kokoonpano estää Cockpitin suorittamasta (ei tavoiteltavissa "
+"$0)"
 
 #: pkg/shell/active-pages-dialog.jsx:69
 msgid "There are currently no active pages"
-msgstr ""
+msgstr "Tällä hetkellä ei ole aktiivisia sivuja"
 
 #: pkg/storaged/multipath.jsx:73
 msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
 msgstr ""
+"Järjestelmässä on laitteita, joilla on useita polkuja, mutta monitiepalvelu "
+"ei ole käynnissä."
 
 #: pkg/networkmanager/firewall.jsx:187
 msgid "There are no active services in this zone"
-msgstr ""
+msgstr "Tällä vyöhykkeellä ei ole aktiivisia palveluja"
 
 #: pkg/users/authorized-keys-panel.js:117
 msgid "There are no authorized public keys for this account."
@@ -7558,6 +7627,8 @@ msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
 msgstr ""
+"Muualla ei ole tarpeeksi vapaata tilaa tämän fyysisen taltion poistamiseksi. "
+"Tarvitaan vähintää $0 lisää vapaata tilaa."
 
 #: pkg/systemd/overview.jsx:126
 msgid "There was $0 failed login attempt since the last successful login."
@@ -7572,7 +7643,7 @@ msgstr[1] ""
 
 #: pkg/shell/index.html:319
 msgid "There was an unexpected error while connecting to the machine."
-msgstr ""
+msgstr "Laitteeseen yhdistämisessä tapahtui odottamaton virhe."
 
 #: pkg/storaged/utils.js:194
 msgid "Thin logical volume"
@@ -7585,11 +7656,11 @@ msgstr ""
 
 #: pkg/storaged/vdo-details.jsx:119
 msgid "This VDO device does not use all of its backing device."
-msgstr ""
+msgstr "Tämä VDO-laite ei käytä kaikkia sen tukilaitetta."
 
 #: pkg/machines/components/vm/vmActions.jsx:319
 msgid "This VM is transient. Shut it down if you wish to delete it."
-msgstr ""
+msgstr "Tämä virtuaalikone on ohimenevä. Sammuta se, jos haluat poistaa sen."
 
 #: pkg/networkmanager/network-interface.jsx:286
 msgid "This device cannot be managed here."
@@ -7600,6 +7671,8 @@ msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
 msgstr ""
+"Tällä laitteella on tällä hetkellä käytössä tiedostojärjestelmiä. Jatkaminen "
+"irrottaa kaikki sen tiedostojärjestelmät."
 
 #: pkg/storaged/dialog.jsx:1003
 msgid "This device is currently used for RAID devices."
@@ -7610,6 +7683,8 @@ msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
 msgstr ""
+"Tätä laitetta käytetään tällä hetkellä RAID-laitteisiin. Jatkaminen poistaa "
+"sen RAID-laitteistaan."
 
 #: pkg/storaged/dialog.jsx:1007
 msgid "This device is currently used for VDO devices."
@@ -7624,10 +7699,12 @@ msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
 msgstr ""
+"Tätä laitetta käytetään tällä hetkellä taltioryhmiä varten. Jatkaminen "
+"poistaa sen taltioryhmistään."
 
 #: pkg/shell/superuser.jsx:294
 msgid "This didn't work, please try again"
-msgstr ""
+msgstr "Tämä ei toiminut, yritä uudelleen"
 
 #: pkg/storaged/mdraid-details.jsx:129
 msgid "This disk cannot be removed while the device is recovering."
@@ -7643,11 +7720,11 @@ msgstr "Tämä kenttä ei voi olla tyhjä."
 
 #: pkg/packagekit/autoupdates.jsx:394
 msgid "This host will reboot after updates are installed."
-msgstr ""
+msgstr "Tämä isäntä käynnistyy uudelleen, kun päivitykset on asennettu."
 
 #: pkg/storaged/lvol-tabs.jsx:410
 msgid "This logical volume is not completely used by its content."
-msgstr ""
+msgstr "Sisältö ei käytä tätä loogista taltiota kokonaan."
 
 #: pkg/shell/machines/machine-dialogs.js:383
 msgid "This machine has already been added."
@@ -7683,22 +7760,24 @@ msgid ""
 "This tool will collect system configuration and diagnostic information from "
 "this system for use with diagnosing problems with the system."
 msgstr ""
+"Tämä työkalu kerää järjestelmän kokoonpano- ja vianmääritystietoja "
+"järjestelmän ongelmien diagnosoimiseksi."
 
 #: pkg/systemd/services/service-details.jsx:258
 msgid "This unit is not designed to be enabled explicitly."
-msgstr ""
+msgstr "Tätä yksikköä ei ole suunniteltu nimenomaisesti käytettäväksi."
 
 #: pkg/users/account-create-dialog.js:96
 msgid "This user name already exists"
 msgstr "Käyttäjätunnus on jo olemassa"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:530
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:586
 msgid "This volume is already used by another VM."
-msgstr ""
+msgstr "Tätä taltiota käyttää jo toinen virtuaalikone."
 
 #: pkg/machines/components/vm/disks/diskAdd.jsx:208
 msgid "This volume is already used by: "
-msgstr ""
+msgstr "Tätä taltiota käyttää jo: "
 
 #: pkg/storaged/lvol-tabs.jsx:194
 msgid "This volume needs to be activated before it can be resized."
@@ -7706,11 +7785,11 @@ msgstr "Tämä taltio tulee aktivoida, ennen kuin sen kokoa voi muuttaa."
 
 #: pkg/static/login.js:163
 msgid "This web browser is too old to run the Web Console (missing $0)"
-msgstr ""
+msgstr "Tämä verkkoselain on liian vanha Web-konsolin käyttämiseen (puuttuu $0)"
 
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
-msgstr ""
+msgstr "Tämän avulla voit tulevaisuudessa kirjautua sisään ilman salasanaa."
 
 #: pkg/kdump/kdump-view.jsx:300
 msgid ""
@@ -7718,10 +7797,13 @@ msgid ""
 "Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
 msgstr ""
+"Tämä testaa kdump-asetukset kaatumalla ytimen ja siten järjestelmän. "
+"Asetuksista riippuen järjestelmä ei välttämättä käynnisty automaattisesti "
+"uudelleen ja prosessi voi kestää jonkin aikaa."
 
 #: pkg/kdump/kdump-view.jsx:495
 msgid "This will test the kdump configuration by crashing the kernel."
-msgstr ""
+msgstr "Tämä testaa kdump-kokoonpanon kaatumalla ytimen."
 
 #: pkg/networkmanager/firewall.jsx:829
 msgid ""
@@ -7765,12 +7847,14 @@ msgstr ""
 "Vinkki: Luo avaimesi salasana vastaamaan käyttäjätunnuksesi salasanaa, jotta "
 "voit automaattisesti tunnistautua muita järjestelmiä kohden."
 
-#: pkg/static/login.html:61 pkg/shell/machines/machine-unknown-hostkey.html:7
-#: pkg/shell/machines/machine-invalid-hostkey.html:15
+#: pkg/shell/machines/machine-unknown-hostkey.html:7
+#: pkg/shell/machines/machine-invalid-hostkey.html:15 pkg/static/login.html:61
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
 msgstr ""
+"Varmista, että haitallinen kolmas osapuoli ei sieppaa yhteyttä, tarkista "
+"isäntäavaimen sormenjälki:"
 
 #: pkg/packagekit/updates.jsx:1233
 msgid ""
@@ -7786,6 +7870,8 @@ msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
 msgstr ""
+"Vahvistaaksesi sormenjäljen, suorita seuraava $0:lla istuessasi fyysisesti "
+"koneen ääressä tai luotettavan verkon kautta:"
 
 #: pkg/shell/machines/machine-unknown-hostkey.html:10
 #: pkg/shell/machines/machine-invalid-hostkey.html:18
@@ -7793,11 +7879,13 @@ msgid ""
 "To verify a fingerprint, run the following on {{host}} while physically "
 "sitting at the machine or through a trusted network:"
 msgstr ""
+"Vahvistaaksesi sormenjäljen, suorita seuraava {{host}}:lla istuessasi "
+"fyysisesti koneen ääressä tai luotettavan verkon kautta:"
 
-#: pkg/metrics/metrics.jsx:993
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:40
+#: pkg/metrics/metrics.jsx:1016
 msgid "Today"
-msgstr ""
+msgstr "Tänään"
 
 #: pkg/storaged/iscsi-panel.jsx:251
 msgid "Toggle"
@@ -7811,13 +7899,13 @@ msgstr ""
 msgid "Toggle session settings"
 msgstr "Vaihda istunnon asetuksia"
 
-#: pkg/base1/cockpit.js:4071
+#: pkg/base1/cockpit.js:4072
 msgid "Too much data"
 msgstr "Liian paljon dataa"
 
 #: pkg/shell/indexes.js:337
 msgid "Tools"
-msgstr ""
+msgstr "Työkalut"
 
 #: pkg/metrics/metrics.jsx:475
 msgid "Top 5 CPU services"
@@ -7838,17 +7926,19 @@ msgstr "Torni"
 #: pkg/machines/components/vm/overview/firmware.jsx:144
 msgid "Transient VMs don't support editing firmware configuration"
 msgstr ""
+"Ohimenevät virtuaalikoneet eivät tue laiteohjelmiston kokoonpanon "
+"muokkaamista"
 
 #: pkg/systemd/services/service-details.jsx:398
 msgid "Triggered by"
 msgstr "Tämän laukaisema"
 
-#: pkg/systemd/services/service-details.jsx:397
 #: pkg/systemd/services/services-list.jsx:54
+#: pkg/systemd/services/service-details.jsx:397
 msgid "Triggers"
 msgstr "Liipaisimet"
 
-#: pkg/metrics/metrics.jsx:969 pkg/machines/components/libvirtSlate.jsx:101
+#: pkg/machines/components/libvirtSlate.jsx:101 pkg/metrics/metrics.jsx:992
 msgid "Troubleshoot"
 msgstr "Vianetsintä"
 
@@ -7860,11 +7950,11 @@ msgstr "Vianetsintä"
 
 #: pkg/storaged/crypto-keyslots.jsx:347
 msgid "Trust key"
-msgstr ""
+msgstr "Luottamusavain"
 
 #: pkg/networkmanager/firewall.jsx:702
 msgid "Trust level"
-msgstr ""
+msgstr "Luottamustaso"
 
 #: pkg/static/login.html:114
 msgid "Try again"
@@ -7880,7 +7970,7 @@ msgstr "Tiistai"
 
 #: pkg/tuned/dialog.js:259
 msgid "Tuned has failed to start"
-msgstr ""
+msgstr "Tuned:n käynnistys epäonnistui"
 
 #: pkg/tuned/dialog.js:185
 msgid ""
@@ -7888,10 +7978,13 @@ msgid ""
 "under certain workloads. The core of Tuned are profiles, which tune your "
 "system for different use cases."
 msgstr ""
+"Tuned on palvelu, joka valvoo järjestelmääsi ja optimoi suorituskyvyn "
+"tietyillä kuormituksilla. Tunedin ydin on profiileja, jotka virittävät "
+"järjestelmän eri käyttötapauksiin."
 
 #: pkg/tuned/dialog.js:93
 msgid "Tuned is not available"
-msgstr ""
+msgstr "Tuned ei ole saatavilla"
 
 #: pkg/tuned/dialog.js:95
 msgid "Tuned is not running"
@@ -7899,16 +7992,13 @@ msgstr "Tuned ei ole käynnissä"
 
 #: pkg/tuned/dialog.js:97
 msgid "Tuned is off"
-msgstr ""
+msgstr "Tuned on pois päältä"
 
 #: pkg/systemd/superuser-alert.jsx:44
 msgid "Turn on administrative access"
-msgstr ""
+msgstr "Ota järjestelmänvalvojan käyttöoikeudet käyttöön"
 
 #: pkg/shell/index.html:226 pkg/packagekit/autoupdates.jsx:351
-#: pkg/systemd/hwinfo.jsx:80 pkg/systemd/hwinfo.jsx:308
-#: pkg/storaged/part-tab.jsx:55 pkg/storaged/format-dialog.jsx:207
-#: pkg/storaged/unrecognized-tab.jsx:41
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:199
 #: pkg/machines/components/vm/overview/bootOrder.jsx:111
 #: pkg/machines/components/vm/overview/bootOrder.jsx:122
@@ -7918,12 +8008,15 @@ msgstr ""
 #: pkg/machines/components/vm/overview/bootOrder.jsx:147
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:78
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:80
+#: pkg/storaged/format-dialog.jsx:207 pkg/storaged/unrecognized-tab.jsx:41
+#: pkg/storaged/part-tab.jsx:55 pkg/systemd/hwinfo.jsx:80
+#: pkg/systemd/hwinfo.jsx:308
 msgid "Type"
 msgstr "Tyyppi"
 
 #: pkg/machines/components/vm/overview/bootOrder.jsx:148
 msgid "Type ID"
-msgstr ""
+msgstr "Tyypin tunnus"
 
 #: pkg/systemd/logs.html:73
 msgid "Type to filter"
@@ -7933,7 +8026,7 @@ msgstr "Kirjoita suodattaaksesi"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:301
 msgid "URL"
 msgstr "URL"
 
@@ -8022,7 +8115,7 @@ msgstr "Palvelimeen ei saada yhteyttä"
 
 #: pkg/storaged/nfs-details.jsx:291
 msgid "Unable to remove mount"
-msgstr ""
+msgstr "Liitosta ei voi poistaa"
 
 #: pkg/selinux/setroubleshoot-client.js:173
 msgid "Unable to run fix: %0"
@@ -8034,7 +8127,7 @@ msgstr "Ei voitu aloittaa setroubleshootd"
 
 #: pkg/storaged/nfs-details.jsx:266
 msgid "Unable to unmount filesystem"
-msgstr ""
+msgstr "Tiedostojärjestelmää ei voi irrottaa"
 
 #: pkg/playground/translate.html:34 pkg/playground/translate.html:39
 msgid "Unavailable"
@@ -8045,16 +8138,16 @@ msgstr "Ei käytettävissä"
 msgid "Unexpected error"
 msgstr "Odottamaton virhe"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:212
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:216
 msgid "Unique name"
-msgstr ""
+msgstr "Ainutlaatuinen nimi"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:124
 msgid "Unique network name"
-msgstr ""
+msgstr "Ainutlaatuinen verkon nimi"
 
-#: pkg/storaged/dialog.jsx:1074
 #: pkg/machines/components/vm/overview/bootOrder.jsx:137
+#: pkg/storaged/dialog.jsx:1074
 msgid "Unit"
 msgstr "Yksikkö"
 
@@ -8066,14 +8159,14 @@ msgstr "Ei löytynyt"
 
 #: pkg/users/account-roles.js:83
 msgid "Unix group: $0"
-msgstr ""
+msgstr "Unix-ryhmä: $0"
 
-#: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/machines/components/vm/nics/vmNicsCard.jsx:228
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 #: pkg/networkmanager/network-interface.jsx:199
 #: pkg/networkmanager/network-interface.jsx:201
+#: pkg/machines/components/vm/nics/vmNicsCard.jsx:228
+#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
+#: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:242
 msgid "Unknown"
 msgstr "Tuntematon"
 
@@ -8100,7 +8193,7 @@ msgstr "Tuntematon laiteohjelmisto"
 
 #: pkg/storaged/iscsi-panel.jsx:87
 msgid "Unknown host name"
-msgstr ""
+msgstr "Tuntematon isäntänimi"
 
 #: pkg/networkmanager/firewall.jsx:400
 msgid "Unknown service name"
@@ -8108,7 +8201,7 @@ msgstr "Tuntematon palvelun nimi"
 
 #: pkg/storaged/crypto-keyslots.jsx:597
 msgid "Unknown type"
-msgstr ""
+msgstr "Tuntematon tyyppi"
 
 #: pkg/storaged/content-views.jsx:241 pkg/storaged/content-views.jsx:246
 #: pkg/storaged/content-views.jsx:259
@@ -8125,7 +8218,7 @@ msgstr "Avaa avaimen lukitus"
 
 #: pkg/storaged/format-dialog.jsx:74
 msgid "Unlock read only"
-msgstr ""
+msgstr "Avaa luku-vain:n lukitus"
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unlocking $target"
@@ -8133,15 +8226,15 @@ msgstr "Avataan $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:182
 msgid "Unlocking disk..."
-msgstr ""
+msgstr "Avataan levyn lukitus..."
 
 #: pkg/networkmanager/network-main.jsx:189
 #: pkg/networkmanager/network-main.jsx:191
 msgid "Unmanaged interfaces"
 msgstr "Hallitsemattomat liitännät"
 
-#: pkg/storaged/fsys-tab.jsx:290 pkg/storaged/content-views.jsx:376
-#: pkg/storaged/nfs-details.jsx:312
+#: pkg/storaged/fsys-tab.jsx:290 pkg/storaged/nfs-details.jsx:312
+#: pkg/storaged/content-views.jsx:376
 msgid "Unmount"
 msgstr "Irroita"
 
@@ -8151,7 +8244,7 @@ msgstr "Irrota tiedostojärjestelmä"
 
 #: pkg/storaged/fsys-tab.jsx:488 pkg/storaged/fsys-tab.jsx:492
 msgid "Unmount now"
-msgstr ""
+msgstr "Irrota nyt"
 
 #: pkg/storaged/jobs-panel.jsx:51
 msgid "Unmounting $target"
@@ -8163,7 +8256,7 @@ msgstr "Nimeämätön"
 
 #: pkg/machines/components/vm/nics/vmNicsCard.jsx:309
 msgid "Unplug"
-msgstr ""
+msgstr "Kytke pois"
 
 #: pkg/storaged/content-views.jsx:172
 msgid "Unrecognized data"
@@ -8176,15 +8269,15 @@ msgstr "Tunnistamattomat tiedot"
 
 #: pkg/storaged/lvol-tabs.jsx:97 pkg/storaged/lvol-tabs.jsx:186
 msgid "Unrecognized data can not be made smaller here."
-msgstr ""
+msgstr "Tunnistamattomat tiedot ei täällä voi tehdä pienemmiksi."
 
 #: pkg/storaged/content-views.jsx:703
 msgid "Unsupported volume"
 msgstr "Tukematon taltio"
 
-#: pkg/base1/cockpit.js:4051 pkg/base1/cockpit.js:4053
+#: pkg/base1/cockpit.js:4052 pkg/base1/cockpit.js:4054
 msgid "Untrusted host"
-msgstr ""
+msgstr "Epäluotettava isäntä"
 
 #: pkg/shell/machines/machine-change-port.html:25
 msgid "Update"
@@ -8244,27 +8337,27 @@ msgstr "Päivitetään"
 
 #: pkg/systemd/services/service-details.jsx:373
 msgid "Updating status..."
-msgstr ""
+msgstr "Päivitetään tilaa ..."
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:128
 msgid "Uptime"
-msgstr ""
+msgstr "Käyttöaste"
 
 #: pkg/machines/components/vm/disks/diskEdit.jsx:43
 msgid "Url"
-msgstr ""
+msgstr "Url"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:116
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1032
-#: pkg/metrics/metrics.jsx:1033 pkg/metrics/metrics.jsx:1034
-#: pkg/metrics/metrics.jsx:1035
 #: pkg/machines/components/vm/vmDetailsPage.jsx:111
+#: pkg/storaged/unrecognized-tab.jsx:37
+#: pkg/systemd/overview-cards/usageCard.jsx:116 pkg/metrics/metrics.jsx:1055
+#: pkg/metrics/metrics.jsx:1056 pkg/metrics/metrics.jsx:1057
+#: pkg/metrics/metrics.jsx:1058
 msgid "Usage"
 msgstr "Käyttö"
 
 #: pkg/storaged/vdos-panel.jsx:128
 msgid "Use 512 byte emulation"
-msgstr ""
+msgstr "Käytä 512-tavuemulointia"
 
 #: pkg/storaged/vdo-details.jsx:320
 #, fuzzy
@@ -8280,7 +8373,7 @@ msgstr "Päällekkäisyyden poisto"
 
 #: pkg/machines/components/vm/disks/diskAdd.jsx:567
 msgid "Use existing"
-msgstr ""
+msgstr "Käytä olemassaolevaa"
 
 #: pkg/shell/credentials.js:76
 #, fuzzy
@@ -8292,9 +8385,9 @@ msgstr "ssh-avain"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Käytä seuraavia avaimia todentamaan muita järjestelmiä kohden"
 
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:221
 #: pkg/storaged/fsys-tab.jsx:536 pkg/storaged/swap-tab.jsx:70
 #: pkg/metrics/metrics.jsx:509
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:221
 msgid "Used"
 msgstr "Käytetty"
 
@@ -8306,9 +8399,19 @@ msgstr "Käyttävä"
 msgid "User"
 msgstr "Käyttäjä"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:57 pkg/static/login.html:71
-#: pkg/shell/machines/machine-add.html:29 pkg/users/account-create-dialog.js:49
-#: pkg/users/account-details.js:291
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:512
+#, fuzzy
+#| msgid "Last login"
+msgid "User login"
+msgstr "Edellinen kirjautuminen"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
+msgid "User login must not be empty when user password is set"
+msgstr ""
+
+#: pkg/systemd/overview-cards/realmd-operation.html:57
+#: pkg/shell/machines/machine-add.html:29 pkg/static/login.html:71
+#: pkg/users/account-details.js:291 pkg/users/account-create-dialog.js:49
 msgid "User name"
 msgstr "Käyttäjänimi"
 
@@ -8317,9 +8420,14 @@ msgid "User name cannot be empty"
 msgstr "Käyttäjätunnus ei voi olla tyhjä"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:60
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:519
 #: pkg/systemd/overview-cards/realmd-operation.js:340
 msgid "User password"
 msgstr "Käyttäjäsalasana"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:195
+msgid "User password must not be empty when user login is set"
+msgstr ""
 
 #: pkg/storaged/iscsi-panel.jsx:49 pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
@@ -8343,22 +8451,22 @@ msgstr "VCPU:n asetuksia ei voitu tallentaa"
 
 #: pkg/storaged/content-views.jsx:167
 msgid "VDO backing"
-msgstr ""
+msgstr "VDO-varmuus"
 
 #: pkg/storaged/content-views.jsx:417
 msgctxt "storage-id-desc"
 msgid "VDO backing"
-msgstr ""
+msgstr "VDO-varmuus"
 
 #: pkg/storaged/lvol-tabs.jsx:92 pkg/storaged/lvol-tabs.jsx:179
 msgid "VDO backing devices can not be made smaller"
-msgstr ""
+msgstr "VDO-varmuuslaitteet ei voi tehdä pienemmiksi"
 
-#: pkg/storaged/pvol-tabs.jsx:87 pkg/storaged/vdos-panel.jsx:57
+#: pkg/storaged/vdos-panel.jsx:57 pkg/storaged/pvol-tabs.jsx:87
 msgid "VDO device"
 msgstr "VDO-laite"
 
-#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:257
+#: pkg/storaged/vdo-details.jsx:257 pkg/storaged/utils.js:253
 msgid "VDO device $0"
 msgstr "VDO-laite $0"
 
@@ -8378,7 +8486,7 @@ msgstr "VLAN-asetukset"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:135
 msgid "VM $0 already exists"
-msgstr ""
+msgstr "Virtuaalikone $0 on jo olemassa"
 
 #: pkg/machines/app.jsx:146
 msgid "VM $0 does not exist on $1 connection"
@@ -8390,40 +8498,40 @@ msgstr "Virtuaalikoneen $0 uudelleenkäynnistyksen pakottaminen epäonnistui"
 
 #: pkg/machines/components/vm/vmActions.jsx:163
 msgid "VM $0 failed to force shutdown"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui pakottamaan sammutus"
 
 #: pkg/machines/components/vm/deleteDialog.jsx:124
 msgid "VM $0 failed to get deleted"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui saamaan itse poistetuksi"
 
-#: pkg/machines/libvirt-common.js:1110
+#: pkg/machines/libvirt-common.js:1128
 #: pkg/machines/components/vm/vmActions.jsx:88
 msgid "VM $0 failed to get installed"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui saamaan itse asennetuksi"
 
 #: pkg/machines/components/vm/vmActions.jsx:137
 msgid "VM $0 failed to pause"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui keskeytymään"
 
 #: pkg/machines/components/vm/vmActions.jsx:98
 msgid "VM $0 failed to reboot"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui käynnistymään uudelleen"
 
 #: pkg/machines/components/vm/vmActions.jsx:149
 msgid "VM $0 failed to resume"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui palautumaan"
 
 #: pkg/machines/components/vm/vmActions.jsx:175
 msgid "VM $0 failed to send NMI"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui lähettämään NMI"
 
 #: pkg/machines/components/vm/vmActions.jsx:125
 msgid "VM $0 failed to shutdown"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui sammuttamaan"
 
 #: pkg/machines/components/vm/vmActions.jsx:80
 msgid "VM $0 failed to start"
-msgstr ""
+msgstr "Virtuaalikone $0 epäonnistui käynnistymään"
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:139
 msgid "VM state"
@@ -8457,15 +8565,15 @@ msgstr "Vahvistetaan osoite"
 
 #: pkg/static/login.html:108
 msgid "Validating authentication token"
-msgstr ""
+msgstr "Vahvistetaan todennustunnus"
 
 #: pkg/users/authorized-keys.js:108
 msgid "Validating key"
 msgstr "Vahvistetaan avainta"
 
-#: pkg/systemd/hwinfo.jsx:295
 #: pkg/machines/components/vm/overview/bootOrder.jsx:123
 #: pkg/machines/components/vm/overview/bootOrder.jsx:129
+#: pkg/systemd/hwinfo.jsx:295
 msgid "Vendor"
 msgstr "Toimittaja"
 
@@ -8475,7 +8583,7 @@ msgstr "Vahvistettu"
 
 #: pkg/storaged/crypto-keyslots.jsx:332
 msgid "Verify key"
-msgstr ""
+msgstr "Vahvista avain"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Verifying"
@@ -8490,17 +8598,17 @@ msgstr "Versio"
 msgid "Very securely erasing $target"
 msgstr "Poistetaan hyvin turvallisesti $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:168
+#: pkg/lib/cockpit-components-modifications.jsx:167
 msgid "View automation script"
-msgstr ""
+msgstr "Näytä automaatio-komentosarja"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:147
+#: pkg/systemd/overview-cards/usageCard.jsx:149
 msgid "View details and history"
-msgstr ""
+msgstr "Tarkastele tietoja ja historiaa"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:138
 msgid "View hardware details"
-msgstr ""
+msgstr "Tarkastele laitteiston yksityiskohdat"
 
 #: pkg/apps/application.jsx:71
 msgid "View project website"
@@ -8508,18 +8616,18 @@ msgstr "Näytä hankkeen verkkosivusto"
 
 #: pkg/systemd/reporting.jsx:397
 msgid "View report"
-msgstr ""
+msgstr "Tarkastele raportti"
 
 #: pkg/machines/manifest.json:0
 msgid "Virtual Machines"
 msgstr "Virtuaalikoneet"
 
+#: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/vm/vmDetailsPage.jsx:83
 #: pkg/machines/components/vm/vmDetailsPage.jsx:182
-#: pkg/machines/components/storagePools/storagePoolList.jsx:53
-#: pkg/machines/components/networks/networkList.jsx:56
 #: pkg/machines/components/vms/hostvmslist.jsx:125
 #: pkg/machines/components/vms/hostvmslist.jsx:132
+#: pkg/machines/components/storagePools/storagePoolList.jsx:53
 msgid "Virtual machines"
 msgstr "Virtuaalikoneet"
 
@@ -8539,20 +8647,20 @@ msgstr "Virtuaaliverkon luominen epäonnistui"
 msgid "Virtualization service (libvirt) is not active"
 msgstr "Virtualisointipalvelu (libvirt) ei ole aktiivinen"
 
-#: pkg/storaged/content-views.jsx:146
-#: pkg/machines/components/vm/deleteDialog.jsx:50
-#: pkg/machines/components/vm/overview/bootOrder.jsx:95
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:584
 #: pkg/machines/components/vm/disks/diskAdd.jsx:86
 #: pkg/machines/components/vm/disks/vmDiskColumns.jsx:46
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:528
+#: pkg/machines/components/vm/deleteDialog.jsx:50
+#: pkg/machines/components/vm/overview/bootOrder.jsx:95
+#: pkg/storaged/content-views.jsx:146
 msgid "Volume"
 msgstr "Taltio"
 
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:83
 msgid "Volume failed to be created"
-msgstr ""
+msgstr "Taltion luominen epäonnnistui"
 
-#: pkg/storaged/pvol-tabs.jsx:41 pkg/storaged/vgroups-panel.jsx:40
+#: pkg/storaged/vgroups-panel.jsx:40 pkg/storaged/pvol-tabs.jsx:41
 msgid "Volume group"
 msgstr "Taltioryhmä"
 
@@ -8570,7 +8678,7 @@ msgstr "Taltioryhmän nimi ei tulisi olla tyhjä"
 
 #: pkg/storaged/lvol-tabs.jsx:411
 msgid "Volume size is $0. Content size is $1."
-msgstr ""
+msgstr "Taltion koko on $0. Sisällön koko on $1."
 
 #: pkg/machines/components/vm/overview/bootOrder.jsx:143
 msgid "WWPN"
@@ -8587,20 +8695,20 @@ msgstr "Odotetaan lisätietoja..."
 
 #: pkg/systemd/reporting.jsx:220
 msgid "Waiting for input…"
-msgstr ""
+msgstr "Odotetaan syötettä…"
 
 #: pkg/apps/utils.jsx:62
 msgid "Waiting for other programs to finish using the package manager..."
-msgstr ""
+msgstr "Odotetaan muiden ohjelmien paketinhallinnan käyttämisen päättymistä..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:143
 #: pkg/lib/cockpit-components-install-dialog.jsx:178
 msgid "Waiting for other software management operations to finish"
-msgstr ""
+msgstr "Odotetaan muiden ohjelmistojen hallintatoimintojen päättymistä"
 
 #: pkg/systemd/reporting.jsx:315
 msgid "Waiting to start…"
-msgstr ""
+msgstr "Odotetaan aloittamista …"
 
 #: pkg/systemd/services/service-details.jsx:389
 msgid "Wanted by"
@@ -8608,11 +8716,11 @@ msgstr "Tämän haluama"
 
 #: pkg/systemd/services/service-details.jsx:384
 msgid "Wants"
-msgstr ""
+msgstr "Haluaa"
 
 #: pkg/systemd/logs.html:56
 msgid "Warning and above"
-msgstr ""
+msgstr "Varoitus ja yli"
 
 #: pkg/shell/indexes.js:404
 msgid "Web Console"
@@ -8630,7 +8738,7 @@ msgstr "Web-konsoli Linux-palvelimille"
 
 #: pkg/systemd/superuser-alert.jsx:60
 msgid "Web console is running in limited access mode."
-msgstr ""
+msgstr "Verkkokonsoli toimii rajoitetun pääsyn tilassa."
 
 #: pkg/packagekit/autoupdates.jsx:379 pkg/systemd/services/timer-dialog.jsx:237
 msgid "Wednesdays"
@@ -8648,7 +8756,7 @@ msgstr "Viikot"
 
 #: pkg/storaged/crypto-keyslots.jsx:340
 msgid "What if tang-show-keys is not available?"
-msgstr ""
+msgstr "Entä jos tang-show-keys ei ole käytettävissä?"
 
 #: pkg/packagekit/autoupdates.jsx:373
 msgid "When"
@@ -8656,7 +8764,7 @@ msgstr "Kun"
 
 #: pkg/shell/machines/machine-add.html:34
 msgid "When empty, connect with the current user"
-msgstr ""
+msgstr "Tyhjänä ollessa, muodosta yhteys nykyiseen käyttäjään"
 
 #: pkg/packagekit/updates.jsx:454 pkg/packagekit/updates.jsx:850
 msgid ""
@@ -8665,14 +8773,14 @@ msgid ""
 "Reconnect to continue watching the update process."
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:110
+#: pkg/systemd/terminal.jsx:152
 msgid "White"
-msgstr ""
+msgstr "Valkoinen"
 
 #: pkg/storaged/drive-details.jsx:83
 msgctxt "storage"
 msgid "World wide name"
-msgstr ""
+msgstr "Maailmanlaajuinen nimi"
 
 #: pkg/metrics/metrics.jsx:526
 msgid "Write"
@@ -8680,17 +8788,17 @@ msgstr "Kirjoita"
 
 #: pkg/storaged/mdraid-details.jsx:111
 msgid "Write-mostly"
-msgstr ""
+msgstr "Kirjoitus-enimmäkseen"
 
+#: pkg/machines/components/vm/disks/vmDisksCard.jsx:255
 #: pkg/machines/components/vm/disks/diskEdit.jsx:125
-#: pkg/machines/components/vm/disks/vmDisksCard.jsx:255
 msgid "Writeable"
-msgstr ""
+msgstr "Kirjoitettava"
 
-#: pkg/machines/components/vm/disks/diskEdit.jsx:134
 #: pkg/machines/components/vm/disks/vmDisksCard.jsx:255
+#: pkg/machines/components/vm/disks/diskEdit.jsx:134
 msgid "Writeable and shared"
-msgstr ""
+msgstr "Kirjoitettava ja jaettu"
 
 #: pkg/static/login.js:816
 msgid "Wrong user name or password"
@@ -8704,7 +8812,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr ""
 
-#: pkg/systemd/reporting.jsx:261 pkg/networkmanager/network-interface.jsx:248
+#: pkg/networkmanager/network-interface.jsx:248 pkg/systemd/reporting.jsx:261
 msgid "Yes"
 msgstr "Kyllä"
 
@@ -8714,11 +8822,11 @@ msgstr "Eilen"
 
 #: pkg/static/login.js:648
 msgid "You are connecting to $0 for the first time."
-msgstr ""
+msgstr "Yhdistät $0:een ensimmäistä kertaa."
 
 #: pkg/shell/machines/machine-unknown-hostkey.html:6
 msgid "You are connecting to {{host}} for the first time."
-msgstr ""
+msgstr "Yhdistät {{host}}:een ensimmäistä kertaa."
 
 #: pkg/networkmanager/firewall.jsx:152
 #: pkg/networkmanager/firewall-switch.jsx:58
@@ -8727,7 +8835,7 @@ msgstr "Sinulla ei ole valtuuksia muokata palomuuria."
 
 #: pkg/shell/superuser.jsx:227
 msgid "You can not gain administrative access."
-msgstr ""
+msgstr "Et voi hankkia järjestelmänvalvojan käyttöoikeuksia."
 
 #: pkg/users/authorized-keys-panel.js:100
 msgid ""
@@ -8736,51 +8844,55 @@ msgid ""
 msgstr ""
 "Sinulla ei ole oikeutta tarkastella tämän käyttäjätilin julkisia avaimia."
 
-#: pkg/shell/base_index.js:545
+#: pkg/shell/base_index.js:546
 msgid "You have been logged out due to inactivity."
-msgstr ""
+msgstr "Sinut on kirjautunut ulos toimimattomuuden vuoksi."
 
 #: pkg/systemd/logs.js:114
 msgid "You may try to load older entries."
-msgstr ""
+msgstr "Voit yrittää ladata vanhempia merkintöjä."
 
 #: pkg/shell/machines/machine-change-auth.html:22
 #: pkg/shell/machines/machine-change-auth.html:29
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
+"Haluat ehkä vaihtaa avaimen salasanan automaattista sisäänkirjautumista "
+"varten."
 
 #: pkg/users/password-dialogs.js:79
 msgid "You must wait longer to change your password"
 msgstr "Sinun täytyy odottaa kauemmin vaihtaaksesi salasanasi"
 
-#: pkg/metrics/metrics.jsx:955
+#: pkg/metrics/metrics.jsx:978
 msgid "You need to relogin to be able to see metrics"
-msgstr ""
+msgstr "Sinun on kirjauduttava uudelleen sisään, jotta voit nähdä tietoja"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:138
 msgid "You need to select the most closely matching operating system"
-msgstr ""
+msgstr "Sinun on valittava parhaiten vastaava käyttöjärjestelmä"
 
 #: pkg/sosreport/index.html:39
 msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr ""
+"Sinun on vaihdettava \"Järjestelmänvalvojan käyttöoikeus\":een, jotta voit "
+"luoda raportteja."
 
 #: pkg/shell/superuser.jsx:285
 msgid "You now have administrative access."
-msgstr ""
+msgstr "Sinulla on nyt järjestelmänvalvojan käyttöoikeus."
 
-#: pkg/shell/base_index.js:523
+#: pkg/shell/base_index.js:524
 msgid "You will be logged out in $0 seconds."
-msgstr ""
+msgstr "Sinut kirjataan ulos $0 sekunnin kuluttua."
 
-#: pkg/users/accounts-list.js:50
+#: pkg/users/accounts-list.js:51
 msgid "Your account"
 msgstr "Tilisi"
 
 #: pkg/shell/superuser.jsx:145
 msgid "Your browser will remember your access level across sessions."
-msgstr ""
+msgstr "Selaimesi muistaa käyttöoikeustasosi istuntojen ajan."
 
 #: pkg/packagekit/updates.jsx:1411
 msgid ""
@@ -8790,11 +8902,11 @@ msgstr ""
 "Palvelimesi sulkee yhteyden pian. Voit muodostaa yhteyden uudelleen, kun se "
 "on käynnistynyt uudelleen."
 
-#: pkg/base1/cockpit.js:4041
+#: pkg/base1/cockpit.js:4042
 msgid "Your session has been terminated."
 msgstr "Istuntosi on päätetty."
 
-#: pkg/base1/cockpit.js:4043
+#: pkg/base1/cockpit.js:4044
 msgid "Your session has expired. Please log in again."
 msgstr "Istuntosi on vahventunut. Ole hyvä ja kirjaudu uudelleen sisään."
 
@@ -8812,38 +8924,37 @@ msgstr "[ei dataa]"
 
 #: pkg/systemd/manifest.json:0
 msgid "abrt"
-msgstr ""
+msgstr "abrt"
 
 #: pkg/users/manifest.json:0
 msgid "access"
 msgstr "pääsy"
 
-#: pkg/tuned/change-profile.jsx:57
-#: pkg/machines/components/storagePools/storagePool.jsx:58
 #: pkg/machines/components/networks/network.jsx:56
-#: pkg/shell/active-pages-dialog.jsx:50
+#: pkg/machines/components/storagePools/storagePool.jsx:58
+#: pkg/tuned/change-profile.jsx:57 pkg/shell/active-pages-dialog.jsx:50
 msgid "active"
 msgstr "aktiivinen"
 
 #: pkg/apps/manifest.json:0
 msgid "add-on"
-msgstr ""
+msgstr "lisäosa"
 
 #: pkg/apps/manifest.json:0
 msgid "addon"
-msgstr ""
+msgstr "lisäosa"
 
 #: pkg/systemd/logs.html:83
 msgid "any free-form string as regular expression"
-msgstr ""
+msgstr "mikä tahansa vapaamuotoinen merkkijono säännöllisenä lausekkeena"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
-msgstr ""
+msgstr "sovellukset"
 
 #: pkg/packagekit/manifest.json:0
 msgid "apt-get"
-msgstr ""
+msgstr "apt-get"
 
 #: pkg/systemd/manifest.json:0
 msgid "asset tag"
@@ -8855,23 +8966,23 @@ msgstr "kello"
 
 #: pkg/selinux/manifest.json:0
 msgid "avc"
-msgstr ""
+msgstr "avc"
 
 #: pkg/systemd/manifest.json:0
 msgid "bash"
-msgstr ""
+msgstr "bash"
 
 #: pkg/systemd/manifest.json:0
 msgid "bios"
-msgstr ""
+msgstr "bios"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "bond"
-msgstr ""
+msgstr "sidos"
 
 #: pkg/systemd/manifest.json:0
 msgid "boot"
-msgstr ""
+msgstr "käynnistys"
 
 #: pkg/machines/helpers.js:240 pkg/networkmanager/manifest.json:0
 msgid "bridge"
@@ -8888,7 +8999,7 @@ msgstr "tavua"
 
 #: pkg/machines/helpers.js:226
 msgid "cdrom"
-msgstr ""
+msgstr "cd-rom"
 
 #: pkg/systemd/manifest.json:0
 msgid "cgroups"
@@ -8904,15 +9015,15 @@ msgstr "konsoli"
 
 #: pkg/systemd/manifest.json:0
 msgid "coredump"
-msgstr ""
+msgstr "ytimen tyhjennys"
 
 #: pkg/systemd/manifest.json:0
 msgid "cpu"
-msgstr ""
+msgstr "suoritin"
 
 #: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "crash"
-msgstr ""
+msgstr "kaatuminen"
 
 #: pkg/machines/helpers.js:233
 #: pkg/machines/components/vm/overview/cpuTypeModal.jsx:50
@@ -8921,7 +9032,7 @@ msgstr "mukautettu"
 
 #: pkg/systemd/manifest.json:0
 msgid "date"
-msgstr ""
+msgstr "päivämäärä"
 
 #: pkg/systemd/manifest.json:0
 msgid "debug"
@@ -8929,7 +9040,7 @@ msgstr "virheenjäljitys"
 
 #: pkg/systemd/manifest.json:0
 msgid "dimm"
-msgstr ""
+msgstr "dimm"
 
 #: pkg/machines/helpers.js:238
 msgid "direct"
@@ -8954,7 +9065,7 @@ msgstr "levyt"
 
 #: pkg/packagekit/manifest.json:0
 msgid "dnf"
-msgstr ""
+msgstr "dnf"
 
 #: pkg/systemd/manifest.json:0
 msgid "domain"
@@ -8962,7 +9073,7 @@ msgstr "toimialue"
 
 #: pkg/machines/helpers.js:266
 msgid "down"
-msgstr ""
+msgstr "alas"
 
 #: pkg/storaged/manifest.json:0
 msgid "drive"
@@ -8977,14 +9088,14 @@ msgstr "esim."
 msgid "e.g. \"$0\""
 msgstr "esim. \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:147
+#: pkg/networkmanager/network-interface.jsx:399
+#: pkg/machines/components/vm/overview/bootOrder.jsx:331
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:161
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:170
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:177
-#: pkg/machines/components/vm/overview/bootOrder.jsx:331
-#: pkg/networkmanager/network-interface.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:147
 msgid "edit"
-msgstr ""
+msgstr "muokkaa"
 
 #: pkg/systemd/manifest.json:0
 msgid "enable"
@@ -9016,7 +9127,7 @@ msgstr "päivittäin"
 
 #: pkg/apps/manifest.json:0
 msgid "extension"
-msgstr ""
+msgstr "laajennus"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:308
 msgid "failed to list ssh host keys: $0"
@@ -9040,11 +9151,11 @@ msgstr "alusta"
 
 #: pkg/storaged/manifest.json:0
 msgid "fstab"
-msgstr ""
+msgstr "fstab"
 
 #: pkg/systemd/manifest.json:0
 msgid "graphs"
-msgstr ""
+msgstr "kaaviot"
 
 #: pkg/systemd/manifest.json:0
 msgid "hardware"
@@ -9056,7 +9167,7 @@ msgstr "historia"
 
 #: pkg/machines/helpers.js:234 pkg/systemd/manifest.json:0
 msgid "host"
-msgstr ""
+msgstr "isäntä"
 
 #: pkg/machines/helpers.js:230
 msgid "host device"
@@ -9064,11 +9175,11 @@ msgstr "isäntälaite"
 
 #: pkg/machines/helpers.js:235
 msgid "host passthrough"
-msgstr ""
+msgstr "isännän läpivienti"
 
 #: pkg/machines/helpers.js:243
 msgid "hostdev"
-msgstr ""
+msgstr "isäntälaite"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:67
 msgid "iSCSI direct target"
@@ -9084,7 +9195,7 @@ msgstr "iSCSI-kohde"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:162
 msgid "iSCSI target IQN"
-msgstr ""
+msgstr "iSCSI-kohteen IQN"
 
 #: pkg/storaged/iscsi-panel.jsx:271
 msgid "iSCSI targets"
@@ -9092,7 +9203,7 @@ msgstr "iSCSI-kohteet"
 
 #: pkg/shell/shell-modals.jsx:124
 msgid "in most browsers"
-msgstr ""
+msgstr "useimmissa selaimissa"
 
 #: pkg/apps/manifest.json:0
 msgid "install"
@@ -9116,7 +9227,7 @@ msgstr "ipv6"
 
 #: pkg/storaged/manifest.json:0
 msgid "iscsi"
-msgstr ""
+msgstr "iscsi"
 
 #: pkg/machines/manifest.json:0
 msgid "iso"
@@ -9128,11 +9239,11 @@ msgstr "päiväkirja"
 
 #: pkg/systemd/logs.html:87
 msgid "journalctl manpage"
-msgstr ""
+msgstr "journalctl manpage"
 
 #: pkg/kdump/manifest.json:0
 msgid "kdump"
-msgstr ""
+msgstr "kdump"
 
 #: pkg/kdump/kdump-view.jsx:502 pkg/kdump/kdump-view.jsx:507
 msgid "kdump status"
@@ -9140,23 +9251,23 @@ msgstr "kdump-tila"
 
 #: pkg/storaged/crypto-keyslots.jsx:366
 msgid "key slot $0"
-msgstr ""
+msgstr "avainaukko $0"
 
 #: pkg/users/manifest.json:0
 msgid "keys"
-msgstr ""
+msgstr "avaimet"
 
 #: pkg/machines/manifest.json:0
 msgid "libvirt"
-msgstr ""
+msgstr "libvirt"
 
 #: pkg/kdump/kdump-view.jsx:386 pkg/kdump/kdump-view.jsx:388
 msgid "locally in $0"
-msgstr ""
+msgstr "paikallisesti $0:ssa"
 
 #: pkg/systemd/logs.html:82
 msgid "log fields"
-msgstr ""
+msgstr "lokikentät"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -9164,27 +9275,27 @@ msgstr "sisäänkirjautuminen"
 
 #: pkg/storaged/manifest.json:0
 msgid "luks"
-msgstr ""
+msgstr "luks"
 
 #: pkg/storaged/manifest.json:0
 msgid "lvm2"
-msgstr ""
+msgstr "lvm2"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "mac"
-msgstr ""
+msgstr "mac"
 
 #: pkg/systemd/manifest.json:0
 msgid "machine"
-msgstr ""
+msgstr "kone"
 
 #: pkg/systemd/manifest.json:0
 msgid "mask"
-msgstr ""
+msgstr "peite"
 
 #: pkg/machines/helpers.js:244
 msgid "mcast"
-msgstr ""
+msgstr "mcast"
 
 #: pkg/systemd/manifest.json:0
 msgid "memory"
@@ -9192,32 +9303,32 @@ msgstr "muisti"
 
 #: pkg/systemd/manifest.json:0
 msgid "metrics"
-msgstr ""
+msgstr "mittarit"
 
 #: pkg/systemd/manifest.json:0
 msgid "mitigation"
-msgstr ""
+msgstr "lievennys"
 
 #: pkg/storaged/manifest.json:0
 msgid "mkfs"
-msgstr ""
+msgstr "mkfs"
 
 #: pkg/storaged/manifest.json:0
 msgid "mount"
-msgstr ""
+msgstr "liitos"
 
 #: pkg/storaged/manifest.json:0
 msgid "nbde"
-msgstr ""
+msgstr "nbde"
 
 #: pkg/machines/helpers.js:227 pkg/machines/helpers.js:239
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "verkko"
 
 #: pkg/storaged/manifest.json:0
 msgid "nfs"
-msgstr ""
+msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:117
 msgid "nfs dump target isn't formatted as server:path"
@@ -9225,18 +9336,18 @@ msgstr "nfs dump -kohdetta ei ole muotoiltu 'palvelin:polku':na"
 
 #: pkg/metrics/metrics.jsx:84
 msgid "nice"
-msgstr ""
+msgstr "nice"
 
 #: pkg/machines/helpers.js:262
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
-#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 msgid "no"
 msgstr "ei"
 
 #: pkg/machines/components/vm/snapshots/vmSnapshotsCard.jsx:142
 msgid "no state saved"
-msgstr ""
+msgstr "ei tilaa tallennettuna"
 
 #: pkg/tuned/dialog.js:103
 msgid "none"
@@ -9245,8 +9356,8 @@ msgstr "Ei mitään"
 #: pkg/systemd/overview-cards/usageCard.jsx:112
 msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 CPU:sta"
+msgstr[1] "$0 CPU:sta"
 
 #: pkg/systemd/manifest.json:0
 msgid "operating system"
@@ -9254,7 +9365,7 @@ msgstr "käyttöjärjestelmä"
 
 #: pkg/systemd/manifest.json:0
 msgid "os"
-msgstr ""
+msgstr "käyttöjärjestelmä"
 
 #: pkg/packagekit/manifest.json:0
 msgid "package"
@@ -9262,7 +9373,7 @@ msgstr "paketti"
 
 #: pkg/packagekit/manifest.json:0
 msgid "packagekit"
-msgstr ""
+msgstr "packagekit"
 
 #: pkg/storaged/manifest.json:0
 msgid "partition"
@@ -9270,27 +9381,33 @@ msgstr "osio"
 
 #: pkg/users/manifest.json:0
 msgid "passwd"
-msgstr ""
+msgstr "passwd"
 
 #: pkg/users/manifest.json:0
 msgid "password"
 msgstr "salasana"
 
+#: pkg/lib/cockpit-components-password.jsx:85
+#, fuzzy
+#| msgid "password"
+msgid "password quality"
+msgstr "salasana"
+
 #: pkg/systemd/manifest.json:0
 msgid "path"
-msgstr ""
+msgstr "polku"
 
 #: pkg/systemd/manifest.json:0
 msgid "pci"
-msgstr ""
+msgstr "pci"
 
 #: pkg/systemd/manifest.json:0
 msgid "pcp"
-msgstr ""
+msgstr "pcp"
 
 #: pkg/apps/manifest.json:0
 msgid "plugin"
-msgstr ""
+msgstr "kytkettävä"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"
@@ -9298,11 +9415,11 @@ msgstr "portti"
 
 #: pkg/systemd/manifest.json:0
 msgid "power"
-msgstr ""
+msgstr "power"
 
 #: pkg/machines/manifest.json:0
 msgid "pxe"
-msgstr ""
+msgstr "pxe"
 
 #: pkg/machines/manifest.json:0
 msgid "qcow2"
@@ -9310,23 +9427,23 @@ msgstr "qcow2"
 
 #: pkg/machines/manifest.json:0
 msgid "qemu"
-msgstr ""
+msgstr "qemu"
 
 #: pkg/systemd/logs.html:81
 msgid "qualifiers"
-msgstr ""
+msgstr "karsinnat"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
-msgstr ""
+msgstr "raid"
 
 #: pkg/systemd/manifest.json:0
 msgid "ram"
-msgstr ""
+msgstr "ram-muisti"
 
 #: pkg/storaged/fsys-tab.jsx:400
 msgid "read only"
-msgstr ""
+msgstr "luku-vain"
 
 #: pkg/tuned/change-profile.jsx:55
 msgid "recommended"
@@ -9334,7 +9451,7 @@ msgstr "suositeltu"
 
 #: pkg/machines/helpers.js:229
 msgid "redirected device"
-msgstr ""
+msgstr "uudelleenohjattu laite"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -9346,7 +9463,7 @@ msgstr "roolit"
 
 #: pkg/systemd/overview.jsx:254
 msgid "running $0"
-msgstr ""
+msgstr "käynnissä $0"
 
 #: pkg/packagekit/updates.jsx:253 pkg/packagekit/manifest.json:0
 msgid "security"
@@ -9354,7 +9471,7 @@ msgstr "turvallisuus"
 
 #: pkg/selinux/manifest.json:0
 msgid "semanage"
-msgstr ""
+msgstr "semanage"
 
 #: pkg/systemd/manifest.json:0
 msgid "serial"
@@ -9370,7 +9487,7 @@ msgstr "palvelu"
 
 #: pkg/selinux/manifest.json:0
 msgid "setroubleshoot"
-msgstr ""
+msgstr "setroubleshoot"
 
 #: pkg/systemd/manifest.json:0
 msgid "shell"
@@ -9386,7 +9503,7 @@ msgstr "näytä enemmän"
 
 #: pkg/systemd/manifest.json:0
 msgid "shut"
-msgstr ""
+msgstr "sulje"
 
 #: pkg/systemd/manifest.json:0
 msgid "socket"
@@ -9398,9 +9515,9 @@ msgstr "ratkaisun yksityiskohdat"
 
 #: pkg/sosreport/manifest.json:0
 msgid "sos"
-msgstr ""
+msgstr "sos"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -9422,7 +9539,7 @@ msgstr "sys"
 
 #: pkg/systemd/manifest.json:0
 msgid "systemctl"
-msgstr ""
+msgstr "systemctl"
 
 #: pkg/systemd/manifest.json:0
 msgid "systemd"
@@ -9430,7 +9547,7 @@ msgstr "systemd"
 
 #: pkg/storaged/manifest.json:0
 msgid "tang"
-msgstr ""
+msgstr "tang"
 
 #: pkg/systemd/manifest.json:0
 msgid "target"
@@ -9438,23 +9555,23 @@ msgstr "kohde"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "tcp"
-msgstr ""
+msgstr "tcp"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "team"
-msgstr ""
+msgstr "joukkue"
 
 #: pkg/systemd/manifest.json:0
 msgid "time"
-msgstr ""
+msgstr "aika"
 
 #: pkg/systemd/manifest.json:0
 msgid "timer"
-msgstr ""
+msgstr "ajastin"
 
 #: pkg/storaged/manifest.json:0
 msgid "udisks"
-msgstr ""
+msgstr "u-levyt"
 
 #: pkg/machines/helpers.js:246 pkg/networkmanager/manifest.json:0
 msgid "udp"
@@ -9462,7 +9579,7 @@ msgstr "udp"
 
 #: pkg/systemd/manifest.json:0
 msgid "unit"
-msgstr ""
+msgstr "yksikkö"
 
 #: pkg/systemd/services/services.jsx:463 pkg/systemd/services/services.jsx:464
 #: pkg/systemd/services/services.jsx:486 pkg/systemd/services/services.jsx:487
@@ -9475,7 +9592,7 @@ msgstr "tuntematon kohde"
 
 #: pkg/systemd/manifest.json:0
 msgid "unmask"
-msgstr ""
+msgstr "poista peite"
 
 #: pkg/storaged/manifest.json:0
 msgid "unmount"
@@ -9483,20 +9600,20 @@ msgstr "irrota"
 
 #: pkg/storaged/utils.js:431
 msgid "unpartitioned space on $0"
-msgstr ""
+msgstr "ei-osioitu tila $0:lla"
 
 #: pkg/machines/helpers.js:265
 msgid "up"
-msgstr ""
+msgstr "ylös"
 
-#: pkg/metrics/metrics.jsx:84 pkg/machines/helpers.js:241
+#: pkg/machines/helpers.js:241 pkg/metrics/metrics.jsx:84
 #: pkg/users/manifest.json:0
 msgid "user"
 msgstr "käyttäjä"
 
 #: pkg/users/manifest.json:0
 msgid "useradd"
-msgstr ""
+msgstr "useradd"
 
 #: pkg/users/manifest.json:0
 msgid "username"
@@ -9508,15 +9625,15 @@ msgstr "vCPU-lasku"
 
 #: pkg/machines/components/vm/overview/vcpuModal.jsx:195
 msgid "vCPU maximum"
-msgstr ""
+msgstr "vCPU enintään"
 
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:225
 msgid "vCPUs"
-msgstr ""
+msgstr "vCPU:t"
 
 #: pkg/storaged/manifest.json:0
 msgid "vdo"
-msgstr ""
+msgstr "vdo"
 
 #: pkg/systemd/manifest.json:0
 msgid "version"
@@ -9524,37 +9641,43 @@ msgstr "versio"
 
 #: pkg/machines/helpers.js:247
 msgid "vhostuser"
-msgstr ""
+msgstr "vhostuser"
 
 #: pkg/machines/components/common/stateIcon.jsx:60
 msgid "view more..."
-msgstr ""
+msgstr "Katso lisää..."
 
 #: pkg/machines/components/vm/vmActions.jsx:298
 msgid ""
 "virt-install package needs to be installed on the system in order to clone "
 "VMs"
 msgstr ""
+"Paketti virt-install on asennettava järjestelmään virtuaalikoneiden "
+"kloonaamiseksi"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1001
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1067
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
 msgstr ""
+"Paketti virt-install on asennettava järjestelmään uusien virtuaalikoneiden "
+"luomiseksi"
 
 #: pkg/machines/components/vm/overview/vmOverviewCard.jsx:183
 msgid ""
 "virt-install package needs to be installed on the system in order to edit "
 "this attribute"
 msgstr ""
+"Paketti virt-install on asennettava järjestelmään tämän attribuutin "
+"muokkaamiseksi"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "vlan"
-msgstr ""
+msgstr "vlan"
 
 #: pkg/machines/manifest.json:0
 msgid "vm"
-msgstr ""
+msgstr "vm"
 
 #: pkg/storaged/manifest.json:0
 msgid "volume"
@@ -9566,26 +9689,29 @@ msgstr "varoitus"
 
 #: pkg/packagekit/autoupdates.jsx:270
 msgid "will be applied $0 at $1"
-msgstr ""
+msgstr "sovelletaan $0 $1:ssa"
 
 #: pkg/machines/helpers.js:261
+#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
-#: pkg/machines/components/networks/networkOverviewTab.jsx:90
 msgid "yes"
 msgstr "kyllä"
 
 #: pkg/packagekit/manifest.json:0
 msgid "yum"
-msgstr ""
+msgstr "yum"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
-msgstr ""
+msgstr "vyöhyke"
 
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} avain vaihdettu"
+
+#~ msgid "Please set a root password"
+#~ msgstr "Aseta root:n salasana"
 
 #~ msgid "21st"
 #~ msgstr "21."

@@ -979,7 +979,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m = self.machine
 
         # wait for candlepin to be active and verify
-        self.candlepin.execute("systemctl start tomcat")
+        self.candlepin.execute("/root/run-candlepin")
 
         # remove all existing products (RHEL server), as we can't control them
         m.execute("rm -f /etc/pki/product-default/*.pem /etc/pki/product/*.pem")

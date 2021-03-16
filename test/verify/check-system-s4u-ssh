@@ -35,7 +35,7 @@ class TestS4USsh(MachineCase):
 
     def setUp(self):
         super().setUp()
-        self.machines['services'].execute("/run-freeipa")
+        self.machines['services'].execute("/root/run-freeipa")
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
         self.machines['1'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
 
@@ -56,14 +56,14 @@ class TestS4USsh(MachineCase):
         sshd_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
 
         # configure ipa
-        ipa_machine.execute("docker exec freeipa bash -c 'echo foobarfoo | kinit admin@COCKPIT.LAN'")
+        ipa_machine.execute("podman exec freeipa bash -c 'echo foobarfoo | kinit admin@COCKPIT.LAN'")
         # add user to impersonate
-        ipa_machine.execute("docker exec freeipa bash -c 'ipa user-add --first=user --last=user user'")
-        ipa_machine.execute("docker exec freeipa bash -c 'echo foobarfoo | ipa user-mod user --password'")
+        ipa_machine.execute("podman exec freeipa bash -c 'ipa user-add --first=user --last=user user'")
+        ipa_machine.execute("podman exec freeipa bash -c 'echo foobarfoo | ipa user-mod user --password'")
         # add service which will be allowed to delegate creds
-        ipa_machine.execute("docker exec freeipa bash -c 'ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true'")
+        ipa_machine.execute("podman exec freeipa bash -c 'ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true'")
         # Allow retrieval of service keytab by admin
-        ipa_machine.execute("docker exec freeipa bash -c 'ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan'")
+        ipa_machine.execute("podman exec freeipa bash -c 'ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan'")
         # set up delegation rule
         script="""set -e
         ipa servicedelegationtarget-add cockpit-target
@@ -72,7 +72,7 @@ class TestS4USsh(MachineCase):
         ipa servicedelegationrule-add-member cockpit-delegation --principals="cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
         """
-        ipa_machine.execute("docker exec freeipa bash -ec '%s'" % script)
+        ipa_machine.execute("podman exec freeipa bash -ec '%s'" % script)
 
         # ssh client, get keytab for authenticating and make ccache using gssapi
         client_machine.write('/tmp/make-cache.py', """

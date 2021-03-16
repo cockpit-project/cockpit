@@ -9,13 +9,13 @@ with either Active Directory or IPA.
 ### Running a test domain
 
 To contribute to this component, run a test domain which ends
-up being rather easy. Install the stuff in ```test/README``` near the
-top. And then do the following:
+up being rather easy. Install the stuff in [test/README.md](../../test/README.md)
+near the top. And then do the following:
 
     $ bots/vm-run --network services
 
-In that VM, start `/run-freeipa` to start an IPA domain controller, or
-`/run-samba-domain` for a Samba AD domain controller. Now in
+In that VM, start `/root/run-freeipa` to start an IPA domain controller, or
+`/root/run-samba-domain` for a Samba AD domain controller. Now in
 another terminal do the following:
 
     $ sudo /bin/sh -c "echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver 10.111.112.100\n' > /etc/resolv.conf"

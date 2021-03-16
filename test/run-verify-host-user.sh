@@ -26,6 +26,10 @@ if [ ! -d node_modules/chrome-remote-interface ]; then
     npm install chrome-remote-interface sizzle
 fi
 
+# disable detection of affected tests; testing takes too long as there is no parallelization,
+# and TF machines are slow and brittle
+mv .git dot-git
+
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 # HACK: upstream does not yet know about rawhide
 if [ "$TEST_OS" = "fedora-35" ]; then

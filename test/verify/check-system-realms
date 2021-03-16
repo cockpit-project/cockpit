@@ -423,7 +423,7 @@ class TestIPA(TestRealms, CommonTests):
         self.admin_password = "foobarfoo"
         self.alice_password = 'WonderLand123'
         self.expected_server_software = "ipa"
-        self.machines['services'].execute("/run-freeipa")
+        self.machines['services'].execute("/root/run-freeipa")
         # Wait for FreeIPA to come up and DNS to work as expected
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
         wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
@@ -442,7 +442,7 @@ ExecStart=/bin/true
             self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
 
         # wait until FreeIPA started up
-        self.machines['services'].execute("""docker exec -i freeipa sh -ec '
+        self.machines['services'].execute("""podman exec -i freeipa sh -ec '
             while ! echo %s | kinit -f %s; do sleep 5; done
             while ! ipa user-find >/dev/null; do sleep 5; done'
             """ % (self.admin_password, self.admin_user), timeout=300)
@@ -528,7 +528,7 @@ ExecStart=/bin/true
 
         # set up "alice" user with HOTP; that won't affect existing users (admin)
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp
-        out = self.machines['services'].execute("""docker exec -i freeipa sh -ec '
+        out = self.machines['services'].execute("""podman exec -i freeipa sh -ec '
             ipa config-mod --user-auth-type=otp
             ipa user-add --first=Alice --last=Developer alice
             yes alicessecret | ipa user-mod --password alice
@@ -604,7 +604,7 @@ ExecStart=/bin/true
         # IPA does not like the ---BEGIN/END lines
         alice_cert = '\n'.join([l for l in alice_cert.splitlines() if not l.startswith("----")])
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
-        ipa_machine.execute(r"""docker exec -i freeipa sh -exc '
+        ipa_machine.execute(r"""podman exec -i freeipa sh -exc '
 ipa user-add --first=Alice --last="Developer" alice
 yes "%(password)s" | ipa user-mod --password alice
 ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
@@ -629,8 +629,8 @@ class TestAD(TestRealms, CommonTests):
         self.alice_password = 'WonderLand123'
         self.expected_server_software = "active-directory"
         # necessary to run ldapmodify; FIXME: change this on the services image itself
-        self.machines['services'].execute("sed -i 's/-e/-e INSECURELDAP=true &/' /run-samba-domain")
-        self.machines['services'].execute("/run-samba-domain")
+        self.machines['services'].execute("sed -i 's/-e/-e INSECURELDAP=true &/' /root/run-samba-domain")
+        self.machines['services'].execute("/root/run-samba-domain")
 
         m = self.machine
 
@@ -673,7 +673,7 @@ class TestAD(TestRealms, CommonTests):
 
         m.start_cockpit()
         # create another AD user
-        self.machines['services'].execute("docker exec -i samba samba-tool user add alice %s" % self.alice_password)
+        self.machines['services'].execute("podman exec -i samba samba-tool user add alice %s" % self.alice_password)
         # ensure it works
         m.execute('id alice')
         b.login_and_go('/system', user='alice', password=self.alice_password)
@@ -690,7 +690,7 @@ class TestAD(TestRealms, CommonTests):
         alice_cert = ''.join([l for l in alice_cert.splitlines() if not l.startswith("----")])
         # set up an AD user and import their TLS certificate; avoid using the common "userCertificate;binary",
         # as that does not work with Samba
-        services_machine.execute(r"""docker exec -i samba sh -exc '
+        services_machine.execute(r"""podman exec -i samba sh -exc '
 samba-tool user add alice %(alice_pass)s
 printf "version: 1\ndn: cn=alice,cn=users,dc=cockpit,dc=lan\nchangetype: modify\nadd: userCertificate\nuserCertificate: %(alice_cert)s\n" | \
         ldapmodify -v -U Administrator -w '%(admin_pass)s'
@@ -787,7 +787,7 @@ ExecStart=/bin/true
             self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
 
     def configure_kerberos(self, keytab):
-        self.machines["services"].execute("/run-freeipa")
+        self.machines["services"].execute("/root/run-freeipa")
 
         # Setup a place for kerberos caches
         args = {"addr": "10.111.112.100", "password": "foobarfoo", "keytab": keytab}

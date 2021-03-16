@@ -101,7 +101,7 @@ const PermanentChange = ({ idPrefix, onValueChanged, permanent, vm }) => {
     }
 
     return (
-        <FormGroup fieldId={`${idPrefix}-permanent`} label={_("Persistence")} isInline>
+        <FormGroup fieldId={`${idPrefix}-permanent`} label={_("Persistence")} hasNoPaddingTop>
             <Checkbox id={`${idPrefix}-permanent`}
                       isChecked={permanent}
                       label={_("Always attach")}
@@ -548,7 +548,7 @@ export class AddDiskModalBody extends React.Component {
             defaultBody = (
                 <Form isHorizontal>
                     <FormGroup fieldId={`${idPrefix}-source`}
-                               label={_("Source")} isInline>
+                               label={_("Source")} isInline hasNoPaddingTop>
                         <Radio id={`${idPrefix}-createnew`}
                                name="source"
                                label={_("Create new")}

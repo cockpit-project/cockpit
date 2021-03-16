@@ -17,7 +17,7 @@ case $TEST_SCENARIO in
             export NODE_ENV=development
         fi
         test/image-prepare --verbose $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        test/common/run-tests --nondestructive-memory-mb=1500 --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     firefox)
         test/image-prepare --quick --verbose $TEST_OS

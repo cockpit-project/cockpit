@@ -143,8 +143,6 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.wait_text("#super-user-indicator", "Limited access")
 
-        self.allow_failed_sudo_journal_messages()
-
     def testNotAdmin(self):
         b = self.browser
         m = self.machine
@@ -157,7 +155,6 @@ session include system-auth
             m.execute("sed -i -e '/^%admin/d' /etc/sudoers")
 
         m.execute("gpasswd -d admin %s" % m.get_admin_group())
-        self.allow_failed_sudo_journal_messages()
 
         self.login_and_go()
         b.wait_text("#super-user-indicator", "Limited access")

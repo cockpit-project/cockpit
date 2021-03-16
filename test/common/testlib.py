@@ -1116,14 +1116,6 @@ class MachineCase(unittest.TestCase):
                                     'which: no python in .*'
                                     )
 
-    def allow_failed_sudo_journal_messages(self):
-        self.allow_journal_messages(".* is not in the sudoers file.  This incident will be reported.",
-                                    "Error executing command as another user: Not authorized",
-                                    "This incident has been reported.",
-                                    "Sorry, try again.",
-                                    ".*incorrect password attempt.*",
-                                    "sudo:.*")
-
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine

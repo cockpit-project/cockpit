@@ -36,7 +36,6 @@ class TestKeys(MachineCase):
         # Create a user without any role
         m.execute("useradd user -s /bin/bash -m -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")
-        self.allow_failed_sudo_journal_messages()
 
         m.start_cockpit()
 

@@ -108,9 +108,6 @@ class TestBastion(MachineCase):
         b.wait_text('#current-username', 'admin')
         b.logout()
 
-        # key login doesn't give us a password for sudo
-        self.allow_failed_sudo_journal_messages()
-
     def testBasicLogin(self):
         m = self.machine
         b = self.browser

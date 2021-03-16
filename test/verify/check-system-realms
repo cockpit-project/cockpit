@@ -238,7 +238,6 @@ class CommonTests:
 
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
-        self.allow_failed_sudo_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
@@ -299,7 +298,6 @@ class CommonTests:
 
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
-        self.allow_failed_sudo_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
@@ -364,7 +362,6 @@ class CommonTests:
 
             m.stop_cockpit()
 
-        self.allow_failed_sudo_journal_messages()
         # from sssd
         self.allow_journal_messages("alice is not allowed to run sudo on x0.  This incident will be reported.")
 

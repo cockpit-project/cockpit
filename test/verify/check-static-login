@@ -342,7 +342,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*user account or password has expired.*',
                                     '.*BAD PASSWORD.*',
                                     '.*Sorry, passwords do not match.')
-        self.allow_failed_sudo_journal_messages()
         self.allow_restart_journal_messages()
 
     def testConversation(self):
@@ -403,7 +402,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "Locale charset is ANSI.*",
                                     "Assuming locale environment is lost.*",
                                     "ATTENTION! Your session is being recorded!")
-        self.allow_failed_sudo_journal_messages()
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
@@ -463,7 +461,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.logout()
         # not allowed to restricted users
-        self.allow_failed_sudo_journal_messages()
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="systemd".*')
@@ -541,8 +538,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_visible("#safari-cert-help")
         else:
             b.wait_not_visible("#safari-cert-help")
-
-        self.allow_failed_sudo_journal_messages()
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
     @skipImage("Starting on OSTree is weird", "fedora-coreos")
@@ -768,7 +763,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
             m.stop_cockpit()
 
-        self.allow_failed_sudo_journal_messages()
         # from sssd
         self.allow_journal_messages("alice is not allowed to run sudo.*")
 
@@ -859,8 +853,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         check_server("::1", True)
         # by IPv6 address and port
         check_server("[::1]:22", True)
-
-        self.allow_failed_sudo_journal_messages()
 
 
 if __name__ == '__main__':

@@ -502,7 +502,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b = self.browser
         m = self.machine
 
-        dev = self.add_ram_disk()
+        dev = self.add_ram_disk(2)
         used_targets = ['vda']
 
         args = self.createVm("subVmTest1")
@@ -528,7 +528,7 @@ class TestMachinesDisks(VirtualMachinesCase):
             pool_name='pool-disk',
             pool_type='disk',
             volume_name=partition,
-            volume_size=10,
+            volume_size=1,
             volume_size_unit='MiB',
             expected_target=get_next_free_target(used_targets)[-1],
         ).execute()

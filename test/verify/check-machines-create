@@ -354,7 +354,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         runner = TestMachinesCreate.CreateVmRunner(self)
         config = TestMachinesCreate.TestCreateConfig
 
-        dev = self.add_ram_disk()
+        dev = self.add_ram_disk(1)
         partition = dev.split('/')[2] + "1"
         cmds = [
             "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),

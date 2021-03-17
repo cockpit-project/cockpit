@@ -395,35 +395,27 @@ GSocketAddress *
 cockpit_connect_parse_address (CockpitChannel *channel,
                                gchar **possible_name)
 {
-  GSocketConnectable *connectable;
-  GSocketAddressEnumerator *enumerator;
   GSocketAddress *address;
-  GError *error = NULL;
-  gchar *name = NULL;
+  g_autoptr(GError) error = NULL;
+  g_autofree gchar *name = NULL;
 
-  connectable = parse_address (channel, &name, NULL);
+  g_autoptr(GSocketConnectable)  connectable = parse_address (channel, &name, NULL);
   if (!connectable)
     return NULL;
 
   /* This is sync, but realistically, it doesn't matter for current use cases */
-  enumerator = g_socket_connectable_enumerate (connectable);
-  g_object_unref (connectable);
+  g_autoptr(GSocketAddressEnumerator) enumerator = g_socket_connectable_enumerate (connectable);
 
   address = g_socket_address_enumerator_next (enumerator, NULL, &error);
-  g_object_unref (enumerator);
 
   if (error != NULL)
     {
       cockpit_channel_fail (channel, "not-found", "couldn't find address: %s: %s", name, error->message);
-      g_error_free (error);
-      g_free (name);
       return NULL;
     }
 
   if (possible_name)
-    *possible_name = name;
-  else
-    g_free (name);
+    *possible_name = g_steal_pointer (&name);
 
   return address;
 }
@@ -734,7 +726,10 @@ cockpit_connect_parse_stream (CockpitChannel *channel)
 
   address = parse_address (channel, &name, &local);
   if (!address)
-    return NULL;
+    {
+      g_free (name);
+      return NULL;
+    }
 
   connectable = g_new0 (CockpitConnectable, 1);
   connectable->address = address;

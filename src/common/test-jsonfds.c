@@ -422,6 +422,7 @@ test_memfd_error_cases (void)
 
       content = cockpit_memfd_read (fd, &error);
       cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*not memfd?*");
+      g_assert (content == NULL);
       g_clear_error (&error);
       close (fd);
 

@@ -444,7 +444,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         ).execute()
 
         # Prepare a disk with gpt partition table to test the disk storage pool type
-        dev = self.add_ram_disk()
+        dev = self.add_ram_disk(2)
         m.execute("parted %s mklabel gpt" % dev)
 
         StoragePoolCreateDialog(
@@ -521,7 +521,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true") # Destroy pool as it block removal of `nfs_pool`
 
         # Prepare disk/block pool
-        dev = self.add_ram_disk()
+        dev = self.add_ram_disk(10)
         cmds = [
             "virsh pool-define-as disk-pool disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
             "virsh pool-build disk-pool --overwrite",
@@ -671,7 +671,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             pool_name="disk-pool",
             pool_type="disk",
             vol_name=dev.split("/")[-1] + "1", # Partition names must follow pattern of sda1, sda2...
-            size="10", # Only 50MiB available on disk-pool
+            size="2", # Only 10MiB available on disk-pool
             unit="MiB",
             format="none",
             remove=True,
@@ -694,7 +694,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             self,
             pool_name="lvm-pool",
             vol_name="lvm_vol",
-            size="20",
+            size="4",
             format="",
             remove=True,
         ).execute()

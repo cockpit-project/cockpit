@@ -100,7 +100,7 @@ class VirtualMachinesCaseHelpers:
         m.execute("virsh net-start default || true")
         m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 
-    def createVm(self, name, graphics='spice', ptyconsole=False, running=True):
+    def createVm(self, name, graphics='spice', ptyconsole=False, running=True, memory=128):
         m = self.machine
 
         image_file = m.pull("cirros")
@@ -113,6 +113,7 @@ class VirtualMachinesCaseHelpers:
             "image": img,
             "logfile": None,
             "console": "",
+            "memory": memory,
         }
 
         if ptyconsole:

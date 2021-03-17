@@ -298,7 +298,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b = self.browser
         m = self.machine
 
-        args = self.createVm("subVmTest1")
+        args = self.createVm("subVmTest1", memory=256)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")

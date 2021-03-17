@@ -237,8 +237,8 @@ parse_handshake_request (WebSocketServer *self,
                          GByteArray *incoming)
 {
   GHashTable *headers;
-  gchar *method;
-  gchar *resource;
+  g_autofree gchar *method = NULL;
+  g_autofree gchar *resource = NULL;
   gboolean valid;
   gssize in1, in2;
   gssize consumed;
@@ -308,8 +308,6 @@ parse_handshake_request (WebSocketServer *self,
   if (consumed > 0)
     g_byte_array_remove_range (incoming, 0, consumed);
   g_hash_table_unref (headers);
-  g_free (resource);
-  g_free (method);
 
   return valid;
 }

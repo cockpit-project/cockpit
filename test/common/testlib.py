@@ -107,6 +107,7 @@ class Browser:
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
+        self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
 
     def title(self):
         return self.cdp.eval('document.title')
@@ -145,14 +146,14 @@ class Browser:
     def expect_load(self):
         if opts.trace:
             print("-> expect_load")
-        self.cdp.command('expectLoad(%i)' % (self.cdp.timeout * 1000))
+        self.cdp.command('expectLoad(%i)' % (self.cdp.timeout * self.timeout_factor * 1000))
         if opts.trace:
             print("<- expect_load done")
 
     def expect_load_frame(self, name):
         if opts.trace:
             print("-> expect_load_frame " + name)
-        self.cdp.command('expectLoadFrame(%s, %i)' % (jsquote(name), self.cdp.timeout * 1000))
+        self.cdp.command('expectLoadFrame(%s, %i)' % (jsquote(name), self.cdp.timeout * self.timeout_factor * 1000))
         if opts.trace:
             print("<- expect_load_frame %s done" % name)
 
@@ -368,7 +369,7 @@ class Browser:
         return r
 
     def wait(self, predicate):
-        for _ in range(self.cdp.timeout * 5):
+        for _ in range(self.cdp.timeout * self.timeout_factor * 5):
             val = predicate()
             if val:
                 return val
@@ -377,7 +378,7 @@ class Browser:
 
     def wait_js_cond(self, cond):
         result = self.cdp.invoke("Runtime.evaluate",
-                                 expression="ph_wait_cond(() => %s, %i)" % (cond, self.cdp.timeout * 1000),
+                                 expression="ph_wait_cond(() => %s, %i)" % (cond, self.cdp.timeout * self.timeout_factor * 1000),
                                  silent=False, awaitPromise=True, trace="wait: " + cond)
         if "exceptionDetails" in result:
             trailer = "\n".join(self.cdp.get_js_log())

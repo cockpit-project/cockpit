@@ -36,6 +36,11 @@ if [ "$TEST_OS" = "fedora-35" ]; then
     export TEST_OS=fedora-34
 fi
 
+if [ "$ID" = "fedora" ]; then
+    # Testing Farm machines are really slow at some times of the day
+    export TEST_TIMEOUT_FACTOR=3
+fi
+
 # HACK: CI hits this selinux denial. Unrelated to our tests.
 export TEST_ALLOW_JOURNAL_MESSAGES=".*Permission denied:.*/var/cache/app-info/xmls.*"
 

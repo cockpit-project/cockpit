@@ -120,8 +120,8 @@ DOMAIN_XML = """
     <boot dev='hd'/>
     <boot dev='network'/>
   </os>
-  <memory unit='MiB'>256</memory>
-  <currentMemory unit='MiB'>256</currentMemory>
+  <memory unit='MiB'>{memory}</memory>
+  <currentMemory unit='MiB'>{memory}</currentMemory>
   <features>
     <acpi/>
   </features>

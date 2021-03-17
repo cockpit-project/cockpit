@@ -77,9 +77,9 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
-        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "256 MiB")
+        b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "128 MiB")
         b.wait_not_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
-        usage = b.text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure").split("/ 256 MiB")[0]
+        usage = b.text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure").split("/ 128 MiB")[0]
         wait(lambda: float(usage) > 0.0, delay=3)
 
         b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "1 vCPU")

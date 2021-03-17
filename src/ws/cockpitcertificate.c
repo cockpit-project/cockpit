@@ -56,11 +56,10 @@ static gchar *
 get_machine_id (void)
 {
   static const char HEX[] = "0123456789abcdef";
-  gchar *content;
   gchar *machine_id = NULL;
 
-  if (g_file_get_contents ("/etc/machine-id", &content, NULL, NULL))
-    machine_id = g_strstrip (g_strcanon (content, HEX, ' '));
+  if (g_file_get_contents ("/etc/machine-id", &machine_id, NULL, NULL))
+    g_strstrip (g_strcanon (machine_id, HEX, ' ')); /* both functions modify machine_id in-place */
 
   return machine_id;
 }

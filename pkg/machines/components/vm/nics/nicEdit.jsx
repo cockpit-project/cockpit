@@ -27,7 +27,6 @@ import {
     changeNetworkSettings,
     getVm
 } from '../../../actions/provider-actions.js';
-import { getNetworkDevices } from '../../../helpers.js';
 
 import 'form-layout.scss';
 
@@ -127,15 +126,13 @@ export class EditNICModal extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, network, nodeDevices, interfaces } = this.props;
-        const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
+        const { idPrefix, vm, network } = this.props;
 
         const defaultBody = (
             <Form>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
@@ -183,7 +180,5 @@ EditNICModal.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     network: PropTypes.object.isRequired,
-    interfaces: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
     onClose: PropTypes.func.isRequired,
 };

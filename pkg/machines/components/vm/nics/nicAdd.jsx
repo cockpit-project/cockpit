@@ -25,7 +25,6 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import { getVm } from '../../../actions/provider-actions.js';
 import LibvirtDBus, { attachIface } from '../../../libvirt-dbus.js';
-import { getNetworkDevices } from '../../../helpers.js';
 
 import './nic.css';
 
@@ -130,15 +129,13 @@ export class AddNIC extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, nodeDevices, interfaces } = this.props;
-        const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
+        const { idPrefix, vm } = this.props;
 
         const defaultBody = (
             <Form isHorizontal>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
 
                 <NetworkModelRow idPrefix={idPrefix}
@@ -186,8 +183,6 @@ AddNIC.propTypes = {
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
-    interfaces: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
 };
 
 export default AddNIC;

@@ -23,7 +23,7 @@ from fmf_metadata.base import generic_metadata_setter
 )
 @FMF.tag("t1")
 class Test1(unittest.TestCase):
-    @FMF.environment({"DEBUG": True})
+    @FMF.environment(DEBUG=True)
     def testEnvironmentConfig(self):
         pass
 

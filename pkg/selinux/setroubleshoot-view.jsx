@@ -25,6 +25,7 @@ import {
     Divider,
     Card, CardHeader, CardTitle, CardBody,
     ExpandableSection,
+    Flex,
     Page, PageSection, PageSectionVariants,
     Switch, Stack, StackItem, Text, TextArea, TextVariants,
 } from "@patternfly/react-core";
@@ -255,13 +256,13 @@ class SELinuxStatus extends React.Component {
 
         return (
             <div className="selinux-policy-ct">
-                <div className="selinux-state">
+                <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2>{_("SELinux policy")}</h2>
                     <Switch isChecked={this.props.selinuxStatus.enforcing}
                             label={_("Enforcing")}
                             labelOff={_("Permissive")}
                             onChange={this.props.changeSelinuxMode} />
-                </div>
+                </Flex>
                 { note !== null &&
                     <label className="note">
                         <i className="pficon pficon-info" />

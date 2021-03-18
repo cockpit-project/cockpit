@@ -69,7 +69,7 @@ export class VmNetworkActions extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, networks, nodeDevices, interfaces } = this.props;
+        const { vm, dispatch, networks } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
             network: networks.map(network => network.name),
@@ -80,9 +80,7 @@ export class VmNetworkActions extends React.Component {
                 <AddNIC dispatch={dispatch}
                     idPrefix={`${id}-add-iface`}
                     vm={vm}
-                    nodeDevices={nodeDevices}
                     availableSources={availableSources}
-                    interfaces={interfaces}
                     close={this.close} />}
             <Button id={`${id}-add-iface-button`} variant="secondary" onClick={this.open}>
                 {_("Add network interface")}
@@ -94,8 +92,6 @@ export class VmNetworkActions extends React.Component {
 VmNetworkActions.propTypes = {
     vm: PropTypes.object.isRequired,
     networks: PropTypes.array.isRequired,
-    interfaces: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
 };
 
@@ -143,7 +139,7 @@ export class VmNetworkTab extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
+        const { vm, dispatch, networks, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
             network: networks.map(network => network.name),
@@ -275,9 +271,7 @@ export class VmNetworkTab extends React.Component {
                             idPrefix: `${id}-network-${networkId}`,
                             vm,
                             network,
-                            nodeDevices,
                             availableSources,
-                            interfaces,
                             onClose: () => this.setState({ editNICDialogProps: undefined }),
                         };
                         if (vm.persistent && this.state.networkDevices !== undefined) {
@@ -355,8 +349,6 @@ export class VmNetworkTab extends React.Component {
 VmNetworkTab.propTypes = {
     vm: PropTypes.object.isRequired,
     networks: PropTypes.array.isRequired,
-    interfaces: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
 };

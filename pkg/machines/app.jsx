@@ -179,7 +179,6 @@ class App extends React.Component {
                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
                     dispatch={dispatch}
-                    interfaces={interfaces || []}
                     networks={(networks || []).filter(network => network && network.connectionName == connectionName)}
                     nodeDevices={(nodeDevices || []).filter(device => device && device.connectionName == connectionName)}
                     key={vmId(vm.name)}
@@ -215,8 +214,7 @@ class App extends React.Component {
                     networks={networks}
                     actions={vmActions}
                     resourceHasError={this.state.resourceHasError}
-                    onAddErrorNotification={this.onAddErrorNotification}
-                    nodeDevices={nodeDevices} />
+                    onAddErrorNotification={this.onAddErrorNotification} />
                 }
                 {path.length > 0 && path[0] == 'vms' && vmContent}
                 {path.length > 0 && path[0] == 'storages' &&

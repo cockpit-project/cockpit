@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
 export const VmDetailsPage = ({
     vm, vms, config, libvirtVersion, hostDevices, storagePools,
     onUsageStartPolling, onUsageStopPolling, dispatch, networks,
-    interfaces, nodeDevices, notifications, onAddErrorNotification
+    nodeDevices, notifications, onAddErrorNotification
 }) => {
     useEffect(() => {
         // Anything in here is fired on component mount.
@@ -140,11 +140,10 @@ export const VmDetailsPage = ({
             className: "networks-card",
             title: _("Networks"),
             actions: <VmNetworkActions vm={vm} dispatch={dispatch}
-                                       interfaces={interfaces} networks={networks}
-                                       nodeDevices={nodeDevices} />,
+                                       networks={networks} />,
             body: <VmNetworkTab vm={vm} dispatch={dispatch} config={config}
-                                interfaces={interfaces} networks={networks}
-                                nodeDevices={nodeDevices} onAddErrorNotification={onAddErrorNotification} />,
+                                networks={networks}
+                                onAddErrorNotification={onAddErrorNotification} />,
         },
     ];
     if (vm.snapshots !== -1 && vm.snapshots !== undefined) {
@@ -203,7 +202,6 @@ VmDetailsPage.propTypes = {
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
-    interfaces: PropTypes.array.isRequired,
     notifications: PropTypes.array,
     onAddErrorNotification: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,

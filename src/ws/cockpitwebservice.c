@@ -575,8 +575,8 @@ process_transport_authorize (CockpitWebService *self,
             }
           else if (g_str_equal (type, "basic"))
             {
-              response = cockpit_authorize_build_basic (cockpit_creds_get_user (self->creds),
-                                                        password);
+              alloc = cockpit_authorize_build_basic (cockpit_creds_get_user (self->creds), password);
+              response = alloc;
             }
           else
             {

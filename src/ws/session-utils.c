@@ -659,7 +659,11 @@ btmp_log (const char *username,
     .ut_type = LOGIN_PROCESS,
   };
 
+  /* see utmp(5), it is ok to not null-terminate these if they have maximum size */
+  /* add coverity markers for older glibcs: https://sourceware.org/bugzilla/show_bug.cgi?id=24899 */
+  /* coverity[buffer_size_warning : FALSE] */
   strncpy (entry.ut_host, rhost, sizeof entry.ut_host);
+  /* coverity[buffer_size_warning : FALSE] */
   strncpy (entry.ut_user, username, sizeof entry.ut_user);
 
   int fd = open (_PATH_BTMP, O_WRONLY | O_APPEND);

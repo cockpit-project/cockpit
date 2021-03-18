@@ -293,6 +293,7 @@ cockpit_web_service_finalize (GObject *object)
 
   g_hash_table_destroy (self->host_by_checksum);
   g_hash_table_destroy (self->checksum_by_host);
+  g_free (self->id);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }

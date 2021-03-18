@@ -355,6 +355,7 @@ test_int_equal (void)
   gint64 copy = 1;
 
   g_assert (!cockpit_json_int_equal (&one, &two));
+  /* coverity[copy_paste_error : FALSE] */
   g_assert (cockpit_json_int_equal (&one, &one));
   g_assert (cockpit_json_int_equal (&one, &copy));
 }

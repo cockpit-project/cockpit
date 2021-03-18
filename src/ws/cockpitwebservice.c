@@ -1094,21 +1094,18 @@ on_web_socket_message (WebSocketConnection *connection,
                        CockpitWebService *self)
 {
   CockpitSocket *socket;
-  GBytes *payload;
-  gchar *channel;
+  g_autofree gchar *channel = NULL;
 
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);
 
-  payload = cockpit_transport_parse_frame (message, &channel);
+  g_autoptr(GBytes) payload = cockpit_transport_parse_frame (message, &channel);
   if (!payload)
     return;
 
   /* A control channel command */
   if (!channel)
-    {
-      dispatch_inbound_command (self, socket, payload);
-    }
+    dispatch_inbound_command (self, socket, payload);
 
   /* An actual payload message */
   else if (!self->closing)
@@ -1116,9 +1113,6 @@ on_web_socket_message (WebSocketConnection *connection,
       if (!self->sent_done)
         cockpit_transport_send (self->transport, channel, payload);
     }
-
-  g_free (channel);
-  g_bytes_unref (payload);
 }
 
 static void

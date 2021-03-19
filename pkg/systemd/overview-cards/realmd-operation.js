@@ -399,46 +399,10 @@ function instance(realmd, mode, realm, state) {
 
         var user = $("#realms-op-admin").val();
         var password = $("#realms-op-admin-password").val();
+        var helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
 
-        // ipa-getkeytab needs root to create the file, same for cert installation
-        var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
-        // not an IPA setup? cannot handle this
-        script += 'type ipa >/dev/null 2>&1 || exit 0; ';
-
-        script += 'HOST=$(hostname -f); ';
-
-        // IPA operations require auth; read password from stdin to avoid quoting issues
-        // if kinit fails, we can't handle this setup, exit cleanly
-        script += 'kinit ' + user + '@' + kerberos.RealmName + ' || exit 0; ';
-
-        // ensure this gets run with a non-C locale; ipa fails otherwise
-        script += "if [ $(sh -c 'eval `locale`; echo $LC_CTYPE') = 'C' ]; then " +
-                  "    export LC_CTYPE=C.UTF-8; " +
-                  "fi; ";
-
-        // create a kerberos Service Principal Name for cockpit-ws, unless already present
-        script += 'service="HTTP/${HOST}@' + kerberos.RealmName + '"; ' +
-                  'ipa service-show "$service" || ipa service-add --ok-as-delegate=true --force "$service"; ';
-
-        // add cockpit-ws key, unless already present
-        script += 'mkdir -p /etc/cockpit; ';
-        script += 'klist -k /etc/cockpit/krb5.keytab | grep -qF "$service" || ' +
-                  'ipa-getkeytab -p HTTP/$HOST -k /etc/cockpit/krb5.keytab; ';
-
-        // request an SSL certificate; be sure to not leave traces of the .key on disk or
-        // get race conditions with file permissions; also, ipa-getcert
-        // cannot directly write into /etc/cockpit due to SELinux
-        script += 'if ipa-getcert request -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key -K HTTP/$HOST -w -v; then ' +
-                  '    mv /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert; ' +
-                  '    cat /run/cockpit/ipa.key  >> /etc/cockpit/ws-certs.d/10-ipa.cert; ' +
-                  '    rm -f /run/cockpit/ipa.key; ' +
-                  'fi; ';
-
-        // use a temporary keytab to avoid interfering with the system one
-        var proc = cockpit.script(script, [], {
-            superuser: "require", err: "message",
-            environ: ["KRB5CCNAME=/run/cockpit/keytab-setup"]
-        });
+        var proc = cockpit.spawn([helper, "ipa", kerberos.RealmName, user],
+                                 { superuser: "require", err: "message" });
         proc.input(password);
         return proc;
     }

@@ -403,22 +403,22 @@ mock_kdc_start (void)
       ret = read (out_fd, input->str + len, 256);
       if (ret < 0)
         {
-          if (errno != EAGAIN && errno != EINTR)
-            g_error ("couldn't read from mock-kdc: %s", g_strerror (errno));
-            break;
+          if (errno == EAGAIN || errno == EINTR)
+            continue;
+
+          g_error ("couldn't read from mock-kdc: %s", g_strerror (errno));
+          break;
         }
-      else
+
+      g_string_set_size (input, len + ret);
+      if (strstr (input->str, "starting..."))
         {
-          g_string_set_size (input, len + ret);
-          if (strstr (input->str, "starting..."))
-            {
-              mock_kdc_available = TRUE;
-              break;
-            }
-          else if (ret == 0)
-            {
-              break;
-            }
+          mock_kdc_available = TRUE;
+          break;
+        }
+      else if (ret == 0)
+        {
+          break;
         }
     }
 

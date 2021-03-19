@@ -1,7 +1,7 @@
 name: npm-update
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 3 * * 1,4'
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
 jobs:

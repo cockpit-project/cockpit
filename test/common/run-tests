@@ -130,7 +130,7 @@ def finish_test(opts, test, affected_tests):
         retry_reason = m.group(1)
         # remove it from test output; we must not print it after the 3rd time, and going to print it separately
         test.output = re.sub(rb"\s*# RETRY .*\n", b"", test.output)
-    elif affected: # Don't retry affected failed tests
+    elif affected:  # Don't retry affected failed tests
         retry_reason = None
     else:
         # HACK: many tests are unstable, always retry them 3 times
@@ -318,7 +318,7 @@ def run(opts, image):
                 web_address = "{0}:{1}".format(m.machine.web_address,
                                                m.machine.web_port)
 
-                if i == opts.batches - 1: # Last machine needs to resolve the rest
+                if i == opts.batches - 1:  # Last machine needs to resolve the rest
                     batch = serial_tests[batch_size * i:]
                 else:
                     batch = serial_tests[batch_size * i: batch_size * i + batch_size]

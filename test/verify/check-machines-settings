@@ -43,7 +43,7 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         self.goToVmPage("subVmTest1")
 
-        b.click("#vm-subVmTest1-vcpus-count button") # open VCPU modal detail window
+        b.click("#vm-subVmTest1-vcpus-count button")  # open VCPU modal detail window
 
         b.wait_visible(".pf-c-modal-box__body")
 
@@ -166,7 +166,7 @@ class TestMachinesSettings(VirtualMachinesCase):
             self.goToVmPage(vm_name)
 
             # set checkbox state and check state of checkbox
-            b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True) # don't know the initial state of checkbox, so set it to checked
+            b.set_checked("#vm-{}-autostart-checkbox".format(vm_name), True)  # don't know the initial state of checkbox, so set it to checked
             b.wait_visible("#vm-{}-autostart-checkbox:checked".format(vm_name))
             # check virsh state
             autostartState = m.execute("virsh dominfo %s | grep 'Autostart:' | awk '{print $2}'" % vm_name).strip()
@@ -381,10 +381,10 @@ class TestMachinesSettings(VirtualMachinesCase):
         b.click("#cpu-config-dialog-apply")
 
         # Change vCPUs setting
-        b.click("#vm-subVmTest1-vcpus-count button") # Open dialog
-        b.set_input_text("#machines-vcpu-max-field", "3") # Change values
+        b.click("#vm-subVmTest1-vcpus-count button")  # Open dialog
+        b.set_input_text("#machines-vcpu-max-field", "3")  # Change values
         b.set_input_text("#machines-vcpu-count-field", "3")
-        b.click("#machines-vcpu-modal-dialog-apply") # Save
+        b.click("#machines-vcpu-modal-dialog-apply")  # Save
         b.wait_not_present(".pf-c-modal-box__body")
 
         # Shut off domain

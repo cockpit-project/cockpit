@@ -41,7 +41,7 @@ class VirtualMachinesCaseHelpers:
             b.wait_in_text("#vm-{0}-state".format(vmName), "Shut off")
 
     def goToVmPage(self, vmName, connectionName='system'):
-        self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName)) # click on the row
+        self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] a.vm-list-item-name".format(vmName, connectionName))  # click on the row
 
     def goToMainPage(self):
         self.browser.click(".machines-listing-breadcrumb li:first-of-type a")
@@ -55,12 +55,12 @@ class VirtualMachinesCaseHelpers:
             b.wait_not_present(vm_row)
 
     def togglePoolRow(self, poolName, connectionName="system"):
-        isExpanded = 'pf-m-expanded' in self.browser.attr("tbody tr[data-row-id=pool-{0}-{1}] + tr".format(poolName, connectionName), "class") # click on the row header
-        self.browser.click("tbody tr[data-row-id=pool-{0}-{1}] .pf-c-table__toggle button".format(poolName, connectionName)) # click on the row header
+        isExpanded = 'pf-m-expanded' in self.browser.attr("tbody tr[data-row-id=pool-{0}-{1}] + tr".format(poolName, connectionName), "class")  # click on the row header
+        self.browser.click("tbody tr[data-row-id=pool-{0}-{1}] .pf-c-table__toggle button".format(poolName, connectionName))  # click on the row header
         if isExpanded:
-            self.browser.wait_not_present("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName)) # click on the row header
+            self.browser.wait_not_present("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName))  # click on the row header
         else:
-            self.browser.wait_visible("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName)) # click on the row header
+            self.browser.wait_visible("tbody tr[data-row-id=pool-{0}-{1}] + tr.pf-m-expanded".format(poolName, connectionName))  # click on the row header
 
     def waitPoolRow(self, poolName, connectionName="system", present="true"):
         b = self.browser
@@ -71,12 +71,12 @@ class VirtualMachinesCaseHelpers:
             b.wait_not_present(pool_row)
 
     def toggleNetworkRow(self, networkName, connectionName="system"):
-        isExpanded = 'pf-m-expanded' in self.browser.attr("tbody tr[data-row-id=network-{0}-{1}] + tr".format(networkName, connectionName), "class") # click on the row header
-        self.browser.click("tbody tr[data-row-id=network-{0}-{1}] .pf-c-table__toggle button".format(networkName, connectionName)) # click on the row header
+        isExpanded = 'pf-m-expanded' in self.browser.attr("tbody tr[data-row-id=network-{0}-{1}] + tr".format(networkName, connectionName), "class")  # click on the row header
+        self.browser.click("tbody tr[data-row-id=network-{0}-{1}] .pf-c-table__toggle button".format(networkName, connectionName))  # click on the row header
         if isExpanded:
-            self.browser.wait_not_present("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName)) # click on the row header
+            self.browser.wait_not_present("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName))  # click on the row header
         else:
-            self.browser.wait_visible("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName)) # click on the row header
+            self.browser.wait_visible("tbody tr[data-row-id=network-{0}-{1}] + tr.pf-m-expanded".format(networkName, connectionName))  # click on the row header
 
     def waitNetworkRow(self, networkName, connectionName="system", present="true"):
         b = self.browser

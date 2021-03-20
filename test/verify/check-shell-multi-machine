@@ -734,7 +734,7 @@ class TestMultiMachine(MachineCase):
         # socket doesn't seem to work well.
         m2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
         m2.disconnect()
-        m2 = None # No more access to m2
+        m2 = None  # No more access to m2
 
         self.login_and_go(None)
         b.go(machine_path)

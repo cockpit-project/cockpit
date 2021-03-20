@@ -354,7 +354,7 @@ class TestFirewall(NetworkCase):
         set_field("#tcp-ports", "80", "custom--http")
         b.set_input_text("#service-name", "I-am-persistent")
         b.set_input_text("#tcp-ports", "7")
-        time.sleep(5) # We need to validate that the service name did not change
+        time.sleep(5)  # We need to validate that the service name did not change
         b.wait_val("#service-name", "I-am-persistent")
         save("I-am-persistent", "7", "")
 

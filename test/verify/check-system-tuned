@@ -38,7 +38,7 @@ class TestTuned(MachineCase):
 
         m.execute("systemctl stop tuned")
         m.execute("systemctl disable tuned")
-        self.addCleanup(m.execute, "tuned-adm auto_profile") # Enable and set default profile
+        self.addCleanup(m.execute, "tuned-adm auto_profile")  # Enable and set default profile
 
         # Login and check initial state
 

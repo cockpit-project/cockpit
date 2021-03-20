@@ -290,12 +290,12 @@ class Browser:
     def key_press_firefox(self, keys, modifiers=0, use_ord=False):
         # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
         keyMap = {
-            8: "Backspace",  # Backspace key
-            9: "Tab",        # Tab key
-            13: "Enter",     # Enter key
-            27: "Escape",    # Escape key
-            40: "ArrowDown", # Arrow key down
-            45: "Insert",    # Insert key
+            8: "Backspace",   # Backspace key
+            9: "Tab",         # Tab key
+            13: "Enter",      # Enter key
+            27: "Escape",     # Escape key
+            40: "ArrowDown",  # Arrow key down
+            45: "Insert",     # Insert key
         }
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
@@ -324,9 +324,9 @@ class Browser:
     def set_input_text(self, selector, val, append=False, value_check=True):
         self.focus(selector)
         if not append:
-            self.key_press("a", 2) # Ctrl + a
+            self.key_press("a", 2)  # Ctrl + a
         if val == "":
-            self.key_press("\b") # Backspace
+            self.key_press("\b")  # Backspace
         else:
             self.key_press(val)
 
@@ -1128,7 +1128,7 @@ class MachineCase(unittest.TestCase):
             syslog_ids += ["systemd-coredump"]
         messages = machine.journal_messages(syslog_ids, 6, cursor=cursor)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
-            messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
+            messages += machine.audit_messages("14", cursor=cursor)  # 14xx is selinux
 
         if self.image.startswith('debian'):
             # Debian images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)

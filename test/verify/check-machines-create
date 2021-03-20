@@ -631,7 +631,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                      check_script_finished=True,
                      connection=None):
 
-            TestMachinesCreate.VmDialog.vmId += 1 # This variable is static - don't use self here
+            TestMachinesCreate.VmDialog.vmId += 1  # This variable is static - don't use self here
 
             if name is None:
                 self.name = 'subVmTestCreate' + str(TestMachinesCreate.VmDialog.vmId)
@@ -854,7 +854,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             else:
                 b.wait_visible("#start-vm")
                 if not self.start_vm:
-                    b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
+                    b.click("#start-vm")  # TODO: fix this, do not assume initial state of the checkbox
 
             if (self.connection):
                 b.set_checked("#connectionName-{0}".format(self.connection), True)
@@ -1435,7 +1435,7 @@ class TestMachinesCreate(VirtualMachinesCase):
         # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
-        m.execute("> {0}".format(logfile)) # clear logfile
+        m.execute("> {0}".format(logfile))  # clear logfile
         self.performAction("VmNotInstalled", "forceOff", False)
         if m.image not in ["fedora-33", "fedora-34", "fedora-testing", "debian-testing"]:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
@@ -1444,7 +1444,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             wait(lambda: "char device" in self.machine.execute("cat {0}".format(logfile)), delay=3)
             self.performAction("VmNotInstalled", "forceOff", False)
         b.wait_in_text("#vm-VmNotInstalled-state", "Shut off")
-        wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1) # Wait until memory parameters get adjusted after shutting the VM
+        wait(lambda: "307200" in m.execute("virsh dominfo VmNotInstalled | grep 'Used memory'"), delay=1)  # Wait until memory parameters get adjusted after shutting the VM
 
         # Check configuration changes survived installation
         # Check memory settings have persisted

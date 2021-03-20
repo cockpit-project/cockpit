@@ -33,7 +33,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
     def testSnapshots(self):
         # Checks if difference of @time1 and @time2 is not greater than @difference (in seconds)
         def checkTimeDiff(time1, time2, difference):
-            tmp = time2.split(' ') # split "Today 13:13:13" into day and time
+            tmp = time2.split(' ')  # split "Today 13:13:13" into day and time
             if not tmp[1].startswith('00:') and not tmp[0] == "Today":
                 return False
 
@@ -58,13 +58,13 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         b.wait_in_text("#vm-subVmTest1-snapshots .pf-c-empty-state", "No snapshots")
 
         # Check snapshot for running VM
-        m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent")  # vda is raw disk, which are not supported by internal snapshots
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
         time1 = datetime.now().strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB' --disk-only")
 
-        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.reload()  # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
         b.wait_in_text("#vm-subVmTest1-state", "Running")
 
@@ -81,7 +81,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         time1 = datetime.now().strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
 
-        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.reload()  # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
         b.enter_page('/machines')
 
         b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshotC")
@@ -215,7 +215,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         self.createVm("subVmTest1")
 
         # Check snapshot for running VM
-        m.execute("virsh detach-disk --domain subVmTest1 --target vda --config") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --config")  # vda is raw disk, which are not supported by internal snapshots
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --subdriver qcow2 --config")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotA --description 'Description of snapshotA'")

@@ -293,7 +293,7 @@ Unit=test.service
         b.relogin('/system/services#/test.service', superuser=True)
         self.wait_page_load()
 
-        self.toggle_onoff() # later on we need some disabled test
+        self.toggle_onoff()  # later on we need some disabled test
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
 
         # Check service that fails to start

@@ -82,7 +82,7 @@ class TestMachinesNICs(VirtualMachinesCase):
         self.goToVmPage("subVmTest1")
 
         # No NICs present
-        b.wait_visible("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+        b.wait_visible("#vm-subVmTest1-add-iface-button")  # open the Network Interfaces subtab
 
         self.NICAddDialog(
             self,
@@ -110,7 +110,7 @@ class TestMachinesNICs(VirtualMachinesCase):
         ).execute()
 
         # Start vm and wait until kernel is booted
-        m.execute("> {0}".format(args["logfile"])) # clear logfile
+        m.execute("> {0}".format(args["logfile"]))  # clear logfile
         b.click("#vm-subVmTest1-run")
         b.wait_in_text("#vm-subVmTest1-state", "Running")
         wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
@@ -217,7 +217,7 @@ class TestMachinesNICs(VirtualMachinesCase):
                 self.cleanup()
 
         def open(self):
-            self.browser.click("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+            self.browser.click("#vm-subVmTest1-add-iface-button")  # open the Network Interfaces subtab
             self.browser.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Add virtual network interface")
 
         def fill(self):

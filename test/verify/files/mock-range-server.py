@@ -76,7 +76,7 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
 
         start, end = self.range
         infile.seek(start)
-        bufsize = 64 * 1024 # 64KB
+        bufsize = 64 * 1024  # 64KB
         while True:
             buf = infile.read(bufsize)
             if not buf:

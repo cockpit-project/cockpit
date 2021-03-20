@@ -167,8 +167,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         select_line(sel, 40)
 
         # Use keyboard shortcuts to copy text
-        b.key_press(chr(45), 2, use_ord=True) # Ctrl + Insert
-        b.key_press(chr(45), 8, use_ord=True) # Shift + Insert
+        b.key_press(chr(45), 2, use_ord=True)  # Ctrl + Insert
+        b.key_press(chr(45), 8, use_ord=True)  # Shift + Insert
 
         # Wait for text to show up
         wait_line(n + 2, prompt + "foo")

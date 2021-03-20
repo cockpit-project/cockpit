@@ -28,9 +28,9 @@ def template_licenses(template):
     '''Return set of existing License: short names'''
 
     ids = set()
-    for l in template.splitlines():
-        if l.startswith('License:'):
-            ids.add(l.split(None, 1)[1].lower())
+    for line in template.splitlines():
+        if line.startswith('License:'):
+            ids.add(line.split(None, 1)[1].lower())
     return ids
 
 
@@ -40,10 +40,10 @@ def module_license(moddir):
     # First check if package.json has a "license" field
     try:
         with open(os.path.join(moddir, 'package.json'), encoding='UTF-8') as f:
-            l = json.load(f)['license']
-            if l.startswith('(MIT OR'):
+            license = json.load(f)['license']
+            if license.startswith('(MIT OR'):
                 return 'MIT'
-            return l
+            return license
     except (IOError, KeyError):
         pass
 
@@ -70,7 +70,7 @@ def module_copyright(moddir):
     try:
         out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*\([1-9][0-9]\+\|(c)\)'],
                                       cwd=moddir).decode('UTF-8')
-        for l in out.splitlines():
+        for line in out.splitlines():
             # weed out some noise
             reject_substr = ['Binary file',
                              '{"version":',
@@ -87,27 +87,27 @@ def module_copyright(moddir):
                              'glyph-name=',
                              'copyright holder',
                              'WIPO copyright treaty']
-            if any(substr in l for substr in reject_substr):
+            if any(substr in line for substr in reject_substr):
                 continue
 
-            l = l.replace('<copyright>', '').replace('</copyright>', '')
-            l = l.replace('&copy;', '(c)').replace('copyright = ', '')
-            l = re.sub('@license.*Copyright', '', l)
-            l = l.strip(' \t*/\'|,#')
-            if not l.endswith('Inc.'):
+            line = line.replace('<copyright>', '').replace('</copyright>', '')
+            line = line.replace('&copy;', '(c)').replace('copyright = ', '')
+            line = re.sub('@license.*Copyright', '', line)
+            line = line.strip(' \t*/\'|,#')
+            if not line.endswith('Inc.'):
                 # avoids some duplicated lines which only differ in trailing dot
-                l = l.strip('.')
-            if l.startswith("u'") or l.startswith('u"'):  # Python unicode prefix
-                l = l[2:]
-            if 'Fixes #' in l:
+                line = line.strip('.')
+            if line.startswith("u'") or line.startswith('u"'):  # Python unicode prefix
+                line = line[2:]
+            if 'Fixes #' in line:
                 continue  # this is from a changelog
             # some noise fine-tuning for specific packages
-            if mod == 'bootstrap' and ('https://github.com' in l or l == 'Copyright 2015'):
+            if mod == 'bootstrap' and ('https://github.com' in line or line == 'Copyright 2015'):
                 continue
             if mod == 'patternfly':
-                l = re.sub(' and licensed.*', '', l)
+                line = re.sub(' and licensed.*', '', line)
 
-            copyrights.add(' ' + l)  # space prefix for debian/copyright RFC822 format
+            copyrights.add(' ' + line)  # space prefix for debian/copyright RFC822 format
     except subprocess.CalledProcessError:
         pass
 
@@ -176,9 +176,9 @@ for paragraph in sorted(paragraphs):
     output.append(f'Files: {files}\n{paragraph}')
 
 # force UTF-8 output, even when running in C locale
-for l in template.splitlines():
-    if '#NPM' in l:
+for line in template.splitlines():
+    if '#NPM' in line:
         sys.stdout.buffer.write('\n\n'.join(output).encode('UTF-8'))
     else:
-        sys.stdout.buffer.write(l.encode('UTF-8'))
+        sys.stdout.buffer.write(line.encode('UTF-8'))
     sys.stdout.buffer.write(b'\n')

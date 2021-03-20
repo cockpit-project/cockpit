@@ -25,6 +25,7 @@ import time
 
 distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-32", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "rhel-8-4", "rhel-8-4-distropkg", "ubuntu-2004", "ubuntu-stable"]
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 class TestMachinesSnapshots(VirtualMachinesCase):
@@ -191,9 +192,9 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         # Test snapshot creation with predefined values
         SnapshotCreateDialog(
             self,
-            name = "test_snap_1",
-            description = "Description of test_snap_1",
-            state = "shutoff",
+            name="test_snap_1",
+            description="Description of test_snap_1",
+            state="shutoff",
         ).execute()
 
         b.click("#vm-subVmTest1-run")
@@ -202,9 +203,9 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         # Test snapshot creation on running VM
         SnapshotCreateDialog(
             self,
-            name = "test_snap_2",
-            description = "Description of test_snap_2",
-            state = "running",
+            name="test_snap_2",
+            description="Description of test_snap_2",
+            state="running",
         ).execute()
 
     def testSnapshotRevert(self):

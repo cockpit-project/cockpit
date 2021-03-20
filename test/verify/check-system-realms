@@ -64,6 +64,8 @@ done
 
 # https://en.wikipedia.org/wiki/HMAC-based_One-time_Password_algorithm
 # https://stackoverflow.com/questions/8529265/google-authenticator-implementation-in-python
+
+
 def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
     counter_bytes = struct.pack('>Q', int(counter))
     hs = hmac.new(secret, counter_bytes, hash_alg).digest()
@@ -696,7 +698,7 @@ printf "version: 1\ndn: cn=alice,cn=users,dc=cockpit,dc=lan\nchangetype: modify\
         ldapmodify -v -U Administrator -w '%(admin_pass)s'
 # for debugging:
 ldapsearch -v -U Administrator -w '%(admin_pass)s' -b 'cn=alice,cn=users,dc=cockpit,dc=lan'
-' """ % { "alice_pass": self.alice_password, "admin_pass": self.admin_password, "alice_cert": alice_cert })
+' """ % {"alice_pass": self.alice_password, "admin_pass": self.admin_password, "alice_cert": alice_cert})
 
         # set up sssd for certificate mapping to AD
         # see sssd.conf(5) "CERTIFICATE MAPPING SECTION" and sss-certmap(5)
@@ -997,6 +999,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # should not have a tooltip any more
         b.wait_not_present("#system_information_domain_tooltip")
+
 
 if __name__ == '__main__':
     test_main()

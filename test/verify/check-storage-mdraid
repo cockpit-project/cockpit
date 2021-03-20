@@ -26,6 +26,7 @@ from time import sleep
 def info_field(name, image_name):
     return '#detail-header dt:contains("%s") + dd' % name
 
+
 class TestStorageMdRaid(StorageCase):
 
     def wait_states(self, states):
@@ -47,7 +48,7 @@ class TestStorageMdRaid(StorageCase):
     def raid_add_disk(self, name):
         self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-c-card__header button'),
                                     expect=lambda: self.dialog_is_present('disks', name))
-        self.dialog_set_val("disks", { name: True })
+        self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
@@ -159,7 +160,7 @@ class TestStorageMdRaid(StorageCase):
 
         # HACK - wait a bit before stopping newly created device
         # https://github.com/storaged-project/udisks/issues/643
-        if m.image in ["debian-stable",  "debian-testing"]:
+        if m.image in ["debian-stable", "debian-testing"]:
             sleep(10)
 
         # Turn it off and on again

@@ -33,6 +33,7 @@ from testvm import VirtMachine
 AUTH_KEY = os.path.join(test_dir, "containers/files/enc_rsa")
 PUB_AUTH_KEY = "{}.pub".format(AUTH_KEY)
 
+
 class BastionContainerMachine(VirtMachine):
 
     def start_cockpit(self, *args, **kwargs):
@@ -50,7 +51,7 @@ class TestBastion(MachineCase):
     machine_class = BastionContainerMachine
 
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
+        "machine1": {"address": "10.111.113.1/20"},
     }
 
     def approve_key(self, b):
@@ -141,6 +142,7 @@ class TestBastion(MachineCase):
         b.expect_load()
         b.wait_text('#current-username', 'admin')
         b.logout()
+
 
 if __name__ == '__main__':
     test_main()

@@ -680,6 +680,7 @@ class _DebugOutcome(unittest.case._Outcome):
 
     This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
     '''
+
     def testPartExecutor(self, test_case, isTest=False):
         # we want to do the debug actions after the test function got called (isTest==True), but before
         # TestCase.run() calls tearDown(); thus remember whether we are after isTest and already ran

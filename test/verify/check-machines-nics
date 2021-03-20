@@ -22,6 +22,7 @@ from machineslib import *
 from testlib import *
 from machinesxmls import *
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 @no_retry_when_changed
@@ -294,6 +295,7 @@ class TestMachinesNICs(VirtualMachinesCase):
                 # Check NIC is no longer in list
                 self.browser.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))
                 self.browser.wait_not_present(".pf-c-modal-box")
+
 
 if __name__ == '__main__':
     test_main()

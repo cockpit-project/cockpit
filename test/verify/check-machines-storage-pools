@@ -23,6 +23,7 @@ import parent
 from machineslib import *
 from testlib import *
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 class TestMachinesStoragePools(VirtualMachinesCase):
@@ -539,7 +540,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         class StorageVolumeCreateDialog(object):
             def __init__(
                 self, test_obj, pool_name, vol_name, size="128", unit="MiB", format='qcow2',
-                pool_type = "dir", xfail=False, xfail_object=None, xfail_error=None, remove=True,
+                pool_type="dir", xfail=False, xfail_object=None, xfail_error=None, remove=True,
             ):
                 self.test_obj = test_obj
                 self.pool_name = pool_name
@@ -594,7 +595,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
                 if not self.xfail:
                     # Creation of volumes might take longer for some pool types
-                    if self.pool_type  in ["disk", "netfs"]:
+                    if self.pool_type in ["disk", "netfs"]:
                         b.wait_visible(".pf-c-modal-box__footer button.pf-m-in-progress")
                         b.wait_visible(".pf-c-modal-box__footer button:contains(Create):disabled")
                     b.wait_not_present("#create-volume-dialog-modal")
@@ -617,9 +618,9 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
                 size = int(m.execute(xmllint_element.format(prop='capacity')).strip())
                 if self.unit == "GiB":
-                   size = round(size / (1024**3))
+                    size = round(size / (1024**3))
                 else:
-                   size = round(size / (1024**2))
+                    size = round(size / (1024**2))
                 self.test_obj.assertEqual(size, int(self.size))
 
             def cleanup(self):
@@ -641,7 +642,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             remove=True,
             xfail=True,
             xfail_object='size',
-            xfail_error = "exceed the storage pool",
+            xfail_error="exceed the storage pool",
         ).execute()
 
         # Check volume creation for various pool types
@@ -660,9 +661,9 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             pool_name="nfs-pool",
             pool_type="netfs",
             vol_name="volume_of_nfs_dir",
-            size="10", #Creation of big nfs vol might take so long it will result in timetout
+            size="10",  # Creation of big nfs vol might take so long it will result in timetout
             unit="MiB",
-            format="raw", #Creation of qcow2 nfs vol might take so long it will result in timetout
+            format="raw",  # Creation of qcow2 nfs vol might take so long it will result in timetout
             remove=True,
         ).execute()
 
@@ -698,6 +699,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             format="",
             remove=True,
         ).execute()
+
 
 if __name__ == '__main__':
     test_main()

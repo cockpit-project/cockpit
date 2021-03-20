@@ -37,7 +37,8 @@ done
 """
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "ubuntu-testing",
-    "fedora-coreos", "centos-8-stream"]
+                     "fedora-coreos", "centos-8-stream"]
+
 
 class NoSubManCase(PackageCase):
 
@@ -267,7 +268,7 @@ class TestUpdates(NoSubManCase):
                     # setting app as static in tracer's helper file will cause it to require a reboot
                     m.execute("mkdir -p /etc/tracer")
                     self.testObj.write_file("/etc/tracer/applications.xml",
-"""
+                                            """
 <applications>
    <app name="{0}" type="static" />
 </applications>
@@ -279,11 +280,11 @@ class TestUpdates(NoSubManCase):
 ExecStart=/usr/local/bin/{0}
 """.format(self.packageName)
                 self.testObj.createPackage(self.packageName, "1", "1", install=True, changes="initial package with service and run script",
-                        content={ "/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent },
-                        postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {0}.service".format(self.packageName))
+                                           content={"/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent},
+                                           postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {0}.service".format(self.packageName))
                 self.testObj.createPackage(self.packageName, "1", "2",
-                        content={ "/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent },
-                        postinst="chmod a+x /usr/local/bin/{0}".format(self.packageName))
+                                           content={"/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent},
+                                           postinst="chmod a+x /usr/local/bin/{0}".format(self.packageName))
 
                 self.serviceStartTime = m.execute("systemctl show {0}.service --property=ExecMainStartTimestamp".format(self.packageName))
 
@@ -396,7 +397,6 @@ ExecStart=/usr/local/bin/{0}
                 if self.rebootRequired:
                     m.execute("rm /etc/tracer/applications.xml")
 
-
         Tracer(
             testObj=self,
             packageName="apple",
@@ -440,8 +440,8 @@ Type=simple
 ExecStart=/usr/local/bin/{0}
 """.format(packageName)
         self.createPackage(packageName, "1", "1", install=True, changes="initial package with service and run script",
-                content={ "/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent },
-                postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {1}.service".format(packageName, packageName))
+                           content={"/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent},
+                           postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {1}.service".format(packageName, packageName))
 
         scriptContent = "#!/bin/sh\nfalse"
         unitContent = """
@@ -451,7 +451,7 @@ RemainAfterExit=yes
 ExecStart=/usr/local/bin/{0}
 """.format(packageName)
         self.createPackage(packageName, "1", "2",
-                content={ "/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent })
+                           content={"/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent})
 
         self.enableRepo()
 
@@ -488,7 +488,6 @@ ExecStart=/usr/local/bin/{0}
         # tracer updated the list of services which need a restart, so our service is no longer present
         b.wait_not_in_text("#restart-services-modal .pf-c-modal-box__body", packageName)
         b.wait_visible("#restart-services-modal footer .pf-c-alert")
-
 
     def testInfoSecurity(self):
         b = self.browser
@@ -896,6 +895,7 @@ ExecStart=/usr/local/bin/{0}
         # should go back to updates overview, nothing pending any more
         # TODO make Packagekit GetUpdates work for tests properly
         b.wait_not_present("#available-updates")
+
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 class TestWsUpdate(NoSubManCase):
@@ -1332,7 +1332,6 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#automatic-updates-dialog button:contains('Save changes')")
         b.wait_in_text("#automatic-updates", "Updates will be applied")
 
-
         # Drop privileges
         b.switch_to_top()
         b.click("#super-user-indicator button")
@@ -1456,6 +1455,7 @@ WantedBy=basic.target
         # as dnf-automatic isn't actually installed DnfImpl.setConfig will fail,
         # but we can check that the backend is now enabled
         b.wait_visible("#automatic-updates-dialog")
+
 
 if __name__ == '__main__':
     test_main()

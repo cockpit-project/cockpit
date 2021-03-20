@@ -23,6 +23,7 @@ import parent
 from machineslib import *
 from testlib import *
 
+
 def get_next_free_target(used_targets):
     i = 0
     while ("vd" + chr(97 + i) in used_targets):
@@ -30,6 +31,7 @@ def get_next_free_target(used_targets):
 
     used_targets.append("vd" + chr(97 + i))
     return used_targets
+
 
 def release_target(used_targets, target):
     used_targets.remove(target)
@@ -211,7 +213,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_visible("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
-        # Check when no storage pool and adding existed disk 
+        # Check when no storage pool and adding existed disk
         # delete the default pool
         m.execute("virsh pool-destroy images && virsh pool-undefine images")
         # Open "add disk" dialog

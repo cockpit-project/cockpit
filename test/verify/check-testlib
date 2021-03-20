@@ -30,9 +30,11 @@ run_tests = os.path.join(TEST_DIR, "common", "run-tests")
 VERIFY_DIR = os.path.join(TEST_DIR, "verify")
 ROOT_DIR = os.path.dirname(TEST_DIR)
 
+
 def writeFile(file, content):
     with open(file, 'w') as f:
         f.write(content)
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestRunTestListing(unittest.TestCase):
@@ -226,6 +228,7 @@ class TestTestlib(MachineCase):
         self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
         self.machine.execute("test ! -e /home/cockpittest")
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class NoTestRetryExample(unittest.TestCase):
 
@@ -239,7 +242,6 @@ class NoTestRetryExample(unittest.TestCase):
 
     def testBasic(self):
         self.assertTrue(True)
-
 
 
 if __name__ == '__main__':

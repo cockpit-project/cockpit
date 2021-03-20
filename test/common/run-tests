@@ -41,11 +41,11 @@ class Test:
 
 def test_name(test):
     return "{0} {1} {2}{3}".format(
-            test.test_id,
-            test.command[0],
-            test.command[-1],
-            " [ND@{0}]".format(test.serial_machine) if test.nondestructive else "",
-            )
+        test.test_id,
+        test.command[0],
+        test.command[-1],
+        " [ND@{0}]".format(test.serial_machine) if test.nondestructive else "",
+    )
 
 
 def flush_stdout():
@@ -74,16 +74,17 @@ def print_test(test, print_tap=True, retry_reason=""):
 
     print()  # Tap needs to start on a separate line
     if test.process.returncode == 0:
-        print("ok " +  test_name(test) + retry_reason)
+        print("ok " + test_name(test) + retry_reason)
     elif test.process.returncode == 77 or b"# SKIP " in test.output:
         # If the test was skipped, add the last line (which contains the reason
         # for the skip) to the result
         print("ok {0} {1}{2}".format(test_name(test),
-                                  test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else "",
-                                  retry_reason))
+                                     test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else "",
+                                     retry_reason))
     else:
         print("not ok " + test_name(test) + retry_reason)
     flush_stdout()
+
 
 def finish_test(opts, test, affected_tests):
     """Returns if a test should retry or not
@@ -145,12 +146,14 @@ def finish_test(opts, test, affected_tests):
         print_test(test, print_tap=opts.thorough)
     return None, 1
 
+
 def check_valid(filename):
     name = os.path.basename(filename)
     allowed = string.ascii_letters + string.digits + '-_'
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
+
 
 def build_command(filename, test, opts):
     cmd = [filename]
@@ -164,6 +167,7 @@ def build_command(filename, test, opts):
         cmd.append("-l")
     cmd.append(test)
     return cmd
+
 
 class GlobalMachine:
     def __init__(self, restrict=True, cpus=None, memory_mb=None):
@@ -308,16 +312,16 @@ def run(opts, image):
 
             for i in range(opts.batches):
                 m = GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus, memory_mb=opts.nondestructive_memory_mb)
-                batch_tests[i] = { "working": None, "tests": [], "time": 0, "machine": m }
+                batch_tests[i] = {"working": None, "tests": [], "time": 0, "machine": m}
                 ssh_address = "{0}:{1}".format(m.machine.ssh_address,
                                                m.machine.ssh_port)
                 web_address = "{0}:{1}".format(m.machine.web_address,
                                                m.machine.web_port)
 
                 if i == opts.batches - 1: # Last machine needs to resolve the rest
-                    batch = serial_tests[batch_size * i : ]
+                    batch = serial_tests[batch_size * i:]
                 else:
-                    batch = serial_tests[batch_size * i : batch_size * i + batch_size]
+                    batch = serial_tests[batch_size * i: batch_size * i + batch_size]
 
                 for test in batch:
                     batch_tests[i]["tests"].append(test)
@@ -352,7 +356,6 @@ def run(opts, image):
                 test.process = subprocess.Popen(["timeout", str(test.timeout)] + test.command,
                                                 stdout=test.outfile, stderr=subprocess.STDOUT)
                 running_tests.append(test)
-
 
         for test in running_tests.copy():
             poll_result = test.process.poll()

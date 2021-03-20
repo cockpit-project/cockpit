@@ -34,12 +34,14 @@ parent # pyflakes
 
 from common import testlib
 
+
 def check_valid(filename):
     name = os.path.basename(filename)
     allowed = string.ascii_letters + string.digits + '-_'
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
+
 
 def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
@@ -57,6 +59,7 @@ def run(opts):
     # And now load new testlib, and run all the tests we got
     return testlib.test_main(options=opts, suite=suite)
 
+
 def main():
     parser = testlib.arg_parser()
     parser.add_argument('-c', '--container', dest="container", action='store',
@@ -73,6 +76,7 @@ def main():
         return 1
     else:
         return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

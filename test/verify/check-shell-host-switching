@@ -64,7 +64,6 @@ class HostSwitcherHelpers:
           return true;
         })""", address)
 
-
     def add_machine(self, b, address, known_host=False):
         b.click("button:contains('Add new host')")
         b.wait_popup('hosts_setup_server_dialog')
@@ -102,6 +101,7 @@ class HostSwitcherHelpers:
 
         for m in self.machines:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
+
 
 @no_retry_when_changed
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
@@ -413,6 +413,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         time.sleep(60)
         self.assertNotIn(m2.execute("loginctl"), "admin")
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
@@ -445,7 +446,6 @@ class TestHostEditing(MachineCase, HostSwitcherHelpers):
             b.click("#hosts_setup_server_dialog .pf-m-link")
 
         self.login_and_go(superuser=False)
-
 
         b.click("#hosts-sel button")
         self.wait_host_addresses(b, ["localhost"])

@@ -76,6 +76,7 @@ def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
         b.set_val('#login-custom-password', password)
         b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
 
+
 def fail_login(b):
     b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
     b.wait_visible('#troubleshoot-dialog .modal-footer button:contains(Log in):not([disabled])')
@@ -860,7 +861,6 @@ class TestMultiMachine(MachineCase):
         self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
                          m2.execute("cat /home/fred/.ssh/authorized_keys"))
 
-
     def testSshKeySetupCustom(self):
         b = self.browser
         m1 = self.machine
@@ -891,6 +891,7 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog', "The SSH key")
         b.wait_not_visible('.password-change-advice')
         b.wait_not_visible('.login-setup-auto')
+
 
 if __name__ == '__main__':
     test_main()

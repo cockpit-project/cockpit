@@ -23,6 +23,7 @@ import parent
 from machineslib import *
 from testlib import *
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 @no_retry_when_changed
@@ -125,7 +126,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0 /")
-        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0%" )
+        b.wait_in_text(".vcpu-usage-chart .pf-c-progress__status > .pf-c-progress__measure", "0%")
 
         # shut off of a transient VM will redirect us to the main page
         m.execute("virsh dumpxml subVmTest1 > /tmp/subVmTest1.xml")
@@ -299,7 +300,6 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow(name)
-
 
         m.execute("test -f {0}".format(img2))
 

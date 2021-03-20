@@ -59,16 +59,18 @@ def out(data, stream=None, flush=False):
                 continue
             raise
 
+
 def terminal_width():
     try:
         h, w, hp, wp = struct.unpack('HHHH',
-            fcntl.ioctl(1, termios.TIOCGWINSZ,
-            struct.pack('HHHH', 0, 0, 0, 0)))
+                                     fcntl.ioctl(1, termios.TIOCGWINSZ,
+                                                 struct.pack('HHHH', 0, 0, 0, 0)))
         return w
     except IOError as e:
         if e.errno != errno.ENOTTY:
             sys.stderr.write("%i %s %s\n" % (e.errno, e.strerror, sys.exc_info()))
         return sys.maxsize
+
 
 class Driver:
     def __init__(self, args):
@@ -99,7 +101,7 @@ class Driver:
         if self.color_tests:
             out('\x1b[m')
         out(": ")
-        msg = "".join([ self.test_name + " " ] + list(map(str, args)))
+        msg = "".join([self.test_name + " "] + list(map(str, args)))
         if code == "PASS" and len(msg) > self.width:
             out(msg[:self.width])
             out("...")
@@ -173,7 +175,7 @@ class TapDriver(Driver):
     def __init__(self, args):
         Driver.__init__(self, args)
         self.output = ""
-        self.reported = { }
+        self.reported = {}
         self.test_plan = None
         self.late_plan = False
         self.errored = False
@@ -368,6 +370,7 @@ class YesNoAction(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
         argparse.Action.__init__(self, option_strings, dest, **kwargs)
         self.metavar = "[yes|no]"
+
     def __call__(self, parser, namespace, values, option_string=None):
         if not values or "yes" in values:
             setattr(namespace, self.dest, True)
@@ -377,7 +380,7 @@ class YesNoAction(argparse.Action):
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Automake TAP driver')
-    parser.add_argument('--format', metavar='FORMAT', choices=[ "simple", "tap" ],
+    parser.add_argument('--format', metavar='FORMAT', choices=["simple", "tap"],
                         default="tap", help='The type of test to drive')
     parser.add_argument('--missing', metavar="TOOL", nargs='?',
                         help="Force the test to skip due to missing tool")
@@ -406,6 +409,7 @@ def main(argv):
     elif args.format == "tap":
         driver = TapDriver(args)
     return driver.run()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

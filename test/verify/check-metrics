@@ -74,6 +74,7 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
                        while systemctl is-active systemd-timesyncd; do sleep 1; done
                        timedatectl set-time @{1}""".format(command, time, hostname))
 
+
 def login(self):
     # HACK: Ubuntu and Debian need some time until metrics channel is available
     # Really no idea what it needs to wait for, so let's just try channel until it succeeds
@@ -529,7 +530,7 @@ class TestCurrentMetrics(MachineCase):
         if have_swap:
             # use even more memory to trigger swap
             m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
-                    """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
+                      """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
             b.wait(lambda: progressValue(b, "#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")

@@ -21,6 +21,7 @@ import parent
 from storagelib import *
 from testlib import *
 
+
 @nondestructive
 class TestStorageLvm2(StorageCase):
 
@@ -234,7 +235,7 @@ class TestStorageLvm2(StorageCase):
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
-                                              self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
+                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
                                values={"disks": {disk1: True}})
 
         b.wait_in_text("#devices", "vgroup0")
@@ -297,6 +298,7 @@ class TestStorageLvm2(StorageCase):
 
         self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol0")
         b.wait_not_in_text("#storage-detail", "snap0")
+
 
 if __name__ == '__main__':
     test_main()

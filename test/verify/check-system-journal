@@ -135,7 +135,7 @@ class TestJournal(MachineCase):
         # output.
         #
         self.write_file("/etc/systemd/system/log123.service",
-                """
+                        """
 [Unit]
 Description=123 different log lines
 
@@ -144,7 +144,7 @@ ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 10'
 """)
 
         self.write_file("/etc/systemd/system/slow10.service",
-                """
+                        """
 [Unit]
 Description=Slowly log 10 identical lines
 
@@ -342,7 +342,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         b.focus("#journal-grep")
-        b.key_press("\b"*13 + "[5-6]\r")
+        b.key_press("\b" * 13 + "[5-6]\r")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
@@ -514,7 +514,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         ["check-journal", "BEFORE BOOT", ""],
                         "Load earlier entries"
                         ])
-
 
     @nondestructive
     def testBinary(self):
@@ -775,6 +774,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
         b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
+
 
 if __name__ == '__main__':
     test_main()

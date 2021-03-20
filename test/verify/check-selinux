@@ -208,7 +208,6 @@ class TestSelinux(MachineCase):
             # different outputs.
             return script.replace("permissive -D\n", "")
 
-
         b.click("button:contains('Ansible')")
         b.wait_in_text(ansible_script_sel, "- name: Allow zebra to write config")
 
@@ -216,7 +215,7 @@ class TestSelinux(MachineCase):
         ansible_m.execute("semanage module -D")
         ansible_m.execute("mkdir -p roles/selinux/tasks/")
         ansible_m.write("tests.yml",
-"""
+                        """
 - hosts: localhost
   connection: local
   roles:
@@ -270,7 +269,6 @@ class TestSelinux(MachineCase):
         b.wait_text("ul[aria-label='System modifications']", "No system modifications")
         b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
-
 
     @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-stable")
     def testEnforcingToggle(self):

@@ -22,6 +22,7 @@ from machineslib import *
 from testlib import *
 from machinesxmls import *
 
+
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
     net_devices_str = net_devices_str.split("\n", 2)[2]; # Remove first 2 lines of table header
@@ -33,6 +34,7 @@ def getNetworkDevice(m):
         device = net_devices_str.split("_", 2)[1]; # Ignore prefix (example: net_enp0s31f6_8c_16_45_5f_77_34)
 
     return device
+
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
@@ -273,7 +275,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
             def verify_overview(self):
                 # Check basic network properties
                 modes = {"nat": "NAT", "none": "None (isolated network)", "open": "Open", "route": "Routed", \
-                "bridge": "Bridge", "private": "Private", "vepa": "VEPA", "passthrough": "Passthrough", "hostdev": "Hostdev"}
+                         "bridge": "Bridge", "private": "Private", "vepa": "VEPA", "passthrough": "Passthrough", "hostdev": "Hostdev"}
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
                 b.wait_in_text("#network-{0}-{1}-forwarding".format(self.name, connectionName), modes[self.forward_mode])
@@ -310,7 +312,6 @@ class TestMachinesNetworks(VirtualMachinesCase):
                     m.execute("virsh net-destroy {}".format(self.name))
                 m.execute("virsh net-undefine {0}".format(self.name))
 
-
         # Test various forward Modes
         duplicated_net = NetworkCreateDialog(
             self,
@@ -321,7 +322,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv4_netmask="255.255.255.0",
             remove=False,
             activate=True,
-            )
+        )
         duplicated_net.execute()
 
         # XFail: Activate a network which has a same ipv4 address with last one
@@ -411,8 +412,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv6_dhcp_end="",
             xfail=True,
             xfail_objects = ["name", "ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
-            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
-            xfail_error = "should not be empty",
+                            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error="should not be empty",
         ).execute()
 
         # Check "Invalid..." (invalid IP format or prefix length)
@@ -431,8 +432,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv6_dhcp_end="fd00:e81d:a6d7:55::1:1:1:1:1:1:1:1",
             xfail=True,
             xfail_objects = ["ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
-            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
-            xfail_error = "Invalid",
+                            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error="Invalid",
         ).execute()
 
         # Check "Address not within subnet"
@@ -450,8 +451,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv6_dhcp_start="fd00:e81d:a6d7:54::100",
             ipv6_dhcp_end="ad00:e81d:a6d7:55::100",
             xfail=True,
-            xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end", "ipv6_dhcp_start", "ipv6_dhcp_end"],
-            xfail_error = "Address not within subnet",
+            xfail_objects=["ipv4_dhcp_start", "ipv4_dhcp_end", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error="Address not within subnet",
         ).execute()
 
         # Test network devices
@@ -477,8 +478,8 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv4_dhcp_start="192.168.100.0",
             ipv4_dhcp_end="191.168.100.255",
             xfail=True,
-            xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end"],
-            xfail_error = "Address not within subnet",
+            xfail_objects=["ipv4_dhcp_start", "ipv4_dhcp_end"],
+            xfail_error="Address not within subnet",
         ).execute()
 
     def testNetworkSettings(self):

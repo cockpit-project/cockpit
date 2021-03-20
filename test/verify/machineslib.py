@@ -98,7 +98,7 @@ class VirtualMachinesCaseHelpers:
         # Wait for the network 'default' to become active
         m.execute("virsh net-define /etc/libvirt/qemu/networks/default.xml || true")
         m.execute("virsh net-start default || true")
-        m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
+        m.execute(r"until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 
     def createVm(self, name, graphics='spice', ptyconsole=False, running=True, memory=128):
         m = self.machine
@@ -218,7 +218,7 @@ class VirtualMachinesCase(MachineCase, VirtualMachinesCaseHelpers, StorageHelper
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
         # FIXME: report downstream; AppArmor noisily denies some operations, but they are not required for us
-        self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
+        self.allow_journal_messages(r'.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
         # AppArmor doesn't like the non-standard path for our storage pools
         self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="virt-aa-helper" name="%s.*' % self.vm_tmpdir)
         if m.image in ["ubuntu-2004", "ubuntu-stable"]:

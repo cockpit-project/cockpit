@@ -125,11 +125,11 @@ def finish_test(opts, test, affected_tests):
             return None, 0
 
     # do we get a specific retry reason from tests-policy?
-    m = re.search(b"\s*# RETRY (.*)$", test.output, re.MULTILINE)
+    m = re.search(rb"\s*# RETRY (.*)$", test.output, re.MULTILINE)
     if m:
         retry_reason = m.group(1)
         # remove it from test output; we must not print it after the 3rd time, and going to print it separately
-        test.output = re.sub(b"\s*# RETRY .*\\n", b"", test.output)
+        test.output = re.sub(rb"\s*# RETRY .*\n", b"", test.output)
     elif affected: # Don't retry affected failed tests
         retry_reason = None
     else:

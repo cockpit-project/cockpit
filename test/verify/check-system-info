@@ -721,7 +721,7 @@ insecure_connection=True
             b.wait_visible(sel)
             b.wait_attr_contains(sel, "style", "width:")
             style = b.attr(sel, "style")
-            m = re.search("width: (\d+)%;", style)
+            m = re.search(r"width: (\d+)%;", style)
             return int(m.group(1))
 
         self.login_and_go("/system")

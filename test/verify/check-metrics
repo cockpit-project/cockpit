@@ -43,7 +43,7 @@ def progressValue(browser, progress_bar_sel):
     browser.wait_visible(sel)
     browser.wait_attr_contains(sel, "style", "width:")
     style = browser.attr(sel, "style")
-    m = re.search("width: (\d+)%;", style)
+    m = re.search(r"width: (\d+)%;", style)
     return int(m.group(1))
 
 
@@ -587,12 +587,12 @@ class TestCurrentMetrics(MachineCase):
         self.assertLess(progressValue(b, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
         progress_sel = ".pf-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-c-progress__status"
         # free size is anything between 40 and 50 MB
-        self.assertRegex(b.text(progress_sel), "^4\d\.\d MB free$")
+        self.assertRegex(b.text(progress_sel), r"^4\d\.\d MB free$")
         # total size is shown in tooltip
         b.mouse(progress_sel, "mouseenter")
         b.wait_in_text(".pf-c-tooltip", "total")
         # total size is anything between 40 and 50 MB
-        self.assertRegex(b.text(".pf-c-tooltip"), "^4\d\.\d MB total$")
+        self.assertRegex(b.text(".pf-c-tooltip"), r"^4\d\.\d MB total$")
         b.mouse(progress_sel, "mouseleave")
         # read-only loop devices are not shown
         self.assertFalse(b.is_present(".pf-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))

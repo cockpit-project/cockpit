@@ -1115,7 +1115,7 @@ class TestAutoUpdates(NoSubManCase):
             else:
                 self.assertEqual(out, "")
             if dow:
-                self.assertRegex(out, "^%s\s" % dow)
+                self.assertRegex(out, r"^%s\s" % dow)
             else:
                 # "every day" should not have a "LEFT" time > 1 day
                 self.assertNotIn(" day", out)

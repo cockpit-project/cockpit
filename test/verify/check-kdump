@@ -93,7 +93,7 @@ class TestKdump(MachineCase):
             assertActive(False)
 
         # there shouldn't be any crash reports in the target directory
-        self.assertEqual(m.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
+        self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
         self.enableKdump()
         self.rebootMachine()
@@ -177,8 +177,7 @@ class TestKdump(MachineCase):
         b.wait_in_text("div.curtains-ct h1", "Disconnected")
         m.disconnect()
         m.wait_boot(timeout_sec=300)
-        self.assertNotEqual(
-            m.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
+        self.assertNotEqual(m.execute(f"find '{customPath}' -maxdepth 1 -mindepth 1 -type d"), "")
 
     @nondestructive
     def testConfiguration(self):

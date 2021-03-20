@@ -368,7 +368,7 @@ class TestConnection(MachineCase):
         output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
         self.assertNotIn("DONE", output)
         self.assertRegex(
-            output, "no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
+            output, r"no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
 
         # get along with read-only config directory, as long as certificate exists
         # this does not work on coreos as the user/group IDs are not mapped correctly

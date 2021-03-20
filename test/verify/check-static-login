@@ -166,9 +166,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.login_and_go()
 
         self.allow_journal_messages("Returning error-response ... with reason .*",
-                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
-                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    r"pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    r"pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")
 
         self.allow_restart_journal_messages()
@@ -437,9 +437,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.assertEqual(self.curl_auth_code('/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
 
         self.allow_journal_messages("Returning error-response ... with reason .*",
-                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
-                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    r"pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    r"pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 

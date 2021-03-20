@@ -107,7 +107,7 @@ session    required     pam_limits.so
 session    include      system-auth
 """)
 
-        sshd_machine.execute(script="""#!/bin/sh
+        sshd_machine.execute(script=r"""#!/bin/sh
         sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
         systemctl restart sssd
         usermod -G wheel user

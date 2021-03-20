@@ -29,7 +29,7 @@ class TestApps(PackageCase):
     def setUp(self):
         super().setUp()
         self.appstream_collection = set()
-        self.machine.upload([ "verify/files/test.png" ], "/var/tmp/")
+        self.machine.upload(["verify/files/test.png"], "/var/tmp/")
 
     def createAppStreamPackage(self, name, version, revision):
         self.createPackage(name, version, revision, content={
@@ -43,7 +43,7 @@ class TestApps(PackageCase):
   <launchable type="cockpit-manifest">{0}</launchable>
 </component>
 """.format(name),
-            "/usr/share/pixmaps/test.png":  { "path": "/var/tmp/test.png" }})
+            "/usr/share/pixmaps/test.png": {"path": "/var/tmp/test.png"}})
         self.appstream_collection.add(name)
 
     def createAppStreamRepoPackage(self):
@@ -71,7 +71,7 @@ class TestApps(PackageCase):
 {0}
 </components>
             """.format(body),
-            "/usr/share/app-info/icons/test/64x64/test.png": { "path": "/var/tmp/test.png" }})
+            "/usr/share/app-info/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
         self.enableRepo()
         self.machine.execute("systemctl stop packagekit && pkcon refresh force")
         # ignore the corresponding journal entry

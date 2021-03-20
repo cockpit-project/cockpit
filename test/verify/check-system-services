@@ -73,7 +73,7 @@ class TestServices(MachineCase):
     def wait_service_state(self, service, state):
         state_new = state
         if 'inactive' in state:
-            state_new  = 'Not running'
+            state_new = 'Not running'
         elif 'active' in state:
             state_new = 'Running'
         elif 'failed' in state:
@@ -97,7 +97,7 @@ class TestServices(MachineCase):
         b = self.browser
 
         self.write_file("/etc/systemd/system/test.service",
-                """
+                        """
 [Unit]
 Description=Test Service
 
@@ -109,7 +109,7 @@ ExecReload=/bin/sh true
 WantedBy=default.target
 """)
         self.write_file("/usr/local/bin/test-service",
-                """
+                        """
 #! /bin/sh
 
 trap "echo STOP" 0
@@ -121,7 +121,7 @@ while true; do
 done
 """)
         self.write_file("/etc/systemd/system/test-fail.service",
-                """
+                        """
 [Unit]
 Description=Failing Test Service
 
@@ -132,7 +132,7 @@ ExecStart=/usr/bin/false
 WantedBy=default.target
 """)
         self.write_file("/etc/systemd/system/test.timer",
-                """
+                        """
 [Unit]
 Description=Test Timer
 
@@ -140,7 +140,7 @@ Description=Test Timer
 OnCalendar=*:1/2
 """)
         self.write_file("/etc/systemd/system/test-onboot.timer",
-                """
+                        """
 [Unit]
 Description=Test OnBoot Timer
 
@@ -387,7 +387,7 @@ Unit=test.service
         b = self.browser
 
         self.write_file("/etc/systemd/system/test.service",
-                """
+                        """
 [Unit]
 Description=Test Service
 
@@ -425,7 +425,7 @@ WantedBy=default.target
         m = self.machine
         b = self.browser
         self.write_file("/etc/systemd/system/condtest.service",
-                """
+                        """
 [Unit]
 Description=Test Service
 ConditionDirectoryNotEmpty=/var/tmp/empty
@@ -472,7 +472,7 @@ WantedBy=multi-user.target
         b = self.browser
 
         self.write_file("/etc/systemd/system/test-a.service",
-                """
+                        """
 [Unit]
 Description=A Service
 Before=test-b.service
@@ -483,7 +483,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
         self.write_file("/etc/systemd/system/test-b.service",
-                """
+                        """
 [Unit]
 Description=B Service
 After=test-a.service
@@ -493,7 +493,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
         self.write_file("/etc/systemd/system/test-c.service",
-                """
+                        """
 [Unit]
 Description=C Service
 Conflicts=test-a.service
@@ -546,7 +546,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         b = self.browser
 
         self.write_file("/etc/systemd/system/test.service",
-                """
+                        """
 [Unit]
 Description=Test Service
 Requires=not-found.service
@@ -575,7 +575,7 @@ ExecStart=/bin/true
         # Put it in /run instead of in /etc so that we can mask it,
         # which needs to put a symlink into /etc.
         self.write_file("/run/systemd/system/test-fail.service",
-                """
+                        """
 [Unit]
 Description=Failing Test Service
 
@@ -642,7 +642,7 @@ WantedBy=default.target
         # relative order depending on whether "aab" has failed or not.
 
         self.write_file("/etc/systemd/system/aaa.service",
-                """
+                        """
 [Unit]
 Description=First Row Service
 
@@ -650,7 +650,7 @@ Description=First Row Service
 ExecStart=/usr/bin/true
 """)
         self.write_file("/etc/systemd/system/aab-fail.service",
-                """
+                        """
 [Unit]
 Description=Failing Test Service
 
@@ -714,7 +714,7 @@ ExecStart=/usr/bin/false
         b = self.browser
 
         self.write_file("/etc/systemd/system/fail.mount",
-                """
+                        """
 [Unit]
 Description=Failing Mount
 

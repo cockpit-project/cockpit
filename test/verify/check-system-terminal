@@ -20,8 +20,10 @@
 import parent
 from testlib import *
 
+
 def line_sel(i):
     return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestTerminal(MachineCase):
@@ -243,6 +245,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
         b.key_press("id\r")
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
+
 
 if __name__ == '__main__':
     test_main()

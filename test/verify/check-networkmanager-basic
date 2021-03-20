@@ -21,6 +21,7 @@ import parent
 from netlib import *
 from testlib import *
 
+
 @nondestructive
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestNetworkingBasic(NetworkCase):
@@ -78,7 +79,7 @@ class TestNetworkingBasic(NetworkCase):
         # Disconnect
         self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
-        self.wait_for_iface_setting('Status','Inactive')
+        self.wait_for_iface_setting('Status', 'Inactive')
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -173,7 +174,7 @@ class TestNetworkingBasic(NetworkCase):
 
         # /usr in coreos is readonly
         if m.image not in ["fedora-coreos"]:
-        # remove the NM service file, test 'no-found' notification
+            # remove the NM service file, test 'no-found' notification
             # This works for ND tests since there is a self.addCleanup(m.execute, "systemctl enable --now NetworkManager") in the start of the test
             self.restore_file('/usr/lib/systemd/system/NetworkManager.service')
             m.execute("rm /usr/lib/systemd/system/NetworkManager.service && systemctl daemon-reload && systemctl stop NetworkManager")

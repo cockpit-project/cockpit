@@ -28,6 +28,7 @@ from machineslib import *
 from testlib import *
 from machinesxmls import *
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 @no_retry_when_changed
@@ -429,9 +430,9 @@ class TestMachinesCreate(VirtualMachinesCase):
         # define again the default storage pool for system connection
         # we need so that the UI will know the remaining available space when we use that pool's path
         cmds = [
-                "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
-                "virsh pool-start default"
-                ]
+            "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
+            "virsh pool-start default"
+        ]
         self.machine.execute(" && ".join(cmds))
 
         self.browser.reload()
@@ -530,7 +531,6 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                                          env_is_empty=False), {"vm-name": "already exists"})
 
         self.machine.execute("virsh undefine existing-name")
-
 
         runner.createTest(TestMachinesCreate.VmDialog(self, sourceType='url',
                                                       location=config.VALID_URL,
@@ -1163,7 +1163,7 @@ class TestMachinesCreate(VirtualMachinesCase):
             # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
             # the host has (less or more than 1 GiB), and thus needs to be dynamic
             if dialog.memory_size >= 1024 and dialog.memory_size_unit == "MiB":
-                memory_text = "/ " + ("%.1f" % (dialog.memory_size/1024)).rstrip('.0') + " GiB"
+                memory_text = "/ " + ("%.1f" % (dialog.memory_size / 1024)).rstrip('.0') + " GiB"
             else:
                 memory_text = "/ " + ("%.1f" % dialog.memory_size).rstrip('.0') + " %s" % dialog.memory_size_unit
             b.wait_in_text(".memory-usage-chart .pf-c-progress__status > .pf-c-progress__measure", memory_text)
@@ -1227,8 +1227,8 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.machine.execute("until test -z $(ls /home/admin/.local/share/libvirt/images/ 2>/dev/null); do sleep 1; done")
 
             alerts = self.browser.call_js_func("ph_count", ".pf-c-alert-group li")
-            for i  in range(alerts):
-                    b.click(".pf-c-alert-group li:first-of-type .pf-c-alert .pf-c-button")
+            for i in range(alerts):
+                b.click(".pf-c-alert-group li:first-of-type .pf-c-alert .pf-c-button")
 
             b.wait_not_present(".pf-c-alert-group li .pf-c-alert")
 
@@ -1262,7 +1262,7 @@ class TestMachinesCreate(VirtualMachinesCase):
 
             if dialog.delete:
                 self._deleteVm(dialog) \
-                      .checkEnvIsEmpty()
+                    .checkEnvIsEmpty()
 
         def cancelDialogTest(self, dialog):
             dialog.open() \
@@ -1284,7 +1284,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 .createAndVerifyVirtInstallArgsCloudInit()
             if dialog.delete:
                 self._deleteVm(dialog) \
-                      .checkEnvIsEmpty()
+                    .checkEnvIsEmpty()
 
         def createDownloadAnOSTest(self, dialog):
             dialog.open() \
@@ -1292,7 +1292,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 .createAndVerifyVirtInstallArgsUnattended()
             if dialog.delete:
                 self._deleteVm(dialog) \
-                      .checkEnvIsEmpty()
+                    .checkEnvIsEmpty()
 
         def checkPXENotAvailableSessionTest(self, dialog):
             dialog.open() \
@@ -1303,10 +1303,10 @@ class TestMachinesCreate(VirtualMachinesCase):
 
         def createThenInstallTest(self, dialog, installFromVmDetails=False, tryWithFailInstall=False):
             self._tryCreateThenInstall(dialog, installFromVmDetails, tryWithFailInstall) \
-                  ._assertScriptFinished() \
-                  ._assertDomainDefined(dialog.name, dialog.connection) \
-                  ._deleteVm(dialog) \
-                  .checkEnvIsEmpty()
+                ._assertScriptFinished() \
+                ._assertDomainDefined(dialog.name, dialog.connection) \
+                ._deleteVm(dialog) \
+                .checkEnvIsEmpty()
 
         def checkDialogErrorTest(self, dialog, errors):
             dialog.open() \
@@ -1326,14 +1326,14 @@ class TestMachinesCreate(VirtualMachinesCase):
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual machines")
 
-        dialog = TestMachinesCreate.VmDialog(self,sourceType='file',
+        dialog = TestMachinesCreate.VmDialog(self, sourceType='file',
                                              name="VmNotInstalled",
                                              location=TestMachinesCreate.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH,
                                              memory_size=256, memory_size_unit='MiB',
                                              storage_size=256, storage_size_unit='MiB',
                                              start_vm=False)
         dialog.open() \
-                .fill() \
+            .fill() \
 
         b.click(".pf-c-modal-box__footer button:contains(Create)")
         b.wait_not_present("#create-vm-dialog")

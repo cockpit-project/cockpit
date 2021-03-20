@@ -79,6 +79,7 @@ Memory Device
 EOF
 """
 
+
 def ssh_reconnect(machine, timeout_sec=120):
     start_time = time.time()
     error = None
@@ -175,7 +176,7 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text("#system_information_ssh_keys .list-group", new_alt)
 
         b.wait_in_text('#system_information_os_text',
-                    "Foobar Adventure Linux Server 2.0 (Day of Doom)")
+                       "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
         b.click('#system_information_ssh_keys button:contains("Close")')
         b.wait_not_present("#system_information_ssh_keys")
@@ -535,7 +536,7 @@ revision\t: 2.3 (pvr 004e 1203)
                 if expect_smt_state is not None:
                     b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
                     b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                                (expect_smt_state and ":checked" or ":not(:checked)"))
+                                   (expect_smt_state and ":checked" or ":not(:checked)"))
 
                 b.logout()
             finally:
@@ -689,7 +690,7 @@ fi
         m.upload(["verify/files/mock-insights"], "/var/tmp")
         m.spawn("/var/tmp/mock-insights", "mock-insights")
         m.write("/etc/insights-client/insights-client.conf",
-"""
+                """
 [insights-client]
 gpg=False
 auto_config=False
@@ -753,6 +754,7 @@ insecure_connection=True
         wait(lambda: progressValue(2) <= initial_usage)
         self.assertGreater(progressValue(2), 10)
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestPcp(packagelib.PackageCase):
 
@@ -787,7 +789,6 @@ class TestPcp(packagelib.PackageCase):
         b.click(".pf-c-modal-box__footer button:contains('Install')")
         b.wait_not_present(".pf-c-modal-box:contains('Install software')")
 
-
         b.wait_visible("#server-pmlogger-switch")
         b.wait_not_present("#system-configuration-enable-pcp-link")
 
@@ -798,6 +799,7 @@ class TestPcp(packagelib.PackageCase):
         m.execute("touch /tmp/pmlogger.start")
         b.wait_visible("#server-pmlogger-switch:not(:disabled)")
         b.wait_visible("#server-pmlogger-switch:checked")
+
 
 if __name__ == '__main__':
     test_main()

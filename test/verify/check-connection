@@ -394,7 +394,7 @@ class TestConnection(MachineCase):
         check_cert_chain()
 
         # *.crt file also works
-        m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
+        m.execute("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
         check_cert_chain()
 
         # separate *.key file instead of merged .cert
@@ -669,22 +669,22 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         cases = [(['/cockpit/@localhost/system/index.html', 'system', 'system/index', 'system/'],
                   ['id="overview"']
-                 ),
+                  ),
                  (['/cockpit/@localhost/network/firewall.html', 'network/firewall'],
                   ['div id="firewall"', 'script src="firewall.js"']
-                 ),
+                  ),
                  (['/cockpit/@localhost/playground/react-patterns.html', 'playground/react-patterns'],
                   ['script src="react-patterns.js"']
-                 ),
+                  ),
                  # no ssh host
                  (['/cockpit/@localhost/manifests.json'],
                   ['"system"', '"Overview"']
-                 ),
+                  ),
                  # remote ssh host
                  (['/cockpit/@localhost/manifests.json test1@localhost'],
                   ['"system"', '"Overview"', '"HACK"']
-                 )
-                ]
+                  )
+                 ]
 
         # prepare fake ssh target; to verify that we really use that, fake dashboard manifest
         m.execute("""set -e; useradd test1
@@ -854,7 +854,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
 class TestReverseProxy(MachineCase):
 
     provision = {
-        "0": {"forward": {"443": 8443 }}
+        "0": {"forward": {"443": 8443}}
     }
 
     def setUp(self):
@@ -879,11 +879,11 @@ ProtocolHeader = X-Forwarded-Proto
         # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
         (https_host, https_port) = self.machine.forward["443"].split(':')
         out = subprocess.check_output(
-                ["curl", "--verbose", "--head",
-                 "--resolve", "alice:%s:%s" % (https_port, https_host),
-                 "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
-                 "https://alice:%s/cockpit/static/login.html" % https_port],
-                stderr=subprocess.STDOUT)
+            ["curl", "--verbose", "--head",
+             "--resolve", "alice:%s:%s" % (https_port, https_host),
+             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
+             "https://alice:%s/cockpit/static/login.html" % https_port],
+            stderr=subprocess.STDOUT)
         self.assertIn(b"HTTP/1.1 200 OK", out)
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
 

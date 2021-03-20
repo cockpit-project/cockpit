@@ -26,6 +26,7 @@ def wait_addresses(b, expected):
     for address in expected:
         b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
 
+
 def add_machine(b, address, password):
     b.click("button:contains('Add new host')")
     b.wait_popup('hosts_setup_server_dialog')
@@ -41,6 +42,7 @@ def add_machine(b, address, password):
 
     b.wait_popdown('hosts_setup_server_dialog')
 
+
 def wait_stock_addresses(b, expected):
     b.wait_js_func(
         """(function(expected) {
@@ -50,6 +52,7 @@ def wait_stock_addresses(b, expected):
             });
             return expected.sort().toString() == addresses.sort().toString();
         })""", expected)
+
 
 def add_stock_machine(b, address, password):
     b.click('#dashboard-add')
@@ -154,6 +157,7 @@ class TestMultiOS(MachineCase):
 
         # Messages from previous versions of cockpit
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
+
 
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestMultiOSDirect(MachineCase):

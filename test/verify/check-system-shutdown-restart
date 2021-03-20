@@ -21,7 +21,6 @@ import parent
 from testlib import *
 
 
-
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestShutdownRestart(MachineCase):
     provision = {

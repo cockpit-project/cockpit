@@ -34,6 +34,7 @@ def wait_unit_state(machine, unit, state):
 
     wait(lambda: active_state(unit) == state, delay=0.2)
 
+
 def get_active_rules(machine):
     active_zones = machine.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split()
     active_rules = []
@@ -43,6 +44,7 @@ def get_active_rules(machine):
         if ports:
             active_rules += [ports]
     return active_rules
+
 
 @skipImage("no firewalld", "fedora-coreos")
 @nondestructive
@@ -236,7 +238,6 @@ class TestFirewall(NetworkCase):
         b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
         b.wait_not_present(".pf-c-modal-box")
 
-
         def addService(zone, service):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .service-list #firewall-service-{}".format(service))
@@ -292,7 +293,7 @@ class TestFirewall(NetworkCase):
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ."  + self.btn_danger)
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -390,7 +391,6 @@ class TestFirewall(NetworkCase):
         # should have been removed in the reload
         b.wait_not_present("tr[data-row-id='http']")
 
-
     def testMultipleZones(self):
         b = self.browser
         m = self.machine
@@ -480,6 +480,7 @@ class TestFirewall(NetworkCase):
         removeZone("home")
 
         addZone("work", sources="totally invalid address", error="Error message: org.fedoraproject.FirewallD1.Exception: INVALID_ADDR: totally invalid address")
+
 
 if __name__ == '__main__':
     test_main()

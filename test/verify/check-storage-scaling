@@ -21,6 +21,7 @@ import parent
 from storagelib import *
 from testlib import *
 
+
 class TestStorageScaling(StorageCase):
 
     def testScaling(self):
@@ -33,6 +34,7 @@ class TestStorageScaling(StorageCase):
         b.click("#drives button:contains(Show all 202 drives)")
         b.wait_not_in_text("#drives", "Show all")
         b.wait_js_cond('ph_select("#drives .sidepanel-row").length == 202')
+
 
 if __name__ == '__main__':
     test_main()

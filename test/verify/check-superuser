@@ -20,6 +20,7 @@
 import parent
 from testlib import *
 
+
 def allow_old_cockpit_ws_messsages(test):
     # noisy debug message from old cockpit-ws
     test.allow_journal_messages("logged in user session",
@@ -223,11 +224,12 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserOldShell(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20" },
-        "machine2": {"address": "10.111.113.2/20", "image": "centos-7" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
     def test(self):
@@ -260,11 +262,12 @@ class TestSuperuserOldShell(MachineCase):
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
-        "machine2": {"address": "10.111.113.2/20" },
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
+        "machine2": {"address": "10.111.113.2/20"},
     }
 
     def test(self):
@@ -357,8 +360,8 @@ class TestSuperuserOldWebserver(MachineCase):
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserDashboard(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20" },
-        "machine2": {"address": "10.111.113.2/20" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
     }
 
     def test(self):
@@ -416,11 +419,12 @@ class TestSuperuserDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserOldDashboard(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
-        "machine2": {"address": "10.111.113.2/20" },
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
+        "machine2": {"address": "10.111.113.2/20"},
     }
 
     def test(self):
@@ -482,8 +486,8 @@ class TestSuperuserOldDashboard(MachineCase):
 @skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
 class TestSuperuserDashboardOldMachine(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20" },
-        "machine2": {"address": "10.111.113.2/20", "image": "centos-7" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
     def test(self):
@@ -510,6 +514,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
+
 
 if __name__ == '__main__':
     test_main()

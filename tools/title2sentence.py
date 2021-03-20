@@ -66,6 +66,8 @@ patterns = [
 the_map = []
 
 # Replace exact positions
+
+
 def replace(s, old_s, word):
     if not word.strip():
         return s
@@ -77,12 +79,14 @@ def replace(s, old_s, word):
 
     return s
 
+
 def capitalize(s):
     for word in keep_words:
         if s.startswith(word):
             return s
 
     return s[0].upper() + s[1:]
+
 
 def main():
     parser = argparse.ArgumentParser(description="TODO")
@@ -144,6 +148,7 @@ def main():
 
     with open(opts.output, "w") as f:
         f.write(output)
+
 
 if __name__ == '__main__':
     sys.exit(main())

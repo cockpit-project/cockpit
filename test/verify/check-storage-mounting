@@ -177,7 +177,6 @@ class TestStorageMounting(StorageCase):
         m.execute("grep 'noauto,readonly,x-foo' /etc/crypttab")
         m.execute("grep 'noauto,ro,x-foo' /etc/fstab")
 
-
     def testMountingHelp(self):
         m = self.machine
         b = self.browser
@@ -302,10 +301,11 @@ class TestStorageMounting(StorageCase):
 
         m.execute("! grep /run/data /etc/fstab")
         self.content_head_action(1, "Mount")
-        self.dialog({ "mount_point": "/run/data",
-                      "mount_options.extra": "x-foo" })
+        self.dialog({"mount_point": "/run/data",
+                     "mount_options.extra": "x-foo"})
         m.execute("grep /run/data /etc/fstab")
         m.execute("grep 'x-foo' /etc/fstab")
+
 
 if __name__ == '__main__':
     test_main()

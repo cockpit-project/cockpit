@@ -21,6 +21,7 @@ import parent
 from machineslib import *
 from testlib import *
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 @no_retry_when_changed
@@ -56,7 +57,6 @@ class TestMachinesConsoles(VirtualMachinesCase):
         b.reload()
         b.enter_page("/machines")
         b.wait_in_text("body", "Virtual machines")
-
 
     def testInlineConsole(self, urlroot=""):
         b = self.browser

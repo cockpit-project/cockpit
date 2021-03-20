@@ -24,6 +24,8 @@ from machinesxmls import *
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
+
+
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
 class TestMachinesSettings(VirtualMachinesCase):

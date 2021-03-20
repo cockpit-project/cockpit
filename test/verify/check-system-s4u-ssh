@@ -21,6 +21,7 @@ import parent
 
 from testlib import *
 
+
 @skipImage("No realmd available", "fedora-coreos")
 @skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
 @skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
@@ -65,7 +66,7 @@ class TestS4USsh(MachineCase):
         # Allow retrieval of service keytab by admin
         ipa_machine.execute("podman exec freeipa bash -c 'ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan'")
         # set up delegation rule
-        script="""set -e
+        script = """set -e
         ipa servicedelegationtarget-add cockpit-target
         ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add cockpit-delegation

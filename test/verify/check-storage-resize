@@ -316,5 +316,6 @@ class TestStorageResize(StorageCase):
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
+
 if __name__ == '__main__':
     test_main()

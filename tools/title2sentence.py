@@ -97,7 +97,7 @@ def main():
     with open(opts.input, "r") as f:
         for line in f:
             old_s = line.strip()
-            old_s = old_s[1:-1] # Remove first and last quotes
+            old_s = old_s[1:-1]  # Remove first and last quotes
 
             if not old_s:
                 continue

@@ -74,7 +74,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
 
         b.wait_in_text("#vm-subVmTest1-boot-order", "disk,network")
         emulated_machine = b.text("#vm-subVmTest1-emulated-machine")
-        self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
+        self.assertTrue(len(emulated_machine) > 0)  # emulated machine varies across test machines
 
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
@@ -261,7 +261,7 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_in_text(".pf-c-empty-state", "Virtualization service (libvirt) is not active")
         b.wait_visible("#enable-libvirt:checked")
-        b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
+        b.click("#enable-libvirt")  # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
         b.wait_in_text("body", "Virtual machines")
@@ -308,9 +308,9 @@ class TestMachinesLifecycle(VirtualMachinesCase):
         def addDisk(volName, poolName):
             # Virsh does not offer some option to create disks of type volume
             # We have to do this from cockpit UI
-            b.click("#vm-subVmTest1-disks-adddisk") # button
+            b.click("#vm-subVmTest1-disks-adddisk")  # button
             b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
-            b.wait_visible("label:contains(Create new)") # radio button label in the modal dialog
+            b.wait_visible("label:contains(Create new)")  # radio button label in the modal dialog
 
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)

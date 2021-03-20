@@ -85,12 +85,12 @@ class Driver:
 
     def report(self, code, *args):
         CODES = {
-            "XPASS": '\x1b[0;31m', # red
-            "FAIL": '\x1b[0;31m', # red
-            "PASS": '\x1b[0;32m', # grn
-            "XFAIL": '\x1b[1;32m', # lgn
-            "SKIP": '\x1b[1;34m', # blu
-            "ERROR": '\x1b[0;35m', # mgn
+            "XPASS": '\x1b[0;31m',  # red
+            "FAIL": '\x1b[0;31m',  # red
+            "PASS": '\x1b[0;32m',  # grn
+            "XFAIL": '\x1b[1;32m',  # lgn
+            "SKIP": '\x1b[1;34m',  # blu
+            "ERROR": '\x1b[0;35m',  # mgn
         }
 
         # Print out to console

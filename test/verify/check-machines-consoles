@@ -36,15 +36,15 @@ class TestMachinesConsoles(VirtualMachinesCase):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "Running") # running or paused
+        b.wait_in_text("#vm-subVmTest1-state", "Running")  # running or paused
         self.goToVmPage("subVmTest1")
 
         # since VNC is not defined for this VM, the view for "Desktop Viewer" is rendered by default
         b.wait_in_text(".pf-c-console__manual-connection dl > div:first-child dd", "127.0.0.1")
         b.wait_in_text(".pf-c-console__manual-connection dl > div:nth-child(2) dd", "5900")
 
-        b.click(".pf-c-console__remote-viewer-launch-vv") # "Launch Remote Viewer" button
-        b.wait_visible("#dynamically-generated-file") # is .vv file generated for download?
+        b.click(".pf-c-console__remote-viewer-launch-vv")  # "Launch Remote Viewer" button
+        b.wait_visible("#dynamically-generated-file")  # is .vv file generated for download?
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
@@ -70,7 +70,7 @@ class TestMachinesConsoles(VirtualMachinesCase):
         b.wait_in_text("body", "Virtual machines")
         self.waitVmRow("subVmTest1")
 
-        b.wait_in_text("#vm-subVmTest1-state", "Running") # running or paused
+        b.wait_in_text("#vm-subVmTest1-state", "Running")  # running or paused
         self.goToVmPage("subVmTest1")
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
@@ -97,7 +97,7 @@ class TestMachinesConsoles(VirtualMachinesCase):
         self.waitVmRow(name)
 
         self.goToVmPage(name)
-        b.wait_in_text("#vm-{0}-state".format(name), "Running") # running or paused
+        b.wait_in_text("#vm-{0}-state".format(name), "Running")  # running or paused
 
         b.click("#pf-c-console__type-selector")
         b.wait_visible("#pf-c-console__type-selector + .pf-c-select__menu")

@@ -55,7 +55,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
-        b.set_input_text('#account-real-name', "") # Check that we can delete the name before setting it up
+        b.set_input_text('#account-real-name', "")  # Check that we can delete the name before setting it up
         b.set_input_text('#account-real-name', "Anton Arbitrary")
         b.blur("#account-real-name")
         b.wait_visible('#account-real-name:not([disabled])')
@@ -211,7 +211,7 @@ class TestAccounts(MachineCase):
         b.wait_visible(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())
-        if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
+        if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_visible(admin_role_sel + ":checked:not([disabled])")
@@ -269,7 +269,7 @@ class TestAccounts(MachineCase):
         b.click('.cockpit-account-user-name a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
-        if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
+        if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
             b.go("#/admin")
             b.wait_visible("#account-logout[disabled]")
 

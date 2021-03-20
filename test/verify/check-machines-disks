@@ -46,7 +46,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b = self.browser
         try:
             with b.wait_timeout(10):
-                b.wait_visible("#vm-{0}-disks-{1}-used".format(name, target)) # wait for disk statistics to show up
+                b.wait_visible("#vm-{0}-disks-{1}-used".format(name, target))  # wait for disk statistics to show up
         except Error as ex:
             if not ex.msg.startswith('timeout'):
                 raise
@@ -64,7 +64,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         p1 = os.path.join(self.vm_tmpdir, "vm_one")
         m.execute("mkdir --mode 777 {0}".format(p1))
         m.execute("virsh pool-create-as myPoolOne --type dir --target {0}".format(p1))
-        m.execute("virsh vol-create-as myPoolOne mydisk --capacity 100M --format raw") # raw support shareable
+        m.execute("virsh vol-create-as myPoolOne mydisk --capacity 100M --format raw")  # raw support shareable
         m.execute("virsh vol-create-as myPoolOne mydisk2 --capacity 100M --format raw")
         m.execute("virsh vol-create-as myPoolOne mydisk3 --capacity 100M --format qcow2")
         wait(lambda: "mydisk" in m.execute("virsh vol-list myPoolOne"))
@@ -203,7 +203,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         self.wait_for_disk_stats("subVmTest1", "vdc")
         if b.is_present("#vm-subVmTest1-disks-vdc-used"):
             b.wait_in_text("#vm-subVmTest1-disks-vdc-used", "0.00")
-            b.wait_in_text("#vm-subVmTest1-disks-vdc-capacity", "0.13") # 128 MB
+            b.wait_in_text("#vm-subVmTest1-disks-vdc-capacity", "0.13")  # 128 MB
 
         # Test remove disk - by external action
         m.execute("virsh detach-disk subVmTest1 vdc")
@@ -273,7 +273,7 @@ class TestMachinesDisks(VirtualMachinesCase):
 
         def open(self):
             b = self.test_obj.browser
-            b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
+            b.click("#vm-{0}-disks-adddisk".format(self.vm_name))  # button
             b.wait_in_text(".pf-c-modal-box__title", "Add disk")
 
             b.wait_visible("label:contains(Create new)")
@@ -367,7 +367,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 self.test_obj.togglePoolRow(self.pool_name)
 
                 b.wait_visible("#pool-{0}-system-storage-volumes".format(self.pool_name))
-                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage volumes" subtab
+                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name))  # open the "Storage volumes" subtab
                 b.wait_visible("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
 
                 b.click(".machines-listing-breadcrumb li a:contains(Virtual machines)")
@@ -658,7 +658,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_in_text("#card-pf-storage-pools .active-resources:nth-of-type(2)", "0")
 
         self.goToVmPage('subVmTest1')
-        b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk")  # radio button label in modal dialog
         b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
         b.click("label:contains(Use existing)")
         b.wait_visible("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
@@ -870,7 +870,7 @@ class TestMachinesDisks(VirtualMachinesCase):
         removeDiskAndChecks("vdf")
 
         # Test detaching disk of a paused domain
-        m.execute("> {0}".format(args["logfile"])) # clear logfile
+        m.execute("> {0}".format(args["logfile"]))  # clear logfile
         m.execute("virsh start subVmTest1")
         # Make sure that the VM booted normally before attempting to suspend it
         wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)

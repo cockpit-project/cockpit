@@ -474,11 +474,11 @@ class TestCurrentMetrics(MachineCase):
             m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                       "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
             b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
-            m.execute("systemctl stop load-hog 2>/dev/null || true") # ok to fail, as the command exits by itself
+            m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
         else:
             load_hog = m.spawn("for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done", "load-hog.log")
             b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
-            m.execute("kill %d 2>/dev/null || true" % load_hog) # ok to fail, as the command exits by itself
+            m.execute("kill %d 2>/dev/null || true" % load_hog)  # ok to fail, as the command exits by itself
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(180):

@@ -314,7 +314,7 @@ class TestConnection(MachineCase):
             self.assertLess(active, 110)
         failed = int(m.execute("systemctl --no-legend list-units --state=failed 'cockpit-wsinstance-https@*' | wc -l").strip())
         self.assertGreater(failed, 0)
-        self.assertLess(failed, 60) # services and sockets
+        self.assertLess(failed, 60)  # services and sockets
 
         self.allow_journal_messages(".*cockpit-ws.*dumped core.*")
         self.allow_journal_messages(".*Error creating thread: Resource temporarily unavailable.*")

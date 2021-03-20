@@ -868,7 +868,7 @@ ExecStart=/usr/local/bin/{0}
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231): # Changed in #14740
+        if not self.system_before(231):  # Changed in #14740
             b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
             b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
             b.click(".pf-c-modal-box button:contains('Authenticate')")
@@ -1311,7 +1311,7 @@ class TestAutoUpdates(NoSubManCase):
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231): # Changed in #14740
+        if not self.system_before(231):  # Changed in #14740
             b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
             b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
             b.click(".pf-c-modal-box button:contains('Authenticate')")
@@ -1335,7 +1335,7 @@ class TestAutoUpdates(NoSubManCase):
         # Drop privileges
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231): # Changed in #14740
+        if not self.system_before(231):  # Changed in #14740
             b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
             b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
         else:

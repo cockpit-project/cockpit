@@ -58,7 +58,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         m.execute("mkdir --mode 777 {0} {1} {2}".format(p1, p2, p3))
         m.execute("virsh pool-define-as myPoolOne --type dir --target {0}; virsh pool-start myPoolOne".format(p1))
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
-        m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
+        m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3))  # Transient pool
 
         b.wait_in_text("#card-pf-storage-pools .card-pf-title-link", "3 Storage pools")
 
@@ -224,9 +224,9 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
         # Transient network
         self.togglePoolRow("myPoolThree", connectionName)
-        b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName)) # Transient pool shouldn't have autostart option
-        b.wait_visible('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName)) # Transient pool cannot be deleted
-        b.click('#deactivate-pool-myPoolThree-{0}'.format(connectionName)) # Deactivate transient pool
+        b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName))  # Transient pool shouldn't have autostart option
+        b.wait_visible('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName))  # Transient pool cannot be deleted
+        b.click('#deactivate-pool-myPoolThree-{0}'.format(connectionName))  # Deactivate transient pool
         # Check it's not present after deactivation
         self.waitPoolRow("myPoolThree", connectionName, False)
 
@@ -519,7 +519,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
         m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
-        self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true") # Destroy pool as it block removal of `nfs_pool`
+        self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true")  # Destroy pool as it block removal of `nfs_pool`
 
         # Prepare disk/block pool
         dev = self.add_ram_disk(10)
@@ -569,7 +569,7 @@ class TestMachinesStoragePools(VirtualMachinesCase):
 
                 self.test_obj.gotoVolumesTab(self.pool_name)
 
-                b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage volumes" subtab
+                b.click("#{0}-system-create-volume-button".format(self.pool_name))  # open the "Storage volumes" subtab
 
                 b.wait_visible("#create-volume-dialog-modal")
                 b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Create storage volume")
@@ -671,8 +671,8 @@ class TestMachinesStoragePools(VirtualMachinesCase):
             self,
             pool_name="disk-pool",
             pool_type="disk",
-            vol_name=dev.split("/")[-1] + "1", # Partition names must follow pattern of sda1, sda2...
-            size="2", # Only 10MiB available on disk-pool
+            vol_name=dev.split("/")[-1] + "1",  # Partition names must follow pattern of sda1, sda2...
+            size="2",  # Only 10MiB available on disk-pool
             unit="MiB",
             format="none",
             remove=True,

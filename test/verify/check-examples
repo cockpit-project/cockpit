@@ -58,7 +58,7 @@ class TestXHRProxy(MachineCase):
         b = self.browser
 
         # set up served directory
-        httpdir = self.vm_tmpdir + "/root";
+        httpdir = self.vm_tmpdir + "/root"
         m.execute("mkdir {0} && echo world > {0}/hello.txt".format(httpdir))
         # start webserver
         pid = m.spawn("cd %s && exec python3 -m http.server 12345" % httpdir, "httpserver")
@@ -111,7 +111,7 @@ class TestLongRunning(MachineCase):
         b.wait_text("#output", "")
 
         # run a command that the test can control synchronously
-        ack_file = self.vm_tmpdir + "/ack_a";
+        ack_file = self.vm_tmpdir + "/ack_a"
         b.set_val("#command", "date; echo STEP_A; until [ -e %s ]; do sleep 1; done; echo STEP_B; sleep 1; echo DONE" % ack_file)
         b.wait_text("button#run", "Start")
         b.click("button#run")

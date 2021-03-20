@@ -559,12 +559,18 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
-        if m.image == 'debian-stable' or m.image.startswith('ubuntu'):
+        is_pam_tally2 = m.image == 'debian-stable' or m.image.startswith('ubuntu')
+
+        if is_pam_tally2:
             module = 'pam_tally2'
-            logfile = lambda user: '/var/log/tallylog'
         else:
             module = 'faillock'
-            logfile = lambda user: '/var/run/faillock/' + user
+
+        def logfile(user):
+            if is_pam_tally2:
+                return '/var/log/tallylog'
+            else:
+                return '/var/run/faillock/' + user
 
         def expect_fail_count(expected, user="admin", must_exist=True):
             if must_exist:
@@ -572,15 +578,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             output = m.execute("{} --user {}".format(module, user))
 
-            if module == 'faillock':
+            if is_pam_tally2:
+                self.assertIn(' {} '.format(expected), output)
+
+            else: # faillock
                 n_lines = len(output.splitlines())
                 if n_lines:
                     n_lines -= 2 # remove the header, if it's there
 
                 self.assertEqual(expected, n_lines)
-
-            else: # pam_tally2
-                self.assertIn(' {} '.format(expected), output)
 
             # make sure the above command didn't change the file
             if must_exist:
@@ -600,7 +606,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("! grep -r '{}' /etc/pam.d".format(module))
 
         # add it to the pam config
-        if module == 'pam_tally2':
+        if is_pam_tally2:
             self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
         elif m.image == 'debian-testing':
             # enable pam_faillock.  see example in pam_faillock(8), adopted for sss
@@ -633,7 +639,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.login_and_go("/system")
         b.logout()
 
-        if module == 'pam_tally2':
+        if is_pam_tally2:
             # now we should have it
             m.execute("test -f {}".format(logfile('admin')))
 
@@ -658,12 +664,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             expect_failed_login("admin", "bad", n)
 
         # logging in should fail now
-        if module == 'pam_tally2': # this is counted differently by each module
+        if is_pam_tally2: # this is counted differently by each module
             n += 1
         expect_failed_login("admin", "foobar", n)
 
         # having given the correct password the last time should not have helped things
-        if module == 'pam_tally2':
+        if is_pam_tally2:
             n += 1
         expect_failed_login("admin", "foobar", n)
 

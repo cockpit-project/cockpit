@@ -454,7 +454,7 @@ class TestCurrentMetrics(MachineCase):
             b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 1) < 70)
             b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 2) > 20)
             b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 2) < 40)
-        except:
+        except BaseException:
             print(m.execute("top -b -n 1"))
             raise
 

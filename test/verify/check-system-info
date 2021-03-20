@@ -103,7 +103,7 @@ class TestSystemInfo(MachineCase):
         # support timesyncd for NTP configuration, so make sure chrony is not installed in the older
         # debian images which don't yet have systemd-timesyncd
         if self.machine.image in ["debian-stable"]:
-            self.machine.execute("dpkg --remove chrony");
+            self.machine.execute("dpkg --remove chrony")
 
         # Most OSes don't set nosmt by default, but there are some exceptions
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]

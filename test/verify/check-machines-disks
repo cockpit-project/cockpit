@@ -385,7 +385,7 @@ class TestMachinesDisks(VirtualMachinesCase):
                 if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
                     m.execute(detect_format_cmd.format(volume_xml, "/volume/target") + " | grep -qv format")
                 else:
-                    vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip();
+                    vol_xml = m.execute(detect_format_cmd.format(volume_xml, "/volume/target/format")).rstrip()
                     self.test_obj.assertEqual(vol_xml, '<format type="{0}"/>'.format(self.volume_format or expected_format))
             else:
                 b.wait_in_text('#vm-{0}-disks-{1}-source-file'.format(self.vm_name, self.expected_target), self.file_path)

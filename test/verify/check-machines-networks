@@ -25,13 +25,13 @@ from machinesxmls import *
 
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
-    net_devices_str = net_devices_str.split("\n", 2)[2]; # Remove first 2 lines of table header
+    net_devices_str = net_devices_str.split("\n", 2)[2] # Remove first 2 lines of table header
     if not net_devices_str in ["\n", "\r\n"]:
         device = net_devices_str.split(' ', 2)[1] # Get the name of device, ignoring spacing before device string
     else: # If $virsh-iface list did not return any device, check virsh nodedev-list net:noh
         net_devices_str = m.execute("virsh nodedev-list net")
-        net_devices_str = net_devices_str.split("\n", 2)[0];
-        device = net_devices_str.split("_", 2)[1]; # Ignore prefix (example: net_enp0s31f6_8c_16_45_5f_77_34)
+        net_devices_str = net_devices_str.split("\n", 2)[0]
+        device = net_devices_str.split("_", 2)[1] # Ignore prefix (example: net_enp0s31f6_8c_16_45_5f_77_34)
 
     return device
 
@@ -274,7 +274,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
 
             def verify_overview(self):
                 # Check basic network properties
-                modes = {"nat": "NAT", "none": "None (isolated network)", "open": "Open", "route": "Routed", \
+                modes = {"nat": "NAT", "none": "None (isolated network)", "open": "Open", "route": "Routed",
                          "bridge": "Bridge", "private": "Private", "vepa": "VEPA", "passthrough": "Passthrough", "hostdev": "Hostdev"}
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
@@ -411,7 +411,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv6_dhcp_start="",
             ipv6_dhcp_end="",
             xfail=True,
-            xfail_objects = ["name", "ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
+            xfail_objects=["name", "ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end",
                             "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
             xfail_error="should not be empty",
         ).execute()
@@ -431,7 +431,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
             ipv6_dhcp_start="fd00:e81d:a6d7:55:::100",
             ipv6_dhcp_end="fd00:e81d:a6d7:55::1:1:1:1:1:1:1:1",
             xfail=True,
-            xfail_objects = ["ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
+            xfail_objects=["ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end",
                             "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
             xfail_error="Invalid",
         ).execute()

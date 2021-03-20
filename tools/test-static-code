@@ -123,7 +123,9 @@ else
     #   - filename is *.py
     #   - executable matching ^#!/usr/bin/python3
     PYFILES="$(find test/ tools/ -type f '(' -name '*.py' -o -executable -execdir grep -q '^#!/usr/bin/python3' '{}' ';' ')'  -print)"
-    # FIXME: Fix code for the warnings and re-enable them
+    # W504 and W503 are mutually exclusive (and both disabled by default)
+    # explicitly giving '--ignore W504' here is actually more strict than the default
+    # TODO: E402 should be fixed
     out=$(python3 -m "$PYTHON_STYLE_CHECKER" --max-line-length=415 --ignore E402,W504 $PYFILES) || true
     if [ -n "$out" ]; then
         echo "$out" >&2

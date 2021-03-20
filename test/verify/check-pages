@@ -617,8 +617,8 @@ OnCalendar=daily
 
         def read_mem_info(machine):
             info = {}
-            for l in machine.execute("cat /proc/meminfo").splitlines():
-                (name, value) = l.strip().split(":")
+            for line in machine.execute("cat /proc/meminfo").splitlines():
+                (name, value) = line.strip().split(":")
                 if value.endswith("kB"):
                     info[name] = int(value[:-2]) * 1024
                 else:

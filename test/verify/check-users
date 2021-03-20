@@ -106,7 +106,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#accounts-create")
 
         # Create a user from the UI
-        self.sed_file('s/^SHELL=.*$/SHELL=\/bin\/true/', '/etc/default/useradd')
+        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "berta")

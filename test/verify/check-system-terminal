@@ -33,9 +33,9 @@ class TestTerminal(MachineCase):
         self.allow_journal_messages(".*external channel failed: terminated")
 
         # Make sure we get what we expect
-        self.write_file("/home/admin/.bashrc", """
-PS1="\\u@\\h \\W]\$ "
-PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
+        self.write_file("/home/admin/.bashrc", r"""
+PS1="\u@\h \W]\$ "
+PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
 """, append=True)
 
         # Remove failed units which will show up in the first terminal line

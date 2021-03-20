@@ -143,8 +143,8 @@ def main():
     if the_map:
         output = "find pkg src test/verify -type f -exec sed -i \\\n"
         for pair in the_map:
-            output += '-e "s/\([^ ]\){0}/\\1{1}/" \\\n'.format(pair[0], pair[1])
-        output += "{} \;"
+            output += r'-e "s/\([^ ]\){0}/\1{1}/" \\\n'.format(pair[0], pair[1])
+        output += "'{}' ';'"
 
     with open(opts.output, "w") as f:
         f.write(output)

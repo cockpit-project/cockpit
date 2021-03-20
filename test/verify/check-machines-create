@@ -446,11 +446,11 @@ class TestMachinesCreate(VirtualMachinesCase):
                                                       start_vm=False,
                                                       connection='session'))
         cmds = [
-            "mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool",
-            "virsh pool-define-as tmp\ pool --type dir --target /var/lib/libvirt/pools/tmp\ pool",
-            "virsh pool-start tmp\ pool",
-            "qemu-img create -f qcow2 /var/lib/libvirt/pools/tmp\ pool/vmTmpDestination.qcow2 128M",
-            "virsh pool-refresh tmp\ pool"
+            "mkdir -p '/var/lib/libvirt/pools/tmp pool'; chmod a+rwx '/var/lib/libvirt/pools/tmp pool'",
+            "virsh pool-define-as 'tmp pool' --type dir --target '/var/lib/libvirt/pools/tmp pool'",
+            "virsh pool-start 'tmp pool'",
+            "qemu-img create -f qcow2 '/var/lib/libvirt/pools/tmp pool/vmTmpDestination.qcow2' 128M",
+            "virsh pool-refresh 'tmp pool'"
         ]
         self.machine.execute(" && ".join(cmds))
 
@@ -689,7 +689,7 @@ class TestMachinesCreate(VirtualMachinesCase):
                 query_result = '{0}'.format(self.os_name)
                 # throws exception if grep fails
                 self.machine.execute(
-                    "osinfo-query os --fields=name | tail -n +3 | sed -e 's/\s*|\s*/|/g; s/^\s*//g; s/\s*$//g' | grep '{0}'".format(
+                    r"osinfo-query os --fields=name | tail -n +3 | sed -e 's/\s*|\s*/|/g; s/^\s*//g; s/\s*$//g' | grep '{0}'".format(
                         query_result))
 
             return self
@@ -755,7 +755,8 @@ class TestMachinesCreate(VirtualMachinesCase):
             self.browser.wait_text("#vm-{}-disks-sda-device".format(self.name), "cdrom")
             self.goToMainPage()
 
-            virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
+            # usual tricks: prevent grep from seeing itself in the output of ps
+            virt_install_cmd = "ps aux | grep '[v]irt-install --connect'"
 
             wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
             virt_install_cmd_out = self.machine.execute(virt_install_cmd)
@@ -769,7 +770,8 @@ class TestMachinesCreate(VirtualMachinesCase):
                 self.browser.wait_text("#vm-{}-disks-vda-bus".format(self.name), "virtio")
                 self.goToMainPage()
 
-            virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
+            # usual tricks: prevent grep from seeing itself in the output of ps
+            virt_install_cmd = "ps aux | grep '[v]irt-install --connect'"
             wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
             virt_install_cmd_out = self.machine.execute(virt_install_cmd)
             self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)

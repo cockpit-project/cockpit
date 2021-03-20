@@ -68,7 +68,7 @@ def module_copyright(moddir):
     mod = os.path.basename(moddir)
     copyrights = set()
     try:
-        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*\([1-9][0-9]\+\|(c)\)'],
+        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', r'copyright.*\([1-9][0-9]\+\|(c)\)'],
                                       cwd=moddir).decode('UTF-8')
         for line in out.splitlines():
             # weed out some noise

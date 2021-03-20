@@ -1056,9 +1056,9 @@ class MachineCase(unittest.TestCase):
         # The usual sudo finger wagging
         "We trust you have received the usual lecture from the local System",
         "Administrator. It usually boils down to these three things:",
-        "#1\) Respect the privacy of others.",
-        "#2\) Think before you type.",
-        "#3\) With great power comes great responsibility.",
+        r"#1\) Respect the privacy of others.",
+        r"#2\) Think before you type.",
+        r"#3\) With great power comes great responsibility.",
     ]
 
     allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
@@ -1144,10 +1144,10 @@ class MachineCase(unittest.TestCase):
 
         if self.image in ['debian-testing', 'ubuntu-stable']:
             # HACK: https://bugs.debian.org/951477
-            self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(iptables-restor\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(ip6tables-resto\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(ebtables\) of user 0 dumped core.*')
+            self.allowed_messages.append(r'Process .* \(ip6?tables\) of user 0 dumped core.*')
+            self.allowed_messages.append(r'Process .* \(iptables-restor\) of user 0 dumped core.*')
+            self.allowed_messages.append(r'Process .* \(ip6tables-resto\) of user 0 dumped core.*')
+            self.allowed_messages.append(r'Process .* \(ebtables\) of user 0 dumped core.*')
             # don't ignore all stack traces
             self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')
             # but we have to ignore that general header line

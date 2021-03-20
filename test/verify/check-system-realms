@@ -196,7 +196,7 @@ class CommonTests:
             b.wait_text_not(".realms-op-message", "")
             error = b.text(".realms-op-message")
             b.wait_not_visible(".realms-op-leave-only-row")
-            if not "Already running another action" in error:
+            if "Already running another action" not in error:
                 # "More" link is part of the message component, so this looks a little funny here
                 if self.expected_server_software == 'active-directory':
                     self.assertEqual(error, "Failed to join the domain More")
@@ -219,7 +219,7 @@ class CommonTests:
                     b.wait_in_text(".realms-op-diagnostics", "ipa-client-install command failed")
             b.click(".realms-op-cancel")
             b.wait_popdown("realms-op")
-            if not "Already running another action" in error:
+            if "Already running another action" not in error:
                 break
             print("Another operation running, retry")
             time.sleep(20)

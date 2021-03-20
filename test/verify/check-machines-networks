@@ -26,7 +26,7 @@ from machinesxmls import *
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
     net_devices_str = net_devices_str.split("\n", 2)[2] # Remove first 2 lines of table header
-    if not net_devices_str in ["\n", "\r\n"]:
+    if net_devices_str not in ["\n", "\r\n"]:
         device = net_devices_str.split(' ', 2)[1] # Get the name of device, ignoring spacing before device string
     else: # If $virsh-iface list did not return any device, check virsh nodedev-list net:noh
         net_devices_str = m.execute("virsh nodedev-list net")
@@ -299,9 +299,9 @@ class TestMachinesNetworks(VirtualMachinesCase):
                         if self.ipv6_dhcp_start and self.ipv6_dhcp_start:
                             b.wait_in_text("#network-{0}-{1}-ipv6-dhcp-range".format(self.name, connectionName), self.ipv6_dhcp_start + " - " + self.ipv6_dhcp_end)
 
-                    if not "4" in self.ip_conf:
+                    if "4" not in self.ip_conf:
                         b.wait_not_present("#network-{0}-{1}-ipv4-address".format(self.name, connectionName))
-                    if not "6" in self.ip_conf:
+                    if "6" not in self.ip_conf:
                         b.wait_not_present("#network-{0}-{1}-ipv6-address".format(self.name, connectionName))
                 else:
                     b.wait_not_present("#network-{0}-{1}-ipv4-address".format(self.name, connectionName))

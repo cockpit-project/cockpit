@@ -124,7 +124,7 @@ else
     #   - executable matching ^#!/usr/bin/python3
     PYFILES="$(find test/ tools/ -type f '(' -name '*.py' -o -executable -execdir grep -q '^#!/usr/bin/python3' '{}' ';' ')'  -print)"
     # FIXME: Fix code for the warnings and re-enable them
-    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --ignore E402,E501,E265,E261,W504,W605 $PYFILES) || true
+    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --ignore E402,E501,E261,W504,W605 $PYFILES) || true
     if [ -n "$out" ]; then
         echo "$out" >&2
         echo "not ok 7 $PYTHON_STYLE_CHECKER test"

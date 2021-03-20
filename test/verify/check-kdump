@@ -177,9 +177,6 @@ class TestKdump(MachineCase):
         b.wait_in_text("div.curtains-ct h1", "Disconnected")
         m.disconnect()
         m.wait_boot(timeout_sec=300)
-        #b.click("#machine-reconnect")
-        #b.expect_load()
-        #b.wait_visible("#login")
         self.assertNotEqual(
             m.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
 

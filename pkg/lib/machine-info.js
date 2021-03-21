@@ -20,46 +20,35 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-export function cpu_ram_info(address) {
-    var pr;
-    var dfd;
-    dfd = cockpit.defer();
-    pr = dfd.promise();
-
+export const cpu_ram_info = address =>
     cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
-            .done(function(text) {
-                var info = { };
-                var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
-                var total_kb = match && parseInt(match[1], 10);
+            .then(text => {
+                const info = { };
+                const memtotal_match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
+                const total_kb = memtotal_match && parseInt(memtotal_match[1], 10);
                 if (total_kb)
                     info.memory = total_kb * 1024;
 
-                var available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
-                var available_kb = available_match && parseInt(available_match[1], 10);
+                const available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
+                const available_kb = available_match && parseInt(available_match[1], 10);
                 if (available_kb)
                     info.available_memory = available_kb * 1024;
 
-                var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
-                var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
+                const swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
+                const swap_total_kb = swap_match && parseInt(swap_match[1], 10);
                 if (swap_total_kb)
                     info.swap = swap_total_kb * 1024;
 
-                match = text.match(/^model name\s*:\s*(.*)$/m);
-                if (match)
-                    info.cpu_model = match[1];
+                const model_match = text.match(/^model name\s*:\s*(.*)$/m);
+                if (model_match)
+                    info.cpu_model = model_match[1];
 
                 info.cpus = 0;
-                var re = /^processor/gm;
+                const re = /^processor/gm;
                 while (re.test(text))
                     info.cpus += 1;
-                dfd.resolve(info);
-            })
-            .fail(function(ex) {
-                dfd.reject();
+                return info;
             });
-
-    return pr;
-}
 
 // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_2.7.1.pdf
 const chassis_types = [
@@ -103,7 +92,7 @@ const chassis_types = [
 ];
 
 function parseDMIFields(text) {
-    var info = {};
+    const info = {};
     text.split("\n").map(line => {
         const sep = line.indexOf(':');
         if (sep <= 0)
@@ -119,13 +108,12 @@ function parseDMIFields(text) {
     return info;
 }
 
-var dmi_info_promises = { };
+const dmi_info_promises = { };
 
 export function dmi_info(address) {
-    var pr = dmi_info_promises[address];
-    var dfd;
+    let pr = dmi_info_promises[address];
     if (!pr) {
-        dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         dmi_info_promises[address] = pr = dfd.promise();
 
         cockpit.spawn(["grep", "-r", ".", "/sys/class/dmi/id"], { err: "message", superuser: "try" })
@@ -154,7 +142,7 @@ const udevPathRE = /^P: (.*)$/;
 const udevPropertyRE = /^E: (\w+)=(.*)$/;
 
 function parseUdevDB(text) {
-    var info = {};
+    const info = {};
     text.split("\n\n").map(paragraph => {
         let syspath = null;
         const props = {};
@@ -182,18 +170,14 @@ function parseUdevDB(text) {
     return info;
 }
 
-var udev_info_promises = { };
+const udev_info_promises = { };
 
 export function udev_info(address) {
-    var pr = udev_info_promises[address];
-    var dfd;
+    let pr = udev_info_promises[address];
     if (!pr) {
-        dfd = cockpit.defer();
-        udev_info_promises[address] = pr = dfd.promise();
-
-        cockpit.spawn(["udevadm", "info", "--export-db"], { err: "message" })
-                .done(output => dfd.resolve(parseUdevDB(output)))
-                .fail(exception => dfd.reject(exception.message));
+        udev_info_promises[address] = pr = cockpit.spawn(
+            ["udevadm", "info", "--export-db"], { err: "message" })
+                .then(output => parseUdevDB(output));
     }
     return pr;
 }
@@ -202,7 +186,7 @@ const memoryRE = /^([ \w]+): (.*)/;
 
 // Process the dmidecode output and create a mapping of locator to DIMM properties
 function parseMemoryInfo(text) {
-    var info = {};
+    const info = {};
     text.split("\n\n").map(paragraph => {
         let locator = null;
         const props = {};
@@ -261,19 +245,14 @@ function processMemory(info) {
     return memoryArray;
 }
 
-var memory_info_promises = {};
+const memory_info_promises = {};
 
 export function memory_info(address) {
-    var pr = memory_info_promises[address];
-
+    let pr = memory_info_promises[address];
     if (!pr) {
-        memory_info_promises[address] = pr = new Promise((resolve, reject) => {
-            cockpit.spawn(["dmidecode", "-t", "memory"],
-                          { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
-                    .done(output => resolve(parseMemoryInfo(output)))
-                    .fail(exception => reject(exception.message));
-        });
+        memory_info_promises[address] = pr = cockpit.spawn(
+            ["dmidecode", "-t", "memory"], { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+                .then(output => parseMemoryInfo(output));
     }
-
     return pr;
 }

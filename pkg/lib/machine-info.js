@@ -44,7 +44,7 @@ export const cpu_ram_info = address =>
                     info.cpu_model = model_match[1];
 
                 info.cpus = 0;
-                const re = /^processor/gm;
+                const re = /^processor\s*:/gm;
                 while (re.test(text))
                     info.cpus += 1;
                 return info;

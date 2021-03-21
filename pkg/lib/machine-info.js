@@ -39,7 +39,9 @@ export const cpu_ram_info = address =>
                 if (swap_total_kb)
                     info.swap = swap_total_kb * 1024;
 
-                const model_match = text.match(/^model name\s*:\s*(.*)$/m);
+                let model_match = text.match(/^model name\s*:\s*(.*)$/m);
+                if (!model_match)
+                    model_match = text.match(/^cpu\s*:\s*(.*)$/m); // PowerPC
                 if (model_match)
                     info.cpu_model = model_match[1];
 

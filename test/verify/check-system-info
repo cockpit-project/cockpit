@@ -465,6 +465,22 @@ model name\t: Professor NumberCrunch
         b.enter_page('/system/hwinfo')
         b.wait_in_text('#hwinfo .info-table-ct', "2x Professor NumberCrunch")
 
+        # /proc/cpuinfo on PowerPC; complete info
+        m.write("/tmp/cpuinfo", """processor\t: 0
+cpu\t\t: POWER9 (architected), altivec supported
+clock\t\t: 3000.000000MHz
+revision\t: 2.3 (pvr 004e 1203)
+
+processor\t: 1
+cpu\t\t: POWER9 (architected), altivec supported
+clock\t\t: 3000.000000MHz
+revision\t: 2.3 (pvr 004e 1203)
+""")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo .info-table-ct', "2x POWER9 (architected), altivec supported")
+
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images
         if not m.ostree_image:

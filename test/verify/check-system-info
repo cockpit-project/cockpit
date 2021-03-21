@@ -447,6 +447,24 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "NAME")
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(3) td', "VENDOR")
 
+        # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
+        m.write("/tmp/cpuinfo", """processor\t: 0
+vendor_id\t: GenuineIntel
+model\t\t: 42
+model name\t: Professor NumberCrunch
+
+processor\t: 1
+vendor_id\t: GenuineIntel
+model\t\t: 42
+model name\t: Professor NumberCrunch
+""")
+        m.execute("mount -o bind /tmp/cpuinfo /proc/cpuinfo")
+        self.addCleanup(m.execute, "umount /proc/cpuinfo")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo .info-table-ct', "2x Professor NumberCrunch")
+
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images
         if not m.ostree_image:

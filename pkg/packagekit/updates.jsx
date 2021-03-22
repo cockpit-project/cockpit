@@ -47,6 +47,7 @@ import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdatesSettings, AutoUpdatesStatus } from "./autoupdates.jsx";
+import { KpatchSettings, KpatchStatus } from "./kpatch.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -831,11 +832,17 @@ class CardsPage extends React.Component {
                                        day={this.state.autoUpdatesDay}
                                        time={this.state.autoUpdatesTime} />
             </StackItem>
+            <StackItem>
+                <KpatchStatus />
+            </StackItem>
         </Stack>;
 
         const settingsContent = <Stack hasGutter>
             <StackItem>
                 <AutoUpdatesSettings onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />
+            </StackItem>
+            <StackItem>
+                <KpatchSettings privileged={this.props.privileged} />
             </StackItem>
         </Stack>;
 

@@ -38,6 +38,8 @@ done
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable",
                      "fedora-coreos", "centos-8-stream"]
+OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable",
+                     "fedora-coreos", "fedora-33", "fedora-34", "centos-8-stream"]
 
 
 class NoSubManCase(PackageCase):
@@ -136,6 +138,67 @@ class TestUpdates(NoSubManCase):
             time.sleep(1)
         else:
             self.fail("Timed out waiting for updates spinner to go away")
+
+    @skipImage("kpatch is not available", *OSesWithoutKpatch)
+    def testKpatch(self):
+        b = self.browser
+        m = self.machine
+
+        kernel_ver_arch = m.execute("uname -r").strip()
+        sanitized_kernel_ver = "_".join(kernel_ver_arch.split(".")[:-2])
+        self.createPackage("kpatch-patch-" + sanitized_kernel_ver, "0", "0", arch=self.secondary_arch,
+                           provides="kpatch-patch = {0}".format(kernel_ver_arch))
+        self.enableRepo()
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        # Enable and install kpatch
+        b.wait_in_text("#settings .pf-l-stack__item:nth-child(2)", "Kernel live patching")
+        b.wait_in_text("#settings .pf-l-stack__item:nth-child(2)", "Disabled")
+        b.click("button:contains('Enable')")
+
+        # Enable kpatch service
+        b.wait_not_in_text("#kpatch-setup", "kpatch.service will be enabled")
+        b.wait_visible(".pf-l-stack__item:first-child .pf-c-switch__input:not(:checked)")
+        b.click(".pf-l-stack__item:first-child .pf-c-switch__input")
+        b.wait_in_text("#kpatch-setup", "kpatch.service will be enabled")
+        b.wait_visible(".pf-l-stack__item:first-child .pf-c-switch__input:checked")
+
+        # Subscribe to patches
+        b.wait_not_in_text("#kpatch-setup", "Current kernel patches will be installed")
+        b.wait_visible(".pf-l-stack__item:nth-child(2) .pf-c-switch__input:not(:checked)")
+        b.click(".pf-l-stack__item:nth-child(2) .pf-c-switch__input")
+        b.wait_in_text("#kpatch-setup", "Current kernel patches will be installed.")
+        b.wait_in_text("#kpatch-setup", "kpatch.service will be enabled")
+        b.wait_visible(".pf-l-stack__item:nth-child(2) .pf-c-switch__input:checked")
+
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kpatch-setup")
+
+        b.wait(lambda: "True" in m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
+        b.wait(lambda: "active" in m.execute("systemctl is-active kpatch || true"))
+
+        # Faking real patches is really hard, so fake `kpatch list` command
+        # To make sure it has the same structure as we expect it to be first check the real command
+        self.assertEqual(m.execute("kpatch list"), "Loaded patch modules:\n\nInstalled patch modules:\n")
+
+        kpatch = """
+#!/bin/bash
+echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled patch modules:\nkpatch_3_10_0_1062_1_1 (3.10.0-1062.el7.x86_64)"
+"""
+
+        self.createPackage("kpatch-patch-" + sanitized_kernel_ver, "1", "0", arch=self.secondary_arch,
+                           provides="kpatch-patch = {0}".format(kernel_ver_arch),
+                           content={"/usr/local/bin/kpatch": kpatch},
+                           postinst="chmod +x /usr/local/bin/kpatch; rm /usr/sbin/kpatch; ln -s /usr/local/bin/kpatch /usr/sbin/kpatch")
+        self.enableRepo()
+
+        b.click("#status .pf-c-card__actions button")
+        b.wait_visible(".pf-c-badge:contains('patches')")
+        b.click("button:contains('Install all updates')")
+        b.click("button:contains('Continue')")
+        b.wait_in_text("#status", "Kernel patch kpatch_3_10_0_1062_1_1 is active")
 
     def testBasic(self):
         # no security updates, no changelogs

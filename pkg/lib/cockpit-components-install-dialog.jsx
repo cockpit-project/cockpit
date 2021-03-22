@@ -57,6 +57,9 @@ export function install_dialog(pkg, options) {
     var cancel = null;
     var done = null;
 
+    if (!Array.isArray(pkg))
+        pkg = [pkg];
+
     options = options || { };
 
     var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
@@ -67,7 +70,7 @@ export function install_dialog(pkg, options) {
         let remove_details = null;
         let footer_message = null;
 
-        const missing_name = <strong>{pkg}</strong>;
+        const missing_name = <strong>{pkg.join(", ")}</strong>;
 
         if (data && data.extra_names.length > 0)
             extra_details = (
@@ -135,7 +138,7 @@ export function install_dialog(pkg, options) {
     }
 
     function check_missing() {
-        PK.check_missing_packages([pkg],
+        PK.check_missing_packages(pkg,
                                   p => {
                                       cancel = p.cancel;
                                       var pm = null;

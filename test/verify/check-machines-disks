@@ -839,6 +839,34 @@ class TestMachinesDisks(VirtualMachinesCase):
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_not_present(".pf-c-modal-box")
 
+        # Test detaching several disks and the deletion dialog can be closed correctly
+        m.execute("virsh vol-create-as myPoolOne diskVirtio --capacity 1M --format qcow2")
+        m.execute("virsh vol-create-as myPoolOne diskSata --capacity 1M --format qcow2")
+        wait(lambda: "diskVirtio" in m.execute("virsh vol-list myPoolOne"))
+        wait(lambda: "diskSata" in m.execute("virsh vol-list myPoolOne"))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/diskVirtio --target vdf --targetbus virtio --persistent".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/diskSata --target sda --targetbus sata --persistent".format(p1))
+
+        # Need to refresh when attaching disk for shutoff VM
+        b.reload()
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual machines")
+        b.wait_visible("#vm-subVmTest1-disks-sda-device")
+        b.wait_visible("#vm-subVmTest1-disks-vdf-device")
+
+        def removeDiskAndChecks(target):
+            b.click("#delete-subVmTest1-disk-{}".format(target))
+            b.wait_in_text("div[role=dialog]:contains(\"Remove Disk\")", target)
+            b.click("div[role=dialog] button:contains(Remove)")
+            # The deletion dialog should be closed
+            b.wait_not_present("div[role=dialog]:contains(\"Remove Disk\")")
+            # No error shown
+            b.wait_not_present("div[aria-label=\"Danger Alert\"]")
+            b.wait_not_present("#vm-subVmTest1-disks-{}-device".format(target))
+
+        removeDiskAndChecks("sda")
+        removeDiskAndChecks("vdf")
+
         # Test detaching disk of a paused domain
         m.execute("> {0}".format(args["logfile"])) # clear logfile
         m.execute("virsh start subVmTest1")

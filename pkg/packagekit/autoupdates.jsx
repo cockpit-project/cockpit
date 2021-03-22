@@ -25,7 +25,9 @@ import {
     FormSelect, FormSelectOption,
     Modal, Radio, Text, TextVariants,
     TimePicker,
+    Split, SplitItem,
 } from '@patternfly/react-core';
+import { InfoIcon } from "@patternfly/react-icons";
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { validateTime } from "timepicker-helpers.js";
@@ -253,7 +255,7 @@ function getBackend(forceReinit) {
  * Properties:
  * onInitialized(enabled): (optional): callback once backend knowsn whether automatic updates are enabled
  */
-export const AutoUpdatesBody = (props) => {
+export const AutoUpdatesStatus = (props) => {
     const { enabled, type, day, time } = props;
     const days = {
         "": "every day",
@@ -274,7 +276,16 @@ export const AutoUpdatesBody = (props) => {
         str = _("Automatic updates are not set up");
     }
 
-    return (<Text component={TextVariants.p}>{str}</Text>);
+    return (
+        <Split hasGutter>
+            <SplitItem>
+                <InfoIcon />
+            </SplitItem>
+            <SplitItem isFilled>
+                <Text component={TextVariants.p}>{str}</Text>
+            </SplitItem>
+        </Split>
+    );
 };
 
 /**
@@ -283,7 +294,7 @@ export const AutoUpdatesBody = (props) => {
  * Properties:
  * onInitialized(enabled): (optional): callback once backend knowsn whether automatic updates are enabled
  */
-export class AutoUpdates extends React.Component {
+export class AutoUpdatesSettings extends React.Component {
     constructor() {
         super();
         this.state = {
@@ -405,21 +416,32 @@ export class AutoUpdates extends React.Component {
         );
 
         return (<>
-            <Button variant="secondary"
-                    isDisabled={!enabled}
-                    onClick={() => {
-                        if (!this.state.backend.installed) {
-                            install_dialog(this.state.backend.packageName)
-                                    .then(() => {
-                                        this.initializeBackend(true);
-                                        this.setState({ showModal: true });
-                                    }, () => null);
-                        } else {
-                            this.setState({ showModal: true });
-                        }
-                    }}>
-                {_("Edit")}
-            </Button>
+            <Split hasGutter>
+                <SplitItem>
+                    <Text component={TextVariants.h4}>{_("Automatic updates")}</Text>
+                </SplitItem>
+                <SplitItem isFilled>
+                    <Text component={TextVariants.small}>{this.state.enabled ? _("Enabled") : _("Disabled")}</Text>
+                </SplitItem>
+                <SplitItem>
+                    <Button variant="secondary"
+                            isDisabled={!enabled}
+                            isSmall
+                            onClick={() => {
+                                if (!this.state.backend.installed) {
+                                    install_dialog(this.state.backend.packageName)
+                                            .then(() => {
+                                                this.initializeBackend(true);
+                                                this.setState({ showModal: true });
+                                            }, () => null);
+                                } else {
+                                    this.setState({ showModal: true });
+                                }
+                            }}>
+                        {_("Edit")}
+                    </Button>
+                </SplitItem>
+            </Split>
             <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen={this.state.showModal}
                 title={_("Automatic updates")}
                 onClose={() => this.setState({ showModal: false })}
@@ -444,7 +466,7 @@ export class AutoUpdates extends React.Component {
     }
 }
 
-AutoUpdates.propTypes = {
+AutoUpdatesSettings.propTypes = {
     privileged: PropTypes.bool.isRequired,
     onInitialized: PropTypes.func,
 };

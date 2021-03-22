@@ -25,11 +25,13 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import {
-    Alert, Button, Gallery, Modal, Progress, Popover, Tooltip,
+    Alert, Button, Badge, Gallery, Modal, Progress, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
     Spinner,
+    Stack, StackItem,
+    Split, SplitItem,
     Page, PageSection, PageSectionVariants,
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
@@ -44,7 +46,7 @@ import {
 import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
-import { AutoUpdates, AutoUpdatesBody } from "./autoupdates.jsx";
+import { AutoUpdatesSettings, AutoUpdatesStatus } from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -276,6 +278,13 @@ function updateItem(info, pkgNames, key) {
     if (pkgList.length > 4)
         pkgsTruncated = pkgList.slice(0, 4).concat(<span>…</span>);
 
+    const patches = pkgNames.some(p => p.name.startsWith("kpatch-patch"));
+
+    const pkgTitle = <>
+        <span>{pkgsTruncated}</span>
+        {patches && <>{" "}<Badge>{_("patches")}</Badge></>}
+    </>;
+
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)
         descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
@@ -318,7 +327,7 @@ function updateItem(info, pkgNames, key) {
 
     return {
         columns: [
-            { title: pkgsTruncated },
+            { title: pkgTitle },
             { title: <TableText wrapModifier="truncate">{info.version}</TableText>, props: { className: "version" } },
             { title: <TableText wrapModifier="nowrap">{type}</TableText>, props: { className: "type" } },
             { title: descriptionFirstLine, props: { className: "changelog" } },
@@ -703,7 +712,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
     </>);
 };
 
-const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
+const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
     const numUpdates = Object.keys(updates).length;
     const numSecurity = count_security_updates(updates);
     const numRestartServices = tracerPackages.daemons.length;
@@ -720,7 +729,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
             notifications.push({
                 id: "security-updates-available",
                 stateStr: cockpit.format(stateStr, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         } else {
@@ -730,7 +739,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
             notifications.push({
                 id: "updates-available",
                 stateStr: cockpit.format(stateStr, numUpdates, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         }
@@ -738,7 +747,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "system-up-to-date",
             stateStr: STATE_HEADINGS.uptodate,
-            icon: <CheckIcon color="green" size="md" />,
+            icon: <CheckIcon color="green" />,
             secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
         });
     }
@@ -748,7 +757,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "packages-need-reboot",
             stateStr: cockpit.format(stateStr, numRebootPackages),
-            icon: <RebootingIcon id="icon" size="md" />,
+            icon: <RebootingIcon />,
             secondary: <Button variant="danger" onClick={() => onValueChanged("showRebootSystemDialog", true)} isInline>
                 {_("Reboot system...")}
             </Button>
@@ -760,7 +769,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "services-need-restart",
             stateStr: cockpit.format(stateStr, numRestartServices),
-            icon: <ProcessAutomationIcon id="icon" size="md" />,
+            icon: <ProcessAutomationIcon />,
             secondary: <Button variant="primary" onClick={() => onValueChanged("showRestartServicesDialog", true)} isInline>
                 {_("Restart services...")}
             </Button>
@@ -771,24 +780,28 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "processes-need-restart",
             stateStr: _("Some software needs to be restarted manually"),
-            icon: <ProcessAutomationIcon id="icon" size="md" />,
+            icon: <ProcessAutomationIcon />,
             secondary: <Text component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
         });
     }
 
     return (<>
         { notifications.map(notification => (
-            <Flex direction={{ default: 'column', sm: 'row' }} key={notification.id} id={notification.id} className="status-notification">
-                <FlexItem>{notification.icon}</FlexItem>
-                <Flex flex={{ default: 'flex_1' }} direction={{ default: 'column' }}>
-                    <FlexItem>
-                        <Text id="state" component={TextVariants.p}>{notification.stateStr}</Text>
-                    </FlexItem>
-                    <FlexItem>
-                        { notification.secondary }
-                    </FlexItem>
-                </Flex>
-            </Flex>
+            <Split key={notification.id} hasGutter>
+                <SplitItem>
+                    {notification.icon}
+                </SplitItem>
+                <SplitItem isFilled>
+                    <Stack>
+                        <StackItem>
+                            <Text component={TextVariants.p}>{notification.stateStr}</Text>
+                        </StackItem>
+                        <StackItem>
+                            { notification.secondary }
+                        </StackItem>
+                    </Stack>
+                </SplitItem>
+            </Split>
         ))}
     </>);
 };
@@ -805,6 +818,27 @@ class CardsPage extends React.Component {
     }
 
     render() {
+        const statusContent = <Stack hasGutter>
+            <StackItem>
+                <UpdatesStatus updates={this.props.updates}
+                                onValueChanged={this.props.onValueChanged}
+                                tracerPackages={this.props.tracerPackages}
+                                highestSeverity={this.props.highestSeverity} />
+            </StackItem>
+            <StackItem>
+                <AutoUpdatesStatus enabled={this.state.autoUpdatesEnabled}
+                                       type={this.state.autoUpdatesType}
+                                       day={this.state.autoUpdatesDay}
+                                       time={this.state.autoUpdatesTime} />
+            </StackItem>
+        </Stack>;
+
+        const settingsContent = <Stack hasGutter>
+            <StackItem>
+                <AutoUpdatesSettings onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />
+            </StackItem>
+        </Stack>;
+
         const cardContents = [
             {
                 id: "status",
@@ -813,21 +847,13 @@ class CardsPage extends React.Component {
                 actions: (<Tooltip content={_("Check for updates")}>
                     <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
                 </Tooltip>),
-                body: <StatusCard updates={this.props.updates}
-                                  onValueChanged={this.props.onValueChanged}
-                                  tracerPackages={this.props.tracerPackages}
-                                  highestSeverity={this.props.highestSeverity}
-                                  timeSinceRefresh={this.props.timeSinceRefresh} />
+                body: statusContent,
             },
             {
-                id: "automatic-updates",
+                id: "settings",
                 className: "ct-card-info",
-                title: _("Automatic updates"),
-                actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />),
-                body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
-                                        type={this.state.autoUpdatesType}
-                                        day={this.state.autoUpdatesDay}
-                                        time={this.state.autoUpdatesTime} />),
+                title: _("Settings"),
+                body: settingsContent,
             },
         ];
 

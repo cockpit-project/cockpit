@@ -105,7 +105,7 @@ export class SidePanelRow extends React.Component {
                     {this.props.actions}
                 </div>);
         else if (client.path_jobs[job_path])
-            decoration = <Spinner size="md" />;
+            decoration = <Spinner isSVG size="md" />;
         else if (client.path_warnings[job_path])
             decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 

@@ -62,7 +62,7 @@ export const ProgressBar = ({ title, data }) => {
                 {_("Waiting for other programs to finish using the package manager...")}
             </SplitItem>
             <SplitItem>
-                <Spinner size="md" />
+                <Spinner isSVG size="md" />
             </SplitItem>
         </Split>);
     } else {

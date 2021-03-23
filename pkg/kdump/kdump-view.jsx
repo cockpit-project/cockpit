@@ -363,7 +363,7 @@ export class KdumpPage extends React.Component {
     render() {
         var kdumpLocation = (
             <div className="dialog-wait-ct">
-                <Spinner size="md" />
+                <Spinner isSVG size="md" />
                 <span>{ _("Loading...") }</span>
             </div>
         );
@@ -409,7 +409,7 @@ export class KdumpPage extends React.Component {
             // still waiting for result
             reservedMemory = (
                 <div className="dialog-wait-ct">
-                    <Spinner size="md" />
+                    <Spinner isSVG size="md" />
                     <span>{ _("Reading...") }</span>
                 </div>
             );
@@ -471,7 +471,7 @@ export class KdumpPage extends React.Component {
         }
         var serviceWaiting;
         if (this.props.stateChanging)
-            serviceWaiting = <Spinner size="md" />;
+            serviceWaiting = <Spinner isSVG size="md" />;
 
         var testButton;
         if (serviceRunning) {

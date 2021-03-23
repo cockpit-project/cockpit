@@ -27,6 +27,7 @@ import {
 } from '@patternfly/react-core';
 
 import { ServerTime } from 'serverTime.js';
+import { validateTime } from 'timepicker-helpers.js';
 
 import "cockpit-components-shutdown.scss";
 
@@ -84,15 +85,7 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const h = parseInt(this.state.time.split(":")[0], 10);
-        const m = parseInt(this.state.time.split(":")[1], 10);
-
-        let time_error = false;
-        if (isNaN(h) || h < 0 || h > 23 ||
-            isNaN(m) || m < 0 || m > 59) {
-            time_error = true;
-        }
-
+        const time_error = !validateTime(this.state.time);
         const date = this.state.date;
 
         let date_error = false;

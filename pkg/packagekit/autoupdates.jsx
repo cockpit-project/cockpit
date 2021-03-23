@@ -28,6 +28,7 @@ import {
 } from '@patternfly/react-core';
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { validateTime } from "timepicker-helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -35,26 +36,6 @@ function debug() {
     if (window.debugging == "all" || window.debugging == "packagekit")
         console.debug.apply(console, arguments);
 }
-
-// FIXME: https://github.com/patternfly/patternfly-react/issues/5564
-// Copied from: https://github.com/patternfly/patternfly-react/blob/master/packages/react-core/src/components/TimePicker/TimePickerUtils.tsx
-// and slightly adjusted
-export const validateTime = (time) => {
-    // ISO 8601 format is valid
-    const date = new Date(time);
-    if (!isNaN(date.getDate()) && time.includes('T')) {
-        return true;
-    }
-    // hours only valid if they are [0-23] or [0-12]
-    const hours = parseInt(time.split(":")[0]);
-    const validHours = hours >= 0 && hours <= 23;
-
-    // minutes verified by timeRegex
-    const timeRegex = new RegExp(`^\\s*\\d\\d?:[0-5]\\d\\s*$`);
-
-    // empty string is valid
-    return time !== '' && (timeRegex.test(time) && validHours);
-};
 
 /**
  * Package manager specific implementations; PackageKit does not cover

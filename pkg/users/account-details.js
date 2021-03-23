@@ -63,14 +63,18 @@ function get_logged(name) {
 
 function get_last_login(name) {
     function parse_last_login(data) {
-        data = data.split('\n')[1]; // throw away header
-        if (data.length === 0) return null;
-        data = data.split('   '); // get last column - separated by spaces
-
-        if (data[data.length - 1].indexOf('**Never logged in**') > -1)
+        const line = data.split('\n')[1]; // throw away header
+        if (!line || line.length === 0 || line.indexOf('**Never logged in**') > -1)
             return null;
-        else
-            return new Date(data[data.length - 1]);
+
+        // line looks like this: admin            web cons ::ffff:172.27.0. Tue Mar 23 14:49:04 +0000 2021
+        const date_fields = line.split(' ').slice(-5);
+        const d = new Date(date_fields.join(' '));
+        if (d.getTime() > 0)
+            return d;
+
+        console.warn("Failed to parse date from lastlog line:", line);
+        return null;
     }
 
     return cockpit.spawn(["/usr/bin/lastlog", "-u", name], { environ: ["LC_ALL=C"] })

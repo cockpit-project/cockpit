@@ -51,7 +51,6 @@ export const NetworkInterfaceMembers = ({
     interfaces,
     iface,
     usage_monitor,
-    highlight,
     privileged
 }) => {
     const model = useContext(ModelContext);
@@ -131,7 +130,6 @@ export const NetworkInterfaceMembers = ({
                     }
                 ],
                 props: {
-                    className: highlight == iface.Name ? ["highlight-ct"] : [],
                     key: iface.Name,
                     "data-interface": encodeURIComponent(iface.Name),
                     "data-sample-id": isActive ? encodeURIComponent(iface.Name) : null,

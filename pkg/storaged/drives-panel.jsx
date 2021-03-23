@@ -86,7 +86,6 @@ export class DrivesPanel extends React.Component {
                               name={name}
                               devname={block_name(block)}
                               detail={desc}
-                              highlight={dev == props.highlight}
                               go={() => cockpit.location.go([dev])}
                               job_path={path}
                               key={path} />

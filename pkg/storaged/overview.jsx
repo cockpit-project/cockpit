@@ -34,43 +34,33 @@ import { OthersPanel } from "./others-panel.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 import { StorageLogsPanel } from "./logs-panel.jsx";
 
-export class Overview extends React.Component {
-    constructor() {
-        super();
-        this.state = { highlight: false };
-    }
-
-    render() {
-        var client = this.props.client;
-
-        return (
-            <Page id="main-storage">
-                <Grid hasGutter>
-                    <GridItem md={8} lg={9}>
-                        <Gallery hasGutter>
-                            <Card>
-                                <CardBody>
-                                    <StoragePlots plot_state={this.props.plot_state}
-                                                  onHover={(dev) => this.setState({ highlight: dev })} />
-                                </CardBody>
-                            </Card>
-                            <FilesystemsPanel client={client} />
-                            <LockedCryptoPanel client={client} />
-                            <NFSPanel client={client} />
-                            <JobsPanel client={client} />
-                            <StorageLogsPanel />
-                        </Gallery>
-                    </GridItem>
-                    <GridItem md={4} lg={3} className="storage-sidebar">
-                        <Gallery hasGutter>
-                            <ThingsPanel client={client} />
-                            <DrivesPanel client={client} highlight={this.state.highlight} />
-                            <IscsiPanel client={client} />
-                            <OthersPanel client={client} />
-                        </Gallery>
-                    </GridItem>
-                </Grid>
-            </Page>
-        );
-    }
-}
+export const Overview = ({ client, plot_state }) => {
+    return (
+        <Page id="main-storage">
+            <Grid hasGutter>
+                <GridItem md={8} lg={9}>
+                    <Gallery hasGutter>
+                        <Card>
+                            <CardBody>
+                                <StoragePlots plot_state={plot_state} />
+                            </CardBody>
+                        </Card>
+                        <FilesystemsPanel client={client} />
+                        <LockedCryptoPanel client={client} />
+                        <NFSPanel client={client} />
+                        <JobsPanel client={client} />
+                        <StorageLogsPanel />
+                    </Gallery>
+                </GridItem>
+                <GridItem md={4} lg={3} className="storage-sidebar">
+                    <Gallery hasGutter>
+                        <ThingsPanel client={client} />
+                        <DrivesPanel client={client} />
+                        <IscsiPanel client={client} />
+                        <OthersPanel client={client} />
+                    </Gallery>
+                </GridItem>
+            </Grid>
+        </Page>
+    );
+};

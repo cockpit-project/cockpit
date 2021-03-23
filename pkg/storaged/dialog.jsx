@@ -398,7 +398,7 @@ export const dialog_open = (def) => {
             idle_message: (running_promise
                 ? <>
                     <span>{running_title}</span>
-                    <Spinner className="dialog-wait-ct-spinner" isSVG size="md" />
+                    <Spinner isSVG className="dialog-wait-ct-spinner" size="md" />
                 </>
                 : null),
             extra_element: extra,

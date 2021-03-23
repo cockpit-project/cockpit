@@ -543,7 +543,7 @@ export class AddDiskModalBody extends React.Component {
 
         let defaultBody;
         if (this.state.dialogLoading) {
-            defaultBody = <Spinner />;
+            defaultBody = <Spinner isSVG />;
         } else {
             defaultBody = (
                 <Form isHorizontal>

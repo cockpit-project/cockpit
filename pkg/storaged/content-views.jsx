@@ -433,7 +433,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     var last_column = null;
     if (job_object && client.path_jobs[job_object])
         last_column = (
-            <Spinner size="md" />
+            <Spinner isSVG size="md" />
         );
     if (tabs.row_action) {
         if (last_column) {

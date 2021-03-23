@@ -35,7 +35,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAct
     const slimType = title || paragraph ? "" : "slim";
     return (
         <EmptyState variant={EmptyStateVariant.full}>
-            { loading && <Spinner size="xl" /> }
+            { loading && <Spinner isSVG size="xl" /> }
             { icon && <EmptyStateIcon icon={icon} /> }
             <Title headingLevel={headingLevel} size={titleSize}>
                 {title}

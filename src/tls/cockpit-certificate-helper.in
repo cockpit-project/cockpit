@@ -9,6 +9,7 @@ USER="$3"
 
 HOST="$(hostname -f)"
 SERVICE="HTTP/${HOST}@${REALM}"
+COCKPIT_GROUP="@COCKPIT_GROUP@"
 
 # use a temporary keytab to avoid interfering with the system one
 export KRB5CCNAME=/run/cockpit/keytab-setup
@@ -35,11 +36,14 @@ ipa service-show "${SERVICE}" || ipa service-add --ok-as-delegate=true --force "
 mkdir -p /etc/cockpit
 klist -k /etc/cockpit/krb5.keytab | grep -qF "${SERVICE}" || ipa-getkeytab -p "HTTP/${HOST}" -k /etc/cockpit/krb5.keytab
 
-# request an SSL certificate; be sure to not leave traces of the .key on disk or
-# get race conditions with file permissions; also, ipa-getcert
-# cannot directly write into /etc/cockpit due to SELinux
+# ipa-getcert cannot set permisisons nor write into /etc/cockpit due to SELinux
 if ipa-getcert request -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key -K "HTTP/${HOST}" -w -v; then
-    mv /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert
-    cat /run/cockpit/ipa.key  >> /etc/cockpit/ws-certs.d/10-ipa.cert
-    rm -f /run/cockpit/ipa.key
+    mv -Z /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert
+    mv -Z /run/cockpit/ipa.key /etc/cockpit/ws-certs.d/10-ipa.key
+
+    # If COCKPIT_GROUP is set, then make sure the key is readable by that group too
+    if [ -n "${COCKPIT_GROUP}" ]; then
+        chown root:"${COCKPIT_GROUP}" /etc/cockpit/ws-certs.d/10-ipa.key
+        chmod g+r /etc/cockpit/ws-certs.d/10-ipa.key
+    fi
 fi

@@ -486,6 +486,8 @@ ExecStart=/bin/true
         m.execute("! test -e /run/cockpit/ipa.key")
         # remotectl agrees
         self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.cert", m.execute("remotectl certificate"))
+        # correct permissions
+        self.assertEqual("root:cockpit-ws/640", m.execute("stat --printf '%U:%G/%a' /etc/cockpit/ws-certs.d/10-ipa.key"))
         # cert is being tracked
         self.assertIn("MONITORING", m.execute("ipa-getcert list"))
         # Restart without SSL (IPA certificate is not on the testing host)

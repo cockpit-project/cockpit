@@ -74,7 +74,7 @@ export function update_plot_state(ps, client) {
     }
 }
 
-export const StoragePlots = ({ plot_state, onHover }) => {
+export const StoragePlots = ({ plot_state }) => {
     return (
         <>
             <Split>
@@ -85,12 +85,12 @@ export const StoragePlots = ({ plot_state, onHover }) => {
                 <GridItem>
                     <SvgPlot className="storage-graph"
                              title="Reading" config={bytes_per_sec_config}
-                             plot_state={plot_state} plot_id='read' onHover={onHover} />
+                             plot_state={plot_state} plot_id='read' />
                 </GridItem>
                 <GridItem>
                     <SvgPlot className="storage-graph"
                              title="Writing" config={bytes_per_sec_config}
-                             plot_state={plot_state} plot_id='write' onHover={onHover} />
+                             plot_state={plot_state} plot_id='write' />
                 </GridItem>
             </Grid>
         </>);

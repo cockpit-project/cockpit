@@ -308,7 +308,7 @@ const useLayoutSize = (init_width, init_height) => {
     return [ref, size];
 };
 
-export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className }) => {
+export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
     const [container_ref, container_size] = useLayoutSize(0, 0);
     const [measure_ref, measure_size] = useLayoutSize(36, 20);
 
@@ -376,10 +376,12 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, onHover, className
             d += cmd("L", w - m_right, h - m_bottom);
             d += "z";
 
-            return <path key={hover_arg} d={d}
-                         role="presentation"
-                         onMouseEnter={() => onHover && onHover(hover_arg)}
-                         onMouseLeave={() => onHover && onHover(null)} />;
+            return (
+                <path key={hover_arg} d={d}
+                      role="presentation">
+                    <title>{hover_arg}</title>
+                </path>
+            );
         }
 
         const paths = [];

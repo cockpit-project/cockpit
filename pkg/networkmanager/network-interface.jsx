@@ -18,7 +18,7 @@
  */
 import $ from 'jquery';
 import cockpit from "cockpit";
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import {
     Breadcrumb, BreadcrumbItem,
     Button,
@@ -70,7 +70,6 @@ export const NetworkInterfacePage = ({
     iface
 }) => {
     const model = useContext(ModelContext);
-    const [highlight, setHighlight] = useState(null);
 
     const dev_name = iface.Name;
     const dev = iface.Device;
@@ -667,7 +666,6 @@ export const NetworkInterfacePage = ({
                                      interfaces={interfaces}
                                      iface={iface}
                                      usage_monitor={usage_monitor}
-                                     highlight={highlight}
                                      privileged={privileged} />);
     }
 
@@ -755,7 +753,7 @@ export const NetworkInterfacePage = ({
                       </BreadcrumbItem>
                   </Breadcrumb>}>
             <PageSection variant={PageSectionVariants.light}>
-                <NetworkPlots plot_state={plot_state} onHover={setHighlight} />
+                <NetworkPlots plot_state={plot_state} />
             </PageSection>
             <PageSection>
                 <Gallery hasGutter>

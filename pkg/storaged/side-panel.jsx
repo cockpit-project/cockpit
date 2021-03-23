@@ -111,7 +111,7 @@ export class SidePanelRow extends React.Component {
 
         return (
             <FlexItem data-testkey={this.props.testkey}
-                      className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}
+                      className="sidepanel-row"
                       role="link" tabIndex="0"
                       onKeyPress={this.props.go ? go : null}
                       onClick={this.props.go ? go : null}>

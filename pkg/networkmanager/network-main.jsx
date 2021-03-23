@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState } from 'react';
+import React from 'react';
 import { useEvent } from "hooks";
 
 import {
@@ -47,7 +47,6 @@ const _ = cockpit.gettext;
 export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces }) => {
     useEvent(firewall, "changed");
     useEvent(usage_monitor.grid, "notify");
-    const [highlight, setHighlight] = useState(null);
 
     const managed = [];
     const unmanaged = [];
@@ -84,7 +83,6 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                 { title: activeConnection ? activeConnection[0].innerHTML : activeConnection },
             ],
             props: {
-                className: highlight == iface.Name ? ["highlight-ct"] : [],
                 key: iface.Name,
                 "data-interface": encodeURIComponent(iface.Name),
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null,
@@ -143,7 +141,7 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
     return (
         <Page id="networking">
             <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>
-                <NetworkPlots plot_state={plot_state} onHover={setHighlight} />
+                <NetworkPlots plot_state={plot_state} />
             </PageSection>
             <PageSection>
                 <Gallery hasGutter>

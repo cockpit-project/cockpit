@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from 'prop-types';
 import {
-    Alert, Button, Form, FormGroup,
+    Alert, Button, Flex, Form, FormGroup,
     FormSelect, FormSelectOption,
     Modal, Radio, Text, TextVariants,
     TimePicker,
@@ -376,25 +376,27 @@ export class AutoUpdates extends React.Component {
 
                 {this.state.enabled && <>
                     <FormGroup fieldId="when" label={_("When")}>
-                        <FormSelect id="auto-update-day" isDisabled={!enabled} value={this.state.day == "" ? "everyday" : this.state.day}
-                                    onChange={d => this.setState({ day: d == "everyday" ? "" : d })}>
-                            <FormSelectOption value="everyday" label={_("every day")} />
-                            <FormSelectOption value="mon" label={_("Mondays")} />
-                            <FormSelectOption value="tue" label={_("Tuesdays")} />
-                            <FormSelectOption value="wed" label={_("Wednesdays")} />
-                            <FormSelectOption value="thu" label={_("Thursdays")} />
-                            <FormSelectOption value="fri" label={_("Fridays")} />
-                            <FormSelectOption value="sat" label={_("Saturdays")} />
-                            <FormSelectOption value="sun" label={_("Sundays")} />
-                        </FormSelect>
+                        <Flex>
+                            <FormSelect id="auto-update-day" isDisabled={!enabled} value={this.state.day == "" ? "everyday" : this.state.day}
+                                        onChange={d => this.setState({ day: d == "everyday" ? "" : d })}>
+                                <FormSelectOption value="everyday" label={_("every day")} />
+                                <FormSelectOption value="mon" label={_("Mondays")} />
+                                <FormSelectOption value="tue" label={_("Tuesdays")} />
+                                <FormSelectOption value="wed" label={_("Wednesdays")} />
+                                <FormSelectOption value="thu" label={_("Thursdays")} />
+                                <FormSelectOption value="fri" label={_("Fridays")} />
+                                <FormSelectOption value="sat" label={_("Saturdays")} />
+                                <FormSelectOption value="sun" label={_("Sundays")} />
+                            </FormSelect>
 
-                        <span className="auto-conf-text">{_("at")}</span>
+                            <span className="auto-conf-text">{_("at")}</span>
 
-                        <TimePicker defaultTime={this.state.time} is24Hour
-                                    invalidFormatErrorMessage={_("Invalid time format")}
-                                    menuAppendTo={() => document.body}
-                                    id="auto-update-time" isDisabled={!enabled}
-                                    onChange={t => this.setState({ time: t })} />
+                            <TimePicker defaultTime={this.state.time} is24Hour
+                                        menuAppendTo={() => document.body}
+                                        id="auto-update-time" isDisabled={!enabled}
+                                        invalidFormatErrorMessage={_("Invalid time format")}
+                                        onChange={t => this.setState({ time: t })} />
+                        </Flex>
                     </FormGroup>
 
                     <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />

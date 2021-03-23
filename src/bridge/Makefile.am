@@ -255,6 +255,7 @@ EXTRA_DIST += \
 # -----------------------------------------------------------------------------
 # polkit
 
+if WITH_POLKIT
 polkitdir        = $(datadir)/polkit-1/actions
 polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
@@ -264,6 +265,7 @@ polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
 EXTRA_DIST += $(polkit_in_files)
 CLEANFILES += $(polkit_DATA)
+endif
 
 # -----------------------------------------------------------------------------
 # PCP

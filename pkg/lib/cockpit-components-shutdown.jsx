@@ -21,7 +21,7 @@ import moment from "moment";
 import cockpit from "cockpit";
 import React from 'react';
 import {
-    Button, Select, SelectOption, Modal, Alert, Form,
+    Button, Select, SelectOption, Modal, Alert, Flex, Form,
     Divider, FormGroup, TextArea, DatePicker,
     TimePicker,
 } from '@patternfly/react-core';
@@ -174,21 +174,23 @@ export class ShutdownModal extends React.Component {
                         <FormGroup fieldId="delay" label={_("Delay")}
                                    helperTextInvalid={this.state.dateError}
                                    validated={this.state.dateError ? "error" : "default"}>
-                            <Select toggleId="delay" isOpen={this.state.isOpen} selections={this.state.selected}
-                                    onToggle={o => this.setState({ isOpen: o })} width="30%" menuAppendTo="parent"
-                                    onSelect={(e, s) => this.setState({ selected: s, isOpen: false }, this.calculate)}>
-                                {options}
-                            </Select>
-                            {this.state.selected === "x" && <>
-                                <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
-                                    invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
-                                    value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
-                                <TimePicker defaultTime={this.state.time} is24Hour
-                                            id="shutdown-time"
-                                            invalidFormatErrorMessage=""
-                                            menuAppendTo={() => document.body}
-                                            onChange={time => this.updateDatetime("time", time) } />
-                            </>}
+                            <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                                <Select toggleId="delay" isOpen={this.state.isOpen} selections={this.state.selected}
+                                        onToggle={o => this.setState({ isOpen: o })} width="30%" menuAppendTo="parent"
+                                        onSelect={(e, s) => this.setState({ selected: s, isOpen: false }, this.calculate)}>
+                                    {options}
+                                </Select>
+                                {this.state.selected === "x" && <>
+                                    <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
+                                        invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
+                                        value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
+                                    <TimePicker defaultTime={this.state.time} is24Hour
+                                                id="shutdown-time"
+                                                invalidFormatErrorMessage=""
+                                                menuAppendTo={() => document.body}
+                                                onChange={time => this.updateDatetime("time", time) } />
+                                </>}
+                            </Flex>
                         </FormGroup>
                     </Form>
                     {this.state.error && <Alert isInline variant='danger' title={this.state.error} />}

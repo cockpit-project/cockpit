@@ -1,5 +1,5 @@
 libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory
-dist_libexec_SCRIPTS = src/tls/cockpit-certificate-helper
+libexec_SCRIPTS += src/tls/cockpit-certificate-helper
 noinst_PROGRAMS += wsinstance-start
 
 wsinstance_start_SOURCES = \

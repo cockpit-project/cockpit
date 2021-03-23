@@ -534,6 +534,7 @@ AC_SUBST(PAM_LIBS)
 AC_OUTPUT([
 Makefile
 doc/guide/version
+src/tls/cockpit-certificate-helper
 ])
 
 

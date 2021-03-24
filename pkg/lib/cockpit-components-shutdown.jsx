@@ -182,9 +182,11 @@ export class ShutdownModal extends React.Component {
                                 </Select>
                                 {this.state.selected === "x" && <>
                                     <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
-                                        invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
-                                        value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
+                                                className='shutdown-date-picker'
+                                                invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
+                                                value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
                                     <TimePicker defaultTime={this.state.time} is24Hour
+                                                className='shutdown-time-picker'
                                                 id="shutdown-time"
                                                 invalidFormatErrorMessage=""
                                                 menuAppendTo={() => document.body}

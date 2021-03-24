@@ -47,13 +47,6 @@
     padding-bottom: var(--pf-global--spacer--md);
 }
 
-#storage .empty-panel-text {
-    text-align: center;
-    margin: 5px;
-    color: var(--pf-global--palette--black-700);
-    font-size: var(--pf-global--FontSize--sm);
-}
-
 #storage .create-storage {
     margin-bottom: 10px;
 }
@@ -581,7 +574,13 @@ td.storage-action {
     border-bottom: none;
 }
 
-.sidepanel-row:hover {
+.sidepanel-row.pf-c-empty-state {
+    .pf-c-empty-state__body {
+        margin-top: 0;
+    }
+}
+
+.sidepanel-row:not(.pf-c-empty-state):hover {
     background-color: var(--ct-color-link-hover-bg);
 }
 

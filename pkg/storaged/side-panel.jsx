@@ -23,7 +23,7 @@ import React from "react";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
 
-import { Button, Spinner, Flex, FlexItem } from '@patternfly/react-core';
+import { Button, Spinner, EmptyState, EmptyStateVariant, EmptyStateBody, Flex, FlexItem } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
@@ -64,7 +64,11 @@ export class SidePanel extends React.Component {
                         { children }
                         { show_all_button }
                     </Flex>
-                    : <div className="empty-panel-text">{this.props.empty_text}</div>
+                    : <EmptyState variant={EmptyStateVariant.sm}>
+                        <EmptyStateBody>
+                            {this.props.empty_text}
+                        </EmptyStateBody>
+                    </EmptyState>
                 }
             </OptionalPanel>
         );

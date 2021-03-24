@@ -20,7 +20,11 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardHeader, CardTitle, CardActions, CardBody, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Card, CardHeader, CardTitle, CardActions, CardBody,
+    EmptyState, EmptyStateVariant, EmptyStateBody,
+    Text, TextVariants
+} from "@patternfly/react-core";
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { StorageButton } from "./storage-controls.jsx";
@@ -116,7 +120,11 @@ export class OptionalPanel extends React.Component {
                 <CardBody className="contains-list">
                     { feature_enabled
                         ? this.props.children
-                        : <div className="empty-panel-text">{not_installed_text}</div>
+                        : <EmptyState variant={EmptyStateVariant.xs}>
+                            <EmptyStateBody>
+                                {not_installed_text}
+                            </EmptyStateBody>
+                        </EmptyState>
                     }
                 </CardBody>
             </Card>

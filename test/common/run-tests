@@ -75,7 +75,7 @@ def print_test(test, print_tap=True, retry_reason=""):
     print()  # Tap needs to start on a separate line
     if test.process.returncode == 0:
         print("ok " + test_name(test) + retry_reason)
-    elif test.process.returncode == 77 or b"# SKIP " in test.output:
+    elif test.process.returncode == 77 or b"# SKIP " in test.output.splitlines()[-1]:
         # If the test was skipped, add the last line (which contains the reason
         # for the skip) to the result
         print("ok {0} {1}{2}".format(test_name(test),
@@ -95,6 +95,7 @@ def finish_test(opts, test, affected_tests):
     """
 
     affected = any([test.command[0].endswith(t) for t in affected_tests])
+    result = test.output.splitlines()[-1]
 
     # Try affected tests 3 times
     if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
@@ -116,20 +117,24 @@ def finish_test(opts, test, affected_tests):
                 if test.output != changed:
                     changed += b"\n"
                 test.output = changed
+                result = test.output.splitlines()[-1]
         except OSError as ex:
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("\nCouldn't run tests-policy: {0}\n".format(str(ex)))
 
-        if b"# SKIP" in test.output:
+        if b"# SKIP" in result:
             print_test(test, print_tap=False)
             return None, 0
 
     # do we get a specific retry reason from tests-policy?
-    m = re.search(rb"\s*# RETRY (.*)$", test.output, re.MULTILINE)
+    m = re.search(rb"\s*# RETRY (.*)", result)
     if m:
         retry_reason = m.group(1)
         # remove it from test output; we must not print it after the 3rd time, and going to print it separately
-        test.output = re.sub(rb"\s*# RETRY .*\n", b"", test.output)
+        new_result = re.sub(rb"\s*# RETRY .*\n", b"", result)
+        output = test.output.splitlines()[:-1]
+        output.append(new_result)
+        test.output = "\n".join(output)
     elif affected:  # Don't retry affected failed tests
         retry_reason = None
     else:

@@ -843,6 +843,7 @@ ExecStart=/usr/local/bin/{0}
         b.wait_text(self.update_text, "Loading available updates failed")
         self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
+    @skipDistroPackage()
     def testUnprivileged(self):
         b = self.browser
         m = self.machine
@@ -865,10 +866,10 @@ ExecStart=/usr/local/bin/{0}
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
 
         b.wait_text("#super-user-indicator", "Administrative access")
 
@@ -1281,6 +1282,7 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
+    @skipDistroPackage()
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine
@@ -1298,10 +1300,10 @@ class TestAutoUpdates(NoSubManCase):
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.switch_to_frame("cockpit1:localhost/updates")
 
         # enable auto-updates

@@ -115,12 +115,12 @@ class TestKeys(MachineCase):
         b.leave_page()
         b.wait_text("#super-user-indicator", "Limited access")
         b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
-        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         # users page reloads on superuser change
         b.expect_load_frame("cockpit1:localhost/users")
-        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
         b.enter_page("/users")
 

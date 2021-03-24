@@ -142,7 +142,6 @@ main (int argc,
   gchar *user = NULL;
   gchar *cookie = NULL;
   gchar *challenge = NULL;
-  const gchar *prompt;
   gint ret = 1;
 
   static GOptionEntry entries[] = {
@@ -185,14 +184,10 @@ main (int argc,
   challenge = g_strdup_printf ("plain1:%s:", user);
   cookie = g_strdup_printf ("askpass%u%u", (unsigned int)getpid (), (unsigned int)time (NULL));
 
-  prompt = argv[1];
-  if (strstr (prompt, "[sudo] ") == prompt)
-    prompt = NULL;
-
   request = cockpit_transport_build_json ("command", "authorize",
                                           "challenge", challenge,
                                           "cookie", cookie,
-                                          "prompt", prompt,
+                                          "prompt", argv[1],
                                           NULL);
 
   /* Yes, we write to stdin which we expect to be a socketpair() */

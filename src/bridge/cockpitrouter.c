@@ -1674,7 +1674,7 @@ cockpit_router_prompt (CockpitRouter *self,
                                      "/superuser",
                                      "cockpit.Superuser",
                                      "Prompt",
-                                     g_variant_new ("(sssbs)", prompt, "", "", FALSE, previous_error),
+                                     g_variant_new ("(sssbs)", "", prompt, "", FALSE, previous_error),
                                      NULL);
     }
   else if (self->superuser_init_in_progress)

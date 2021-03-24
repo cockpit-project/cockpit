@@ -74,7 +74,7 @@ jobs:
 
       - name: Download dists tarball for current git SHA from GitHub
         id: make_dist
-        run: ./test/make_dist.py --download-only
+        run: ./test/make_dist.py --wait
 
       - name: Write a comment on the PR prompting the user to try later if make_dist.py failed
         uses: actions/github-script@v3
@@ -85,7 +85,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Download of the dists artifact failed: Retry again in 10 minutes'
+              body: 'Download of the dists artifact failed, check the workflow logs'
             })
         if: steps.make_dist.outcome == 'failure'
 

@@ -23,8 +23,8 @@ import * as PK from "packagekit.js";
 function progress_reporter(base, range, callback) {
     if (callback) {
         return function (data) {
-            if (data.percentage >= 0)
-                data.percentage = base + data.percentage / 100 * range;
+            if (data.absolute_percentage >= 0)
+                data.percentage = base + data.absolute_percentage / 100 * range;
             callback(data);
         };
     }

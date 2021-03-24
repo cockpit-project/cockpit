@@ -242,7 +242,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
         let allow_wait_status = false;
         const progress_data = {
             waiting: false,
-            percentage: 0,
+            absolute_percentage: 0,
             cancel: null
         };
 
@@ -256,10 +256,10 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                 if ("Status" in props)
                     status = props.Status;
                 progress_data.waiting = allow_wait_status && (status === Enum.STATUS_WAIT || status === Enum.STATUS_WAITING_FOR_LOCK);
-                if ("Percentage" in props && props.Percentage <= 100)
-                    progress_data.percentage = props.Percentage;
                 if ("AllowCancel" in props)
                     progress_data.cancel = props.AllowCancel ? cancel : null;
+                if ("Percentage" in props && props.Percentage <= 100)
+                    progress_data.absolute_percentage = props.Percentage;
 
                 progress_cb(progress_data);
             }

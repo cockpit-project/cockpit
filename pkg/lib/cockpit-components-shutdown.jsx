@@ -176,7 +176,8 @@ export class ShutdownModal extends React.Component {
                                    validated={this.state.dateError ? "error" : "default"}>
                             <Flex alignItems={{ default: 'alignItemsCenter' }}>
                                 <Select toggleId="delay" isOpen={this.state.isOpen} selections={this.state.selected}
-                                        onToggle={o => this.setState({ isOpen: o })} width="30%" menuAppendTo="parent"
+                                        className='shutdown-select-delay'
+                                        onToggle={o => this.setState({ isOpen: o })} menuAppendTo="parent"
                                         onSelect={(e, s) => this.setState({ selected: s, isOpen: false }, this.calculate)}>
                                     {options}
                                 </Select>

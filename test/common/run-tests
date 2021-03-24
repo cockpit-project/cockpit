@@ -8,7 +8,6 @@ import sys
 import unittest
 import errno
 import time
-import re
 import socket
 import tempfile
 import binascii
@@ -57,7 +56,7 @@ def flush_stdout():
             time.sleep(0.1)
 
 
-def print_test(test, print_tap=True, retry_reason=""):
+def print_test(test, print_tap=True, retry_reason="", skip_reason=""):
     for line in test.output.strip().splitlines(keepends=True):
         while line:
             try:
@@ -67,83 +66,84 @@ def print_test(test, print_tap=True, retry_reason=""):
                 line = line[e.characters_written:]
                 time.sleep(0.1)
 
+    if retry_reason:
+        retry_reason = " " + retry_reason
+    if skip_reason:
+        skip_reason = " " + skip_reason
+
     if not print_tap:
-        print(retry_reason)
+        print(retry_reason + skip_reason)
         flush_stdout()
         return
 
     print()  # Tap needs to start on a separate line
     if test.process.returncode == 0:
-        print("ok " + test_name(test) + retry_reason)
-    elif test.process.returncode == 77 or b"# SKIP " in test.output:
-        # If the test was skipped, add the last line (which contains the reason
-        # for the skip) to the result
-        print("ok {0} {1}{2}".format(test_name(test),
-                                     test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else "",
-                                     retry_reason))
+        print("ok {0}{1}".format(test_name(test), retry_reason))
+    elif skip_reason:
+        print("ok {0}{1}".format(test_name(test), skip_reason))
     else:
-        print("not ok " + test_name(test) + retry_reason)
+        print("not ok {0}{1}".format(test_name(test), retry_reason))
     flush_stdout()
 
 
 def finish_test(opts, test, affected_tests):
     """Returns if a test should retry or not
 
-    Call test-policy on the test's output, print if needed.
+    Call test-failure-policy on the test's output, print if needed.
 
     Return (retry_reason, exit_code). retry_reason can be None or a string.
     """
 
     affected = any([test.command[0].endswith(t) for t in affected_tests])
+    retry_reason = ""
+    skip_reason = ""
 
     # Try affected tests 3 times
     if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
-        retry_reason = b"test affected tests 3 times"
+        retry_reason = "test affected tests 3 times"
         test.retries += 1
-        print_test(test, not opts.list, " # RETRY {0} ({1})".format(test.retries, retry_reason.decode("utf-8")))
+        print_test(test, not opts.list, "# RETRY {0} ({1})".format(test.retries, retry_reason))
         return retry_reason, 0
-    elif test.process.returncode in [0, 77]:
-        print_test(test, not opts.list)
+
+    # If test is being skipped pick up the reason
+    if test.process.returncode == 77:
+        lines = test.output.splitlines()
+        skip_reason = lines[-1].strip().decode("utf-8")
+        test.output = b"\n".join(lines[:-1])
+
+    if test.process.returncode in [0, 77]:
+        print_test(test, not opts.list, skip_reason=skip_reason)
         return None, 0
 
     if not opts.thorough:
-        cmd = ["tests-policy", testvm.DEFAULT_IMAGE]
+        cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
         try:
-            test.output += ("not ok " + test_name(test)).encode()
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            changed = proc.communicate(test.output)[0]
-            if proc.returncode == 0:
-                if test.output != changed:
-                    changed += b"\n"
-                test.output = changed
+            reason = proc.communicate(test.output + ("not ok " + test_name(test)).encode())[0].strip()
+
+            if proc.returncode == 77:
+                print_test(test, skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
+                return None, 0
+
+            if proc.returncode == 1:
+                retry_reason = reason.decode("utf-8")
+
         except OSError as ex:
             if ex.errno != errno.ENOENT:
-                sys.stderr.write("\nCouldn't run tests-policy: {0}\n".format(str(ex)))
+                sys.stderr.write("\nCouldn't run test-failure-policy: {0}\n".format(str(ex)))
 
-        if b"# SKIP" in test.output:
-            print_test(test, print_tap=False)
-            return None, 0
-
-    # do we get a specific retry reason from tests-policy?
-    m = re.search(rb"\s*# RETRY (.*)$", test.output, re.MULTILINE)
-    if m:
-        retry_reason = m.group(1)
-        # remove it from test output; we must not print it after the 3rd time, and going to print it separately
-        test.output = re.sub(rb"\s*# RETRY .*\n", b"", test.output)
-    elif affected:  # Don't retry affected failed tests
-        retry_reason = None
-    else:
-        # HACK: many tests are unstable, always retry them 3 times
-        retry_reason = b"be robust against unstable tests"
+    # HACK: many tests are unstable, always retry them 3 times unless affected
+    if not affected and not retry_reason:
+        retry_reason = "be robust against unstable tests"
 
     unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in test.output
     if test.retries < 2 and not unexpected_message and retry_reason:
         test.retries += 1
-        print_test(test, opts.thorough, " # RETRY {0} ({1})".format(test.retries, retry_reason.decode("utf-8")))
+        print_test(test, retry_reason="# RETRY {0} ({1})".format(test.retries, retry_reason))
         return retry_reason, 0
-    else:
-        test.output += b"\n"
-        print_test(test, print_tap=opts.thorough)
+
+    test.output += b"\n"
+    print_test(test)
     return None, 1
 
 
@@ -371,7 +371,7 @@ def run(opts, image):
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
-                    if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
+                    if not opts.machine and (poll_result == 124 or (retry_reason and "test harness" in retry_reason)):
                         # try hard to keep the test output consistent
                         sys.stderr.write("\nRestarting global machine %s\n" % test.serial_machine)
                         sys.stderr.flush()

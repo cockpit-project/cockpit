@@ -2,11 +2,16 @@
   overflow: visible;
 }
 
-.shutdown-time-picker {
-    max-width: 7rem;
-}
+.shutdown-delay-group {
+    // Add spacing between rows for when the flex items wrap
+    row-gap: var(--pf-global--spacer--sm);
 
-.shutdown-select-delay,
-.shutdown-date-picker {
-    max-width: 10rem;
+    .shutdown-time-picker {
+        max-width: 7rem;
+    }
+
+    .shutdown-select-delay,
+    .shutdown-date-picker {
+        max-width: 10rem;
+    }
 }

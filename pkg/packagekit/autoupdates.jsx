@@ -376,7 +376,7 @@ export class AutoUpdates extends React.Component {
 
                 {this.state.enabled && <>
                     <FormGroup fieldId="when" label={_("When")}>
-                        <Flex>
+                        <Flex className="auto-update-group">
                             <FormSelect id="auto-update-day" isDisabled={!enabled} value={this.state.day == "" ? "everyday" : this.state.day}
                                         onChange={d => this.setState({ day: d == "everyday" ? "" : d })}>
                                 <FormSelectOption value="everyday" label={_("every day")} />

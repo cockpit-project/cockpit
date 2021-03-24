@@ -82,17 +82,7 @@ function process_result(err, stats) {
         return;
     }
 
-    if (makefile) {
-        if (!ops.watch)
-            generateDeps(makefile, stats);
-        else {
-            // Force "make" to re-create everything.  The results of
-            // incremental building are not good enough for building
-            // RPMs, for example.
-            if (fs.existsSync(makefile))
-                fs.unlinkSync(makefile);
-        }
-    }
+    generateDeps(makefile, stats);
 }
 
 function generateDeps(makefile, stats) {

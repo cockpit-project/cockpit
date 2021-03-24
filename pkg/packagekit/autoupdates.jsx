@@ -353,7 +353,7 @@ export class AutoUpdates extends React.Component {
         const enabled = !this.state.pending && this.props.privileged;
         const body = (
             <Form isHorizontal>
-                <FormGroup fieldId="type" label={_("Type")}>
+                <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
                     <Radio isChecked={!this.state.enabled}
                            onChange={e => this.setState({ enabled: false, type: null })}
                            isDisabled={!enabled}

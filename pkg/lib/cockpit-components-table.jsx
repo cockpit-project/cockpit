@@ -30,7 +30,10 @@ import {
     sortable,
     expandable,
 } from '@patternfly/react-table';
-import { EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
+import {
+    EmptyState, EmptyStateBody, EmptyStateSecondaryActions,
+    Text, TextContent, TextVariants,
+} from '@patternfly/react-core';
 
 import './cockpit-components-table.scss';
 
@@ -52,6 +55,7 @@ import './cockpit-components-table.scss';
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
+ * - isEmptyStateInTable: if empty state is result of a filter function this should be set, otherwise false
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
@@ -254,21 +258,29 @@ export class ListingTable extends React.Component {
         }
 
         if (tableProps.rows == 0) {
+            const emptyState = (
+                <EmptyState>
+                    <EmptyStateBody>
+                        <div>{this.props.emptyCaption}</div>
+                        <TextContent>
+                            <Text component={TextVariants.small}>
+                                {this.props.emptyCaptionDetail}
+                            </Text>
+                        </TextContent>
+                    </EmptyStateBody>
+                    {this.props.actions.length > 0 ? <EmptyStateSecondaryActions>{this.props.actions}</EmptyStateSecondaryActions> : null}
+                </EmptyState>
+            );
+            if (!this.props.isEmptyStateInTable)
+                return emptyState;
+
             const emptyStateCell = (
                 [{
                     props: { colSpan: this.props.columns.length },
-                    title: (
-                        <EmptyState>
-                            <Title headingLevel="h5" size="md">
-                                {this.props.emptyCaption}
-                            </Title>
-                            {this.props.emptyCaptionDetail && <EmptyStateBody>
-                                {this.props.emptyCaptionDetail}
-                            </EmptyStateBody>}
-                        </EmptyState>
-                    )
+                    title: emptyState
                 }]
             );
+
             if (isTableBasic)
                 tableProps.rows = [{ columns: emptyStateCell }];
             else
@@ -293,6 +305,7 @@ export class ListingTable extends React.Component {
 ListingTable.defaultProps = {
     caption: '',
     emptyCaption: '',
+    isEmptyStateInTable: false,
     columns: [],
     rows: [],
     actions: [],
@@ -302,6 +315,7 @@ ListingTable.propTypes = {
     caption: PropTypes.string,
     emptyCaption: PropTypes.node,
     emptyCaptionDetail: PropTypes.node,
+    isEmptyStateInTable: PropTypes.bool,
     columns: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.string])),
     rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object })),
     actions: PropTypes.node,

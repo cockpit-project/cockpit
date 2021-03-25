@@ -17,40 +17,40 @@ cockpit_wsinstance_factory_SOURCES = \
 	src/tls/wsinstance-factory.c \
 	$(NULL)
 
-cockpit_tls_SOURCES =					\
-	src/tls/utils.h					\
-	src/tls/socket-io.h				\
-	src/tls/socket-io.c				\
-	src/tls/certfile.h				\
-	src/tls/certfile.c				\
-	src/tls/connection.h				\
-	src/tls/connection.c				\
-	src/tls/server.h				\
-	src/tls/server.c				\
-	src/tls/main.c					\
+cockpit_tls_SOURCES = \
+	src/tls/utils.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/certfile.h \
+	src/tls/certfile.c \
+	src/tls/connection.h \
+	src/tls/connection.c \
+	src/tls/server.h \
+	src/tls/server.c \
+	src/tls/main.c \
 	$(NULL)
 
-cockpit_tls_CFLAGS = 					\
-	-I$(top_srcdir)/src/tls				\
-	-pthread					\
-	$(COCKPIT_TLS_CFLAGS)				\
+cockpit_tls_CFLAGS = \
+	-I$(top_srcdir)/src/tls \
+	-pthread \
+	$(COCKPIT_TLS_CFLAGS) \
 	$(NULL)
 
 cockpit_tls_LDFLAGS = -pthread
-cockpit_tls_LDADD = 					\
-	libcockpit-common-nodeps.a			\
-	$(COCKPIT_TLS_LIBS)				\
+cockpit_tls_LDADD = \
+	libcockpit-common-nodeps.a \
+	$(COCKPIT_TLS_LIBS) \
 	$(NULL)
 
 # TESTS
 
 TEST_CFLAGS = $(COCKPIT_TLS_CFLAGS) $(COCKPIT_CFLAGS)
 TEST_LDADD = \
-	libcockpit-common.a				\
-	libcockpit-common-nodeps.a			\
-	$(COCKPIT_TLS_LIBS)				\
-	$(COCKPIT_LIBS)					\
-	$(JSON_GLIB_LIBS)				\
+	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
+	$(COCKPIT_TLS_LIBS) \
+	$(COCKPIT_LIBS) \
+	$(JSON_GLIB_LIBS) \
 	$(NULL)
 
 TLS_TESTS = \
@@ -60,7 +60,7 @@ TLS_TESTS = \
 	$(NULL)
 
 TLS_SCRIPT_TESTS = \
-	src/tls/test-socket-activation-helper.sh	\
+	src/tls/test-socket-activation-helper.sh \
 	$(NULL)
 
 test_tls_certfile_SOURCES = \
@@ -74,26 +74,26 @@ test_tls_certfile_LDADD = $(TEST_LDADD)
 
 
 test_tls_connection_SOURCES = \
-	src/tls/testing.h				\
-	src/tls/socket-io.h				\
-	src/tls/socket-io.c				\
-	src/tls/certfile.h				\
-	src/tls/certfile.c				\
-	src/tls/connection.c				\
-	src/tls/test-connection.c			\
+	src/tls/testing.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/certfile.h \
+	src/tls/certfile.c \
+	src/tls/connection.c \
+	src/tls/test-connection.c \
 	$(NULL)
 
 test_tls_connection_CFLAGS = $(TEST_CFLAGS)
 test_tls_connection_LDADD = $(TEST_LDADD)
 
 test_tls_server_SOURCES = \
-	src/tls/socket-io.h				\
-	src/tls/socket-io.c				\
-	src/tls/certfile.h				\
-	src/tls/certfile.c				\
-	src/tls/connection.c				\
-	src/tls/server.c				\
-	src/tls/test-server.c				\
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/certfile.h \
+	src/tls/certfile.c \
+	src/tls/connection.c \
+	src/tls/server.c \
+	src/tls/test-server.c \
 	$(NULL)
 
 test_tls_server_CFLAGS = -pthread $(TEST_CFLAGS)

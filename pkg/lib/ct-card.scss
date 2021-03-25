@@ -34,6 +34,19 @@
   font-size: var(--pf-global--FontSize--2xl);
 }
 
+// Remove redundant padding from embedded toolbars (handled by header)
+.ct-card.pf-c-card .pf-c-toolbar {
+  padding: 0;
+}
+
+// Remove excess top padding from top-level empty state in cards,
+// as card headers already add enough space
+.ct-card > .pf-c-card__body > .pf-c-empty-state {
+    --pf-c-empty-state__body--MarginTop: 0;
+    padding-top: 0;
+    padding-bottom: var(--pf-global--spacer--md);
+}
+
 .ct-cards-grid {
     --ct-grid-columns: 2;
     --pf-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);

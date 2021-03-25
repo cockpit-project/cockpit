@@ -15,6 +15,13 @@
     --pf-c-table--cell--Width: 1%;
 }
 
+@media screen and (max-width: $pf-global--breakpoint--lg) {
+    // Fix labels to not fully stretch when in responsive mode
+    #virtual-machines-listing .pf-m-grid-md.pf-c-table [data-label]:not(:last-child) {
+        justify-items: start;
+    }
+}
+
 #virtual-machines-page-main-nav {
     padding: 0;
 }

@@ -215,14 +215,12 @@ def run(opts, image):
     # If file from `test-dir` was changed in the PR, all tests from it are considered affected
     changed_tests = []
     test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
-    if os.path.exists(os.path.join(os.path.dirname(testvm.TEST_DIR), ".git")):
+    if opts.base:
         # Detect affected tests from changed test files
-        cmd = ["git", "diff", "--name-only", "origin/" + opts.base, opts.test_dir]
-        r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        if r.returncode == 0:
-            # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
-            # This file provides only examples, there is no place for it being flaky, no need to retry
-            changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines() if not test.endswith(b"check-example")]
+        diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + opts.base, opts.test_dir])
+        # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
+        # This file provides only examples, there is no place for it being flaky, no need to retry
+        changed_tests = [test.decode("utf-8") for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
 
         # If more than 3 test files were changed don't consider any of them as affected
         # as it might be a PR that changes more unrelated things.
@@ -237,11 +235,9 @@ def run(opts, image):
         # If affected tests get detected from pkg/* changes, don't apply the
         # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
         # (this does not apply to other projects)
-        cmd = ["git", "diff", "--name-only", "origin/" + opts.base, "--", "pkg/"]
-        r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        if r.returncode == 0:
-            changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in r.stdout.strip().splitlines())
-            changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
+        diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + opts.base, "--", "pkg/"])
+        changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in diff_out.strip().splitlines())
+        changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     seen_classes = {}
     for filename in test_files:
@@ -444,7 +440,8 @@ def main():
                         help="Number of CPUs for nondestructive test global machines")
     parser.add_argument('--nondestructive-memory-mb', type=int, default=None,
                         help="RAM size for nondestructive test global machines")
-    parser.add_argument('--base', default=os.environ.get("BASE_BRANCH", "master"), help="Base branch")
+    parser.add_argument('--base', default=os.environ.get("BASE_BRANCH"),
+                        help="Retry affected tests compared to given base branch; default: %(default)s")
     opts = parser.parse_args()
 
     if opts.machine:

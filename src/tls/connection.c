@@ -546,6 +546,51 @@ connection_connect_to_wsinstance (Connection *self)
 }
 
 /**
+ * verify_peer_certificate: Custom client certificate validation function
+ *
+ * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
+ * validate the other properties such as expiry, unsafe algorithms, etc.
+ * This combination cannot be done with gnutls_session_set_verify_cert().
+ */
+static int
+verify_peer_certificate (gnutls_session_t session)
+{
+  unsigned status;
+  int ret;
+
+  do
+    ret = gnutls_certificate_verify_peers2 (session, &status);
+  while (ret == GNUTLS_E_INTERRUPTED);
+
+  if (ret == 0)
+    {
+      /* ignore CA/trusted owner and leave that to e. g. sssd */
+      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
+      if (status != 0)
+        {
+          gnutls_datum_t msg;
+          ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
+          if (ret != GNUTLS_E_SUCCESS)
+            errx (EXIT_FAILURE, "Failed to print verification status: %s", gnutls_strerror (ret));
+          warnx ("Invalid TLS peer certificate: %s", msg.data);
+          gnutls_free (msg.data);
+#ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
+          return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
+#else  /* fallback for GnuTLS < 3.4.4 */
+          return GNUTLS_E_CERTIFICATE_ERROR;
+#endif
+        }
+    }
+  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
+    {
+      warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
+      return ret;
+    }
+
+  return GNUTLS_E_SUCCESS;
+}
+
+/**
  * connection_handshake: Handle first event on client fd
  *
  * Check the very first byte of a new connection to tell apart TLS from plain
@@ -624,6 +669,7 @@ connection_handshake (Connection *self)
           return false;
         }
 
+      gnutls_session_set_verify_function (self->tls, verify_peer_certificate);
       gnutls_certificate_server_set_request (self->tls, parameters.request_mode);
       gnutls_handshake_set_timeout (self->tls, GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT);
       gnutls_transport_set_int (self->tls, self->client_fd);
@@ -819,51 +865,6 @@ connection_thread_main (int fd)
     close (self.ws_fd);
 }
 
-/**
- * verify_peer_certificate: Custom client certificate validation function
- *
- * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
- * validate the other properties such as expiry, unsafe algorithms, etc.
- * This combination cannot be done with gnutls_session_set_verify_cert().
- */
-static int
-verify_peer_certificate (gnutls_session_t session)
-{
-  unsigned status;
-  int ret;
-
-  do
-    ret = gnutls_certificate_verify_peers2 (session, &status);
-  while (ret == GNUTLS_E_INTERRUPTED);
-
-  if (ret == 0)
-    {
-      /* ignore CA/trusted owner and leave that to e. g. sssd */
-      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
-      if (status != 0)
-        {
-          gnutls_datum_t msg;
-          ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
-          if (ret != GNUTLS_E_SUCCESS)
-            errx (EXIT_FAILURE, "Failed to print verification status: %s", gnutls_strerror (ret));
-          warnx ("Invalid TLS peer certificate: %s", msg.data);
-          gnutls_free (msg.data);
-#ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
-          return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
-#else  /* fallback for GnuTLS < 3.4.4 */
-          return GNUTLS_E_CERTIFICATE_ERROR;
-#endif
-        }
-    }
-  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
-    {
-      warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
-      return ret;
-    }
-
-  return GNUTLS_E_SUCCESS;
-}
-
 static int
 set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
                                  const char *filename)
@@ -925,8 +926,6 @@ connection_crypto_init (const char *certfile,
 
   if (ret != GNUTLS_E_SUCCESS)
     errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
-
-  gnutls_certificate_set_verify_function (parameters.x509_cred, verify_peer_certificate);
 
   parameters.request_mode = request_mode;
 }

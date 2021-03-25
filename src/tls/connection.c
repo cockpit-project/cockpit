@@ -928,11 +928,6 @@ connection_crypto_init (const char *certfile,
 
   gnutls_certificate_set_verify_function (parameters.x509_cred, verify_peer_certificate);
 
-#if GNUTLS_VERSION_NUMBER >= 0x030506 && GNUTLS_VERSION_NUMBER <= 0x030600
-  /* only available since GnuTLS 3.5.6, and deprecated in 3.6 */
-  gnutls_certificate_set_known_dh_params (parameters.x509_cred, GNUTLS_SEC_PARAM_MEDIUM);
-#endif
-
   parameters.request_mode = request_mode;
 }
 

@@ -682,27 +682,6 @@ main (int argc,
   signal (SIGABRT, cockpit_test_signal_backtrace);
   signal (SIGSEGV, cockpit_test_signal_backtrace);
 
-  /* In case we are run via sshd and we have journald, make sure all
-   * logging output ends up in the journal on *this* machine, not sent
-   * back to the client.
-   */
-  if (g_getenv ("SSH_CONNECTION") && !g_log_writer_is_journald (2) && ! isatty(2))
-    {
-      int fd = sd_journal_stream_fd ("cockpit/ssh", LOG_WARNING, 0);
-
-      /* If it didn't work, then there's no journal.  That's OK: we'll
-       * just send the output back to the client after all.
-       *
-       * If it did work, rename the fd to 2 (stderr).
-       */
-      if (fd >= 0)
-        {
-          int r = dup2 (fd, 2);
-          g_assert (r == 2); /* that should really never fail */
-          close (fd);
-        }
-    }
-
   /*
    * We have to tell GLib about an alternate default location for XDG_DATA_DIRS
    * if we've been compiled with a different prefix. GLib caches that, so need
@@ -746,10 +725,34 @@ main (int argc,
       return 0;
     }
 
-  if (!opt_interactive && isatty (1))
+  if (!opt_interactive)
     {
-      g_printerr ("cockpit-bridge: no option specified\n");
-      return 2;
+      if (isatty (1))
+        {
+          g_printerr ("cockpit-bridge: no option specified\n");
+          return 2;
+        }
+
+      /* Connect stderr to the local journal explicitly.  This makes
+       * sure that we log to the machine where this process is
+       * running, and that glib always does structured logging even if
+       * our stderr was redirected to a pipe to capture errors from
+       * any wrapper that has started us (like sudo).
+       */
+
+      int fd = sd_journal_stream_fd ("cockpit/session", LOG_WARNING, 0);
+
+      /* If it didn't work, then there's no journal.  That's OK: we'll
+       * just send the output back to the client after all.
+       *
+       * If it did work, rename the fd to 2 (stderr).
+       */
+      if (fd >= 0)
+        {
+          int r = dup2 (fd, 2);
+          g_assert (r == 2); /* that should really never fail */
+          close (fd);
+        }
     }
 
   ret = run_bridge (opt_interactive, opt_privileged);

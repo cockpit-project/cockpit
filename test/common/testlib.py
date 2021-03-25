@@ -1141,7 +1141,8 @@ class MachineCase(unittest.TestCase):
         matches = [
             "SYSLOG_IDENTIFIER=cockpit-ws",
             "SYSLOG_IDENTIFIER=cockpit-bridge",
-            "SYSLOG_IDENTIFIER=cockpit/ssh",
+            "SYSLOG_IDENTIFIER=cockpit/session",
+            "SYSLOG_IDENTIFIER=cockpit/ssh",    # older bridges might use this when started via SSH
             "GLIB_DOMAIN=cockpit-ws",
             "GLIB_DOMAIN=cockpit-bridge",
             "GLIB_DOMAIN=cockpit-ssh",

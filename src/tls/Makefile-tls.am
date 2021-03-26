@@ -23,6 +23,8 @@ cockpit_tls_SOURCES = \
 	src/tls/socket-io.c \
 	src/tls/certfile.h \
 	src/tls/certfile.c \
+	src/tls/certificate.h \
+	src/tls/certificate.c \
 	src/tls/connection.h \
 	src/tls/connection.c \
 	src/tls/server.h \
@@ -79,6 +81,8 @@ test_tls_connection_SOURCES = \
 	src/tls/socket-io.c \
 	src/tls/certfile.h \
 	src/tls/certfile.c \
+	src/tls/certificate.h \
+	src/tls/certificate.c \
 	src/tls/connection.c \
 	src/tls/test-connection.c \
 	$(NULL)
@@ -91,6 +95,8 @@ test_tls_server_SOURCES = \
 	src/tls/socket-io.c \
 	src/tls/certfile.h \
 	src/tls/certfile.c \
+	src/tls/certificate.h \
+	src/tls/certificate.c \
 	src/tls/connection.c \
 	src/tls/server.c \
 	src/tls/test-server.c \

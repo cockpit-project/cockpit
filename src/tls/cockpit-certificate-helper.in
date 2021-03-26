@@ -41,6 +41,9 @@ if ipa-getcert request -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key -K "HTTP/
     mv -Z /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert
     mv -Z /run/cockpit/ipa.key /etc/cockpit/ws-certs.d/10-ipa.key
 
+    # The certificate should be world-readable
+    chmod a+r /etc/cockpit/ws-certs.d/10-ipa.cert
+
     # If COCKPIT_GROUP is set, then make sure the key is readable by that group too
     if [ -n "${COCKPIT_GROUP}" ]; then
         chown root:"${COCKPIT_GROUP}" /etc/cockpit/ws-certs.d/10-ipa.key

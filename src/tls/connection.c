@@ -51,13 +51,14 @@
 #include <common/cockpitwebcertificate.h>
 
 #include "certfile.h"
+#include "certificate.h"
 #include "socket-io.h"
 #include "utils.h"
 
 /* cockpit-tls TCP server state (singleton) */
 static struct {
   gnutls_certificate_request_t request_mode;
-  gnutls_certificate_credentials_t x509_cred;
+  Certificate *certificate;
   int wsinstance_sockdir;
   int cert_session_dir;
 } parameters = {
@@ -514,7 +515,7 @@ connection_connect_to_static_wsinstance (Connection *self)
 
   assert (self->tls == NULL);
 
-  if (parameters.x509_cred)
+  if (parameters.certificate)
     base = "http-redirect.sock"; /* server is expecting https connections */
   else
     base = "http.sock"; /* server is expecting http connections */
@@ -642,7 +643,7 @@ connection_handshake (Connection *self)
     {
       debug (CONNECTION, "first byte is %i, initializing TLS", (int) b);
 
-      if (parameters.x509_cred == NULL)
+      if (parameters.certificate == NULL)
         {
           warnx ("got TLS connection, but our server does not have a certificate/key; refusing");
           return false;
@@ -662,7 +663,8 @@ connection_handshake (Connection *self)
           return false;
         }
 
-      ret = gnutls_credentials_set (self->tls, GNUTLS_CRD_CERTIFICATE, parameters.x509_cred);
+      ret = gnutls_credentials_set (self->tls, GNUTLS_CRD_CERTIFICATE,
+                                    certificate_get_credentials (parameters.certificate));
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_credentials_set failed: %s", gnutls_strerror (ret));
@@ -865,25 +867,6 @@ connection_thread_main (int fd)
     close (self.ws_fd);
 }
 
-static int
-set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
-                                 const char *filename)
-{
-  gnutls_datum_t cert, key;
-  int r;
-
-  r = cockpit_certificate_parse (filename, (char**) &cert.data, (char**) &key.data);
-  if (r < 0)
-    errx (EXIT_FAILURE,  "Invalid server certificate+key file %s: %s", filename, strerror (-r));
-  cert.size = strlen ((char*) cert.data);
-  key.size = strlen ((char*) key.data);
-  r = gnutls_certificate_set_x509_key_mem (parameters.x509_cred, &cert, &key, GNUTLS_X509_FMT_PEM);
-  free (cert.data);
-  free (key.data);
-
-  return r;
-}
-
 /**
  * connection_crypto_init: Initialise TLS support
  *
@@ -901,32 +884,7 @@ void
 connection_crypto_init (const char *certfile,
                         gnutls_certificate_request_t request_mode)
 {
-  int ret;
-  char *keyfile;
-
-  assert (certfile != NULL);
-  assert (parameters.x509_cred == NULL);
-
-  ret = gnutls_certificate_allocate_credentials (&parameters.x509_cred);
-  if (ret != GNUTLS_E_SUCCESS)
-    errx (EXIT_FAILURE, "gnutls_certificate_allocate_credentials failed: %s", gnutls_strerror (ret));
-
-  /* check if we have a separate key file */
-  keyfile = cockpit_certificate_key_path (certfile);
-  assert (keyfile);
-  ret = gnutls_certificate_set_x509_key_file (parameters.x509_cred, certfile, keyfile, GNUTLS_X509_FMT_PEM);
-
-  /* if not, fall back to combined file */
-  if (ret == GNUTLS_E_FILE_ERROR)
-    {
-      debug(CONNECTION, "connection_crypto_init: %s does not exist, falling back to combined cert+key", keyfile);
-      ret = set_x509_key_from_combined_file (parameters.x509_cred, certfile);
-    }
-  free (keyfile);
-
-  if (ret != GNUTLS_E_SUCCESS)
-    errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
-
+  parameters.certificate = certificate_load (certfile);
   parameters.request_mode = request_mode;
 }
 
@@ -955,10 +913,10 @@ connection_cleanup (void)
   assert (parameters.wsinstance_sockdir != -1);
   assert (parameters.cert_session_dir != -1);
 
-  if (parameters.x509_cred)
+  if (parameters.certificate)
     {
-      gnutls_certificate_free_credentials (parameters.x509_cred);
-      parameters.x509_cred = NULL;
+      certificate_unref (parameters.certificate);
+      parameters.certificate = NULL;
     }
 
   close (parameters.cert_session_dir);

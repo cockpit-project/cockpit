@@ -819,6 +819,8 @@ class MachineCase(unittest.TestCase):
         return int(v[0]) < version
 
     def setUp(self, restrict=True):
+        self.allowed_messages = self.default_allowed_messages
+        self.allowed_console_errors = self.default_allowed_console_errors
 
         if os.getenv("MACHINE"):
             # apply env variable together if MACHINE envvar is set
@@ -979,7 +981,7 @@ class MachineCase(unittest.TestCase):
     allow_core_dumps = False
 
     # List of allowed journal messages during tests; these need to match the *entire* message
-    allowed_messages = [
+    default_allowed_messages = [
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
 
@@ -1062,16 +1064,16 @@ class MachineCase(unittest.TestCase):
         r"#3\) With great power comes great responsibility.",
     ]
 
-    allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
+    default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
 
     # List of allowed console.error() messages during tests; these match substrings
-    allowed_console_errors = [
+    default_allowed_console_errors = [
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
         "Warning: Can't perform a React state update on an unmounted component."
     ]
 
-    allowed_console_errors += os.environ.get("TEST_ALLOW_BROWSER_ERRORS", "").split(",")
+    default_allowed_console_errors += os.environ.get("TEST_ALLOW_BROWSER_ERRORS", "").split(",")
 
     def allow_journal_messages(self, *patterns):
         """Don't fail if the journal contains a entry completely matching the given regexp"""

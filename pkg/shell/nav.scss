@@ -441,54 +441,11 @@ $desktop: $phone + 1px;
     }
 }
 
-.nav-group-heading {
-    display: flex;
-    justify-content: space-between;
-
-    > .pf-c-nav__section-title:not(a) {
-        flex: auto;
-    }
-
-    a {
-        color: var(--pf-global--link--Color--light);
-        font-weight: normal;
-
-        &:hover {
-            color: var(--pf-global--link--Color--light--hover)
-        }
-    }
-}
-
 // Give additional style to individual menu items
-.nav-item {
-
-    &:hover {
-        cursor: pointer;
-        background-color: var(--pf-global--BackgroundColor--dark-400);
-    }
-
-    a {
-        color: unset;
-        flex: auto;
-        word-break: break-word;
-
-        &:hover,
-        &:focus {
-            text-decoration: none;
-        }
-
-        &:focus {
-            outline-offset: var(--pf-global--spacer--xs);
-        }
-    }
-
-    button,
+.pf-c-nav__link {
     .nav-status {
         margin-left: auto;
         align-self: center;
-    }
-
-    .nav-status {
         display: flex;
     }
 
@@ -574,7 +531,6 @@ $desktop: $phone + 1px;
         // and Chrome thinks it does (so @supports doesn't work right in Chrome)
         display: grid;
         grid-gap: 0.25rem;
-        margin: -0.25rem -0.5rem -0.25rem 0.5rem;
 
         @media (max-width: $phone) {
             grid-auto-flow: column;
@@ -601,7 +557,8 @@ $desktop: $phone + 1px;
 }
 
 .nav-system-menu {
-    .pf-c-nav__list {
+    // FIXME: Add class selector when released https://github.com/patternfly/patternfly-react/pull/5589
+    ul {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
 

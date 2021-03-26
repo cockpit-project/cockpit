@@ -4,7 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-    Nav,
+    Button,
+    Flex,
+    Nav, NavGroup, NavItem,
     Tooltip, TooltipPosition,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
@@ -110,20 +112,19 @@ export class CockpitNav extends React.Component {
                 </div>
                 <Nav onSelect={this.onSelect} theme="dark">
                     { groups.map(g =>
-                        <section className="pf-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
-                            <div className="nav-group-heading">
-                                <h2 className="pf-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
-                                { g.action &&
-                                    <a className="pf-c-nav__section-title nav-item" href={g.action.path} onClick={ ev => {
-                                        this.props.jump(g.action.path);
-                                        ev.preventDefault();
-                                    }}>{g.action.label}</a>
-                                }
-                            </div>
-                            <ul className="pf-c-nav__list">
-                                {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
-                            </ul>
-                        </section>
+                        <NavGroup key={g.name}
+                                  title={
+                                      <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                                          { g.name }
+                                          { g.action &&
+                                          <Button variant="link" component="a" isInline href={g.action.path} onClick={ ev => {
+                                              this.props.jump(g.action.path);
+                                              ev.preventDefault();
+                                          }}>{g.action.label}</Button>}
+                                      </Flex>
+                                  }>
+                            {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
+                        </NavGroup>
                     )}
                     { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
                     { this.state.search !== "" && <span className="non-menu-item"><button onClick={this.clearSearch} className="link-button hint">{_("Clear search")}</button></span> }
@@ -182,25 +183,29 @@ export function CockpitNavItem(props) {
         header_matches = props.keyword === props.header.toLowerCase();
 
     const classes = props.className ? [props.className] : [];
-    classes.push("pf-c-nav__item", "nav-item");
 
+    // FIXME: This can be simplified even more: https://github.com/patternfly/patternfly-react/issues/5593
     return (
-        <li className={classes.join(" ")}>
-            <span className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")} data-for={props.to}>
-                <a href={props.to} onClick={ev => {
-                    props.jump(props.to);
-                    ev.preventDefault();
-                }}>
-                    { props.header && <span className="hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
-                    { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
-                    { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
-                </a>
-                {s && s.type && <PageStatus status={s} name={props.name} />}
-                <div role="presentation" className="nav-host-action-buttons">
-                    {props.actions}
-                </div>
-            </span>
-        </li>
+        <NavItem className={classes.join(" ")} isActive={props.active}
+                 preventDefault
+                 onClick={() => {
+                     props.jump(props.to);
+                 }}>
+            <a href={props.to}
+              data-for={props.to}>
+                <Flex flexWrap={{ default: 'nowrap' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                    <span>
+                        { props.header && <span className="hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                        { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                        { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+                    </span>
+                    {s && s.type && <PageStatus status={s} name={props.name} />}
+                    {props.actions && <div role="presentation" className="nav-host-action-buttons">
+                        {props.actions}
+                    </div>}
+                </Flex>
+            </a>
+        </NavItem>
     );
 }
 

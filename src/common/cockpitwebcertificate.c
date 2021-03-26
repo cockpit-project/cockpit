@@ -78,19 +78,28 @@ load_cert_from_dir (const char *dir_name,
 
 /**
  * cockpit_certificate_locate:
+ * @missing_ok: if "no certificate" is a valid result
+ * @error: a pointer to a place to store an error string
  *
  * Find Cockpit web server certificate in $XDG_CONFIG_DIRS/cockpit/ws-certs.d/.
  * The asciibetically latest *.crt or *.cert file wins.
  *
- * Return certificate path on success, or %NULL on error; in the latter case,
- * @error gets set to an error message.
+ * Return certificate path on success, or %NULL if none is found or
+ * another error occurs (such as a permissions problem, etc).
+ *
+ * @error must be a pointer to a `char *` originally containining %NULL.
+ * It will be set to the error message in case of errors, and %NULL will
+ * be returned.  If the error is "no certificate was found" and
+ * @missing_ok is %TRUE then %NULL will be returned, but @error will be
+ * left unset.
  */
 char *
-cockpit_certificate_locate (char **error)
+cockpit_certificate_locate (bool missing_ok,
+                            char **error)
 {
   const char * const *dirs = cockpit_conf_get_dirs ();
 
-  *error = NULL;
+  assert (*error == NULL);
 
   for (int i = 0; dirs[i]; i++)
     {
@@ -108,7 +117,9 @@ cockpit_certificate_locate (char **error)
         return cert_path;
     }
 
-  asprintfx (error, "No certificate found in dir: %s/cockpit/ws-certs.d", dirs[0]);
+  if (error && !missing_ok)
+    asprintfx (error, "No certificate found in dir: %s/cockpit/ws-certs.d", dirs[0]);
+
   return NULL;
 }
 

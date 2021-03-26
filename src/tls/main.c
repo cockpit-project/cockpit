@@ -112,7 +112,7 @@ main (int argc, char **argv)
   if (!arguments.no_tls)
     {
       char *error = NULL;
-      char *certfile = cockpit_certificate_locate (&error);
+      char *certfile = cockpit_certificate_locate (false, &error);
 
       if (error)
         errx (EXIT_FAILURE, "Could not locate server certificate: %s", error);

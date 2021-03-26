@@ -20,7 +20,9 @@
 #ifndef __COCKPIT_WEBCERTIFICATE_H__
 #define __COCKPIT_WEBCERTIFICATE_H__
 
-char *  cockpit_certificate_locate   (char **error);
+#include <stdbool.h>
+
+char *  cockpit_certificate_locate   (bool missing_ok, char **error);
 char *  cockpit_certificate_key_path (const char *certfile);
 int     cockpit_certificate_parse    (const char *file, char **cert, char **key);
 

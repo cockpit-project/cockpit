@@ -38,7 +38,7 @@ do_locate_test (int dirfd, const char *certname, const char *expected_path, cons
       close (fd);
     }
 
-  path = cockpit_certificate_locate (&error);
+  path = cockpit_certificate_locate (false, &error);
 
   if (expected_path)
     cockpit_assert_strmatch (path, expected_path);

@@ -177,7 +177,7 @@ build_meta (CockpitPcpMetrics *self,
               rc = pmNameInDom (self->metrics[i].desc.indom, vs->vlist[j].inst, &instance);
               if (rc != 0)
                 {
-                  g_warning ("%s: instance name lookup failed: %s", self->name, pmErrStr (rc));
+                  g_warning ("%s: instance name lookup failed: %s.%d: %s", self->name, self->metrics[i].name, vs->vlist[j].inst, pmErrStr (rc));
                   instance = NULL;
                 }
 

@@ -30,6 +30,7 @@ import {
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
     Spinner,
+    Stack, StackItem,
     Page, PageSection, PageSectionVariants,
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
@@ -44,7 +45,7 @@ import {
 import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
-import { AutoUpdates, AutoUpdatesBody } from "./autoupdates.jsx";
+import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -703,7 +704,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
     </>);
 };
 
-const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
+const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
     const numUpdates = Object.keys(updates).length;
     const numSecurity = count_security_updates(updates);
     const numRestartServices = tracerPackages.daemons.length;
@@ -720,7 +721,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
             notifications.push({
                 id: "security-updates-available",
                 stateStr: cockpit.format(stateStr, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         } else {
@@ -730,7 +731,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
             notifications.push({
                 id: "updates-available",
                 stateStr: cockpit.format(stateStr, numUpdates, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity, undefined, "fa-lg")} />,
+                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         }
@@ -738,7 +739,7 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "system-up-to-date",
             stateStr: STATE_HEADINGS.uptodate,
-            icon: <CheckIcon color="green" size="md" />,
+            icon: <CheckIcon color="green" />,
             secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
         });
     }
@@ -748,8 +749,8 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "packages-need-reboot",
             stateStr: cockpit.format(stateStr, numRebootPackages),
-            icon: <RebootingIcon id="icon" size="md" />,
-            secondary: <Button variant="danger" onClick={() => onValueChanged("showRebootSystemDialog", true)} isInline>
+            icon: <RebootingIcon />,
+            secondary: <Button variant="danger" onClick={() => onValueChanged("showRebootSystemDialog", true)}>
                 {_("Reboot system...")}
             </Button>
         });
@@ -760,8 +761,8 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "services-need-restart",
             stateStr: cockpit.format(stateStr, numRestartServices),
-            icon: <ProcessAutomationIcon id="icon" size="md" />,
-            secondary: <Button variant="primary" onClick={() => onValueChanged("showRestartServicesDialog", true)} isInline>
+            icon: <ProcessAutomationIcon />,
+            secondary: <Button variant="primary" onClick={() => onValueChanged("showRestartServicesDialog", true)}>
                 {_("Restart services...")}
             </Button>
         });
@@ -771,65 +772,78 @@ const StatusCard = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages
         notifications.push({
             id: "processes-need-restart",
             stateStr: _("Some software needs to be restarted manually"),
-            icon: <ProcessAutomationIcon id="icon" size="md" />,
+            icon: <ProcessAutomationIcon />,
             secondary: <Text component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
         });
     }
 
-    return (<>
+    return (<Stack hasGutter>
         { notifications.map(notification => (
-            <Flex direction={{ default: 'column', sm: 'row' }} key={notification.id} id={notification.id} className="status-notification">
-                <FlexItem>{notification.icon}</FlexItem>
-                <Flex flex={{ default: 'flex_1' }} direction={{ default: 'column' }}>
+            <StackItem key={notification.id}>
+                <Flex flexWrap={{ default: 'nowrap' }} id={notification.id}>
                     <FlexItem>
-                        <Text id="state" component={TextVariants.p}>{notification.stateStr}</Text>
+                        {notification.icon}
                     </FlexItem>
                     <FlexItem>
-                        { notification.secondary }
+                        <Stack>
+                            <StackItem>
+                                <Text component={TextVariants.p}>{notification.stateStr}</Text>
+                            </StackItem>
+                            <StackItem>
+                                { notification.secondary }
+                            </StackItem>
+                        </Stack>
                     </FlexItem>
                 </Flex>
-            </Flex>
+            </StackItem>
         ))}
-    </>);
+    </Stack>);
 };
 
 class CardsPage extends React.Component {
     constructor() {
         super();
         this.state = {
-            autoUpdatesEnabled: undefined,
-            autoUpdatesType: undefined,
-            autoUpdatesDay: undefined,
-            autoUpdatesTime: undefined,
+            backend: undefined,
         };
     }
 
+    componentDidMount() {
+        getBackend().then(b => { this.setState({ backend: b }) });
+    }
+
     render() {
-        const cardContents = [
-            {
-                id: "status",
+        const cardContents = [];
+        let settingsContent = null;
+        const statusContent = <UpdatesStatus key="updates-status"
+                                updates={this.props.updates}
+                                onValueChanged={this.props.onValueChanged}
+                                tracerPackages={this.props.tracerPackages}
+                                highestSeverity={this.props.highestSeverity}
+                                timeSinceRefresh={this.props.timeSinceRefresh} />;
+
+        if (this.state.backend) {
+            settingsContent = <AutoUpdates backend={this.state.backend} privileged={this.props.privileged} />;
+        }
+
+        cardContents.push({
+            id: "status",
+            className: settingsContent !== null ? "ct-card-info" : "",
+            title: _("Status"),
+            actions: (<Tooltip content={_("Check for updates")}>
+                <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
+            </Tooltip>),
+            body: statusContent,
+        });
+
+        if (settingsContent !== null) {
+            cardContents.push({
+                id: "settings",
                 className: "ct-card-info",
-                title: _("Status"),
-                actions: (<Tooltip content={_("Check for updates")}>
-                    <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
-                </Tooltip>),
-                body: <StatusCard updates={this.props.updates}
-                                  onValueChanged={this.props.onValueChanged}
-                                  tracerPackages={this.props.tracerPackages}
-                                  highestSeverity={this.props.highestSeverity}
-                                  timeSinceRefresh={this.props.timeSinceRefresh} />
-            },
-            {
-                id: "automatic-updates",
-                className: "ct-card-info",
-                title: _("Automatic updates"),
-                actions: (<AutoUpdates onInitialized={newState => this.setState(newState)} privileged={this.props.privileged} />),
-                body: (<AutoUpdatesBody enabled={this.state.autoUpdatesEnabled}
-                                        type={this.state.autoUpdatesType}
-                                        day={this.state.autoUpdatesDay}
-                                        time={this.state.autoUpdatesTime} />),
-            },
-        ];
+                title: _("Settings"),
+                body: settingsContent,
+            });
+        }
 
         if (this.props.state === "available") { // automatic updates are not tracked by PackageKit, hide history when they are enabled
             cardContents.push({
@@ -860,7 +874,7 @@ class CardsPage extends React.Component {
             });
         }
 
-        if (!this.state.autoUpdatesEnabled && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+        if ((!this.state.backend || !this.state.backend.enabled) && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),
@@ -873,8 +887,8 @@ class CardsPage extends React.Component {
             return (
                 <Card key={card.id} className={card.className} id={card.id}>
                     <CardHeader>
-                        <CardTitle><h2>{card.title}</h2></CardTitle>
                         {card.actions && <CardActions>{card.actions}</CardActions>}
+                        <CardTitle><h2>{card.title}</h2></CardTitle>
                     </CardHeader>
                     <CardBody className={card.containsList ? "contains-list" : null}>
                         {card.body}

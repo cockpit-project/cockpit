@@ -153,8 +153,8 @@ class TestUpdates(NoSubManCase):
         # no updates on the Software Updates page
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_not_present("#automatic-updates")
-        b.wait_in_text("#status #state", "System is up to date")
+        b.wait_not_present("#status")
+        b.wait_in_text("#status", "System is up to date")
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
         b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
 
@@ -173,7 +173,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
 
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "2 updates available")
+        b.wait_in_text("#status", "2 updates available")
 
         b.wait_in_text("table[aria-label='Available updates']", "vanilla")
         self.check_nth_update(1, "chocolate", "2.0-2", arch=self.secondary_arch)
@@ -223,7 +223,7 @@ class TestUpdates(NoSubManCase):
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
-        b.wait_in_text("#state", "System is up to date")
+        b.wait_in_text("#status", "System is up to date")
         b.wait_in_text("#last-checked", "Last checked")
 
         # TODO make Packagekit GetUpdates work for tests properly
@@ -294,8 +294,7 @@ ExecStart=/usr/local/bin/{0}
                 b.login_and_go("/updates")
 
                 # check update is present
-                b.wait_visible("#state")
-                b.wait_in_text("#state", "1 update available")
+                b.wait_in_text("#status", "1 update available")
                 b.wait_in_text("#available-updates table", self.packageName)
 
                 # install updates
@@ -322,7 +321,7 @@ ExecStart=/usr/local/bin/{0}
                     b.click("#ignore")
 
                     if self.rebootRequired:
-                        b.wait_in_text("#state", "1 package needs a system reboot")
+                        b.wait_in_text("#status", "1 package needs a system reboot")
                         b.click("#packages-need-reboot button")
                         b.wait_visible("#shutdown-dialog")
                         b.click("#delay")
@@ -338,7 +337,7 @@ ExecStart=/usr/local/bin/{0}
                         b.reload()
                         b.login_and_go("/updates")
                     else:
-                        b.wait_in_text("#state", "1 service needs to be restarted")
+                        b.wait_in_text("#status", "1 service needs to be restarted")
                         b.click("#services-need-restart button")
                         b.wait_visible("#restart-services-modal")
                         b.wait_in_text(".restart-services-modal-body", self.packageName)
@@ -374,7 +373,7 @@ ExecStart=/usr/local/bin/{0}
                         b.wait_not_present("#restart-services-modal")
 
                 # check no updates are present
-                b.wait_in_text("#state", "System is up to date")
+                b.wait_in_text("#status", "System is up to date")
 
                 # history on "up to date" page should show the recent update (expanded by default)
                 self.testObj.assertHistory("#expanded-content1 > div > ul", [self.packageName])
@@ -458,8 +457,7 @@ ExecStart=/usr/local/bin/{0}
         b.login_and_go("/updates")
 
         # check update is present
-        b.wait_visible("#state")
-        b.wait_in_text("#state", "1 update available")
+        b.wait_in_text("#status", "1 update available")
         b.wait_in_text("#available-updates table", packageName)
 
         # install updates
@@ -521,7 +519,7 @@ ExecStart=/usr/local/bin/{0}
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "6 updates available, including 3 security fixes")
+        b.wait_in_text("#status", "6 updates available, including 3 security fixes")
 
         b.wait_in_text("table[aria-label='Available updates']", "sevcritical")
 
@@ -602,7 +600,7 @@ ExecStart=/usr/local/bin/{0}
         b.click("#ignore")
 
         # should have succeeded; 3 non-security updates left
-        b.wait_in_text("#state", "3 updates available")
+        b.wait_in_text("#status", "3 updates available")
         b.wait_in_text("#available-updates h2", "Available updates")
 
         b.wait_in_text("#available-updates table", "norefs-doc")
@@ -659,7 +657,7 @@ ExecStart=/usr/local/bin/{0}
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
         # no further updates
-        b.wait_in_text("#state", "System is up to date")
+        b.wait_in_text("#status", "System is up to date")
 
         # history on "up to date" page should show the recent update (expanded by default)
         self.assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
@@ -683,7 +681,7 @@ ExecStart=/usr/local/bin/{0}
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "1 security fix available")
+        b.wait_in_text("#status", "1 security fix available")
 
         # should only have one button (only security updates)
         b.wait_not_present("#available-updates button#install-all")
@@ -699,7 +697,7 @@ ExecStart=/usr/local/bin/{0}
             # check for updates
             b.click("#status .pf-c-card__header button")
             b.wait_visible("#available-updates")
-            b.wait_in_text("#state", "2")
+            b.wait_in_text("#status", "2")
 
             b.wait_in_text("table[aria-label='Available updates']", "secnocve")
 
@@ -775,7 +773,7 @@ ExecStart=/usr/local/bin/{0}
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "1 update available")
+        b.wait_in_text("#status", "1 update available")
 
         b.click("#available-updates button#install-all")
 
@@ -856,7 +854,7 @@ ExecStart=/usr/local/bin/{0}
 
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
-        b.wait_text("#state", "1 update available")
+        b.wait_in_text("#status", "1 update available")
         b.wait_visible("#available-updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
@@ -882,7 +880,7 @@ ExecStart=/usr/local/bin/{0}
 
         # page adjusts automatically to privilege change
         b.switch_to_frame("cockpit1:localhost/updates")
-        b.wait_text("#state", "1 update available")
+        b.wait_in_text("#status", "1 update available")
         b.wait_visible("#available-updates")
 
         # applying updates works now
@@ -937,7 +935,7 @@ class TestWsUpdate(NoSubManCase):
         # should have succeeded and show restart page; cancel
         b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
         b.click("#ignore")
-        b.wait_in_text("#state", "System is up to date")
+        b.wait_in_text("#status", "System is up to date")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
         self.createPackage("cockpit-ws", "999", "1")
@@ -948,7 +946,7 @@ class TestWsUpdate(NoSubManCase):
         b.click("#status .pf-c-card__header button")
 
         b.wait_visible("#available-updates")
-        self.assertEqual(b.text("#state"), "2 updates available")
+        b.wait_in_text("#status", "2 updates available")
         b.wait_in_text("table[aria-label='Available updates']", "cockpit-ws")
 
         b.wait_visible(".cockpit-update-warning")
@@ -1029,7 +1027,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.enter_page("/updates")
         # check updates
         b.wait_visible("#status .pf-c-card__header button")
-        b.wait_in_text("#state", "System is up to date")
+        b.wait_in_text("#status", "System is up to date")
 
         # same on system page
         b.go("/system")
@@ -1152,82 +1150,80 @@ class TestAutoUpdates(NoSubManCase):
                 raise NotImplementedError(self.backend)
 
         # automatic updates are supported, but off
-        b.wait_visible("#automatic-updates")
-        b.wait_in_text("#automatic-updates p", "Automatic updates are not set up")
-        self.assertFalse(b.is_present("#auto-update-type"))
+        b.wait_in_text("#autoupdates-settings", "Disabled")
         assertTimer(None)
 
         # enable
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
         b.wait_val("#auto-update-time-input", "06:00")
         b.wait_in_text("#auto-update-day", "every day")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates p", "Updates will be applied")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         assertTimer("06")
         assertType("all")
 
         # change type to security
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#security-updates")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Security updates will be applied")
+        b.wait_in_text("#autoupdates-settings", "Security updates will be applied every day at 06:00")
         assertType("security")
         assertTimer("06")
 
         # change it back
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         assertType("all")
         assertTimer("06")
 
         # change day
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.select_from_dropdown("#auto-update-day", "thu")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied every Thursday")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 06:00")
         assertType("all")
         assertTimer("06", "Thu")
 
         # change time
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.set_input_text("#auto-update-time-input", "21:00")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied every Thursday at 21:00")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
         assertType("all")
         assertTimer("21", "Thu")
 
         # page should parse it correctly from the timer
         b.logout()
         b.login_and_go("/updates")
-        b.wait_in_text("#automatic-updates p", "Updates will be applied every Thursday at 21:00")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
 
         # change back to daily
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.select_from_dropdown("#auto-update-day", "everyday")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied every day at 21:00")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 21:00")
         assertType("all")
         assertTimer("21")
 
         # disable
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#no-updates")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates p", "Automatic updates are not set up")
+        b.wait_in_text("#autoupdates-settings", "Disabled")
         assertTimer(None)
 
         if self.backend == "dnf":
-            b.click("#automatic-updates button")
+            b.click("#autoupdates-settings button:contains('Edit')")
             b.wait_visible("#automatic-updates-dialog")
             b.click("#all-updates")
             b.click("#automatic-updates-dialog button:contains('Save changes')")
@@ -1238,29 +1234,29 @@ class TestAutoUpdates(NoSubManCase):
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#automatic-updates", "Updates will be applied every day at 8:00")
+            b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 8:00")
 
             # OnCalendar= parsing: weekday and time
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#automatic-updates", "Updates will be applied every Tuesday at 20:00")
+            b.wait_in_text("#autoupdates-settings", "Updates will be applied every Tuesday at 20:00")
 
             # OnCalendar= parsing: "every day" calendar and time
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-*-* 07:00\n" > '
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#automatic-updates", "Updates will be applied every day at 7:00")
+            b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 7:00")
 
             # OnCalendar= parsing: unsupported
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '
                       r'/etc/systemd/system/dnf-automatic-install.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text("#status #state", "System is up to date")
-            b.wait_in_text("#automatic-updates", "Automatic updates are not set up")
+            time.sleep(5)
+            b.wait_not_present("#autoupdates-settings")
 
     def testWithAvailableUpdates(self):
         b = self.browser
@@ -1275,17 +1271,16 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_visible("#available-updates")
 
         if not self.supported_backend:
-            b.wait_in_text("#automatic-updates", "Automatic updates are not set up")
             return
 
-        b.wait_in_text("#automatic-updates", "Automatic updates are not set up")
+        b.wait_in_text("#autoupdates-settings", "Disabled")
 
         # enable
-        b.click("#automatic-updates button")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates p", "Updates will be applied")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         if self.backend == 'dnf':
             self.checkUpgradeRebootDnf()
@@ -1301,11 +1296,10 @@ class TestAutoUpdates(NoSubManCase):
         self.login_and_go("/updates", superuser=False)
 
         if not self.supported_backend:
-            self.assertFalse(b.is_present("#automatic-updates"))
             return
 
         # detecting auto updates configuration works unprivileged, but changing does not
-        b.wait_visible("#automatic-updates button:disabled")
+        b.wait_visible("#autoupdates-settings button:disabled")
 
         # become superuser
         b.switch_to_top()
@@ -1324,12 +1318,12 @@ class TestAutoUpdates(NoSubManCase):
         b.switch_to_frame("cockpit1:localhost/updates")
 
         # enable auto-updates
-        b.wait_in_text("#automatic-updates", "Automatic updates are not set up")
-        b.click("#automatic-updates button")
+        b.wait_in_text("#autoupdates-settings", "Disabled")
+        b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
         b.click("#automatic-updates-dialog button:contains('Save changes')")
-        b.wait_in_text("#automatic-updates", "Updates will be applied")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         # Drop privileges
         b.switch_to_top()
@@ -1345,8 +1339,8 @@ class TestAutoUpdates(NoSubManCase):
         b.switch_to_frame("cockpit1:localhost/updates")
 
         # auto-update status still visible, but disabled
-        b.wait_in_text("#automatic-updates p", "will be applied")
-        b.wait_visible("#automatic-updates button:disabled")
+        b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
+        b.wait_visible("#autoupdates-settings button:disabled")
 
     def checkUpgradeRebootDnf(self):
         """part of testWithAvailableUpdates() for dnf backend"""
@@ -1394,11 +1388,6 @@ class TestAutoUpdatesInstall(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#available-updates")
-        if self.backend == 'dnf':
-            b.wait_in_text("#automatic-updates p", "Automatic updates are not set up")
-        else:
-            # on-demand installation isn't supported, switch to enable it isn't visible
-            b.wait_in_text("#automatic-updates", "Automatic updates are not set up")
 
         # apply updates
         b.click("#available-updates button#install-all")
@@ -1407,10 +1396,11 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#ignore")
 
         if self.backend == 'dnf':
-            b.is_present('#automatic-updates')
+            b.wait_in_text("#autoupdates-settings", "Not set up")
+            b.click("#autoupdates-settings button:contains('Enable')")
         else:
-            # on-demand installation isn't supported
-            self.assertFalse(b.is_present('#automatic-updates'))
+            b.wait_not_present("#settings")
+            b.wait_not_present("#autoupdates-settings")
 
     @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testInstall(self):
@@ -1445,7 +1435,8 @@ WantedBy=basic.target
         b.login_and_go('/updates')
 
         # click through install dialog
-        b.click("#automatic-updates button")
+        b.wait_in_text("#autoupdates-settings", "Not set up")
+        b.click("#autoupdates-settings button:contains('Enable')")
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')
         b.wait_not_attr('#dialog button.apply', 'disabled', '')

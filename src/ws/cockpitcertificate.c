@@ -326,7 +326,7 @@ gchar *
 cockpit_certificate_locate_gerror (GError **error)
 {
   gchar *error_str = NULL;
-  gchar *path = cockpit_certificate_locate (&error_str);
+  gchar *path = cockpit_certificate_locate (false, &error_str);
   if (error_str)
     {
       g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, error_str);

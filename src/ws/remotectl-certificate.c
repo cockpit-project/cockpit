@@ -193,8 +193,7 @@ ensure_certificate (const gchar *user,
 
   /* adjust permissions of the certificates that we manage automatically;
    * don't touch admin-provided certs, they are often shared between multiple services */
-  if (g_str_has_suffix (path, "/0-self-signed.cert") ||
-      g_str_has_suffix (path, "/10-ipa.cert"))
+  if (g_str_has_suffix (path, "/0-self-signed.cert"))
     return set_cert_attributes (path, user, group, selinux);
   else
     return 0;

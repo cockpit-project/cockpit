@@ -93,7 +93,7 @@ SKIP_NODE_CHECK_SHELLSTATUS := $(SKIP_NODE_ERROR$(SKIP_NODE_SHELLSTATUS_$(.SHELL
 distdir: $(BUILT_SOURCES)
 	@if test -n "$(SKIP_NODE)"; then \
 	  echo; \
-	  echo "Can't dist cockpit without node_modules.  Try running tools/npm-update."; \
+	  echo "Can't dist cockpit without node_modules.  Try running tools/npm-install."; \
 	  echo; \
 	  exit 1; \
 	fi

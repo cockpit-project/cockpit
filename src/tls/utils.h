@@ -36,6 +36,9 @@
 /* socket-activation-helper.c */
 #define DEBUG_HELPER 1
 
+/* cockpit-certificate-ensure.c */
+#define DEBUG_ENSURE 1
+
 /* testcases */
 #define DEBUG_TESTS 1
 

@@ -1,4 +1,4 @@
-libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory
+libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory cockpit-certificate-ensure
 libexec_SCRIPTS += src/tls/cockpit-certificate-helper
 noinst_PROGRAMS += wsinstance-start
 
@@ -43,6 +43,21 @@ cockpit_tls_LDADD = \
 	libcockpit-common-nodeps.a \
 	$(COCKPIT_TLS_LIBS) \
 	$(NULL)
+
+cockpit_certificate_ensure_CFLAGS = \
+	-I$(top_srcdir)/src/tls \
+	$(COCKPIT_TLS_CFLAGS) \
+	$(NULL)
+
+cockpit_certificate_ensure_LDADD = \
+	libcockpit-common-nodeps.a \
+	$(COCKPIT_TLS_LIBS) \
+	$(NULL)
+
+cockpit_certificate_ensure_SOURCES = \
+	src/tls/certificate.h \
+	src/tls/certificate.c \
+	src/tls/cockpit-certificate-ensure.c
 
 # TESTS
 

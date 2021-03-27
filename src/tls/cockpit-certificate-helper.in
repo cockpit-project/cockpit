@@ -2,51 +2,113 @@
 
 set -eu
 
-# expected arguments
-[ "$1 $2" = "ipa request" ] || exit 1
-REALM="$3"
-USER="$4"
-
-HOST="$(hostname -f)"
-SERVICE="HTTP/${HOST}@${REALM}"
+# prefix= is set because the default @sysconfdir@ contains "${prefix}"
+prefix="@prefix@"
 COCKPIT_GROUP="@COCKPIT_GROUP@"
+COCKPIT_CONFIG="@sysconfdir@/cockpit"
+COCKPIT_WS_CERTS_D="${COCKPIT_CONFIG}/ws-certs.d"
+COCKPIT_RUNTIME_DIR="/run/cockpit"
 
-# use a temporary keytab to avoid interfering with the system one
-export KRB5CCNAME=/run/cockpit/keytab-setup
-
-# ipa-getkeytab needs root to create the file, same for cert installation
-[ $(id -u) = 0 ] || exit 0
-
-# not an IPA setup? cannot handle this
-type ipa >/dev/null 2>&1 || exit 0
-
-# IPA operations require auth; read password from stdin to avoid quoting issues
-# if kinit fails, we can't handle this setup, exit cleanly
-kinit "${USER}@${REALM}" || exit 0
-
-# ensure this gets run with a non-C locale; ipa fails otherwise
-if [ $(sh -c 'eval `locale`; echo $LC_CTYPE') = 'C' ]; then
-    export LC_CTYPE=C.UTF-8
-fi
-
-# create a kerberos Service Principal Name for cockpit-ws, unless already present
-ipa service-show "${SERVICE}" || ipa service-add --ok-as-delegate=true --force "${SERVICE}"
-
-# add cockpit-ws key, unless already present
-mkdir -p /etc/cockpit
-klist -k /etc/cockpit/krb5.keytab | grep -qF "${SERVICE}" || ipa-getkeytab -p "HTTP/${HOST}" -k /etc/cockpit/krb5.keytab
-
-# ipa-getcert cannot set permisisons nor write into /etc/cockpit due to SELinux
-if ipa-getcert request -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key -K "HTTP/${HOST}" -w -v; then
-    mv -Z /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert
-    mv -Z /run/cockpit/ipa.key /etc/cockpit/ws-certs.d/10-ipa.key
+install_cert() {
+    local destination="${COCKPIT_WS_CERTS_D}/$1"
+    mv -Z "$1" "${destination}"
 
     # The certificate should be world-readable
-    chmod a+r /etc/cockpit/ws-certs.d/10-ipa.cert
+    chmod a+r "${destination}"
+}
+
+install_key() {
+    local destination="${COCKPIT_WS_CERTS_D}/$1"
+    mv -Z "$1" "${destination}"
 
     # If COCKPIT_GROUP is set, then make sure the key is readable by that group too
     if [ -n "${COCKPIT_GROUP}" ]; then
-        chown root:"${COCKPIT_GROUP}" /etc/cockpit/ws-certs.d/10-ipa.key
-        chmod g+r /etc/cockpit/ws-certs.d/10-ipa.key
+        chown root:"${COCKPIT_GROUP}" "${destination}"
+        chmod g+r "${destination}"
     fi
-fi
+}
+
+cmd_ipa_request() {
+    local USER="$1"
+
+    # IPA operations require auth; read password from stdin to avoid quoting issues
+    # if kinit fails, we can't handle this setup, exit cleanly
+    kinit "${USER}@${REALM}" || exit 0
+
+    # ensure this gets run with a non-C locale; ipa fails otherwise
+    if [ $(sh -c 'eval `locale`; echo $LC_CTYPE') = 'C' ]; then
+        export LC_CTYPE=C.UTF-8
+    fi
+
+    # create a kerberos Service Principal Name for cockpit-ws, unless already present
+    ipa service-show "${SERVICE}" || \
+        ipa service-add --ok-as-delegate=true --force "${SERVICE}"
+
+    # add cockpit-ws key, unless already present
+    klist -k "${KEYTAB}" | grep -qF "${SERVICE}" || \
+        ipa-getkeytab -p "HTTP/${HOST}" -k "${KEYTAB}"
+
+    # request the certificate (into the working directory)
+    ipa-getcert request -f 10-ipa.cert -k 10-ipa.key -K "HTTP/${HOST}" -w -v
+
+    # install it into /etc
+    install_cert 10-ipa.cert
+    install_key 10-ipa.key
+}
+
+cmd_ipa() {
+    local REALM="$2"
+
+    local HOST="$(hostname -f)"
+    local SERVICE="HTTP/${HOST}@${REALM}"
+    local KEYTAB="${COCKPIT_CONFIG}/krb5.keytab"
+
+    # use a temporary keytab to avoid interfering with the system one
+    export KRB5CCNAME=/run/cockpit/keytab-setup
+
+    # not an IPA setup? cannot handle this
+    if [ -z "$(which ipa)" ]; then
+        echo 'ipa must be installed for this command'
+        exit 1
+    fi
+
+    case "$1" in
+        request)
+            cmd_ipa_request "$3"
+            ;;
+        *)
+            echo 'unknown subcommand'
+            exit 1
+            ;;
+    esac
+}
+
+main() {
+    # ipa-getkeytab needs root to create the file, same for cert installation
+    if [ "$(id -u)" != "0" ]; then
+        echo 'must be run as root'
+        exit 1
+    fi
+
+    # Create a private working directory
+    mkdir -p "${COCKPIT_RUNTIME_DIR}"
+    WORKDIR="${COCKPIT_RUNTIME_DIR}/certificate-helper"
+    mkdir -m 700 "${WORKDIR}" # we expect that not to have existed
+    trap 'exit' INT QUIT PIPE TERM
+    trap 'rm -rf "${WORKDIR}"' EXIT
+    cd "${WORKDIR}"
+
+    # Dispatch subcommand
+    case "$1" in
+        ipa)
+            shift
+            cmd_ipa "$@"
+            ;;
+        *)
+            echo 'unknown subcommand'
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

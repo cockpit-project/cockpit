@@ -28,6 +28,65 @@ install_key() {
     fi
 }
 
+selfsign_sscg() {
+    sscg --quiet \
+        --lifetime "${DAYS}" \
+        --key-strength 2048 \
+        --cert-key-file "${KEYFILE}" \
+        --cert-file "${CERTFILE}" \
+        --ca-file "${CA_FILE}" \
+        --hostname "${HOSTNAME}" \
+        --organization "${MACHINE_ID}" \
+        --subject-alt-name localhost \
+        --subject-alt-name IP:127.0.0.1/255.255.255.255
+}
+
+selfsign_openssl() {
+    openssl req -x509 \
+        -days "${DAYS}" \
+        -newkey rsa:2048 \
+        -keyout "${KEYFILE}" \
+        -keyform PEM \
+        -nodes \
+        -out "${CERTFILE}" \
+        -outform PEM \
+        -subj "${MACHINE_ID:+/O=${MACHINE_ID}}/CN=${HOSTNAME}" \
+        -config - \
+        -extensions v3_req << EOF
+    [ req ]
+    req_extensions = v3_req
+    extensions = v3_req
+    distinguished_name = req_distinguished_name
+    [ req_distinguished_name ]
+    [ v3_req ]
+    subjectAltName=IP:127.0.0.1,DNS:localhost
+    basicConstraints = critical, CA:TRUE
+    keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement
+    extendedKeyUsage = serverAuth
+EOF
+}
+
+cmd_selfsign() {
+    # Common variables used by both methods
+    local MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
+    local HOSTNAME="${HOSTNAME:-$(hostname)}"
+    local CERTFILE="0-self-signed.cert"
+    local KEYFILE="0-self-signed.key"
+    local CA_FILE="0-self-signed-ca.pem"
+
+    # We renew certificates up to 30 days before expiry, so give ourselves a
+    # year, plus 30 days.  The maximum is variously mentioned to be 397 or 398.
+    local DAYS=395
+
+    # If sscg fails, try openssl
+    selfsign_sscg || selfsign_openssl
+
+    # Install the files and set permissions ($CA_FILE is only created by sscg)
+    test ! -e "${CA_FILE}" || install_cert "${CA_FILE}"
+    install_cert "${CERTFILE}"
+    install_key "${KEYFILE}"
+}
+
 cmd_ipa_request() {
     local USER="$1"
 
@@ -114,6 +173,9 @@ main() {
 
     # Dispatch subcommand
     case "$1" in
+        selfsign)
+            cmd_selfsign
+            ;;
         ipa)
             shift
             cmd_ipa "$@"

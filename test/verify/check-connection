@@ -26,7 +26,7 @@ import parent
 from testlib import *
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestConnection(MachineCase):
 
     def setUp(self):
@@ -495,7 +495,7 @@ class TestConnection(MachineCase):
 
         def checkMotdContent(string, expected=True):
             # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
-            old_pam = (m.image in ['centos-8-stream', 'debian-stable', 'debian-testing', 'ubuntu-2004', 'ubuntu-stable', 'rhel-8-3', 'rhel-8-4'])
+            old_pam = (m.image in ['centos-8-stream', 'debian-stable', 'debian-testing', 'ubuntu-2004', 'ubuntu-stable', 'rhel-8-4', 'rhel-8-5'])
 
             # check issue (should be exactly the same as motd)
             assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected)
@@ -850,7 +850,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestReverseProxy(MachineCase):
 
     provision = {
@@ -901,7 +901,7 @@ ProtocolHeader = X-Forwarded-Proto
         self.allow_restart_journal_messages()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-3", "rhel-8-4", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-4", "rhel-8-5", "ubuntu-stable", "ubuntu-2004")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -943,7 +943,7 @@ server {
         self.checkCockpitOnProxy()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-3", "rhel-8-4", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-4", "rhel-8-5", "ubuntu-stable", "ubuntu-2004")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

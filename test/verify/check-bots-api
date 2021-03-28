@@ -31,7 +31,7 @@ from testlib import *
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestImageCustomize(unittest.TestCase):
 
     def checkBoot(self, image):
@@ -128,7 +128,7 @@ class TestImageCustomize(unittest.TestCase):
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestBotsVM(unittest.TestCase):
 
     def testBasic(self):

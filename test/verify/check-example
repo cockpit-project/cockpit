@@ -29,7 +29,7 @@ from fmf_metadata import FMF
 
 @FMF.tag("example")
 @skipPackage("example")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestExample(MachineCase):
 
     @unittest.expectedFailure
@@ -60,7 +60,7 @@ class TestExample(MachineCase):
 
 @FMF.tag("example")
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestNondestructiveExample(MachineCase):
 
     def testOne(self):
@@ -71,7 +71,7 @@ class TestNondestructiveExample(MachineCase):
 
 
 @FMF.tag("example")
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestSimple(unittest.TestCase):
 
     def testOne(self):

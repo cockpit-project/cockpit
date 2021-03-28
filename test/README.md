@@ -75,19 +75,17 @@ You can set these environment variables to configure the test suite:
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-32"
                   "fedora-33"
+                  "fedora-34"
                   "fedora-coreos"
                   "fedora-testing"
-                  "rhel-7-9"
-                  "rhel-8-3"
-                  "rhel-8-3-distropkg"
                   "rhel-8-4"
                   "rhel-8-4-distropkg"
-                  "rhel-atomic"
+                  "rhel-8-5"
+                  "rhel-8-5-distropkg"
                   "ubuntu-2004"
                   "ubuntu-stable"
-               "fedora-32" is the default (bots/machine/machine_core/constants.py)
+               "fedora-33" is the default (bots/machine/machine_core/constants.py)
 
     TEST_JOBS  How many tests to run in parallel.  The default is 1.
 

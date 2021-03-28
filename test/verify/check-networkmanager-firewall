@@ -48,7 +48,7 @@ def get_active_rules(machine):
 
 @skipImage("no firewalld", "fedora-coreos")
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestFirewall(NetworkCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -249,7 +249,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-3', 'rhel-8-4', 'debian-testing', 'fedora-testing', "fedora-32", "fedora-33", "fedora-34"]:
+        if m.image not in ['debian-stable']:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
             b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")

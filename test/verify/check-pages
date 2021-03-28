@@ -26,7 +26,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-3-distropkg", "rhel-8-4-distropkg")
+@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine
@@ -37,10 +37,10 @@ class TestPages(MachineCase):
         expected = "Web Console"
         expected += "".join(items)
         expected += "About Web Console"
-        # DOCUMENTATION_URL is only in Fedora and RHEL >= 8.4
+        # DOCUMENTATION_URL is only in Fedora and RHEL
         if "fedora" in m.image:
             expected = "Fedora documentation" + expected
-        elif m.image.startswith("rhel-8-4"):
+        elif m.image.startswith("rhel-"):
             expected = "Red Hat Enterprise Linux documentation" + expected
         b.wait_collected_text("#navbar-docs-items", expected)
         b.click("#navbar-docs > a")

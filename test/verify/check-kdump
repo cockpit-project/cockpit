@@ -72,7 +72,7 @@ class TestKdump(MachineCase):
         def assertActive(active):
             b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-4", "rhel-8-5", "centos-8-stream"]:
+        if m.image.startswith("rhel-") or m.image in ["centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)

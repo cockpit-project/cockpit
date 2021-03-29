@@ -388,7 +388,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
-               "rhel-8-4", "rhel-8-5", "rhel-8-5-distropkg", "centos-8-stream", "fedora-coreos")
+               "rhel-8-4", "rhel-8-5", "rhel-8-5-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser

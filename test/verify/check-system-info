@@ -674,6 +674,7 @@ fi
                                     'done')
         self.allow_restart_journal_messages()
 
+    @skipImage("Insights client not yet available on RHEL 9", "rhel-9-0")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser

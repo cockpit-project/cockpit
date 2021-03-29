@@ -821,6 +821,7 @@ class MachineCase(unittest.TestCase):
     def setUp(self, restrict=True):
         self.allowed_messages = self.default_allowed_messages
         self.allowed_console_errors = self.default_allowed_console_errors
+        self.allow_core_dumps = False
 
         if os.getenv("MACHINE"):
             # apply env variable together if MACHINE envvar is set
@@ -977,8 +978,6 @@ class MachineCase(unittest.TestCase):
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
         self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
-
-    allow_core_dumps = False
 
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [

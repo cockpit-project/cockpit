@@ -399,6 +399,8 @@ flush_buffer (gpointer user_data)
       payload = g_bytes_ref (priv->out_buffer);
       g_bytes_unref (priv->out_buffer);
       priv->out_buffer = NULL;
+      if (priv->buffer_timeout)
+          g_source_remove(priv->buffer_timeout);
       priv->buffer_timeout = 0;
 
       cockpit_channel_actual_send (self, payload, FALSE);

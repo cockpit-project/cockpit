@@ -24,7 +24,7 @@ from testlib import *
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
            "debian-testing", "ubuntu-2004", "ubuntu-stable")
 @timeout(900)
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestKdump(MachineCase):
 
     def rreplace(self, s, old, new, count):

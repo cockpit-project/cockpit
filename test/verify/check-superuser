@@ -27,7 +27,7 @@ def allow_old_cockpit_ws_messsages(test):
                                 "New connection to session from.*")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuser(MachineCase):
 
     def testBasic(self):
@@ -225,7 +225,7 @@ session include system-auth
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuserOldShell(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
@@ -263,7 +263,7 @@ class TestSuperuserOldShell(MachineCase):
         b.wait_popdown("shutdown-dialog")
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
@@ -357,7 +357,7 @@ class TestSuperuserOldWebserver(MachineCase):
         allow_old_cockpit_ws_messsages(self)
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuserDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
@@ -420,7 +420,7 @@ class TestSuperuserDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuserOldDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
@@ -483,7 +483,7 @@ class TestSuperuserOldDashboard(MachineCase):
         allow_old_cockpit_ws_messsages(self)
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestSuperuserDashboardOldMachine(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},

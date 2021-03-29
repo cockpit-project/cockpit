@@ -861,6 +861,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # by IPv6 address and port
         check_server("[::1]:22", True)
 
+        self.allow_failed_sudo_journal_messages()
+
 
 if __name__ == '__main__':
     test_main()

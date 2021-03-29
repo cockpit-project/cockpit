@@ -1082,6 +1082,8 @@ class MachineCase(unittest.TestCase):
     def allow_hostkey_messages(self):
         self.allow_journal_messages('.*: .* host key for server is not known: .*',
                                     '.*: refusing to connect to unknown host: .*',
+                                    '.*: .* host key for server has changed to: .*',
+                                    '.*: host key for this server changed key type: .*',
                                     '.*: failed to retrieve resource: hostkey-unknown')
 
     def allow_restart_journal_messages(self):

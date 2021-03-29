@@ -2676,6 +2676,10 @@ on_name_appeared (GDBusConnection *connection,
 
   g_object_ref (self);
 
+  CockpitDBusPeer *peer = g_hash_table_lookup (self->peers, name);
+  if (peer)
+    cockpit_dbus_cache_set_name_owner (peer->cache, name_owner);
+
   if (!self->default_appeared)
     {
       self->default_appeared = TRUE;
@@ -2696,6 +2700,10 @@ on_name_vanished (GDBusConnection *connection,
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
 
   send_owned (self, name, NULL);
+
+  CockpitDBusPeer *peer = g_hash_table_lookup (self->peers, name);
+  if (peer)
+    cockpit_dbus_cache_set_name_owner (peer->cache, NULL);
 
   if (!G_IS_DBUS_CONNECTION (connection) || g_dbus_connection_is_closed (connection))
     cockpit_channel_close (channel, "disconnected");

@@ -61,6 +61,7 @@ struct _CockpitDBusCache {
   /* The readable DBus name, and actual unique owner */
   gchar *logname;
   gchar *name;
+  gchar *name_owner;
 
   /* Introspection stuff */
   GHashTable *introspected;
@@ -1040,6 +1041,12 @@ on_properties_signal (GDBusConnection *connection,
   g_debug ("%s: signal PropertiesChanged at %s", self->logname, path);
   g_variant_get (body, "(&s@a{sv}@as)", &interface, NULL, NULL);
 
+  /* We have to filter the sender ourselves; glib doesn't do that for
+     well-known names.
+   */
+  if (self->name_owner && g_strcmp0 (sender, self->name_owner) != 0)
+    return;
+
   if (!cockpit_dbus_rules_match (self->rules, path, interface, NULL, NULL))
     return;
 
@@ -1318,6 +1325,15 @@ cockpit_dbus_cache_set_property (GObject *obj,
     }
 }
 
+void
+cockpit_dbus_cache_set_name_owner (CockpitDBusCache *self,
+                                   const gchar *name_owner)
+{
+  g_free (self->name_owner);
+  self->name_owner = g_strdup (name_owner);
+}
+
+
 static void
 cockpit_dbus_cache_dispose (GObject *object)
 {
@@ -1347,6 +1363,7 @@ cockpit_dbus_cache_finalize (GObject *object)
   g_clear_object (&self->connection);
   g_object_unref (self->cancellable);
 
+  g_free (self->name_owner);
   g_free (self->name);
   g_free (self->logname);
 

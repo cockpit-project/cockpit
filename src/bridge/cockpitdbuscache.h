@@ -83,6 +83,10 @@ void                  cockpit_dbus_cache_introspect        (CockpitDBusCache *se
                                                             CockpitDBusIntrospectFunc callback,
                                                             gpointer user_data);
 
+void                  cockpit_dbus_cache_set_name_owner    (CockpitDBusCache *self,
+                                                            const gchar *name_owner);
+
+
 GHashTable *          cockpit_dbus_interface_info_new      (void);
 
 GDBusInterfaceInfo *  cockpit_dbus_interface_info_lookup   (GHashTable *interface_info,

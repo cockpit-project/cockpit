@@ -36,7 +36,7 @@ class PackageCase(MachineCase):
             self.backend = "apt"
             self.primary_arch = "all"
             self.secondary_arch = "amd64"
-        elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-8") or self.machine.image.startswith("centos-8"):
+        elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-") or self.machine.image.startswith("centos-"):
             self.backend = "dnf"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"

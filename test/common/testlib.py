@@ -1128,6 +1128,8 @@ class MachineCase(unittest.TestCase):
         syslog_ids = ["cockpit-ws", "cockpit-bridge"]
         if not self.allow_core_dumps:
             syslog_ids += ["systemd-coredump"]
+            self.allowed_messages.append("Resource limits disable core dumping for process.*")
+
         messages = machine.journal_messages(syslog_ids, 6, cursor=cursor)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor)  # 14xx is selinux

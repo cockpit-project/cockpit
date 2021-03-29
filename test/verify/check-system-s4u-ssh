@@ -25,7 +25,7 @@ from testlib import *
 @skipImage("No realmd available", "fedora-coreos")
 @skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
 @skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 @skipImage("Needs sssd >=2.4.1", "rhel-8-4", "rhel-8-5", "centos-8-stream")
 class TestS4USsh(MachineCase):
     provision = {

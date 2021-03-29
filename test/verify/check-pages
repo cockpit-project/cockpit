@@ -26,7 +26,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @nondestructive
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine

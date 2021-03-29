@@ -60,6 +60,7 @@ __all__ = (
     'nondestructive',
     'no_retry_when_changed',
     'skipImage',
+    'skipDistroPackage',
     'skipBrowser',
     'skipPackage',
     'enableAxe',
@@ -1429,6 +1430,17 @@ def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return generic_metadata_setter("_testlib__skipImage", args)
+
+
+def skipDistroPackage():
+    '''For tests which apply to BaseOS packages
+
+    With that, tests can evolve with latest code, without constantly breaking them when
+    running against older package versions in the -distropkg tests.
+    '''
+    if 'distropkg' in testvm.DEFAULT_IMAGE:
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: Do not test BaseOS packages")
+    return lambda testEntity: set_obj_attribute(testEntity, "_testlib__skipImage", (testvm.DEFAULT_IMAGE, ))
 
 
 def skipPackage(*args):

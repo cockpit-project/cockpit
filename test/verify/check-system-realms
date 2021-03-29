@@ -74,7 +74,7 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
     return numbers[-digits:].rjust(digits, '0')
 
 
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class CommonTests:
     def testQualifiedUsers(self):
         m = self.machine
@@ -396,7 +396,7 @@ class CommonTests:
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 @no_retry_when_changed
 class TestRealms(MachineCase):
     '''Common variables and tests for all supported domain backends'''
@@ -416,7 +416,7 @@ class TestRealms(MachineCase):
 
 
 @skipImage("freeipa not currently available", "debian-testing")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 @no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
@@ -623,7 +623,7 @@ ipa user-add-cert alice --certificate="%(cert)s"
 
 
 @skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 @no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
     def setUp(self):
@@ -767,7 +767,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 @skipImage("No realmd available", "fedora-coreos")
 @skipImage("freeipa not currently available", "debian-testing")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 @no_retry_when_changed
 class TestKerberos(MachineCase):
     provision = {
@@ -899,7 +899,7 @@ ExecStart=/bin/true
 
 
 @skipImage("Package (un)install does not work on OSTree", "fedora-coreos")
-@skipImage("Do not test BaseOS packages", "rhel-8-4-distropkg", "rhel-8-5-distropkg")
+@skipDistroPackage()
 class TestPackageInstall(packagelib.PackageCase):
 
     def setUp(self):

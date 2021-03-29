@@ -323,6 +323,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
+        self.allow_hostkey_messages()
+
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']
@@ -395,6 +397,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item span[data-for='/@10.111.113.3']")
         b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
 
+        self.allow_hostkey_messages()
+
     def testNoAutoconnect(self):
         b = self.browser
         m2 = self.machines["machine2"]
@@ -412,6 +416,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.relogin()
         time.sleep(60)
         self.assertNotIn(m2.execute("loginctl"), "admin")
+
+        self.allow_hostkey_messages()
 
 
 @skipDistroPackage()

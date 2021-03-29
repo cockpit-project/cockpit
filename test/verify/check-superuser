@@ -419,6 +419,8 @@ class TestSuperuserDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+        self.allow_hostkey_messages()
+
 
 @skipDistroPackage()
 class TestSuperuserOldDashboard(MachineCase):
@@ -481,6 +483,7 @@ class TestSuperuserOldDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
         allow_old_cockpit_ws_messsages(self)
+        self.allow_hostkey_messages()
 
 
 @skipDistroPackage()
@@ -514,6 +517,8 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
+
+        self.allow_hostkey_messages()
 
 
 if __name__ == '__main__':

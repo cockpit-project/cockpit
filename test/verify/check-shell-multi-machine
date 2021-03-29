@@ -242,6 +242,8 @@ class TestMultiMachineAdd(MachineCase):
         b.wait_visible("a[href='/@m3']")
         b.wait_not_present("#page-sidebar .nav-status")
 
+        self.allow_hostkey_messages()
+
 
 @skipDistroPackage()
 class TestMultiMachine(MachineCase):
@@ -376,7 +378,8 @@ class TestMultiMachine(MachineCase):
         # Might happen when we switch away.
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*: Connection reset by peer",
-                                    "connection unexpectedly closed by peer")
+                                    "connection unexpectedly closed by peer",
+                                    ".* Failed to resolve hostname bad .*")
 
     def testDirectLogin(self):
         self.machine.start_cockpit()
@@ -861,6 +864,8 @@ class TestMultiMachine(MachineCase):
         self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
                          m2.execute("cat /home/fred/.ssh/authorized_keys"))
 
+        self.allow_hostkey_messages()
+
     def testSshKeySetupCustom(self):
         b = self.browser
         m1 = self.machine
@@ -891,6 +896,8 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog', "The SSH key")
         b.wait_not_visible('.password-change-advice')
         b.wait_not_visible('.login-setup-auto')
+
+        self.allow_hostkey_messages()
 
 
 if __name__ == '__main__':

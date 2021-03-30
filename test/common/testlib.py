@@ -970,9 +970,9 @@ class MachineCase(unittest.TestCase):
                         "xargs --no-run-if-empty -L1 loginctl terminate-session")
 
     def tearDown(self):
-        if self.machine.ssh_reachable:
+        if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
-        self.check_browser_errors()
+            self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):

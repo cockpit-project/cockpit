@@ -1125,12 +1125,28 @@ class MachineCase(unittest.TestCase):
         machine = machine or self.machine
         # on main machine, only consider journal entries since test case start
         cursor = (machine == self.machine) and self.journal_start or None
-        syslog_ids = ["cockpit-ws", "cockpit-bridge"]
+
+        # Journald does not always set trusted fields like
+        # _SYSTEMD_UNIT or _EXE correctly for the last few messages of
+        # a dying process, so we filter by the untrusted but reliable
+        # SYSLOG_IDENTIFIER instead.
+
+        matches = [
+            "SYSLOG_IDENTIFIER=cockpit-ws",
+            "SYSLOG_IDENTIFIER=cockpit-bridge",
+            "SYSLOG_IDENTIFIER=cockpit/ssh",
+            "GLIB_DOMAIN=cockpit-ws",
+            "GLIB_DOMAIN=cockpit-bridge",
+            "GLIB_DOMAIN=cockpit-ssh",
+            "GLIB_DOMAIN=cockpit-pcp"
+        ]
+
         if not self.allow_core_dumps:
-            syslog_ids += ["systemd-coredump"]
+            matches += ["SYSLOG_IDENTIFIER=systemd-coredump"]
             self.allowed_messages.append("Resource limits disable core dumping for process.*")
 
-        messages = machine.journal_messages(syslog_ids, 6, cursor=cursor)
+        messages = machine.journal_messages(matches, 6, cursor=cursor)
+
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor)  # 14xx is selinux
 

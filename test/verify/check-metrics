@@ -622,6 +622,7 @@ class TestCurrentMetrics(MachineCase):
         b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))
 
+    @skipImage("no netcat on CoreOS", "fedora-coreos")
     def testNetwork(self):
         b = self.browser
         m = self.machine

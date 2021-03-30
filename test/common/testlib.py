@@ -1061,6 +1061,11 @@ class MachineCase(unittest.TestCase):
         r"#1\) Respect the privacy of others.",
         r"#2\) Think before you type.",
         r"#3\) With great power comes great responsibility.",
+
+        # Something unknown sometimes goes wrong with PCP, see #15625
+        "pcp-archive: instance name lookup failed: .*",
+        "direct: instance name lookup failed: .*",
+        "pcp-archive: no such metric: .*"
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

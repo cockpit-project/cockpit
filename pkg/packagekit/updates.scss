@@ -22,13 +22,6 @@
     justify-content: space-between;
     padding: 1.5rem 0 1rem;
 
-    &--heading {
-        padding: 0.5rem 0 0;
-    }
-    &--heading {
-        margin: 0;
-        padding-right: 15px;
-    }
     &--actions {
         > .pf-c-button,
         > .btn-group {
@@ -44,21 +37,6 @@
 @media screen and (min-width: 640px) {
     .pk-updates--header--auto {
         justify-content: flex-start;
-    }
-}
-
-/* override default cockpit CSS, as this doesn't fit our table */
-table.listing-ct {
-    margin-top: 0;
-    margin-bottom: 3rem;
-    width: 100%;
-}
-
-table.listing-ct thead th {
-    padding-left: 0;
-
-    &:last-child {
-        text-align: left;
     }
 }
 
@@ -150,22 +128,6 @@ div.changelog {
         td.changelog {
             display: none;
         }
-    }
-}
-/* Remove listing table margins in cramped space (mobile) */
-@media screen and (max-width: 640px) {
-    table.listing-ct {
-        /* counteract .pf-c-page__main-section padding */
-        margin-left: -1rem;
-        margin-right: -1rem;
-
-        /* Mobile mode table should be full width */
-        width: 100vw;
-    }
-    tbody.open > tr.listing-ct-item,
-    tbody.open > tr.listing-ct-panel {
-        border-left: none;
-        border-right: none;
     }
 }
 

@@ -66,18 +66,22 @@ svg {
 }
 
 .pf-c-card__header {
-  // Allow actions to wrap if there's not enough space
-  // issue: https://github.com/patternfly/patternfly/issues/3713
   // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
   flex-wrap: wrap;
+  row-gap: var(--pf-global--spacer--sm);
+  justify-content: space-between;
 
   > .pf-c-card__actions {
       flex-wrap: wrap;
-      button:not(.pf-c-dropdown__toggle) {
-          margin-bottom: 0.5rem;
-      }
+      row-gap: var(--pf-global--spacer--sm);
+
+      // PF4 CardActions act up when using buttons while the title is large of font
+      // https://github.com/patternfly/patternfly/issues/3713
+      margin: unset;
+      padding-left: unset;
   }
 }
+
 
 // Alignment of checks is incorrect and inconsistent across browsers
 // Upstream issue: https://github.com/patternfly/patternfly/issues/3868

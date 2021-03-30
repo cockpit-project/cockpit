@@ -24,7 +24,7 @@ import { useEvent } from "hooks";
 import {
     Button,
     Card, CardActions, CardBody, CardTitle, CardHeader,
-    Gallery,
+    Flex, Gallery,
     Page, PageSection, PageSectionVariants,
     Text, TextVariants,
 } from "@patternfly/react-core";
@@ -147,8 +147,10 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                 <Gallery hasGutter>
                     {firewall.installed && <Card id="networking-firewall-summary">
                         <CardHeader>
-                            <CardTitle><Text component={TextVariants.h2}>{_("Firewall")}</Text></CardTitle>
-                            <FirewallSwitch firewall={firewall} />
+                            <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                                <CardTitle><Text component={TextVariants.h2}>{_("Firewall")}</Text></CardTitle>
+                                <FirewallSwitch firewall={firewall} />
+                            </Flex>
                             <CardActions>
                                 <Button variant="secondary" id="networking-firewall-link"
                                         component="a"

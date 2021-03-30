@@ -13,20 +13,12 @@
     border-bottom: none;
 }
 
-.ct-card.pf-c-card .pf-c-card__header > .pf-c-card__title {
-  padding: 0;
-}
-
 .ct-card.pf-c-card .pf-c-card__title {
   font-weight: normal;
 }
 
 .ct-card.pf-c-card .pf-c-card__title > h2 {
   font-size: var(--pf-global--FontSize--2xl);
-}
-
-.ct-card.pf-c-card .pf-c-card__header {
-  padding: var(--pf-global--spacer--md);
 }
 
 .ct-cards-grid {
@@ -43,4 +35,11 @@
         // Shrink to 1 column when space is constrained
         --ct-grid-columns: 1;
     }
+}
+
+// Remove redundant padding from embedded toolbars (handled by header)
+// Toolbars in card headers are not a common scenario so no need to upstream this
+.ct-card.pf-c-card .pf-c-toolbar,
+.ct-card.pf-c-card .pf-c-toolbar__content {
+  padding: 0;
 }

@@ -3,9 +3,9 @@
 set -eu
 
 # expected arguments
-[ "$1" = "ipa" ] || exit 1
-REALM="$2"
-USER="$3"
+[ "$1 $2" = "ipa request" ] || exit 1
+REALM="$3"
+USER="$4"
 
 HOST="$(hostname -f)"
 SERVICE="HTTP/${HOST}@${REALM}"

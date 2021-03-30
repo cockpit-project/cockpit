@@ -401,7 +401,7 @@ function instance(realmd, mode, realm, state) {
         var password = $("#realms-op-admin-password").val();
         var helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
 
-        var proc = cockpit.spawn([helper, "ipa", kerberos.RealmName, user],
+        var proc = cockpit.spawn([helper, "ipa", "request", kerberos.RealmName, user],
                                  { superuser: "require", err: "message" });
         proc.input(password);
         return proc;

@@ -310,11 +310,11 @@ class TestConnection(MachineCase):
         for type_ in ["socket", "service"]:
             active = int(m.execute("systemctl --no-legend list-units -t %s --state=active "
                                    "'cockpit-wsinstance-https@*' | wc -l" % type_).strip())
-            self.assertGreater(active, 50)
+            self.assertGreater(active, 45)
             self.assertLess(active, 110)
         failed = int(m.execute("systemctl --no-legend list-units --state=failed 'cockpit-wsinstance-https@*' | wc -l").strip())
         self.assertGreater(failed, 0)
-        self.assertLess(failed, 60)  # services and sockets
+        self.assertLess(failed, 75)  # services and sockets
 
         self.allow_journal_messages(".*cockpit-ws.*dumped core.*")
         self.allow_journal_messages(".*Error creating thread: Resource temporarily unavailable.*")

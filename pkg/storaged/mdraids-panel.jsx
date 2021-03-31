@@ -22,7 +22,7 @@ import React from "react";
 
 import { SidePanelRow } from "./side-panel.jsx";
 import {
-    fmt_size, mdraid_name, block_name,
+    fmt_size, mdraid_name, block_name, validate_mdraid_name,
     get_available_spaces, prepare_available_spaces
 } from "./utils.js";
 import { dialog_open, TextInput, SelectOne, SelectSpaces } from "./dialog.jsx";
@@ -72,7 +72,10 @@ export function create_mdraid(client) {
     dialog_open({
         Title: _("Create RAID device"),
         Fields: [
-            TextInput("name", _("Name"), { value: name }),
+            TextInput("name", _("Name"), {
+                value: name,
+                validate: validate_mdraid_name,
+            }),
             SelectOne("level", _("RAID level"),
                       {
                           value: "raid5",

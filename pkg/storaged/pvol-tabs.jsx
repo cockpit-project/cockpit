@@ -19,6 +19,7 @@
 
 import React from "react";
 import {
+    Button,
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
@@ -40,9 +41,9 @@ export class PVolTab extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Volume group")}</DescriptionListTerm>
                     <DescriptionListDescription>{vgroup
-                        ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
+                        ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
                             {vgroup.Name}
-                        </button>
+                        </Button>
                         : "-"
                     }
                     </DescriptionListDescription>
@@ -65,9 +66,9 @@ export class MDRaidMemberTab extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("RAID device")}</DescriptionListTerm>
                     <DescriptionListDescription>{mdraid
-                        ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["mdraid", mdraid.UUID])}>
+                        ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["mdraid", mdraid.UUID])}>
                             {utils.mdraid_name(mdraid)}
-                        </button>
+                        </Button>
                         : "-"
                     }
                     </DescriptionListDescription>
@@ -86,9 +87,9 @@ export class VDOBackingTab extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("VDO device")}</DescriptionListTerm>
                     <DescriptionListDescription>{vdo
-                        ? <button role="link" className="link-button" onClick={() => cockpit.location.go(["vdo", vdo.name])}>
+                        ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["vdo", vdo.name])}>
                             {vdo.name}
-                        </button>
+                        </Button>
                         : "-"
                     }
                     </DescriptionListDescription>

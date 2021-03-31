@@ -23,11 +23,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
     Alert, Button,
-    Breadcrumb, BreadcrumbItem, Checkbox,
+    Breadcrumb, BreadcrumbItem,
+    Checkbox,
+    Card, CardTitle, CardHeader, CardActions, CardBody,
     DataList, DataListItem, DataListCell, DataListItemRow, DataListCheck, DataListItemCells,
     Flex, FlexItem,
     Form, FormGroup, FormHelperText,
-    Radio, Split, SplitItem,
+    Radio, Split, SplitItem, Stack,
     TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
     Tooltip, Page, PageSection, PageSectionVariants, Modal,
 } from '@patternfly/react-core';
@@ -169,42 +171,44 @@ function ZoneSection(props) {
         </Button>
     );
 
-    return <div className="zone-section" data-id={props.zone.id}>
-        <div className="zone-section-heading">
-            <span>
+    return <Card className="zone-section" data-id={props.zone.id}>
+        <CardHeader className="zone-section-heading">
+            <CardTitle>
                 <h4>{ cockpit.format(_("$0 zone"), props.zone.id) }</h4>
                 <div className="zone-section-targets">
                     { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
                     { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
                 </div>
-            </span>
-            { !firewall.readonly && <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div> }
-        </div>
+            </CardTitle>
+            { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}{addServiceAction}</CardActions> }
+        </CardHeader>
         {props.zone.services.length > 0 &&
-        <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
-                      aria-label={props.zone.id}
-                      variant="compact"
-                      emptyCaption={_("There are no active services in this zone")}
-                      rows={
-                          props.zone.services.map(s => {
-                              if (s in firewall.services)
-                                  return serviceRow({
-                                      key: firewall.services[s].id,
-                                      service: firewall.services[s],
-                                      onRemoveService: service => props.onRemoveService(props.zone.id, service),
-                                      readonly: firewall.readonly
-                                  });
-                          }).concat(
-                              props.zone.ports.length > 0
-                                  ? portRow({
-                                      key: props.zone.id + "-ports",
-                                      zone: props.zone,
-                                      readonly: firewall.readonly
-                                  }) : [])
-                                  .filter(Boolean)}
+        <CardBody className="contains-list">
+            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
+                          aria-label={props.zone.id}
+                          variant="compact"
+                          emptyCaption={_("There are no active services in this zone")}
+                          rows={
+                              props.zone.services.map(s => {
+                                  if (s in firewall.services)
+                                      return serviceRow({
+                                          key: firewall.services[s].id,
+                                          service: firewall.services[s],
+                                          onRemoveService: service => props.onRemoveService(props.zone.id, service),
+                                          readonly: firewall.readonly
+                                      });
+                              }).concat(
+                                  props.zone.ports.length > 0
+                                      ? portRow({
+                                          key: props.zone.id + "-ports",
+                                          zone: props.zone,
+                                          readonly: firewall.readonly
+                                      }) : [])
+                                      .filter(Boolean)}
 
-        />}
-    </div>;
+            />
+        </CardBody>}
+    </Card>;
 }
 
 class SearchInput extends React.Component {
@@ -934,7 +938,7 @@ export class Firewall extends React.Component {
                           </Flex>
                       </PageSection>}>
                 <PageSection id="zones-listing">
-                    { enabled && <>
+                    { enabled && <Stack hasGutter>
                         {
                             zones.map(z => <ZoneSection key={z.id}
                                                         zone={z}
@@ -944,7 +948,7 @@ export class Firewall extends React.Component {
                                                         onRemoveService={this.onRemoveService} />
                             )
                         }
-                    </> }
+                    </Stack> }
                 </PageSection>
                 { this.state.addServicesModal !== undefined && this.state.addServicesModal }
                 { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }

@@ -126,6 +126,10 @@ export function format_size_and_text(size, text) {
     return fmt_size(size) + " " + text;
 }
 
+export function validate_mdraid_name(name) {
+    return validate_lvm2_name(name);
+}
+
 export function validate_lvm2_name(name) {
     if (name === "")
         return _("Name cannot be empty.");

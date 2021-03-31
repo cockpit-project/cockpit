@@ -28,28 +28,7 @@ sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:conta
 class TestJournal(MachineCase):
     def setUp(self):
         super().setUp()
-
-        if self.is_nondestructive():
-            # we need persistent journal for the rebooting tests
-            self.addCleanup(self.machine.execute, "systemctl try-restart systemd-journald")
-            self.restore_dir("/run/log/journal")
-            self.restore_dir("/var/log/journal")
-            self.machine.execute("""
-            UNITS=""
-            for u in systemd-journald.socket systemd-journald-dev-log.socket systemd-journald.service; do
-                if systemctl --quiet is-active $u; then
-                    UNITS="$UNITS $u"
-                fi
-            done
-            systemctl stop $UNITS
-            # avoid running into startup limit
-            systemctl reset-failed $UNITS
-            rm -rf /run/log/journal/* /var/log/journal/*
-            systemctl start $UNITS
-            """)
-            self.allow_journal_messages("Specifying boot ID or boot offset has no effect, no persistent journal was found.*")
-            # restarting systemd-journald-dev-log.socket causes this
-            self.allow_journal_messages('.*avc:  denied  { accept } for  pid=1 comm="systemd" path="/run/systemd/journal/dev-log".*')
+        self.test_start_time = self.machine.execute("date +%s").strip()
 
     def injectExtras(self):
         self.browser.inject_js("""
@@ -121,7 +100,6 @@ class TestJournal(MachineCase):
         sleep = m.spawn("sleep 1m", "sleep.log")
         m.execute("kill -SEGV %d" % (sleep))
 
-    @nondestructive
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
@@ -376,7 +354,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         time.sleep(5)
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 8')")
 
-        self.allow_journal_messages("Data from the specified boot .* is not available: No such boot ID in journal")
+        self.allow_journal_messages(".*Data from the specified boot .* is not available: No such boot ID in journal.*")
 
     def testRebootAndTime(self):
         b = self.browser
@@ -521,7 +499,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m = self.machine
 
         m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
-        self.login_and_go("/system/logs#/?tag=logger")
+        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
         b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
 
@@ -541,7 +519,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m = self.machine
 
         m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
-        self.login_and_go("/system/logs#/?tag=logger")
+        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')")
         b.wait_text(".pf-c-card__title", "[no data]")
 
@@ -555,7 +533,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m.execute("logger -p user.warn --tag check-journal WARNING_MESSAGE")
         m.execute("logger -p user.emerg --tag check-journal EMERGENCY_MESSAGE")
 
-        self.login_and_go("/system/logs#/?tag=check-journal")
+        self.login_and_go("/system/logs#/?tag=check-journal&since=@" + self.test_start_time)
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
@@ -581,14 +559,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
-        # We bind-mount over journal and restart systemd-journald (see `setUp`)
-        # Need to restart `abrt-journal-core` to see new messages
-        m.execute("systemctl try-restart abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
         self.crash()
 
-        self.login_and_go("/system/logs")
-
+        self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         self.select_priority("Critical and above")
         b.wait_visible(sleep_crash_list_sel)
 
@@ -617,9 +591,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
-        # We bind-mount over journal and restart systemd-journald (see `setUp`)
-        # Need to restart `abrt-journal-core` to see new messages
-        m.execute("systemctl try-restart abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # A bit of a race might happen if you delete the journal entry whilst
@@ -629,7 +600,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.crash()
 
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
 
         b.wait_in_text("#entry-heading", "sleep")
@@ -653,9 +624,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
-        # We bind-mount over journal and restart systemd-journald (see `setUp`)
-        # Need to restart `abrt-journal-core` to see new messages
-        m.execute("systemctl try-restart abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # Restarting the reportd service will trigger some errors. Some depend
@@ -680,7 +648,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.crash()
 
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
         b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
@@ -716,9 +684,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
-        # We bind-mount over journal and restart systemd-journald (see `setUp`)
-        # Need to restart `abrt-journal-core` to see new messages
-        m.execute("systemctl try-restart abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
@@ -737,7 +702,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.crash()
 
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
 
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
@@ -754,9 +719,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_browser_errors("Channel for reportd D-Bus client closed: .*")
 
-        # We bind-mount over journal and restart systemd-journald (see `setUp`)
-        # Need to restart `abrt-journal-core` to see new messages
-        m.execute("systemctl try-restart abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # start mock FAF server
@@ -770,7 +732,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.crash()
 
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
         b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")

@@ -242,7 +242,7 @@ notice_cgroups_in_hierarchy (CockpitSamples *samples,
                   collect (samples, dfd, f);
                   close (dfd);
                 }
-              else
+              else if (errno != ENOENT)
                 {
                   g_message ("error opening cgroup directory: %s: %m", ent->fts_path);
                 }

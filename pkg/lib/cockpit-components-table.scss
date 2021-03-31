@@ -74,18 +74,6 @@
         width: 1px;
     }
 
-    // Remove excess PF4 nested compact paddings
-    // (as PF4 has different assumptions)
-    .pf-c-table.pf-m-compact tr {
-        > :first-child {
-            --pf-c-table-cell--PaddingLeft: var(--pf-c-table--m-compact-cell--first-last-child--PaddingLeft);
-        }
-
-        > :last-child {
-            --pf-c-table-cell--PaddingRight: var(--pf-c-table--m-compact-cell--first-last-child--PaddingLeft);
-        }
-    }
-
     // Properly align actions on the end
     > tbody > tr > td:last-child > .btn-group {
         display: flex;

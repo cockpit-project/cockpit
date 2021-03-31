@@ -18,6 +18,7 @@
 
 @import "../lib/ct-card.scss";
 
+#firewall,
 #network-page {
     .pf-c-card {
         @extend .ct-card;
@@ -359,33 +360,6 @@ th {
 
     .ct-table tbody tr:first-of-type td:nth-child(2) {
         font-weight: var(--pf-global--FontWeight--bold);
-    }
-}
-
-.zone-section {
-    background: var(--pf-global--palette--white);
-    border-top: 1px solid var(--ct-color-border-default);
-    border-left: 1px solid var(--ct-color-border-default);
-    border-right: 1px solid var(--ct-color-border-default);
-    margin: 0 0 2rem 0;
-    box-shadow: var(--pf-global--BoxShadow--sm);
-}
-
-.zone-section-heading {
-    margin: 0;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--ct-color-border-default);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.zone-section-buttons {
-    display: inline-flex;
-    align-content: center;
-
-    > button {
-        margin-left: 2px;
     }
 }
 

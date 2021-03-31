@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Button } from '@patternfly/react-core';
 import './cockpit-components-inline-notification.css';
 
 const _ = cockpit.gettext;
@@ -60,8 +60,8 @@ export class InlineNotification extends React.Component {
                 detailButtonText = _("show less");
             }
 
-            detailButton = (<button className='alert-link more-button link-button'
-                onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</button>);
+            detailButton = (<Button variant="link" isInline className='alert-link more-button'
+                onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</Button>);
         }
         const extraProps = {};
         if (onDismiss)

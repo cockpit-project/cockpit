@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Badge, Card, CardHeader, CardActions, CardTitle, CardBody } from '@patternfly/react-core';
+import { Badge, Button, Card, CardHeader, CardActions, CardTitle, CardBody } from '@patternfly/react-core';
 import { AngleRightIcon, ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
@@ -158,7 +158,7 @@ export class LogsPanel extends React.Component {
             <Card className="cockpit-log-panel">
                 <CardHeader>
                     <CardTitle>{this.props.title}</CardTitle>
-                    { this.props.goto_url && <CardActions><button className="link-button" role="link" onClick={e => cockpit.jump(this.props.goto_url)}>{_("All logs")}</button></CardActions>}
+                    { this.props.goto_url && <CardActions><Button variant="link" onClick={e => cockpit.jump(this.props.goto_url)}>{_("All logs")}</Button></CardActions>}
                 </CardHeader>
                 <CardBody className={(!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "contains-list"}>
                     { this.state.logs.length ? this.state.logs : this.props.emptyMessage }

@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+    Button,
     Nav,
     Tooltip, TooltipPosition,
 } from '@patternfly/react-core';
@@ -126,7 +127,7 @@ export class CockpitNav extends React.Component {
                         </section>
                     )}
                     { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
-                    { this.state.search !== "" && <span className="non-menu-item"><button onClick={this.clearSearch} className="link-button hint">{_("Clear search")}</button></span> }
+                    { this.state.search !== "" && <span className="non-menu-item"><Button variant="link" onClick={this.clearSearch} className="hint">{_("Clear search")}</Button></span> }
                 </Nav>
             </>
         );

@@ -3,32 +3,6 @@
 @import "@patternfly/patternfly/sass-utilities/colors.scss";
 @import "./variables.scss";
 
-.ct-listing {
-    font-size: var(--pf-global--FontSize-s);
-    min-width: 65%;
-    // Some parts of Cockpit still float (Docker) and need clearing
-    clear: both;
-
-    > header {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        flex-flow: wrap;
-
-        > :only-child {
-            flex: auto;
-        }
-    }
-
-    + .ct-listing {
-        margin-top: 1rem;
-    }
-
-    select, .pf-c-button, .dropdown, input {
-        font-size: var(--pf-global--FontSize--md);
-    }
-}
-
 .listing-ct-heading,
 .listing-ct-actions {
     margin: 0.5rem 0;
@@ -40,59 +14,11 @@
     padding: 0.25rem 1em 0.25rem 0;
 }
 
-.ct-listing > table > thead h3 {
-    font-size: var(--pf-global--FontSize--2xl);
-    padding: 1rem 0;
-    font-weight: 400;
-    margin-top: 0;
-    position: relative;
-}
-
-.ct-listing > table > thead td {
-    padding-top: $listing-ct-padding * 2;
-}
-
-.ct-listing > table > thead:first-child td {
-    padding-top: 0;
-}
-
-.ct-listing > table > thead td > a {
-    line-height: 30px;
-    padding: $listing-ct-padding 0 $listing-ct-padding;
-}
-
-.ct-listing > table > thead th {
-    font-size: var(--pf-global--FontSize--md);
-    font-weight: var(--pf-global--FontWeight--bold);
-    padding: $listing-ct-padding $listing-ct-padding * 2;
-}
-
-.ct-listing > table > thead th:first-child {
-    padding-left: $listing-ct-padding * 2;
-}
-
-.ct-listing > table > thead th:last-child {
-    text-align: right;
-}
-
 /* A listing item is a row in the table */
 tbody > tr.listing-ct-item {
     border: 1px solid transparent;
     border-top: 1px solid var(--ct-color-list-border);
     cursor: pointer;
-}
-
-.ct-listing > table > tbody:last-child {
-    border-bottom: 1px solid var(--ct-color-list-border);
-}
-.ct-listing > table > tbody + thead {
-    border-top: 1px solid var(--ct-color-list-border);
-}
-.ct-listing > table > tbody.open:last-child {
-    border-bottom: none;
-}
-.ct-listing > table > tbody.open + thead {
-    border-top: none;
 }
 
 tbody > tr.listing-ct-item.listing-ct-warning {
@@ -434,57 +360,6 @@ tbody.active .listing-ct-head {
     margin-left: 0px;
 }
 
-.ct-listing > table > tbody {
-    > tr > td:first-child {
-        position: relative;
-        transition: all 100ms ease-out;
-
-        &::before,
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 300ms;
-        }
-
-        &::after {
-            right: auto;
-            width: 0;
-            background-color: var(--pf-global--active-color--100);
-        }
-    }
-
-    /* Nudge blue line above row border */
-    > tr:not(:first-child) > td:first-child {
-        &::after {
-            top: -1px;
-        }
-    }
-
-    &.open > tr > td:first-child {
-        transition: all 100ms ease-in;
-
-        &::before,
-        &::after {
-            opacity: 1;
-        }
-
-        &::after {
-            width: 3px;
-        }
-    }
-
-    &.open {
-        transition: all 100ms ease-in;
-        box-shadow: 0 0.3125rem 0.625rem -0.25rem rgba(3,3,3, 0.25);
-    }
-}
-
 /* By default these are hidden */
 /* (HACK: Special-case the user auth dialog) */
 tbody:not(.ssh-key-body) > tr.listing-ct-head,
@@ -569,8 +444,7 @@ tr.listing-ct-body td {
 }
 
 /* Used at the end of a group of tbody to show an 'empty' message */
-thead.listing-ct-empty td,
-.ct-listing > table > thead.listing-ct-empty td {
+thead.listing-ct-empty td {
     padding: $listing-ct-padding;
 }
 

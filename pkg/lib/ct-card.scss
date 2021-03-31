@@ -7,10 +7,22 @@
     padding-left: 0;
     padding-right: 0;
     padding-bottom: 0;
-}
 
-.ct-card.pf-c-card .pf-c-card__body.contains-list > .pf-c-table > :last-child > tr:last-child {
-    border-bottom: none;
+    > .pf-c-table > :last-child > tr:last-child {
+        border-bottom: none;
+    }
+
+    // Remove excess padding from compact tables toggles
+    // And adjust the padding to left align the toggles with the card header
+    > .pf-c-table  {
+        .pf-c-table__toggle {
+            padding-left: 0;
+
+            > .pf-c-button {
+                padding-left: var(--pf-global--spacer--lg);
+            }
+        }
+    }
 }
 
 .ct-card.pf-c-card .pf-c-card__title {

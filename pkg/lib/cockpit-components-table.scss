@@ -3,28 +3,6 @@
 @import "@patternfly/patternfly/components/Table/table-grid.scss";
 
 .ct-table {
-    // Reverse out the default padding for table bodies,
-    // so lists can have more horizontal room
-    &-wrapper {
-        // Container padding is defined higher up; it cascades here
-        // (so this can always be in sync to reverse out the actual padding)
-        --outer-padding: var(--continer-padding-x);
-        --padding-offset-border: 1px;
-        --padding-offset-x: calc(var(--pf-global--spacer--lg) + (var(--padding-offset-border) * 2));
-        --padding-offset-y: 1rem;
-        max-width: calc(100vw - (var(--outer-padding) * 2));
-        overflow: auto;
-        clear: both;
-        padding-bottom: var(--padding-offset-y);
-        margin-bottom: calc(var(--padding-offset-y) * -1);
-        margin: calc(var(--padding-offset-y) * -0.5) calc(var(--padding-offset-x) * -1) calc(var(--padding-offset-y) * -1);
-
-        // Apply standard padding to the sides of the header
-        > .ct-table-header {
-            padding: 0 var(--pf-global--spacer--md);
-        }
-    }
-
     &.pf-m-compact {
         > thead, > tbody {
             > tr:not(.pf-c-table__expandable-row) {

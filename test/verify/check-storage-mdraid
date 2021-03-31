@@ -105,6 +105,7 @@ class TestStorageMdRaid(StorageCase):
 
         self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
+        self.dialog_wait_val("name", "raid0")
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 2 disks are needed")
@@ -116,12 +117,17 @@ class TestStorageMdRaid(StorageCase):
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 4 disks are needed")
         self.dialog_set_val("level", "raid5")
-        self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#devices", "ARR")
+        b.wait_in_text("#devices", "raid0")
 
-        b.click('#devices .sidepanel-row:contains("ARR")')
+        # Check that Cockpit suggest name that does not yet exists
+        self.devices_dropdown('Create RAID device')
+        b.wait(lambda: self.dialog_val("name") == "raid1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click('#devices .sidepanel-row:contains("raid0")')
         b.wait_visible('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
@@ -135,7 +141,7 @@ class TestStorageMdRaid(StorageCase):
             else:
                 b.wait_not_present(degraded_selector)
 
-        # The preferred device should be /dev/md/ARR, but a freshly
+        # The preferred device should be /dev/md/raid0, but a freshly
         # created array seems to have no symlink in /dev/md/.
         #
         # See https://bugzilla.redhat.com/show_bug.cgi?id=1397320
@@ -172,12 +178,12 @@ class TestStorageMdRaid(StorageCase):
         # Stopping and starting the array will create the expected
         # symlink in /dev/md/.
         #
-        b.wait_text(info_field("Device", m.image), "/dev/md/ARR")
+        b.wait_text(info_field("Device", m.image), "/dev/md/raid0")
 
         # Partitions also get symlinks in /dev/md/, so they should
-        # have names like "/dev/md/ARR1".
+        # have names like "/dev/md/raid0p1".
         if self.storaged_version >= [2, 6, 3]:
-            part_prefix = "/dev/md/ARR"
+            part_prefix = "/dev/md/raid0p"
         else:
             # Older storaged versions don't pick them up as the preferred
             # device, however, so we will see "/dev/md127p1", for example.
@@ -240,7 +246,7 @@ class TestStorageMdRaid(StorageCase):
         self.confirm()
         with b.wait_timeout(120):
             b.wait_visible("#storage")
-            b.wait_not_in_text("#devices", "ARR")
+            b.wait_not_in_text("#devices", "raid0")
 
     def testNotRemovingDisks(self):
         m = self.machine

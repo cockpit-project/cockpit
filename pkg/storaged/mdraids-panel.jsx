@@ -55,10 +55,25 @@ export function mdraid_rows(client) {
 }
 
 export function create_mdraid(client) {
+    function mdraid_exists(name) {
+        for (const p in client.mdraids) {
+            if (mdraid_name(client.mdraids[p]) == name)
+                return true;
+        }
+        return false;
+    }
+
+    let name;
+    for (let i = 0; i < 1000; i++) {
+        name = "raid" + i.toFixed();
+        if (!mdraid_exists(name))
+            break;
+    }
+
     dialog_open({
         Title: _("Create RAID device"),
         Fields: [
-            TextInput("name", _("Name"), { }),
+            TextInput("name", _("Name"), { value: name }),
             SelectOne("level", _("RAID level"),
                       {
                           value: "raid5",

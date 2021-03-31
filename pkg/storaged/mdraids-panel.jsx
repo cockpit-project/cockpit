@@ -46,8 +46,7 @@ const MDRaidRow = ({ client, path }) => {
 
 export function mdraid_rows(client) {
     function cmp_mdraid(path_a, path_b) {
-        // TODO - ignore host part
-        return client.mdraids[path_a].Name.localeCompare(client.mdraids[path_b].Name);
+        return mdraid_name(client.mdraids[path_a]).localeCompare(mdraid_name(client.mdraids[path_b]));
     }
 
     return Object.keys(client.mdraids).sort(cmp_mdraid)

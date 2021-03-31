@@ -292,6 +292,11 @@
     &-events {
         width: 100%;
 
+        // Remove left padding from the table toggle
+        .pf-c-table__toggle {
+            padding-left: 0;
+        }
+
         .description {
             display: grid;
             grid-template-columns: [info] 1fr [time] 1fr;

@@ -80,7 +80,7 @@
   --card-width: 22rem;
   --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(var(--card-width), 1fr));
 
-  .motd-box {
+  .motd-box, .login-messages {
     grid-column: 1 / -1;
   }
 
@@ -363,17 +363,13 @@
   margin-bottom: 0;
 }
 
-.pf-c-alert.no-title {
-    margin-bottom: 24px;
-}
-
-.pf-c-alert.no-title h4 {
+.pf-c-alert.login-messages h4 {
     font-weight: normal;
     color: black;
     font-family: inherit;
 }
 
-.pf-c-alert.no-title .pf-c-alert__description {
+.pf-c-alert.login-messages .pf-c-alert__description {
     padding-bottom: 0px;
 }
 

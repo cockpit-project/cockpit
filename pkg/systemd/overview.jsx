@@ -243,7 +243,9 @@ class OverviewPage extends React.Component {
                 {this.state.rebootModal && <ShutdownModal onClose={() => this.setState({ rebootModal: false })} />}
                 {this.state.shutdownModal && <ShutdownModal shutdown onClose={() => this.setState({ shutdownModal: false })} />}
                 <Page>
-                    <SuperuserAlert />
+                    <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+                        <SuperuserAlert />
+                    </PageSection>
                     <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
                         <div className='ct-overview-header-hostname'>
                             <h1>

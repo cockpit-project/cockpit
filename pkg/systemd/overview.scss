@@ -5,36 +5,10 @@
 @import "../lib/table.css";
 
 .ct-limited-access-alert {
-  align-items: center;
-  background: var(--pf-global--active-color--200);
-  margin-bottom: 0;
-  padding: 1rem 1.5rem;
-
-  // Override PF4 spacing to better align to the overview page
-  // and rely on ct-limited-access-alert for padding & alignment
-  &.pf-c-alert.pf-m-info.pf-m-inline {
-    > .pf-c-alert__icon,
-    > .pf-c-alert__title,
-    > .pf-c-alert__action {
-      padding: 0;
-    }
-
-    > .pf-c-alert__icon {
-      // Make the icon slightly darker, to compensate for the background
-      color: var(--pf-global--active-color--400);
-      padding-right: 1rem;
-    }
-  }
-
-  // Remove the left-side stripe
-  &:before {
-    display: none;
-  }
-
   // Deconstruct nicely on small screen sizes (especially mobile)
   // This will not be needed in a future PF4 update
   //
-  // References: 
+  // References:
   // - https://github.com/cockpit-project/cockpit/issues/14106
   // - https://github.com/patternfly/patternfly/issues/3125
   // - https://github.com/patternfly/patternfly/pull/2921
@@ -48,6 +22,12 @@
   @media (max-width: 320px) {
     // Allow the action button to have a bit more space on iPhone SE sized phones
     grid-template-areas: "icon title" ". content" "action action";
+  }
+
+  // Set the right padding so that the button aligns with the other alerts in the page on the side
+  padding-right: var(--pf-c-page__main-section--PaddingRight);
+  > .pf-c-alert__action {
+      margin-right: 0;
   }
 }
 
@@ -381,6 +361,10 @@
 #motd-box > .pf-c-alert {
   /* Spacing between the MOTD is handled by the .pf-l-gallery grid */
   margin-bottom: 0;
+}
+
+.pf-c-alert.no-title {
+    margin-bottom: 24px;
 }
 
 .pf-c-alert.no-title h4 {

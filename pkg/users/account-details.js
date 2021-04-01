@@ -68,7 +68,8 @@ function get_last_login(name) {
             return null;
 
         // line looks like this: admin            web cons ::ffff:172.27.0. Tue Mar 23 14:49:04 +0000 2021
-        const date_fields = line.split(' ').slice(-5);
+        // or like this:         admin            web cons ::ffff:172.27.0. Thu Apr  1 08:58:51 +0000 2021
+        const date_fields = line.split(/ +/).slice(-5);
         const d = new Date(date_fields.join(' '));
         if (d.getTime() > 0)
             return d;

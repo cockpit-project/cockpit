@@ -87,7 +87,7 @@ class TestStorageResize(StorageCase):
             if grow_needs_unmount:
                 self.content_head_action(fsys_row, "Mount")
                 self.confirm()
-                self.wait_mounted(fsys_row, fsys_tab)
+            self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
             self.assertGreater(size, 300000)
         else:

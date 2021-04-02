@@ -34,6 +34,11 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
+if [ -z "$(which glib-gettextize)" ]; then
+    echo glib-gettextize is required to build cockpit
+    exit 1
+fi
+
 test "${NO_NPM:-}" != "1" && tools/npm-install
 
 rm -rf autom4te.cache

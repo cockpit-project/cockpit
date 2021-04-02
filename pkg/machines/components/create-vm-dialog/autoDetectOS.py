@@ -20,11 +20,11 @@ if url_type_media:
     db.identify_media(media)
     os = media.get_os()
     if os:
-        res = { 'os': os.get_id(), 'media': media.get_id() };
+        res = {'os': os.get_id(), 'media': media.get_id()}
 else:
     tree = Libosinfo.Tree().create_from_location(sys.argv[1])
     os, _ = db.guess_os_from_tree(tree)
     if os:
-        res = { 'os': os.get_id() };
+        res = {'os': os.get_id()}
 
 print(json.dumps(res))

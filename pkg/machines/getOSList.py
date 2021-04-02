@@ -78,7 +78,7 @@ for i in range(oses.get_length()):
 
             mediaInstallScripts = media.get_install_script_list()
             osObj['medias'][mediaId]['profiles'].extend(
-                     _getInstallScriptProfile(mediaInstallScripts))
+                _getInstallScriptProfile(mediaInstallScripts))
 
             if supports and not osObj['medias'][mediaId]['profiles']:
                 osObj['medias'][mediaId]['profiles'].extend(osObj['profiles'])

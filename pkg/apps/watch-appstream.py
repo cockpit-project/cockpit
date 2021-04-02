@@ -14,26 +14,27 @@ import json
 # replace the Inotify class; we would still need all the logic in the
 # Watcher class.
 
+
 class Watcher:
 
     def __init__(self):
         self.inotify = Inotify()
-        self.watches = { } # path -> wd
-        self.handlers = { } # wd -> set of callbacks
+        self.watches = {}  # path -> wd
+        self.handlers = {}  # wd -> set of callbacks
 
     def __add_watch(self, path, mask, handler):
         if path in self.watches:
             wd = self.watches[path]
-            self.handlers[wd] = self.handlers[wd] | frozenset([ handler ])
+            self.handlers[wd] = self.handlers[wd] | frozenset([handler])
         else:
             wd = self.inotify.add_watch(path, mask)
             if wd >= 0:
                 self.watches[path] = wd
-                self.handlers[wd] = frozenset([ handler ])
+                self.handlers[wd] = frozenset([handler])
 
     def __rem_watch(self, path, handler):
         wd = self.watches[path]
-        self.handlers[wd] = self.handlers[wd] - frozenset([ handler ])
+        self.handlers[wd] = self.handlers[wd] - frozenset([handler])
         if len(self.handlers[wd]) == 0:
             self.inotify.rem_watch(wd)
             del self.handlers[wd]
@@ -51,7 +52,7 @@ class Watcher:
 
         def handler(mask, name):
             if ((mask & IN_CREATE or mask & IN_MOVED_TO) and
-                cur_wait and name == cur_wait):
+                    cur_wait and name == cur_wait):
                 reset()
             elif mask & (IN_DELETE_SELF | IN_MOVE_SELF):
                 reset()
@@ -82,10 +83,13 @@ class Watcher:
                     h(mask, name)
         self.inotify.run(event)
 
+
 lang = os.environ.get('LANGUAGE')
+
 
 def attr_lang(elt):
     return elt.attrib.get('{http://www.w3.org/XML/1998/namespace}lang')
+
 
 def element(xml, tag):
     if lang:
@@ -94,11 +98,13 @@ def element(xml, tag):
                 return elt
     return xml.find(tag)
 
+
 def element_value(xml, tag):
     elt = element(xml, tag)
     return elt.text if elt is not None else None
 
-def convert_description(xml, use_lang = True):
+
+def convert_description(xml, use_lang=True):
     if xml is None:
         return None
 
@@ -118,20 +124,21 @@ def convert_description(xml, use_lang = True):
     def text(xml):
         return " ".join(xml.itertext())
 
-    res = [ ]
+    res = []
     for c in xml:
         if attr_lang(c) != want_lang:
             continue
         if c.tag == 'p':
             res.append(text(c))
         elif c.tag == 'ul' or c.tag == 'ol':
-            res.append({ 'tag': c.tag, 'items': list(map(text, c.findall('li'))) })
+            res.append({'tag': c.tag, 'items': list(map(text, c.findall('li')))})
 
     # If we found nothing that matches lang, fall back to default
     if lang is not None and len(res) == 0:
         res = convert_description(xml, False)
 
     return res
+
 
 def convert_cached_icon(dir, origin, xml):
     icon = xml.text
@@ -142,17 +149,20 @@ def convert_cached_icon(dir, origin, xml):
 
     return try_size("64x64") or try_size("128x128")
 
+
 def convert_remote_icon(xml):
     url = xml.text
     if url.startswith("http://") or url.startswith("https://"):
         return url
     return None
 
+
 def convert_local_icon(xml):
     path = xml.text
     if path.startswith("/"):
         return path
     return None
+
 
 def find_and_convert_icon(dir, origin, xml):
     if xml is None:
@@ -171,35 +181,39 @@ def find_and_convert_icon(dir, origin, xml):
 
     return None
 
+
 def convert_screenshots(xml):
     if xml is None:
-        return [ ]
+        return []
 
-    shots = [ ]
+    shots = []
     for sh in xml.iter('screenshot'):
         for img in sh.iter('image'):
             if img.attrib['type'] == 'source':
-                shots.append({ 'full': img.text })
+                shots.append({'full': img.text})
 
     return shots
 
+
 def convert_launchables(xml):
-    ables = [ ]
+    ables = []
 
     for elt in xml.iter('launchable'):
         type = elt.attrib['type']
         if type == "cockpit-manifest":
-            ables.append({ 'name': elt.text, 'type': type })
+            ables.append({'name': elt.text, 'type': type})
 
     return ables
 
+
 def convert_urls(xml):
-    urls = [ ]
+    urls = []
 
     for url in xml.iter('url'):
-        urls.append({ 'type': url.attrib['type'], 'link': url.text })
+        urls.append({'type': url.attrib['type'], 'link': url.text})
 
     return urls
+
 
 def convert_collection_component(dir, origin, xml):
     id = element_value(xml, 'id')
@@ -222,12 +236,13 @@ def convert_collection_component(dir, origin, xml):
         'urls': urls
     }
 
+
 def convert_upstream_component(file, xml):
     if xml.tag != 'component':
         return None
 
     launchables = convert_launchables(xml)
-    if len(launchables) ==  0:
+    if len(launchables) == 0:
         return None
 
     urls = convert_urls(xml)
@@ -245,32 +260,33 @@ def convert_upstream_component(file, xml):
         'urls': urls
     }
 
+
 class MetainfoDB:
     def __init__(self):
         self.dumping = False
-        self.installed_by_file = { }
-        self.available_by_file = { }
+        self.installed_by_file = {}
+        self.available_by_file = {}
 
     def notice_installed(self, file, xml_root):
         if xml_root is not None:
             comp = convert_upstream_component(file, xml_root)
             if comp is not None:
-                self.installed_by_file[file] = comp;
+                self.installed_by_file[file] = comp
         elif file in self.installed_by_file:
-            del self.installed_by_file[file];
+            del self.installed_by_file[file]
         if self.dumping:
             self.dump()
 
     def notice_available(self, file, xml_root):
         if xml_root is not None:
-            info = { }
+            info = {}
             origin = xml_root.attrib['origin']
             for xml_comp in xml_root.iter('component'):
                 try:
                     comp = convert_collection_component(os.path.dirname(file), origin, xml_comp)
                     if comp is not None:
                         if comp['id'] in info:
-                            pass # warning: duplicate id
+                            pass  # warning: duplicate id
                         else:
                             info[comp['id']] = comp
                 except KeyError:
@@ -282,22 +298,22 @@ class MetainfoDB:
             self.dump()
 
     def dump(self):
-        comps = { }
+        comps = {}
         for file in self.installed_by_file:
             comp = self.installed_by_file[file]
             if comp['id'] in comps:
-                pass # warn dup
+                pass  # warn dup
             else:
-                comps[comp['id']] = comp;
+                comps[comp['id']] = comp
         for file in self.available_by_file:
             for id in self.available_by_file[file]:
                 comp = self.available_by_file[file][id]
                 if not comp['id'] in comps:
-                    comps[comp['id']] = comp;
+                    comps[comp['id']] = comp
                 else:
                     z = comp.copy()
                     z.update(comps[comp['id']])
-                    comps[comp['id']] = z;
+                    comps[comp['id']] = z
 
         data = {
             'components': comps,
@@ -310,6 +326,7 @@ class MetainfoDB:
     def start_dumping(self):
         self.dump()
         self.dumping = True
+
 
 def watch_db():
     watcher = Watcher()
@@ -340,10 +357,11 @@ def watch_db():
     def available_callback(path):
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
-    watcher.watch_directory('/usr/share/metainfo',      installed_callback)
+    watcher.watch_directory('/usr/share/metainfo', installed_callback)
     watcher.watch_directory('/usr/share/app-info/xmls', available_callback)
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)
     db.start_dumping()
     watcher.run()
+
 
 watch_db()

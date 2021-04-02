@@ -3630,8 +3630,8 @@ function factory() {
          * close function to only work when a problem is
          * indicated.
          */
-        var old_close;
         if (shared) {
+            const old_close = client.close;
             client.close = function() {
                 if (arguments.length > 0)
                     old_close.apply(client, arguments);

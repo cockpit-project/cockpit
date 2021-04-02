@@ -1,6 +1,10 @@
 #! /usr/bin/python3
 
-import sys, os, time, json
+import sys
+import os
+import time
+import json
+
 
 class Watcher:
     def __init__(self, path):
@@ -23,7 +27,7 @@ class Watcher:
                   IN_MOVE_SELF)
         self.wd = self.inotify.add_watch(self.cur_path, events)
 
-    def process(self, callback = None):
+    def process(self, callback=None):
         def event(wd, mask, name):
             want_callback = self.cur_path == self.path
             if self.cur_wait and name == self.cur_wait:
@@ -35,6 +39,7 @@ class Watcher:
             if want_callback and callback:
                 callback()
         self.inotify.process(event)
+
 
 if sys.version_info >= (3, 0):
     from vdo.statistics import *
@@ -50,39 +55,43 @@ else:
     from vdomgmnt import *
 
 # Converts NotAvailable to None, recursively, and other things.  The goal is to make OBJ serializable.
+
+
 def wash(obj):
     if isinstance(obj, NotAvailable):
         return None
     elif isinstance(obj, SizeString):
         return int(obj)
     elif isinstance(obj, dict):
-        return { key: wash(obj[key]) for key in obj.keys() }
+        return {key: wash(obj[key]) for key in obj.keys()}
     elif isinstance(obj, list):
         return list(map(wash, obj))
     else:
         return obj
 
+
 def dump_washed(obj):
     sys.stdout.write(json.dumps(wash(obj)) + "\n")
     sys.stdout.flush()
+
 
 def monitor_config():
     def query():
         try:
             conf = Configuration("/etc/vdoconf.yml")
-            return [ { "name": vdo.getName(),
-                       "broken": vdo.unrecoverablePreviousOperationFailure,
-                       "device": vdo.device,
-                       "logical_size": vdo.logicalSize,
-                       "physical_size": vdo.physicalSize,
-                       "index_mem": vdo.indexMemory,
-                       "activated": vdo.activated,
-                       "compression": vdo.enableCompression,
-                       "deduplication": vdo.enableDeduplication }
-                     for vdo in conf.getAllVdos().values() ]
+            return [{"name": vdo.getName(),
+                     "broken": vdo.unrecoverablePreviousOperationFailure,
+                     "device": vdo.device,
+                     "logical_size": vdo.logicalSize,
+                     "physical_size": vdo.physicalSize,
+                     "index_mem": vdo.indexMemory,
+                     "activated": vdo.activated,
+                     "compression": vdo.enableCompression,
+                     "deduplication": vdo.enableDeduplication}
+                    for vdo in conf.getAllVdos().values()]
         except Exception as e:
             sys.stderr.write(str(e) + "\n")
-            return [ ]
+            return []
 
     def event():
         dump_washed(query())
@@ -92,13 +101,14 @@ def monitor_config():
     while True:
         watcher.process(event)
 
+
 def monitor_volume(dev):
 
-    monitored_fields = [ 'blockSize',
-                         'dataBlocksUsed', 'overheadBlocksUsed',
-                         'logicalBlocksUsed',
-                         'usedPercent', 'savingPercent'
-    ]
+    monitored_fields = ['blockSize',
+                        'dataBlocksUsed', 'overheadBlocksUsed',
+                        'logicalBlocksUsed',
+                        'usedPercent', 'savingPercent'
+                        ]
 
     # Older versions let us use a string directly, newer versions want
     # it to be pre-processed.
@@ -109,15 +119,15 @@ def monitor_volume(dev):
 
     def sample():
         try:
-            stats = Samples.assay([ VDOStatistics() ], dev, False).samples[0].sample
-            return { key: stats.get(key) for key in monitored_fields }
+            stats = Samples.assay([VDOStatistics()], dev, False).samples[0].sample
+            return {key: stats.get(key) for key in monitored_fields}
         except Exception as e:
             # Ignore errors from non-existing devices.  These happen
             # briefly when a VDO volume is being stopped or deleted
             # and the monitor hasn't been killed yet.
-            if not "[Errno 2]" in str(e):
+            if "[Errno 2]" not in str(e):
                 raise
-            return { }
+            return {}
 
     prev = None
     while True:
@@ -126,6 +136,7 @@ def monitor_volume(dev):
             dump_washed(data)
         prev = data
         time.sleep(2)
+
 
 if len(sys.argv) == 1:
     monitor_config()

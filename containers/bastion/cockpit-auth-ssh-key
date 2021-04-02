@@ -35,9 +35,11 @@ COCKPIT_SSH_COMMAND = "/usr/libexec/cockpit-ssh"
 # cockpit protocol
 # (https://github.com/cockpit-project/cockpit/blob/master/doc/protocol.md)
 
+
 def usage():
     sys.stderr.write("usage {} [user@]host[:port]\n".format(sys.argv[0]))
     sys.exit(os.EX_USAGE)
+
 
 def send_auth_command(challenge, response):
     cmd = {
@@ -51,8 +53,9 @@ def send_auth_command(challenge, response):
         cmd["response"] = response
 
     text = json.dumps(cmd).encode('utf-8')
-    os.write(1, "{}\n\n".format(len(text)+1).encode('utf-8'))
+    os.write(1, "{}\n\n".format(len(text) + 1).encode('utf-8'))
     os.write(1, text)
+
 
 def send_problem_init(problem, message, auth_methods):
     cmd = {
@@ -67,8 +70,9 @@ def send_problem_init(problem, message, auth_methods):
         cmd["auth-method-results"] = auth_methods
 
     text = json.dumps(cmd).encode('utf-8')
-    os.write(1, "{}\n\n".format(len(text)+1).encode('utf-8'))
+    os.write(1, "{}\n\n".format(len(text) + 1).encode('utf-8'))
     os.write(1, text)
+
 
 def read_size(fd):
     sep = b'\n'
@@ -92,6 +96,7 @@ def read_size(fd):
 
     return size
 
+
 def read_frame(fd):
     size = read_size(fd)
 
@@ -103,6 +108,7 @@ def read_frame(fd):
 
     return data
 
+
 def read_auth_reply():
     data = read_frame(1)
     cmd = json.loads(data)
@@ -113,22 +119,24 @@ def read_auth_reply():
 
     return response
 
+
 def decode_basic_header(response):
     starts = "Basic "
 
     assert response
     assert response.startswith(starts), response
-    
+
     val = base64.b64decode(response[len(starts):].encode('utf-8')).decode("utf-8")
     user, password = val.split(':', 1)
     return user, password
+
 
 def send_decrypted_key(fname, password):
     r, w = os.pipe()
     os.set_inheritable(r, True)
     os.set_inheritable(w, True)
     p = subprocess.Popen(["openssl", "rsa", "-in", fname, "-passin", "fd:{}".format(r)],
-                         preexec_fn=lambda:os.close(w),
+                         preexec_fn=lambda: os.close(w),
                          pass_fds=(r,),
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -144,6 +152,7 @@ def send_decrypted_key(fname, password):
         sys.stderr.write("Couldn't open private key: {}".format(err))
         return False
 
+
 def main(args):
     if len(args) != 2:
         usage()
@@ -151,24 +160,23 @@ def main(args):
     host = args[1]
     key_name = os.environ.get("COCKPIT_SSH_KEY_PATH")
     if key_name:
-        send_auth_command ("*", None)
+        send_auth_command("*", None)
         try:
             resp = read_auth_reply()
             user, password = decode_basic_header(resp)
         except (ValueError, TypeError, AssertionError) as e:
-            send_problem_init ("internal-error", str(e), {})
+            send_problem_init("internal-error", str(e), {})
             raise
 
         if send_decrypted_key(key_name, password):
             host = "{}@{}".format(user, host)
         else:
             send_problem_init("authentication-failed", "Couldn't open private key",
-                          { "password": "denied" })
+                              {"password": "denied"})
             return
 
     os.execlpe(COCKPIT_SSH_COMMAND, COCKPIT_SSH_COMMAND, host, os.environ)
 
+
 if __name__ == '__main__':
     main(sys.argv)
-
-

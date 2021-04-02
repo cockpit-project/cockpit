@@ -119,10 +119,10 @@ fi
 if [ -z "${PYTHON_STYLE_CHECKER-}" ]; then
     echo "ok 7 pycodestyle test # SKIP pycodestyle not installed"
 else
-    # all normal files in test/ and tools/ which are either:
+    # all normal files which are either:
     #   - filename is *.py
     #   - executable matching ^#!/usr/bin/python3
-    PYFILES="$(find test/ tools/ -type f '(' -name '*.py' -o -executable -execdir grep -q '^#!/usr/bin/python3' '{}' ';' ')'  -print)"
+    PYFILES="$(find . -type f '(' -name '*.py' -o -executable -execdir grep -q '^#!/usr/bin/python3' '{}' ';' ')'  -print)"
     # W504 and W503 are mutually exclusive (and both disabled by default)
     # explicitly giving '--ignore W504' here is actually more strict than the default
     # TODO: E402 should be fixed

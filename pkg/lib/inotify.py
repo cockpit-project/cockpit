@@ -19,8 +19,7 @@
 import os
 import ctypes
 import struct
-import subprocess
-import traceback
+
 
 IN_CLOSE_WRITE = 0x00000008
 IN_MOVED_FROM  = 0x00000040

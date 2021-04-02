@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import traceback
 
 import gzip
@@ -325,7 +324,7 @@ def watch_db():
                 callback(path, ET.parse(path).getroot())
             elif path.endswith('.xml.gz'):
                 callback(path, ET.parse(gzip.open(path)).getroot())
-        except:
+        except BaseException:
             # If we hit an exception during handling a file, pretend
             # that it doesn't exist instead of keeping old data.  This
             # makes the behavior consistent across restarts of this

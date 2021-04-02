@@ -149,6 +149,8 @@ def main():
     with open(opts.output, "w") as f:
         f.write(output)
 
+    return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

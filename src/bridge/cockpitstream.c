@@ -349,12 +349,10 @@ dispatch_input (GPollableInputStream *is,
           stop_input (self);
           break;
         }
-      else if (ret > 0)
-        {
-          g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
-          self->priv->received = TRUE;
-          read = TRUE;
-        }
+
+      g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
+      self->priv->received = TRUE;
+      read = TRUE;
     }
 
   g_object_ref (self);

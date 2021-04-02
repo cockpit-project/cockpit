@@ -40,24 +40,22 @@ read_file (int dirfd,
            const char *cgroup,
            const char *fname)
 {
-  int fd = -1;
-  ssize_t len;
   const char *ret = NULL;
 
-  fd = openat (dirfd, fname, O_RDONLY);
+  const int fd = openat (dirfd, fname, O_RDONLY);
   if (fd < 0)
     {
       if (errno == ENOENT || errno == ENODEV)
         g_debug ("samples file not found: %s/%s", cgroup, fname);
       else
         g_message ("error opening file: %s/%s: %m", cgroup, fname);
-      return NULL;
+      goto out;
     }
 
   /* don't do fancy retry/error handling here -- we know what cgroupfs attributes look like,
    * it's a virtual file system (does not block/no multiple reads), and it's ok to miss
    * one sample due to EINTR or some race condition */
-  len = read (fd, buf, bufsize);
+  const ssize_t len = read (fd, buf, bufsize);
   if (len < 0)
     {
       g_message ("error loading file: %s/%s: %m", cgroup, fname);

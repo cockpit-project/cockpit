@@ -214,7 +214,7 @@ cockpit_base64_ntop (const unsigned char *src,
 
   while (srclength > 0)
     {
-      if (2 < srclength)
+      if (srclength >= 3)
         {
           input[0] = *src++;
           input[1] = *src++;
@@ -227,9 +227,9 @@ cockpit_base64_ntop (const unsigned char *src,
           output[3] = input[2] & 0x3f;
 
         }
-      else if (0 != srclength)
+      else
         {
-          /* Get what's left. */
+          /* srclength 1 or 2: Get what's left. */
           input[0] = input[1] = input[2] = '\0';
           for (i = 0; i < srclength; i++)
             input[i] = *src++;

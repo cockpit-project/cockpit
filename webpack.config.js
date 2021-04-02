@@ -252,8 +252,6 @@ const childProcess = require('child_process');
 const path = require("path");
 const fs = require("fs");
 
-const webpack = require("webpack");
-
 const copy = require("copy-webpack-plugin");
 const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -264,7 +262,6 @@ const IncludedModulesPlugin = require("./pkg/lib/included-modules-plugin");
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
 const builddir = process.env.BUILDDIR || __dirname;
-const distdir = builddir + path.sep + "dist";
 const libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 const nodedir = path.resolve(srcdir, "node_modules");
 const section = process.env.ONLYDIR || null;
@@ -416,7 +413,7 @@ const babel_loader = {
             "@babel/preset-react"
         ]
     }
-}
+};
 
 /* check if sassc is available, to avoid unintelligible error messages */
 try {

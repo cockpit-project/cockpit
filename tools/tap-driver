@@ -45,19 +45,16 @@ def out(data, stream=None, flush=False):
         data = data.encode("UTF-8")
     if not stream:
         stream = sys.stdout.buffer
-    while True:
+    while data or flush:
         try:
             if data:
-                stream.write(data)
-            data = None
+                length = stream.write(data)
+                data = data[length:]
             if flush:
                 stream.flush()
-            flush = False
-            break
-        except IOError as e:
-            if e.errno == errno.EAGAIN:
-                continue
-            raise
+                flush = False
+        except BlockingIOError:
+            pass
 
 
 def terminal_width():

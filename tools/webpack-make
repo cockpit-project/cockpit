@@ -127,25 +127,25 @@ function generateDeps(makefile, stats) {
         if (!output.endsWith("/manifest.json") && !output.endsWith(".map"))
             outputs[output] = output;
 
-	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {
+	if (output.indexOf("/test-") !== -1 && output.endsWith(".html")) {
             tests[output] = output;
             continue;
         }
 
         var install = output;
-	if (!endsWith(output, "manifest.json") &&
-            !endsWith(output, "override.json") &&
+	if (!output.endsWith("manifest.json") &&
+            !output.endsWith("override.json") &&
             // COMPAT: Support older cockpit-ws binaries. See #14673
-            !endsWith(output, "shell/index.html") &&
+            !output.endsWith("shell/index.html") &&
             // cockpit-ws cannot currently serve compressed login page
             output.indexOf("static/login") < 0 &&
             output.indexOf("static/po.") < 0 &&
-            !endsWith(output, ".png") &&
-            !endsWith(output, ".map") &&
-            !endsWith(output, ".ttf") &&
-            !endsWith(output, ".woff") &&
-            !endsWith(output, ".woff2") &&
-            !endsWith(output, ".gif")) {
+            !output.endsWith(".png") &&
+            !output.endsWith(".map") &&
+            !output.endsWith(".ttf") &&
+            !output.endsWith(".woff") &&
+            !output.endsWith(".woff2") &&
+            !output.endsWith(".gif")) {
             install += ".gz";
         }
 
@@ -207,7 +207,7 @@ function generateDeps(makefile, stats) {
 
 function maybePushInput(inputs, input) {
     // Don't include or external refs
-    if (endsWith(input, '/') ||
+    if (input.endsWith('/') ||
         input.indexOf("external ") === 0 || input.indexOf("multi ") === 0) {
         return;
     }
@@ -230,8 +230,4 @@ function maybePushInput(inputs, input) {
     }
 
     inputs[input] = true;
-}
-
-function endsWith(string, suffix) {
-    return (string.lastIndexOf(suffix) === (string.length - suffix.length))
 }

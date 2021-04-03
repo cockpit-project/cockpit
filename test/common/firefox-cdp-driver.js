@@ -383,7 +383,19 @@ CDP(options)
                             fail(message.split("\n")[0]);
                             clearExceptions();
                         }
-                    }, fail);
+                    }, err => {
+                        // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
+                        // translate that into a proper timeout exception
+                        if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
+                            success({exceptionDetails: {
+                                exception: {
+                                    type: "string",
+                                    value: "timeout",
+                                }
+                            }});
+                        } else
+                            fail(err);
+                    });
 
                     input_buf = input_buf.slice(i+1);
                 }

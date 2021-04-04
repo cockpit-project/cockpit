@@ -36,7 +36,7 @@ class TestEmbed(MachineCase):
 
         # replace the shell with our embedded page, this way we can avoid
         # cross-origin errors when executing js in the iframe
-        m.write("/etc/cockpit/cockpit.conf","""
+        m.write("/etc/cockpit/cockpit.conf", """
 [WebService]
 Shell=/embed-cockpit/index.html
 """)
@@ -45,7 +45,7 @@ Shell=/embed-cockpit/index.html
 
         b.wait_visible("#embed-loaded")
         b.wait_visible("#embed-address")
-        m.write("/etc/cockpit/cockpit.conf","""
+        m.write("/etc/cockpit/cockpit.conf", """
 [WebService]
 Shell=/shell/index.html
 """)

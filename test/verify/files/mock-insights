@@ -21,7 +21,8 @@ from http.server import *
 import json
 import re
 
-systems = { }
+systems = {}
+
 
 class handler(BaseHTTPRequestHandler):
     def match(self, p):
@@ -134,7 +135,9 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
+
 def insights_server(port):
     HTTPServer(('', port), handler).serve_forever()
+
 
 insights_server(8888)

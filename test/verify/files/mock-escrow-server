@@ -3,6 +3,7 @@
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -14,12 +15,15 @@ class handler(BaseHTTPRequestHandler):
         global secret
         len = int(self.headers.get('content-length', 0))
         secret = self.rfile.read(len)
-        with open(store, "wb") as f: f.write(secret)
+        with open(store, "wb") as f:
+            f.write(secret)
         self.send_response(200)
         self.end_headers()
 
+
 def escrow_server(port):
     HTTPServer(('', port), handler).serve_forever()
+
 
 store = sys.argv[1]
 

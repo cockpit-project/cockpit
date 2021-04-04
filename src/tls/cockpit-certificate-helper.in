@@ -56,6 +56,17 @@ cmd_ipa_request() {
     install_key 10-ipa.key
 }
 
+cmd_ipa_cleanup() {
+        # clean up keytab
+        if [ -e "${KEYTAB}" ]; then
+            ipa-rmkeytab -k "${KEYTAB}" -p "${SERVICE}"
+        fi
+
+        # clean up certificate
+        ipa-getcert stop-tracking -f 10-ipa.cert -k 10-ipa.key
+        rm "${COCKPIT_WS_CERTS_D}/10-ipa.cert" "${COCKPIT_WS_CERTS_D}/10-ipa.key"
+}
+
 cmd_ipa() {
     local REALM="$2"
 
@@ -75,6 +86,9 @@ cmd_ipa() {
     case "$1" in
         request)
             cmd_ipa_request "$3"
+            ;;
+        cleanup)
+            cmd_ipa_cleanup
             ;;
         *)
             echo 'unknown subcommand'

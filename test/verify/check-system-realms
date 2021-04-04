@@ -521,6 +521,7 @@ ExecStart=/bin/true
         m.execute("! klist -k /etc/cockpit/krb5.keytab | grep COCKPIT.LAN")
         # should have cleaned up certificates
         m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.cert")
+        m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.key")
         # should have stopped cert tracking
         wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 

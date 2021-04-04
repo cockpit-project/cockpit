@@ -418,18 +418,9 @@ function instance(realmd, mode, realm, state) {
         kerberos = realmd.proxy(KERBEROS, realm.path);
         kerberos.wait()
                 .done(function() {
-                // ipa-rmkeytab needs root
-                    var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
-
-                    // clean up keytab
-                    script += '[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
-                    '"HTTP/$(hostname -f)@' + kerberos.RealmName + '"; ';
-
-                    // clean up certificate
-                    script += 'ipa-getcert stop-tracking -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key; ' +
-                          'rm -f /etc/cockpit/ws-certs.d/10-ipa.cert; ';
-
-                    cockpit.script(script, [], { superuser: "require", err: "message" })
+                    const helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
+                    cockpit.spawn([helper, "ipa", "cleanup", kerberos.RealmName],
+                                  { superuser: "require", err: "message" })
                             .done(dfd.resolve)
                             .fail(function(ex) {
                                 console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));

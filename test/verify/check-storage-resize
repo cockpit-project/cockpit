@@ -89,7 +89,7 @@ class TestStorageResize(StorageCase):
                 self.confirm()
                 self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
-            assert (size > 300000)
+            self.assertGreater(size, 300000)
         else:
             self.wait_content_tab_action_disabled(1, 1, "Grow")
 
@@ -112,7 +112,7 @@ class TestStorageResize(StorageCase):
                 self.confirm()
                 self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
-            assert (size < 300000)
+            self.assertLess(size, 300000)
         else:
             self.wait_content_tab_action_disabled(1, 1, "Shrink")
 

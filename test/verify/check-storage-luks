@@ -47,7 +47,7 @@ class TestStorageLuks(StorageCase):
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 0, "Free space")
 
-        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
+        self.assertEqual(m.execute("grep -v ^# /etc/crypttab || true").strip(), "")
 
         # Format it with luks
         self.content_row_action(1, "Create partition")
@@ -70,9 +70,9 @@ class TestStorageLuks(StorageCase):
         self.wait_in_storaged_configuration(mount_point_secret)
         self.wait_in_storaged_configuration("crypto,options")
         # HACK: Put /etc/crypttab in the journal, in order to debug updating issues
-        assert m.execute("cat /etc/crypttab | logger -s 2>&1 | grep 'UUID='") != ""
-        assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
-        assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
+        self.assertNotEqual(m.execute("cat /etc/crypttab | logger -s 2>&1 | grep 'UUID='"), "")
+        self.assertNotEqual(m.execute("grep %s /etc/fstab" % mount_point_secret), "")
+        self.assertEqual(m.execute("cat /etc/luks-keys/*"), "vainu-reku-toma-rolle-kaja")
 
         # Lock it
         self.content_dropdown_action(1, "Lock")
@@ -94,7 +94,7 @@ class TestStorageLuks(StorageCase):
                                expect={"crypto_options.extra": "crypto,options"},
                                values={"crypto_options.extra": "weird,options"})
 
-        assert m.execute("grep 'weird,options' /etc/crypttab") != ""
+        self.assertNotEqual(m.execute("grep 'weird,options' /etc/crypttab"), "")
         self.wait_in_storaged_configuration("weird,options")
 
         # Change passphrase
@@ -103,7 +103,7 @@ class TestStorageLuks(StorageCase):
                                expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
                                values={"passphrase": "wrong-passphrase"})
 
-        assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
+        self.assertEqual(m.execute("cat /etc/luks-keys/*"), "wrong-passphrase")
 
         # Remove passphrase
         edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + dd button"
@@ -129,8 +129,8 @@ class TestStorageLuks(StorageCase):
         # luksmeta-monitor-hack.py races with the partition deletion
         self.allow_journal_messages('Unknown device .*: No such file or directory')
 
-        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
-        assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
+        self.assertEqual(m.execute("grep -v ^# /etc/crypttab || true").strip(), "")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_secret), "")
 
         # luksmeta-monitor-hack.py might leave a udevadm process
         # behind, so let's check that the session goes away cleanly

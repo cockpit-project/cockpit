@@ -291,7 +291,7 @@ class TestMultiMachine(MachineCase):
         if not known_host:
             b.wait_in_text("#hostkey-message-1", "10.111.113.2")
             match = re.match(r'\((?:ssh-)?([^-]*).*\)', b.text("#hostkey-type"))
-            assert match
+            self.assertIsNotNone(match)
             algo = match.groups()[0]
             try:
                 # This assumes that all fingerprints use SHA256.

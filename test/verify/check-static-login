@@ -194,7 +194,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                     b.wait_not_in_text('#login-messages', 'failed')
 
             else:
-                assert not n_fail
+                self.assertEqual(n_fail, 0)
                 b.wait_visible('#login-messages[empty=yes]')
                 self.assertFalse(b.is_present('#last-login'))
                 self.assertFalse(b.is_present('#last-failed-login'))
@@ -415,9 +415,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     def curl_auth_code(self, url, userpass):
         lines = self.curl_auth(url, userpass).splitlines()
-        assert len(lines) > 0
+        self.assertGreater(len(lines), 0)
         tokens = lines[0].split(' ', 2)
-        assert len(tokens) == 3
+        self.assertEqual(len(tokens), 3)
         return int(tokens[1])
 
     def testRaw(self):

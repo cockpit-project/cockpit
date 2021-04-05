@@ -14,7 +14,7 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
-def getMaximumSpike(browser, g_type, saturation, hour, minute):
+def getMaximumSpike(test, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
     sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} polygon".format(hour, g_type, minute)
     if saturation:
@@ -22,35 +22,35 @@ def getMaximumSpike(browser, g_type, saturation, hour, minute):
     else:
         sel += ":first-child"
 
-    points = browser.attr(sel, "points")
-    assert "NaN" not in points, points
+    points = test.browser.attr(sel, "points")
+    test.assertNotIn("NaN", points)
     xs = [float(x.split(",")[0]) for x in points.split()]
 
     return max(xs)
 
 
-def getCompressedMinuteValue(browser, g_type, saturation, hour, minute):
+def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
     sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} .compressed".format(hour, g_type, minute)
-    m = re.search("--%s:([0-9.]+);" % (saturation and "saturation" or "utilization"), browser.attr(sel, "style"))
-    assert m
+    m = re.search("--%s:([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
+    test.assertIsNotNone(m)
     return float(m.group(1))
 
 
-def progressValue(browser, progress_bar_sel):
+def progressValue(test, progress_bar_sel):
     sel = progress_bar_sel + " .pf-c-progress__indicator"
-    browser.wait_visible(sel)
-    browser.wait_attr_contains(sel, "style", "width:")
-    style = browser.attr(sel, "style")
+    test.browser.wait_visible(sel)
+    test.browser.wait_attr_contains(sel, "style", "width:")
+    style = test.browser.attr(sel, "style")
     m = re.search(r"width: (\d+)%;", style)
     return int(m.group(1))
 
 
-def topServiceValue(browser, aria_label, col_label, row):
+def topServiceValue(test, aria_label, col_label, row):
     sel = "table[aria-label='%s'] tbody tr:nth-of-type(%d) td[data-label='%s']" % (aria_label, row, col_label)
     # split off unit, like "12 MB"
-    return float(browser.text(sel).split(' ')[0])
+    return float(test.browser.text(sel).split(' ')[0])
 
 
 def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
@@ -207,19 +207,19 @@ class TestHistoryMetrics(MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # Big spike lasting 3 minutes
-        self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 25), 0.9)
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 26), 0.9)
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 27), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(self, "disks", False, 1597662000000, 25), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 26), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 27), 0.9)
 
         # Smaller spike lasting 2 minutes
-        self.assertGreaterEqual(getMaximumSpike(b, "disks", False, 1597662000000, 28), 0.4)
-        self.assertLessEqual(getMaximumSpike(b, "disks", False, 1597662000000, 28), 0.6)
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 29), 0.4)
+        self.assertGreaterEqual(getMaximumSpike(self, "disks", False, 1597662000000, 28), 0.4)
+        self.assertLessEqual(getMaximumSpike(self, "disks", False, 1597662000000, 28), 0.6)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 29), 0.4)
         # recognized as event
         self.assertIn("Disk I/O spike", events_at(1597662000000, 28))
 
         # No visible activity after that
-        self.assertLessEqual(getCompressedMinuteValue(b, "disks", False, 1597662000000, 30), 0.01)
+        self.assertLessEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 30), 0.01)
 
         # swap usage is not shown if there is no swap
         b.wait_visible("#current-memory-usage")
@@ -241,43 +241,43 @@ class TestHistoryMetrics(MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # Test network - Big spike lasting 2 minutes
-        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 3), 0.5)
-        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 4), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 3), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 4), 0.5)
         # recognized as event
         self.assertIn("Network I/O spike", events_at(1598950800000, 3))
         # but it's not a new event in minute 4
         self.assertNotIn("Network I/O spike", events_at(1598950800000, 4))
 
         # Followed by smaller spike
-        self.assertGreaterEqual(getMaximumSpike(b, "network", False, 1598950800000, 5), 0.35)
-        self.assertLessEqual(getMaximumSpike(b, "network", False, 1598950800000, 5), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.35)
+        self.assertLessEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.5)
         # still not a new spike
         self.assertNotIn("Network I/O spike", events_at(1598950800000, 5))
 
         # Followed by virtually no data
-        self.assertLessEqual(getCompressedMinuteValue(b, "network", False, 1598950800000, 6), 0.01)
+        self.assertLessEqual(getCompressedMinuteValue(self, "network", False, 1598950800000, 6), 0.01)
 
         # Test CPU load - big - small - big spikes
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 3), 0.9)
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 4), 0.5)
-        self.assertLessEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 4), 0.55)
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598950800000, 5), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 3), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.5)
+        self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.55)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 5), 0.9)
         self.assertIn("CPU spike", events_at(1598950800000, 2))
         self.assertIn("CPU spike", events_at(1598950800000, 5))
 
         # Test CPU saturation - 3 spikes, each 2 minutes (medium, big, small)
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 3), 0.5)
-        self.assertLessEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 3), 0.6)
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 4), 0.5)
-        self.assertLessEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 4), 0.6)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 3), 0.5)
+        self.assertLessEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 3), 0.6)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 4), 0.5)
+        self.assertLessEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 4), 0.6)
 
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", True, 1598950800000, 5), 0.8)
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 6), 0.8)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 5), 0.8)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 6), 0.8)
 
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 7), 0.3)
-        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 7), 0.4)
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 8), 0.3)
-        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", True, 1598950800000, 8), 0.4)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 7), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 7), 0.4)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.4)
 
         self.assertNotIn("Load spike", events_at(1598950800000, 2))
         self.assertIn("Load spike", events_at(1598950800000, 3))
@@ -297,17 +297,17 @@ class TestHistoryMetrics(MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
-        self.assertLessEqual(getMaximumSpike(b, "memory", False, 1600236000000, 44), 0.3)
+        self.assertLessEqual(getMaximumSpike(self, "memory", False, 1600236000000, 44), 0.3)
         self.assertNotIn("Memory spike", events_at(1600236000000, 44))
         if have_swap:
-            self.assertAlmostEqual(getMaximumSpike(b, "memory", True, 1600236000000, 44), 0)
+            self.assertAlmostEqual(getMaximumSpike(self, "memory", True, 1600236000000, 44), 0)
             self.assertNotIn("Swap", events_at(1600236000000, 44))
 
             # swap event from :46 to :47
-            self.assertGreater(getMaximumSpike(b, "memory", True, 1600236000000, 46), 0.9)
+            self.assertGreater(getMaximumSpike(self, "memory", True, 1600236000000, 46), 0.9)
             self.assertIn("Swap", events_at(1600236000000, 46))
             # continuous, no new Swap event, but still a Memory+Network event
-            self.assertGreater(getMaximumSpike(b, "memory", True, 1600236000000, 47), 0.9)
+            self.assertGreater(getMaximumSpike(self, "memory", True, 1600236000000, 47), 0.9)
             self.assertNotIn("Swap", events_at(1600236000000, 47))
 
         else:
@@ -316,19 +316,19 @@ class TestHistoryMetrics(MachineCase):
             b.wait_not_present(".metrics-data-memory .saturation")
 
         # memory spike in :47
-        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 47), 0.6)
+        self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 47), 0.6)
         self.assertIn("Memory spike", events_at(1600236000000, 47))
 
         # at :54 the machine is loaded to ~80% so no event even if elevated
-        self.assertGreater(getCompressedMinuteValue(b, "memory", False, 1600236000000, 54), 0.8)
+        self.assertGreater(getCompressedMinuteValue(self, "memory", False, 1600236000000, 54), 0.8)
         b.wait_text("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events", "")
         if have_swap:
-            self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 54), 0.0)
+            self.assertAlmostEqual(getCompressedMinuteValue(self, "memory", True, 1600236000000, 54), 0.0)
 
         # everything is quiet in :55
-        self.assertLess(getCompressedMinuteValue(b, "memory", False, 1600236000000, 55), 0.4)
+        self.assertLess(getCompressedMinuteValue(self, "memory", False, 1600236000000, 55), 0.4)
         if have_swap:
-            self.assertAlmostEqual(getCompressedMinuteValue(b, "memory", True, 1600236000000, 55), 0.0)
+            self.assertAlmostEqual(getCompressedMinuteValue(self, "memory", True, 1600236000000, 55), 0.0)
 
         b.logout()
 
@@ -342,7 +342,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_text(".pf-c-select__toggle-text", "Today")
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, Sep 16, 2020")
-        self.assertGreater(getMaximumSpike(b, "memory", False, 1600236000000, 51), 0.5)
+        self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
         self.assertIn("Memory spike", events_at(1600236000000, 51))
 
         b.click(".pf-c-select__toggle")
@@ -439,10 +439,10 @@ class TestCurrentMetrics(MachineCase):
         nproc = m.execute("nproc").strip()
         b.wait_in_text("#current-cpu-usage", nproc + " CPU")
         # wait until system settles down
-        b.wait(lambda: progressValue(b, "#current-cpu-usage") < 20)
+        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
-        b.wait(lambda: progressValue(b, "#current-cpu-usage") > 75)
+        b.wait(lambda: progressValue(self, "#current-cpu-usage") > 75)
         # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
         b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
         b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(2) td[data-label='Service']", "cpu-piglet")
@@ -450,17 +450,17 @@ class TestCurrentMetrics(MachineCase):
         # There might be some other processes which take more resources
         # Keep this logging so we can easily debug which ones we might need to cleanup
         try:
-            b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 1) > 50)
-            b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 1) < 70)
-            b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 2) > 20)
-            b.wait(lambda: topServiceValue(b, "Top 5 CPU services", "%", 2) < 40)
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 50)
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) < 70)
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) > 20)
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) < 40)
         except BaseException:
             print(m.execute("top -b -n 1"))
             raise
 
         m.execute("systemctl stop cpu-hog cpu-piglet")
         # should go back to idle usage
-        b.wait(lambda: progressValue(b, "#current-cpu-usage") < 20)
+        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
         # it could be that the table disappears completely if no service has a noticeable CPU usage;
         # so don't assume the table exists
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-hog")
@@ -490,11 +490,11 @@ class TestCurrentMetrics(MachineCase):
         # only some images have swap
         have_swap = m.execute("swapon --show").strip()
         # wait until RAM usage is initialized
-        b.wait(lambda: progressValue(b, "#current-memory-usage") > 10)
+        b.wait(lambda: progressValue(self, "#current-memory-usage") > 10)
 
         # our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
         b.wait_in_text("#current-memory-usage", " GiB")
-        initial_usage = progressValue(b, "#current-memory-usage")
+        initial_usage = progressValue(self, "#current-memory-usage")
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
@@ -505,12 +505,12 @@ class TestCurrentMetrics(MachineCase):
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 3s
         time.sleep(8)
-        hog_usage = progressValue(b, "#current-memory-usage")
+        hog_usage = progressValue(self, "#current-memory-usage")
         self.assertGreater(hog_usage, initial_usage + 8)
 
         b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", "mem-hog")
-        b.wait(lambda: topServiceValue(b, "Top 5 memory services", "Used", 1) > size)
-        b.wait(lambda: topServiceValue(b, "Top 5 memory services", "Used", 1) < size + 50)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) > size)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) < size + 50)
 
         # total memory is shown as tooltip
         b.mouse("#current-memory-usage", "mouseenter")
@@ -531,13 +531,13 @@ class TestCurrentMetrics(MachineCase):
             # use even more memory to trigger swap
             m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
                       """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
-            b.wait(lambda: progressValue(b, "#current-swap-usage") > 0)
+            b.wait(lambda: progressValue(self, "#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")
 
             # should go back to initial_usage; often below, due to paged out stuff
-            b.wait(lambda: progressValue(b, "#current-memory-usage") <= initial_usage)
-            self.assertGreater(progressValue(b, "#current-memory-usage"), 10)
+            b.wait(lambda: progressValue(self, "#current-memory-usage") <= initial_usage)
+            self.assertGreater(progressValue(self, "#current-memory-usage"), 10)
             b.wait_not_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-hog")
 
             # total swap is shown as tooltip
@@ -584,7 +584,7 @@ class TestCurrentMetrics(MachineCase):
                   """)
         self.addCleanup(m.execute, "umount /var/cockpittest /var/cockpit-ro-test")
 
-        self.assertLess(progressValue(b, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
+        self.assertLess(progressValue(self, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
         progress_sel = ".pf-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-c-progress__status"
         # free size is anything between 40 and 50 MB
         self.assertRegex(b.text(progress_sel), r"^4\d\.\d MB free$")
@@ -598,7 +598,7 @@ class TestCurrentMetrics(MachineCase):
         self.assertFalse(b.is_present(".pf-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))
 
         m.execute("dd if=/dev/zero of=/var/cockpittest/blob bs=1M count=40")
-        b.wait(lambda: progressValue(b, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
+        b.wait(lambda: progressValue(self, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
 
         # clicking on progress leads to the storage page
         if m.image != "fedora-coreos":
@@ -714,18 +714,18 @@ class TestMultiCPU(MachineCase):
         login(self)
 
         # one core is busy, the other idle -- that should be 50% total usage
-        self.assertGreaterEqual(getCompressedMinuteValue(b, "cpu", False, 1598968800000, 44), 0.2)
-        self.assertLessEqual(getCompressedMinuteValue(b, "cpu", False, 1598968800000, 44), 0.55)
+        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", False, 1598968800000, 44), 0.2)
+        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", False, 1598968800000, 44), 0.55)
 
         # next minute, both cores are busy
-        self.assertGreaterEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 0.5)
-        self.assertLessEqual(getMaximumSpike(b, "cpu", False, 1598968800000, 45), 1.0)
+        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 0.5)
+        self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 1.0)
 
         # Test current usage of cores
-        b.wait(lambda: progressValue(b, "#current-cpu-usage") < 20)
+        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
-        b.wait(lambda: progressValue(b, "#current-cpu-usage") > 40)
+        b.wait(lambda: progressValue(self, "#current-cpu-usage") > 40)
         b.mouse("#current-cpu-usage", "mouseenter")
         b.wait(lambda: int(b.text(".pf-c-tooltip .pf-l-flex:first-child div:nth-child(2)")[:-1]) > 50)
         b.wait(lambda: int(b.text(".pf-c-tooltip .pf-l-flex:nth-child(2) div:nth-child(2)")[:-1]) > 20)

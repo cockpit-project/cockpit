@@ -1,8 +1,10 @@
 import os
 import sys
 
-TEST_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BOTS_DIR = os.path.join(os.path.dirname(TEST_DIR), "bots")
-sys.path.append(os.path.join(BOTS_DIR))  # for lib
-sys.path.append(os.path.join(BOTS_DIR, "machine"))
-sys.path.append(os.path.join(TEST_DIR, "common"))
+BASE_DIR = os.path.realpath(f'{__file__}/../../..')
+TEST_DIR = f'{BASE_DIR}/test'
+BOTS_DIR = f'{BASE_DIR}/bots'
+
+sys.path.append(BOTS_DIR)
+sys.path.append(f'{TEST_DIR}/common')
+sys.path.append(f'{BOTS_DIR}/machine')

@@ -45,12 +45,6 @@ TESTS=""
 EXCLUDES=""
 RC=0
 if [ -n "$test_optional" ]; then
-    # pre-download cirros image for Machines tests
-    bots/image-download cirros
-
-    # triggers SELinux violation
-    # See journal: SELinux is preventing /usr/libexec/qemu-kvm from open access on the file /var/lib/cockpittest/nfs_pool/nfs-volume-0.
-    EXCLUDES="$EXCLUDES TestMachinesDisks.testAddDiskNFS"
     # not investigated yet
     EXCLUDES="$EXCLUDES
         TestAutoUpdates.testPrivilegeChange"
@@ -61,13 +55,6 @@ if [ -n "$test_optional" ]; then
          TestStorage
          TestUpdates.testBasic
          TestUpdates.testSecurityOnly"
-
-    # Fedora gating tests are running on infra without /dev/kvm; Machines tests are too darn slow there
-    if [ "$ID" = "fedora" ]; then
-        TESTS="$TESTS TestMachinesCreate.testCreateImportDisk"
-    else
-        TESTS="$TESTS TestMachines"
-    fi
 fi
 
 if [ -n "$test_basic" ]; then

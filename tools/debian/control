@@ -43,7 +43,6 @@ Recommends: cockpit-storaged (>= ${source:Version}),
 Suggests: cockpit-doc (>= ${source:Version}),
           cockpit-pcp (>= ${source:Version}),
           cockpit-sosreport (>= ${source:Version}),
-          cockpit-machines (>= ${source:Version}),
           xdg-utils,
 Description: Web Console for Linux servers
  The Cockpit Web Console enables users to administer GNU/Linux servers using a
@@ -80,20 +79,6 @@ Description: Cockpit deployment and developer guide
  The Cockpit Deployment and Developer Guide shows sysadmins how to deploy
  Cockpit on their machines as well as helps developers who want to embed
  or extend Cockpit.
-
-Package: cockpit-machines
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends},
-         libvirt-daemon-system,
-         libvirt-clients | libvirt-bin,
-         libvirt-dbus
-Recommends: virtinst, python3-gi, gir1.2-libosinfo-1.0, qemu-block-extra
-Description: Cockpit user interface for virtual machines
- The Cockpit components for managing virtual machines.
- .
- If the "virtinst" package is installed, you can also create new virtual
- machines.
 
 Package: cockpit-networkmanager
 Architecture: all

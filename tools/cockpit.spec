@@ -63,7 +63,7 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %endif
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
-# and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
+# and cockpit-appstream (building optional packages like cockpit-{pcp})
 # This split does not apply to EPEL/COPR.
 # In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
 %if 0%{?rhel} == 8 && 0%{?epel} == 0
@@ -240,9 +240,6 @@ find %{buildroot}%{_datadir}/cockpit/packagekit -type f >> packagekit.list
 echo '%dir %{_datadir}/cockpit/apps' >> packagekit.list
 find %{buildroot}%{_datadir}/cockpit/apps -type f >> packagekit.list
 
-echo '%dir %{_datadir}/cockpit/machines' > machines.list
-find %{buildroot}%{_datadir}/cockpit/machines -type f >> machines.list
-
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 
@@ -275,15 +272,13 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps machines packagekit pcp playground storaged; do
+for pkg in apps packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
 rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
-# files from -machines
-rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 %endif
@@ -621,31 +616,6 @@ These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
 %{_prefix}/%{__lib}/cockpit-test-assets
-
-%package -n cockpit-machines
-BuildArch: noarch
-Summary: Cockpit user interface for virtual machines
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-%if 0%{?suse_version}
-Requires: libvirt-daemon-qemu
-%else
-Requires: libvirt-daemon-kvm
-%endif
-Requires: libvirt-client
-Requires: libvirt-dbus >= 1.2.0
-# Optional components
-Recommends: virt-install
-Recommends: libosinfo
-Recommends: python3-gobject-base
-
-%description -n cockpit-machines
-The Cockpit components for managing virtual machines.
-
-If "virt-install" is installed, you can also create new virtual machines.
-
-%files -n cockpit-machines -f machines.list
-%{_datadir}/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

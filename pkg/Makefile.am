@@ -8,7 +8,6 @@ metainfodir = ${datarootdir}/metainfo
 metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml \
 		pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
 		pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml \
-		pkg/machines/org.cockpit-project.cockpit-machines.metainfo.xml \
 		pkg/storaged/org.cockpit-project.cockpit-storaged.metainfo.xml \
 		$(NULL)
 

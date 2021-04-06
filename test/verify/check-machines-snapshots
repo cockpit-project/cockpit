@@ -21,6 +21,7 @@ import parent
 from machineslib import *
 from testlib import *
 from datetime import datetime
+import pytz
 import time
 
 distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-coreos", "rhel-8-4", "rhel-8-4-distropkg", "rhel-8-5", "rhel-8-5-distropkg", "ubuntu-2004", "ubuntu-stable"]
@@ -43,6 +44,8 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         b = self.browser
         m = self.machine
 
+        tz = pytz.timezone('Asia/Kolkata')  # Same as browser, see test/common/cdp.py
+
         self.createVm("subVmTest1")
 
         self.login_and_go("/machines")
@@ -61,7 +64,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent")  # vda is raw disk, which are not supported by internal snapshots
         m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
         m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
-        time1 = datetime.now().strftime("%H:%M:%S")
+        time1 = datetime.now(tz).strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotB --description 'Description of snapshotB' --disk-only")
 
         b.reload()  # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
@@ -78,7 +81,7 @@ class TestMachinesSnapshots(VirtualMachinesCase):
         # Check snapshot for shutoff VM
         self.performAction("subVmTest1", "forceOff")
 
-        time1 = datetime.now().strftime("%H:%M:%S")
+        time1 = datetime.now(tz).strftime("%H:%M:%S")
         m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshotC --description 'Description of snapshotC'")
 
         b.reload()  # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44

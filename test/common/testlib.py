@@ -973,7 +973,7 @@ class MachineCase(unittest.TestCase):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
             self.check_browser_errors()
-        shutil.rmtree(self.tmpdir)
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)

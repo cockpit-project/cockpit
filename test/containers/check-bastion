@@ -19,18 +19,11 @@
 
 
 import os
-import sys
-
-test_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(test_dir)
-
-from verify import parent
-parent  # pyflakes
-
+from parent import TEST_DIR
 from testlib import *
 from testvm import VirtMachine
 
-AUTH_KEY = os.path.join(test_dir, "containers/files/enc_rsa")
+AUTH_KEY = os.path.join(TEST_DIR, "containers/files/enc_rsa")
 PUB_AUTH_KEY = "{}.pub".format(AUTH_KEY)
 
 

@@ -18,16 +18,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
-from os.path import dirname, abspath
 import sys
 import time
 import argparse
 import subprocess
 import urllib
 from urllib.request import urlopen, Request
-
-sys.path.append(os.path.join(dirname(dirname(abspath(__file__))), "bots"))
+from parent import BASE_DIR
 import task
 
 DAYS = 7
@@ -87,7 +84,7 @@ def main():
 
 def check_urls(verbose):
     command = r'git grep -IEho "(https?)://[-a-zA-Z0-9@:%_\+.~#?&=/]+" -- pkg ":!*.svg" | sort -u'
-    urls = subprocess.check_output(command, shell=True, universal_newlines=True).split("\n")
+    urls = subprocess.check_output(command, shell=True, universal_newlines=True, cwd=BASE_DIR).split("\n")
     redirects = []
     failed = []
     for url in urls:

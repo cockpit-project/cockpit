@@ -22,17 +22,11 @@ import imp
 import os
 import string
 import unittest
+from parent import TEST_DIR, BASE_DIR
+import testlib
+
 
 sys.dont_write_bytecode = True
-
-base_dir = os.path.dirname(os.path.realpath(__file__))
-testdir = os.path.dirname(base_dir)
-sys.path.append(testdir)
-
-from verify import parent
-parent  # pyflakes
-
-from common import testlib
 
 
 def check_valid(filename):
@@ -47,7 +41,7 @@ def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for filename in glob.glob(os.path.join(base_dir,
+    for filename in glob.glob(os.path.join(TEST_DIR, "containers",
                                            "check-{0}*".format(opts.container))):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
@@ -68,7 +62,7 @@ def main():
     if not opts.container:
         opts.container = 'bastion'
 
-    if not os.path.isdir(os.path.abspath(os.path.join(testdir, "..", "containers", opts.container))):
+    if not os.path.isdir(os.path.abspath(os.path.join(BASE_DIR, "containers", opts.container))):
         sys.stderr.write("Unable to run tests for unknown container {0}.\n".format(opts.container))
         exit(1)
 

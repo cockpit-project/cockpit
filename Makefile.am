@@ -157,7 +157,6 @@ WEBPACK_PACKAGES = \
 	base1 \
 	apps \
 	kdump \
-	machines \
 	metrics \
 	networkmanager \
 	packagekit \

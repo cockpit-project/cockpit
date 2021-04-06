@@ -9,7 +9,7 @@ assignees: ''
 
 Cockpit version: xxx
 OS:
-Page: <!--- If applicable, for instance "Network", "Machines", etc... -->
+Page: <!--- If applicable, for instance "Network", "Storage", etc... -->
 
 <!--- Issue description -->
 

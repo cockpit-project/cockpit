@@ -17,11 +17,6 @@ const info = {
             "kdump/kdump.scss",
         ],
 
-        "machines/machines": [
-            "machines/index.js",
-            "machines/machines.scss",
-        ],
-
         // do *not* call this metrics/metrics -- uBlock origin etc. like to block metrics.{css,js}
         "metrics/index": [
             "metrics/index.js",
@@ -189,8 +184,6 @@ const info = {
         "apps/default.png",
 
         "kdump/index.html",
-
-        "machines/index.html",
 
         "metrics/index.html",
 

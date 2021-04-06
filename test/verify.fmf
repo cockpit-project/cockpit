@@ -2,7 +2,6 @@ summary: Run browser integration tests on the host
 require:
   - cockpit
   - cockpit-kdump
-  - cockpit-machines
   - cockpit-networkmanager
   - cockpit-packagekit
   - cockpit-sosreport
@@ -26,6 +25,9 @@ require:
   - targetcli
   - tlog
   - tuned
+  # only required for check-networkmanager-firewall, very expensive; TODO: make tests work without these
+  - libvirt-daemon-kvm
+  - libvirt-client
 
 test: ./run-verify-host.sh
 duration: 4h

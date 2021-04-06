@@ -88,6 +88,10 @@ class TestStorageResize(StorageCase):
                 self.content_head_action(fsys_row, "Mount")
                 self.confirm()
                 self.wait_mounted(fsys_row, fsys_tab)
+            if crypto:  # Encrypted FS is not remounted upon resizing
+                b.click("button:contains(Mount now)")
+                b.wait_not_present("button:contains(Mount now)")
+
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
             self.assertGreater(size, 300000)
         else:

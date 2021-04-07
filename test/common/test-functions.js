@@ -259,3 +259,38 @@ function ph_wait_cond(cond, timeout) {
         step();
     });
 }
+
+function currentFrameAbsolutePosition() {
+    let currentWindow = window;
+    let currentParentWindow;
+    let positions = [];
+    let rect;
+
+    while (currentWindow !== window.top) {
+        currentParentWindow = currentWindow.parent;
+        for (let idx = 0; idx < currentParentWindow.frames.length; idx++)
+            if (currentParentWindow.frames[idx] === currentWindow) {
+                for (let frameElement of currentParentWindow.document.getElementsByTagName('iframe')) {
+                    if (frameElement.contentWindow === currentWindow) {
+                        rect = frameElement.getBoundingClientRect();
+                        positions.push({x: rect.x, y: rect.y});
+                    }
+                }
+                currentWindow = currentParentWindow;
+                break;
+            }
+    }
+
+    return positions.reduce((accumulator, currentValue) => {
+        return {
+            x: accumulator.x + currentValue.x,
+            y: accumulator.y + currentValue.y
+        };
+    }, { x: 0, y: 0 });
+}
+
+function ph_element_clip(sel) {
+    var r = ph_find(sel).getBoundingClientRect();
+    var f = currentFrameAbsolutePosition();
+    return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
+}

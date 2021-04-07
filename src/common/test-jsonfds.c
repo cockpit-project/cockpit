@@ -20,10 +20,11 @@
 #include "config.h"
 
 #include "cockpitcontrolmessages.h"
+#include "cockpithacks.h"
 #include "cockpitjsonprint.h"
 #include "cockpitmemfdread.h"
+#include "cockpitsocket.h"
 #include "cockpittest.h"
-#include "cockpithacks.h"
 
 #include <gio/gunixfdmessage.h>
 #include <gio/gunixcredentialsmessage.h>
@@ -33,7 +34,6 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <stdio.h>
-#include <unistd.h>
 
 /* --- testing of printing --- */
 
@@ -581,22 +581,6 @@ remove_message_from_list (gpointer data,
 }
 
 static void
-make_socketpair (GSocket **one,
-                 GSocket **two)
-{
-  int fds[2];
-
-  int r = socketpair (AF_UNIX, SOCK_STREAM, 0, fds);
-  g_assert_cmpint (r, ==, 0);
-
-  GError *error = NULL;
-  *one = g_socket_new_from_fd (fds[0], &error);
-  g_assert_no_error (error);
-  *two = g_socket_new_from_fd (fds[1], &error);
-  g_assert_no_error (error);
-}
-
-static void
 receive_cmsgs (GSocket                 *socket,
                CockpitControlMessages  *ccm)
 {
@@ -761,7 +745,7 @@ test_unix_socket_simple (void)
 {
   g_autoptr(GSocket) one, two;
 
-  make_socketpair (&one, &two);
+  cockpit_socket_socketpair (&one, &two);
   assert_base_state (one, two);
 
   /* boring */
@@ -798,7 +782,7 @@ test_unix_socket_partial_read (void)
 {
   g_autoptr(GSocket) one, two;
 
-  make_socketpair (&one, &two);
+  cockpit_socket_socketpair (&one, &two);
   assert_base_state (one, two);
 
   /* test unspecified behaviour, which we rely on: the cmsg should be
@@ -836,7 +820,7 @@ test_unix_socket_error_cases (void)
 {
   g_autoptr(GSocket) one, two;
 
-  make_socketpair (&one, &two);
+  cockpit_socket_socketpair (&one, &two);
   assert_base_state (one, two);
 
   /* try receiving an fd when nothing was sent */
@@ -895,7 +879,7 @@ test_unix_socket_combined (void)
 {
   g_autoptr(GSocket) one, two;
 
-  make_socketpair (&one, &two);
+  cockpit_socket_socketpair (&one, &two);
   assert_base_state (one, two);
 
   FILE *stream = cockpit_json_print_open_memfd ("xyz", 1);

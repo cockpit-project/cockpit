@@ -19,11 +19,8 @@
 
 #include "config.h"
 
+#include "common/cockpitsocket.h"
 #include "cockpitdbusinternal.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <errno.h>
 
 static GDBusConnection *the_server = NULL;
 static GDBusConnection *the_client = NULL;
@@ -59,25 +56,13 @@ on_complete_get_result (GObject *source,
   *ret = g_object_ref (result);
 }
 
-static GIOStream *
-create_io_stream_for_unix_socket (gint fd)
-{
-  g_autoptr(GError) error = NULL;
-  g_autoptr(GSocket) socket = g_socket_new_from_fd (fd, &error);
-  g_assert_no_error (error);
-
-  return G_IO_STREAM (g_socket_connection_factory_create_connection (socket));
-}
-
 void
 cockpit_dbus_internal_startup (gboolean interact)
 {
   GAsyncResult *rclient = NULL;
   GAsyncResult *rserver = NULL;
   GError *error = NULL;
-  GIOStream *io;
   gchar *guid;
-  int fds[2];
 
   /*
    * When in interactive mode, we allow poking and prodding our internal
@@ -99,24 +84,17 @@ cockpit_dbus_internal_startup (gboolean interact)
         }
     }
 
-  if (socketpair (PF_LOCAL, SOCK_STREAM, 0, fds) < 0)
-    {
-      g_warning ("couldn't create loopback socket: %s", g_strerror (errno));
-      return;
-    }
+  g_autoptr(GIOStream) one, two;
+  cockpit_socket_streampair (&one, &two);
 
-  io = create_io_stream_for_unix_socket (fds[0]);
   guid = g_dbus_generate_guid ();
-  g_dbus_connection_new (io, guid,
+  g_dbus_connection_new (one, guid,
                          G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER |
                          G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS,
                          NULL, NULL, on_complete_get_result, &rserver);
-  g_object_unref (io);
 
-  io = create_io_stream_for_unix_socket (fds[1]);
-  g_dbus_connection_new (io, NULL, G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT,
+  g_dbus_connection_new (two, NULL, G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT,
                          NULL, NULL, on_complete_get_result, &rclient);
-  g_object_unref (io);
 
   while (!rserver || !rclient)
     g_main_context_iteration (NULL, TRUE);

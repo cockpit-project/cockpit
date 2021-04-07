@@ -23,13 +23,15 @@
 #include "cockpitrouter.h"
 
 #include "common/cockpitauthorize.h"
+#include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
-#include "common/cockpithex.h"
+#include "common/cockpitsocket.h"
+#include "common/cockpittransport.h"
 
+#include <glib-unix.h>
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -811,7 +813,10 @@ cockpit_peer_new (CockpitTransport *transport,
 static void
 spawn_setup (gpointer data)
 {
-  int fd = GPOINTER_TO_INT (data);
+  int fd = g_socket_get_fd (data);
+
+  /* Make sure fd is blocking */
+  g_unix_set_fd_nonblocking (fd, FALSE, NULL);
 
   /* Send this signal to all direct child processes, when bridge dies */
   prctl (PR_SET_PDEATHSIG, SIGHUP);
@@ -829,74 +834,48 @@ static CockpitPipe *
 spawn_process_for_config (CockpitPeer *self)
 {
   const gchar *default_argv[] = { "/bin/false", NULL };
-  CockpitPipe *pipe = NULL;
   const gchar *directory = NULL;
-  const gchar **argv = NULL;
-  const gchar **envset = NULL;
-  gchar **env = NULL;
-  GError *error = NULL;
-  GPid pid = 0;
-  int fds[2];
-
-  if (socketpair (PF_LOCAL, SOCK_STREAM, 0, fds) < 0)
-    {
-      g_warning ("couldn't create loopback socket: %s", g_strerror (errno));
-    }
-  else if (!cockpit_json_get_string (self->config, "directory", NULL, &directory) ||
-           !cockpit_json_get_strv (self->config, "environ", NULL, &envset) ||
-           !cockpit_json_get_strv (self->config, "spawn", default_argv, &argv))
+  g_autofree const gchar **argv = NULL;
+  g_autofree const gchar **envset = NULL;
+  if (!cockpit_json_get_string (self->config, "directory", NULL, &directory) ||
+      !cockpit_json_get_strv (self->config, "environ", NULL, &envset) ||
+      !cockpit_json_get_strv (self->config, "spawn", default_argv, &argv))
     {
       g_message ("%s: invalid bridge configuration, cannot spawn channel", self->name);
+      return NULL;
     }
-  else
+
+  g_autoptr(GSocket) ours, theirs;
+  cockpit_socket_socketpair (&ours, &theirs);
+
+  g_debug ("%s: spawning peer bridge process", self->name);
+
+  g_auto(GStrv) env = cockpit_pipe_get_environ (envset, NULL);
+  GPid pid = 0;
+  g_autoptr(GError) error = NULL;
+  g_spawn_async_with_pipes (directory, (gchar **)argv, env,
+                            G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
+                            spawn_setup, theirs,
+                            &pid, NULL, NULL, NULL, &error);
+  if (error)
     {
-      g_debug ("%s: spawning peer bridge process", self->name);
-
-      env = cockpit_pipe_get_environ (envset, NULL);
-      g_spawn_async_with_pipes (directory, (gchar **)argv, env,
-                                G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
-                                spawn_setup, GINT_TO_POINTER (fds[0]),
-                                &pid, NULL, NULL, NULL, &error);
-
-      if (error)
+      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT) ||
+          g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_PERM) ||
+          g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_ACCES))
         {
-          if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT) ||
-              g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_PERM) ||
-              g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_ACCES))
-            {
-              g_debug ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
-            }
-          else
-            {
-              g_message ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
-            }
-          g_error_free (error);
+          g_debug ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
         }
       else
-        {
-          pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                               "name", self->name,
-                               "in-fd", fds[1],
-                               "out-fd", fds[1],
-                               "pid", pid,
-                               NULL);
-          fds[1] = -1;
-        }
+        g_message ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
+
+      return NULL;
     }
 
-  if (!pipe)
-    fail_start_problem (self);
-
-  if (fds[0] >= 0)
-    close (fds[0]);
-  if (fds[1] >= 0)
-    close (fds[1]);
-
-  g_free (envset);
-  g_free (argv);
-  g_strfreev (env);
-
-  return pipe;
+  return g_object_new (COCKPIT_TYPE_PIPE,
+                       "name", self->name,
+                       "socket", ours,
+                       "pid", pid,
+                       NULL);
 }
 
 /**
@@ -1060,6 +1039,7 @@ cockpit_peer_ensure_with_done (CockpitPeer *self,
       pipe = spawn_process_for_config (self);
       if (!pipe)
         {
+          fail_start_problem (self);
           self->closed = TRUE;
           startup_done (self, "spawn failed");
           return NULL;

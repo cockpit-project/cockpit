@@ -25,18 +25,16 @@
 #include "cockpitws.h"
 
 #include "common/cockpitconf.h"
+#include "common/cockpitsocket.h"
 #include "common/cockpittest.h"
-#include "common/mock-io-stream.h"
 #include "common/cockpitwebserver.h"
+#include "common/mock-io-stream.h"
 
 #include <glib.h>
 
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
 
 /*
  * To recalculate the checksums found in this file, do something like:
@@ -709,30 +707,6 @@ static const DefaultFixture fixture_static_application = {
 };
 
 static void
-make_io_streams (GIOStream **io_a,
-                 GIOStream **io_b)
-{
-  GSocket *socket1, *socket2;
-  GError *error = NULL;
-  int fds[2];
-
-  if (socketpair (PF_UNIX, SOCK_STREAM, 0, fds) < 0)
-    g_assert_not_reached ();
-
-  socket1 = g_socket_new_from_fd (fds[0], &error);
-  g_assert_no_error (error);
-
-  socket2 = g_socket_new_from_fd (fds[1], &error);
-  g_assert_no_error (error);
-
-  *io_a = G_IO_STREAM (g_socket_connection_factory_create_connection (socket1));
-  *io_b = G_IO_STREAM (g_socket_connection_factory_create_connection (socket2));
-
-  g_object_unref (socket1);
-  g_object_unref (socket2);
-}
-
-static void
 on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
                       gpointer user_data)
@@ -776,7 +750,7 @@ test_socket_unauthenticated (void)
   JsonObject *options;
   GError *error = NULL;
 
-  make_io_streams (&io_a, &io_b);
+  cockpit_socket_streampair (&io_a, &io_b);
 
   server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   g_assert_no_error (error);

@@ -23,14 +23,15 @@
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
 
+#include "common/cockpitconf.h"
+#include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
-#include "common/cockpittransport.h"
-#include "common/cockpitjson.h"
+#include "common/cockpitsocket.h"
 #include "common/cockpittest.h"
-#include "common/mock-io-stream.h"
+#include "common/cockpittransport.h"
 #include "common/cockpitwebserver.h"
-#include "common/cockpitconf.h"
+#include "common/mock-io-stream.h"
 
 #include "websocket/websocket.h"
 
@@ -38,10 +39,6 @@
 
 #include <string.h>
 #include <errno.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
 
 /* Mock override from cockpitconf.c */
 extern const gchar *cockpit_config_file;
@@ -172,30 +169,6 @@ teardown_mock_webserver (TestCase *test,
 }
 
 static void
-setup_io_streams (TestCase *test,
-                  gconstpointer data)
-{
-  GSocket *socket1, *socket2;
-  GError *error = NULL;
-  int fds[2];
-
-  if (socketpair (PF_UNIX, SOCK_STREAM, 0, fds) < 0)
-    g_assert_not_reached ();
-
-  socket1 = g_socket_new_from_fd (fds[0], &error);
-  g_assert_no_error (error);
-
-  socket2 = g_socket_new_from_fd (fds[1], &error);
-  g_assert_no_error (error);
-
-  test->io_a = G_IO_STREAM (g_socket_connection_factory_create_connection (socket1));
-  test->io_b = G_IO_STREAM (g_socket_connection_factory_create_connection (socket2));
-
-  g_object_unref (socket1);
-  g_object_unref (socket2);
-}
-
-static void
 teardown_io_streams (TestCase *test,
                      gconstpointer data)
 {
@@ -211,7 +184,7 @@ setup_for_socket (TestCase *test,
 
   setup_mock_bridge (test, data);
   setup_mock_webserver (test, data);
-  setup_io_streams (test, data);
+  cockpit_socket_streampair (&test->io_a, &test->io_b);
 }
 
 static void

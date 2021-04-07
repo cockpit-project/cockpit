@@ -23,10 +23,8 @@
 #include "websocketprivate.h"
 
 #include "common/cockpitflow.h"
+#include "common/cockpitsocket.h"
 #include "common/mock-pressure.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
 
 #include <string.h>
 
@@ -449,30 +447,6 @@ test_header_empty (void)
   g_hash_table_unref (headers);
 }
 
-static void
-create_iostream_pair (GIOStream **io1,
-                      GIOStream **io2)
-{
-  GSocket *socket1, *socket2;
-  GError *error = NULL;
-  int fds[2];
-
-  if (socketpair (PF_UNIX, SOCK_STREAM, 0, fds) < 0)
-    g_assert_not_reached ();
-
-  socket1 = g_socket_new_from_fd (fds[0], &error);
-  g_assert_no_error (error);
-
-  socket2 = g_socket_new_from_fd (fds[1], &error);
-  g_assert_no_error (error);
-
-  *io1 = G_IO_STREAM (g_socket_connection_factory_create_connection (socket1));
-  *io2 = G_IO_STREAM (g_socket_connection_factory_create_connection (socket2));
-
-  g_object_unref (socket1);
-  g_object_unref (socket2);
-}
-
 static gboolean
 on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
@@ -501,7 +475,7 @@ setup_pair (Test *test,
   GIOStream *ioc;
   GIOStream *ios;
 
-  create_iostream_pair (&ioc, &ios);
+  cockpit_socket_streampair (&ioc, &ios);
 
   test->server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL, NULL, ios, NULL, NULL);
   test->client =  web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, ioc);
@@ -1131,7 +1105,7 @@ test_close_after_timeout (void)
   GThread *thread;
 
   /* Note that no server is around in this test, so no close happens */
-  create_iostream_pair (&io_a, &io_b);
+  cockpit_socket_streampair (&io_a, &io_b);
   thread = g_thread_new ("timeout-thread", handshake_then_timeout_server_thread, io_a);
 
   client = web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io_b);
@@ -1190,7 +1164,7 @@ test_receive_fragmented (void)
   GBytes *expect;
 
   /* Note that no server is around in this test, so no close happens */
-  create_iostream_pair (&io_a, &io_b);
+  cockpit_socket_streampair (&io_a, &io_b);
   thread = g_thread_new ("fragment-thread", send_fragments_server_thread, io_a);
 
   client = web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io_b);
@@ -1245,7 +1219,7 @@ test_handshake_with_buffer_and_headers (void)
   gssize in1, in2;
   GThread *thread;
 
-  create_iostream_pair (&ioc, &ios);
+  cockpit_socket_streampair (&ioc, &ios);
 
   thread = g_thread_new ("client-thread", client_thread, ioc);
 

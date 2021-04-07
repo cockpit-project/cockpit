@@ -35,7 +35,7 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
-        if m.image in ["centos-8-stream", "debian-stable"]:  # Still has sos in version 3.x
+        if m.image in ["debian-stable"]:  # Still has sos in version 3.x
             self.restore_file("/etc/sos.conf")
             m.write("/etc/sos.conf",
                     """

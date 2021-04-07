@@ -37,11 +37,17 @@ import time
 import unittest
 import gzip
 import inspect
+from dataclasses import dataclass
 
 import testvm
 import cdp
 from fmf_metadata.base import set_obj_attribute, is_test_function, generic_metadata_setter
 
+try:
+    from PIL import Image
+    import io
+except ImportError:
+    Image = None
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
@@ -94,7 +100,7 @@ def attach(filename):
 
 
 class Browser:
-    def __init__(self, address, label, port=None):
+    def __init__(self, address, label, pixels_label=None, port=None):
         if ":" in address:
             (self.address, unused, self.port) = address.rpartition(":")
         else:
@@ -104,11 +110,13 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
+        self.pixels_label = pixels_label
         path = os.path.dirname(__file__)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
+        self.failed_pixel_tests = 0
 
     def title(self):
         return self.cdp.eval('document.title')
@@ -649,6 +657,111 @@ class Browser:
             attach(filename)
             print("Wrote HTML dump to " + filename)
 
+    def assert_pixels(self, selector, key, ignore=[]):
+        """Compare the given element with its reference"""
+
+        if not (Image and self.pixels_label and self.cdp and self.cdp.valid):
+            return
+
+        rect = self.call_js_func('ph_element_clip', selector)
+
+        @dataclass
+        class Rect:
+            x0: int
+            y0: int
+            x1: int
+            y1: int
+
+        def relative_clip(sel):
+            r = self.call_js_func('ph_element_clip', sel)
+            return Rect(r['x'] - rect['x'],
+                        r['y'] - rect['y'],
+                        r['x'] - rect['x'] + r['width'],
+                        r['y'] - rect['y'] + r['height'])
+
+        ignore_rects = list(map(relative_clip, ignore))
+        base = self.pixels_label + "-" + key
+        filename = base + "-pixels.png"
+        ref_filename = os.path.join(TEST_DIR, "reference", filename)
+        ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
+        png_now = base64.standard_b64decode(ret["data"])
+        png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()
+        if not png_ref:
+            with open(filename, 'wb') as f:
+                f.write(png_now)
+            attach(filename)
+            print("New pixel test reference " + filename)
+            self.failed_pixel_tests += 1
+        else:
+            img_now = Image.open(io.BytesIO(png_now)).convert("RGBA")
+            img_ref = Image.open(io.BytesIO(png_ref)).convert("RGBA")
+            img_delta = img_ref.copy()
+
+            # The current snapshot and the reference don't need to
+            # be perfectly identical.  They might differ in the
+            # following ways:
+            #
+            # - A pixel in the reference image might be
+            #   transparent.  These pixels are ignored.
+            #
+            # - The call to assert_pixels specifies a list of
+            #   rectangles (via CSS selectors).  Pixels within those
+            #   rectangles are ignored.
+            #
+            # - The RGB values of pixels can differ by up to 2.
+            #
+            # Pixels that are different but have been ignored are
+            # marked in the delta image in green.
+
+            def masked(ref):
+                return ref[3] != 255
+
+            def ignorable_coord(x, y):
+                for r in ignore_rects:
+                    if r and x >= r.x0 and x < r.x1 and y >= r.y0 and y < r.y1:
+                        return True
+                return False
+
+            def ignorable_change(a, b):
+                return abs(a[0] - b[0]) <= 2 and abs(a[1] - b[1]) <= 2 and abs(a[1] - b[1]) <= 2
+
+            def img_eq(ref, now, delta):
+                # This is slow but exactly what we want.
+                # ImageMath might be able to speed this up.
+                if ref.size != now.size:
+                    return False
+                data_ref = ref.load()
+                data_now = now.load()
+                data_delta = delta.load()
+                result = True
+                width, height = ref.size
+                for y in range(height):
+                    for x in range(width):
+                        if data_ref[x, y] != data_now[x, y]:
+                            if masked(data_ref[x, y]) or ignorable_coord(x, y) or ignorable_change(data_ref[x, y], data_now[x, y]):
+                                data_delta[x, y] = (0, 255, 0, 255)
+                            else:
+                                data_delta[x, y] = (255, 0, 0, 255)
+                                result = False
+                return result
+
+            if not img_eq(img_ref, img_now, img_delta):
+                if img_now.size == img_ref.size:
+                    # Preserve alpha channel so that the 'now'
+                    # image can be used as the new reference image
+                    # without further changes
+                    img_now.putalpha(img_ref.getchannel("A"))
+                img_now.save(filename)
+                attach(filename)
+                ref_filename_for_attach = base + "-reference.png"
+                img_ref.save(ref_filename_for_attach)
+                attach(ref_filename_for_attach)
+                delta_filename = base + "-delta.png"
+                img_delta.save(delta_filename)
+                attach(delta_filename)
+                print("Differences in pixel test " + base)
+                self.failed_pixel_tests += 1
+
     def get_js_log(self):
         """Return the current javascript log"""
 
@@ -776,7 +889,10 @@ class MachineCase(unittest.TestCase):
         if machine is None:
             machine = self.machine
         label = self.label() + "-" + machine.label
-        browser = Browser(machine.web_address, label=label, port=machine.web_port)
+        pixels_label = None
+        if machine.image == testvm.TEST_OS_DEFAULT and os.environ.get("TEST_BROWSER", "chromium") == "chromium":
+            pixels_label = self.label()
+        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port)
         self.addCleanup(browser.kill)
         return browser
 
@@ -974,6 +1090,7 @@ class MachineCase(unittest.TestCase):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
             self.check_browser_errors()
+            self.check_pixel_tests()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
@@ -1215,6 +1332,10 @@ class MachineCase(unittest.TestCase):
                     break
             else:
                 raise Error(UNEXPECTED_MESSAGE + "browser errors:\n" + log)
+
+    def check_pixel_tests(self):
+        if self.browser and self.browser.failed_pixel_tests > 0:
+            raise Error("Some pixel tests have failed")
 
     def check_axe(self, label=None, suffix=""):
         """Run aXe check on the currently active frame
@@ -1695,6 +1816,9 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
     if options.list:
         print_tests(suite)
         return 0
+
+    attach(os.path.join(TEST_DIR, "common/pixeldiff.html"))
+    attach(os.path.join(TEST_DIR, "common/link-patterns.json"))
 
     runner = TapRunner(verbosity=opts.verbosity)
     ret = runner.run(suite)

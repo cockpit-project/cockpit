@@ -70,6 +70,7 @@ enum {
   PROP_ERR_FD,
   PROP_PID,
   PROP_PROBLEM,
+  PROP_CONNECTING,
 };
 
 typedef struct {
@@ -207,6 +208,7 @@ close_immediately (CockpitPipe *self,
       priv->problem = g_strdup (problem);
     }
 
+  priv->connecting = FALSE;
   priv->closed = TRUE;
 
   g_debug ("%s: closing pipe%s%s", priv->name,
@@ -507,8 +509,6 @@ dispatch_connect (CockpitPipe *self)
   socklen_t slen;
   int error;
 
-  priv->connecting = FALSE;
-
   slen = sizeof (error);
   if (getsockopt (priv->out_fd, SOL_SOCKET, SO_ERROR, &error, &slen) != 0)
     {
@@ -518,7 +518,6 @@ dispatch_connect (CockpitPipe *self)
   else if (error == EINPROGRESS)
     {
       /* keep connecting */
-      priv->connecting = TRUE;
     }
   else if (error != 0)
     {
@@ -527,6 +526,8 @@ dispatch_connect (CockpitPipe *self)
     }
   else
     {
+      priv->connecting = FALSE;
+      start_input (self);
       return TRUE;
     }
 
@@ -689,7 +690,12 @@ cockpit_pipe_constructed (GObject *object)
           g_clear_error (&error);
         }
 
-      start_input (self);
+      /* If we're still connecting, we should only poll for writability.
+       * start_input() will be called from dispatch_connect() after the
+       * socket is connected.
+       */
+      if (!priv->connecting)
+        start_input (self);
     }
   else
     {
@@ -776,6 +782,9 @@ cockpit_pipe_set_property (GObject *obj,
         priv->problem = g_value_dup_string (value);
         if (priv->problem)
           cockpit_close_later (self);
+        break;
+      case PROP_CONNECTING:
+        priv->connecting = g_value_get_boolean (value);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -949,6 +958,16 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
   g_object_class_install_property (gobject_class, PROP_PROBLEM,
                 g_param_spec_string ("problem", "problem", "problem", NULL,
                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * CockpitPipe:connecting:
+   *
+   * Set to @TRUE if creating with a non-blocking socket with an
+   * outstanding connection attempt.
+   */
+  g_object_class_install_property (gobject_class, PROP_CONNECTING,
+                g_param_spec_boolean ("connecting", "connecting", "connecting", FALSE,
+                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitPipe::read:
@@ -1139,7 +1158,6 @@ cockpit_pipe_connect (const gchar *name,
   gsize native_len;
   gpointer native;
   CockpitPipe *pipe;
-  CockpitPipePrivate *priv;
   int errn = 0;
   int sock;
 
@@ -1185,10 +1203,9 @@ cockpit_pipe_connect (const gchar *name,
                        "in-fd", sock,
                        "out-fd", sock,
                        "name", name,
+                       "connecting", connecting,
                        NULL);
-  priv = cockpit_pipe_get_instance_private (pipe);
 
-  priv->connecting = connecting;
   if (errn != 0)
     {
       set_problem_from_errno (pipe, "couldn't connect", errn);
@@ -1739,7 +1756,7 @@ on_throttle_pressure (GObject *object,
     }
   else
     {
-      if (priv->in_source == NULL && !priv->in_done)
+      if (priv->in_source == NULL && !priv->in_done && !priv->connecting)
         {
           g_debug ("%s: relieving back pressure in pipe", priv->name);
           start_input (self);

@@ -65,6 +65,7 @@
 enum {
   PROP_0,
   PROP_NAME,
+  PROP_SOCKET,
   PROP_IN_FD,
   PROP_OUT_FD,
   PROP_ERR_FD,
@@ -88,6 +89,8 @@ typedef struct {
   gint status;
   CockpitPipe **watch_arg;
   gboolean is_process;
+
+  GSocket *socket;
 
   int out_fd;
   gboolean out_done;
@@ -225,15 +228,26 @@ close_immediately (CockpitPipe *self,
     stop_error (self);
   priv->err_done = TRUE;
 
-  if (priv->in_fd != -1)
+  if (priv->socket)
     {
-      close (priv->in_fd);
+      g_socket_close (priv->socket, NULL);
+      g_object_unref (priv->socket);
+      priv->socket = NULL;
       priv->in_fd = -1;
-    }
-  if (priv->out_fd != -1)
-    {
-      close (priv->out_fd);
       priv->out_fd = -1;
+    }
+  else
+    {
+      if (priv->in_fd != -1)
+        {
+          close (priv->in_fd);
+          priv->in_fd = -1;
+        }
+      if (priv->out_fd != -1)
+        {
+          close (priv->out_fd);
+          priv->out_fd = -1;
+        }
     }
   if (priv->err_fd != -1)
     {
@@ -681,6 +695,14 @@ cockpit_pipe_constructed (GObject *object)
   if (priv->name == NULL)
     priv->name = g_strdup ("pipe");
 
+  if (priv->socket)
+    {
+      g_assert (priv->in_fd == -1 && priv->out_fd == -1);
+      int fd = g_socket_get_fd (priv->socket);
+      priv->in_fd = fd;
+      priv->out_fd = fd;
+    }
+
   if (priv->in_fd >= 0)
     {
       if (!g_unix_set_fd_nonblocking (priv->in_fd, TRUE, &error))
@@ -766,6 +788,9 @@ cockpit_pipe_set_property (GObject *obj,
       case PROP_NAME:
         priv->name = g_value_dup_string (value);
         break;
+      case PROP_SOCKET:
+        priv->socket = g_value_dup_object (value);
+        break;
       case PROP_IN_FD:
         priv->in_fd = g_value_get_int (value);
         break;
@@ -805,6 +830,9 @@ cockpit_pipe_get_property (GObject *obj,
   {
     case PROP_NAME:
       g_value_set_string (value, priv->name);
+      break;
+    case PROP_SOCKET:
+      g_value_set_object (value, priv->socket);
       break;
     case PROP_IN_FD:
       g_value_set_int (value, priv->in_fd);
@@ -898,6 +926,16 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
   gobject_class->finalize = cockpit_pipe_finalize;
 
   /**
+   * CockpitPipe:socket:
+   *
+   * The GSocket the pipe is connected to. The pipe owns the
+   * socket and will call g_socket_close().
+   */
+  g_object_class_install_property (gobject_class, PROP_SOCKET,
+                g_param_spec_object ("socket", "socket", "socket", G_TYPE_SOCKET,
+                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+   /**
    * CockpitPipe:in-fd:
    *
    * The file descriptor the pipe reads from. The pipe owns the

@@ -81,6 +81,8 @@ class TestApps(PackageCase):
         b = self.browser
         m = self.machine
 
+        self.allow_journal_messages("can't remove watch: Invalid argument")
+
         # Make sure none of the appstream directories exist.  They
         # will be created later and we need to cope with that.
 

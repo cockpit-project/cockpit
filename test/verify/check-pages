@@ -165,7 +165,7 @@ OnCalendar=daily
         # Lets try changing the language
 
         self.open_lang_modal()
-        b.set_val("#display-language-modal select", "de-de")
+        b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
         b.expect_load()
         if b.cdp.browser in ["chrome", "chromium"]:
@@ -266,7 +266,7 @@ OnCalendar=daily
             b.enter_page("/system")
 
             self.open_lang_modal()
-            b.set_val("#display-language-modal select", language)
+            b.click("#display-language-modal li[data-value=%s] button" % language)
             b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             if b.cdp.browser in ["chrome", "chromium"]:
@@ -318,7 +318,7 @@ OnCalendar=daily
         self.login_and_go('/system')
         b.wait_visible('#overview')
         self.open_lang_modal()
-        b.set_val('#display-language-modal select', 'pt-br')
+        b.click('#display-language-modal li[data-value=pt-br] button')
         b.click('#display-language-modal footer button.pf-m-primary')
         b.expect_load()
         if b.cdp.browser in ["chrome", "chromium"]:
@@ -511,7 +511,14 @@ OnCalendar=daily
 
         # Search internationalized menu
         self.open_lang_modal()
-        b.set_val("#display-language-modal select", "de-de")
+
+        # Filter the available languages
+        b.set_input_text('#display-language-modal input[type=search]', "Deutsch")
+        b.click('#display-language-modal li[data-value=de-de] button')
+        b.wait_js_func("ph_count_check", "#display-language-modal li", 1)
+        b.set_input_text('#display-language-modal input[type=search]', "")
+
+        b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
         b.expect_load()
         if b.cdp.browser in ["chrome", "chromium"]:

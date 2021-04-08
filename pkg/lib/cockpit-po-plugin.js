@@ -4,6 +4,7 @@ const fs = require("fs");
 const childProcess = require("child_process");
 const po2json = require('po2json');
 const Jed = require('jed');
+const webpack = require('webpack');
 
 const srcdir = process.env.SRCDIR || path.resolve(__dirname, '..', '..');
 
@@ -17,10 +18,24 @@ module.exports = class {
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapPromise(
-            'CockpitPoPlugin',
-            compilation => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
-        );
+        if (!webpack.Compilation) {
+            // webpack v4
+            compiler.hooks.emit.tapPromise(
+                'CockpitPoPlugin',
+                compilation => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
+            );
+        } else {
+            // webpack v5
+            compiler.hooks.thisCompilation.tap('CockpitPoPlugin', compilation => {
+                compilation.hooks.processAssets.tapPromise(
+                    {
+                        name: 'CockpitPoPlugin',
+                        stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+                    },
+                    () => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
+                );
+            });
+        }
     }
 
     prepareHeader(header) {
@@ -100,7 +115,13 @@ module.exports = class {
             output = this.wrapper.replace('PO_DATA', output) + '\n';
 
             const lang = path.basename(po_file).slice(0, -3);
-            compilation.assets[this.subdir + 'po.' + lang + '.js'] = { source: () => output, size: () => output.length };
+            if (webpack.sources) {
+                // webpack v5
+                compilation.emitAsset(this.subdir + 'po.' + lang + '.js', new webpack.sources.RawSource(output));
+            } else {
+                // webpack v4
+                compilation.assets[this.subdir + 'po.' + lang + '.js'] = { source: () => output, size: () => output.length };
+            }
             resolve();
         });
     }

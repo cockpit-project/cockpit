@@ -1845,7 +1845,7 @@ PageNetworkIpSettings.prototype = {
                         $('<strong>').text(title),
                         $('<div class="pull-right">').append(
                             header_buttons,
-                            add_btn = $('<button class="pf-c-button pf-m-secondary btn-sm">')
+                            add_btn = $('<button class="pf-c-button pf-m-secondary pf-m-small">')
                                     .append('<span class="fa fa-plus">')
                                     .css("margin-left", "10px")
                                     .click(add()))),
@@ -1862,7 +1862,7 @@ PageNetworkIpSettings.prototype = {
                                                 }));
                                 }),
                                 $('<td>').append(
-                                    $('<button class="pf-c-button pf-m-secondary btn-sm">')
+                                    $('<button class="pf-c-button pf-m-secondary pf-m-small">')
                                             .append('<span class="fa fa-minus">')
                                             .click(remove(i)))));
                         })));

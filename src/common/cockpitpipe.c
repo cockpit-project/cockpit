@@ -487,65 +487,79 @@ close_output (CockpitPipe *self)
 }
 
 static void
-set_problem_from_errno (CockpitPipe *self,
-                        const gchar *message,
-                        int errn)
+set_problem (CockpitPipe *self,
+             const gchar *problem,
+             const gchar *context,
+             const gchar *error)
 {
   CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
-  const gchar *problem = NULL;
-
-  if (errn == EPERM || errn == EACCES)
-    problem = "access-denied";
-  else if (errn == ENOENT || errn == ECONNREFUSED)
-    problem = "not-found";
-  /* only warn about Cockpit-internal fds, not opaque user ones */
-  else if (errn == EBADF && priv->is_user_fd)
-    problem = "protocol-error";
-
-  g_free (priv->problem);
 
   if (problem)
     {
-      g_message ("%s: %s: %s", priv->name, message, g_strerror (errn));
+      g_message ("%s: %s: %s", priv->name, context, error);
       priv->problem = g_strdup (problem);
     }
   else
     {
-      g_warning ("%s: %s: %s", priv->name, message, g_strerror (errn));
+      g_warning ("%s: %s: %s", priv->name, context, error);
       priv->problem = g_strdup ("internal-error");
     }
+
+}
+
+static void
+set_problem_from_connect_error (CockpitPipe *self,
+                                GError      *error)
+{
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+    set_problem (self, "access-denied", "couldn't connect", error->message);
+  else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND) ||
+           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_REFUSED))
+    set_problem (self, "not-found", "couldn't connect", error->message);
+  else
+    set_problem (self, NULL, "couldn't connect", error->message);
+}
+
+static void
+set_problem_from_errno (CockpitPipe *self,
+                        const gchar *context,
+                        gint errn)
+{
+  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
+
+  /* For user fds (eg: ones passed over DBus), using them improperly
+   * (like trying to write when readonly) is only a protocol error.
+   */
+  if (errn == EBADF && priv->is_user_fd)
+    set_problem (self, "protocol-error", context, g_strerror (errn));
+  else
+    set_problem (self, NULL, context, g_strerror (errn));
 }
 
 static gboolean
 dispatch_connect (CockpitPipe *self)
 {
   CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
-  socklen_t slen;
-  int error;
 
-  slen = sizeof (error);
-  if (getsockopt (priv->out_fd, SOL_SOCKET, SO_ERROR, &error, &slen) != 0)
+  g_assert (priv->socket != NULL);
+
+  g_autoptr(GError) error = NULL;
+  if (!g_socket_check_connect_result (priv->socket, &error))
     {
-      g_warning ("%s: couldn't get connection result", priv->name);
-      close_immediately (self, "internal-error");
-    }
-  else if (error == EINPROGRESS)
-    {
-      /* keep connecting */
-    }
-  else if (error != 0)
-    {
-      set_problem_from_errno (self, "couldn't connect", error);
-      close_immediately (self, NULL); /* problem already set */
-    }
-  else
-    {
-      priv->connecting = FALSE;
-      start_input (self);
-      return TRUE;
+      /* If it's still EINPROGRESS, ignore it and try again later */
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PENDING))
+        {
+          set_problem_from_connect_error (self, error);
+          close_immediately (self, NULL); /* problem already set */
+        }
+
+      return FALSE;
     }
 
-  return FALSE;
+  priv->connecting = FALSE;
+  start_input (self);
+
+  return TRUE;
 }
 
 static gboolean
@@ -1192,65 +1206,45 @@ CockpitPipe *
 cockpit_pipe_connect (const gchar *name,
                       GSocketAddress *address)
 {
-  gboolean connecting = FALSE;
-  gsize native_len;
-  gpointer native;
-  CockpitPipe *pipe;
-  int errn = 0;
-  int sock;
-
   g_return_val_if_fail (G_IS_SOCKET_ADDRESS (address), NULL);
 
-  sock = socket (g_socket_address_get_family (address), SOCK_STREAM, 0);
-  if (sock < 0)
-    {
-      errn = errno;
-    }
-  else
-    {
-      if (!g_unix_set_fd_nonblocking (sock, TRUE, NULL))
-        {
-          close (sock);
-          g_return_val_if_reached (NULL);
-        }
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GSocket) socket = g_socket_new (g_socket_address_get_family (address),
+                                            G_SOCKET_TYPE_STREAM,
+                                            G_SOCKET_PROTOCOL_DEFAULT,
+                                            &error);
 
-      native_len = g_socket_address_get_native_size (address);
-      native = g_malloc (native_len);
-      if (!g_socket_address_to_native (address, native, native_len, NULL))
+  gboolean connecting = FALSE;
+  if (socket)
+    {
+      g_socket_set_blocking (socket, FALSE);
+
+      if (!g_socket_connect (socket, address, NULL, &error))
         {
-          close (sock);
-          g_return_val_if_reached (NULL);
-        }
-      if (connect (sock, native, native_len) < 0)
-        {
-          if (errno == EINPROGRESS)
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PENDING))
             {
+              g_clear_error (&error);
               connecting = TRUE;
             }
-          else
-            {
-              errn = errno;
-              close (sock);
-              sock = -1;
-            }
         }
-      g_free (native);
     }
 
-  pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                       "in-fd", sock,
-                       "out-fd", sock,
-                       "name", name,
-                       "connecting", connecting,
-                       NULL);
+  if (error)
+    g_clear_pointer (&socket, g_object_unref);
 
-  if (errn != 0)
+  CockpitPipe *self = g_object_new (COCKPIT_TYPE_PIPE,
+                                    "name", name,
+                                    "socket", socket,
+                                    "connecting", connecting,
+                                    NULL);
+
+  if (error)
     {
-      set_problem_from_errno (pipe, "couldn't connect", errn);
-      cockpit_close_later (pipe);
+      set_problem_from_connect_error (self, error);
+      cockpit_close_later (self);
     }
 
-  return pipe;
+  return self;
 }
 
 static GSpawnFlags

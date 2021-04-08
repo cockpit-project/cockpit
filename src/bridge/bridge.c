@@ -39,6 +39,7 @@
 
 #include "common/cockpitassets.h"
 #include "common/cockpitchannel.h"
+#include "common/cockpitfdpassing.h"
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
@@ -682,12 +683,45 @@ main (int argc,
   signal (SIGABRT, cockpit_test_signal_backtrace);
   signal (SIGSEGV, cockpit_test_signal_backtrace);
 
-  /* In case we are run via sshd and we have journald, make sure all
-   * logging output ends up in the journal on *this* machine, not sent
-   * back to the client.
-   */
-  if (g_getenv ("SSH_CONNECTION") && !g_log_writer_is_journald (2) && ! isatty(2))
+  if (g_strv_contains ((const gchar **) argv, "--privileged"))
     {
+      /* We are being spawned, under sudo or pkexec, by the user's copy
+       * of the bridge.  In that case, the first thing that will happen,
+       * if we receive our stderr via the socket that is our stdin.
+       */
+      const char *msg = "\n{\"command\": \"send-stderr\"}";
+      g_print ("%zu\n%s", strlen (msg), msg);
+
+      int parent_stderr_fd;
+      int r = cockpit_socket_receive_fd (STDIN_FILENO, &parent_stderr_fd);
+      if (r == 0)
+        {
+          /* on EOF, just silently exit */
+          return 0;
+        }
+      else if (r == -1)
+        {
+          g_printerr ("cockpit-bridge: recvmsg(stdin) failed: %m\n");
+          return 1;
+        }
+      else if (parent_stderr_fd == -1)
+        {
+          g_printerr ("cockpit-bridge: message from stdin contains no fd\n");
+          return 1;
+        }
+      else
+        {
+          r = dup2 (parent_stderr_fd, STDERR_FILENO);
+          g_assert (r == STDERR_FILENO); /* that should really never fail */
+          close (parent_stderr_fd);
+        }
+    }
+  else if (g_getenv ("SSH_CONNECTION") && !g_log_writer_is_journald (2) && ! isatty(2))
+    {
+      /* In case we are run via sshd and we have journald, make sure all
+       * logging output ends up in the journal on *this* machine, not sent
+       * back to the client.
+       */
       int fd = sd_journal_stream_fd ("cockpit/ssh", LOG_WARNING, 0);
 
       /* If it didn't work, then there's no journal.  That's OK: we'll

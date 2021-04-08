@@ -23,12 +23,13 @@
 #include "cockpitrouter.h"
 
 #include "common/cockpitauthorize.h"
+#include "common/cockpitfdpassing.h"
+#include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
-#include "common/cockpithex.h"
+#include "common/cockpittransport.h"
 
 #include <sys/prctl.h>
 #include <sys/socket.h>
@@ -400,7 +401,22 @@ on_other_control (CockpitTransport *transport,
           cockpit_transport_send (transport, NULL, reply);
           g_bytes_unref (reply);
         }
+    }
 
+  /* cockpit-bridge --privileged expects to receive a copy of our stderr */
+  else if (g_str_equal (command, "send-stderr") &&
+           cockpit_json_get_bool (self->config, "privileged", FALSE, &privileged) && privileged)
+    {
+      CockpitPipe *pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
+
+      int out_fd;
+      g_object_get (pipe, "out-fd", &out_fd, NULL);
+
+      if (!cockpit_socket_send_fd (out_fd, STDERR_FILENO))
+        {
+          g_critical ("sendmsg() with stderr fd failed: %m");
+          cockpit_transport_close (transport, "internal-error");
+        }
     }
 
   /* Otherwise we need an init message first */

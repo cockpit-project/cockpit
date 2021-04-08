@@ -121,12 +121,16 @@ html.index-page body {
     font-weight: bold;
 }
 
-#display-language-list {
-    width: 100%;
+.display-language-modal {
+    /* Do not let the language menu expand to the end of the page */
+    .pf-c-menu__content {
+        max-height: 20rem;
+        overflow: auto;
+    }
 }
 
-#display-language-list option {
-    padding: 10px;
+#display-language-list {
+    margin-bottom: var(--pf-global--spacer--sm);
 }
 
 iframe.container-frame {

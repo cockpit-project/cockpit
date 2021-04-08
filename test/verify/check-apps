@@ -178,7 +178,10 @@ class TestApps(PackageCase):
                 b.click("#display-language-select-button")
             else:
                 b.wait_visible('#display-language-modal')
-                b.set_val("#display-language-modal select", lang)
+                if m.image in ["rhel-8-5-distropkg"]:
+                    b.set_val("#display-language-modal select", lang)
+                else:
+                    b.click('#display-language-modal li[data-value=%s] button' % lang)
                 b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             # HACK: work around language switching in Chrome not working in current session (issue #8160)

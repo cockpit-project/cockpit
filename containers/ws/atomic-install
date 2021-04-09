@@ -44,7 +44,7 @@ chown root:root /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
 mkdir -p /etc/ssh
 
 # For podman, generate a systemd unit for starting on boot
-if [ "${container:-}" = podman ] && [ -n "$IMAGE" ] && [ ! -e /host/etc/systemd/system/cockpit.service ]; then
+if [ "${container:-}" = oci ] && [ -n "$IMAGE" ] && [ ! -e /host/etc/systemd/system/cockpit.service ]; then
     mkdir -p /host/etc/systemd/system/
     cat << EOF > /host/etc/systemd/system/cockpit.service
 [Unit]

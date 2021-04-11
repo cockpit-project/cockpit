@@ -32,21 +32,11 @@ class TestKdump(MachineCase):
 
     def enableKdump(self):
         # we need to make sure that the kernel command line options include our crashkernel parameter
-        if self.machine.atomic_image:
-            # on atomic we have a crashkernel option already, but for auto
-            contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
-            self.assertIn("crashkernel=auto", contents)
-            self.machine.write("/boot/grub2/grub.cfg", contents.replace("crashkernel=auto", "crashkernel=256M"))
-        elif self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
-            # these images use BootLoaderSpec and grubenv
-            self.machine.execute(
-                "sed -i '/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }' /boot/grub2/grubenv")
-        else:
-            lines = self.machine.execute(command="cat /etc/default/grub", quiet=True).split("\n")
-            lines = map(lambda line: self.rreplace(line, '"', ' crashkernel=256M"', 1)
-                        if line.startswith("GRUB_CMDLINE_LINUX") else line, lines)
-            self.machine.write("/etc/default/grub", "\n".join(lines))
-            self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
+        lines = self.machine.execute(command="cat /etc/default/grub", quiet=True).split("\n")
+        lines = map(lambda line: self.rreplace(line, '"', ' crashkernel=256M"', 1)
+                    if line.startswith("GRUB_CMDLINE_LINUX") else line, lines)
+        self.machine.write("/etc/default/grub", "\n".join(lines))
+        self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
         self.machine.execute("mkdir -p /var/crash")
 
     def enableLocalSsh(self):

@@ -165,10 +165,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
         wait_line(n + 1, "$")
         path = m.execute("cat /tmp/path").strip()
-        if m.atomic_image:
-            self.assertIn("/usr/local/bin:/usr/bin", path)
-        else:
-            self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
+        self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
         self.assertNotIn(":/.local", path)  # would happen with empty $HOME
 
         def check_theme_select(name, style):

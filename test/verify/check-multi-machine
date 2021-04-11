@@ -279,14 +279,10 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
         m2_dashboard_name = "machine2"
 
-        # Dashboard is not installed on secondary atomic machines
-        if not m2.atomic_image:
-            b.click("a[href='/dashboard']")
-            b.enter_page("/dashboard")
-            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-            b.wait_not_present("a[data-address='10.111.113.2']")
-        else:
-            b.wait_not_present("a[href='/dashboard']")
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+        b.wait_not_present("a[data-address='10.111.113.2']")
         b.logout()
 
         # Bad host key
@@ -437,13 +433,10 @@ class TestMultiMachine(MachineCase):
             b.switch_to_top()
             b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
 
-            if not m2.atomic_image:
-                b.click("a[href='/dashboard']")
-                b.enter_page("/dashboard")
-                b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-                b.wait_not_present("a[data-address='10.111.113.2']")
-            else:
-                b.wait_not_present("a[href='/dashboard']")
+            b.click("a[href='/dashboard']")
+            b.enter_page("/dashboard")
+            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+            b.wait_not_present("a[data-address='10.111.113.2']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

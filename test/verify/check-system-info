@@ -169,10 +169,7 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        if m.atomic_image:
-            b.wait_text('#system-ostree-version-link', "cockpit-base.1")
-        else:
-            b.wait_not_visible("#system-ostree-version-link")
+        b.wait_not_visible("#system-ostree-version-link")
 
         b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
         # HACK /usr/bin/hostname output is delayed in systemd v208, so that DBus gets notified early
@@ -470,8 +467,7 @@ class TestSystemInfo(MachineCase):
         # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
         # - BLS, options go directly into entries (RHEL 8.0)
         # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
-        if not m.atomic_image:
-            m.execute(r"""set -e
+        m.execute(r"""set -e
 . /etc/os-release
 touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
@@ -489,7 +485,7 @@ grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
     grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
 """)
             # clean up so that next reboot works
-            m.execute(r"""set -e
+        m.execute(r"""set -e
 . /etc/os-release
 rm /boot/vmlinuz-42.0.0
 if type update-grub >/dev/null 2>&1; then
@@ -548,13 +544,6 @@ class TestPcp(packagelib.PackageCase):
     def testEnablePcpLink(self):
         m = self.machine
         b = self.browser
-
-        # the atomics don't have pcp and can't install additional software
-        if m.atomic_image:
-            self.login_and_go("/system")
-            b.wait_not_visible("#server-pmlogger-switch")
-            b.wait_not_visible("#system-information-enable-pcp-link")
-            return
 
         m.execute("pkcon remove -y pcp")
 

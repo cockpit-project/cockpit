@@ -109,29 +109,28 @@ class TestConnection(MachineCase):
             self.assertTrue(cookie["httpOnly"])
         self.assertFalse(cookie["secure"])
 
-        if not m.atomic_image:  # cannot write to /usr on Atomics, and cockpit-session is in a container
-            # damage cockpit-session permissions (Fedora-ish and Debian-ish path), expect generic error message
-            m.execute("chmod g-x /usr/libexec/cockpit-session 2>/dev/null || chmod g-x /usr/lib/cockpit/cockpit-session")
-            b.open("/system")
-            b.wait_in_text('#login-fatal-message', "Internal error in login process")
-            m.execute("chmod g+x /usr/libexec/cockpit-session 2>/dev/null || chmod g+x /usr/lib/cockpit/cockpit-session")
+        # damage cockpit-session permissions (Fedora-ish and Debian-ish path), expect generic error message
+        m.execute("chmod g-x /usr/libexec/cockpit-session 2>/dev/null || chmod g-x /usr/lib/cockpit/cockpit-session")
+        b.open("/system")
+        b.wait_in_text('#login-fatal-message', "Internal error in login process")
+        m.execute("chmod g+x /usr/libexec/cockpit-session 2>/dev/null || chmod g+x /usr/lib/cockpit/cockpit-session")
 
-            self.allow_journal_messages(".*cockpit-session: bridge program failed.*")
+        self.allow_journal_messages(".*cockpit-session: bridge program failed.*")
 
-            # pretend cockpit-bridge is not installed, expect specific error message
-            m.execute("mv /usr/bin/cockpit-bridge /usr/bin/cockpit-bridge.disabled")
-            b.open("/system")
-            b.wait_visible("#login")
-            b.set_val("#login-user-input", "admin")
-            b.set_val("#login-password-input", "foobar")
-            b.click('#login-button')
-            b.wait_visible('#login-fatal-message')
-            if m.image not in ["rhel-7-6-distropkg"]:
-                b.wait_text('#login-fatal-message', "The cockpit package is not installed")
-            else:
-                # cockpit-ws < 184 had an unspecific error message
-                b.wait_in_text('#login-fatal-message', "Internal error")
-            m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
+        # pretend cockpit-bridge is not installed, expect specific error message
+        m.execute("mv /usr/bin/cockpit-bridge /usr/bin/cockpit-bridge.disabled")
+        b.open("/system")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.wait_visible('#login-fatal-message')
+        if m.image not in ["rhel-7-6-distropkg"]:
+            b.wait_text('#login-fatal-message', "The cockpit package is not installed")
+        else:
+            # cockpit-ws < 184 had an unspecific error message
+            b.wait_in_text('#login-fatal-message', "Internal error")
+        m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
 
         # Reauthorization can fail due to disconnects above
         self.allow_authorize_journal_messages()

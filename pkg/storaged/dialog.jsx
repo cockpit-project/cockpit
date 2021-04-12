@@ -863,7 +863,7 @@ class SizeSliderElement extends React.Component {
     constructor(props) {
         super();
         this.units = cockpit.get_byte_units(props.value || props.max);
-        this.units.forEach(u => { if (u.selected) this.state = { unit: u.factor }; });
+        this.state = { unit: this.units.find(u => u.selected).factor };
     }
 
     render() {

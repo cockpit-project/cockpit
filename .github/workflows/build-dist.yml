@@ -15,12 +15,18 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
-      - name: Run unit-tests container
-        run: sudo containers/unit-tests/start dist
+      - name: Run unit-tests container to build dist
+        run: |
+          sudo containers/unit-tests/start dist
+          tar --strip-components=1 -xf tmp/dist/cockpit-*.tar.xz
 
-      - name: Create dist tarball artifact
+      - name: Create dist artifact
         uses: actions/upload-artifact@v2
         with:
           name: dist
-          path: tmp/dist/cockpit-*.tar.xz
-          retention-days: 7
+          path: |
+            dist/
+            node_modules/
+            package-lock.json
+            tools/debian/copyright
+          retention-days: 1

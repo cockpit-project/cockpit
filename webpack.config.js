@@ -249,6 +249,7 @@ const copy = require("copy-webpack-plugin");
 const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
 const IncludedModulesPlugin = require("./pkg/lib/included-modules-plugin");
 
@@ -357,6 +358,9 @@ const plugins = [
     }),
 ];
 
+if (eslint)
+    plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"] }));
+
 if (section.startsWith('base1'))
     plugins.push(new copy(base1_fonts));
 
@@ -431,12 +435,6 @@ module.exports = {
 
     module: {
         rules: [
-            {
-                enforce: 'pre',
-                test: eslint ? /\.(js|jsx)$/ : /dont.match.me/,
-                exclude: /\/node_modules\/.*\//, // exclude external dependencies
-                loader: "eslint-loader"
-            },
             // bootstrap UI requires jQuery to be in the global namespace
             // only expose that to pages which need it, as we want to port to React and get rid of jQuery
             {

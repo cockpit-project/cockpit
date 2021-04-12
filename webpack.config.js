@@ -248,6 +248,7 @@ const fs = require("fs");
 const copy = require("copy-webpack-plugin");
 const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
@@ -348,7 +349,6 @@ const cssProcessorOptions = production ? { } : { map: {inline: false} };
 const plugins = [
     new IncludedModulesPlugin((section || "") + "included-modules"),
     new copy(info.files),
-    new OptimizeCSSAssetsPlugin({cssProcessorOptions: cssProcessorOptions}),
     new miniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
@@ -431,6 +431,11 @@ module.exports = {
 
     watchOptions: {
         ignored: /node_modules/
+    },
+
+    optimization: {
+        minimize: production,
+        minimizer: [new TerserJSPlugin({ extractComments : false }), new OptimizeCSSAssetsPlugin({cssProcessorOptions: cssProcessorOptions})],
     },
 
     module: {

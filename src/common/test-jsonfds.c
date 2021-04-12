@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitcontrolmessages.h"
+#include "cockpitfdpassing.h"
 #include "cockpithacks.h"
 #include "cockpitjsonprint.h"
 #include "cockpitmemfdread.h"
@@ -28,6 +29,7 @@
 
 #include <gio/gunixfdmessage.h>
 #include <gio/gunixcredentialsmessage.h>
+#include <glib-unix.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -774,6 +776,26 @@ test_unix_socket_simple (void)
   g_assert (fds != NULL);
   g_assert_cmpint (n_fds, ==, 3);
   free_fds (&fds, &n_fds);
+  assert_base_state (one, two);
+
+  /* mix-and-match with cockpitfdpassing */
+  int two_fd = g_socket_get_fd (two);
+  g_unix_set_fd_nonblocking (two_fd, FALSE, &error);
+  g_assert_no_error (error);
+
+  /* one -> two */
+  send_fd (one, 1);
+  int r = cockpit_socket_receive_fd (two_fd, &fd);
+  g_assert_cmpint (r, ==, 1);
+  g_assert (fd != -1);
+  close (fd);
+
+  /* two -> one */
+  cockpit_socket_send_fd (two_fd, 1);
+  fd = receive_fd (one, &error);
+  g_assert_no_error (error);
+  g_assert (fd != -1);
+  close (fd);
   assert_base_state (one, two);
 }
 

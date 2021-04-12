@@ -167,7 +167,6 @@ export class FileAutoComplete extends React.Component {
         return (
             <Select
                 variant={SelectVariant.typeahead}
-                ref='typeahead'
                 id={this.props.id}
                 onTypeaheadInputChanged={this.debouncedChange}
                 placeholderText={placeholder}

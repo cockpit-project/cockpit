@@ -349,7 +349,7 @@ const plugins = [
     new IncludedModulesPlugin((section || "") + "included-modules"),
     new copy(info.files),
     new OptimizeCSSAssetsPlugin({cssProcessorOptions: cssProcessorOptions}),
-    new miniCssExtractPlugin("[name].css"),
+    new miniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
         msggrep_options: get_msggrep_options(),

@@ -468,6 +468,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_failed_sudo_journal_messages()
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
+        self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="systemd".*')
 
         # sysadm_u
         m.execute("semanage login -a -s sysadm_u admin")

@@ -965,9 +965,16 @@ class MachineCase(unittest.TestCase):
                         "done; until rmmod scsi_debug; do sleep 1; done")
 
         # Terminate all lingering Cockpit sessions
-        self.addCleanup(self.machine.execute,
-                        "loginctl --no-legend list-sessions | awk '/web console/ { print $1 }' | "
-                        "xargs --no-run-if-empty -L1 loginctl terminate-session")
+        def terminate_sessions():
+            sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
+            for s in sessions:
+                self.machine.execute("loginctl terminate-session %s" % s)
+                # Wait for it to be no longer active. Sometimes
+                # sessions are permanently stuck in state "closing",
+                # but that's fine since they won't do any harm.
+                m.execute("while loginctl show-session %s | grep -q 'State=active'; do sleep 1; done" % s)
+
+        self.addCleanup(terminate_sessions)
 
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:

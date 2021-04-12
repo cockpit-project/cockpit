@@ -236,6 +236,13 @@ th {
     font-weight: normal;
 }
 
+// Flip the MAC address dropdown to the inner of the modal
+// Bootstrap dropdown cannot escape the PF4 modal and it ends up cropped otherwise
+#network-bond-settings-mac-menu.dropdown-menu {
+    left: unset;
+    right: 0;
+}
+
 // Temporary curtain to hide the conten as it loads
 #testing-connection-curtain {
     z-index: 2000;

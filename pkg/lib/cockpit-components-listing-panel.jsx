@@ -91,16 +91,15 @@ export class ListingPanel extends React.Component {
         let rendererData;
         let row;
 
-        if (this.state.activeTab >= this.props.tabRenderers.length)
-            this.state.activeTab = this.props.tabRenderers.length - 1;
+        const activeTab = Math.min(this.state.activeTab, this.props.tabRenderers.length - 1);
 
         for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
             Renderer = this.props.tabRenderers[tabIdx].renderer;
             rendererData = this.props.tabRenderers[tabIdx].data;
-            if (tabIdx !== this.state.activeTab && !(tabIdx in this.state.loadedTabs))
+            if (tabIdx !== activeTab && !(tabIdx in this.state.loadedTabs))
                 continue;
-            row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...rendererData} />;
-            if (tabIdx === this.state.activeTab)
+            row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== activeTab) } {...rendererData} />;
+            if (tabIdx === activeTab)
                 tabs.push(<div className="ct-listing-panel-body" key={tabIdx}>{row}</div>);
             else
                 tabs.push(<div className="ct-listing-panel-body" key={tabIdx} hidden>{row}</div>);

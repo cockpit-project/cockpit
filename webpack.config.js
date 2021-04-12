@@ -389,25 +389,6 @@ const aliases = {
 if (production)
     aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
 
-
-const babel_loader = {
-    loader: "babel-loader",
-    options: {
-        presets: [
-            ["@babel/env", {
-                "targets": {
-                    "chrome": "57",
-                    "firefox": "52",
-                    "safari": "10.3",
-                    "edge": "16",
-                    "opera": "44"
-                }
-            }],
-            "@babel/preset-react"
-        ]
-    }
-};
-
 /* check if sassc is available, to avoid unintelligible error messages */
 try {
     childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'pipe', 'inherit'] });
@@ -486,14 +467,14 @@ module.exports = {
             /* these modules need to be babel'ed, they cause bugs in their dist'ed form */
             {
                 test: /\/node_modules\/.*(react-table).*\.js$/,
-                use: babel_loader
+                use: "babel-loader"
             },
             {
                 test: /\.(js|jsx)$/,
                 // exclude external dependencies; it's too slow, and they are already plain JS except the above
                 // also exclude unit tests, we don't need it for them, just a waste and makes failures harder to read
                 exclude: /\/node_modules|\/test-/,
-                use: babel_loader
+                use: "babel-loader"
             },
             /* HACK: remove unwanted fonts from PatternFly's css */
             {

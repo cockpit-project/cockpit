@@ -46,6 +46,7 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
+#include <common/cockpitfdpassing.h>
 #include <common/cockpitjsonprint.h>
 #include <common/cockpitmemory.h>
 #include <common/cockpitwebcertificate.h>
@@ -215,48 +216,10 @@ get_iovecs (struct iovec *iov,
 }
 
 static void
-fd_send_prepare (const int      *fd_to_send,
-                 struct msghdr  *msg,
-                 struct cmsghdr *cmsg,
-                 size_t          cmsgsize)
-{
-  if (fd_to_send == NULL || *fd_to_send == -1)
-   return;
-
-  assert (CMSG_SPACE(sizeof *fd_to_send) <= cmsgsize);
-
-  /* we have an fd to send: create an SCM_RIGHTS cmsg. */
-  cmsg->cmsg_len = CMSG_LEN(sizeof *fd_to_send);
-  cmsg->cmsg_level = SOL_SOCKET;
-  cmsg->cmsg_type = SCM_RIGHTS;
-  memcpy (CMSG_DATA(cmsg), fd_to_send, sizeof *fd_to_send);
-
-  /* attach it to the msghdr */
-  msg->msg_control = cmsg;
-  msg->msg_controllen = CMSG_LEN(sizeof *fd_to_send);
-}
-
-static void
-fd_send_complete (int     *fd_to_send,
-                  ssize_t  result)
-{
-  if (fd_to_send == NULL || *fd_to_send == -1)
-   return;
-
-  if (result != -1)
-    {
-      /* we sent it! */
-      close (*fd_to_send);
-      *fd_to_send = -1;
-    }
-}
-
-static void
 buffer_write_to_fd (Buffer *self,
                     int     fd,
                     int    *fd_to_send)
 {
-  struct cmsghdr cmsg[2];
   struct iovec iov[2];
   ssize_t s;
 
@@ -267,7 +230,10 @@ buffer_write_to_fd (Buffer *self,
 
   if (msg.msg_iovlen)
     {
-      fd_send_prepare (fd_to_send, &msg, cmsg, sizeof cmsg);
+      struct cmsghdr cmsg[2];
+
+      if (fd_to_send && *fd_to_send != -1)
+        cockpit_socket_msghdr_add_fd (&msg, cmsg, sizeof cmsg, *fd_to_send);
 
       do
         s = sendmsg (fd, &msg, MSG_NOSIGNAL | MSG_DONTWAIT);
@@ -275,7 +241,11 @@ buffer_write_to_fd (Buffer *self,
 
       debug (BUFFER, "  sendmsg returns %zi %s", s, (s == -1) ? strerror (errno) : "");
 
-      fd_send_complete (fd_to_send, s);
+      if (fd_to_send && *fd_to_send != -1 && s != -1)
+        {
+          close (*fd_to_send);
+          *fd_to_send = -1;
+        }
 
       if (s == -1)
         {

@@ -29,16 +29,4 @@
  * Error codes.
  */
 
-GQuark
-cockpit_error_quark (void)
-{
-  static GQuark domain = 0;
-  static volatile gsize quark_volatile = 0;
-
-  if (g_once_init_enter (&quark_volatile)) {
-      domain = g_quark_from_static_string ("cockpit-error");
-      g_once_init_leave (&quark_volatile, 1);
-  }
-
-  return domain;
-}
+G_DEFINE_QUARK(cockpit-error, cockpit_error)

@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { Terminal as Term } from "xterm";
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
@@ -120,6 +119,8 @@ export class Terminal extends React.Component {
             screenReaderMode: true
         });
 
+        this.terminalRef = React.createRef();
+
         term.onData(function(data) {
             if (this.props.channel.valid)
                 this.props.channel.send(data);
@@ -132,7 +133,7 @@ export class Terminal extends React.Component {
     }
 
     componentDidMount() {
-        this.state.terminal.open(this.refs[this.props.refName || "terminal"]);
+        this.state.terminal.open(this.terminalRef.current);
         this.connectChannel();
 
         if (!this.props.rows) {
@@ -190,12 +191,12 @@ export class Terminal extends React.Component {
     render() {
         return (
             <>
-                <div ref={this.props.refName || "terminal"}
-                        key={this.state.terminal}
-                        className="console-ct"
-                        onFocus={this.onFocusIn}
-                        onContextMenu={this.contextMenu}
-                        onBlur={this.onFocusOut} />
+                <div ref={this.terminalRef}
+                     key={this.state.terminal}
+                     className="console-ct"
+                     onFocus={this.onFocusIn}
+                     onContextMenu={this.contextMenu}
+                     onBlur={this.onFocusOut} />
                 <ContextMenu parentId={this.props.parentId} setText={this.setText} getText={this.getText} />
             </>
         );
@@ -270,14 +271,13 @@ export class Terminal extends React.Component {
 
     calculateDimensions() {
         const padding = 2 * 11;
-        const node = ReactDOM.findDOMNode(this);
 
         const realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
         const realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
         if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
             return {
-                rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
-                cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
+                rows: Math.floor((this.terminalRef.current.parentElement.clientHeight - padding) / realHeight),
+                cols: Math.floor((this.terminalRef.current.parentElement.clientWidth - padding) / realWidth)
             };
 
         return { rows: this.state.rows, cols: this.state.cols };
@@ -316,6 +316,5 @@ Terminal.propTypes = {
     channel: PropTypes.object.isRequired,
     onTitleChanged: PropTypes.func,
     theme: PropTypes.string,
-    refName: PropTypes.string,
     parentId: PropTypes.string.isRequired
 };

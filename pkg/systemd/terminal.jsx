@@ -51,6 +51,9 @@ const _ = cockpit.gettext;
             this.onPlus = this.onPlus.bind(this);
             this.onMinus = this.onMinus.bind(this);
 
+            this.terminalRef = React.createRef();
+            this.resetButtonRef = React.createRef();
+
             this.minSize = 6;
             this.maxSize = 40;
         }
@@ -97,17 +100,17 @@ const _ = cockpit.gettext;
             if (!this.state.channel.valid && this.state.user)
                 this.setState({ channel: this.createChannel(this.state.user) });
             else
-                this.refs.terminal.reset();
+                this.terminalRef.current.reset();
 
             // don't focus the button, but keep it on the terminal
-            this.refs.resetButton.blur();
-            this.refs.terminal.focus();
+            this.resetButtonRef.current.blur();
+            this.terminalRef.current.focus();
         }
 
         render() {
             var terminal;
             if (this.state.channel)
-                terminal = (<Terminal ref="terminal"
+                terminal = (<Terminal ref={this.terminalRef}
                      channel={this.state.channel}
                      theme={this.state.theme}
                      fontSize={this.state.size}
@@ -153,7 +156,7 @@ const _ = cockpit.gettext;
                                     </FormSelect>
                                 </ToolbarItem>
                                 <ToolbarItem>
-                                    <button ref="resetButton"
+                                    <button ref={this.resetButtonRef}
                                             className="pf-c-button pf-m-secondary terminal-reset"
                                             onClick={this.onResetClick}>{_("Reset")}</button>
                                 </ToolbarItem>

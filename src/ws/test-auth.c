@@ -899,7 +899,7 @@ test_multi_step_fail (Test *test,
 {
   GHashTable *headers = NULL;
   gint spot = 0;
-  gchar *id = NULL;
+  g_autofree gchar *id = NULL;
   gchar *prompt = NULL;
   const ErrorMultiFixture *fix = data;
 

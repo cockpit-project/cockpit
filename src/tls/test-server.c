@@ -375,6 +375,7 @@ teardown (TestCase *tc, gconstpointer data)
   g_assert_cmpint (wait (NULL), ==, -1);
   g_assert_cmpint (errno, ==, ECHILD);
   /* connection should fail */
+  /* coverity[leaked_handle : FALSE] */
   g_assert_cmpint (do_connect (tc), ==, -ECONNREFUSED);
   g_unsetenv ("COCKPIT_WS_PROCESS_IDLE");
 

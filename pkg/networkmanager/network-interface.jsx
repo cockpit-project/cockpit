@@ -123,7 +123,7 @@ export const NetworkInterfacePage = ({
     }
 
     function connect() {
-        if (iface.MainConnection && !(dev && ghostSettings))
+        if (!(iface.MainConnection || (dev && ghostSettings)))
             return;
 
         function fail(error) {
@@ -140,7 +140,7 @@ export const NetworkInterfacePage = ({
 
         with_checkpoint(model, modify,
                         {
-                            devices: self.dev ? [self.dev] : [],
+                            devices: dev ? [dev] : [],
                             fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), dev_name),
                             anyway_text: cockpit.format(_("Switch on $0"), dev_name)
                         });

@@ -382,7 +382,7 @@ QUnit.test("modify with conflict", function (assert) {
 
 QUnit.test("watching", function (assert) {
     const done = assert.async();
-    assert.expect(3);
+    assert.expect(7);
 
     var file = cockpit.file(dir + "/foobar");
     var watch = file.watch(changed);
@@ -392,12 +392,16 @@ QUnit.test("watching", function (assert) {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
+            assert.equal(tag, "-", "empty tag");
             cockpit.spawn(["bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]);
         } else if (n == 2) {
             assert.equal(content, "1234\n", "correct new content");
+            assert.notEqual(tag, "-");
+            assert.ok(tag.length > 5, "tag has a reasonable size");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
+            assert.equal(tag, "-", "empty tag");
             watch.remove();
             done();
         }

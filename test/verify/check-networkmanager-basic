@@ -81,6 +81,14 @@ class TestNetworkingBasic(NetworkCase):
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
         self.wait_for_iface_setting('Status', 'Inactive')
 
+        # Reconnect through the UI
+        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
+        b.wait_in_text("#network-interface .pf-c-card:contains('%s')" % iface, "1.2.3.4/18")
+
+        # Disconnect from the CLI, UI reacts
+        m.execute("nmcli device disconnect %s" % iface)
+        self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, False)
+
         # Switch it back to "auto" from the command line and bring it
         # up again
         #

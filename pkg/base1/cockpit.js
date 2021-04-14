@@ -3834,7 +3834,7 @@ function factory() {
         var watch_channel = null;
         var watch_tag;
 
-        function ensure_watch_channel() {
+        function ensure_watch_channel(options) {
             if (n_watch_callbacks > 0) {
                 if (watch_channel)
                     return;
@@ -3847,9 +3847,17 @@ function factory() {
                 watch_channel = cockpit.channel(opts);
                 watch_channel.addEventListener("message", function (event, message_string) {
                     var message;
-                    try { message = JSON.parse(message_string) } catch (e) { message = null }
-                    if (message && message.path == path && message.tag && message.tag != watch_tag)
-                        read();
+                    try {
+                        message = JSON.parse(message_string);
+                    } catch (e) {
+                        message = null;
+                    }
+                    if (message && message.path == path && message.tag && message.tag != watch_tag) {
+                        if (options && options.read !== undefined && !options.read)
+                            fire_watch_callbacks(null, message.tag);
+                        else
+                            read();
+                    }
                 });
             } else {
                 if (watch_channel) {
@@ -3864,11 +3872,11 @@ function factory() {
             invoke_functions(watch_callbacks, self, arguments);
         }
 
-        function watch(callback) {
+        function watch(callback, options) {
             if (callback)
                 watch_callbacks.push(callback);
             n_watch_callbacks += 1;
-            ensure_watch_channel();
+            ensure_watch_channel(options);
 
             watch_tag = null;
             read();
@@ -3882,7 +3890,7 @@ function factory() {
                             watch_callbacks[index] = null;
                     }
                     n_watch_callbacks -= 1;
-                    ensure_watch_channel();
+                    ensure_watch_channel(options);
                 }
             };
         }

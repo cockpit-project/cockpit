@@ -36,7 +36,7 @@ promise
     .then((new_content, new_tag) => { ... })
     .catch(error => { ... })
 
-file.watch((content, tag, [error]) => { })
+file.watch((content, tag, [error]) => { }, [ { read: boolean } ])
 
 file.close()
 </programlisting>
@@ -200,6 +200,8 @@ cockpit.file("/path/to/file").modify(shout)
       external changes.
 <programlisting>
 handle = file.watch(callback);
+
+handle_no_read = file.watch(callback, { read: false });
 </programlisting>
       Whenever a change occurs, the <code>callback()</code> is called with
       the new content and tag of the file.  This might happen because of
@@ -207,10 +209,12 @@ handle = file.watch(callback);
       <code>replace()</code>, and <code>modify()</code>.</para>
     <para>When a read error occurs, the <code>callback()</code> is called with
       an error as a third argument. Write errors are not reported via the watch callback.</para>
-    <para>Calling <code>watch()</code> will also automatically call
-      <code>read()</code> to get the initial content of the file.</para>
-    <para>Thus, you normally don't need to call <code>read()</code> at all when
-      using <code>watch()</code>.</para>
+    <para>Calling <code>watch()</code> will also automatically call <code>read()</code>
+      to get the initial content of the file. Thus, you normally don't need to call
+      <code>read()</code> at all when using <code>watch()</code>.</para>
+    <para>To disable the automatic reading, e.g. for large files or unreadable
+      file system objects, set the <code>read</code> option to <code>false</code>. The first
+      <code>content</code> argument of the callback will then always be <code>null</code>.</para>
     <para>To free the resources used for monitoring, call <code>handle.remove()</code>.</para>
   </refsection>
 

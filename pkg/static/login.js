@@ -212,6 +212,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
                req("console", window) &&
                req("pushState", window.history) &&
                req("textContent", document) &&
+               req("replaceAll", String.prototype) &&
                req("supports", window.CSS) &&
                css("display", "flex") &&
                css("display", "grid");

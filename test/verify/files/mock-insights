@@ -20,6 +20,7 @@
 from http.server import *
 import json
 import re
+import ssl
 
 systems = {}
 
@@ -137,7 +138,9 @@ class handler(BaseHTTPRequestHandler):
 
 
 def insights_server(port):
-    HTTPServer(('', port), handler).serve_forever()
+    httpd = HTTPServer(('', port), handler)
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/var/tmp/alice.pem', keyfile='/var/tmp/alice.key', server_side=True)
+    httpd.serve_forever()
 
 
 insights_server(8888)

@@ -524,7 +524,6 @@ export class ServiceDetails extends React.Component {
                                         { status }
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
-                                <hr />
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
                                     <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
@@ -539,7 +538,6 @@ export class ServiceDetails extends React.Component {
                                         {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>}
-                                <hr />
                                 { notMetConditions.length > 0 &&
                                     <DescriptionListGroup>
                                         <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
@@ -548,7 +546,6 @@ export class ServiceDetails extends React.Component {
                                         </DescriptionListDescription>
                                     </DescriptionListGroup>
                                 }
-                                <hr />
                                 {triggerRelationshipsList}
                             </DescriptionList>
                             {extraRelationshipsList}

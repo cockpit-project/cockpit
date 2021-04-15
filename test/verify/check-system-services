@@ -329,6 +329,15 @@ Unit=test.service
 
         b.go("#/")
 
+        # Check that listen property is shown for socket units
+        self.pick_tab(3)
+        b.click(self.svc_sel("dbus.socket"))
+        b.wait_visible("#listen")
+        b.click(".pf-c-breadcrumb a:contains('Services')")
+
+        # Select services tab
+        self.pick_tab(1)
+
         # Filter by id
         init_filter_state()
         b.set_input_text("#services-text-filter", "fail.ser")
@@ -381,6 +390,35 @@ Unit=test.service
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
         b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
+
+        b.go("#/")
+
+        self.write_file("/tmp/mem-hog.awk", 'BEGIN { system("while [ ! -f /tmp/continue ]; do sleep 1; done"); y = sprintf("%50000000s",""); system("sleep infinity") }')
+        self.write_file("/etc/systemd/system/mem-hog.service",
+                        """
+[Unit]
+Description=Mem Hog Service
+
+[Service]
+ExecStart=/bin/awk -f /tmp/mem-hog.awk
+""")
+
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
+
+        # Check that MemoryCurrent is shown
+        b.click(self.svc_sel("mem-hog.service"))
+        b.wait_not_present("#memory")
+        m.execute("systemctl start mem-hog.service")
+        initial_memory = float(b.text("#memory .pf-c-description-list__text").split(" ")[0])
+        self.assertGreater(initial_memory, 1)
+        m.execute("touch /tmp/continue")
+        # MemoryCurrent auto-updates every 30s - default timeout is 60s - when it updates the memory used should be ~50MiB
+        b.wait(lambda: float(b.text("#memory .pf-c-description-list__text").split(" ")[0]) > 40)
+        m.execute("systemctl stop mem-hog")
+        b.wait_not_present("#memory")
+        # Check that listen is not shown for .service units
+        b.wait_not_present("#listen")
 
     def testApi(self):
         m = self.machine

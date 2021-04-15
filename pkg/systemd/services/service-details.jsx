@@ -35,6 +35,7 @@ import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
 import './service-details.scss';
 
 const _ = cockpit.gettext;
+const METRICS_POLL_DELAY = 30000; // 30s
 
 /*
  * React template for showing basic dialog for confirming action
@@ -208,11 +209,39 @@ export class ServiceDetails extends React.Component {
             waitsFileAction: false,
             note: "",
             error: "",
+            unit_properties: {},
         };
 
         this.onOnOffSwitch = this.onOnOffSwitch.bind(this);
         this.unitAction = this.unitAction.bind(this);
         this.unitFileAction = this.unitFileAction.bind(this);
+
+        this.unitType = props.unit.Id.split('.').slice(-1)[0];
+        this.unitTypeCapitalized = this.unitType.charAt(0).toUpperCase() + this.unitType.slice(1);
+        this.doMemoryCurrentPolling = this.doMemoryCurrentPolling.bind(this);
+
+        // MemoryCurrent property does not emit a changed signal - do polling for this property
+        if (props.unit.ActiveState == "active") {
+            this.doMemoryCurrentPolling();
+            this.interval = setInterval(this.doMemoryCurrentPolling, METRICS_POLL_DELAY);
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        // If unit became active start property polling and if got inactive stop
+        if (this.props.unit.ActiveState === 'active' && !this.interval) {
+            this.doMemoryCurrentPolling();
+            this.interval = setInterval(this.doMemoryCurrentPolling, METRICS_POLL_DELAY);
+        }
+        if (this.props.unit.ActiveState === 'inactive' && this.interval) {
+            this.doMemoryCurrentPolling();
+            clearInterval(this.interval);
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.interval)
+            clearInterval(this.interval);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -222,6 +251,23 @@ export class ServiceDetails extends React.Component {
             nextProps.loadingUnits)
             return false;
         return true;
+    }
+
+    doMemoryCurrentPolling() {
+        systemd_client.call(this.props.unit.path,
+                            "org.freedesktop.DBus.Properties", "Get",
+                            ["org.freedesktop.systemd1." + this.unitTypeCapitalized, 'MemoryCurrent'])
+                .then(result => {
+                    this.addUnitProperties(
+                        "MemoryCurrent",
+                        result[0] && result[0].v > 0 ? result[0].v : null,
+                    );
+                }, ex => console.log(ex.message));
+    }
+
+    addUnitProperties(prop, value) {
+        if (prop == "MemoryCurrent" && this.state.unit_properties.MemoryCurrent !== value)
+            this.setState({ unit_properties: Object.assign(this.state.unit_properties, { [prop]: value }) });
     }
 
     onOnOffSwitch() {
@@ -276,6 +322,7 @@ export class ServiceDetails extends React.Component {
         const isStatic = this.props.unit.UnitFileState !== "disabled" && !enabled;
         const failed = this.props.unit.ActiveState === "failed";
         const masked = this.props.unit.LoadState === "masked";
+        const unit = this.state.unit_properties;
 
         let status = [];
 
@@ -452,6 +499,16 @@ export class ServiceDetails extends React.Component {
                                     <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
                                     <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
                                 </DescriptionListGroup>
+                                {unit.MemoryCurrent ? <DescriptionListGroup>
+                                    <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent, 1024)}</DescriptionListDescription>
+                                </DescriptionListGroup> : null}
+                                {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
+                                    <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="listen">
+                                        {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>}
                                 <hr />
                                 { notMetConditions.length > 0 &&
                                     <DescriptionListGroup>

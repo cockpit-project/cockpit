@@ -161,6 +161,7 @@ class ServicesPage extends React.Component {
         this.getUnitByPath = this.getUnitByPath.bind(this);
         this.updateProperties = this.updateProperties.bind(this);
         this.addTimerProperties = this.addTimerProperties.bind(this);
+        this.addSocketProperties = this.addSocketProperties.bind(this);
         this.updateComputedProperties = this.updateComputedProperties.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 
@@ -450,6 +451,24 @@ class ServicesPage extends React.Component {
             return unit_a_t[0].localeCompare(unit_b_t[0]);
     }
 
+    addSocketProperties(socket_unit, path, unit) {
+        let needsUpdate = false;
+
+        if (JSON.stringify(socket_unit.Listen) !== JSON.stringify(unit.Listen)) {
+            unit.Listen = socket_unit.Listen;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+            this.setState(prevState => ({
+                unit_by_path: {
+                    ...prevState.unit_by_path,
+                    [unit.path]: unit,
+                }
+            }));
+        }
+    }
+
     addTimerProperties(timer_unit, path, unit) {
         let needsUpdate = false;
 
@@ -596,7 +615,18 @@ class ServicesPage extends React.Component {
 
         this.updateComputedProperties(unitNew);
 
-        if (unitNew.Id.slice(-5) == "timer") {
+        if (unitNew.Id.endsWith("socket")) {
+            unitNew.is_socket = true;
+            if (unitNew.ActiveState == "active") {
+                const socket_unit = systemd_client.proxy('org.freedesktop.systemd1.Socket', unitNew.path);
+                socket_unit.wait(() => {
+                    if (socket_unit.valid)
+                        this.addSocketProperties(socket_unit, path, unitNew);
+                });
+            }
+        }
+
+        if (unitNew.Id.endsWith("timer")) {
             unitNew.is_timer = true;
             if (unitNew.ActiveState == "active") {
                 const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);

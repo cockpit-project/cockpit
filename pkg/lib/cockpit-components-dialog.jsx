@@ -63,22 +63,11 @@ export class DialogFooter extends React.Component {
         this.cancel_click = this.cancel_click.bind(this);
     }
 
-    componentDidMount() {
-        document.body.classList.add("modal-in");
-    }
-
-    componentWillUnmount() {
-        document.body.classList.remove("modal-in");
-    }
-
     update_progress(msg, cancel) {
         this.setState({ action_progress_message: msg, action_progress_cancel: cancel });
     }
 
     action_click(handler, e) {
-        // only consider clicks with the primary button
-        if (e && e.button !== 0)
-            return;
         this.setState({
             error_message: null,
             action_progress_message: '',
@@ -109,16 +98,11 @@ export class DialogFooter extends React.Component {
             p.progress(this.update_progress);
 
         this.setState({ action_in_progress_promise: p });
-
         if (e)
             e.stopPropagation();
     }
 
     cancel_click(e) {
-        // only consider clicks with the primary button
-        if (e && e.button !== 0)
-            return;
-
         this.setState({ action_canceled: true });
 
         if (this.props.cancel_clicked)

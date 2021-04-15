@@ -24,6 +24,7 @@ import {
     Alert, Button,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
+    ExpandableSection,
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
     Modal, Switch
@@ -425,6 +426,13 @@ export class ServiceDetails extends React.Component {
         const tooltipMessage = enabled ? _("Stop and disable") : _("Start and enable");
         const hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
         const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
+
+        // These are relevant for socket and timer activated services
+        const triggerRelationships = [
+            { Name: _("Triggers"), Units: this.props.unit.Triggers },
+            { Name: _("Triggered by"), Units: this.props.unit.TriggeredBy },
+        ];
+
         const relationships = [
             { Name: _("Requires"), Units: this.props.unit.Requires },
             { Name: _("Requisite"), Units: this.props.unit.Requisite },
@@ -441,12 +449,34 @@ export class ServiceDetails extends React.Component {
             { Name: _("Before"), Units: this.props.unit.Before },
             { Name: _("After"), Units: this.props.unit.After },
             { Name: _("On failure"), Units: this.props.unit.OnFailure },
-            { Name: _("Triggers"), Units: this.props.unit.Triggers },
-            { Name: _("Triggered by"), Units: this.props.unit.TriggeredBy },
             { Name: _("Propagates reload to"), Units: this.props.unit.PropagatesReloadTo },
             { Name: _("Reload propagated from"), Units: this.props.unit.ReloadPropagatedFrom },
             { Name: _("Joins namespace of"), Units: this.props.unit.JoinsNamespaceOf }
         ];
+
+        const relationshipsToList = rels => {
+            return rels.filter(rel => rel.Units && rel.Units.length > 0)
+                    .map(rel =>
+                        <DescriptionListGroup key={rel.Name}>
+                            <DescriptionListTerm>{rel.Name}</DescriptionListTerm>
+                            <DescriptionListDescription id={rel.Name.split(" ").join("")}>
+                                <ul className="comma-list">
+                                    {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                </ul>
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                    );
+        };
+
+        const triggerRelationshipsList = relationshipsToList(triggerRelationships);
+
+        const extraRelationshipsList = (
+            <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
+                <DescriptionList>
+                    {relationshipsToList(relationships)}
+                </DescriptionList>
+            </ExpandableSection>
+        );
 
         const conditions = this.props.unit.Conditions;
         const notMetConditions = [];
@@ -519,18 +549,9 @@ export class ServiceDetails extends React.Component {
                                     </DescriptionListGroup>
                                 }
                                 <hr />
-                                {relationships.map(rel =>
-                                    rel.Units && rel.Units.length > 0 &&
-                                        <DescriptionListGroup key={rel.Name}>
-                                            <DescriptionListTerm>{rel.Name}</DescriptionListTerm>
-                                            <DescriptionListDescription id={rel.Name.split(" ").join("")}>
-                                                <ul className="comma-list">
-                                                    {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
-                                                </ul>
-                                            </DescriptionListDescription>
-                                        </DescriptionListGroup>
-                                )}
+                                {triggerRelationshipsList}
                             </DescriptionList>
+                            {extraRelationshipsList}
                         </CardBody>
                     </>
                 }

@@ -686,19 +686,20 @@ fi
         m.write("/usr/share/cockpit/subscription-manager/override.json", '{ "features": { "insights": true } }')
 
         # Run a mock version of the Insights API locally and configure
-        # insights-client to access it.
-
-        m.upload(["verify/files/mock-insights"], "/var/tmp")
+        # insights-client to access it. That requires a good enough
+        # TLS mock insights server certificate
+        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], "/var/tmp")
         m.spawn("/var/tmp/mock-insights", "mock-insights")
         m.write("/etc/insights-client/insights-client.conf",
                 """
 [insights-client]
 gpg=False
 auto_config=False
-base_url=127.0.0.1:8888/r/insights
+base_url=localhost:8888/r/insights
+# HACK: despite the good insights.cert above, some later part of insights *still* does not respect that
+cert_verify=False
 username=admin
 password=foobar
-insecure_connection=True
 """)
 
         # Initially we are not registered

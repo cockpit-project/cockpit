@@ -472,7 +472,7 @@ export class ServiceDetails extends React.Component {
 
         const extraRelationshipsList = (
             <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
-                <DescriptionList>
+                <DescriptionList isHorizontal>
                     {relationshipsToList(relationships)}
                 </DescriptionList>
             </ExpandableSection>
@@ -517,7 +517,7 @@ export class ServiceDetails extends React.Component {
                             }
                         </CardTitle>
                         <CardBody>
-                            <DescriptionList>
+                            <DescriptionList isHorizontal>
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
                                     <DescriptionListDescription id="statuses">

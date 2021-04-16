@@ -120,7 +120,6 @@ class TestStorageFormat(StorageCase):
         self.dialog_set_val("mount_point", "/foo")
         self.dialog_apply()
         b.wait_in_text("footer", "Erasing /dev/mapper/superslow")
-        sit()
         self.dialog_cancel()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Unrecognized data")

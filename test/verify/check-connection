@@ -578,7 +578,7 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Content-Type: text/html\r\n", headers)
         self.assertIn("Cross-Origin-Resource-Policy: same-origin\r\n", headers)
-        # login.html is not always accessible as a file (e. g. in Atomic), so just assert a reasonable content length
+        # login.html is not always accessible as a file (e.g. on CoreOS), so just assert a reasonable content length
         self.assertIn("Content-Length: ", headers)
         length = int(headers.split('Content-Length: ', 1)[1].split()[0])
         self.assertGreater(length, 5000)

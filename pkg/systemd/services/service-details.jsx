@@ -245,13 +245,11 @@ export class ServiceDetails extends React.Component {
             clearInterval(this.interval);
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        // Don't update when only actions resolved, wait until API triggers some redrawing
-        if ((nextState.waitsAction === false && this.state.waitsAction === true) ||
-            (nextState.waitsFileAction === false && this.state.waitsFileAction === true) ||
-            nextProps.loadingUnits)
-            return false;
-        return true;
+    static getDerivedStateFromProps(nextProps, prevState) {
+        return {
+            waitsAction: nextProps.loadingUnits,
+            waitsFileAction: nextProps.loadingUnits,
+        };
     }
 
     doMemoryCurrentPolling() {
@@ -290,8 +288,7 @@ export class ServiceDetails extends React.Component {
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
         systemd_client.call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
-                .catch(error => this.setState({ error: error.toString() }))
-                .finally(() => this.setState({ waitsAction: false }));
+                .catch(error => this.setState({ error: error.toString(), waitsAction: false }));
     }
 
     unitFileAction(method, force) {
@@ -306,8 +303,7 @@ export class ServiceDetails extends React.Component {
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null)
-                            .then(() => this.setState({ waitsFileAction: false }));
+                    systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null);
                 })
                 .catch(error => {
                     this.setState({

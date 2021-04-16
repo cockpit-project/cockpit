@@ -140,7 +140,7 @@ class ServiceActions extends React.Component {
 
             if (actions.length > 0) {
                 actions.push(
-                    <DropdownSeparator key="divider" divider />
+                    <DropdownSeparator key="divider" />
                 );
             }
 

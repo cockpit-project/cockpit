@@ -507,6 +507,7 @@ export class ServiceDetails extends React.Component {
                                         <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
                                             <span>
                                                 <Switch isChecked={enabled}
+                                                        aria-label={tooltipMessage}
                                                         isDisabled={this.state.waitsAction || this.state.waitsFileAction}
                                                         onChange={this.onOnOffSwitch} />
                                             </span>

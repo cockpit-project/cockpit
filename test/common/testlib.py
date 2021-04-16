@@ -1000,9 +1000,6 @@ class MachineCase(unittest.TestCase):
         "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
         "Error sending message: The connection is closed",
 
-        # Will go away with glib 2.43.2
-        ".*: couldn't write web output: Error sending data: Connection reset by peer",
-
         # PAM noise
         "cockpit-session: pam: Creating directory .*",
         "cockpit-session: pam: Changing password for .*",
@@ -1023,13 +1020,6 @@ class MachineCase(unittest.TestCase):
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",
-        # happens on Atomic (https://bugzilla.redhat.com/show_bug.cgi?id=1298157)
-        "(audit: )?type=1400 audit.*: avc:  granted .*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
-        "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
-        "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
-        "(audit: )?type=1400 .*denied.*comm=\"cockpit-ssh\".*name=\"unix\".*dev=\"proc\".*",
 
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",

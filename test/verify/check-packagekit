@@ -780,7 +780,7 @@ ExecStart=/usr/local/bin/{0}
         # error message visible
         b.wait_visible("#app .pf-c-page .pf-c-empty-state__body")
 
-        self.assertRegex(b.text("#app .pf-c-page .pf-c-empty-state__body span:first-of-type"),
+        self.assertRegex(b.text("#app .pf-c-page .pf-c-empty-state__body .pf-c-content div:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory")
 
         # not expecting any buttons

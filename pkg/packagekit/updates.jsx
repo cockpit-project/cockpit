@@ -1352,7 +1352,9 @@ class OsUpdates extends React.Component {
                                      paragraph={
                                          <TextContent>
                                              <Text component={TextVariants.p}>
-                                                 {this.state.errorMessages.map(m => <span key={m}>{m}</span>)}
+                                                 {this.state.errorMessages
+                                                         .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                                         .map(m => <div key={m}>{m}</div>)}
                                              </Text>
                                              <Text component={TextVariants.p}>
                                                  {_("Please reload the page after resolving the issue.")}

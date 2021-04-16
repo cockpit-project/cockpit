@@ -157,7 +157,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                 m.execute("mv /etc/passwd.bak /etc/passwd")
 
             # login with user shell that prints some stdout/err noise
-            # having stdout output in ~/.bashrc confuses docker, so don't run on Atomic
+            # having stdout output in ~/.bashrc confuses docker, so don't run on OSTree
             m.execute("set -e; cd ~admin; cp -a .bashrc .bashrc.bak; [ ! -e .profile ] || cp -a .profile .profile.bak; "
                       "echo 'echo noise-rc-out; echo noise-rc-err >&2' >> .bashrc; "
                       "echo 'echo noise-profile-out; echo noise-profile-err >&2' >> .profile")

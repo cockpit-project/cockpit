@@ -37,15 +37,6 @@ _Steps 3 to 5 are optional if the CoreOS machine will only be connected to from 
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 
-# Cockpit Web Service Container on Atomic
-
-Fedora and Red Hat Enterprise Linux Atomic contains the Cockpit bridge (cockpit-bridge package) and basic pages (cockpit-system package). Thus you can connect from remote Cockpit hosts through ssh without further modification.
-
-These older operating systems use docker instead of podman and have an `atomic` command that wraps it. To start a web service directly on these hosts, run
-```
-atomic run cockpit/ws
-```
-
 ## More Info
 
  * [Cockpit Project](https://cockpit-project.org)

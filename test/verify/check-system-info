@@ -696,7 +696,8 @@ fi
 gpg=False
 auto_config=False
 base_url=localhost:8888/r/insights
-# HACK: despite the good insights.cert above, some later part of insights *still* does not respect that
+# even if we would add tls/ca/ca.pem (the signer of alice.pem) to /etc/pki, some later part of insights still
+# does not respect that; so just give in, and disable validation
 cert_verify=False
 username=admin
 password=foobar

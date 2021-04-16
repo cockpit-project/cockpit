@@ -1,0 +1,255 @@
+.TH  "cockpit_session_selinux"  "8"  "21-04-16" "cockpit_session" "SELinux Policy cockpit_session"
+.SH "NAME"
+cockpit_session_selinux \- Security Enhanced Linux Policy for the cockpit_session processes
+.SH "DESCRIPTION"
+
+Security-Enhanced Linux secures the cockpit_session processes via flexible mandatory access control.
+
+The cockpit_session processes execute with the cockpit_session_t SELinux type. You can check if you have these processes running by executing the \fBps\fP command with the \fB\-Z\fP qualifier.
+
+For example:
+
+.B ps -eZ | grep cockpit_session_t
+
+
+.SH "ENTRYPOINTS"
+
+The cockpit_session_t SELinux type can be entered via the \fBcockpit_session_exec_t\fP file type.
+
+The default entrypoint paths for the cockpit_session_t domain are the following:
+
+/usr/libexec/cockpit-ssh, /usr/libexec/cockpit-session
+.SH PROCESS TYPES
+SELinux defines process types (domains) for each process running on the system
+.PP
+You can see the context of a process using the \fB\-Z\fP option to \fBps\bP
+.PP
+Policy governs the access confined processes have to files.
+SELinux cockpit_session policy is very flexible allowing users to setup their cockpit_session processes in as secure a method as possible.
+.PP
+The following process types are defined for cockpit_session:
+
+.EX
+.B cockpit_session_t
+.EE
+.PP
+Note:
+.B semanage permissive -a cockpit_session_t
+can be used to make the process type cockpit_session_t permissive. SELinux does not deny access to permissive process types, but the AVC (SELinux denials) messages are still generated.
+
+.SH BOOLEANS
+SELinux policy is customizable based on least access required.  cockpit_session policy is extremely flexible and has several booleans that allow you to manipulate the policy and run cockpit_session with the tightest access possible.
+
+
+.PP
+If you want to allow all domains to execute in fips_mode, you must turn on the fips_mode boolean. Enabled by default.
+
+.EX
+.B setsebool -P fips_mode 1
+
+.EE
+
+.PP
+If you want to allow confined applications to run with kerberos, you must turn on the kerberos_enabled boolean. Enabled by default.
+
+.EX
+.B setsebool -P kerberos_enabled 1
+
+.EE
+
+.PP
+If you want to allow system to run with NIS, you must turn on the nis_enabled boolean. Disabled by default.
+
+.EX
+.B setsebool -P nis_enabled 1
+
+.EE
+
+.PP
+If you want to enable polyinstantiated directory support, you must turn on the polyinstantiation_enabled boolean. Disabled by default.
+
+.EX
+.B setsebool -P polyinstantiation_enabled 1
+
+.EE
+
+.SH "MANAGED FILES"
+
+The SELinux process type cockpit_session_t can manage files labeled with the following file types.  The paths listed are the default paths for these file types.  Note the processes UID still need to have DAC permissions.
+
+.br
+.B auth_cache_t
+
+	/var/cache/coolkey(/.*)?
+.br
+
+.br
+.B auth_home_t
+
+	/root/\.yubico(/.*)?
+.br
+	/root/\.config/Yubico(/.*)?
+.br
+	/root/\.google_authenticator
+.br
+	/root/\.google_authenticator~
+.br
+	/home/[^/]+/\.yubico(/.*)?
+.br
+	/home/[^/]+/\.config/Yubico(/.*)?
+.br
+	/home/[^/]+/\.google_authenticator
+.br
+	/home/[^/]+/\.google_authenticator~
+.br
+
+.br
+.B faillog_t
+
+	/var/log/btmp.*
+.br
+	/var/log/faillog.*
+.br
+	/var/log/tallylog.*
+.br
+	/var/run/faillock(/.*)?
+.br
+
+.br
+.B initrc_var_run_t
+
+	/var/run/utmp
+.br
+	/var/run/random-seed
+.br
+	/var/run/runlevel\.dir
+.br
+	/var/run/setmixer_flag
+.br
+
+.br
+.B lastlog_t
+
+	/var/log/lastlog.*
+.br
+
+.br
+.B pam_var_run_t
+
+	/var/(db|adm)/sudo(/.*)?
+.br
+	/var/lib/sudo(/.*)?
+.br
+	/var/run/sudo(/.*)?
+.br
+	/var/run/pam_ssh(/.*)?
+.br
+	/var/run/sepermit(/.*)?
+.br
+	/var/run/pam_mount(/.*)?
+.br
+	/var/run/pam_timestamp(/.*)?
+.br
+
+.br
+.B security_t
+
+	/selinux
+.br
+
+.br
+.B shadow_t
+
+	/etc/shadow.*
+.br
+	/etc/gshadow.*
+.br
+	/etc/nshadow.*
+.br
+	/var/db/shadow.*
+.br
+	/etc/security/opasswd
+.br
+	/etc/security/opasswd\.old
+.br
+
+.br
+.B var_auth_t
+
+	/var/ace(/.*)?
+.br
+	/var/rsa(/.*)?
+.br
+	/var/lib/abl(/.*)?
+.br
+	/var/lib/rsa(/.*)?
+.br
+	/var/lib/pam_ssh(/.*)?
+.br
+	/var/lib/pam_shield(/.*)?
+.br
+	/var/opt/quest/vas/vasd(/.*)?
+.br
+	/var/lib/google-authenticator(/.*)?
+.br
+
+.br
+.B wtmp_t
+
+	/var/log/wtmp.*
+.br
+
+.SH FILE CONTEXTS
+SELinux requires files to have an extended attribute to define the file type.
+.PP
+You can see the context of a file using the \fB\-Z\fP option to \fBls\bP
+.PP
+Policy governs the access confined processes have to these files.
+SELinux cockpit_session policy is very flexible allowing users to setup their cockpit_session processes in as secure a method as possible.
+.PP
+
+.I The following file types are defined for cockpit_session:
+
+
+.EX
+.PP
+.B cockpit_session_exec_t
+.EE
+
+- Set files with the cockpit_session_exec_t type, if you want to transition an executable to the cockpit_session_t domain.
+
+.br
+.TP 5
+Paths:
+/usr/libexec/cockpit-ssh, /usr/libexec/cockpit-session
+
+.PP
+Note: File context can be temporarily modified with the chcon command.  If you want to permanently change the file context you need to use the
+.B semanage fcontext
+command.  This will modify the SELinux labeling database.  You will need to use
+.B restorecon
+to apply the labels.
+
+.SH "COMMANDS"
+.B semanage fcontext
+can also be used to manipulate default file context mappings.
+.PP
+.B semanage permissive
+can also be used to manipulate whether or not a process type is permissive.
+.PP
+.B semanage module
+can also be used to enable/disable/install/remove policy modules.
+
+.B semanage boolean
+can also be used to manipulate the booleans
+
+.PP
+.B system-config-selinux
+is a GUI tool available to customize SELinux policy settings.
+
+.SH AUTHOR
+This manual page was auto-generated using
+.B "sepolicy manpage".
+
+.SH "SEE ALSO"
+selinux(8), cockpit_session(8), semanage(8), restorecon(8), chcon(1), sepolicy(8), setsebool(8)

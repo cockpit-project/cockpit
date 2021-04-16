@@ -34,6 +34,7 @@ MAINTAINERCLEANFILES = \
 	$(NULL)
 
 EXTRA_DIST = \
+	selinux \
 	package.json \
 	package-lock.json \
 	README.md \

@@ -1361,7 +1361,7 @@ class OsUpdates extends React.Component {
                                              </Text>
                                          </TextContent>
                                      }
-                    />;
+                    />
                 </>
             );
 

@@ -1055,6 +1055,7 @@ class MachineCase(unittest.TestCase):
         # Something unknown sometimes goes wrong with PCP, see #15625
         "pcp-archive: instance name lookup failed: .*",
         "direct: instance name lookup failed: .*",
+        "pcp-archive: couldn't create pcp archive context for.*",
         "pcp-archive: no such metric: .*"
     ]
 

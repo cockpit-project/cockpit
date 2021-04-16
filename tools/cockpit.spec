@@ -81,6 +81,13 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %define build_optional 1
 %endif
 
+# Ship custom SELinux policy only in Fedora and RHEL-9 onward
+%if 0%{?rhel} >= 9 || 0%{?fedora}
+%define selinuxtype targeted
+%define with_selinux 1
+%define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}" selinux-policy || echo 1)
+%endif
+
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
@@ -125,6 +132,11 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+%if 0%{?with_selinux}
+BuildRequires:  selinux-policy
+BuildRequires:  selinux-policy-devel
+%endif
+
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
@@ -165,6 +177,11 @@ exec 2>&1
 
 make -j4 %{?extra_flags} all
 
+%if 0%{?with_selinux}
+    make -f /usr/share/selinux/devel/Makefile cockpit.pp
+    bzip2 -9 cockpit.pp
+%endif
+
 %check
 exec 2>&1
 # HACK: Fedora koji builders are very slow, unreliable, and inaccessible for debugging; https://github.com/cockpit-project/cockpit/issues/13909
@@ -188,6 +205,12 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+
+%if 0%{?with_selinux}
+    install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8
+%endif
 
 # only ship deprecated PatternFly API for stable releases
 %if 0%{?fedora} <= 33 || 0%{?rhel} <= 8
@@ -427,6 +450,8 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
+Requires: (selinux-policy >= %{selinux_policy_version} if selinux-policy-%{selinuxtype})
+Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
@@ -481,11 +506,24 @@ authentication via sssd/FreeIPA.
 %attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 
+%if 0%{?with_selinux}
+    %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+    %{_mandir}/man8/%{name}_session_selinux.8.*
+    %{_mandir}/man8/%{name}_ws_selinux.8.*
+    %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%endif
+
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
 getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
 getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
 getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
+
+%if 0%{?with_selinux}
+if %{_sbindir}/selinuxenabled 2>/dev/null; then
+    %selinux_relabel_pre -s %{selinuxtype}
+fi
+%endif
 
 %post ws
 %tmpfiles_create cockpit-tempfiles.conf
@@ -493,10 +531,23 @@ getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance 
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
+%if 0%{?with_selinux}
+if %{_sbindir}/selinuxenabled 2>/dev/null; then
+    %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+    %selinux_relabel_post -s %{selinuxtype}
+fi
+%endif
+
 %preun ws
 %systemd_preun cockpit.socket cockpit.service
 
 %postun ws
+%if 0%{?with_selinux}
+if %{_sbindir}/selinuxenabled 2>/dev/null; then
+    %selinux_modules_uninstall -s %{selinuxtype} %{name}
+    %selinux_relabel_post -s %{selinuxtype}
+fi
+%endif
 %systemd_postun_with_restart cockpit.socket cockpit.service
 
 # -------------------------------------------------------------------------------

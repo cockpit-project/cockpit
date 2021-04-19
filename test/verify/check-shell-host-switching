@@ -417,6 +417,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         time.sleep(60)
         self.assertNotIn(m2.execute("loginctl"), "admin")
 
+        self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
 
 

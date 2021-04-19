@@ -39,8 +39,6 @@ if [ -z "$(which glib-gettextize)" ]; then
     exit 1
 fi
 
-[ -e package-lock.json ] || tools/npm-install
-
 rm -rf autom4te.cache
 
 autoreconf -f -i -I tools

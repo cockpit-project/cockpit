@@ -9,7 +9,7 @@ jobs:
          - check-memory
          - CC=clang :i386 check-memory
          - CC=clang distcheck
-         - :i386 NO_NPM=1 distcheck
+         - :i386 distcheck
       fail-fast: false
     timeout-minutes: 60
     steps:

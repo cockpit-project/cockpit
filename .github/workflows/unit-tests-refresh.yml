@@ -31,7 +31,7 @@ jobs:
         run: sudo containers/unit-tests/start CC=clang distcheck
 
       - name: Run i386 gcc distcheck test
-        run: sudo containers/unit-tests/start :i386 NO_NPM=1 distcheck
+        run: sudo containers/unit-tests/start :i386 distcheck
 
       - name: Log into container registry
         run: sudo podman login -u cockpituous -p ${{ secrets.COCKPITUOUS_GHCR_TOKEN }} ghcr.io

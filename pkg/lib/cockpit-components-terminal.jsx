@@ -19,9 +19,15 @@
 
 import React from "react";
 import PropTypes from "prop-types";
+import { Modal, Button } from "@patternfly/react-core";
 import { Terminal as Term } from "xterm";
+
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
+import cockpit from "cockpit";
+
 import "console.css";
+
+const _ = cockpit.gettext;
 
 const theme_core = {
     yellow: "#b58900",
@@ -116,7 +122,8 @@ export class Terminal extends React.Component {
             cursorBlink: true,
             fontSize: props.fontSize || 16,
             fontFamily: 'Menlo, Monaco, Consolas, monospace',
-            screenReaderMode: true
+            screenReaderMode: true,
+            showPastingModal: false,
         });
 
         this.terminalRef = React.createRef();
@@ -191,6 +198,18 @@ export class Terminal extends React.Component {
     render() {
         return (
             <>
+                <Modal title={_("Paste error")}
+                       position="top"
+                       variant="small"
+                       isOpen={this.state.showPastingModal}
+                       onClose={() => this.setState({ showPastingModal: false })}
+                       actions={[
+                           <Button key="cancel" variant="secondary" onClick={() => this.setState({ showPastingModal: false })}>
+                               {_("Close")}
+                           </Button>
+                       ]}>
+                    {_("Your browser does not allow paste from the context menu. You can use Shift+Insert.")}
+                </Modal>
                 <div ref={this.terminalRef}
                      key={this.state.terminal}
                      className="console-ct"
@@ -213,10 +232,10 @@ export class Terminal extends React.Component {
         try {
             navigator.clipboard.readText()
                     .then(text => this.props.channel.send(text))
-                    .catch(e => console.error('Text could not be pasted, use Shift+Insert ', e ? e.toString() : ""))
+                    .catch(e => this.setState({ showPastingModal: true }))
                     .finally(() => this.state.terminal.focus());
         } catch (error) {
-            console.error('Text could not be pasted, use Shift+Insert:', error.toString());
+            this.setState({ showPastingModal: true });
         }
     }
 

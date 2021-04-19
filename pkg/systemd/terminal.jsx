@@ -1,4 +1,5 @@
 import cockpit from "cockpit";
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -7,7 +8,6 @@ import {
     Toolbar, ToolbarContent, ToolbarItem
 } from "@patternfly/react-core";
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
 import { Terminal } from "cockpit-components-terminal.jsx";
 
 const _ = cockpit.gettext;

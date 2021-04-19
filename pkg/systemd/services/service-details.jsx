@@ -514,14 +514,14 @@ export class ServiceDetails extends React.Component {
                                     <DescriptionListGroup>
                                         <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
                                         <DescriptionListDescription id="condition">
-                                            {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
+                                            {notMetConditions.map(cond => <div key={cond}>{cond}</div>)}
                                         </DescriptionListDescription>
                                     </DescriptionListGroup>
                                 }
                                 <hr />
                                 {relationships.map(rel =>
                                     rel.Units && rel.Units.length > 0 &&
-                                        <DescriptionListGroup key={rel.Name.split().join("")}>
+                                        <DescriptionListGroup key={rel.Name}>
                                             <DescriptionListTerm>{rel.Name}</DescriptionListTerm>
                                             <DescriptionListDescription id={rel.Name.split(" ").join("")}>
                                                 <ul className="comma-list">

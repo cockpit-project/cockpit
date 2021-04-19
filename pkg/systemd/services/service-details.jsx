@@ -457,7 +457,7 @@ export class ServiceDetails extends React.Component {
                             <DescriptionListTerm>{rel.Name}</DescriptionListTerm>
                             <DescriptionListDescription id={rel.Name.split(" ").join("")}>
                                 <ul className="comma-list">
-                                    {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                    {rel.Units.map(unit => <li key={unit}><Button isInline variant="link" component="a" href={"#/" + unit} isDisabled={!this.props.isValid(unit)}>{unit}</Button></li>)}
                                 </ul>
                             </DescriptionListDescription>
                         </DescriptionListGroup>

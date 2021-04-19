@@ -36,7 +36,6 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	package.json \
 	package-lock.json \
-	node_modules/.stamp \
 	README.md \
 	$(NULL)
 
@@ -182,7 +181,7 @@ EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
 dist/%/Makefile.deps:
 	@true
 
-dist/%/manifest.json: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
+dist/%/manifest.json: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json
 	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
 
 -include $(WEBPACK_DEPS)
@@ -194,7 +193,7 @@ clean-local::
 maintainer-clean-local::
 	rm -rf dist/ node_modules/ package-lock.json
 
-node_modules/.stamp: package.json
+package-lock.json: package.json
 	@echo ''
 	@echo '    package.json changed'
 	@echo ''

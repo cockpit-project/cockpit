@@ -1256,7 +1256,7 @@ class TestAutoUpdates(NoSubManCase):
             b.reload()
             b.enter_page("/updates")
             time.sleep(5)
-            b.wait_not_present("#autoupdates-settings")
+            b.wait_visible("#settings .pf-c-alert")
 
     def testWithAvailableUpdates(self):
         b = self.browser

@@ -2,7 +2,7 @@
 # run static code checks like pyflakes and pep8
 set -eu
 
-echo "1..7"
+echo "1..8"
 
 cd "${srcdir:-.}"
 fail=0
@@ -136,6 +136,15 @@ else
     else
         echo "ok 7 $PYTHON_STYLE_CHECKER test"
     fi
+fi
+
+if [ ! -e .git ]; then
+    echo 'ok 8 node_modules freshness # SKIP not a git tree'
+elif V=0 tools/node-modules test_static_code; then
+    echo 'ok 8 node_modules freshness'
+else
+    echo "not ok 8 node_modules freshness"
+    fail=1
 fi
 
 exit $fail

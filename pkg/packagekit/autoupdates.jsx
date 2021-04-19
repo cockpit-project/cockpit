@@ -99,7 +99,7 @@ class DnfImpl extends ImplBase {
                             if (output.indexOf("InactiveSec=1d\n") >= 0)
                                 this.day = this.time = "";
                             else
-                                this.supported = false;
+                                this.parsing_failed = true;
                         }
 
                         debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
@@ -135,7 +135,7 @@ class DnfImpl extends ImplBase {
         if (words.length == 1 && validTime.test(words[0]))
             this.time = words[0].replace(/^0+/, "");
         else
-            this.supported = false;
+            this.parsing_failed = true;
     }
 
     setConfig(enabled, type, day, time) {
@@ -359,6 +359,11 @@ export class AutoUpdates extends React.Component {
 
         return (<>
             <div id="autoupdates-settings">
+                {enabled && this.state.backend.parsing_failed &&
+                <Alert isInline
+                       variant="info"
+                       className="autoupdates-card-error"
+                       title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to enable this feature.")} />}
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <Flex grow={{ default: 'grow' }} alignItems={{ default: 'alignItemsBaseline' }}>
                         <FlexItem>

@@ -11,19 +11,19 @@ Cockpit git repository checkout.
 ## Getting the development dependencies
 
 Cockpit uses Node.js during development. Node.js is not used at runtime.
-To make changes on Cockpit you'll want to install Node.js, NPM and
-various development dependencies.
+To make changes on Cockpit you'll want to install Node.js and various
+development dependencies.
 
 On Debian and recent Ubuntu ≥ 19.04:
 
-    $ sudo apt-get install nodejs npm sassc
+    $ sudo apt-get install nodejs sassc
 
 On Fedora:
 
-    $ sudo dnf install nodejs npm sassc
+    $ sudo dnf install nodejs sassc
 
 On older OS releases you can use the [n utility](https://github.com/tj/n) to
-get a current version of npm and nodejs.
+get a current version of nodejs.
 
 When relying on CI to run the test suite, this is all that is
 necessary to work on the JavaScript components of Cockpit.
@@ -55,6 +55,11 @@ For running integration tests, the following dependencies are required:
 Creating VM images locally (not necessary for running tests) needs the following:
 
     $ sudo dnf install virt-install
+
+Updating the `node_modules` (in case you need to modify `package.json`)
+requires npm to be installed.
+
+    $ sudo dnf install npm
 
 ## Building
 
@@ -238,6 +243,27 @@ In a Fedora/RHEL build environment you can build binary RPMs with
 In a Debian/Ubuntu build environment you can build debs with
 
     tools/make-debs --quick
+
+## Updating `node_modules`
+
+During a normal build from a git checkout, the `node_modules` will be
+automatically unpacked from a cache kept in a separate git repository.  You can
+force the unpack to occur using the `tools/node-modules checkout` command, but
+this shouldn't be necessary.  In the event that you need to modify
+`package.json` (to install a new module, for example) then you'll need to run
+`tools/node-modules rebuild` to create a new cache from the result of running
+`npm install` on your new `package.json`.
+
+Your locally rebuilt changes to `node_modules` won't be used by others.  A new
+version will be created by a github workflow when you open your pull request.
+
+The `tools/node-modules` script inspects the `GITHUB_BASE` environment variable
+to determine the correct repository to use when fetching and pushing.  It will
+strip the repository name (leaving the project- or username) and use the
+`node-cache.git` repository in that namespace.  If `GITHUB_BASE` is unset, it
+will default to `cockpit-project/node-cache.git`.
+
+A local cache is maintained in `~/.cache/cockpit-dev`.
 
 ## Contributing a change
 

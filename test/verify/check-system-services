@@ -611,7 +611,7 @@ ExecStart=/bin/true
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
         b.click("#service-details-show-relationships button")
-        b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
+        b.wait_visible("#Requires a.pf-m-disabled:contains('not-found.service')")
 
     def testResetFailed(self):
         m = self.machine

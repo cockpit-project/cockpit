@@ -13,7 +13,7 @@ while test $# -gt 0; do
   case "$1" in
     --docker) docker="docker";;
     --podman) docker="podman";;
-    NO_NPM=1) no_npm='--env=NO_NPM=1';;
+    NO_NPM=1) no_npm='--env=NO_NPM=1';; # noop
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;

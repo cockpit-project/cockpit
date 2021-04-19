@@ -1104,6 +1104,7 @@ class MachineCase(unittest.TestCase):
                                     ".*: failed to retrieve resource: terminated",
                                     ".*: external channel failed: terminated",
                                     'audit:.*denied.*comm="systemd-user-se".*nologin.*',
+                                    ".*No session for cookie",
 
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',

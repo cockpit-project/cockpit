@@ -28,11 +28,8 @@ class TestSession(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.allow_restart_journal_messages()
         # Might happen when killing the bridge.
-        self.allow_journal_messages("Error executing command as another user: Not authorized",
-                                    ".*No session for cookie",
-                                    )
+        self.allow_restart_journal_messages()
 
         def wait_session(should_exist):
             def cond():

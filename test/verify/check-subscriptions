@@ -180,7 +180,7 @@ class TestSubscriptions(SubscriptionsCase):
 
         # use an activation key
         activation_key_id = self.candlepin.execute(ACTIVATION_KEY_COMMAND).strip()
-        pool_id = self.candlepin.execute(POOL_COMMAND).strip()
+        pool_id = self.candlepin.execute(POOL_COMMAND).splitlines()[0].strip()
         key_url = "https://localhost:8443/candlepin/activation_keys/{key}/pools/{pool}".format(
             key=activation_key_id, pool=pool_id)
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))

@@ -46,9 +46,9 @@ class NoSubManCase(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
-            self.machine.execute("mv /usr/libexec/rhsm-service /usr/libexec/rhsm-service.disabled; pkill -e rhsm-service || true")
-            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsm-service.disabled /usr/libexec/rhsm-service")
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
+            self.machine.execute("systemctl stop rhsm.service; systemctl mask rhsm.service")
+            self.addCleanup(self.machine.execute, "systemctl unmask rhsm.service")
 
         # expected journal messages from enabling/disabling auto upgrade services
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")

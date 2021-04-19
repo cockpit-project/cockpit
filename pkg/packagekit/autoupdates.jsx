@@ -116,8 +116,7 @@ class DnfImpl extends ImplBase {
     parseCalendar(spec) {
         // see systemd.time(7); we only support what we write, otherwise we treat it as custom config and "unsupported"
         const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-        // TODO: allow arbitrary minutes once we support that in the UI widget
-        const validTime = /^((|0|1)[0-9]|2[0-3]):00$/;
+        const validTime = /^((|0|1)[0-9]|2[0-3]):[0-5][0-9]$/;
 
         var words = spec.trim().toLowerCase()
                 .split(/\s+/);

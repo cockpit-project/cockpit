@@ -30,10 +30,8 @@ class TestSession(MachineCase):
 
         self.allow_restart_journal_messages()
         # Might happen when killing the bridge.
-        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
-                                    "Error executing command as another user: Not authorized",
+        self.allow_journal_messages("Error executing command as another user: Not authorized",
                                     ".*No session for cookie",
-                                    ".*external channel failed: terminated",
                                     )
 
         def wait_session(should_exist):

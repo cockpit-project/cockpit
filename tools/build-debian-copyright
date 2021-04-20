@@ -20,7 +20,6 @@ template_file = os.path.join(debian_dir, 'copyright.template')
 
 def parse_args():
     p = argparse.ArgumentParser(description='Generate debian/copyright file from template and node_modules')
-    p.add_argument('distdir', help='path to toplevel distribution directory')
     return p.parse_args()
 
 
@@ -147,11 +146,10 @@ with open(template_file, encoding='UTF-8') as f:
 license_ids = template_licenses(template)
 module_users = {}
 
-for pkg in sorted(os.listdir(f'{args.distdir}/dist')):
-    if pkg in ['guide', 'ssh', 'pcp']:
-        continue
-    with open(f'{args.distdir}/dist/{pkg}/included-modules') as included_modules:
-        for module in included_modules:
+for included_modules in sorted(glob("dist/*/included-modules")):
+    pkg = os.path.basename(os.path.dirname(included_modules))
+    with open(included_modules) as f:
+        for module in f:
             module = module.strip()
             # collect all packages pointing to one node module
             if module not in module_users:

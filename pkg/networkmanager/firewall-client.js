@@ -460,46 +460,16 @@ firewall.activateZone = (zone, interfaces, sources) => {
     return p;
 };
 
-/*
- * A zone is considered deactivated when it has no interfaces or sources.
- */
-firewall.deactiveateZone = (zone) => {
-    const zoneObject = firewall.zones[zone];
-    let promises = zoneObject.interfaces.map(i => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
-                                                                      'org.fedoraproject.FirewallD1.zone',
-                                                                      'removeInterface', [zone, i]));
-    promises = promises.concat(zoneObject.source.map(s => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
-                                                                              'org.fedoraproject.FirewallD1.zone',
-                                                                              'removeSource', [zone, s])));
-    let p = Promise.all(promises).then(() => firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
-                                                                 'org.fedoraproject.FirewallD1.config',
-                                                                 'getZoneByName', [zone]));
-    p = p.then(path => {
-        /* Once this signal is received, it's safe to actually emit the changed
-         * signal and thus update the UI */
-        const subscription = firewalld_dbus.subscribe({
-            interface: 'org.fedoraproject.FirewallD1.config.zone',
-            path: path[0],
-            member: 'Updated'
-        }, (path, iface, signal, args) => {
-            firewall.activeZones.delete(args[0]);
-            getZones().then(() => getServices());
-            subscription.remove();
-        });
-
+firewall.removeZone = (zone) => {
+    const p = firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
+                                  'org.fedoraproject.FirewallD1.config',
+                                  'getZoneByName', [zone]);
+    return p.then(path => {
         return firewalld_dbus.call(path[0],
                                    'org.fedoraproject.FirewallD1.config.zone',
-                                   'getSettings', [])
-                .then(settings => {
-                    settings[0][10] = [];
-                    settings[0][11] = [];
-                    return firewalld_dbus.call(path[0],
-                                               'org.fedoraproject.FirewallD1.config.zone',
-                                               'update', [settings[0]]);
-                });
+                                   'remove', [])
+                .then(() => firewall.reload());
     });
-
-    return p.catch(error => console.warn(error));
 };
 
 export default firewall;

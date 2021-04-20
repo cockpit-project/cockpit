@@ -37,6 +37,7 @@ EXTRA_DIST = \
 	package.json \
 	package-lock.json \
 	README.md \
+	tools/debian/copyright \
 	$(NULL)
 
 clean-local::
@@ -322,13 +323,16 @@ COMMITTED_DIST = \
 	test \
 	$(NULL)
 
+tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
+	$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright > $@.tmp
+	$(MV) $@.tmp $@
+
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
 dist-hook:: $(MANIFESTS)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
-	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir) > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"

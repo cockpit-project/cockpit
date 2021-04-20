@@ -158,9 +158,11 @@ OnCalendar=daily
         b.switch_to_frame("cockpit1:localhost/playground/test")
         b.wait_not_visible("#hidden")
 
+        # Test 'parent' manifest option
         b.switch_to_top()
-
-        b.wait_visible("#nav-system")
+        b.go("/metrics")
+        b.wait_text("#host-apps .pf-m-current", "Overview")
+        self.checkDocs(["Performance Co-Pilot"])
 
         # Lets try changing the language
 

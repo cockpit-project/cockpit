@@ -44,11 +44,11 @@ jobs:
               git add "${sha}.tar"
               git commit -m "Build for $sha"
 
-              # remove tarballs older than a week
+              # remove tarballs older than 3 days
               now=$(date +%s)
               for f in *.tar; do
                   fmtime=$(git log --pretty=%at -n1 -- $f)
-                  [ $(($now - $fmtime)) -lt 604800 ] || git rm $f
+                  [ $(($now - $fmtime)) -lt 259200 ] || git rm $f
               done
               [ -z "$(git status --short)" ] || git commit -m 'Drop old builds'
 

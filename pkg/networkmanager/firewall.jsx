@@ -217,6 +217,10 @@ const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openPortsD
                     />
                 </Tab>
                 <Tab eventKey={2} title={<TabTitleText>{_("Interfaces")}</TabTitleText>}>
+                    <Button variant="secondary"
+                            className="add-interfaces-button">
+                        {_("Add interfaces")}
+                    </Button>
                     <ListingTable columns={[{ title: _("Interfaces") }]}
                                   aria-label={zone.id}
                                   variant="compact"
@@ -235,6 +239,10 @@ const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openPortsD
                     />
                 </Tab>
                 <Tab eventKey={3} title={<TabTitleText>{_("Sources")}</TabTitleText>}>
+                    <Button variant="secondary"
+                            className="add-sources-button">
+                        {_("Add sources")}
+                    </Button>
                     <ListingTable columns={[{ title: _("Sources") }]}
                                   aria-label={zone.id}
                                   variant="compact"

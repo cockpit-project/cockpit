@@ -376,7 +376,19 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_docs(machine, state, compiled) {
+        let docs = [];
+
         const item = compiled.items[state.component];
+        if (item && item.docs)
+            docs = item.docs;
+
+        // Check for parent as well
+        if (docs.length === 0) {
+            const comp = cockpit.manifests[state.component];
+            if (comp && comp.parent && comp.parent.docs)
+                docs = comp.parent.docs;
+        }
+
         const docs_items = document.getElementById("navbar-docs-items");
         docs_items.innerHTML = "";
 
@@ -403,8 +415,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
 
-        if (item && item.docs && item.docs.length > 0)
-            item.docs.forEach(e => create_item(_(e.label), e.url));
+        docs.forEach(e => create_item(_(e.label), e.url));
 
         // Add 'About Web Console' item
         const divider = document.createElement("li");

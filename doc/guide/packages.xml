@@ -133,6 +133,12 @@ $ cockpit-bridge --packages
         explained below.
         </para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term>parent</term>
+        <listitem><para>This option is used when module does not have its own menu item but is
+          a part of a different module. This is described by JSON object with property <code>component</code>
+          which takes name of the superordinate component.</para></listitem>
+      </varlistentry>
     </variablelist>
 
     <para>In addition, the following keys contain information about where components of the package

@@ -19,7 +19,7 @@
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import {
     Alert, Button,
@@ -780,20 +780,28 @@ class ActivateZoneModal extends React.Component {
 }
 
 function DeleteConfirmationModal(props) {
+    const [dialogErrorDetail, setDialogErrorDetail] = useState(undefined);
+
     return (
         <Modal id="delete-confirmation-dialog" isOpen
                position="top" variant="medium"
                onClose={props.onCancel}
                title={props.title}
                footer={<>
-                   <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
+                   {dialogErrorDetail && <ModalError dialogError={props.dialogError} dialogErrorDetail={dialogErrorDetail} />}
+                   <Button variant="danger"
+                    onClick={() => {
+                        props.onDelete()
+                                .then(() => props.onCancel())
+                                .catch(error => setDialogErrorDetail(error.message));
+                    }}
+                    aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
                        { _("Delete") }
                    </Button>
                    <Button variant="link" className="btn-cancel" onClick={props.onCancel}>
                        { _("Cancel") }
                    </Button>
-               </>}
-        >
+               </>}>
             {props.body && <Alert variant="warning" isInline title={props.body} />}
         </Modal>
     );
@@ -833,17 +841,16 @@ export class Firewall extends React.Component {
             body = _("This zone contains the cockpit service. Make sure that this zone does not apply to your current web console connection.");
         else
             body = _("Removing the zone will remove all services within it.");
+
         this.setState({
-            deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
-            body={body}
-            target={zone}
-            onCancel={ () =>
-                this.setState({ deleteConfirmationModal: undefined })
-            }
-        onDelete={ () => {
-            firewall.deactiveateZone(zone);
-            this.setState({ deleteConfirmationModal: undefined });
-        }} />
+            deleteConfirmationModal: (
+                <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
+                                         body={body}
+                                         target={zone}
+                                         onCancel={() => this.setState({ deleteConfirmationModal: undefined })}
+                                         dialogError={_("Failed to remove zone")}
+                                         onDelete={() => firewall.removeZone(zone)} />
+            )
         });
     }
 
@@ -851,16 +858,14 @@ export class Firewall extends React.Component {
         if (service === 'cockpit') {
             const body = _("Removing the cockpit service might result in the web console becoming unreachable. Make sure that this zone does not apply to your current web console connection.");
             this.setState({
-                deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
-                body={body}
-                target={service}
-                onCancel={ () =>
-                    this.setState({ deleteConfirmationModal: undefined })
-                }
-                onDelete={ () => {
-                    firewall.removeService(zone, service);
-                    this.setState({ deleteConfirmationModal: undefined });
-                }} />
+                deleteConfirmationModal: (
+                    <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
+                                             body={body}
+                                             target={service}
+                                             onCancel={() => this.setState({ deleteConfirmationModal: undefined })}
+                                             dialogError={_("Failed to remove service")}
+                                             onDelete={() => firewall.removeService(zone, service)} />
+                )
             });
         } else {
             firewall.removeService(zone, service);
@@ -880,6 +885,8 @@ export class Firewall extends React.Component {
             addServicesModal: undefined,
             showRemoveServicesModal: false,
             showActivateZoneModal: false,
+            dialogError: undefined,
+            dialogErrorDetail: undefined,
         });
     }
 

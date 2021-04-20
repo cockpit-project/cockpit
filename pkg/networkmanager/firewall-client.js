@@ -472,4 +472,27 @@ firewall.removeZone = (zone) => {
     });
 };
 
+/*
+ * Add port into the specified zone
+ *
+ * Returns a promise that resolves when the port is added.
+ */
+firewall.addPort = (zone, port) => {
+    return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
+                               'org.fedoraproject.FirewallD1.config',
+                               'getZoneByName', [zone])
+            .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
+                                              'addPort', [port[0], port[1]]));
+};
+
+/*
+ * Like addPort(), but adds multiple ports at once
+ * to the specified zones.
+ *
+ * Returns a promise that resolves when all ports are added.
+ */
+firewall.addPorts = (zone, ports) =>
+    Promise.all(ports.map(p => firewall.addPort(zone, p)))
+            .then(() => firewall.reload());
+
 export default firewall;

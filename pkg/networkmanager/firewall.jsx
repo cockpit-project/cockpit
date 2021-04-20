@@ -326,7 +326,6 @@ class AddServicesModal extends React.Component {
             selected: new Set(),
             filter: "",
             custom: false,
-            generate_custom_id: true,
             tcp_error: "",
             udp_error: "",
             avail_services: null,
@@ -359,7 +358,7 @@ class AddServicesModal extends React.Component {
     save() {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.createPorts(), this.props.zoneId);
+            p = firewall.addPorts(this.props.zoneId, this.createPorts());
         } else {
             p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }
@@ -429,7 +428,6 @@ class AddServicesModal extends React.Component {
     setId(value) {
         this.setState({
             custom_id: value,
-            generate_custom_id: value.length === 0,
         });
     }
 
@@ -463,7 +461,6 @@ class AddServicesModal extends React.Component {
         if (event.target.id === "udp-ports")
             targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
         const new_ports = [];
-        const event_id = event.target.id;
 
         this.setState(oldState => {
             const ports = value.split(',');
@@ -499,17 +496,6 @@ class AddServicesModal extends React.Component {
                 [targets[2]]: error,
                 [targets[3]]: value
             };
-
-            let all_ports = new_ports.concat(oldState.custom_udp_ports);
-            if (event_id === "udp-ports")
-                all_ports = oldState.custom_tcp_ports.concat(new_ports);
-
-            if (oldState.generate_custom_id) {
-                if (all_ports.length > 0)
-                    newState.custom_id = "custom--" + all_ports.map(this.getName).join('-');
-                else
-                    newState.custom_id = "";
-            }
 
             return newState;
         });

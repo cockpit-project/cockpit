@@ -153,7 +153,7 @@ function get_resize_info(client, block, to_fit) {
                 return get_resize_info(client, cleartext, to_fit);
             }
         } else if (block.IdUsage == 'filesystem') {
-            info = client.fsys_info[block.IdType];
+            info = client.fsys_info && client.fsys_info[block.IdType];
 
             if (!info) {
                 info = { };

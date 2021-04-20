@@ -130,13 +130,13 @@ def download_dist(wait=False):
         ftar.extract(names[0])
         tar_path = os.path.realpath(names[0])
 
-    # Extract node_modules and dist locally for speeding up the build and allowing integration tests to run
-    unpack_dirs = [d for d in ["dist", "node_modules"] if not os.path.exists(d)]
-    if unpack_dirs:
-        message("make_dist: Extracting directories from tarball:", ' '.join(unpack_dirs))
+    # Extract npm/webpack related files locally for speeding up the build and allowing integration tests to run
+    unpack_paths = [d for d in ["dist", "node_modules", "package-lock.json"] if not os.path.exists(d)]
+    if unpack_paths:
+        message("make_dist: Extracting from tarball:", ' '.join(unpack_paths))
         prefix = os.path.basename(tar_path).split('.tar')[0] + '/'
-        prefixed_unpack_dirs = [prefix + d for d in unpack_dirs]
-        subprocess.check_call(["tar", "--touch", "--strip-components=1", "-xf", tar_path] + prefixed_unpack_dirs)
+        prefixed_unpack_paths = [prefix + d for d in unpack_paths]
+        subprocess.check_call(["tar", "--touch", "--strip-components=1", "-xf", tar_path] + prefixed_unpack_paths)
 
     return tar_path
 

@@ -25,11 +25,12 @@ import {
     Alert, Button,
     Breadcrumb, BreadcrumbItem,
     Checkbox,
-    Card, CardTitle, CardHeader, CardActions, CardBody,
+    Card, CardBody, CardTitle, CardHeader, CardActions,
     DataList, DataListItem, DataListCell, DataListItemRow, DataListCheck, DataListItemCells,
     Flex, FlexItem,
     Form, FormGroup, FormHelperText,
     Radio, Split, SplitItem, Stack,
+    Tabs, Tab, TabTitleText,
     TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
     Tooltip, Page, PageSection, PageSectionVariants, Modal,
 } from '@patternfly/react-core';
@@ -47,6 +48,7 @@ import "page.scss";
 import "table.css";
 import "form-layout.scss";
 import "./networking.scss";
+import "./firewall.scss";
 
 const _ = cockpit.gettext;
 
@@ -115,101 +117,143 @@ function serviceRow(props) {
     });
 }
 
-function portRow(props) {
+function portRow(p, zoneId) {
     const columns = [
         {
-            title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
+            title: p.port
         },
         {
-            title: props.zone.ports
-                    .filter(p => p.protocol === "tcp")
-                    .map(p => p.port)
-                    .join(", ")
-        },
-        {
-            title: props.zone.ports
-                    .filter(p => p.protocol === "udp")
-                    .map(p => p.port)
-                    .join(", ")
+            title: p.protocol
         },
     ];
     return ({
-        props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
+        props: { key: zoneId + "-ports-" + p.port + p.protocol, 'data-row-id': zoneId + "-port-" + p.port + p.protocol },
         columns
     });
 }
 
-function ZoneSection(props) {
-    function onRemoveZone(event) {
+const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openServicesDialog }) => {
+    const [activeTabKey, setActiveTabKey] = useState(0);
+
+    function handleTabClick(event, tabIndex) {
+        setActiveTabKey(tabIndex);
+    }
+
+    function _onRemoveZone(event) {
         if (event.button !== 0)
             return;
 
         event.stopPropagation();
-        props.onRemoveZone(props.zone.id);
+        onRemoveZone(zone.id);
     }
 
     let deleteButton;
-    if (props.readonly) {
+    if (readonly) {
         deleteButton = (
             <Tooltip id="tip-auth" content={ _("You are not authorized to modify the firewall.") }>
                 <span>
                     <Button variant="danger"
-                            aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)}
+                            aria-label={cockpit.format(_("Not authorized to remove zone $0"), zone.id)}
                             isDisabled icon={<TrashIcon />} />
                 </span>
             </Tooltip>
         );
     } else {
-        deleteButton = <Button variant="danger" onClick={onRemoveZone}
-                               aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}
+        deleteButton = <Button variant="danger" onClick={_onRemoveZone}
+                               aria-label={cockpit.format(_("Remove zone $0"), zone.id)}
                                icon={<TrashIcon />} />;
     }
 
     const addServiceAction = (
-        <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+        <Button variant="primary" onClick={() => openServicesDialog(zone.id, zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), zone.id)}>
             {_("Add services")}
         </Button>
     );
 
-    return <Card className="zone-section" data-id={props.zone.id}>
+    return <Card className="zone-section" data-id={zone.id}>
         <CardHeader className="zone-section-heading">
             <CardTitle>
-                <h4>{ cockpit.format(_("$0 zone"), props.zone.id) }</h4>
-                <div className="zone-section-targets">
-                    { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
-                    { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
-                </div>
+                <h4>{ cockpit.format(_("$0 zone"), zone.id) }</h4>
             </CardTitle>
             { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}{addServiceAction}</CardActions> }
         </CardHeader>
-        {props.zone.services.length > 0 &&
-        <CardBody className="contains-list">
-            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
-                          aria-label={props.zone.id}
-                          variant="compact"
-                          emptyCaption={_("There are no active services in this zone")}
-                          rows={
-                              props.zone.services.map(s => {
-                                  if (s in firewall.services)
-                                      return serviceRow({
-                                          key: firewall.services[s].id,
-                                          service: firewall.services[s],
-                                          onRemoveService: service => props.onRemoveService(props.zone.id, service),
-                                          readonly: firewall.readonly
-                                      });
-                              }).concat(
-                                  props.zone.ports.length > 0
-                                      ? portRow({
-                                          key: props.zone.id + "-ports",
-                                          zone: props.zone,
-                                          readonly: firewall.readonly
-                                      }) : [])
-                                      .filter(Boolean)}
-
-            />
-        </CardBody>}
+        <CardBody>
+            <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
+                <Tab eventKey={0} title={<TabTitleText>{_("Services")}</TabTitleText>}>
+                    <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
+                                  aria-label={zone.id}
+                                  className="services-table"
+                                  variant="compact"
+                                  emptyCaption={_("There are no active services in this zone")}
+                                  rows={
+                                      zone.services.map(s => {
+                                          if (s in firewall.services)
+                                              return serviceRow({
+                                                  key: firewall.services[s].id,
+                                                  service: firewall.services[s],
+                                                  onRemoveService: service => onRemoveService(zone.id, service),
+                                                  readonly: firewall.readonly
+                                              });
+                                      })
+                                  }
+                    />
+                </Tab>
+                <Tab eventKey={1} title={<TabTitleText>{_("Ports")}</TabTitleText>}>
+                    <ListingTable columns={[{ title: _("Port"), props: { width: 50 } }, { title: _("Protocol"), props: { width: 50 } }]}
+                                  aria-label={zone.id}
+                                  variant="compact"
+                                  emptyCaption={_("There are no active ports in this zone")}
+                                  rows={
+                                      zone.ports.length > 0
+                                          ? zone.ports.map(port =>
+                                              portRow(
+                                                  port,
+                                                  zone.id,
+                                              ))
+                                          : []
+                                  }
+                    />
+                </Tab>
+                <Tab eventKey={2} title={<TabTitleText>{_("Interfaces")}</TabTitleText>}>
+                    <ListingTable columns={[{ title: _("Interfaces") }]}
+                                  aria-label={zone.id}
+                                  variant="compact"
+                                  emptyCaption={_("There are no active interfaces in this zone")}
+                                  rows={
+                                      zone.interfaces.length > 0
+                                          ? zone.interfaces.map(iface => (
+                                              {
+                                                  props: { key: zone.id + "-interface-" + iface, 'data-row-id': iface },
+                                                  columns: [
+                                                      { title: iface },
+                                                  ]
+                                              }
+                                          )) : []
+                                  }
+                    />
+                </Tab>
+                <Tab eventKey={3} title={<TabTitleText>{_("Sources")}</TabTitleText>}>
+                    <ListingTable columns={[{ title: _("Sources") }]}
+                                  aria-label={zone.id}
+                                  variant="compact"
+                                  emptyCaption={_("There are no active sources in this zone")}
+                                  rows={
+                                      zone.source.length > 0
+                                          ? zone.source.map(source => (
+                                              {
+                                                  props: { key: zone.id + "-source-" + source, 'data-row-id': source },
+                                                  columns: [
+                                                      { title: source },
+                                                  ]
+                                              }
+                                          )) : []
+                                  }
+                    />
+                </Tab>
+            </Tabs>
+        </CardBody>
     </Card>;
-}
+};
 
 class SearchInput extends React.Component {
     constructor(props) {

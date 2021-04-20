@@ -131,12 +131,15 @@ def download_dist(wait=False):
         tar_path = os.path.realpath(names[0])
 
     # Extract npm/webpack related files locally for speeding up the build and allowing integration tests to run
-    unpack_paths = [d for d in ["dist", "node_modules", "package-lock.json"] if not os.path.exists(d)]
+    unpack_paths = [d for d in ["dist", "node_modules", "package-lock.json", "tools/debian/copyright"] if not os.path.exists(d)]
     if unpack_paths:
         message("make_dist: Extracting from tarball:", ' '.join(unpack_paths))
         prefix = os.path.basename(tar_path).split('.tar')[0] + '/'
         prefixed_unpack_paths = [prefix + d for d in unpack_paths]
         subprocess.check_call(["tar", "--touch", "--strip-components=1", "-xf", tar_path] + prefixed_unpack_paths)
+        # after the above, dist manifests may be newer than copyright due to tar touching order
+        # restore file time stamps as they would be after a build
+        subprocess.check_call(["touch", "tools/debian/copyright"])
 
     return tar_path
 

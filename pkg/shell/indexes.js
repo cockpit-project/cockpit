@@ -467,6 +467,14 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 s = s.substring(0, s.lastIndexOf("/"));
             component = s;
         }
+
+        // Still don't know where it comes from, check for parent
+        if (!component) {
+            const comp = cockpit.manifests[state.component];
+            if (comp && comp.parent)
+                return comp.parent.component;
+        }
+
         return component;
     }
 

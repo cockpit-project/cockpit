@@ -824,27 +824,29 @@ function vdo_overlay() {
 
 client.vdo_overlay = vdo_overlay();
 
-function init_manager() {
-    var udisks = cockpit.dbus("org.freedesktop.UDisks2", { superuser: "try" });
-    var udisks_manager = udisks.proxy("org.freedesktop.UDisks2.Manager",
-                                      "/org/freedesktop/UDisks2/Manager", { watch: true });
+function init_client(manager, callback) {
+    if (client.manager)
+        return;
 
-    return udisks_manager.wait().then(function () {
-        return udisks_manager;
-    });
+    client.storaged_client = manager.client;
+    client.manager = manager;
+
+    init_proxies();
+    init_model(callback);
 }
 
 client.init = function init_storaged(callback) {
-    init_manager().then(function(manager) {
-        client.storaged_client = manager.client;
-        client.manager = manager;
+    const udisks = cockpit.dbus("org.freedesktop.UDisks2", { superuser: "try" });
+    const udisks_manager = udisks.proxy("org.freedesktop.UDisks2.Manager",
+                                        "/org/freedesktop/UDisks2/Manager", { watch: true });
 
-        init_proxies();
-        init_model(callback);
-    }, function() {
-        client.features = false;
-        callback();
-    });
+    udisks_manager.wait().then(() => init_client(udisks_manager, callback))
+            .catch(() => {
+                client.features = false;
+                callback();
+            });
+
+    udisks_manager.addEventListener("changed", () => init_client(udisks_manager, callback));
 };
 
 client.wait_for = function wait_for(cond) {

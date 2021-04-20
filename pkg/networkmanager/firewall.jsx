@@ -168,6 +168,7 @@ const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openPortsD
         <CardHeader className="zone-section-heading">
             <CardTitle>
                 <h4>{ cockpit.format(_("$0 zone"), zone.id) }</h4>
+                <small>{zone.description}</small>
             </CardTitle>
             { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}</CardActions> }
         </CardHeader>

@@ -132,7 +132,7 @@ function portRow(p, zoneId) {
     });
 }
 
-const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openServicesDialog }) => {
+const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openPortsDialog, openServicesDialog }) => {
     const [activeTabKey, setActiveTabKey] = useState(0);
 
     function handleTabClick(event, tabIndex) {
@@ -164,22 +164,20 @@ const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openServic
                                icon={<TrashIcon />} />;
     }
 
-    const addServiceAction = (
-        <Button variant="primary" onClick={() => openServicesDialog(zone.id, zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), zone.id)}>
-            {_("Add services")}
-        </Button>
-    );
-
     return <Card className="zone-section" data-id={zone.id}>
         <CardHeader className="zone-section-heading">
             <CardTitle>
                 <h4>{ cockpit.format(_("$0 zone"), zone.id) }</h4>
             </CardTitle>
-            { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}{addServiceAction}</CardActions> }
+            { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}</CardActions> }
         </CardHeader>
         <CardBody>
             <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
                 <Tab eventKey={0} title={<TabTitleText>{_("Services")}</TabTitleText>}>
+                    <Button variant="secondary" onClick={() => openServicesDialog(zone.id, zone.id)}
+                            className="add-services-button">
+                        {_("Add services")}
+                    </Button>
                     <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
                                   aria-label={zone.id}
                                   className="services-table"
@@ -199,6 +197,10 @@ const ZoneSection = ({ zone, readonly, onRemoveZone, onRemoveService, openServic
                     />
                 </Tab>
                 <Tab eventKey={1} title={<TabTitleText>{_("Ports")}</TabTitleText>}>
+                    <Button variant="secondary" onClick={() => openPortsDialog(zone.id, zone.id)}
+                        className="add-ports-button">
+                        {_("Add ports")}
+                    </Button>
                     <ListingTable columns={[{ title: _("Port"), props: { width: 50 } }, { title: _("Protocol"), props: { width: 50 } }]}
                                   aria-label={zone.id}
                                   variant="compact"
@@ -317,6 +319,146 @@ const renderPorts = service => {
     );
 };
 
+class AddPortsModal extends React.Component {
+    constructor() {
+        super();
+
+        this.state = {
+            tcp_error: "",
+            udp_error: "",
+            custom_tcp_ports: [],
+            custom_udp_ports: [],
+            custom_tcp_value: "",
+            custom_udp_value: "",
+            dialogError: null,
+            dialogErrorDetail: null,
+        };
+        this.save = this.save.bind(this);
+        this.validate = this.validate.bind(this);
+        this.createPorts = this.createPorts.bind(this);
+    }
+
+    createPorts() {
+        var ret = [];
+        this.state.custom_tcp_ports.forEach(port => ret.push([port, 'tcp']));
+        this.state.custom_udp_ports.forEach(port => ret.push([port, 'udp']));
+        return ret;
+    }
+
+    save() {
+        const p = firewall.addPorts(this.props.zoneId, this.createPorts());
+        p.then(() => this.props.close())
+                .catch(error => {
+                    this.setState({
+                        dialogError: this.state.custom ? _("Failed to add port") : _("Failed to add service"),
+                        dialogErrorDetail: error.name + ": " + error.message,
+                    });
+                });
+    }
+
+    getPortNumber(port, type) {
+        const num_p = Number(port);
+        if (isNaN(num_p) || (num_p <= 0 || num_p > 65535))
+            return [0, _("Invalid port number")];
+        else
+            return [port, ""];
+    }
+
+    validate(value, event) {
+        let error = "";
+        let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
+        if (event.target.id === "udp-ports")
+            targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
+        const new_ports = [];
+
+        this.setState(oldState => {
+            const ports = value.split(',');
+            ports.forEach((port) => {
+                port = port.trim();
+                if (!port)
+                    return;
+                let ports;
+                if (port.indexOf("-") > -1) {
+                    ports = port.split("-");
+                    if (ports.length != 2) {
+                        error = _("Invalid range");
+                        return;
+                    }
+                    [ports[0], error] = this.getPortNumber(ports[0], targets[0]);
+                    if (!error) {
+                        [ports[1], error] = this.getPortNumber(ports[1], targets[0]);
+                        if (!error) {
+                            if (Number(ports[0]) >= Number(ports[1]))
+                                error = _("Range must be strictly ordered");
+                            else
+                                new_ports.push(ports[0] + "-" + ports[1]);
+                        }
+                    }
+                } else {
+                    [ports, error] = this.getPortNumber(port, targets[0]);
+                    if (!error)
+                        new_ports.push(ports);
+                }
+            });
+            const newState = {
+                [targets[1]]: new_ports,
+                [targets[2]]: error,
+                [targets[3]]: value
+            };
+
+            return newState;
+        });
+    }
+
+    render() {
+        const titleText = cockpit.format(_("Add ports to $0 zone"), this.props.zoneName);
+
+        return (
+            <Modal id="add-services-dialog" isOpen
+                   position="top" variant="medium"
+                   onClose={this.props.close}
+                   title={titleText}
+                   footer={<>
+                       {
+                           this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                       }
+                       <Alert variant="warning"
+                           isInline
+                           title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
+                       <Button variant='primary' onClick={this.save} aria-label={titleText}>
+                           {_("Add ports")}
+                       </Button>
+                       <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                           {_("Cancel")}
+                       </Button>
+                   </>}
+            >
+                <Form isHorizontal>
+                    <FormGroup label="TCP"
+                               validated={this.state.tcp_error ? "error" : "default"}
+                               helperText={_("Comma-separated ports and ranges are accepted")}
+                               helperTextInvalid={this.state.tcp_error}>
+                        <TextInput id="tcp-ports" type="text" onChange={this.validate}
+                                   validated={this.state.tcp_error ? "error" : "default"}
+                                   value={this.state.custom_tcp_value}
+                                   placeholder={_("Example: 22,8080,5900-5910")} />
+                    </FormGroup>
+
+                    <FormGroup label="UDP"
+                               validated={this.state.udp_error ? "error" : "default"}
+                               helperText={_("Comma-separated ports and ranges are accepted")}
+                               helperTextInvalid={this.state.udp_error}>
+                        <TextInput id="udp-ports" type="text" onChange={this.validate}
+                                   validated={this.state.udp_error ? "error" : "default"}
+                                   value={this.state.custom_udp_value}
+                                   placeholder={_("Example: 88,2019")} />
+                    </FormGroup>
+                </Form>
+            </Modal>
+        );
+    }
+}
+
 class AddServicesModal extends React.Component {
     constructor() {
         super();
@@ -340,12 +482,8 @@ class AddServicesModal extends React.Component {
         this.save = this.save.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
-        this.setId = this.setId.bind(this);
         this.getName = this.getName.bind(this);
-        this.validate = this.validate.bind(this);
-        this.createPorts = this.createPorts.bind(this);
         this.parseServices = this.parseServices.bind(this);
-        this.onToggleType = this.onToggleType.bind(this);
     }
 
     createPorts() {
@@ -425,86 +563,12 @@ class AddServicesModal extends React.Component {
         return ret;
     }
 
-    setId(value) {
-        this.setState({
-            custom_id: value,
-        });
-    }
-
     getName(port) {
         const known = this.state.avail_services[port];
         if (known)
             return known.name;
         else
             return port;
-    }
-
-    getPortNumber(port, type, avail) {
-        if (!avail) {
-            const num_p = Number(port);
-            if (isNaN(num_p))
-                return [0, _("Unknown service name")];
-            else if (num_p <= 0 || num_p > 65535)
-                return [0, _("Invalid port number")];
-            else
-                return [port, ""];
-        } else if (avail.type.indexOf(type) < 0)
-            return [0, _("Port number and type do not match")];
-        else {
-            return [avail.port, ""];
-        }
-    }
-
-    validate(value, event) {
-        let error = "";
-        let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
-        if (event.target.id === "udp-ports")
-            targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
-        const new_ports = [];
-
-        this.setState(oldState => {
-            const ports = value.split(',');
-            ports.forEach((port) => {
-                port = port.trim();
-                if (!port)
-                    return;
-                let ports;
-                if (port.indexOf("-") > -1) {
-                    ports = port.split("-");
-                    if (ports.length != 2) {
-                        error = _("Invalid range");
-                        return;
-                    }
-                    [ports[0], error] = this.getPortNumber(ports[0], targets[0], oldState.avail_services[ports[0]]);
-                    if (!error) {
-                        [ports[1], error] = this.getPortNumber(ports[1], targets[0], oldState.avail_services[ports[1]]);
-                        if (!error) {
-                            if (Number(ports[0]) >= Number(ports[1]))
-                                error = _("Range must be strictly ordered");
-                            else
-                                new_ports.push(ports[0] + "-" + ports[1]);
-                        }
-                    }
-                } else {
-                    [ports, error] = this.getPortNumber(port, targets[0], oldState.avail_services[port]);
-                    if (!error)
-                        new_ports.push(ports);
-                }
-            });
-            const newState = {
-                [targets[1]]: new_ports,
-                [targets[2]]: error,
-                [targets[3]]: value
-            };
-
-            return newState;
-        });
-    }
-
-    onToggleType(value, event) {
-        this.setState({
-            custom: event.target.value === "ports"
-        });
     }
 
     componentDidMount() {
@@ -538,8 +602,7 @@ class AddServicesModal extends React.Component {
         if (services)
             services = services.filter(s => firewall.zones[this.props.zoneId].services.indexOf(s.id) === -1);
 
-        const addText = this.state.custom ? _("Add ports") : _("Add services");
-        const titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
+        const titleText = cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
         return (
             <Modal id="add-services-dialog" isOpen
                    position="top" variant="medium"
@@ -549,13 +612,8 @@ class AddServicesModal extends React.Component {
                        {
                            this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                        }
-                       { !this.state.custom ||
-                           <Alert variant="warning"
-                               isInline
-                               title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
-                       }
                        <Button variant='primary' onClick={this.save} aria-label={titleText}>
-                           {addText}
+                           {_("Add services")}
                        </Button>
                        <Button variant='link' className='btn-cancel' onClick={this.props.close}>
                            {_("Cancel")}
@@ -563,85 +621,38 @@ class AddServicesModal extends React.Component {
                    </>}
             >
                 <Form isHorizontal>
-                    <FormGroup className="add-services-dialog-type" isInline>
-                        <Radio name="type"
-                               id="add-services-dialog--services"
-                               value="services"
-                               isChecked={!this.state.custom}
-                               onChange={this.onToggleType}
-                               label={_("Services")} />
-                        <Radio name="type"
-                               id="add-services-dialog--ports"
-                               value="ports"
-                               isChecked={this.state.custom}
-                               onChange={this.onToggleType}
-                               isDisabled={this.state.avail_services == null}
-                               label={_("Custom ports")} />
-                    </FormGroup>
-                    { this.state.custom ||
-                        <div>
-                            { services ? (
-                                <>
-                                    <SearchInput id="filter-services-input"
-                                                 value={this.state.filter}
-                                                 onChange={this.onFilterChanged} />
-                                    <DataList className="service-list" isCompact>
-                                        {services.map(s => (
-                                            <DataListItem key={s.id} aria-labelledby={s.id}>
-                                                <DataListItemRow>
-                                                    <DataListCheck aria-labelledby={s.id}
-                                                                   isChecked={this.state.selected.has(s.id)}
-                                                                   onChange={(value, event) => this.onToggleService(event, s.id)}
-                                                                   id={"firewall-service-" + s.id}
-                                                                   name={s.id + "-checkbox"} />
-                                                    <DataListItemCells
-                                                            dataListCells={[
-                                                                <DataListCell key="service-list-item">
-                                                                    <label htmlFor={"firewall-service-" + s.id}
-                                                                           className="service-list-iteam-heading">
-                                                                        {s.id}
-                                                                    </label>
-                                                                    {renderPorts(s)}
-                                                                </DataListCell>,
-                                                            ]} />
-                                                </DataListItemRow>
-                                            </DataListItem>
-                                        ))}
-                                    </DataList>
-                                </>
-                            ) : (
-                                <EmptyStatePanel loading />
-                            )}
-                        </div>
-                    }
-                    { !this.state.custom ||
+                    { services ? (
                         <>
-                            <FormGroup label="TCP"
-                                       validated={this.state.tcp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and aliases are accepted")}
-                                       helperTextInvalid={this.state.tcp_error}>
-                                <TextInput id="tcp-ports" type="text" onChange={this.validate}
-                                           validated={this.state.tcp_error ? "error" : "default"}
-                                           value={this.state.custom_tcp_value}
-                                           placeholder={_("Example: 22,ssh,8080,5900-5910")} />
-                            </FormGroup>
-
-                            <FormGroup label="UDP"
-                                       validated={this.state.udp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and aliases are accepted")}
-                                       helperTextInvalid={this.state.udp_error}>
-                                <TextInput id="udp-ports" type="text" onChange={this.validate}
-                                           validated={this.state.udp_error ? "error" : "default"}
-                                           value={this.state.custom_udp_value}
-                                           placeholder={_("Example: 88,2019,nfs,rsync")} />
-                            </FormGroup>
-
-                            <FormGroup label={_("ID")}>
-                                <TextInput id="service-name" onChange={this.setId}
-                                           placeholder={_("(Optional)")} value={this.state.custom_id} />
-                            </FormGroup>
+                            <SearchInput id="filter-services-input"
+                                         value={this.state.filter}
+                                         onChange={this.onFilterChanged} />
+                            <DataList className="service-list" isCompact>
+                                {services.map(s => (
+                                    <DataListItem key={s.id} aria-labelledby={s.id}>
+                                        <DataListItemRow>
+                                            <DataListCheck aria-labelledby={s.id}
+                                                           isChecked={this.state.selected.has(s.id)}
+                                                           onChange={(value, event) => this.onToggleService(event, s.id)}
+                                                           id={"firewall-service-" + s.id}
+                                                           name={s.id + "-checkbox"} />
+                                            <DataListItemCells
+                                                    dataListCells={[
+                                                        <DataListCell key="service-list-item">
+                                                            <label htmlFor={"firewall-service-" + s.id}
+                                                                   className="service-list-iteam-heading">
+                                                                {s.id}
+                                                            </label>
+                                                            {renderPorts(s)}
+                                                        </DataListCell>,
+                                                    ]} />
+                                        </DataListItemRow>
+                                    </DataListItem>
+                                ))}
+                            </DataList>
                         </>
-                    }
+                    ) : (
+                        <EmptyStatePanel loading />
+                    )}
                 </Form>
             </Modal>
         );
@@ -850,6 +861,7 @@ export class Firewall extends React.Component {
 
         this.onFirewallChanged = this.onFirewallChanged.bind(this);
         this.openServicesDialog = this.openServicesDialog.bind(this);
+        this.openPortsDialog = this.openPortsDialog.bind(this);
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
         this.onRemoveZone = this.onRemoveZone.bind(this);
         this.onRemoveService = this.onRemoveService.bind(this);
@@ -913,6 +925,7 @@ export class Firewall extends React.Component {
     close() {
         this.setState({
             addServicesModal: undefined,
+            addPortsModal: undefined,
             showRemoveServicesModal: false,
             showActivateZoneModal: false,
             dialogError: undefined,
@@ -922,6 +935,10 @@ export class Firewall extends React.Component {
 
     openServicesDialog(zoneId, zoneName) {
         this.setState({ addServicesModal: <AddServicesModal zoneId={zoneId} zoneName={zoneName} close={this.close} /> });
+    }
+
+    openPortsDialog(zoneId, zoneName) {
+        this.setState({ addPortsModal: <AddPortsModal zoneId={zoneId} zoneName={zoneName} close={this.close} /> });
     }
 
     openAddZoneDialog() {
@@ -980,6 +997,7 @@ export class Firewall extends React.Component {
                             zones.map(z => <ZoneSection key={z.id}
                                                         zone={z}
                                                         openServicesDialog={this.openServicesDialog}
+                                                        openPortsDialog={this.openPortsDialog}
                                                         readonly={this.state.firewall.readonly}
                                                         onRemoveZone={this.onRemoveZone}
                                                         onRemoveService={this.onRemoveService} />
@@ -988,6 +1006,7 @@ export class Firewall extends React.Component {
                     </Stack> }
                 </PageSection>
                 { this.state.addServicesModal !== undefined && this.state.addServicesModal }
+                { this.state.addPortsModal !== undefined && this.state.addPortsModal }
                 { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }
                 { this.state.showActivateZoneModal && <ActivateZoneModal close={this.close} /> }
             </Page>

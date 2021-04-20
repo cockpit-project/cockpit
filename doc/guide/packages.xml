@@ -136,8 +136,9 @@ $ cockpit-bridge --packages
       <varlistentry>
         <term>parent</term>
         <listitem><para>This option is used when module does not have its own menu item but is
-          a part of a different module. This is described by JSON object with property <code>component</code>
-          which takes name of the superordinate component.</para></listitem>
+          a part of a different module. This is described by JSON object with properties <code>component</code>
+          which takes name of the superordinate component and <code>docs</code> with list of documentation URLs
+          for the given page. See below for structure of <code>docs</code> property.</para></listitem>
       </varlistentry>
     </variablelist>
 

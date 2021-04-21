@@ -295,13 +295,6 @@ include doc/man/Makefile-man.am
 dist-doc-hook:
 	@true
 
-else
-
-dist-doc-hook:
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
-
-endif
-
 dist-hook:: dist-doc-hook
 	@true
 distcheck-hook:: dist-doc-hook
@@ -311,6 +304,13 @@ install-data-local:: dist/guide/html/index.html
 	$(INSTALL_DATA) $(dir $<)/* $(DESTDIR)$(htmldir)
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
+
+else
+
+dist-doc-hook:
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
+
+endif
 
 # See test/image-prepare
 dump-dist:

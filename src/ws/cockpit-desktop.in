@@ -53,6 +53,7 @@ class Browser(Gtk.Window):
 
         self.set_size_request(800, 600)
 
+        WebKit2.WebContext.get_default().set_sandbox_enabled(True)
         self.webview = WebKit2.WebView()
         self.add(self.webview)
         self.webview.show()

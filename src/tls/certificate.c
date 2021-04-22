@@ -26,6 +26,7 @@
 
 #include <gnutls/x509.h>
 
+#include "common/cockpitmemory.h"
 #include "common/cockpitwebcertificate.h"
 
 #include "utils.h"
@@ -39,7 +40,7 @@ struct _Certificate
 static Certificate *
 certificate_new (gnutls_certificate_credentials_t creds)
 {
-  Certificate *self = malloc (sizeof (Certificate));
+  Certificate *self = mallocx (sizeof (Certificate));
   self->creds = creds;
   self->ref_count = 1;
 

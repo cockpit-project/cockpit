@@ -27,8 +27,8 @@ jobs:
               *:i386*) arch=i386;;
               *) arch=amd64;;
             esac
-            containers/unit-tests/build $arch
+            sudo containers/unit-tests/build $arch
           fi
 
       - name: Run unit-tests container
-        run: 'containers/unit-tests/start ${{ matrix.startarg }}'
+        run: 'sudo containers/unit-tests/start ${{ matrix.startarg }}'

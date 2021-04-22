@@ -99,6 +99,7 @@ cockpit_certificate_locate (bool missing_ok,
 {
   const char * const *dirs = cockpit_conf_get_dirs ();
 
+  assert (error != NULL);
   assert (*error == NULL);
 
   for (int i = 0; dirs[i]; i++)
@@ -117,7 +118,7 @@ cockpit_certificate_locate (bool missing_ok,
         return cert_path;
     }
 
-  if (error && !missing_ok)
+  if (!missing_ok)
     asprintfx (error, "No certificate found in dir: %s/cockpit/ws-certs.d", dirs[0]);
 
   return NULL;

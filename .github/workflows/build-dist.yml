@@ -19,7 +19,7 @@ jobs:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Run unit-tests container
-        run: containers/unit-tests/start dist
+        run: sudo containers/unit-tests/start dist
 
       - name: Create dist tarball artifact
         uses: actions/upload-artifact@v2

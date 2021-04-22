@@ -1059,7 +1059,7 @@ cockpit_json_walk_node (JsonNode    *node,
         if (copy)
           {
             new_node = json_node_new (JSON_NODE_ARRAY);
-            json_node_take_array (new_node, copy ?: json_array_ref (array));
+            json_node_take_array (new_node, copy);
           }
 
         break;
@@ -1073,7 +1073,7 @@ cockpit_json_walk_node (JsonNode    *node,
         if (copy)
           {
             new_node = json_node_new (JSON_NODE_OBJECT);
-            json_node_take_object (new_node, copy ?: json_object_ref (object));
+            json_node_take_object (new_node, copy);
           }
 
         break;

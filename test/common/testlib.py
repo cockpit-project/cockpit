@@ -1164,7 +1164,7 @@ class MachineCase(unittest.TestCase):
             # Fedora and RHEL 9 have switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
-        if self.image in ['fedora-34']:
+        if self.image in ['fedora-34', 'rhel-9-0']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1929259
             self.allow_journal_messages('audit:.*denied.*comm="pmdakvm" lockdown_reason="debugfs access".*')
 

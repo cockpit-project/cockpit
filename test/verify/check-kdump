@@ -32,15 +32,8 @@ class TestKdump(MachineCase):
         return new.join(li)
 
     def enableKdump(self):
-        if self.machine.image in ["rhel-8-4", "rhel-8-5"]:
-            # these images use BootLoaderSpec and grubenv
-            self.sed_file('/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }', '/boot/grub2/grubenv')
-        else:
-            lines = self.machine.execute(command="cat /etc/default/grub", quiet=True).split("\n")
-            lines = map(lambda line: self.rreplace(line, '"', ' crashkernel=256M"', 1)
-                        if line.startswith("GRUB_CMDLINE_LINUX") else line, lines)
-            self.machine.write("/etc/default/grub", "\n".join(lines))
-            self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
+        # all current Fedora/CentOS/RHEL images use BootLoaderSpec
+        self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
         self.machine.execute("mkdir -p /var/crash")
 
     def enableLocalSsh(self):

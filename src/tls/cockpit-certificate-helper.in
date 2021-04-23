@@ -68,7 +68,8 @@ EOF
 
 cmd_selfsign() {
     # Common variables used by both methods
-    local MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
+    local MACHINE_ID
+    MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
     local HOSTNAME="${HOSTNAME:-$(hostname)}"
     local CERTFILE="0-self-signed.cert"
     local KEYFILE="0-self-signed.key"
@@ -129,7 +130,8 @@ cmd_ipa_cleanup() {
 cmd_ipa() {
     local REALM="$2"
 
-    local HOST="$(hostname -f)"
+    local HOST
+    HOST="$(hostname -f)"
     local SERVICE="HTTP/${HOST}@${REALM}"
     local KEYTAB="${COCKPIT_CONFIG}/krb5.keytab"
 

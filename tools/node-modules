@@ -1,11 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 set -eu
+set -o pipefail
 
 GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
 GITHUB_REPOSITORY="${GITHUB_BASE%/*}/node-cache"
-CLONE_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
-PUSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
+HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
+SSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
 
 CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/cockpit-dev/${GITHUB_REPOSITORY}.git"
 
@@ -13,11 +14,69 @@ message() {
     [ "${V-}" != 0 ] || printf "  %-8s %s\n" "$1" "$2"
 }
 
+get_ref_hash() {
+    local ref="$1"
+    local type="$2"
+    local name="$3"
+
+    local script='s/^[[:digit:]]* '"${type}"' \([[:xdigit:]]*\)\t'"${name}"'$/\1/p'
+    git cat-file -p "${ref}":./ | sed -ne "${script}"
+}
+
 get_index_gitlink() {
     if ! git ls-files -s "$1" | egrep -o '\<[[:xdigit:]]{40}\>'; then
         echo "*** couldn't read gitlink for file $1 from the index" >&2
         exit 1
     fi
+}
+
+cmd_verify_commit() {
+    local ref="$1"
+
+    local node_modules="$(get_ref_hash "${ref}" commit node_modules)"
+    local package_json="$(get_ref_hash "${ref}" blob package.json)"
+
+    git fetch "${HTTPS_REMOTE}" "${node_modules}"
+
+    local node_modules_package_json="$(get_ref_hash "${node_modules}" blob .package.json)"
+    if [ "${package_json}" = "${node_modules_package_json}" ]; then
+        exit 0
+    fi
+}
+
+cmd_build_node_modules() {
+    local ref="$1"
+
+    test ! -e node-cache.git
+    test ! -e work
+
+    # set up the work area
+    mkdir work
+    git cat-file blob "${ref}:package.json" > work/package.json
+
+    # run the container to create _only_ work/node_modules
+    local container="$(podman create -u node -w /home/node/work node:14 npm install --ignore-scripts)"
+    tar --create work | podman container cp - "${container}:/home/node"
+    podman container start -a "${container}" 2>&1 | tee work/npm-install-log
+    podman container cp "${container}:/home/node/work" - | tar --get work/node_modules
+    podman container rm -f "${container}"
+
+    # double check that we got what we started with
+    diff -u work/package.json work/node_modules/.package.json
+
+    # no tricky stuff plz
+    find work -name '.git*' -not -name '.github' -delete
+
+    # produce the git commit
+    export GIT_DIR=node-cache.git
+
+    git init
+    git --work-tree work/node_modules add --all
+    git --work-tree work/node_modules commit -m "$(cat work/npm-install-log)"
+    rm -rf work
+
+    local tag="sha-$(git rev-parse HEAD)"
+    git tag -f "${tag}" HEAD
 }
 
 cmd_remove() {
@@ -39,7 +98,7 @@ cmd_checkout() {
         message INIT "${CACHE_DIR}"
         mkdir -p "${CACHE_DIR}"
         git --git-dir "${CACHE_DIR}" init ${quiet}
-        git --git-dir "${CACHE_DIR}" remote add origin "${CLONE_REMOTE}"
+        git --git-dir "${CACHE_DIR}" remote add origin "${HTTPS_REMOTE}"
     fi
 
     # fetch the tag if we don't already have it
@@ -118,12 +177,12 @@ EOF
 cmd_push() {
     local tag="sha-$(git -C node_modules rev-parse HEAD)"
     git -C node_modules tag -f "${tag}" HEAD
-    git -C node_modules push "${PUSH_REMOTE}" "${tag}"
+    git -C node_modules push "${SSH_REMOTE}" "${tag}"
 }
 
 # called from tools/test-static-code
 cmd_test_static_code() {
-    node_modules_update=$(git log --format=%H -n 1 node_modules)
+    node_modules_update=$(git log --format=%H -n 1 -- node_modules)
     if ! git --no-pager log --stat --exit-code "${node_modules_update}".. package.json; then
         cat <<EOF
 #

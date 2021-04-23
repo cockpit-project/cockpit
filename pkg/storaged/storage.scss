@@ -24,14 +24,6 @@
     @extend .ct-card;
 }
 
-#storage {
-    overflow: auto;
-}
-
-.pf-c-page__main {
-    overflow: visible;
-}
-
 #storage .pf-l-gallery {
     --pf-l-gallery--GridTemplateColumns: 1fr;
 }
@@ -76,20 +68,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top;
-}
-
-#storage_raids .row span,
-#storage_vgs .row span,
-#storage_drives .row span {
-    padding: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#storage_raids .row span.raid-size,
-#storage_vgs .row span.vg-size {
-    text-align: right;
 }
 
 .dialog-select-row-table {
@@ -140,14 +118,6 @@
 
 .dialog-select-row-table th:last-child {
     padding-right: 0.75em;
-}
-
-.arming-zone .needs-arming {
-    display: none;
-}
-
-.arming-zone.armed .needs-arming {
-    display: block;
 }
 
 /* Slider
@@ -241,11 +211,6 @@ td.storage-icon {
     width: 48px;
 }
 
-span.rate-gap {
-    display: inline-block;
-    width: 1em;
-}
-
 div.progress {
     width: 100%;
     height: var(--pf-global--FontSize-xs);
@@ -280,67 +245,12 @@ td.job-action {
     height: 180px;
 }
 
-.action-dropdown-menu {
-    right: 0px;
-    left: auto;
-    min-width: 0;
-    text-align: left;
-}
-
 .content-nav-item-warning:first-child {
     padding-right: var(--pf-global--spacer--sm);
 }
 
-.content-item {
-    width: 100%;
-}
-
-.content-item table {
-    width: 100%;
-}
-
 .content-action {
     text-align: right;
-}
-
-table.mdraid-item {
-    width: 100%;
-}
-
-td.mdraid-slot {
-    width: 20px;
-    text-align: center;
-}
-
-td.mdraid-states {
-    width: 100px;
-    text-align: right;
-}
-
-td.mdraid-states .state-danger {
-    color: red;
-}
-
-td.mdraid-action {
-    text-align: right;
-    width: 10em;
-}
-
-table.vgroup-item {
-    width: 100%;
-}
-
-td.vgroup-action {
-    text-align: right;
-}
-
-.dialog-arrow {
-    color: black;
-    cursor: pointer;
-}
-
-.dialog-arrow .fa {
-    width: 1em;
 }
 
 .dialog-item-tooltip {

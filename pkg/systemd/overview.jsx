@@ -129,7 +129,7 @@ class LoginMessages extends React.Component {
         }
 
         if (!last_login_message && !fail_count_message && !last_fail_message)
-            return (<div id='login-messages' empty='yes' />); // for testing
+            return null;
 
         const last_log_item = <p id='last-login'><b>{_("Last login:")}</b> {last_login_message}</p>;
         const last_fail_item = <p id='last-failed-login'><b>{_("Last failed login:")}</b> {last_fail_message}</p>;

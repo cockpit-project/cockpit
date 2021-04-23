@@ -195,9 +195,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             else:
                 self.assertEqual(n_fail, 0)
-                b.wait_visible('#login-messages[empty=yes]')
-                self.assertFalse(b.is_present('#last-login'))
-                self.assertFalse(b.is_present('#last-failed-login'))
+                b.wait_not_present('#login-messages')
 
         def verify_correct(has_last, n_fail):
             b.login_and_go('/system')

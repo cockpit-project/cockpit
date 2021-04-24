@@ -178,7 +178,7 @@ class TestApps(PackageCase):
                 b.click("#display-language-select-button")
             else:
                 b.wait_visible('#display-language-modal')
-                if m.image in ["rhel-8-5-distropkg"]:
+                if self.system_before(242):  # Changed in #15667
                     b.set_val("#display-language-modal select", lang)
                 else:
                     b.click('#display-language-modal li[data-value=%s] button' % lang)

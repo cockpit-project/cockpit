@@ -865,16 +865,10 @@ ExecStart=/usr/local/bin/{0}
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231):  # Changed in #14740
-            b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
-            b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
-            b.click(".pf-c-modal-box button:contains('Authenticate')")
-            b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
-        else:
-            b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-            b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-            b.click(".modal-dialog button:contains('Authenticate')")
-            b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
 
         b.wait_text("#super-user-indicator", "Administrative access")
 
@@ -1304,17 +1298,10 @@ class TestAutoUpdates(NoSubManCase):
         # become superuser
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231):  # Changed in #14740
-            b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
-            b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
-            b.click(".pf-c-modal-box button:contains('Authenticate')")
-            b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
-        else:
-            b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-            b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-            b.click(".modal-dialog button:contains('Authenticate')")
-            b.wait_not_present(".modal-dialog:contains('Administrative access')")
-            b.wait_text("#super-user-indicator", "Administrative access")
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
         b.switch_to_frame("cockpit1:localhost/updates")
 
         # enable auto-updates
@@ -1328,12 +1315,8 @@ class TestAutoUpdates(NoSubManCase):
         # Drop privileges
         b.switch_to_top()
         b.click("#super-user-indicator button")
-        if not self.system_before(231):  # Changed in #14740
-            b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-            b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-        else:
-            b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
-            b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
 
         b.wait_text("#super-user-indicator", "Limited access")
         b.switch_to_frame("cockpit1:localhost/updates")

@@ -172,17 +172,12 @@ class TestApps(PackageCase):
             b.switch_to_top()
             b.click("#navbar-dropdown")
             b.click(".display-language-menu a")
-            if self.system_before(233):  # Changed in #14890
-                b.wait_popup('display-language')
-                b.set_val("#display-language select", lang)
-                b.click("#display-language-select-button")
+            b.wait_visible('#display-language-modal')
+            if self.system_before(242):  # Changed in #15667
+                b.set_val("#display-language-modal select", lang)
             else:
-                b.wait_visible('#display-language-modal')
-                if self.system_before(242):  # Changed in #15667
-                    b.set_val("#display-language-modal select", lang)
-                else:
-                    b.click('#display-language-modal li[data-value=%s] button' % lang)
-                b.click("#display-language-modal footer button.pf-m-primary")
+                b.click('#display-language-modal li[data-value=%s] button' % lang)
+            b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)

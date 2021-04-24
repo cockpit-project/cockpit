@@ -526,17 +526,17 @@ fi
 %endif
 
 %post ws
-%tmpfiles_create cockpit-tempfiles.conf
-%systemd_post cockpit.socket cockpit.service
-# firewalld only partially picks up changes to its services files without this
-test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-
 %if 0%{?with_selinux}
 if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %endif
+
+%tmpfiles_create cockpit-tempfiles.conf
+%systemd_post cockpit.socket cockpit.service
+# firewalld only partially picks up changes to its services files without this
+test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %preun ws
 %systemd_preun cockpit.socket cockpit.service

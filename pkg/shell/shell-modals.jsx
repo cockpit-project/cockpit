@@ -84,7 +84,7 @@ export class LangModal extends React.Component {
         const manifest = cockpit.manifests.shell || { };
 
         return (
-            <Modal isOpen position="top" variant="medium"
+            <Modal isOpen position="top" variant="small"
                    id="display-language-modal"
                    className="display-language-modal"
                    onClose={this.props.onClose}

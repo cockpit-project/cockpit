@@ -86,6 +86,7 @@ class TestMultiMachineKeyAuth(MachineCase):
             }}
         """.format(name, password))
         self.browser.eval_js("cockpit.user().done(load)")
+        self.browser.wait_js_cond('loaded === true')
 
     def check_keys(self, keys_md5, keys):
         def normalize(k):
@@ -145,13 +146,11 @@ class TestMultiMachineKeyAuth(MachineCase):
         # pam-ssh-add isn't used on OSTree
         if m1.ostree_image:
             self.load_key('id_rsa', 'foobar')
-            b.wait_js_cond('loaded === true')
             self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
                             ["2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
         else:
             # Check our keys were loaded.
             self.load_key("id_ed25519", "locked")
-            b.wait_js_cond('loaded === true')
             self.check_keys(KEY_IDS_MD5, KEY_IDS)
 
         # Add machine
@@ -259,7 +258,6 @@ Host 10.111.113.2
         b.switch_to_top()
 
         self.load_key('id_rsa', 'foobar')
-        b.wait_js_cond('loaded === true')
 
         b.click("#hosts-sel button")
         b.click("button:contains('Add new host')")

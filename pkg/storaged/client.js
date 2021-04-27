@@ -498,7 +498,15 @@ function init_model(callback) {
     Promise.allSettled([client.manager.wait(),
         client.mdraids.wait(), client.vgroups.wait(), client.drives.wait(),
         client.blocks.wait(), client.blocks_ptable.wait(), client.blocks_lvm2.wait(), client.blocks_fsys.wait()
-    ]).then(() => {
+    ]).then(results => {
+        // we at least need the manager object; if it doesn't exist, wait for the next proxy onchanged
+        if (results[0].status !== 'fulfilled') {
+            console.warn("init_model(): udisks manager proxy failed:", JSON.stringify(results[0].reason));
+            client.features = false;
+            callback();
+            return;
+        }
+
         pull_time().then(function() {
             enable_features().then(function() {
                 query_fsys_info().then(function(fsys_info) {
@@ -834,7 +842,8 @@ client.init = function init_storaged(callback) {
                                         "/org/freedesktop/UDisks2/Manager", { watch: true });
 
     udisks_manager.wait().then(() => init_client(udisks_manager, callback))
-            .catch(() => {
+            .catch(ex => {
+                console.warn("client.init(): udisks manager proxy failed:", JSON.stringify(ex));
                 client.features = false;
                 callback();
             });

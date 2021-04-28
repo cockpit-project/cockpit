@@ -52,7 +52,9 @@ can_exec(cockpit_ws_t,cockpit_session_exec_t)
 dev_read_urand(cockpit_ws_t) # for authkey
 dev_read_rand(cockpit_ws_t)  # for libssh
 
+# cockpit-ws allows connections on websm port
 corenet_tcp_bind_websm_port(cockpit_ws_t)
+corenet_tcp_bind_generic_node(cockpit_ws_t)
 
 # cockpit-ws can connect to other hosts via ssh
 corenet_tcp_connect_ssh_port(cockpit_ws_t)

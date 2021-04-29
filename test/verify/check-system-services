@@ -412,7 +412,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         b.wait_not_present("#memory")
         m.execute("systemctl start mem-hog.service")
         initial_memory = float(b.text("#memory .pf-c-description-list__text").split(" ")[0])
-        self.assertGreater(initial_memory, 1)
+        self.assertGreater(initial_memory, 0.5)
         m.execute("touch /tmp/continue")
         # MemoryCurrent auto-updates every 30s - default timeout is 60s - when it updates the memory used should be ~50MiB
         b.wait(lambda: float(b.text("#memory .pf-c-description-list__text").split(" ")[0]) > 40)

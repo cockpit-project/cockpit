@@ -77,6 +77,7 @@ struct _CockpitDBusCache {
 
   /* Accumulated information about these various paths */
   GTree *managed;
+  GTree *managed_not_ready;
 
   /* Signal Subscriptions */
   gboolean subscribed;
@@ -354,6 +355,7 @@ cockpit_dbus_cache_init (CockpitDBusCache *self)
   self->cancellable = g_cancellable_new ();
 
   self->managed = cockpit_paths_new ();
+  self->managed_not_ready = cockpit_paths_new ();
 
   /* Becomes a whole tree of hash tables */
   self->cache = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
@@ -1228,7 +1230,7 @@ on_manager_signal (GDBusConnection *connection,
   ProcessInterfacesData *pis;
 
   /* Note that this is an ObjectManager */
-  manager_added = cockpit_paths_add (self->managed, path);
+  manager_added = cockpit_paths_add (self->managed_not_ready, path);
 
   if (g_str_equal (member, "InterfacesAdded"))
     {
@@ -1369,6 +1371,7 @@ cockpit_dbus_cache_finalize (GObject *object)
 
   cockpit_dbus_rules_free (self->rules);
   g_tree_destroy (self->managed);
+  g_tree_destroy (self->managed_not_ready);
 
   g_queue_free (self->batches);
   g_queue_free (self->barriers);

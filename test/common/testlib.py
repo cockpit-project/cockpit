@@ -594,8 +594,10 @@ class Browser:
             self.click('#go-logout')
         self.expect_load()
 
-    def relogin(self, path=None, user=None, superuser=None):
+    def relogin(self, path=None, user=None, superuser=None, wait_remote_session_machine=None):
         self.logout()
+        if wait_remote_session_machine:
+            wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
         self.try_login(user, superuser=superuser)
         self.expect_load()
         self._wait_present('#content')

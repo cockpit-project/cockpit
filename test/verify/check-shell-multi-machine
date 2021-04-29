@@ -611,6 +611,7 @@ class TestMultiMachine(MachineCase):
 
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.expect_load_frame(frame)
         b.wait_visible("iframe.container-frame[name='%s'][data-ready]" % frame)
 
         b.enter_page("/playground/test", "10.111.113.2")

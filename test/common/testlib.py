@@ -595,15 +595,8 @@ class Browser:
         self.expect_load()
 
     def relogin(self, path=None, user=None, superuser=None):
-        if user is None:
-            user = self.default_user
         self.logout()
-        self.wait_visible("#login")
-        self.set_val("#login-user-input", user)
-        self.set_val("#login-password-input", self.password)
-        if superuser is not None:
-            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
-        self.click('#login-button')
+        self.try_login(user, superuser=superuser)
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')

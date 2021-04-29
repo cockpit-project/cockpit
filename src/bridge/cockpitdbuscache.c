@@ -1942,7 +1942,7 @@ cockpit_dbus_cache_barrier (CockpitDBusCache *self,
 
   g_return_if_fail (callback != NULL);
 
-  batch = g_queue_peek_head (self->batches);
+  batch = g_queue_peek_tail (self->batches);
   if (batch)
     {
       barrier = g_slice_new0 (BarrierData);

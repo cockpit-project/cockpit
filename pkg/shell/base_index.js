@@ -185,7 +185,7 @@ function Frames(index, setupIdleResetTimers) {
             frame.url = base + "/" + component;
             if (component.indexOf("/") === -1)
                 frame.url += "/index";
-            frame.url += ".html";
+            frame.url += ".html?lang=" + language;
         }
 
         if (!hash)

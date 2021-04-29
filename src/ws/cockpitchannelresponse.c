@@ -33,6 +33,7 @@ typedef struct {
   CockpitWebService *service;
   gchar *base_path;
   gchar *host;
+  gchar *lang;
 } CockpitChannelInject;
 
 static void
@@ -46,6 +47,7 @@ cockpit_channel_inject_free (gpointer data)
         g_object_remove_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
       g_free (inject->base_path);
       g_free (inject->host);
+      g_free (inject->lang);
       g_free (inject);
     }
 }
@@ -53,6 +55,7 @@ cockpit_channel_inject_free (gpointer data)
 static CockpitChannelInject *
 cockpit_channel_inject_new (CockpitWebService *service,
                             const gchar *path,
+                            const gchar *lang,
                             const gchar *host)
 {
   CockpitChannelInject *inject = g_new (CockpitChannelInject, 1);
@@ -60,6 +63,7 @@ cockpit_channel_inject_new (CockpitWebService *service,
   g_object_add_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
   inject->base_path = g_strdup (path);
   inject->host = g_strdup (host);
+  inject->lang = g_strdup (lang);
   return inject;
 }
 
@@ -125,6 +129,21 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   cockpit_web_response_add_filter (response, filter);
   g_object_unref (filter);
   g_free (prefixed_application);
+
+  // Lang hack
+  if (inject->lang)
+    {
+      gchar *po_lang;
+      GBytes *po_inject;
+      po_lang = g_strdup_printf ("?lang=%s", inject->lang);
+      po_inject = g_bytes_new_take (po_lang, strlen (po_lang) );
+      CockpitWebFilter *po_filter = cockpit_web_inject_new ("/po.js", po_inject, 1);
+
+      cockpit_web_response_add_filter (response, po_filter);
+
+      g_bytes_unref (po_inject);
+      g_object_unref (po_filter);
+    }
 }
 
 #define COCKPIT_TYPE_CHANNEL_RESPONSE  (cockpit_channel_response_get_type ())
@@ -516,12 +535,6 @@ parse_host_and_etag (CockpitWebService *service,
   const gchar *accept = NULL;
   gchar **languages = NULL;
   gboolean translatable;
-  gchar *language;
-
-  /* Parse the language out of the CockpitLang cookie and set Accept-Language */
-  language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
-  if (language)
-    g_hash_table_replace (headers, g_strdup ("Accept-Language"), language);
 
   if (!where)
     {
@@ -576,6 +589,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   const gchar *host = NULL;
   const gchar *pragma;
   gchar *quoted_etag = NULL;
+  gchar *lang = NULL;
   GHashTable *out_headers = NULL;
   gchar *val = NULL;
   gboolean handled = FALSE;
@@ -592,6 +606,11 @@ cockpit_channel_response_serve (CockpitWebService *service,
   g_return_if_fail (in_headers != NULL);
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
   g_return_if_fail (path != NULL);
+
+  /* Parse the language out of the CockpitLang cookie and set Accept-Language */
+  lang = cockpit_web_server_parse_cookie (in_headers, "CockpitLang");
+  if (lang)
+    g_hash_table_replace (in_headers, g_strdup ("Accept-Language"), lang);
 
   /* Where might be NULL, but that's still valid */
   if (!parse_host_and_etag (service, in_headers, where, path, &host, &quoted_etag))
@@ -701,7 +720,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   self = cockpit_channel_response_new (service, response, transport,
                                        out_headers, object);
 
-  self->inject = cockpit_channel_inject_new (service, injecting_base_path, host);
+  self->inject = cockpit_channel_inject_new (service, injecting_base_path, lang, host);
   handled = TRUE;
 
   /* Unref when the channel closes */

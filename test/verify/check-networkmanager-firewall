@@ -479,7 +479,7 @@ class TestFirewall(NetworkCase):
         addServiceToZone("pop3", "home")
         removeZone("home")
 
-        addZone("work", sources="totally invalid address", error="Error message: org.fedoraproject.FirewallD1.Exception: INVALID_ADDR: totally invalid address")
+        addZone("work", sources="totally invalid address", error="org.fedoraproject.FirewallD1.Exception: INVALID_ADDR: totally invalid address")
 
 
 if __name__ == '__main__':

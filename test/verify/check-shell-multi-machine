@@ -817,12 +817,12 @@ class TestMultiMachine(MachineCase):
                          m2.execute("cat /home/fred/.ssh/authorized_keys"))
 
         # Relogin.  This should now work seamlessly.
-        b.relogin(None)
+        b.relogin(None, wait_remote_session_machine=m1)
         b.enter_page("/system", host="fred@10.111.113.2")
 
         # De-authorize key and relogin, then re-authorize.
         m2.execute("rm /home/fred/.ssh/authorized_keys")
-        b.relogin(None)
+        b.relogin(None, wait_remote_session_machine=m1)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
@@ -839,7 +839,7 @@ class TestMultiMachine(MachineCase):
         # Put a 'better' passphrase on the key and relogin, then
         # change the passphrase back to the login password
         m1.execute("ssh-keygen -q -f /home/admin/.ssh/id_rsa -p -P foobar -N foobarfoo")
-        b.relogin(None)
+        b.relogin(None, wait_remote_session_machine=m1)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
@@ -858,7 +858,7 @@ class TestMultiMachine(MachineCase):
         # stack.)
         #
         if not m1.ostree_image:
-            b.relogin(None)
+            b.relogin(None, wait_remote_session_machine=m1)
             b.enter_page("/system", host="fred@10.111.113.2")
 
         # The authorized_keys files should still only have a single key

@@ -1230,6 +1230,7 @@ class TestAutoUpdates(NoSubManCase):
             b.reload()
             b.enter_page("/updates")
             b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 8:00")
+            b.wait_visible("#autoupdates-settings button")
 
             # OnCalendar= parsing: weekday and time
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
@@ -1237,6 +1238,7 @@ class TestAutoUpdates(NoSubManCase):
             b.reload()
             b.enter_page("/updates")
             b.wait_in_text("#autoupdates-settings", "Updates will be applied every Tuesday at 20:00")
+            b.wait_visible("#autoupdates-settings button")
 
             # OnCalendar= parsing: "every day" calendar and time
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-*-* 07:00\n" > '
@@ -1244,6 +1246,7 @@ class TestAutoUpdates(NoSubManCase):
             b.reload()
             b.enter_page("/updates")
             b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 7:00")
+            b.wait_visible("#autoupdates-settings button")
 
             # OnCalendar= parsing: unsupported
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '
@@ -1252,6 +1255,8 @@ class TestAutoUpdates(NoSubManCase):
             b.enter_page("/updates")
             time.sleep(5)
             b.wait_visible("#settings .pf-c-alert")
+            # don't allow stomping over unparseable custom settings
+            b.wait_not_present("#autoupdates-settings button")
 
     def testWithAvailableUpdates(self):
         b = self.browser

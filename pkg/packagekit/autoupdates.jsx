@@ -352,13 +352,17 @@ export class AutoUpdates extends React.Component {
 
         const self = this;
 
+        if (enabled && this.state.backend.installed && !this.state.backend.supported)
+            return (
+                <div id="autoupdates-settings">
+                    <Alert isInline
+                        variant="info"
+                        className="autoupdates-card-error"
+                        title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
+                </div>);
+
         return (<>
             <div id="autoupdates-settings">
-                {enabled && this.state.backend.installed && !this.state.backend.supported &&
-                <Alert isInline
-                       variant="info"
-                       className="autoupdates-card-error"
-                       title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to enable this feature.")} />}
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <Flex grow={{ default: 'grow' }} alignItems={{ default: 'alignItemsBaseline' }}>
                         <FlexItem>

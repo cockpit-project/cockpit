@@ -1455,30 +1455,6 @@ function factory() {
         return result.promise.then(fulfilled, rejected, updated);
     };
 
-    cockpit.all = function all(promises) { // eslint-disable-line cockpit/no-cockpit-all
-        var deferred = cockpit.defer();
-        var counter = 0;
-        var results = [];
-
-        if (arguments.length != 1 && !Array.isArray(promises))
-            promises = Array.prototype.slice.call(arguments);
-
-        promises.forEach(function(promise, key) {
-            counter++;
-            cockpit.when(promise).then(function(value) {
-                results[key] = value;
-                if (!(--counter))
-                    deferred.resolve.apply(deferred, results);
-            }, function(/* ... */) {
-                deferred.reject.apply(deferred, arguments);
-            });
-        });
-
-        if (counter === 0)
-            deferred.resolve(results);
-        return deferred.promise;
-    };
-
     cockpit.resolve = function resolve(result) {
         return cockpit.defer().resolve(result).promise;
     };

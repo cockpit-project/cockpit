@@ -85,7 +85,7 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %if 0%{?rhel} >= 9 || 0%{?fedora}
 %define selinuxtype targeted
 %define with_selinux 1
-%define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}" selinux-policy || echo 1)
+%define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}-%{R}" selinux-policy || echo 1)
 %endif
 
 BuildRequires: gcc

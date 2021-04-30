@@ -270,6 +270,7 @@ echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 echo '%dir %{_datadir}/cockpit/static' > static.list
+echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
 find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 
 # when not building basic packages, remove their files
@@ -413,10 +414,9 @@ Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
-Obsoletes: cockpit-dashboard
+Obsoletes: cockpit-dashboard < %{version}-%{release}
 %if 0%{?rhel}
 Provides: cockpit-networkmanager = %{version}-%{release}
-Obsoletes: cockpit-networkmanager
 Requires: NetworkManager >= 1.6
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
@@ -450,8 +450,10 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
+%if 0%{?with_selinux}
 Requires: (selinux-policy >= %{selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
+%endif
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos

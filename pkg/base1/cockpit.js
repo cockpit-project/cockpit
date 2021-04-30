@@ -4338,14 +4338,13 @@ function factory() {
      */
 
     function check_superuser() {
-        var dfd = cockpit.defer();
-        var ch = cockpit.channel({ payload: "null", superuser: "require" });
-        ch.wait()
-            .then(function () { dfd.resolve(true) })
-            .fail(function () { dfd.resolve(false) })
-            .always(function () { ch.close() });
-
-        return dfd.promise();
+        return new Promise((resolve, reject) => {
+            const ch = cockpit.channel({ payload: "null", superuser: "require" });
+            ch.wait()
+                .then(() => resolve(true))
+                .catch(() => resolve(false))
+                .always(() => ch.close());
+        });
     }
 
     function Permission(options) {
@@ -4394,12 +4393,11 @@ function factory() {
         if (self.user && self.is_superuser !== null) {
             self.allowed = decide(self.user);
         } else {
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            cockpit.all(cockpit.user(), check_superuser())
-                .done(function (user, is_superuser) {
+            Promise.all([cockpit.user(), check_superuser()])
+                .then(([user, is_superuser]) => {
                     self.user = user;
                     self.is_superuser = is_superuser;
-                    var allowed = decide(user);
+                    const allowed = decide(user);
                     if (self.allowed !== allowed) {
                         self.allowed = allowed;
                         maybe_reload();

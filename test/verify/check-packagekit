@@ -1382,6 +1382,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
 
         if self.backend == 'dnf':
             b.wait_in_text("#autoupdates-settings", "Not set up")
+            b.wait_not_present("#settings .pf-c-alert")
             b.click("#autoupdates-settings button:contains('Enable')")
         else:
             b.wait_not_present("#settings")
@@ -1421,6 +1422,7 @@ WantedBy=basic.target
 
         # click through install dialog
         b.wait_in_text("#autoupdates-settings", "Not set up")
+        b.wait_not_present("#settings .pf-c-alert")
         b.click("#autoupdates-settings button:contains('Enable')")
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')

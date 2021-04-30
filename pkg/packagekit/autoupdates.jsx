@@ -44,7 +44,7 @@ function debug() {
 
 class ImplBase {
     constructor() {
-        this.supported = true; // false if system was customed in a way that we cannot parse
+        this.supported = true; // false if system was customized in a way that we cannot parse
         this.enabled = null; // boolean
         this.type = null; // "all" or "security"
         this.day = null; // systemd.time(7) day of week (e. g. "mon"), or empty for daily
@@ -98,8 +98,8 @@ class DnfImpl extends ImplBase {
                         } else {
                             if (output.indexOf("InactiveSec=1d\n") >= 0)
                                 this.day = this.time = "";
-                            else
-                                this.parsing_failed = true;
+                            else if (this.installed)
+                                this.supported = false;
                         }
 
                         debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
@@ -135,7 +135,7 @@ class DnfImpl extends ImplBase {
         if (words.length == 1 && validTime.test(words[0]))
             this.time = words[0].replace(/^0+/, "");
         else
-            this.parsing_failed = true;
+            this.supported = false;
     }
 
     setConfig(enabled, type, day, time) {
@@ -225,12 +225,7 @@ export function getBackend(forceReinit) {
                             backend = new DnfImpl();
                         // TODO: apt backend
                         if (backend)
-                            backend.getConfig().then(() => {
-                                if (!backend.installed)
-                                    resolve(backend);
-                                else
-                                    resolve(backend.supported ? backend : null);
-                            });
+                            backend.getConfig().then(() => resolve(backend));
                         else
                             resolve(null);
                     })
@@ -350,7 +345,7 @@ export class AutoUpdates extends React.Component {
 
         let desc = null;
 
-        if (this.state.backend.enabled) {
+        if (this.state.backend.enabled && this.state.backend.supported) {
             desc = this.state.backend.type == "security" ? _("Security updates ") : _("Updates ");
             desc += cockpit.format(_("will be applied $0 at $1"), days[this.state.backend.day], this.state.backend.time);
         }
@@ -359,7 +354,7 @@ export class AutoUpdates extends React.Component {
 
         return (<>
             <div id="autoupdates-settings">
-                {enabled && this.state.backend.parsing_failed &&
+                {enabled && this.state.backend.installed && !this.state.backend.supported &&
                 <Alert isInline
                        variant="info"
                        className="autoupdates-card-error"

@@ -208,8 +208,8 @@ install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 %if 0%{?with_selinux}
     install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8
-    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
 %endif
 
 # only ship deprecated PatternFly API for stable releases
@@ -508,8 +508,8 @@ authentication via sssd/FreeIPA.
 
 %if 0%{?with_selinux}
     %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-    %{_mandir}/man8/%{name}_session_selinux.8.*
-    %{_mandir}/man8/%{name}_ws_selinux.8.*
+    %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
+    %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
     %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 %endif
 

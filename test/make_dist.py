@@ -101,10 +101,6 @@ def download_cache(wait=False):
         message(f"make_dist: Extracting cached {unpack_path}...")
         p_git = subprocess.Popen(["git", "--git-dir", dist_git_checkout, "archive", tag, unpack_path],
                                  stdout=subprocess.PIPE)
-        # HACK: tar --touch does not deal with sub-second file mtimes, which can invert the relative mtime
-        # of package-lock.json vs. dist/*/manifest.json. Until this gets investigated/fixed properly, make sure that
-        # the files are at least one second apart
-        time.sleep(1)
         subprocess.check_call(["tar", "-x", "--touch"], stdin=p_git.stdout)
         result = p_git.wait()
         assert result == 0

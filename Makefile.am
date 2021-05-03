@@ -207,9 +207,9 @@ package-lock.json: package.json
 
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
-	$(V_TAR) tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
-	$(V_TAR) tar -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
+	$(V_TAR) tar --format=posix -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::
 	test ! -d $(DESTDIR)$(pkgdatadir) || \
 	  (find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \; && \
@@ -218,7 +218,7 @@ uninstall-local::
 	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
 	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
-	$(V_TAR) tar -cf - $^ | tar -C $(distdir) -xf -
+	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node
 
@@ -332,7 +332,7 @@ tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
 # also automatically update minimum base dependency in RPM spec file
 dist-hook:: $(MANIFESTS)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
-		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
+		tar --format=posix -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 

@@ -128,7 +128,7 @@ export function clevis_recover_passphrase(block) {
             .then(output => output.trim());
 }
 
-/* Passphrase operations
+/* Passphrase and slot operations
  */
 
 function passphrase_add(block, new_passphrase, old_passphrase) {
@@ -143,19 +143,20 @@ function passphrase_change(block, key, new_passphrase, old_passphrase) {
                          { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
 }
 
-function passphrase_remove(block, passphrase) {
-    var dev = decode_filename(block.Device);
-    return cockpit.spawn(["cryptsetup", "luksRemoveKey", dev],
-                         { superuser: true, err: "message" }).input(passphrase);
-}
+function slot_remove(block, slot, passphrase) {
+    const dev = decode_filename(block.Device);
+    const opts = { superuser: true, err: "message" };
+    const cmd = ["cryptsetup", "luksKillSlot", dev, slot.toString()];
+    if (passphrase === false) {
+        cmd.splice(2, 0, "-q");
+        opts.pty = true;
+    }
 
-/* Generic slot operations
- */
+    const spawn = cockpit.spawn(cmd, opts);
+    if (passphrase !== false)
+        spawn.input(passphrase + "\n");
 
-function slot_remove(block, slot) {
-    var dev = decode_filename(block.Device);
-    return cockpit.spawn(["cryptsetup", "luksKillSlot", "-q", dev, slot.toString()],
-                         { superuser: true, err: "message", pty: true });
+    return spawn;
 }
 
 /* Dialogs
@@ -394,10 +395,7 @@ function remove_passphrase_dialog(block, key) {
             DangerButton: true,
             Title: _("Remove"),
             action: function (vals) {
-                if (vals.passphrase === false)
-                    return slot_remove(block, key.slot);
-                else
-                    return passphrase_remove(block, vals.passphrase);
+                return slot_remove(block, key.slot, vals.passphrase);
             }
         }
     });

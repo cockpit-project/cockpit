@@ -274,10 +274,15 @@ class TestStorageLuks(StorageCase):
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
         self.content_row_wait_in_col(2, 1, "ext4 file system")
-        # delete second key slot by providing passphrase
+        # delete second key slot
         b.click(panel + "li:nth-child(2) button[aria-label=Remove]")
         self.dialog_wait_open()
+        # do not accept the same passphrase
         b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_apply()
+        b.wait_in_text(".pf-c-alert__title", "No key available with this passphrase.")
+        # delete with passphrase from slot 0
+        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
         # check that it is not possible to unlock with deleted passphrase
@@ -314,7 +319,7 @@ class TestStorageLuks(StorageCase):
         slots_list = tab + " .pf-c-card ul "
         b.wait_visible(slots_list + "li:last-child button[aria-label=Remove]")
         b.click(slots_list + "li:last-child button[aria-label=Remove]")
-        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
+        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-6")
         self.dialog_apply()
         self.dialog_wait_close()
         # check if buttons have become enabled after removing last slot

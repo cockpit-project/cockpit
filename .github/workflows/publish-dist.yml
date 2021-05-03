@@ -17,7 +17,7 @@ jobs:
           name: dist
           workflow: build-dist
           run_id: ${{ github.event.workflow_run.id }}
-          path: dist-repo
+          path: dist-unpack
 
       - name: Set up configuration and secrets
         run: |
@@ -29,9 +29,24 @@ jobs:
       - name: Commit to dist repo
         run: |
           set -ex
+          mkdir dist-repo
           cd dist-repo
+          TARS=(../dist-unpack/cockpit-*.tar.xz)
+          if [ "${#TARS[@]}" -ne 1 ]; then
+              echo "Expected exactly one tarball" >&2
+              exit 1
+          fi
+          tar --strip-components=1 -xf "${TARS[0]}"
+
+          # prevent any sneaky/buggy stuff from build-dist
+          danger="$(find -maxdepth 1 -name '.git*')"
+          if [ -n "$danger" ]; then
+              printf "Unexpected files in dist artifact:\n%s\n" "$danger" >&2
+              exit 1
+          fi
+
           git init
-          git add .
+          git add dist/ node_modules/ package-lock.json tools/debian/copyright
           git commit -m "Build for ${{ github.event.workflow_run.head_sha }}"
           tag='sha-${{ github.event.workflow_run.head_sha }}'
           git tag "$tag"

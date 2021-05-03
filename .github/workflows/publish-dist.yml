@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download build-dist artifacts
-        uses: dawidd6/action-download-artifact@v2
+        # 2.14.0; if you update this, audit the diff and ensure that it does not leak/abuse secrets
+        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74
         with:
           workflow: build-dist
           run_id: ${{ github.event.workflow_run.id }}

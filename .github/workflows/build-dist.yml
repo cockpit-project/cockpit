@@ -14,9 +14,6 @@ jobs:
         with:
           # need this to also fetch tags
           fetch-depth: 0
-          # avoid checking out the default pull/NNN/head ref, as that gives
-          # mismatching SHAs in generated tarballs
-          ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Run unit-tests container
         run: sudo containers/unit-tests/start dist
@@ -24,8 +21,6 @@ jobs:
       - name: Create dist tarball artifact
         uses: actions/upload-artifact@v2
         with:
-          # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
-          # for pull_requests, use HEAD of the proposed branch, for pushes to origin the current SHA
-          name: "dist-${{ github.event.pull_request.head.sha || github.sha }}"
+          name: dist
           path: tmp/dist/cockpit-*.tar.xz
           retention-days: 7

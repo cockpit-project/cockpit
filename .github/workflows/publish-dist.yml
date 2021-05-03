@@ -13,8 +13,10 @@ jobs:
         # 2.14.0; if you update this, audit the diff and ensure that it does not leak/abuse secrets
         uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74
         with:
+          name: dist
           workflow: build-dist
           run_id: ${{ github.event.workflow_run.id }}
+          path: dist
 
       - name: Set up configuration and secrets
         run: |
@@ -30,14 +32,14 @@ jobs:
 
           # we need a fully predictable name/URL, and git introduces these
           # additional numbers into the version; so wrap it in a predictable named tar
-          sha=$(ls -d dist-* | sed 's/dist-//')
+          sha='${{ github.event.workflow_run.head_sha }}'
 
           # multiple parallel workflows race against each other, so the final
           # `git push` may fail
           rc=1
           for retry in $(seq 5); do
               git clone https://github.com/${{ github.repository }}-dist.git dist-repo
-              tar -cvf "dist-repo/${sha}.tar" -C "dist-$sha" .
+              tar -cvf "dist-repo/${sha}.tar" -C dist/
 
               # freshly created empty repo?
               cd dist-repo

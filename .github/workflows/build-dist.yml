@@ -18,15 +18,10 @@ jobs:
       - name: Run unit-tests container to build dist
         run: |
           sudo containers/unit-tests/start dist
-          tar --strip-components=1 -xf tmp/dist/cockpit-*.tar.xz
 
       - name: Create dist artifact
         uses: actions/upload-artifact@v2
         with:
           name: dist
-          path: |
-            dist/
-            node_modules/
-            package-lock.json
-            tools/debian/copyright
+          path: tmp/dist/cockpit-*.tar.xz
           retention-days: 1

@@ -95,20 +95,17 @@ def download_cache(wait=False):
             message(f"make_dist: pre-built dist for {sha} not yet available, waiting...")
             time.sleep(30)
 
-    # Unfortunately our dist tarball generation does not deal with sub-second file mtime differences,
-    # which can invert the relative mtime of package-lock.json vs.  dist/*/manifest.json
-    # to avoid this, only touch the webpack-built files (to satisfy make dependencies),
-    # but leave the `npm install` ones alone.
-    for (unpack_path, touch) in [("node_modules", False),
-                                 ("package-lock.json", False),
-                                 ("dist", True),
-                                 ("tools/debian/copyright", True)]:
+    for unpack_path in ["node_modules", "package-lock.json", "dist", "tools/debian/copyright"]:
         if os.path.exists(unpack_path):
             continue
         message(f"make_dist: Extracting cached {unpack_path}...")
         p_git = subprocess.Popen(["git", "--git-dir", dist_git_checkout, "archive", tag, unpack_path],
                                  stdout=subprocess.PIPE)
-        subprocess.check_call(["tar", "-x"] + (["--touch"] if touch else []), stdin=p_git.stdout)
+        # HACK: tar --touch does not deal with sub-second file mtimes, which can invert the relative mtime
+        # of package-lock.json vs. dist/*/manifest.json. Until this gets investigated/fixed properly, make sure that
+        # the files are at least one second apart
+        time.sleep(1)
+        subprocess.check_call(["tar", "-x", "--touch"], stdin=p_git.stdout)
         result = p_git.wait()
         assert result == 0
 

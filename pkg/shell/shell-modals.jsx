@@ -28,6 +28,7 @@ import {
     TextInput,
 } from '@patternfly/react-core';
 
+import "menu-select-widget.scss";
 import "form-layout.scss";
 
 const _ = cockpit.gettext;
@@ -98,6 +99,7 @@ export class LangModal extends React.Component {
                 <Flex direction={{ default: 'column' }}>
                     <p>{_("Choose the language to be used in the application")}</p>
                     <Menu id="display-language-list"
+                          className="ct-menu-select-widget"
                           onSelect={(_, selected) => this.setState({ selected })}
                           activeItemId={this.state.selected}
                           selected={this.state.selected}>

@@ -476,8 +476,9 @@ authentication via sssd/FreeIPA.
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
-%config %{_sysconfdir}/issue.d/cockpit.issue
-%config %{_sysconfdir}/motd.d/cockpit
+# created in %post, so that users can rm the files
+%ghost %{_sysconfdir}/issue.d/cockpit.issue
+%ghost %{_sysconfdir}/motd.d/cockpit
 %ghost /run/cockpit/motd
 %ghost %dir /run/cockpit
 %dir %{_datadir}/cockpit/motd
@@ -534,6 +535,13 @@ if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %endif
+
+# set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
+if [ "$1" = 1 ]; then
+    mkdir -p /etc/motd.d /etc/issue.d
+    ln -s /run/cockpit/motd /etc/motd.d/cockpit
+    ln -s /run/cockpit/motd /etc/issue.d/cockpit.issue
+fi
 
 %tmpfiles_create cockpit-tempfiles.conf
 %systemd_post cockpit.socket cockpit.service

@@ -537,6 +537,57 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
+    @skipImage("Can't remove/upgrade packages on OSTree", "fedora-coreos")
+    def testWsPackage(self):
+        m = self.machine
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            # clean up debug symbols, they get in the way of upgrading
+            m.execute("dpkg --purge cockpit-ws-dbgsym")
+        elif m.image.startswith("rhel"):
+            # subscription-manager-cockpit depends on cockpit-ws
+            m.execute("rpm --erase subscription-manager-cockpit")
+
+        def install():
+            if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+                m.execute("dpkg --install /var/tmp/build-results/cockpit-ws_*.deb")
+            else:
+                # FIXME: current package complains about mode change on /run/cockpit and selinux
+                m.execute("if rpm -q cockpit-ws; then rpm -V --nomode cockpit-ws; fi")
+                m.execute("rpm --upgrade --force /var/tmp/build-results/cockpit-ws-*.rpm")
+                m.execute("rpm -V --nomode cockpit-ws")
+
+        def remove():
+            if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+                m.execute("dpkg --purge cockpit cockpit-ws")
+            else:
+                m.execute("rpm --erase cockpit cockpit-ws")
+
+        # upgrade from distro version (our images have cockpit-ws preinstalled) sets up dynamic motd/issue symlink
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
+        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+
+        # package upgrade keeps them
+        install()
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
+        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+
+        # manual change/removal is respected on upgrade
+        m.execute("ln -sf /dev/null /etc/motd.d/cockpit; rm /etc/issue.d/cockpit.issue")
+        install()
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/dev/null")
+        m.execute("test ! -e /etc/issue.d/cockpit.issue")
+
+        # removing the package cleans up the links
+        remove()
+        m.execute("test ! -e /etc/motd.d/cockpit")
+        m.execute("test ! -e /etc/issue.d/cockpit.issue")
+
+        # fresh install (most of our test images have cockpit-ws preinstalled, so the first test above does not cover that)
+        install()
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
+        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testCommandline(self):
         m = self.machine

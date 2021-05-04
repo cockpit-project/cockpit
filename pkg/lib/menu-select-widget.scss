@@ -12,7 +12,7 @@
         display: none;
     }
 
-    &__content {
+    .pf-c-menu__content {
         // An overflow multi-select widget needs an outline
         border: 1px solid var(--pf-global--BorderColor--100);
         // There should be minimal space between the widgets (replacing the divider)
@@ -20,7 +20,7 @@
     }
 
     // Search should not be inset when there's no border containing it
-    &__search {
+    .pf-c-menu__search {
         padding: 0;
     }
 
@@ -29,7 +29,7 @@
     // when active but also keep the background color when the list loses
     // focus (such as when the keyboard or mouse navigates outside,
     // including initial rendering of the list.
-    &__list:not(:focus-within) .pf-m-selected {
+    .pf-c-menu__list:not(:focus-within) .pf-m-selected {
         background-color: var(--pf-c-menu__list-item--hover--BackgroundColor);
     }
 }

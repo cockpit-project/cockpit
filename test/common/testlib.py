@@ -961,7 +961,8 @@ class MachineCase(unittest.TestCase):
         def terminate_sessions():
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
-                self.machine.execute("loginctl terminate-session %s" % s)
+                # Don't insist that terminating works, the session might be gone by now.
+                self.machine.execute("loginctl terminate-session %s || true" % s)
                 # Wait for it to be no longer active. Sometimes
                 # sessions are permanently stuck in state "closing",
                 # but that's fine since they won't do any harm.

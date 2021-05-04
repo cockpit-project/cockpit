@@ -128,11 +128,6 @@ html.index-page body {
         overflow: auto;
     }
 
-    p:not(:last-child) {
-        // Since we're using PF3 and it redefines several base elements, reset it to what PF4 does by default
-        margin-bottom: var(--pf-global--spacer--md);
-    }
-
     // PF overrides to fake a multiselect widget (as one does not currently exist in PF4).
     // A menu gives us the interaction we want, but the styling is a bit off.
     // Therefore, we're changing the visuals here locally.

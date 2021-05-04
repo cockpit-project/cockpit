@@ -22,11 +22,13 @@ import React from "react";
 import {
     Button,
     Divider,
+    Flex,
     Menu, MenuList, MenuItem, MenuContent, MenuInput,
     Modal,
     TextInput,
 } from '@patternfly/react-core';
 
+import "menu-select-widget.scss";
 import "form-layout.scss";
 
 const _ = cockpit.gettext;
@@ -84,7 +86,7 @@ export class LangModal extends React.Component {
         const manifest = cockpit.manifests.shell || { };
 
         return (
-            <Modal isOpen position="top" variant="medium"
+            <Modal isOpen position="top" variant="small"
                    id="display-language-modal"
                    className="display-language-modal"
                    onClose={this.props.onClose}
@@ -94,31 +96,34 @@ export class LangModal extends React.Component {
                        <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
                    </>}
             >
-                <p>{_("Choose the language to be used in the application")}</p>
-                <Menu id="display-language-list"
-                      onSelect={(_, selected) => this.setState({ selected })}
-                      activeItemId={this.state.selected}
-                      selected={this.state.selected}>
-                    <MenuInput>
-                        <TextInput
-                            value={this.state.searchInput}
-                            aria-label={_("Filter menu items")}
-                            iconVariant="search"
-                            type="search"
-                            onChange={searchInput => this.setState({ searchInput })}
-                        />
-                    </MenuInput>
-                    <Divider />
-                    <MenuContent>
-                        <MenuList>
-                            {Object.keys(manifest.locales || { })
-                                    .filter(key => !this.state.searchInput || manifest.locales[key].toLowerCase().includes(this.state.searchInput.toString().toLowerCase()))
-                                    .map(key => {
-                                        return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
-                                    })}
-                        </MenuList>
-                    </MenuContent>
-                </Menu>
+                <Flex direction={{ default: 'column' }}>
+                    <p>{_("Choose the language to be used in the application")}</p>
+                    <Menu id="display-language-list"
+                          className="ct-menu-select-widget"
+                          onSelect={(_, selected) => this.setState({ selected })}
+                          activeItemId={this.state.selected}
+                          selected={this.state.selected}>
+                        <MenuInput>
+                            <TextInput
+                                value={this.state.searchInput}
+                                aria-label={_("Filter menu items")}
+                                iconVariant="search"
+                                type="search"
+                                onChange={searchInput => this.setState({ searchInput })}
+                            />
+                        </MenuInput>
+                        <Divider />
+                        <MenuContent>
+                            <MenuList>
+                                {Object.keys(manifest.locales || { })
+                                        .filter(key => !this.state.searchInput || manifest.locales[key].toLowerCase().includes(this.state.searchInput.toString().toLowerCase()))
+                                        .map(key => {
+                                            return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
+                                        })}
+                            </MenuList>
+                        </MenuContent>
+                    </Menu>
+                </Flex>
             </Modal>);
     }
 }

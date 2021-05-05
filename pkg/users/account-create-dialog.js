@@ -24,7 +24,7 @@ import { Checkbox, Form, FormGroup, TextInput } from '@patternfly/react-core';
 import { has_errors } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -36,7 +36,7 @@ function AccountCreateBody({ state, errors, change }) {
     } = state;
 
     return (
-        <Form isHorizontal>
+        <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Full name")}
                        helperTextInvalid={errors && errors.real_name}
                        validated={(errors && errors.real_name) ? "error" : "default"}

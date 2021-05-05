@@ -255,7 +255,7 @@ export class AutoUpdates extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange() {
+    handleChange(event) {
         const { enabled, type, day, time } = this.state;
 
         if (!validateTime(time))
@@ -266,6 +266,10 @@ export class AutoUpdates extends React.Component {
                 .always(() => {
                     this.setState({ pending: false, showModal: false });
                 });
+
+        if (event)
+            event.preventDefault();
+        return false;
     }
 
     render() {
@@ -274,7 +278,7 @@ export class AutoUpdates extends React.Component {
 
         const enabled = !this.state.pending && this.props.privileged;
         const body = (
-            <Form isHorizontal>
+            <Form isHorizontal onSubmit={this.handleChange}>
                 <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
                     <Radio isChecked={!this.state.enabled}
                            onChange={e => this.setState({ enabled: false, type: null })}

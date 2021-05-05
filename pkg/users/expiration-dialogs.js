@@ -22,7 +22,7 @@ import React from 'react';
 import { Form, FormGroup, FormHelperText, Radio, TextInput } from '@patternfly/react-core';
 
 import { has_errors } from "./dialog-utils.js";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -30,7 +30,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
     const { mode, before, after, date } = state;
 
     return (
-        <Form className="expiration-modal">
+        <Form className="expiration-modal" onSubmit={apply_modal_dialog}>
             <FormGroup>
                 <Radio id="account-expiration-never" name="mode" value="never"
                        label={_("Never lock account")}
@@ -136,7 +136,7 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
     const { mode, before, after, days } = state;
 
     return (
-        <Form className="expiration-modal">
+        <Form className="expiration-modal" onSubmit={apply_modal_dialog}>
             <FormGroup>
                 <Radio id="password-expiration-never" name="mode" value="never"
                        label={_("Never expire password")}

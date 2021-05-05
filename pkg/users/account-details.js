@@ -21,6 +21,7 @@ import cockpit from 'cockpit';
 import React, { useState, useEffect } from 'react';
 import moment from "moment";
 import { superuser } from "superuser";
+import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import {
     Button, Checkbox,
@@ -278,7 +279,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                             }
                         </CardHeader>
                         <CardBody>
-                            <Form isHorizontal>
+                            <Form isHorizontal onSubmit={apply_modal_dialog}>
                                 <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"

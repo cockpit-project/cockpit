@@ -232,7 +232,7 @@ import {
 } from "@patternfly/react-core";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
@@ -299,7 +299,8 @@ const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
         if (rows.length === 0)
             return null;
         else if (index === undefined) // top-level
-            return <Form isHorizontal={isFormHorizontal !== false}>{ rows }</Form>;
+            return <Form onSubmit={apply_modal_dialog}
+                         isHorizontal={isFormHorizontal !== false}>{ rows }</Form>;
         else // nested
             return <FormGroup key={index}>{ rows }</FormGroup>;
     }

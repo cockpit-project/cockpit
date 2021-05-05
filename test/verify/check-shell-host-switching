@@ -119,10 +119,9 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
         # In these tests we actually switch between machines in quick succession which can make things even worse
         if self.machine.image == TEST_OS_DEFAULT:
-            self.machines["machine2"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
-            self.machines["machine2"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
-            self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
-            self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
+            for machine in ["machine2", "machine3"]:
+                for pkg in ["packagekit", "systemd", "playground"]:
+                    self.machines[machine].write(f"/usr/share/cockpit/{pkg}/override.json", '{ "preload": [ ] }')
         # Also, quick logouts cause async preloads to run into "ReferenceError: cockpit is not defined"
         self.disable_preload("packagekit", "playground", "systemd")
 

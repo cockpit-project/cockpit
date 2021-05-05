@@ -415,11 +415,15 @@ class PageSystemInformationChangeHostname extends React.Component {
         });
     }
 
-    onSubmit() {
+    onSubmit(event) {
         const one = this.state.proxy.call("SetStaticHostname", [this.state.hostname, true]);
         const two = this.state.proxy.call("SetPrettyHostname", [this.state.pretty, true]);
 
         Promise.all([one, two]).then(this.props.onClose);
+
+        if (event)
+            event.preventDefault();
+        return false;
     }
 
     render() {
@@ -434,7 +438,7 @@ class PageSystemInformationChangeHostname extends React.Component {
                        <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
                    </>}
             >
-                <Form isHorizontal>
+                <Form isHorizontal onSubmit={this.onSubmit}>
                     <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
                         <TextInput id="sich-pretty-hostname" value={this.state.pretty} onChange={this.onPrettyChanged} />
                     </FormGroup>

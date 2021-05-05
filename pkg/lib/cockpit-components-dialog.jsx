@@ -327,3 +327,21 @@ export function show_modal_dialog(props, footerProps) {
 
     return dialogObj;
 }
+
+export function apply_modal_dialog(event) {
+    const dialog = event && event.target && event.target.closest("[role=dialog]");
+    const button = dialog && dialog.querySelector("button.apply");
+
+    if (button) {
+        const event = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            button: 0
+        });
+        button.dispatchEvent(event);
+    }
+
+    event.preventDefault();
+    return false;
+}

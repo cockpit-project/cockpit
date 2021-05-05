@@ -93,6 +93,25 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
         />
     );
 
+    function onSubmit(event) {
+        setSubmitted(true);
+
+        if (event)
+            event.preventDefault();
+
+        if (Object.keys(validationFailed).length)
+            return false;
+
+        setInProgress(true);
+        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns })
+                .then(() => setIsOpen(false), exc => {
+                    setDialogError(exc.message);
+                    setInProgress(false);
+                });
+
+        return false;
+    }
+
     return (
         <Modal id="timer-dialog"
            className="timer-dialog" position="top" variant="medium" isOpen onClose={() => setIsOpen(false)}
@@ -104,19 +123,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                            id="timer-save-button"
                            isLoading={inProgress}
                            isDisabled={inProgress}
-                           onClick={() => {
-                               setSubmitted(true);
-
-                               if (Object.keys(validationFailed).length)
-                                   return;
-
-                               setInProgress(true);
-                               create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns })
-                                       .then(() => setIsOpen(false), exc => {
-                                           setDialogError(exc.message);
-                                           setInProgress(false);
-                                       });
-                           }}>
+                           onClick={onSubmit}>
                        {_("Save")}
                    </Button>
                    <Button variant='link' onClick={() => setIsOpen(false)}>
@@ -124,7 +131,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                    </Button>
                </>
            }>
-            <Form isHorizontal>
+            <Form isHorizontal onSubmit={onSubmit}>
                 <FormGroup label={_("Service name")}
                            fieldId="servicename"
                            validated={submitted && validationFailed.name ? "error" : "default"}

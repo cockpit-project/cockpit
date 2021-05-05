@@ -31,4 +31,19 @@ $ <command>pmstat</command>
 ...
 </programlisting>
 
+  <para>These metrics can also be exposed to other machines on a TCP port with
+  <ulink url="https://linux.die.net/man/1/pmproxy">pmproxy</ulink>
+  and <ulink url="https://redis.io/">Redis</ulink>:</para>
+
+<programlisting>
+systemctl enable --now redis pmproxy
+# if you use firewalld, open port 44322:
+firewall-cmd --permanent --add-service pmproxy
+firewall-cmd --reload
+</programlisting>
+
+<para>This allows you to gather and visualize PCP metrics from multiple machines with
+  <ulink url="https://grafana.com/">Grafana</ulink> and the
+  <ulink url="https://grafana-pcp.readthedocs.io">PCP Grafana plugin</ulink>.</para>
+
 </chapter>

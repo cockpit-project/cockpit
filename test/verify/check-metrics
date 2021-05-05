@@ -767,5 +767,86 @@ class TestMultiCPU(MachineCase):
         b.wait(lambda: int(b.text(".pf-c-tooltip .pf-l-flex:nth-child(2) div:nth-child(2)")[:-1]) > 20)
 
 
+@skipImage("no PCP support", "fedora-coreos")
+@skipImage("pmproxy broken", "debian-stable")
+@skipDistroPackage()
+class TestGrafanaClient(MachineCase):
+
+    provision = {
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
+        # forward Grafana port, so that a developer can connect to it with local browser
+        "services": {"image": "services", "forward": {"3000": 3000}}
+    }
+
+    def testBasic(self):
+        m = self.machine
+        mg = self.machines['services']
+
+        # start Grafana
+        mg.execute("/root/run-grafana")
+        m.execute("until curl --silent --show-error http://10.111.112.100:3000; do sleep 1; done")
+        # enable PCP plugin; like on Cog (Configuration) menu → Plugins → Performance Co-Pilot → Enable
+        mg.execute("curl --silent --show-error -u admin:foobar -d '' 'http://127.0.0.1:3000/api/plugins/performancecopilot-pcp-app/settings?enabled=true'")
+
+        # start redis and pmproxy on supervised machine (should become an UI element)
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            m.execute("systemctl enable --now redis-server")
+            # pmproxy is runnning by default, re-start it to pick up redis
+            m.execute("systemctl restart pmproxy")
+        else:
+            # start PCP data collection (pmlogger), should become an UI element instead of just saying "not running"
+            m.execute("systemctl enable --now pmlogger")
+
+            m.execute("systemctl enable --now redis pmproxy")
+        m.execute("firewall-cmd --permanent --add-service pmproxy; firewall-cmd --reload")
+
+        # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
+        bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label)
+        try:
+            bg.open("/")
+            bg.set_val("input[name='user']", "admin")
+            bg.set_val("input[name='password']", "foobar")
+            bg.click("button:contains('Log in')")
+            bg.expect_load()
+            bg.wait_in_text(".dashboard-content", "Welcome to Grafana")
+            bg.wait_visible(".sidemenu")
+
+            # Add the PCP redis data source for our client machine
+            # Cog (Configuration) menu → Data Sources → Add
+            # Select PCP redis, HTTP URL http://10.111.112.1:44322
+            redis_url = 'http://10.111.112.1:44322'
+            bg.open("/datasources/new")
+            bg.click("[aria-label='Data source plugin item PCP Redis']")
+            bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
+            bg.click("button:contains('Save & Test')")
+            bg.wait_in_text(".page-body", "Data source is working")
+
+            # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
+            # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
+            # new variables; so probe the API until it appears
+            hostname = m.execute("hostname").strip()
+            wait(lambda: hostname in mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/labels?names=hostname'"), delay=10, tries=30)
+            # ... and the load metrics as well
+            wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
+
+            # Switch to "Dashboards" tab, import "Host Overview"
+            bg.click("li[aria-label='Tab Dashboards'] a")
+            bg.click("table:contains('PCP Redis: Host Overview') button")
+            # the "imported" notification is transient, avoid checking for this; but on success, there will be a delete button
+            bg.wait_visible("table:contains('PCP Redis: Host Overview') .btn-danger")
+
+            # .. and the dashboard name becomes clickable
+            bg.click("a:contains('PCP Redis: Host Overview')")
+
+            bg.wait_in_text(".submenu-controls", hostname)
+
+            # expect a "Load average" panel with a sensible number
+            max_load = bg.text(".panel-wrapper:contains('Load average') .graph-legend-series:contains('1 minute') .max")
+            self.assertGreater(float(max_load), 0)
+        except Error:
+            bg.snapshot("FAIL-grafana")
+            raise
+
+
 if __name__ == '__main__':
     test_main()

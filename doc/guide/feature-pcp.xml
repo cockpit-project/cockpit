@@ -2,19 +2,20 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="feature-pcp">
-  <title>PCP</title>
+  <title>PCP Metrics</title>
 
   <para>If available, Cockpit uses the
     <ulink url="https://pcp.io/">Performance Co-Pilot</ulink> framework to
-    gather metrics data about the system. This data is used to display graphs.
+    gather metrics data about the system. This data is used to display the history
+    graphs on the "Performance Metrics" page.
     Cockpit can use the PCP logging feature to display archived data about the
     system from a different point in time. If PCP is not available, then Cockpit
     gathers the metrics data itself, but archival features are not available.</para>
 
   <para>Whether or not metrics are archived depends on whether the
     <code>pmlogger.service</code> and <code>pmcd.service</code> systemd units
-    are running or not.  The "Store Performance Data" button in Cockpit
-    will enable and start these services.</para>
+    are running or not.  The "Store metrics" switch in the "Configuration" card on
+    the "Overview" page will enable and start these services.</para>
 
   <para>To see similar metrics data from the command line, you can use tools like
     <ulink url="https://pcp.io/books/PCP_UAG/html/LE38515-PARENT.html#LE91266-PARENT"><code>pmstat</code></ulink>

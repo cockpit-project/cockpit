@@ -216,11 +216,6 @@ fi
 
 AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 
-# gssapi
-AC_CHECK_LIB(gssapi_krb5, gss_store_cred, [ true ],
-  [AC_MSG_ERROR([Couldn't find GSSAPI KRB5 library. Try installing krb5-devel])]
-)
-
 # systemd
 AC_ARG_WITH([systemdunitdir], [AC_HELP_STRING([--with-systemdunitdir=DIR],
                                               [directory to install systemd unit files in])])

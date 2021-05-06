@@ -226,7 +226,7 @@ import {
     Form, FormGroup,
     Radio,
     Select as TypeAheadSelect, SelectOption, SelectVariant,
-    Spinner,
+    Spinner, Split,
     TextInput as TextInputPF4,
     Tooltip, TooltipPosition,
 } from "@patternfly/react-core";
@@ -564,16 +564,17 @@ export const SelectOneRadio = (tag, title, options) => {
         title: title,
         options: options,
         initial_value: options.value || options.choices[0].value,
+        hasNoPaddingTop: true,
 
         render: (val, change) => {
             return (
-                <FormGroup isInline data-field={tag} data-field-type="select-radio">
+                <Split hasGutter data-field={tag} data-field-type="select-radio">
                     { options.choices.map(c => (
                         <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
                             id={tag + '.' + c.value}
                             onChange={event => change(c.value)} label={c.title} />))
                     }
-                </FormGroup>
+                </Split>
             );
         }
     };

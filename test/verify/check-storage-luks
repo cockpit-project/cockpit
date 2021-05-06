@@ -276,15 +276,14 @@ class TestStorageLuks(StorageCase):
         self.content_row_wait_in_col(2, 1, "ext4 file system")
         # delete second key slot
         b.click(panel + "li:nth-child(2) button[aria-label=Remove]")
-        self.dialog_wait_open()
         # do not accept the same passphrase
-        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
-        self.dialog_apply()
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-1")
+        b.click("button:contains('Remove')")
         b.wait_in_text(".pf-c-alert__title", "No key available with this passphrase.")
         # delete with passphrase from slot 0
-        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
         # check that it is not possible to unlock with deleted passphrase
         self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 file system")
@@ -319,17 +318,17 @@ class TestStorageLuks(StorageCase):
         slots_list = tab + " .pf-c-card ul "
         b.wait_visible(slots_list + "li:last-child button[aria-label=Remove]")
         b.click(slots_list + "li:last-child button[aria-label=Remove]")
-        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-6")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
         # check if buttons have become enabled after removing last slot
         b.wait_not_present(slots_list + ":disabled")
         b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
         b.click(slots_list + "li:nth-child(1) button[aria-label=Remove]")
-        b.click(self.dialog_field("passphrase") + " label:contains(Force remove passphrase in key slot 0)")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        b.click("#force-remove-passphrase")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
         # check that it is not possible to unlock with deleted passphrase
         self.content_head_action(1, "Unlock")
         self.dialog_wait_open()

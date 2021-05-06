@@ -1,3 +1,16 @@
+EXTRA_DIST += \
+	src/ssh/mock_rsa_key \
+	src/ssh/mock_dsa_key \
+	src/ssh/test_rsa \
+	src/ssh/test_rsa.pub \
+	src/ssh/mock_known_hosts \
+	src/ssh/mock-pid-cat \
+	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
+	src/ssh/mock-config \
+	src/ssh/invalid_known_hosts \
+	src/ssh/mock_known_hosts_2 \
+	$(NULL)
+
 if WITH_COCKPIT_SSH
 
 noinst_LIBRARIES += libcockpit-ssh.a
@@ -68,19 +81,6 @@ noinst_DATA += test_rsa_key
 
 CLEANFILES += \
 	test_rsa_key \
-	$(NULL)
-
-EXTRA_DIST += \
-	src/ssh/mock_rsa_key \
-	src/ssh/mock_dsa_key \
-	src/ssh/test_rsa \
-	src/ssh/test_rsa.pub \
-	src/ssh/mock_known_hosts \
-	src/ssh/mock-pid-cat \
-	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
-	src/ssh/mock-config \
-	src/ssh/invalid_known_hosts \
-	src/ssh/mock_known_hosts_2 \
 	$(NULL)
 
 noinst_SCRIPTS += \

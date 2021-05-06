@@ -1,9 +1,19 @@
-man_MANS += \
-	doc/man/cockpit-bridge.1 \
+EXTRA_DIST += \
+	doc/man/cockpit.xml \
+	doc/man/cockpit-bridge.xml \
+	doc/man/cockpit-ws.xml \
+	doc/man/cockpit-tls.xml \
+	doc/man/cockpit-desktop.xml \
+	doc/man/cockpit.conf.xml \
+	doc/man/pam_cockpit_cert.xml \
+	doc/man/pam_ssh_add.xml \
+	doc/man/remotectl.xml \
 	$(NULL)
 
-EXTRA_DIST += \
-	doc/man/cockpit-bridge.xml \
+if ENABLE_DOC
+
+man_MANS += \
+	doc/man/cockpit-bridge.1 \
 	$(NULL)
 
 man_MANS += \
@@ -17,17 +27,6 @@ man_MANS += \
 	doc/man/remotectl.8 \
 	$(NULL)
 
-EXTRA_DIST += \
-	doc/man/cockpit.xml \
-	doc/man/cockpit-ws.xml \
-	doc/man/cockpit-tls.xml \
-	doc/man/cockpit-desktop.xml \
-	doc/man/cockpit.conf.xml \
-	doc/man/pam_cockpit_cert.xml \
-	doc/man/pam_ssh_add.xml \
-	doc/man/remotectl.xml \
-	$(NULL)
-
 MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
@@ -37,3 +36,5 @@ MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 
 	$(AM_V_GEN) $(MAN_PROC)
 .xml.5:
 	$(AM_V_GEN) $(MAN_PROC)
+
+endif ENABLE_DOC

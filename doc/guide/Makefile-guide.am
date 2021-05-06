@@ -1,4 +1,3 @@
-
 GUIDE_DOCBOOK = doc/guide/cockpit-guide.xml
 
 GUIDE_INCLUDES = \
@@ -80,6 +79,8 @@ EXTRA_DIST += \
 	doc/guide/version.in \
 	$(NULL)
 
+if ENABLE_DOC
+
 # we require fonts from `npm install` to build the docs
 noinst_DATA += $(GUIDE_HTML($SKIP_NODE))
 
@@ -122,3 +123,5 @@ check-local::
 		echo "Unexpected generated id in the documentation" >&2; \
 		exit 1; \
 	fi
+
+endif

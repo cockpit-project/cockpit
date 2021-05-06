@@ -255,15 +255,17 @@ EXTRA_DIST += \
 # -----------------------------------------------------------------------------
 # polkit
 
+# make sure this ends up in the tarball, even with --disable-ssh
+polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
+EXTRA_DIST += $(polkit_in_files)
+
 if WITH_POLKIT
 polkitdir        = $(datadir)/polkit-1/actions
-polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
 %.policy: %.policy.in $(PO_FILES)
 	GETTEXTDATADIRS=$(srcdir)/po $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
 
-EXTRA_DIST += $(polkit_in_files)
 CLEANFILES += $(polkit_DATA)
 endif
 

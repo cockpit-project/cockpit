@@ -156,9 +156,6 @@ AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
 AC_CHECK_HEADER([security/pam_appl.h], ,
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]
 )
-AC_CHECK_LIB(pam, pam_open_session, [ true ],
-  [AC_MSG_ERROR([Couldn't find PAM library. Try installing pam-devel])]
-)
 PAM_LIBS="-lpam"
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS $PAM_LIBS"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"

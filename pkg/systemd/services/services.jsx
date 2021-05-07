@@ -216,7 +216,20 @@ class ServicesPage extends React.Component {
             if (this.state.loadingUnits)
                 return;
 
-            this.updateProperties(args[1], path);
+            if (this.state.unit_by_path[path] &&
+                this.state.unit_by_path[path].Transient &&
+                args[1].ActiveState &&
+                ((args[1].ActiveState.v == 'failed' && this.state.unit_by_path[path].CollectMode == 'inactive-or-failed') ||
+                  args[1].ActiveState.v == 'inactive')) {
+                this.seenPaths.delete(path);
+                const copy_unit_by_path = { ...this.state.unit_by_path };
+                delete copy_unit_by_path[path];
+                this.setState({
+                    unit_by_path: copy_unit_by_path,
+                });
+            } else {
+                this.updateProperties(args[1], path);
+            }
             this.processFailedUnits();
         });
 
@@ -581,6 +594,8 @@ class ServicesPage extends React.Component {
         prop("Names");
         prop("LoadState");
         prop("LoadError");
+        prop("Transient");
+        prop("CollectMode");
         prop("ActiveState");
         prop("SubState");
         if (updateFileState)

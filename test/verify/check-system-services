@@ -789,6 +789,24 @@ Where=/fail
 
         self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 
+    def testTransientFailingUnits(self):
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+
+        self.machine.execute("systemd-run --collect --unit test-autocollect@1.service sh -c 'sleep 3; false'")
+        self.machine.execute("systemd-run --unit test-manual-collect@1.service sh -c 'sleep 3; false'")
+
+        self.wait_service_present("test-autocollect@1.service")
+        self.wait_service_present("test-manual-collect@1.service")
+
+        self.wait_service_in_panel("test-manual-collect@1.service", "Failed to start")
+
+        self.wait_service_not_present("test-autocollect@1.service")
+        self.wait_service_present("test-manual-collect@1.service")
+
+        self.machine.execute("systemctl reset-failed")
+        self.wait_service_not_present("test-manual-collect@1.service")
+
 
 @skipDistroPackage()
 class TestTimers(MachineCase):

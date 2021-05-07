@@ -316,7 +316,7 @@ class TestStorageLuks(StorageCase):
 
         # remove one slot
         slots_list = tab + " .pf-c-card ul "
-        b.wait_visible(slots_list + "li:last-child button[aria-label=Remove]")
+        b.wait_visible(".pf-c-data-list__cell:contains('Slot 7')")
         b.click(slots_list + "li:last-child button[aria-label=Remove]")
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
         b.click("button:contains('Remove')")

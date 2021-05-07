@@ -38,6 +38,8 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
 import * as packagekit from "packagekit.js";
+import * as service from "service";
+import { superuser } from "superuser";
 import { journal } from "journal";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
@@ -881,6 +883,8 @@ class MetricsHistory extends React.Component {
             hours: [], // available hours for rendering in descending order
             loading: true, // show loading indicator
             metricsAvailable: true,
+            pmLoggerState: null,
+            pmLoggerOpPending: false,
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
@@ -893,21 +897,31 @@ class MetricsHistory extends React.Component {
         this.handleSelect = this.handleSelect.bind(this);
         this.handleInstall = this.handleInstall.bind(this);
 
-        // load and render the last 24 hours (plus current one) initially; this needs numCpu initialized for correct scaling
-        // FIXME: load less up-front, load more when scrolling
-        machine_info_promise.then(() => {
-            cockpit.spawn(["date", "+%s"])
-                    .then(out => {
-                        const now = parseInt(out.trim()) * 1000;
-                        const current_hour = Math.floor(now / MSEC_PER_H) * MSEC_PER_H;
-                        this.load_data(current_hour - LOAD_HOURS * MSEC_PER_H, undefined, true);
-                        this.today_midnight = new Date(current_hour).setHours(0, 0, 0, 0);
-                        this.setState({
-                            selectedDate: this.today_midnight,
-                        });
-                    })
-                    .catch(ex => this.setState({ error: ex.toString() }));
+        /* supervise pmlogger.service, to diagnose missing history */
+        this.pmlogger_service = service.proxy("pmlogger.service");
+        this.pmlogger_service.addEventListener("changed", () => {
+            if (this.pmlogger_service.state !== this.state.pmLoggerState)
+                this.setState({ pmLoggerState: this.pmlogger_service.state });
         });
+
+        // FIXME: load less up-front, load more when scrolling
+        machine_info_promise.then(() => this.initialLoadData());
+    }
+
+    // load and render the last 24 hours (plus current one) initially; this needs numCpu initialized for correct scaling
+    initialLoadData() {
+        cockpit.spawn(["date", "+%s"])
+                .then(out => {
+                    const now = parseInt(out.trim()) * 1000;
+                    const current_hour = Math.floor(now / MSEC_PER_H) * MSEC_PER_H;
+                    this.load_data(current_hour - LOAD_HOURS * MSEC_PER_H, undefined, true);
+                    this.today_midnight = new Date(current_hour).setHours(0, 0, 0, 0);
+                    this.setState({
+                        metricsAvailable: true,
+                        selectedDate: this.today_midnight,
+                    });
+                })
+                .catch(ex => this.setState({ error: ex.toString() }));
     }
 
     componentDidMount() {
@@ -1075,12 +1089,40 @@ class MetricsHistory extends React.Component {
                         title={_("Package cockpit-pcp is missing for metrics history")}
                         action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null} />;
 
-        if (!this.state.metricsAvailable)
+        if (!this.state.metricsAvailable) {
+            let action;
+            let paragraph;
+
+            if (this.pmlogger_service.state === 'stopped') {
+                paragraph = _("pmlogger.service is not running");
+
+                if (superuser.allowed) {
+                    action = (
+                        <Button variant="primary" isDisabled={this.state.pmLoggerOpPending} onClick={() => {
+                            this.setState({ pmLoggerOpPending: true });
+                            this.pmlogger_service.start()
+                                    .then(() => this.initialLoadData())
+                                    .catch(ex => console.error("starting pmlogger.service failed:", JSON.stringify(ex)))
+                                    .always(() => this.setState({ pmLoggerOpPending: false }));
+                            if (!this.pmlogger_service.enabled)
+                                this.pmlogger_service.enable();
+                        } }>{_("Enable PCP metrics collector")}</Button>);
+                }
+                // when not superuser, don't show any action
+            } else {
+                if (this.pmlogger_service.state === 'failed')
+                    paragraph = _("pmlogger.service has failed");
+                else /* running, or initialization hangs */
+                    paragraph = _("pmlogger.service is failing to collect data");
+                action = <Button variant="link" onClick={() => cockpit.jump("/system/services#/pmlogger.service") }>{_("Troubleshoot")}</Button>;
+            }
+
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Metrics history could not be loaded")}
-                        paragraph={_("Is 'pmlogger' service running?")}
-                        action={<Button variant="link" onClick={() => cockpit.jump("/system/services#/pmlogger.service") }>{_("Troubleshoot")}</Button>} />;
+                        paragraph={paragraph}
+                        action={action} />;
+        }
 
         if (this.state.error)
             return <EmptyStatePanel

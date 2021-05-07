@@ -19,7 +19,7 @@ import cockpit from "cockpit";
  * Initially, any of the properties can be "null" until their
  * actual values have been retrieved in the background.
  *
- * - $(proxy).on('changed', function (event) { ... })
+ * - proxy.addEventListener('changed', event => { ... })
  *
  * The 'changed' event is emitted whenever one of the properties
  * of the proxy changes.

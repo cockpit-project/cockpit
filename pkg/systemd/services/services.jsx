@@ -810,9 +810,9 @@ class ServicesPage extends React.Component {
                                      id="services-toolbar">
                             <ToolbarContent>{toolbarItems}</ToolbarContent>
                         </Toolbar>
-                        <ServicesList key={cockpit.format("$0-list", activeTab)}
+                        {units.length && <ServicesList key={cockpit.format("$0-list", activeTab)}
                             isTimer={activeTab == 'timer'}
-                            units={units} />
+                            units={units} />}
                         {units.length == 0 &&
                             <Bullseye>
                                 <EmptyStatePanel icon={SearchIcon}

@@ -4,6 +4,12 @@
 @import "./timer.scss";
 @import "../../lib/table.css";
 
+// Magic pixie dust to make the list a bit faster and more furious
+.services-list {
+    // Skip a lot of computations
+    contain: content;
+}
+
 .service-unit-failed {
     background-color: var(--ct-color-list-critical-bg);
 
@@ -12,39 +18,29 @@
     }
 }
 
-.service-unit-description {
-    font-weight: bold;
-}
-
-.service-unit-status-failed {
-    color: red;
-}
-
 .service-unit-status {
     white-space: nowrap;
-    min-width: 5rem;
+    text-align: right;
+
+    &-failed {
+        color: red;
+        white-space: break-spaces;
+    }
+
+    &-flex-container {
+        --pf-l-flex--FlexWrap: nowrap;
+    }
 }
 
 .service-unit-file-state {
-    min-width: 5rem;
+    display: inline-block;
     font-size: var(--pf-global--FontSize--sm);
+    min-width: 5rem;
+    text-align: center;
 }
 .service-unit-file-state:not(.pf-c-badge) {
     text-align: center;
     opacity: 0.8;
-}
-
-.pf-c-data-list__item-action {
-    align-items: baseline;
-}
-
-@media screen and (min-width: $pf-global--breakpoint--lg) {
-    .pf-c-data-list__item-action {
-        min-width: 14rem;
-        flex-direction: row;
-        justify-content: flex-end;
-        flex-wrap: nowrap;
-    }
 }
 
 // Add some spacing between the tab label and the icon
@@ -60,23 +56,28 @@
     margin-right: 0.5rem;
 }
 
-@media screen and (max-width: $pf-global--breakpoint--xl) {
-    .service-unit-id {
-        // Adjust padding, so things better align in mobile mode
-        padding-bottom: 0.875rem;
+.service-unit-first-column {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
+    grid-gap: var(--pf-global--spacer--sm);
+
+    .service-unit-description {
+        font-weight: bold;
     }
 }
 
-.service-unit-id {
-    // Make service IDs look like links
-    color: var(--pf-global--link--Color);
+.pf-c-table .pf-c-table__action.service-unit-second-column {
+    --pf-c-table--cell--Width: 20%;
+
+    &-flex-container {
+        row-gap: var(--pf-global--spacer--sm);
+    }
 }
 
-.pf-c-data-list__item:focus,
-.pf-c-data-list__item-content:hover {
-    .service-unit-id {
-        // Darken & underline ID "link" when item is focused or content is hovered
-        color: var(--pf-global--link--Color--hover);
-        text-decoration: underline;
-    }
+// Don't show labels from mobile mode
+.pf-m-grid-md.pf-c-table [data-label]::before {
+    display: none;
+}
+.pf-m-grid-md.pf-c-table [data-label] {
+    display: revert;
 }

@@ -41,6 +41,7 @@ import './cockpit-components-table.scss';
  * See https://www.patternfly.org/v4/components/table/
  * Properties (all optional unless specified otherwise):
  * - caption
+ * - id: optional identifier
  * - className: additional classes added to the Table
  * - actions: additional listing-wide actions (displayed next to the list's title)
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
@@ -203,6 +204,9 @@ export class ListingTable extends React.Component {
         if (this.props.rows.length == 0)
             tableProps.className += ' ct-table-empty';
 
+        if (this.props.id)
+            tableProps.id = this.props.id;
+
         if (this.props.variant)
             tableProps.variant = this.props.variant;
 
@@ -312,6 +316,7 @@ ListingTable.defaultProps = {
     showHeader: true,
 };
 ListingTable.propTypes = {
+    id: PropTypes.string,
     caption: PropTypes.string,
     emptyCaption: PropTypes.node,
     emptyCaptionDetail: PropTypes.node,

@@ -68,7 +68,10 @@ class TestServices(MachineCase):
             self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
 
     def svc_sel(self, service):
-        return 'li[data-goto-unit="%s"]' % service
+        return 'tr[data-goto-unit="%s"]' % service
+
+    def goto_service(self, service):
+        return self.browser.click(self.svc_sel(service) + ' a')
 
     def wait_service_state(self, service, state):
         state_new = state
@@ -90,7 +93,7 @@ class TestServices(MachineCase):
     def wait_service_present(self, service):
         if service.endswith(".service"):
             service_name = service[:-8]
-        self.browser.wait_text('li[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
+        self.browser.wait_text('tr[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
 
     def wait_service_not_present(self, service):
         self.browser.wait_not_present(self.svc_sel(service))
@@ -190,7 +193,7 @@ Unit=test.service
         self.wait_service_state("reboot.target", "inactive")
         self.wait_service_state("ctrl-alt-del.target", "inactive")
         self.wait_service_state("runlevel6.target", "inactive")
-        b.click(self.svc_sel("runlevel6.target"))
+        self.goto_service("runlevel6.target")
         b.wait_in_text(".service-name", "Reboot")
         b.click("#services-page .pf-c-breadcrumb__link")
 
@@ -238,7 +241,7 @@ Unit=test.service
         self.pick_tab(1)
 
         # Check test.service and then start it
-        b.click(self.svc_sel("test.service"))
+        self.goto_service("test.service")
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
@@ -282,7 +285,7 @@ Unit=test.service
         b.go("#/")
         self.wait_service_present("test.service")
         m.execute("udevadm trigger; udevadm settle")
-        b.click(self.svc_sel("test.service"))
+        self.goto_service("test.service")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
         self.toggle_onoff()
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
@@ -301,7 +304,7 @@ Unit=test.service
 
         # Check service that fails to start
         b.go("#/")
-        b.click(self.svc_sel("test-fail.service"))
+        self.goto_service("test-fail.service")
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
@@ -311,7 +314,7 @@ Unit=test.service
         self.wait_service_state("test-fail.service", "failed")
 
         # Check static service
-        b.click(self.svc_sel("systemd-halt.service"))
+        self.goto_service("systemd-halt.service")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         # Mask and unmask
@@ -331,7 +334,7 @@ Unit=test.service
 
         # Check that `Listen` and `Triggers` properties are shown for socket units
         self.pick_tab(3)
-        b.click(self.svc_sel("dbus.socket"))
+        self.goto_service("dbus.socket")
         self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen .pf-c-description-list__text"))
         self.assertIn(b.text("#Triggers .pf-c-description-list__text"), ["dbus.service", "dbus-broker.service"])
         b.click(".pf-c-breadcrumb a:contains('Services')")
@@ -389,7 +392,7 @@ Unit=test.service
         self.assertEqual(b.val("#services-dropdown"), "all")
 
         # Check that journalbox shows empty state
-        b.click(self.svc_sel("systemd-halt.service"))
+        self.goto_service("systemd-halt.service")
         b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
         b.wait_not_present("button:contains('View all logs')")
 
@@ -409,7 +412,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         m.execute("systemctl daemon-reload")
 
         # Check that MemoryCurrent is shown
-        b.click(self.svc_sel("mem-hog.service"))
+        self.goto_service("mem-hog.service")
         b.wait_not_present("#memory")
         m.execute("systemctl start mem-hog.service")
         initial_memory = float(b.text("#memory .pf-c-description-list__text").split(" ")[0])
@@ -495,7 +498,7 @@ WantedBy=multi-user.target
         self.pick_tab(1)
 
         self.wait_service_in_panel("condtest.service", "Enabled")
-        b.click(self.svc_sel("condtest.service"))
+        self.goto_service("condtest.service")
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
@@ -553,7 +556,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         self.login_and_go("/system/services")
         self.wait_page_load()
         self.wait_service_present("test-a.service")
-        b.click(self.svc_sel("test-a.service"))
+        self.goto_service("test-a.service")
 
         # service a
         b.wait_js_cond('window.location.hash === "#/test-a.service"')
@@ -608,7 +611,7 @@ ExecStart=/bin/true
         b.wait_visible(self.svc_sel("test.service"))
         b.wait_not_present(self.svc_sel("not-found.service"))
 
-        b.click(self.svc_sel("test.service"))
+        self.goto_service("test.service")
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
         b.click("#service-details-show-relationships button")
@@ -638,7 +641,7 @@ WantedBy=default.target
         self.login_and_go("/system/services")
         self.wait_page_load()
 
-        b.click(self.svc_sel("test-fail.service"))
+        self.goto_service("test-fail.service")
         b.wait_js_cond('window.location.hash === "#/test-fail.service"')
 
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
@@ -717,8 +720,8 @@ ExecStart=/usr/bin/false
         # Services tab should have icon
         # Aab-fail should be at the top, and have failed
         b.wait_visible('a:contains("System services") .fa-exclamation-circle')
-        b.wait_visible('li[data-goto-unit="aab-fail.service"]')
-        b.wait_visible('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
+        b.wait_visible('tr[data-goto-unit="aab-fail.service"]')
+        b.wait_visible('tr[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
         b.switch_to_top()
@@ -812,7 +815,7 @@ Where=/fail
 @skipDistroPackage()
 class TestTimers(MachineCase):
     def svc_sel(self, service):
-        return 'li[data-goto-unit="%s"]' % service
+        return 'tr[data-goto-unit="%s"]' % service
 
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")

@@ -17,13 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
 import React from 'react';
 import moment from "moment";
 
-import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
-import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import {
     Alert,
     Breadcrumb, BreadcrumbItem,
@@ -39,11 +35,15 @@ import {
 import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth } from '@patternfly/react-table';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
+import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
 import * as packagekit from "packagekit.js";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
-
 import { journal } from "journal";
+
+import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
+import { JournalOutput } from "cockpit-components-logs-panel.jsx";
+import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import "journal.css";
 
 const MSEC_PER_H = 3600000;

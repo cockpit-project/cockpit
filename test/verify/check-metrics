@@ -404,16 +404,52 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
-    def testNoData(self):
+    @skipImage("init.d script is too impredictable", "debian-stable")
+    def testNoDataEnable(self):
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl stop pmlogger && mount -t tmpfs tmpfs /var/log/pcp/pmlogger")
-        self.addCleanup(m.execute, "umount /var/log/pcp/pmlogger")
+        m.execute("""systemctl stop pmlogger
+                     mount -t tmpfs tmpfs /var/log/pcp/pmlogger
+                     chown -R pcp:pcp /var/log/pcp/pmlogger
+                     restorecon /var/log/pcp/pmlogger || true""")
+        self.addCleanup(m.execute, "systemctl stop pmlogger; umount /var/log/pcp/pmlogger")
 
         self.login_and_go("/metrics")
 
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
+        b.click(".pf-c-empty-state button.pf-m-primary")
+
+        # there is a transient "No data available" state, but sometimes it's very short, so don't assert that
+
+        # page auto-updates every minute and starts to receive data
+        with self.browser.wait_timeout(90):
+            self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
+
+    @nondestructive
+    @skipImage("no PCP support", "fedora-coreos")
+    def testNoDataFailed(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute(r"""systemctl stop pmlogger
+                      mount -t tmpfs tmpfs /var/log/pcp/pmlogger
+                      mkdir -p /run/systemd/system/pmlogger.service.d/
+                      printf '[Service]\nExecStart=\nExecStart=/bin/false\n' > /run/systemd/system/pmlogger.service.d/break.conf
+                      systemctl daemon-reload
+                      systemctl start pmlogger || true""")
+        self.addCleanup(m.execute,
+                """systemctl reset-failed pmlogger
+                   rm -r /run/systemd/system/pmlogger.service.d/
+                   umount /var/log/pcp/pmlogger
+                   systemctl daemon-reload""")
+
+        self.login_and_go("/metrics")
+
+        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-c-empty-state", "pmlogger.service has failed")
+
         # Troubleshoot
         b.click(".pf-c-empty-state button.pf-m-link")
         b.enter_page("/system/services")

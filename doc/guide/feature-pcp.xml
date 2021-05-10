@@ -13,10 +13,9 @@
     gathers the metrics data itself, but archival features are not available.</para>
 
   <para>Whether or not metrics are archived depends on whether the
-    <ulink url="https://linux.die.net/man/1/pmlogger"><code>pmlogger.service</code></ulink> and
-    <ulink url="https://linux.die.net/man/1/pmcd"><code>pmcd.service</code></ulink>
-    systemd units are running or not. The "Store metrics" switch in the "Configuration" card on
-    the "Overview" page will enable and start these services.</para>
+    <ulink url="https://linux.die.net/man/1/pmlogger"><code>pmlogger.service</code></ulink>
+    systemd unit is running or not. The "Enable PCP metrics collector" button on the
+    "Performance Metrics" page will enable and start this service.</para>
 
   <para>To see similar metrics data from the command line, you can use tools like
     <ulink url="https://pcp.io/books/PCP_UAG/html/LE38515-PARENT.html#LE91266-PARENT"><code>pmstat</code></ulink>

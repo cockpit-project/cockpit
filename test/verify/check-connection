@@ -552,10 +552,9 @@ class TestConnection(MachineCase):
             if m.image.startswith("debian") or m.image.startswith("ubuntu"):
                 m.execute("dpkg --install /var/tmp/build-results/cockpit-ws_*.deb")
             else:
-                # FIXME: current package complains about mode change on /run/cockpit and selinux
-                m.execute("if rpm -q cockpit-ws; then rpm -V --nomode cockpit-ws; fi")
+                m.execute("if rpm -q cockpit-ws; then rpm --verify cockpit-ws; fi")
                 m.execute("rpm --upgrade --force /var/tmp/build-results/cockpit-ws-*.rpm")
-                m.execute("rpm -V --nomode cockpit-ws")
+                m.execute("rpm --verify cockpit-ws")
 
         def remove():
             if m.image.startswith("debian") or m.image.startswith("ubuntu"):

@@ -19,15 +19,12 @@
 import React from 'react';
 import {
     Card, CardBody, Button, CardTitle, Modal, Alert,
-    Form, FormGroup, Switch, TextInput
+    Form, FormGroup, TextInput
 } from '@patternfly/react-core';
 
-import * as service from "service.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
-import * as packagekit from "packagekit.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { Privileged } from "cockpit-components-privileged.jsx";
 import { ServerTimeConfig } from 'serverTime.js';
 import * as realmd from "./realmd-operation.js";
@@ -46,95 +43,16 @@ export class ConfigurationCard extends React.Component {
         super(props);
 
         this.state = {
-            pmlogger_switch_visible: false,
-            pcp_link_visible: false,
             serverTime: '',
             hostEditModal: false,
             showKeysModal: false,
         };
 
-        this.pmcd_service = service.proxy("pmcd");
-        this.pmlogger_service = service.proxy("pmlogger");
-        this.pmlogger_exists = false;
-        this.packagekit_exists = false;
-
-        this.onPmLoggerSwitchChange = this.onPmLoggerSwitchChange.bind(this);
-        this.update_pmlogger_row = this.update_pmlogger_row.bind(this);
-        this.pmlogger_service_changed = this.pmlogger_service_changed.bind(this);
-
         this.realmd = realmd.setup();
     }
 
     componentDidMount() {
-        this.pmlogger_service.addEventListener("changed", data => {
-            this.pmlogger_service_changed();
-        });
-        this.pmlogger_service_changed();
-        packagekit.detect().then(exists => {
-            this.packagekit_exists = exists;
-            this.update_pmlogger_row();
-        });
-
         this.realmd.addEventListener("changed", () => this.setState({}));
-    }
-
-    onPmLoggerSwitchChange(enable) {
-        if (!this.pmlogger_exists)
-            return;
-
-        this.update_pmlogger_row(true);
-
-        if (enable) {
-            this.pmlogger_promise = Promise.all([
-                this.pmcd_service.enable(),
-                this.pmcd_service.start(),
-                this.pmlogger_service.enable(),
-                this.pmlogger_service.start()
-            ]).catch(function(error) {
-                console.warn("Enabling pmlogger failed", error);
-            });
-        } else {
-            this.pmlogger_promise = Promise.all([this.pmlogger_service.disable(), this.pmlogger_service.stop()])
-                    .catch(function(error) {
-                        console.warn("Disabling pmlogger failed", error);
-                    });
-        }
-        this.pmlogger_promise.finally(() => {
-            this.pmlogger_promise = null;
-            this.pmlogger_service_changed();
-        });
-    }
-
-    update_pmlogger_row(force_disable) {
-        if (!this.pmlogger_exists) {
-            this.setState({ pcp_link_visible: this.packagekit_exists });
-            this.setState({ pmlogger_switch_visible: false });
-        } else if (!this.pmlogger_promise) {
-            this.setState({ pcp_link_visible: false });
-            this.setState({ pmlogger_switch_visible: true });
-        }
-        this.setState({ pm_logger_switch_disabled: force_disable });
-    }
-
-    pmlogger_service_changed() {
-        this.pmlogger_exists = this.pmlogger_service.exists;
-
-        /* HACK: The pcp packages on Ubuntu and Debian include SysV init
-         * scripts in /etc, which stay around when removing (as opposed to
-         * purging) the package. Systemd treats those as valid units, even
-         * if they're not backed by packages anymore. Thus,
-         * pmlogger_service.exists will be true. Check for the binary
-         * directly to make sure the package is actually available.
-         */
-        if (this.pmlogger_exists) {
-            cockpit.spawn(["which", "pmlogger"], { err: "ignore" })
-                    .fail(function() {
-                        this.pmlogger_exists = false;
-                    })
-                    .always(() => this.update_pmlogger_row());
-        } else {
-            this.update_pmlogger_row();
-        }
     }
 
     render() {
@@ -202,30 +120,6 @@ export class ConfigurationCard extends React.Component {
                                         </Button>
                                     </td>
                                 </tr>
-
-                                {this.state.pmlogger_switch_visible &&
-                                <tr>
-                                    <th scope="row">{_("Store metrics")}</th>
-                                    <td>
-                                        <Switch
-                                            id="server-pmlogger-switch"
-                                            aria-label={_("Store metrics")}
-                                            isChecked={this.pmlogger_service.state === "running"}
-                                            isDisabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
-                                            onChange={this.onPmLoggerSwitchChange} />
-                                    </td>
-                                </tr>}
-
-                                {this.state.pcp_link_visible &&
-                                <tr>
-                                    <th scope="row">{_("PCP")}</th>
-                                    <td>
-                                        <Button isInline variant="link" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
-                                            {_("Enable stored metrics")}
-                                        </Button>
-                                    </td>
-                                </tr>}
-
                             </tbody>
                         </table>
                     </CardBody>

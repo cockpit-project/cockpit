@@ -21,7 +21,6 @@ import re
 import time
 
 import parent
-import packagelib
 from testlib import *
 
 
@@ -778,52 +777,6 @@ password=foobar
         # should go back to initial_usage; often below, due to paged out stuff
         wait(lambda: progressValue(2) <= initial_usage)
         self.assertGreater(progressValue(2), 10)
-
-
-@skipDistroPackage()
-class TestPcp(packagelib.PackageCase):
-
-    def testEnablePcpLink(self):
-        m = self.machine
-        b = self.browser
-
-        # the OSTree images don't have pcp and can't install additional software
-        if m.ostree_image:
-            self.login_and_go("/system")
-            b.wait_not_present("#server-pmlogger-switch")
-            b.wait_not_present("#system-configuration-enable-pcp-link")
-            return
-
-        m.execute("pkcon remove -y pcp")
-
-        pmlogger = {
-            "/usr/bin/pmlogger": "",
-            "/etc/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/sh -c \"while [ ! -f /tmp/pmlogger.start ]; do sleep 1; done\"\nType=oneshot\nRemainAfterExit=true"
-        }
-
-        self.createPackage("cockpit-pcp", "999", "1", content=pmlogger,
-                           postinst="chmod +x /usr/bin/pmlogger; systemctl daemon-reload")
-        self.enableRepo()
-        m.execute("pkcon refresh")
-
-        # the offer to install it should be visible
-        self.login_and_go("/system")
-        b.wait_not_present("#server-pmlogger-switch")
-        b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
-        b.click("#system-configuration-enable-pcp-link")
-        b.click(".pf-c-modal-box__footer button:contains('Install')")
-        b.wait_not_present(".pf-c-modal-box:contains('Install software')")
-
-        b.wait_visible("#server-pmlogger-switch")
-        b.wait_not_present("#system-configuration-enable-pcp-link")
-
-        # Turn stored metrics on
-        b.wait_visible("#server-pmlogger-switch:not(:checked)")
-        b.click("#server-pmlogger-switch")
-        b.wait_visible("#server-pmlogger-switch:disabled")
-        m.execute("touch /tmp/pmlogger.start")
-        b.wait_visible("#server-pmlogger-switch:not(:disabled)")
-        b.wait_visible("#server-pmlogger-switch:checked")
 
 
 if __name__ == '__main__':

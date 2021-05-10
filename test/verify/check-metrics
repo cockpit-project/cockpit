@@ -828,6 +828,7 @@ class TestGrafanaClient(MachineCase):
 
     def testBasic(self):
         m = self.machine
+        b = self.browser
         mg = self.machines['services']
 
         # start Grafana
@@ -836,15 +837,26 @@ class TestGrafanaClient(MachineCase):
         # enable PCP plugin; like on Cog (Configuration) menu → Plugins → Performance Co-Pilot → Enable
         mg.execute("curl --silent --show-error -u admin:foobar -d '' 'http://127.0.0.1:3000/api/plugins/performancecopilot-pcp-app/settings?enabled=true'")
 
+        self.login_and_go("/metrics")
+
+        # pmlogger data collection is not running by default on RHEL
+        if m.image.startswith("rhel") or m.image.startswith("centos"):
+            b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+            b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
+            b.click(".pf-c-empty-state button.pf-m-primary")
+            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible("#switch-pmlogger:not(:checked)")
+            b.click("#switch-pmlogger")
+            b.wait_visible("#switch-pmlogger:checked")
+            b.click("#pcp-settings-modal button.pf-m-primary")
+            b.wait_not_present("#pcp-settings-modal")
+
         # start redis and pmproxy on supervised machine (should become an UI element)
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
             m.execute("systemctl enable --now redis-server")
             # pmproxy is runnning by default, re-start it to pick up redis
             m.execute("systemctl restart pmproxy")
         else:
-            # start PCP data collection (pmlogger), should become an UI element instead of just saying "not running"
-            m.execute("systemctl enable --now pmlogger")
-
             m.execute("systemctl enable --now redis pmproxy")
         m.execute("firewall-cmd --permanent --add-service pmproxy; firewall-cmd --reload")
 

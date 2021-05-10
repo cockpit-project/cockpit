@@ -210,6 +210,8 @@ install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
     install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
     install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
     install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
+    # create this directory in the build root so that %ghost sees the desired mode
+    install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 %endif
 
 # only ship deprecated PatternFly API for stable releases

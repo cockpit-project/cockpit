@@ -873,39 +873,94 @@ class MetricsHour extends React.Component {
 }
 
 const persistentServiceState = proxy => ['running', 'stopped', 'failed', undefined].indexOf(proxy.state) >= 0;
+const validServiceState = proxy => ['running', 'stopped'].indexOf(proxy.state) >= 0;
 
 const PCPConfig = ({ buttonVariant }) => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogError, setDialogError] = useState(null);
     const [dialogLoggerValue, setDialogLoggerValue] = useState(false);
+    const [dialogProxyValue, setDialogProxyValue] = useState(null);
     const [pending, setPending] = useState(false);
+
     const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
+    const s_pmproxy = useObject(() => service.proxy("pmproxy.service"), null, []);
+    // redis.service on Fedora/RHEL, redis-server.service on Debian/Ubuntu with an Alias=redis
+    const s_redis = useObject(() => service.proxy("redis.service"), null, []);
+    const s_redis_server = useObject(() => service.proxy("redis-server.service"), null, []);
+
+    useEvent(superuser, "changed");
+    useEvent(s_pmlogger, "changed");
+    useEvent(s_redis, "changed");
+    useEvent(s_redis_server, "changed");
+
+    let real_redis;
+    let redis_name;
+    if (s_redis_server.exists) {
+        real_redis = s_redis_server;
+        redis_name = "redis-server.service";
+    } else {
+        real_redis = s_redis;
+        redis_name = "redis.service";
+    }
 
     debug("PCPConfig s_pmlogger.state", s_pmlogger.state);
-
-    useEvent(s_pmlogger, "changed");
-    useEvent(superuser, "changed");
+    debug("PCPConfig s_pmproxy state", s_pmproxy.state, "redis exists", s_redis.exists, "state", s_redis.state, "redis-server exists", s_redis_server.exists, "state", s_redis_server.state);
 
     if (!superuser.allowed)
         return null;
 
     const handleSave = () => {
         setPending(true);
+        const redis_enable_cmd = `mkdir -p /etc/systemd/system/pmproxy.service.wants; ln -sf ../${redis_name} /etc/systemd/system/pmproxy.service.wants/${redis_name}`;
+        const redis_disable_cmd = `rm -f /etc/systemd/system/pmproxy.service.wants/${redis_name}; rmdir -p /etc/systemd/system/pmproxy.service.wants 2>/dev/null || true`;
+        let action;
+
         // enable/disable does a daemon-reload, which interferes with start on some distros; so don't run them in parallel
-        if (dialogLoggerValue) {
-            s_pmlogger.start()
-                    .then(() => s_pmlogger.enable())
-                    .then(() => setDialogVisible(false))
-                    .catch(err => setDialogError(err.toString()))
-                    .finally(() => setPending(false));
-        } else {
-            s_pmlogger.stop()
-                    .then(() => s_pmlogger.disable())
-                    .then(() => setDialogVisible(false))
-                    .catch(err => setDialogError(err.toString()))
-                    .finally(() => setPending(false));
+        if (dialogLoggerValue)
+            action = s_pmlogger.start().then(() => s_pmlogger.enable());
+        else
+            action = s_pmlogger.stop().finally(() => s_pmlogger.disable());
+
+        if (dialogProxyValue === true) {
+            // pmproxy.service needs to (re)start *after* redis to recognize it
+            action = action
+                    .then(() => real_redis.start())
+                    .then(() => s_pmproxy.restart())
+                    // turn redis into a dependency, as the metrics API requires it
+                    .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
+                    .then(() => s_pmproxy.enable());
+        } else if (dialogProxyValue === false) {
+            // don't stop redis here -- it's a shared service, other things may be using it
+            action = action
+                    .then(() => s_pmproxy.stop())
+                    .then(() => cockpit.script(redis_disable_cmd, { superuser: "require", err: "message" }))
+                    .then(() => s_pmproxy.disable());
         }
+
+        action
+                .then(() => setDialogVisible(false))
+                .catch(err => setDialogError(err.toString()))
+                .finally(() => setPending(false));
     };
+
+    // the package is likely not installed; TODO: install it on demand
+    let pmproxy_option = null;
+    if (real_redis.exists && s_pmproxy.exists) {
+        pmproxy_option = (
+            <Switch id="switch-pmproxy"
+                    label={
+                        <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                            <FlexItem>{ _("Export to network") }</FlexItem>
+                            <TextContent>
+                                <Text component={TextVariants.small}>(pmproxy.service)</Text>
+                            </TextContent>
+                        </Flex>
+                    }
+                    isDisabled={ !dialogLoggerValue || !validServiceState(s_pmproxy) || !validServiceState(real_redis) }
+                    isChecked={dialogProxyValue}
+                    onChange={enable => setDialogProxyValue(enable)} />
+        );
+    }
 
     return (
         <>
@@ -913,6 +968,11 @@ const PCPConfig = ({ buttonVariant }) => {
                     isDisabled={ !persistentServiceState(s_pmlogger) }
                     onClick={ () => {
                         setDialogLoggerValue(s_pmlogger.state === 'running');
+                        if (pmproxy_option)
+                            setDialogProxyValue(s_pmproxy.state === 'running' && real_redis.state === 'running');
+                        else
+                            setDialogProxyValue(null);
+                        setDialogError(null);
                         setDialogVisible(true);
                     } }>
                 { _("Metrics settings") }
@@ -946,6 +1006,7 @@ const PCPConfig = ({ buttonVariant }) => {
                        </Button>
                    </>
                    }>
+
                 <Switch id="switch-pmlogger"
                         isChecked={dialogLoggerValue}
                         label={
@@ -956,7 +1017,14 @@ const PCPConfig = ({ buttonVariant }) => {
                                 </TextContent>
                             </Flex>
                         }
-                        onChange={enable => setDialogLoggerValue(enable)} />
+                        onChange={enable => {
+                            // pmproxy needs pmlogger, auto-disable it
+                            setDialogLoggerValue(enable);
+                            if (!enable)
+                                setDialogProxyValue(false);
+                        }} />
+
+                {pmproxy_option}
             </Modal>}
         </>);
 };

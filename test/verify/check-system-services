@@ -92,6 +92,9 @@ class TestServices(MachineCase):
             service_name = service[:-8]
         self.browser.wait_text('li[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
 
+    def wait_service_not_present(self, service):
+        self.browser.wait_not_present(self.svc_sel(service))
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -318,9 +321,6 @@ Unit=test.service
         self.do_action("Allow running (unmask)")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
-        def wait_service_not_present(service):
-            b.wait_not_present(self.svc_sel(service))
-
         def init_filter_state():
             b.set_input_text("#services-text-filter", "")
             self.wait_service_present("test.service")
@@ -342,7 +342,7 @@ Unit=test.service
         # Filter by id
         init_filter_state()
         b.set_input_text("#services-text-filter", "fail.ser")
-        wait_service_not_present("test.service")
+        self.wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
         # Filter by description capital letters included
@@ -354,7 +354,7 @@ Unit=test.service
         # Filter by description capitalization not matching the unit description
         init_filter_state()
         b.set_input_text("#services-text-filter", "failing test service")
-        wait_service_not_present("test.service")
+        self.wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
         # Filter by Id capitalization not matching the unit Id
@@ -365,19 +365,19 @@ Unit=test.service
         # Select only static services
         init_filter_state()
         b.select_from_dropdown("#services-dropdown", "static")
-        wait_service_not_present("test.service")
-        wait_service_not_present("test-fail.service")
+        self.wait_service_not_present("test.service")
+        self.wait_service_not_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
 
         # Select only disabled services
         b.select_from_dropdown("#services-dropdown", "disabled")
         self.wait_service_present("test.service")
-        wait_service_not_present("test-fail.service")
-        wait_service_not_present("systemd-halt.service")
+        self.wait_service_not_present("test-fail.service")
+        self.wait_service_not_present("systemd-halt.service")
 
         # Check filtering and selecting together - empty state
         b.set_input_text("#services-text-filter", "failing")
-        wait_service_not_present("test.service")
+        self.wait_service_not_present("test.service")
         b.wait_visible("#services-page .pf-c-empty-state")
 
         # Check resetting filter

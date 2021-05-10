@@ -91,7 +91,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
                             variant='link'>
                         {props.displayName}
                     </Button>
-                    <div className='service-unit-description'>{props.Description}</div>
+                    {props.Description != shortId && <div className='service-unit-description'>{props.Description}</div>}
                 </div>
             )
         },

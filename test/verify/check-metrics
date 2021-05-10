@@ -440,10 +440,10 @@ class TestHistoryMetrics(MachineCase):
                       systemctl daemon-reload
                       systemctl start pmlogger || true""")
         self.addCleanup(m.execute,
-                """systemctl reset-failed pmlogger
-                   rm -r /run/systemd/system/pmlogger.service.d/
-                   umount /var/log/pcp/pmlogger
-                   systemctl daemon-reload""")
+                        """systemctl reset-failed pmlogger
+                        rm -r /run/systemd/system/pmlogger.service.d/
+                        umount /var/log/pcp/pmlogger
+                        systemctl daemon-reload""")
 
         self.login_and_go("/metrics")
 

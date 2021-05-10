@@ -506,6 +506,130 @@ class TestHistoryMetrics(MachineCase):
         self.assertIn(m.execute("systemctl is-active pmlogger || true").strip(), ["activating", "active"])
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
+    @nondestructive
+    @skipImage("no PCP support", "fedora-coreos")
+    @skipImage("pmproxy broken", "debian-stable")
+    def testPmProxySettings(self):
+        b = self.browser
+        m = self.machine
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            redis = "redis-server"
+        else:
+            redis = "redis"
+        hostname = m.execute("hostname").strip()
+
+        self.addCleanup(m.execute, f"systemctl stop {redis}")
+
+        def checkEnable():
+            b.click("#metrics-header-section button.pf-m-secondary")
+            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible("#switch-pmproxy:not(:checked)")
+            b.click('#switch-pmproxy')
+            b.wait_visible('#switch-pmproxy:checked')
+            b.click("#pcp-settings-modal button.pf-m-primary")
+            b.wait_not_present("#pcp-settings-modal")
+            m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
+            self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
+            self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
+            self.assertEqual(m.execute("systemctl is-enabled pmproxy").strip(), "enabled")
+            self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
+            wait(lambda: hostname in m.execute("curl --max-time 10 --silent --show-error 'http://localhost:44322/series/labels?names=hostname'"), delay=10, tries=30)
+
+        def checkDisable():
+            b.click("#metrics-header-section button.pf-m-secondary")
+            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible('#switch-pmproxy:checked')
+            b.click('#switch-pmproxy')
+            b.wait_visible("#switch-pmproxy:not(:checked)")
+            b.click("#pcp-settings-modal button.pf-m-primary")
+            b.wait_not_present("#pcp-settings-modal")
+            self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
+            self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
+            # keeps redis running, it's a shared service
+            self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
+            # but drops the pmproxy dependency
+            self.assertNotIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
+            m.execute("! curl --silent --show-error --max-time 10 'http://localhost:44322/series/labels?names=hostname' 2>&1")
+
+        # start in a defined state; all test images have pcp and redis pre-installed
+        m.execute(f"systemctl disable --now pmproxy {redis}")
+        self.login_and_go("/metrics")
+
+        # pmproxy can't be enabled without pmlogger
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.wait_visible("#switch-pmproxy:not(:checked)")
+        b.wait_visible("#switch-pmproxy:disabled")
+        # enable pmlogger
+        b.click('#switch-pmlogger')
+        b.wait_visible('#switch-pmlogger:checked')
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+        m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
+        self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
+
+        checkEnable()
+        checkDisable()
+
+        # redis already running
+        m.execute(f"systemctl start {redis}")
+        checkEnable()
+        checkDisable()
+
+        # pmproxy already running; 44322 queries hang without redis and until restart
+        # HACK: on older distros, pcp's init.d scripts sometimes don't send a proper "started" notify update
+        self.allow_restart_journal_messages()
+        b.logout()
+        m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
+        b.login_and_go("/metrics")
+        checkEnable()
+
+        # reacts to service changes from outside; this is asynchronous and the dialog deliberately
+        # does not update automatically, so retry a few times
+        def checkEnabled(expected):
+            for retry in range(10):
+                b.click("#metrics-header-section button.pf-m-secondary")
+                b.wait_visible('#switch-pmproxy')
+                found = b.is_present("#switch-pmproxy" + (expected and ":checked" or ":not(:checked)"))
+                b.click("#pcp-settings-modal button.btn-cancel")
+                b.wait_not_present("#pcp-settings-modal")
+
+                if found:
+                    break
+                time.sleep(1)
+            else:
+                raise Error("PCP settings dialog did not get expected value")
+
+        m.execute(f"systemctl stop {redis}")
+        checkEnabled(False)
+        m.execute(f"systemctl start {redis}")
+        checkEnabled(True)
+        m.execute("systemctl stop pmproxy")
+        checkEnabled(False)
+        m.execute("systemctl start pmproxy")
+        checkEnabled(True)
+
+    @skipImage("no PCP support", "fedora-coreos")
+    @skipImage("pmproxy broken", "debian-stable")
+    def testPmProxyNoRedis(self):
+        b = self.browser
+        m = self.machine
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            m.execute("dpkg --purge redis redis-server")
+        else:
+            m.execute("rpm --erase --verbose redis")
+
+        # pmproxy switch is not offered if redis is not installed (TODO: install it on demand)
+        self.login_and_go("/metrics")
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible('#switch-pmlogger')
+        b.wait_not_present('#switch-pmproxy')
+        b.click("#pcp-settings-modal button.btn-cancel")
+        b.wait_not_present("#pcp-settings-modal")
+
 
 @skipDistroPackage()
 @nondestructive
@@ -854,14 +978,15 @@ class TestGrafanaClient(MachineCase):
             b.click("#pcp-settings-modal button.pf-m-primary")
             b.wait_not_present("#pcp-settings-modal")
 
-        # start redis and pmproxy on supervised machine (should become an UI element)
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            redis = 'redis-server'
-        else:
-            redis = 'redis'
-        m.execute("systemctl enable --now " + redis)
-        # re-start pmproxy to pick up redis
-        m.execute("systemctl restart pmproxy")
+        # enable pmproxy+redis (none of our test OSes have both of them running by default)
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmproxy:not(:checked)")
+        b.click('#switch-pmproxy')
+        b.wait_visible('#switch-pmproxy:checked')
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+        # FIXME: move to UI
         m.execute("firewall-cmd --permanent --add-service pmproxy; firewall-cmd --reload")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)

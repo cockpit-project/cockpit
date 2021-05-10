@@ -479,8 +479,11 @@ authentication via sssd/FreeIPA.
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
+# corresponding to the SUSE specific "install /run/cockpit/motd" above
+%if 0%{?suse_version}
 %ghost /run/cockpit/motd
 %ghost %dir /run/cockpit
+%endif
 %dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd

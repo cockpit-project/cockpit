@@ -27,8 +27,8 @@ import {
     Bullseye,
     FormSelect, FormSelectOption,
     Page, PageSection, PageSectionVariants,
-    TextInput,
     Card,
+    SearchInput,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -828,15 +828,13 @@ class ServicesPage extends React.Component {
 
         const toolbarItems = <>
             <ToolbarGroup>
-                <ToolbarItem variant="label" id="services-text-filter-label">{_("Filter")}</ToolbarItem>
                 <ToolbarItem variant="search-filter">
-                    <TextInput name="services-text-filter"
-                            id="services-text-filter"
-                            type="search"
-                            value={currentTextFilter}
-                            onChange={this.onInputChange}
-                            aria-labelledby="services-text-filter-label"
-                            placeholder={_("Filter by name or description")} />
+                    <SearchInput id="services-text-filter"
+                                 className="services-text-filter"
+                                 placeholder={_("Filter by name or description")}
+                                 value={currentTextFilter}
+                                 onChange={this.onInputChange}
+                                 onClear={() => this.setState({ currentTextFilter: "" })} />
                 </ToolbarItem>
                 <ToolbarItem variant="label" id="services-unit-state-filter-label">{_("File state")}</ToolbarItem>
                 <ToolbarItem variant="search-filter">

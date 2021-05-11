@@ -325,7 +325,7 @@ Unit=test.service
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         def init_filter_state():
-            b.set_input_text("#services-text-filter", "")
+            b.set_input_text("#services-text-filter input", "")
             b.select_from_dropdown("#services-dropdown-file-state", "all")
             b.select_from_dropdown("#services-dropdown-active-state", "all")
 
@@ -346,25 +346,25 @@ Unit=test.service
 
         # Filter by id
         init_filter_state()
-        b.set_input_text("#services-text-filter", "fail.ser")
+        b.set_input_text("#services-text-filter input", "fail.ser")
         self.wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
         # Filter by description capital letters included
         init_filter_state()
-        b.set_input_text("#services-text-filter", "Test Service")
+        b.set_input_text("#services-text-filter input", "Test Service")
         self.wait_service_present("test.service")
         self.wait_service_present("test-fail.service")
 
         # Filter by description capitalization not matching the unit description
         init_filter_state()
-        b.set_input_text("#services-text-filter", "failing test service")
+        b.set_input_text("#services-text-filter input", "failing test service")
         self.wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
         # Filter by Id capitalization not matching the unit Id
         init_filter_state()
-        b.set_input_text("#services-text-filter", "networkmanager")
+        b.set_input_text("#services-text-filter input", "networkmanager")
         self.wait_service_present("NetworkManager.service")
 
         # Select only static services
@@ -392,7 +392,7 @@ Unit=test.service
         self.wait_service_present("test-fail.service")
 
         # Check filtering and selecting together - empty state
-        b.set_input_text("#services-text-filter", "failing")
+        b.set_input_text("#services-text-filter input", "failing")
         b.select_from_dropdown("#services-dropdown-active-state", "inactive")
         self.wait_service_not_present("test.service")
         b.wait_visible("#services-page .pf-c-empty-state")
@@ -402,7 +402,7 @@ Unit=test.service
         self.wait_service_present("test.service")
         self.wait_service_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
-        self.assertEqual(b.val("#services-text-filter"), "")
+        self.assertEqual(b.val("#services-text-filter input"), "")
         self.assertEqual(b.val("#services-dropdown-file-state"), "all")
         self.assertEqual(b.val("#services-dropdown-active-state"), "all")
 

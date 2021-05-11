@@ -74,4 +74,7 @@ DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recomme
 adduser --system --gecos "Builder" builder
 
 # minimize image
-rm -rf /var/cache/apt /var/lib/apt /var/log/*
+# useful command: dpkg-query --show -f '${package} ${installed-size}\n' | sort -k2n
+dpkg -P --force-depends libgl1-mesa-dri libglx-mesa0 perl
+
+rm -rf /var/cache/apt /var/lib/apt /var/log/* /usr/share/doc/ /usr/share/man/ /usr/share/help /usr/share/info

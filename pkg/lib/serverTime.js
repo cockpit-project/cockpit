@@ -265,7 +265,7 @@ export function ServerTime() {
          * - systemd-timedated is answering for
          *   org.freedesktop.timedate1 as opposed to, say, timedatex.
          *
-         * - systemd-timesyncd is actually available.
+         * - systemd-timesyncd is enabled (false if chrony is being used)
          *
          * The better alternative would be to have an API in
          * o.fd.timedate1 for managing the list of NTP server
@@ -282,8 +282,8 @@ export function ServerTime() {
             return Promise.resolve(result);
         }
 
-        if (!timesyncd_service.exists) {
-            console.log("systemd-timesyncd not available, ntp server configuration not supported");
+        if (!timesyncd_service.enabled) {
+            console.log("systemd-timesyncd not enabled, ntp server configuration not supported");
             return Promise.resolve(result);
         }
 

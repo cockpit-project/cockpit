@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Form, FormGroup, FormHelperText, Radio, TextInput } from '@patternfly/react-core';
+import { Flex, Form, FormGroup, FormHelperText, Radio, TextInput, DatePicker } from '@patternfly/react-core';
 
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -27,23 +27,25 @@ import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog
 const _ = cockpit.gettext;
 
 function AccountExpirationDialogBody({ state, errors, change }) {
-    const { mode, before, after, date } = state;
+    const { mode, before, date } = state;
 
     return (
         <Form className="expiration-modal" onSubmit={apply_modal_dialog}>
-            <FormGroup>
+            <FormGroup validated={errors && errors.date ? "error" : "default"}>
                 <Radio id="account-expiration-never" name="mode" value="never"
                        label={_("Never lock account")}
                        isChecked={mode == "never"} onChange={() => change("mode", "never")} />
                 <Radio id="account-expiration-expires" name="mode" value="expires"
-                       label={<>
-                           <span id="account-expiration-before">{before}</span>
-                           <TextInput className="size-text-ct" id="account-expiration-input"
-                                      validated={(errors && errors.date) ? "error" : "default"}
-                                      value={date} onChange={value => change("date", value)} isDisabled={mode != "expires"} />
-                           <span id="account-expiration-after">{after}</span>
-
-                       </>}
+                       label={
+                           <Flex>
+                               <span>{before}</span>
+                               <DatePicker onChange={str => change("date", str)}
+                                           invalidFormatText=""
+                                           id="account-expiration-input"
+                                           value={date}
+                                           isDisabled={mode !== "expires"} />
+                           </Flex>
+                       }
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
                 {errors && errors.date &&
                 <FormHelperText isError isHidden={false}>
@@ -57,14 +59,12 @@ function AccountExpirationDialogBody({ state, errors, change }) {
 export function account_expiration_dialog(account, expire_date) {
     let dlg = null;
 
-    /* TRANSLATORS: This is split up and therefore cannot use ngettext plurals */
-    var parts = _("Lock account on $0").split("$0");
+    const parts = _("Lock account on");
 
     const state = {
         mode: expire_date ? "expires" : "never",
-        before: parts[0],
-        after: parts[1],
-        date: expire_date ? expire_date.toISOString() : ""
+        before: parts,
+        date: expire_date ? expire_date.toISOString().substr(0, 10) : ""
     };
 
     let errors = { };
@@ -74,6 +74,8 @@ export function account_expiration_dialog(account, expire_date) {
         update();
     }
 
+    // Datepicker does not provide information about the validity of the date so we need to do it here
+    // https://github.com/patternfly/patternfly-react/issues/5564
     function validate() {
         errors = { };
 

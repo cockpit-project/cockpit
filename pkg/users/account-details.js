@@ -105,10 +105,10 @@ function get_expire(name) {
                 }
             } else if (fields[0] && fields[0].indexOf("Account expires") === 0) {
                 if (fields[1].indexOf("never") === 0) {
-                    account_expiration = _("Never lock account");
+                    account_expiration = _("Never expire account");
                 } else {
                     account_date = new Date(fields[1] + " 12:00:00 UTC");
-                    account_expiration = cockpit.format(_("Lock account on $0"), moment(fields[1]).format('LL'));
+                    account_expiration = cockpit.format(_("Expire account on $0"), moment(fields[1]).format('LL'));
                 }
             } else if (fields[0] && fields[0].indexOf("Maximum number of days between password change") === 0) {
                 password_days = fields[1];

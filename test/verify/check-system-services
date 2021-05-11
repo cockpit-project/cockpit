@@ -84,6 +84,28 @@ class TestServices(MachineCase):
 
         self.browser.wait_in_text(self.svc_sel(service), state_new)
 
+    def select_file_state(self, states):
+        if not isinstance(states, list):
+            states = [states]
+
+        self.browser.click("#services-dropdown-file-state")
+        for state in states:
+            self.browser.set_checked("fieldset label:contains('{0}') input".format(state), True)
+        self.browser.click("#services-dropdown-file-state")
+        for state in states:
+            self.browser.wait_visible(".pf-c-chip-group__label:contains('File state') + .pf-c-chip-group__list li:contains('{0}')".format(state))
+
+    def select_active_state(self, states):
+        if not isinstance(states, list):
+            states = [states]
+
+        self.browser.click("#services-dropdown-active-state")
+        for state in states:
+            self.browser.set_checked("fieldset label:contains('{0}') input".format(state), True)
+        self.browser.click("#services-dropdown-active-state")
+        for state in states:
+            self.browser.wait_visible(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{0}')".format(state))
+
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
@@ -325,9 +347,15 @@ Unit=test.service
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         def init_filter_state():
-            b.set_input_text("#services-text-filter input", "")
-            b.select_from_dropdown("#services-dropdown-file-state", "all")
-            b.select_from_dropdown("#services-dropdown-active-state", "all")
+            if not b.is_visible("#services-text-filter"):
+                b.click(".pf-c-toolbar__toggle button")
+
+            if b.is_present(".pf-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')"):
+                b.click(".pf-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')")
+            elif b.is_present(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')"):
+                b.click(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')")
+            else:
+                b.set_input_text("#services-text-filter input", "")
 
             self.wait_service_present("test.service")
             self.wait_service_present("test-fail.service")
@@ -369,31 +397,40 @@ Unit=test.service
 
         # Select only static services
         init_filter_state()
-        b.select_from_dropdown("#services-dropdown-file-state", "static")
+        self.select_file_state("Static")
         self.wait_service_not_present("test.service")
         self.wait_service_not_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
 
         # Select only disabled services
-        b.select_from_dropdown("#services-dropdown-file-state", "disabled")
+        init_filter_state()
+        self.select_file_state("Disabled")
         self.wait_service_present("test.service")
         self.wait_service_not_present("test-fail.service")
         self.wait_service_not_present("systemd-halt.service")
 
         # Select only stopped services
         init_filter_state()
-        b.select_from_dropdown("#services-dropdown-active-state", "inactive")
+        self.select_active_state("Not running")
         self.wait_service_present("test.service")
         self.wait_service_not_present("test-fail.service")
 
         # Select only failed services
-        b.select_from_dropdown("#services-dropdown-active-state", "failed")
+        init_filter_state()
+        self.select_active_state("Failed to start")
         self.wait_service_not_present("test.service")
         self.wait_service_present("test-fail.service")
 
+        # Select Indirect and Masked services
+        init_filter_state()
+        self.select_file_state(["Indirect", "Masked"])
+        self.wait_service_not_present("test.service")
+        self.wait_service_present("getty@tty1.service")
+
         # Check filtering and selecting together - empty state
+        init_filter_state()
         b.set_input_text("#services-text-filter input", "failing")
-        b.select_from_dropdown("#services-dropdown-active-state", "inactive")
+        self.select_active_state("Not running")
         self.wait_service_not_present("test.service")
         b.wait_visible("#services-page .pf-c-empty-state")
 
@@ -403,8 +440,17 @@ Unit=test.service
         self.wait_service_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
         self.assertEqual(b.val("#services-text-filter input"), "")
-        self.assertEqual(b.val("#services-dropdown-file-state"), "all")
-        self.assertEqual(b.val("#services-dropdown-active-state"), "all")
+
+        # Check that closing filter chip groups or single chips works
+        init_filter_state()
+        self.select_active_state("Not running")
+        self.select_active_state("Running")
+        self.wait_service_present("test.service")
+        b.click(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('Not running') button")
+        b.wait_not_present(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('Not running')")
+        self.wait_service_not_present("test.service")
+        b.click(".pf-c-chip-group:contains('Active state') .pf-c-chip-group__close > button")
+        b.wait_not_present(".pf-c-chip-group")
 
         # Check that journalbox shows empty state
         self.goto_service("systemd-halt.service")

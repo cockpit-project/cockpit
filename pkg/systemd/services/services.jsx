@@ -25,16 +25,18 @@ import ReactDOM from 'react-dom';
 import {
     Button,
     Bullseye,
-    FormSelect, FormSelectOption,
+    Select, SelectVariant, SelectOption,
     Page, PageSection, PageSectionVariants,
     Card,
     SearchInput,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
+    ToolbarFilter,
     ToolbarGroup,
+    ToolbarToggleGroup,
 } from '@patternfly/react-core';
-import { SearchIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { SearchIcon, ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
@@ -140,8 +142,10 @@ class ServicesPage extends React.Component {
             /* State related to the toolbar/tabs components */
             activeTab: 'service',
             stateDropdownIsExpanded: false,
-            currentFileStateFilter: 'all',
-            currentActiveStateFilter: 'all',
+            filters: {
+                activeState: [],
+                fileState: []
+            },
             currentTextFilter: '',
 
             unit_by_path: {},
@@ -198,10 +202,15 @@ class ServicesPage extends React.Component {
         this.seenActiveStates = new Set();
         this.seenUnitFileStates = new Set();
 
-        /* Functions for controlling the toolbar's components */
+        /* Functions for controlling the toolbar's components
+         * FIXME: https://github.com/patternfly/patternfly-react/issues/5836
+         */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
-        this.onFileStateSelect = this.onFileStateSelect.bind(this);
         this.onActiveStateSelect = this.onActiveStateSelect.bind(this);
+        this.onFileStateSelect = this.onFileStateSelect.bind(this);
+        this.onSelect = this.onSelect.bind(this);
+        this.onDeleteChip = this.onDeleteChip.bind(this);
+        this.onDeleteChipGroup = this.onDeleteChipGroup.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
 
         /* Function for manipulating with the API results and store the units in the React state */
@@ -484,19 +493,73 @@ class ServicesPage extends React.Component {
     }
 
     onClearAllFilters() {
-        this.setState({ currentTextFilter: '', currentFileStateFilter: 'all', currentActiveStateFilter: 'all' });
+        this.setState({ currentTextFilter: '' });
+        this.onDeleteChip();
     }
 
     onInputChange(newValue) {
         this.setState({ currentTextFilter: newValue });
     }
 
-    onFileStateSelect(currentFileStateFilter) {
-        this.setState({ currentFileStateFilter });
+    onSelect(type, event, selection) {
+        const checked = event.target.checked;
+
+        this.setState(prevState => {
+            const prevSelections = prevState.filters[type];
+            return {
+                filters: {
+                    ...prevState.filters,
+                    [type]: checked ? [...prevSelections, selection] : prevSelections.filter(value => value !== selection)
+                }
+            };
+        });
     }
 
-    onActiveStateSelect(currentActiveStateFilter) {
-        this.setState({ currentActiveStateFilter });
+    onActiveStateSelect(event, selection) {
+        this.onSelect('activeState', event, selection);
+    }
+
+    onFileStateSelect(event, selection) {
+        this.onSelect('fileState', event, selection);
+    }
+
+    getFilterLabelKey(typeLabel) {
+        if (typeLabel == 'Active state')
+            return 'activeState';
+        else if (typeLabel == 'File state')
+            return 'fileState';
+    }
+
+    onDeleteChip(typeLabel = '', id = '') {
+        const type = this.getFilterLabelKey(typeLabel);
+
+        if (type) {
+            this.setState(prevState => {
+                const newState = Object.assign(prevState);
+                newState.filters[type] = newState.filters[type].filter(s => s !== id);
+                return {
+                    filters: newState.filters
+                };
+            });
+        } else {
+            this.setState({
+                filters: {
+                    activeState: [],
+                    fileState: []
+                }
+            });
+        }
+    }
+
+    onDeleteChipGroup(typeLabel) {
+        const type = this.getFilterLabelKey(typeLabel);
+
+        this.setState(prevState => {
+            prevState.filters[type] = [];
+            return {
+                filters: prevState.filters
+            };
+        });
     }
 
     /**
@@ -774,7 +837,6 @@ class ServicesPage extends React.Component {
         }
 
         const fileStateDropdownOptions = [
-            { value: 'all', label: _("All") },
             { value: 'enabled', label: _("Enabled") },
             { value: 'disabled', label: _("Disabled") },
             { value: 'static', label: _("Static") },
@@ -785,7 +847,6 @@ class ServicesPage extends React.Component {
             }
         });
         const activeStateDropdownOptions = [
-            { value: 'all', label: _("All") },
             { value: 'active', label: _("Running") },
             { value: 'inactive', label: _("Not running") },
         ];
@@ -794,9 +855,7 @@ class ServicesPage extends React.Component {
                 activeStateDropdownOptions.push({ value: activeState, label: this.activeState[activeState] });
             }
         });
-        const { currentTextFilter, activeTab } = this.state;
-        const currentFileStateFilter = this.state.currentFileStateFilter || fileStateDropdownOptions[0].value;
-        const currentActiveStateFilter = this.state.currentActiveStateFilter || activeStateDropdownOptions[0].value;
+        const { currentTextFilter, activeTab, filters } = this.state;
 
         const units = Object.keys(this.path_by_id)
                 .filter(unit_id => {
@@ -815,10 +874,12 @@ class ServicesPage extends React.Component {
                         unit_id.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1))
                         return false;
 
-                    if (currentFileStateFilter != 'all' && currentFileStateFilter !== unit.AutomaticStartupKey)
+                    if (filters.fileState.length && this.unitFileState[unit.UnitFileState] &&
+                        !filters.fileState.includes(this.unitFileState[unit.UnitFileState]))
                         return false;
 
-                    if (currentActiveStateFilter != 'all' && currentActiveStateFilter !== unit.ActiveState)
+                    if (filters.activeState.length && this.activeState[unit.ActiveState] &&
+                        !filters.activeState.includes(this.activeState[unit.ActiveState]))
                         return false;
 
                     return true;
@@ -827,7 +888,8 @@ class ServicesPage extends React.Component {
                 .sort(this.compareUnits);
 
         const toolbarItems = <>
-            <ToolbarGroup>
+            <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl"
+                                variant="filter-group" alignment={{ default: 'alignLeft' }}>
                 <ToolbarItem variant="search-filter">
                     <SearchInput id="services-text-filter"
                                  className="services-text-filter"
@@ -836,36 +898,39 @@ class ServicesPage extends React.Component {
                                  onChange={this.onInputChange}
                                  onClear={() => this.setState({ currentTextFilter: "" })} />
                 </ToolbarItem>
-                <ToolbarItem variant="label" id="services-unit-state-filter-label">{_("File state")}</ToolbarItem>
-                <ToolbarItem variant="search-filter">
-                    <FormSelect id="services-dropdown-file-state"
-                                aria-label={_("Select unit state")}
-                                value={currentFileStateFilter}
-                                onChange={this.onFileStateSelect}>
-                        {fileStateDropdownOptions.map(option => <FormSelectOption key={option.value}
-                                                                                  value={option.value}
-                                                                                  label={option.label} />)}
-                    </FormSelect>
-                </ToolbarItem>
-                <ToolbarItem variant="label" id="services-unit-state-filter-label">{_("Active state")}</ToolbarItem>
-                <ToolbarItem variant="search-filter">
-                    <FormSelect id="services-dropdown-active-state"
-                                aria-label={_("Select unit state")}
-                                value={currentActiveStateFilter}
-                                onChange={this.onActiveStateSelect}>
-                        {activeStateDropdownOptions.map(option => <FormSelectOption key={option.value}
-                                                                                    value={option.value}
-                                                                                    label={option.label} />)}
-                    </FormSelect>
-                </ToolbarItem>
-            </ToolbarGroup>
-            {activeTab == "timer" &&
-            <>
-                <ToolbarItem variant="separator" />
-                <ToolbarItem>
-                    { this.state.privileged && <CreateTimerDialog /> }
-                </ToolbarItem>
-            </>}
+                <ToolbarFilter chips={filters.activeState}
+                               deleteChip={this.onDeleteChip}
+                               deleteChipGroup={this.onDeleteChipGroup}
+                               categoryName={_("Active state")}>
+                    <Select aria-label={_("Active state")}
+                            toggleId="services-dropdown-active-state"
+                            variant={SelectVariant.checkbox}
+                            onToggle={isOpen => this.setState({ activeStateFilterIsOpen: isOpen })}
+                            onSelect={this.onActiveStateSelect}
+                            selections={filters.activeState}
+                            isOpen={this.state.activeStateFilterIsOpen}
+                            placeholderText={_("Active state")}>
+                        {activeStateDropdownOptions.map(option => <SelectOption key={option.value}
+                                                                                value={option.label} />)}
+                    </Select>
+                </ToolbarFilter>
+                <ToolbarFilter chips={filters.fileState}
+                               deleteChip={this.onDeleteChip}
+                               deleteChipGroup={this.onDeleteChipGroup}
+                               categoryName={_("File state")}>
+                    <Select aria-label={_("File state")}
+                            toggleId="services-dropdown-file-state"
+                            variant={SelectVariant.checkbox}
+                            onToggle={isOpen => this.setState({ fileStateFilterIsOpen: isOpen })}
+                            onSelect={this.onFileStateSelect}
+                            selections={filters.fileState}
+                            isOpen={this.state.fileStateFilterIsOpen}
+                            placeholderText={_("File state")}>
+                        {fileStateDropdownOptions.map(option => <SelectOption key={option.value}
+                                                                              value={option.label} />)}
+                    </Select>
+                </ToolbarFilter>
+            </ToolbarToggleGroup>
         </>;
 
         return (
@@ -880,19 +945,20 @@ class ServicesPage extends React.Component {
                 <PageSection>
                     <Card isCompact>
                         <Toolbar data-loading={this.state.loadingUnits}
-                                     id="services-toolbar">
+                                 clearAllFilters={this.onClearAllFilters}
+                                 id="services-toolbar">
                             <ToolbarContent>{toolbarItems}</ToolbarContent>
                         </Toolbar>
-                        {units.length && <ServicesList key={cockpit.format("$0-list", activeTab)}
+                        {units.length ? <ServicesList key={cockpit.format("$0-list", activeTab)}
                             isTimer={activeTab == 'timer'}
-                            units={units} />}
-                        {units.length == 0 &&
-                            <Bullseye>
+                            units={units} /> : null}
+                        {units.length == 0
+                            ? <Bullseye>
                                 <EmptyStatePanel icon={SearchIcon}
                                     paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
                                     action={<Button id="clear-all-filters" onClick={this.onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
                                     title={_("No matching results")} />
-                            </Bullseye>}
+                            </Bullseye> : null}
                     </Card>
                 </PageSection>
             </Page>

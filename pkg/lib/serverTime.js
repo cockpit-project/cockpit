@@ -226,8 +226,8 @@ export function ServerTime() {
             sub_status: null
         };
 
-        // flag for tests that timedated proxy got activated
-        if (timedate.CanNTP !== undefined && timedate1_service.unit && timedate1_service.unit.Id)
+        // flag for tests that timedated/timesyncd proxies got initialized
+        if (timedate.CanNTP !== undefined && timedate1_service.unit && timedate1_service.unit.Id && timesyncd_service.enabled !== null)
             status.initialized = true;
 
         status.active = timedate.NTP;

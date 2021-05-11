@@ -33,7 +33,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
         <Form className="expiration-modal" onSubmit={apply_modal_dialog}>
             <FormGroup validated={errors && errors.date ? "error" : "default"}>
                 <Radio id="account-expiration-never" name="mode" value="never"
-                       label={_("Never lock account")}
+                       label={_("Never expire account")}
                        isChecked={mode == "never"} onChange={() => change("mode", "never")} />
                 <Radio id="account-expiration-expires" name="mode" value="expires"
                        label={
@@ -59,7 +59,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
 export function account_expiration_dialog(account, expire_date) {
     let dlg = null;
 
-    const parts = _("Lock account on");
+    const parts = _("Expire account on");
 
     const state = {
         mode: expire_date ? "expires" : "never",

@@ -404,7 +404,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "scruffy")
 
         # Try to expire the account
-        b.wait_text("#account-expiration-text", "Never lock account")
+        b.wait_text("#account-expiration-text", "Never expire account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
         b.click("#account-expiration-button")
         b.wait_visible("#account-expiration")
@@ -420,7 +420,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
         b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")
-        b.wait_in_text("#account-expiration-text", "Lock account on")
+        b.wait_in_text("#account-expiration-text", "Expire account on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
 
         # Now try and change it back
@@ -429,7 +429,7 @@ class TestAccounts(MachineCase):
         b.click("#account-expiration-never")
         b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")
-        b.wait_text("#account-expiration-text", "Never lock account")
+        b.wait_text("#account-expiration-text", "Never expire account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
 
         # Try to expire a password
@@ -472,7 +472,7 @@ class TestAccounts(MachineCase):
         self.login_and_go("/users", user="scruffy")
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
-        b.wait_text("#account-expiration-text", "Never lock account")
+        b.wait_text("#account-expiration-text", "Never expire account")
         b.wait_visible("#account-expiration-button[disabled]")
         b.wait_in_text("#password-expiration-text", "Require password change on")
         b.wait_visible("#password-expiration-button[disabled]")

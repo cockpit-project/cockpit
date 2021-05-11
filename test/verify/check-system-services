@@ -326,9 +326,11 @@ Unit=test.service
 
         def init_filter_state():
             b.set_input_text("#services-text-filter", "")
+            b.select_from_dropdown("#services-dropdown-file-state", "all")
+            b.select_from_dropdown("#services-dropdown-active-state", "all")
+
             self.wait_service_present("test.service")
             self.wait_service_present("test-fail.service")
-            b.select_from_dropdown("#services-dropdown", "all")
 
         b.go("#/")
 
@@ -367,19 +369,31 @@ Unit=test.service
 
         # Select only static services
         init_filter_state()
-        b.select_from_dropdown("#services-dropdown", "static")
+        b.select_from_dropdown("#services-dropdown-file-state", "static")
         self.wait_service_not_present("test.service")
         self.wait_service_not_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
 
         # Select only disabled services
-        b.select_from_dropdown("#services-dropdown", "disabled")
+        b.select_from_dropdown("#services-dropdown-file-state", "disabled")
         self.wait_service_present("test.service")
         self.wait_service_not_present("test-fail.service")
         self.wait_service_not_present("systemd-halt.service")
 
+        # Select only stopped services
+        init_filter_state()
+        b.select_from_dropdown("#services-dropdown-active-state", "inactive")
+        self.wait_service_present("test.service")
+        self.wait_service_not_present("test-fail.service")
+
+        # Select only failed services
+        b.select_from_dropdown("#services-dropdown-active-state", "failed")
+        self.wait_service_not_present("test.service")
+        self.wait_service_present("test-fail.service")
+
         # Check filtering and selecting together - empty state
         b.set_input_text("#services-text-filter", "failing")
+        b.select_from_dropdown("#services-dropdown-active-state", "inactive")
         self.wait_service_not_present("test.service")
         b.wait_visible("#services-page .pf-c-empty-state")
 
@@ -389,7 +403,8 @@ Unit=test.service
         self.wait_service_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
         self.assertEqual(b.val("#services-text-filter"), "")
-        self.assertEqual(b.val("#services-dropdown"), "all")
+        self.assertEqual(b.val("#services-dropdown-file-state"), "all")
+        self.assertEqual(b.val("#services-dropdown-active-state"), "all")
 
         # Check that journalbox shows empty state
         self.goto_service("systemd-halt.service")

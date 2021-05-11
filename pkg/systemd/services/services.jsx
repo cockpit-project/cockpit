@@ -151,6 +151,50 @@ class ServicesPage extends React.Component {
             tabErrors: {},
             isFullyLoaded: false,
         };
+
+        // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
+        // See: typedef enum UnitLoadStateState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
+        this.loadState = {
+            stub: _("Stub"),
+            loaded: "",
+            "not-found": _("Not found"),
+            "bad-setting": _("Bad setting"),
+            error: _("Error"),
+            merged: _("Merged"),
+            masked: "", // We present the masked from the unitFileState
+        };
+
+        // Possible ActiveState values: active, reloading, inactive, failed, activating, deactivating, maintainance
+        // See: typedef enum UnitActiveState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
+        this.activeState = {
+            active: _("Running"),
+            reloading: _("Reloading"),
+            inactive: _("Not running"),
+            failed: _("Failed to start"),
+            activating: _("Running"),
+            deactivating: _("Not running"),
+            maintainance: _("Maintanance"),
+        };
+
+        // Possible UnitFileState values: enabled, enabled-runtime, linked, linked-runtime, alias, masked, masked-runtime, static, disabled, invalid, indirect, generated, transient, bad
+        // See: typedef enum UnitFileState https://github.com/systemd/systemd/blob/main/src/basic/unit-file.h
+        this.unitFileState = {
+            enabled: _("Enabled"),
+            "enabled-runtime": _("Enabled"),
+            disabled: _("Disabled"),
+            linked: _("Linked"),
+            "linked-runtime": _("Linked"),
+            alias: _("Alias"),
+            masked: _("Masked"),
+            "masked-runtime": _("Masked"),
+            static: _("Static"),
+            invalid: _("Invalid"),
+            indirect: _("Indirect"),
+            generated: _("Generated"),
+            transient: _("Transient"),
+            bad: _("Bad"),
+        };
+
         /* Functions for controlling the toolbar's components */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
         this.onFileStateSelect = this.onFileStateSelect.bind(this);
@@ -539,37 +583,20 @@ class ServicesPage extends React.Component {
 
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
-        let load_state = unit.LoadState;
-        const active_state = unit.ActiveState;
+        unit.HasFailed = (unit.ActiveState == "failed" || (unit.LoadState !== "loaded" && unit.LoadState != "masked"));
 
-        if (load_state == "loaded")
-            load_state = "";
+        if (this.activeState[unit.ActiveState])
+            unit.CombinedState = this.activeState[unit.ActiveState];
 
-        unit.HasFailed = (active_state == "failed" || (load_state !== "" && load_state != "masked"));
-
-        if (active_state === "active" || active_state === "activating")
-            unit.CombinedState = _("Running");
-        else if (active_state == "failed")
-            unit.CombinedState = _("Failed to start");
-        else
-            unit.CombinedState = _("Not running");
-
-        unit.AutomaticStartup = "";
-        if (unit.UnitFileState && unit.UnitFileState.indexOf('enabled') == 0) {
-            unit.AutomaticStartup = _("Enabled");
-            unit.AutomaticStartupKey = 'enabled';
-        } else if (unit.UnitFileState && unit.UnitFileState.indexOf('disabled') == 0) {
-            unit.AutomaticStartup = _("Disabled");
-            unit.AutomaticStartupKey = 'disabled';
-        } else if (unit.UnitFileState && unit.UnitFileState.indexOf('static') == 0) {
-            unit.AutomaticStartup = _("Static");
-            unit.AutomaticStartupKey = 'static';
-        } else if (unit.UnitFileState) {
+        if (this.unitFileState[unit.UnitFileState]) {
+            unit.AutomaticStartup = this.unitFileState[unit.UnitFileState];
+            unit.AutomaticStartupKey = unit.UnitFileState;
+        } else {
             unit.AutomaticStartup = unit.UnitFileState;
         }
 
-        if (load_state !== "" && load_state != "masked")
-            unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, _(load_state));
+        if (unit.LoadState !== "loaded" && unit.LoadState != "masked")
+            unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, this.loadState[unit.LoadState]);
     }
 
     updateProperties(props, path, updateFileState = false) {

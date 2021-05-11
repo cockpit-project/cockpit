@@ -271,22 +271,18 @@ export function ServerTime() {
          * o.fd.timedate1 for managing the list of NTP server
          * candidates.
          */
-
-        const timedate1 = timedate1_service;
-        const timesyncd = timesyncd_service;
-
         const result = {
             supported: false,
             enabled: false,
             servers: []
         };
 
-        if (!timedate1.exists || timedate1.unit.Id !== "systemd-timedated.service") {
+        if (!timedate1_service.exists || timedate1_service.unit.Id !== "systemd-timedated.service") {
             console.log("systemd-timedated not in use, ntp server configuration not supported");
             return Promise.resolve(result);
         }
 
-        if (!timesyncd.exists) {
+        if (!timesyncd_service.exists) {
             console.log("systemd-timesyncd not available, ntp server configuration not supported");
             return Promise.resolve(result);
         }

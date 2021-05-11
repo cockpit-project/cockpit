@@ -100,9 +100,9 @@ export class ListingPanel extends React.Component {
                 continue;
             row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== activeTab) } {...rendererData} />;
             if (tabIdx === activeTab)
-                tabs.push(<div className="ct-listing-panel-body" key={tabIdx}>{row}</div>);
+                tabs.push(<div className="ct-listing-panel-body" key={tabIdx} data-key={tabIdx}>{row}</div>);
             else
-                tabs.push(<div className="ct-listing-panel-body" key={tabIdx} hidden>{row}</div>);
+                tabs.push(<div className="ct-listing-panel-body" key={tabIdx} data-key={tabIdx} hidden>{row}</div>);
         }
 
         let listingDetail;

@@ -132,7 +132,7 @@ export class InsightsStatus extends React.Component {
 
         let url;
         if (this.state.id)
-            url = "https://cloud.redhat.com/insights/inventory/" + this.state.id + "/insights";
+            url = "https://cloud.redhat.com/insights/inventory/" + this.state.id;
         else
             url = "https://cloud.redhat.com/insights";
 

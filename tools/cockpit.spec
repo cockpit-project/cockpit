@@ -317,8 +317,6 @@ sed -i "s|%{buildroot}||" *.list
 pushd %{buildroot}/%{_datadir}/cockpit/branding
 find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
-# need this in SUSE as post build checks dislike stale symlinks
-install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
 %else
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
@@ -481,11 +479,6 @@ authentication via sssd/FreeIPA.
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
-# corresponding to the SUSE specific "install /run/cockpit/motd" above
-%if 0%{?suse_version}
-%ghost /run/cockpit/motd
-%ghost %dir /run/cockpit
-%endif
 %dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd

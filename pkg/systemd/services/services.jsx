@@ -195,6 +195,9 @@ class ServicesPage extends React.Component {
             bad: _("Bad"),
         };
 
+        this.seenActiveStates = new Set();
+        this.seenUnitFileStates = new Set();
+
         /* Functions for controlling the toolbar's components */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
         this.onFileStateSelect = this.onFileStateSelect.bind(this);
@@ -583,6 +586,14 @@ class ServicesPage extends React.Component {
 
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
+        // We should ignore 'not-found' units when setting the seenActiveStates and seenUnitFileStates
+        if (unit.LoadState != 'not-found') {
+            if (unit.ActiveState)
+                this.seenActiveStates.add(unit.ActiveState);
+            if (unit.UnitFileState)
+                this.seenUnitFileStates.add(unit.UnitFileState);
+        }
+
         unit.HasFailed = (unit.ActiveState == "failed" || (unit.LoadState !== "loaded" && unit.LoadState != "masked"));
 
         if (this.activeState[unit.ActiveState])
@@ -768,12 +779,21 @@ class ServicesPage extends React.Component {
             { value: 'disabled', label: _("Disabled") },
             { value: 'static', label: _("Static") },
         ];
+        this.seenUnitFileStates.forEach(unitFileState => {
+            if (!['enabled', 'disabled', 'static'].includes(unitFileState.split('-runtime')[0])) {
+                fileStateDropdownOptions.push({ value: unitFileState, label: this.unitFileState[unitFileState] });
+            }
+        });
         const activeStateDropdownOptions = [
             { value: 'all', label: _("All") },
             { value: 'active', label: _("Running") },
             { value: 'inactive', label: _("Not running") },
-            { value: 'failed', label: _("Failed") },
         ];
+        this.seenActiveStates.forEach(activeState => {
+            if (!['active', 'activating', 'inactive', 'deactivating'].includes(activeState)) {
+                activeStateDropdownOptions.push({ value: activeState, label: this.activeState[activeState] });
+            }
+        });
         const { currentTextFilter, activeTab } = this.state;
         const currentFileStateFilter = this.state.currentFileStateFilter || fileStateDropdownOptions[0].value;
         const currentActiveStateFilter = this.state.currentActiveStateFilter || activeStateDropdownOptions[0].value;

@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-27 18:18+0000\n"
-"PO-Revision-Date: 2021-04-15 13:02+0000\n"
-"Last-Translator: Albert B <fedora@norlan.nl>\n"
+"POT-Creation-Date: 2021-05-04 18:08+0000\n"
+"PO-Revision-Date: 2021-05-06 08:02+0000\n"
+"Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "master/nl/>\n"
 "Language: nl\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.5.3\n"
+"X-Generator: Weblate 4.6.1\n"
 
 #: pkg/metrics/metrics.jsx:410
 msgid "$0 CPU"
@@ -92,11 +92,11 @@ msgstr "$0 documentatie"
 msgid "$0 error"
 msgstr "$0 fout"
 
-#: pkg/base1/cockpit.js:2800
+#: pkg/base1/cockpit.js:2776
 msgid "$0 exited with code $1"
 msgstr "$0 verlaten met code $1"
 
-#: pkg/base1/cockpit.js:2802
+#: pkg/base1/cockpit.js:2778
 msgid "$0 failed"
 msgstr "$0 mislukte"
 
@@ -159,7 +159,7 @@ msgstr "$0 is van geen enkele repository beschikbaar."
 msgid "$0 key changed"
 msgstr "$0 sleutel gewijzigd"
 
-#: pkg/base1/cockpit.js:2798
+#: pkg/base1/cockpit.js:2774
 msgid "$0 killed with signal $1"
 msgstr "$0 is afgeschoten met signaal $1"
 
@@ -596,7 +596,7 @@ msgstr "ARP-bewaking"
 msgid "ARP ping"
 msgstr "ARP-ping"
 
-#: pkg/shell/shell-modals.jsx:39 pkg/shell/indexes.js:432
+#: pkg/shell/shell-modals.jsx:41 pkg/shell/indexes.js:432
 msgid "About Web Console"
 msgstr "Over Web Console"
 
@@ -829,7 +829,7 @@ msgstr "Adressen"
 msgid "Administration with Cockpit Web Console"
 msgstr "Beheer met Cockpit Web Console"
 
-#: pkg/shell/superuser.jsx:88 pkg/shell/superuser.jsx:339
+#: pkg/shell/superuser.jsx:89 pkg/shell/superuser.jsx:358
 msgid "Administrative access"
 msgstr "Administratieve toegang"
 
@@ -882,7 +882,7 @@ msgstr "Alle"
 msgid "All logs"
 msgstr "Alle logboeken"
 
-#: pkg/packagekit/autoupdates.jsx:299
+#: pkg/packagekit/autoupdates.jsx:294
 msgid "All updates"
 msgstr "Alle vernieuwingen"
 
@@ -978,7 +978,7 @@ msgstr "Op specifiek tijdstip"
 msgid "Audit log"
 msgstr "Audit-logboek"
 
-#: pkg/shell/superuser.jsx:72
+#: pkg/shell/superuser.jsx:77
 msgid "Authenticate"
 msgstr "Authenticatie uitvoeren"
 
@@ -1040,7 +1040,7 @@ msgstr "Automatisch (DHCP)"
 msgid "Automatic login"
 msgstr "Automatisch inloggen"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:369 pkg/packagekit/autoupdates.jsx:405
 msgid "Automatic updates"
 msgstr "Automatische vernieuwingen"
 
@@ -1240,9 +1240,9 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/networkmanager/index.html:474 pkg/networkmanager/index.html:503
 #: pkg/networkmanager/index.html:532 pkg/sosreport/index.js:52
 #: pkg/packagekit/updates.jsx:464 pkg/packagekit/updates.jsx:527
-#: pkg/packagekit/autoupdates.jsx:419 pkg/lib/cockpit-components-dialog.jsx:132
-#: pkg/lib/cockpit-components-shutdown.jsx:166 pkg/shell/shell-modals.jsx:94
-#: pkg/shell/superuser.jsx:76 pkg/shell/superuser.jsx:133
+#: pkg/packagekit/autoupdates.jsx:418 pkg/lib/cockpit-components-dialog.jsx:132
+#: pkg/lib/cockpit-components-shutdown.jsx:166 pkg/shell/shell-modals.jsx:96
+#: pkg/shell/superuser.jsx:80 pkg/shell/superuser.jsx:154
 #: pkg/storaged/dialog.jsx:406 pkg/storaged/jobs-panel.jsx:139
 #: pkg/systemd/hwinfo.jsx:242 pkg/systemd/services/service-details.jsx:71
 #: pkg/systemd/services/timer-dialog.jsx:123 pkg/systemd/reporting.jsx:419
@@ -1261,7 +1261,7 @@ msgstr "Kan niet worden ingeschakeld"
 msgid "Cannot connect to an unknown host"
 msgstr "Kan niet verbinden met een onbekende host"
 
-#: pkg/base1/cockpit.js:4072
+#: pkg/base1/cockpit.js:4048
 msgid "Cannot forward login credentials"
 msgstr "Kan inloggegevens niet doorsturen"
 
@@ -1381,7 +1381,7 @@ msgstr "Controleren op geïnstalleerde software"
 msgid "Checking software status"
 msgstr "Controleren van softwarestatus"
 
-#: pkg/shell/shell-modals.jsx:97
+#: pkg/shell/shell-modals.jsx:100
 msgid "Choose the language to be used in the application"
 msgstr "Kies de taal die in de toepassing moet worden gebruikt"
 
@@ -1430,9 +1430,10 @@ msgstr "Cliënt software"
 #: pkg/networkmanager/index.html:514 pkg/networkmanager/index.html:550
 #: pkg/sosreport/index.js:46 pkg/sosreport/index.js:128
 #: pkg/lib/cockpit-components-modifications.jsx:79
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/shell-modals.jsx:40
-#: pkg/shell/shell-modals.jsx:143 pkg/shell/superuser.jsx:76
-#: pkg/storaged/dialog.jsx:406 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/shell-modals.jsx:42
+#: pkg/shell/shell-modals.jsx:148 pkg/shell/superuser.jsx:93
+#: pkg/shell/superuser.jsx:101 pkg/storaged/dialog.jsx:406
+#: pkg/users/dialog-utils.js:58
 #: pkg/systemd/overview-cards/configurationCard.jsx:339 pkg/apps/utils.jsx:93
 msgid "Close"
 msgstr "Sluiten"
@@ -1449,11 +1450,11 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit authenticatie is verkeerd geconfigureerd."
 
-#: pkg/base1/cockpit.js:4078
+#: pkg/base1/cockpit.js:4054
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kon geen contact maken met de opgegeven host."
 
-#: pkg/shell/shell-modals.jsx:145
+#: pkg/shell/shell-modals.jsx:150
 msgid "Cockpit had an unexpected internal error."
 msgstr "Cockpit had een onverwachte interne fout."
 
@@ -1471,11 +1472,11 @@ msgstr ""
 "terminal worden gestopt. Evenzo, als er een fout optreedt in de terminal, "
 "kan deze worden gezien in de Cockpit-logboekinterface."
 
-#: pkg/shell/shell-modals.jsx:42
+#: pkg/shell/shell-modals.jsx:44
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit is een interactieve Linux-serverbeheerinterface."
 
-#: pkg/base1/cockpit.js:4076
+#: pkg/base1/cockpit.js:4052
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit is niet compatibel met de software op het systeem."
 
@@ -1483,7 +1484,7 @@ msgstr "Cockpit is niet compatibel met de software op het systeem."
 msgid "Cockpit is not installed"
 msgstr "Cockpit is niet geïnstalleerd"
 
-#: pkg/base1/cockpit.js:4070
+#: pkg/base1/cockpit.js:4046
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit is niet op het systeem geïnstalleerd."
 
@@ -1610,7 +1611,7 @@ msgstr "Conflicten"
 
 #: pkg/networkmanager/network-interface.jsx:375
 msgid "Connect automatically"
-msgstr "Verbind aurtomatisch"
+msgstr "Verbind automatisch"
 
 #: pkg/static/login.html:90
 msgid "Connect to"
@@ -1639,7 +1640,7 @@ msgstr "Verbindingsfout"
 msgid "Connection failed"
 msgstr "Verbinding mislukte"
 
-#: pkg/base1/cockpit.js:4068
+#: pkg/base1/cockpit.js:4044
 msgid "Connection has timed out."
 msgstr "Er is een time-out opgetreden voor de verbinding."
 
@@ -1672,7 +1673,7 @@ msgstr "Inhoud"
 msgid "Continue"
 msgstr "Doorgaan"
 
-#: pkg/shell/shell-modals.jsx:132
+#: pkg/shell/shell-modals.jsx:137
 msgid "Continue session"
 msgstr "Vervolg sessie"
 
@@ -1867,7 +1868,7 @@ msgstr "Kritiek en hoger"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.jsx:154
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
@@ -2087,7 +2088,7 @@ msgstr "Schakel de firewall uit"
 msgid "Disable tuned"
 msgstr "Schakel tuned uit"
 
-#: pkg/packagekit/autoupdates.jsx:336
+#: pkg/packagekit/autoupdates.jsx:331
 #: pkg/systemd/services/service-details.jsx:340
 #: pkg/systemd/services/services.jsx:543 pkg/systemd/services/services.jsx:720
 #: pkg/networkmanager/interfaces.js:1450
@@ -2133,7 +2134,7 @@ msgstr "Schijven"
 msgid "Dismiss"
 msgstr "Afwijzen"
 
-#: pkg/shell/index.html:70 pkg/shell/shell-modals.jsx:91
+#: pkg/shell/index.html:70 pkg/shell/shell-modals.jsx:93
 msgid "Display language"
 msgstr "Schermtaal"
 
@@ -2219,7 +2220,7 @@ msgstr "Stations"
 msgid "Dual rank"
 msgstr "Dubbele rangorde"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/shell/indexes.js:343
+#: pkg/packagekit/autoupdates.jsx:398 pkg/shell/indexes.js:343
 #: pkg/storaged/nfs-details.jsx:318 pkg/storaged/crypto-tab.jsx:137
 #: pkg/storaged/crypto-keyslots.jsx:564 pkg/storaged/iscsi-panel.jsx:255
 msgid "Edit"
@@ -2275,7 +2276,7 @@ msgstr "Leegmaken"
 msgid "Emptying $target"
 msgstr "$target leegmaken"
 
-#: pkg/packagekit/autoupdates.jsx:399
+#: pkg/packagekit/autoupdates.jsx:398
 #, fuzzy
 #| msgid "Enabled"
 msgid "Enable"
@@ -2383,7 +2384,6 @@ msgstr "Fout en hoger"
 msgid "Error has occurred"
 msgstr "Er is een fout opgetreden"
 
-#: pkg/lib/cockpit-components-inline-notification.jsx:92
 #: pkg/selinux/setroubleshoot-view.jsx:414
 #: pkg/systemd/overview-cards/configurationCard.jsx:317
 msgid "Error message"
@@ -2499,10 +2499,10 @@ msgstr "Kan tuned niet inschakelen"
 msgid "Failed to load authorized keys."
 msgstr "Kan gemachtigde sleutels niet laden."
 
-#: pkg/packagekit/autoupdates.jsx:366
+#: pkg/packagekit/autoupdates.jsx:361
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
-"timer. Please remove custom overrides to enable this feature."
+"timer. Please remove custom overrides to configure automatic updates."
 msgstr ""
 
 #: pkg/packagekit/updates.jsx:421
@@ -2542,7 +2542,7 @@ msgstr "Filter"
 msgid "Filter by name or description"
 msgstr "Filteren op naam of beschrijving"
 
-#: pkg/shell/shell-modals.jsx:105
+#: pkg/shell/shell-modals.jsx:109
 #, fuzzy
 #| msgid "Filter services"
 msgid "Filter menu items"
@@ -2640,7 +2640,7 @@ msgstr ""
 "Maak ruimte vrij in deze groep: verklein of verwijder andere logische "
 "volumes of voeg een ander fysiek volume toe."
 
-#: pkg/packagekit/autoupdates.jsx:314 pkg/systemd/services/timer-dialog.jsx:239
+#: pkg/packagekit/autoupdates.jsx:309 pkg/systemd/services/timer-dialog.jsx:239
 msgid "Fridays"
 msgstr "vrijdagen"
 
@@ -2648,7 +2648,7 @@ msgstr "vrijdagen"
 msgid "Full name"
 msgstr "Volledige naam"
 
-#: pkg/shell/shell-modals.jsx:51
+#: pkg/shell/shell-modals.jsx:53
 msgid "GNU LGPL version 2.1"
 msgstr "GNU LGPL versie 2.1"
 
@@ -2738,7 +2738,7 @@ msgstr "Geschiedenis van pakketaantallen"
 msgid "Host"
 msgstr "Host"
 
-#: pkg/base1/cockpit.js:4064
+#: pkg/base1/cockpit.js:4040
 msgid "Host key is incorrect"
 msgstr "Hostsleutel is onjuist"
 
@@ -2963,7 +2963,7 @@ msgstr "Interface leden"
 msgid "Interfaces"
 msgstr "Interfaces"
 
-#: pkg/base1/cockpit.js:4066
+#: pkg/base1/cockpit.js:4042
 msgid "Internal error"
 msgstr "Interne fout"
 
@@ -3019,7 +3019,7 @@ msgstr "Ongeldig voorvoegsel of netmasker $0"
 msgid "Invalid range"
 msgstr "Ongeldig bereik"
 
-#: pkg/packagekit/autoupdates.jsx:324
+#: pkg/packagekit/autoupdates.jsx:319
 #: pkg/lib/cockpit-components-shutdown.jsx:100
 msgid "Invalid time format"
 msgstr "Ongeldige tijdnotatie"
@@ -3190,7 +3190,7 @@ msgstr "Kom meer te weten"
 msgid "Leave domain"
 msgstr "Verlaat domein"
 
-#: pkg/shell/shell-modals.jsx:49
+#: pkg/shell/shell-modals.jsx:51
 msgid "Licensed under:"
 msgstr "Licentie onder:"
 
@@ -3198,15 +3198,15 @@ msgstr "Licentie onder:"
 msgid "Light"
 msgstr "Licht"
 
-#: pkg/shell/superuser.jsx:130
+#: pkg/shell/superuser.jsx:151
 msgid "Limit access"
 msgstr "Beperk toegang"
 
-#: pkg/shell/superuser.jsx:339
+#: pkg/shell/superuser.jsx:358
 msgid "Limited access"
 msgstr "Beperkte toegang"
 
-#: pkg/shell/superuser.jsx:144
+#: pkg/shell/superuser.jsx:165
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3377,7 +3377,7 @@ msgstr "Logische volumes"
 msgid "Login again"
 msgstr "Log opnieuw in"
 
-#: pkg/base1/cockpit.js:4056
+#: pkg/base1/cockpit.js:4032
 msgid "Login failed"
 msgstr "Inloggen mislukte"
 
@@ -3572,10 +3572,6 @@ msgstr ""
 msgid "Metadata used"
 msgstr "Gebruikte metadata"
 
-#: pkg/shell/superuser.jsx:57
-msgid "Method"
-msgstr "Methode"
-
 #: pkg/metrics/metrics.jsx:1081
 msgid "Metrics history could not be loaded"
 msgstr "Statistieken kon niet worden geladen"
@@ -3623,7 +3619,7 @@ msgstr "Model"
 msgid "Modifying $target"
 msgstr "$target aanpassen"
 
-#: pkg/packagekit/autoupdates.jsx:310 pkg/systemd/services/timer-dialog.jsx:235
+#: pkg/packagekit/autoupdates.jsx:305 pkg/systemd/services/timer-dialog.jsx:235
 msgid "Mondays"
 msgstr "maandagen"
 
@@ -4036,7 +4032,7 @@ msgstr "Bestand of map bestaat niet"
 msgid "No system modifications"
 msgstr "Geen systeemwijzigingen"
 
-#: pkg/packagekit/autoupdates.jsx:287
+#: pkg/packagekit/autoupdates.jsx:282
 msgid "No updates"
 msgstr "Geen updates"
 
@@ -4097,7 +4093,7 @@ msgstr "Niet aangesloten"
 msgid "Not mounted"
 msgstr "Niet aangekoppeld"
 
-#: pkg/base1/cockpit.js:4054
+#: pkg/base1/cockpit.js:4030
 msgid "Not permitted to perform this action."
 msgstr "Niet toegestaan om deze actie uit te voeren."
 
@@ -4115,7 +4111,7 @@ msgstr "Niet geregistreerd"
 msgid "Not running"
 msgstr "Niet actief"
 
-#: pkg/packagekit/autoupdates.jsx:338
+#: pkg/packagekit/autoupdates.jsx:333
 #, fuzzy
 #| msgid "No NFS mounts set up"
 msgid "Not set up"
@@ -4340,7 +4336,7 @@ msgstr "Wachtzinnen komen niet overeen"
 #: pkg/static/login.html:76 pkg/shell/machines/machine-auth-failed.html:8
 #: pkg/shell/machines/machine-change-auth.html:43
 #: pkg/shell/machines/machine-change-auth.html:50 pkg/shell/index.html:160
-#: pkg/shell/index.html:189 pkg/shell/index.html:204 pkg/shell/superuser.jsx:44
+#: pkg/shell/index.html:189 pkg/shell/index.html:204 pkg/shell/superuser.jsx:52
 #: pkg/storaged/iscsi-panel.jsx:50 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/users/account-create-dialog.js:60 pkg/users/account-details.js:328
 msgid "Password"
@@ -4476,7 +4472,7 @@ msgstr "Ping doel"
 msgid "Pizza box"
 msgstr "Pizzadoos"
 
-#: pkg/shell/superuser.jsx:43
+#: pkg/shell/superuser.jsx:51
 msgid "Please authenticate to gain administrative access"
 msgstr "Authenticeer om administratieve toegang te krijgen"
 
@@ -4585,6 +4581,12 @@ msgstr "Prioriteit"
 msgid "Priority $priority"
 msgstr "Prioriteit $priority"
 
+#: pkg/shell/superuser.jsx:97
+#, fuzzy
+#| msgid "Domain administrator name"
+msgid "Problem becoming administrator"
+msgstr "Domeinbeheerdersnaam"
+
 #: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
 msgstr "Probleemdetails"
@@ -4597,7 +4599,7 @@ msgstr "Probleem info"
 msgid "Process"
 msgstr "Proces"
 
-#: pkg/shell/shell-modals.jsx:43
+#: pkg/shell/shell-modals.jsx:45
 msgid "Project website"
 msgstr "Project website"
 
@@ -5179,7 +5181,7 @@ msgstr ""
 "Safari-gebruikers moeten het certificaat van de zelfondertekende CA "
 "importeren en vertrouwen:"
 
-#: pkg/packagekit/autoupdates.jsx:315 pkg/systemd/services/timer-dialog.jsx:240
+#: pkg/packagekit/autoupdates.jsx:310 pkg/systemd/services/timer-dialog.jsx:240
 msgid "Saturdays"
 msgstr "zaterdagen"
 
@@ -5192,7 +5194,7 @@ msgstr "Opslaan"
 msgid "Save and reboot"
 msgstr "Opslaan en opnieuw opstarten"
 
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:413
 #: pkg/systemd/overview-cards/motdCard.jsx:98
 msgid "Save changes"
 msgstr "Sla veranderingen op"
@@ -5237,7 +5239,7 @@ msgstr "Veilige shell-sleutels"
 msgid "Securely erasing $target"
 msgstr "$target veilig wissen"
 
-#: pkg/packagekit/autoupdates.jsx:354
+#: pkg/packagekit/autoupdates.jsx:349
 msgid "Security updates "
 msgstr "Beveiligingsupdates "
 
@@ -5245,11 +5247,11 @@ msgstr "Beveiligingsupdates "
 msgid "Security updates available"
 msgstr "Beveiligingsupdates beschikbaar"
 
-#: pkg/packagekit/autoupdates.jsx:293
+#: pkg/packagekit/autoupdates.jsx:288
 msgid "Security updates only"
 msgstr "Alleen beveiligingsupdates"
 
-#: pkg/shell/shell-modals.jsx:93
+#: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Selecteren"
 
@@ -5293,7 +5295,7 @@ msgstr "Serverbeheerder"
 msgid "Server cannot be empty."
 msgstr "Server mag niet leeg zijn."
 
-#: pkg/base1/cockpit.js:4074
+#: pkg/base1/cockpit.js:4050
 msgid "Server has closed the connection."
 msgstr "Server heeft de verbinding verbroken."
 
@@ -5343,7 +5345,7 @@ msgstr "Services"
 msgid "Session"
 msgstr "Sessie"
 
-#: pkg/shell/shell-modals.jsx:130
+#: pkg/shell/shell-modals.jsx:135
 msgid "Session is about to expire"
 msgstr "Sessie verloopt binnenkort"
 
@@ -5561,10 +5563,6 @@ msgstr ""
 msgid "Some software needs to be restarted manually"
 msgstr "Sommige software moet handmatig opnieuw worden opgestart"
 
-#: pkg/shell/superuser.jsx:297
-msgid "Something went wrong"
-msgstr "Er is iets fout gegaan"
-
 #: pkg/networkmanager/firewall.jsx:709
 msgid "Sorted from least to most trusted"
 msgstr "Gesorteerd van minst tot meest vertrouwd"
@@ -5720,7 +5718,7 @@ msgstr "Sub-chassis"
 msgid "Sub-Notebook"
 msgstr "Sub-notebook"
 
-#: pkg/packagekit/autoupdates.jsx:316 pkg/systemd/services/timer-dialog.jsx:241
+#: pkg/packagekit/autoupdates.jsx:311 pkg/systemd/services/timer-dialog.jsx:241
 msgid "Sundays"
 msgstr "zondagen"
 
@@ -5756,7 +5754,13 @@ msgstr "Schakel $0 uit"
 msgid "Switch on $0"
 msgstr "Schakel $0 in"
 
-#: pkg/shell/superuser.jsx:142
+#: pkg/shell/superuser.jsx:55
+#, fuzzy
+#| msgid "Turn on administrative access"
+msgid "Switch to administrative access"
+msgstr "Schakel beheerderstoegang in"
+
+#: pkg/shell/superuser.jsx:163
 msgid "Switch to limited access"
 msgstr "Schakel over naar beperkte toegang"
 
@@ -6133,7 +6137,7 @@ msgstr ""
 "De server weigerde '$0' te verifiëren met wachtwoordverificatie en er zijn "
 "geen andere ondersteunde verificatiemethoden beschikbaar."
 
-#: pkg/base1/cockpit.js:4058
+#: pkg/base1/cockpit.js:4034
 msgid "The server refused to authenticate using any supported methods."
 msgstr "De server weigerde te verifiëren met behulp van ondersteunde methoden."
 
@@ -6259,10 +6263,6 @@ msgstr ""
 "Dit apparaat wordt momenteel gebruikt voor volumegroepen. Als je doorgaat, "
 "wordt het uit de volumegroepen verwijderd."
 
-#: pkg/shell/superuser.jsx:294
-msgid "This didn't work, please try again"
-msgstr "Dit werkte niet, probeer het opnieuw"
-
 #: pkg/storaged/mdraid-details.jsx:129
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "Deze schijf kan niet worden verwijderd gedurende de herstel periode."
@@ -6273,7 +6273,7 @@ msgstr "Deze schijf kan niet worden verwijderd gedurende de herstel periode."
 msgid "This field cannot be empty"
 msgstr "Dit veld mag niet leeg zijn"
 
-#: pkg/packagekit/autoupdates.jsx:329
+#: pkg/packagekit/autoupdates.jsx:324
 msgid "This host will reboot after updates are installed."
 msgstr "Deze host zal opnieuw opstarten nadat updates zijn geïnstalleerd."
 
@@ -6363,7 +6363,7 @@ msgstr ""
 "Deze zone bevat de cockpitservice. Zorg ervoor dat deze zone niet van "
 "toepassing is op je huidige webconsoleverbinding."
 
-#: pkg/packagekit/autoupdates.jsx:313 pkg/systemd/services/timer-dialog.jsx:238
+#: pkg/packagekit/autoupdates.jsx:308 pkg/systemd/services/timer-dialog.jsx:238
 msgid "Thursdays"
 msgstr "donderdagen"
 
@@ -6442,7 +6442,7 @@ msgstr "Wissel bitmap"
 msgid "Toggle session settings"
 msgstr "Wissel sessie-instellingen"
 
-#: pkg/base1/cockpit.js:4080
+#: pkg/base1/cockpit.js:4056
 msgid "Too much data"
 msgstr "Teveel data"
 
@@ -6499,7 +6499,7 @@ msgstr "Probeer opnieuw"
 msgid "Trying to synchronize with $0"
 msgstr "Bezig met synchroniseren met $0"
 
-#: pkg/packagekit/autoupdates.jsx:311 pkg/systemd/services/timer-dialog.jsx:236
+#: pkg/packagekit/autoupdates.jsx:306 pkg/systemd/services/timer-dialog.jsx:236
 msgid "Tuesdays"
 msgstr "dinsdagen"
 
@@ -6529,11 +6529,11 @@ msgstr "Tuned is niet actief"
 msgid "Tuned is off"
 msgstr "Tuned is uitgeschakeld"
 
-#: pkg/systemd/superuser-alert.jsx:44
+#: pkg/systemd/superuser-alert.jsx:41
 msgid "Turn on administrative access"
 msgstr "Schakel beheerderstoegang in"
 
-#: pkg/shell/index.html:226 pkg/packagekit/autoupdates.jsx:283
+#: pkg/shell/index.html:226 pkg/packagekit/autoupdates.jsx:278
 #: pkg/storaged/format-dialog.jsx:207 pkg/storaged/part-tab.jsx:55
 #: pkg/storaged/unrecognized-tab.jsx:41 pkg/systemd/hwinfo.jsx:80
 #: pkg/systemd/hwinfo.jsx:308
@@ -6652,7 +6652,7 @@ msgstr "Kan bestandssysteem niet afkoppelen"
 msgid "Unavailable"
 msgstr "Niet beschikbaar"
 
-#: pkg/networkmanager/index.html:544 pkg/shell/shell-modals.jsx:142
+#: pkg/networkmanager/index.html:544 pkg/shell/shell-modals.jsx:147
 #: pkg/users/dialog-utils.js:65
 msgid "Unexpected error"
 msgstr "Onverwachte fout"
@@ -6774,7 +6774,7 @@ msgstr "Onbekende data kan hier niet kleiner gemaakt worden."
 msgid "Unsupported volume"
 msgstr "Niet-ondersteunde volume"
 
-#: pkg/base1/cockpit.js:4060 pkg/base1/cockpit.js:4062
+#: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
 msgstr "Niet vertrouwde host"
 
@@ -6812,7 +6812,7 @@ msgstr ""
 "Bijgewerkte pakketten moeten mogelijk opnieuw worden opgestart om van kracht "
 "te worden."
 
-#: pkg/packagekit/autoupdates.jsx:354
+#: pkg/packagekit/autoupdates.jsx:349
 msgid "Updates "
 msgstr "Updates "
 
@@ -6962,7 +6962,7 @@ msgstr "Verifieer sleutel"
 msgid "Verifying"
 msgstr "Controleren"
 
-#: pkg/packagekit/updates.jsx:372 pkg/shell/shell-modals.jsx:45
+#: pkg/packagekit/updates.jsx:372 pkg/shell/shell-modals.jsx:47
 #: pkg/systemd/hwinfo.jsx:88
 msgid "Version"
 msgstr "Versie"
@@ -7059,11 +7059,11 @@ msgstr "Webconsole voor Linux-servers"
 msgid "Web Console will restart"
 msgstr "Webconsole zal opnieuw opstarten"
 
-#: pkg/systemd/superuser-alert.jsx:60
+#: pkg/systemd/superuser-alert.jsx:55
 msgid "Web console is running in limited access mode."
 msgstr "De webconsole wordt uitgevoerd in de beperkte toegang modus."
 
-#: pkg/packagekit/autoupdates.jsx:312 pkg/systemd/services/timer-dialog.jsx:237
+#: pkg/packagekit/autoupdates.jsx:307 pkg/systemd/services/timer-dialog.jsx:237
 msgid "Wednesdays"
 msgstr "woensdagen"
 
@@ -7079,7 +7079,7 @@ msgstr "Weken"
 msgid "What if tang-show-keys is not available?"
 msgstr "Wat als tang-show-keys niet beschikbaar is?"
 
-#: pkg/packagekit/autoupdates.jsx:305
+#: pkg/packagekit/autoupdates.jsx:300
 msgid "When"
 msgstr "Wanneer"
 
@@ -7143,10 +7143,6 @@ msgstr "Je maakt voor de eerste keer verbinding met {{host}}."
 msgid "You are not authorized to modify the firewall."
 msgstr "Jr bent niet bevoegd om de firewall te wijzigen."
 
-#: pkg/shell/superuser.jsx:227
-msgid "You can not gain administrative access."
-msgstr "Je kunt geen administratieve toegang krijgen."
-
 #: pkg/users/authorized-keys-panel.js:100
 msgid ""
 "You do not have permission to view the authorized public keys for this "
@@ -7184,7 +7180,7 @@ msgid ""
 msgstr ""
 "Je moet overschakelen naar \"Beheerderstoegang\" om rapporten aan te maken."
 
-#: pkg/shell/superuser.jsx:285
+#: pkg/shell/superuser.jsx:308
 msgid "You now have administrative access."
 msgstr "Je hebt nu administratieve toegang."
 
@@ -7202,7 +7198,7 @@ msgid ""
 "+Insert."
 msgstr ""
 
-#: pkg/shell/superuser.jsx:145
+#: pkg/shell/superuser.jsx:166
 msgid "Your browser will remember your access level across sessions."
 msgstr "Je browser onthoudt je toegangsniveau tijdens sessies."
 
@@ -7214,11 +7210,11 @@ msgstr ""
 "Je server verbreekt de verbinding binnenkort. Je kunt opnieuw verbinding "
 "maken nadat deze opnieuw is opgestart."
 
-#: pkg/base1/cockpit.js:4050
+#: pkg/base1/cockpit.js:4026
 msgid "Your session has been terminated."
 msgstr "Je sessie is beëindigd."
 
-#: pkg/base1/cockpit.js:4052
+#: pkg/base1/cockpit.js:4028
 msgid "Your session has expired. Please log in again."
 msgstr "Je sessie is verlopen. Log nogmaals in."
 
@@ -7270,7 +7266,7 @@ msgstr "apt-get"
 msgid "asset tag"
 msgstr "asset-tag"
 
-#: pkg/packagekit/autoupdates.jsx:319
+#: pkg/packagekit/autoupdates.jsx:314
 msgid "at"
 msgstr "op"
 
@@ -7397,7 +7393,7 @@ msgstr "verbetering"
 msgid "error"
 msgstr "fout"
 
-#: pkg/packagekit/autoupdates.jsx:309
+#: pkg/packagekit/autoupdates.jsx:304
 msgid "every day"
 msgstr "elke dag"
 
@@ -7449,7 +7445,7 @@ msgstr "host"
 msgid "iSCSI targets"
 msgstr "iSCSI-doelen"
 
-#: pkg/shell/shell-modals.jsx:150
+#: pkg/shell/shell-modals.jsx:155
 msgid "in most browsers"
 msgstr "in de meeste browsers"
 
@@ -7848,7 +7844,7 @@ msgstr "volume"
 msgid "warning"
 msgstr "waarschuwing"
 
-#: pkg/packagekit/autoupdates.jsx:355
+#: pkg/packagekit/autoupdates.jsx:350
 msgid "will be applied $0 at $1"
 msgstr "wordt $0 op $1 toegepast"
 
@@ -7863,6 +7859,18 @@ msgstr "zone"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} sleutel gewijzigd"
+
+#~ msgid "Method"
+#~ msgstr "Methode"
+
+#~ msgid "Something went wrong"
+#~ msgstr "Er is iets fout gegaan"
+
+#~ msgid "This didn't work, please try again"
+#~ msgstr "Dit werkte niet, probeer het opnieuw"
+
+#~ msgid "You can not gain administrative access."
+#~ msgstr "Je kunt geen administratieve toegang krijgen."
 
 #~ msgid "Automatic updates are not set up"
 #~ msgstr "Automatische vernieuwingen zijn niet ingesteld"

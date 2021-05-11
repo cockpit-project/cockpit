@@ -12,6 +12,9 @@ jobs:
          - :i386 distcheck
       fail-fast: false
     timeout-minutes: 60
+    env:
+      # current podman backport falls over as non-root, and completely breaks down with :i386 image
+      docker: docker
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -27,8 +30,8 @@ jobs:
               *:i386*) arch=i386;;
               *) arch=amd64;;
             esac
-            sudo containers/unit-tests/build $arch
+            containers/unit-tests/build $arch
           fi
 
       - name: Run unit-tests container
-        run: 'sudo containers/unit-tests/start ${{ matrix.startarg }}'
+        run: containers/unit-tests/start ${{ matrix.startarg }}

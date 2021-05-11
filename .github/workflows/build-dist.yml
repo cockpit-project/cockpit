@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # current podman backport falls over as non-root, and completely breaks down with :i386 image
+      docker: docker
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -17,7 +20,7 @@ jobs:
 
       - name: Run unit-tests container to build dist
         run: |
-          sudo containers/unit-tests/start dist
+          containers/unit-tests/start dist
 
       - name: Create dist artifact
         uses: actions/upload-artifact@v2

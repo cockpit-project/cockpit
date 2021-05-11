@@ -140,7 +140,8 @@ class ServicesPage extends React.Component {
             /* State related to the toolbar/tabs components */
             activeTab: 'service',
             stateDropdownIsExpanded: false,
-            currentTypeFilter: 'all',
+            currentFileStateFilter: 'all',
+            currentActiveStateFilter: 'all',
             currentTextFilter: '',
 
             unit_by_path: {},
@@ -152,7 +153,8 @@ class ServicesPage extends React.Component {
         };
         /* Functions for controlling the toolbar's components */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
-        this.onTypeDropdownSelect = this.onTypeDropdownSelect.bind(this);
+        this.onFileStateSelect = this.onFileStateSelect.bind(this);
+        this.onActiveStateSelect = this.onActiveStateSelect.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
 
         /* Function for manipulating with the API results and store the units in the React state */
@@ -435,15 +437,19 @@ class ServicesPage extends React.Component {
     }
 
     onClearAllFilters() {
-        this.setState({ currentTextFilter: '', currentTypeFilter: 'all' });
+        this.setState({ currentTextFilter: '', currentFileStateFilter: 'all', currentActiveStateFilter: 'all' });
     }
 
     onInputChange(newValue) {
         this.setState({ currentTextFilter: newValue });
     }
 
-    onTypeDropdownSelect(currentTypeFilter) {
-        this.setState({ currentTypeFilter });
+    onFileStateSelect(currentFileStateFilter) {
+        this.setState({ currentFileStateFilter });
+    }
+
+    onActiveStateSelect(currentActiveStateFilter) {
+        this.setState({ currentActiveStateFilter });
     }
 
     /**
@@ -729,14 +735,21 @@ class ServicesPage extends React.Component {
                             unit={unit} />;
         }
 
-        const typeDropdownOptions = [
+        const fileStateDropdownOptions = [
             { value: 'all', label: _("All") },
             { value: 'enabled', label: _("Enabled") },
             { value: 'disabled', label: _("Disabled") },
             { value: 'static', label: _("Static") },
         ];
+        const activeStateDropdownOptions = [
+            { value: 'all', label: _("All") },
+            { value: 'active', label: _("Running") },
+            { value: 'inactive', label: _("Not running") },
+            { value: 'failed', label: _("Failed") },
+        ];
         const { currentTextFilter, activeTab } = this.state;
-        const currentTypeFilter = this.state.currentTypeFilter || typeDropdownOptions[0].value;
+        const currentFileStateFilter = this.state.currentFileStateFilter || fileStateDropdownOptions[0].value;
+        const currentActiveStateFilter = this.state.currentActiveStateFilter || activeStateDropdownOptions[0].value;
 
         const units = Object.keys(this.path_by_id)
                 .filter(unit_id => {
@@ -755,7 +768,10 @@ class ServicesPage extends React.Component {
                         unit_id.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1))
                         return false;
 
-                    if (currentTypeFilter != 'all' && currentTypeFilter !== unit.AutomaticStartupKey)
+                    if (currentFileStateFilter != 'all' && currentFileStateFilter !== unit.AutomaticStartupKey)
+                        return false;
+
+                    if (currentActiveStateFilter != 'all' && currentActiveStateFilter !== unit.ActiveState)
                         return false;
 
                     return true;
@@ -775,14 +791,26 @@ class ServicesPage extends React.Component {
                             aria-labelledby="services-text-filter-label"
                             placeholder={_("Filter by name or description")} />
                 </ToolbarItem>
+                <ToolbarItem variant="label" id="services-unit-state-filter-label">{_("File state")}</ToolbarItem>
                 <ToolbarItem variant="search-filter">
-                    <FormSelect id="services-dropdown"
+                    <FormSelect id="services-dropdown-file-state"
                                 aria-label={_("Select unit state")}
-                                value={currentTypeFilter}
-                                onChange={this.onTypeDropdownSelect}>
-                        {typeDropdownOptions.map(option => <FormSelectOption key={option.value}
-                                                                             value={option.value}
-                                                                             label={option.label} />)}
+                                value={currentFileStateFilter}
+                                onChange={this.onFileStateSelect}>
+                        {fileStateDropdownOptions.map(option => <FormSelectOption key={option.value}
+                                                                                  value={option.value}
+                                                                                  label={option.label} />)}
+                    </FormSelect>
+                </ToolbarItem>
+                <ToolbarItem variant="label" id="services-unit-state-filter-label">{_("Active state")}</ToolbarItem>
+                <ToolbarItem variant="search-filter">
+                    <FormSelect id="services-dropdown-active-state"
+                                aria-label={_("Select unit state")}
+                                value={currentActiveStateFilter}
+                                onChange={this.onActiveStateSelect}>
+                        {activeStateDropdownOptions.map(option => <FormSelectOption key={option.value}
+                                                                                    value={option.value}
+                                                                                    label={option.label} />)}
                     </FormSelect>
                 </ToolbarItem>
             </ToolbarGroup>

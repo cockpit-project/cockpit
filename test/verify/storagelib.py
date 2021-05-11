@@ -124,7 +124,7 @@ class StorageHelpers:
 
     def content_tab_expand(self, row_index, tab_index):
         tab_btn = self.content_row_tbody(row_index) + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
-        tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
+        tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body[data-key=%d]" % (tab_index - 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
         self.browser.wait_visible(tab)
@@ -164,7 +164,7 @@ class StorageHelpers:
             row = self.content_row_tbody(row_index)
             row_item = row + " tr td.pf-c-table__toggle button"
             tab_btn = row + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
-            tab = row + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
+            tab = row + " .ct-listing-panel-body[data-key=%d]" % (tab_index - 1)
             cell = tab + " dt:contains(%s) + *" % title
 
             # The DOM might change at any time while we are inspecting

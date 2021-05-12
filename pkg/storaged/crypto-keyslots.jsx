@@ -27,7 +27,7 @@ import {
 } from "@patternfly/react-core";
 import { EditIcon, MinusIcon, PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
-import sha1 from "js-sha1";
+import sha256 from "js-sha256";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
 import * as python from "python.js";
@@ -82,7 +82,7 @@ function compute_thp(jwk) {
     var req = REQUIRED_ATTRS[jwk.kty];
     var norm = { };
     req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
-    return jwk_b64_encode(sha1.digest(stable_stringify(norm)));
+    return jwk_b64_encode(sha256.digest(stable_stringify(norm)));
 }
 
 function compute_sigkey_thps(adv) {

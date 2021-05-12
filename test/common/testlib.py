@@ -37,7 +37,6 @@ import time
 import unittest
 import gzip
 import inspect
-from dataclasses import dataclass
 
 import testvm
 import cdp
@@ -665,19 +664,12 @@ class Browser:
 
         rect = self.call_js_func('ph_element_clip', selector)
 
-        @dataclass
-        class Rect:
-            x0: int
-            y0: int
-            x1: int
-            y1: int
-
         def relative_clip(sel):
             r = self.call_js_func('ph_element_clip', sel)
-            return Rect(r['x'] - rect['x'],
-                        r['y'] - rect['y'],
-                        r['x'] - rect['x'] + r['width'],
-                        r['y'] - rect['y'] + r['height'])
+            return (r['x'] - rect['x'],
+                    r['y'] - rect['y'],
+                    r['x'] - rect['x'] + r['width'],
+                    r['y'] - rect['y'] + r['height'])
 
         ignore_rects = list(map(relative_clip, ignore))
         base = self.pixels_label + "-" + key
@@ -717,8 +709,8 @@ class Browser:
                 return ref[3] != 255
 
             def ignorable_coord(x, y):
-                for r in ignore_rects:
-                    if r and x >= r.x0 and x < r.x1 and y >= r.y0 and y < r.y1:
+                for (x0, y0, x1, y1) in ignore_rects:
+                    if x >= x0 and x < x1 and y >= y0 and y < y1:
                         return True
                 return False
 

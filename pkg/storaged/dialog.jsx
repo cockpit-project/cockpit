@@ -274,7 +274,7 @@ const Row = ({ field, values, errors, onChange }) => {
     } else {
         return (
             <FormGroup validated={validated}
-                       helperTextInvalid={error || explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
+                       helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
                 { children }
             </FormGroup>
         );

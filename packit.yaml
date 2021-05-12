@@ -3,7 +3,8 @@ actions:
   create-archive:
     # the upstream git spec file has unresolved macros which are normally put
     # in at `make dist` time; they are not important for CI
-    - sh -c 'sed "s/%{npm-version:.*}/0/" tools/cockpit.spec > cockpit.spec'
+    # also, build optional packages for CentOS 8
+    - sh -c 'sed "s/%{npm-version:.*}/0/; s/build_optional 0/build_optional 1/" tools/cockpit.spec > cockpit.spec'
     # this is being triggered immediately on a pull_request event; wait for
     # build-dist.yml to generate the dist tarball
     - env AUTOGEN_CONFIGURE_ARGS='--disable-polkit --disable-ssh --disable-pcp --disable-doc --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env' PKG_CONFIG_PATH=tools/mock-build-env test/make_dist.py --wait
@@ -14,6 +15,6 @@ jobs:
     trigger: pull_request
     metadata:
       targets:
-      # once this works, move to fedora-all
       - fedora-33
       - fedora-34
+      - centos-stream-8-x86_64

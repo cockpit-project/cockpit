@@ -149,9 +149,9 @@ export class ListingTable extends React.Component {
 
     reformatRows(rows) {
         let rowIndex = 0;
-        return rows.reduce((total, currentValue, currentIndex) => {
+        return rows.reduce((total, currentValue) => {
             const rowFormatted = {
-                cells: currentValue.columns.map((cell, cellIdx) => {
+                cells: currentValue.columns.map(cell => {
                     let res;
                     if (typeof cell == 'string')
                         res = { title: cell };

@@ -480,6 +480,7 @@ class ApplyUpdates extends React.Component {
     }
 
     componentDidMount() {
+        this._mounted = true;
         var transactionPath = this.props.transaction;
 
         PK.watchTransaction(transactionPath, {
@@ -489,6 +490,9 @@ class ApplyUpdates extends React.Component {
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
                 PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
                         .done(reply => {
+                            if (this._mounted === false)
+                                return;
+
                             const percent = reply[0].Percentage.v;
                             let remain = -1;
                             if ("RemainingTime" in reply[0])
@@ -516,6 +520,10 @@ class ApplyUpdates extends React.Component {
                         });
             },
         });
+    }
+
+    componentWillUnmount() {
+        this._mounted = false;
     }
 
     render() {
@@ -938,11 +946,15 @@ class OsUpdates extends React.Component {
     }
 
     componentDidMount() {
+        this._mounted = true;
         this.callTracer(null);
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
                 .done(result => {
+                    if (!this._mounted)
+                        return;
+
                     const transactions = result[0];
                     const promises = transactions.map(transactionPath => PK.call(
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
@@ -967,6 +979,10 @@ class OsUpdates extends React.Component {
                             });
                 })
                 .fail(this.handleLoadError);
+    }
+
+    componentWillUnmount() {
+        this._mounted = false;
     }
 
     callTracer(state) {
@@ -996,6 +1012,10 @@ class OsUpdates extends React.Component {
 
     handleLoadError(ex) {
         console.warn("loading available updates failed:", JSON.stringify(ex));
+
+        if (!this._mounted)
+            return;
+
         if (ex.problem === "not-found")
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
@@ -1468,6 +1488,9 @@ class OsUpdates extends React.Component {
         this.setState({ state: "refreshing", loadPercent: null });
         PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
+                    if (this._mounted === false)
+                        return;
+
                     this.setState({ timeSinceRefresh: 0 });
                     this.loadUpdates();
                 })

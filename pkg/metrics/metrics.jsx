@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import moment from "moment";
 
 import {
@@ -27,13 +27,16 @@ import {
     Card, CardTitle, CardBody, Gallery,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Flex, FlexItem,
+    Modal,
     Page, PageSection, PageSectionVariants,
     Progress, ProgressVariant,
     Select, SelectOption,
+    Switch,
+    Text, TextContent, TextVariants,
     Tooltip,
 } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth } from '@patternfly/react-table';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
@@ -41,11 +44,13 @@ import * as packagekit from "packagekit.js";
 import * as service from "service";
 import { superuser } from "superuser";
 import { journal } from "journal";
+import { useObject, useEvent } from "hooks.js";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { ModalError } from "cockpit-components-inline-notification.jsx";
 import "journal.css";
 
 const MSEC_PER_H = 3600000;
@@ -867,6 +872,92 @@ class MetricsHour extends React.Component {
     }
 }
 
+const persistentServiceState = proxy => ['running', 'stopped', 'failed', undefined].indexOf(proxy.state) >= 0;
+
+const PCPConfig = ({ buttonVariant }) => {
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [dialogError, setDialogError] = useState(null);
+    const [dialogLoggerValue, setDialogLoggerValue] = useState(false);
+    const [pending, setPending] = useState(false);
+    const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
+
+    debug("PCPConfig s_pmlogger.state", s_pmlogger.state);
+
+    useEvent(s_pmlogger, "changed");
+    useEvent(superuser, "changed");
+
+    if (!superuser.allowed)
+        return null;
+
+    const handleSave = () => {
+        setPending(true);
+        if (dialogLoggerValue) {
+            Promise.all([s_pmlogger.start(), s_pmlogger.enable()])
+                    .then(() => setDialogVisible(false))
+                    .catch(err => setDialogError(err.toString()))
+                    .finally(() => setPending(false));
+        } else {
+            Promise.all([s_pmlogger.stop(), s_pmlogger.disable()])
+                    .then(() => setDialogVisible(false))
+                    .catch(err => setDialogError(err.toString()))
+                    .finally(() => setPending(false));
+        }
+    };
+
+    return (
+        <>
+            <Button variant={buttonVariant} icon={<CogIcon />}
+                    isDisabled={ !persistentServiceState(s_pmlogger) }
+                    onClick={ () => {
+                        setDialogLoggerValue(s_pmlogger.state === 'running');
+                        setDialogVisible(true);
+                    } }>
+                { _("Metrics settings") }
+            </Button>
+
+            {dialogVisible &&
+            <Modal position="top" variant="small" isOpen
+                   id="pcp-settings-modal"
+                   onClose={ () => setDialogVisible(false) }
+                   title={ _("Metrics settings") }
+                   description={
+                       <div className="pcp-settings-modal-text">
+                           { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
+
+                           <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
+                                isInline
+                                target="_blank" rel="noopener noreferrer"
+                                icon={<ExternalLinkAltIcon />}>
+                               { _("Read more...") }
+                           </Button>
+                       </div>
+                   }
+                   footer={<>
+                       { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
+
+                       <Button variant='primary' onClick={handleSave} isDisabled={pending}>
+                           { _("Save") }
+                       </Button>
+                       <Button variant='link' className='btn-cancel' onClick={ () => setDialogVisible(false) }>
+                           {_("Cancel")}
+                       </Button>
+                   </>
+                   }>
+                <Switch id="switch-pmlogger"
+                        isChecked={dialogLoggerValue}
+                        label={
+                            <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                <FlexItem>{ _("Collect metrics") }</FlexItem>
+                                <TextContent>
+                                    <Text component={TextVariants.small}>(pmlogger.service)</Text>
+                                </TextContent>
+                            </Flex>
+                        }
+                        onChange={enable => setDialogLoggerValue(enable)} />
+            </Modal>}
+        </>);
+};
+
 class MetricsHistory extends React.Component {
     constructor(props) {
         super(props);
@@ -884,7 +975,6 @@ class MetricsHistory extends React.Component {
             loading: true, // show loading indicator
             metricsAvailable: true,
             pmLoggerState: null,
-            pmLoggerOpPending: false,
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
@@ -900,8 +990,12 @@ class MetricsHistory extends React.Component {
         /* supervise pmlogger.service, to diagnose missing history */
         this.pmlogger_service = service.proxy("pmlogger.service");
         this.pmlogger_service.addEventListener("changed", () => {
-            if (this.pmlogger_service.state !== this.state.pmLoggerState)
+            if (persistentServiceState(this.pmlogger_service) && this.pmlogger_service.state !== this.state.pmLoggerState) {
+                // when it got enabled while the page is running (e.g. through Settings dialog), start data collection
+                if (!this.state.metricsAvailable && this.pmlogger_service.state === 'running')
+                    this.initialLoadData();
                 this.setState({ pmLoggerState: this.pmlogger_service.state });
+            }
         });
 
         // FIXME: load less up-front, load more when scrolling
@@ -1053,6 +1147,7 @@ class MetricsHistory extends React.Component {
 
         metrics.addEventListener("close", (event, message) => {
             if (message.problem) {
+                debug("could not load metrics:", message.problem);
                 this.setState({
                     loading: false,
                     metricsAvailable: false,
@@ -1095,20 +1190,7 @@ class MetricsHistory extends React.Component {
 
             if (this.pmlogger_service.state === 'stopped') {
                 paragraph = _("pmlogger.service is not running");
-
-                if (superuser.allowed) {
-                    action = (
-                        <Button variant="primary" isDisabled={this.state.pmLoggerOpPending} onClick={() => {
-                            this.setState({ pmLoggerOpPending: true });
-                            this.pmlogger_service.start()
-                                    .then(() => this.initialLoadData())
-                                    .catch(ex => console.error("starting pmlogger.service failed:", JSON.stringify(ex)))
-                                    .always(() => this.setState({ pmLoggerOpPending: false }));
-                            if (!this.pmlogger_service.enabled)
-                                this.pmlogger_service.enable();
-                        } }>{_("Enable PCP metrics collector")}</Button>);
-                }
-                // when not superuser, don't show any action
+                action = <PCPConfig buttonVariant="primary" />;
             } else {
                 if (this.pmlogger_service.state === 'failed')
                     paragraph = _("pmlogger.service has failed");
@@ -1215,13 +1297,16 @@ class MetricsHistory extends React.Component {
 export const Application = () => (
     <Page groupProps={{ sticky: 'top' }}
           additionalGroupedContent={
-              <PageSection variant={PageSectionVariants.light}>
+              <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
                   <Flex>
                       <FlexItem>
                           <Breadcrumb>
                               <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
                               <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
                           </Breadcrumb>
+                      </FlexItem>
+                      <FlexItem align={{ default: 'alignRight' }}>
+                          <PCPConfig buttonVariant="secondary" />
                       </FlexItem>
                   </Flex>
               </PageSection>

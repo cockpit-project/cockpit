@@ -419,13 +419,24 @@ class TestHistoryMetrics(MachineCase):
 
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
         b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
+
+        # enable pmlogger in settings dialog from empty state
         b.click(".pf-c-empty-state button.pf-m-primary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.click("#switch-pmlogger")
+        b.wait_visible("#switch-pmlogger:checked")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+
+        self.assertIn(m.execute("systemctl is-active pmlogger || true").strip(), ["activating", "active"])
 
         # there is a transient "No data available" state, but sometimes it's very short, so don't assert that
 
         # page auto-updates every minute and starts to receive data
         with self.browser.wait_timeout(90):
             self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
+        b.wait_not_present(".pf-c-empty-state")
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
@@ -454,6 +465,43 @@ class TestHistoryMetrics(MachineCase):
         b.click(".pf-c-empty-state button.pf-m-link")
         b.enter_page("/system/services")
         b.wait_in_text("#service-details", "pmlogger.service")
+
+    @nondestructive
+    @skipImage("no PCP support", "fedora-coreos")
+    @skipImage("init.d script is too impredictable", "debian-stable")
+    def testLoggerSettings(self):
+        b = self.browser
+        m = self.machine
+
+        # start in defined state
+        m.execute("systemctl enable --now pmlogger")
+        self.addCleanup(m.execute, "systemctl disable --now pmlogger")
+
+        self.login_and_go("/metrics")
+
+        # enable pmlogger in settings dialog from header bar
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:checked")
+        b.click("#switch-pmlogger")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+
+        self.assertEqual(m.execute("systemctl is-active pmlogger || true").strip(), "inactive")
+        self.assertEqual(m.execute("systemctl is-enabled pmlogger || true").strip(), "disabled")
+
+        # enable pmlogger in settings dialog from header bar
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.click("#switch-pmlogger")
+        b.wait_visible("#switch-pmlogger:checked")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+
+        self.assertIn(m.execute("systemctl is-active pmlogger || true").strip(), ["activating", "active"])
+        self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
 
 @skipDistroPackage()

@@ -236,7 +236,7 @@ export class Dialog extends React.Component {
             </Popover>;
 
         return (
-            <Modal position="top" variant="medium"
+            <Modal position="top" variant={this.props.variant || "medium"}
                    onEscapePress={() => undefined}
                    showClose={false}
                    id={this.props.id}

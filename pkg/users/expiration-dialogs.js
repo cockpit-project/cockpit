@@ -199,7 +199,8 @@ export function password_expiration_dialog(account, expire_days) {
         const props = {
             id: "password-expiration",
             title: _("Password expiration"),
-            body: <PasswordExpirationDialogBody state={state} errors={errors} change={change} />
+            body: <PasswordExpirationDialogBody state={state} errors={errors} change={change} />,
+            variant: "small"
         };
 
         const footer = {

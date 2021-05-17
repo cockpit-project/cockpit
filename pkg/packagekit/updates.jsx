@@ -275,7 +275,7 @@ function updateItem(info, pkgNames, key) {
     const pkgs = pkgList;
     let pkgsTruncated = pkgs;
     if (pkgList.length > 4)
-        pkgsTruncated = pkgList.slice(0, 4).concat(<span>…</span>);
+        pkgsTruncated = pkgList.slice(0, 4).concat(<span key="more">…</span>);
 
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)

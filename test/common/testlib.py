@@ -1251,8 +1251,8 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor)  # 14xx is selinux
 
-        if self.image.startswith('debian'):
-            # Debian images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
+        if self.image.startswith('debian') or self.image == 'fedora-coreos':
+            # These images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
             self.allowed_messages.append("invalid or unusable locale: .*")
 
         if self.image.startswith('fedora') or self.image.startswith('rhel-9'):

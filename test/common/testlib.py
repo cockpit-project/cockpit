@@ -913,7 +913,9 @@ class MachineCase(unittest.TestCase):
 
     def system_before(self, version):
         try:
-            v = self.machine.execute("rpm -q --qf '%{V}' cockpit-system").split(".")
+            v = self.machine.execute("""rpm -q --qf '%{V}' cockpit-system ||
+                                        dpkg-query -W -f '${source:Upstream-Version}' cockpit-system
+                                     """).split(".")
         except subprocess.CalledProcessError:
             return False
 

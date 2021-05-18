@@ -230,6 +230,11 @@ class TestTestlib(MachineCase):
         self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
         self.machine.execute("test ! -e /home/cockpittest")
 
+    @nondestructive
+    def testMiscAPI(self):
+        assert self.system_before(1000)
+        assert not self.system_before(100)
+
 
 @skipDistroPackage()
 class NoTestRetryExample(unittest.TestCase):

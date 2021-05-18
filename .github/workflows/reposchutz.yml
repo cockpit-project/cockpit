@@ -1,0 +1,41 @@
+name: repository
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+jobs:
+  check:
+    name: Protection checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GIT_DIR: git-dir.git
+    steps:
+      - name: Clear .github-changes label
+        if: ${{ !endsWith(github.event.action, 'labeled') }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            try {
+              const { repo: { owner, repo }, number: issue_number } = context;
+              await github.issues.removeLabel({ owner, repo, issue_number, name: '.github-changes' });
+            } catch (e) {
+              if (e.name == 'HttpError' && e.status == 404) {
+                /* expected: 404 if label isn't set */
+              } else {
+                throw e;
+              }
+            }
+
+      - name: Check for .github changes
+        # We want to run this check any time the .github-changes label is not
+        # set, which needs to include the case where we just unset it above.
+        if: ${{ !endsWith(github.event.action, 'labeled') ||
+                !contains(github.event.pull_request.labels.*.name, '.github-changes') }}
+        run: |
+          set -x
+          git init -b main
+          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+          git fetch --depth=1 origin '${{ github.sha }}'
+          git fetch --depth=1 origin '${{ github.event.pull_request.head.sha }}'
+          git diff --exit-code '${{ github.sha }}' '${{ github.event.pull_request.head.sha }}' -- .github

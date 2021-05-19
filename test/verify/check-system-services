@@ -184,7 +184,7 @@ Unit=test.service
         # Selects Targets tab
         self.pick_tab(2)
         b.wait_not_in_text("#services-list", "test")
-        self.wait_service_state("sockets.target", "active")
+        self.wait_service_state("basic.target", "active")
 
         # Make sure that symlinked services also appear in the list
         self.wait_service_state("reboot.target", "inactive")

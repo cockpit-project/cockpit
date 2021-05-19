@@ -253,7 +253,7 @@ const Row = ({ field, values, errors, onChange }) => {
         onChange(tag);
     }
 
-    const children = field.render(values[tag], change, validated);
+    const children = field.render(values[tag], change, validated, error);
 
     if (title || title == "") {
         let titleLabel = title;
@@ -271,14 +271,15 @@ const Row = ({ field, values, errors, onChange }) => {
                 { children }
             </FormGroup>
         );
-    } else {
+    } else if (!field.bare) {
         return (
             <FormGroup validated={validated}
                        helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
                 { children }
             </FormGroup>
         );
-    }
+    } else
+        return children;
 };
 
 function is_visible(field, values) {

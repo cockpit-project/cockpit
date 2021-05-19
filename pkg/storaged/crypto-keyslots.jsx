@@ -324,7 +324,7 @@ class Revealer extends React.Component {
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
     var parsed = parse_url(url);
     var cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
-    var cmd_alt = cockpit.format("ssh $0 \"curl -s localhost:$1/adv |\n  jose fmt -j- -g payload -y -o- |\n  jose jwk use -i- -r -u verify -o- |\n  jose jwk thp -i-\"", parsed.hostname, parsed.port);
+    var cmd_alt = cockpit.format("ssh $0 \"curl -s localhost$1/adv |\n  jose fmt -j- -g payload -y -o- |\n  jose jwk use -i- -r -u verify -o- |\n  jose jwk thp -i-\"", parsed.hostname, parsed.port ? ":" + parsed.port : "");
 
     var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 

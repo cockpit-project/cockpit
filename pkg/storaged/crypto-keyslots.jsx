@@ -400,15 +400,16 @@ function remove_passphrase_dialog(block, key) {
 const RemoveClevisField = (tag, key, dev) => {
     return {
         tag: tag,
-        title: <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="lg" />,
+        title: null,
         options: { },
         initial_value: "",
+        bare: true,
 
         render: (val, change) => {
             return (
                 <div data-field={tag}>
-                    <h3>{ fmt_to_fragments(_("Remove $0?"), <b>{key.url}</b>) }</h3>
-                    <p>{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
+                    <p>{ fmt_to_fragments(_("Remove $0?"), <b>{key.url}</b>) }</p>
+                    <p className="slot-warning">{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
                 </div>
             );
         }
@@ -417,7 +418,7 @@ const RemoveClevisField = (tag, key, dev) => {
 
 function remove_clevis_dialog(client, block, key) {
     dialog_open({
-        Title: _("Remove Tang keyserver"),
+        Title: <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {_("Remove Tang keyserver")}</>,
         Fields: [
             RemoveClevisField("keyserver", key, block_name(block))
         ],

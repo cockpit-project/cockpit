@@ -307,28 +307,9 @@ function edit_clevis_dialog(client, block, key) {
     get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
-class Revealer extends React.Component {
-    constructor() {
-        super();
-        this.state = { revealed: false };
-    }
-
-    render() {
-        if (this.state.revealed)
-            return <div>{this.props.children}</div>;
-        else
-            return (
-                <button className="button-link" onClick={event => { if (event.button == 0) this.setState({ revealed: true }); }}>
-                    {this.props.summary}
-                </button>
-            );
-    }
-}
-
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
     var parsed = parse_url(url);
     var cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
-    var cmd_alt = cockpit.format("ssh $0 \"curl -s localhost$1/adv |\n  jose fmt -j- -g payload -y -o- |\n  jose jwk use -i- -r -u verify -o- |\n  jose jwk thp -i-\"", parsed.hostname, parsed.port ? ":" + parsed.port : "");
 
     var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
@@ -345,11 +326,6 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
                 { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s.sha1}</div>) }
                 <br />
                 <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
-                <br />
-                <Revealer summary={_("What if tang-show-keys is not available?")}>
-                    <p>{_("If tang-show-keys is not available, run the following:")}</p>
-                    <pre>{cmd_alt}</pre>
-                </Revealer>
             </div>
         ),
         Action: {

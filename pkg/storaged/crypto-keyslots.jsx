@@ -27,6 +27,7 @@ import {
 } from "@patternfly/react-core";
 import { EditIcon, MinusIcon, PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
+import sha1 from "js-sha1";
 import sha256 from "js-sha256";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
@@ -82,7 +83,10 @@ function compute_thp(jwk) {
     var req = REQUIRED_ATTRS[jwk.kty];
     var norm = { };
     req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
-    return jwk_b64_encode(sha256.digest(stable_stringify(norm)));
+    return {
+        sha256: jwk_b64_encode(sha256.digest(stable_stringify(norm))),
+        sha1: jwk_b64_encode(sha1.digest(stable_stringify(norm)))
+    };
 }
 
 function compute_sigkey_thps(adv) {
@@ -332,8 +336,13 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
         Title: _("Verify key"),
         Body: (
             <div>
-                <div>{_("Make sure the key hash from the Tang server matches:")}</div>
-                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s}</div>) }
+                <div>{_("Make sure the key hash from the Tang server matches one of the following:")}</div>
+                <br />
+                <div>{_("SHA256")}</div>
+                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s.sha256}</div>) }
+                <br />
+                <div>{_("SHA1")}</div>
+                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s.sha1}</div>) }
                 <br />
                 <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
                 <br />

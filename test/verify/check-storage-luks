@@ -139,10 +139,13 @@ class TestStorageLuks(StorageCase):
         b.logout()
         wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
 
-    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
+
+        if m.image == "ubuntu-stable":
+            # ubuntu-stable needs this workaround.
+            m.execute("mkdir -p /var/db/tang")
 
         m.execute("systemctl start tangd.socket")
 

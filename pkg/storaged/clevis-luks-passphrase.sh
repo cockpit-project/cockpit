@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 set -eu
 
@@ -19,9 +19,9 @@ if cryptsetup isLuks --type luks1 "$DEV"; then
     luksmeta test -d "$DEV" 2>/dev/null || exit 0
 
     luksmeta show -d "$DEV" | while read slot state uuid; do
-        if [ "$state" == "active" -a "$uuid" == "$CLEVIS_UUID" ]; then
+        if [ "$state" = "active" -a "$uuid" = "$CLEVIS_UUID" ]; then
             if pp=$(luksmeta load -d "$DEV" -s "$slot" | clevis decrypt); then
-                echo $pp
+                printf '%s\n' "$pp"
                 break
             fi
         fi
@@ -30,10 +30,10 @@ if cryptsetup isLuks --type luks1 "$DEV"; then
 elif cryptsetup isLuks --type luks2 "$DEV"; then
     for id in `cryptsetup luksDump "$DEV" | sed -rn 's|^\s+([0-9]+): clevis|\1|p'`; do
         tok=`cryptsetup token export --token-id "$id" "$DEV"`
-        jwe=`jose fmt -j- -Og jwe -o- <<<"$tok" | jose jwe fmt -i- -c`
+        jwe=`printf '%s\n' "$tok" | jose fmt -j- -Og jwe -o- | jose jwe fmt -i- -c`
 
         if pt=`echo -n "$jwe" | clevis decrypt`; then
-            echo $pt
+            printf '%s\n' "$pt"
             break
         fi
     done

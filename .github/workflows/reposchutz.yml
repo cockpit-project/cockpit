@@ -36,6 +36,6 @@ jobs:
           set -x
           git init -b main
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-          git fetch --depth=1 origin '${{ github.sha }}'
+          git fetch --depth=1 origin '${{ github.event.pull_request.base.sha }}'
           git fetch --depth=1 origin '${{ github.event.pull_request.head.sha }}'
-          git diff --exit-code '${{ github.sha }}' '${{ github.event.pull_request.head.sha }}' -- .github
+          git diff --exit-code '${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}' -- .github

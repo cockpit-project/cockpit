@@ -144,14 +144,6 @@ class TestStorageLuks(StorageCase):
         m = self.machine
         b = self.browser
 
-        # We generate the keys and cache explicitly before starting
-        # the socket.  This allows us to control their names, which
-        # helps later on.
-
-        m.execute("rm -rf /var/db/tang/*")
-        m.execute("jose jwk gen -i '{\"alg\":\"ES512\"}' >/var/db/tang/sig1.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' -o /var/db/tang/enc1.jwk")
-
         m.execute("systemctl start tangd.socket")
 
         self.login_and_go("/storage")
@@ -193,8 +185,8 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("tang_url", "127.0.0.1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches:")
-        b.wait_in_text("#dialog", m.execute("jose jwk thp -a S256 -i /var/db/tang/sig1.jwk").strip())
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_visible(panel + "ul li:nth-child(2)")
@@ -213,8 +205,8 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_val("tang_url", "127.0.0.1")
         self.dialog_set_val("tang_url", "http://127.0.0.1/")
         self.dialog_apply()
-        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches:")
-        b.wait_in_text("#dialog", m.execute("jose jwk thp -a S256 -i /var/db/tang/sig1.jwk").strip())
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text(panel + "ul li:nth-child(2)", "http://127.0.0.1/")

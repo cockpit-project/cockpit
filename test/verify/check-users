@@ -121,7 +121,15 @@ class TestAccounts(MachineCase):
         b.click('#accounts-create-dialog button.apply')
         b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
 
+        # too long password
+        long_password = "2a02-x!h4a" * 30
+        b.set_input_text('#accounts-create-password-pw1', long_password)
+        b.set_input_text('#accounts-create-password-pw2', long_password)
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
+
         # correct password confirmation
+        b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
         b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
@@ -241,6 +249,13 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw2", good_password + 'b')
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
+
+        # too long password
+        long_password = "2a02-x!h4a" * 30
+        b.set_input_text('#account-set-password-pw1', long_password)
+        b.set_input_text('#account-set-password-pw2', long_password)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
         # Now set to something valid

@@ -207,6 +207,9 @@ export function set_password_dialog(account, current_user) {
         if (state.password != state.password_confirm)
             errors.password_confirm = _("The passwords do not match");
 
+        if (state.password.length > 256)
+            errors.password = _("Password is longer than 256 characters");
+
         return password_quality(state.password, force)
                 .catch(ex => {
                     errors.password = (ex.message || ex.toString()).replace("\n", " ");

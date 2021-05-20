@@ -201,6 +201,9 @@ export function account_create_dialog(accounts) {
         if (state.password != state.password_confirm)
             errors.password_confirm = _("The passwords do not match");
 
+        if (state.password.length > 256)
+            errors.password = _("Password is longer than 256 characters");
+
         errors.user_name = validate_username(state.user_name, accounts);
 
         return password_quality(state.password, force)

@@ -114,12 +114,9 @@ function clevis_add(block, pin, cfg, passphrase) {
 }
 
 function clevis_remove(block, key) {
-    // HACK - only clevis version 10 brings "luks unbind", but it is important to use it
-    // when it exists because our fallback can't deal with all cases, such as LUKSv2.
-    // cryptsetup needs a terminal on stdin, even with -q or --key-file.
-    var script = 'if which clevis-luks-unbind; then clevis-luks-unbind -d "$0" -s "$1" -f; else cryptsetup luksKillSlot -q "$0" "$1" && luksmeta wipe -d "$0" -s "$1" -f; fi';
-    return cockpit.spawn(["/bin/sh", "-c", script, decode_filename(block.Device), key.slot],
-                         { superuser: true, err: "message", pty: true });
+    // clevis-luks-unbind needs a tty on stdin for some reason.
+    return cockpit.spawn(["clevis", "luks", "unbind", "-d", decode_filename(block.Device), "-s", key.slot, "-f"],
+                         { superuser: true, pty: true, err: "message" });
 }
 
 export function clevis_recover_passphrase(block) {

@@ -698,6 +698,8 @@ BuildArch: noarch
 Requires: cockpit-bridge >= %{required_base}
 Requires: PackageKit
 Recommends: python3-tracer
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1800468
+Requires: polkit
 
 %description -n cockpit-packagekit
 The Cockpit components for installing OS updates and Cockpit add-ons,

@@ -38,7 +38,7 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { decode_filename, block_name } from "./utils.js";
+import { array_find, decode_filename, block_name } from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 
@@ -119,9 +119,13 @@ function clevis_remove(block, key) {
                          { superuser: true, pty: true, err: "message" });
 }
 
-export function clevis_recover_passphrase(block) {
+export function clevis_recover_passphrase(block, just_type) {
     var dev = decode_filename(block.Device);
-    return cockpit.script(clevis_luks_passphrase_sh, [dev],
+    var args = [];
+    if (just_type)
+        args.push("--type");
+    args.push(dev);
+    return cockpit.script(clevis_luks_passphrase_sh, args,
                           { superuser: true, err: "message" })
             .then(output => output.trim());
 }
@@ -157,6 +161,14 @@ function slot_remove(block, slot, passphrase) {
     return spawn;
 }
 
+function passphrase_test(block, passphrase) {
+    var dev = decode_filename(block.Device);
+    return (cockpit.spawn(["cryptsetup", "luksOpen", "--test-passphrase", dev],
+                          { superuser: true, err: "message" }).input(passphrase)
+            .then(() => true)
+            .catch(() => false));
+}
+
 /* Dialogs
  */
 
@@ -172,18 +184,50 @@ export function existing_passphrase_fields(explanation) {
     ];
 }
 
-export function get_existing_passphrase(dlg, block) {
-    const prom = clevis_recover_passphrase(block).then(passphrase => {
-        if (passphrase == "") {
+function get_stored_passphrase(block, just_type) {
+    const pub_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    if (pub_config && pub_config[1]["passphrase-path"] && decode_filename(pub_config[1]["passphrase-path"].v) != "") {
+        if (just_type)
+            return Promise.resolve("stored");
+        return block.GetSecretConfiguration({}).then(function (items) {
+            for (var i = 0; i < items.length; i++) {
+                if (items[i][0] == 'crypttab' && items[i][1]['passphrase-contents'])
+                    return decode_filename(items[i][1]['passphrase-contents'].v);
+            }
+            return "";
+        });
+    }
+}
+
+export function get_existing_passphrase(block, just_type) {
+    return clevis_recover_passphrase(block, just_type).then(passphrase => {
+        return passphrase || get_stored_passphrase(block, just_type);
+    });
+}
+
+export function get_existing_passphrase_for_dialog(dlg, block, just_type) {
+    const prom = get_existing_passphrase(block, just_type).then(passphrase => {
+        if (!passphrase)
             dlg.set_values({ needs_explicit_passphrase: true });
-            return null;
-        } else {
-            return passphrase;
-        }
+        return passphrase;
     });
 
     dlg.run(_("Unlocking disk..."), prom);
     return prom;
+}
+
+export function request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block) {
+    return function (error) {
+        if (vals.passphrase === undefined) {
+            return (passphrase_test(block, recovered_passphrase)
+                    .then(good => {
+                        if (!good)
+                            dlg.set_values({ needs_explicit_passphrase: true });
+                        return Promise.reject(error);
+                    }));
+        } else
+            return Promise.reject(error);
+    };
 }
 
 function parse_url(url) {
@@ -258,7 +302,7 @@ function add_dialog(client, block) {
         }
     });
 
-    get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
+    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_passphrase_dialog(block, key) {
@@ -303,7 +347,7 @@ function edit_clevis_dialog(client, block, key) {
         }
     });
 
-    get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
+    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
@@ -312,7 +356,7 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
 
     var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
-    dialog_open({
+    const dlg = dialog_open({
         Title: _("Verify key"),
         Body: (
             <div>
@@ -327,13 +371,15 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
                 <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
             </div>
         ),
+        Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {
             Title: _("Trust key"),
-            action: function () {
-                return clevis_add(block, "tang", { url: url, adv: adv }, passphrase).then(() => {
+            action: function (vals) {
+                return clevis_add(block, "tang", { url: url, adv: adv }, vals.passphrase || passphrase).then(() => {
                     if (key)
                         return clevis_remove(block, key);
-                });
+                })
+                        .catch(request_passphrase_on_error_handler(dlg, vals, passphrase, block));
             }
         }
     });

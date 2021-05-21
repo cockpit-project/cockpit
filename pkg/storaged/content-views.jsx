@@ -36,6 +36,7 @@ import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
 import { CryptoTab } from "./crypto-tab.jsx";
+import { get_existing_passphrase } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
 import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
@@ -199,15 +200,20 @@ function create_tabs(client, target, is_partition) {
     }
 
     function unlock() {
-        if (!client.features.clevis)
-            return unlock_with_passphrase();
-        else {
-            return clevis_unlock()
-                    .then(null,
-                          function () {
-                              return unlock_with_passphrase();
-                          });
-        }
+        var crypto = client.blocks_crypto[block.path];
+        if (!crypto)
+            return;
+
+        return get_existing_passphrase(block, true).then(type => {
+            if (type == "stored") {
+                return (crypto.Unlock("", {})
+                        .catch(() => unlock_with_passphrase()));
+            } else if (type == "clevis") {
+                return (clevis_unlock()
+                        .catch(() => unlock_with_passphrase()));
+            } else
+                unlock_with_passphrase();
+        });
     }
 
     function unlock_with_passphrase() {
@@ -215,33 +221,17 @@ function create_tabs(client, target, is_partition) {
         if (!crypto)
             return;
 
-        /* If there is a stored passphrase, the Unlock method will
-         * use it unconditionally.  So we don't ask for one in
-         * that case.
-         *
-         * http://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-method-org-freedesktop-UDisks2-Block.GetSecretConfiguration
-         */
-        return block.GetSecretConfiguration({}).then(function (items) {
-            for (var i = 0; i < items.length; i++) {
-                if (items[i][0] == 'crypttab' &&
-                    items[i][1]['passphrase-contents'] &&
-                    utils.decode_filename(items[i][1]['passphrase-contents'].v)) {
-                    return crypto.Unlock("", { });
+        dialog_open({
+            Title: _("Unlock"),
+            Fields: [
+                PassInput("passphrase", _("Passphrase"), {})
+            ],
+            Action: {
+                Title: _("Unlock"),
+                action: function (vals) {
+                    return crypto.Unlock(vals.passphrase, {});
                 }
             }
-
-            dialog_open({
-                Title: _("Unlock"),
-                Fields: [
-                    PassInput("passphrase", _("Passphrase"), {})
-                ],
-                Action: {
-                    Title: _("Unlock"),
-                    action: function (vals) {
-                        return crypto.Unlock(vals.passphrase, {});
-                    }
-                }
-            });
         });
     }
 

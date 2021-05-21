@@ -2,8 +2,25 @@
 
 set -eu
 
+# clevis-luks-passphrase [--type] DEV
+#
+# Try to recover a passphrase via clevis that will open DEV, and
+# output it on stdout.  Such a passphrase can be used for things like
+# resizing of LUKSv2 containers, or adding/changing keys.
+#
+# If "--type" is given, this tool writes just "clevis" to stdout when
+# a passphrase is found, instead of the actual passphrase.  This is
+# useful to limit exposure of the passphrase when all you want to know
+# is whether "clevis luks unlock" can be expected to succeed.
+
+opt_type=no
+if [ $# -gt 1 ] && [ "$1" = "--type" ]; then
+    opt_type=yes
+    shift
+fi
+
 if [ $# -ne 1 ]; then
-    echo "usage: $0 DEV" >&2
+    echo "usage: $0 [--type] DEV" >&2
     exit 1
 fi
 
@@ -21,7 +38,11 @@ if cryptsetup isLuks --type luks1 "$DEV"; then
     luksmeta show -d "$DEV" | while read slot state uuid; do
         if [ "$state" = "active" -a "$uuid" = "$CLEVIS_UUID" ]; then
             if pp=$(luksmeta load -d "$DEV" -s "$slot" | clevis decrypt); then
-                printf '%s\n' "$pp"
+                if [ "$opt_type" = yes ]; then
+                    echo clevis
+                else
+                    printf '%s\n' "$pp"
+                fi
                 break
             fi
         fi
@@ -32,8 +53,12 @@ elif cryptsetup isLuks --type luks2 "$DEV"; then
         tok=`cryptsetup token export --token-id "$id" "$DEV"`
         jwe=`printf '%s\n' "$tok" | jose fmt -j- -Og jwe -o- | jose jwe fmt -i- -c`
 
-        if pt=`echo -n "$jwe" | clevis decrypt`; then
-            printf '%s\n' "$pt"
+        if pt=`printf '%s' "$jwe" | clevis decrypt`; then
+            if [ "$opt_type" = yes ]; then
+                echo clevis
+            else
+                printf '%s\n' "$pt"
+            fi
             break
         fi
     done

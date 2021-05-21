@@ -10,6 +10,9 @@ jobs:
     timeout-minutes: 5
     env:
       GIT_DIR: git-dir.git
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
     steps:
       - name: Clear .github-changes label
         if: ${{ !endsWith(github.event.action, 'labeled') }}
@@ -36,6 +39,6 @@ jobs:
           set -x
           git init -b main
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-          git fetch --depth=1 origin '${{ github.event.pull_request.base.sha }}'
-          git fetch --depth=1 origin '${{ github.event.pull_request.head.sha }}'
-          git diff --exit-code '${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}' -- .github
+          # git fetch --shallow-exclude="${BASE_SHA}" origin "${BASE_SHA}"  # GitHub doesn't support this
+          git fetch origin "${BASE_SHA}" "${HEAD_SHA}"
+          git log --full-history --exit-code --patch "${HEAD_SHA}" --not "${BASE_SHA}" -- .github >&2

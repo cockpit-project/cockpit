@@ -37,7 +37,7 @@ ifneq ($(SHIP_PF_API),)
 endif
 
 	# don't ship broken branding symlinks
-	for d in rhel fedora centos scientific; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
+	for d in rhel fedora centos scientific opensuse; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
 	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu
 
 	# handled by package maintainer scripts

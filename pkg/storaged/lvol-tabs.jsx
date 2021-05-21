@@ -29,7 +29,10 @@ import {
     DescriptionListDescription
 } from "@patternfly/react-core";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import { existing_passphrase_fields, get_existing_passphrase } from "./crypto-keyslots.jsx";
+import {
+    existing_passphrase_fields, get_existing_passphrase_for_dialog,
+    request_passphrase_on_error_handler
+} from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -247,17 +250,18 @@ function lvol_grow(client, lvol, info, to_fit) {
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
-                            return lvol_and_fsys_resize(client, lvol,
-                                                        to_fit ? grow_size : vals.size,
-                                                        info.grow_needs_unmount,
-                                                        vals.passphrase || recovered_passphrase);
+                            return (lvol_and_fsys_resize(client, lvol,
+                                                         to_fit ? grow_size : vals.size,
+                                                         info.grow_needs_unmount,
+                                                         vals.passphrase || recovered_passphrase)
+                                    .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
         }
     });
 
     if (passphrase_fields.length)
-        get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
+        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function lvol_shrink(client, lvol, info, to_fit) {
@@ -332,17 +336,18 @@ function lvol_shrink(client, lvol, info, to_fit) {
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
-                            return lvol_and_fsys_resize(client, lvol,
-                                                        to_fit ? shrink_size : vals.size,
-                                                        to_fit ? false : info.shrink_needs_unmount,
-                                                        vals.passphrase || recovered_passphrase);
+                            return (lvol_and_fsys_resize(client, lvol,
+                                                         to_fit ? shrink_size : vals.size,
+                                                         to_fit ? false : info.shrink_needs_unmount,
+                                                         vals.passphrase || recovered_passphrase)
+                                    .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
         }
     });
 
     if (passphrase_fields.length)
-        get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
+        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 export class BlockVolTab extends React.Component {

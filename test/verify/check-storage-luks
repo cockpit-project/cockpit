@@ -97,13 +97,22 @@ class TestStorageLuks(StorageCase):
         self.assertNotEqual(m.execute("grep 'weird,options' /etc/crypttab"), "")
         self.wait_in_storaged_configuration("weird,options")
 
-        # Change passphrase
+        # Change stored passphrase
         edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + dd button"
         self.dialog_with_retry(trigger=lambda: b.click(edit_button),
                                expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
                                values={"passphrase": "wrong-passphrase"})
 
         self.assertEqual(m.execute("cat /etc/luks-keys/*"), "wrong-passphrase")
+
+        # Lock it
+        self.content_dropdown_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 file system")
+
+        # Unlock, this tries the wrong passphrase but eventually prompts.
+        self.content_head_action(1, "Unlock")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
 
         # Remove passphrase
         edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + dd button"
@@ -186,10 +195,13 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "tang")
         self.dialog_set_val("tang_url", "127.0.0.1")
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase", "wrong-passphrase")
         self.dialog_apply()
         b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
         b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "No key available with this passphrase.")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_visible(panel + "ul li:nth-child(2)")

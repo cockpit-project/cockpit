@@ -356,8 +356,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 return utils.teardown_active_usage(client, usage)
                         .then(utils.reload_systemd)
                         .then(format)
-                        .then(maybe_mount)
-                        .then(utils.reload_systemd);
+                        .then(utils.reload_systemd)
+                        .then(maybe_mount);
             }
         }
     });

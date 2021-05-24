@@ -53,6 +53,13 @@ function lvol_rename(lvol) {
     });
 }
 
+function is_mounted_synch(block) {
+    return (cockpit.spawn(["findmnt", "-S", utils.decode_filename(block.Device)],
+                          { superuser: true, err: "message" })
+            .then(() => true)
+            .catch(() => false));
+}
+
 function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     var block, crypto, fsys;
     var crypto_overhead;
@@ -82,12 +89,28 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
 
     function fsys_resize() {
         if (fsys) {
-            // When doing an offline resize, we need to first repair the filesystem.
-            if (offline || fsys.MountPoints.length === 0) {
-                return fsys.Repair({ }).then(function () { return fsys.Resize(size - crypto_overhead, { }) });
-            } else {
-                return fsys.Resize(size - crypto_overhead, { });
-            }
+            // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1934567
+            //
+            // block_fsys.MountedAt might be out of synch with reality
+            // here if resizing the crypto container accidentally
+            // triggered an unmount.  Thus, we check synchronously
+            // whether or not we should be doing a offline resize or
+            // not.
+            //
+            // Another option for us would be to just mount the
+            // filesystem back if that's what we expect, to undo the
+            // bug mentioned above. But let's be a bit more passive
+            // here and hope the bug gets fixed eventually.
+            return (is_mounted_synch(client.blocks[fsys.path])
+                    .then(is_mounted => {
+                        // When doing an offline resize, we need to first repair the filesystem.
+                        if (!is_mounted) {
+                            return (fsys.Repair({ })
+                                    .then(function () { return fsys.Resize(size - crypto_overhead, { }) }));
+                        } else {
+                            return fsys.Resize(size - crypto_overhead, { });
+                        }
+                    }));
         } else if (vdo) {
             if (size - crypto_overhead > vdo.physical_size)
                 return vdo.grow_physical();

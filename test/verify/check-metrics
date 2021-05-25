@@ -479,7 +479,7 @@ class TestHistoryMetrics(MachineCase):
 
         self.login_and_go("/metrics")
 
-        # enable pmlogger in settings dialog from header bar
+        # disable pmlogger in settings dialog from header bar
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible("#pcp-settings-modal")
         b.wait_visible("#switch-pmlogger:checked")

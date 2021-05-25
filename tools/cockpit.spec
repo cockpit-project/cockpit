@@ -41,8 +41,8 @@
 
 %define __lib lib
 
-%if 0%{?suse_version}
-%define pamdir /%{_lib}/security
+%if %{defined _pamdir}
+%define pamdir %{_pamdir}
 %else
 %define pamdir %{_libdir}/security
 %endif

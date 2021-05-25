@@ -107,6 +107,11 @@ def login(self):
 
 @skipDistroPackage()
 class TestHistoryMetrics(MachineCase):
+    def setUp(self):
+        super().setUp()
+        # start with a clean slate and avoid running into restart limits
+        self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
+
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
         valid_start = self.browser.call_js_func("ph_count", ".metrics-data-cpu.valid-data")
@@ -138,7 +143,6 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl stop pmlogger")
         m.execute("""ntp=`timedatectl show --property NTP --value`
              if [ $ntp == "yes" ]; then
                  timedatectl set-ntp off
@@ -409,8 +413,7 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute("""systemctl stop pmlogger
-                     mount -t tmpfs tmpfs /var/log/pcp/pmlogger
+        m.execute("""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
                      chown -R pcp:pcp /var/log/pcp/pmlogger
                      restorecon /var/log/pcp/pmlogger || true""")
         self.addCleanup(m.execute, "systemctl stop pmlogger; umount /var/log/pcp/pmlogger")
@@ -444,15 +447,13 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute(r"""systemctl stop pmlogger
-                      mount -t tmpfs tmpfs /var/log/pcp/pmlogger
+        m.execute(r"""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
                       mkdir -p /run/systemd/system/pmlogger.service.d/
                       printf '[Service]\nExecStart=\nExecStart=/bin/false\n' > /run/systemd/system/pmlogger.service.d/break.conf
                       systemctl daemon-reload
                       systemctl start pmlogger || true""")
         self.addCleanup(m.execute,
-                        """systemctl reset-failed pmlogger
-                        rm -r /run/systemd/system/pmlogger.service.d/
+                        """rm -r /run/systemd/system/pmlogger.service.d/
                         umount /var/log/pcp/pmlogger
                         systemctl daemon-reload""")
 

@@ -337,14 +337,14 @@ export class AutoUpdates extends React.Component {
             state = _("Not set up");
 
         const days = {
-            "": "every day",
-            mon: "every Monday",
-            tue: "every Tuesday",
-            wed: "every Wednesday",
-            thu: "every Thursday",
-            fri: "every Friday",
-            sat: "every Saturday",
-            sun: "every Sunday"
+            "": _("every day"),
+            mon: _("every Monday"),
+            tue: _("every Tuesday"),
+            wed: _("every Wednesday"),
+            thu: _("every Thursday"),
+            fri: _("every Friday"),
+            sat: _("every Saturday"),
+            sun: _("every Sunday")
         };
 
         let desc = null;

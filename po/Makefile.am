@@ -56,7 +56,7 @@ po/cockpit.c.pot:
 		--from-code=UTF-8 --directory=$(srcdir) $$(cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c')
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
-po/cockpit.html.pot:
+po/cockpit.html.pot: package-lock.json
 	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
@@ -72,7 +72,7 @@ po/cockpit.js.pot:
 		$$( cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
 		sed '/^#/ s/, c-format//' > $@
 
-po/cockpit.manifest.pot:
+po/cockpit.manifest.pot: package-lock.json
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 

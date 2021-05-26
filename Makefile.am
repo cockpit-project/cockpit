@@ -25,11 +25,6 @@ CLEANFILES = \
 	valgrind-suppressions \
 	$(NULL)
 
-DISTCLEANFILES = \
-	$(srcdir)/Makefile \
-	cockpit-cache-*.tar.xz \
-	$(NULL)
-
 EXTRA_DIST = \
 	selinux \
 	package.json \
@@ -325,22 +320,6 @@ dist-hook:: $(MANIFESTS)
 		tar --format=posix -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
-
-DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" --exclude test \
-	"$(srcdir)/node_modules" "$(srcdir)/package.json"
-
-DIST_ARCHIVES = \
-	cockpit-$(VERSION).tar.xz \
-	cockpit-cache-$(VERSION).tar.xz
-
-# used from containers/unit-tests/run.sh
-XZ_COMPRESS_FLAGS = --extreme
-
-dist-xz: distdir
-	$(DIST_TAR_MAIN) | xz $(XZ_COMPRESS_FLAGS) > $(distdir).tar.xz
-	[ -n "$$NO_DIST_CACHE" ] || $(DIST_TAR_CACHE) | xz $(XZ_COMPRESS_FLAGS) > cockpit-cache-$(VERSION).tar.xz
-	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 
 distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)

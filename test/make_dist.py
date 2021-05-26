@@ -46,8 +46,7 @@ def build_dist():
             subprocess.check_call('./autogen.sh')
 
     # this is for a development build, not a release, so we care about speed, not best size
-    subprocess.check_call(["make", "--silent", "-j%i" % multiprocessing.cpu_count(),
-                           "NO_DIST_CACHE=1", "XZ_COMPRESS_FLAGS=-0", "dist"])
+    subprocess.check_call(["make", "--silent", "-j%i" % multiprocessing.cpu_count(), "XZ_OPT=-0", "dist"])
     return subprocess.check_output(["make", "dump-dist"], universal_newlines=True).strip()
 
 

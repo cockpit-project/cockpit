@@ -292,25 +292,6 @@ export function proxy(name, kind) {
         return dfd.promise();
     }
 
-    function call_manager_with_reload(method, args) {
-        return call_manager(method, args).then(function () {
-            var dfd = cockpit.defer();
-            call_manager("Reload", [])
-                    .done(function () { dfd.resolve() })
-                    .fail(function (error) {
-                    // HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1560549
-                    // some systemd versions disconnect too fast from the bus
-                        if (error.name === "org.freedesktop.DBus.Error.NoReply") {
-                            refresh();
-                            dfd.resolve();
-                        } else {
-                            dfd.reject(error);
-                        }
-                    });
-            return dfd.promise();
-        });
-    }
-
     function start() {
         return call_manager_with_job("StartUnit", [name, "replace"]);
     }
@@ -328,11 +309,11 @@ export function proxy(name, kind) {
     }
 
     function enable() {
-        return call_manager_with_reload("EnableUnitFiles", [[name], false, false]);
+        return call_manager("EnableUnitFiles", [[name], false, false]);
     }
 
     function disable() {
-        return call_manager_with_reload("DisableUnitFiles", [[name], false]);
+        return call_manager("DisableUnitFiles", [[name], false]);
     }
 
     return self;

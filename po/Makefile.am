@@ -47,6 +47,9 @@ TRANSLATE = \
 	src/ws/ \
 	$(NULL)
 
+update-node-modules:
+	$(srcdir)/tools/node-modules checkout
+
 # Extract from GLib based C code files
 po/cockpit.c.pot:
 	$(XGETTEXT) --default-domain=cockpit --output=$@ --language=C \
@@ -56,7 +59,7 @@ po/cockpit.c.pot:
 		--from-code=UTF-8 --directory=$(srcdir) $$(cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c')
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
-po/cockpit.html.pot:
+po/cockpit.html.pot: update-node-modules
 	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
@@ -72,7 +75,7 @@ po/cockpit.js.pot:
 		$$( cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
 		sed '/^#/ s/, c-format//' > $@
 
-po/cockpit.manifest.pot:
+po/cockpit.manifest.pot: update-node-modules
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 

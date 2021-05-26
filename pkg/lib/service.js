@@ -249,6 +249,8 @@ export function proxy(name, kind) {
     systemd_manager.addEventListener("JobNew", on_job_new_removed_refresh);
     systemd_manager.addEventListener("JobRemoved", on_job_new_removed_refresh);
 
+    systemd_manager.addEventListener("UnitFilesChanged", refresh);
+
     function wait(callback) {
         wait_callbacks.promise.then(callback);
     }

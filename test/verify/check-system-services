@@ -439,7 +439,7 @@ WantedBy=default.target
 
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
-        m.execute("systemctl stop test")
+        m.execute("systemctl disable --now test")
 
         self.login_and_go("/playground/service#/test")
 
@@ -456,6 +456,26 @@ WantedBy=default.target
         b.wait_text('#enabled', 'true')
         b.click('#disable')
         b.wait_text('#enabled', 'false')
+
+        # reacts to outside changes with systemctl
+        m.execute("systemctl enable test")
+        b.wait_text('#enabled', 'true')
+        m.execute("systemctl disable test")
+        b.wait_text('#enabled', 'false')
+        m.execute("systemctl start test")
+        b.wait_text('#state', '"running"')
+        m.execute("systemctl stop test")
+        b.wait_text('#state', '"stopped"')
+
+        # reacts to outside changes with systemd API
+        m.execute("busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager EnableUnitFiles asbb 1 test.service false false")
+        b.wait_text('#enabled', 'true')
+        m.execute("busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager DisableUnitFiles asb 1 test.service false")
+        b.wait_text('#enabled', 'false')
+        m.execute("busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager StartUnit ss test.service replace")
+        b.wait_text('#state', '"running"')
+        m.execute("busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager StopUnit ss test.service replace")
+        b.wait_text('#state', '"stopped"')
 
         b.go('#/foo')
         b.wait_text('#exists', 'false')

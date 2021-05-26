@@ -30,9 +30,6 @@ DISTCLEANFILES = \
 	cockpit-cache-*.tar.xz \
 	$(NULL)
 
-MAINTAINERCLEANFILES = \
-	$(NULL)
-
 EXTRA_DIST = \
 	selinux \
 	package.json \
@@ -191,9 +188,6 @@ dist/%/manifest.json: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/p
 # the rules above copy a lot of stuff into builddir; clean it up so that distcleancheck works
 clean-local::
 	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
-
-maintainer-clean-local::
-	rm -rf dist/ node_modules/ package-lock.json
 
 V_NODE_MODULES = $(V_NODE_MODULES_$(V))
 V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))

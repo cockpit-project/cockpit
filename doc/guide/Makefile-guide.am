@@ -88,13 +88,6 @@ GUIDE_HTML = \
 	dist/guide/html/index.html \
 	dist/guide/index.html
 
-MAINTAINERCLEANFILES += \
-	dist/guide/html/* \
-	dist/guide/links.html \
-	dist/guide/index.html \
-	*.tmp \
-	$(NULL)
-
 dist/guide/html/%.woff2: package-lock.json
 	@mkdir -p dist/guide/html
 	cp -L $(top_srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText/$(notdir $@) $@

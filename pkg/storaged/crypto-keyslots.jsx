@@ -21,7 +21,8 @@ import cockpit from "cockpit";
 import React from "react";
 
 import {
-    Card, CardBody, CardTitle, CardHeader, CardActions, Checkbox,
+    Card, CardBody, CardTitle, CardHeader, CardActions,
+    Checkbox, ClipboardCopy,
     Form, FormGroup,
     DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
     Text, TextVariants, TextInput as TextInputPF, Stack,
@@ -356,17 +357,25 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
     const dlg = dialog_open({
         Title: _("Verify key"),
         Body: (
-            <div>
-                <div>{_("Make sure the key hash from the Tang server matches one of the following:")}</div>
-                <br />
-                <div>{_("SHA256")}</div>
-                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s.sha256}</div>) }
-                <br />
-                <div>{_("SHA1")}</div>
-                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s.sha1}</div>) }
-                <br />
-                <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
-            </div>
+            <>
+                <p>{_("Make sure the key hash from the Tang server matches one of the following:")}</p>
+
+                <h2 className="sigkey-heading">{_("SHA256")}</h2>
+                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha256}</p>) }
+
+                <h2 className="sigkey-heading">{_("SHA1")}</h2>
+                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha1}</p>) }
+
+                <p>
+                    {_("Manually check with SSH: ")}
+                    <ClipboardCopy hoverTip={_("Copy to clipboard")}
+                                   clickTip={_("Successfully copied to clipboard!")}
+                                   variant="inline-compact"
+                                   isCode>
+                        {cmd}
+                    </ClipboardCopy>
+                </p>
+            </>
         ),
         Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {

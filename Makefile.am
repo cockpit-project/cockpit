@@ -203,7 +203,7 @@ V_NODE_MODULES_0 = @V=0
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
 FORCE:
 package-lock.json: FORCE
-	$(V_NODE_MODULES) tools/node-modules make_package_lock_json
+	$(V_NODE_MODULES) $(top_srcdir)/tools/node-modules make_package_lock_json
 
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)

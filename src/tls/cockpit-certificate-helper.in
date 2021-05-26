@@ -96,7 +96,7 @@ cmd_ipa_request() {
     kinit "${USER}@${REALM}" || exit 0
 
     # ensure this gets run with a non-C locale; ipa fails otherwise
-    if [ $(sh -c 'eval `locale`; echo $LC_CTYPE') = 'C' ]; then
+    if [ "$(sh -c 'eval `locale`; echo $LC_CTYPE')" = 'C' ]; then
         export LC_CTYPE=C.UTF-8
     fi
 

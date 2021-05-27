@@ -339,7 +339,7 @@ export class NFSDetails extends React.Component {
                             <DescriptionListTerm className="control-DescriptionListTerm">{_("Size")}</DescriptionListTerm>
                             <DescriptionListDescription>
                                 { entry.mounted
-                                    ? <StorageUsageBar stats={fsys_size} critical={0.95} />
+                                    ? <StorageUsageBar stats={fsys_size} critical={0.95} block={entry.fields[1]} />
                                     : "--"
                                 }
                             </DescriptionListDescription>

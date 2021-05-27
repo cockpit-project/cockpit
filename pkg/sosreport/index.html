@@ -28,20 +28,124 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   </head>
   <body class="pf-m-redhat-font" hidden>
     <div class="pf-c-page">
-      <main class="pf-c-page__main" tabindex="-1">
-        <section class="pf-c-page__main-section pf-m-light">
-          <div class="pf-c-empty-state">
-            <div class="pf-c-empty-state__content">
-              <img class="pf-c-empty-state__icon" aria-hidden="true" src="sosreport.png" alt="">
-              <div class="pf-c-empty-state__body">
-                <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
-                <p translate="yes">The collected information will be stored locally on the system.</p>
-                <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+              <div class="pf-c-empty-state">
+                <div class="pf-c-empty-state__content">
+                  <img class="pf-c-empty-state__icon" aria-hidden="true" src="sosreport.png" alt="" style="width:250px;height:250px;">
+                  <div class="pf-c-empty-state__body">
+                    <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
+                    <p translate="yes">The collected information will be stored locally on the system.</p>
+                    <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
+                </div>
+                <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
+              </div>
+            </section>
+        </main>
+    </div>
+
+    <div hidden id="sos-options-menu">
+        <div class="pf-c-backdrop">
+            <div class="pf-l-bullseye">
+                <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+                    <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="sos-options-close-button">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                    <header class="pf-c-modal-box__header">
+                        <h1 class="pf-c-modal-box__title" translate="yes">Set SoS Report Options</h4>
+                        <small>All settings are optional, if in doubt leave default values and click 'Run Report'</small>
+                    </header>
+                    <div class="pf-c-modal-box__body">
+                        <div id="sos-settings-body">
+                            <form class="ct-form" id="sos-opts-form">
+                                <label class="control-label" for="sos-label">Report Label</label>
+                                <input id="sos-label" class="form-control" type="text" title="Append a label/name to the final report archive name. No spaces.">
+
+                                <label class="control-label" for="sos-case-id">Case Number</label>
+                                <input id="sos-case-id" class="form-control" title="If you have a support case open with a vendor, enter that case id here">
+
+                                <label class="control-label" for="sos-log-size">Log Size Limit</label>
+                                <input id="sos-log-size" class="form-control" title="Maximum size in MB to collect for each log file or command output (default 25)">
+
+                                <label class="control-label" for="sos-threads">Threads</label>
+                                <select id="sos-threads" class="form-control" title="Number of plugins to run concurrently">
+                                    <!-- 4 is the default, and more than that shows significant diminishing returns
+                                         so only provide option to reduce concurrent plugin count -->
+                                    <option value=1>1</option>
+                                    <option value=2>2</option>
+                                    <option value=3>3</option>
+                                    <option value=4 selected>4</option>
+                                </select>
+
+                                <label class="control-label" for="sos-skip-plugins">Skip These Plugins</label>
+                                <input id="sos-skip-plugins" class="form-control" title="List of plugin names to skip, comma delimited">
+
+                                <label class="control-label" for="sos-only-plugins">Only Run These Plugins</label>
+                                <input id="sos-only-plugins" class="form-control" title="List of plugin names to ONLY run, comma delimited">
+
+                                <label class="control-label" for="sos-plugin-option">Plugin Options</label>
+                                <input id="sos-plugin-option" class="form-control" title="Set plugin options, comma delimited list. Options take the form <plugin>.<option>=<value>">
+
+                                <label class="control-label" for="sos-allow-system-changes">Allow System Changes &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="Certain system changes may be made such as loading kernel modules"></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-allow-system-changes" type="checkbox">
+                                </label>
+
+                                <label class="control-label" for="sos-all-logs">Collect ALL Logs &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="Collect all logs (and rotated logs) without sizelimit (WILL significantly increase archive size), overrides Log Size Limit"></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-all-logs" type="checkbox">
+                                </label>
+
+                                <label class="control-label" for="sos-no-postproc">Skip Post Processing &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="Do not have plugins perform post processing, such as removing passwords"></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-no-postproc" type="checkbox">
+                                </label>
+
+                                <label class="control-label pf-c-switch" for="sos-verify">Verify Packages &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="Have the package manager verify all installed packages"></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-verify" type="checkbox">
+                                </label>
+
+                                <label class="control-label" for="sos-verbose">Verbose Logging &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="Enable sosreport verbose logging, useful for debugging sos issues"></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-verbose" type="checkbox">
+                                </label>
+
+                                <label class="control-label" for="sos-clean">Obfuscate Potentially Sensitive Data &nbsp;&nbsp;
+                                    <span class="pficon pficon-help" title="After report generation, obfuscate data like IP addresses, domains, usernames, etc..."></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-clean" type="checkbox">
+                                </label>
+
+                                <label class="control-label" for="sos-keywords">Additional Keywords</label>
+                                <input id="sos-keywords" class="form-control" title="Keywords to individually obfuscate, comma delimited">
+
+                                <label class="control-label" for="sos-domains">Additional Domains</label>
+                                <input id="sos-domains" class="form-control" title="Domains to obfuscate in addition to the local domain, comma delimited">
+
+                                <label class="control-label" for="sos-usernames">Additional Usernames</label>
+                                <input id="sos-usernames" class="form-control" title="Usernames to obfuscate in addition to those reported by lastlog, comma delimited">
+                            </form>
+                        </div>
+                    </div>
+                    <footer class="pf-c-modal-box__footer">
+                        <button class="pf-c-button pf-m-primary" id="sos-options-run">Run Report</button>
+                        <button class="pf-c-button pf-m-link" id="sos-options-cancel">Cancel</button>
+                    </footer>
+                </div>
             </div>
-            <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
-          </div>
-        </section>
-      </main>
+        </div>
     </div>
 
     <div hidden aria-hidden="true" id="sos">

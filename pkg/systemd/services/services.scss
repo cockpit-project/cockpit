@@ -4,8 +4,15 @@
 @import "./timer.scss";
 @import "../../lib/table.css";
 
+// The service list lacks a top border.
+// However, the toolbar also lacks a border and is sticky, so add a bottom
+// border to the toolbar to separate the toolbar and list.
+.services-toolbar {
+    border-bottom: 1px solid var(--pf-global--BorderColor--100);
+}
+
 // Magic pixie dust to make the list a bit faster and more furious
-.services-list {
+.services-list tbody {
     // Skip a lot of computations
     contain: content;
 }

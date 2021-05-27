@@ -946,6 +946,7 @@ class ServicesPage extends React.Component {
                     <Card isCompact>
                         <Toolbar data-loading={this.state.loadingUnits}
                                  clearAllFilters={this.onClearAllFilters}
+                                 className="ct-sticky ct-compact services-toolbar"
                                  id="services-toolbar">
                             <ToolbarContent>{toolbarItems}</ToolbarContent>
                         </Toolbar>

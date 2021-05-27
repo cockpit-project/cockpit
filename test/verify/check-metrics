@@ -398,7 +398,7 @@ class TestHistoryMetrics(MachineCase):
 
         b.go("/metrics")
         b.enter_page("/metrics")
-        b.click("button:contains('All logs')")
+        b.click("button:contains('View all logs')")
         b.enter_page("/system/logs")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
 

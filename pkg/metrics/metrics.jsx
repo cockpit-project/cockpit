@@ -891,13 +891,16 @@ const PCPConfig = ({ buttonVariant }) => {
 
     const handleSave = () => {
         setPending(true);
+        // enable/disable does a daemon-reload, which interferes with start on some distros; so don't run them in parallel
         if (dialogLoggerValue) {
-            Promise.all([s_pmlogger.start(), s_pmlogger.enable()])
+            s_pmlogger.start()
+                    .then(() => s_pmlogger.enable())
                     .then(() => setDialogVisible(false))
                     .catch(err => setDialogError(err.toString()))
                     .finally(() => setPending(false));
         } else {
-            Promise.all([s_pmlogger.stop(), s_pmlogger.disable()])
+            s_pmlogger.stop()
+                    .then(() => s_pmlogger.disable())
                     .then(() => setDialogVisible(false))
                     .catch(err => setDialogError(err.toString()))
                     .finally(() => setPending(false));

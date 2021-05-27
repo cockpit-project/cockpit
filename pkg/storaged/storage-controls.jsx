@@ -193,7 +193,7 @@ export class StorageOnOff extends React.Component {
  * in a dangerous color.
  */
 
-export const StorageUsageBar = ({ stats, critical }) => {
+export const StorageUsageBar = ({ stats, critical, block }) => {
     if (!stats)
         return null;
 
@@ -204,6 +204,7 @@ export const StorageUsageBar = ({ stats, critical }) => {
         <Progress value={stats[0]} max={stats[1]}
             valueText={labelText}
             label={labelText}
+            aria-label={cockpit.format(_("Usage of $0"), block)}
             variant={fraction > critical ? ProgressVariant.danger : ProgressVariant.info}
             measureLocation={ProgressMeasureLocation.outside} />
     );

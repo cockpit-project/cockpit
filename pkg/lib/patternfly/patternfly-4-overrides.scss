@@ -1,4 +1,6 @@
 /*** PF4 overrides ***/
+// Pull in variables (for breakpoints)
+@import "_global-variables.scss";
 
 /* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */
 /* See: https://github.com/patternfly/patternfly-design/issues/840 */
@@ -40,7 +42,7 @@ svg {
     }
 }
 
-// The default gap between the rows in horizonal lists is too large
+// The default gap between the rows in horizontal lists is too large
 .pf-c-description-list.pf-m-horizontal {
     --pf-c-description-list--RowGap: 1rem;
 }
@@ -130,4 +132,33 @@ svg {
 .pf-c-alert__title {
     font-size: inherit;
     font-family: inherit;
+}
+
+.pf-c-toolbar {
+    // There should be an opt-in to make toolbars sticky.
+    // For now, we'll use a ct-sticky class while we wait for an official solution.
+    // https://github.com/patternfly/patternfly/issues/4113
+    &.ct-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    // Make summary content use the same vertical space as the filter toggle,
+    // when possible.
+    // https://github.com/patternfly/patternfly/issues/4115
+    &.ct-compact {
+        @media screen and (max-width: $pf-global--breakpoint--lg - 1) {
+            display: flex;
+            flex-wrap: wrap;
+
+            > .pf-c-toolbar__content:first-child {
+                flex: auto;
+            }
+
+            .pf-c-toolbar__content-section {
+                width: auto;
+            }
+        }
+    }
 }

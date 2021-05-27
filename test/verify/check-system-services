@@ -391,6 +391,7 @@ Unit=test.service
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
         b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
+        b.wait_not_present("button:contains('View all logs')")
 
         b.go("#/")
 

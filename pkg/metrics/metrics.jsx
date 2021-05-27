@@ -730,7 +730,7 @@ class MetricsMinute extends React.Component {
                 { this.props.events.events.map(t => <span className="type" key={ t }>{ RESOURCES[t].event_description }</span>) }
                 <div className="details">
                     <time>{ moment(timestamp).format('LT') }</time>
-                    {this.state.expanded && this.state.logsUrl ? <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>{_("All logs")}</Button> : null}
+                    {this.state.expanded && this.state.logsUrl && this.state.logs && this.state.logs.length ? <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>{_("View all logs")}</Button> : null}
                 </div>
             </div>;
 

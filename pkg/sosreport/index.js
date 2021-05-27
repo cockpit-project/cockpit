@@ -49,6 +49,24 @@ function sos_error(message, extra) {
     document.getElementById("sos-error").removeAttribute("hidden");
 }
 
+function get_sos_opts() {
+    const opts = ["sos", "report", "--batch", "-v", "-n", "logs"];
+    const data = document.getElementById("sos-opts-form").elements;
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].type == 'checkbox') {
+            if (data[i].checked) {
+                opts.push("--" + data[i].id.split("sos-")[1]);
+            }
+        } else {
+            if (data[i].value) {
+                opts.push("--" + data[i].id.split("sos-")[1]);
+                opts.push(data[i].value);
+            }
+        }
+    }
+    return opts;
+}
+
 function sos_create() {
     document.querySelector("#sos-progress .progress-bar").style.width = "0%";
     document.getElementById("sos-download").setAttribute("hidden", "hidden");
@@ -58,7 +76,9 @@ function sos_create() {
     sos_archive_url = null;
     sos_archive_files = [];
 
-    const task = cockpit.spawn(["sosreport", "--batch"],
+    const cmd = get_sos_opts();
+
+    const task = cockpit.spawn(cmd,
                                { superuser: true, err: "out", pty: true });
     sos_task = task;
 
@@ -113,7 +133,7 @@ function sos_create() {
                 if (archive.indexOf("/host") === 0)
                     archive = archive.substr(5);
 
-                sos_archive_files = [archive, archive + ".md5"];
+                sos_archive_files = [archive, archive + ".md5", archive + ".sha256"];
 
                 const query = window.btoa(JSON.stringify({
                     payload: "fsread1",
@@ -179,9 +199,23 @@ function sos_download() {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("create-button").addEventListener("click", () => {
+        document.getElementById("sos-options-menu").removeAttribute("hidden");
+    });
+
+    document.getElementById("sos-options-close-button").addEventListener("click", () => {
+        document.getElementById("sos-options-menu").setAttribute("hidden", "hidden");
+    });
+
+    document.getElementById("sos-options-cancel").addEventListener("click", () => {
+        document.getElementById("sos-options-menu").setrAttribute("hidden", "hidden");
+    });
+
+    document.getElementById("sos-options-run").addEventListener("click", () => {
+        document.getElementById("sos-options-menu").setAttribute("hidden", "hidden");
         document.getElementById("sos").removeAttribute("hidden");
         sos_init();
     });
+
     document.getElementById("sos-cancel").addEventListener("click", sos_cancel);
     document.querySelector("#sos-download button").addEventListener("click", sos_download);
 

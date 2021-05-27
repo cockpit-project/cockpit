@@ -28,20 +28,60 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   </head>
   <body class="pf-m-redhat-font" hidden>
     <div class="pf-c-page">
-      <main class="pf-c-page__main" tabindex="-1">
-        <section class="pf-c-page__main-section pf-m-light">
-          <div class="pf-c-empty-state">
-            <div class="pf-c-empty-state__content">
-              <img class="pf-c-empty-state__icon" aria-hidden="true" src="sosreport.png" alt="">
-              <div class="pf-c-empty-state__body">
-                <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
-                <p translate="yes">The collected information will be stored locally on the system.</p>
-                <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+              <div class="pf-c-empty-state">
+                <div class="pf-c-empty-state__content">
+                  <img class="pf-c-empty-state__icon" aria-hidden="true" src="sosreport.png" alt="" width=150px>
+                  <div class="pf-c-empty-state__body">
+                    <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
+                    <p translate="yes">The collected information will be stored locally on the system.</p>
+                    <p id="switch-instructions" translate="yes">You need to switch to "Administrative access" in order to create reports.</p>
+                </div>
+                <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
+              </div>
+            </section>
+        </main>
+    </div>
+
+    <div hidden id="sos-options-menu">
+        <div class="pf-c-backdrop">
+            <div class="pf-l-bullseye">
+                <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
+                    <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="sos-options-close-button">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                    <header class="pf-c-modal-box__header">
+                        <h1 class="pf-c-modal-box__title" translate="yes">Set SoS Report Options</h4>
+                    </header>
+                    <div class="pf-c-modal-box__body">
+                        <div id="sos-settings-body">
+                            <form class="ct-form" id="sos-opts-form">
+                                <label class="control-label" for="sos-label" translate="yes">Report label</label>
+                                <input id="sos-label" class="form-control" type="text" translate="title" title="Append a label/name to the final report archive name. No spaces.">
+
+                                <label class="control-label" for="sos-case-id" translate="yes">Case number</label>
+                                <input id="sos-case-id" class="form-control" translate="title" title="If you have a support case open with a vendor, enter that case id here">
+
+                                <label class="control-label" for="sos-encrypt-pass" translate="yes">Encrypt archive with passphrase</label>
+                                <input id="sos-encrypt-pass" class="form-control" translate="title" title="Encrypt the archive with this passphrase" placeholder="Leave empty to not encrypt">
+
+                                <label class="control-label" for="sos-clean" translate="yes">Obfuscate potentially sensitive data
+                                    <span class="pficon pficon-help" translate="title" title="After report generation, obfuscate data like IP addresses, domains, usernames, etc..."></span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="sos-clean" type="checkbox">
+                                </label>
+                            </form>
+                        </div>
+                    </div>
+                    <footer class="pf-c-modal-box__footer">
+                        <button class="pf-c-button pf-m-primary" id="sos-options-run">Run Report</button>
+                        <button class="pf-c-button pf-m-link" id="sos-options-cancel">Cancel</button>
+                    </footer>
+                </div>
             </div>
-            <button id="create-button" translate="yes" class="pf-c-button pf-m-primary">Create report</button>
-          </div>
-        </section>
-      </main>
+        </div>
     </div>
 
     <div hidden aria-hidden="true" id="sos">
@@ -56,7 +96,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                             <div class="pf-c-alert__icon">
                                 <span class="pficon pficon-info"></span>
                             </div>
-                            <h4 class="pf-c-alert__title alert-message" translate="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</h4>
+                            <h4 class="pf-c-alert__title alert-message" translate="yes">The generated archive may contain data considered to be sensitive and its content should be reviewed by the originating organization before being passed to any third party.</h4>
                         </div>
                         <div id="sos-progress" class="text-center">
                             <div translate="yes">Generating report</div>

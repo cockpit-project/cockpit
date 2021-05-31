@@ -416,7 +416,7 @@ class TestHistoryMetrics(MachineCase):
         m.execute("""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
                      chown -R pcp:pcp /var/log/pcp/pmlogger
                      restorecon /var/log/pcp/pmlogger || true""")
-        self.addCleanup(m.execute, "systemctl stop pmlogger; umount /var/log/pcp/pmlogger")
+        self.addCleanup(m.execute, "systemctl stop pmlogger; until umount /var/log/pcp/pmlogger; do sleep 1; done")
 
         self.login_and_go("/metrics")
 
@@ -440,6 +440,8 @@ class TestHistoryMetrics(MachineCase):
         with self.browser.wait_timeout(90):
             self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
         b.wait_not_present(".pf-c-empty-state")
+
+        b.logout()
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")

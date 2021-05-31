@@ -109,6 +109,10 @@ const info = {
             "storaged/devices.jsx"
         ],
 
+        "nifi/nifi": [
+            "nifi/index.html"
+        ],
+
         "systemd/services": [
             "systemd/services/services.jsx",
             "systemd/services/services.scss",
@@ -231,6 +235,8 @@ const info = {
         "storaged/index.html",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
+
+        "nifi/index.html",
 
         "systemd/index.html",
         "systemd/logs.html",

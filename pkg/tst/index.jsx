@@ -32,7 +32,7 @@ import { get_metainfo_db } from "./appstream.js";
 import "page.scss";
 
 var metainfo_db = get_metainfo_db();
-
+console.log('metainfo_db: ', metainfo_db);
 function render_list() {
     ReactDOM.render(<ApplicationList metainfo_db={metainfo_db} />,
                     document.getElementById('list'));

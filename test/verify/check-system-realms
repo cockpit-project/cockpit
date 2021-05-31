@@ -822,6 +822,8 @@ ExecStart=/bin/true
         self.assertIn('"csrf-token"', output)
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
+        print('output: ' + output)
+        print('cookie: ' + cookie)
         b.open("/system/terminal", cookie={"name": "cockpit", "value": cookie, "domain": m.web_address, "path": "/"})
         b.wait_visible('#content')
 

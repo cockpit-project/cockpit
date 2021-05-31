@@ -52,11 +52,11 @@ class ApplicationRow extends React.Component {
         }
 
         function install() {
-            action(PackageKit.install, comp.pkgname, _("Installing"));
+            action(PackageKit.install, comp.pkgname, _("Installing123"));
         }
 
         function remove() {
-            action(PackageKit.remove, comp.file, _("Removing"));
+            action(PackageKit.remove, comp.file, _("Removing123"));
         }
 
         var name, summary_or_progress, button;
@@ -85,7 +85,7 @@ class ApplicationRow extends React.Component {
             }
 
             if (comp.installed) {
-                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
+                button = <Button variant="danger" onClick={left_click(remove)}>{_("fgfg")}</Button>;
             } else {
                 button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }

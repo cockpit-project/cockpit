@@ -50,6 +50,7 @@ def send_auth_command(challenge, response):
     if response:
         cmd["response"] = response
 
+    print('cmd' + cmd)
     text = json.dumps(cmd).encode('utf-8')
     os.write(1, "{}\n\n".format(len(text)+1).encode('utf-8'))
     os.write(1, text)
@@ -114,6 +115,7 @@ def read_auth_reply():
     return response
 
 def decode_basic_header(response):
+    print('response: '+ response)
     starts = "Basic "
 
     assert response

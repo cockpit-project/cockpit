@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pinger</title>
+    <meta charset="utf-8">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+</head>
+<body>
+   <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <table class="form-table-ct">
+                    <tr>
+                        <td><label class="control-label" for="address">Address</label></td>
+                        <td><input class="form-control" id="address" value="8.8.8.8"></td>
+                    </tr>
+                    <tr>
+                        <td><button class="pf-c-button pf-m-primary" id="ping">Ping</button></td>
+                        <td><span id="result"></span></td>
+                    </tr>
+                </table>
+                <pre id="output"></pre>
+            </section>
+        </main>
+    </div>
+
+    <script src="pinger.js"></script>
+</body>
+</html>
+

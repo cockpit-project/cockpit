@@ -1,4 +1,5 @@
 /* Patch IE to support forEach on NodeLists, used in show/hide */
+// var cockpit = require("cockpit");
 if (window.NodeList && !NodeList.prototype.forEach)
     NodeList.prototype.forEach = Array.prototype.forEach;
 
@@ -502,6 +503,29 @@ if (window.NodeList && !NodeList.prototype.forEach)
             org_application.indexOf("cockpit+=") === -1;
     }
 
+    function call_sso_login() {
+        login_failure(null);
+        application = org_application;
+        login_path = org_login_path;
+        brand("badge", "");
+        brand("brand", "Cockpit");
+        var user = "rajat";
+        // var password = "rajat";
+        id("sso-login-button").removeEventListener("click", call_sso_login);
+        var superuser_key = "superuser:" + user;
+        var superuser = localStorage.getItem(superuser_key) || "any";
+        localStorage.setItem("superuser-key", "superuser:" + user);
+        localStorage.setItem(superuser_key, superuser);
+
+        /* Keep information if login page was used */
+        localStorage.setItem('standard-login', true);
+
+        // var headers = {
+        //     Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
+        //     "X-Superuser": superuser,
+        // };
+    }
+
     function call_login() {
         login_failure(null);
         var machine;
@@ -584,6 +608,9 @@ if (window.NodeList && !NodeList.prototype.forEach)
 
         if (form == "login")
             id("login-button").addEventListener("click", call_login);
+
+        if (id("sso-login-button"))
+            id("sso-login-button").addEventListener("click", call_sso_login);
     }
 
     function show_login(message) {
@@ -785,6 +812,7 @@ if (window.NodeList && !NodeList.prototype.forEach)
             }
             if (xhr.status == 200) {
                 var resp = JSON.parse(xhr.responseText);
+                console.log("xhr.responseText: ", xhr.responseText);
                 run(resp);
             } else if (xhr.status == 401) {
                 challenge = xhr.getResponseHeader("WWW-Authenticate");

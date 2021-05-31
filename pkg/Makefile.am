@@ -10,6 +10,7 @@ metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml
 		pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml \
 		pkg/machines/org.cockpit-project.cockpit-machines.metainfo.xml \
 		pkg/storaged/org.cockpit-project.cockpit-storaged.metainfo.xml \
+		pkg/nifi/org.cockpit-project.cockpit-nifi.metainfo.xml \
 		$(NULL)
 
 pixmapsdir = ${datarootdir}/pixmaps

@@ -207,8 +207,13 @@ function Machines() {
 
     function update_session_machine(machine, host, values) {
         /* We don't save the whole machine object */
+        console.log('mchine:', machine);
+        console.log('host:', host);
+        console.log('values:', values);
         var skey = generate_session_key(host);
+        console.log('skey:', skey);
         var data = $.extend({}, machine, values);
+        console.log('data:', data);
         window.sessionStorage.setItem(skey, JSON.stringify(data));
         self.overlay(host, values);
         return cockpit.when([]);

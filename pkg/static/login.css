@@ -163,7 +163,7 @@ p {
 }
 
 .login-actions {
-  display: flex;
+  display: grid;
   align-items: baseline;
   grid-gap: 1rem;
 }
@@ -271,7 +271,7 @@ label.checkbox {
   display: inline-block;
 }
 
-#login-button[spinning] .spinner {
+#login-button[spinning] .spinner, #sso-login-button[spinning] .spinner {
   display: inline-flex;
 }
 
@@ -561,10 +561,16 @@ label.checkbox {
   display: none;
 }
 
+#sso-login-button .spinner,
+#sso-login-button[spinning] #sso-login-button-text,
+.hide-before:before {
+  display: none;
+}
+
 /* Hide inline login screen by default */
 .inline #badge,
 .inline #brand,
-.inline #login-details {
+.inline #login-details, .inline #sso-login-details {
   display: none;
 }
 
@@ -613,7 +619,7 @@ label.checkbox {
   margin-bottom: 1rem;
 }
 
-#login-button {
+#login-button, #sso-login-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -626,6 +632,11 @@ label.checkbox {
   flex-basis: max-content;
 }
 
+#hostkey-group:not([hidden]) ~ .login-actions > #sso-login-button {
+  flex-basis: max-content;
+}
+
+#login-button[disabled],
 #login-button[disabled] {
   background-color: #333;
   background-image: none;

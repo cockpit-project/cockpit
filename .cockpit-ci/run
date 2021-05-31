@@ -1,1 +1,42 @@
-../test/run
+#!/bin/sh
+
+# This is the expected entry point for Cockpit CI; will be called without
+# arguments but with an appropriate $TEST_OS, and optionally $TEST_SCENARIO
+
+set -eu
+
+tools/make-bots
+
+TEST_SCENARIO=${TEST_SCENARIO:-verify}
+TEST_OS_DEFAULT=$(PYTHONPATH=bots python3 -c 'from machine.machine_core.constants import TEST_OS_DEFAULT; print(TEST_OS_DEFAULT)')
+
+case $TEST_SCENARIO in
+    verify)
+        # do a development build on the latest Fedora image so that we can spot React and other dev-only warnings
+        if [ "$TEST_OS" = "$TEST_OS_DEFAULT" ]; then
+            export NODE_ENV=development
+        fi
+        test/image-prepare --verbose $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        ;;
+    firefox)
+        test/image-prepare --quick --verbose $TEST_OS
+        TEST_BROWSER=firefox test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        ;;
+    selenium-*)
+        test/image-prepare --quick --verbose $TEST_OS
+        test/selenium/run-tests --browser ${TEST_SCENARIO#*-}
+        ;;
+    container-*)
+        test/image-prepare --quick --containers --verbose $TEST_OS
+        test/containers/run-tests --container ${TEST_SCENARIO#*-}
+        ;;
+    dnf-copr*)
+        bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y update' $TEST_OS
+        test/image-prepare --verbose --overlay $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        ;;
+    *)
+        echo "Unknown test scenario: $TEST_SCENARIO"
+        exit 1
+esac

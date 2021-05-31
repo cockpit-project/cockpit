@@ -177,6 +177,7 @@ WEBPACK_PACKAGES = \
 	ssh \
 	static \
 	storaged \
+	nifi \
 	systemd \
 	tuned \
 	users \

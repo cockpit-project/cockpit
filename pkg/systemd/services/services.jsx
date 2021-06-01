@@ -33,7 +33,6 @@ import {
     ToolbarContent,
     ToolbarItem,
     ToolbarFilter,
-    ToolbarGroup,
     ToolbarToggleGroup,
 } from '@patternfly/react-core';
 import { SearchIcon, ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
@@ -935,12 +934,14 @@ class ServicesPage extends React.Component {
 
         return (
             <Page>
-                <PageSection variant={PageSectionVariants.light} type='nav'>
+                <PageSection variant={PageSectionVariants.light} type='nav' className="services-header">
                     <ServiceTabs activeTab={activeTab}
                                  tabErrors={this.state.tabErrors}
                                  onChange={activeTab => {
                                      cockpit.location.go([], Object.assign(cockpit.location.options, { type: activeTab }));
                                  }} />
+                    {activeTab == "timer" &&
+                    this.state.privileged && <CreateTimerDialog /> }
                 </PageSection>
                 <PageSection>
                     <Card isCompact>

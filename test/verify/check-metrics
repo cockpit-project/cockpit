@@ -521,7 +521,7 @@ class TestHistoryMetrics(MachineCase):
 
         self.addCleanup(m.execute, f"systemctl stop {redis}")
 
-        def checkEnable():
+        def checkEnable(firewalld_alert):
             b.click("#metrics-header-section button.pf-m-secondary")
             b.wait_visible("#pcp-settings-modal")
             b.wait_visible("#switch-pmproxy:not(:checked)")
@@ -529,6 +529,10 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             b.click("#pcp-settings-modal button.pf-m-primary")
             b.wait_not_present("#pcp-settings-modal")
+            if firewalld_alert:
+                b.wait_visible(".pf-c-alert:contains(pmproxy)")
+            else:
+                b.wait_not_present(".pf-c-alert:contains(pmproxy)")
             m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
@@ -544,6 +548,8 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             b.click("#pcp-settings-modal button.pf-m-primary")
             b.wait_not_present("#pcp-settings-modal")
+            # always clears the firewalld alert
+            b.wait_not_present(".pf-c-alert:contains(pmproxy)")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
             self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
             # keeps redis running, it's a shared service
@@ -554,6 +560,9 @@ class TestHistoryMetrics(MachineCase):
 
         # start in a defined state; all test images have pcp and redis pre-installed
         m.execute(f"systemctl disable --now pmproxy {redis}")
+        m.execute("systemctl start firewalld")
+        # ensure pmproxy is not already opened in firewall
+        m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
         self.login_and_go("/metrics")
 
         # pmproxy can't be enabled without pmlogger
@@ -569,13 +578,14 @@ class TestHistoryMetrics(MachineCase):
         b.wait_not_present("#pcp-settings-modal")
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
+        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
 
-        checkEnable()
+        checkEnable(True)
         checkDisable()
 
         # redis already running
         m.execute(f"systemctl start {redis}")
-        checkEnable()
+        checkEnable(True)
         checkDisable()
 
         # pmproxy already running; 44322 queries hang without redis and until restart
@@ -584,7 +594,65 @@ class TestHistoryMetrics(MachineCase):
         b.logout()
         m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
         b.login_and_go("/metrics")
-        checkEnable()
+        checkEnable(True)
+
+        # without firewalld
+        m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
+        m.execute("systemctl stop firewalld")
+        self.allow_journal_messages(".*org.fedoraproject.FirewallD1.*disconnected.*")
+        checkDisable()
+        checkEnable(False)
+        m.execute("systemctl start firewalld")
+
+        # Go to firewall page from alert
+        checkDisable()
+        checkEnable(True)
+        b.click(".pf-c-alert button.pf-m-link")
+        b.enter_page("/network/firewall")
+        b.wait_visible("#firewall-heading")
+        b.go("/metrics")
+        b.enter_page("/metrics")
+
+        # add pmproxy to default zone directly in alert
+        default_zone = m.execute("firewall-cmd --get-default-zone").strip()
+        b.wait_text("#firewalld-request-pmproxy", default_zone)
+        b.click(".pf-c-alert button.pf-m-primary")
+        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
+        self.assertIn("pmproxy", m.execute("firewall-cmd --list-services --permanent").strip())
+
+        # now service is already enabled, does not show alert
+        checkDisable()
+        checkEnable(False)
+
+        # firewalld service enabled in permanent config already, does not trip over ALREADY_ENABLED
+        checkDisable()
+        m.execute("firewall-cmd --remove-service pmproxy")
+        checkEnable(True)
+        b.click(".pf-c-alert button.pf-m-primary")
+        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
+
+        # error during zone addition: zone disappears underneath us
+        checkDisable()
+        m.execute("""set -eux
+                     firewall-cmd --permanent --remove-service pmproxy
+                     firewall-cmd --permanent --new-zone=comeandgo
+                     nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24
+                     firewall-cmd --permanent --zone public --remove-interface fake0
+                     firewall-cmd --permanent --zone comeandgo --add-interface fake0
+                     firewall-cmd --reload
+                  """)
+        self.addCleanup(m.execute, "nmcli con delete fake; firewall-cmd --permanent --delete-zone comeandgo || true; firewall-cmd  --reload")
+        checkEnable(True)
+        b.select_PF4("#firewalld-request-pmproxy", "comeandgo")
+        m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
+        b.click(".pf-c-alert button.pf-m-primary")
+        b.wait_in_text(".pf-c-alert.pf-m-warning", "Failed to enable pmproxy in firewalld")
+        b.wait_in_text(".pf-c-alert.pf-m-warning", "INVALID_ZONE: comeandgo")
+        # close warning
+        b.click(".pf-c-alert.pf-m-warning button.pf-m-plain")
+        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
 
         # reacts to service changes from outside; this is asynchronous and the dialog deliberately
         # does not update automatically, so retry a few times

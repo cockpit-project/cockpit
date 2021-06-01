@@ -51,6 +51,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { FirewalldRequest } from "cockpit-components-firewalld-request.jsx";
 import "journal.css";
 
 const MSEC_PER_H = 3600000;
@@ -875,11 +876,12 @@ class MetricsHour extends React.Component {
 const persistentServiceState = proxy => ['running', 'stopped', 'failed', undefined].indexOf(proxy.state) >= 0;
 const validServiceState = proxy => ['running', 'stopped'].indexOf(proxy.state) >= 0;
 
-const PCPConfig = ({ buttonVariant }) => {
+const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogError, setDialogError] = useState(null);
     const [dialogLoggerValue, setDialogLoggerValue] = useState(false);
     const [dialogProxyValue, setDialogProxyValue] = useState(null);
+    const [dialogInitialProxyValue, setDialogInitialProxyValue] = useState(null);
     const [pending, setPending] = useState(false);
 
     const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
@@ -921,24 +923,32 @@ const PCPConfig = ({ buttonVariant }) => {
         else
             action = s_pmlogger.stop().finally(() => s_pmlogger.disable());
 
-        if (dialogProxyValue === true) {
-            // pmproxy.service needs to (re)start *after* redis to recognize it
-            action = action
-                    .then(() => real_redis.start())
-                    .then(() => s_pmproxy.restart())
-                    // turn redis into a dependency, as the metrics API requires it
-                    .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
-                    .then(() => s_pmproxy.enable());
-        } else if (dialogProxyValue === false) {
-            // don't stop redis here -- it's a shared service, other things may be using it
-            action = action
-                    .then(() => s_pmproxy.stop())
-                    .then(() => cockpit.script(redis_disable_cmd, { superuser: "require", err: "message" }))
-                    .then(() => s_pmproxy.disable());
+        if (dialogProxyValue !== null && dialogInitialProxyValue !== dialogProxyValue) {
+            if (dialogProxyValue === true) {
+                // pmproxy.service needs to (re)start *after* redis to recognize it
+                action = action
+                        .then(() => real_redis.start())
+                        .then(() => s_pmproxy.restart())
+                        // turn redis into a dependency, as the metrics API requires it
+                        .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
+                        .then(() => s_pmproxy.enable());
+            } else {
+                // don't stop redis here -- it's a shared service, other things may be using it
+                action = action
+                        .then(() => s_pmproxy.stop())
+                        .then(() => cockpit.script(redis_disable_cmd, { superuser: "require", err: "message" }))
+                        .then(() => s_pmproxy.disable());
+            }
         }
 
         action
-                .then(() => setDialogVisible(false))
+                .then(() => {
+                    setDialogVisible(false);
+                    if (dialogProxyValue && !dialogInitialProxyValue && firewalldRequest)
+                        firewalldRequest({ service: "pmproxy", title: _("Open the pmproxy service in the firewall to share metrics.") });
+                    else
+                        firewalldRequest(null);
+                })
                 .catch(err => setDialogError(err.toString()))
                 .finally(() => setPending(false));
     };
@@ -968,10 +978,9 @@ const PCPConfig = ({ buttonVariant }) => {
                     isDisabled={ !persistentServiceState(s_pmlogger) }
                     onClick={ () => {
                         setDialogLoggerValue(s_pmlogger.state === 'running');
-                        if (pmproxy_option)
-                            setDialogProxyValue(s_pmproxy.state === 'running' && real_redis.state === 'running');
-                        else
-                            setDialogProxyValue(null);
+                        const proxy_value = pmproxy_option ? (s_pmproxy.state === 'running' && real_redis.state === 'running') : null;
+                        setDialogInitialProxyValue(proxy_value);
+                        setDialogProxyValue(proxy_value);
                         setDialogError(null);
                         setDialogVisible(true);
                     } }>
@@ -1261,7 +1270,7 @@ class MetricsHistory extends React.Component {
 
             if (this.pmlogger_service.state === 'stopped') {
                 paragraph = _("pmlogger.service is not running");
-                action = <PCPConfig buttonVariant="primary" />;
+                action = <PCPConfig buttonVariant="primary" firewalldRequest={this.props.firewalldRequest} />;
             } else {
                 if (this.pmlogger_service.state === 'failed')
                     paragraph = _("pmlogger.service has failed");
@@ -1365,8 +1374,10 @@ class MetricsHistory extends React.Component {
     }
 }
 
-export const Application = () => (
-    <Page groupProps={{ sticky: 'top' }}
+export const Application = () => {
+    const [firewalldRequest, setFirewalldRequest] = useState(null);
+
+    return <Page groupProps={{ sticky: 'top' }}
           additionalGroupedContent={
               <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
                   <Flex>
@@ -1377,16 +1388,18 @@ export const Application = () => (
                           </Breadcrumb>
                       </FlexItem>
                       <FlexItem align={{ default: 'alignRight' }}>
-                          <PCPConfig buttonVariant="secondary" />
+                          <PCPConfig buttonVariant="secondary" firewalldRequest={setFirewalldRequest} />
                       </FlexItem>
                   </Flex>
               </PageSection>
           }>
+        { firewalldRequest &&
+            <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
         <PageSection>
             <CurrentMetrics />
         </PageSection>
         <PageSection>
-            <MetricsHistory />
+            <MetricsHistory firewalldRequest={setFirewalldRequest} />
         </PageSection>
-    </Page>
-);
+    </Page>;
+};

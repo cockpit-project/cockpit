@@ -43,18 +43,10 @@ class PackageCase(MachineCase):
         else:
             raise NotImplementedError("unknown image " + self.machine.image)
 
-        # PackageKit refuses to work when offline
-        if "ubuntu" in self.image:
-            # Ubuntu images don't use NM for the main interface; PackageKit insists on a default route, so add a fake one
+        if "debian" in self.image or "ubuntu" in self.image:
+            # PackageKit refuses to work when offline, and main interface is not managed by NM on these images
             self.machine.execute("nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24 gw4 1.2.3.1")
             self.addCleanup(self.machine.execute, "nmcli con delete fake")
-        else:
-            # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
-            # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
-            self.machine.execute('''set -e; systemctl start libvirtd;
-                while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
-                                               org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
-            ''')
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":

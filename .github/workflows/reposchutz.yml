@@ -14,6 +14,14 @@ jobs:
       BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
     steps:
+      - name: Create work area
+        run: |
+          set -x
+          git init -b main
+          # git fetch --shallow-exclude="${BASE_SHA}" origin "${BASE_SHA}"  # GitHub doesn't support this
+          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+          git fetch origin "${BASE_SHA}" "${HEAD_SHA}"
+
       - name: Clear .github-changes label
         if: ${{ !endsWith(github.event.action, 'labeled') }}
         uses: actions/github-script@v3
@@ -24,7 +32,7 @@ jobs:
               await github.issues.removeLabel({ owner, repo, issue_number, name: '.github-changes' });
             } catch (e) {
               if (e.name == 'HttpError' && e.status == 404) {
-                /* expected: 404 if label isn't set */
+                /* expected: 404 if label is unset */
               } else {
                 throw e;
               }
@@ -37,8 +45,28 @@ jobs:
                 !contains(github.event.pull_request.labels.*.name, '.github-changes') }}
         run: |
           set -x
-          git init -b main
-          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-          # git fetch --shallow-exclude="${BASE_SHA}" origin "${BASE_SHA}"  # GitHub doesn't support this
-          git fetch origin "${BASE_SHA}" "${HEAD_SHA}"
           git log --full-history --exit-code --patch "${HEAD_SHA}" --not "${BASE_SHA}" -- .github >&2
+
+      - name: Check for node_modules availability and package.json consistency
+        run: |
+          set -x
+          git remote add cache "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY%/*}/node-cache"
+
+          # for each commit in the PR...
+          for commit in $(git log --full-history --format=%H "${HEAD_SHA}" --not "${BASE_SHA}" --reverse); do
+              # ... check that package.json and node_modules/.package.json are in sync
+              node_modules="$(git rev-parse "${commit}:node_modules")"
+              package_json="$(git rev-parse "${commit}:package.json")"
+              if ! git fetch cache "sha-${node_modules}"; then
+                  echo "Commit ${commit} has node_modules ${node_modules} which isn't on the server" >&2
+                  exit 1
+              fi
+              [ "$(git rev-parse FETCH_HEAD)" = "${node_modules}" ]
+              [ "$(git rev-parse "sha-${node_modules}")" = "${node_modules}" ]
+              node_modules_package_json="$(git rev-parse "${node_modules}:.package.json")"
+              if [ "${package_json}" != "${node_modules_package_json}" ]; then
+                  printf "Commit %s package.json and node_modules aren't in sync\n\n" "${commit}" >&2
+                  git show --stat "${commit}" >&2
+                  exit 1
+              fi
+          done

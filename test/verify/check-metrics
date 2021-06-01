@@ -1031,7 +1031,6 @@ class TestGrafanaClient(MachineCase):
         m.execute("until curl --silent --show-error http://10.111.112.100:3000; do sleep 1; done")
         # enable PCP plugin; like on Cog (Configuration) menu → Plugins → Performance Co-Pilot → Enable
         mg.execute("curl --silent --show-error -u admin:foobar -d '' 'http://127.0.0.1:3000/api/plugins/performancecopilot-pcp-app/settings?enabled=true'")
-
         self.login_and_go("/metrics")
 
         # pmlogger data collection is not running by default on RHEL
@@ -1054,8 +1053,10 @@ class TestGrafanaClient(MachineCase):
         b.wait_visible('#switch-pmproxy:checked')
         b.click("#pcp-settings-modal button.pf-m-primary")
         b.wait_not_present("#pcp-settings-modal")
-        # FIXME: move to UI
-        m.execute("firewall-cmd --permanent --add-service pmproxy; firewall-cmd --reload")
+
+        # enable pmproxy service in firewalld in the alert
+        b.wait_visible("#firewalld-request-pmproxy")
+        b.click(".pf-c-alert button.pf-m-primary")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
         bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label)

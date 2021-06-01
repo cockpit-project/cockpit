@@ -54,8 +54,21 @@
 .pf-c-nav__link > .fa {
     margin-left: 0.5rem;
 }
-.pf-c-page__main-nav {
+.services-header.pf-c-page__main-nav {
     padding-bottom: 1rem;
+
+    // Display tabs and 'Create timer' button in the same line if possible
+    display: flex;
+    flex-wrap: wrap;
+
+    // Add spacing between the tabs and the 'Create timer' button in mobile
+    row-gap: var(--pf-global--spacer--sm);
+
+    // Align 'Create timer' button with the right side of the services list card
+    > button {
+        margin-right: var(--pf-c-page__main-section--PaddingRight);
+        margin-left: auto;
+    }
 }
 
 // Add some spacing between the icon and the status string in the list

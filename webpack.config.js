@@ -433,7 +433,15 @@ module.exports = {
 
     optimization: {
         minimize: production,
-        minimizer: [new TerserJSPlugin({ extractComments : false }), new CssMinimizerPlugin()],
+        minimizer: [
+           new TerserJSPlugin({ extractComments : false }),
+           new CssMinimizerPlugin({
+               minimizerOptions: {
+                   preset: ['default', { mergeLonghand: false }]
+               }
+           })
+       ],
+
     },
 
     module: {

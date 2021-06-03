@@ -217,7 +217,7 @@ function processMemory(info) {
     for (const dimm in info) {
         const memoryProperty = info[dimm];
 
-        let memorySize = memoryProperty.Size;
+        let memorySize = memoryProperty.Size || _("Unknown");
         if (memorySize.includes("MB")) {
             const memorySizeValue = parseInt(memorySize, 10);
             memorySize = memorySizeValue / 1024 + " GB";
@@ -227,20 +227,20 @@ function processMemory(info) {
         if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
             memoryTechnology = _("Unknown");
 
-        let memoryRank = memoryProperty.Rank;
+        let memoryRank = memoryProperty.Rank || _("Unknown");
         if (memoryRank == 1)
             memoryRank = _("Single rank");
         if (memoryRank == 2)
             memoryRank = _("Dual rank");
 
         memoryArray.push({
-            locator: memoryProperty.Locator,
+            locator: memoryProperty.Locator || _("Unknown"),
             technology: memoryTechnology,
-            type: memoryProperty.Type,
+            type: memoryProperty.Type || _("Unknown"),
             size: memorySize,
             state: memoryProperty["Total Width"] == "Unknown" ? _("Absent") : _("Present"),
             rank: memoryRank,
-            speed: memoryProperty.Speed
+            speed: memoryProperty.Speed || _("Unknown")
         });
     }
 

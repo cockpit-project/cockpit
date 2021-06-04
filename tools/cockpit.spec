@@ -648,7 +648,7 @@ Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
-Requires: %{__python3}
+Requires: python3
 %if 0%{?suse_version}
 Requires: python3-dbus-python
 %else

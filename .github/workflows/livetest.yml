@@ -11,6 +11,7 @@ on:
 
 jobs:
   pr-info:
+    if: startsWith(github.event.comment.body, '/livetest')
     runs-on: ubuntu-20.04
     steps:
       - name: Query author repository permissions

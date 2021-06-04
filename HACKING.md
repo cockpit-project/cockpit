@@ -45,7 +45,7 @@ The following should work in a fresh Git clone:
 
 For running the browser unit tests, the following dependencies are required:
 
-    $ sudo dnf chromium-headless dbus-daemon
+    $ sudo dnf install chromium-headless dbus-daemon
 
 For running integration tests, the following dependencies are required:
 

@@ -123,6 +123,25 @@ svg {
     z-index: 2;
 }
 
+// Remove the default :focus-visible outline from elements that
+// receive the :focus-visible class also when focused via the mouse
+// and already have a visible :focus style.
+//
+// The default :focus-visible rendering differs from browser to
+// browser, changes over time, doesn't necessarily fit into the
+// Patternfly color scheme, looks ugly when used together with the
+// Patternfly :focus styling, and serves no purpose when :focus is
+// already visible.
+//
+// This would all be acceptable if these elements wouldn't receive
+// :focus-visible when focused with the mouse.
+//
+// https://github.com/patternfly/patternfly/issues/4121
+.pf-c-form-control:focus-visible {
+  outline: none;
+}
+
+
 // Alerts use elements that have fonts set in other frameworks (including PF3);
 // generally, this is an H4 that often has a font size and sometimes family set.
 // Therefore, it should inherit from the alert font set at the pf-c-alert level.

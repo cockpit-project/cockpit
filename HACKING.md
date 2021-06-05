@@ -37,11 +37,9 @@ Note that `tools/cockpit.spec` is a template filled in by
 `tools/gen-spec-dependencies`, and cannot be directly parsed by dnf.
 The following should work in a fresh Git clone:
 
-    $ sudo dnf install dnf-utils
-    $ TEMPFILE=$(mktemp -u --suffix=.spec) && \
-      sed 's/%{npm-version:.*}/0/' tools/cockpit.spec >$TEMPFILE && \
-      sudo dnf builddep --spec $TEMPFILE && \
-      rm $TEMPFILE
+    $ sudo dnf install dnf-utils python-srpm-macros
+    $ tools/gen-spec-dependencies tools/cockpit.spec
+    $ sudo dnf builddep --spec tools/cockpit.spec
 
 For running the browser unit tests, the following dependencies are required:
 

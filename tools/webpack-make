@@ -27,7 +27,7 @@ var ops = stdio.getopt({
     watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
 });
 
-var srcdir = process.env.SRCDIR || ".";
+var srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 var makefile = ops.deps;
 var prefix = "packages";
 var npm = { "dependencies": { } };
@@ -115,10 +115,10 @@ function generateDeps(makefile, stats) {
     var asset, output;
     var now = Math.floor(Date.now() / 1000);
 
-    // Strip builddir from output paths
+    // Strip cwd from output paths
     var dir = stats.compilation.outputOptions.path;
-    if (dir.indexOf(cwd) === 0)
-        dir = dir.substr(cwd.length+1);
+    if (dir.startsWith(cwd + '/'))
+        dir = dir.substr(cwd.length + 1);
 
     for(asset in stats.compilation.assets) {
         output = path.join(dir, asset);
@@ -219,12 +219,11 @@ function maybePushInput(inputs, input) {
     if (stats.mtime > latest)
         latest = stats.mtime;
 
-    // Strip builddir and srcdir absolute paths from input file and add it
-    if (input.indexOf(cwd) === 0)
-        input = input.substr(cwd.length+1);
-    if (srcdir && input.indexOf(srcdir) === 0) {
-        input = input.substr(srcdir.length+1);
-    }
+    // Strip cwd and srcdir absolute paths from input file and add it
+    if (input.startsWith(cwd + '/'))
+        input = input.substr(cwd.length + 1);
+    if (input.startsWith(srcdir + '/'))
+        input = input.substr(srcdir.length + 1);
 
     inputs[input] = true;
 }

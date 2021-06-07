@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Download pre-built webpack for current git SHA from GitHub
+
+# These are produced by .github/workflows/build-dist.yml for every PR and push.
+# This is a lot faster than having to npm install and run webpack.
+
+# Returns 0 when successful, 1 in case of an error, or 2 in case the cache
+# entry couldn't be found (but might be available after waiting a bit longer).
+
+GITHUB_REPO='cockpit-dist'
+SUBDIR='dist'
+
+export V="${V-0}"
+
+set -eu
+cd "$(realpath -m "$0"/../..)"
+. tools/git-utils.sh
+
+[ -n "${quiet}" ] || set -x
+
+tools/node-modules make_package_lock_json
+
+if [ -e dist ]; then
+    echo "jumpstart: dist/ already exists, skipping" >&2
+    exit 1
+fi
+
+if [ "${NODE_ENV-}" = "development" ]; then
+    echo 'jumpstart: only works with production builds (NODE_ENV != development)' >&2
+    exit 1
+fi
+
+if ! git diff --quiet -- ':^test' ':^packit.yaml' ':^.github'; then
+    echo 'jumpstart: uncommitted local changes, skipping download' >&2
+    exit 1
+fi
+
+tag="sha-$(git rev-parse HEAD)"
+if ! fetch_to_cache tag "${tag}"; then
+    echo "There is no cache entry ${tag}" >&2
+    exit 2
+fi
+
+if ! cmp_from_cache "${tag}" "package-lock.json" "package-lock.json"; then
+    echo "The cached package-lock.json doesn't match our own" >&2
+    exit 1
+fi
+
+unpack_from_cache "${tag}"

@@ -14,10 +14,10 @@ jobs:
         # 2.14.0; if you update this, audit the diff and ensure that it does not leak/abuse secrets
         uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74
         with:
-          name: dist
+          name: webpack-jumpstart
           workflow: build-dist
           run_id: ${{ github.event.workflow_run.id }}
-          path: dist-unpack
+          path: artifact
 
       - name: Set up configuration and secrets
         run: |
@@ -31,22 +31,9 @@ jobs:
           set -ex
           mkdir dist-repo
           cd dist-repo
-          TARS=(../dist-unpack/cockpit-*.tar.xz)
-          if [ "${#TARS[@]}" -ne 1 ]; then
-              echo "Expected exactly one tarball" >&2
-              exit 1
-          fi
-          tar --strip-components=1 -xf "${TARS[0]}"
-
-          # prevent any sneaky/buggy stuff from build-dist
-          danger="$(find -maxdepth 1 -name '.git*')"
-          if [ -n "$danger" ]; then
-              printf "Unexpected files in dist artifact:\n%s\n" "$danger" >&2
-              exit 1
-          fi
-
+          tar -xf ../artifact/webpack-jumpstart.tar dist package-lock.json
           git init
-          git add dist/ node_modules/ package-lock.json tools/debian/copyright
+          git add dist package-lock.json
           git commit -m "Build for ${{ github.event.workflow_run.head_sha }}"
           tag='sha-${{ github.event.workflow_run.head_sha }}'
           git tag "$tag"

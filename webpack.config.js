@@ -387,10 +387,6 @@ const aliases = {
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
 
-/* HACK: To get around redux warning about reminimizing code */
-if (production)
-    aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
-
 /* check if sassc is available, to avoid unintelligible error messages */
 try {
     childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'pipe', 'inherit'] });

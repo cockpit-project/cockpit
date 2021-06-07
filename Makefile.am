@@ -119,44 +119,7 @@ SUBST_RULE = \
 	$(GZ_RULE)
 
 # Webpack related
-
-WEBPACK_PACKAGES = \
-	base1 \
-	apps \
-	kdump \
-	metrics \
-	networkmanager \
-	packagekit \
-	playground \
-	selinux \
-	shell \
-	sosreport \
-	static \
-	storaged \
-	systemd \
-	tuned \
-	users \
-	$(NULL)
-
-MANIFESTS = \
-	pkg/pcp/manifest.json \
-	pkg/ssh/manifest.json \
-	$(NULL)
-
-MANIFESTS += $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
-
-V_WEBPACK = $(V_WEBPACK_$(V))
-V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/manifest.json=%)";
-
-WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abspath $(builddir)) \
-	       timeout 15m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
-
-WEBPACK_CONFIG = $(srcdir)/webpack.config.js
-WEBPACK_INPUTS =
-WEBPACK_OUTPUTS =
-WEBPACK_INSTALL =
-WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=$(top_srcdir)/dist/%/Makefile.deps)
+include pkg/build
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
@@ -166,33 +129,9 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-noinst_SCRIPTS += $(MANIFESTS)
-EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
-
-# Nothing generates this directly, but it's included as a dependency in
-# various places.  It will automatically appear as part of the webpack
-# build.
-dist/%/Makefile.deps:
-	@true
-
-dist/%/manifest.json: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json
-	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
-
--include $(WEBPACK_DEPS)
-
 # the rules above copy a lot of stuff into builddir; clean it up so that distcleancheck works
 clean-local::
 	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
-
-V_NODE_MODULES = $(V_NODE_MODULES_$(V))
-V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))
-V_NODE_MODULES_0 = @V=0
-
-# We want tools/node-modules to run every time package-lock.json is requested
-# See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
-FORCE:
-package-lock.json: FORCE
-	$(V_NODE_MODULES) $(top_srcdir)/tools/node-modules make_package_lock_json
 
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)

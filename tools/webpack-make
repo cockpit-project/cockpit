@@ -5,21 +5,10 @@
  * lists all dependencies, inputs, outputs, and installable files
  */
 
-function fatal(message, code) {
-    console.log("webpack-make: " + message);
-    process.exit(code || 1);
-}
-
-var webpack, path, stdio, fs;
-
-try {
-    webpack = require("webpack");
-    path = require("path");
-    stdio = require("stdio");
-    fs = require("fs");
-} catch(ex) {
-    fatal(ex.message, 127); /* missing looks for this */
-}
+const webpack = require("webpack");
+const path = require("path");
+const stdio = require("stdio");
+const fs = require("fs");
 
 var ops = stdio.getopt({
     config: { key: "c", args: 1, description: "Path to webpack.config.js", default: "webpack.config.js" },

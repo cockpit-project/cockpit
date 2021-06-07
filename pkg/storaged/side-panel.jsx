@@ -120,12 +120,12 @@ export class SidePanelRow extends React.Component {
                       onKeyPress={this.props.go ? go : null}
                       onClick={this.props.go ? go : null}>
                 <Flex flexWrap={{ default: 'nowrap' }}>
-                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name">{this.props.name}</FlexItem>
+                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name pf-u-text-break-word">{this.props.name}</FlexItem>
                     <FlexItem>{decoration}</FlexItem>
                 </Flex>
                 <Flex className="sidepanel-row-info">
                     <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-detail">{this.props.detail}</FlexItem>
-                    <FlexItem className="sidepanel-row-devname">{this.props.devname}</FlexItem>
+                    <FlexItem className="sidepanel-row-devname pf-u-text-break-word">{this.props.devname}</FlexItem>
                 </Flex>
             </FlexItem>
         );

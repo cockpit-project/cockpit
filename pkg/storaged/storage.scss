@@ -216,6 +216,10 @@ div.progress {
     min-width: 250px;
 }
 
+#storage-detail .ct-table {
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+}
+
 td.usage-text {
     text-align: right;
 }
@@ -473,11 +477,7 @@ td.storage-action {
 
 .sidepanel-row {
     padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
-    border-bottom: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
-}
-
-.sidepanel-row:last-child {
-    border-bottom: none;
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
 .sidepanel-row.pf-c-empty-state {

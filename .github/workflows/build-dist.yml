@@ -8,23 +8,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      # current podman backport falls over as non-root, and completely breaks down with :i386 image
-      docker: docker
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-        with:
-          # need this to also fetch tags
-          fetch-depth: 0
 
-      - name: Run unit-tests container to build dist
-        run: |
-          containers/unit-tests/start dist
+      - name: Build jumpstart tarball
+        run: pkg/build -j$(nproc) webpack-jumpstart.tar
 
       - name: Create dist artifact
         uses: actions/upload-artifact@v2
         with:
-          name: dist
-          path: tmp/dist/cockpit-*.tar.xz
+          name: webpack-jumpstart
+          path: webpack-jumpstart.tar
           retention-days: 1

@@ -62,7 +62,6 @@ jobs:
                   exit 1
               fi
               [ "$(git rev-parse FETCH_HEAD)" = "${node_modules}" ]
-              [ "$(git rev-parse "sha-${node_modules}")" = "${node_modules}" ]
               node_modules_package_json="$(git rev-parse "${node_modules}:.package.json")"
               if [ "${package_json}" != "${node_modules_package_json}" ]; then
                   printf "Commit %s package.json and node_modules aren't in sync\n\n" "${commit}" >&2

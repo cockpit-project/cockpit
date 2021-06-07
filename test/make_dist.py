@@ -51,60 +51,19 @@ def build_dist():
 
 
 def download_cache(wait=False):
-    '''Download pre-built webpack for current git SHA from GitHub
-
-    These are produced by .github/workflows/build-dist.yml for every PR and push.
-    This is a lot faster than having to npm install and run webpack.
-
-    Returns True when successful, or False if the download isn't available.
-    This can happen because dist/ already exists, or the current directory is not a git checkout,
-    or it is a SHA which is not pushed/PRed.
-    '''
-    try:
-        sha = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
-    except subprocess.CalledProcessError:
-        message("make_dist: not a git repository")
-        return False
-
-    if subprocess.call(["git", "diff", "--quiet", "--", ":^test", ":^packit.yaml", ":^.github"]) > 0:
-        message("make_dist: uncommitted local changes, skipping download")
-        return False
-
-    dist_git_checkout = os.path.join(os.getenv("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "cockpit-dev", CACHE_REPO + ".git")
-
-    if not os.path.exists(dist_git_checkout):
-        message(f"make_dist: Creating dist cache {dist_git_checkout}")
-        subprocess.check_call(["git", "init", "--bare", "--quiet", dist_git_checkout])
-        subprocess.check_call(["git", "--git-dir", dist_git_checkout, "remote", "add", "origin", "https://github.com/" + CACHE_REPO])
-
-    tag = "sha-" + sha
-
-    retries = 50 if wait else 1  # 25 minutes, once every 30s
-    while retries > 0:
+    tries = 50 if wait else 1  # 25 minutes, once every 30s
+    for retry in range(tries):
         try:
-            subprocess.check_call(["git", "--git-dir", dist_git_checkout, "fetch", "--no-tags", "--depth=1", "origin", "tag", tag])
-            break
-        except subprocess.CalledProcessError:
-            retries -= 1
-
-            if retries == 0:
-                message(f"make_dist: Downloading pre-built dist for SHA {sha} failed")
-                return False
-
-            message(f"make_dist: pre-built dist for {sha} not yet available, waiting...")
+            subprocess.check_call(["tools/webpack-jumpstart"])
+            return True
+        except subprocess.CalledProcessError as e:
+            if e.returncode != 2 or not wait:
+                break
+            message("make_dist: pre-built dist not yet available, waiting...")
             time.sleep(30)
 
-    for unpack_path in ["node_modules", "package-lock.json", "dist", "tools/debian/copyright"]:
-        if os.path.exists(unpack_path):
-            continue
-        message(f"make_dist: Extracting cached {unpack_path}...")
-        p_git = subprocess.Popen(["git", "--git-dir", dist_git_checkout, "archive", tag, unpack_path],
-                                 stdout=subprocess.PIPE)
-        subprocess.check_call(["tar", "-x", "--touch"], stdin=p_git.stdout)
-        result = p_git.wait()
-        assert result == 0
-
-    return True
+    message("make_dist: Downloading pre-built dist failed")
+    return False
 
 
 def make_dist(download_only=False, wait_download=False):

@@ -60,14 +60,8 @@ tbody.open > tr.listing-ct-panel td div.listing-ct-head {
     padding-top: 0;
 }
 
-/* only highlight the row if navigation is available */
-tbody:not(.open) > tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
-    background-color: $listing-ct-hover;
-}
-
 /* use hover color expanded rows even if navigation isn't available */
-tbody.open > tr.listing-ct-item:hover,
-tr.listing-ct-item.listing-ct-nonavigate:hover {
+tbody.open > tr.listing-ct-item:hover {
     background-color: $listing-ct-hover;
 }
 

@@ -59,8 +59,6 @@ import * as PK from "packagekit.js";
 import * as python from "python.js";
 import callTracerScript from 'raw-loader!./callTracer.py';
 
-import "listing.scss";
-
 const _ = cockpit.gettext;
 
 // "available" heading is built dynamically

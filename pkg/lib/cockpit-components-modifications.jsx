@@ -27,7 +27,6 @@ import {
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
-import './listing.scss';
 import 'cockpit-components-modifications.css';
 
 const _ = cockpit.gettext;

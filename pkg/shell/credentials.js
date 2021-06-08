@@ -26,7 +26,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Switch } from "@patternfly/react-core";
 
-import "listing.scss";
+import "./listing.scss";
 import "patterns";
 
 const _ = cockpit.gettext;

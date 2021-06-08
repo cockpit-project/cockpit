@@ -28,8 +28,12 @@ jobs:
         with:
           script: |
             try {
-              const { repo: { owner, repo }, number: issue_number } = context;
-              await github.issues.removeLabel({ owner, repo, issue_number, name: '.github-changes' });
+              await github.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: '.github-changes'
+              });
             } catch (e) {
               if (e.name == 'HttpError' && e.status == 404) {
                 /* expected: 404 if label is unset */

@@ -1109,24 +1109,7 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
-        if self.image.startswith('debian'):
-            # Debian images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
-            self.allowed_messages.append("invalid or unusable locale: .*")
-
-        if self.image.startswith('fedora'):
-            # Fedora switched to dbus-broker
-            self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
-
-        if self.image in ['debian-testing', 'ubuntu-stable']:
-            # HACK: https://bugs.debian.org/951477
-            self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(iptables-restor\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(ip6tables-resto\) of user 0 dumped core.*')
-            self.allowed_messages.append('Process .* \(ebtables\) of user 0 dumped core.*')
-            # don't ignore all stack traces
-            self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')
-            # but we have to ignore that general header line
-            self.allowed_messages.append('^Stack trace of.*')
+        self.allowed_messages += self.machine.allowed_messages()
 
         all_found = True
         first = None

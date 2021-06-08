@@ -24,7 +24,6 @@
 import "../lib/patternfly/patternfly-cockpit.scss";
 import "../lib/page.scss";
 import "@patternfly/patternfly/components/Button/button.css";
-import "../lib/listing.scss";
 
 /* eslint-disable indent,no-empty */
 

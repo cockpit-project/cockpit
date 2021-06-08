@@ -475,9 +475,9 @@ td.storage-action {
 
 /* Overview side panels */
 
-.sidepanel-row {
-    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
+.sidepanel-row.pf-c-button.pf-m-link.pf-m-inline {
     border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+    padding: var(--pf-c-button--PaddingTop) var(--pf-c-button--PaddingRight) var(--pf-c-button--PaddingBottom) var(--pf-c-button--PaddingLeft);
 }
 
 .sidepanel-row.pf-c-empty-state {
@@ -492,29 +492,6 @@ td.storage-action {
 
 .sidepanel-row-info {
     font-size: var(--pf-global--FontSize--xs);
-}
-
-.sidepanel-row:not(.pf-c-empty-state):hover {
-    cursor: pointer;
-}
-
-/* Add hover styling to ct-tables and sidepanels */
-
-.storage-mounts .ct-table {
-    // Reset color style
-    --ct-color-list-hover-text: all;
-}
-
-.sidepanel-row:hover .sidepanel-row-name,
-#others .sidepanel-row:hover .sidepanel-row-devname,
-.storage-mounts tr:hover td[data-label=Name],
-.storage-mounts tr:hover td[data-label=Server] {
-    // ct color variable is for the ct-table-based widgets
-    --ct-color-list-hover-text: var(--pf-global--active-color--100);
-    // color is for sidepanel-based widgets
-    color: var(--pf-global--active-color--100);
-    // text underline is for both
-    text-decoration: underline;
 }
 
 .panel-heading {

@@ -60,7 +60,7 @@ export class SidePanel extends React.Component {
                            install_title={this.props.install_title}>
                 { this.props.children.length > 0
                     ? <Flex direction={{ default: 'column' }}
-                          spaceItems={{ default: 'spaceItemsNone' }}>
+                            spaceItems={{ default: 'spaceItemsNone' }}>
                         { children }
                         { show_all_button }
                     </Flex>
@@ -114,11 +114,11 @@ export class SidePanelRow extends React.Component {
             decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 
         return (
-            <FlexItem data-testkey={this.props.testkey}
-                      className="sidepanel-row"
-                      role="link" tabIndex="0"
-                      onKeyPress={this.props.go ? go : null}
-                      onClick={this.props.go ? go : null}>
+            <Button data-testkey={this.props.testkey}
+                    className="sidepanel-row"
+                    variant="link" component="a"
+                    isInline
+                    onClick={this.props.go ? go : null}>
                 <Flex flexWrap={{ default: 'nowrap' }}>
                     <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name pf-u-text-break-word">{this.props.name}</FlexItem>
                     <FlexItem>{decoration}</FlexItem>
@@ -127,7 +127,7 @@ export class SidePanelRow extends React.Component {
                     <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-detail">{this.props.detail}</FlexItem>
                     <FlexItem className="sidepanel-row-devname pf-u-text-break-word">{this.props.devname}</FlexItem>
                 </Flex>
-            </FlexItem>
+            </Button>
         );
     }
 }

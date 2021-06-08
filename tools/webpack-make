@@ -16,25 +16,19 @@ var ops = stdio.getopt({
     watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
 });
 
-var srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
-var makefile = ops.deps;
-var prefix = "packages";
-var npm = { "dependencies": { } };
+const makefile = ops.deps;
+const prefix = makefile.split("/").slice(-2, -1)[0];
+process.env["ONLYDIR"] = prefix + "/";
 
-if (makefile) {
-    prefix = makefile.split("/").slice(-2, -1)[0];
-    process.env["ONLYDIR"] = prefix + "/";
-    npm = JSON.parse(fs.readFileSync(path.join(srcdir, "package.json"), "utf8"));
-}
-
-var cwd = process.cwd();
-var config_path = path.resolve(cwd, ops.config);
-var config = require(config_path);
+const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
+const cwd = process.cwd();
+const config_path = path.resolve(cwd, ops.config);
+const config = require(config_path);
 
 // The latest input file time updated and used below
-var latest = fs.statSync(config_path).mtime;
+let latest = fs.statSync(config_path).mtime;
 
-compiler = webpack(config);
+const compiler = webpack(config);
 
 if (ops.watch) {
     compiler.hooks.watchRun.tap("WebpackInfo", compilation => {

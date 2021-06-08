@@ -38,10 +38,6 @@ QUnit.test("simple request", function (assert) {
                     },
 
                     playground: {
-                        patterns: {
-                            label: "Design Patterns",
-                            path: "jquery-patterns"
-                        },
                         "react-patterns": {
                             label: "React Patterns"
                         },

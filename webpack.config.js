@@ -38,9 +38,6 @@ const info = {
         "playground/exception": [
             "playground/exception.js",
         ],
-        "playground/jquery-patterns": [
-            "playground/jquery-patterns.js",
-        ],
         "playground/metrics": [
             "playground/metrics.js",
         ],
@@ -195,7 +192,6 @@ const info = {
         "playground/index.html",
         "playground/exception.html",
         "playground/hammer.gif",
-        "playground/jquery-patterns.html",
         "playground/metrics.html",
         "playground/pkgs.html",
         "playground/plot.html",

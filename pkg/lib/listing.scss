@@ -65,67 +65,10 @@ tbody:not(.open) > tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
     background-color: $listing-ct-hover;
 }
 
-/* if we can't navigate to a row but expand is available, highlight the caret */
-tbody:not(.open) > tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
-    color: $listing-ct-hover-icon;
-}
-
 /* use hover color expanded rows even if navigation isn't available */
 tbody.open > tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: $listing-ct-hover;
-}
-
-tr.listing-ct-item .listing-ct-toggle:not(:empty) {
-    width: 35px;
-    color: $pf-color-black-800;
-}
-
-/* Highlight toggle color when hovered or if the row is open */
-.listing-ct-toggle:hover,
-tbody.open .listing-ct-toggle {
-    color: $listing-ct-active;
-}
-
-.listing-ct .listing-ct-toggle:empty {
-    width: 0;
-    padding: 0;
-}
-
-.listing-ct > thead > tr > .listing-ct-toggle + th,
-.listing-ct-item > .listing-ct-toggle + td,
-.listing-ct-item > .listing-ct-toggle + th {
-    padding-left: $listing-ct-padding / 2;
-    position: relative;
-}
-
-td.listing-ct-toggle button {
-    border: 1px solid transparent;
-}
-
-td.listing-ct-toggle button:focus {
-    color: var(--pf-global--Color--100) !important;
-    border-color: var(--pf-global--BackgroundColor--light-300) !important;
-    @-moz-document url-prefix() {
-      /* Approximate Firefox's focus ring, for Firefox only */
-      border: 1px dotted rgba(0, 0, 0, 0.75);
-    }
-}
-
-td.listing-ct-toggle i {
-    font-size: 17px;
-}
-
-td.listing-ct-toggle i:before {
-    position: relative;
-    content: "\f105";
-    display: block;
-}
-
-tbody.open td.listing-ct-toggle i:before {
-    content: "\f107";
-    animation: listingCtToggleOpen 100ms ease-in-out;
-    top: 1px;
 }
 
 @keyframes listingCtToggleOpen {
@@ -408,7 +351,6 @@ tbody.open div.listing-ct-head + div.listing-ct-body:not([hidden]):last-child {
 
 /* Turn off animation if requested by the browser/OS (where supported) */
 @media (prefers-reduced-motion: reduce) {
-    tbody.open td.listing-ct-toggle i:before,
     tbody.open div.listing-ct-head,
     tbody.open div.listing-ct-body {
         animation: none;

@@ -38,9 +38,6 @@ const info = {
         "playground/exception": [
             "playground/exception.js",
         ],
-        "playground/jquery-patterns": [
-            "playground/jquery-patterns.js",
-        ],
         "playground/metrics": [
             "playground/metrics.js",
         ],
@@ -195,7 +192,6 @@ const info = {
         "playground/index.html",
         "playground/exception.html",
         "playground/hammer.gif",
-        "playground/jquery-patterns.html",
         "playground/metrics.html",
         "playground/pkgs.html",
         "playground/plot.html",
@@ -387,10 +383,6 @@ const aliases = {
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
 
-/* HACK: To get around redux warning about reminimizing code */
-if (production)
-    aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
-
 /* check if sassc is available, to avoid unintelligible error messages */
 try {
     childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'pipe', 'inherit'] });
@@ -433,7 +425,15 @@ module.exports = {
 
     optimization: {
         minimize: production,
-        minimizer: [new TerserJSPlugin({ extractComments : false }), new CssMinimizerPlugin()],
+        minimizer: [
+           new TerserJSPlugin({ extractComments : false }),
+           new CssMinimizerPlugin({
+               minimizerOptions: {
+                   preset: ['default', { mergeLonghand: false }]
+               }
+           })
+       ],
+
     },
 
     module: {

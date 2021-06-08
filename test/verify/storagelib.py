@@ -66,12 +66,14 @@ class StorageHelpers:
 
         Return the device name.
         '''
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
+        # It would be nicer to remove $F immediately after the call to
+        # losetup, but that will break some versions of lvm2.
         dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
                                    "dd if=/dev/zero of=$F bs=1M count=%s; "
-                                   "losetup --find --show $F; "
-                                   "rm $F" % size).strip()
+                                   "losetup --find --show $F" % size).strip()
         # right after unmounting the device is often still busy, so retry a few times
-        self.addCleanup(self.machine.execute, "umount {0}; until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
+        self.addCleanup(self.machine.execute, "umount {0}; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
         return dev
 
     def force_remove_disk(self, device):

@@ -77,22 +77,7 @@ export class SidePanel extends React.Component {
 
 export class SidePanelRow extends React.Component {
     render() {
-        const { client, job_path } = this.props;
-
-        const go = (event) => {
-            if (!event)
-                return;
-
-            // only consider primary mouse button for clicks
-            if (event.type === 'click' && event.button !== 0)
-                return;
-
-            // only consider enter button for keyboard events
-            if (event.type === 'keypress' && event.key !== "Enter")
-                return;
-
-            return this.props.go();
-        };
+        const { client, job_path, location } = this.props;
 
         const eat_event = (event) => {
             // Stop events from disabled actions. Otherwise they would
@@ -113,12 +98,13 @@ export class SidePanelRow extends React.Component {
         else if (client.path_warnings[job_path])
             decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 
+        console.info({ location });
         return (
             <Button data-testkey={this.props.testkey}
                     className="sidepanel-row"
                     variant="link" component="a"
-                    isInline
-                    onClick={this.props.go ? go : null}>
+                    href={location}
+                    isInline>
                 <Flex flexWrap={{ default: 'nowrap' }}>
                     <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name pf-u-text-break-word">{this.props.name}</FlexItem>
                     <FlexItem>{decoration}</FlexItem>
@@ -143,7 +129,7 @@ export class SidePanelBlockRow extends React.Component {
                              name={name}
                              devname={block_name(block)}
                              detail={detail}
-                             go={() => { cockpit.location.go(parts.location) }}
+                             location={"#/" + parts.location}
                              actions={actions} />;
     }
 }

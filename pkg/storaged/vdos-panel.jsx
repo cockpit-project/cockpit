@@ -55,7 +55,7 @@ const VDORow = ({ client, vdo }) => {
                       name={vdo.name}
                       devname={vdo.dev}
                       detail={fmt_size(vdo.logical_size) + " " + _("VDO device")}
-                      go={() => cockpit.location.go(["vdo", vdo.name])}
+                      location={"#/vdo/" + vdo.name}
                       job_path={block && block.path} />
     );
 };

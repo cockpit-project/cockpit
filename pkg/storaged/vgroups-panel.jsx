@@ -38,7 +38,7 @@ const VGroupRow = ({ client, path }) => {
                       name={vgroup.Name}
                       devname={"/dev/" + vgroup.Name + "/"}
                       detail={fmt_size(vgroup.Size) + " " + _("Volume group")}
-                      go={() => cockpit.location.go(["vg", vgroup.Name])}
+                      location={"#/vg/" + vgroup.Name}
                       job_path={path} />
     );
 };

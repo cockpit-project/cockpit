@@ -39,7 +39,7 @@ const MDRaidRow = ({ client, path }) => {
                       name={mdraid_name(mdraid)}
                       devname={block && block_name(block)}
                       detail={fmt_size(mdraid.Size) + " " + _("RAID device")}
-                      go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
+                      location={"#/vg/mdraid/" + mdraid.UUID}
                       job_path={path} />
     );
 };

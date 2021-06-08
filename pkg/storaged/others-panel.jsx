@@ -55,7 +55,7 @@ export class OthersPanel extends React.Component {
                               testkey={dev}
                               devname={block_name(block)}
                               detail={cockpit.format(_("$0 block device"), fmt_size(block.Size))}
-                              go={() => cockpit.location.go([dev])}
+                              location={'#/' + dev}
                               job_path={path}
                               key={path} />
             );

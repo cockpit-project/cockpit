@@ -243,6 +243,12 @@ class TestStorageMounting(StorageCase):
         b.click(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
         b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
 
+        # Using noauto,x-systemd.automount should not show a warning
+        m.execute("sed -i -e 's/auto defaults/auto noauto/' /etc/fstab")
+        b.wait_visible(fsys_tab + " button:contains(Mount also automatically on boot)")
+        m.execute("sed -i -e 's/noauto/noauto,x-systemd.automount/' /etc/fstab")
+        b.wait_not_present(fsys_tab + " button:contains(Mount also automatically on boot)")
+
     def testDuplicateMountPoints(self):
         m = self.machine
         b = self.browser

@@ -1,5 +1,3 @@
-export PATH := $(PATH):$(abs_srcdir)/node_modules/.bin
-
 NULL =
 man_MANS =
 BUILT_SOURCES =

@@ -19,6 +19,7 @@
 
 import React from 'react';
 import { Button } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import * as service from "service.js";
@@ -182,7 +183,12 @@ export class InsightsStatus extends React.Component {
         return (
             <li className="system-health-insights">
                 {icon}
-                <Button variant="link" component='a' href={url}>{_("Insights: ")} {text}</Button>
+                <Button isInline variant="link" component='a' href={url}
+                        target="_blank" rel="noopener noreferrer"
+                        icon={<ExternalLinkAltIcon />}
+                        iconPosition="right">
+                    {_("Insights: ")} {text}
+                </Button>
             </li>);
     }
 }

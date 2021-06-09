@@ -102,7 +102,7 @@ allow cockpit_ws_t cockpit_session_t:process signal_perms;
 allow cockpit_session_t cockpit_ws_t:unix_stream_socket rw_stream_socket_perms;
 
 # cockpit-tls and cockpit-ws communicate over a Unix socket
-allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { create_stream_socket_perms connectto };
+allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { connectto create_stream_socket_perms };
 
 optional_policy(`
     hostname_exec(cockpit_ws_t)
@@ -131,8 +131,8 @@ optional_policy(`
 #
 
 # cockpit-session changes to the actual logged in user
-allow cockpit_session_t self:capability { sys_admin dac_read_search dac_override setuid setgid sys_resource};
-allow cockpit_session_t self:process { setexec setsched signal_perms setrlimit };
+allow cockpit_session_t self:capability { dac_override dac_read_search setgid setuid sys_admin sys_resource};
+allow cockpit_session_t self:process { setexec setrlimit setsched signal_perms };
 
 read_files_pattern(cockpit_session_t, cockpit_var_lib_t, cockpit_var_lib_t)
 list_dirs_pattern(cockpit_session_t, cockpit_var_lib_t, cockpit_var_lib_t)

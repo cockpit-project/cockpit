@@ -24,7 +24,7 @@ cmd_pull() {
 
 cmd_status() {
     ( cd "$SUBDIR"
-      git rm --cached --quiet '*.png'
+      git rm --force --cached --quiet '*.png'
       git add *.png
       if git diff-index --name-status --cached --exit-code HEAD; then
           echo No changes
@@ -34,17 +34,18 @@ cmd_status() {
 
 cmd_push() {
     ( cd "$SUBDIR"
-      git rm --cached --quiet '*.png'
+      git rm --force --cached --quiet '*.png'
       git add *.png
       if ! git diff-index --name-status --cached --exit-code HEAD; then
+          git fetch origin empty:empty
           git reset --soft empty
           git commit --quiet -m "$(date)"
-          tag="sha-$(git rev-parse HEAD)"
-          git tag "$tag" HEAD
-          git push "$PUSH_REMOTE" "$tag"
       else
           echo No changes
       fi
+      tag="sha-$(git rev-parse HEAD)"
+      [ $(git tag -l "$tag") ] || git tag "$tag" HEAD
+      git push "$PUSH_REMOTE" "$tag"
     )
     git add "$SUBDIR"
 }

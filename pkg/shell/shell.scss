@@ -141,17 +141,25 @@ iframe.container-frame {
 }
 
 #credentials-dialog {
-    div.table-scrollable {
-        max-height: 500px;
-        overflow-y: auto;
-        margin-right: 7px;
-        padding-right: 8px;
-        margin-top: 15px;
-        padding-top: 0px;
+    .pf-c-modal-box__body {
+        // Turn off modal scrolling
+        overflow: visible;
+    }
+
+    .modal-body {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        // Full screen minus the button, heading, and padding
+        max-height: calc(100vh - (var(--pf-global--spacer--md) * 11));
+        grid-gap: var(--pf-global--spacer--md);
+    }
+
+    .table-scrollable {
+        // Scroll the table content instead
+        overflow: auto;
     }
 
     table {
-        margin-top: 0px;
         width: 100%;
 
         thead tr.load-custom-key {

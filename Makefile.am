@@ -60,10 +60,6 @@ V_COPY = $(V_COPY_$(V))
 V_COPY_ = $(V_COPY_$(AM_DEFAULT_VERBOSITY))
 V_COPY_0 = @echo "  COPY    " $@;
 
-V_TAR = $(V_TAR_$(V))
-V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
-V_TAR_0 = @echo "  TAR     " $@;
-
 MV = mv -f
 
 COPY_RULE = \

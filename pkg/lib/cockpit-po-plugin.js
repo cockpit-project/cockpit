@@ -55,11 +55,14 @@ module.exports = class {
                 process.exit(1);
             }
 
-            /* A function for the front end */
+            /* A lambda for the front end */
             statement = header["plural-forms"];
-            if (statement[statement.length - 1] != ';')
-                statement += ';';
-            ret = 'function(n) {\nvar nplurals, plural;\n' + statement + '\nreturn plural;\n}';
+            ret = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
+            if (ret === statement) {
+                /* didn't match */
+                console.error("bad plural forms: " + statement);
+                process.exit(1);
+            }
 
             /* Added back in later */
             delete header["plural-forms"];

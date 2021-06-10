@@ -11,16 +11,15 @@ Cockpit git repository checkout.
 ## Getting the development dependencies
 
 Cockpit uses Node.js during development. Node.js is not used at runtime.
-To make changes on Cockpit you'll want to install Node.js and various
-development dependencies.
+To make changes on Cockpit you'll want to install Node.js.
 
 On Debian and recent Ubuntu ≥ 19.04:
 
-    $ sudo apt-get install nodejs sassc
+    $ sudo apt-get install nodejs
 
 On Fedora:
 
-    $ sudo dnf install nodejs sassc
+    $ sudo dnf install nodejs
 
 On older OS releases you can use the [n utility](https://github.com/tj/n) to
 get a current version of nodejs.

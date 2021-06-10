@@ -42,7 +42,6 @@ dependencies="\
     pyflakes3 \
     python3 \
     python3-pep8 \
-    sassc \
     ssh \
     strace \
     valgrind \

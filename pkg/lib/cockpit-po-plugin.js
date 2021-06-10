@@ -107,6 +107,12 @@ module.exports = class {
 
             const jsonData = po2json.parse(poData);
             const plurals = this.prepareHeader(jsonData[""]);
+            for (const [msgid, msgstrs] of Object.entries(jsonData)) {
+                if (msgid !== '') {
+                    // cockpit.js never looks at the first item
+                    msgstrs[0] = null;
+                }
+            }
 
             let output = JSON.stringify(jsonData, null, 1);
 

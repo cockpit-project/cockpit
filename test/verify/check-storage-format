@@ -116,7 +116,7 @@ class TestStorageFormat(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("erase", "zero")
+        self.dialog_set_val("erase.on", True)
         self.dialog_set_val("mount_point", "/foo")
         self.dialog_apply()
         b.wait_in_text("footer", "Erasing /dev/mapper/superslow")

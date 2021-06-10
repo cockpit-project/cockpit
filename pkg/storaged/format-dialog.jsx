@@ -197,21 +197,40 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                return create_partition;
                            }
                        }),
-            SelectOne("erase", _("Erase"),
-                      {
-                          choices: [
-                              { value: "no", title: _("Don't overwrite existing data") },
-                              { value: "zero", title: _("Overwrite existing data with zeros") }
-                          ]
-                      }),
-            SelectOne("type", _("Type"),
-                      { choices: filesystem_options }),
             TextInput("name", _("Name"),
                       {
                           validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
                           visible: is_filesystem
                       }),
-            CheckBoxes("crypto", "",
+            SelectOne("type", _("Type"),
+                      { choices: filesystem_options }),
+            CheckBoxes("erase", _("Erase"),
+                       {
+                           fields: [
+                               { tag: "on", title: _("Overwrite existing data with zeros") }
+                           ],
+                       }),
+            TextInput("mount_point", _("Mount point"),
+                      {
+                          visible: is_filesystem,
+                          value: old_dir || "",
+                          validate: val => is_valid_mount_point(client, block, val)
+                      }),
+            CheckBoxes("mount_options", _("Mount options"),
+                       {
+                           visible: is_filesystem,
+                           value: {
+                               auto: !opt_noauto,
+                               ro: opt_ro,
+                               extra: extra_options || false
+                           },
+                           fields: [
+                               { title: _("Mount now"), tag: "auto" },
+                               { title: _("Mount read only"), tag: "ro" },
+                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                           ]
+                       }),
+            CheckBoxes("crypto", _("Encryption"),
                        {
                            fields: [
                                { tag: "on", title: _("Encrypt data") }
@@ -235,27 +254,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               visible: is_encrypted
                           })
             ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true, true)),
-            TextInput("mount_point", _("Mount point"),
-                      {
-                          visible: is_filesystem,
-                          value: old_dir || "",
-                          validate: val => is_valid_mount_point(client, block, val)
-                      }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           visible: is_filesystem,
-                           value: {
-                               auto: !opt_noauto,
-                               ro: opt_ro,
-                               extra: extra_options || false
-                           },
-                           fields: [
-                               { title: _("Mount now"), tag: "auto" },
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       },
-            ),
+
         ],
         update: function (dlg, vals, trigger) {
             if (trigger == "crypto_options" && vals.crypto_options.ro == true)
@@ -271,8 +270,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 var options = {
                     'tear-down': { t: 'b', v: true }
                 };
-                if (vals.erase != "no")
-                    options.erase = { t: 's', v: vals.erase };
+                if (vals.erase.on)
+                    options.erase = { t: 's', v: "zero" };
                 if (vals.name)
                     options.label = { t: 's', v: vals.name };
 

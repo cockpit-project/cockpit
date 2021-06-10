@@ -25,9 +25,6 @@ const cwd = process.cwd();
 const config_path = path.resolve(cwd, ops.config);
 const config = require(config_path);
 
-// The latest input file time updated and used below
-let latest = fs.statSync(config_path).mtime;
-
 const compiler = webpack(config);
 
 if (ops.watch) {
@@ -143,7 +140,7 @@ function generateDeps(makefile, stats) {
     installs = Object.keys(installs).sort();
     tests = Object.keys(tests).sort();
 
-    var lines = [ "# Generated Makefile data for " + prefix, "# Stamp: " + latest, "" ];
+    var lines = [ "# Generated Makefile data for " + prefix ];
 
     function makeArray(name, values) {
         lines.push(name + " = \\");
@@ -196,11 +193,6 @@ function maybePushInput(inputs, input) {
     if (input.includes("/node_modules/")) {
         return;
     }
-
-    // The latest modified date
-    var stats = fs.statSync(input);
-    if (stats.mtime > latest)
-        latest = stats.mtime;
 
     // Strip cwd and srcdir absolute paths from input file and add it
     if (input.startsWith(cwd + '/'))

@@ -33,7 +33,7 @@ def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
     sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} .compressed".format(hour, g_type, minute)
-    m = re.search("--%s:([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
+    m = re.search("--%s:\s*([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
     test.assertIsNotNone(m)
     return float(m.group(1))
 

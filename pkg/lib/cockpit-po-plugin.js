@@ -1,7 +1,6 @@
 const path = require("path");
 const glob = require("glob");
 const fs = require("fs");
-const childProcess = require("child_process");
 const gettext_parser = require('gettext-parser');
 const Jed = require('jed');
 const webpack = require('webpack');
@@ -13,7 +12,7 @@ module.exports = class {
         if (!options)
             options = {};
         this.subdir = options.subdir || '';
-        this.msggrep_options = options.msggrep_options;
+        this.reference_patterns = options.reference_patterns;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
     }
 
@@ -56,29 +55,40 @@ module.exports = class {
         return expr;
     }
 
-    filterMessages(po_file, compilation) {
-        // all translations for that page, including manifest.json and *.html
-        const argv = ["-N", "*/" + this.subdir + "*"];
-        // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
-        argv.push("-N", "pkg/base1/cockpit.js");
+    build_patterns(compilation, extras) {
+        const patterns = [
+            // all translations for that page, including manifest.json and *.html
+            `pkg/${this.subdir}.*`,
+            // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
+            'pkg/base1/cockpit.js'
+        ];
+
         // add translations from libraries outside of page directory
         compilation.getStats().compilation.fileDependencies.forEach(path => {
             if (path.startsWith(srcdir) && path.indexOf('node_modules/') < 0)
-                argv.push("-N", path.slice(srcdir.length + 1));
+                patterns.push(path.slice(srcdir.length + 1));
         });
-        if (this.msggrep_options)
-            Array.prototype.push.apply(argv, this.msggrep_options);
-        argv.push(po_file);
-        return childProcess.execFileSync('msggrep', argv);
+
+        Array.prototype.push.apply(patterns, extras);
+
+        return patterns.map((p) => new RegExp(`^${p}:[0-9]+$`));
+    }
+
+    check_reference_patterns(patterns, references) {
+        for (const reference of references) {
+            for (const pattern of patterns) {
+                if (reference.match(pattern)) {
+                    return true;
+                }
+            }
+        }
     }
 
     buildFile(po_file, compilation) {
         return new Promise((resolve, reject) => {
-            const poData = this.subdir
-                ? this.filterMessages(po_file, compilation)
-                : fs.readFileSync(po_file);
+            const patterns = this.build_patterns(compilation, this.reference_patterns);
 
-            const parsed = gettext_parser.po.parse(poData, 'utf8');
+            const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
             delete parsed.translations[""][""]; // second header copy
 
             // cockpit.js only looks at "plural-forms" and "language"
@@ -93,6 +103,10 @@ module.exports = class {
                 const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
 
                 for (const [msgid, translation] of Object.entries(context)) {
+                    const references = translation.comments.reference.split(/\s/);
+                    if (!this.check_reference_patterns(patterns, references))
+                        continue;
+
                     if (translation.comments.flag === 'fuzzy')
                         continue;
 

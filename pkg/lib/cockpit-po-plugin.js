@@ -2,7 +2,7 @@ const path = require("path");
 const glob = require("glob");
 const fs = require("fs");
 const childProcess = require("child_process");
-const po2json = require('po2json');
+const gettext_parser = require('gettext-parser');
 const Jed = require('jed');
 const webpack = require('webpack');
 
@@ -38,49 +38,22 @@ module.exports = class {
         }
     }
 
-    prepareHeader(header) {
-        if (!header)
-            return null;
-
-        var statement;
-        var ret = null;
-        const plurals = header["plural-forms"];
-
-        if (plurals) {
-            try {
-                /* Check that the plural forms isn't being sneaky since we build a function here */
-                Jed.PF.parse(plurals);
-            } catch (ex) {
-                console.error("bad plural forms: " + ex.message);
-                process.exit(1);
-            }
-
-            /* A lambda for the front end */
-            statement = header["plural-forms"];
-            ret = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
-            if (ret === statement) {
-                /* didn't match */
-                console.error("bad plural forms: " + statement);
-                process.exit(1);
-            }
-
-            /* Added back in later */
-            delete header["plural-forms"];
+    get_plural_expr(statement) {
+        try {
+            /* Check that the plural forms isn't being sneaky since we build a function here */
+            Jed.PF.parse(statement);
+        } catch (ex) {
+            console.error("bad plural forms: " + ex.message);
+            process.exit(1);
         }
 
-        /* We don't need to be transferring this */
-        delete header["project-id-version"];
-        delete header["report-msgid-bugs-to"];
-        delete header["pot-creation-date"];
-        delete header["po-revision-date"];
-        delete header["last-translator"];
-        delete header["language-team"];
-        delete header["mime-version"];
-        delete header["content-type"];
-        delete header["content-transfer-encoding"];
-        delete header["x-generator"];
+        const expr = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
+        if (expr === statement) {
+            console.error("bad plural forms: " + statement);
+            process.exit(1);
+        }
 
-        return ret;
+        return expr;
     }
 
     filterMessages(po_file, compilation) {
@@ -105,24 +78,36 @@ module.exports = class {
                 ? this.filterMessages(po_file, compilation)
                 : fs.readFileSync(po_file);
 
-            const jsonData = po2json.parse(poData);
-            const plurals = this.prepareHeader(jsonData[""]);
-            for (const [msgid, msgstrs] of Object.entries(jsonData)) {
-                if (msgid !== '') {
-                    // cockpit.js never looks at the first item
-                    msgstrs[0] = null;
+            const parsed = gettext_parser.po.parse(poData, 'utf8');
+            delete parsed.translations[""][""]; // second header copy
+
+            // cockpit.js only looks at "plural-forms" and "language"
+            const chunks = [
+                '{\n',
+                ' "": {\n',
+                `  "plural-forms": ${this.get_plural_expr(parsed.headers['plural-forms'])},\n`,
+                `  "language": "${parsed.headers.language}"\n`,
+                ' }'
+            ];
+            for (const [msgctxt, context] of Object.entries(parsed.translations)) {
+                const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
+
+                for (const [msgid, translation] of Object.entries(context)) {
+                    if (translation.comments.flag === 'fuzzy')
+                        continue;
+
+                    const key = JSON.stringify(context_prefix + msgid);
+                    // cockpit.js always ignores the first item
+                    chunks.push(`,\n ${key}: [\n  null`);
+                    for (const str of translation.msgstr) {
+                        chunks.push(',\n  ' + JSON.stringify(str));
+                    }
+                    chunks.push('\n ]');
                 }
             }
+            chunks.push('\n}');
 
-            let output = JSON.stringify(jsonData, null, 1);
-
-            // We know the brace in is the location to insert our function
-            if (plurals) {
-                const pos = output.indexOf('{', 1);
-                output = output.substr(0, pos + 1) + '\n  "plural-forms": ' + String(plurals) + "," + output.substr(pos + 1);
-            }
-
-            output = this.wrapper.replace('PO_DATA', output) + '\n';
+            const output = this.wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
             const lang = path.basename(po_file).slice(0, -3);
             if (webpack.sources) {

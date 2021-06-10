@@ -78,6 +78,7 @@ module.exports = class {
         delete header["mime-version"];
         delete header["content-type"];
         delete header["content-transfer-encoding"];
+        delete header["x-generator"];
 
         return ret;
     }

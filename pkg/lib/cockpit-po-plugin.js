@@ -107,7 +107,7 @@ module.exports = class {
                     if (!this.check_reference_patterns(patterns, references))
                         continue;
 
-                    if (translation.comments.flag === 'fuzzy')
+                    if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))
                         continue;
 
                     const key = JSON.stringify(context_prefix + msgid);

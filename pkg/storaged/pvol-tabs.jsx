@@ -37,7 +37,7 @@ export class PVolTab extends React.Component {
         var vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Volume group")}</DescriptionListTerm>
                     <DescriptionListDescription>{vgroup
@@ -62,7 +62,7 @@ export class MDRaidMemberTab extends React.Component {
         var mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("RAID device")}</DescriptionListTerm>
                     <DescriptionListDescription>{mdraid
@@ -83,7 +83,7 @@ export class VDOBackingTab extends React.Component {
         var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("VDO device")}</DescriptionListTerm>
                     <DescriptionListDescription>{vdo

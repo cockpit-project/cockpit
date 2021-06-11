@@ -35,14 +35,8 @@ svg {
     vertical-align: -0.125em;
 }
 
-// Patternfly horizontal lists should convert to vertical in small screens https://github.com/patternfly/patternfly/issues/3630
-@media (min-width: 640px) {
-    .pf-c-description-list {
-        --pf-c-description-list__group--GridTemplateColumns: var(--pf-c-description-list--m-horizontal__group--GridTemplateColumns);
-    }
-}
-
 // The default gap between the rows in horizontal lists is too large
+.pf-c-description-list.pf-m-horizontal-on-sm,
 .pf-c-description-list.pf-m-horizontal {
     --pf-c-description-list--RowGap: 1rem;
 }

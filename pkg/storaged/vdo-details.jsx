@@ -265,7 +265,7 @@ export class VDODetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("Device file")}</DescriptionListTerm>
                             <DescriptionListDescription>{vdo.dev}</DescriptionListDescription>

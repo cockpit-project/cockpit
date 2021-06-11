@@ -130,7 +130,7 @@ export class CryptoTab extends React.Component {
 
         return (
             <div>
-                <DescriptionList isHorizontal>
+                <DescriptionList className="pf-m-horizontal-on-sm">
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Stored passphrase")}</DescriptionListTerm>
                         <DescriptionListDescription>

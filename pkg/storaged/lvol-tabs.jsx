@@ -410,7 +410,7 @@ export class BlockVolTab extends React.Component {
 
         return (
             <div>
-                <DescriptionList isHorizontal>
+                <DescriptionList className="pf-m-horizontal-on-sm">
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
@@ -468,7 +468,7 @@ export class PoolVolTab extends React.Component {
         }
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                     <DescriptionListDescription>

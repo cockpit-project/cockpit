@@ -76,7 +76,7 @@ export class DriveDetails extends React.Component {
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
                         <DriveDetailsRow title={_("storage", "Firmware version")} value={drive.Revision} />
                         <DriveDetailsRow title={_("storage", "Serial number")} value={drive.Serial} />

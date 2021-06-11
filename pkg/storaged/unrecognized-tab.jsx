@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 export class UnrecognizedTab extends React.Component {
     render() {
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Usage")}</DescriptionListTerm>
                     <DescriptionListDescription>{this.props.block.IdUsage || "-"}</DescriptionListDescription>

@@ -618,10 +618,16 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             </StorageButton>
         );
 
+    var title;
+    if (client.blocks_ptable[block.path])
+        title = _("Partitions");
+    else
+        title = _("Content");
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle><Text component={TextVariants.h2}>{_("Content")}</Text></CardTitle>
+                <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
                 <CardActions>{format_disk_btn}</CardActions>
             </CardHeader>
             <CardBody className="contains-list">

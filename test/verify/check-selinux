@@ -77,7 +77,7 @@ class TestSelinux(MachineCase):
 
         self.login_and_go("/selinux/setroubleshoot")
 
-        dismiss_sel = "#selinux-alert-dismiss"
+        dismiss_sel = ".selinux-alert-dismiss"
 
         # there are some distros with broken SELinux policies which always appear; so first, clean these up
         while True:
@@ -85,9 +85,11 @@ class TestSelinux(MachineCase):
             b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
+            num_alerts = b.call_js_func("ph_count", dismiss_sel)
             b.click('tbody:first-of-type .pf-c-table__toggle button')
-            b.click(dismiss_sel)
-            b.wait_not_present(dismiss_sel)
+            b.click('tbody:first-of-type ' + dismiss_sel)
+            # wait for the dismissed alert to go away
+            b.wait_js_func("ph_count_check", dismiss_sel, num_alerts - 1)
 
         # fix audit events first
         self.machine.execute(script=FIX_AUDITD)

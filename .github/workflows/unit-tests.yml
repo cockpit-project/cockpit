@@ -24,7 +24,7 @@ jobs:
 
       - name: Build unit test container if it changed
         run: |
-          changes=$(git diff --name-only origin/master..HEAD -- containers/unit-tests/)
+          changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}..HEAD -- containers/unit-tests/)
           if [ -n "${changes}" ]; then
             case '${{ matrix.startarg }}' in
               *:i386*) arch=i386;;

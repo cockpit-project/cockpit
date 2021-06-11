@@ -73,7 +73,7 @@ class TestSelinux(MachineCase):
         m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")
         m.execute("semanage boolean --modify --on zebra_write_config")
         self.allow_journal_messages("audit: type=1405 .* bool=zebra_write_config val=1 old_val=0.*")
-        self.allow_journal_messages(".*couldn't introspect /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*disconnected.*")
+        self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
 
         self.login_and_go("/selinux/setroubleshoot")
 

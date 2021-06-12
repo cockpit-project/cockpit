@@ -121,7 +121,6 @@ def prepare_install_image(base_image, overlay=False):
                                qcow2_image])
         if os.path.lexists(install_image):
             os.unlink(install_image)
-        # os.symlink(os.path.basename(qcow2_image), install_image)
     return install_image, qcow2_image
 
 

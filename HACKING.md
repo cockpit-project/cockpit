@@ -25,12 +25,12 @@ On Fedora:
 On older OS releases you can use the [n utility](https://github.com/tj/n) to
 get a current version of nodejs.
 
-When relying on CI to run the test suite, this is all that is
-necessary to work on the JavaScript components of Cockpit.
+When relying on CI to run the test suite, this is all that is necessary to work
+on the JavaScript components of Cockpit.
 
 To build the Cockpit binaries from source, required to run the integration tests
-locally (see `test/README.md`), you will need additional header files and other
-components. The following should work in a fresh Git clone:
+locally (see [testing README](test/README.md)), you will need additional header
+files and other components. The following should work in a fresh Git clone:
 
     $ sudo dnf install dnf-utils python-srpm-macros
     $ TEMPFILE=$(mktemp -u --suffix=.spec) && \
@@ -72,8 +72,8 @@ After a fresh clone of the Cockpit sources, you need to prepare them by running
 
     $ ./autogen.sh --prefix=/usr --enable-debug
 
-As shown, `autogen.sh` runs 'configure' with the given options, and it
-also prepares the build tree by downloading various nodejs dependencies.
+As shown, `autogen.sh` runs 'configure' with the given options, and it also
+prepares the build tree by downloading various nodejs dependencies.
 
 When working with a Git clone, it is therefore best to simply always
 run `./autogen.sh` instead of `./configure`.
@@ -82,25 +82,23 @@ Then run
 
     $ make
 
-to build everything.  Cockpit has a single non-recursive Makefile.  You can
-only run `make` from the top-level and it will always rebuild the whole
-project.
+to build everything. Cockpit has a single non-recursive Makefile. You can only
+run `make` from the top-level and it will always rebuild the whole project.
 
 You can run unit tests of the current checkout:
 
     $ make check
 
-These should finish very quickly and it is good practice to do it
-often.
+These should finish very quickly and it is good practice to do it often.
 
-For debugging individual tests, there are compiled binaries in the
-build directory. For QUnit tests (JavaScript), you can run
+For debugging individual tests, there are compiled binaries in the build
+directory. For QUnit tests (JavaScript), you can run
 
     $ ./test-server
 
 which will output a URL to connect to with a browser, such as
-`http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path
-for different tests and inspect the results there.
+`http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path for different
+tests and inspect the results there.
 
 You can also run individual tests by specifying the `TESTS` environment
 variable:
@@ -111,20 +109,20 @@ There are also static code and syntax checks which you should run often:
 
     $ tools/test-static-code
 
-It is highly recommended to set this up as a git pre-push hook, to avoid
-pushing PRs that will fail on trivial errors:
+It is highly recommended to set this up as a git pre-push hook, to avoid pushing
+PRs that will fail on trivial errors:
 
     $ ln -s ../../tools/test-static-code .git/hooks/pre-push
 
 ## Running the integration test suite
 
-Refer to the [testing README](test/README.md) for details on running
-the Cockpit integration tests locally.
+Refer to the [testing README](test/README.md) for details on running the Cockpit
+integration tests locally.
 
 ## Running eslint
 
-Cockpit uses [ESLint](https://eslint.org/) to automatically check
-JavaScript code style in `.js` and `.jsx` files.
+Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript
+code style in `.js` and `.jsx` files.
 
 The linter is executed within every build as a webpack preloader.
 
@@ -167,10 +165,10 @@ desktop.
 
 http://localhost:9090
 
-After every change to your sources the webpacks need to be rebuilt: You can
-just run `make` to update everything that has changed; for iterating faster,
-you can run webpack in "watch" mode on the particular page that you are working
-on, which reduces the build time to less than a third. E. g.
+After every change to your sources the webpacks need to be rebuilt: You can just
+run `make` to update everything that has changed; for iterating faster, you can
+run webpack in "watch" mode on the particular page that you are working on,
+which reduces the build time to less than a third. E. g.
 
     $ tools/webpack-watch systemd
 
@@ -181,15 +179,15 @@ as
 
 Then reload cockpit in your browser after building the page.
 
-To make Cockpit again use the installed code, rather than that from your
-git checkout directory, run the following, and log into Cockpit again:
+To make Cockpit again use the installed code, rather than that from your git
+checkout directory, run the following, and log into Cockpit again:
 
     $ rm ~/.local/share/cockpit
 
 ## Working on your local machine: Web server
 
-To test changes to the login page or any other resources, you can bind-mount
-the build tree's `dist/static/` directory over the  system one:
+To test changes to the login page or any other resources, you can bind-mount the
+build tree's `dist/static/` directory over the  system one:
 
     $ sudo mount -o bind dist/static/ /usr/share/cockpit/static/
 
@@ -270,16 +268,16 @@ A local cache is maintained in `~/.cache/cockpit-dev`.
 
 ## Contributing a change
 
-Make a pull request on github.com with your change. All changes get
-reviewed, tested and iterated on before getting into Cockpit. The general
-workflow is described in the [wiki](https://github.com/cockpit-project/cockpit/wiki/Workflow).
-Don't feel bad if there's multiple steps back and forth asking for changes
-or tweaks before your change gets in.
+Make a pull request on github.com with your change. All changes get reviewed,
+tested and iterated on before getting into Cockpit. The general workflow is
+described in the [wiki](https://github.com/cockpit-project/cockpit/wiki/Workflow).
+Don't feel bad if there's multiple steps back and forth asking for changes or
+tweaks before your change gets in.
 
 You need to be familiar with git to contribute a change. Do your changes
-on a branch. Your change should be one or more git commits that each
-contain one single logical simple reviewable change, without modifications
-that are unrelated to the commit message.
+on a branch. Your change should be one or more git commits that each contain one
+single logical simple reviewable change, without modifications that are
+unrelated to the commit message.
 
 Cockpit is a designed project. Anything that the user will see should have
 design done first. This is done on the wiki and mailing list.
@@ -288,10 +286,10 @@ Bigger changes need to be discussed on #cockpit or our mailing list
 cockpit-devel@lists.fedoraproject.org before you invest too much time and
 energy.
 
-Feature changes should have a video and/or screenshots that show the
-change. This video should be uploaded to Youtube or another service that
-allows video embedding. Use a command like this to record a video including
-the browser frame:
+Feature changes should have a video and/or screenshots that show the change.
+This video should be uploaded to Youtube or another service that allows video
+embedding. Use a command like this to record a video including the browser
+frame:
 
     $ recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
         --fps 24 --freq 44100 --v_bitrate 2000000
@@ -308,14 +306,14 @@ Then run it with `Ctrl+R` when the browser is showing an empty tab, e.g.
 
 ## Debug logging of Cockpit processes
 
-All messages from the various cockpit processes go to the journal and can
-be seen with commands like:
+All messages from the various cockpit processes go to the journal and can be
+seen with commands like:
 
     $ sudo journalctl -f
 
-Much of Cockpit has more verbose internal debug logging that can be
-enabled when trying to track down a problem. To turn it on add a file
-to your system like this:
+Much of Cockpit has more verbose internal debug logging that can be enabled when
+trying to track down a problem. To turn it on add a file to your system like
+this:
 
     $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
     $ sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
@@ -338,10 +336,9 @@ To revert the above logging changes:
 
 ## Debug logging in Javascript console
 
-Various javascript methods in Cockpit can show debug messages. You
-can turn them on by setting a `window.debugging` global, or setting
-up a `debugging` property in the browser storage. To do this
-run the following in your javascript console:
+Various javascript methods in Cockpit can show debug messages. You can turn them
+on by setting a `window.debugging` global, or setting up a `debugging` property
+in the browser storage. To do this run the following in your javascript console:
 
     >> sessionStorage.debugging = "all"
 
@@ -357,21 +354,21 @@ specific types:
 
 There are other strings related to the code you may be working on.
 
-In addition, if you want your debug setting to survive a browser refresh
-or Cockpit log out, use something like:
+In addition, if you want your debug setting to survive a browser refresh or
+Cockpit log out, use something like:
 
     >> localStorage.debugging = "spawn"
 
 ## Running Cockpit processes under a debugger
 
-You may want to run cockpit-ws under a debugger such as valgrind or gdb.
-You can run these processes as your own user, although you won't be able
-to debug all the authentication logic in those cases.
+You may want to run cockpit-ws under a debugger such as valgrind or gdb. You can
+run these processes as your own user, although you won't be able to debug all
+the authentication logic in those cases.
 
-First of all make sure Cockpit is installed correctly. Even though we
-will be running cockpit-ws from the built sources this still relies on
-some of the right bits being installed in order for Cockpit to work
-(ie: PAM stack, UI files, cockpit-bridge, etc.)
+First of all make sure Cockpit is installed correctly. Even though we will be
+running cockpit-ws from the built sources this still relies on some of the right
+bits being installed in order for Cockpit to work (ie: PAM stack, UI files,
+cockpit-bridge, etc.)
 
 This is how you would run cockpit-ws under gdb:
 
@@ -391,20 +388,20 @@ prefix, rather than your build tree.
 
 # Running Microsoft Edge to test Cockpit
 
-While running Firefox or Chrome on your Linux or Mac development machine
-may be easy, some people find it harder to test Edge . To
-use the following method you need access to the ```windows-10``` testing
-image. This image cannot be freely distributed for licensing reasons.
+While running Firefox or Chrome on your Linux or Mac development machine may be
+easy, some people find it harder to test Edge. To use the following method you
+need access to the ```windows-10``` testin image. This image cannot be freely
+distributed for licensing reasons.
 
 Make sure you have the ```virt-viewer``` package installed on your Linux
 machine. And then run the following from the Cockpit checkout directory:
 
     $ bots/vm-run windows-10
 
-If the image is not yet downloaded, it'll take a while to download and
-you'll see progress on the command line. A screen will pop up and
-Windows will boot. Various command lines will show up once Windows has
-started. Ignore or minimize them, before starting Edge.
+If the image is not yet downloaded, it'll take a while to download and you'll
+see progress on the command line. A screen will pop up and Windows will boot.
+Various command lines will show up once Windows has started. Ignore or minimize
+them, before starting Edge.
 
 Type the following into Edge's address bar to access Cockpit running on your
 development machine:

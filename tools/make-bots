@@ -14,7 +14,8 @@ cd "$(realpath -m "$0"/../..)"
 
 if [ ! -d bots ]; then
     [ -n "${quiet}" ] || set -x
-    fetch_to_cache # it's small, so keep everything cached
+    # it's small, so keep everything cached
+    fetch_to_cache ${COCKPIT_BOTS_REF+"${COCKPIT_BOTS_REF}"}
     clone_from_cache "${COCKPIT_BOTS_REF-master}"
 else
     echo "bots/ already exists, skipping"

@@ -1273,7 +1273,7 @@ class MetricsHistory extends React.Component {
                         <div className="metrics-graphs">
                             <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
                             <Label label={_("Memory")} items={[_("Usage"), ...swapTotal !== undefined ? [_("Swap")] : []]} />
-                            <Label label={_("Disks")} items={[_("Usage")]} />
+                            <Label label={_("Disk I/O")} items={[_("Usage")]} />
                             <Label label={_("Network")} items={[_("Usage")]} />
                         </div>
                     </section>

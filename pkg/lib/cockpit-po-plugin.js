@@ -1,8 +1,7 @@
 const path = require("path");
 const glob = require("glob");
 const fs = require("fs");
-const childProcess = require("child_process");
-const po2json = require('po2json');
+const gettext_parser = require('gettext-parser');
 const Jed = require('jed');
 const webpack = require('webpack');
 
@@ -13,7 +12,7 @@ module.exports = class {
         if (!options)
             options = {};
         this.subdir = options.subdir || '';
-        this.msggrep_options = options.msggrep_options;
+        this.reference_patterns = options.reference_patterns;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
     }
 
@@ -38,81 +37,91 @@ module.exports = class {
         }
     }
 
-    prepareHeader(header) {
-        if (!header)
-            return null;
-
-        var statement;
-        var ret = null;
-        const plurals = header["plural-forms"];
-
-        if (plurals) {
-            try {
-                /* Check that the plural forms isn't being sneaky since we build a function here */
-                Jed.PF.parse(plurals);
-            } catch (ex) {
-                console.error("bad plural forms: " + ex.message);
-                process.exit(1);
-            }
-
-            /* A function for the front end */
-            statement = header["plural-forms"];
-            if (statement[statement.length - 1] != ';')
-                statement += ';';
-            ret = 'function(n) {\nvar nplurals, plural;\n' + statement + '\nreturn plural;\n}';
-
-            /* Added back in later */
-            delete header["plural-forms"];
+    get_plural_expr(statement) {
+        try {
+            /* Check that the plural forms isn't being sneaky since we build a function here */
+            Jed.PF.parse(statement);
+        } catch (ex) {
+            console.error("bad plural forms: " + ex.message);
+            process.exit(1);
         }
 
-        /* We don't need to be transferring this */
-        delete header["project-id-version"];
-        delete header["report-msgid-bugs-to"];
-        delete header["pot-creation-date"];
-        delete header["po-revision-date"];
-        delete header["last-translator"];
-        delete header["language-team"];
-        delete header["mime-version"];
-        delete header["content-type"];
-        delete header["content-transfer-encoding"];
+        const expr = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
+        if (expr === statement) {
+            console.error("bad plural forms: " + statement);
+            process.exit(1);
+        }
 
-        return ret;
+        return expr;
     }
 
-    filterMessages(po_file, compilation) {
-        // all translations for that page, including manifest.json and *.html
-        const argv = ["-N", "*/" + this.subdir + "*"];
-        // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
-        argv.push("-N", "pkg/base1/cockpit.js");
+    build_patterns(compilation, extras) {
+        const patterns = [
+            // all translations for that page, including manifest.json and *.html
+            `pkg/${this.subdir}.*`,
+            // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
+            'pkg/base1/cockpit.js'
+        ];
+
         // add translations from libraries outside of page directory
         compilation.getStats().compilation.fileDependencies.forEach(path => {
             if (path.startsWith(srcdir) && path.indexOf('node_modules/') < 0)
-                argv.push("-N", path.slice(srcdir.length + 1));
+                patterns.push(path.slice(srcdir.length + 1));
         });
-        if (this.msggrep_options)
-            Array.prototype.push.apply(argv, this.msggrep_options);
-        argv.push(po_file);
-        return childProcess.execFileSync('msggrep', argv);
+
+        Array.prototype.push.apply(patterns, extras);
+
+        return patterns.map((p) => new RegExp(`^${p}:[0-9]+$`));
+    }
+
+    check_reference_patterns(patterns, references) {
+        for (const reference of references) {
+            for (const pattern of patterns) {
+                if (reference.match(pattern)) {
+                    return true;
+                }
+            }
+        }
     }
 
     buildFile(po_file, compilation) {
         return new Promise((resolve, reject) => {
-            const poData = this.subdir
-                ? this.filterMessages(po_file, compilation)
-                : fs.readFileSync(po_file);
+            const patterns = this.build_patterns(compilation, this.reference_patterns);
 
-            const jsonData = po2json.parse(poData);
-            const plurals = this.prepareHeader(jsonData[""]);
+            const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
+            delete parsed.translations[""][""]; // second header copy
 
-            let output = JSON.stringify(jsonData, null, 1);
+            // cockpit.js only looks at "plural-forms" and "language"
+            const chunks = [
+                '{\n',
+                ' "": {\n',
+                `  "plural-forms": ${this.get_plural_expr(parsed.headers['plural-forms'])},\n`,
+                `  "language": "${parsed.headers.language}"\n`,
+                ' }'
+            ];
+            for (const [msgctxt, context] of Object.entries(parsed.translations)) {
+                const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
 
-            // We know the brace in is the location to insert our function
-            if (plurals) {
-                const pos = output.indexOf('{', 1);
-                output = output.substr(0, pos + 1) + "'plural-forms':" + String(plurals) + "," + output.substr(pos + 1);
+                for (const [msgid, translation] of Object.entries(context)) {
+                    const references = translation.comments.reference.split(/\s/);
+                    if (!this.check_reference_patterns(patterns, references))
+                        continue;
+
+                    if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))
+                        continue;
+
+                    const key = JSON.stringify(context_prefix + msgid);
+                    // cockpit.js always ignores the first item
+                    chunks.push(`,\n ${key}: [\n  null`);
+                    for (const str of translation.msgstr) {
+                        chunks.push(',\n  ' + JSON.stringify(str));
+                    }
+                    chunks.push('\n ]');
+                }
             }
+            chunks.push('\n}');
 
-            output = this.wrapper.replace('PO_DATA', output) + '\n';
+            const output = this.wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
             const lang = path.basename(po_file).slice(0, -3);
             if (webpack.sources) {

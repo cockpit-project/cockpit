@@ -271,6 +271,7 @@ var initStore = function(rootElement) {
                         dataStore.connected = true;
                         window.clearTimeout(dataStore.connecting);
                         dataStore.connecting = null;
+                        dataStore.error = null; // reset "not connected"
                         render();
                         // now register a callback to get new entries and get all existing ones
                         // the order is important, since we don't want to miss an entry

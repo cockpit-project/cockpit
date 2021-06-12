@@ -19,6 +19,8 @@
 @import "../lib/page.scss";
 @import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
 @import "../lib/ct-card.scss";
+@import "@patternfly/patternfly/utilities/Flex/flex.scss";
+@import "@patternfly/patternfly/utilities/Text/text.scss";
 
 #storage .pf-c-card {
     @extend .ct-card;
@@ -28,15 +30,9 @@
     --pf-l-gallery--GridTemplateColumns: 1fr;
 }
 
-#main-storage.pf-c-page,
 #storage-detail .pf-c-page__main-section,
 #storage-detail .pf-c-page__main-nav {
-    padding: var(--pf-global--gutter);
     overflow: auto;
-}
-
-#main-storage > .pf-c-page__main {
-    padding-bottom: var(--pf-global--spacer--md);
 }
 
 #storage .create-storage {
@@ -218,6 +214,10 @@ div.progress {
 
 #detail-header div.progress {
     min-width: 250px;
+}
+
+#storage-detail .ct-table {
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
 td.usage-text {
@@ -477,11 +477,7 @@ td.storage-action {
 
 .sidepanel-row {
     padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
-    border-bottom: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
-}
-
-.sidepanel-row:last-child {
-    border-bottom: none;
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
 .sidepanel-row.pf-c-empty-state {
@@ -495,7 +491,7 @@ td.storage-action {
 }
 
 .sidepanel-row-name {
-    font-size: var(--pf-global--FontSize--md);
+    font-size: var(--pf-global--FontSize--sm);
 }
 
 .sidepanel-row-info {

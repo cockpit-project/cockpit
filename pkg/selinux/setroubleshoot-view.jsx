@@ -355,7 +355,7 @@ export class SETroubleshootPage extends React.Component {
                 if (itm.details)
                     onDeleteClick = self.handleDeleteAlert.bind(self, itm.details.localId);
                 var dismissAction = (
-                    <Button id="selinux-alert-dismiss"
+                    <Button className="selinux-alert-dismiss"
                             isSmall
                             variant="danger"
                             aria-label={ _("Dismiss") }

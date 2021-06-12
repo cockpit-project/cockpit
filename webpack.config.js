@@ -331,12 +331,12 @@ const opensans_fonts = ["Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "I
         { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
     ));
 
-function get_msggrep_options () {
+function get_translation_reference_patterns () {
     // shell needs all manifest translations for search
     if (section === 'shell/')
-        return ['-N', 'pkg/*/manifest.json'];
+        return ['pkg/.*/manifest.json'];
     if (section === 'static/')
-        return ['-N', 'src/ws/*'];
+        return ['src/ws/.*'];
     return undefined;
 }
 
@@ -346,7 +346,7 @@ const plugins = [
     new miniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
-        msggrep_options: get_msggrep_options(),
+        reference_patterns: get_translation_reference_patterns(),
         // login page does not have cockpit.js, but reads window.cockpit_po
         wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,
     }),

@@ -1253,30 +1253,7 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor)  # 14xx is selinux
 
-        if self.image.startswith('debian') or self.image == 'fedora-coreos':
-            # These images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
-            self.allowed_messages.append("invalid or unusable locale: .*")
-
-        if self.image.startswith('fedora') or self.image.startswith('rhel-9'):
-            # Fedora and RHEL 9 have switched to dbus-broker
-            self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
-
-        if self.image in ['fedora-34', 'fedora-testing', 'rhel-9-0']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1929259
-            self.allow_journal_messages('audit:.*denied.*comm="pmdakvm" lockdown_reason="debugfs access".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1965743
-            self.allow_journal_messages('audit:.*denied.*name="dma_heap".*')
-
-        if self.image in ['debian-testing', 'ubuntu-stable']:
-            # HACK: https://bugs.debian.org/951477
-            self.allowed_messages.append(r'Process .* \(ip6?tables\) of user 0 dumped core.*')
-            self.allowed_messages.append(r'Process .* \(iptables-restor\) of user 0 dumped core.*')
-            self.allowed_messages.append(r'Process .* \(ip6tables-resto\) of user 0 dumped core.*')
-            self.allowed_messages.append(r'Process .* \(ebtables\) of user 0 dumped core.*')
-            # don't ignore all stack traces
-            self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')
-            # but we have to ignore that general header line
-            self.allowed_messages.append('^Stack trace of.*')
+        self.allowed_messages += self.machine.allowed_messages()
 
         all_found = True
         first = None

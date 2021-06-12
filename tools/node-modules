@@ -1,23 +1,11 @@
 #!/bin/sh
 
+GITHUB_REPO='node-cache'
+SUBDIR='node_modules'
+
 set -eu
-
-GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
-GITHUB_REPOSITORY="${GITHUB_BASE%/*}/node-cache"
-HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
-
-CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/cockpit-dev/${GITHUB_REPOSITORY}.git"
-
-message() {
-    [ "${V-}" != 0 ] || printf "  %-8s %s\n" "$1" "$2"
-}
-
-get_index_gitlink() {
-    if ! git ls-files -s "$1" | egrep -o '\<[[:xdigit:]]{40}\>'; then
-        echo "*** couldn't read gitlink for file $1 from the index" >&2
-        exit 1
-    fi
-}
+cd "$(realpath -m "$0"/../..)"
+. tools/git-utils.sh
 
 cmd_remove() {
     # if we did this for ourselves the rm is enough, but it might be the case
@@ -32,33 +20,14 @@ cmd_remove() {
 cmd_checkout() {
     # we default to check out the node_modules corresponding to the gitlink in the index
     local sha="${1-$(get_index_gitlink node_modules)}"
-    local tag="sha-${sha}"
 
-    if [ ! -d "${CACHE_DIR}" ]; then
-        message INIT "${CACHE_DIR}"
-        mkdir -p "${CACHE_DIR}"
-        git init --bare ${quiet} "${CACHE_DIR}"
-        git --git-dir "${CACHE_DIR}" remote add origin "${HTTPS_REMOTE}"
-    fi
-
-    # fetch the tag if we don't already have it
-    if ! git --git-dir "${CACHE_DIR}" rev-parse --verify --quiet "${tag}" >/dev/null; then
-        message FETCH "node_modules  [sha: ${sha}]"
-        # fetch by sha to prevent us from downloading something we don't want
-        git --git-dir "${CACHE_DIR}" fetch ${quiet} origin --no-tags "${sha}"
-        # create the tag locally for ourselves
-        git --git-dir "${CACHE_DIR}" tag "sha-${sha}" "${sha}"
-    fi
-
-    # paranoid: double check that the tag is what it claims to be
-    test "$(git --git-dir "${CACHE_DIR}" rev-parse "${tag}")" = "${sha}"
+    # fetch by sha to prevent us from downloading something we don't want
+    fetch_sha_to_cache "${sha}"
 
     # verify that our package.json is equal to the one the cached node_modules
     # was created with, unless --force is given
     if [ "${1-}" != "--force" ]; then
-        local our_package_json_sha="$(cat package.json | sha256sum)"
-        local their_package_json_sha="$(git --git-dir "${CACHE_DIR}" cat-file -p "${sha}":.package.json | sha256sum)"
-        if [ "${our_package_json_sha}" != "${their_package_json_sha}" ]; then
+        if ! cmp_from_cache "${sha}" '.package.json' 'package.json'; then
             cat >&2 <<EOF
 
 *** node_modules ${sha} doesn't match our package.json
@@ -82,8 +51,7 @@ EOF
 
     # and check out the new one
     # we need to use the tag name here, unfortunately
-    message UNPACK "node_modules  [sha: ${sha}]"
-    git -c advice.detachedHead=false clone ${quiet} "${CACHE_DIR}" -b "${tag}" node_modules
+    clone_from_cache "${sha}"
 }
 
 cmd_rebuild() {
@@ -197,7 +165,6 @@ main() {
     cd "${top_srcdir}"
 
     local cmd="${1-}"
-    local quiet=''
 
     if [ -z "${cmd}" ]; then
         # don't list the "private" ones
@@ -209,8 +176,7 @@ main() {
     fi
 
     shift
-    [ "${V-}" != 0 ] || quiet='--quiet'
-    [ "${V-}" = 0 ] || set -x
+    [ -n "${quiet}" ] || set -x
     "cmd_$cmd" "$@"
 }
 

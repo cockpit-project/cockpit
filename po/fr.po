@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-26 08:17+0000\n"
-"PO-Revision-Date: 2021-03-12 23:01+0000\n"
+"POT-Creation-Date: 2021-06-01 19:00+0000\n"
+"PO-Revision-Date: 2021-06-05 10:03+0000\n"
 "Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
 "master/fr/>\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1\n"
-"X-Generator: Weblate 4.5.1\n"
+"X-Generator: Weblate 4.6.2\n"
 
 #: pkg/metrics/metrics.jsx:417
 msgid "$0 CPU"
@@ -890,10 +890,6 @@ msgstr "Alerte et au-dessus"
 msgid "All"
 msgstr "Tout"
 
-#: pkg/metrics/metrics.jsx:733 pkg/lib/cockpit-components-logs-panel.jsx:161
-msgid "All logs"
-msgstr "Tous les journaux"
-
 #: pkg/packagekit/autoupdates.jsx:298
 msgid "All updates"
 msgstr "Toutes les mises à jour"
@@ -1206,7 +1202,7 @@ msgstr ""
 "disposition et vous pourrez vous connecter à ${rhost} sans mot de passe à "
 "l'avenir."
 
-#: pkg/metrics/metrics.jsx:467 pkg/metrics/metrics.jsx:1271
+#: pkg/metrics/metrics.jsx:467 pkg/metrics/metrics.jsx:1274
 #: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:113
 msgid "CPU"
 msgstr "CPU"
@@ -1255,7 +1251,7 @@ msgstr ""
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-change-auth.html:75
 #: pkg/shell/machines/machine-change-port.html:26 pkg/sosreport/index.html:83
-#: pkg/metrics/metrics.jsx:942 pkg/lib/cockpit-components-shutdown.jsx:169
+#: pkg/metrics/metrics.jsx:945 pkg/lib/cockpit-components-shutdown.jsx:169
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/storaged/dialog.jsx:408
 #: pkg/storaged/jobs-panel.jsx:139 pkg/networkmanager/firewall.jsx:535
 #: pkg/networkmanager/firewall.jsx:709 pkg/networkmanager/firewall.jsx:801
@@ -1318,7 +1314,7 @@ msgstr "Modifier le nom de l’initiateur iSCSI"
 
 #: pkg/storaged/crypto-keyslots.jsx:310
 msgid "Change passphrase"
-msgstr "Modifier la phrase secrète"
+msgstr "Modifier la phrase de passe"
 
 #: pkg/shell/index.html:276
 msgid "Change password"
@@ -1521,7 +1517,7 @@ msgstr ""
 "serveurs en même temps. Il suffit de les ajouter en un seul clic et vos "
 "machines s’occuperont de leurs pairs."
 
-#: pkg/metrics/metrics.jsx:950
+#: pkg/metrics/metrics.jsx:953
 #, fuzzy
 #| msgid "Store metrics"
 msgid "Collect metrics"
@@ -1973,7 +1969,7 @@ msgstr "Débogage et au-dessus"
 
 #: pkg/systemd/terminal.jsx:140
 msgid "Decrease by one"
-msgstr ""
+msgstr "Diminution par un"
 
 #: pkg/storaged/vdos-panel.jsx:124 pkg/storaged/vdo-details.jsx:326
 msgid "Deduplication"
@@ -2155,9 +2151,9 @@ msgstr "Le disque est OK"
 
 #: pkg/storaged/crypto-keyslots.jsx:178
 msgid "Disk passphrase"
-msgstr "Phrase secrète du disque"
+msgstr "Phrase de passe du disque"
 
-#: pkg/metrics/metrics.jsx:531 pkg/metrics/metrics.jsx:1273
+#: pkg/metrics/metrics.jsx:531 pkg/metrics/metrics.jsx:1276
 #: pkg/storaged/mdraids-panel.jsx:127 pkg/storaged/vgroups-panel.jsx:79
 #: pkg/storaged/mdraid-details.jsx:62 pkg/storaged/mdraid-details.jsx:166
 #: pkg/storaged/vgroup-details.jsx:66
@@ -2317,10 +2313,8 @@ msgid "Enable"
 msgstr "Activée"
 
 #: pkg/networkmanager/network-interface.jsx:730
-#, fuzzy
-#| msgid "Failed to disable tuned"
 msgid "Enable or disable the device"
-msgstr "Échec de la désactivation de « tuned »"
+msgstr "Activer ou désactiver le périphérique"
 
 #: pkg/networkmanager/app.jsx:96
 msgid "Enable service"
@@ -2412,7 +2406,7 @@ msgstr "Erreur"
 msgid "Error and above"
 msgstr "Erreur et au-dessus"
 
-#: pkg/metrics/metrics.jsx:1212
+#: pkg/metrics/metrics.jsx:1215
 msgid "Error has occurred"
 msgstr "Une erreur s'est produite"
 
@@ -2452,13 +2446,11 @@ msgstr "Ethtool"
 
 #: pkg/metrics/metrics.jsx:760
 msgid "Event"
-msgstr ""
+msgstr "Événement"
 
 #: pkg/metrics/metrics.jsx:752
-#, fuzzy
-#| msgid "Reviewing logs"
 msgid "Event logs"
-msgstr "Révision des journaux"
+msgstr "Journaux événements"
 
 #: pkg/networkmanager/firewall.jsx:600
 msgid "Example: 22,ssh,8080,5900-5910"
@@ -2521,7 +2513,7 @@ msgstr "Échec de l’ajout de la zone"
 msgid "Failed to change password"
 msgstr "Échec de la modification du mot de passe"
 
-#: pkg/metrics/metrics.jsx:936
+#: pkg/metrics/metrics.jsx:939
 #, fuzzy
 #| msgid "Failed to clone VM $0"
 msgid "Failed to configure PCP"
@@ -2623,10 +2615,8 @@ msgid "Firmware version"
 msgstr "Version du micrologiciel"
 
 #: pkg/systemd/terminal.jsx:129 pkg/systemd/terminal.jsx:139
-#, fuzzy
-#| msgid "Chunk size"
 msgid "Font size"
-msgstr "Taille de bloc"
+msgstr "Taille de police"
 
 #: pkg/storaged/vdos-panel.jsx:129
 msgid "For legacy applications only. Reduces performance."
@@ -2927,7 +2917,7 @@ msgstr "Montage de système de fichiers incohérent"
 
 #: pkg/systemd/terminal.jsx:141
 msgid "Increase by one"
-msgstr ""
+msgstr "Augmentation d’un"
 
 #: pkg/storaged/vdos-panel.jsx:106 pkg/storaged/vdo-details.jsx:312
 msgid "Index memory"
@@ -2966,7 +2956,7 @@ msgstr "Installer le support VDO"
 msgid "Install all updates"
 msgstr "Installer toutes les mises à jour"
 
-#: pkg/metrics/metrics.jsx:1185
+#: pkg/metrics/metrics.jsx:1188
 msgid "Install cockpit-pcp"
 msgstr "Installer le cockpit-pcp"
 
@@ -3127,7 +3117,7 @@ msgstr "Entrée de journal"
 msgid "Journal entry not found"
 msgstr "Entrée de journal non trouvée"
 
-#: pkg/metrics/metrics.jsx:1261
+#: pkg/metrics/metrics.jsx:1264
 msgid "Jump to"
 msgstr "Aller à"
 
@@ -3285,7 +3275,7 @@ msgid "Listen"
 msgstr "Persistant"
 
 #: pkg/metrics/metrics.jsx:100 pkg/metrics/metrics.jsx:478
-#: pkg/metrics/metrics.jsx:1271
+#: pkg/metrics/metrics.jsx:1274
 msgid "Load"
 msgstr "Charger"
 
@@ -3293,7 +3283,7 @@ msgstr "Charger"
 msgid "Load balancing"
 msgstr "L’équilibrage de charge"
 
-#: pkg/metrics/metrics.jsx:1290
+#: pkg/metrics/metrics.jsx:1293
 msgid "Load earlier data"
 msgstr "Charger des données antérieures"
 
@@ -3327,7 +3317,7 @@ msgid "Loading system modifications..."
 msgstr "Chargement des modifications système…"
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
-#: pkg/metrics/metrics.jsx:1289 pkg/storaged/devices.jsx:75
+#: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
 #: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
@@ -3382,7 +3372,7 @@ msgstr "Connectez-vous avec votre compte d’utilisateur du serveur."
 msgid "Log messages"
 msgstr "Enregistrer les messages"
 
-#: pkg/shell/index.html:80 pkg/metrics/metrics.jsx:1179
+#: pkg/shell/index.html:80 pkg/metrics/metrics.jsx:1182
 msgid "Log out"
 msgstr "Déconnexion"
 
@@ -3585,7 +3575,7 @@ msgid "Member of RAID device $0"
 msgstr "Membre de RAID Device $0"
 
 #: pkg/playground/translate.html:90 pkg/metrics/metrics.jsx:498
-#: pkg/metrics/metrics.jsx:1272 pkg/systemd/services/service-details.jsx:529
+#: pkg/metrics/metrics.jsx:1275 pkg/systemd/services/service-details.jsx:529
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/hwinfo.jsx:351
 msgid "Memory"
@@ -3615,11 +3605,11 @@ msgstr "Les messages relatifs à la défaillance se trouvent dans le journal :"
 msgid "Metadata used"
 msgstr "Méta-données utilisées"
 
-#: pkg/metrics/metrics.jsx:1204
+#: pkg/metrics/metrics.jsx:1207
 msgid "Metrics history could not be loaded"
 msgstr "L'historique des mesures n'a pas pu être chargé"
 
-#: pkg/metrics/metrics.jsx:915 pkg/metrics/metrics.jsx:922
+#: pkg/metrics/metrics.jsx:918 pkg/metrics/metrics.jsx:925
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Metrics settings"
@@ -3841,7 +3831,7 @@ msgstr "Le nom ne peut pas contenir d’espace."
 msgid "Need at least one NTP server"
 msgstr "Besoin d’au moins un serveur NTP"
 
-#: pkg/metrics/metrics.jsx:572 pkg/metrics/metrics.jsx:1274
+#: pkg/metrics/metrics.jsx:572 pkg/metrics/metrics.jsx:1277
 msgid "Network"
 msgstr "Réseau"
 
@@ -3911,7 +3901,7 @@ msgstr "Nouveau mot de passe clé"
 
 #: pkg/storaged/crypto-keyslots.jsx:269 pkg/storaged/crypto-keyslots.jsx:315
 msgid "New passphrase"
-msgstr "Nouvelle phrase secrète"
+msgstr "Nouvelle phrase de passe"
 
 #: pkg/shell/index.html:251 pkg/users/password-dialogs.js:150
 msgid "New password"
@@ -3958,11 +3948,11 @@ msgstr "Pas de transporteur"
 msgid "No configuration found"
 msgstr "Aucune configuration trouvée"
 
-#: pkg/metrics/metrics.jsx:1229
+#: pkg/metrics/metrics.jsx:1232
 msgid "No data available"
 msgstr "Aucune donnée disponible"
 
-#: pkg/metrics/metrics.jsx:1225
+#: pkg/metrics/metrics.jsx:1228
 msgid "No data available between $0 and $1"
 msgstr "Aucune donnée disponible entre $0 et $1"
 
@@ -4202,7 +4192,7 @@ msgstr "Ok"
 
 #: pkg/storaged/crypto-keyslots.jsx:312
 msgid "Old passphrase"
-msgstr "Ancienne phrase secrète"
+msgstr "Ancienne phrase de passe"
 
 #: pkg/shell/index.html:242 pkg/users/password-dialogs.js:141
 msgid "Old password"
@@ -4289,7 +4279,7 @@ msgstr "Autres options"
 msgid "Out"
 msgstr "Sortie"
 
-#: pkg/metrics/metrics.jsx:1304 pkg/systemd/hwinfo.jsx:321
+#: pkg/metrics/metrics.jsx:1307 pkg/systemd/hwinfo.jsx:321
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Aperçu"
@@ -4302,7 +4292,7 @@ msgstr "Remplacer les données existantes par des zéros"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1184
+#: pkg/metrics/metrics.jsx:1187
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Le paquet cockpit-pcp est manquant pour l'historique des métriques"
 
@@ -4365,7 +4355,7 @@ msgstr "Passif"
 #: pkg/storaged/content-views.jsx:227 pkg/storaged/format-dialog.jsx:221
 #: pkg/storaged/crypto-keyslots.jsx:264 pkg/storaged/crypto-keyslots.jsx:610
 msgid "Passphrase"
-msgstr "Phrase secrète"
+msgstr "Phrase de passe"
 
 #: pkg/storaged/crypto-keyslots.jsx:391
 #, fuzzy
@@ -4377,7 +4367,7 @@ msgstr "La phrase secrète ne peut pas être vide"
 #: pkg/storaged/crypto-keyslots.jsx:272 pkg/storaged/crypto-keyslots.jsx:313
 #: pkg/storaged/crypto-keyslots.jsx:316
 msgid "Passphrase cannot be empty"
-msgstr "La phrase secrète ne peut pas être vide"
+msgstr "La phrase de passe ne peut pas être vide"
 
 #: pkg/storaged/crypto-keyslots.jsx:414
 #, fuzzy
@@ -4388,12 +4378,12 @@ msgstr "La phrase secrète ne peut pas être vide"
 #: pkg/storaged/crypto-keyslots.jsx:404
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr ""
-"La suppression de la phrase secrète peut empêcher le déverrouillage de $0."
+"La suppression de la phrase de passe peut empêcher le déverrouillage de $0."
 
 #: pkg/storaged/format-dialog.jsx:233 pkg/storaged/crypto-keyslots.jsx:280
 #: pkg/storaged/crypto-keyslots.jsx:318
 msgid "Passphrases do not match"
-msgstr "Les phrases secrète ne correspondent pas"
+msgstr "Les phrases de passe ne correspondent pas"
 
 #: pkg/static/login.html:76 pkg/shell/index.html:160 pkg/shell/index.html:189
 #: pkg/shell/index.html:204 pkg/shell/machines/machine-auth-failed.html:8
@@ -4481,13 +4471,13 @@ msgstr "Chemins"
 msgid "Pause"
 msgstr "Suspendre"
 
-#: pkg/metrics/metrics.jsx:925
+#: pkg/metrics/metrics.jsx:928
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
 msgstr ""
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1305
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1308
 msgid "Performance Metrics"
 msgstr "Mesure des performances"
 
@@ -4811,7 +4801,7 @@ msgstr "Raw à un appareil"
 msgid "Read"
 msgstr "Lire"
 
-#: pkg/metrics/metrics.jsx:931 pkg/systemd/hwinfo.jsx:218
+#: pkg/metrics/metrics.jsx:934 pkg/systemd/hwinfo.jsx:218
 msgid "Read more..."
 msgstr "En savoir plus…"
 
@@ -4995,7 +4985,7 @@ msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
-"Supprimer <b>$0</b> aura pour effet d’interrompra la connexion au serveur et "
+"Supprimer <b>$0</b> aura pour effet d’interrompre la connexion au serveur et "
 "rendra l’interface utilisateur d’administration indisponible."
 
 #: pkg/storaged/crypto-keyslots.jsx:412
@@ -5049,15 +5039,13 @@ msgid "Repeat"
 msgstr "Répéter"
 
 #: pkg/systemd/services/timer-dialog.jsx:260
-#, fuzzy
-#| msgid "Repeat monthly"
 msgid "Repeat monthly"
 msgstr "Répéter chaque mois"
 
 #: pkg/storaged/crypto-keyslots.jsx:262 pkg/storaged/crypto-keyslots.jsx:274
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "Repeat passphrase"
-msgstr "Répéter la phrase secrète"
+msgstr "Répéter la phrase de passe"
 
 #: pkg/systemd/services/timer-dialog.jsx:241
 msgid "Repeat weekly"
@@ -5142,7 +5130,7 @@ msgid ""
 "a current disk passphrase."
 msgstr ""
 "Il faut déverrouiller le disque pour pouvoir redimensionner un système de "
-"fichier chiffré. Veuillez fournir une phrase secrète courante."
+"fichier chiffré. Veuillez fournir une phrase de passe courante."
 
 #: pkg/systemd/services/service-details.jsx:130
 msgid "Restart"
@@ -5274,7 +5262,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Samedis"
 
-#: pkg/metrics/metrics.jsx:939 pkg/storaged/crypto-keyslots.jsx:321
+#: pkg/metrics/metrics.jsx:942 pkg/storaged/crypto-keyslots.jsx:321
 #: pkg/storaged/crypto-keyslots.jsx:340
 #: pkg/systemd/services/timer-dialog.jsx:127
 msgid "Save"
@@ -5305,8 +5293,8 @@ msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
 msgstr ""
-"Pour enregistrer une nouvelle phrase secrète, il faut déverrouiller le "
-"disque. Veuillez fournir une phrase secrète courante."
+"Pour enregistrer une nouvelle phrase de passe, il faut déverrouiller le "
+"disque. Veuillez fournir une phrase de passe courante."
 
 #: pkg/lib/machine-info.js:81
 msgid "Sealed-case PC"
@@ -5790,12 +5778,12 @@ msgstr "Journaux de stockage"
 
 #: pkg/storaged/format-dialog.jsx:86
 msgid "Store passphrase"
-msgstr "Stocker la phrase secrète"
+msgstr "Stocker la phrase de passe"
 
 #: pkg/storaged/crypto-tab.jsx:74 pkg/storaged/crypto-tab.jsx:76
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
-msgstr "Phrase secrète stockée"
+msgstr "Phrase de passe stockée"
 
 #: pkg/lib/machine-info.js:76
 msgid "Sub-Chassis"
@@ -5814,7 +5802,7 @@ msgid "Support is installed."
 msgstr "La prise en charge est installée."
 
 #: pkg/metrics/metrics.jsx:115 pkg/metrics/metrics.jsx:435
-#: pkg/metrics/metrics.jsx:1272 pkg/storaged/content-views.jsx:170
+#: pkg/metrics/metrics.jsx:1275 pkg/storaged/content-views.jsx:170
 msgid "Swap"
 msgstr "Swap"
 
@@ -6524,13 +6512,13 @@ msgstr ""
 "{{host}} en étant physiquement assis devant la machine ou en passant par un "
 "réseau de confiance :"
 
-#: pkg/metrics/metrics.jsx:1231
+#: pkg/metrics/metrics.jsx:1234
 msgid "Today"
 msgstr "Aujourd'hui"
 
 #: pkg/storaged/iscsi-panel.jsx:251
 msgid "Toggle"
-msgstr ""
+msgstr "Basculer"
 
 #: pkg/storaged/mdraid-details.jsx:206
 msgid "Toggle bitmap"
@@ -6573,7 +6561,7 @@ msgstr "Déclenché par"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: pkg/metrics/metrics.jsx:1199
+#: pkg/metrics/metrics.jsx:1202
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
@@ -6936,12 +6924,19 @@ msgstr "Mise à jour du statut..."
 msgid "Uptime"
 msgstr "Durée de fonctionnement"
 
-#: pkg/metrics/metrics.jsx:1271 pkg/metrics/metrics.jsx:1272
-#: pkg/metrics/metrics.jsx:1273 pkg/metrics/metrics.jsx:1274
+#: pkg/metrics/metrics.jsx:1274 pkg/metrics/metrics.jsx:1275
+#: pkg/metrics/metrics.jsx:1276 pkg/metrics/metrics.jsx:1277
 #: pkg/storaged/unrecognized-tab.jsx:37
 #: pkg/systemd/overview-cards/usageCard.jsx:116
 msgid "Usage"
 msgstr "Utilisation"
+
+#: pkg/storaged/storage-controls.jsx:207
+#, fuzzy
+#| msgid "Usage of $0 CPU core"
+#| msgid_plural "Usage of $0 CPU cores"
+msgid "Usage of $0"
+msgstr "Utilisation de $0 noyau CPU"
 
 #: pkg/storaged/vdos-panel.jsx:128
 msgid "Use 512 byte emulation"
@@ -7070,6 +7065,12 @@ msgstr "Version"
 #: pkg/storaged/jobs-panel.jsx:64
 msgid "Very securely erasing $target"
 msgstr "Effacement très sécurisé de $target"
+
+#: pkg/metrics/metrics.jsx:733 pkg/lib/cockpit-components-logs-panel.jsx:161
+#, fuzzy
+#| msgid "All logs"
+msgid "View all logs"
+msgstr "Tous les journaux"
 
 #: pkg/lib/cockpit-components-modifications.jsx:163
 msgid "View automation script"
@@ -7266,7 +7267,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Vous devez encore attendre avant de changer votre mot de passe"
 
-#: pkg/metrics/metrics.jsx:1178
+#: pkg/metrics/metrics.jsx:1181
 msgid "You need to relogin to be able to see metrics"
 msgstr "Vous devez vous connecter pour pouvoir voir les mesures"
 
@@ -7752,10 +7753,8 @@ msgid "password"
 msgstr "mot de passe"
 
 #: pkg/lib/cockpit-components-password.jsx:85
-#, fuzzy
-#| msgid "password"
 msgid "password quality"
-msgstr "mot de passe"
+msgstr "qualité mot de passe"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"
@@ -7773,18 +7772,18 @@ msgstr "pcp"
 msgid "plugin"
 msgstr "plugin"
 
-#: pkg/metrics/metrics.jsx:1196
+#: pkg/metrics/metrics.jsx:1199
 #, fuzzy
 #| msgid "$0 service has failed"
 #| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
 msgstr "$0 service a échoué"
 
-#: pkg/metrics/metrics.jsx:1198
+#: pkg/metrics/metrics.jsx:1201
 msgid "pmlogger.service is failing to collect data"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1192
+#: pkg/metrics/metrics.jsx:1195
 #, fuzzy
 #| msgid "Is 'pmlogger' service running?"
 msgid "pmlogger.service is not running"
@@ -7873,10 +7872,8 @@ msgstr "socket"
 
 #: pkg/selinux/setroubleshoot-view.jsx:120
 #: pkg/selinux/setroubleshoot-view.jsx:141
-#, fuzzy
-#| msgid "Solutions"
 msgid "solution"
-msgstr "Solutions"
+msgstr "solution"
 
 #: pkg/selinux/setroubleshoot-view.jsx:158
 msgid "solution details"
@@ -9649,11 +9646,6 @@ msgstr "{{host}} clé modifiée"
 
 #~ msgid "Usage graphs"
 #~ msgstr "Graphiques d’utilisation"
-
-#~ msgid "Usage of $0 CPU core"
-#~ msgid_plural "Usage of $0 CPU cores"
-#~ msgstr[0] "Utilisation de $0 noyau CPU"
-#~ msgstr[1] "Utilisation de $0 noyaux CPU"
 
 #~ msgid "View graphs"
 #~ msgstr "Voir les graphiques"

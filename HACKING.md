@@ -28,18 +28,19 @@ get a current version of nodejs.
 When relying on CI to run the test suite, this is all that is
 necessary to work on the JavaScript components of Cockpit.
 
-To actually build the Cockpit binaries themselves from source
-(including to run the integration tests locally), you will need
-additional header files and other components. Check
-`tools/cockpit.spec` for the concrete Fedora build dependencies.
-
-Note that `tools/cockpit.spec` is a template filled in by
-`tools/gen-spec-dependencies`, and cannot be directly parsed by dnf.
-The following should work in a fresh Git clone:
+To build the Cockpit binaries from source, required to run the integration tests
+locally (see `test/README.md`), you will need additional header files and other
+components. The following should work in a fresh Git clone:
 
     $ sudo dnf install dnf-utils python-srpm-macros
-    $ tools/gen-spec-dependencies tools/cockpit.spec
-    $ sudo dnf builddep --spec tools/cockpit.spec
+    $ TEMPFILE=$(mktemp -u --suffix=.spec) && \
+      sed 's/%{npm-version:.*}/0/' tools/cockpit.spec >$TEMPFILE && \
+      sudo dnf builddep --spec $TEMPFILE && \
+      rm $TEMPFILE
+
+Note that `tools/cockpit.spec` is a template filled in by
+`tools/gen-spec-dependencies` when building RPMs, and cannot be directly parsed
+by dnf.
 
 For running the browser unit tests, the following dependencies are required:
 
@@ -48,9 +49,11 @@ For running the browser unit tests, the following dependencies are required:
 For running integration tests, the following dependencies are required:
 
     $ sudo dnf install curl expect xz rpm-build chromium-headless \
-        libvirt-daemon-kvm libvirt-client python3-libvirt
+        libvirt-daemon-kvm libvirt-client python3-libvirt python3-pyflakes \
+        python3-pycodestyle python3-pyyaml
 
-Creating VM images locally (not necessary for running tests) needs the following:
+Creating VM images locally (not necessary for running tests) needs the
+following:
 
     $ sudo dnf install virt-install
 
@@ -144,7 +147,8 @@ comments or unused identifiers:
 ## Working on your local machine: Cockpit's session pages
 
 It's easy to set up your local Linux machine for rapid development of Cockpit's
-JavaScript code (in pkg/). First install Cockpit on your local machine as described in:
+JavaScript code (in pkg/). First install Cockpit on your local machine as
+described in:
 
 https://cockpit-project.org/running.html
 
@@ -154,11 +158,12 @@ sure to run it as the same user that you'll use to log into Cockpit below.
     $ mkdir -p ~/.local/share/
     $ ln -s $(pwd)/dist ~/.local/share/cockpit
 
-This will cause cockpit to read JavaScript and HTML files directly from the built
-package output directory instead of using the installed Cockpit UI files.
+This will cause cockpit to read JavaScript and HTML files directly from the
+built package output directory instead of using the installed Cockpit UI files.
 
-Now you can log into Cockpit on your local Linux machine at the following address.
-Use the same user and password that you used to log into your Linux desktop.
+Now you can log into Cockpit on your local Linux machine at the following
+address. Use the same user and password that you used to log into your Linux
+desktop.
 
 http://localhost:9090
 

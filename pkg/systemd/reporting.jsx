@@ -23,6 +23,8 @@ import { Button, Card, CardBody, CardTitle, Split, SplitItem, Spinner } from "@p
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { superuser } from "superuser";
 
+import './reporting.scss';
+
 const _ = cockpit.gettext;
 
 const TaskState = Object.freeze({

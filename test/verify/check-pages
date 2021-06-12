@@ -192,7 +192,7 @@ OnCalendar=daily
         # BIOS date parsing using moment
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_in_text("#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td", ".20")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', ".20")
 
         # Check the playground page
         b.switch_to_top()

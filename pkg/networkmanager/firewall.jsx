@@ -44,7 +44,6 @@ import { FirewallSwitch } from "./firewall-switch.jsx";
 import { superuser } from "superuser";
 
 import "page.scss";
-import "table.css";
 import "form-layout.scss";
 import "./networking.scss";
 

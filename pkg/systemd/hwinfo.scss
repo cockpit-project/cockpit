@@ -1,6 +1,5 @@
 @import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 @import "./system-global.scss";
-@import "../lib/table.css";
 @import "../lib/ct-card.scss";
 
 #hwinfo {
@@ -14,15 +13,9 @@
     }
 }
 
-/* show tbodys side by side on wide screens */
-@media screen and (min-width: 70rem) {
-  table.wide-split-table-ct {
-    width: 100%;
-  }
-  table.wide-split-table-ct tbody {
-    float: left;
-    width: 50%;
-  }
+#hwinfo-system-info-list {
+    /* When the flex wraps make have the same gap as description list items have between them */
+    row-gap: 1rem;
 }
 
 .nosmt-read-more-link {

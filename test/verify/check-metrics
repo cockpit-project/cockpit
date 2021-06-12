@@ -854,11 +854,12 @@ class TestGrafanaClient(MachineCase):
 
         # start redis and pmproxy on supervised machine (should become an UI element)
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            m.execute("systemctl enable --now redis-server")
-            # pmproxy is runnning by default, re-start it to pick up redis
-            m.execute("systemctl restart pmproxy")
+            redis = 'redis-server'
         else:
-            m.execute("systemctl enable --now redis pmproxy")
+            redis = 'redis'
+        m.execute("systemctl enable --now " + redis)
+        # re-start pmproxy to pick up redis
+        m.execute("systemctl restart pmproxy")
         m.execute("firewall-cmd --permanent --add-service pmproxy; firewall-cmd --reload")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)

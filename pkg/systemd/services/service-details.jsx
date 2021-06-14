@@ -466,13 +466,7 @@ export class ServiceDetails extends React.Component {
 
         const triggerRelationshipsList = relationshipsToList(triggerRelationships);
 
-        const extraRelationshipsList = (
-            <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
-                <DescriptionList className="pf-m-horizontal-on-sm">
-                    {relationshipsToList(relationships)}
-                </DescriptionList>
-            </ExpandableSection>
-        );
+        const extraRelationshipsList = relationshipsToList(relationships);
 
         const conditions = this.props.unit.Conditions;
         const notMetConditions = [];
@@ -545,7 +539,12 @@ export class ServiceDetails extends React.Component {
                                 }
                                 {triggerRelationshipsList}
                             </DescriptionList>
-                            {extraRelationshipsList}
+                            {extraRelationshipsList.length
+                                ? <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
+                                    <DescriptionList isHorizontal>
+                                        {extraRelationshipsList}
+                                    </DescriptionList>
+                                </ExpandableSection> : null}
                         </CardBody>
                     </>
                 }

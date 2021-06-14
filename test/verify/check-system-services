@@ -343,6 +343,10 @@ Unit=test.service
         self.do_action("Disallow running (mask)")
         b.click("#mask-service button.pf-m-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
+
+        # Masked services have no relationships and therefore the expandable section should not be present
+        b.wait_not_present("#service-details-show-relationships")
+
         self.do_action("Allow running (unmask)")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 

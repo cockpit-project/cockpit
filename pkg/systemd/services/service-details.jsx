@@ -409,6 +409,15 @@ export class ServiceDetails extends React.Component {
             );
         }
 
+        if (this.props.unit.NextRunTime || this.props.unit.LastTriggerTime) {
+            status.push(
+                <div className="service-unit-triggers">
+                    {this.props.unit.NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next run: $0", this.props.unit.NextRunTime)}</div>}
+                    {this.props.unit.LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last trigger: $0", this.props.unit.LastTriggerTime)}</div>}
+                </div>
+            );
+        }
+
         /* If there is some ongoing action just show spinner */
         if (this.state.waitsAction || this.state.waitsFileAction) {
             status = [

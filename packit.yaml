@@ -1,6 +1,10 @@
 specfile_path: cockpit.spec
 actions:
   create-archive:
+    # HACK: until we get the doc building depends in the sandcastle...
+    - tools/webpack-jumpstart --wait
+    - mkdir -p dist/guide/html
+    - touch dist/guide/html/RedHatText-Regular.woff2 dist/guide/html/RedHatText-Medium.woff2 dist/guide/links.html dist/guide/index.html
     # the upstream git spec file has unresolved macros which are normally put
     # in at `make dist` time; they are not important for CI
     # also, build optional packages for CentOS 8

@@ -121,8 +121,7 @@ def prepare_install_image(base_image, overlay=False):
                                qcow2_image])
         if os.path.lexists(install_image):
             os.unlink(install_image)
-        os.symlink(os.path.basename(qcow2_image), install_image)
-    return install_image
+    return install_image, qcow2_image
 
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
@@ -148,8 +147,8 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
-    build_image = prepare_install_image(build_image, args.overlay)
-    machine = testvm.VirtMachine(verbose=args.verbose, image=build_image,
+    link, image_file = prepare_install_image(build_image, args.overlay)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=image_file,
                                  memory_mb=2048, cpus=4, maintain=True, networking=networking)
     completed = False
 
@@ -164,6 +163,7 @@ def build_and_install(build_image, build_results, skips, args):
         upload_scripts(machine, args=args)
         machine.upload([source], "/var/tmp")
         run_install_script(machine, True, True, skips, os.path.basename(source), args)
+        os.symlink(os.path.basename(image_file), link)
         completed = True
     finally:
         if not completed and args.sit:
@@ -184,8 +184,8 @@ def only_install(image, build_results, skips, args):
     if args.address:
         machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
     else:
-        image = prepare_install_image(image, args.overlay)
-        machine = testvm.VirtMachine(verbose=args.verbose, image=image, networking=networking, maintain=True)
+        link, image_file = prepare_install_image(image, args.overlay)
+        machine = testvm.VirtMachine(verbose=args.verbose, image=image_file, networking=networking, maintain=True)
         machine.start()
         started = True
     completed = False
@@ -196,6 +196,7 @@ def only_install(image, build_results, skips, args):
         machine.execute("rm -rf /var/tmp/build-results")
         machine.upload([build_results], "/var/tmp/build-results")
         run_install_script(machine, False, True, skips, None, args)
+        os.symlink(os.path.basename(image_file), link)
         completed = True
     finally:
         if not completed and args.sit:

@@ -22,11 +22,11 @@ import os
 import sys
 import subprocess
 
-from verify import parent
 import make_dist
-import testvm
 
-parent  # pyflakes
+from common.parent import ensure_bots
+ensure_bots()  # NOQA: testvm lives in bots/
+import testvm
 
 TEST = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(TEST, ".."))

@@ -20,7 +20,6 @@ import multiprocessing
 import os
 import subprocess
 import sys
-import time
 import argparse
 
 
@@ -51,19 +50,16 @@ def build_dist():
 
 
 def download_cache(wait=False):
-    tries = 50 if wait else 1  # 25 minutes, once every 30s
-    for retry in range(tries):
-        try:
-            subprocess.check_call(["tools/webpack-jumpstart"])
-            return True
-        except subprocess.CalledProcessError as e:
-            if e.returncode != 2 or not wait:
-                break
-            message("make_dist: pre-built dist not yet available, waiting...")
-            time.sleep(30)
+    cmd = ['tools/webpack-jumpstart']
+    if wait:
+        cmd.append('--wait')
 
-    message("make_dist: Downloading pre-built dist failed")
-    return False
+    try:
+        subprocess.check_call(cmd)
+        return True
+    except subprocess.CalledProcessError:
+        message("make_dist: Downloading pre-built dist failed")
+        return False
 
 
 def make_dist(download_only=False, wait_download=False):

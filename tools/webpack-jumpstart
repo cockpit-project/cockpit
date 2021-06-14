@@ -37,10 +37,17 @@ if ! git diff --quiet -- ':^test' ':^packit.yaml' ':^.github'; then
 fi
 
 tag="sha-$(git rev-parse HEAD)"
-if ! fetch_to_cache tag "${tag}"; then
-    echo "There is no cache entry ${tag}" >&2
-    exit 2
-fi
+for try in $(seq 50 -1 0); do
+    if fetch_to_cache tag "${tag}"; then
+        break
+    fi
+    if [ "${1-}" != '--wait' -o "$try" = '0' ]; then
+        echo "There is no cache entry ${tag}" >&2
+        exit 1
+    fi
+    message WAIT 30s
+    sleep 30s
+done
 
 if ! cmp_from_cache "${tag}" "package-lock.json" "package-lock.json"; then
     echo "The cached package-lock.json doesn't match our own" >&2

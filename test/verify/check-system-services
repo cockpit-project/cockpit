@@ -235,6 +235,13 @@ Unit=test.service
         m.execute("systemctl start test.timer")
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', "Today")  # next run
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
+
+        # Timer details should also show information about next and last trigger
+        self.goto_service("test.timer")
+        b.wait_in_text('.service-unit-next-trigger', "Today")  # next run
+        b.wait_in_text('.service-unit-last-trigger', "unknown")  # last trigger
+        b.click(".pf-c-breadcrumb a:contains('Services')")
+
         m.execute("systemctl stop test.timer")
 
         b.wait_visible(self.svc_sel('test-onboot.timer'))

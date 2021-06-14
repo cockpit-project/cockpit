@@ -172,6 +172,7 @@ class ServiceActions extends React.Component {
                           isOpen={this.state.isActionOpen}
                           isPlain
                           onSelect={() => this.setState({ isActionOpen: !this.state.isActionOpen })}
+                          position='right'
                           dropdownItems={actions} />
             </>
         );

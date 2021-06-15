@@ -119,9 +119,9 @@ def prepare_install_image(base_image, overlay=False):
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "qcow2",
                                "-o", "backing_file={0},backing_fmt=qcow2".format(base_image),
                                qcow2_image])
-        if os.path.lexists(install_image):
-            os.unlink(install_image)
-    return install_image, qcow2_image
+        return install_image, qcow2_image
+    else:
+        return install_image, None
 
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
@@ -145,10 +145,23 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
         machine.execute("/var/lib/testvm/containers.install", timeout=900)
 
 
+def finalize_image(target, qcow_overlay):
+    '''Create final file name
+
+    If the target image does not exist already, prepare_install_image() creates
+    a <target>.qcow2 overlay. Symlink this to the final name (without .qcow2) at the
+    end to avoid leaving half-broken images around in the case of errors.
+    '''
+    if qcow_overlay:
+        if os.path.lexists(target):
+            os.unlink(target)
+        os.symlink(os.path.basename(qcow_overlay), target)
+
+
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
-    link, image_file = prepare_install_image(build_image, args.overlay)
-    machine = testvm.VirtMachine(verbose=args.verbose, image=image_file,
+    target, overlay = prepare_install_image(build_image, args.overlay)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=(overlay or target),
                                  memory_mb=2048, cpus=4, maintain=True, networking=networking)
     completed = False
 
@@ -163,7 +176,7 @@ def build_and_install(build_image, build_results, skips, args):
         upload_scripts(machine, args=args)
         machine.upload([source], "/var/tmp")
         run_install_script(machine, True, True, skips, os.path.basename(source), args)
-        os.symlink(os.path.basename(image_file), link)
+        finalize_image(target, overlay)
         completed = True
     finally:
         if not completed and args.sit:
@@ -184,8 +197,8 @@ def only_install(image, build_results, skips, args):
     if args.address:
         machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
     else:
-        link, image_file = prepare_install_image(image, args.overlay)
-        machine = testvm.VirtMachine(verbose=args.verbose, image=image_file, networking=networking, maintain=True)
+        target, overlay = prepare_install_image(image, args.overlay)
+        machine = testvm.VirtMachine(verbose=args.verbose, image=(overlay or target), networking=networking, maintain=True)
         machine.start()
         started = True
     completed = False
@@ -196,7 +209,7 @@ def only_install(image, build_results, skips, args):
         machine.execute("rm -rf /var/tmp/build-results")
         machine.upload([build_results], "/var/tmp/build-results")
         run_install_script(machine, False, True, skips, None, args)
-        os.symlink(os.path.basename(image_file), link)
+        finalize_image(target, overlay)
         completed = True
     finally:
         if not completed and args.sit:

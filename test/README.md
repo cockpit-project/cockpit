@@ -67,6 +67,13 @@ The verify test suite is the main test suite:
  * `test/common/run-tests`: Run all tests
  * `test/verify/check-*`: Run the selected tests
 
+## Pixel tests
+
+The verify test suite contains ["pixel tests"](https://cockpit-project.org/blog/pixel-testing.html).
+Make sure to create the test/reference submodule before running tests which contain pixel tests.
+
+ * test/common/pixel-tests pull
+
 ## Test Configuration
 
 You can set these environment variables to configure the test suite:

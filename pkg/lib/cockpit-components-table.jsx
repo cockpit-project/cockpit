@@ -204,8 +204,11 @@ export class ListingTable extends React.Component {
         if (this.props.rows.length == 0)
             tableProps.className += ' ct-table-empty';
 
-        if (this.props.id)
+        if (this.props.id) {
             tableProps.id = this.props.id;
+            tableProps.expandId = this.props.id + '-expandable-toggle';
+            tableProps.contentId = this.props.id + '-expanded-content';
+        }
 
         if (this.props.variant)
             tableProps.variant = this.props.variant;

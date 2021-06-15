@@ -190,9 +190,15 @@ function maybePushInput(inputs, input) {
     }
 
     // Don't include node_modules
-    if (input.includes("/node_modules/")) {
+    if (input.includes("/node_modules")) {
         return;
     }
+
+    // Don't include sub-directories of input
+    // Webpack 5 includes these: https://github.com/webpack/webpack/issues/11971
+    const stat = fs.lstatSync(input);
+    if (stat.isDirectory())
+        return;
 
     // Strip cwd and srcdir absolute paths from input file and add it
     if (input.startsWith(cwd + '/'))

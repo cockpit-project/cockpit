@@ -341,7 +341,7 @@ function get_translation_reference_patterns () {
 
 const plugins = [
     new IncludedModulesPlugin((section || "") + "included-modules"),
-    new copy(info.files),
+    new copy({ patterns: info.files }),
     new miniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
@@ -355,11 +355,11 @@ if (eslint)
     plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"] }));
 
 if (section.startsWith('base1'))
-    plugins.push(new copy(base1_fonts));
+    plugins.push(new copy({ patterns: base1_fonts }));
 
 if (section.startsWith('static')) {
-    plugins.push(new copy(redhat_fonts));
-    plugins.push(new copy(opensans_fonts));
+    plugins.push(new copy({ patterns: redhat_fonts }));
+    plugins.push(new copy({ patterns: opensans_fonts }));
 }
 
 /* Fill in the tests properly */
@@ -413,10 +413,10 @@ module.exports = {
     optimization: {
         minimize: production,
         minimizer: [
-           new TerserJSPlugin({ extractComments : false }),
+           new TerserJSPlugin({ extractComments: false }),
            new CssMinimizerPlugin({
                minimizerOptions: {
-                   preset: ['default', { mergeLonghand: false }]
+                   preset: ['lite']
                }
            })
        ],

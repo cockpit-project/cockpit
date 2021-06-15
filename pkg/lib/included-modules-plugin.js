@@ -4,7 +4,7 @@ module.exports = class {
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tap('IncludedModulesPlugin', compilation => {
+        compiler.hooks.thisCompilation.tap('IncludedModulesPlugin', compilation => {
             let modules = { };
 
             for (const file of compilation.fileDependencies) {

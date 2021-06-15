@@ -58,6 +58,7 @@ if test -z "${NOCONFIGURE:-}"; then
 fi
 
 tools/make-bots
+test/common/pixel-tests pull
 
 if test -n "${NOCONFIGURE:-}"; then
     exit 0

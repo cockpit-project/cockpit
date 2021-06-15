@@ -65,7 +65,7 @@ export class SwapTab extends React.Component {
         }
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Used")}</DescriptionListTerm>
                     <DescriptionListDescription>{used}</DescriptionListDescription>

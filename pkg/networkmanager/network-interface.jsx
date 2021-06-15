@@ -775,7 +775,7 @@ export const NetworkInterfacePage = ({
                             </CardActions>
                         </CardHeader>
                         <CardBody>
-                            <DescriptionList isHorizontal id="network-interface-settings" className="network-interface-settings">
+                            <DescriptionList id="network-interface-settings" className="network-interface-settings pf-m-horizontal-on-sm">
                                 {renderActiveStatusRow()}
                                 {renderCarrierStatusRow()}
                                 {settingsRows}

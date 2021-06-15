@@ -226,7 +226,7 @@ export class VGroupDetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("storage", "UUID")}</DescriptionListTerm>
                             <DescriptionListDescription>{ vgroup.UUID }</DescriptionListDescription>

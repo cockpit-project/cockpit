@@ -473,7 +473,7 @@ class CurrentMetrics extends React.Component {
                         </div>
 
                         { this.state.loadAvg &&
-                            <DescriptionList isHorizontal>
+                            <DescriptionList className="pf-m-horizontal-on-sm">
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Load") }</DescriptionListTerm>
                                     <DescriptionListDescription id="load-avg">{this.state.loadAvg}</DescriptionListDescription>

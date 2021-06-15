@@ -514,7 +514,7 @@ export class FilesystemTab extends React.Component {
 
         return (
             <div>
-                <DescriptionList isHorizontal>
+                <DescriptionList className="pf-m-horizontal-on-sm">
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>

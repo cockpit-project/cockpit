@@ -468,7 +468,7 @@ export class ServiceDetails extends React.Component {
 
         const extraRelationshipsList = (
             <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
-                <DescriptionList isHorizontal>
+                <DescriptionList className="pf-m-horizontal-on-sm">
                     {relationshipsToList(relationships)}
                 </DescriptionList>
             </ExpandableSection>

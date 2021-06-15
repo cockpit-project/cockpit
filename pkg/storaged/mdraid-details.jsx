@@ -324,7 +324,7 @@ export class MDRaidDetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("storage", "Device")}</DescriptionListTerm>
                             <DescriptionListDescription>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</DescriptionListDescription>

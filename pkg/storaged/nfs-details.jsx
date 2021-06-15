@@ -324,7 +324,7 @@ export class NFSDetails extends React.Component {
                     </CardActions>
                 </CardHeader>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>
                             <DescriptionListTerm className="control-DescriptionListTerm">{_("Server")}</DescriptionListTerm>
                             <DescriptionListDescription>{entry.fields[0]}</DescriptionListDescription>

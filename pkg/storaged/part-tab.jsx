@@ -35,7 +35,7 @@ export class PartitionTab extends React.Component {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
-            <DescriptionList isHorizontal>
+            <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                     <DescriptionListDescription>{block_part.Name || "-"}</DescriptionListDescription>

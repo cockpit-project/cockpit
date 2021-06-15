@@ -43,7 +43,7 @@ export class BlockDetails extends React.Component {
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Block")}</Text></CardTitle>
                 <CardBody>
-                    <DescriptionList isHorizontal>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("storage", "Capacity")}</DescriptionListTerm>
                             <DescriptionListDescription>{ utils.fmt_size_long(block.Size) }</DescriptionListDescription>

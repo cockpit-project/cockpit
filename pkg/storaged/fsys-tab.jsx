@@ -118,6 +118,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
     const [, dir, opts] = get_fstab_config(block);
     const split_options = parse_options(opts);
     const opt_noauto = extract_option(split_options, "noauto");
+    const opt_systemd_automount = split_options.indexOf("x-systemd.automount") >= 0;
     const is_mounted = mounted_at.indexOf(dir) >= 0;
     const other_mounts = mounted_at.filter(m => m != dir);
     const crypto_backing_noauto = get_cryptobacking_noauto(client, block);
@@ -133,7 +134,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
             type = "locked-on-boot-mount";
         else if (!is_mounted && !opt_noauto)
             type = "mount-on-boot";
-        else if (is_mounted && opt_noauto && !crypto_backing_noauto)
+        else if (is_mounted && opt_noauto && !crypto_backing_noauto && !opt_systemd_automount)
             type = "no-mount-on-boot";
     } else if (other_mounts.length > 0) {
         type = "mounted-no-config";

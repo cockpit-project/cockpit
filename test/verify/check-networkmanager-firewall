@@ -206,6 +206,8 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --add-service=http")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
 
+        b.assert_pixels("#zones-listing .zone-section[data-id='public']", "firewall-default-zone-card")
+
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
@@ -233,6 +235,9 @@ class TestFirewall(NetworkCase):
         b.set_input_text("#filter-services-input", "")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+        b.blur("#filter-services-input")
+
+        b.assert_pixels(".pf-c-modal-box", "firewall-add-services-to-zone-modal")
 
         # don't select anything in the dialog
         b.click("#add-services-dialog footer .{0}".format(self.btn_primary))

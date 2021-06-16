@@ -117,7 +117,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
     return (
         <Modal id="timer-dialog"
            className="timer-dialog" position="top" variant="medium" isOpen onClose={() => setIsOpen(false)}
-           title={cockpit.format(_("Create timers"), name)}
+           title={cockpit.format(_("Create timer"), name)}
            footer={
                <>
                    {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}

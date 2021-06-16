@@ -938,7 +938,7 @@ const PCPConfig = ({ buttonVariant }) => {
                    footer={<>
                        { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
 
-                       <Button variant='primary' onClick={handleSave} isDisabled={pending}>
+                       <Button variant='primary' onClick={handleSave} isDisabled={pending} isLoading={pending}>
                            { _("Save") }
                        </Button>
                        <Button variant='link' className='btn-cancel' onClick={ () => setDialogVisible(false) }>

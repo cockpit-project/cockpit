@@ -172,7 +172,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                                           label={_("At specific time")} />
                     </FormSelect>
                     { delay == "system-boot" &&
-                    <FormGroup className="service-run delay-group"
+                    <FormGroup className="delay-group"
                                label={_("After")}
                                validated={submitted && validationFailed.delayNumber ? "error" : "default"}
                                helperTextInvalid={_("Delay must be a number")}>
@@ -192,7 +192,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                             </FormSelect>
                         </Flex>
                     </FormGroup> }
-                    { delay == "specific-time" && <FormGroup className="service-run" label={_("Repeat")}>
+                    { delay == "specific-time" && <FormGroup label={_("Repeat")}>
                         <FormSelect value={repeat}
                                     id="drop-repeat"
                                     onChange={value => {

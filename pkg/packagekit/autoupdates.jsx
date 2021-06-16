@@ -317,7 +317,7 @@ export class AutoUpdates extends React.Component {
 
                             <span className="auto-conf-text">{_("at")}</span>
 
-                            <TimePicker defaultTime={this.state.time} is24Hour
+                            <TimePicker time={this.state.time} is24Hour
                                         menuAppendTo={() => document.body}
                                         id="auto-update-time" isDisabled={!enabled}
                                         invalidFormatErrorMessage={_("Invalid time format")}

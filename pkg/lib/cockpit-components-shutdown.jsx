@@ -189,7 +189,7 @@ export class ShutdownModal extends React.Component {
                                                 className='shutdown-date-picker'
                                                 invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
                                                 value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
-                                    <TimePicker defaultTime={this.state.time} is24Hour
+                                    <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"
                                                 invalidFormatErrorMessage=""

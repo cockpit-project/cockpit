@@ -82,7 +82,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
 
     const timePicker = (idx) => (
         <TimePicker className="create-timer-time-picker"
-                    defaultTime="00:00"
+                    time={repeatPatterns[idx].time || "00:00"}
                     is24Hour
                     menuAppendTo={() => document.body}
                     onChange={time => {
@@ -211,7 +211,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                             <FormSelectOption value="yearly" label={_("Yearly")} />
                         </FormSelect>
                         {repeat == "no" && <TimePicker className="create-timer-time-picker specific-no-repeat"
-                                                       menuAppendTo={() => document.body} defaultTime="00:00" is24Hour onChange={setSpecificTime} />}
+                                                       menuAppendTo={() => document.body} time={specificTime} is24Hour onChange={setSpecificTime} />}
                         {repeatPatterns.map((item, idx) => {
                             const min = repeatPatterns[idx].minute;
                             const validationFailedMinute = !(/^[0-9]+$/.test(min) && min <= 59 && min >= 0);

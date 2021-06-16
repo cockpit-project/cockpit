@@ -90,7 +90,7 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked("fieldset label:contains('{0}') input".format(state), True)
+            self.browser.set_checked(".pf-c-select__menu label:contains('{0}') input".format(state), True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
             self.browser.wait_visible(".pf-c-chip-group__label:contains('File state') + .pf-c-chip-group__list li:contains('{0}')".format(state))
@@ -101,7 +101,7 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked("fieldset label:contains('{0}') input".format(state), True)
+            self.browser.set_checked(".pf-c-select__menu label:contains('{0}') input".format(state), True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
             self.browser.wait_visible(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{0}')".format(state))

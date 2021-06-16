@@ -22,7 +22,6 @@ import time
 
 import parent
 from testlib import *
-from machine_core.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
@@ -118,7 +117,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # Disable preloading on all machines ("machine1" is done in testlib.py)
         # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
         # In these tests we actually switch between machines in quick succession which can make things even worse
-        if self.machine.image == TEST_OS_DEFAULT:
+        if self.is_devel_build():
             for machine in ["machine2", "machine3"]:
                 for pkg in ["packagekit", "systemd", "playground"]:
                     self.machines[machine].write(f"/usr/share/cockpit/{pkg}/override.json", '{ "preload": [ ] }')

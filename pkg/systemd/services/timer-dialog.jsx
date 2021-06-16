@@ -25,6 +25,7 @@ import {
     Form, FormGroup, FormHelperText,
     FormSelect, FormSelectOption,
     Modal,
+    Radio,
     TextInput,
     TimePicker,
 } from '@patternfly/react-core';
@@ -161,16 +162,17 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                                validated={submitted && validationFailed.command ? "error" : "default"}
                                onChange={setCommand} />
                 </FormGroup>
-                <FormGroup label={_("Run")}>
-                    <FormSelect id="boot-or-specific-time"
-                                value={delay}
-                                onChange={setDelay}
-                                aria-label={_("Run")}>
-                        <FormSelectOption value="system-boot"
-                                          label={_("After system boot")} />
-                        <FormSelectOption value="specific-time"
-                                          label={_("At specific time")} />
-                    </FormSelect>
+                <FormGroup label={_("Run")} isInline hasNoPaddingTop>
+                    <Radio value="system-boot"
+                           name="boot-or-specific-time"
+                           onChange={() => setDelay("system-boot")}
+                           isChecked={delay == "system-boot"}
+                           label={_("After system boot")} />
+                    <Radio value="specific-time"
+                           name="boot-or-specific-time"
+                           onChange={() => setDelay("specific-time")}
+                           isChecked={delay == "specific-time"}
+                           label={_("At specific time")} />
                     { delay == "system-boot" &&
                     <FormGroup className="delay-group"
                                label={_("After")}

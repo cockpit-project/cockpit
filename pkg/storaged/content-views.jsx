@@ -634,7 +634,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <ListingTable rows={ block_rows(client, block) }
                               aria-label={_("Content")}
                               variant="compact"
-                              columns={[_("Content"), _("Name"), _("Actions")]}
+                              columns={[_("Content"), { title: _("Name"), header: true }, _("Actions")]}
                               showHeader={false} />
             </CardBody>
         </Card>

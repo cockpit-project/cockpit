@@ -79,6 +79,8 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
         validationFailed.description = true;
     if (!command.trim().length)
         validationFailed.command = true;
+    if (!/^[0-9]+$/.test(delayNumber))
+        validationFailed.delayNumber = true;
 
     const timePicker = (idx) => (
         <TimePicker className="create-timer-time-picker"
@@ -169,19 +171,26 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                         <FormSelectOption value="specific-time"
                                           label={_("At specific time")} />
                     </FormSelect>
-                    { delay == "system-boot" && <FormGroup className="service-run delay-group" label={_("After")}>
-                        <TextInput value={delayNumber}
-                                   validated={submitted && validationFailed.delayNumber ? "error" : "default"}
-                                   onChange={setDelayNumber} />
-                        <FormSelect className="delay-unit"
-                                    value={delayUnit}
-                                    onChange={setDelayUnit}
-                                    aria-label={_("After")}>
-                            <FormSelectOption value="sec" label={_("Seconds")} />
-                            <FormSelectOption value="min" label={_("Minutes")} />
-                            <FormSelectOption value="hr" label={_("Hours")} />
-                            <FormSelectOption value="weeks" label={_("Weeks")} />
-                        </FormSelect>
+                    { delay == "system-boot" &&
+                    <FormGroup className="service-run delay-group"
+                               label={_("After")}
+                               validated={submitted && validationFailed.delayNumber ? "error" : "default"}
+                               helperTextInvalid={_("Delay must be a number")}>
+                        <Flex>
+                            <TextInput className="delay-number"
+                                       value={delayNumber}
+                                       validated={submitted && validationFailed.delayNumber ? "error" : "default"}
+                                       onChange={setDelayNumber} />
+                            <FormSelect className="delay-unit"
+                                        value={delayUnit}
+                                        onChange={setDelayUnit}
+                                        aria-label={_("After")}>
+                                <FormSelectOption value="sec" label={_("Seconds")} />
+                                <FormSelectOption value="min" label={_("Minutes")} />
+                                <FormSelectOption value="hr" label={_("Hours")} />
+                                <FormSelectOption value="weeks" label={_("Weeks")} />
+                            </FormSelect>
+                        </Flex>
                     </FormGroup> }
                     { delay == "specific-time" && <FormGroup className="service-run" label={_("Repeat")}>
                         <FormSelect value={repeat}

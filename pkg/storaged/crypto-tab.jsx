@@ -21,14 +21,16 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription
+    DescriptionListDescription,
+    Flex, FlexItem,
 } from "@patternfly/react-core";
 import cockpit from "cockpit";
+import moment from "moment";
 import { dialog_open, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename } from "./utils.js";
 
 import React from "react";
-import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { StorageLink } from "./storage-controls.jsx";
 import { crypto_options_dialog_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
 
 import * as python from "python.js";
@@ -38,11 +40,27 @@ import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
 const _ = cockpit.gettext;
 
+function parse_tag_mtime(tag) {
+    if (tag && tag.indexOf("1:") == 0) {
+        try {
+            const parts = tag.split("-")[1].split(".");
+            const mtime = parseInt(parts[0]) + parseInt(parts[1]) * 1e-9;
+            return cockpit.format(_("Last modified: $0"), moment.unix(mtime).calendar());
+        } catch {
+            return null;
+        }
+    } else
+        return null;
+}
+
 export class CryptoTab extends React.Component {
     constructor() {
         super();
         // Initialize for LUKSv1 and set max_slots to 8.
-        this.state = { luks_version: 1, slots: null, slot_error: null, max_slots: 8 };
+        this.state = {
+            luks_version: 1, slots: null, slot_error: null, max_slots: 8,
+            stored_passphrase_mtime: 0,
+        };
     }
 
     monitor_slots(block) {
@@ -72,8 +90,22 @@ export class CryptoTab extends React.Component {
         }
     }
 
+    monitor_path_mtime(path) {
+        if (path != this.monitored_path) {
+            if (this.monitored_file)
+                this.monitored_file.close();
+            this.monitored_path = path;
+            if (path) {
+                this.monitored_file = cockpit.file(path, { superuser: true });
+                this.monitored_file.watch((_, tag) => this.setState({ stored_passphrase_mtime: parse_tag_mtime(tag) }),
+                                          { read: false });
+            }
+        }
+    }
+
     componentWillUnmount() {
         this.monitor_slots(null);
+        this.monitor_path_mtime(null);
     }
 
     render() {
@@ -137,7 +169,7 @@ export class CryptoTab extends React.Component {
             });
         }
 
-        var old_config, old_options;
+        var old_config, old_options, passphrase_path;
 
         old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
         if (old_config) {
@@ -145,7 +177,10 @@ export class CryptoTab extends React.Component {
                     .split(",")
                     .filter(function (s) { return s.indexOf("x-parent") !== 0 })
                     .join(","));
+            passphrase_path = decode_filename(old_config[1]["passphrase-path"].v);
         }
+
+        this.monitor_path_mtime(passphrase_path);
 
         function edit_options() {
             edit_config(function (config, commit) {
@@ -167,9 +202,6 @@ export class CryptoTab extends React.Component {
             });
         }
 
-        // See format-dialog.jsx above for why we don't offer editing
-        // crypttab for the old UDisks2
-
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
@@ -184,13 +216,19 @@ export class CryptoTab extends React.Component {
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Stored passphrase")}</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
+                            <Flex>
+                                <FlexItem>{ passphrase_path ? this.state.stored_passphrase_mtime || _("yes") : _("none") }</FlexItem>
+                                <FlexItem><StorageLink onClick={edit_stored_passphrase}>{_("edit")}</StorageLink></FlexItem>
+                            </Flex>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Options")}</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
+                            <Flex>
+                                <FlexItem>{ old_options || _("none") }</FlexItem>
+                                <FlexItem><StorageLink onClick={edit_options}>{_("edit")}</StorageLink></FlexItem>
+                            </Flex>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                 </DescriptionList>

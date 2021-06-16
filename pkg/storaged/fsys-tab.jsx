@@ -23,7 +23,8 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription
+    DescriptionListDescription,
+    Flex, FlexItem,
 } from "@patternfly/react-core";
 
 import cockpit from "cockpit";
@@ -518,18 +519,25 @@ export class FilesystemTab extends React.Component {
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <StorageLink onClick={rename_dialog}>
-                                {this.props.block.IdLabel || "-"}
-                            </StorageLink>
+                            <Flex>
+                                <FlexItem>{this.props.block.IdLabel || "-"}</FlexItem>
+                                <FlexItem><StorageLink onClick={rename_dialog}>{_("edit")}</StorageLink></FlexItem>
+                            </Flex>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Mount point")}</DescriptionListTerm>
                         <DescriptionListDescription>
                             { mount_point_text &&
-                            <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update")}>
-                                { mount_point_text }
-                            </StorageLink> }
+                            <Flex>
+                                <FlexItem>{ mount_point_text }</FlexItem>
+                                <FlexItem>
+                                    <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update")}>
+                                        {_("edit")}
+                                    </StorageLink>
+                                </FlexItem>
+                            </Flex>
+                            }
                             { extra_text }
                         </DescriptionListDescription>
                     </DescriptionListGroup>

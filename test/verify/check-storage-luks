@@ -73,6 +73,9 @@ class TestStorageLuks(StorageCase):
         elif self.default_crypto_type == "luks2":
             self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS2")
 
+        hour = b.eval_js("Intl.DateTimeFormat('en', { timeStyle: 'short' }).format()").split(':')[0]
+        self.content_tab_wait_in_info(1, 2, "Stored passphrase", "Last modified: Today at %s:" % hour)
+
         self.wait_in_storaged_configuration(mount_point_secret)
         self.wait_in_storaged_configuration("crypto,options")
         # HACK: Put /etc/crypttab in the journal, in order to debug updating issues
@@ -190,7 +193,7 @@ class TestStorageLuks(StorageCase):
         self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 file system")
 
-        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        self.content_tab_wait_in_info(1, 1, "Options", "none")
         tab = self.content_tab_expand(1, 1)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
@@ -267,7 +270,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 file system")
-        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        self.content_tab_wait_in_info(1, 1, "Options", "none")
         # add one more passphrase
         tab = self.content_tab_expand(1, 1)
         panel = tab + " .pf-c-card:contains(Keys) "

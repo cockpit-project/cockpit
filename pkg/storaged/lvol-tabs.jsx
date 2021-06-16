@@ -26,7 +26,8 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription
+    DescriptionListDescription,
+    Flex, FlexItem,
 } from "@patternfly/react-core";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import {
@@ -414,7 +415,10 @@ export class BlockVolTab extends React.Component {
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                            <Flex>
+                                <FlexItem>{this.props.lvol.Name}</FlexItem>
+                                <FlexItem><StorageLink onClick={rename}>{_("edit")}</StorageLink></FlexItem>
+                            </Flex>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     { !unused_space &&
@@ -472,7 +476,10 @@ export class PoolVolTab extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                     <DescriptionListDescription>
-                        <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                        <Flex>
+                            <FlexItem>{this.props.lvol.Name}</FlexItem>
+                            <FlexItem><StorageLink onClick={rename}>{_("edit")}</StorageLink></FlexItem>
+                        </Flex>
                     </DescriptionListDescription>
                 </DescriptionListGroup>
 

@@ -31,15 +31,57 @@ import React from "react";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { crypto_options_dialog_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
 
+import * as python from "python.js";
+import luksmeta_monitor_hack_py from "raw-loader!./luksmeta-monitor-hack.py";
+
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
 const _ = cockpit.gettext;
 
 export class CryptoTab extends React.Component {
+    constructor() {
+        super();
+        // Initialize for LUKSv1 and set max_slots to 8.
+        this.state = { luks_version: 1, slots: null, slot_error: null, max_slots: 8 };
+    }
+
+    monitor_slots(block) {
+        // HACK - we only need this until UDisks2 has a Encrypted.Slots property or similar.
+        if (block != this.monitored_block) {
+            if (this.monitored_block)
+                this.monitor_channel.close();
+            this.monitored_block = block;
+            if (block) {
+                var dev = decode_filename(block.Device);
+                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: true });
+                var buf = "";
+                this.monitor_channel.stream(output => {
+                    var lines;
+                    buf += output;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length - 1];
+                    if (lines.length >= 2) {
+                        const data = JSON.parse(lines[lines.length - 2]);
+                        this.setState({ slots: data.slots, luks_version: data.version, max_slots: data.max_slots });
+                    }
+                });
+                this.monitor_channel.fail(err => {
+                    this.setState({ slots: [], slot_error: err });
+                });
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        this.monitor_slots(null);
+    }
+
     render() {
         var self = this;
         var client = self.props.client;
         var block = self.props.block;
+
+        this.monitor_slots(block);
 
         function edit_config(modify) {
             var old_config, new_config;
@@ -131,6 +173,14 @@ export class CryptoTab extends React.Component {
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
+                    { !this.state.slot_error &&
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Encryption type")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            { "LUKS" + this.state.luks_version }
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    }
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Stored passphrase")}</DescriptionListTerm>
                         <DescriptionListDescription>
@@ -145,7 +195,9 @@ export class CryptoTab extends React.Component {
                     </DescriptionListGroup>
                 </DescriptionList>
                 <br />
-                <CryptoKeyslots client={client} block={block} />
+                <CryptoKeyslots client={client} block={block}
+                                slots={this.state.slots} slot_error={this.state.slot_error}
+                                max_slots={this.state.max_slots} />
             </div>
         );
     }

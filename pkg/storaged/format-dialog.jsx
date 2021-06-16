@@ -145,10 +145,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
         return vals.type != "empty" && vals.type != "dos-extended";
     }
 
-    function is_encrypted(vals) {
-        return vals.crypto.on;
-    }
-
     function add_fsys(storaged_name, entry) {
         if (storaged_name === true ||
             (client.fsys_info && client.fsys_info[storaged_name] && client.fsys_info[storaged_name].can_format)) {
@@ -157,13 +153,31 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 
     var filesystem_options = [];
-    add_fsys("xfs", { value: "xfs", title: "XFS - " + _("Recommended default") });
+    add_fsys("xfs", { value: "xfs", title: "XFS " + _("(recommended)") });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
     add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
+
+    function is_encrypted(vals) {
+        return vals.crypto !== "none";
+    }
+
+    function add_crypto_type(value, title, recommended) {
+        if ((client.manager.SupportedEncryptionTypes && client.manager.SupportedEncryptionTypes.indexOf(value) != -1) ||
+            value == "luks1") {
+            crypto_types.push({
+                value: value,
+                title: title + (recommended ? " " + _("(recommended)") : "")
+            });
+        }
+    }
+
+    var crypto_types = [{ value: "none", title: _("No encryption") }];
+    add_crypto_type("luks1", "LUKS1", false);
+    add_crypto_type("luks2", "LUKS2", true);
 
     var usage = utils.get_active_usage(client, create_partition ? null : path);
 
@@ -211,12 +225,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                           validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
                           visible: is_filesystem
                       }),
-            CheckBoxes("crypto", "",
-                       {
-                           fields: [
-                               { tag: "on", title: _("Encrypt data") }
-                           ]
-                       }),
+            SelectOne("crypto", _("Encryption"),
+                      { choices: crypto_types }),
             [
                 PassInput("passphrase", _("Passphrase"),
                           {
@@ -284,6 +294,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 var config_items = [];
                 if (is_encrypted(vals)) {
                     options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
+                    options["encrypt.type"] = { t: 's', v: vals.crypto };
 
                     var item = {
                         options: { t: 'ay', v: utils.encode_filename(crypto_options_dialog_options(vals)) },

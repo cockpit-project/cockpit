@@ -132,7 +132,7 @@ class TestStorageMounting(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
-        self.dialog_set_val("crypto.on", True)
+        self.dialog_set_val("crypto", self.default_crypto_type)
 
         def wait_checked(field):
             b.wait_visible(self.dialog_field(field) + ":checked")
@@ -267,7 +267,7 @@ class TestStorageMounting(StorageCase):
         # Encrypt and format the first and give it /run/data as the mount point
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "crypto.on": "True",
+                     "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/data"})

@@ -54,7 +54,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("size", 17)
         self.dialog_set_val("type", "ext4")
-        self.dialog_set_val("crypto.on", True)
+        self.dialog_set_val("crypto", self.default_crypto_type)
         self.dialog_set_val("name", "ENCRYPTED")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
@@ -66,6 +66,11 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 file system")
+
+        if self.default_crypto_type == "luks1":
+            self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
+        elif self.default_crypto_type == "luks2":
+            self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS2")
 
         self.wait_in_storaged_configuration(mount_point_secret)
         self.wait_in_storaged_configuration("crypto,options")
@@ -168,7 +173,7 @@ class TestStorageLuks(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "crypto.on": True,
+                     "crypto": self.default_crypto_type,
                      "name": "ENCRYPTED",
                      "mount_point": "/foo",
                      "mount_options.auto": False,
@@ -233,12 +238,11 @@ class TestStorageLuks(StorageCase):
         b.wait_not_present(panel + "ul li:nth-child(2)")
 
     @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
-    def testSlots(self):
+    def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 
-        luks_2 = m.image.startswith("rhel") or m.image.startswith("centos")
         error_base = "Error unlocking /dev/sda: Failed to activate device: "
         error_messages = [error_base + "Operation not permitted",
                           error_base + "Incorrect passphrase."]
@@ -252,7 +256,7 @@ class TestStorageLuks(StorageCase):
         # create volume and passphrase
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "crypto.on": True,
+                     "crypto": "luks1",
                      "name": "ENCRYPTED",
                      "mount_point": "/foo",
                      "mount_options.auto": False,
@@ -319,12 +323,11 @@ class TestStorageLuks(StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        if not luks_2:
-            # check if add button is inactive
-            b.wait_visible(panel + ".pf-c-card__header button:disabled")
-            # check if edit button is inactive
-            slots_row = tab + " .pf-c-card ul li:first-child"
-            b.wait_visible(slots_row + " button:disabled")
+        # check if add button is inactive
+        b.wait_visible(panel + ".pf-c-card__header button:disabled")
+        # check if edit button is inactive
+        slots_row = tab + " .pf-c-card ul li:first-child"
+        b.wait_visible(slots_row + " button:disabled")
 
         # remove one slot
         slots_list = tab + " .pf-c-card ul "
@@ -378,7 +381,7 @@ class TestStorageLuks(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog({"type": "empty",
-                     "crypto.on": True,
+                     "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -399,7 +402,7 @@ class TestStorageLuks(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "crypto.on": True,
+                     "crypto": self.default_crypto_type,
                      "crypto_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",

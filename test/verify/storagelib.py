@@ -460,6 +460,12 @@ class StorageCase(MachineCase, StorageHelpers):
         else:
             self.storaged_version = [0]
 
+        crypto_types = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager SupportedEncryptionTypes || true")
+        if "luks2" in crypto_types:
+            self.default_crypto_type = "luks2"
+        else:
+            self.default_crypto_type = "luks1"
+
         if "debian" in self.machine.image or "ubuntu" in self.machine.image:
             # Debian's udisks has a patch to use FHS /media directory
             self.mount_root = "/media"

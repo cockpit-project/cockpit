@@ -135,7 +135,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
                </>
            }>
             <Form isHorizontal onSubmit={onSubmit}>
-                <FormGroup label={_("Service name")}
+                <FormGroup label={_("Name")}
                            fieldId="servicename"
                            validated={submitted && validationFailed.name ? "error" : "default"}
                            helperTextInvalid={!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed")}>

@@ -58,7 +58,7 @@ class TestStorageHidden(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "crypto.on": True,
+                     "crypto": self.default_crypto_type,
                      "name": "FS",
                      "passphrase": "einszweidrei",
                      "passphrase2": "einszweidrei",

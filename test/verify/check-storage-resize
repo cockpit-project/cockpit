@@ -32,8 +32,7 @@ class TestStorageResize(StorageCase):
         "0": {"memory_mb": 1536}
     }
 
-    def checkResize(self, fsys, crypto, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,
-                    need_passphrase=False):
+    def checkResize(self, fsys, crypto, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None):
         m = self.machine
         b = self.browser
 
@@ -43,6 +42,8 @@ class TestStorageResize(StorageCase):
         else:
             fsys_row = 1
             fsys_tab = 2
+
+        need_passphrase = crypto and self.default_crypto_type == "luks2"
 
         self.login_and_go("/storage")
         m.add_disk("500M", serial="DISK1")
@@ -62,7 +63,7 @@ class TestStorageResize(StorageCase):
         self.dialog_set_val("type", fsys)
         self.dialog_set_val("mount_point", "/run/foo")
         if crypto:
-            self.dialog_set_val("crypto.on", crypto)
+            self.dialog_set_val("crypto", self.default_crypto_type)
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
@@ -128,15 +129,14 @@ class TestStorageResize(StorageCase):
 
     @skipImage("No NTFS support installed", "rhel-8-4", "rhel-8-4-distropkg", "rhel-8-5", "rhel-8-5-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream")
     def testResizeNtfs(self):
-        self.checkResize("ntfs", None,
+        self.checkResize("ntfs", False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)
 
     def testResizeLuks(self):
         self.checkResize("ext4", True,
                          can_shrink=True, shrink_needs_unmount=True,
-                         can_grow=True, grow_needs_unmount=False,
-                         need_passphrase=(self.machine.image.startswith("rhel") or self.machine.image.startswith("centos")))
+                         can_grow=True, grow_needs_unmount=False)
 
     def wait_not_present_with_udev_trigger(self, selector):
         # This is fundamentally the same as Browser.wait, but uses a
@@ -243,7 +243,7 @@ class TestStorageResize(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", "ext4")
-        self.dialog_set_val("crypto.on", True)
+        self.dialog_set_val("crypto", self.default_crypto_type)
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("mount_point", mountpoint)
@@ -259,7 +259,7 @@ class TestStorageResize(StorageCase):
         m.execute("lvresize TEST/vol -L+100M")
 
         def confirm_with_passphrase():
-            if not m.image.startswith("rhel") and not m.image.startswith("centos"):
+            if self.default_crypto_type == "luks1":
                 return
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()

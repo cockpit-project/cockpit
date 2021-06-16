@@ -32,8 +32,6 @@ import sha1 from "js-sha1";
 import sha256 from "js-sha256";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
-import * as python from "python.js";
-
 import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
@@ -42,7 +40,6 @@ import { array_find, decode_filename, block_name } from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 
-import luksmeta_monitor_hack_py from "raw-loader!./luksmeta-monitor-hack.py";
 import clevis_luks_passphrase_sh from "raw-loader!./clevis-luks-passphrase.sh";
 
 const _ = cockpit.gettext;
@@ -476,54 +473,13 @@ function remove_clevis_dialog(client, block, key) {
 }
 
 export class CryptoKeyslots extends React.Component {
-    constructor() {
-        super();
-        // Initialize for LUKSv1 and set max_slots to 8.
-        this.state = { luks_version: 1, slots: null, slot_error: null, max_slots: 8 };
-    }
-
-    monitor_slots(block) {
-        // HACK - we only need this until UDisks2 has a Encrypted.Slots property or similar.
-        if (block != this.monitored_block) {
-            if (this.monitored_block)
-                this.monitor_channel.close();
-            this.monitored_block = block;
-            if (block) {
-                var dev = decode_filename(block.Device);
-                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: true });
-                var buf = "";
-                this.monitor_channel.stream(output => {
-                    var lines;
-                    buf += output;
-                    lines = buf.split("\n");
-                    buf = lines[lines.length - 1];
-                    if (lines.length >= 2) {
-                        const data = JSON.parse(lines[lines.length - 2]);
-                        this.setState({ slots: data.slots, luks_version: data.version, max_slots: data.max_slots });
-                    }
-                });
-                this.monitor_channel.fail(err => {
-                    this.setState({ slots: [], slot_error: err });
-                });
-            }
-        }
-    }
-
-    componentWillUnmount() {
-        this.monitor_slots(null);
-    }
-
     render() {
-        var client = this.props.client;
-        var block = this.props.block;
+        var { client, block, slots, slot_error, max_slots } = this.props;
 
         if (!client.features.clevis)
             return null;
 
-        this.monitor_slots(block);
-
-        if ((this.state.slots == null && this.state.slot_error == null) ||
-            this.state.slot_error == "not-found")
+        if ((slots == null && slot_error == null) || slot_error == "not-found")
             return null;
 
         function decode_clevis_slot(slot) {
@@ -550,16 +506,16 @@ export class CryptoKeyslots extends React.Component {
             }
         }
 
-        var keys = this.state.slots.map(decode_clevis_slot).filter(k => !!k);
+        var keys = slots.map(decode_clevis_slot).filter(k => !!k);
 
         var rows;
         if (keys.length == 0) {
             var text;
-            if (this.state.slot_error) {
-                if (this.state.slot_error.problem == "access-denied")
+            if (slot_error) {
+                if (slot_error.problem == "access-denied")
                     text = _("The currently logged in user is not permitted to see information about keys.");
                 else
-                    text = this.state.slot_error.toString();
+                    text = slot_error.toString();
             } else {
                 text = _("No keys added");
             }
@@ -585,7 +541,7 @@ export class CryptoKeyslots extends React.Component {
                                     <DataListCell key="text-right" isFilled={false} alignRight>
                                         <StorageButton onClick={edit}
                                                        ariaLabel={_("Edit")}
-                                                       excuse={(keys.length == this.state.max_slots)
+                                                       excuse={(keys.length == max_slots)
                                                            ? _("Editing a key requires a free slot")
                                                            : null}>
                                             <EditIcon />
@@ -624,7 +580,7 @@ export class CryptoKeyslots extends React.Component {
             });
         }
 
-        const remaining = this.state.max_slots - keys.length;
+        const remaining = max_slots - keys.length;
 
         return (
             <Card className="key-slot-panel">
@@ -635,7 +591,7 @@ export class CryptoKeyslots extends React.Component {
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
                                        ariaLabel={_("Add")}
-                                       excuse={(keys.length == this.state.max_slots)
+                                       excuse={(keys.length == max_slots)
                                            ? _("No free key slots")
                                            : null}>
                             <PlusIcon />

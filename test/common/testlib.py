@@ -900,7 +900,7 @@ class MachineCase(unittest.TestCase):
         return getattr(test_method, "_testlib__non_destructive", False)
 
     def is_devel_build(self):
-        return self.machine.image == testvm.TEST_OS_DEFAULT
+        return os.environ.get('NODE_ENV') == 'development'
 
     def disable_preload(self, *packages):
         for pkg in packages:

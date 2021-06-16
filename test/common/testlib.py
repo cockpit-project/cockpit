@@ -899,6 +899,9 @@ class MachineCase(unittest.TestCase):
         test_method = getattr(self.__class__, self._testMethodName)
         return getattr(test_method, "_testlib__non_destructive", False)
 
+    def is_devel_build(self):
+        return self.machine.image == testvm.TEST_OS_DEFAULT
+
     def disable_preload(self, *packages):
         for pkg in packages:
             path = "/usr/share/cockpit/%s" % pkg
@@ -1007,8 +1010,7 @@ class MachineCase(unittest.TestCase):
 
             # Pages with debug enabled are huge and loading/executing them is heavy for browsers
             # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
-            # Only "TEST_OS_DEFAULT" has debug build enabled, see `build_and_install()` in `test/image-prepare`
-            if self.machine.image == testvm.TEST_OS_DEFAULT:
+            if self.is_devel_build():
                 self.disable_preload("packagekit", "systemd")
 
     def nonDestructiveSetup(self):

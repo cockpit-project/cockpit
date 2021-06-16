@@ -497,7 +497,8 @@ function append_partitions(client, rows, level, block) {
                     {utils.format_size_and_text(size, _("Free space"))}
                 </span>
             },
-            { title : btn }
+            { },
+            { title : btn, props: { className: "content-action" } }
         ];
 
         rows.push({

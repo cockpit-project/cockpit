@@ -288,6 +288,14 @@ function is_visible(field, values) {
 }
 
 const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
+    let error_alert = null;
+
+    if (errors && errors.toString() != "[object Object]") {
+        // This is a global error from a failed action
+        error_alert = <Alert variant='danger' isInline title={errors.toString()} />;
+        errors = null;
+    }
+
     function make_row(field, index) {
         if (field.length !== undefined)
             return make_rows(field, index);
@@ -309,6 +317,7 @@ const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
 
     return (
         <>
+            { error_alert }
             { body || null }
             { make_rows(fields) }
         </>
@@ -387,13 +396,14 @@ export const dialog_open = (def) => {
                                         else
                                             return def.Action.action(visible_values, progress_callback);
                                     })
-                                    .catch(error => {
-                                        if (error.toString() != "[object Object]") {
-                                            return Promise.reject(error);
-                                        } else {
-                                            update(error, null);
-                                            return Promise.reject();
+                                    .catch(errors => {
+                                        if (errors && errors.toString() != "[object Object]") {
+                                            // Log errors from failed actions, for debugging and
+                                            // to allow the test suite to catch known issues.
+                                            console.warn(errors.toString());
                                         }
+                                        update(errors, null);
+                                        return Promise.reject();
                                     });
                         };
                         return client.run(func);

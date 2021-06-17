@@ -21,8 +21,12 @@ import cockpit from "cockpit";
 import React from "react";
 import {
     Button, Breadcrumb, BreadcrumbItem,
-    Page, PageSection, PageSectionVariants
+    Card, CardActions, CardHeader, CardTitle, CardBody,
+    Flex,
+    Page, PageSection,
+    Stack,
 } from "@patternfly/react-core";
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -66,12 +70,14 @@ export class Application extends React.Component {
         function render_homepage_link(urls) {
             return urls.map(url => {
                 if (url.type == 'homepage') {
-                    return (<div className="app-links" key={url.link}>
-                        <a href={url.link} target="_blank" rel="noopener noreferrer" data-linkedhost={url.link}>
+                    return (
+                        <Button isInline variant="link" component='a' href={url.link}
+                                target="_blank" rel="noopener noreferrer"
+                                icon={<ExternalLinkAltIcon />}
+                                iconPosition="right">
                             {_("View project website")}
-                            <i className="fa fa-external-link" aria-hidden="true" />
-                        </a>
-                    </div>);
+                        </Button>
+                    );
                 }
             });
         }
@@ -118,23 +124,29 @@ export class Application extends React.Component {
             }
 
             return (
-                <div>
-                    <table className="table app">
-                        <tbody>
-                            <tr>
-                                <td><img src={icon_url(comp.icon)} role="presentation" alt="" /></td>
-                                <td>{comp.summary}</td>
-                                <td>{progress_or_launch}</td>
-                                <td>{button}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    {render_homepage_link(comp.urls)}
-                    <div className="app-description">{render_description(comp.description)}</div>
-                    <div className="text-center">
-                        { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
-                    </div>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                                <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                                <span>{comp.summary}</span>
+                            </Flex>
+                        </CardTitle>
+                        <CardActions>
+                            {progress_or_launch}
+                            {button}
+                        </CardActions>
+                    </CardHeader>
+                    <CardBody>
+                        <Stack hasGutter>
+                            {render_homepage_link(comp.urls)}
+                            <div className="app-description">{render_description(comp.description)}</div>
+                            {comp.screenshots.length ? <div className="text-center">
+                                { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
+                            </div> : null}
+                        </Stack>
+                    </CardBody>
+                </Card>
             );
         }
 
@@ -143,12 +155,16 @@ export class Application extends React.Component {
         }
 
         return (
-            <Page breadcrumb={
-                <Breadcrumb>
-                    <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={left_click(navigate_up)} to="#">{_("Applications")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>{comp ? comp.name : this.props.id}</BreadcrumbItem>
-                </Breadcrumb>}>
-                <PageSection variant={PageSectionVariants.light}>
+            <Page groupProps={{ sticky: 'top' }}
+                  className="application-details"
+                  isBreadcrumbGrouped
+                  breadcrumb={
+                      <Breadcrumb>
+                          <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={left_click(navigate_up)} to="#">{_("Applications")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>{comp ? comp.name : this.props.id}</BreadcrumbItem>
+                      </Breadcrumb>
+                  }>
+                <PageSection>
                     {render_comp()}
                 </PageSection>
             </Page>

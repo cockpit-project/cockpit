@@ -1,8 +1,5 @@
 /* Application list */
 
-@import "../lib/table.css";
-@import "../lib/cockpit-components-table.scss";
-
 .app-list-empty {
     color: var(--ct-color-subtle-copy);
     text-align: center;
@@ -40,47 +37,18 @@
 
 /* Application */
 
-.app td img {
+.application-details img {
     width: 32px;
     height: 32px;
-    margin-top: 5px;
-    margin-bottom: 5px;
 }
 
-.app td {
-    vertical-align: middle !important;
-}
-
-.app td:nth-child(1) {
-    width: 50px;
-}
-
-.app td {
-    border-top: 0px !important;
-    border-bottom: 1px solid var(--ct-color-border);
-}
-
-.app td:nth-child(3) {
-    text-align: right;
-}
-
-.app td:nth-child(4) {
-    /* shrink to fit */
-    width: 1%;
-    white-space: nowrap;
-}
-
-.app .progress-title {
+.application-details .progress-title {
     float: left;
     margin-right: 10px;
 }
 
-.app .progress {
+.application-details .progress {
     margin-bottom: 0px;
-}
-
-section.pf-c-page__main-breadcrumb {
-    padding-bottom: var(--pf-global--spacer--xl);
 }
 
 .app-screenshot {
@@ -94,8 +62,4 @@ section.pf-c-page__main-breadcrumb {
 .caption-with-actions span {
     display: flex;
     justify-content: space-between;
-}
-
-.right-menu * {
-    display: inline-block;
 }

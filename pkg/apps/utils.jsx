@@ -55,7 +55,7 @@ export function icon_url(path_or_url) {
     return prefix + '?' + query;
 }
 
-export const ProgressBar = ({ title, data }) => {
+export const ProgressBar = ({ size, title, data }) => {
     if (data.waiting) {
         return (<Split>
             <SplitItem className="progress-title" isFilled>
@@ -66,7 +66,7 @@ export const ProgressBar = ({ title, data }) => {
             </SplitItem>
         </Split>);
     } else {
-        return <Progress value={data.percentage} title={title} />;
+        return <Progress value={data.percentage} size={size} title={title} />;
     }
 };
 

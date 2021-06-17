@@ -35,12 +35,12 @@ var metainfo_db = get_metainfo_db();
 
 function render_list() {
     ReactDOM.render(<ApplicationList metainfo_db={metainfo_db} />,
-                    document.getElementById('list'));
+                    document.getElementById('list-page'));
 }
 
 function render_app() {
     ReactDOM.render(<Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />,
-                    document.getElementById('app'));
+                    document.getElementById('app-page'));
 }
 
 function show(id) {

@@ -20,10 +20,12 @@
 import cockpit from "cockpit";
 import React from "react";
 import {
-    Alert, AlertActionCloseButton, Button,
+    Alert, AlertActionCloseButton,
+    Button, Card,
     DataList, DataListItem, DataListItemRow, DataListCell,
     DataListAction,
     DataListItemCells,
+    Flex, FlexItem,
     Page, PageSection, PageSectionVariants,
 } from "@patternfly/react-core";
 import { RebootingIcon } from "@patternfly/react-icons";
@@ -153,12 +155,12 @@ export class ApplicationList extends React.Component {
 
         var refresh_progress, refresh_button, empty_caption, tbody;
         if (this.state.progress) {
-            refresh_progress = <ProgressBar title={_("Checking for new applications")} data={this.state.progress} />;
+            refresh_progress = <ProgressBar size="sm" title={_("Checking for new applications")} data={this.state.progress} />;
             refresh_button = <CancelButton data={this.state.progress} />;
         } else {
             refresh_progress = null;
             refresh_button = (
-                <Button variant="secondary" onClick={left_click(refresh)} aria-label={ _("Update package information") }>
+                <Button variant="secondary" onClick={left_click(refresh)} id="refresh" aria-label={ _("Update package information") }>
                     <RebootingIcon />
                 </Button>
             );
@@ -177,18 +179,22 @@ export class ApplicationList extends React.Component {
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
-                    <header className='ct-table-header'>
-                        <h2 className='ct-table-heading'>{_("Applications")}</h2>
-                        <div className='ct-table-actions'>
-                            <div className="right-menu">
+                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                        <h2>{_("Applications")}</h2>
+                        <FlexItem align={{ default: 'alignRight' }}>
+                            <Flex>
                                 {refresh_progress}
                                 {refresh_button}
-                            </div>
-                        </div>
-                    </header>
-                    <DataList aria-label={_("Applications list")}>
-                        { tbody }
-                    </DataList>
+                            </Flex>
+                        </FlexItem>
+                    </Flex>
+                </PageSection>
+                <PageSection>
+                    <Card>
+                        <DataList aria-label={_("Applications list")}>
+                            { tbody }
+                        </DataList>
+                    </Card>
                 </PageSection>
             </Page>
         );

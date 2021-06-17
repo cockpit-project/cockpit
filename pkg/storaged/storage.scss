@@ -187,35 +187,26 @@ td.job-action {
     text-align: left;
 }
 
-.content-level-1 {
-    padding-left: 30px;
+tr[class*=content-level-] {
+    --multiplier: 0;
+    --offset: calc(var(--pf-global--spacer--lg) * var(--multiplier));
+
+    // Move the button over
+    > .pf-c-table__toggle > button {
+        position: relative;
+        left: var(--offset);
+    }
+
+    // Add space for the button and offset
+    > .pf-c-table__toggle + td {
+        padding-left: var(--offset);
+    }
 }
-.content-level-2 {
-    padding-left: 60px;
-}
-.content-level-3 {
-    padding-left: 90px;
-}
-.content-level-4 {
-    padding-left: 120px;
-}
-.content-level-5 {
-    padding-left: 150px;
-}
-.content-level-6 {
-    padding-left: 180px;
-}
-.content-level-7 {
-    padding-left: 210px;
-}
-.content-level-8 {
-    padding-left: 240px;
-}
-.content-level-9 {
-    padding-left: 270px;
-}
-.content-level-10 {
-    padding-left: 300px;
+
+@for $i from 1 through 10 {
+    tr.content-level-#{$i} {
+        --multiplier: #{$i};
+    }
 }
 
 .tab-actions {

@@ -230,7 +230,7 @@ import {
     TextInput as TextInputPF4,
     Tooltip, TooltipPosition,
 } from "@patternfly/react-core";
-import { InfoCircleIcon } from "@patternfly/react-icons";
+import { InfoCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -238,6 +238,7 @@ import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
 
 import "form-layout.scss";
+import "@patternfly/patternfly/components/HelperText/helper-text.css";
 
 const _ = cockpit.gettext;
 
@@ -318,6 +319,16 @@ function flatten(arr1) {
     return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flatten(val)) : acc.concat(val), []);
 }
 
+const HelperTextWarning = ({ text }) =>
+    <div className="pf-c-helper-text">
+        <div className="pf-c-helper-text__item pf-m-warning">
+            <span className="pf-c-helper-text__item-icon">
+                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+            </span>
+            <span className="pf-c-helper-text__item-text">{text}</span>
+        </div>
+    </div>;
+
 export const dialog_open = (def) => {
     const nested_fields = def.Fields || [];
     const fields = flatten(nested_fields);
@@ -393,7 +404,7 @@ export const dialog_open = (def) => {
 
         const extra = <div>
             { def.Footer }
-            { def.Action && def.Action.Danger ? <Alert isInline variant='danger' title={def.Action.Danger} /> : null }
+            { def.Action && def.Action.Danger ? <HelperTextWarning text={def.Action.Danger} /> : null }
         </div>;
 
         return {

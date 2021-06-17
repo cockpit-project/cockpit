@@ -66,16 +66,11 @@ function process_result(err, stats) {
 }
 
 function generateDeps(makefile, stats) {
+    const stampfile = path.dirname(makefile) + '/manifest.json';
+    const dir = path.relative('', stats.compilation.outputOptions.path);
+    const now = Math.floor(Date.now() / 1000);
 
-    // Note that these are cheap ways of doing a set
-    var inputs = { };
-    var outputs = { };
-    var installs = { };
-    var tests = { };
-
-    var pkgdir = path.dirname(makefile);
-    var stampfile = pkgdir + '/manifest.json';
-
+    const inputs = new Set();
     for (const file of stats.compilation.fileDependencies) {
         // node modules  are handled by the dependency on package-lock.json
         if (file.includes('/node_modules/'))
@@ -85,17 +80,8 @@ function generateDeps(makefile, stats) {
         if (fs.lstatSync(file).isDirectory())
             continue;
 
-        inputs[path.relative(srcdir, file)] = true;
+        inputs.add(path.relative(srcdir, file));
     }
-
-    // All the dependent files
-    var asset, output;
-    var now = Math.floor(Date.now() / 1000);
-
-    // Strip cwd from output paths
-    var dir = stats.compilation.outputOptions.path;
-    if (dir.startsWith(cwd + '/'))
-        dir = dir.substr(cwd.length + 1);
 
     const uncompressed_patterns = [
         '/manifest.json$', '/override.json$',
@@ -104,16 +90,19 @@ function generateDeps(makefile, stats) {
         '\.png$', '\.woff$', '\.woff2$', '\.gif$'
     ].map((r) => new RegExp(r));
 
-    for (asset in stats.compilation.assets) {
-        output = path.join(dir, asset);
+    const outputs = new Set();
+    const installs = new Set();
+    const tests = new Set();
+    for (const asset in stats.compilation.assets) {
+        const output = path.join(dir, asset);
         fs.utimesSync(output, now, now);
 
         if (!output.endsWith("/manifest.json") && !output.endsWith(".map"))
-            outputs[output] = output;
+            outputs.add(output);
 
         if (output.includes("/test-")) {
             if (output.endsWith(".html")) {
-                tests[output] = output;
+                tests.add(output);
             }
             continue;
         }
@@ -122,25 +111,19 @@ function generateDeps(makefile, stats) {
             continue;
 
         if (uncompressed_patterns.some((s) => output.match(s))) {
-            installs[output] = true;
+            installs.add(output);
         } else {
-            installs[output + '.gz'] = true;
+            installs.add(output + '.gz');
         }
     }
 
-    // Finalize all the sets into arrays
-    inputs = Object.keys(inputs).sort();
-    outputs = Object.keys(outputs).sort();
-    installs = Object.keys(installs).sort();
-    tests = Object.keys(tests).sort();
+    const lines = [ "# Generated Makefile data for " + prefix ];
 
-    var lines = [ "# Generated Makefile data for " + prefix ];
-
-    function makeArray(name, values) {
+    function makeArray(name, set) {
         lines.push(name + " = \\");
-        values.forEach(function(value) {
+        for (const value of [...set.keys()].sort()) {
             lines.push("\t" + value + " \\");
-        });
+        }
         lines.push("\t$(NULL)");
         lines.push("");
     }
@@ -154,15 +137,15 @@ function generateDeps(makefile, stats) {
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
     lines.push("");
 
-    outputs.forEach(function(name) {
+    for (const name of [...outputs.keys()].sort()) {
         lines.push(name + ": " + stampfile);
         lines.push("")
-    });
+    }
 
-    inputs.forEach(function(name) {
+    for (const name of [...inputs.keys()].sort()) {
         lines.push(name + ":");
         lines.push("")
-    });
+    }
 
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
@@ -172,6 +155,5 @@ function generateDeps(makefile, stats) {
 
     lines.push(prefix + ": " + stampfile);
 
-    data = lines.join("\n") + "\n";
-    fs.writeFileSync(makefile, data);
+    fs.writeFileSync(makefile, lines.join("\n") + "\n");
 }

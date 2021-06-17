@@ -76,17 +76,6 @@ function generateDeps(makefile, stats) {
     var pkgdir = path.dirname(makefile);
     var stampfile = pkgdir + '/manifest.json';
 
-    stats.compilation.modules.forEach(function(module) {
-        // skip external, multi, and other "not quite" modules
-        if (module.constructor.name !== 'NormalModule')
-            return;
-        var parts = module.identifier().split("!");
-        parts.concat(module.fileDependencies || []).forEach(function(part) {
-            var input = part.split("?")[0];
-            maybePushInput(inputs, input);
-        });
-    });
-
     stats.compilation.fileDependencies.forEach(function(file) {
         maybePushInput(inputs, file);
     });
@@ -180,12 +169,6 @@ function generateDeps(makefile, stats) {
 }
 
 function maybePushInput(inputs, input) {
-    // Don't include or external refs
-    if (input.endsWith('/') ||
-        input.indexOf("external ") === 0 || input.indexOf("multi ") === 0) {
-        return;
-    }
-
     // Don't include node_modules
     if (input.includes("/node_modules")) {
         return;

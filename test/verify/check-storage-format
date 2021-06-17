@@ -44,7 +44,7 @@ class TestStorageFormat(StorageCase):
         self.dialog_set_val("mount_options.auto", False)
         self.dialog_apply()
 
-        b.wait_in_text(".pf-c-modal-box__footer > div.pf-m-danger:nth-child(1)", "Error creating file system")
+        b.wait_in_text("#dialog", "Error creating file system")
 
     def testFormatTypes(self):
         m = self.machine

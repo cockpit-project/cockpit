@@ -48,23 +48,11 @@ SUFFIXES = \
 	.1 .8 .5 \
 	$(NULL)
 
-V_CHECK = $(V_CHECK_$(V))
-V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
-V_CHECK_0 = @echo "  CHECK   " $@;
-
 V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
-V_COPY = $(V_COPY_$(V))
-V_COPY_ = $(V_COPY_$(AM_DEFAULT_VERBOSITY))
-V_COPY_0 = @echo "  COPY    " $@;
-
 MV = mv -f
-
-COPY_RULE = \
-        $(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp -L $< $@.tmp && $(MV) $@.tmp $@
 
 CAT_RULE = \
         $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

@@ -100,38 +100,35 @@ function generateDeps(makefile, stats) {
     if (dir.startsWith(cwd + '/'))
         dir = dir.substr(cwd.length + 1);
 
-    for(asset in stats.compilation.assets) {
+    const uncompressed_patterns = [
+        '/manifest.json$', '/override.json$',
+        '^dist/static/', // cockpit-ws cannot currently serve compressed login page
+        '^dist/shell/index.html$',  // COMPAT: Support older cockpit-ws binaries. See #14673
+        '\.png$', '\.woff$', '\.woff2$', '\.gif$'
+    ].map((r) => new RegExp(r));
+
+    for (asset in stats.compilation.assets) {
         output = path.join(dir, asset);
         fs.utimesSync(output, now, now);
 
         if (!output.endsWith("/manifest.json") && !output.endsWith(".map"))
             outputs[output] = output;
 
-	if (output.indexOf("/test-") !== -1 && output.endsWith(".html")) {
-            tests[output] = output;
+        if (output.includes("/test-")) {
+            if (output.endsWith(".html")) {
+                tests[output] = output;
+            }
             continue;
         }
 
-        var install = output;
-	if (!output.endsWith("manifest.json") &&
-            !output.endsWith("override.json") &&
-            // COMPAT: Support older cockpit-ws binaries. See #14673
-            !output.endsWith("shell/index.html") &&
-            // cockpit-ws cannot currently serve compressed login page
-            output.indexOf("static/login") < 0 &&
-            output.indexOf("static/po.") < 0 &&
-            !output.endsWith(".png") &&
-            !output.endsWith(".map") &&
-            !output.endsWith(".ttf") &&
-            !output.endsWith(".woff") &&
-            !output.endsWith(".woff2") &&
-            !output.endsWith(".gif")) {
-            install += ".gz";
-        }
+        if (output.endsWith(".map") || output.includes("included-modules"))
+            continue;
 
-        // Debug output and tests gets installed separately
-        if (!output.endsWith(".map") && output.indexOf("/test-") === -1 && !output.includes("included-modules"))
-            installs[install] = install;
+        if (uncompressed_patterns.some((s) => output.match(s))) {
+            installs[output] = true;
+        } else {
+            installs[output + '.gz'] = true;
+        }
     }
 
     // Finalize all the sets into arrays

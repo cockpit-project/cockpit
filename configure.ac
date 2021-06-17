@@ -256,11 +256,6 @@ else
   AC_MSG_ERROR([no. Please install gettext tools])
 fi
 
-# go
-
-AC_PATH_PROG([GOLANG], [go])
-AM_CONDITIONAL([WITH_GOLANG], [test -n "$GOLANG"])
-
 # usermod
 #
 # usermod might not be world-executable, so AC_PATH_PROG might not

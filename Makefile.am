@@ -36,31 +36,18 @@ clean-local::
 	find $(srcdir) -name '*.pyc' -delete
 
 SUFFIXES = \
-	.css .css.gz \
-	.html .html.gz \
-	.js .js.gz \
 	.jsx \
-	.map .map.gz \
 	.mo .po \
 	.service .service.in \
 	.socket .socket.in \
-	.svg .svg.gz \
 	.1 .8 .5 \
 	$(NULL)
-
-V_GZIP = $(V_GZIP_$(V))
-V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
-V_GZIP_0 = @echo "  GZIP    " $@;
 
 MV = mv -f
 
 CAT_RULE = \
         $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $^ > $@.tmp && $(MV) $@.tmp $@
-
-GZ_RULE = \
-	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
-	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
@@ -77,20 +64,10 @@ SUBST_RULE = \
 	$< > $@.tmp && $(MV) $@.tmp $@ \
 	$(NULL)
 
-.css.css.gz:
-	$(GZ_RULE)
-.html.html.gz:
-	$(GZ_RULE)
-.js.js.gz:
-	$(GZ_RULE)
-.map.map.gz:
-	$(GZ_RULE)
 .service.in.service:
 	$(SUBST_RULE)
 .socket.in.socket:
 	$(SUBST_RULE)
-.svg.svg.gz:
-	$(GZ_RULE)
 
 # Webpack related
 include pkg/build
@@ -110,6 +87,13 @@ clean-local::
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+install-data-local:: $(WEBPACK_GZ_INSTALL)
+	@for file in $^; do \
+		target="$(DESTDIR)$(pkgdatadir)/$${file##*dist/}.gz"; \
+		mkdir -p "$${target%/*}"; \
+		echo "$${file} → $${target}"; \
+		gzip -9 < "$${file}" > "$${target}"; \
+	done
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
 	$(V_TAR) tar --format=posix -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::

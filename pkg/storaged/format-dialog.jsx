@@ -129,6 +129,15 @@ export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
+function teardown_and_format_title(usage) {
+    if (usage.Teardown && usage.Teardown.Mounts)
+        return _("Unmount and format");
+    else if (usage.Teardown && (usage.Teardown.PhysicalVolumes || usage.Teardown.MDRaidMembers))
+        return _("Remove and format");
+    else
+        return _("Format");
+}
+
 export function format_dialog(client, path, start, size, enable_dos_extended) {
     var block = client.blocks[path];
     var block_ptable = client.blocks_ptable[path];
@@ -273,7 +282,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 dlg.set_nested_values("crypto_options", { ro: false });
         },
         Action: {
-            Title: create_partition ? _("Create partition") : _("Format"),
+            Title: create_partition ? _("Create partition") : teardown_and_format_title(usage),
             Danger: (create_partition ? null : _("Formatting a storage device will erase all data on it.")),
             wrapper: job_progress_wrapper(client, block.path),
             action: function (vals) {

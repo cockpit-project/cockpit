@@ -205,7 +205,7 @@ class TestStorageLvm2(StorageCase):
 
         # use almost all of the pool by erasing the thin volume
         self.content_head_action(2, "Format")
-        self.dialog({"erase": "zero",
+        self.dialog({"erase.on": True,
                      "type": "ext4",
                      "mount_point": mount_point_thin})
         self.content_row_wait_in_col(2, 1, "ext4 file system")

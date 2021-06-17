@@ -92,6 +92,7 @@ function generateDeps(makefile, stats) {
 
     const outputs = new Set();
     const installs = new Set();
+    const gz_installs = new Set();
     const tests = new Set();
     for (const asset in stats.compilation.assets) {
         const output = path.join(dir, asset);
@@ -113,7 +114,7 @@ function generateDeps(makefile, stats) {
         if (uncompressed_patterns.some((s) => output.match(s))) {
             installs.add(output);
         } else {
-            installs.add(output + '.gz');
+            gz_installs.add(output);
         }
     }
 
@@ -132,6 +133,7 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_OUTPUTS", outputs);
 
     makeArray(prefix + "_INSTALL", installs);
+    makeArray(prefix + "_GZ_INSTALL", gz_installs);
     makeArray(prefix + "_TESTS", tests);
 
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
@@ -150,6 +152,7 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
+    lines.push("WEBPACK_GZ_INSTALL += $(" + prefix + "_GZ_INSTALL)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
     lines.push("");
 

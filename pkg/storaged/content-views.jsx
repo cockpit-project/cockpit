@@ -449,7 +449,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     var cols = [
         {
             title: (
-                <span key={name} className={"content-level-" + level}>
+                <span key={name}>
                     {utils.format_size_and_text(desc.size, desc.text)}
                     {info}
                 </span>)
@@ -460,7 +460,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     ];
 
     rows.push({
-        props: { key },
+        props: { key, className: "content-level-" + level },
         columns: cols,
         expandedContent: <ListingPanel tabRenderers={tabs.renderers} />
     });

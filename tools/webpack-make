@@ -76,9 +76,17 @@ function generateDeps(makefile, stats) {
     var pkgdir = path.dirname(makefile);
     var stampfile = pkgdir + '/manifest.json';
 
-    stats.compilation.fileDependencies.forEach(function(file) {
-        maybePushInput(inputs, file);
-    });
+    for (const file of stats.compilation.fileDependencies) {
+        // node modules  are handled by the dependency on package-lock.json
+        if (file.includes('/node_modules/'))
+            continue;
+
+        // Webpack 5 includes directories: https://github.com/webpack/webpack/issues/11971
+        if (fs.lstatSync(file).isDirectory())
+            continue;
+
+        inputs[path.relative(srcdir, file)] = true;
+    }
 
     // All the dependent files
     var asset, output;
@@ -166,25 +174,4 @@ function generateDeps(makefile, stats) {
 
     data = lines.join("\n") + "\n";
     fs.writeFileSync(makefile, data);
-}
-
-function maybePushInput(inputs, input) {
-    // Don't include node_modules
-    if (input.includes("/node_modules")) {
-        return;
-    }
-
-    // Don't include sub-directories of input
-    // Webpack 5 includes these: https://github.com/webpack/webpack/issues/11971
-    const stat = fs.lstatSync(input);
-    if (stat.isDirectory())
-        return;
-
-    // Strip cwd and srcdir absolute paths from input file and add it
-    if (input.startsWith(cwd + '/'))
-        input = input.substr(cwd.length + 1);
-    if (input.startsWith(srcdir + '/'))
-        input = input.substr(srcdir.length + 1);
-
-    inputs[input] = true;
 }

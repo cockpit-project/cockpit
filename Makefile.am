@@ -64,24 +64,16 @@ GZ_RULE = \
 
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
-	-e 's,[@]datadir[@],$(datadir),g' \
-	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-	-e 's,[@]libdir[@],$(libdir),g' \
-	-e 's,[@]includedir[@],$(includedir),g' \
-	-e 's,[@]bindir[@],$(bindir),g' \
-	-e 's,[@]sbindir[@],$(sbindir),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
-	-e 's,[@]exec_prefix[@],$(exec_prefix),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
-	-e 's,[@]VERSION[@],$(VERSION),g' \
-	-e 's,[@]user[@],$(COCKPIT_USER),g' \
-	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
-	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
-	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]admin_group[@],$(admin_group),g' \
-	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+	-e 's,[@]libexecdir[@],$(libexecdir),g' \
+	-e 's,[@]prefix[@],$(prefix),g' \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]user[@],$(COCKPIT_USER),g' \
+	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
+	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
 	$< > $@.tmp && $(MV) $@.tmp $@ \
 	$(NULL)
 

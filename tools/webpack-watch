@@ -2,7 +2,7 @@
 # Calls webpack-make in watch mode for the given pkg/<page>
 
 set -eu
-mydir=$(dirname $0)
+cd "$(realpath -m "$0"/../..)"
 
 if [ -z "${1:-}" ] || [ -n "${2:-}" ]; then
     echo "Usage: $0 <page in pkg/>" >&2
@@ -12,4 +12,4 @@ fi
 # disable eslint by default, unless explicitly enabled
 export ESLINT=${ESLINT:-0}
 
-"$mydir/webpack-make" -d "$mydir/../dist/$1/Makefile.deps" -w
+"tools/webpack-make" -d "dist/$1/Makefile.deps" -w

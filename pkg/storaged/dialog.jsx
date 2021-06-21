@@ -743,23 +743,21 @@ export const SelectSpace = (tag, title, options) => {
 
 const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
     return (
-        <div key={tag} className="ct-storage-checkbox">
-            <Checkbox data-field={tag} data-field-type="checkbox"
-                      id={tag}
-                      isChecked={val}
-                      label={
-                          <>
-                              {title}
-                              { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
-                                  <Button className="dialog-item-tooltip" variant="link">
-                                      <InfoCircleIcon />
-                                  </Button>
-                              </Tooltip>
-                              }
-                          </>
-                      }
-                      onChange={update_function} />
-        </div>
+        <Checkbox data-field={tag} data-field-type="checkbox"
+                  id={tag}
+                  isChecked={val}
+                  label={
+                      <>
+                          {title}
+                          { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
+                              <Button className="dialog-item-tooltip" variant="link">
+                                  <InfoCircleIcon />
+                              </Button>
+                          </Tooltip>
+                          }
+                      </>
+                  }
+                  onChange={update_function} />
     );
 };
 
@@ -799,18 +797,14 @@ export const CheckBoxes = (tag, title, options) => {
             if (options.fields.length == 1)
                 return fieldset;
 
-            return (
-                <div role="group">
-                    { fieldset }
-                </div>
-            );
+            return <>{ fieldset }</>;
         }
     };
 };
 
 const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
     return (
-        <div className="ct-storage-checkbox" data-field={tag} data-field-type="text-input-checked" key={tag}>
+        <div data-field={tag} data-field-type="text-input-checked" key={tag}>
             <Checkbox isChecked={val !== false}
                       id={tag}
                       label={title}

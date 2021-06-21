@@ -8,9 +8,10 @@ actions:
   create-archive:
     # this is being triggered immediately on a pull_request event; wait for
     # build-dist.yml to generate the dist tarball
-    - env AUTOGEN_CONFIGURE_ARGS='--disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env' PKG_CONFIG_PATH=tools/mock-build-env test/make_dist.py --wait
-    # packit service insists of a single line of output
-    - sh -c 'ls cockpit-*.tar.xz'
+    - tools/webpack-jumpstart --wait
+    - ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
+    - make XZ_OPT=-0 dist
+    - sh -c 'echo cockpit-*.tar.xz'
 jobs:
   - job: tests
     trigger: pull_request

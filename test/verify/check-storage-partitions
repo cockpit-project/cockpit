@@ -57,7 +57,7 @@ class TestStoragePartitions(StorageCase):
         self.content_row_action(1, "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo",
-                     "mount_options.auto": False})
+                     "mount_options.auto": True})
         self.content_row_wait_in_col(1, 1, "ext4 file system")
 
         self.content_dropdown_action(1, "Delete")

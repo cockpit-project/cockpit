@@ -1027,6 +1027,10 @@ export const BlockingMessage = (usage) => {
                       _("This device is currently used for VDO devices."),
                       "Name", "VDO");
 
+    add_usage_message(parts, blocking.Pools,
+                      _("This device is currently used for Stratis pools."),
+                      "Name", "Pool");
+
     if (parts.length > 0)
         return <div>{ parts }</div>;
     else

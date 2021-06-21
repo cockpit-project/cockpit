@@ -32,7 +32,6 @@ import * as utils from "./utils.js";
 import client from "./client.js";
 
 import { dialog_open } from "./dialog.jsx";
-import { fmt_to_fragments } from "./utilsx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -140,11 +139,11 @@ export const StorageBlockNavLink = ({ client, block }) => {
 
     const link = (
         <Button isInline variant="link" onClick={() => { cockpit.location.go(parts.location) }}>
-            {parts.link}
+            {cockpit.format(parts.format, parts.link)}
         </Button>
     );
 
-    return <span>{fmt_to_fragments(parts.format, link)}</span>;
+    return link;
 };
 
 // StorageOnOff - OnOff switch for asynchronous actions.
@@ -193,15 +192,23 @@ export class StorageOnOff extends React.Component {
  * in a dangerous color.
  */
 
-export const StorageUsageBar = ({ stats, critical, block }) => {
+export const StorageUsageBar = ({ stats, critical, block, offset }) => {
     if (!stats)
         return null;
 
     const fraction = stats[0] / stats[1];
     const labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
+    function ref(elt) {
+        if (elt && offset) {
+            // XXX - what a hack
+            var indicator = document.getElementById(elt.id).children[2].children[0];
+            indicator.style.left = (offset / stats[1]) * 100 + "%";
+        }
+    }
+
     return (
-        <Progress value={stats[0]} max={stats[1]}
+        <Progress value={stats[0]} max={stats[1]} ref={ref}
             valueText={labelText}
             label={labelText}
             aria-label={cockpit.format(_("Usage of $0"), block)}

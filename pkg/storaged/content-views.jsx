@@ -38,7 +38,7 @@ import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
 import { CryptoTab } from "./crypto-tab.jsx";
 import { get_existing_passphrase } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
-import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
+import { PVolTab, MDRaidMemberTab, VDOBackingTab, StratisBlockdevTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
@@ -76,6 +76,8 @@ function create_tabs(client, target, is_partition) {
     var block_fsys = block && client.blocks_fsys[block.path];
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
+    var block_blockdev = block && client.blocks_blockdev[block.path];
+    var block_locked_pool = block && client.blocks_locked_pool[block.path];
     var block_swap = block && client.blocks_swap[block.path];
 
     var lvol = (endsWith(target.iface, ".LogicalVolume")
@@ -84,6 +86,13 @@ function create_tabs(client, target, is_partition) {
 
     var is_filesystem = (block && block.IdUsage == 'filesystem');
     var is_crypto = (block && block.IdUsage == 'crypto');
+    var is_stratis = ((block && block.IdUsage == "raid" && block.IdType == "stratis") ||
+                      (block_blockdev && client.stratis_pools[block_blockdev.Pool]) ||
+                      block_locked_pool);
+
+    // Adjust for encryption leaking out of Stratis
+    if (is_crypto && is_stratis)
+        is_crypto = false;
 
     var warnings = client.path_warnings[target.path] || [];
 
@@ -161,6 +170,8 @@ function create_tabs(client, target, is_partition) {
     } else if ((block && block.IdUsage == "raid" && block.IdType == "LVM2_member") ||
                (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
         add_tab(_("Physical volume"), PVolTab);
+    } else if (is_stratis) {
+        add_tab(_("Stratis pool"), StratisBlockdevTab);
     } else if ((block && block.IdUsage == "raid") ||
                (block && client.mdraids[block.MDRaidMember])) {
         add_tab(_("RAID member"), MDRaidMemberTab);
@@ -373,6 +384,8 @@ function create_tabs(client, target, is_partition) {
 function block_description(client, block) {
     var usage;
     var block_pvol = client.blocks_pvol[block.path];
+    var block_blockdev = client.blocks_blockdev[block.path];
+    var block_locked_pool = client.blocks_locked_pool[block.path];
 
     if (block.IdUsage == "filesystem") {
         usage = cockpit.format(C_("storage-id-desc", "$0 file system"), block.IdType);
@@ -383,13 +396,21 @@ function block_description(client, block) {
         } else if (client.mdraids[block.MDRaidMember]) {
             var mdraid = client.mdraids[block.MDRaidMember];
             usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
+        } else if (block_blockdev && client.stratis_pools[block_blockdev.Pool]) {
+            var pool = client.stratis_pools[block_blockdev.Pool];
+            usage = cockpit.format(_("Blockdev of Stratis pool $0"), pool.Name);
         } else if (block.IdType == "LVM2_member") {
             usage = _("Physical volume");
+        } else if (block.IdType == "stratis") {
+            usage = _("Member of Stratis Pool");
         } else {
             usage = _("Member of RAID device");
         }
     } else if (block.IdUsage == "crypto") {
         usage = C_("storage-id-desc", "Encrypted data");
+        // Adjust for encryption leaking out of Stratis
+        if (block_blockdev || block_locked_pool)
+            usage = _("Member of Stratis Pool");
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
             usage = C_("storage-id-desc", "Swap space");
@@ -462,7 +483,7 @@ function append_non_partitioned_block(client, rows, level, block, is_partition) 
     var desc, tabs;
     var cleartext_block;
 
-    if (block.IdUsage == 'crypto')
+    if (block.IdUsage == 'crypto' && !client.blocks_blockdev[block.path])
         cleartext_block = client.blocks_cleartext[block.path];
 
     tabs = create_tabs(client, block, is_partition);

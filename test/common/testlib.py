@@ -673,7 +673,7 @@ class Browser:
                     r['x'] - rect['x'] + r['width'],
                     r['y'] - rect['y'] + r['height'])
 
-        ignore_rects = list(map(relative_clip, ignore))
+        ignore_rects = list(map(relative_clip, map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
         filename = base + "-pixels.png"
         ref_filename = os.path.join(TEST_DIR, "reference", filename)

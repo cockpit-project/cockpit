@@ -662,6 +662,8 @@ class Browser:
         if not (Image and self.pixels_label and self.cdp and self.cdp.valid):
             return
 
+        self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
+
         rect = self.call_js_func('ph_element_clip', selector)
 
         def relative_clip(sel):

@@ -223,6 +223,11 @@ function ph_focus(sel)
     ph_find(sel).focus();
 }
 
+function ph_scrollIntoViewIfNeeded(sel)
+{
+    ph_find(sel).scrollIntoViewIfNeeded();
+}
+
 function ph_blur(sel)
 {
     ph_find(sel).blur();

@@ -61,7 +61,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("store_passphrase.on", True)
         self.dialog_set_val("crypto_options.extra", "crypto,options")
         self.dialog_set_val("mount_point", mount_point_secret)
-        self.dialog_set_val("mount_options.auto", False)
+        self.dialog_set_val("mount_options.auto", True)
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -79,7 +79,9 @@ class TestStorageLuks(StorageCase):
         self.assertNotEqual(m.execute("grep %s /etc/fstab" % mount_point_secret), "")
         self.assertEqual(m.execute("cat /etc/luks-keys/*"), "vainu-reku-toma-rolle-kaja")
 
-        # Lock it
+        # Unmount and Lock it
+        self.content_dropdown_action(2, "Unmount")
+        self.content_tab_wait_in_info(2, 1, "Mount point", "The filesystem is not mounted")
         self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 file system")
 

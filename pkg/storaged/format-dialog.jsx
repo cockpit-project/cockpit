@@ -353,21 +353,23 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                     }
                 }
 
-                function block_fsys_for_block() {
-                    return (client.blocks_fsys[block.path] ||
-                            (client.blocks_cleartext[block.path] &&
-                             client.blocks_fsys[client.blocks_cleartext[block.path].path]));
+                function block_fsys_for_block(path) {
+                    return (client.blocks_fsys[path] ||
+                            (client.blocks_cleartext[path] &&
+                             client.blocks_fsys[client.blocks_cleartext[path].path]));
                 }
 
-                function maybe_mount() {
+                function maybe_mount(new_path) {
+                    const path = new_path || block.path;
                     if (is_filesystem(vals) && vals.mount_options.auto)
-                        return client.wait_for(block_fsys_for_block).then(block_fsys => block_fsys.Mount({ }));
+                        return (client.wait_for(() => block_fsys_for_block(path))
+                                .then(block_fsys => block_fsys.Mount({ })));
                 }
 
                 return utils.teardown_active_usage(client, usage)
                         .then(utils.reload_systemd)
                         .then(format)
-                        .then(utils.reload_systemd)
+                        .then(new_path => utils.reload_systemd().then(() => new_path))
                         .then(maybe_mount);
             }
         }

@@ -886,7 +886,7 @@ class MachineCase(unittest.TestCase):
             machine = self.machine
         label = self.label() + "-" + machine.label
         pixels_label = None
-        if machine.image == testvm.TEST_OS_DEFAULT and os.environ.get("TEST_BROWSER", "chromium") == "chromium":
+        if machine.image == testvm.TEST_OS_DEFAULT and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
             pixels_label = self.label()
         browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port)
         self.addCleanup(browser.kill)

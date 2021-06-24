@@ -508,6 +508,7 @@ module.exports = {
                         options: {
                             sourceMap: !production,
                             sassOptions: {
+                                quietDeps: true,
                                 outputStyle: production ? 'compressed' : undefined,
                                 includePaths: [
                                     // Teach webpack to resolve these references in order to build PF3 scss
@@ -552,6 +553,7 @@ module.exports = {
                         options: {
                             sourceMap: !production,
                             sassOptions: {
+                                quietDeps: true,
                                 outputStyle: production ? 'compressed' : undefined,
                             },
                         },
@@ -575,6 +577,7 @@ module.exports = {
                         options: {
                             sourceMap: !production,
                             sassOptions: {
+                                quietDeps: true,
                                 outputStyle: production ? 'compressed' : undefined,
                             },
                         },

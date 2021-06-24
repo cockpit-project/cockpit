@@ -24,14 +24,11 @@ import subprocess
 
 import make_dist
 
-from common.parent import ensure_bots
+from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
 ensure_bots()  # NOQA: testvm lives in bots/
 import testvm
 
-TEST = os.path.abspath(os.path.dirname(__file__))
-BASE = os.path.normpath(os.path.join(TEST, ".."))
-BOTS = os.path.join(BASE, "bots")
-os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
+os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS_DIR)
 
 networking = None
 
@@ -101,16 +98,16 @@ def main():
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
     machine.upload([os.path.join(testvm.SCRIPTS_DIR, "lib")], "/var/lib/testvm")
-    machine.upload([os.path.join(BASE, "tools", "make-srpm")], "/var/lib/testvm")
+    machine.upload([os.path.join(BASE_DIR, "tools", "make-srpm")], "/var/lib/testvm")
     machine.upload([os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image)], "/var/tmp")
-    machine.upload([os.path.join(BASE, "containers")], "/var/tmp")
+    machine.upload([os.path.join(BASE_DIR, "containers")], "/var/tmp")
 
 
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image, overlay=False):
     if "/" not in base_image:
         base_image = os.path.join(testvm.IMAGES_DIR, base_image)
-    test_images = os.path.join(TEST, "images")
+    test_images = os.path.join(TEST_DIR, "images")
     os.makedirs(test_images, exist_ok=True)
     install_image = os.path.join(test_images, os.path.basename(base_image))
     if not os.path.exists(install_image) or not overlay:

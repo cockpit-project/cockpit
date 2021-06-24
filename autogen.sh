@@ -57,8 +57,6 @@ if test -z "${NOCONFIGURE:-}"; then
     fi
 fi
 
-test/common/pixel-tests pull
-
 if test -n "${NOCONFIGURE:-}"; then
     exit 0
 fi

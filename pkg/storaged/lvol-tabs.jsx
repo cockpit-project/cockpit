@@ -54,13 +54,6 @@ function lvol_rename(lvol) {
     });
 }
 
-function is_mounted_synch(block) {
-    return (cockpit.spawn(["findmnt", "-S", utils.decode_filename(block.Device)],
-                          { superuser: true, err: "message" })
-            .then(() => true)
-            .catch(() => false));
-}
-
 function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     var block, crypto, fsys;
     var crypto_overhead;
@@ -102,7 +95,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             // filesystem back if that's what we expect, to undo the
             // bug mentioned above. But let's be a bit more passive
             // here and hope the bug gets fixed eventually.
-            return (is_mounted_synch(client.blocks[fsys.path])
+            return (utils.is_mounted_synch(client.blocks[fsys.path])
                     .then(is_mounted => {
                         // When doing an offline resize, we need to first repair the filesystem.
                         if (!is_mounted) {

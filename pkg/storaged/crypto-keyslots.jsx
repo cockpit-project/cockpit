@@ -128,7 +128,28 @@ export function clevis_recover_passphrase(block, just_type) {
             .then(output => output.trim());
 }
 
-/* Passphrase and slot operations
+function clevis_unlock(block) {
+    var dev = decode_filename(block.Device);
+    var clear_dev = "luks-" + block.IdUUID;
+    return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
+                         { superuser: true });
+}
+
+export function unlock_with_type(client, block, passphrase, passphrase_type) {
+    const crypto = client.blocks_crypto[block.path];
+    if (passphrase)
+        return crypto.Unlock(passphrase, {});
+    else if (passphrase_type == "stored")
+        return crypto.Unlock("", {});
+    else if (passphrase_type == "clevis")
+        return clevis_unlock(block);
+    else {
+        // This should always be caught and should never show up in the UI
+        return Promise.reject(new Error("No passphrase"));
+    }
+}
+
+/* Passphrase operations
  */
 
 function passphrase_add(block, new_passphrase, old_passphrase) {

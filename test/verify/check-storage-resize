@@ -36,12 +36,8 @@ class TestStorageResize(StorageCase):
         m = self.machine
         b = self.browser
 
-        if crypto:
-            fsys_row = 2
-            fsys_tab = 1
-        else:
-            fsys_row = 1
-            fsys_tab = 2
+        fsys_row = 1
+        fsys_tab = 2
 
         need_passphrase = crypto and self.default_crypto_type == "luks2"
 
@@ -249,8 +245,8 @@ class TestStorageResize(StorageCase):
         self.dialog_set_val("mount_point", mountpoint)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(2, 1, "Name", "FSYS")
-        self.content_tab_wait_in_info(2, 1, "Mount point", mountpoint)
+        self.content_tab_wait_in_info(1, 2, "Name", "FSYS")
+        self.content_tab_wait_in_info(1, 2, "Mount point", mountpoint)
 
         vol_tab = self.content_tab_expand(1, 1)
 
@@ -278,10 +274,11 @@ class TestStorageResize(StorageCase):
 
         fs_dev = m.execute("lsblk -pnl /dev/TEST/vol -o NAME | tail -1").strip()
         self.shrink_extfs(fs_dev, "200M")
-        self.content_row_action(2, "Mount")
+        self.content_row_action(1, "Mount")
         self.confirm()
-        self.wait_mounted(2, 1)
+        self.wait_mounted(1, 2)
 
+        vol_tab = self.content_tab_expand(1, 1)
         b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()
@@ -305,10 +302,11 @@ class TestStorageResize(StorageCase):
 
         self.shrink_extfs(fs_dev, "198M")
         m.execute("echo vainu-reku-toma-rolle-kaja | cryptsetup resize '%s' 200M" % fs_dev)
-        self.content_row_action(2, "Mount")
+        self.content_row_action(1, "Mount")
         self.confirm()
-        self.wait_mounted(2, 1)
+        self.wait_mounted(1, 2)
 
+        vol_tab = self.content_tab_expand(1, 1)
         b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()

@@ -47,7 +47,7 @@ class TestStorageUsed(StorageCase):
         b.click('.sidepanel-row:contains("%s")' % disk)
         b.wait_visible("#storage-detail")
 
-        self.content_dropdown_action(2, "Format")
+        self.content_dropdown_action(1, "Format")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()

@@ -219,10 +219,17 @@ SELinux type.
 
     $ make
     $ sudo make install
-    $ sudo cp src/bridge/cockpit.pam.insecure /etc/pam.d/cockpit
 
-This will install Cockpit and all support files, and will install a
-simplistic PAM configuration.
+This will install Cockpit and all support files. If you have a
+Fedora/RHEL/CentOS based distribution, install a PAM configuration with
+
+    $ sudo cp tools/cockpit.pam /etc/pam.d/cockpit
+
+If you have a Debian/Ubuntu based distribution, install this PAM config instead:
+
+    $ sudo cp tools/cockpit.debian.pam /etc/pam.d/cockpit
+
+For other distributions you need to create a PAM config yourself.
 
 If you prefer to install to a different `--prefix` and would prefer
 that `make install` not write outside that prefix, then specify the

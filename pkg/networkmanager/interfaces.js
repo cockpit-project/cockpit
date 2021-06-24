@@ -53,7 +53,7 @@ function select_btn(func, spec, klass) {
         return $('<option>', { value: opt.choice, 'data-value': opt.title }).text(opt.title);
     }
 
-    var btn = $('<select class="ct-select">').append(spec.map(option_mapper));
+    var btn = $('<select class="pf-c-form-control">').append(spec.map(option_mapper));
     btn.on('change', function() {
         choice = $(this).val();
         select(choice);

@@ -34,7 +34,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <section class="pf-c-page__main-section content-header-extra">
           <div class="filters">
             <div class="filter">
-                <button id="log-filters" class="btn btn-default dropdown-toggle ct-select" type="button" data-toggle="dropdown">
+                <button id="log-filters" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                   <span translate>Time</span>
                   <div class="caret"></div>
                 </button>
@@ -48,7 +48,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
             <div class="filter">
                 <label for="journal-prio-menu" translate>Priority</label>
-                <select id="journal-prio-menu" class="ct-select">
+                <select id="journal-prio-menu" class="pf-c-form-control">
                   <option value="emerg" translate>Only emergency</option>
                   <option value="alert" translate>Alert and above</option>
                   <option value="crit" translate>Critical and above</option>
@@ -62,7 +62,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
             <div class="filter">
                 <label for="journal-service-menu" translate>Identifier</label>
-                <select id="journal-service-menu" class="ct-select">
+                <select id="journal-service-menu" class="pf-c-form-control">
                     <!-- This is filled by from logs.js !-->
                 </select>
             </div>

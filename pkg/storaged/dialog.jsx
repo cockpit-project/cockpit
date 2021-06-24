@@ -521,6 +521,7 @@ export const PassInput = (tag, title, options) => {
         render: (val, change, validated) =>
             <TextInputPF4 data-field={tag} data-field-type="text-input"
                    validated={validated}
+                   disabled={options.disabled}
                    aria-label={title}
                    type="password" value={val}
                    onChange={change} />
@@ -635,6 +636,10 @@ export const SelectRow = (tag, headers, options) => {
     };
 };
 
+function nice_block_name(block) {
+    return block_name(client.blocks[block.CryptoBackingDevice] || block);
+}
+
 export const SelectSpaces = (tag, title, options) => {
     return {
         tag: tag,
@@ -651,7 +656,7 @@ export const SelectSpaces = (tag, title, options) => {
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
                         const selected = (val.indexOf(spc) >= 0);
-                        const block = spc.block ? block_name(spc.block) : "";
+                        const block = spc.block ? nice_block_name(spc.block) : "";
                         const desc = block === spc.desc ? "" : spc.desc;
 
                         const on_change = (checked) => {
@@ -705,7 +710,7 @@ export const SelectSpace = (tag, title, options) => {
                 <DataList isCompact
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
-                        const block = spc.block ? block_name(spc.block) : "";
+                        const block = spc.block ? nice_block_name(spc.block) : "";
                         const desc = block === spc.desc ? "" : spc.desc;
                         const on_change = (event) => {
                             if (event.target.checked)

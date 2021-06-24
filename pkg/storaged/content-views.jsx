@@ -34,12 +34,12 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
-import { format_dialog } from "./format-dialog.jsx";
+import { format_dialog, parse_options, extract_option, unparse_options } from "./format-dialog.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
-import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
-import { CryptoTab } from "./crypto-tab.jsx";
-import { get_existing_passphrase } from "./crypto-keyslots.jsx";
+import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./fsys-tab.jsx";
+import { CryptoTab, edit_config } from "./crypto-tab.jsx";
+import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
 import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
@@ -70,30 +70,56 @@ function next_default_logical_volume_name(client, vgroup) {
     return name;
 }
 
+export function set_crypto_options(block, readonly, auto) {
+    return edit_config(block, (config, commit) => {
+        const opts = config.options ? parse_options(utils.decode_filename(config.options.v)) : [];
+        if (readonly !== null) {
+            extract_option(opts, "readonly");
+            if (readonly)
+                opts.push("readonly");
+        }
+        if (auto !== null) {
+            extract_option(opts, "noauto");
+            if (!auto)
+                opts.push("noauto");
+        }
+        config.options = { t: 'ay', v: utils.encode_filename(unparse_options(opts)) };
+        return commit();
+    });
+}
+
+export function set_crypto_auto_option(block, flag) {
+    return set_crypto_options(block, null, flag);
+}
+
 function create_tabs(client, target, is_partition) {
     function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
     var block = endsWith(target.iface, ".Block") ? target : null;
-    var block_fsys = block && client.blocks_fsys[block.path];
+    var is_crypto = (block && block.IdUsage == 'crypto');
+    var content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
+
+    var block_fsys = content_block && client.blocks_fsys[content_block.path];
     var block_lvm2 = block && client.blocks_lvm2[block.path];
-    var block_pvol = block && client.blocks_pvol[block.path];
-    var block_swap = block && client.blocks_swap[block.path];
+    var block_pvol = content_block && client.blocks_pvol[content_block.path];
+    var block_swap = content_block && client.blocks_swap[content_block.path];
 
     var lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
         : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
-    var is_filesystem = (block && block.IdUsage == 'filesystem');
-    var is_crypto = (block && block.IdUsage == 'crypto');
+    var is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
 
     var warnings = client.path_warnings[target.path] || [];
+    if (content_block)
+        warnings = warnings.concat(client.path_warnings[content_block.path] || []);
 
     var tabs = [];
     var row_action = null;
 
-    function add_tab(name, renderer, associated_warnings) {
+    function add_tab(name, renderer, for_content, associated_warnings) {
         let tab_warnings = [];
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
@@ -105,7 +131,7 @@ function create_tabs(client, target, is_partition) {
                 renderer: renderer,
                 data: {
                     client: client,
-                    block: block,
+                    block: for_content ? content_block : block,
                     lvol: lvol,
                     warnings: tab_warnings,
                 }
@@ -147,7 +173,7 @@ function create_tabs(client, target, is_partition) {
             add_tab(_("Pool"), PoolVolTab);
             row_action = <StorageButton onClick={create_thin}>{_("Create thin volume")}</StorageButton>;
         } else {
-            add_tab(_("Volume"), BlockVolTab, ["unused-space"]);
+            add_tab(_("Volume"), BlockVolTab, false, ["unused-space"]);
         }
     }
 
@@ -158,22 +184,27 @@ function create_tabs(client, target, is_partition) {
     let is_unrecognized = false;
 
     if (is_filesystem) {
-        add_tab(_("Filesystem"), FilesystemTab, ["mismounted-fsys"]);
-    } else if (is_crypto) {
-        add_tab(_("Encryption"), CryptoTab);
-    } else if ((block && block.IdUsage == "raid" && block.IdType == "LVM2_member") ||
+        add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
+    } else if ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
                (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
-        add_tab(_("Physical volume"), PVolTab);
-    } else if ((block && block.IdUsage == "raid") ||
-               (block && client.mdraids[block.MDRaidMember])) {
-        add_tab(_("RAID member"), MDRaidMemberTab);
-    } else if (block && client.vdo_overlay.find_by_backing_block(block)) {
-        add_tab(_("VDO backing"), VDOBackingTab);
-    } else if (block && block.IdUsage == "other" && block.IdType == "swap") {
-        add_tab(_("Swap"), SwapTab);
-    } else if (block) {
+        add_tab(_("Physical volume"), PVolTab, true);
+    } else if ((content_block && content_block.IdUsage == "raid") ||
+               (content_block && client.mdraids[content_block.MDRaidMember])) {
+        add_tab(_("RAID member"), MDRaidMemberTab, true);
+    } else if (content_block && client.vdo_overlay.find_by_backing_block(content_block)) {
+        add_tab(_("VDO backing"), VDOBackingTab, true);
+    } else if (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap") {
+        add_tab(_("Swap"), SwapTab, true);
+    } else if (content_block) {
         is_unrecognized = true;
-        add_tab(_("Unrecognized data"), UnrecognizedTab);
+        add_tab(_("Unrecognized data"), UnrecognizedTab, true);
+    }
+
+    if (is_crypto) {
+        const config = utils.array_find(client.blocks_crypto[block.path].ChildConfiguration, c => c[0] == "fstab");
+        if (config && !content_block)
+            add_tab(_("Filesystem"), FilesystemTab, false, ["mismounted-fsys"]);
+        add_tab(_("Encryption"), CryptoTab);
     }
 
     var tab_actions = [];
@@ -197,14 +228,7 @@ function create_tabs(client, target, is_partition) {
         if (!crypto)
             return;
 
-        return crypto.Lock({});
-    }
-
-    function clevis_unlock() {
-        var dev = utils.decode_filename(block.Device);
-        var clear_dev = "luks-" + block.IdUUID;
-        return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
-                             { superuser: true, err: "message" });
+        return crypto.Lock({}).then(() => set_crypto_auto_option(block, false));
     }
 
     function unlock() {
@@ -213,14 +237,9 @@ function create_tabs(client, target, is_partition) {
             return;
 
         return get_existing_passphrase(block, true).then(type => {
-            if (type == "stored") {
-                return (crypto.Unlock("", {})
-                        .catch(() => unlock_with_passphrase()));
-            } else if (type == "clevis") {
-                return (clevis_unlock()
-                        .catch(() => unlock_with_passphrase()));
-            } else
-                unlock_with_passphrase();
+            return (unlock_with_type(client, block, null, type)
+                    .then(() => set_crypto_auto_option(block, true))
+                    .catch(() => unlock_with_passphrase()));
         });
     }
 
@@ -237,7 +256,8 @@ function create_tabs(client, target, is_partition) {
             Action: {
                 Title: _("Unlock"),
                 action: function (vals) {
-                    return crypto.Unlock(vals.passphrase, {});
+                    return (crypto.Unlock(vals.passphrase, {})
+                            .then(() => set_crypto_auto_option(block, true)));
                 }
             }
         });
@@ -245,9 +265,15 @@ function create_tabs(client, target, is_partition) {
 
     if (is_crypto) {
         if (client.blocks_cleartext[block.path]) {
-            add_menu_action(_("Lock"), lock);
+            if (!block_fsys)
+                add_menu_action(_("Lock"), lock);
         } else {
-            add_action(_("Unlock"), unlock);
+            const config = utils.array_find(client.blocks_crypto[block.path].ChildConfiguration,
+                                            c => c[0] == "fstab");
+            if (config && !content_block)
+                add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
+            else
+                add_action(_("Unlock"), unlock);
         }
     }
 
@@ -363,10 +389,10 @@ function create_tabs(client, target, is_partition) {
     }
 
     if (block_fsys) {
-        if (is_mounted(client, block))
-            add_menu_action(_("Unmount"), () => mounting_dialog(client, block, "unmount"));
+        if (is_mounted(client, content_block))
+            add_menu_action(_("Unmount"), () => mounting_dialog(client, content_block, "unmount"));
         else
-            add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
+            add_action(_("Mount"), () => mounting_dialog(client, content_block, "mount"));
     }
 
     return {
@@ -381,9 +407,19 @@ function create_tabs(client, target, is_partition) {
 
 function block_description(client, block) {
     var usage;
+    var cleartext = client.blocks_cleartext[block.path];
+    if (cleartext)
+        block = cleartext;
+
     var block_pvol = client.blocks_pvol[block.path];
 
-    if (block.IdUsage == "filesystem") {
+    if (block.IdUsage == "crypto" && !cleartext) {
+        var [config] = get_fstab_config(block, true);
+        if (config)
+            usage = C_("storage-id-desc", "Filesystem (encrypted)");
+        else
+            usage = C_("storage-id-desc", "Locked encrypted data");
+    } else if (block.IdUsage == "filesystem") {
         usage = cockpit.format(C_("storage-id-desc", "$0 file system"), block.IdType);
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
@@ -397,8 +433,6 @@ function block_description(client, block) {
         } else {
             usage = _("Member of RAID device");
         }
-    } else if (block.IdUsage == "crypto") {
-        usage = C_("storage-id-desc", "Encrypted data");
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
             usage = C_("storage-id-desc", "Swap space");
@@ -410,6 +444,9 @@ function block_description(client, block) {
     } else {
         usage = C_("storage-id-desc", "Unrecognized data");
     }
+
+    if (cleartext)
+        usage = cockpit.format(_("$0 (encrypted)"), usage);
 
     return {
         size: block.Size,
@@ -468,18 +505,11 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
 
 function append_non_partitioned_block(client, rows, level, block, is_partition) {
     var desc, tabs;
-    var cleartext_block;
-
-    if (block.IdUsage == 'crypto')
-        cleartext_block = client.blocks_cleartext[block.path];
 
     tabs = create_tabs(client, block, is_partition);
     desc = block_description(client, block);
 
     append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
-
-    if (cleartext_block)
-        append_device(client, rows, level + 1, cleartext_block);
 }
 
 function append_partitions(client, rows, level, block) {

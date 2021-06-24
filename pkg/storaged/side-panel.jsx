@@ -138,10 +138,11 @@ export class SidePanelBlockRow extends React.Component {
 
         const parts = get_block_link_parts(client, block.path);
         const name = cockpit.format(parts.format, parts.link);
+        const backing = client.blocks[block.CryptoBackingDevice];
 
         return <SidePanelRow client={client}
                              name={name}
-                             devname={block_name(block)}
+                             devname={block_name(backing || block)}
                              detail={detail}
                              go={() => { cockpit.location.go(parts.location) }}
                              actions={actions} />;

@@ -39,6 +39,9 @@ class TestNetworkingVLAN(NetworkCase):
         # Make a VLAN interface
         b.click("button:contains('Add VLAN')")
         b.wait_popup("network-vlan-settings-dialog")
+
+        b.assert_pixels("#network-vlan-settings-dialog .pf-c-modal-box", "networking-vlan-settings-dialog")
+
         b.select_from_dropdown("#network-vlan-settings-body form select", iface)
         b.set_val("#network-vlan-settings-interface-name-input", "tvlan")
         b.set_val("#network-vlan-settings-vlan-id-input", "123")

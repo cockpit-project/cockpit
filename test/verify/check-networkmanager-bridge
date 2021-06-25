@@ -46,6 +46,9 @@ class TestBridge(NetworkCase):
         # Bridge them
         b.click("button:contains('Add bridge')")
         b.wait_popup("network-bridge-settings-dialog")
+
+        b.assert_pixels("#network-bridge-settings-dialog .pf-c-modal-box", "networking-bridge-settings-dialog")
+
         b.set_val("#network-bridge-settings-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)

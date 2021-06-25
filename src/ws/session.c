@@ -21,6 +21,7 @@
 
 #include "common/cockpitjsonprint.h"
 
+#include "cockpit-session-client-certificate.h"
 #include "session-utils.h"
 
 #include <gssapi/gssapi.h>
@@ -550,17 +551,19 @@ perform_tlscert (const char *rhost)
 
   debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
 
-  /* pam_cockpit_cert sets the user name from the certificate */
-  res = pam_start ("cockpit", NULL, &conv, &pamh);
+  char *username = cockpit_session_client_certificate_map_user ();
+  if (username == NULL)
+    exit_init_problem (PAM_AUTH_ERR);
+
+  res = pam_start ("cockpit", username, &conv, &pamh);
+  free (username);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
 
   if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
     errx (EX, "couldn't setup pam rhost");
 
-  res = pam_authenticate (pamh, 0);
-  if (res == PAM_SUCCESS)
-    res = open_session (pamh);
+  res = open_session (pamh);
 
   /* Our exit code is a PAM code */
   if (res != PAM_SUCCESS)

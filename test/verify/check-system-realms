@@ -382,6 +382,8 @@ class CommonTests:
         m.execute("test -f ~alice/.bashrc")
 
         # another certificate gets rejected
+        self.allow_journal_messages("cockpit-session: .*User not found")
+        self.allow_journal_messages("cockpit-session: No matching user for certificate")
         do_test(bob_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
 

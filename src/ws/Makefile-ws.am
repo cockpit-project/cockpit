@@ -59,6 +59,10 @@ sbin_PROGRAMS += remotectl
 libexec_PROGRAMS += cockpit-ws cockpit-session
 
 cockpit_session_SOURCES = \
+	src/ws/cockpit-session-client-certificate.h \
+	src/ws/cockpit-session-client-certificate.c \
+	src/ws/cockpitwsinstancecert.h \
+	src/ws/cockpitwsinstancecert.c \
 	src/ws/session-utils.c \
 	src/ws/session-utils.h \
 	src/ws/session.c \
@@ -144,7 +148,6 @@ install-exec-hook::
 
 noinst_PROGRAMS += pam_cockpit_cert.so
 pam_cockpit_cert_so_SOURCES = \
-	src/ws/cockpitwsinstancecert.c \
 	src/ws/pam_cockpit_cert.c
 pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
 	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)

@@ -17,32 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Define which PAM interfaces we provide */
-#define PAM_SM_AUTH
+#pragma once
 
-#include "config.h"
-
-#include <security/pam_modules.h>
-
-/* WARNING:
- * Stub for backwards compatibility with old configs.
- * Not in use and will be removed soon.
- */
-
-PAM_EXTERN int
-pam_sm_authenticate (pam_handle_t *pamh,
-                     int flags,
-                     int argc,
-                     const char **argv)
-{
-  return PAM_IGNORE;
-}
-
-PAM_EXTERN int
-pam_sm_setcred (pam_handle_t *pamh,
-                int flags,
-                int argc,
-                const char *argv[])
-{
-  return PAM_SUCCESS;
-}
+char *
+cockpit_session_client_certificate_map_user (void);

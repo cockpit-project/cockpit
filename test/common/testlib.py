@@ -662,6 +662,9 @@ class Browser:
         if not (Image and self.pixels_label and self.cdp and self.cdp.valid):
             return
 
+        # Make sure everything is up to date.  This is normally very fast.
+        subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
+
         self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
 
         rect = self.call_js_func('ph_element_clip', selector)
@@ -673,14 +676,10 @@ class Browser:
                     r['x'] - rect['x'] + r['width'],
                     r['y'] - rect['y'] + r['height'])
 
-        reference_dir = os.path.join(TEST_DIR, 'reference')
-        if not os.path.exists(os.path.join(reference_dir, '.git')):
-            subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
-
         ignore_rects = list(map(relative_clip, map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
         filename = base + "-pixels.png"
-        ref_filename = os.path.join(reference_dir, filename)
+        ref_filename = os.path.join(TEST_DIR, 'reference', filename)
         ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
         png_now = base64.standard_b64decode(ret["data"])
         png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()

@@ -10,6 +10,7 @@
 GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
 GITHUB_REPOSITORY="${GITHUB_BASE%/*}/${GITHUB_REPO}"
 HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
+SSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
 
 CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/cockpit-dev/${GITHUB_REPOSITORY}.git"
 

@@ -1132,7 +1132,8 @@ class MetricsHistory extends React.Component {
         install_dialog("cockpit-pcp")
                 .then(() => {
                     this.setState({ needsLogout: true });
-                });
+                })
+                .catch(() => null); // ignore cancel
     }
 
     load_data(load_timestamp, limit, show_spinner) {

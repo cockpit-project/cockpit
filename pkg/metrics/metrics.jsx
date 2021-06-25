@@ -1255,7 +1255,7 @@ class MetricsHistory extends React.Component {
         if (this.state.needsLogout)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
-                        title={_("You need to relogin to be able to see metrics")}
+                        title={_("You need to relogin to be able to see metrics history")}
                         action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>} />;
 
         if (cockpit.manifests && !cockpit.manifests.pcp)

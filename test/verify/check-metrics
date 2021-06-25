@@ -945,21 +945,26 @@ class TestCockpitPcp(packagelib.PackageCase):
             b.wait_not_present(".pf-c-empty-state button.pf-m-primary")
             return
 
-        m.execute("mount -t tmpfs tmpfs /usr/share/cockpit/pcp")
-        self.addCleanup(m.execute, "umount /usr/share/cockpit/pcp")
-
-        m.execute("pkcon remove -y pcp")
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            m.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp")
+        else:
+            m.execute("rpm --erase --verbose cockpit-pcp pcp")
 
         cpcp = {
             "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "134.x"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
             "/usr/libexec/cockpit-pcp": "true",
         }
+        pcp = {
+            "/lib/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
+        }
 
-        self.createPackage("cockpit-pcp", "999", "1", content=cpcp,
+        self.createPackage("cockpit-pcp", "999", "1", content=cpcp, depends="pcp",
                            postinst="chmod +x /usr/libexec/cockpit-pcp")
+        self.createPackage("pcp", "999", "1", content=pcp, postinst="systemctl daemon-reload")
         self.enableRepo()
         m.execute("pkcon refresh")
 
+        # install it from the empty state
         self.login_and_go("/metrics")
         b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
         b.click(".pf-c-empty-state button.pf-m-primary")
@@ -975,6 +980,38 @@ class TestCockpitPcp(packagelib.PackageCase):
         b.expect_load()
         b.enter_page("/metrics")
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.logout()
+
+        # install it from the Metrics Settings dialog
+        m.execute("pkcon remove -y cockpit-pcp pcp")
+        self.login_and_go("/metrics")
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.click("#switch-pmlogger")
+        b.wait_visible("#switch-pmlogger:checked")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+        # install dialog
+        b.click("#dialog button:contains('Install')")
+        b.wait_not_present("#dialog")
+        # sets up pmlogger correctly; this is asynchronous, as it happens in the background after closing install dialog
+        m.execute('until [ $(systemctl is-enabled pmlogger) = enabled ]; do sleep 1; done')
+        # also needs to wait for activating → active
+        m.execute('until [ $(systemctl is-active pmlogger) = active ]; do sleep 1; done')
+        # triggers "needs logout"
+        b.click("button:contains('Log out')")
+        b.leave_page()
+        b.click("button:contains('Reconnect')")
+        b.expect_load()
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/metrics")
+        # this is just a fake cockpit-pcp package
+        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is failing to collect data")
 
 
 @skipDistroPackage()

@@ -876,13 +876,14 @@ class MetricsHour extends React.Component {
 const persistentServiceState = proxy => ['running', 'stopped', 'failed', undefined].indexOf(proxy.state) >= 0;
 const validServiceState = proxy => ['running', 'stopped'].indexOf(proxy.state) >= 0;
 
-const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
+const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogout }) => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogError, setDialogError] = useState(null);
     const [dialogLoggerValue, setDialogLoggerValue] = useState(false);
     const [dialogProxyValue, setDialogProxyValue] = useState(null);
     const [dialogInitialProxyValue, setDialogInitialProxyValue] = useState(null);
     const [pending, setPending] = useState(false);
+    const [deferSaveOnInstall, setDeferSaveOnInstall] = useState(false);
 
     const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
     const s_pmproxy = useObject(() => service.proxy("pmproxy.service"), null, []);
@@ -905,13 +906,27 @@ const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
         redis_name = "redis.service";
     }
 
-    debug("PCPConfig s_pmlogger.state", s_pmlogger.state);
+    debug("PCPConfig s_pmlogger.state", s_pmlogger.state, "needs logout", needsLogout, "deferSaveOnInstall", deferSaveOnInstall);
     debug("PCPConfig s_pmproxy state", s_pmproxy.state, "redis exists", s_redis.exists, "state", s_redis.state, "redis-server exists", s_redis_server.exists, "state", s_redis_server.state);
 
     if (!superuser.allowed)
         return null;
 
     const handleSave = () => {
+        // when enabling pmlogger, install cockpit-pcp/pcp on demand
+        if (!deferSaveOnInstall && dialogLoggerValue && s_pmlogger.state === undefined) {
+            debug("PCPConfig: request to enable pmlogger, but missing pmlogger.service, offering install");
+            setDialogVisible(false);
+            install_dialog("cockpit-pcp")
+                    .then(() => {
+                        debug("PCPConfig: cockpit-pcp installation successful");
+                        setNeedsLogout(true);
+                        setDeferSaveOnInstall(true); // avoid recursive install_dialog
+                    })
+                    .catch(() => null); // ignore cancel
+            return;
+        }
+
         setPending(true);
         const redis_enable_cmd = `mkdir -p /etc/systemd/system/pmproxy.service.wants; ln -sf ../${redis_name} /etc/systemd/system/pmproxy.service.wants/${redis_name}`;
         const redis_disable_cmd = `rm -f /etc/systemd/system/pmproxy.service.wants/${redis_name}; rmdir -p /etc/systemd/system/pmproxy.service.wants 2>/dev/null || true`;
@@ -952,6 +967,14 @@ const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
                 .catch(err => setDialogError(err.toString()))
                 .finally(() => setPending(false));
     };
+
+    // handle deferred Save after package installation finished and pmlogger starts to exist
+    if (deferSaveOnInstall && dialogLoggerValue && s_pmlogger.exists) {
+        debug("PCPConfig: handling deferred Save after package installation");
+        setDeferSaveOnInstall(false);
+        handleSave();
+        return;
+    }
 
     // the package is likely not installed; TODO: install it on demand
     let pmproxy_option = null;
@@ -1268,7 +1291,10 @@ class MetricsHistory extends React.Component {
 
             if (this.pmlogger_service.state === 'stopped') {
                 paragraph = _("pmlogger.service is not running");
-                action = <PCPConfig buttonVariant="primary" firewalldRequest={this.props.firewalldRequest} />;
+                action = <PCPConfig buttonVariant="primary"
+                                    firewalldRequest={this.props.firewalldRequest}
+                                    needsLogout={this.props.needsLogout}
+                                    setNeedsLogout={this.props.setNeedsLogout} />;
             } else {
                 if (this.pmlogger_service.state === 'failed')
                     paragraph = _("pmlogger.service has failed");
@@ -1387,7 +1413,10 @@ export const Application = () => {
                           </Breadcrumb>
                       </FlexItem>
                       <FlexItem align={{ default: 'alignRight' }}>
-                          <PCPConfig buttonVariant="secondary" firewalldRequest={setFirewalldRequest} />
+                          <PCPConfig buttonVariant="secondary"
+                                     firewalldRequest={setFirewalldRequest}
+                                     needsLogout={needsLogout}
+                                     setNeedsLogout={setNeedsLogout} />
                       </FlexItem>
                   </Flex>
               </PageSection>

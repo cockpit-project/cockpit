@@ -1059,7 +1059,6 @@ class MetricsHistory extends React.Component {
             isDatepickerOpened: false,
             selectedDate: null,
             packagekitExists: false,
-            needsLogout: false,
         };
 
         this.handleMoreData = this.handleMoreData.bind(this);
@@ -1130,9 +1129,7 @@ class MetricsHistory extends React.Component {
 
     handleInstall() {
         install_dialog("cockpit-pcp")
-                .then(() => {
-                    this.setState({ needsLogout: true });
-                })
+                .then(() => this.props.setNeedsLogout(true))
                 .catch(() => null); // ignore cancel
     }
 
@@ -1253,7 +1250,7 @@ class MetricsHistory extends React.Component {
     }
 
     render() {
-        if (this.state.needsLogout)
+        if (this.props.needsLogout)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("You need to relogin to be able to see metrics history")}
@@ -1377,6 +1374,7 @@ class MetricsHistory extends React.Component {
 
 export const Application = () => {
     const [firewalldRequest, setFirewalldRequest] = useState(null);
+    const [needsLogout, setNeedsLogout] = useState(false);
 
     return <Page groupProps={{ sticky: 'top' }}
           additionalGroupedContent={
@@ -1400,7 +1398,9 @@ export const Application = () => {
             <CurrentMetrics />
         </PageSection>
         <PageSection>
-            <MetricsHistory firewalldRequest={setFirewalldRequest} />
+            <MetricsHistory firewalldRequest={setFirewalldRequest}
+                            needsLogout={needsLogout}
+                            setNeedsLogout={setNeedsLogout} />
         </PageSection>
     </Page>;
 };

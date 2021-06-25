@@ -1,7 +1,4 @@
 #%PAM-1.0
-# this MUST be first in the "auth" stack as it sets PAM_USER
-# user_unknown is definitive, so die instead of ignore to avoid subsequent modules mess up the error code
--auth      [success=done new_authtok_reqd=done user_unknown=die default=ignore]   pam_cockpit_cert.so
 auth       required     pam_sepermit.so
 auth       substack     common-auth
 auth       optional     pam_ssh_add.so

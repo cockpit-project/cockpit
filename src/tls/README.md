@@ -87,14 +87,27 @@ see the [guide](../../doc/guide/cert-authentication.xml) and
 [manpage](../../doc/man/cockpit.conf.xml). Then cockpit-tls will ask the
 browser for a client certificate.
 
-If cockpit-ws sees that cockpit-tls exports a certificate for its connection
-(by checking its cgroup instance name, which is the certificate fingerprint,
-and checking /run/cockpit/tls for it), then it will request the `tls-cert`
-authentication schema from cockpit-session, instead of the usual `basic` or
-`gssapi`. cockpit-session then does *not* set a PAM user name, and
-[pam_cockpit_cert](../ws/pam_cockpit_cert.c) will check for an exported
-certificate and ask sssd to map it to a user. See the [manpage](../../doc/man/pam_cockpit_cert.xml)
-for details.
+Commonly this is provided by a smart card, but it's equally possible to import
+certificates directly into the web browser.
+
+This requires the host to be in an Identity Management domain like
+[FreeIPA](https://www.freeipa.org/) or [Active
+Directory](https://en.wikipedia.org/wiki/Active_Directory), which can associate
+certificates to users. See the [FreeIPA User Certificates
+documentation](https://www.freeipa.org/page/V4/User_Certificates) for details.
+
+The `sssd-dbus` package must be installed for this to work.
+
+If the web browser presents a client certificate, cockpit-tls will write this
+certificate to `/run/cockpit/tls`.   If cockpit-ws sees that cockpit-tls
+exports a certificate for its connection (by checking its cgroup instance name,
+which is the certificate fingerprint, and checking /run/cockpit/tls for it),
+then it will request the `tls-cert` authentication schema from cockpit-session,
+instead of the usual `basic` or `gssapi`. cockpit-session then uses the content
+of this file to ask sssd to map the certificate to a username.  If the mapping
+is successful, cockpit-session sets the user name and opens the PAM session
+without further authentication.
+
 
 Code layout
 -----------

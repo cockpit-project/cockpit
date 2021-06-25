@@ -471,7 +471,6 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/cockpit-tls.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz
-%doc %{_mandir}/man8/pam_cockpit_cert.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
@@ -545,6 +544,14 @@ fi
 %systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
+
+# check for deprecated PAM config
+if grep --color=auto pam_cockpit_cert {_sysconfdir}/pam.d/cockpit; then
+    echo '**** WARNING:'
+    echo '**** WARNING: pam_cockpit_cert is a no-op and will be removed in a'
+    echo '**** WARNING: future release; remove it from your /etc/pam.d/cockpit.'
+    echo '**** WARNING:'
+fi
 
 %preun ws
 %systemd_preun cockpit.socket cockpit.service

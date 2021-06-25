@@ -687,7 +687,7 @@ These files are not required for running Cockpit.
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
 Requires: cockpit-bridge >= %{required_base}
-Requires(post): pcp
+Requires: pcp
 
 %description -n cockpit-pcp
 Cockpit support for reading PCP metrics and loading PCP archives.

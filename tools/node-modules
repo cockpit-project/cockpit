@@ -5,7 +5,7 @@ SUBDIR='node_modules'
 
 set -eu
 cd "$(realpath -m "$0"/../..)"
-. tools/git-utils.sh
+. pkg/lib/git-utils.sh
 
 cmd_remove() {
     # if we did this for ourselves the rm is enough, but it might be the case

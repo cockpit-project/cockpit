@@ -28,6 +28,7 @@ EXTRA_DIST = \
 	package.json \
 	package-lock.json \
 	README.md \
+	pkg/lib/git-utils.sh \
 	tools/debian/copyright \
 	$(NULL)
 

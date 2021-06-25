@@ -10,7 +10,7 @@ V="${V-0}" # default to friendly messages
 
 set -eu
 cd "$(realpath -m "$0"/../..)"
-. tools/git-utils.sh
+. pkg/lib/git-utils.sh
 
 if [ ! -d bots ]; then
     [ -n "${quiet}" ] || set -x

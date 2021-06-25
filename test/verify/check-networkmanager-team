@@ -46,6 +46,9 @@ class TestTeam(NetworkCase):
         # team them
         b.click("button:contains('Add team')")
         b.wait_popup("network-team-settings-dialog")
+
+        b.assert_pixels("#network-team-settings-dialog .pf-c-modal-box", "networking-team-settings-dialog")
+
         b.set_val("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)

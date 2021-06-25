@@ -108,3 +108,13 @@ unpack_from_cache() {
     message "UNPACK" "${SUBDIR}  [ref: $1]"
     git_cache archive "$1" "${SUBDIR}" | tar -x --touch "${SUBDIR}"
 }
+
+cmd_remove() {
+    # if we did this for ourselves the rm is enough, but it might be the case
+    # that someone actually used git-submodule to fetch this, so clean up after
+    # that as well.  NB: deinit nicely recreates the empty directory for us.
+    message REMOVE "${SUBDIR}"
+    rm -rf "${SUBDIR}"
+    git submodule deinit "${SUBDIR}"
+    rm -rf "$(git rev-parse --absolute-git-dir)/modules/${SUBDIR}"
+}

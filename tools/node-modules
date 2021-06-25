@@ -7,16 +7,6 @@ set -eu
 cd "$(realpath -m "$0"/../..)"
 . pkg/lib/git-utils.sh
 
-cmd_remove() {
-    # if we did this for ourselves the rm is enough, but it might be the case
-    # that someone actually used git-submodule to fetch this, so clean up after
-    # that as well.  NB: deinit nicely recreates the empty directory for us.
-    message REMOVE node_modules
-    rm -rf node_modules
-    git submodule deinit node_modules
-    rm -rf "$(git rev-parse --absolute-git-dir)/modules/node_modules"
-}
-
 cmd_checkout() {
     # we default to check out the node_modules corresponding to the gitlink in the index
     local sha="${1-$(get_index_gitlink node_modules)}"

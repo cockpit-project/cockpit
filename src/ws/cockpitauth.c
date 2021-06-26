@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "cockpitauth.h"
-#include "cockpitwsinstancecert.h"
 
 #include "cockpitws.h"
 
@@ -1481,12 +1480,17 @@ cockpit_auth_login_async (CockpitAuth *self,
 
   /* If the client sends a TLS certificate to cockpit-tls, treat this as a
    * definitive login type, and don't just silently fall back to other types */
-  if (https_instance_has_certificate_file (NULL, 0) != -1)
+  const gchar *client_certificate;
+  JsonObject *metadata = get_connection_metadata (connection);
+  if (metadata && (client_certificate = json_object_get_string_member (metadata, "client-certificate")))
     {
       g_debug ("TLS connection has peer certificate, using tls-cert auth type");
       type = g_strdup ("tls-cert");
-      /* don't send any actual authorization here; we don't want to put any trust in data sent from cockpit-ws */
-      authorization = g_strdup ("tls-cert");
+      /* This is a client certificate *filename*.  On its own, it's
+       * insufficient for logging in: cockpit-session will check that
+       * the file exists on disk and is valid.
+       */
+      authorization = g_strdup_printf ("tls-cert %s", client_certificate);
     }
   else
     {

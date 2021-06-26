@@ -805,6 +805,9 @@ connection_create_metadata (Connection *self)
   cockpit_json_print_string_property (stream, "origin-ip", ip, -1);
   cockpit_json_print_integer_property (stream, "origin-port", port);
 
+  if (self->certfile_fd != -1)
+    cockpit_json_print_string_property (stream, "client-certificate", self->fingerprint.str, -1);
+
   self->metadata_fd = cockpit_json_print_finish_memfd (&stream);
 
   return true;

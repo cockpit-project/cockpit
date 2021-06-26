@@ -121,7 +121,7 @@ out:
 }
 
 char *
-cockpit_session_client_certificate_map_user (void)
+cockpit_session_client_certificate_map_user (const char *client_certificate_filename)
 {
   char cert_pem[MAX_PEER_CERT_SIZE];
   char *sssd_user = NULL;

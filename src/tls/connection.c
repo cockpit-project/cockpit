@@ -733,15 +733,15 @@ connection_thread_loop (Connection *self)
     }
 }
 
-static int
-create_metadata (int sockfd)
+static bool
+connection_create_metadata (Connection *self)
 {
   struct sockaddr_storage addr;
   socklen_t addrsize = sizeof addr;
-  if (getpeername (sockfd, (struct sockaddr *) &addr, &addrsize))
+  if (getpeername (self->client_fd, (struct sockaddr *) &addr, &addrsize))
     {
-      debug (CONNECTION, "getpeername(%i) failed: %m.  Disconnecting.", sockfd);
-      return -1;
+      debug (CONNECTION, "getpeername(%i) failed: %m.  Disconnecting.", self->client_fd);
+      return false;
     }
 
   /* maximum we're going to see */
@@ -795,16 +795,20 @@ create_metadata (int sockfd)
 
     default:
       debug (CONNECTION, "Connection fd %i had unknown peer address family %d.  Disconnecting.",
-             sockfd, (int) addr.ss_family);
-      return -1;
+             self->client_fd, (int) addr.ss_family);
+      return false;
     }
 
-  debug (CONNECTION, "Connection fd %i is from %s:%d", sockfd, ip, port);
+  debug (CONNECTION, "Connection fd %i is from %s:%d", self->client_fd, ip, port);
 
   FILE *stream = cockpit_json_print_open_memfd ("cockpit-tls metadata", 1);
+
   cockpit_json_print_string_property (stream, "origin-ip", ip, -1);
   cockpit_json_print_integer_property (stream, "origin-port", port);
-  return cockpit_json_print_finish_memfd (&stream);
+
+  self->metadata_fd = cockpit_json_print_finish_memfd (&stream);
+
+  return true;
 }
 
 void
@@ -823,9 +827,9 @@ connection_thread_main (int fd)
 
   debug (CONNECTION, "New thread for fd %i", fd);
 
-  self.metadata_fd = create_metadata (fd);
-
-  if (connection_handshake (&self) && connection_connect_to_wsinstance (&self))
+  if (connection_handshake (&self) &&
+      connection_create_metadata (&self) &&
+      connection_connect_to_wsinstance (&self))
     connection_thread_loop (&self);
 
   debug (CONNECTION, "Thread for fd %i is going to exit now", fd);

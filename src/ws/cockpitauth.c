@@ -318,43 +318,46 @@ cockpit_auth_nonce (CockpitAuth *self)
                                   (guchar *)&seed, sizeof (seed));
 }
 
+static JsonObject *
+get_connection_metadata (GIOStream *io)
+{
+  if (io == NULL)
+    return NULL;
+
+  return g_object_get_qdata (G_OBJECT (io), g_quark_from_static_string ("metadata"));
+}
+
 static gchar *
 get_remote_address (GIOStream *io)
 {
-  g_autoptr(GSocketConnection) connection = NULL;
   gchar *result = NULL;
 
-  if (G_IS_TLS_CONNECTION (io))
+  if (io)
     {
-      g_autoptr(GIOStream) base = NULL;
-      g_object_get (io, "base-io-stream", &base, NULL);
-      if (G_IS_SOCKET_CONNECTION (base))
-        connection = g_object_ref (base);
-    }
-  else if (G_IS_SOCKET_CONNECTION (io))
-    {
-      connection = g_object_ref (io);
-    }
-
-  if (connection)
-    {
-      JsonObject *metadata = g_object_get_qdata (G_OBJECT (connection),
-                                                 g_quark_from_static_string ("metadata"));
-
+      JsonObject *metadata = get_connection_metadata (io);
       if (metadata)
-          {
-            const gchar *tmp;
+        {
+          const gchar *tmp;
 
-            if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
-              result = g_strdup (tmp);
-          }
+          if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
+            result = g_strdup (tmp);
+        }
 
       if (result == NULL)
         {
-          g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (connection, NULL);
+          g_autoptr(GIOStream) base = NULL;
 
-          if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-            result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+          if (G_IS_TLS_CONNECTION (io))
+            g_object_get (io, "base-io-stream", &base, NULL);
+          else
+            base = g_object_ref (io);
+
+          if (G_IS_SOCKET_CONNECTION (base))
+            {
+              g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
+              if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+                result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+            }
         }
     }
 

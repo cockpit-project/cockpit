@@ -426,27 +426,10 @@ out:
 static bool
 connection_connect_to_dynamic_wsinstance (Connection *self)
 {
-  const gnutls_datum_t *peer_certificate;
   char sockname[80];
   int r;
 
   assert (self->tls != NULL);
-
-  peer_certificate = gnutls_certificate_get_peers (self->tls, NULL);
-
-  if (peer_certificate != NULL)
-    {
-      self->certfile_fd = certfile_open (parameters.cert_session_dir,
-                                         &self->fingerprint,
-                                         peer_certificate);
-      if (self->certfile_fd == -1)
-        return false;
-    }
-  else
-    {
-      self->fingerprint = (Fingerprint) { .str = SHA256_NIL };
-      self->certfile_fd = -1;
-    }
 
   r = snprintf (sockname, sizeof sockname, "https@%s.sock", self->fingerprint.str);
   assert (0 < r && r < sizeof sockname);
@@ -659,6 +642,22 @@ connection_handshake (Connection *self)
         }
 
       debug (CONNECTION, "TLS handshake completed");
+
+      const gnutls_datum_t *peer_certificate = gnutls_certificate_get_peers (self->tls, NULL);
+
+      if (peer_certificate != NULL)
+        {
+          self->certfile_fd = certfile_open (parameters.cert_session_dir,
+                                             &self->fingerprint,
+                                             peer_certificate);
+          if (self->certfile_fd == -1)
+            return false;
+        }
+      else
+        {
+          self->fingerprint = (Fingerprint) { .str = SHA256_NIL };
+          self->certfile_fd = -1;
+        }
     }
 
   return true;

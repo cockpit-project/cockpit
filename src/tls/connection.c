@@ -787,6 +787,12 @@ create_metadata (int sockfd)
       }
       break;
 
+    case AF_UNIX:
+      /* only used in testing */
+      ip[0] = '\0';
+      port = 0;
+      break;
+
     default:
       debug (CONNECTION, "Connection fd %i had unknown peer address family %d.  Disconnecting.",
              sockfd, (int) addr.ss_family);

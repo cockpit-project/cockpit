@@ -49,8 +49,8 @@ for try in $(seq 50 -1 0); do
     sleep 30s
 done
 
-if ! cmp_from_cache "${tag}" "package-lock.json" "package-lock.json"; then
-    echo "The cached package-lock.json doesn't match our own" >&2
+if ! sha256sum_from_cache "${tag}"; then
+    echo "The cache doesn't match our working tree" >&2
     exit 1
 fi
 

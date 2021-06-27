@@ -19,7 +19,6 @@
 
 import cockpit from 'cockpit';
 import React, { useState, useEffect } from 'react';
-import moment from "moment";
 import { superuser } from "superuser";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -93,6 +92,8 @@ function get_expire(name) {
         let password_expiration = '';
         let password_days = null;
 
+        const date_fmt = new Intl.DateTimeFormat(cockpit.language, { dateStyle: "long" });
+
         data.split('\n').forEach(line => {
             const fields = line.split(': ');
             if (fields[0] && fields[0].indexOf("Password expires") === 0) {
@@ -101,14 +102,14 @@ function get_expire(name) {
                 } else if (fields[1].indexOf("password must be changed") === 0) {
                     password_expiration = _("Password must be changed");
                 } else {
-                    password_expiration = cockpit.format(_("Require password change on $0"), moment(fields[1]).format('LL'));
+                    password_expiration = cockpit.format(_("Require password change on $0"), date_fmt.format(new Date(fields[1])));
                 }
             } else if (fields[0] && fields[0].indexOf("Account expires") === 0) {
                 if (fields[1].indexOf("never") === 0) {
                     account_expiration = _("Never expire account");
                 } else {
                     account_date = new Date(fields[1] + " 12:00:00 UTC");
-                    account_expiration = cockpit.format(_("Expire account on $0"), moment(fields[1]).format('LL'));
+                    account_expiration = cockpit.format(_("Expire account on $0"), date_fmt.format(new Date(fields[1])));
                 }
             } else if (fields[0] && fields[0].indexOf("Maximum number of days between password change") === 0) {
                 password_days = fields[1];
@@ -249,7 +250,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     else if (!details.logged.last)
         last_login = _("Never");
     else
-        last_login = moment(details.logged.last).format('LLL');
+        last_login = new Intl.DateTimeFormat(cockpit.language, { dateStyle: "long", timeStyle: "short" }).format(new Date(details.logged.last));
 
     return (
         <Page groupProps={{ sticky: 'top' }}

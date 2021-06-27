@@ -19,8 +19,6 @@
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
-import cockpit from 'cockpit';
-import moment from "moment";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { superuser } from "superuser";
@@ -30,7 +28,6 @@ import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";
 import { AccountsList } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
-moment.locale(cockpit.language);
 superuser.reload_page_on_change();
 
 function AccountsPage() {

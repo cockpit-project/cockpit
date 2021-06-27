@@ -16,7 +16,7 @@
 #
 
 # This file is maintained at the following location:
-# https://github.com/cockpit-project/cockpit/blob/master/tools/cockpit.spec
+# https://github.com/cockpit-project/cockpit/blob/main/tools/cockpit.spec
 #
 # If you are editing this file in another location, changes will likely
 # be clobbered the next time an automated release is done.

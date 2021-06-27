@@ -88,7 +88,7 @@ it can do so by sending a `x-login-data` challenge. The command should have an a
 
 For a simple python example see:
 
-[https://github.com/cockpit-project/cockpit/blob/master/containers/bastion/cockpit-auth-ssh-key]
+[https://github.com/cockpit-project/cockpit/blob/main/containers/bastion/cockpit-auth-ssh-key]
 
 Remote machines
 ---------------
@@ -106,7 +106,7 @@ has the same options as the other authentication sections with the following add
  `/etc/ssh/ssh_known_hosts`). Set this to `true` is to allow those connections
  to proceed.
 
-This uses the [cockpit-ssh](https://github.com/cockpit-project/cockpit/tree/master/src/ssh)
+This uses the [cockpit-ssh](https://github.com/cockpit-project/cockpit/tree/main/src/ssh)
 bridge. After the user authentication with the `"*"` challenge, if the remote
 host is not already present in any local `known_hosts` file, this will send an
 `"x-host-key"` challenge:

@@ -182,7 +182,7 @@ function debug() {
 }
 
 // metrics channel samples are compressed, see
-// https://github.com/cockpit-project/cockpit/blob/master/doc/protocol.md#payload-metrics1
+// https://github.com/cockpit-project/cockpit/blob/main/doc/protocol.md#payload-metrics1
 // samples is the compressed metrics channel value, state the last valid values (initialize once to empty array)
 function decompress_samples(samples, state) {
     samples.forEach((sample, i) => {

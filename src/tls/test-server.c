@@ -283,7 +283,7 @@ assert_https_outcome (TestCase *tc,
 
               g_assert (g_file_get_contents (tc->cert_file_path, &cert_file, NULL, NULL));
               g_assert (g_file_get_contents (fixture->client_crt, &expected_pem, NULL, NULL));
-              g_assert_cmpstr (g_strchomp (cert_file), ==, g_strchomp (expected_pem));
+              g_assert (g_str_has_suffix (cert_file, expected_pem));
             }
           else
             {

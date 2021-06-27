@@ -43,65 +43,61 @@
  * desirable: Let's not get DoSed by huge certs */
 #define MAX_PEER_CERT_SIZE 100000
 
-#define CGROUP_REGEX         "^(0:|1:name=systemd):/system.slice/system-cockpithttps.slice/" \
-                             "cockpit-wsinstance-https@([0-9a-f]{64}).service$"
-#define CGROUP_REGEX_FLAGS   (REG_EXTENDED | REG_NEWLINE)
-#define CGROUP_REGEX_GROUPS  3   /* number of groups, including the complete match */
-#define CGROUP_REGEX_MATCH   2   /* the group which contains the instance */
-
-/* get our cgroup, map it to a systemd unit instance name
- * looks like 0::/system.slice/system-cockpit\x2dwsinstance\x2dhttps.slice/cockpit-wsinstance-https@123abc.service
- * returns "123abc" instance name (static string)
+/* Reads the cgroupsv2-style /proc/[pid]/cgroup file of the process,
+ * including "0::" prefix and newline.
+ *
+ * In case of cgroupsv1, look for the name=systemd controller, and fake
+ * it.
  */
-static const char *
-get_ws_https_instance (void)
+static char *
+read_proc_self_cgroup (size_t *out_length)
 {
-  int r;
-  static char buf[1024];
-  regmatch_t pmatch[CGROUP_REGEX_GROUPS];
-  regex_t preg;
-  int fd;
+  FILE *fp = fopen ("/proc/self/cgroup", "r");
 
-  /* read /proc/self/cgroup */
-  fd = open ("/proc/self/cgroup", O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
-  if (fd < 0)
+  if (fp == NULL)
     {
       warn ("Failed to open /proc/self/cgroup");
       return NULL;
     }
 
-  do
-    r = read (fd, buf, sizeof buf);
-  while (r < 0 && errno == EINTR);
-  if (r < 0)
+  /* Support cgroups v1 by looping.
+   * Once we no longer need this support, we can drop the loop, switch
+   * to fread(), and just return the entire content of the file.
+   *
+   * NB: the kernel doesn't allow newlines in cgroup names.
+   */
+  char buffer[1024];
+  char *result = NULL;
+  while (fgets (buffer, sizeof buffer, fp))
     {
-      warn ("Failed to read /proc/self/cgroup");
-      close (fd);
-      return NULL;
-    }
-  close (fd);
-  if (r == 0 || r >= sizeof buf)
-    {
-      warnx ("Read invalid size %i from /proc/self/cgroup", r);
-      return NULL;
-    }
-  buf[r] = '\0';
-
-  /* extract the instance name */
-  r = regcomp (&preg, CGROUP_REGEX, CGROUP_REGEX_FLAGS);
-  assert (r == 0);
-
-  r = regexec (&preg, buf, CGROUP_REGEX_GROUPS, pmatch, 0);
-  regfree (&preg);
-  if (r != 0)
-    {
-      warnx ("Not running in a template cgroup, unable to parse systemd unit instance.\n\n/proc/self/cgroups content follows:\n%s\n", buf);
-      return NULL;
+      if (strncmp (buffer, "0::", 3) == 0)
+        {
+          /* cgroupsv2 (or hybrid) case.  Return the entire line. */
+          result = strdupx (buffer);
+          break;
+        }
+      else if (strncmp (buffer, "1:name=systemd:", 15) == 0)
+        {
+          /* cgroupsv1.  Rewrite to what we'd expect from cgroupsv2. */
+          asprintfx (&result, "0::%s", buffer + 15);
+          break;
+        }
     }
 
-  buf[pmatch[CGROUP_REGEX_MATCH].rm_eo] = '\0';
+  fclose (fp);
 
-  return buf + pmatch[CGROUP_REGEX_MATCH].rm_so;
+
+  *out_length = strlen (result);
+
+  /* Make sure we have a non-empty result, and that it ends with a
+   * newline: this could only fail if the kernel retuned something
+   * unexpected.
+   */
+  assert (result != NULL);
+  assert (*out_length >= 5); /* "0::/\n" */
+  assert (result[*out_length - 1] == '\n');
+
+  return result;
 }
 
 /* valid_256_bit_hex_string:
@@ -144,25 +140,15 @@ cockpit_session_client_certificate_read_file (const char *filename,
                                               char       *contents,
                                               size_t      contents_size)
 {
-  const char *https_instance = get_ws_https_instance ();
   int dirfd = -1, filefd = -1;
   ssize_t result = -1;
   struct stat buf;
   ssize_t r;
 
-  if (https_instance == NULL) /* already warned */
-    goto out;
-
   /* No tricky stuff, please */
   if (!valid_256_bit_hex_string (filename))
     {
       warnx ("tls-cert authentication token is invalid");
-      goto out;
-    }
-
-  if (strcmp (filename, https_instance) != 0)
-    {
-      warnx ("tls-cert authentication token doesn't match wsinstance cgroup");
       goto out;
     }
 
@@ -333,8 +319,23 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
       return NULL;
     }
 
+  size_t my_cgroup_length;
+  char *my_cgroup = read_proc_self_cgroup (&my_cgroup_length);
+  if (my_cgroup == NULL)
+    {
+      warnx ("Could not determine cgroup of this process");
+      return NULL;
+    }
+  if (strncmp (cert_pem, my_cgroup, my_cgroup_length) != 0)
+    {
+      warnx ("This client certificate is only meant to be used from another cgroup");
+      free (my_cgroup);
+      return NULL;
+    }
+  free (my_cgroup);
+
   /* ask sssd to map cert to a user */
-  if (!sssd_map_certificate (cert_pem, &sssd_user))
+  if (!sssd_map_certificate (cert_pem + my_cgroup_length, &sssd_user))
     return NULL;
 
   return sssd_user;

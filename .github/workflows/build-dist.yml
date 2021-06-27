@@ -15,7 +15,7 @@ jobs:
       - name: Build jumpstart tarball
         run: pkg/build -j$(nproc) webpack-jumpstart.tar
 
-      - name: Create dist artifact
+      - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
           name: webpack-jumpstart

@@ -29,15 +29,20 @@ MANIFESTS = \
 	pkg/ssh/manifest.json \
 	$(NULL)
 
-.PHONY: all-webpack
+.PHONY: all-webpack ls-webpack-inputs
 all-webpack: $(MANIFESTS)
 
 V_TAR = $(V_TAR_$(V))
 V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
 V_TAR_0 = @echo "  TAR     " $@;
 
+ls-webpack-inputs:
+	ls -1 package-lock.json $(WEBPACK_INPUTS) | uniq
+
 webpack-jumpstart.tar: $(MANIFESTS) package-lock.json pkg/build
-	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json
+	@pkg/build -s ls-webpack-inputs | xargs sha256sum > .sha256sums
+	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json .sha256sums
+	@rm -f .sha256sums
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))

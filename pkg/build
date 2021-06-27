@@ -36,7 +36,7 @@ V_TAR = $(V_TAR_$(V))
 V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
 V_TAR_0 = @echo "  TAR     " $@;
 
-webpack-jumpstart.tar: $(MANIFESTS) package-lock.json
+webpack-jumpstart.tar: $(MANIFESTS) package-lock.json pkg/build
 	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json
 
 V_WEBPACK = $(V_WEBPACK_$(V))

@@ -155,7 +155,21 @@ certfile_open (int                   dirfd,
           goto out_lock_held;
         }
 
-      if (pwrite (fd, pem.data, pem.size, 0) != pem.size)
+      /* First write the expected cgroup of the wsinstance */
+      char cgroup[200];
+      int s = snprintf (cgroup, sizeof cgroup,
+                        "0::/system.slice/system-cockpithttps.slice/cockpit-wsinstance-https@%s.service\n",
+                        fingerprint.str);
+      assert (s < sizeof cgroup);
+
+      if (write (fd, cgroup, s) != s)
+        {
+          warn ("Couldn't write content to certificate file %s", fingerprint.str);
+          goto out_lock_held;
+        }
+
+      /* Then write the certificate */
+      if (write (fd, pem.data, pem.size) != pem.size)
         {
           warn ("Couldn't write content to certificate file %s", fingerprint.str);
           goto out_lock_held;

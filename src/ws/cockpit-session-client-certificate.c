@@ -43,8 +43,6 @@
  * desirable: Let's not get DoSed by huge certs */
 #define MAX_PEER_CERT_SIZE 100000
 
-#include "../tls/utils.h"
-
 #define CGROUP_REGEX         "^(0:|1:name=systemd):/system.slice/system-cockpithttps.slice/" \
                              "cockpit-wsinstance-https@([0-9a-f]{64}).service$"
 #define CGROUP_REGEX_FLAGS   (REG_EXTENDED | REG_NEWLINE)
@@ -97,12 +95,7 @@ get_ws_https_instance (void)
   regfree (&preg);
   if (r != 0)
     {
-      /* It's expected that this function will often be called even when
-       * the client didn't send a certificate, so we shouldn't log about
-       * that.  It might be useful for debugging, though.
-       */
-
-      // warnx ("Not running in a template cgroup, unable to parse systemd unit instance.\n\n/proc/self/cgroups content follows:\n%s\n", buf);
+      warnx ("Not running in a template cgroup, unable to parse systemd unit instance.\n\n/proc/self/cgroups content follows:\n%s\n", buf);
       return NULL;
     }
 
@@ -143,8 +136,6 @@ https_instance_has_certificate_file (char   *contents,
   ssize_t r;
 
   if (https_instance == NULL) /* already warned */
-    goto out;
-  if (strcmp (https_instance, SHA256_NIL) == 0)
     goto out;
 
   dirfd = open ("/run/cockpit/tls", O_PATH | O_DIRECTORY | O_NOFOLLOW);

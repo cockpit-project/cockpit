@@ -31,10 +31,9 @@ jobs:
           set -ex
           mkdir dist-repo
           cd dist-repo
-          tar -xf ../artifact/webpack-jumpstart.tar dist package-lock.json .sha256sums || true
+          tar -xf ../artifact/webpack-jumpstart.tar dist .sha256sums
           git init
           git add dist .sha256sums
-          [ ! -e package-lock.json ] || git add package-lock.json
           git commit -m "Build for ${{ github.event.workflow_run.head_sha }}"
           tag='sha-${{ github.event.workflow_run.head_sha }}'
           git tag "$tag"

@@ -41,7 +41,7 @@ ls-webpack-inputs:
 
 webpack-jumpstart.tar: $(MANIFESTS) package-lock.json pkg/build
 	@pkg/build -s ls-webpack-inputs | xargs sha256sum > .sha256sums
-	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json .sha256sums
+	$(V_TAR) tar cf webpack-jumpstart.tar dist .sha256sums
 	@rm -f .sha256sums
 
 V_WEBPACK = $(V_WEBPACK_$(V))

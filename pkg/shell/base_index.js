@@ -41,6 +41,11 @@ function Frames(index, setupIdleResetTimers) {
     if (!language)
         language = "en-us";
 
+    let lang_dir = "ltr";
+
+    if (language.match(/he-il/))
+        lang_dir = "rtl";
+
     /* Lists of frames, by host */
     self.iframes = { };
 
@@ -95,8 +100,10 @@ function Frames(index, setupIdleResetTimers) {
             if (frame.contentWindow && setupIdleResetTimers)
                 setupIdleResetTimers(frame.contentWindow);
 
-            if (frame.contentDocument && frame.contentDocument.documentElement)
+            if (frame.contentDocument && frame.contentDocument.documentElement) {
                 frame.contentDocument.documentElement.lang = language;
+                frame.contentDocument.documentElement.dir = lang_dir;
+            }
         } else {
             frame.timer = window.setTimeout(function() {
                 frame_ready(frame, count + 1);

@@ -63,6 +63,13 @@ export class LangModal extends React.Component {
         if (!language)
             language = "en-us";
 
+        let lang_dir = "ltr";
+
+        if (language.match(/he-il/))
+            lang_dir = "rtl";
+
+        document.documentElement.setAttribute("dir", lang_dir);
+
         this.state = {
             selected: language,
         };

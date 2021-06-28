@@ -918,18 +918,27 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
         return null;
 
     const handleSave = () => {
-        // when enabling pmlogger, install cockpit-pcp/pcp on demand
-        if (!deferSaveOnInstall && dialogLoggerValue && s_pmlogger.state === undefined) {
-            debug("PCPConfig: request to enable pmlogger, but missing pmlogger.service, offering install");
-            setDialogVisible(false);
-            install_dialog("cockpit-pcp")
-                    .then(() => {
-                        debug("PCPConfig: cockpit-pcp installation successful");
-                        setNeedsLogout(true);
-                        setDeferSaveOnInstall(true); // avoid recursive install_dialog
-                    })
-                    .catch(() => null); // ignore cancel
-            return;
+        debug("PCPConfig handleSave(): dialogLoggerValue", dialogLoggerValue, "dialogInitialProxyValue", dialogInitialProxyValue, "dialogProxyValue", dialogProxyValue);
+        // when enabling services, install missing packages on demand
+        if (!deferSaveOnInstall) {
+            const missing = [];
+            if (dialogLoggerValue && !s_pmlogger.exists)
+                missing.push("cockpit-pcp");
+            if (dialogProxyValue && !real_redis.exists)
+                missing.push("redis");
+            if (missing.length > 0) {
+                debug("PCPConfig: missing packages", JSON.stringify(missing), ", offering install");
+                setDialogVisible(false);
+                install_dialog(missing)
+                        .then(() => {
+                            debug("PCPConfig: package installation successful");
+                            if (missing.indexOf("cockpit-pcp") >= 0)
+                                setNeedsLogout(true);
+                            setDeferSaveOnInstall(true); // avoid recursive install_dialog
+                        })
+                        .catch(() => null); // ignore cancel
+                return;
+            }
         }
 
         setPending(true);
@@ -974,30 +983,13 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
     };
 
     // handle deferred Save after package installation finished and pmlogger starts to exist
-    if (deferSaveOnInstall && dialogLoggerValue && s_pmlogger.exists) {
+    if (deferSaveOnInstall &&
+            (!dialogLoggerValue || s_pmlogger.exists) &&
+            (!dialogProxyValue || (s_pmproxy.exists && real_redis.exists))) {
         debug("PCPConfig: handling deferred Save after package installation");
         setDeferSaveOnInstall(false);
         handleSave();
         return;
-    }
-
-    // the package is likely not installed; TODO: install it on demand
-    let pmproxy_option = null;
-    if (real_redis.exists && s_pmproxy.exists) {
-        pmproxy_option = (
-            <Switch id="switch-pmproxy"
-                    label={
-                        <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
-                            <FlexItem>{ _("Export to network") }</FlexItem>
-                            <TextContent>
-                                <Text component={TextVariants.small}>(pmproxy.service)</Text>
-                            </TextContent>
-                        </Flex>
-                    }
-                    isDisabled={ !dialogLoggerValue }
-                    isChecked={dialogProxyValue}
-                    onChange={enable => setDialogProxyValue(enable)} />
-        );
     }
 
     return (
@@ -1006,7 +998,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
                     isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) || invalidService(s_redis) || invalidService(s_redis_server) }
                     onClick={ () => {
                         setDialogLoggerValue(runningService(s_pmlogger));
-                        const proxy_value = pmproxy_option ? (runningService(s_pmproxy) && runningService(real_redis)) : null;
+                        const proxy_value = runningService(s_pmproxy) && runningService(real_redis);
                         setDialogInitialProxyValue(proxy_value);
                         setDialogProxyValue(proxy_value);
                         setDialogError(null);
@@ -1061,7 +1053,18 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
                                 setDialogProxyValue(false);
                         }} />
 
-                {pmproxy_option}
+                <Switch id="switch-pmproxy"
+                        isChecked={dialogProxyValue}
+                        label={
+                            <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                <FlexItem>{ _("Export to network") }</FlexItem>
+                                <TextContent>
+                                    <Text component={TextVariants.small}>(pmproxy.service)</Text>
+                                </TextContent>
+                            </Flex>
+                        }
+                        isDisabled={ !dialogLoggerValue }
+                        onChange={enable => setDialogProxyValue(enable)} />
             </Modal>}
         </>);
 };

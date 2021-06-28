@@ -46,6 +46,24 @@ function sos_error(message, extra) {
     $("#sos-cancel").text(_("Close"));
 }
 
+function get_sos_opts() {
+    var opts = ["sos", "report", "--batch"];
+    var data = document.getElementById("sos-opts-form").elements;
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].type == 'checkbox') {
+            if (data[i].checked) {
+                opts.push("--" + data[i].id.split("sos-")[1]);
+            }
+        } else {
+            if (data[i].value) {
+                opts.push("--" + data[i].id.split("sos-")[1]);
+                opts.push(data[i].value);
+            }
+        }
+    }
+    return opts;
+}
+
 function sos_create() {
     $("#sos-progress .progress-bar").css("width", "0%");
     $("#sos-download, #sos-error").hide();
@@ -54,7 +72,9 @@ function sos_create() {
     sos_archive_url = null;
     sos_archive_files = [];
 
-    var task = cockpit.spawn(["sosreport", "--batch"],
+    var cmd = get_sos_opts();
+
+    var task = cockpit.spawn(cmd,
                              { superuser: true, err: "out", pty: true });
     sos_task = task;
 
@@ -108,7 +128,7 @@ function sos_create() {
                 if (archive.indexOf("/host") === 0)
                     archive = archive.substr(5);
 
-                sos_archive_files = [archive, archive + ".md5"];
+                sos_archive_files = [archive, archive + ".md5", archive + ".sha256"];
 
                 var query = window.btoa(JSON.stringify({
                     payload: "fsread1",
@@ -169,12 +189,39 @@ function sos_download() {
     $('body').append(iframe);
 }
 
+function update_cleaner_options_visible(checked) {
+    $("#sos-keywords").toggle(checked);
+    $('label[for="sos-keywords"]').toggle(checked);
+    $("#sos-domains").toggle(checked);
+    $('label[for="sos-domains"]').toggle(checked);
+    $("#sos-usernames").toggle(checked);
+    $('label[for="sos-usernames"]').toggle(checked);
+}
+
 function init() {
     $(function () {
         $("#create-button").on("click", () => {
-            $("#sos").prop('hidden', false);
+            $("#sos-options-menu").prop("hidden", false);
+        });
+
+        $("#sos-options-close-button").on("click", () => {
+            $("#sos-options-menu").prop("hidden", true);
+        });
+        $("#sos-options-cancel").on("click", () => {
+            $("#sos-options-menu").prop("hidden", true);
+        });
+        $("#sos-options-run").on("click", () => {
+            $("#sos-options-menu").prop("hidden", true);
+            $("#sos").prop("hidden", false);
             sos_init();
         });
+
+        update_cleaner_options_visible(false);
+        $("#sos-clean").on("click", () => {
+            var checked = $("#sos-clean").prop("checked");
+            update_cleaner_options_visible(checked);
+        });
+
         $("#sos-cancel").on("click", sos_cancel);
         $('#sos-download button').on('click', sos_download);
 

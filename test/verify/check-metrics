@@ -75,6 +75,12 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
                        timedatectl set-time @{1}""".format(command, time, hostname))
 
 
+def redisService(image):
+    if image.startswith("debian") or image.startswith("ubuntu"):
+        return "redis-server"
+    return "redis"
+
+
 def login(self):
     # HACK: Ubuntu and Debian need some time until metrics channel is available
     # Really no idea what it needs to wait for, so let's just try channel until it succeeds
@@ -513,10 +519,7 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            redis = "redis-server"
-        else:
-            redis = "redis"
+        redis = redisService(m.image)
         hostname = m.execute("hostname").strip()
 
         self.addCleanup(m.execute, f"systemctl stop {redis}")
@@ -674,25 +677,6 @@ class TestHistoryMetrics(MachineCase):
         checkEnabled(False)
         m.execute("systemctl start pmproxy")
         checkEnabled(True)
-
-    @skipImage("no PCP support", "fedora-coreos")
-    @skipImage("pmproxy broken", "debian-stable")
-    def testPmProxyNoRedis(self):
-        b = self.browser
-        m = self.machine
-
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            m.execute("dpkg --purge redis redis-server")
-        else:
-            m.execute("rpm --erase --verbose redis")
-
-        # pmproxy switch is not offered if redis is not installed (TODO: install it on demand)
-        self.login_and_go("/metrics")
-        b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible('#switch-pmlogger')
-        b.wait_not_present('#switch-pmproxy')
-        b.click("#pcp-settings-modal button.btn-cancel")
-        b.wait_not_present("#pcp-settings-modal")
 
 
 @skipDistroPackage()
@@ -930,8 +914,8 @@ class TestCurrentMetrics(MachineCase):
 
 
 @skipDistroPackage()
-class TestCockpitPcp(packagelib.PackageCase):
-    def testNoCockpitPcp(self):
+class TestMetricsPackages(packagelib.PackageCase):
+    def testBasic(self):
         b = self.browser
         m = self.machine
 
@@ -942,25 +926,36 @@ class TestCockpitPcp(packagelib.PackageCase):
             return
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            m.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp")
+            m.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp redis redis-server")
         else:
-            m.execute("rpm --erase --verbose cockpit-pcp pcp")
+            m.execute("rpm --erase --verbose cockpit-pcp pcp redis")
+        if "centos-8" in m.image or "rhel-8" in m.image:
+            # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
+            m.execute("dnf module disable -y redis || true")
 
-        cpcp = {
+        redis_service = redisService(m.image)
+        dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
+
+        cpcp_content = {
             "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "134.x"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
             "/usr/libexec/cockpit-pcp": "true",
         }
-        pcp = {
-            "/lib/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
+        pcp_content = {
+            "/lib/systemd/system/pmlogger.service": dummy_service,
+            "/lib/systemd/system/pmproxy.service": dummy_service,
+        }
+        redis_content = {
+            f"/lib/systemd/system/{redis_service}.service": dummy_service,
         }
 
-        self.createPackage("cockpit-pcp", "999", "1", content=cpcp, depends="pcp",
+        self.createPackage("cockpit-pcp", "999", "1", content=cpcp_content, depends="pcp",
                            postinst="chmod +x /usr/libexec/cockpit-pcp")
-        self.createPackage("pcp", "999", "1", content=pcp, postinst="systemctl daemon-reload")
+        self.createPackage("pcp", "999", "1", content=pcp_content, postinst="systemctl daemon-reload")
+        self.createPackage("redis", "999", "1", content=redis_content, postinst="systemctl daemon-reload")
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        # install it from the empty state
+        # install c-pcp from the empty state
         self.login_and_go("/metrics")
         b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
         b.click(".pf-c-empty-state button.pf-m-primary")
@@ -978,7 +973,7 @@ class TestCockpitPcp(packagelib.PackageCase):
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
         b.logout()
 
-        # install it from the Metrics Settings dialog
+        # install c-pcp from the Metrics Settings dialog
         m.execute("pkcon remove -y cockpit-pcp pcp")
         self.login_and_go("/metrics")
         b.click("#metrics-header-section button.pf-m-secondary")
@@ -1008,6 +1003,23 @@ class TestCockpitPcp(packagelib.PackageCase):
         # this is just a fake cockpit-pcp package
         b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
         b.wait_in_text(".pf-c-empty-state", "pmlogger.service is failing to collect data")
+
+        # install redis
+        b.click("#metrics-header-section button.pf-m-secondary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmproxy:not(:checked)")
+        b.click("#switch-pmproxy")
+        b.wait_visible("#switch-pmproxy:checked")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
+        # install dialog
+        b.click("#dialog button:contains('Install')")
+        b.wait_not_present("#dialog")
+        # sets up redis correctly; this is asynchronous, as it happens in the background after closing install dialog
+        m.execute('until [ $(systemctl is-enabled pmproxy) = enabled ]; do sleep 1; done')
+        m.execute('until [ $(systemctl is-active pmproxy) = active ]; do sleep 1; done')
+        m.execute(f'until [ $(systemctl is-active {redis_service}) = active ]; do sleep 1; done')
+        self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
 @skipDistroPackage()

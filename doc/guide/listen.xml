@@ -46,7 +46,9 @@ ListenStream=192.168.1.1:443
 FreeBind=yes
 </programlisting>
 
-    <para>NOTE: The first empty line is intentional. <code>systemd</code> allows multiple <code>Listen</code> directives to be declared in a single socket unit. To change the activation port instead of adding a second port, use a full override unit instead of a snippet.</para>
+    <para>NOTE: The first empty line is intentional. <code>systemd</code> allows multiple <code>Listen</code> directives to be declared in a single socket unit.
+If the empty string is assigned to any of these options, the list of addresses to listen on is reset, all prior uses of any of these options will have no effect.
+    To add more <code>Listen</code> directives aside from the defaults, omit the first empty line.</para>
 
     <para>The <code>FreeBind</code> option is highly recommended when defining specific IP addresses. See the <ulink url="https://www.freedesktop.org/software/systemd/man/systemd.socket.html"><code>systemd.socket</code> manpage</ulink> for details.</para>
 

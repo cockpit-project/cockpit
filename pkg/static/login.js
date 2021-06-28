@@ -1,7 +1,3 @@
-/* Patch IE to support forEach on NodeLists, used in show/hide */
-if (window.NodeList && !NodeList.prototype.forEach)
-    NodeList.prototype.forEach = Array.prototype.forEach;
-
 (function(console) {
     var localStorage;
 
@@ -289,8 +285,6 @@ if (window.NodeList && !NodeList.prototype.forEach)
 
     function boot() {
         window.onload = null;
-
-        hide(".noscript");
 
         translate();
         if (window.cockpit_po && window.cockpit_po[""])

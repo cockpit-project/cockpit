@@ -876,8 +876,9 @@ class MetricsHour extends React.Component {
     }
 }
 
-const persistentServiceState = proxy => ['running', 'stopped', 'failed', undefined].indexOf(proxy.state) >= 0;
-const validServiceState = proxy => ['running', 'stopped'].indexOf(proxy.state) >= 0;
+// null means "not initialized yet"
+const invalidService = proxy => proxy.state === null;
+const runningService = proxy => ['running', 'starting'].indexOf(proxy.state) >= 0;
 
 const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogout }) => {
     const [dialogVisible, setDialogVisible] = useState(false);
@@ -993,7 +994,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
                             </TextContent>
                         </Flex>
                     }
-                    isDisabled={ !dialogLoggerValue || !validServiceState(s_pmproxy) || !validServiceState(real_redis) }
+                    isDisabled={ !dialogLoggerValue }
                     isChecked={dialogProxyValue}
                     onChange={enable => setDialogProxyValue(enable)} />
         );
@@ -1002,10 +1003,10 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
     return (
         <>
             <Button variant={buttonVariant} icon={<CogIcon />}
-                    isDisabled={ !persistentServiceState(s_pmlogger) || !persistentServiceState(s_pmproxy) || !persistentServiceState(s_redis) || !persistentServiceState(s_redis_server) }
+                    isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) || invalidService(s_redis) || invalidService(s_redis_server) }
                     onClick={ () => {
-                        setDialogLoggerValue(s_pmlogger.state === 'running');
-                        const proxy_value = pmproxy_option ? (s_pmproxy.state === 'running' && real_redis.state === 'running') : null;
+                        setDialogLoggerValue(runningService(s_pmlogger));
+                        const proxy_value = pmproxy_option ? (runningService(s_pmproxy) && runningService(real_redis)) : null;
                         setDialogInitialProxyValue(proxy_value);
                         setDialogProxyValue(proxy_value);
                         setDialogError(null);
@@ -1096,9 +1097,9 @@ class MetricsHistory extends React.Component {
         /* supervise pmlogger.service, to diagnose missing history */
         this.pmlogger_service = service.proxy("pmlogger.service");
         this.pmlogger_service.addEventListener("changed", () => {
-            if (persistentServiceState(this.pmlogger_service) && this.pmlogger_service.state !== this.state.pmLoggerState) {
+            if (!invalidService(this.pmlogger_service) && this.pmlogger_service.state !== this.state.pmLoggerState) {
                 // when it got enabled while the page is running (e.g. through Settings dialog), start data collection
-                if (!this.state.metricsAvailable && this.pmlogger_service.state === 'running')
+                if (!this.state.metricsAvailable && runningService(this.pmlogger_service))
                     this.initialLoadData();
                 this.setState({ pmLoggerState: this.pmlogger_service.state });
             }

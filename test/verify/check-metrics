@@ -345,7 +345,7 @@ class TestHistoryMetrics(MachineCase):
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
         b.wait_text(".pf-c-select__toggle-text", "Today")
 
-        b.select_PF4("#date-picker-select-toggle", "Wednesday, Sep 16, 2020")
+        b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
         self.assertIn("Memory spike", events_at(1600236000000, 51))
 

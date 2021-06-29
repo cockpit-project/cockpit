@@ -360,7 +360,7 @@ class TestConnection(MachineCase):
         # Some operating systems fail SSL3 on the server side
         self.assertRegex(output, "Secure Renegotiation IS NOT supported|"
                          "ssl handshake failure|"
-                         "Option unknown option -ssl3|"
+                         "[uU]nknown option.* -ssl3|"
                          "null ssl method passed|"
                          "wrong version number")
 

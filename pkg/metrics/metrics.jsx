@@ -893,6 +893,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
 
     useEvent(superuser, "changed");
     useEvent(s_pmlogger, "changed");
+    useEvent(s_pmproxy, "changed");
     useEvent(s_redis, "changed");
     useEvent(s_redis_server, "changed");
 

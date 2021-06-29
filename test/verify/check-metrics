@@ -589,11 +589,7 @@ class TestHistoryMetrics(MachineCase):
         checkDisable()
 
         # pmproxy already running; 44322 queries hang without redis and until restart
-        # HACK: on older distros, pcp's init.d scripts sometimes don't send a proper "started" notify update
-        self.allow_restart_journal_messages()
-        b.logout()
         m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
-        b.login_and_go("/metrics")
         checkEnable(True)
 
         # without firewalld

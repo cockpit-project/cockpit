@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2019 Red Hat, Inc.
+ * Copyright (C) 2021 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -20,14 +20,17 @@
 #pragma once
 
 #include <gnutls/gnutls.h>
-#include "utils.h"
+#include <stdbool.h>
 
 int
-certfile_open (int dirfd,
-               Fingerprint *out_fingerprint,
-               const gnutls_datum_t *der);
+client_certificate_verify (gnutls_session_t session);
+
+bool
+client_certificate_accept (gnutls_session_t   session,
+                           int                dirfd,
+                           char             **out_wsinstance,
+                           char             **out_filename);
 
 void
-certfile_close (int dirfd,
-                int fd,
-                const Fingerprint *fingerprint);
+client_certificate_unlink_and_free (int   dirfd,
+                                    char *filename);

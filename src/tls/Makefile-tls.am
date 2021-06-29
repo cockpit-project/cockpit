@@ -21,10 +21,10 @@ cockpit_tls_SOURCES = \
 	src/tls/utils.h \
 	src/tls/socket-io.h \
 	src/tls/socket-io.c \
-	src/tls/certfile.h \
-	src/tls/certfile.c \
 	src/tls/certificate.h \
 	src/tls/certificate.c \
+	src/tls/client-certificate.h \
+	src/tls/client-certificate.c \
 	src/tls/connection.h \
 	src/tls/connection.c \
 	src/tls/server.h \
@@ -73,29 +73,18 @@ TEST_LDADD = \
 TLS_TESTS = \
 	test-tls-connection \
 	test-tls-server \
-	test-tls-certfile \
 	$(NULL)
 
 TLS_SCRIPT_TESTS = \
 	src/tls/test-socket-activation-helper.sh \
 	$(NULL)
 
-test_tls_certfile_SOURCES = \
-	src/tls/certfile.h \
-	src/tls/certfile.c \
-	src/tls/test-certfile.c \
-	$(NULL)
-
-test_tls_certfile_CFLAGS = $(TEST_CFLAGS)
-test_tls_certfile_LDADD = $(TEST_LDADD)
-
-
 test_tls_connection_SOURCES = \
 	src/tls/testing.h \
 	src/tls/socket-io.h \
 	src/tls/socket-io.c \
-	src/tls/certfile.h \
-	src/tls/certfile.c \
+	src/tls/client-certificate.h \
+	src/tls/client-certificate.c \
 	src/tls/certificate.h \
 	src/tls/certificate.c \
 	src/tls/connection.c \
@@ -108,8 +97,8 @@ test_tls_connection_LDADD = $(TEST_LDADD)
 test_tls_server_SOURCES = \
 	src/tls/socket-io.h \
 	src/tls/socket-io.c \
-	src/tls/certfile.h \
-	src/tls/certfile.c \
+	src/tls/client-certificate.h \
+	src/tls/client-certificate.c \
 	src/tls/certificate.h \
 	src/tls/certificate.c \
 	src/tls/connection.c \

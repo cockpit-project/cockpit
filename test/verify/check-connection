@@ -343,7 +343,7 @@ class TestConnection(MachineCase):
 
         # has proper keyUsage and SAN (both with sscg and with self-signed)
         output = m.execute("openssl s_client -showcerts -connect 172.27.0.15:9090 |"
-                           "openssl x509 -in - -noout -ext keyUsage,extendedKeyUsage,subjectAltName")
+                           "openssl x509 -noout -ext keyUsage,extendedKeyUsage,subjectAltName")
         # keyUsage
         self.assertIn("Digital Signature", output)
         self.assertIn("Key Encipherment", output)

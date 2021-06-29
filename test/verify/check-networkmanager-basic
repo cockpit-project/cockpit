@@ -43,6 +43,11 @@ class TestNetworkingBasic(NetworkCase):
 
         ifaces = list(m.execute("ls /sys/class/net").split())
         ifaces.remove("lo")
+        try:
+            # not a real interface
+            ifaces.remove("bonding_masters")
+        except ValueError:
+            pass
         ignore = []
         for iface_name in ifaces:
             ignore.append("tr[data-interface={0}] td[data-label=Sending]".format(iface_name))

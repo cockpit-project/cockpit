@@ -999,7 +999,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
     return (
         <>
             <Button variant={buttonVariant} icon={<CogIcon />}
-                    isDisabled={ !persistentServiceState(s_pmlogger) }
+                    isDisabled={ !persistentServiceState(s_pmlogger) || !persistentServiceState(s_pmproxy) || !persistentServiceState(s_redis) || !persistentServiceState(s_redis_server) }
                     onClick={ () => {
                         setDialogLoggerValue(s_pmlogger.state === 'running');
                         const proxy_value = pmproxy_option ? (s_pmproxy.state === 'running' && real_redis.state === 'running') : null;

@@ -41,6 +41,7 @@ import { AccountRoles } from "./account-roles.js";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
 
 const _ = cockpit.gettext;
+const dateFormatLang = cockpit.language.replace('_', '-');
 
 function log_unexpected_error(error) {
     console.warn("Unexpected error", error);
@@ -92,7 +93,7 @@ function get_expire(name) {
         let password_expiration = '';
         let password_days = null;
 
-        const date_fmt = new Intl.DateTimeFormat(cockpit.language, { dateStyle: "long" });
+        const date_fmt = new Intl.DateTimeFormat(dateFormatLang, { dateStyle: "long" });
 
         data.split('\n').forEach(line => {
             const fields = line.split(': ');
@@ -250,7 +251,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     else if (!details.logged.last)
         last_login = _("Never");
     else
-        last_login = new Intl.DateTimeFormat(cockpit.language, { dateStyle: "long", timeStyle: "short" }).format(new Date(details.logged.last));
+        last_login = new Intl.DateTimeFormat(dateFormatLang, { dateStyle: "long", timeStyle: "short" }).format(new Date(details.logged.last));
 
     return (
         <Page groupProps={{ sticky: 'top' }}

@@ -18,7 +18,6 @@
  */
 
 import React, { useState } from 'react';
-import moment from "moment";
 
 import {
     Alert,
@@ -62,7 +61,14 @@ const SVG_YMAX = (SAMPLES_PER_MIN - 1).toString();
 const LOAD_HOURS = 12;
 const _ = cockpit.gettext;
 
-moment.locale(cockpit.language);
+const dateFormatLang = cockpit.language.replace('_', '-');
+const timeFormatter = new Intl.DateTimeFormat(dateFormatLang, { timeStyle: "short" });
+const timeSecondsFormatter = new Intl.DateTimeFormat(dateFormatLang, { timeStyle: "medium" });
+const dateTimeFormatter = new Intl.DateTimeFormat(dateFormatLang, { dateStyle: "medium", timeStyle: "short" });
+const weekdayDateFormatter = new Intl.DateTimeFormat(dateFormatLang, { dateStyle: "full" });
+
+// format Date as YYYY-MM-DD HH:mm:ss UTC which is human friendly and systemd compatible
+const formatUTC_ISO = t => `${t.getUTCFullYear()}-${t.getUTCMonth() + 1}-${t.getUTCDate()} ${t.getUTCHours()}:${t.getUTCMinutes()}:${t.getUTCSeconds()} UTC`;
 
 // keep track of maximum values for unbounded data, so that we can normalize it properly
 // pre-init them to avoid inflating noise
@@ -646,8 +652,8 @@ class MetricsMinute extends React.Component {
         if (!sample)
             return;
 
-        const time = moment(this.props.startTime + this.props.minute * 60000 + indexOffset * INTERVAL).format("LTS");
-        let tooltip = time + "\n\n";
+        const time = this.props.startTime + this.props.minute * 60000 + indexOffset * INTERVAL;
+        let tooltip = timeSecondsFormatter.format(time) + "\n\n";
         Object.entries(sample).forEach(([t, v]) => {
             if (v !== null && v !== undefined)
                 tooltip += `${RESOURCES[t].name}: ${RESOURCES[t].format(v)}\n`;
@@ -657,17 +663,19 @@ class MetricsMinute extends React.Component {
 
     findLogs(start, end) {
         const timestamp = this.props.startTime + (this.props.minute * 60000);
-        const time = moment.utc(timestamp);
         const start_minute = Math.floor(start / SAMPLES_PER_MIN);
         const start_second = (start - (start_minute * SAMPLES_PER_MIN)) * (60 / SAMPLES_PER_MIN);
         const end_minute = Math.floor(end / SAMPLES_PER_MIN);
         const end_second = (end - (end_minute * SAMPLES_PER_MIN)) * (60 / SAMPLES_PER_MIN);
 
-        time.set({ minute: start_minute, second: start_second });
-        const since = time.format("YYYY-MM-DD HH:mm:ss UTC");
+        const time = new Date(timestamp);
+        time.setMinutes(start_minute);
+        time.setSeconds(start_second);
+        const since = formatUTC_ISO(time);
 
-        time.set({ minute: end_minute, second: end_second });
-        const until = time.format("YYYY-MM-DD HH:mm:ss UTC");
+        time.setMinutes(end_minute);
+        time.setSeconds(end_second);
+        const until = formatUTC_ISO(time);
 
         const match = { priority: "info", since: since, until: until, follow: false, count: 10 };
         const journalctl = journal.journalctl(match);
@@ -730,7 +738,7 @@ class MetricsMinute extends React.Component {
             const desc = <div className="description">
                 { this.props.events.events.map(t => <span className="type" key={ t }>{ RESOURCES[t].event_description }</span>) }
                 <div className="details">
-                    <time>{ moment(timestamp).format('LT') }</time>
+                    <time>{ timeFormatter.format(timestamp) }</time>
                     {this.state.expanded && this.state.logsUrl && this.state.logs && this.state.logs.length ? <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>{_("View all logs")}</Button> : null}
                 </div>
             </div>;
@@ -867,7 +875,7 @@ class MetricsHour extends React.Component {
         return (
             <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour">
                 { this.state.minuteGraphs }
-                <h3 className="metrics-time"><time>{ moment(this.props.startTime).format("LT ddd YYYY-MM-DD") }</time></h3>
+                <h3 className="metrics-time"><time>{ dateTimeFormatter.format(this.props.startTime) }</time></h3>
             </div>
         );
     }
@@ -1197,11 +1205,11 @@ class MetricsHistory extends React.Component {
                 hour_index = Math.floor((message.timestamp - current_hour) / INTERVAL);
                 console.assert(hour_index < SAMPLES_PER_H);
 
-                debug("message is metadata; time stamp", message.timestamp, "=", moment(message.timestamp).format(), "for current_hour", current_hour, "=", moment(current_hour).format(), "hour_index", hour_index);
+                debug("message is metadata; time stamp", message.timestamp, "=", dateTimeFormatter.format(message.timestamp), "for current_hour", current_hour, "=", dateTimeFormatter.format(current_hour), "hour_index", hour_index);
                 return;
             }
 
-            debug("message is", message.length, "samples data for current hour", current_hour, "=", moment(current_hour).format());
+            debug("message is", message.length, "samples data for current hour", current_hour, "=", dateTimeFormatter.format(current_hour));
 
             message.forEach((samples, i) => {
                 decompress_samples(samples, current_sample);
@@ -1238,13 +1246,13 @@ class MetricsHistory extends React.Component {
                     current_hour += MSEC_PER_H;
                     hour_index = 0;
                     init_current_hour();
-                    debug("hour overflow, advancing to", current_hour, "=", moment(current_hour).format());
+                    debug("hour overflow, advancing to", current_hour, "=", dateTimeFormatter.format(current_hour));
                 }
             });
 
             // update most recent sample timestamp
             this.most_recent = Math.max(this.most_recent, current_hour + (hour_index - 5) * INTERVAL);
-            debug("most recent timestamp is now", this.most_recent, "=", moment(this.most_recent).format());
+            debug("most recent timestamp is now", this.most_recent, "=", dateTimeFormatter.format(this.most_recent));
         });
 
         metrics.addEventListener("close", (event, message) => {
@@ -1255,7 +1263,7 @@ class MetricsHistory extends React.Component {
                     metricsAvailable: false,
                 });
             } else {
-                debug("loaded metrics for timestamp", moment(load_timestamp).format(), "new hours", JSON.stringify(Array.from(new_hours)));
+                debug("loaded metrics for timestamp", dateTimeFormatter.format(load_timestamp), "new hours", JSON.stringify(Array.from(new_hours)));
                 new_hours.forEach(hour => debug("hour", hour, "data", JSON.stringify(this.data[hour])));
 
                 const hours = Array.from(new Set([...this.state.hours, ...new_hours]));
@@ -1321,11 +1329,11 @@ class MetricsHistory extends React.Component {
         if (!this.state.loading && this.state.hours.length > 0 && this.oldest_timestamp < this.state.hours[this.state.hours.length - 1]) {
             let t1, t2;
             if (this.state.hours[0] - this.oldest_timestamp < 24 * MSEC_PER_H) {
-                t1 = moment(this.oldest_timestamp).format("LT");
-                t2 = moment(this.state.hours[0]).format("LT");
+                t1 = timeFormatter.format(this.oldest_timestamp);
+                t2 = timeFormatter.format(this.state.hours[0]);
             } else {
-                t1 = moment(this.oldest_timestamp).format("ddd YYYY-MM-DD LT");
-                t2 = moment(this.state.hours[0]).format("ddd YYYY-MM-DD LT");
+                t1 = dateTimeFormatter.format(this.oldest_timestamp);
+                t2 = dateTimeFormatter.format(this.state.hours[0]);
             }
             nodata_alert = <Alert className="nodata" variant="info" isInline title={ cockpit.format(_("No data available between $0 and $1"), t1, t2) } />;
         }
@@ -1333,18 +1341,13 @@ class MetricsHistory extends React.Component {
         if (!this.state.loading && this.state.hours.length === 0)
             nodata_alert = <EmptyStatePanel icon={ExclamationCircleIcon} title={_("No data available")} />;
 
-        const options = [<SelectOption key={this.today_midnight} value={this.today_midnight}>{_("Today")}</SelectOption>];
-        const date = moment(this.today_midnight);
-        for (let i = 0; i < 14; i++) {
-            date.subtract(1, 'days');
-            options.push(
-                <SelectOption
-                    key={date.format("x")}
-                    value={Math.floor(date.format("X") * 1000)}>
-                    {date.format("dddd, ll")}
-                </SelectOption>
-            );
-        }
+        // generate selection of last 14 days
+        const options = Array(15).fill()
+                .map((_undef, i) => {
+                    const date = this.today_midnight - i * 86400000;
+                    const text = i == 0 ? _("Today") : weekdayDateFormatter.format(date);
+                    return <SelectOption key={date} value={date}>{text}</SelectOption>;
+                });
 
         function Label(props) {
             return (

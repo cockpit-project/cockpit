@@ -69,7 +69,6 @@ EXTRA_DIST += \
 	$(GUIDE_DOCBOOK) \
 	$(GUIDE_INCLUDES) \
 	$(GUIDE_XSLT) \
-	$(GUIDE_FONTS) \
 	$(GUIDE_STATIC) \
 	dist/guide/html \
 	dist/guide/links.html \
@@ -88,6 +87,7 @@ GUIDE_HTML = \
 	dist/guide/html/index.html \
 	dist/guide/index.html
 
+EXTRA_DIST += $(GUIDE_FONTS)
 dist/guide/html/%.woff2: package-lock.json
 	@mkdir -p dist/guide/html
 	cp -L $(top_srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText/$(notdir $@) $@

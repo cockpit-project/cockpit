@@ -18,9 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import moment from "moment";
-
-moment.locale(cockpit.language);
+import * as timeformat from "timeformat";
 
 const _ = cockpit.gettext;
 
@@ -295,12 +293,12 @@ journal.renderer = function renderer(output_funcs) {
     // 'day', all of which are strings.
 
     function format_entry(journal_entry) {
-        var d = moment(journal_entry.__REALTIME_TIMESTAMP / 1000); // timestamps are in µs
+        const d = journal_entry.__REALTIME_TIMESTAMP / 1000; // timestamps are in µs
         return {
             cursor: journal_entry.__CURSOR,
             full: journal_entry,
-            day: d.format('LL'),
-            time: d.format('LT'),
+            day: timeformat.date(d),
+            time: timeformat.time(d),
             bootid: journal_entry._BOOT_ID,
             ident: journal_entry.SYSLOG_IDENTIFIER || journal_entry._COMM,
             prio: journal_entry.PRIORITY,

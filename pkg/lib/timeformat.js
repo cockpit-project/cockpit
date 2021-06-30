@@ -18,5 +18,7 @@ export const timeSeconds = t => formatter({ timeStyle: "medium" }).format(t);
 export const date = t => formatter({ dateStyle: "long" }).format(t);
 // Jun 30, 2021, 7:41 AM
 export const dateTime = t => formatter({ dateStyle: "medium", timeStyle: "short" }).format(t);
+// Jun 30, 2021, 7:41:23 AM
+export const dateTimeSeconds = t => formatter({ dateStyle: "medium", timeStyle: "medium" }).format(t);
 // Wednesday, June 30, 2021
 export const weekdayDate = t => formatter({ dateStyle: "full" }).format(t);

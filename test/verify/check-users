@@ -288,7 +288,7 @@ class TestAccounts(MachineCase):
             b.go("#/admin")
             b.wait_visible("#account-logout[disabled]")
 
-            (year, month) = m.execute("date +'%Y %B'").strip().split()
+            (year, month) = m.execute("date +'%Y %b'").strip().split()
 
             # Log in as "admin" and the open details in other browser should update
             b2 = self.new_browser(m)

@@ -48,8 +48,9 @@ try:
 except ImportError:
     Image = None
 
-TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
-BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
+BASE_DIR = os.path.realpath(f'{__file__}/../../..')
+TEST_DIR = f'{BASE_DIR}/test'
+BOTS_DIR = f'{BASE_DIR}/bots'
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 

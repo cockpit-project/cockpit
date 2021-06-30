@@ -37,7 +37,6 @@ AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([tools])
 
 AM_INIT_AUTOMAKE([1.9 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
-AM_MAINTAINER_MODE([enable])
 
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -553,7 +552,6 @@ echo "
         admin group:                ${admin_group}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
-        Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building docs:              ${enable_doc}
         Debug mode:                 ${debug_status}
         Node environment:           ${NODE_ENV}

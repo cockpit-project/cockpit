@@ -236,7 +236,6 @@ AC_SUBST([systemdunitdir], [$systemdunitdir])
 
 GETTEXT_PACKAGE=cockpit
 AC_SUBST([GETTEXT_PACKAGE])
-AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
 AC_PATH_PROG(MSGCAT, msgcat)

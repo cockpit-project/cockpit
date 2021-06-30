@@ -80,6 +80,3 @@ if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
         ln -s "$srcdir/node_modules" "$olddir/node_modules"
     fi
 fi
-
-echo
-echo "Now type 'make' to compile $PKG_NAME."

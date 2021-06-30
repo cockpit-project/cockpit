@@ -60,7 +60,7 @@ cd $olddir
 if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
     rm -f $srcdir/Makefile
 fi
-$srcdir/configure --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
+$srcdir/configure ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
 
 # Put a redirect makefile and dist directory here
 if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then

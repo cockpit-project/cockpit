@@ -568,4 +568,5 @@ echo "
         ssh-agent:                  ${SSH_AGENT}
         usermod:                    ${USERMOD}
         chcon:                      ${CHCON}
-"
+
+Now type 'make' to compile cockpit."

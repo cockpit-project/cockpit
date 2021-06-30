@@ -92,7 +92,7 @@ dist/guide/html/%.woff2: package-lock.json
 	@mkdir -p dist/guide/html
 	cp -L $(top_srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText/$(notdir $@) $@
 
-dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
+dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) dist/guide/html/ && \
 	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/
 	$(AM_V_GEN) LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \

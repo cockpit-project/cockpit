@@ -34,11 +34,6 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
-if [ -z "$(which glib-gettextize)" ]; then
-    echo glib-gettextize is required to build cockpit
-    exit 1
-fi
-
 rm -rf autom4te.cache
 
 autoreconf -f -i -I tools

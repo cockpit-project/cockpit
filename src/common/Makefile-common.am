@@ -195,9 +195,6 @@ test_locale_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_locale_SOURCES = src/common/test-locale.c
 test_locale_LDADD = $(libcockpit_common_a_LIBS)
 
-# Tell make that we depend on these files being built here
-src/common/test-locale.c: $(test_locale_MO)
-
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c \
 	src/common/mock-pressure.c src/common/mock-pressure.h

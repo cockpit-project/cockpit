@@ -174,26 +174,28 @@ recheck-memory: valgrind-suppressions
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
 
-if ENABLE_DOC
 
-dist-doc-hook:
-	@true
-
-dist-hook:: dist-doc-hook
-	@true
-distcheck-hook:: dist-doc-hook
-	@true
 install-data-local:: dist/guide/html/index.html
+if ENABLE_DOC
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(INSTALL_DATA) $(dir $<)/* $(DESTDIR)$(htmldir)
-uninstall-local::
-	rm -rf $(DESTDIR)$(htmldir)
-
 else
+	@true
+endif
 
-dist-doc-hook:
+uninstall-local::
+if ENABLE_DOC
+	rm -rf $(DESTDIR)$(htmldir)
+else
+	@true
+endif
+
+dist-hook::
+if ENABLE_DOC
+	@true
+else
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
-
+	@false
 endif
 
 # See test/image-prepare

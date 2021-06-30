@@ -62,6 +62,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("crypto_options.extra", "crypto,options")
         self.dialog_set_val("mount_point", mount_point_secret)
         self.dialog_set_val("mount_options.auto", True)
+        b.assert_pixels("#dialog", "format")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")

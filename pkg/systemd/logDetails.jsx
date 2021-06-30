@@ -18,8 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import moment from "moment";
 import { journal } from "journal";
+import * as timeformat from "timeformat";
 
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -153,16 +153,16 @@ export class LogEntry extends React.Component {
             content = <EmptyStatePanel loading title={ _("Loading...") } />;
         else if (this.state.entry) {
             const entry = this.state.entry;
-            const date = moment(new Date(entry.__REALTIME_TIMESTAMP / 1000));
+            const date = timeformat.dateTimeSeconds(entry.__REALTIME_TIMESTAMP / 1000);
 
             if (this.state.problemPath) {
-                breadcrumb = cockpit.format(_("$0: crash at $1"), entry.PROBLEM_BINARY, date.format("YYYY-MM-DD HH:mm:ss"));
+                breadcrumb = cockpit.format(_("$0: crash at $1"), entry.PROBLEM_BINARY, date);
                 content = <AbrtLogDetails problem={this.state.problemPath}
                                           entry={entry}
                                           service={this.state.abrtService}
                                           reloadProblems={this.goHome} />;
             } else {
-                breadcrumb = cockpit.format(_("Entry at $0"), date.format("YYYY-MM-DD HH:mm:ss"));
+                breadcrumb = cockpit.format(_("Entry at $0"), date);
                 content = <LogDetails entry={entry} />;
             }
         }

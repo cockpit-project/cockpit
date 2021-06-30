@@ -22,8 +22,8 @@ import { Button, Popover, Select, SelectOption, SelectVariant } from '@patternfl
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
-import moment from "moment";
 import * as service from "service.js";
+import * as timeformat from "timeformat.js";
 import jQuery from "jquery";
 
 import { superuser } from "superuser.js";
@@ -66,8 +66,7 @@ export function ServerTime() {
     /*
      * The time we return from here as its UTC time set to the
      * server time. This is the only way to get predictable
-     * behavior and formatting of a Date() object in the absence of
-     * IntlDateFormat and  friends.
+     * behavior.
      */
     Object.defineProperty(self, 'utc_fake_now', {
         enumerable: true,
@@ -85,9 +84,8 @@ export function ServerTime() {
     });
 
     self.format = function format(and_time) {
-        if (and_time)
-            return moment.utc(self.utc_fake_now).format('lll');
-        return moment.utc(self.utc_fake_now).format('ll');
+        const options = { dateStyle: "medium", timeStyle: and_time ? "short" : undefined, timeZone: "UTC" };
+        return timeformat.formatter(options).format(self.utc_fake_now);
     };
 
     const updateInterval = window.setInterval(emit_changed, 30000);
@@ -121,10 +119,8 @@ export function ServerTime() {
     self.change_time = function change_time(datestr, hourstr, minstr) {
         return new Promise((resolve, reject) => {
             /*
-             * The browser is brain dead when it comes to dates. But even if
-             * it wasn't, or we loaded a library like moment.js, there is no
-             * way to make sense of this date without a round trip to the
-             * server ... the timezone is really server specific.
+             * There is no way to make sense of this date without a round trip to the
+             * server, as the timezone is really server specific.
              */
             cockpit.spawn(["date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
                     .fail(function(ex) {

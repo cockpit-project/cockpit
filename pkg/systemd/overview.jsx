@@ -32,6 +32,7 @@ import {
 } from '@patternfly/react-core';
 
 import { superuser } from "superuser";
+import * as timeformat from "timeformat";
 
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
@@ -106,7 +107,8 @@ class LoginMessages extends React.Component {
 
         let last_login_message;
         if (messages['last-login-time']) {
-            const datetime = moment.unix(messages['last-login-time']).format('ll LTS');
+            // time is a Unix time stamp, convert to ms since epoch
+            const datetime = timeformat.dateTime(messages['last-login-time'] * 1000);
             const host = messages['last-login-host'];
             const line = messages['last-login-line'];
             last_login_message = generate_line(host, line, datetime);
@@ -114,7 +116,7 @@ class LoginMessages extends React.Component {
 
         let last_fail_message;
         if (messages['last-fail-time']) {
-            const datetime = moment.unix(messages['last-fail-time']).format('ll LTS');
+            const datetime = timeformat.dateTime(messages['last-fail-time'] * 1000);
             const host = messages['last-fail-host'];
             const line = messages['last-fail-line'];
             last_fail_message = generate_line(host, line, datetime);

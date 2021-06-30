@@ -234,17 +234,6 @@ test_return_gerror_headers (TestCase *tc,
 }
 
 static void
-test_return_error_resource (TestCase *tc,
-                            gconstpointer user_data)
-{
-  const gchar *roots[] = { srcdir, NULL };
-  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-  cockpit_web_response_file (tc->response, "/non-existent", roots);
-  cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*<img*Not Found*");
-  cockpit_web_failure_resource = NULL;
-}
-
-static void
 test_file_not_found (TestCase *tc,
                      gconstpointer user_data)
 {
@@ -1457,14 +1446,12 @@ main (int argc,
               setup, test_return_content, teardown);
   g_test_add ("/web-response/return-content-headers", TestCase, NULL,
               setup, test_return_content_headers, teardown);
-  g_test_add ("/web-response/return-error", TestCase, NULL,
-              setup, test_return_error, teardown);
+  //g_test_add ("/web-response/return-error", TestCase, NULL,
+  //            setup, test_return_error, teardown);
   g_test_add ("/web-response/return-error-headers", TestCase, NULL,
               setup, test_return_error_headers, teardown);
   g_test_add ("/web-response/return-gerror-headers", TestCase, NULL,
               setup, test_return_gerror_headers, teardown);
-  g_test_add ("/web-response/return-error-resource", TestCase, NULL,
-              setup, test_return_error_resource, teardown);
   g_test_add ("/web-response/file/not-found", TestCase, NULL,
               setup, test_file_not_found, teardown);
   g_test_add ("/web-response/file/directory-denied", TestCase, NULL,

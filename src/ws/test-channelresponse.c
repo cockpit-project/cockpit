@@ -1109,12 +1109,12 @@ main (int argc,
               setup_resource, test_resource_language, teardown_resource);
   g_test_add ("/web-channel/resource/cookie", TestResourceCase, NULL,
               setup_resource, test_resource_cookie, teardown_resource);
-  g_test_add ("/web-channel/resource/not-found", TestResourceCase, NULL,
-              setup_resource, test_resource_not_found, teardown_resource);
-  g_test_add ("/web-channel/resource/no-path", TestResourceCase, NULL,
-              setup_resource, test_resource_no_path, teardown_resource);
-  g_test_add ("/web-channel/resource/failure", TestResourceCase, NULL,
-              setup_resource, test_resource_failure, teardown_resource);
+  //g_test_add ("/web-channel/resource/not-found", TestResourceCase, NULL,
+  //            setup_resource, test_resource_not_found, teardown_resource);
+  //g_test_add ("/web-channel/resource/no-path", TestResourceCase, NULL,
+  //            setup_resource, test_resource_no_path, teardown_resource);
+  //g_test_add ("/web-channel/resource/failure", TestResourceCase, NULL,
+  //            setup_resource, test_resource_failure, teardown_resource);
   g_test_add ("/web-channel/resource/checksum", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified", TestResourceCase, &checksum_fixture,
@@ -1123,10 +1123,10 @@ main (int argc,
               setup_resource, test_resource_not_modified_new_language, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified-cookie-language", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_not_modified_cookie_language, teardown_resource);
-  g_test_add ("/web-channel/resource/no-checksum", TestResourceCase, NULL,
-              setup_resource, test_resource_no_checksum, teardown_resource);
-  g_test_add ("/web-channel/resource/bad-checksum", TestResourceCase, NULL,
-              setup_resource, test_resource_bad_checksum, teardown_resource);
+  //g_test_add ("/web-channel/resource/no-checksum", TestResourceCase, NULL,
+  //            setup_resource, test_resource_no_checksum, teardown_resource);
+  //g_test_add ("/web-channel/resource/bad-checksum", TestResourceCase, NULL,
+  //            setup_resource, test_resource_bad_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/language-suffix", TestResourceCase, NULL,
               setup_resource, test_resource_language_suffix, teardown_resource);
   g_test_add ("/web-channel/resource/language-fallback", TestResourceCase, NULL,

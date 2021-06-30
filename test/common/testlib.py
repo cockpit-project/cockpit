@@ -1599,7 +1599,7 @@ def checkRunAxe():
         return False
 
     # when running from release tarballs, module is not available
-    if not os.path.exists(os.path.join(TEST_DIR, "common/axe.js")):
+    if not os.path.exists(f'{BASE_DIR}/node_modules/axe-core/axe.js'):
         sys.stderr.write('# enableAxe: axe is not installed, skipping\n')
         return False
 
@@ -1613,7 +1613,7 @@ def enableAxe(method):
         return method
 
     def wrapper(*args):
-        with open(os.path.join(TEST_DIR, "common/axe.js")) as f:
+        with open(f'{BASE_DIR}/node_modules/axe-core/axe.js') as f:
             script = f.read()
         # first method argument is "self", a MachineCase instance
         args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)

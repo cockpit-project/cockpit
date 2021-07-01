@@ -189,10 +189,12 @@ OnCalendar=daily
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
-        # BIOS date parsing using moment
+        # BIOS date parsing; we don't want to introduce too many assumptions, just that the original MM/DD/YYYY
+        # was parsed at all, and the bios is from the 21st century (20YY)
+        # TestSystemInfo.testHardwareInfo does this more carefully
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', ".20")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', " 20")
 
         # Check the playground page
         b.switch_to_top()

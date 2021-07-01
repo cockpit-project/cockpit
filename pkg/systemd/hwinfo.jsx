@@ -21,9 +21,10 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
-import moment from 'moment';
 import React from "react";
 import ReactDOM from 'react-dom';
+
+import * as timeformat from 'timeformat';
 
 import {
     Alert, AlertActionCloseButton, Button,
@@ -74,6 +75,8 @@ class SystemInfo extends React.Component {
             </PrivilegedButton>
         );
 
+        const bios_date = Date.parse(info.bios_date); // NaN for undefined, null, or invalid dates
+
         return (
             <Flex id="hwinfo-system-info-list" direction={{ default: 'column', sm: 'row' }}>
                 <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
@@ -107,7 +110,7 @@ class SystemInfo extends React.Component {
                             </DescriptionListGroup>
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("BIOS date") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ moment(info.bios_date, "MM/DD/YYYY").isValid() ? moment(info.bios_date, "MM/DD/YYYY").format('L') : info.bios_date }</DescriptionListDescription>
+                                <DescriptionListDescription>{ bios_date ? timeformat.date(bios_date) : info.bios_date }</DescriptionListDescription>
                             </DescriptionListGroup>
                         </> }
                         { info.nproc !== undefined && <>
@@ -364,7 +367,6 @@ class HardwareInfo extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
-    moment.locale(cockpit.language);
     detect().then(info => {
         ReactDOM.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));
     });

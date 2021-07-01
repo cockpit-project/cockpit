@@ -187,7 +187,10 @@ jobs:
           EOF
           rm artifact/npm-install.log
           rmdir artifact
-          echo /.cache >> node_modules/.gitignore
+          cat > node_modules/.gitignore <<EOF
+          *.pyc
+          /.cache
+          EOF
           git --work-tree node_modules add --all
           git --work-tree node_modules commit --quiet -F - < commit-message
           rm -rf node_modules

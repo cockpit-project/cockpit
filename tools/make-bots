@@ -12,11 +12,16 @@ set -eu
 cd "$(realpath -m "$0"/../..)"
 . tools/git-utils.sh
 
-if [ ! -d bots ]; then
+if [ ! -e bots ]; then
     [ -n "${quiet}" ] || set -x
-    # it's small, so keep everything cached
-    fetch_to_cache ${COCKPIT_BOTS_REF+"${COCKPIT_BOTS_REF}"}
-    clone_from_cache "${COCKPIT_BOTS_REF-master}"
+    if [ -h ~/.config/cockpit-dev/bots ]; then
+        message SYMLINK "bots → $(realpath --relative-to=. ~/.config/cockpit-dev/bots)"
+        ln -sfT "$(realpath --relative-to=. ~/.config/cockpit-dev)/bots" bots
+    else
+        # it's small, so keep everything cached
+        fetch_to_cache ${COCKPIT_BOTS_REF+"${COCKPIT_BOTS_REF}"}
+        clone_from_cache "${COCKPIT_BOTS_REF-master}"
+    fi
 else
     echo "bots/ already exists, skipping"
 fi

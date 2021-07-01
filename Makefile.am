@@ -217,6 +217,12 @@ tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
 	$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright > $@.tmp
 	$(MV) $@.tmp $@
 
+# This is the stock rule with $(BUILT_SOURCES) dependency removed.
+# In the future, we can do this via "no-dist-built-sources" automake option:
+# https://git.savannah.gnu.org/cgit/automake.git/commit/?id=13659a7385
+distdir:
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am
+
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
 dist-hook:: $(MANIFESTS)

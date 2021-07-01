@@ -18,7 +18,7 @@
  */
 
 // FIXME: https://github.com/patternfly/patternfly-react/issues/5564
-// Copied from: https://github.com/patternfly/patternfly-react/blob/master/packages/react-core/src/components/TimePicker/TimePickerUtils.tsx
+// Copied from: https://github.com/patternfly/patternfly-react/blob/main/packages/react-core/src/components/TimePicker/TimePickerUtils.tsx
 // and slightly adjusted
 export const validateTime = (time) => {
     // ISO 8601 format is valid

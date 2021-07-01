@@ -232,13 +232,14 @@ Unit=test.service
         b.wait_not_in_text("#services-list", ".socket")
         b.wait_visible(self.svc_sel('test.timer'))
         b.wait_text(self.svc_sel('test.timer') + ' .service-unit-triggers', '')
+        today = m.execute("date '+%b %-d, %Y'").strip()
         m.execute("systemctl start test.timer")
-        b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', "Today")  # next run
+        b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', today)  # next run
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
 
         # Timer details should also show information about next and last trigger
         self.goto_service("test.timer")
-        b.wait_in_text('.service-unit-next-trigger', "Today")  # next run
+        b.wait_in_text('.service-unit-next-trigger', today)  # next run
         b.wait_in_text('.service-unit-last-trigger', "unknown")  # last trigger
         b.click(".pf-c-breadcrumb a:contains('Services')")
 
@@ -248,10 +249,9 @@ Unit=test.service
         b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test-onboot.timer")
         # Check the next run. Since it triggers 200mins after the boot, it might be today or tomorrow (after 20:40)
-        try:
-            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")
-        except Error:
-            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Tomorrow")
+        today_stamp = int(m.execute("date +%s").strip())
+        today_plus_200min = m.execute(f"date --date=@{today_stamp + 200 * 60} '+%b %-d, %Y'").strip()
+        b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', today_plus_200min)
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 

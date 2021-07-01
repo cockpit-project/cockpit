@@ -18,7 +18,6 @@
  */
 
 import cockpit from "cockpit";
-import moment from "moment";
 
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { useEvent } from "hooks.js";
@@ -33,12 +32,11 @@ import {
 
 import { AngleLeftIcon, AngleRightIcon, SearchMinusIcon } from '@patternfly/react-icons';
 
+import * as timeformat from "timeformat";
 import '@patternfly/patternfly/patternfly-charts.scss';
 import "cockpit-components-plot.scss";
 
 const _ = cockpit.gettext;
-
-moment.locale(cockpit.language);
 
 function time_ticks(data) {
     const first_plot = data[0].data;
@@ -111,8 +109,9 @@ function time_ticks(data) {
 
         if (include_month_and_day) {
             if (include_year)
-                label += d.getFullYear().toFixed() + ' ';
-            label += moment(d).format('MMM') + ' ' + d.getDate().toFixed() + '\n';
+                label += timeformat.date(d) + '\n';
+            else
+                label += timeformat.formatter({ month: "long" }).format(d) + ' ' + d.getDate().toFixed() + '\n';
         }
         label += pad(d.getHours()) + ':' + pad(d.getMinutes());
 

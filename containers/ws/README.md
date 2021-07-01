@@ -16,13 +16,17 @@ Cockpit packages.
 
 2. Reboot
 
+Steps 1 and 2 are enough when the CoreOS machine is only connected to through another host running Cockpit.
+
+If you want to also run a web server to log in directly on the CoreOS host:
+
 3. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html):
    ```
    echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf
    sudo systemctl try-restart sshd
    ```
 
-4. Run the Cockpit web service with this privileged container (as root):
+4. Run the Cockpit web service with a privileged container (as root):
    ```
    podman container runlabel --name cockpit-ws RUN docker.io/cockpit/ws
    ```
@@ -32,8 +36,6 @@ Cockpit packages.
    podman container runlabel INSTALL docker.io/cockpit/ws
    systemctl enable cockpit.service
    ```
-
-_Steps 3 to 5 are optional if the CoreOS machine will only be connected to from another host running Cockpit._
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 

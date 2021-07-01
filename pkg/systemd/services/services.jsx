@@ -42,8 +42,8 @@ import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
 import { CreateTimerDialog } from "./timer-dialog.jsx";
-import moment from "moment";
 import { page_status } from "notifications";
+import * as timeformat from "timeformat";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 
@@ -600,7 +600,7 @@ class ServicesPage extends React.Component {
     addTimerProperties(timer_unit, path, unit) {
         let needsUpdate = false;
 
-        const lastTriggerTime = moment(timer_unit.LastTriggerUSec / 1000).calendar();
+        const lastTriggerTime = timeformat.dateTime(timer_unit.LastTriggerUSec / 1000);
         if (lastTriggerTime !== unit.LastTriggerTime) {
             unit.LastTriggerTime = lastTriggerTime;
             needsUpdate = true;
@@ -623,7 +623,7 @@ class ServicesPage extends React.Component {
             else
                 next_run_time = timer_unit.NextElapseUSecRealtime;
         }
-        const nextRunTime = moment(next_run_time / 1000).calendar();
+        const nextRunTime = timeformat.dateTime(next_run_time / 1000);
         if (nextRunTime !== unit.NextRunTime) {
             unit.NextRunTime = nextRunTime;
             needsUpdate = true;
@@ -969,8 +969,6 @@ class ServicesPage extends React.Component {
 }
 
 function init() {
-    moment.locale(cockpit.language);
-
     ReactDOM.render(
         <ServicesPage />,
         document.getElementById('services')

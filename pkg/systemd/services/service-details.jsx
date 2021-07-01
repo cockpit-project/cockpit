@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import moment from "moment";
 import PropTypes from "prop-types";
 import {
     Alert, Button,
@@ -32,6 +31,7 @@ import {
 
 import cockpit from "cockpit";
 import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
+import * as timeformat from "timeformat";
 
 import './service-details.scss';
 
@@ -361,7 +361,7 @@ export class ServiceDetails extends React.Component {
                     <div key="running" className="status-running">
                         <span className="pficon pficon-on-running status-icon" />
                         <span className="status">{ _("Running") }</span>
-                        <span className="side-note font-xs">{ _("Active since ") + moment(this.props.unit.ActiveEnterTimestamp / 1000).format('LLL') }</span>
+                        <span className="side-note font-xs">{ _("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000) }</span>
                     </div>
                 );
             } else {

@@ -20,10 +20,6 @@
 import cockpit from "cockpit";
 import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now } from "./services.jsx";
 
-import moment from "moment";
-
-moment.locale(cockpit.language);
-
 export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime }) {
     const timer_unit = {};
     const repeat_array = repeatPatterns;
@@ -33,30 +29,26 @@ export function create_timer({ name, description, command, delay, delayUnit, del
     timer_unit.boot_time = delayNumber;
     timer_unit.boot_time_unit = delayUnit;
 
+    function month_day_str(d) {
+        const month_str = (d.getMonth() + 1).toString();
+        const day_str = (d.getDate()).toString();
+        return `${month_str.padStart(2, '0')}-${day_str.padStart(2, '0')}`;
+    }
+
     if (delay == "specific-time" && repeat == "no") {
-        var today = new Date(clock_realtime_now);
-        timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + specificTime + ":00";
+        const today = new Date(clock_realtime_now);
+        timer_unit.OnCalendar = `OnCalendar=${today.getFullYear()}-${month_day_str(today)} ${specificTime}:00`;
     } else if (repeat == "hourly") {
-        timer_unit.repeat_minute = repeat_array.map(function(item) {
-            return Number(item.minute);
-        });
+        timer_unit.repeat_minute = repeat_array.map(item => Number(item.minute));
         timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute.join(",");
     } else if (repeat == "daily") {
-        timer_unit.OnCalendar = repeat_array.map(function(item) {
-            return "OnCalendar=*-*-* " + item.time + ":00";
-        });
+        timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-*-* ${item.time}:00`);
     } else if (repeat == "weekly") {
-        timer_unit.OnCalendar = repeat_array.map(function(item) {
-            return "OnCalendar=" + item.day + " *-*-* " + item.time + ":00";
-        });
+        timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=${item.day} *-*-* ${item.time}:00`);
     } else if (repeat == "monthly") {
-        timer_unit.OnCalendar = repeat_array.map(function(item) {
-            return "OnCalendar=*-*-" + item.day + " " + item.time + ":00";
-        });
+        timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-*-${item.day} ${item.time}:00`);
     } else if (repeat == "yearly") {
-        timer_unit.OnCalendar = repeat_array.map(function(item) {
-            return "OnCalendar=*-" + moment(item.date).format('MM') + "-" + moment(item.date).format('DD') + " " + item.time + ":00";
-        });
+        timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-${month_day_str(new Date(item.date))} ${item.time}:00`);
     }
     if (repeat != "hourly" && delay == "specific-time")
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");

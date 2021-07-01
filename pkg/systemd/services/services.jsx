@@ -70,8 +70,8 @@ export function updateTime() {
                 clock_monotonic_now = parseInt(uptime * 1000000, 10);
             }, ex => console.log(ex.toString()));
     cockpit.spawn(["date", "+%s"])
-            .then(function(time) {
-                clock_realtime_now = moment.unix(parseInt(time));
+            .then(time => {
+                clock_realtime_now = parseInt(time, 10) * 1000;
             }, ex => console.log(ex.toString()));
 }
 
@@ -605,7 +605,7 @@ class ServicesPage extends React.Component {
             unit.LastTriggerTime = lastTriggerTime;
             needsUpdate = true;
         }
-        const system_boot_time = clock_realtime_now.valueOf() * 1000 - clock_monotonic_now;
+        const system_boot_time = clock_realtime_now * 1000 - clock_monotonic_now;
         if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0) {
             if (unit.LastTriggerTime !== _("unknown")) {
                 unit.LastTriggerTime = _("unknown");

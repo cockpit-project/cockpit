@@ -257,5 +257,5 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                body: `> /npm install\n\nThe workflow failed.  See here for more information: https://github.com/${owner}/${repo}/actions/runs/${context.runId}`
+                body: `> /npm install\n\nThe workflow failed.  See here for more information: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });

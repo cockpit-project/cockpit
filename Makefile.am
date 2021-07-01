@@ -190,14 +190,6 @@ else
 	@true
 endif
 
-dist-hook::
-if ENABLE_DOC
-	@true
-else
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
-	@false
-endif
-
 # See test/image-prepare
 dump-dist:
 	@echo "$(abs_builddir)/$(distdir).tar.xz"
@@ -211,6 +203,13 @@ COMMITTED_DIST = \
 tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
 	$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright > $@.tmp
 	$(MV) $@.tmp $@
+
+distdir:
+if !ENABLE_DOC
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
+	@false
+endif
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file

@@ -56,7 +56,7 @@ class TestStorageHidden(StorageCase):
                      'size': 48})
         self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol")
 
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "name": "FS",
@@ -120,7 +120,7 @@ class TestStorageHidden(StorageCase):
 
         b.click('#devices .sidepanel-row:contains("ARR")')
         b.wait_visible('#storage-detail')
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FS2",
                      "mount_point": mount_point_2})

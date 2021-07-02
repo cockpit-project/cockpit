@@ -144,7 +144,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"size": 30})
 
         # format and mount it
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
         self.content_row_wait_in_col(1, 1, "ext4 file system")
@@ -204,7 +204,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(2) button:disabled')
 
         # use almost all of the pool by erasing the thin volume
-        self.content_head_action(2, "Format")
+        self.content_row_action(2, "Format")
         self.dialog({"erase.on": True,
                      "type": "ext4",
                      "mount_point": mount_point_thin})

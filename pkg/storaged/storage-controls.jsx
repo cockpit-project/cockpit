@@ -20,7 +20,7 @@
 import React, { useState } from 'react';
 
 import {
-    Button, Dropdown, DropdownItem, DropdownToggle,
+    Button, Dropdown, DropdownItem, DropdownToggle, KebabToggle,
     Tooltip, TooltipPosition,
     Progress, ProgressMeasureLocation, ProgressVariant,
     Switch,
@@ -214,20 +214,24 @@ export const StorageMenuItem = ({ onClick, children }) => (
     <DropdownItem onKeyPress={checked(onClick)} onClick={checked(onClick)}>{children}</DropdownItem>
 );
 
-export const StorageBarMenu = ({ label, menuItems }) => {
+export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!client.superuser.allowed)
         return null;
 
+    let toggle;
+    if (isKebab)
+        toggle = <KebabToggle onToggle={setIsOpen} />;
+    else
+        toggle = <DropdownToggle className="pf-m-primary" toggleIndicator={null}
+                                 onToggle={setIsOpen} aria-label={label}>
+            <BarsIcon color="white" />
+        </DropdownToggle>;
+
     return (
         <Dropdown onSelect={() => setIsOpen(!isOpen)}
-                  toggle={
-                      <DropdownToggle className="pf-m-primary" toggleIndicator={null}
-                                      onToggle={setIsOpen} aria-label={label}>
-                          <BarsIcon color="white" />
-                      </DropdownToggle>
-                  }
+                  toggle={toggle}
                   isOpen={isOpen}
                   isPlain
                   position="right"

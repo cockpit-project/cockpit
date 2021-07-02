@@ -1,22 +1,6 @@
-src/common/cockpitassets.h: src/common/cockpitassets.gresource.xml
-	@$(MKDIR_P) $(dir $@)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-header --sourcedir=$(dir $<) $<
-src/common/cockpitassets.c: src/common/cockpitassets.gresource.xml src/common/fail.html
-	@$(MKDIR_P) $(dir $@)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-source --sourcedir=$(dir $<) $<
-
-COCKPIT_ASSETS = \
-       src/common/cockpitassets.h \
-       src/common/cockpitassets.c \
-       $(NULL)
-
-BUILT_SOURCES += $(COCKPIT_ASSETS)
-CLEANFILES += $(COCKPIT_ASSETS)
-
 EXTRA_DIST += \
 	src/common/mock-content \
 	src/common/mock-stderr \
-	src/common/cockpitassets.gresource.xml \
 	src/common/fail.html \
 	$(test_locale_PO) \
 	$(NULL)
@@ -52,8 +36,12 @@ libcockpit_common_nodeps_a_CFLAGS = \
 
 noinst_LIBRARIES += libcockpit-common.a
 
+.html.o:
+	$(AM_V_GEN) ld -r -b binary -o $@ $<
+
 # Code that has other dependencies, like glib or libsystemd
 libcockpit_common_a_SOURCES = \
+	src/common/fail.html \
 	src/common/cockpitchannel.c \
 	src/common/cockpitchannel.h \
 	src/common/cockpitcontrolmessages.c \

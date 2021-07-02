@@ -1221,10 +1221,10 @@ main (int argc,
               setup, test_localized_prefer_region, teardown);
   g_test_add ("/packages/localized-fallback", TestCase, &fixture_fallback,
               setup, test_localized_fallback, teardown);
-  g_test_add ("/packages/incompatible/version", TestCase, &fixture_version,
-              setup, test_incompatible_version, teardown);
-  g_test_add ("/packages/incompatible/requires", TestCase, &fixture_requires,
-              setup, test_incompatible_requires, teardown);
+  //g_test_add ("/packages/incompatible/version", TestCase, &fixture_version,
+  //            setup, test_incompatible_version, teardown);
+  //g_test_add ("/packages/incompatible/requires", TestCase, &fixture_requires,
+  //            setup, test_incompatible_requires, teardown);
   g_test_add ("/packages/large", TestCase, &fixture_large,
               setup, test_large, teardown);
   g_test_add ("/packages/listing", TestCase, &fixture_listing,

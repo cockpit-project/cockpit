@@ -39,14 +39,6 @@
 #include <string.h>
 
 /**
- * Certain processes may want to have a non-default error page.
- */
-const gchar *cockpit_web_failure_resource = NULL;
-
-static const gchar default_failure_template[] =
-  "<html><head><title>@@message@@</title></head><body>@@message@@</body></html>\n";
-
-/**
  * CockpitWebResponse:
  *
  * A response sent back to an HTTP client. You can use the high level one
@@ -1115,9 +1107,7 @@ cockpit_web_response_error (CockpitWebResponse *self,
   gchar *reason = NULL;
   gchar *escaped = NULL;
   const gchar *message;
-  GBytes *input = NULL;
   GList *output, *l;
-  GError *error = NULL;
 
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
 
@@ -1172,18 +1162,10 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   g_debug ("%s: returning error: %u %s", self->logname, code, message);
 
-  if (cockpit_web_failure_resource)
-    {
-      input = g_resources_lookup_data (cockpit_web_failure_resource, G_RESOURCE_LOOKUP_FLAGS_NONE, &error);
-      if (input == NULL)
-        {
-          g_critical ("couldn't load: %s: %s", cockpit_web_failure_resource, error->message);
-          g_error_free (error);
-        }
-    }
-
-  if (!input)
-    input = g_bytes_new_static (default_failure_template, strlen (default_failure_template));
+  extern char _binary_src_common_fail_html_start[];
+  extern char _binary_src_common_fail_html_end[];
+  gsize fail_html_size = _binary_src_common_fail_html_end - _binary_src_common_fail_html_start;
+  GBytes *input = g_bytes_new_static (_binary_src_common_fail_html_start, fail_html_size);
   output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
   g_bytes_unref (input);
 

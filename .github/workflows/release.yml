@@ -7,6 +7,7 @@ on:
 jobs:
   cockpituous:
     runs-on: ubuntu-latest
+    environment: release
     container:
       image: ghcr.io/cockpit-project/release
     steps:

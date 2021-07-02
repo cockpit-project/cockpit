@@ -18,10 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import moment from "moment";
 
 const _ = cockpit.gettext;
-moment.locale(cockpit.language);
 
 export var client = {};
 
@@ -105,8 +103,8 @@ client.init = function(capabilitiesChangedCallback) {
           analysisId: plugin id. It can be used in org.fedoraproject.SetroubleshootFixit.run_fix()
           fixable: True when an alert is fixable by a plugin
           reportBug: True when an alert should be reported
-      firstSeen: when the alert was seen for the first time, momentjs object
-      lastSeen: when the alert was seen for the last time, momentjs object
+      firstSeen: when the alert was seen for the first time, timestamp in ms
+      lastSeen: when the alert was seen for the last time, timestamp in ms
       level: "green", "yellow" or "red"
     */
     client.getAlert = function(localId) {
@@ -119,8 +117,8 @@ client.init = function(capabilitiesChangedCallback) {
                             reportCount: result[2],
                             auditEvent: result[3],
                             pluginAnalysis: result[4],
-                            firstSeen: moment(result[5] / 1000),
-                            lastSeen: moment(result[6] / 1000),
+                            firstSeen: result[5] / 1000,
+                            lastSeen: result[6] / 1000,
                             level: result[7],
                         };
                         // cleanup analysis

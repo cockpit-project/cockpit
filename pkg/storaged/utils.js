@@ -634,7 +634,7 @@ export function get_active_usage(client, path) {
 
         if (use.usage == 'mounted') {
             res.Teardown.Mounts.push({
-                Name: block_name(use.block),
+                Name: block_name(client.blocks[use.block.CryptoBackingDevice] || use.block),
                 MountPoint: decode_filename(use.fsys.MountPoints[0])
             });
         } else if (use.usage == 'mdraid-member') {
@@ -766,4 +766,11 @@ export function fmt_to_array(fmt, arg) {
 
 export function reload_systemd() {
     return cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" });
+}
+
+export function is_mounted_synch(block) {
+    return (cockpit.spawn(["findmnt", "-n", "-o", "TARGET", "-S", decode_filename(block.Device)],
+                          { superuser: true, err: "message" })
+            .then(data => data.trim())
+            .catch(() => false));
 }

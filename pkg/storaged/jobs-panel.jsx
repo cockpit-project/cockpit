@@ -92,7 +92,7 @@ function make_description(client, job) {
 
     var target = job.Objects.map(function (path) {
         if (client.blocks[path])
-            return block_name(client.blocks[path]);
+            return block_name(client.blocks[client.blocks[path].CryptoBackingDevice] || client.blocks[path]);
         else if (client.mdraids[path])
             return mdraid_name(client.mdraids[path]);
         else if (client.vgroups[path])
@@ -213,10 +213,10 @@ export class JobsPanel extends React.Component {
     }
 }
 
-export function job_progress_wrapper(client, path) {
+export function job_progress_wrapper(client, path1, path2) {
     return function (vals, progress_callback, action_function) {
         function client_changed() {
-            const job = client.path_jobs[path];
+            const job = client.path_jobs[path1] || client.path_jobs[path2];
             if (job) {
                 let desc = make_description(client, job);
                 if (job.ProgressValid)

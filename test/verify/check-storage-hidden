@@ -65,14 +65,12 @@ class TestStorageHidden(StorageCase):
                      "mount_point": mount_point_1,
                      "mount_options.auto": False,
                      "crypto_options.extra": "my-crypto-tag"})
-        self.content_row_wait_in_col(2, 1, "ext4 file system")
+        self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
         self.wait_in_storaged_configuration(mount_point_1)
         self.wait_in_storaged_configuration("my-crypto-tag")
 
-        # Now doubly hide the clear text block device by locking the
-        # crypto backing device and deactivating /dev/TEST/lvol
-        self.content_dropdown_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "Filesystem")
+        # Now the filesystem is hidden because the LUKS device is
+        # locked.  Doubly hide it by deactivating /dev/TEST/lvol
         self.content_dropdown_action(1, "Deactivate")
         self.content_row_wait_in_col(1, 1, "48 MiB Inactive volume")
 

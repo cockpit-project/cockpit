@@ -23,8 +23,9 @@ import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { decode_filename, block_name, fmt_size, go_to_block, array_find } from "./utils.js";
+import { block_name, fmt_size, go_to_block } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
+import { get_fstab_config } from "./fsys-tab.jsx";
 
 const _ = cockpit.gettext;
 
@@ -47,20 +48,31 @@ export class FilesystemsPanel extends React.Component {
 
         function is_mount(path) {
             var block = client.blocks[path];
-            var fsys = client.blocks_fsys[path];
-            return fsys && block.IdUsage == "filesystem" && block.IdType != "mpath_member" && !block.HintIgnore;
+
+            if (block.HintIgnore)
+                return false;
+
+            if (block.IdUsage == "filesystem" && block.IdType != "mpath_member")
+                return true;
+
+            if (block.IdUsage == "crypto" && !client.blocks_cleartext[block.path]) {
+                var [, mount_point] = get_fstab_config(block, true);
+                return !!mount_point;
+            }
+
+            return false;
         }
 
         function make_mount(path) {
             var block = client.blocks[path];
-            var config = array_find(block.Configuration, function (c) { return c[0] == "fstab" });
-            var mount_point = config && decode_filename(config[1].dir.v);
+            var [, mount_point] = get_fstab_config(block, true);
             var fsys_size = client.fsys_sizes.data[mount_point];
+            var backing_block = client.blocks[block.CryptoBackingDevice];
 
             return {
                 props: { path, client, key: path },
                 columns: [
-                    { title:  block.IdLabel || block_name(block) },
+                    { title:  block.IdLabel || block_name(backing_block || block) },
                     { title: mount_point || "-" },
                     {
                         title: fsys_size

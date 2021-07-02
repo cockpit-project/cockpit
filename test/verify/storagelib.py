@@ -102,7 +102,7 @@ class StorageHelpers:
             b.wait_visible(tbody + ".pf-m-expanded")
 
     def content_row_action(self, index, title):
-        btn = self.content_row_tbody(index) + " tr td:last-child button:contains(%s)" % title
+        btn = self.content_row_tbody(index) + " tr:first-child td button:contains(%s)" % title
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
@@ -113,14 +113,8 @@ class StorageHelpers:
         col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
         wait(lambda: self.browser.is_present(col) and val in self.browser.text(col))
 
-    def content_head_action(self, index, title):
-        self.content_row_expand(index)
-        btn = self.content_row_tbody(index) + " .ct-listing-panel-actions button:contains(%s)" % title
-        self.browser.click(btn)
-
     def content_dropdown_action(self, index, title):
-        self.content_row_expand(index)
-        dropdown = self.content_row_tbody(index) + " .ct-listing-panel-actions .pf-c-dropdown"
+        dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-c-dropdown"
         self.browser.click(dropdown + " button.pf-c-dropdown__toggle")
         self.browser.click(dropdown + " a:contains('%s')" % title)
 

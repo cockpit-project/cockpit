@@ -53,7 +53,7 @@ class TestStorageMounting(StorageCase):
 
         # Format it
 
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -82,7 +82,7 @@ class TestStorageMounting(StorageCase):
         self.wait_in_storaged_configuration(mount_point_bar)
         self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_bar)
 
-        self.content_head_action(1, "Mount")
+        self.content_row_action(1, "Mount")
         self.confirm()
         self.wait_mounted(1, 1)
 
@@ -129,7 +129,7 @@ class TestStorageMounting(StorageCase):
 
         # Open format dialog and play with the checkboxes
 
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("crypto", self.default_crypto_type)
@@ -191,7 +191,7 @@ class TestStorageMounting(StorageCase):
 
         # Format it
 
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -265,7 +265,7 @@ class TestStorageMounting(StorageCase):
         self.content_row_wait_in_col(2, 2, "/dev/test/two")
 
         # Encrypt and format the first and give it /run/data as the mount point
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
@@ -275,7 +275,7 @@ class TestStorageMounting(StorageCase):
         self.content_tab_wait_in_info(2, 1, "Mount point", "/run/data")
 
         # Format the second and also try to use /run/data as the mount point
-        self.content_head_action(3, "Format")
+        self.content_row_action(3, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("mount_point", "/run/data")
@@ -306,7 +306,7 @@ class TestStorageMounting(StorageCase):
         self.content_row_wait_in_col(1, 1, "ext4 file system")
 
         m.execute("! grep /run/data /etc/fstab")
-        self.content_head_action(1, "Mount")
+        self.content_row_action(1, "Mount")
         self.dialog({"mount_point": "/run/data",
                      "mount_options.extra": "x-foo"})
         m.execute("grep /run/data /etc/fstab")

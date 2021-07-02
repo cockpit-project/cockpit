@@ -25,7 +25,10 @@ import {
 import * as utils from "./utils.js";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardBody, CardActions, Spinner, Text, TextVariants } from "@patternfly/react-core";
+import {
+    Card, CardHeader, CardTitle, CardBody, CardActions, Spinner, Text, TextVariants,
+    DropdownSeparator
+} from "@patternfly/react-core";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -175,6 +178,7 @@ function create_tabs(client, target, is_partition) {
 
     var tab_actions = [];
     var tab_menu_actions = [];
+    var tab_menu_danger_actions = [];
 
     function add_action(title, func) {
         tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
@@ -182,6 +186,10 @@ function create_tabs(client, target, is_partition) {
 
     function add_menu_action(title, func) {
         tab_menu_actions.push({ title: title, func: func });
+    }
+
+    function add_menu_danger_action(title, func) {
+        tab_menu_danger_actions.push({ title: title, func: func });
     }
 
     function lock() {
@@ -343,15 +351,15 @@ function create_tabs(client, target, is_partition) {
         }
     }
 
-    if (is_partition || lvol) {
-        add_menu_action(_("Delete"), delete_);
-    }
-
     if (block) {
         if (is_unrecognized)
             add_action(_("Format"), () => format_dialog(client, block.path));
         else
-            add_menu_action(_("Format"), () => format_dialog(client, block.path));
+            add_menu_danger_action(_("Format"), () => format_dialog(client, block.path));
+    }
+
+    if (is_partition || lvol) {
+        add_menu_danger_action(_("Delete"), delete_);
     }
 
     if (block_fsys) {
@@ -365,6 +373,7 @@ function create_tabs(client, target, is_partition) {
         renderers: tabs,
         actions: tab_actions,
         menu_actions: tab_menu_actions,
+        menu_danger_actions: tab_menu_danger_actions,
         row_action: row_action,
         has_warnings: warnings.length > 0
     };
@@ -409,52 +418,51 @@ function block_description(client, block) {
 }
 
 function append_row(client, rows, level, key, name, desc, tabs, job_object) {
-    // Except in a very few cases, we don't both have a button and
-    // a spinner in the same row, so we put them in the same
-    // place.
-
-    var last_column = null;
-    if (job_object && client.path_jobs[job_object])
-        last_column = (
-            <Spinner isSVG size="md" />
-        );
-    if (tabs.row_action) {
-        if (last_column) {
-            last_column = <span>{last_column}{tabs.row_action}</span>;
-        } else {
-            last_column = tabs.row_action;
-        }
-    }
-
-    if (tabs.has_warnings) {
-        last_column = <span>{last_column}<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /></span>;
-    }
-
-    var cols = [
-        {
-            title: <span key={name} className={"content-level-" + level}>
-                {utils.format_size_and_text(desc.size, desc.text)}
-            </span>
-        },
-        { title: name },
-        { title: last_column, props: { className: "content-action" } },
-    ];
-
     function menuitem(action) {
-        return <StorageMenuItem key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+        if (action)
+            return <StorageMenuItem key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+        else
+            return <DropdownSeparator key="sep" />;
     }
 
     var menu = null;
-    if (tabs.menu_actions && tabs.menu_actions.length > 0)
-        menu = <StorageBarMenu id={"menu-" + name} menuItems={tabs.menu_actions.map(menuitem)} />;
+    var menu_actions = tabs.menu_actions || [];
+    if (tabs.menu_danger_actions && tabs.menu_danger_actions.length > 0) {
+        if (menu_actions.length > 0)
+            menu_actions.push(null); // separator
+        menu_actions = menu_actions.concat(tabs.menu_danger_actions);
+    }
 
-    var actions = <>{tabs.actions}{menu}</>;
+    if (menu_actions.length > 0)
+        menu = <StorageBarMenu id={"menu-" + name} menuItems={menu_actions.map(menuitem)} isKebab />;
+
+    var actions = <>{tabs.row_action}{tabs.actions}</>;
+
+    var info = null;
+    if (job_object && client.path_jobs[job_object])
+        info = <Spinner isSVG size="md" />;
+    if (tabs.has_warnings)
+        info = <>{info}<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /></>;
+    if (info)
+        info = <>{"\n"}{info}</>;
+
+    var cols = [
+        {
+            title: (
+                <span key={name} className={"content-level-" + level}>
+                    {utils.format_size_and_text(desc.size, desc.text)}
+                    {info}
+                </span>)
+        },
+        { title: name },
+        { title: actions, props: { className: "content-action" } },
+        { title: menu, props: { className: "content-action" } }
+    ];
 
     rows.push({
         props: { key },
         columns: cols,
-        expandedContent: <ListingPanel tabRenderers={tabs.renderers}
-                                       listingActions={actions} />
+        expandedContent: <ListingPanel tabRenderers={tabs.renderers} />
     });
 }
 
@@ -498,7 +506,8 @@ function append_partitions(client, rows, level, block) {
                 </span>
             },
             { },
-            { title : btn, props: { className: "content-action" } }
+            { title : btn, props: { className: "content-action" } },
+            { props: { className: "content-action" } }
         ];
 
         rows.push({
@@ -635,7 +644,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <ListingTable rows={ block_rows(client, block) }
                               aria-label={_("Content")}
                               variant="compact"
-                              columns={[_("Content"), { title: _("Name"), header: true }, _("Actions")]}
+                              columns={[_("Content"), { title: _("Name"), header: true }, _("Actions"), _("Menu")]}
                               showHeader={false} />
             </CardBody>
         </Card>
@@ -804,7 +813,7 @@ export class VGroup extends React.Component {
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}
                                   aria-label={_("Logical volumes")}
-                                  columns={[_("Content"), { title: _("Name"), header: true }, _("Actions")]}
+                                  columns={[_("Content"), { title: _("Name"), header: true }, _("Actions"), _("Menu")]}
                                   showHeader={false}
                                   variant="compact"
                                   rows={vgroup_rows(self.props.client, vgroup)} />

@@ -76,7 +76,7 @@ class TestStorageVDO(StorageCase):
         # Make a filesystem on it
 
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})

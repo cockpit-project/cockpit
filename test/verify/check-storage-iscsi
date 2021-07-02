@@ -100,7 +100,7 @@ class TestStorageISCSI(StorageCase):
         b.click('#drives .sidepanel-row:contains("LIO-ORG test")')
         b.wait_visible('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized data")
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mount_point": "/data"})

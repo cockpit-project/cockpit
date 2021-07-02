@@ -56,7 +56,7 @@ class TestStorageResize(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("name", "FSYS")
@@ -86,7 +86,7 @@ class TestStorageResize(StorageCase):
             m.execute("udevadm trigger")
             self.content_tab_wait_in_info(1, 1, "Size", "400 MiB")
             if grow_needs_unmount:
-                self.content_head_action(fsys_row, "Mount")
+                self.content_row_action(fsys_row, "Mount")
                 self.confirm()
             self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
@@ -109,7 +109,7 @@ class TestStorageResize(StorageCase):
             m.execute("udevadm trigger")
             self.content_tab_wait_in_info(1, 1, "Size", "200 MiB")
             if shrink_needs_unmount:
-                self.content_head_action(fsys_row, "Mount")
+                self.content_row_action(fsys_row, "Mount")
                 self.confirm()
                 self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
@@ -185,7 +185,7 @@ class TestStorageResize(StorageCase):
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
         mountpoint = "/run/foo"
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", "ext4")
@@ -211,7 +211,7 @@ class TestStorageResize(StorageCase):
         fs_dev = m.execute("lsblk -pnl /dev/TEST/vol -o NAME | tail -1").strip()
         self.shrink_extfs(fs_dev, "200M")
 
-        self.content_head_action(1, "Mount")
+        self.content_row_action(1, "Mount")
         self.confirm()
         self.wait_mounted(1, 2)
         self.content_tab_action(1, 1, "Shrink volume")
@@ -239,7 +239,7 @@ class TestStorageResize(StorageCase):
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
         mountpoint = "/run/foo"
-        self.content_head_action(1, "Format")
+        self.content_row_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", "ext4")
@@ -278,7 +278,7 @@ class TestStorageResize(StorageCase):
 
         fs_dev = m.execute("lsblk -pnl /dev/TEST/vol -o NAME | tail -1").strip()
         self.shrink_extfs(fs_dev, "200M")
-        self.content_head_action(2, "Mount")
+        self.content_row_action(2, "Mount")
         self.confirm()
         self.wait_mounted(2, 1)
 
@@ -305,7 +305,7 @@ class TestStorageResize(StorageCase):
 
         self.shrink_extfs(fs_dev, "198M")
         m.execute("echo vainu-reku-toma-rolle-kaja | cryptsetup resize '%s' 200M" % fs_dev)
-        self.content_head_action(2, "Mount")
+        self.content_row_action(2, "Mount")
         self.confirm()
         self.wait_mounted(2, 1)
 

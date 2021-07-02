@@ -101,7 +101,7 @@ var initStore = function(rootElement) {
             promise = dataStore.client.runFix(alertId, analysisId);
 
         promise
-                .done(function(output) {
+                .then(output => {
                     dataStore.entries[idx].details.pluginAnalysis[fixId].fix = {
                         plugin: analysisId,
                         running: false,
@@ -111,7 +111,7 @@ var initStore = function(rootElement) {
                     selinuxClient.getModifications(selinuxStatusChanged);
                     dataStore.render();
                 })
-                .fail(function(error) {
+                .catch(error => {
                     dataStore.entries[idx].details.pluginAnalysis[fixId].fix = {
                         plugin: analysisId,
                         running: false,
@@ -129,8 +129,8 @@ var initStore = function(rootElement) {
      */
     var deleteAlert = function(alertId) {
         dataStore.client.capabilities.deleteAlert(alertId)
-                .done(function() {
-                    var idx;
+                .then(() => {
+                    let idx;
                     for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
                         if (dataStore.entries[idx].key == alertId)
                             break;
@@ -140,7 +140,7 @@ var initStore = function(rootElement) {
                     dataStore.entries.splice(idx, 1);
                     dataStore.render();
                 })
-                .fail(function(error) {
+                .catch(error => {
                     dataStore.error = error;
                     dataStore.render();
                 });
@@ -230,11 +230,11 @@ var initStore = function(rootElement) {
 
     var getAlertDetails = function(id) {
         dataStore.client.getAlert(id)
-                .done(function(details) {
+                .then(details => {
                     maybeUpdateAlert(id, details.summary, details.reportCount, details);
                     render();
                 })
-                .fail(function() {
+                .catch(() => {
                     maybeUpdateAlert(id, undefined, undefined, null);
                     render();
                 });
@@ -267,7 +267,7 @@ var initStore = function(rootElement) {
             render();
             // initialize our setroubleshootd client
             dataStore.client.init(capablitiesChanged)
-                    .done(function(capablitiesChanged) {
+                    .then(capablitiesChanged => {
                         dataStore.connected = true;
                         window.clearTimeout(dataStore.connecting);
                         dataStore.connecting = null;
@@ -277,13 +277,13 @@ var initStore = function(rootElement) {
                         // the order is important, since we don't want to miss an entry
                         dataStore.client.handleAlert(dataStore.handleAlert);
                         dataStore.client.getAlerts()
-                                .done(handleMultipleMessages)
-                                .fail(function() {
+                                .then(handleMultipleMessages)
+                                .catch(() => {
                                     console.error("Unable to get setroubleshootd messages");
                                     setDisconnected();
                                 });
                     })
-                    .fail(function() {
+                    .catch(() => {
                         dataStore.connected = false;
                         window.clearTimeout(dataStore.connecting);
                         dataStore.connecting = null;

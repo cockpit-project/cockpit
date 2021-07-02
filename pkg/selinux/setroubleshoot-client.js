@@ -40,18 +40,16 @@ client.init = function(capabilitiesChangedCallback) {
 
     client.proxyFixit = cockpit.dbus(busNameFixit, { superuser: "try" }).proxy(dbusInterfaceFixit, dbusPathFixit);
 
-    var dfd = cockpit.defer();
-
-    client.proxy.wait(function() {
-        // HACK setroubleshootd seems to drop connections if we don't start explicitly
-        client.proxy.call("start", [])
-                .done(function() {
-                    client.connected = true;
-                    dfd.resolve();
-                })
-                .fail(function(ex) {
-                    dfd.reject(new Error(_("Unable to start setroubleshootd")));
-                });
+    const connectPromise = new Promise((resolve, reject) => {
+        client.proxy.wait(() => {
+            // HACK setroubleshootd seems to drop connections if we don't start explicitly
+            client.proxy.call("start", [])
+                    .then(() => {
+                        client.connected = true;
+                        resolve();
+                    })
+                    .catch(ex => reject(new Error(_("Unable to start setroubleshootd"))));
+        });
     });
 
     client.alertCallback = null;
@@ -76,26 +74,22 @@ client.init = function(capabilitiesChangedCallback) {
 
     // returns a jquery promise
     client.getAlerts = function(since) {
-        var dfdResult = cockpit.defer();
-        var call;
-        if (since !== undefined)
-            call = client.proxy.call("get_all_alerts_since", [since]);
-        else
-            call = client.proxy.call("get_all_alerts", []);
-        call
-                .done(function(result) {
-                    dfdResult.resolve(result[0].map(function(entry) {
-                        return {
+        return new Promise((resolve, reject) => {
+            let call;
+            if (since !== undefined)
+                call = client.proxy.call("get_all_alerts_since", [since]);
+            else
+                call = client.proxy.call("get_all_alerts", []);
+            call
+                    .then(result => {
+                        resolve(result[0].map(entry => ({
                             localId: entry[0],
                             summary: entry[1],
                             reportCount: entry[2],
-                        };
-                    }));
-                })
-                .fail(function(ex) {
-                    dfdResult.reject(ex);
-                });
-        return dfdResult.promise();
+                        })));
+                    })
+                    .catch(ex => reject(ex));
+        });
     };
 
     /* Return an alert with summary, audit events, fix suggestions (by id)
@@ -116,73 +110,67 @@ client.init = function(capabilitiesChangedCallback) {
       level: "green", "yellow" or "red"
     */
     client.getAlert = function(localId) {
-        var dfdResult = cockpit.defer();
-        client.proxy.call("get_alert", [localId])
-                .done(function(result) {
-                    var details = {
-                        localId: result[0],
-                        summary: result[1],
-                        reportCount: result[2],
-                        auditEvent: result[3],
-                        pluginAnalysis: result[4],
-                        firstSeen: moment(result[5] / 1000),
-                        lastSeen: moment(result[6] / 1000),
-                        level: result[7],
-                    };
-                    // cleanup analysis
-                    details.pluginAnalysis = details.pluginAnalysis.map(function(itm) {
-                        return {
+        return new Promise((resolve, reject) => {
+            client.proxy.call("get_alert", [localId])
+                    .then(result => {
+                        const details = {
+                            localId: result[0],
+                            summary: result[1],
+                            reportCount: result[2],
+                            auditEvent: result[3],
+                            pluginAnalysis: result[4],
+                            firstSeen: moment(result[5] / 1000),
+                            lastSeen: moment(result[6] / 1000),
+                            level: result[7],
+                        };
+                        // cleanup analysis
+                        details.pluginAnalysis = details.pluginAnalysis.map(itm => ({
                             ifText: itm[0],
                             thenText: itm[1],
                             doText: itm[2],
                             analysisId: itm[3],
                             fixable: itm[4],
                             reportBug: itm[5],
-                        };
+                        }));
+                        resolve(details);
+                    })
+                    .catch(ex => {
+                        console.warn("Unable to get alert for id " + localId);
+                        console.warn(ex);
+                        reject(new Error(cockpit.format(_("Unable to get alert: $0"), localId)));
                     });
-                    dfdResult.resolve(details);
-                })
-                .fail(function(ex) {
-                    console.warn("Unable to get alert for id " + localId);
-                    console.warn(ex);
-                    dfdResult.reject(new Error(cockpit.format(_("Unable to get alert: $0"), localId)));
-                });
-        return dfdResult.promise();
+        });
     };
 
     /* Run a fix via SetroubleshootFixit
        The analysisId is given as part of pluginAnalysis entries in alert details
      */
     client.runFix = function(alertId, analysisId) {
-        var dfdResult = cockpit.defer();
-        client.proxyFixit.call("run_fix", [alertId, analysisId])
-                .done(function(result) {
-                    dfdResult.resolve(result[0]);
-                })
-                .fail(function(ex) {
-                    dfdResult.reject(new Error(cockpit.format(_("Unable to run fix: %0"), +ex)));
-                });
-        return dfdResult.promise();
+        return new Promise((resolve, reject) => {
+            client.proxyFixit.call("run_fix", [alertId, analysisId])
+                    .then(result => resolve(result[0]))
+                    .catch(ex => reject(new Error(cockpit.format(_("Unable to run fix: %0"), ex))));
+        });
     };
 
     /* Delete an alert from the database (will be removed for all users), returns true on success
      * Only assign this to the client variable if the dbus interface actually supports the operation
      */
     var deleteAlert = function(localId) {
-        var dfdResult = cockpit.defer();
-        client.proxy.call("delete_alert", [localId])
-                .done(function(success) {
-                    if (success)
-                        dfdResult.resolve();
-                    else
-                        dfdResult.reject(new Error(cockpit.format(_("Failed to delete alert: $0"), localId)));
-                })
-                .fail(function(ex) {
-                    console.warn("Unable to delete alert with id " + localId);
-                    console.warn(ex);
-                    dfdResult.reject(new Error(cockpit.format(_("Error while deleting alert: $0"), localId)));
-                });
-        return dfdResult.promise();
+        return new Promise((resolve, reject) => {
+            client.proxy.call("delete_alert", [localId])
+                    .then(success => {
+                        if (success)
+                            resolve();
+                        else
+                            reject(new Error(cockpit.format(_("Failed to delete alert: $0"), localId)));
+                    })
+                    .catch(ex => {
+                        console.warn("Unable to delete alert with id " + localId);
+                        console.warn(ex);
+                        reject(new Error(cockpit.format(_("Error while deleting alert: $0"), localId)));
+                    });
+        });
     };
 
     // earlier versions of the dbus interface don't support alert deletion/dismissal
@@ -202,5 +190,5 @@ client.init = function(capabilitiesChangedCallback) {
     });
 
     // connect to dbus and start setroubleshootd
-    return dfd.promise();
+    return connectPromise;
 };

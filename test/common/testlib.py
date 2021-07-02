@@ -705,7 +705,9 @@ class Browser:
             #
             # - The call to assert_pixels specifies a list of
             #   rectangles (via CSS selectors).  Pixels within those
-            #   rectangles are ignored.
+            #   rectangles (and slightly outside) are ignored.  Pixels
+            #   just outside the rectangles are also ignored to avoid
+            #   issues with rounding coordinates.
             #
             # - The RGB values of pixels can differ by up to 2.
             #
@@ -717,7 +719,7 @@ class Browser:
 
             def ignorable_coord(x, y):
                 for (x0, y0, x1, y1) in ignore_rects:
-                    if x >= x0 and x < x1 and y >= y0 and y < y1:
+                    if x >= x0 - 2 and x < x1 + 2 and y >= y0 - 2 and y < y1 + 2:
                         return True
                 return False
 

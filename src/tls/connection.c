@@ -51,8 +51,8 @@
 #include <common/cockpitmemory.h>
 #include <common/cockpitwebcertificate.h>
 
-#include "certfile.h"
 #include "certificate.h"
+#include "client-certificate.h"
 #include "socket-io.h"
 #include "utils.h"
 
@@ -87,8 +87,8 @@ typedef struct {
   Buffer client_to_ws_buffer;
   Buffer ws_to_client_buffer;
 
-  Fingerprint fingerprint;
-  int certfile_fd;
+  char *client_cert_filename;
+  char *wsinstance;
   int metadata_fd;
 } Connection;
 
@@ -378,13 +378,13 @@ buffer_read_from_tls (Buffer           *self,
 }
 
 static bool
-request_dynamic_wsinstance (const Fingerprint *fingerprint)
+request_dynamic_wsinstance (const char *fingerprint)
 {
   bool status = false;
   char reply[20];
   int fd;
 
-  debug (CONNECTION, "requesting dynamic wsinstance for %s:\n", fingerprint->str);
+  debug (CONNECTION, "requesting dynamic wsinstance for %s:\n", fingerprint);
 
   fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd == -1)
@@ -402,7 +402,7 @@ request_dynamic_wsinstance (const Fingerprint *fingerprint)
 
   /* send the fingerprint */
   debug (CONNECTION, "  -> success; sending fingerprint...");
-  if (!send_all (fd, fingerprint->str, strlen (fingerprint->str), 5 * 1000000))
+  if (!send_all (fd, fingerprint, strlen (fingerprint), 5 * 1000000))
     goto out;
 
   debug (CONNECTION, "  -> success; waiting for reply...");
@@ -426,29 +426,12 @@ out:
 static bool
 connection_connect_to_dynamic_wsinstance (Connection *self)
 {
-  const gnutls_datum_t *peer_certificate;
   char sockname[80];
   int r;
 
   assert (self->tls != NULL);
 
-  peer_certificate = gnutls_certificate_get_peers (self->tls, NULL);
-
-  if (peer_certificate != NULL)
-    {
-      self->certfile_fd = certfile_open (parameters.cert_session_dir,
-                                         &self->fingerprint,
-                                         peer_certificate);
-      if (self->certfile_fd == -1)
-        return false;
-    }
-  else
-    {
-      self->fingerprint = (Fingerprint) { .str = SHA256_NIL };
-      self->certfile_fd = -1;
-    }
-
-  r = snprintf (sockname, sizeof sockname, "https@%s.sock", self->fingerprint.str);
+  r = snprintf (sockname, sizeof sockname, "https@%s.sock", self->wsinstance);
   assert (0 < r && r < sizeof sockname);
 
   debug (CONNECTION, "Connecting to dynamic https instance %s...", sockname);
@@ -462,7 +445,7 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
 
   debug (CONNECTION, "  -> failed (%m).  Requesting activation.");
   /* otherwise, ask for the instance to be started */
-  if (!request_dynamic_wsinstance (&self->fingerprint))
+  if (!request_dynamic_wsinstance (self->wsinstance))
     return false;
 
   /* ... and try one more time. */
@@ -514,51 +497,6 @@ connection_connect_to_wsinstance (Connection *self)
     return connection_connect_to_dynamic_wsinstance (self);
   else
     return connection_connect_to_static_wsinstance (self);
-}
-
-/**
- * verify_peer_certificate: Custom client certificate validation function
- *
- * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
- * validate the other properties such as expiry, unsafe algorithms, etc.
- * This combination cannot be done with gnutls_session_set_verify_cert().
- */
-static int
-verify_peer_certificate (gnutls_session_t session)
-{
-  unsigned status;
-  int ret;
-
-  do
-    ret = gnutls_certificate_verify_peers2 (session, &status);
-  while (ret == GNUTLS_E_INTERRUPTED);
-
-  if (ret == 0)
-    {
-      /* ignore CA/trusted owner and leave that to e. g. sssd */
-      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
-      if (status != 0)
-        {
-          gnutls_datum_t msg;
-          ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
-          if (ret != GNUTLS_E_SUCCESS)
-            errx (EXIT_FAILURE, "Failed to print verification status: %s", gnutls_strerror (ret));
-          warnx ("Invalid TLS peer certificate: %s", msg.data);
-          gnutls_free (msg.data);
-#ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
-          return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
-#else  /* fallback for GnuTLS < 3.4.4 */
-          return GNUTLS_E_CERTIFICATE_ERROR;
-#endif
-        }
-    }
-  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
-    {
-      warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
-      return ret;
-    }
-
-  return GNUTLS_E_SUCCESS;
 }
 
 /**
@@ -641,7 +579,7 @@ connection_handshake (Connection *self)
           return false;
         }
 
-      gnutls_session_set_verify_function (self->tls, verify_peer_certificate);
+      gnutls_session_set_verify_function (self->tls, client_certificate_verify);
       gnutls_certificate_server_set_request (self->tls, parameters.request_mode);
       gnutls_handshake_set_timeout (self->tls, GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT);
       gnutls_transport_set_int (self->tls, self->client_fd);
@@ -659,6 +597,10 @@ connection_handshake (Connection *self)
         }
 
       debug (CONNECTION, "TLS handshake completed");
+
+      if (!client_certificate_accept (self->tls, parameters.cert_session_dir,
+                                      &self->wsinstance, &self->client_cert_filename))
+        return false;
     }
 
   return true;
@@ -733,15 +675,15 @@ connection_thread_loop (Connection *self)
     }
 }
 
-static int
-create_metadata (int sockfd)
+static bool
+connection_create_metadata (Connection *self)
 {
   struct sockaddr_storage addr;
   socklen_t addrsize = sizeof addr;
-  if (getpeername (sockfd, (struct sockaddr *) &addr, &addrsize))
+  if (getpeername (self->client_fd, (struct sockaddr *) &addr, &addrsize))
     {
-      debug (CONNECTION, "getpeername(%i) failed: %m.  Disconnecting.", sockfd);
-      return -1;
+      debug (CONNECTION, "getpeername(%i) failed: %m.  Disconnecting.", self->client_fd);
+      return false;
     }
 
   /* maximum we're going to see */
@@ -787,24 +729,37 @@ create_metadata (int sockfd)
       }
       break;
 
+    case AF_UNIX:
+      /* only used in testing */
+      ip[0] = '\0';
+      port = 0;
+      break;
+
     default:
       debug (CONNECTION, "Connection fd %i had unknown peer address family %d.  Disconnecting.",
-             sockfd, (int) addr.ss_family);
-      return -1;
+             self->client_fd, (int) addr.ss_family);
+      return false;
     }
 
-  debug (CONNECTION, "Connection fd %i is from %s:%d", sockfd, ip, port);
+  debug (CONNECTION, "Connection fd %i is from %s:%d", self->client_fd, ip, port);
 
   FILE *stream = cockpit_json_print_open_memfd ("cockpit-tls metadata", 1);
+
   cockpit_json_print_string_property (stream, "origin-ip", ip, -1);
   cockpit_json_print_integer_property (stream, "origin-port", port);
-  return cockpit_json_print_finish_memfd (&stream);
+
+  if (self->client_cert_filename)
+    cockpit_json_print_string_property (stream, "client-certificate", self->client_cert_filename, -1);
+
+  self->metadata_fd = cockpit_json_print_finish_memfd (&stream);
+
+  return true;
 }
 
 void
 connection_thread_main (int fd)
 {
-  Connection self = { .client_fd = fd, .ws_fd = -1, .certfile_fd = -1, .metadata_fd = -1 };
+  Connection self = { .client_fd = fd, .ws_fd = -1, .metadata_fd = -1 };
 
   assert (!buffer_can_write (&self.client_to_ws_buffer));
   assert (!buffer_can_write (&self.ws_to_client_buffer));
@@ -817,15 +772,15 @@ connection_thread_main (int fd)
 
   debug (CONNECTION, "New thread for fd %i", fd);
 
-  self.metadata_fd = create_metadata (fd);
-
-  if (connection_handshake (&self) && connection_connect_to_wsinstance (&self))
+  if (connection_handshake (&self) &&
+      connection_create_metadata (&self) &&
+      connection_connect_to_wsinstance (&self))
     connection_thread_loop (&self);
 
   debug (CONNECTION, "Thread for fd %i is going to exit now", fd);
 
-  if (self.certfile_fd != -1)
-    certfile_close (parameters.cert_session_dir, self.certfile_fd, &self.fingerprint);
+  if (self.client_cert_filename)
+    client_certificate_unlink_and_free (parameters.cert_session_dir, self.client_cert_filename);
 
   if (self.tls)
     gnutls_deinit (self.tls);

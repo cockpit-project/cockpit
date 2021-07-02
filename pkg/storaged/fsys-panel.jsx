@@ -48,27 +48,64 @@ export class FilesystemsPanel extends React.Component {
         function is_mount(path) {
             var block = client.blocks[path];
             var fsys = client.blocks_fsys[path];
-            return fsys && block.IdUsage == "filesystem" && block.IdType != "mpath_member" && !block.HintIgnore;
+            var stratis_fsys = client.blocks_stratis_fsys[path];
+            return (fsys &&
+                    (block.IdUsage == "filesystem" || stratis_fsys) &&
+                    block.IdType != "mpath_member" &&
+                    !block.HintIgnore);
         }
 
         function make_mount(path) {
             var block = client.blocks[path];
+            var stratis_fsys = client.blocks_stratis_fsys[path];
             var config = array_find(block.Configuration, function (c) { return c[0] == "fstab" });
             var mount_point = config && decode_filename(config[1].dir.v);
-            var fsys_size = client.fsys_sizes.data[mount_point];
+            var fsys_size = null;
 
-            return {
-                props: { path, client, key: path },
-                columns: [
-                    { title:  block.IdLabel || block_name(block) },
-                    { title: mount_point || "-" },
-                    {
-                        title: fsys_size
-                            ? <StorageUsageBar stats={fsys_size} critical={0.95} block={block.IdLabel || block_name(block)} />
-                            : fmt_size(block.Size)
+            if (stratis_fsys) {
+                var pool = client.stratis_pools[stratis_fsys.Pool];
+                var offset = 0;
+
+                if (pool) {
+                    var all_fsys = client.stratis_pool_filesystems[pool.path];
+
+                    fsys_size = [Number(stratis_fsys.data.Used), Number(pool.data.TotalPhysicalSize)];
+                    for (var i = 0; i < all_fsys.length; i++) {
+                        if (all_fsys[i] == stratis_fsys)
+                            break;
+                        offset += Number(all_fsys[i].data.Used);
                     }
-                ]
-            };
+                }
+
+                return {
+                    props: { path, client, key: path },
+                    columns: [
+                        { title: stratis_fsys.Devnode },
+                        { title: mount_point || "-" },
+                        {
+                            title: fsys_size
+                                ? <StorageUsageBar stats={fsys_size} critical={0.95} offset={offset}
+                                                   block={block.IdLabel || block_name(block)} />
+                                : "-"
+                        }
+                    ]
+                };
+            } else {
+                fsys_size = client.fsys_sizes.data[mount_point];
+
+                return {
+                    props: { path, client, key: path },
+                    columns: [
+                        { title:  block.IdLabel || block_name(block) },
+                        { title: mount_point || "-" },
+                        {
+                            title: fsys_size
+                                ? <StorageUsageBar stats={fsys_size} critical={0.95} block={block.IdLabel || block_name(block)} />
+                                : fmt_size(block.Size)
+                        }
+                    ]
+                };
+            }
         }
 
         var mounts = Object.keys(client.blocks).filter(is_mount)
@@ -77,7 +114,14 @@ export class FilesystemsPanel extends React.Component {
         function onRowClick(event, row) {
             if (!event || event.button !== 0)
                 return;
-            go_to_block(row.props.client, row.props.path);
+
+            var stratis_fsys = row.props.client.blocks_stratis_fsys[row.props.path];
+            if (stratis_fsys) {
+                var pool = client.stratis_pools[stratis_fsys.Pool];
+                if (pool)
+                    cockpit.location.go(["pool", pool.Name]);
+            } else
+                go_to_block(row.props.client, row.props.path);
         }
 
         // table-hover class is needed till PF4 Table has proper support for clickable rows

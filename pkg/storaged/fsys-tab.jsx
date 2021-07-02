@@ -95,16 +95,34 @@ export function is_valid_mount_point(client, block, val) {
 }
 
 export function get_cryptobacking_noauto(client, block) {
-    const crypto_backing = client.blocks[block.CryptoBackingDevice];
-    if (!crypto_backing)
-        return false;
+    function luks_noauto() {
+        const crypto_backing = client.blocks[block.CryptoBackingDevice];
+        if (!crypto_backing)
+            return false;
 
-    const crypto_config = utils.array_find(crypto_backing.Configuration, function (c) { return c[0] == "crypttab" });
-    if (!crypto_config)
-        return false;
+        const crypto_config = utils.array_find(crypto_backing.Configuration, function (c) { return c[0] == "crypttab" });
+        if (!crypto_config)
+            return false;
 
-    const crypto_options = utils.decode_filename(crypto_config[1].options.v).split(",");
-    return crypto_options.map(o => o.trim()).indexOf("noauto") >= 0;
+        const crypto_options = utils.decode_filename(crypto_config[1].options.v).split(",");
+        return crypto_options.map(o => o.trim()).indexOf("noauto") >= 0;
+    }
+
+    function stratis_noauto() {
+        const fsys = client.blocks_stratis_fsys[block.path];
+        if (!fsys)
+            return false;
+
+        const pool = client.stratis_pools[fsys.Pool];
+        if (!pool)
+            return false;
+
+        // No encrypted Stratis pool will be unlocked at boot, they
+        // are all "noauto".
+        return pool.Encrypted;
+    }
+
+    return luks_noauto() || stratis_noauto();
 }
 
 export function check_mismounted_fsys(client, path, enter_warning) {
@@ -146,6 +164,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
 
 export function mounting_dialog(client, block, mode) {
     const block_fsys = client.blocks_fsys[block.path];
+
     var [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block);
     var options = old_config ? old_opts : initial_tab_options(client, block, true);
     const crypto_backing_noauto = get_cryptobacking_noauto(client, block);
@@ -353,6 +372,8 @@ export class FilesystemTab extends React.Component {
         var self = this;
         var block = self.props.block;
         var block_fsys = block && self.props.client.blocks_fsys[block.path];
+        var stratis_fsys = block && self.props.client.blocks_stratis_fsys[block.path];
+
         var mismounted_fsys_warning = self.props.warnings.find(w => w.warning == "mismounted-fsys");
 
         function rename_dialog() {
@@ -381,7 +402,9 @@ export class FilesystemTab extends React.Component {
         var opt_ro = extract_option(split_options, "ro");
 
         var used;
-        if (is_filesystem_mounted) {
+        if (stratis_fsys) {
+            used = utils.fmt_size(Number(stratis_fsys.data.Used));
+        } else if (is_filesystem_mounted) {
             var samples = self.props.client.fsys_sizes.data[old_dir];
             if (samples)
                 used = cockpit.format(_("$0 of $1"),
@@ -515,6 +538,7 @@ export class FilesystemTab extends React.Component {
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
+                    { !stratis_fsys &&
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
@@ -522,7 +546,7 @@ export class FilesystemTab extends React.Component {
                                 {this.props.block.IdLabel || "-"}
                             </StorageLink>
                         </DescriptionListDescription>
-                    </DescriptionListGroup>
+                    </DescriptionListGroup> }
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Mount point")}</DescriptionListTerm>
                         <DescriptionListDescription>

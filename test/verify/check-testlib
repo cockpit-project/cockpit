@@ -119,7 +119,7 @@ class TestRunTest(MachineCase):
 
         env = os.environ.copy()
         env["TEST_FAILURES"] = "1"
-        # pretend this was a PR against master (set by CI normally, or by the user with --base)
+        # pretend this was a PR against main (set by CI normally, or by the user with --base)
         env["BASE_BRANCH"] = "main"
         try:
             del env["TEST_JOBS"]

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Prepare bots by creating ./bots directory
-# Specify $COCKPIT_BOTS_REF to checkout non-master branch
+# Specify $COCKPIT_BOTS_REF to checkout non-main branch
 
 GITHUB_REPO='bots'
 SUBDIR='bots'
@@ -20,7 +20,7 @@ if [ ! -e bots ]; then
     else
         # it's small, so keep everything cached
         fetch_to_cache ${COCKPIT_BOTS_REF+"${COCKPIT_BOTS_REF}"}
-        clone_from_cache "${COCKPIT_BOTS_REF-master}"
+        clone_from_cache "${COCKPIT_BOTS_REF-main}"
     fi
 else
     echo "bots/ already exists, skipping"

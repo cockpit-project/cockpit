@@ -56,7 +56,7 @@ if ! id runtest 2>/dev/null; then
     useradd -c 'Test runner' runtest
     # allow test to set up things on the machine
     mkdir -p /root/.ssh
-    curl https://raw.githubusercontent.com/cockpit-project/bots/master/machine/identity.pub  >> /root/.ssh/authorized_keys
+    curl https://raw.githubusercontent.com/cockpit-project/bots/main/machine/identity.pub  >> /root/.ssh/authorized_keys
     chmod 600 /root/.ssh/authorized_keys
 fi
 chown -R runtest "$SOURCE"

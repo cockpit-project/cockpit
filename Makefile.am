@@ -224,7 +224,7 @@ distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)
 
 # checkout Cockpit's bots for standard test VM images and API to launch them
-# must be from master, as only that has current and existing images; but testvm.py API is stable
+# must be from main, as only that has current and existing images; but testvm.py API is stable
 # support CI testing against a bots change
 bots:
 	tools/make-bots

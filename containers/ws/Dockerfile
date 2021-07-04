@@ -1,6 +1,6 @@
 FROM registry.fedoraproject.org/fedora:33
 LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
-LABEL VERSION=master
+LABEL VERSION=main
 
 ARG VERSION
 

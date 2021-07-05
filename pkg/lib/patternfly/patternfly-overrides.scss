@@ -18,7 +18,6 @@ h1, h2, h3, h4, h5, h6 {
 // Restyle inputs & dropdowns
 .input-group-addon,
 .bootstrap-select.btn-group .btn,
-.content-header-extra .dropdown-toggle,
 .dropdown-toggle,
 .form-control:not(.ct-select):not(.rbt-input):not(select) {
   background-image: none !important;
@@ -26,7 +25,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .input-group-addon,
 .bootstrap-select.btn-group .btn,
-.content-header-extra .dropdown-toggle,
 .dropdown-toggle,
 .form-control:not(.ct-select) {
   border-radius: 3px;
@@ -559,24 +557,6 @@ th > label {
 // Bump down graph text size
 .server-graph {
   font-size: var(--pf-global--FontSize--xs);
-}
-
-// Restyle nav tabs (in content header only, for services)
-// in Cockpit, nav-tabs are also used in lists
-// and Cockpit's lists use underlines, not overlines
-.content-header-extra > .nav-tabs > li {
-  position: relative;
-
-  &.active::after {
-    position: absolute;
-    background: var(--pf-global--primary-color--100);
-    content: "";
-    height: 2px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    z-index: 1;
-  }
 }
 
 // Flatten the progress bar trough

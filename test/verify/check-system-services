@@ -284,7 +284,7 @@ Unit=test.service
         self.assertIn("START", t)
         # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
         if m.image != "debian-stable":
-            b.wait_val("#journal-grep", "priority:debug service:test.service ")
+            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
 
@@ -294,7 +294,7 @@ Unit=test.service
         b.click(".pf-c-breadcrumb a:contains('Logs')")
         # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
         if m.image != "debian-stable":
-            b.wait_val("#journal-grep", "priority:debug service:test.service ")
+            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
 

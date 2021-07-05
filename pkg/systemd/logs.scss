@@ -2,6 +2,12 @@
 @import "../lib/journal.css";
 @import "./system-global.scss";
 @import "../../node_modules/@patternfly/patternfly/components/FormControl/form-control.css";
+@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
+
+// https://github.com/patternfly/patternfly-react/issues/5993
+.pf-c-popover.pf-m-width-auto {
+    --pf-c-popover--MaxWidth: min(300px, 90%);
+}
 
 #journal {
     grid-template-rows: auto 1fr;
@@ -14,9 +20,19 @@
         // Constrain page to viewport height, so journal can overflow
         max-height: 100vh;
     }
+
+    // Static width for the service selector as it likes to resize a lot while loading
+    #journal-identifier-menu ul.pf-c-select__menu {
+        width: 10rem;
+    }
+
+    // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
+    #journal-identifier-menu .pf-c-select__menu-item {
+        white-space: normal;
+    }
 }
 
-#journal-entry {
+#log-details {
     .pf-l-gallery {
         --pf-l-gallery--GridTemplateColumns: 1fr;
     }
@@ -48,15 +64,9 @@
     }
 }
 
-#journal .filter select,
-#journal .filter button,
-#journal .filter input {
-    margin-right: var(--pf-global--spacer--md);
-}
-
 #journal-box {
     flex: auto;
-    
+
     .panel-heading {
         position: sticky;
         top: 0;
@@ -75,193 +85,59 @@
     --log-service-min: 8rem;
 }
 
-.filter {
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    align-self: flex-end;
-    flex-direction: row;
-    margin: 1rem 0 0;
-    text-align: right;
-
-    > label {
-        display: block;
-        margin-right: var(--pf-global--spacer--md);
-    }
-}
-
-@media (max-width: 1300px) {
-    .filter {
-        // Switch label to row in certain screen sizes
-        flex-direction: column;
-        text-align: left;
-    }
-}
-@media (min-width: 561px) {
-    .filters-toggle {
-        display: none;
-    }
-
-    .cockpit-logline {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-}
-
-@media (max-width: 560px) {
-    .filter {
-        // Switch label to row in certain screen sizes
-        flex-direction: row;
-
-        > label {
-            min-width: 4em;
-        }
-    }
-
-    .filter-separator {
-        display: none;
-    }
-
-    .content-header-extra {
-        flex-wrap: wrap;
-
-        &.toggle-filters-closed .filter {
-            display: none;
-        }
-    }
-}
-
-.content-header-extra + #journal-box {
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-}
-
-.content-header-extra {
-    display: flex;
-    align-items: flex-end;
-    padding: 0 var(--pf-global--spacer--lg) var(--pf-global--spacer--md);
-}
-
-.filters {
-    display: flex;
-    flex-wrap: wrap;
-    flex: auto;
-}
-
-.filters-toggle {
-    > .pf-c-button.pf-m-link {
-        padding: 1rem 0;
-        padding: var(--pf-global--spacer--form-element) 0;
-    }
-}
-
-.filter-group {
-    width: 100%;
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: nowrap;
-    align-items: baseline;
-}
-
-.filter-actions {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-    margin: var(--pf-global--spacer--md) 0 0;
-
-    > :not(:first-child) {
-        margin-left: var(--pf-global--spacer--md);
-    }
-}
-
-// Simulate a pf-c-data-toolbar__item.pf-m-separator
-// (as PF4 isn't used in the page currently)
-.filter-separator {
-    height: var(--pf-global--FontSize--lg);
-    width: var(--pf-global--BorderWidth--md);
-    background-color: var(--pf-global--BorderColor--100);
-    // margin may still be needed when swapping out for the PF4 widget
-    margin: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
-    align-self: flex-end;
-}
-
-#journal-service-menu {
-    width: 8em; // Static width as it likes to resize a lot while loading
-}
-
-.filters-toggle {
-    flex-grow: 1;
-}
-
-.filters-toggle button {
-    white-space: nowrap;
-}
-
-.filter.text-search {
-    min-width: 8em;
-    flex-grow: 1;
-}
-
 #accordion-markup {
     margin-bottom: 0px;
 }
 
-.dropdown-toggle:active,
-.dropdown-toggle:hover,
-.dropdown-toggle:focus,
-.dropdown.open .dropdown-toggle {
-    color: var(--pf-global--link--Color) !important;
-}
+.pf-c-toolbar {
+    --pf-c-toolbar--BackgroundColor: var(--pf-c-page__main-section--BackgroundColor);
 
-.dropdown-menu {
-    left: auto;
-    margin: 0;
-}
+    // Make toolbar stretch to all the available space and wrap up to two lines
+    --pf-c-toolbar--PaddingTop: 0;
+    --pf-c-toolbar--PaddingBottom: 0;
 
-#logs-help-menu {
-    left: auto;
-    right: -1rem;
-    padding: 1rem;
-
-    ul {
-        list-style: initial;
-        padding-left: 1rem;
+    .pf-c-toolbar__group.pf-m-toggle-group.pf-m-show-on-md {
+        flex-grow: 1;
+        flex-wrap: wrap;
     }
 
-    .help-links {
-        display: flex;
-        justify-content: space-between;
-
-        > a {
-            padding: 0.2rem 0;
-            display: block;
-
-            i {
-                padding-left: 0.2rem;
-            }
-        }
+    .pf-c-toolbar__group {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
     }
 
-    .journal-cmd {
-        display: flex;
-        flex-wrap: nowrap;
-
-        > pre {
-            padding-left: 0.2rem;
-            width: 100%;
-            max-width: 26rem;
-        }
-
-        > button {
-            border-radius: 0;
-            border: 1px solid #ccc;
-            border-left: 0;
-        }
+    .pf-c-toolbar__group:nth-child(3) {
+        flex-grow: 1;
     }
-}
 
-.green-icon {
-    color: var(--pf-global--success-color--100);
+   // Make text filter stretch to all the available space
+   .pf-c-toolbar__item.text-search, #journal-grep {
+       flex-grow: 1;
+   }
+
+   .text-help {
+       padding-left: var(--pf-global--spacer--xs);
+   }
+
+   // Hide filters from advanced search dropdown entries which already exist in the toolbar
+   #journal-grep .pf-c-search-input__menu-body {
+       .pf-c-form__group:nth-child(5), .pf-c-form__group:nth-child(6) {
+           display: none;
+       }
+   }
+
+    .pf-c-toolbar__expandable-content.pf-m-expanded .pf-c-divider {
+        display: none;
+   }
+
+   // HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
+   .pf-c-toolbar__toggle {
+       .pf-c-button.pf-m-plain {
+            color: unset;
+        }
+
+       svg {
+           color: var(--pf-c-button--m-plain--Color);
+       }
+   }
 }

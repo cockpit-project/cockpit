@@ -106,7 +106,7 @@ const info = {
             "systemd/services/services.scss",
         ],
         "systemd/logs": [
-            "systemd/logs.js",
+            "systemd/logs.jsx",
             "systemd/logs.scss",
         ],
         "systemd/overview": [

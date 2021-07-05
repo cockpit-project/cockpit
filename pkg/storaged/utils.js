@@ -172,15 +172,21 @@ export function mdraid_name(mdraid) {
     if (!mdraid.Name)
         return "";
 
-    var parts = mdraid.Name.split(":");
+    const parts = mdraid.Name.split(":");
 
     if (parts.length != 2)
         return mdraid.Name;
 
-    /* if we call hostnamed too early, before the dbus.proxy() promise is fulfilled,
-     * it will not be valid yet; it's too inconvenient to make this
-     * function asynchronous, so just don't show the host name in this case */
-    if (hostnamed.StaticHostname === undefined || parts[0] == hostnamed.StaticHostname)
+    /* Check the static (from /etc/hostname) and transient (acquired from DHCP server via
+     * NetworkManager → hostnamed, may not exist) host name -- if either one matches, we
+     * consider the RAID a local one and just show the device name.
+     * Otherwise it's a remote one, and include the host in the name.
+     *
+     * However: if we call hostnamed too early, before the dbus.proxy() promise is
+     * fulfilled, it will not be valid yet (hostnamed properties are undefined);
+     * it's too inconvenient to make this function asynchronous, so just don't
+     * show the host name in this case. */
+    if (hostnamed.StaticHostname === undefined || parts[0] == hostnamed.StaticHostname || parts[0] == hostnamed.Hostname)
         return parts[1];
     else
         return cockpit.format(_("$name (from $host)"),

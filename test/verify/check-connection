@@ -176,7 +176,11 @@ class TestConnection(MachineCase):
 
         # Lets crash a systemd-crontrolled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
-        m.execute("systemctl start systemd-hostnamed; pkill -e -SEGV systemd-hostnam")
+        m.execute("""mkdir -p /run/systemd/system/systemd-hostnamed.service.d
+                     printf '[Service]\nLimitCORE=infinity\n' > /run/systemd/system/systemd-hostnamed.service.d/core.conf
+                     systemctl daemon-reload
+                     systemctl restart systemd-hostnamed
+                     pkill -e -SEGV systemd-hostnam""")
         wait(lambda: m.execute("journalctl -b | grep 'Process.*systemd-hostnam.*of user.*dumped core.'"))
 
         # Make sure the core dumps exist in the directory, so we can download them

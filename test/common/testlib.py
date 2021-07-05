@@ -303,6 +303,7 @@ class Browser:
             9: "Tab",         # Tab key
             13: "Enter",      # Enter key
             27: "Escape",     # Escape key
+            37: "ArrowLeft",  # Arrow key left
             40: "ArrowDown",  # Arrow key down
             45: "Insert",     # Insert key
         }

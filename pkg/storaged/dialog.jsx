@@ -224,8 +224,10 @@ import {
     Checkbox,
     DataList, DataListItem, DataListCheck, DataListItemRow, DataListItemCells, DataListCell,
     Form, FormGroup,
+    Grid, GridItem,
     Radio,
     Select as TypeAheadSelect, SelectOption, SelectVariant,
+    Slider,
     Spinner, Split,
     TextInput as TextInputPF4,
     Tooltip, TooltipPosition,
@@ -831,45 +833,6 @@ export const Skip = (className, options) => {
     };
 };
 
-const StatelessSlider = ({ fraction, onChange }) => {
-    function start_dragging(event) {
-        let el = event.currentTarget;
-        const width = el.offsetWidth;
-        let left = el.offsetLeft;
-        while (el.offsetParent) {
-            el = el.offsetParent;
-            left += el.offsetLeft;
-        }
-
-        function drag(event) {
-            let f = (event.pageX - left) / width;
-            if (f < 0) f = 0;
-            if (f > 1) f = 1;
-            onChange(f);
-        }
-
-        function stop_dragging() {
-            document.removeEventListener("mousemove", drag);
-            document.removeEventListener("mouseup", stop_dragging);
-        }
-
-        document.addEventListener("mousemove", drag);
-        document.addEventListener("mouseup", stop_dragging);
-        drag(event);
-    }
-
-    if (fraction < 0) fraction = 0;
-    if (fraction > 1) fraction = 1;
-
-    return (
-        <div className="slider" role="presentation" onMouseDown={start_dragging}>
-            <div className="slider-bar" style={{ width: fraction * 100 + "%" }}>
-                <div className="slider-thumb" />
-            </div>
-        </div>
-    );
-};
-
 function size_slider_round(value, round) {
     if (round) {
         if (typeof round == "function")
@@ -896,7 +859,7 @@ class SizeSliderElement extends React.Component {
         const { unit } = this.state;
 
         const change_slider = (f) => {
-            onChange(Math.max(min, size_slider_round(f * max, round)));
+            onChange(Math.max(min, size_slider_round(f * max / 100, round)));
         };
 
         const change_text = (value) => {
@@ -921,13 +884,19 @@ class SizeSliderElement extends React.Component {
         }
 
         return (
-            <div className="size-sliderx">
-                <StatelessSlider fraction={slider_val / max} onChange={change_slider} />
-                <TextInputPF4 className="size-text" value={text_val} onChange={change_text} />
-                <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
-                    { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
-                </FormSelect>
-            </div>
+            <Grid hasGutter className="size-slider">
+                <GridItem span={12} sm={8}>
+                    <Slider showBoundaries={false} value={(slider_val / max) * 100} onChange={change_slider} />
+                </GridItem>
+                <GridItem span={6} sm={2}>
+                    <TextInputPF4 className="size-text" value={text_val} onChange={change_text} />
+                </GridItem>
+                <GridItem span={6} sm={2}>
+                    <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>
+                        { this.units.map(u => <FormSelectOption value={u.factor} key={u.name} label={u.name} />) }
+                    </FormSelect>
+                </GridItem>
+            </Grid>
         );
     }
 }

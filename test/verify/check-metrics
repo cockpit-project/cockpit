@@ -1071,6 +1071,12 @@ class TestGrafanaClient(MachineCase):
         b = self.browser
         mg = self.machines['services']
 
+        # avoid dynamic host name changes during PCP data collection, and start from clean slate
+        m.execute("""systemctl stop pmlogger
+                     systemctl reset-failed pmlogger
+                     rm -rf /var/log/pcp/pmlogger
+                     hostnamectl set-hostname grafana-client""")
+
         # start Grafana
         mg.execute("/root/run-grafana")
         m.execute("until curl --silent --show-error http://10.111.112.100:3000; do sleep 1; done")
@@ -1078,17 +1084,16 @@ class TestGrafanaClient(MachineCase):
         mg.execute("curl --silent --show-error -u admin:foobar -d '' 'http://127.0.0.1:3000/api/plugins/performancecopilot-pcp-app/settings?enabled=true'")
         self.login_and_go("/metrics")
 
-        # pmlogger data collection is not running by default on RHEL
-        if m.image.startswith("rhel") or m.image.startswith("centos"):
-            b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
-            b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
-            b.click(".pf-c-empty-state button.pf-m-primary")
-            b.wait_visible("#pcp-settings-modal")
-            b.wait_visible("#switch-pmlogger:not(:checked)")
-            b.click("#switch-pmlogger")
-            b.wait_visible("#switch-pmlogger:checked")
-            b.click("#pcp-settings-modal button.pf-m-primary")
-            b.wait_not_present("#pcp-settings-modal")
+        # pmlogger data collection is not running initially
+        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
+        b.click(".pf-c-empty-state button.pf-m-primary")
+        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible("#switch-pmlogger:not(:checked)")
+        b.click("#switch-pmlogger")
+        b.wait_visible("#switch-pmlogger:checked")
+        b.click("#pcp-settings-modal button.pf-m-primary")
+        b.wait_not_present("#pcp-settings-modal")
 
         # enable pmproxy+redis (none of our test OSes have both of them running by default)
         b.click("#metrics-header-section button.pf-m-secondary")
@@ -1127,8 +1132,7 @@ class TestGrafanaClient(MachineCase):
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
             # new variables; so probe the API until it appears
-            hostname = m.execute("hostname").strip()
-            wait(lambda: hostname in mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/labels?names=hostname'"), delay=10, tries=30)
+            wait(lambda: "grafana-client" in mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/labels?names=hostname'"), delay=10, tries=30)
             # ... and the load metrics as well
             wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
 
@@ -1139,7 +1143,7 @@ class TestGrafanaClient(MachineCase):
             # .. and the dashboard name becomes clickable
             bg.click("a:contains('PCP Redis: Host Overview')")
 
-            bg.wait_in_text(".submenu-controls", hostname)
+            bg.wait_in_text(".submenu-controls", "grafana-client")
 
             # expect a "Load average" panel with a sensible number
             max_load = bg.text("div:contains('Load average') .graph-legend-series:contains('1 minute') .max")

@@ -283,11 +283,11 @@ class StorageHelpers:
     def dialog_is_present(self, field, label):
         return self.browser.is_present('%s :contains("%s") input' % (self.dialog_field(field), label))
 
-    def dialog_wait_val(self, field, val):
+    def dialog_wait_val(self, field, val, unit="1048576"):
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "size-slider":
-            self.browser.wait_val(sel + " .size-unit", "1048576")
+            self.browser.wait_val(sel + " .size-unit", unit)
             self.browser.wait_val(sel + " .size-text", str(val))
         elif ftype == "select":
             self.browser.wait_attr(sel, "data-value", val)

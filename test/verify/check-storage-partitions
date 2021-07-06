@@ -95,6 +95,10 @@ class TestStoragePartitions(StorageCase):
         b.key_press(chr(37), use_ord=True)  # arrow left
         self.dialog_wait_val("size", 25.5)
 
+        # Check that changing units affects the text input
+        b.select_from_dropdown(".size-unit", "1073741824")
+        self.dialog_wait_val("size", "0.0249", "1073741824")
+
         self.dialog_apply()
         self.dialog_wait_close()
 

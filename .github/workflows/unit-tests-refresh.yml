@@ -9,6 +9,9 @@ jobs:
   # we do both builds and all tests in a single run, so that we only upload the containers on success
   refresh:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     timeout-minutes: 180
     env:
       # current podman backport falls over as non-root, and completely breaks down with :i386 image
@@ -36,7 +39,7 @@ jobs:
         run: containers/unit-tests/start :i386 distcheck
 
       - name: Log into container registry
-        run: docker login -u cockpituous -p ${{ secrets.COCKPITUOUS_GHCR_TOKEN }} ghcr.io
+        run: docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
 
       - name: Push containers to registry
         run: |

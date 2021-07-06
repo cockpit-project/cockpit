@@ -61,7 +61,7 @@ export class ShutdownModal extends React.Component {
             const hour = this.server_time.utc_fake_now.getUTCHours();
             const minute = this.server_time.utc_fake_now.getUTCMinutes();
             this.setState({
-                date: date,
+                date: moment(date).format("L"),
                 today: date,
                 time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
             });
@@ -69,7 +69,7 @@ export class ShutdownModal extends React.Component {
     }
 
     updateDatetime(key, value) {
-        this.setState({ [key] : value }, this.calculate);
+        this.setState({ [key] : value });
     }
 
     calculate() {
@@ -86,11 +86,12 @@ export class ShutdownModal extends React.Component {
         }
 
         const time_error = !validateTime(this.state.time);
-        const date = this.state.date;
+        const moment_localized = moment(this.state.date, 'L');
+        const date = moment_localized.toDate();
 
         let date_error = false;
 
-        if (!date || isNaN(date.getTime()) || date.getTime() < 0)
+        if (!this.state.date || isNaN(date.getTime()) || date.getTime() < 0)
             date_error = true;
 
         if (time_error && date_error) {
@@ -186,14 +187,18 @@ export class ShutdownModal extends React.Component {
                                 </Select>
                                 {this.state.selected === "x" && <>
                                     <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
+                                                buttonAriaLabel={_("Toggle date picker")}
                                                 className='shutdown-date-picker'
                                                 invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
-                                                value={moment(this.state.date).format('L')} onChange={(d, ds) => this.updateDatetime("date", ds)} />
+                                                onBlur={this.calculate}
+                                                placeholder={moment.localeData().longDateFormat('L').toLowerCase()}
+                                                value={this.state.date} onChange={d => this.updateDatetime("date", d)} />
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"
                                                 invalidFormatErrorMessage=""
                                                 menuAppendTo={() => document.body}
+                                                onBlur={this.calculate}
                                                 onChange={time => this.updateDatetime("time", time) } />
                                 </>}
                             </Flex>

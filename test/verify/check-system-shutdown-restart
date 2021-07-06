@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+from datetime import date
 from testlib import *
 
 
@@ -140,23 +141,47 @@ class TestShutdownRestart(MachineCase):
 
         b2.enter_page("/system", host="10.111.113.1", reconnect=False)
 
-        # Power off with invalid date
+        # Try to insert an invalid time
         self.login_and_go("/system")
         b.enter_page("/system")
         b.click("#shutdown-group")  # caret
         b.click("#shutdown")
         b.wait_popup("shutdown-dialog")
+        b.wait_not_present("#delay-helper")
         b.click("#delay")
         b.click("button:contains('Specific time')")
         b.wait_text("#delay .pf-c-select__toggle-text", "Specific time")
         b.wait_not_val("#shutdown-time-input", "")
+        b.wait_not_present("#delay-helper")
         old = b.val("#shutdown-time-input")
         b.set_input_text("#shutdown-time-input", "blah")
+        b.wait_not_present("#delay-helper")
+        b.blur("#shutdown-time-input")
         b.wait_text("#delay-helper", "Invalid time format")
         b.wait_visible("#shutdown-dialog button{0}:disabled".format(self.danger_btn_class))
 
-        # Now set a correct time and power off
+        # Now set a correct time
         b.set_input_text("#shutdown-time-input", old)
+        b.blur("#shutdown-time-input")
+        b.wait_visible("#shutdown-dialog button{0}:not(disabled)".format(self.danger_btn_class))
+        b.wait_not_present("#delay-helper")
+
+        # Try to insert an invalid date
+        b.set_input_text(".shutdown-date-picker input", "20/0x/2021")
+        b.wait_not_present("#delay-helper")
+        b.blur(".shutdown-date-picker input")
+        b.wait_val(".shutdown-date-picker input", "20/0x/2021")
+        b.wait_text("#delay-helper", "Invalid date format")
+        b.wait_visible("#shutdown-dialog button{0}:disabled".format(self.danger_btn_class))
+
+        # Insert a date using the widget dropdown
+        b.click("button[aria-label='Toggle date picker']")
+        today = date.today()
+        b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today.strftime('%-d %B %Y')}']")
+        b.wait_val(".shutdown-date-picker input", today.strftime("%m/%d/%Y"))
+        b.blur(".shutdown-date-picker input")
+
+        # Power off
         b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 

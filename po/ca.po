@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
 "PO-Revision-Date: 2020-05-05 03:40+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Catalan <https://translate.fedoraproject.org/projects/cockpit/"
@@ -246,7 +246,7 @@ msgid_plural "$0 security fixes available"
 msgstr[0] "$1 correcció de seguretat"
 msgstr[1] "$1 correccions de seguretat"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] ""
@@ -679,6 +679,13 @@ msgstr ""
 msgid "Active since "
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+#, fuzzy
+#| msgid "Activate"
+msgid "Active state"
+msgstr "Activa"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "Balanceig de càrrega adaptativa"
@@ -888,7 +895,13 @@ msgstr ""
 msgid "Alert and above"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+#, fuzzy
+#| msgid "alias"
+msgid "Alias"
+msgstr "àlies"
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "Tots"
 
@@ -1065,7 +1078,7 @@ msgstr "Automàtic"
 msgid "Automatic updates"
 msgstr "Actualitzacions automàtiques"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr ""
@@ -1109,6 +1122,16 @@ msgstr "Torna als comptes"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr ""
+
+#: pkg/systemd/services/services.jsx:198
+msgid "Bad"
+msgstr ""
+
+#: pkg/systemd/services/services.jsx:164
+#, fuzzy
+#| msgid "Bridge settings"
+msgid "Bad setting"
+msgstr "Ajusts del pont"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1278,7 +1301,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancel·la"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 #, fuzzy
 msgid "Cannot be enabled"
 msgstr "La mida no pot ser negativa"
@@ -1424,7 +1447,7 @@ msgstr "Neteja de $target"
 msgid "Clear 'Failed to start'"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr ""
 
@@ -2044,7 +2067,6 @@ msgid "Deleting volume group $target"
 msgstr "S'està suprimint el grup de volums $target"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "Descripció"
@@ -2122,7 +2144,7 @@ msgstr "Inhabilita tuned"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "Inhabilitat"
@@ -2180,7 +2202,7 @@ msgstr ""
 msgid "Docking station"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 #, fuzzy
 msgid "Does not automatically start"
 msgstr "Connecta automàticament"
@@ -2334,7 +2356,8 @@ msgstr ""
 msgid "Enable the firewall"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "Habilitat"
 
@@ -2407,7 +2430,8 @@ msgstr "Fe d'errates:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Error"
 
@@ -2572,13 +2596,20 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Ha fallat el canvi de contrasenya"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr ""
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr "Ha fallat el canvi de perfil"
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+#, fuzzy
+#| msgid "Filesystem"
+msgid "File state"
+msgstr "Sistema de fitxers"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2592,11 +2623,7 @@ msgstr "Nom del sistema de fitxers"
 msgid "Filesystems"
 msgstr "Sistemes de fitxers"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr ""
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 #, fuzzy
 msgid "Filter by name or description"
 msgstr "cerqueu pel nom, per l'espai de noms o per la descripció"
@@ -2640,7 +2667,7 @@ msgstr "Mida del tros"
 msgid "For legacy applications only. Reduces performance."
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr ""
@@ -2712,6 +2739,12 @@ msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
+msgstr "General"
+
+#: pkg/systemd/services/services.jsx:196
+#, fuzzy
+#| msgid "General"
+msgid "Generated"
 msgstr "General"
 
 #: pkg/sosreport/index.html:62
@@ -2940,6 +2973,12 @@ msgstr ""
 msgid "Index memory"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:195
+#, fuzzy
+#| msgid "direct"
+msgid "Indirect"
+msgstr "directe"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr ""
@@ -3029,6 +3068,12 @@ msgstr "Error intern"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr ""
+
+#: pkg/systemd/services/services.jsx:194
+#, fuzzy
+#| msgid "Invalid key"
+msgid "Invalid"
+msgstr "Clau no vàlida"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3295,6 +3340,12 @@ msgstr "Retard de l'aixecament de l'enllaç"
 msgid "Link watch"
 msgstr "Observació de l'enllaç"
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+#, fuzzy
+#| msgid "Links"
+msgid "Linked"
+msgstr "Enllaços"
+
 #: pkg/systemd/services/service-details.jsx:533
 msgid "Listen"
 msgstr ""
@@ -3348,7 +3399,7 @@ msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "S'està carregant..."
@@ -3493,6 +3544,10 @@ msgstr "Empremtes de les claus SSH de la màquina"
 msgid "Main server chassis"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:363
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
@@ -3594,6 +3649,7 @@ msgid "Mask service"
 msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr ""
 
@@ -3638,6 +3694,10 @@ msgstr ""
 #| msgid "Memory usage:"
 msgid "Memory usage"
 msgstr "Ús de la memòria: "
+
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr ""
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
@@ -3844,8 +3904,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "Nom"
@@ -4098,7 +4157,7 @@ msgstr "Sense volums lògics"
 msgid "No logs found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr ""
 
@@ -4128,7 +4187,7 @@ msgstr "Sense especificar el nom real"
 msgid "No results found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4199,7 +4258,7 @@ msgstr "No connectat"
 msgid "Not enough space to grow."
 msgstr ""
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "No s'ha trobat"
 
@@ -4226,7 +4285,8 @@ msgstr ""
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "No s'està executant"
 
@@ -4990,6 +5050,12 @@ msgstr "Recarrega"
 msgid "Reload propagated from"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:174
+#, fuzzy
+#| msgid "Reading"
+msgid "Reloading"
+msgstr "Lectura"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr ""
@@ -5271,7 +5337,8 @@ msgstr "Runner"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "En execució"
 
@@ -5423,12 +5490,6 @@ msgstr "Aplica les actualitzacions de seguretat"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Selecciona"
-
-#: pkg/systemd/services/services.jsx:780
-#, fuzzy
-#| msgid "Console type"
-msgid "Select unit state"
-msgstr "Tipus de consola"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5792,7 +5853,8 @@ msgstr "S'està iniciant el dispositiu RAID $target"
 msgid "Starting swapspace $target"
 msgstr "S'està iniciant l'espai d'intercanvi $target"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "Estat"
 
@@ -5803,7 +5865,7 @@ msgid "State"
 msgstr "Estat"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "Estàtic"
 
@@ -5875,6 +5937,10 @@ msgstr "Emmagatzema la contrasenya"
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
 msgstr "Contrasenya emmagatzemada"
+
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
+msgstr ""
 
 #: pkg/lib/machine-info.js:76
 msgid "Sub-Chassis"
@@ -5995,7 +6061,7 @@ msgstr "Serveis del sistema"
 msgid "System time"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 #, fuzzy
 msgid "Systemd units"
 msgstr "Serveis del sistema"
@@ -6588,11 +6654,20 @@ msgstr ""
 msgid "Tower"
 msgstr "Torre"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:43
+#, fuzzy
+#| msgid "Triggers"
+msgid "Trigger"
+msgstr "Disparadors"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "Disparadors"
@@ -6769,11 +6844,12 @@ msgstr "No disponible"
 msgid "Unexpected error"
 msgstr "Error inesperat"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 #, fuzzy
 #| msgid "Not found"
 msgid "Unit not found"
@@ -6783,9 +6859,11 @@ msgstr "No s'ha trobat"
 msgid "Unix group: $0"
 msgstr ""
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -7995,8 +8073,8 @@ msgstr "udp"
 msgid "unit"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "desconegut"
 
@@ -8065,6 +8143,11 @@ msgstr ""
 #| msgid "Force change"
 msgid "{{host}} key changed"
 msgstr "Obliga el canvi"
+
+#, fuzzy
+#~| msgid "Console type"
+#~ msgid "Select unit state"
+#~ msgstr "Tipus de consola"
 
 #, fuzzy
 #~| msgid "Automatic updates"
@@ -8502,9 +8585,6 @@ msgstr "Obliga el canvi"
 #~ msgid "custom"
 #~ msgstr "personalitzat"
 
-#~ msgid "direct"
-#~ msgstr "directe"
-
 #~ msgid "disabled"
 #~ msgstr "inhabilitat"
 
@@ -8629,9 +8709,6 @@ msgstr "Obliga el canvi"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Clau d'amfitrió incorrecta"
-
-#~ msgid "Reading"
-#~ msgstr "Lectura"
 
 #~ msgid "Unknown host key"
 #~ msgstr "Clau desconeguda d'amfitrió"
@@ -9050,9 +9127,6 @@ msgstr "Obliga el canvi"
 #~ msgid "Link to another container"
 #~ msgstr "Enllaça a un altre contenidor"
 
-#~ msgid "Links"
-#~ msgstr "Enllaços"
-
 #~ msgid "Links:"
 #~ msgstr "Enllaços:"
 
@@ -9189,9 +9263,6 @@ msgstr "Obliga el canvi"
 
 #~ msgid "With terminal"
 #~ msgstr "Amb terminal"
-
-#~ msgid "alias"
-#~ msgstr "àlies"
 
 #~ msgid "default"
 #~ msgstr "per defecte"

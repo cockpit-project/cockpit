@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
 "PO-Revision-Date: 2021-01-19 06:36+0000\n"
 "Last-Translator: Emilio Herrera <ehespinosa57@gmail.com>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -248,7 +248,7 @@ msgid_plural "$0 security fixes available"
 msgstr[0] "Actualizaciones de seguridad disponibles"
 msgstr[1] "Actualizaciones de seguridad disponibles"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "Falló $0 servicio"
@@ -692,6 +692,13 @@ msgstr "Activo desde"
 msgid "Active since "
 msgstr "Activo desde "
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+#, fuzzy
+#| msgid "Activate"
+msgid "Active state"
+msgstr "Activar"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "Balanceo de carga adaptativo"
@@ -913,7 +920,13 @@ msgstr ""
 msgid "Alert and above"
 msgstr "Alertas por orden descendente"
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+#, fuzzy
+#| msgid "alias"
+msgid "Alias"
+msgstr "alias"
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "Todo"
 
@@ -1085,7 +1098,7 @@ msgstr "Acceso automático"
 msgid "Automatic updates"
 msgstr "Actualizaciones automáticas"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr "Se ejecuta automáticamente"
@@ -1129,6 +1142,18 @@ msgstr "Volver a cuentas de usuario"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr "Dispositivo de respaldo"
+
+#: pkg/systemd/services/services.jsx:198
+#, fuzzy
+#| msgid "Blade"
+msgid "Bad"
+msgstr "Blade"
+
+#: pkg/systemd/services/services.jsx:164
+#, fuzzy
+#| msgid "Bridge settings"
+msgid "Bad setting"
+msgstr "Configuración del puente"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1307,7 +1332,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 msgid "Cannot be enabled"
 msgstr "No se puede activar"
 
@@ -1459,7 +1484,7 @@ msgstr "Limpiando el $target"
 msgid "Clear 'Failed to start'"
 msgstr "Limpiar 'Falló al iniciar'"
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr "Limpiar todos los filtros"
 
@@ -2099,7 +2124,6 @@ msgid "Deleting volume group $target"
 msgstr "Eliminado un grupo de volumen $target"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "Descripción"
@@ -2176,7 +2200,7 @@ msgstr "Deshabilitar tuned"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "Deshabilitado"
@@ -2236,7 +2260,7 @@ msgstr "No se monta automáticamente en el arranque"
 msgid "Docking station"
 msgstr "Estación de acoplamiento"
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
 msgstr "No se inicia automáticamente en el inicio"
 
@@ -2396,7 +2420,8 @@ msgstr "Habilitar servicio"
 msgid "Enable the firewall"
 msgstr "Habilitar el cortafuegos"
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "Habilitado"
 
@@ -2472,7 +2497,8 @@ msgstr "Errata:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Error"
 
@@ -2642,13 +2668,20 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Falló al cambiar el firmware"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr "Falló al iniciar"
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr "Falló el cambio de perfil"
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+#, fuzzy
+#| msgid "Failed to start"
+msgid "File state"
+msgstr "Falló al iniciar"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2662,11 +2695,7 @@ msgstr "Nombre del sistema de archivos"
 msgid "Filesystems"
 msgstr "Sistema de archivos"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr "Filtrar"
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 msgid "Filter by name or description"
 msgstr "Filtrar por nombre o descripción"
 
@@ -2708,7 +2737,7 @@ msgstr "Tamaño de la porción"
 msgid "For legacy applications only. Reduces performance."
 msgstr "Solo para aplicaciones residuales. Reduce el rendimiento."
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr "Prohibido ejecutarlo"
@@ -2784,6 +2813,12 @@ msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
+msgstr "General"
+
+#: pkg/systemd/services/services.jsx:196
+#, fuzzy
+#| msgid "General"
+msgid "Generated"
 msgstr "General"
 
 #: pkg/sosreport/index.html:62
@@ -3016,6 +3051,12 @@ msgstr ""
 msgid "Index memory"
 msgstr "Índice de memoria"
 
+#: pkg/systemd/services/services.jsx:195
+#, fuzzy
+#| msgid "direct"
+msgid "Indirect"
+msgstr "directo"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr ""
@@ -3112,6 +3153,12 @@ msgstr "Error interno"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr "Error Interno: Encabezado del reto no valido"
+
+#: pkg/systemd/services/services.jsx:194
+#, fuzzy
+#| msgid "Invalid key"
+msgid "Invalid"
+msgstr "Llave inválida"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3382,6 +3429,12 @@ msgstr "Vincular demora"
 msgid "Link watch"
 msgstr "Ver enlace"
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+#, fuzzy
+#| msgid "Links"
+msgid "Linked"
+msgstr "Vínculos"
+
 #: pkg/systemd/services/service-details.jsx:533
 #, fuzzy
 #| msgid "Persistent"
@@ -3437,7 +3490,7 @@ msgstr "Cargando modificaciones del sistema..."
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "Cargando..."
@@ -3582,6 +3635,10 @@ msgstr "Huellas de clave SSH de la máquina"
 msgid "Main server chassis"
 msgstr "Chasis del servidor principal"
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:363
 #, fuzzy
 #| msgid "Make sure the key hash from the Tang server matches:"
@@ -3693,6 +3750,7 @@ msgid "Mask service"
 msgstr "Enmascarar un servicio"
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr "Enmascarado"
 
@@ -3740,6 +3798,10 @@ msgstr "Tecnología de la memoria"
 #| msgid "Memory usage:"
 msgid "Memory usage"
 msgstr "Uso de memoria:"
+
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr ""
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
@@ -3949,8 +4011,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "Nombre"
@@ -4210,7 +4271,7 @@ msgstr "No hay volúmenes lógicos"
 msgid "No logs found"
 msgstr "No se encontraron registros"
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr "No se encontraron resultados"
 
@@ -4240,7 +4301,7 @@ msgstr "No hay un nombre real especificado"
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4313,7 +4374,7 @@ msgstr "No se ha conectado a Insights"
 msgid "Not enough space to grow."
 msgstr "No hay espacio suficiente para expandir."
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "No se ha encontrado"
 
@@ -4339,7 +4400,8 @@ msgstr "No está registrado"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "No está ejecutándose"
 
@@ -5112,6 +5174,12 @@ msgstr "Recargar"
 msgid "Reload propagated from"
 msgstr "Recargar la propagación desde"
 
+#: pkg/systemd/services/services.jsx:174
+#, fuzzy
+#| msgid "Reading"
+msgid "Reloading"
+msgstr "Leyendo"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr ""
@@ -5420,7 +5488,8 @@ msgstr "Lanzador"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "Ejecutando"
 
@@ -5583,12 +5652,6 @@ msgstr "Actualizaciones de seguridad disponibles"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Seleccionar"
-
-#: pkg/systemd/services/services.jsx:780
-#, fuzzy
-#| msgid "Console type"
-msgid "Select unit state"
-msgstr "Tipo de consola"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5963,7 +6026,8 @@ msgstr "Iniciando dispositivo RAID $target"
 msgid "Starting swapspace $target"
 msgstr "Iniciando espacio del área de intercambio $target"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "Estado"
 
@@ -5973,7 +6037,7 @@ msgid "State"
 msgstr "Estado"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "Estático"
 
@@ -6045,6 +6109,10 @@ msgstr "Guardar contraseña"
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
 msgstr "Frase de paso almacenada"
+
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
+msgstr ""
 
 #: pkg/lib/machine-info.js:76
 #, fuzzy
@@ -6173,7 +6241,7 @@ msgstr "Servicios del sistema"
 msgid "System time"
 msgstr "Hora del sistema"
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 msgid "Systemd units"
 msgstr "Unidades de systemd"
 
@@ -6820,11 +6888,20 @@ msgstr "Tamaño total: $0"
 msgid "Tower"
 msgstr "Torre"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:43
+#, fuzzy
+#| msgid "Triggers"
+msgid "Trigger"
+msgstr "Disparadores"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr "Desencadenado por"
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "Disparadores"
@@ -7015,11 +7092,12 @@ msgstr "No disponible"
 msgid "Unexpected error"
 msgstr "Error inesperado"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr "Unidad"
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 #, fuzzy
 #| msgid "Not found"
 msgid "Unit not found"
@@ -7029,9 +7107,11 @@ msgstr "No se ha encontrado"
 msgid "Unix group: $0"
 msgstr ""
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -8261,8 +8341,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "unit"
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "desconocido"
 
@@ -8331,6 +8411,14 @@ msgstr "zona"
 #| msgid "$0 key changed"
 msgid "{{host}} key changed"
 msgstr "$0 clave cambiada"
+
+#~ msgid "Filter"
+#~ msgstr "Filtrar"
+
+#, fuzzy
+#~| msgid "Console type"
+#~ msgid "Select unit state"
+#~ msgstr "Tipo de consola"
 
 #, fuzzy
 #~| msgid "Enable stored metrics"
@@ -9510,9 +9598,6 @@ msgstr "$0 clave cambiada"
 #~ msgid "custom"
 #~ msgstr "personalizado"
 
-#~ msgid "direct"
-#~ msgstr "directo"
-
 #~ msgid "disabled"
 #~ msgstr "desactivado"
 
@@ -9749,9 +9834,6 @@ msgstr "$0 clave cambiada"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "La llave del anfitrión es incorrecta"
-
-#~ msgid "Reading"
-#~ msgstr "Leyendo"
 
 #~ msgid ""
 #~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
@@ -10283,9 +10365,6 @@ msgstr "$0 clave cambiada"
 #~ msgid "Link to another container"
 #~ msgstr "Enlazar con otro contenedor"
 
-#~ msgid "Links"
-#~ msgstr "Vínculos"
-
 #~ msgid "Links:"
 #~ msgstr "Enlaces:"
 
@@ -10470,9 +10549,6 @@ msgstr "$0 clave cambiada"
 #~ "Usted está conectado a {{#strong}}{{host}}{{/strong}}, sin embargo para "
 #~ "sincronizar usuarios, se necesita un usuario con privilegios de súper "
 #~ "usuario."
-
-#~ msgid "alias"
-#~ msgstr "alias"
 
 #~ msgid "default"
 #~ msgstr "por defecto"

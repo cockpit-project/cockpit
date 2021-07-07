@@ -49,6 +49,7 @@ TRANSLATE = \
 
 # Extract from GLib based C code files
 po/cockpit.c.pot:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(XGETTEXT) --default-domain=cockpit --output=$@ --language=C \
 		--keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=Q_ \
 		--keyword=g_dgettext:2 --keyword=g_dngettext:2,3 --keyword=g_dpgettext:2 \
@@ -57,11 +58,13 @@ po/cockpit.c.pot:
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
 po/cockpit.html.pot: package-lock.json
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
 # Extract cockpit style javascript translations
 po/cockpit.js.pot:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(XGETTEXT) --default-domain=cockpit --output=- --language=C --keyword= \
 		--keyword=_:1,1t --keyword=_:1c,2,2t --keyword=C_:1c,2 \
 		--keyword=N_ --keyword=NC_:1c,2 \
@@ -73,19 +76,23 @@ po/cockpit.js.pot:
 		sed '/^#/ s/, c-format//' > $@
 
 po/cockpit.manifest.pot: package-lock.json
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 
 po/cockpit.appstream.pot:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \
 		$$(find $(TRANSLATE) -name '*.appdata.xml.in')
 
 po/cockpit.polkit.pot:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ \
 		$$(find $(TRANSLATE) -name '*.policy.in')
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(MSGCAT) --sort-output --output-file=$@ $^
 
 # Actually update the old translations with new translatable text

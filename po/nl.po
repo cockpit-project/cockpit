@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
-"PO-Revision-Date: 2021-05-06 08:02+0000\n"
-"Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
+"PO-Revision-Date: 2021-06-30 16:04+0000\n"
+"Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
-"master/nl/>\n"
+"main/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.6.1\n"
+"X-Generator: Weblate 4.7\n"
 
 #: pkg/metrics/metrics.jsx:417
 msgid "$0 CPU"
@@ -226,7 +226,7 @@ msgid_plural "$0 security fixes available"
 msgstr[0] "$0 beveiligingsreparatie beschikbaar"
 msgstr[1] "$0 beveiligingsreparaties beschikbaar"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 service is mislukt"
@@ -664,6 +664,11 @@ msgstr "Actief sinds"
 msgid "Active since "
 msgstr "Actief sinds "
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+msgid "Active state"
+msgstr "Actieve toestand"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "Adaptieve taakverdeling"
@@ -874,7 +879,11 @@ msgstr "Alarm"
 msgid "Alert and above"
 msgstr "Alert en hoger"
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+msgid "Alias"
+msgstr "Alias"
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "Alle"
 
@@ -1040,7 +1049,7 @@ msgstr "Automatisch inloggen"
 msgid "Automatic updates"
 msgstr "Automatische vernieuwingen"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr "Automatisch starten"
@@ -1084,6 +1093,14 @@ msgstr "Terug naar accounts"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr "Ondersteunend apparaat"
+
+#: pkg/systemd/services/services.jsx:198
+msgid "Bad"
+msgstr "Slecht"
+
+#: pkg/systemd/services/services.jsx:164
+msgid "Bad setting"
+msgstr "Slechte instelling"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1250,7 +1267,7 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 msgid "Cannot be enabled"
 msgstr "Kan niet worden ingeschakeld"
 
@@ -1398,7 +1415,7 @@ msgstr "Opschonen voor $target"
 msgid "Clear 'Failed to start'"
 msgstr "Wis 'Kan niet starten'"
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr "Wis alle filters"
 
@@ -1500,10 +1517,8 @@ msgstr ""
 "je machines zullen voor zijn maatjes zorgen."
 
 #: pkg/metrics/metrics.jsx:953
-#, fuzzy
-#| msgid "Store metrics"
 msgid "Collect metrics"
-msgstr "Sla metriek op"
+msgstr "Verzamel metriek"
 
 #: pkg/shell/machines/machine-add.html:37
 msgid "Color"
@@ -1601,10 +1616,8 @@ msgid "Confirm removal of $0"
 msgstr "Bevestig het verwijderen van $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:408
-#, fuzzy
-#| msgid "Confirm removal with passphrase"
 msgid "Confirm removal with an alternate passphrase"
-msgstr "Bevestig verwijderen met wachtzin"
+msgstr "Bevestig verwijderen met een alternatieve wachtzin"
 
 #: pkg/systemd/services/service-details.jsx:444
 msgid "Conflicted by"
@@ -2018,7 +2031,6 @@ msgid "Deleting volume group $target"
 msgstr "Volumegroep $target verwijderen"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "Beschrijving"
@@ -2095,7 +2107,7 @@ msgstr "Schakel tuned uit"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "Uitgeschakeld"
@@ -2151,7 +2163,7 @@ msgstr "Niet automatisch aankoppelen tijdens het opstarten"
 msgid "Docking station"
 msgstr "Docking station"
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
 msgstr "Start niet automatisch op"
 
@@ -2282,10 +2294,8 @@ msgid "Emptying $target"
 msgstr "$target leegmaken"
 
 #: pkg/packagekit/autoupdates.jsx:402
-#, fuzzy
-#| msgid "Enabled"
 msgid "Enable"
-msgstr "Ingeschakeld"
+msgstr "Inschakelen"
 
 #: pkg/networkmanager/network-interface.jsx:730
 msgid "Enable or disable the device"
@@ -2299,7 +2309,8 @@ msgstr "Service inschakelen"
 msgid "Enable the firewall"
 msgstr "Schakel de firewall in"
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
@@ -2373,7 +2384,8 @@ msgstr "Errata"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Fout"
 
@@ -2444,16 +2456,12 @@ msgid "Expansion chassis"
 msgstr "Uitbreidingschassis"
 
 #: pkg/users/expiration-dialogs.js:62
-#, fuzzy
-#| msgid "Lock account on $0"
 msgid "Expire account on"
-msgstr "Account vergrendelen op $0"
+msgstr "Account laten verlopen op"
 
 #: pkg/users/account-details.js:111
-#, fuzzy
-#| msgid "Lock account on $0"
 msgid "Expire account on $0"
-msgstr "Account vergrendelen op $0"
+msgstr "Account laten verlopen op $0"
 
 #: pkg/systemd/abrtLog.jsx:244
 msgid "Extended information"
@@ -2489,10 +2497,8 @@ msgid "Failed to change password"
 msgstr "Kan wachtwoord niet veranderen"
 
 #: pkg/metrics/metrics.jsx:939
-#, fuzzy
-#| msgid "Failed to clone VM $0"
 msgid "Failed to configure PCP"
-msgstr "Kan VM $0 niet klonen"
+msgstr "Kan PCP niet configureren"
 
 #: pkg/selinux/setroubleshoot-client.js:188
 msgid "Failed to delete alert: $0"
@@ -2523,6 +2529,9 @@ msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
 msgstr ""
+"Kan de eenheidsbestanden voor dnf-automatic.timer of dnf-automatic-"
+"install.timer niet ontleden. Verwijder aangepaste overschrijvingen om "
+"automatische updates te configureren."
 
 #: pkg/packagekit/updates.jsx:421
 msgid "Failed to restart service"
@@ -2533,13 +2542,18 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Kan veranderingen in /etc/motd niet opslaan"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr "Starten mislukt"
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr "Kan profiel niet wijzigen"
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+msgid "File state"
+msgstr "Bestandstatus"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2553,19 +2567,13 @@ msgstr "Bestandssysteemnaam"
 msgid "Filesystems"
 msgstr "Bestandssystemen"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr "Filter"
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 msgid "Filter by name or description"
 msgstr "Filteren op naam of beschrijving"
 
 #: pkg/shell/shell-modals.jsx:109
-#, fuzzy
-#| msgid "Filter services"
 msgid "Filter menu items"
-msgstr "Filter services"
+msgstr "Filtermenu items"
 
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
@@ -2597,7 +2605,7 @@ msgstr "Lettertypegrootte"
 msgid "For legacy applications only. Reduces performance."
 msgstr "Alleen voor oudere toepassingen. Vermindert prestaties."
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr "Uitvoeren is verboden"
@@ -2670,6 +2678,10 @@ msgstr "GNU LGPL versie 2.1"
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
 msgstr "Algemeen"
+
+#: pkg/systemd/services/services.jsx:196
+msgid "Generated"
+msgstr "Gegenereerd"
 
 #: pkg/sosreport/index.html:62
 msgid "Generating report"
@@ -2896,6 +2908,10 @@ msgstr "Verhogen met één"
 msgid "Index memory"
 msgstr "Indexgeheugen"
 
+#: pkg/systemd/services/services.jsx:195
+msgid "Indirect"
+msgstr "Indirect"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr "Info"
@@ -2981,6 +2997,10 @@ msgstr "Interne fout"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr "Interne fout: ongeldige exceptie koptekst"
+
+#: pkg/systemd/services/services.jsx:194
+msgid "Invalid"
+msgstr "Ongeldig"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3115,10 +3135,8 @@ msgid "Kernel Dump"
 msgstr "Kerneldump"
 
 #: pkg/kdump/kdump-view.jsx:500
-#, fuzzy
-#| msgid "Kernel dump"
 msgid "Kernel crash dump"
-msgstr "Kerneldump"
+msgstr "Kernelcrashdump"
 
 #: pkg/kdump/index.html:23
 msgid "Kernel dump"
@@ -3241,11 +3259,13 @@ msgstr "Link up vertraging"
 msgid "Link watch"
 msgstr "Link toezicht"
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+msgid "Linked"
+msgstr "Gekoppeld"
+
 #: pkg/systemd/services/service-details.jsx:533
-#, fuzzy
-#| msgid "Persistent"
 msgid "Listen"
-msgstr "Aanhoudend"
+msgstr "Luisteren"
 
 #: pkg/metrics/metrics.jsx:100 pkg/metrics/metrics.jsx:478
 #: pkg/metrics/metrics.jsx:1274
@@ -3290,7 +3310,7 @@ msgstr "Systeemwijzigingen laden..."
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "Laden..."
@@ -3432,12 +3452,16 @@ msgstr "Machine SSH-sleutel vingerafdrukken"
 msgid "Main server chassis"
 msgstr "Hoofdserverchassis"
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr "Onderhoud"
+
 #: pkg/storaged/crypto-keyslots.jsx:363
-#, fuzzy
-#| msgid "Make sure the key hash from the Tang server matches:"
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
-msgstr "Zorg ervoor dat de sleutelhash van de Tang-server overeenkomt met:"
+msgstr ""
+"Zorg ervoor dat de sleutelhash van de Tang-server overeenkomt met een van de "
+"volgende:"
 
 #: pkg/networkmanager/network-main.jsx:176
 msgid "Managed interfaces"
@@ -3521,6 +3545,7 @@ msgid "Mask service"
 msgstr "Masker service"
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr "Gemaskeerd"
 
@@ -3565,6 +3590,10 @@ msgstr "Geheugen technologie"
 msgid "Memory usage"
 msgstr "Geheugengebruik"
 
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr "Samengevoegd"
+
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
 msgstr "Bericht aan ingelogde gebruikers"
@@ -3583,10 +3612,8 @@ msgid "Metrics history could not be loaded"
 msgstr "Statistieken kon niet worden geladen"
 
 #: pkg/metrics/metrics.jsx:918 pkg/metrics/metrics.jsx:925
-#, fuzzy
-#| msgid "Bridge settings"
 msgid "Metrics settings"
-msgstr "Bruginstellingen"
+msgstr "Metriekinstellingen"
 
 #: pkg/lib/machine-info.js:92
 msgid "Mini PC"
@@ -3766,8 +3793,7 @@ msgstr "NTP-server"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "Naam"
@@ -3851,10 +3877,8 @@ msgid "Never"
 msgstr "Nooit"
 
 #: pkg/users/account-details.js:108 pkg/users/expiration-dialogs.js:36
-#, fuzzy
-#| msgid "Never lock account"
 msgid "Never expire account"
-msgstr "Account nooit vergrendelen"
+msgstr "Account nooit laten verlopen"
 
 #: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:144
 msgid "Never expire password"
@@ -3996,7 +4020,7 @@ msgstr "Geen logische volumes"
 msgid "No logs found"
 msgstr "Geen logs gevonden"
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr "Geen overeenkomende resultaten"
 
@@ -4026,7 +4050,7 @@ msgstr "Geen echte naam opgegeven"
 msgid "No results found"
 msgstr "Geen resultaten gevonden"
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4095,7 +4119,7 @@ msgstr "Niet verbonden met host"
 msgid "Not enough space to grow."
 msgstr "Niet genoeg ruimte om te groeien."
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "Niet gevonden"
 
@@ -4121,15 +4145,14 @@ msgstr "Niet geregistreerd"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "Niet actief"
 
 #: pkg/packagekit/autoupdates.jsx:337
-#, fuzzy
-#| msgid "No NFS mounts set up"
 msgid "Not set up"
-msgstr "Geen NFS-aankoppelingen ingesteld"
+msgstr "Niet ingesteld"
 
 #: pkg/lib/serverTime.js:384
 msgid "Not synchronized"
@@ -4329,8 +4352,6 @@ msgid "Passphrase"
 msgstr "Wachtzin"
 
 #: pkg/storaged/crypto-keyslots.jsx:391
-#, fuzzy
-#| msgid "Passphrase cannot be empty"
 msgid "Passphrase can not be empty"
 msgstr "Wachtzin mag niet leeg zijn"
 
@@ -4341,10 +4362,8 @@ msgid "Passphrase cannot be empty"
 msgstr "Wachtzin mag niet leeg zijn"
 
 #: pkg/storaged/crypto-keyslots.jsx:414
-#, fuzzy
-#| msgid "Passphrase cannot be empty"
 msgid "Passphrase from any other key slot"
-msgstr "Wachtzin mag niet leeg zijn"
+msgstr "Wachtzin van een ander sleutelslot"
 
 #: pkg/storaged/crypto-keyslots.jsx:404
 msgid "Passphrase removal may prevent unlocking $0."
@@ -4370,10 +4389,8 @@ msgid "Password expiration"
 msgstr "Wachtwoord verloop"
 
 #: pkg/users/password-dialogs.js:211 pkg/users/account-create-dialog.js:205
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Password is longer than 256 characters"
-msgstr "Naam mag niet langer zijn dan 127 lettertekens."
+msgstr "Wachtwoord is langer dan 256 lettertekens"
 
 #: pkg/lib/cockpit-components-password.jsx:41
 msgid "Password is not acceptable"
@@ -4396,10 +4413,8 @@ msgid "Paste"
 msgstr "Plakken"
 
 #: pkg/lib/cockpit-components-terminal.jsx:201
-#, fuzzy
-#| msgid "Internal error"
 msgid "Paste error"
-msgstr "Interne fout"
+msgstr "Plakfout"
 
 #: pkg/users/authorized-keys-panel.js:36
 msgid "Paste the contents of your public SSH key file here"
@@ -4446,6 +4461,8 @@ msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
 msgstr ""
+"Performance Co-Pilot verzamelt en analyseert prestatiestatistieken van jouw "
+"systeem."
 
 #: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1308
 msgid "Performance Metrics"
@@ -4617,10 +4634,8 @@ msgid "Priority $priority"
 msgstr "Prioriteit $priority"
 
 #: pkg/shell/superuser.jsx:97
-#, fuzzy
-#| msgid "Domain administrator name"
 msgid "Problem becoming administrator"
-msgstr "Domeinbeheerdersnaam"
+msgstr "Probleem om beheerder te worden"
 
 #: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
@@ -4874,6 +4889,10 @@ msgstr "Opnieuw laden"
 msgid "Reload propagated from"
 msgstr "Opnieuw laden gepropageerd van"
 
+#: pkg/systemd/services/services.jsx:174
+msgid "Reloading"
+msgstr "Opnieuw laden"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr "De status van de resterende services opnieuw laden"
@@ -4925,10 +4944,8 @@ msgid "Remove device"
 msgstr "Verwijder apparaat"
 
 #: pkg/storaged/crypto-keyslots.jsx:428
-#, fuzzy
-#| msgid "Remove passphrase in $0?"
 msgid "Remove passphrase in key slot $0"
-msgstr "Wachtzin in $0 verwijderen?"
+msgstr "Wachtzin in sleutelslot $0 verwijderen"
 
 #: pkg/networkmanager/firewall.jsx:74
 msgid "Remove service $0"
@@ -4963,6 +4980,9 @@ msgid ""
 "Removing a passphrase without confirmation of another passphrase may prevent "
 "unlocking or key management, if other passphrases are forgotten or lost."
 msgstr ""
+"Het verwijderen van een wachtzin zonder bevestiging van een andere wachtzin "
+"kan ontgrendeling of sleutelbeheer voorkomen als andere wachtzinnen worden "
+"vergeten of verloren gaan."
 
 #: pkg/storaged/jobs-panel.jsx:81
 msgid "Removing physical volume from $target"
@@ -5153,7 +5173,8 @@ msgstr "Uitvoerder"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "Uitvoeren"
 
@@ -5187,11 +5208,11 @@ msgstr "SELinux problemen oplossen"
 
 #: pkg/storaged/crypto-keyslots.jsx:368
 msgid "SHA1"
-msgstr ""
+msgstr "SHA1"
 
 #: pkg/storaged/crypto-keyslots.jsx:365
 msgid "SHA256"
-msgstr ""
+msgstr "SHA256"
 
 #: pkg/storaged/jobs-panel.jsx:42
 msgid "SMART self-test of $target"
@@ -5303,10 +5324,6 @@ msgstr "Alleen beveiligingsupdates"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Selecteren"
-
-#: pkg/systemd/services/services.jsx:780
-msgid "Select unit state"
-msgstr "Selecteer unit status"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5439,10 +5456,8 @@ msgid "Setting up loop device $target"
 msgstr "Loop apparaat $target instellen"
 
 #: pkg/packagekit/updates.jsx:851
-#, fuzzy
-#| msgid "Setting up"
 msgid "Settings"
-msgstr "Opzetten"
+msgstr "Instellingen"
 
 #: pkg/packagekit/updates.jsx:304 pkg/packagekit/updates.jsx:373
 msgid "Severity"
@@ -5490,11 +5505,11 @@ msgstr "Toon vingerafdrukken"
 
 #: pkg/systemd/services/service-details.jsx:470
 msgid "Show more relationships"
-msgstr ""
+msgstr "Toon meer relaties"
 
 #: pkg/systemd/services/service-details.jsx:470
 msgid "Show relationships"
-msgstr ""
+msgstr "Toon relaties"
 
 #: pkg/storaged/lvol-tabs.jsx:358 pkg/storaged/lvol-tabs.jsx:426
 msgid "Shrink"
@@ -5670,7 +5685,8 @@ msgstr "RAID-apparaat $target starten"
 msgid "Starting swapspace $target"
 msgstr "Swapspace $target starten"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "Toestand"
 
@@ -5680,7 +5696,7 @@ msgid "State"
 msgstr "Toestand"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "Statisch"
 
@@ -5753,6 +5769,10 @@ msgstr "Sla wachtzin op"
 msgid "Stored passphrase"
 msgstr "Opgeslagen wachtzin"
 
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
+msgstr "Stub"
+
 #: pkg/lib/machine-info.js:76
 msgid "Sub-Chassis"
 msgstr "Sub-chassis"
@@ -5798,10 +5818,8 @@ msgid "Switch on $0"
 msgstr "Schakel $0 in"
 
 #: pkg/shell/superuser.jsx:55
-#, fuzzy
-#| msgid "Turn on administrative access"
 msgid "Switch to administrative access"
-msgstr "Schakel beheerderstoegang in"
+msgstr "Schakel om naar beheerderstoegang"
 
 #: pkg/shell/superuser.jsx:163
 msgid "Switch to limited access"
@@ -5873,7 +5891,7 @@ msgstr "Systeemservices"
 msgid "System time"
 msgstr "Systeemtijd"
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 msgid "Systemd units"
 msgstr "Systemd units"
 
@@ -6509,11 +6527,18 @@ msgstr "Totale grootte: $0"
 msgid "Tower"
 msgstr "Toren"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr "Kortstondig"
+
+#: pkg/systemd/services/services-list.jsx:43
+msgid "Trigger"
+msgstr "Trigger"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr "Veroorzaakt door"
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "Triggers"
@@ -6700,11 +6725,12 @@ msgstr "Niet beschikbaar"
 msgid "Unexpected error"
 msgstr "Onverwachte fout"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr "Unit"
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 msgid "Unit not found"
 msgstr "Unit niet gevonden"
 
@@ -6712,9 +6738,11 @@ msgstr "Unit niet gevonden"
 msgid "Unix group: $0"
 msgstr "Unix groep: $0"
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -6887,11 +6915,8 @@ msgid "Usage"
 msgstr "Gebruik"
 
 #: pkg/storaged/storage-controls.jsx:207
-#, fuzzy
-#| msgid "Usage of $0 CPU core"
-#| msgid_plural "Usage of $0 CPU cores"
 msgid "Usage of $0"
-msgstr "Gebruik van $0 CPU kern"
+msgstr "Gebruik van $0"
 
 #: pkg/storaged/vdos-panel.jsx:128
 msgid "Use 512 byte emulation"
@@ -7022,10 +7047,8 @@ msgid "Very securely erasing $target"
 msgstr "Zeer veilig wissen van $target"
 
 #: pkg/metrics/metrics.jsx:733 pkg/lib/cockpit-components-logs-panel.jsx:161
-#, fuzzy
-#| msgid "All logs"
 msgid "View all logs"
-msgstr "Alle logboeken"
+msgstr "Bekijk alle logboeken"
 
 #: pkg/lib/cockpit-components-modifications.jsx:163
 msgid "View automation script"
@@ -7249,6 +7272,8 @@ msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
 msgstr ""
+"Je browser staat plakken vanuit het contextmenu niet toe. Je kunt Shift+"
+"Insert gebruiken."
 
 #: pkg/shell/superuser.jsx:166
 msgid "Your browser will remember your access level across sessions."
@@ -7447,46 +7472,32 @@ msgid "error"
 msgstr "fout"
 
 #: pkg/packagekit/autoupdates.jsx:345
-#, fuzzy
-#| msgid "every day"
 msgid "every Friday"
-msgstr "elke dag"
+msgstr "elke vrijdag"
 
 #: pkg/packagekit/autoupdates.jsx:341
-#, fuzzy
-#| msgid "every day"
 msgid "every Monday"
-msgstr "elke dag"
+msgstr "elke maandag"
 
 #: pkg/packagekit/autoupdates.jsx:346
-#, fuzzy
-#| msgid "every day"
 msgid "every Saturday"
-msgstr "elke dag"
+msgstr "elke zaterdag"
 
 #: pkg/packagekit/autoupdates.jsx:347
-#, fuzzy
-#| msgid "every day"
 msgid "every Sunday"
-msgstr "elke dag"
+msgstr "elke zondag"
 
 #: pkg/packagekit/autoupdates.jsx:344
-#, fuzzy
-#| msgid "every day"
 msgid "every Thursday"
-msgstr "elke dag"
+msgstr "elke donderdag"
 
 #: pkg/packagekit/autoupdates.jsx:342
-#, fuzzy
-#| msgid "every day"
 msgid "every Tuesday"
-msgstr "elke dag"
+msgstr "elke dinsdag"
 
 #: pkg/packagekit/autoupdates.jsx:343
-#, fuzzy
-#| msgid "Wednesday"
 msgid "every Wednesday"
-msgstr "woensdag"
+msgstr "elke woensdag"
 
 #: pkg/packagekit/autoupdates.jsx:308 pkg/packagekit/autoupdates.jsx:340
 msgid "every day"
@@ -7637,10 +7648,8 @@ msgid "mkfs"
 msgstr "mkfs"
 
 #: pkg/kdump/kdump-view.jsx:461
-#, fuzzy
-#| msgid "More details"
 msgid "more details"
-msgstr "Meer details"
+msgstr "meer details"
 
 #: pkg/storaged/manifest.json:0
 msgid "mount"
@@ -7725,21 +7734,16 @@ msgid "plugin"
 msgstr "plug-in"
 
 #: pkg/metrics/metrics.jsx:1199
-#, fuzzy
-#| msgid "$0 service has failed"
-#| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
-msgstr "$0 service is mislukt"
+msgstr "pmlogger.service is mislukt"
 
 #: pkg/metrics/metrics.jsx:1201
 msgid "pmlogger.service is failing to collect data"
-msgstr ""
+msgstr "pmlogger.service kan geen data verzamelen"
 
 #: pkg/metrics/metrics.jsx:1195
-#, fuzzy
-#| msgid "Is 'pmlogger' service running?"
 msgid "pmlogger.service is not running"
-msgstr "Draait de 'pmlogger' service?"
+msgstr "pmlogger.service is niet actief"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"
@@ -7899,8 +7903,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "unit"
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "onbekend"
 
@@ -7967,6 +7971,12 @@ msgstr "zone"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} sleutel gewijzigd"
+
+#~ msgid "Filter"
+#~ msgstr "Filter"
+
+#~ msgid "Select unit state"
+#~ msgstr "Selecteer unit status"
 
 #, fuzzy
 #~| msgid "Enable stored metrics"
@@ -9115,9 +9125,6 @@ msgstr "{{host}} sleutel gewijzigd"
 #~ msgid "custom"
 #~ msgstr "aangepast"
 
-#~ msgid "direct"
-#~ msgstr "direct"
-
 #~ msgid "disabled"
 #~ msgstr "uitgeschakeld"
 
@@ -9340,9 +9347,6 @@ msgstr "{{host}} sleutel gewijzigd"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Onjuiste hostsleutel"
-
-#~ msgid "Reading"
-#~ msgstr "Lezend"
 
 #~ msgid ""
 #~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
@@ -9891,9 +9895,6 @@ msgstr "{{host}} sleutel gewijzigd"
 #~ msgid "Link to another container"
 #~ msgstr "Link naar een andere container"
 
-#~ msgid "Links"
-#~ msgstr "Links"
-
 #~ msgid "Links:"
 #~ msgstr "Links:"
 
@@ -10070,9 +10071,6 @@ msgstr "{{host}} sleutel gewijzigd"
 #~ msgstr ""
 #~ "Je bent verbonden met {{#strong}}{{host}}{{/strong}}, maar om gebruikers "
 #~ "te synchroniseren is een gebruiker met superuser-rechten vereist."
-
-#~ msgid "alias"
-#~ msgstr "alias"
 
 #~ msgid "default"
 #~ msgstr "standaard"

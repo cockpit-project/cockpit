@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
-"PO-Revision-Date: 2021-06-05 10:03+0000\n"
-"Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
+"PO-Revision-Date: 2021-06-22 19:04+0000\n"
+"Last-Translator: simmon <simmon@nplob.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/master/ja/>\n"
 "Language: ja\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.6.2\n"
+"X-Generator: Weblate 4.7\n"
 
 #: pkg/metrics/metrics.jsx:417
 msgid "$0 CPU"
@@ -214,7 +214,7 @@ msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 セキュリティー修正が利用可能"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "失敗したサービスの数 ($0)"
@@ -634,6 +634,13 @@ msgstr "以降有効"
 msgid "Active since "
 msgstr "以下以降アクティブ "
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+#, fuzzy
+#| msgid "Activate"
+msgid "Active state"
+msgstr "有効化"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "適応ロードバランス"
@@ -739,9 +746,7 @@ msgstr ""
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
-msgstr ""
-"カスタムポートを追加すると、firewalld がリロードされます。リロードにより、ラ"
-"ンタイムのみの設定が失われます。"
+msgstr "カスタムポートを追加すると、firewalld がリロードされます。リロードにより、ランタイムのみの設定が失われます!"
 
 #: pkg/users/authorized-keys.js:113
 msgid "Adding key"
@@ -843,7 +848,13 @@ msgstr "アラート"
 msgid "Alert and above"
 msgstr "アラート以上のレベル"
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+#, fuzzy
+#| msgid "alias"
+msgid "Alias"
+msgstr "alias"
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "すべて"
 
@@ -1006,7 +1017,7 @@ msgstr "自動ログイン"
 msgid "Automatic updates"
 msgstr "自動アップデート"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr "自動起動"
@@ -1050,6 +1061,18 @@ msgstr "アカウントに戻る"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr "バッキングデバイス"
+
+#: pkg/systemd/services/services.jsx:198
+#, fuzzy
+#| msgid "Blade"
+msgid "Bad"
+msgstr "ブレード"
+
+#: pkg/systemd/services/services.jsx:164
+#, fuzzy
+#| msgid "Bond settings"
+msgid "Bad setting"
+msgstr "ボンド設定"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1216,7 +1239,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "取り消し"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 msgid "Cannot be enabled"
 msgstr "有効にできません"
 
@@ -1362,7 +1385,7 @@ msgstr "$target のクリーンアップ中"
 msgid "Clear 'Failed to start'"
 msgstr "'起動に失敗' を消去"
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
@@ -1984,7 +2007,6 @@ msgid "Deleting volume group $target"
 msgstr "ボリュームグループ $target の削除"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "説明"
@@ -2061,7 +2083,7 @@ msgstr "tuned の無効化"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "無効"
@@ -2117,7 +2139,7 @@ msgstr "起動時に自動的にマウントしない"
 msgid "Docking station"
 msgstr "ドッキングステーション"
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
 msgstr "自動起動しません"
 
@@ -2265,7 +2287,8 @@ msgstr "サービスを有効にします"
 msgid "Enable the firewall"
 msgstr "ファイアウォールを有効にします"
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "有効"
 
@@ -2338,7 +2361,8 @@ msgstr "エラータ"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "エラー"
 
@@ -2497,13 +2521,20 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "変更を /etc/motd に保存できませんでした"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr "起動に失敗しました"
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr "プロファイルの切り替えに失敗しました"
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+#, fuzzy
+#| msgid "Failed to start"
+msgid "File state"
+msgstr "起動に失敗しました"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2517,11 +2548,7 @@ msgstr "ファイルシステム名"
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr "フィルター"
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 msgid "Filter by name or description"
 msgstr "名前または説明による絞り込み"
 
@@ -2561,7 +2588,7 @@ msgstr "フォントのサイズ"
 msgid "For legacy applications only. Reduces performance."
 msgstr "レガシーアプリケーション専用です。パフォーマンスが低下します。"
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr "実行が禁止されています"
@@ -2636,6 +2663,12 @@ msgstr "GNU LGPL バージョン 2.1"
 
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
+msgstr "全般"
+
+#: pkg/systemd/services/services.jsx:196
+#, fuzzy
+#| msgid "General"
+msgid "Generated"
 msgstr "全般"
 
 #: pkg/sosreport/index.html:62
@@ -2863,6 +2896,12 @@ msgstr "1 ずつ増加"
 msgid "Index memory"
 msgstr "インデックスメモリー"
 
+#: pkg/systemd/services/services.jsx:195
+#, fuzzy
+#| msgid "direct"
+msgid "Indirect"
+msgstr "ダイレクト"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr "情報"
@@ -2949,6 +2988,12 @@ msgstr "内部エラー"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
+
+#: pkg/systemd/services/services.jsx:194
+#, fuzzy
+#| msgid "Invalid key"
+msgid "Invalid"
+msgstr "無効な鍵"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3209,6 +3254,12 @@ msgstr "リンクアップの遅延"
 msgid "Link watch"
 msgstr "リンクの監視"
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+#, fuzzy
+#| msgid "Links"
+msgid "Linked"
+msgstr "リンク"
+
 #: pkg/systemd/services/service-details.jsx:533
 #, fuzzy
 #| msgid "Persistent"
@@ -3258,7 +3309,7 @@ msgstr "システム変更をロード中..."
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "ロード中..."
@@ -3400,6 +3451,10 @@ msgstr "マシンSSH 鍵フィンガープリント"
 msgid "Main server chassis"
 msgstr "メインサーバーシャーシ"
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:363
 #, fuzzy
 #| msgid "Make sure the key hash from the Tang server matches:"
@@ -3489,6 +3544,7 @@ msgid "Mask service"
 msgstr "サービスのマスク"
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr "マスク"
 
@@ -3532,6 +3588,10 @@ msgstr "メモリーテクノロジー"
 #: pkg/metrics/metrics.jsx:107
 msgid "Memory usage"
 msgstr "メモリー使用状況"
+
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr ""
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
@@ -3733,8 +3793,7 @@ msgstr "NTP サーバー"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "名前"
@@ -3963,7 +4022,7 @@ msgstr "論理ボリュームなし"
 msgid "No logs found"
 msgstr "ログが見つかりません"
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr "一致する結果はありません"
 
@@ -3993,7 +4052,7 @@ msgstr "実際の名前が指定されていません"
 msgid "No results found"
 msgstr "結果が見つかりません"
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4062,7 +4121,7 @@ msgstr "ホストに接続されていません"
 msgid "Not enough space to grow."
 msgstr "スペースが不足しています。"
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "見つかりません"
 
@@ -4088,7 +4147,8 @@ msgstr "登録されていません"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -4177,7 +4237,7 @@ msgstr "緊急時限定"
 
 #: pkg/shell/index.html:50
 msgid "Ooops!"
-msgstr "問題が発生しました"
+msgstr "問題が発生しました!"
 
 #: pkg/storaged/jobs-panel.jsx:91
 msgid "Operation '$operation' on $target"
@@ -4841,6 +4901,12 @@ msgstr "再ロード"
 msgid "Reload propagated from"
 msgstr "伝搬元を再ロード"
 
+#: pkg/systemd/services/services.jsx:174
+#, fuzzy
+#| msgid "Reading"
+msgid "Reloading"
+msgstr "読み取り"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr "残りのサービス状態の再読み込み"
@@ -5120,7 +5186,8 @@ msgstr "ランナー"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "実行中"
 
@@ -5269,10 +5336,6 @@ msgstr "セキュリティー更新のみ"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "選択"
-
-#: pkg/systemd/services/services.jsx:780
-msgid "Select unit state"
-msgstr "ユニットの状態の選択"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5631,7 +5694,8 @@ msgstr "RAID デバイス $target の起動"
 msgid "Starting swapspace $target"
 msgstr "スワップ領域 $target の起動"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "状態"
 
@@ -5641,7 +5705,7 @@ msgid "State"
 msgstr "状態"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "静的"
 
@@ -5713,6 +5777,10 @@ msgstr "パスフレーズの保存"
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
 msgstr "保存されたパスフレーズ"
+
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
+msgstr ""
 
 #: pkg/lib/machine-info.js:76
 msgid "Sub-Chassis"
@@ -5834,7 +5902,7 @@ msgstr "システムサービス"
 msgid "System time"
 msgstr "システム時間"
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 msgid "Systemd units"
 msgstr "システム単位"
 
@@ -6450,11 +6518,20 @@ msgstr "合計サイズ: $0"
 msgid "Tower"
 msgstr "タワー"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:43
+#, fuzzy
+#| msgid "Triggers"
+msgid "Trigger"
+msgstr "トリガー"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr "トリガー元"
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "トリガー"
@@ -6641,11 +6718,12 @@ msgstr "利用できません"
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 msgid "Unit not found"
 msgstr "単位が見つかりません"
 
@@ -6653,9 +6731,11 @@ msgstr "単位が見つかりません"
 msgid "Unix group: $0"
 msgstr "Unixグループ: $0"
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -7829,8 +7909,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "不明"
 
@@ -7897,6 +7977,12 @@ msgstr "ゾーン"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} キーが変更されました"
+
+#~ msgid "Filter"
+#~ msgstr "フィルター"
+
+#~ msgid "Select unit state"
+#~ msgstr "ユニットの状態の選択"
 
 #, fuzzy
 #~| msgid "Enable stored metrics"
@@ -9025,9 +9111,6 @@ msgstr "{{host}} キーが変更されました"
 #~ msgid "custom"
 #~ msgstr "カスタム"
 
-#~ msgid "direct"
-#~ msgstr "ダイレクト"
-
 #~ msgid "disabled"
 #~ msgstr "無効"
 
@@ -9250,9 +9333,6 @@ msgstr "{{host}} キーが変更されました"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "正しくないホストキー"
-
-#~ msgid "Reading"
-#~ msgstr "読み取り"
 
 #~ msgid ""
 #~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
@@ -9788,9 +9868,6 @@ msgstr "{{host}} キーが変更されました"
 #~ msgid "Link to another container"
 #~ msgstr "別のコンテナーへのリンク"
 
-#~ msgid "Links"
-#~ msgstr "リンク"
-
 #~ msgid "Links:"
 #~ msgstr "リンク:"
 
@@ -9963,9 +10040,6 @@ msgstr "{{host}} キーが変更されました"
 #~ msgstr ""
 #~ "{{#strong}}{{host}}{{/strong}} に接続されていますが、ユーザーを同期するに"
 #~ "は、スーパーユーザー権限を持つユーザーが必要です。"
-
-#~ msgid "alias"
-#~ msgstr "alias"
 
 #~ msgid "default"
 #~ msgstr "default"

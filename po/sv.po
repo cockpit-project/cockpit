@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
 "PO-Revision-Date: 2020-06-11 12:40+0000\n"
 "Last-Translator: Jakob Sundberg <jakob@mress.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -240,7 +240,7 @@ msgid_plural "$0 security fixes available"
 msgstr[0] "Säkerhetsuppdateringar tillgängliga"
 msgstr[1] "Säkerhetsuppdateringar tillgängliga"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 tjänsten har inte startat"
@@ -678,6 +678,13 @@ msgstr "Aktivt sedan"
 msgid "Active since "
 msgstr "Aktiv sedan"
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+#, fuzzy
+#| msgid "Activate"
+msgid "Active state"
+msgstr "Aktivera"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "Adaptiv lastbalansering"
@@ -892,7 +899,13 @@ msgstr ""
 msgid "Alert and above"
 msgstr "Larm och högre"
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+#, fuzzy
+#| msgid "alias"
+msgid "Alias"
+msgstr "alias"
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "Alla"
 
@@ -1067,7 +1080,7 @@ msgstr "Automatisk"
 msgid "Automatic updates"
 msgstr "Automatiska uppdateringar"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr "Startar automatiskt"
@@ -1111,6 +1124,18 @@ msgstr "Tilllbaka till konton"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr "Bakomliggande enhet"
+
+#: pkg/systemd/services/services.jsx:198
+#, fuzzy
+#| msgid "Blade"
+msgid "Bad"
+msgstr "Blad"
+
+#: pkg/systemd/services/services.jsx:164
+#, fuzzy
+#| msgid "Bridge settings"
+msgid "Bad setting"
+msgstr "Brygginställningar"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1280,7 +1305,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 msgid "Cannot be enabled"
 msgstr "Kan inte slås på"
 
@@ -1428,7 +1453,7 @@ msgstr "Rensar upp för $target"
 msgid "Clear 'Failed to start'"
 msgstr "Nollställ \"Misslyckad start\""
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr "Nollställ alla filter"
 
@@ -2057,7 +2082,6 @@ msgid "Deleting volume group $target"
 msgstr "Tar bort volymgruppen $target"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "Beskrivning"
@@ -2135,7 +2159,7 @@ msgstr "Avaktivera tuned"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "Avaktiverad"
@@ -2193,7 +2217,7 @@ msgstr "Montera inte automatiskt vid start"
 msgid "Docking station"
 msgstr "Dockningsstation"
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
 msgstr "Startar inte automatiskt"
 
@@ -2346,7 +2370,8 @@ msgstr "Aktivera tjänst"
 msgid "Enable the firewall"
 msgstr "Slå på brandväggen"
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "Aktiverad"
 
@@ -2419,7 +2444,8 @@ msgstr "Errata:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Fel"
 
@@ -2587,13 +2613,20 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Misslyckades att ändra hårdvaruprogram"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr "Misslyckades att starta"
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr "Misslyckades att byta profil"
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+#, fuzzy
+#| msgid "Failed to start"
+msgid "File state"
+msgstr "Misslyckades att starta"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2607,11 +2640,7 @@ msgstr "Filsystemsnamn"
 msgid "Filesystems"
 msgstr "Filsystem"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr "Filtrera"
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 msgid "Filter by name or description"
 msgstr "Filtrera efter namn eller beskrivning"
 
@@ -2653,7 +2682,7 @@ msgstr "Styckesstorlek"
 msgid "For legacy applications only. Reduces performance."
 msgstr "Bara för gamla program. Går långsamt."
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr "Kan ej köras"
@@ -2725,6 +2754,12 @@ msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
+msgstr "Allmänt"
+
+#: pkg/systemd/services/services.jsx:196
+#, fuzzy
+#| msgid "General"
+msgid "Generated"
 msgstr "Allmänt"
 
 #: pkg/sosreport/index.html:62
@@ -2956,6 +2991,12 @@ msgstr ""
 msgid "Index memory"
 msgstr "Indexminne"
 
+#: pkg/systemd/services/services.jsx:195
+#, fuzzy
+#| msgid "direct"
+msgid "Indirect"
+msgstr "direkt"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr ""
@@ -3044,6 +3085,12 @@ msgstr "Internt fel"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr "Internt fel: felaktig utmaningshuvud"
+
+#: pkg/systemd/services/services.jsx:194
+#, fuzzy
+#| msgid "Invalid key"
+msgid "Invalid"
+msgstr "Felaktig nyckel"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3305,6 +3352,12 @@ msgstr "Länk uppe fördröjning"
 msgid "Link watch"
 msgstr "Länkbetraktelse"
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+#, fuzzy
+#| msgid "Links"
+msgid "Linked"
+msgstr "Länkar"
+
 #: pkg/systemd/services/service-details.jsx:533
 msgid "Listen"
 msgstr ""
@@ -3358,7 +3411,7 @@ msgstr "Laddar anpassningar till systemet..."
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "Läser in …"
@@ -3503,6 +3556,10 @@ msgstr "Makinens SSH-nyckels fingeravtryck"
 msgid "Main server chassis"
 msgstr "Huvudserverchassi"
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:363
 #, fuzzy
 #| msgid "Make sure the key hash from the Tang server matches:"
@@ -3612,6 +3669,7 @@ msgid "Mask service"
 msgstr "Göm tjänst"
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr "Gömd"
 
@@ -3659,6 +3717,10 @@ msgstr "Minnesteknologi"
 #| msgid "Memory usage:"
 msgid "Memory usage"
 msgstr "Minnesanvändning:"
+
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr ""
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
@@ -3865,8 +3927,7 @@ msgstr "NTP-server"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "Namn"
@@ -4120,7 +4181,7 @@ msgstr "Inga logiska volymer"
 msgid "No logs found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr ""
 
@@ -4150,7 +4211,7 @@ msgstr "Inget verkligt namn angivet"
 msgid "No results found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4221,7 +4282,7 @@ msgstr "Inte ansluten"
 msgid "Not enough space to grow."
 msgstr "Inte tillräckligt med utrymme för att växa"
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "Finns inte"
 
@@ -4248,7 +4309,8 @@ msgstr ""
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "Kör inte"
 
@@ -5016,6 +5078,12 @@ msgstr "Läs om"
 msgid "Reload propagated from"
 msgstr "Omläsning vidarebefordrad från"
 
+#: pkg/systemd/services/services.jsx:174
+#, fuzzy
+#| msgid "Reading"
+msgid "Reloading"
+msgstr "Läser"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr ""
@@ -5301,7 +5369,8 @@ msgstr "Körare"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "Kör"
 
@@ -5457,12 +5526,6 @@ msgstr "Säkerhetsuppdateringar tillgängliga"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Välj"
-
-#: pkg/systemd/services/services.jsx:780
-#, fuzzy
-#| msgid "Console type"
-msgid "Select unit state"
-msgstr "Konsoltyp"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5828,7 +5891,8 @@ msgstr "Starta RAID-enhet $target"
 msgid "Starting swapspace $target"
 msgstr "Starta växlingsutrymmet $target"
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "Tillstånd"
 
@@ -5839,7 +5903,7 @@ msgid "State"
 msgstr "Tillstånd"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "Statisk"
 
@@ -5911,6 +5975,10 @@ msgstr "Lagra lösenfrasen"
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
 msgstr "Lagrad lösenfras"
+
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
+msgstr ""
 
 #: pkg/lib/machine-info.js:76
 #, fuzzy
@@ -6040,7 +6108,7 @@ msgstr "Systemtjänster"
 msgid "System time"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 #, fuzzy
 msgid "Systemd units"
 msgstr "Systemtjänster"
@@ -6647,11 +6715,20 @@ msgstr "Total storlek: $0"
 msgid "Tower"
 msgstr "Torn"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:43
+#, fuzzy
+#| msgid "Triggers"
+msgid "Trigger"
+msgstr "Utlösare"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr "Utlöst av"
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "Utlösare"
@@ -6841,11 +6918,12 @@ msgstr "Otillgänglig"
 msgid "Unexpected error"
 msgstr "Oväntat fel"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr "Enhet"
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 #, fuzzy
 #| msgid "Not found"
 msgid "Unit not found"
@@ -6855,9 +6933,11 @@ msgstr "Finns inte"
 msgid "Unix group: $0"
 msgstr ""
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -8073,8 +8153,8 @@ msgstr "udp"
 msgid "unit"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "okänd"
 
@@ -8143,6 +8223,14 @@ msgstr "zon"
 #| msgid "Force change"
 msgid "{{host}} key changed"
 msgstr "Framtvinga ändring"
+
+#~ msgid "Filter"
+#~ msgstr "Filtrera"
+
+#, fuzzy
+#~| msgid "Console type"
+#~ msgid "Select unit state"
+#~ msgstr "Konsoltyp"
 
 #, fuzzy
 #~| msgid "Enable stored metrics"
@@ -9031,9 +9119,6 @@ msgstr "Framtvinga ändring"
 #~ msgid "custom"
 #~ msgstr "anpassad"
 
-#~ msgid "direct"
-#~ msgstr "direkt"
-
 #~ msgid "disabled"
 #~ msgstr "avaktiverat"
 
@@ -9190,9 +9275,6 @@ msgstr "Framtvinga ändring"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Felaktig värdnyckel"
-
-#~ msgid "Reading"
-#~ msgstr "Läser"
 
 #~ msgid ""
 #~ "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
@@ -9715,9 +9797,6 @@ msgstr "Framtvinga ändring"
 #~ msgid "Link to another container"
 #~ msgstr "Länka till en annan behållare"
 
-#~ msgid "Links"
-#~ msgstr "Länkar"
-
 #~ msgid "Links:"
 #~ msgstr "Länkar:"
 
@@ -9893,9 +9972,6 @@ msgstr "Framtvinga ändring"
 #~ "Du är ansluten till {{#strong}}{{host}}{{/strong}}, dock, för att "
 #~ "synkronisera användare krävs en användare med superanvändarens "
 #~ "rättigheter."
-
-#~ msgid "alias"
-#~ msgstr "alias"
 
 #~ msgid "default"
 #~ msgstr "standard"

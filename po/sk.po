@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 19:00+0000\n"
+"POT-Creation-Date: 2021-06-08 18:18+0000\n"
 "PO-Revision-Date: 2021-01-29 10:40+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -239,7 +239,7 @@ msgstr[0] "Sú k dispozícií bezpečnostné aktualizácie"
 msgstr[1] "Sú k dispozícií bezpečnostné aktualizácie"
 msgstr[2] "Sú k dispozícií bezpečnostné aktualizácie"
 
-#: pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:802
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 služba zhavarovala"
@@ -679,6 +679,13 @@ msgstr "Aktívny od"
 msgid "Active since "
 msgstr "Aktívny od "
 
+#: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
+#: pkg/systemd/services/services.jsx:911
+#, fuzzy
+#| msgid "Activate"
+msgid "Active state"
+msgstr "Aktivovať"
+
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
 msgstr "Prispôsobujúce sa rozkladanie zátaže"
@@ -890,7 +897,11 @@ msgstr "Výstraha"
 msgid "Alert and above"
 msgstr "Výstraha a závažnejšie"
 
-#: pkg/systemd/services/services.jsx:733 pkg/systemd/logs.js:170
+#: pkg/systemd/services/services.jsx:190
+msgid "Alias"
+msgstr ""
+
+#: pkg/systemd/logs.js:170
 msgid "All"
 msgstr "Všetko"
 
@@ -1055,7 +1066,7 @@ msgstr "Automatické prihlásenie"
 msgid "Automatic updates"
 msgstr "Automatické aktualizácie"
 
-#: pkg/systemd/services/services-list.jsx:68
+#: pkg/systemd/services/services-list.jsx:75
 #: pkg/systemd/services/service-details.jsx:407
 msgid "Automatically starts"
 msgstr "Spúšťa sa automaticky"
@@ -1099,6 +1110,18 @@ msgstr "Späť k účtom"
 #: pkg/storaged/vdo-details.jsx:275
 msgid "Backing device"
 msgstr "Podkladové zariadenie"
+
+#: pkg/systemd/services/services.jsx:198
+#, fuzzy
+#| msgid "Blade"
+msgid "Bad"
+msgstr "Blade"
+
+#: pkg/systemd/services/services.jsx:164
+#, fuzzy
+#| msgid "Bridge settings"
+msgid "Bad setting"
+msgstr "Nastavenia mostu"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1264,7 +1287,7 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 msgid "Cancel"
 msgstr "Zrušiť"
 
-#: pkg/systemd/services/services-list.jsx:74
+#: pkg/systemd/services/services-list.jsx:81
 msgid "Cannot be enabled"
 msgstr "Nie je možné povoliť"
 
@@ -1412,7 +1435,7 @@ msgstr "Čistenie pre $target"
 msgid "Clear 'Failed to start'"
 msgstr "Vyčistiť „Nepodarilo sa spustiť“"
 
-#: pkg/systemd/services/services.jsx:820
+#: pkg/systemd/services/services.jsx:961
 msgid "Clear all filters"
 msgstr "Vyčistiť všetky filtre"
 
@@ -2029,7 +2052,6 @@ msgid "Deleting volume group $target"
 msgstr "Maže sa skupina zväzkov $target"
 
 #: pkg/networkmanager/firewall.jsx:738
-#: pkg/systemd/services/services-list.jsx:53
 #: pkg/systemd/services/timer-dialog.jsx:144
 msgid "Description"
 msgstr "Popis"
@@ -2106,7 +2128,7 @@ msgstr "Vypnúť tuned"
 
 #: pkg/networkmanager/interfaces.js:1450
 #: pkg/systemd/services/service-details.jsx:340
-#: pkg/systemd/services/services.jsx:556 pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:335
 msgid "Disabled"
 msgstr "Vypnutá"
@@ -2162,7 +2184,7 @@ msgstr "Nepripájať automaticky pri štarte systému"
 msgid "Docking station"
 msgstr "Dokovacia stanica"
 
-#: pkg/systemd/services/services-list.jsx:70
+#: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
 msgstr "Nespúšťa sa automaticky"
 
@@ -2312,7 +2334,8 @@ msgstr "Zapnúť službu"
 msgid "Enable the firewall"
 msgstr "Zapnúť bránu firewall"
 
-#: pkg/systemd/services/services.jsx:553 pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:185 pkg/systemd/services/services.jsx:186
+#: pkg/systemd/services/services.jsx:839
 msgid "Enabled"
 msgstr "Povolená"
 
@@ -2384,7 +2407,8 @@ msgstr "Errata"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/storage-controls.jsx:90 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/fsys-tab.jsx:304 pkg/storaged/multipath.jsx:61
-#: pkg/systemd/services/service-details.jsx:488 pkg/apps/utils.jsx:87
+#: pkg/systemd/services/service-details.jsx:488
+#: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
 msgid "Error"
 msgstr "Chyba"
 
@@ -2547,13 +2571,20 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Nepodarilo sa uložiť zmeny v /etc/motd"
 
 #: pkg/systemd/services/service-details.jsx:349
-#: pkg/systemd/services/services.jsx:547
+#: pkg/systemd/services/services.jsx:176
 msgid "Failed to start"
 msgstr "Nepodarilo sa spustiť"
 
 #: pkg/tuned/dialog.js:141
 msgid "Failed to switch profile"
 msgstr ""
+
+#: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
+#: pkg/systemd/services/services.jsx:927
+#, fuzzy
+#| msgid "Failed to start"
+msgid "File state"
+msgstr "Nepodarilo sa spustiť"
 
 #: pkg/storaged/content-views.jsx:158
 msgid "Filesystem"
@@ -2567,11 +2598,7 @@ msgstr ""
 msgid "Filesystems"
 msgstr "Súborové systémy"
 
-#: pkg/systemd/services/services.jsx:768
-msgid "Filter"
-msgstr "Filtrovať"
-
-#: pkg/systemd/services/services.jsx:776
+#: pkg/systemd/services/services.jsx:895
 msgid "Filter by name or description"
 msgstr ""
 
@@ -2613,7 +2640,7 @@ msgstr "Veľkosť bloku"
 msgid "For legacy applications only. Reduces performance."
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:72
+#: pkg/systemd/services/services-list.jsx:79
 #: pkg/systemd/services/service-details.jsx:331
 msgid "Forbidden from running"
 msgstr ""
@@ -2683,6 +2710,12 @@ msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:367 pkg/systemd/abrtLog.jsx:248
 msgid "General"
+msgstr "Všeobecné"
+
+#: pkg/systemd/services/services.jsx:196
+#, fuzzy
+#| msgid "General"
+msgid "Generated"
 msgstr "Všeobecné"
 
 #: pkg/sosreport/index.html:62
@@ -2908,6 +2941,12 @@ msgstr ""
 msgid "Index memory"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:195
+#, fuzzy
+#| msgid "direct"
+msgid "Indirect"
+msgstr "priama"
+
 #: pkg/packagekit/updates.jsx:694
 msgid "Info"
 msgstr ""
@@ -2994,6 +3033,12 @@ msgstr "Interná chyba"
 #: pkg/static/login.js:798
 msgid "Internal error: Invalid challenge header"
 msgstr ""
+
+#: pkg/systemd/services/services.jsx:194
+#, fuzzy
+#| msgid "Invalid key"
+msgid "Invalid"
+msgstr "Neplatný kľúč"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3250,6 +3295,10 @@ msgstr ""
 msgid "Link watch"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
+msgid "Linked"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:533
 #, fuzzy
 #| msgid "Persistent"
@@ -3299,7 +3348,7 @@ msgstr "Načítavajú sa systémové zmeny..."
 
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:740
 #: pkg/metrics/metrics.jsx:1292 pkg/storaged/devices.jsx:75
-#: pkg/systemd/services/services.jsx:710 pkg/systemd/logDetails.jsx:153
+#: pkg/systemd/services/services.jsx:816 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217
 msgid "Loading..."
 msgstr "Načítavanie..."
@@ -3441,6 +3490,10 @@ msgstr ""
 msgid "Main server chassis"
 msgstr "Hlavná skriňa serveru"
 
+#: pkg/systemd/services/services.jsx:179
+msgid "Maintanance"
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:363
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
@@ -3548,6 +3601,7 @@ msgid "Mask service"
 msgstr "Maskovať službu"
 
 #: pkg/systemd/services/service-details.jsx:330
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:192
 msgid "Masked"
 msgstr "Maskovaný"
 
@@ -3591,6 +3645,10 @@ msgstr ""
 #: pkg/metrics/metrics.jsx:107
 msgid "Memory usage"
 msgstr "Využitie pamäte"
+
+#: pkg/systemd/services/services.jsx:166
+msgid "Merged"
+msgstr ""
 
 #: pkg/lib/cockpit-components-shutdown.jsx:174
 msgid "Message to logged in users"
@@ -3792,8 +3850,7 @@ msgstr "NTP server"
 #: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/fsys-tab.jsx:518 pkg/storaged/fsys-panel.jsx:94
 #: pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
-#: pkg/systemd/services/services-list.jsx:52 pkg/systemd/hwinfo.jsx:84
+#: pkg/networkmanager/network-main.jsx:194 pkg/systemd/hwinfo.jsx:84
 #: pkg/packagekit/updates.jsx:371
 msgid "Name"
 msgstr "Názov"
@@ -4026,7 +4083,7 @@ msgstr "Žiadne logické zväzky"
 msgid "No logs found"
 msgstr "Nenájdené žiadne záznamy udalostí"
 
-#: pkg/systemd/services/services.jsx:821
+#: pkg/systemd/services/services.jsx:962
 msgid "No matching results"
 msgstr "Žiadne vyhovujúce výsledky"
 
@@ -4053,7 +4110,7 @@ msgstr "Nie je zadaný skutočný názov"
 msgid "No results found"
 msgstr "Neboli nájdené žiadne výsledky"
 
-#: pkg/systemd/services/services.jsx:819
+#: pkg/systemd/services/services.jsx:960
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4120,7 +4177,7 @@ msgstr "Nepripojené k hostiteľovi"
 msgid "Not enough space to grow."
 msgstr "Pre zväčšenie nie je dostatok priestoru."
 
-#: pkg/storaged/details.jsx:123
+#: pkg/storaged/details.jsx:123 pkg/systemd/services/services.jsx:163
 msgid "Not found"
 msgstr "Nenájdené"
 
@@ -4146,7 +4203,8 @@ msgstr "Nezaregistrované"
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:370
-#: pkg/systemd/services/services.jsx:549
+#: pkg/systemd/services/services.jsx:175 pkg/systemd/services/services.jsx:178
+#: pkg/systemd/services/services.jsx:850
 msgid "Not running"
 msgstr "Nespustená"
 
@@ -4903,6 +4961,12 @@ msgstr "Znova načítať"
 msgid "Reload propagated from"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:174
+#, fuzzy
+#| msgid "Reading"
+msgid "Reloading"
+msgstr "Čítanie"
+
 #: pkg/packagekit/updates.jsx:432
 msgid "Reloading the state of remaining services"
 msgstr ""
@@ -5183,7 +5247,8 @@ msgstr ""
 
 #: pkg/storaged/mdraid-details.jsx:352
 #: pkg/systemd/services/service-details.jsx:362
-#: pkg/systemd/services/services.jsx:545
+#: pkg/systemd/services/services.jsx:173 pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:849
 msgid "Running"
 msgstr "Beží"
 
@@ -5331,12 +5396,6 @@ msgstr "Iba bezpečnostné aktualizácie"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Vybrať"
-
-#: pkg/systemd/services/services.jsx:780
-#, fuzzy
-#| msgid "Select console type"
-msgid "Select unit state"
-msgstr "Vybrať typ konzole"
 
 #: pkg/systemd/reporting.jsx:245
 msgid "Send"
@@ -5697,7 +5756,8 @@ msgstr "Spúšťa sa RAID zariadenie $target"
 msgid "Starting swapspace $target"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:98 pkg/systemd/hwinfo.jsx:308
+#: pkg/systemd/services/services-list.jsx:38
+#: pkg/systemd/services/services-list.jsx:44 pkg/systemd/hwinfo.jsx:308
 msgid "State"
 msgstr "Stav"
 
@@ -5707,7 +5767,7 @@ msgid "State"
 msgstr "Stav"
 
 #: pkg/systemd/services/service-details.jsx:380
-#: pkg/systemd/services/services.jsx:559 pkg/systemd/services/services.jsx:736
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:841
 msgid "Static"
 msgstr "Statická"
 
@@ -5778,6 +5838,10 @@ msgstr ""
 #: pkg/storaged/crypto-tab.jsx:74 pkg/storaged/crypto-tab.jsx:76
 #: pkg/storaged/crypto-tab.jsx:135
 msgid "Stored passphrase"
+msgstr ""
+
+#: pkg/systemd/services/services.jsx:161
+msgid "Stub"
 msgstr ""
 
 #: pkg/lib/machine-info.js:76
@@ -5902,7 +5966,7 @@ msgstr "Systémové služby"
 msgid "System time"
 msgstr "Systémový čas"
 
-#: pkg/systemd/services/services-list.jsx:33
+#: pkg/systemd/services/services-list.jsx:48
 msgid "Systemd units"
 msgstr "Systemd jednotky"
 
@@ -6484,11 +6548,20 @@ msgstr "Celková veľkosť: $0"
 msgid "Tower"
 msgstr "Veža"
 
+#: pkg/systemd/services/services.jsx:197
+msgid "Transient"
+msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:43
+#, fuzzy
+#| msgid "Triggers"
+msgid "Trigger"
+msgstr "Spúšťače"
+
 #: pkg/systemd/services/service-details.jsx:429
 msgid "Triggered by"
 msgstr ""
 
-#: pkg/systemd/services/services-list.jsx:54
 #: pkg/systemd/services/service-details.jsx:428
 msgid "Triggers"
 msgstr "Spúšťače"
@@ -6666,11 +6739,12 @@ msgstr "Nedostupné"
 msgid "Unexpected error"
 msgstr "Neočakávaná chyba"
 
-#: pkg/storaged/dialog.jsx:1094
+#: pkg/storaged/dialog.jsx:1094 pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/services/services-list.jsx:42
 msgid "Unit"
 msgstr "Jednotka"
 
-#: pkg/systemd/services/services.jsx:721
+#: pkg/systemd/services/services.jsx:827
 #, fuzzy
 #| msgid "Not found"
 msgid "Unit not found"
@@ -6680,9 +6754,11 @@ msgstr "Nenájdené"
 msgid "Unix group: $0"
 msgstr ""
 
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:228
-#: pkg/storaged/fsys-tab.jsx:390 pkg/storaged/swap-tab.jsx:62
-#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:220
+#: pkg/lib/machine-info.js:228 pkg/lib/machine-info.js:230
+#: pkg/lib/machine-info.js:237 pkg/lib/machine-info.js:239
+#: pkg/lib/machine-info.js:243 pkg/storaged/fsys-tab.jsx:390
+#: pkg/storaged/swap-tab.jsx:62 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
 #: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
 msgid "Unknown"
@@ -7876,8 +7952,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "jednotka"
 
-#: pkg/systemd/services/services.jsx:495 pkg/systemd/services/services.jsx:496
-#: pkg/systemd/services/services.jsx:518 pkg/systemd/services/services.jsx:519
+#: pkg/systemd/services/services.jsx:610 pkg/systemd/services/services.jsx:611
+#: pkg/systemd/services/services.jsx:633 pkg/systemd/services/services.jsx:634
 msgid "unknown"
 msgstr "neznáme"
 
@@ -7944,6 +8020,14 @@ msgstr "zóna"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} kľúč sa zmenil"
+
+#~ msgid "Filter"
+#~ msgstr "Filtrovať"
+
+#, fuzzy
+#~| msgid "Select console type"
+#~ msgid "Select unit state"
+#~ msgstr "Vybrať typ konzole"
 
 #~ msgid "If tang-show-keys is not available, run the following:"
 #~ msgstr "Ak tang-show-keys nie je k dispozícii, spustite nasledujúce:"
@@ -8676,9 +8760,6 @@ msgstr "{{host}} kľúč sa zmenil"
 #~ msgid "custom"
 #~ msgstr "lastné"
 
-#~ msgid "direct"
-#~ msgstr "priama"
-
 #~ msgid "disabled"
 #~ msgstr "vypnuté"
 
@@ -8869,9 +8950,6 @@ msgstr "{{host}} kľúč sa zmenil"
 
 #~ msgid "Incorrect host key"
 #~ msgstr "Nesprávny kľúč stroja"
-
-#~ msgid "Reading"
-#~ msgstr "Čítanie"
 
 #~ msgid "Writing"
 #~ msgstr "Zapisuje sa"

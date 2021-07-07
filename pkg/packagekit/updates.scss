@@ -153,43 +153,6 @@ div.changelog {
     margin-right: var(--pf-global--spacer--sm);
 }
 
-/* stolen from pkg/systemd/overview.scss */
-.content-header-extra {
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    padding: 10px 20px;
-    width: 100%;
-    z-index: 900;
-    top: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: 4rem;
-
-    @media screen and (min-width: 640px) {
-        position: sticky;
-    }
-
-    &--state,
-    &--updated {
-        /* Make the height similar to the button (2px padding + 1px border) */
-        padding: 3px 0;
-    }
-
-    &--state {
-        flex: 100 1 auto;
-        padding-right: 1ex;
-    }
-    &--updated {
-        flex: auto;
-    }
-    &--action {
-        text-align: right;
-        padding-left: 1ex;
-    }
-}
-
 /* fixed width to avoid jumpy text between expanded/collapsed */
 .expander-caret {
     width: 2ex;

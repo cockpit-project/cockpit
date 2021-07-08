@@ -1,0 +1,25 @@
+summary: Run browser integration tests on the host
+prepare:
+  - name: Install cockpit and test dependencies
+    how: install
+    package:
+    - cockpit
+    - cockpit-ws
+    - cockpit-system
+    - cockpit-bridge
+    - git
+    - libvirt-python3
+    - make
+    - npm
+    - python3
+  - name: Install Chromium
+    script: ./prepare-chromium.sh
+  - name: Create users for tests
+    script: ./prepare-users.sh
+  - name: Start cockpit service & generic hacks
+    script: ./prepare-generic.sh
+discover:
+  how: fmf
+  test: [/verify/check-testlib/TestRunTestListing/testBasic]
+execute:
+  how: tmt

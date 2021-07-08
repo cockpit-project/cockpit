@@ -27,7 +27,6 @@ import {
 } from '@patternfly/react-core';
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { validateTime } from "timepicker-helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -256,9 +255,9 @@ export class AutoUpdates extends React.Component {
     }
 
     handleChange(event) {
-        const { enabled, type, day, time } = this.state;
+        const { enabled, type, day, time, hour, minute } = this.state;
 
-        if (!validateTime(time))
+        if (hour === null || minute === null)
             return;
 
         this.setState({ pending: true });
@@ -321,7 +320,7 @@ export class AutoUpdates extends React.Component {
                                         menuAppendTo={() => document.body}
                                         id="auto-update-time" isDisabled={!enabled}
                                         invalidFormatErrorMessage={_("Invalid time format")}
-                                        onChange={t => this.setState({ time: t })} />
+                                        onChange={(time, hour, minute) => this.setState({ time, hour, minute })} />
                         </Flex>
                     </FormGroup>
 

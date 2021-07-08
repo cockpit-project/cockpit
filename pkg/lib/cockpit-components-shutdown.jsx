@@ -27,7 +27,6 @@ import {
 } from '@patternfly/react-core';
 
 import { ServerTime } from 'serverTime.js';
-import { validateTime } from 'timepicker-helpers.js';
 
 import "cockpit-components-shutdown.scss";
 
@@ -49,7 +48,8 @@ export class ShutdownModal extends React.Component {
             when: "+1",
         };
         this.onSubmit = this.onSubmit.bind(this);
-        this.updateDatetime = this.updateDatetime.bind(this);
+        this.updateDate = this.updateDate.bind(this);
+        this.updateTime = this.updateTime.bind(this);
         this.calculate = this.calculate.bind(this);
 
         this.server_time = new ServerTime();
@@ -68,8 +68,12 @@ export class ShutdownModal extends React.Component {
         });
     }
 
-    updateDatetime(key, value) {
-        this.setState({ [key] : value });
+    updateDate(value, dateObject) {
+        this.setState({ date : value, dateObject });
+    }
+
+    updateTime(value, hour, minute) {
+        this.setState({ time: value, hour, minute });
     }
 
     calculate() {
@@ -85,9 +89,9 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const time_error = !validateTime(this.state.time);
         const moment_localized = moment(this.state.date, 'L');
         const date = moment_localized.toDate();
+        const time_error = this.state.hour === null || this.state.minute === null;
 
         let date_error = false;
 
@@ -192,14 +196,15 @@ export class ShutdownModal extends React.Component {
                                                 invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
                                                 onBlur={this.calculate}
                                                 placeholder={moment.localeData().longDateFormat('L').toLowerCase()}
-                                                value={this.state.date} onChange={d => this.updateDatetime("date", d)} />
+                                                value={this.state.date}
+                                                onChange={(d, ds) => this.updateDate(d, ds)} />
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"
                                                 invalidFormatErrorMessage=""
                                                 menuAppendTo={() => document.body}
                                                 onBlur={this.calculate}
-                                                onChange={time => this.updateDatetime("time", time) } />
+                                                onChange={(time, h, m) => this.updateTime(time, h, m) } />
                                 </>}
                             </Flex>
                         </FormGroup>

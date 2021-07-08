@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import moment from "moment";
 import cockpit from "cockpit";
 import React from 'react';
 import {
@@ -27,6 +26,7 @@ import {
 } from '@patternfly/react-core';
 
 import { ServerTime } from 'serverTime.js';
+import * as timeformat from "timeformat.js";
 
 import "cockpit-components-shutdown.scss";
 
@@ -42,8 +42,8 @@ export class ShutdownModal extends React.Component {
             message: "",
             isOpen: false,
             selected: "1",
+            dateObj: undefined,
             date: "",
-            today: "",
             time: "",
             when: "+1",
         };
@@ -57,12 +57,13 @@ export class ShutdownModal extends React.Component {
 
     componentDidMount() {
         this.server_time.wait().then(() => {
-            const date = new Date(this.server_time.utc_fake_now);
+            const dateObject = this.server_time.utc_fake_now;
+            const date = timeformat.dateShort(dateObject);
             const hour = this.server_time.utc_fake_now.getUTCHours();
             const minute = this.server_time.utc_fake_now.getUTCMinutes();
             this.setState({
-                date: moment(date).format("L"),
-                today: date,
+                dateObject,
+                date,
                 time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
             });
         });
@@ -89,14 +90,8 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const moment_localized = moment(this.state.date, 'L');
-        const date = moment_localized.toDate();
         const time_error = this.state.hour === null || this.state.minute === null;
-
-        let date_error = false;
-
-        if (!this.state.date || isNaN(date.getTime()) || date.getTime() < 0)
-            date_error = true;
+        const date_error = !this.state.dateObject;
 
         if (time_error && date_error) {
             this.setState({ dateError: _("Invalid date format and invalid time format") });
@@ -109,7 +104,7 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const cmd = ["date", "--date=" + moment(date).format('YYYY-MM-DD') + " " + this.state.time, "+%s"];
+        const cmd = ["date", "--date=" + (new Intl.DateTimeFormat().format(this.state.dateObject)) + " " + this.state.time, "+%s"];
         this.date_spawn = cockpit.spawn(cmd, { err: "message" });
         this.date_spawn.then(data => {
             const input_timestamp = parseInt(data, 10);
@@ -190,14 +185,17 @@ export class ShutdownModal extends React.Component {
                                     {options}
                                 </Select>
                                 {this.state.selected === "x" && <>
-                                    <DatePicker aria-label={_("Pick date")} locale={cockpit.language} dateFormat={d => moment(d).format('L')}
+                                    <DatePicker aria-label={_("Pick date")}
                                                 buttonAriaLabel={_("Toggle date picker")}
                                                 className='shutdown-date-picker'
-                                                invalidFormatText="" dateParse={d => moment(d, 'L').toDate()}
+                                                dateFormat={timeformat.dateShort}
+                                                dateParse={timeformat.parseShortDate}
+                                                invalidFormatText=""
+                                                locale={cockpit.language}
                                                 onBlur={this.calculate}
-                                                placeholder={moment.localeData().longDateFormat('L').toLowerCase()}
-                                                value={this.state.date}
-                                                onChange={(d, ds) => this.updateDate(d, ds)} />
+                                                onChange={(d, ds) => this.updateDate(d, ds)}
+                                                placeholder={timeformat.dateShortFormat()}
+                                                value={this.state.date} />
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"

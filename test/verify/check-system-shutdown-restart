@@ -178,7 +178,7 @@ class TestShutdownRestart(MachineCase):
         b.click("button[aria-label='Toggle date picker']")
         today = date.today()
         b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today.strftime('%-d %B %Y')}']")
-        b.wait_val(".shutdown-date-picker input", today.strftime("%m/%d/%Y"))
+        b.wait_val(".shutdown-date-picker input", today.strftime("%-m/%-d/%Y"))
         b.blur(".shutdown-date-picker input")
 
         # Power off

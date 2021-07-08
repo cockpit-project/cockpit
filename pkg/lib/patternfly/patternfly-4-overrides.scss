@@ -147,3 +147,9 @@ svg {
         }
     }
 }
+
+// Description sometimes shows up when empty, but this adds space to a grid,
+// causing extra space at the bottom
+.pf-c-alert__description:empty {
+    display: none;
+}

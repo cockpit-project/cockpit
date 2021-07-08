@@ -229,7 +229,9 @@ test_metrics_LDADD = $(libcockpit_bridge_LIBS) -lm
 
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/common/mock-transport.c src/common/mock-transport.h \
+        src/bridge/test/cockpitposttestwebserver.c \
+        src/bridge/test/cockpitposttestwebserver.h
 test_httpstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_httpstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 

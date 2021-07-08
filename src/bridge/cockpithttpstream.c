@@ -215,6 +215,11 @@ typedef struct _CockpitHttpStream {
 
   /* The request */
   GList *request;
+  gint64 body_length;
+
+  /* Stores number of bytes in the request waiting to be sent */
+  /* Only valid when body_length is set (otherwise the request is sent at once) */
+  gulong request_buffer_size;
 
   /* From parsing the response */
   gboolean response_chunked;
@@ -713,7 +718,26 @@ disallowed_header (const gchar *name,
 }
 
 static void
-send_http_request (CockpitHttpStream *self)
+flush_request_buffer (CockpitHttpStream *self)
+{
+  GList *request = NULL;
+  GList *l;
+
+  request = g_list_reverse (self->request);
+  self->request = NULL;
+
+  /* Send all the data */
+  for (l = request; l != NULL; l = g_list_next (l))
+    cockpit_stream_write (self->stream, l->data);
+
+  if (self->body_length != -1)
+    self->request_buffer_size = 0;
+
+  g_list_free_full (request, (GDestroyNotify)g_bytes_unref);
+}
+
+static void
+send_http_header (CockpitHttpStream *self, gsize body_length)
 {
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   JsonObject *options;
@@ -726,11 +750,9 @@ send_http_request (CockpitHttpStream *self)
   JsonObject *headers;
   const gchar *header;
   const gchar *value;
-  GList *request = NULL;
-  GList *names = NULL;
+  g_autoptr(GList) names = NULL;
   GBytes *bytes;
   GList *l;
-  gsize total;
 
   options = cockpit_channel_get_options (channel);
 
@@ -743,38 +765,38 @@ send_http_request (CockpitHttpStream *self)
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: bad \"path\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
   else if (path == NULL)
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: missing \"path\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
   else if (!cockpit_web_response_is_simple_token (path))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"path\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
 
   if (!cockpit_json_get_string (options, "method", NULL, &method))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: bad \"method\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
   else if (method == NULL)
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: missing \"method\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
   else if (!cockpit_web_response_is_simple_token (method))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "%s: invalid \"method\" field in HTTP stream request", self->name);
-      goto out;
+      return;
     }
 
   g_debug ("%s: sending %s request", self->name, method);
@@ -791,7 +813,7 @@ send_http_request (CockpitHttpStream *self)
         {
           cockpit_channel_fail (channel, "protocol-error",
                                 "%s: invalid \"headers\" field in HTTP stream request", self->name);
-          goto out;
+          return;
         }
 
       headers = json_node_get_object (node);
@@ -803,27 +825,27 @@ send_http_request (CockpitHttpStream *self)
             {
               cockpit_channel_fail (channel, "protocol-error",
                                     "%s: invalid header in HTTP stream request: %s", self->name, header);
-              goto out;
+              return;
             }
           node = json_object_get_member (headers, header);
           if (!node || !JSON_NODE_HOLDS_VALUE (node) || json_node_get_value_type (node) != G_TYPE_STRING)
             {
               cockpit_channel_fail (channel, "protocol-error",
                                     "%s: invalid header value in HTTP stream request: %s", self->name, header);
-              goto out;
+              return;
             }
           value = json_node_get_string (node);
           if (disallowed_header (header, value, self->binary))
             {
               cockpit_channel_fail (channel, "protocol-error",
                                     "%s: disallowed header in HTTP stream request: %s", self->name, header);
-              goto out;
+              return;
             }
           if (!cockpit_web_response_is_header_value (value))
             {
               cockpit_channel_fail (channel, "protocol-error",
                                     "%s: invalid header value in HTTP stream request: %s", self->name, header);
-              goto out;
+              return;
             }
 
           g_string_append_printf (string, "%s: %s\r\n", (gchar *)l->data, value);
@@ -848,16 +870,8 @@ send_http_request (CockpitHttpStream *self)
   if (!self->binary)
     g_string_append (string, "Accept-Charset: UTF-8\r\n");
 
-  request = g_list_reverse (self->request);
-  self->request = NULL;
-
-  /* Calculate how much data we have to send */
-  total = 0;
-  for (l = request; l != NULL; l = g_list_next (l))
-    total += g_bytes_get_size (l->data);
-
-  if (request || g_ascii_strcasecmp (method, "POST") == 0)
-    g_string_append_printf (string, "Content-Length: %" G_GSIZE_FORMAT "\r\n", total);
+  if (self->request || g_ascii_strcasecmp (method, "POST") == 0)
+    g_string_append_printf (string, "Content-Length: %" G_GSIZE_FORMAT "\r\n", body_length);
   g_string_append (string, "\r\n");
 
   bytes = g_string_free_to_bytes (string);
@@ -865,16 +879,21 @@ send_http_request (CockpitHttpStream *self)
 
   cockpit_stream_write (self->stream, bytes);
   g_bytes_unref (bytes);
+}
 
-  /* Now send all the data */
-  for (l = request; l != NULL; l = g_list_next (l))
-    cockpit_stream_write (self->stream, l->data);
+static void
+send_http_request (CockpitHttpStream *self)
+{
+  GList *l;
+  gsize total;
 
-out:
-  g_list_free (names);
-  g_list_free_full (request, (GDestroyNotify)g_bytes_unref);
-  if (string)
-    g_string_free (string, TRUE);
+  /* Calculate how much data we have to send */
+  total = 0;
+  for (l = self->request; l != NULL; l = g_list_next (l))
+    total += g_bytes_get_size (l->data);
+
+  send_http_header (self, total);
+  flush_request_buffer (self);
 }
 
 static void
@@ -883,6 +902,12 @@ cockpit_http_stream_recv (CockpitChannel *channel,
 {
   CockpitHttpStream *self = (CockpitHttpStream *)channel;
   self->request = g_list_prepend (self->request, g_bytes_ref (message));
+  if (self->body_length != -1)
+    {
+      self->request_buffer_size += g_bytes_get_size (message);
+      if (self->request_buffer_size > 65535)
+        flush_request_buffer (self);
+    }
 }
 
 static gboolean
@@ -894,9 +919,17 @@ cockpit_http_stream_control (CockpitChannel *channel,
 
   if (g_str_equal (command, "done"))
     {
-      g_return_val_if_fail (self->state == BUFFER_REQUEST, FALSE);
-      self->state = RELAY_REQUEST;
-      send_http_request (self);
+      if (self->body_length == -1)
+        {
+          g_return_val_if_fail (self->state == BUFFER_REQUEST, FALSE);
+          self->state = RELAY_REQUEST;
+          send_http_request (self);
+        }
+      else
+        {
+          g_return_val_if_fail (self->state == RELAY_REQUEST, FALSE);
+          flush_request_buffer (self);
+        }
       return TRUE;
     }
 
@@ -950,6 +983,8 @@ static void
 cockpit_http_stream_init (CockpitHttpStream *self)
 {
   self->response_length = -1;
+  self->body_length = -1;
+  self->request_buffer_size = 0;
   self->keep_alive = FALSE;
   self->state = BUFFER_REQUEST;
 }
@@ -963,6 +998,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   const gchar *connection;
   JsonObject *options;
   const gchar *path;
+  gint64 body_length;
 
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
@@ -982,6 +1018,21 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       cockpit_channel_fail (channel, "protocol-error",
                             "bad \"path\" field in HTTP stream request");
       goto out;
+    }
+
+  if (json_object_has_member (options, "body-length"))
+    {
+      if (!cockpit_json_get_int (options, "body-length", -1, &body_length) || body_length <= 0)
+        {
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"body-length\" field in HTTP stream request");
+          goto out;
+        }
+
+      self->body_length = body_length;
+
+      /* Request is relayed continuously when body-length is set */
+      self->state = RELAY_REQUEST;
     }
 
   /*
@@ -1038,6 +1089,10 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   /* If not waiting for open */
   if (!self->sig_open)
     cockpit_channel_ready (channel, NULL);
+
+  /* Send the header now if body length is specified */
+  if (self->body_length != -1)
+    send_http_header (self, self->body_length);
 
 out:
   if (connectable)

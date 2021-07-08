@@ -22,11 +22,14 @@
 
 #include "cockpithttpstream.h"
 
+#include "common/cockpithacks.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 #include "common/mock-transport.h"
+
+#include "test/cockpitposttestwebserver.h"
 
 #include <string.h>
 
@@ -112,6 +115,15 @@ handle_host_header (CockpitWebServer *server,
   g_bytes_unref (bytes);
 
   return TRUE;
+}
+
+static void
+dummy_log_handler (const gchar *log_domain,
+                   GLogLevelFlags log_level,
+                   const gchar *message,
+                   gpointer user_data)
+{
+  return;
 }
 
 static void
@@ -235,6 +247,138 @@ test_http_stream2 (TestGeneral *tt,
   g_assert_cmpuint (count, ==, 1);
   g_bytes_unref (data);
 }
+
+static void
+test_http_continuous_post (TestGeneral *tt,
+                           gconstpointer unused)
+{
+  CockpitPostTestWebServer *web_server;
+  CockpitChannel *channel;
+  GByteArray *message_builder;
+  GBytes *data, *bytes;
+  JsonObject *options;
+  const gchar *control;
+  JsonObject *object;
+  gboolean closed;
+  guint mock_transport_count, line_count;
+  g_autoptr(GFile) request_file;
+  g_autoptr(GFileInputStream) request_in;
+  g_autoptr(GDataInputStream) request_read;
+  GError *error = NULL;
+  gsize read_count;
+  gboolean past_header;
+  char *read_bytes;
+
+  /* Send roughly 300 MB */
+  guint body_count = 1024 * 1024 * 25;
+  const guint output_queue_process_length = 100000;
+  const gchar *request_filename = "/var/tmp/server-test";
+  const gchar *body = "HelloWorld";
+
+  /* Check if running under Valgrind; if yes, reduce the body count */
+  if (RUNNING_ON_VALGRIND)
+    body_count /= 1024;
+
+  web_server = cockpit_post_test_web_server_new (NULL, 0, "/var/tmp/server-test", NULL, NULL);
+  cockpit_post_test_web_server_start (web_server);
+
+  g_signal_connect (web_server, "handle-resource::/", G_CALLBACK (handle_default), tt);
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", cockpit_post_test_web_server_get_port (web_server));
+  json_object_set_string_member (options, "payload", "http-stream2");
+  json_object_set_string_member (options, "method", "POST");
+  json_object_set_int_member (options, "body-length", (strlen (body) + 2) * body_count);
+  json_object_set_string_member (options, "path", "/");
+
+  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
+                          "transport", tt->transport,
+                          "id", "444",
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+
+  /* Wait for the channel to become ready to avoid filling the transport buffer with a lot of data */
+  while (g_main_context_iteration (NULL, FALSE));
+
+  object = mock_transport_pop_control (tt->transport);
+  cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
+
+  /* Send body terminated with CRLF to the server body_count times */
+  message_builder = g_byte_array_new ();
+  g_byte_array_append (message_builder, (const guint8 *)body, strlen (body));
+  g_byte_array_append (message_builder, (const guint8 *)"\r\n", 2);
+  bytes = g_byte_array_free_to_bytes (message_builder);
+  g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, dummy_log_handler, NULL);
+  for (guint i = 0; i < body_count; i++)
+    {
+      cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tt->transport), "444", bytes);
+      if (i % output_queue_process_length)
+        {
+          /* Every once in a while process the stream queue so it doesn't get too big */
+          while (g_main_context_iteration (NULL, FALSE));
+        }
+    }
+  g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, g_log_default_handler, NULL);
+  g_bytes_unref (bytes);
+
+  /* Tell HTTP we have no more data to send */
+  control = "{\"command\": \"done\", \"channel\": \"444\"}";
+  bytes = g_bytes_new_static (control, strlen (control));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tt->transport), NULL, bytes);
+  g_bytes_unref (bytes);
+
+  closed = FALSE;
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  object = mock_transport_pop_control (tt->transport);
+  cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}");
+
+  data = mock_transport_combine_output (tt->transport, "444", &mock_transport_count);
+  cockpit_assert_bytes_eq (data, "Da Da Da", -1);
+  g_assert_cmpuint (mock_transport_count, ==, 1);
+  g_bytes_unref (data);
+
+  /* Check if the whole request was received by the server */
+  request_file = g_file_new_for_path (request_filename);
+  request_in = g_file_read (request_file, NULL, &error);
+  g_assert_no_error (error);
+  request_read = g_data_input_stream_new (G_INPUT_STREAM (request_in));
+  g_data_input_stream_set_newline_type (request_read, G_DATA_STREAM_NEWLINE_TYPE_CR_LF);
+
+  past_header = FALSE;
+  line_count = 0;
+  do
+    {
+      read_bytes = g_data_input_stream_read_line (request_read, &read_count, NULL, &error);
+      g_assert_no_error (error);
+      if (read_bytes)
+        {
+          if (!past_header && read_count == 0)
+            {
+              past_header = TRUE;
+            }
+          else if (past_header)
+            {
+              g_assert_cmpstr (read_bytes, ==, body);
+              line_count++;
+            }
+
+          g_free (read_bytes);
+        }
+    }
+  while (read_bytes != NULL);
+
+  /* Check if the correct number of lines was read */
+  g_assert_cmpint (line_count, ==, body_count);
+
+  g_input_stream_close (G_INPUT_STREAM (request_in), NULL, &error);
+  g_assert_no_error (error);
+}
+
 
 static void
 test_cannot_connect (TestGeneral *tt,
@@ -866,6 +1010,8 @@ main (int argc,
 
   g_test_add ("/http-stream/http-stream2", TestGeneral, NULL,
               setup_general, test_http_stream2, teardown_general);
+  g_test_add ("/http-stream/http-continuous-post", TestGeneral, NULL,
+              setup_general, test_http_continuous_post, teardown_general);
   g_test_add ("/http-stream/cannot-connect", TestGeneral, NULL,
               setup_general, test_cannot_connect, teardown_general);
 

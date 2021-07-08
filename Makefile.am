@@ -174,8 +174,13 @@ recheck-memory: valgrind-suppressions
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
 
+if ENABLE_DOC
+DOCS_INSTALL_DEPS = dist/guide/html/index.html
+else
+DOCS_INSTALL_DEPS =
+endif
 
-install-data-local:: dist/guide/html/index.html
+install-data-local:: $(DOCS_INSTALL_DEPS)
 if ENABLE_DOC
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(INSTALL_DATA) $(dir $<)/* $(DESTDIR)$(htmldir)

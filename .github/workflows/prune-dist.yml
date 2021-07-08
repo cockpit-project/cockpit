@@ -9,6 +9,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      HEAD_SHA: ${{ github.sha }}
+      DIST_REPO: https://github.com/${{ github.repository }}-dist.git
     steps:
       - name: Set up configuration and secrets
         run: |
@@ -19,20 +22,17 @@ jobs:
 
       - name: Clone -dist repo
         run: |
-          git clone https://github.com/${{ github.repository }}-dist.git dist-repo
+          git clone "${DIST_REPO}" dist-repo
 
       - name: Delete old tags
         run: |
           set -ex
 
-          # head commit SHA of default branch
-          HEAD=$(git ls-remote 'https://github.com/${{ github.repository }}' main master | cut -f1 | head -n1)
-
           cd dist-repo
           now="$(date +%s)"
           for tag in $(git tag -l); do
               tag_time="$(git show -s --format=%at $tag)"
-              if [ "$tag" = "sha-${HEAD}" ]; then
+              if [ "$tag" = "sha-${HEAD_SHA}" ]; then
                   echo "$tag refers to current project default branch HEAD, keeping"
               elif [ $((now - tag_time)) -ge 604800 ]; then
                   echo "$tag is older than 7 days, deleting..."

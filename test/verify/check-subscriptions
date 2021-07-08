@@ -117,13 +117,16 @@ class SubscriptionsCase(MachineCase):
 [insights-client]
 gpg=False
 auto_config=False
-base_url=127.0.0.1:8888/r/insights
+base_url=localhost:8888/r/insights
+# HACK: alice.cert is not trusted by insights, and making it so is really difficult
+cert_verify=False
 username=admin
 password=foobar
-insecure_connection=True
 """)
 
-            m.upload([ "verify/files/mock-insights" ], "/var/tmp")
+            # insights-client to access it. That requires a good enough
+            # TLS mock insights server certificate
+            m.upload(["verify/files/mock-insights", "verify/files/alice.key", "verify/files/alice.pem"], "/var/tmp")
             m.spawn("/var/tmp/mock-insights", "mock-insights")
 
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",

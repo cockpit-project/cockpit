@@ -119,15 +119,6 @@ svg {
     z-index: 2;
 }
 
-// Alerts use elements that have fonts set in other frameworks (including PF3);
-// generally, this is an H4 that often has a font size and sometimes family set.
-// Therefore, it should inherit from the alert font set at the pf-c-alert level.
-// https://github.com/patternfly/patternfly-design/issues/1049
-.pf-c-alert__title {
-    font-size: inherit;
-    font-family: inherit;
-}
-
 .pf-c-toolbar {
     // There should be an opt-in to make toolbars sticky.
     // For now, we'll use a ct-sticky class while we wait for an official solution.
@@ -155,4 +146,10 @@ svg {
             }
         }
     }
+}
+
+// Description sometimes shows up when empty, but this adds space to a grid,
+// causing extra space at the bottom
+.pf-c-alert__description:empty {
+    display: none;
 }

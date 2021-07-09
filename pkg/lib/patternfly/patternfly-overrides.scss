@@ -5,8 +5,14 @@ $font-family-mono: SFMono-Regular, menlo, monaco, consolas, "Liberation Mono", C
 
 // Resize headings
 h1, h2, h3, h4, h5, h6 {
-  line-height: var(--pf-global--LineHeight--sm);
-  font-family: var(--pf-global--FontFamily--redhatfont--heading--sans-serif);
+  // Reset to default after PF3+Bootstrap; prepare for PF4
+  font: unset;
+
+  // Only adjust font properties for non-PF4 elements
+  &:not([class*=pf-]) {
+    line-height: var(--pf-global--LineHeight--sm);
+    font-family: var(--pf-global--FontFamily--redhatfont--heading--sans-serif);
+  }
 
   .breadcrumb + & {
     // Vertically align contents of headings directly following breadcrumbs

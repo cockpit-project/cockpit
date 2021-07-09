@@ -46,6 +46,7 @@ export class ShutdownModal extends React.Component {
             date: "",
             time: "",
             when: "+1",
+            formFilled: false,
         };
         this.onSubmit = this.onSubmit.bind(this);
         this.updateDate = this.updateDate.bind(this);
@@ -56,17 +57,19 @@ export class ShutdownModal extends React.Component {
     }
 
     componentDidMount() {
-        this.server_time.wait().then(() => {
-            const dateObject = this.server_time.utc_fake_now;
-            const date = timeformat.dateShort(dateObject);
-            const hour = this.server_time.utc_fake_now.getUTCHours();
-            const minute = this.server_time.utc_fake_now.getUTCMinutes();
-            this.setState({
-                dateObject,
-                date,
-                time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
-            });
-        });
+        this.server_time.wait()
+                .then(() => {
+                    const dateObject = this.server_time.utc_fake_now;
+                    const date = timeformat.dateShort(dateObject);
+                    const hour = this.server_time.utc_fake_now.getUTCHours();
+                    const minute = this.server_time.utc_fake_now.getUTCMinutes();
+                    this.setState({
+                        dateObject,
+                        date,
+                        time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
+                    });
+                })
+                .always(() => this.setState({ formFilled: true }));
     }
 
     updateDate(value, dateObject) {
@@ -179,6 +182,7 @@ export class ShutdownModal extends React.Component {
                                    validated={this.state.dateError ? "error" : "default"}>
                             <Flex className="shutdown-delay-group" alignItems={{ default: 'alignItemsCenter' }}>
                                 <Select toggleId="delay" isOpen={this.state.isOpen} selections={this.state.selected}
+                                        isDisabled={!this.state.formFilled}
                                         className='shutdown-select-delay'
                                         onToggle={o => this.setState({ isOpen: o })} menuAppendTo="parent"
                                         onSelect={(e, s) => this.setState({ selected: s, isOpen: false }, this.calculate)}>
@@ -191,6 +195,7 @@ export class ShutdownModal extends React.Component {
                                                 dateFormat={timeformat.dateShort}
                                                 dateParse={timeformat.parseShortDate}
                                                 invalidFormatText=""
+                                                isDisabled={!this.state.formFilled}
                                                 locale={cockpit.language}
                                                 onBlur={this.calculate}
                                                 onChange={(d, ds) => this.updateDate(d, ds)}
@@ -199,6 +204,7 @@ export class ShutdownModal extends React.Component {
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"
+                                                isDisabled={!this.state.formFilled}
                                                 invalidFormatErrorMessage=""
                                                 menuAppendTo={() => document.body}
                                                 onBlur={this.calculate}

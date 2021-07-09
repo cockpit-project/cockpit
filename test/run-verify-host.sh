@@ -26,6 +26,7 @@ if ! rpm -q chromium; then
         # RHEL 9 has a broken stub epel.repo
         rm -f /etc/yum.repos.d/epel.repo
         dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        sed -i 's/$releasever/8/' /etc/yum.repos.d/epel*.repo
         dnf config-manager --enable epel
     fi
     dnf install -y chromium

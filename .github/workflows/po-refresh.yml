@@ -9,6 +9,11 @@ on:
 jobs:
   po-refresh:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+    environment: cockpit-weblate
     steps:
       - name: Set up dependencies
         run: |
@@ -20,21 +25,26 @@ jobs:
 
       - name: Set up configuration and secrets
         run: |
-          printf '[user]\n\tname = Cockpit Project\n\temail=cockpituous@gmail.com\n' > ~/.gitconfig
-          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/github-token
-          # po-refresh pushes to weblate repo via https://github.com, that needs our cockpituous token
-          git config --global credential.helper store
-          echo 'https://token:${{ secrets.COCKPITUOUS_TOKEN }}@github.com' >> ~/.git-credentials
+          mkdir -p ~/.config/cockpit-dev ~/.config/git
+          printf '[user]\n\tname = Cockpit Project\n\temail=cockpituous@gmail.com\n' > ~/.config/git/config
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/cockpit-dev/github-token
 
       - name: Clone repository
         uses: actions/checkout@v2
         with:
           # need this to also fetch tags
           fetch-depth: 0
-          # the default GITHUB_TOKEN would override our ~/.git-credentials from above
-          token: '${{ secrets.COCKPITUOUS_TOKEN }}'
 
       - name: Run po-refresh bot
         run: |
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
+
+          mkdir -p ~/.config/cockpit-dev
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/cockpit-dev/github-token
+
           tools/make-bots
           bots/po-refresh
+
+          ssh-add -D
+          ssh-agent -k

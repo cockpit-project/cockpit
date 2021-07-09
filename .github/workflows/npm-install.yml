@@ -139,7 +139,7 @@ jobs:
     needs: [start, build]
     if: ${{ needs.build.result == 'success' }}
     runs-on: ubuntu-20.04
-    environment: node-cache upload
+    environment: node-cache
     permissions:
       pull-requests: write
     env:
@@ -201,7 +201,7 @@ jobs:
       - name: Push git commit
         run: |
           eval $(ssh-agent)
-          ssh-add - <<< '${{ secrets.NODE_CACHE_DEPLOY_KEY }}'
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
           git push cache tag "sha-$(cat sha)"
           ssh-add -D
           ssh-agent -k

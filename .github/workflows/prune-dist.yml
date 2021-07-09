@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: none
-    environment: cockpit-dist upload
+    environment: cockpit-dist
     env:
       HEAD_SHA: ${{ github.sha }}
       DIST_REPO: ssh://git@github.com/${{ github.repository }}-dist.git
@@ -21,7 +21,7 @@ jobs:
           set -ex
 
           eval $(ssh-agent)
-          ssh-add - <<< '${{ secrets.COCKPIT_DIST_DEPLOY_KEY }}'
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
 
           git clone "${DIST_REPO}" dist-repo
 

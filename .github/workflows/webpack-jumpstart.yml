@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: none
-    environment: cockpit-dist upload
+    environment: cockpit-dist
     timeout-minutes: 5
     env:
       GIT_DIR: git-dir.git
@@ -77,7 +77,7 @@ jobs:
       - name: Push git commit
         run: |
           eval $(ssh-agent)
-          ssh-add - <<< '${{ secrets.COCKPIT_DIST_DEPLOY_KEY }}'
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
           git push cache tag "sha-${HEAD_SHA}"
           ssh-add -D
           ssh-agent -k

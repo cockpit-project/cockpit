@@ -264,7 +264,7 @@ polkitdir        = $(datadir)/polkit-1/actions
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
 %.policy: %.policy.in $(PO_FILES)
-	GETTEXTDATADIRS=$(srcdir)/po $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
+	GETTEXTDATADIRS=$(srcdir)/po msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
 
 CLEANFILES += $(polkit_DATA)
 endif

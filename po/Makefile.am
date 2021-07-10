@@ -1,3 +1,11 @@
+# Defaults for standalone operation
+srcdir ?= .
+AM_DEFAULT_VERBOSITY ?= 0
+MKDIR_P ?= mkdir -p
+
+AM_V_GEN ?= $(AM_V_GEN_$(V))
+AM_V_GEN_ ?= $(AM_V_GEN_$(AM_DEFAULT_VERBOSITY))
+AM_V_GEN_0 ?= @echo "  GEN " $@;
 
 GETTEXT_PACKAGE = cockpit
 

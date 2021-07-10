@@ -237,21 +237,11 @@ GETTEXT_PACKAGE=cockpit
 AC_SUBST([GETTEXT_PACKAGE])
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
-AC_PATH_PROG(MSGCAT, msgcat)
-AC_PATH_PROG(MSGFMT, msgfmt)
-AC_PATH_PROG(MSGGREP, msggrep)
-AC_PATH_PROG(MSGMERGE, msgmerge)
-AC_PATH_PROG(XGETTEXT, xgettext)
-AC_MSG_CHECKING(for gettext binaries)
-if test -x "$MSGCAT" -a -x "$MSGFMT" -a -x "$MSGMERGE" -a -x "$MSGGREP" -a -x "$XGETTEXT"; then
-  AC_SUBST(MSGCAT)
-  AC_SUBST(MSGFMT)
-  AC_SUBST(MSGGREP)
-  AC_SUBST(MSGMERGE)
-  AC_SUBST(XGETTEXT)
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_ERROR([no. Please install gettext tools])
+# We need msgcat, msgfmt, msggrep, msgmerge, but they're all in the same
+# package as xgettext, and we find them by PATH, so just check for the one.
+AC_PATH_PROG([XGETTEXT], [xsltproc], [no])
+if test "$XGETTEXT" = "no"; then
+        AC_MSG_ERROR([Please install gettext tools])
 fi
 
 # usermod

@@ -56,8 +56,8 @@ EOF
 
 cmd_rebuild() {
     for file in npm-shrinkwrap.json package-lock.json yarn.lock; do
-        if [ -e "${top_srcdir}/${file}" ]; then
-            echo "Please delete ${file} from ${top_srcdir} and start again"
+        if [ -e "${file}" ]; then
+            echo "Please delete ${file} from $(pwd) and start again"
             exit 1
         fi
     done
@@ -161,9 +161,6 @@ EOF
 }
 
 main() {
-    local top_srcdir="$(realpath -m "$0"/../..)"
-    cd "${top_srcdir}"
-
     local cmd="${1-}"
 
     if [ -z "${cmd}" ]; then

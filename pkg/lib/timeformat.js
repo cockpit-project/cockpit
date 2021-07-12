@@ -23,7 +23,7 @@ export const time = t => formatter({ timeStyle: "short" }).format(t);
 export const timeSeconds = t => formatter({ timeStyle: "medium" }).format(t);
 // June 30, 2021
 export const date = t => formatter({ dateStyle: "long" }).format(t);
-// 2021-06-30
+// 06/30/2021
 export const dateShort = t => formatter().format(t);
 // Jun 30, 2021, 7:41 AM
 export const dateTime = t => formatter({ dateStyle: "medium", timeStyle: "short" }).format(t);

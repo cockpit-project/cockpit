@@ -506,7 +506,7 @@ export class CryptoKeyslots extends React.Component {
             }
         }
 
-        var keys = slots.map(decode_clevis_slot).filter(k => !!k);
+        var keys = slots ? slots.map(decode_clevis_slot).filter(k => !!k) : [];
 
         var rows;
         if (keys.length == 0) {

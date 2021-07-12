@@ -76,6 +76,9 @@ class TestStorageLuks(StorageCase):
         hour = b.eval_js("Intl.DateTimeFormat('en', { timeStyle: 'short' }).format()").split(':')[0]
         self.content_tab_wait_in_info(1, 2, "Stored passphrase", "Last modified: Today at %s:" % hour)
 
+        tab = self.content_tab_expand(1, 2)
+        b.assert_pixels(tab, "tab", ignore=["dt:contains(Stored passphrase) + dd"])
+
         self.wait_in_storaged_configuration(mount_point_secret)
         self.wait_in_storaged_configuration("crypto,options")
         # HACK: Put /etc/crypttab in the journal, in order to debug updating issues

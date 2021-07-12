@@ -67,7 +67,7 @@ po/cockpit.c.pot:
 # Extract translate attribute, Glade style, angular-gettext HTML translations
 po/cockpit.html.pot: package-lock.json
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -o $@ \
+	$(srcdir)/po/html2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
 # Extract cockpit style javascript translations
@@ -85,7 +85,7 @@ po/cockpit.js.pot:
 
 po/cockpit.manifest.pot: package-lock.json
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
+	$(srcdir)/po/manifest2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 
 po/cockpit.appstream.pot:

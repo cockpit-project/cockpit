@@ -31,7 +31,7 @@ import {
 } from '@patternfly/react-core';
 import "./cockpit-components-empty-state.css";
 
-export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary, headingLevel, titleSize }) => {
+export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isActionInProgress, onAction, secondary, headingLevel, titleSize }) => {
     const slimType = title || paragraph ? "" : "slim";
     return (
         <EmptyState variant={EmptyStateVariant.full}>
@@ -43,7 +43,11 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAct
             <EmptyStateBody>
                 {paragraph}
             </EmptyStateBody>
-            { action && (typeof action == "string" ? <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> : action)}
+            { action && (typeof action == "string"
+                ? <Button variant="primary" className={slimType}
+                          isLoading={isActionInProgress}
+                          isDisabled={isActionInProgress}
+                          onClick={onAction}>{action}</Button> : action)}
             { secondary && <EmptyStateSecondaryActions>{secondary}</EmptyStateSecondaryActions> }
         </EmptyState>
     );
@@ -55,6 +59,7 @@ EmptyStatePanel.propTypes = {
     title: PropTypes.string,
     paragraph: PropTypes.node,
     action: PropTypes.node,
+    isActionInProgress: PropTypes.bool,
     onAction: PropTypes.func,
     secondary: PropTypes.node,
 };
@@ -62,4 +67,5 @@ EmptyStatePanel.propTypes = {
 EmptyStatePanel.defaultProps = {
     headingLevel: "h1",
     titleSize: "lg",
+    isActionInProgress: false,
 };

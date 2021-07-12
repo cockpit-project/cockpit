@@ -1,0 +1,38 @@
+name: pixeltext-review
+on: pull_request_target
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Look for changed reference images
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { execSync } = require('child_process');
+
+            function get_path_sha(root, path) {
+               execSync('git fetch --depth=1 origin ' + root);
+               const val = execSync('git rev-parse --verify --quiet ' + root + ':' + path + '|| true');
+               return val.toString().trim();
+            }
+
+            const head = context.payload.pull_request.head.sha;
+            const base = context.payload.pull_request.base.sha;
+
+            const head_test_reference = get_path_sha(head, 'test/reference');
+            const base_test_reference = get_path_sha(base, 'test/reference');
+
+            core.info("shas: " + head_test_reference + ", " + base_test_reference);
+
+            if (head_test_reference != base_test_reference) {
+              core.info("commenting");
+              github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'Pixel test references have changed in ' + head + '.  You can review them [here](/cockpit-project/pixel-test-reference/compare/' + (base_test_reference || "empty") + '..' + (head_test_reference || "empty") + ').'
+              })
+            }

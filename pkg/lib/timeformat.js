@@ -2,7 +2,7 @@
  * https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat
  */
 import cockpit from "cockpit";
-import { parse } from 'date-fns';
+import { parse, formatDistanceToNow } from 'date-fns';
 import * as locales from 'date-fns/locale';
 
 // this needs to be dynamic, as some pages don't initialize cockpit.language right away
@@ -35,6 +35,8 @@ export const weekdayDate = t => formatter({ dateStyle: "full" }).format(t);
 // The following options are helpful for placeholders
 // yyyy/mm/dd
 export const dateShortFormat = () => locales[dateFormatLangDateFns()].formatLong.date({ width: 'short' });
+// about 1 hour [ago]
+export const distanceToNow = (t, addSuffix) => formatDistanceToNow(t, { locale: locales[dateFormatLangDateFns()], addSuffix });
 
 // Parse a string localized date like 30.06.21 to a Date Object
 export function parseShortDate(dateStr) {

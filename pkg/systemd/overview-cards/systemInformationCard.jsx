@@ -18,10 +18,10 @@
  */
 import React from 'react';
 import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
-import moment from 'moment';
 
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
+import * as timeformat from "timeformat.js";
 
 import "./systemInformationCard.scss";
 
@@ -94,7 +94,8 @@ export class SystemInfomationCard extends React.Component {
         cockpit.file("/proc/uptime").read()
                 .then(content => {
                     const uptime = parseFloat(content.split(' ')[0]);
-                    this.setState({ systemUptime: moment.duration(uptime * 1000).humanize() });
+                    const bootTime = new Date().valueOf() - uptime * 1000;
+                    this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
                 })
                 .fail(ex => console.error("Error reading system uptime", ex));
     }

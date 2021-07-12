@@ -60,6 +60,11 @@ class TestStorageBasic(StorageCase):
         wait(lambda: m.execute('mke2fs %s1' % disk), delay=1, tries=5)
         self.content_row_wait_in_col(1, 1, "ext2 file system")
 
+        self.content_tab_expand(1, 1)
+        b.assert_pixels("#detail-content", "partition", ignore=["dt:contains(UUID) + dd"])
+        self.content_tab_expand(1, 2)
+        b.assert_pixels("#detail-content", "filesystem")
+
         b.go("#/")
         b.wait_visible('#storage')
         b.wait_in_text("#drives", disk)

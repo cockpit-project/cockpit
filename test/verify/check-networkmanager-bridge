@@ -47,6 +47,9 @@ class TestBridge(NetworkCase):
         b.click("button:contains('Add bridge')")
         b.wait_popup("network-bridge-settings-dialog")
 
+        # wait until dialog initialized
+        b.wait_visible("#network-bridge-settings-close-button")
+        b.wait_in_text("#network-bridge-settings-body", "cockpit2")
         b.assert_pixels("#network-bridge-settings-dialog .pf-c-modal-box", "networking-bridge-settings-dialog")
 
         b.set_val("#network-bridge-settings-name-input", "tbridge")

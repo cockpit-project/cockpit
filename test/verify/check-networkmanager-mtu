@@ -47,6 +47,9 @@ class TestNetworkingMTU(NetworkCase):
         self.configure_iface_setting('MTU')
         b.wait_popup("network-mtu-settings-dialog")
 
+        # wait until dialog initialized
+        b.wait_visible("#network-mtu-settings-close-button")
+        b.wait_visible("#network-mtu-settings-custom")
         b.assert_pixels("#network-mtu-settings-dialog .pf-c-modal-box", "networking-mtu-settings-dialog")
 
         b.set_checked('#network-mtu-settings-custom', True)

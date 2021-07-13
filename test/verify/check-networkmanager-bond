@@ -46,7 +46,11 @@ class TestBonding(NetworkCase):
         # Bond them
         b.click("button:contains('Add bond')")
         b.wait_popup("network-bond-settings-dialog")
-
+        # wait until dialog initialized
+        b.wait_visible("#network-bond-settings-close-button")
+        b.wait_visible("#network-bond-settings-mac-input")
+        # menu is not visible by default, but gets initialized dynamically
+        b._wait_present("#network-bond-settings-mac-menu")
         b.assert_pixels("#network-bond-settings-dialog .pf-c-modal-box", "networking-bond-settings-dialog")
 
         b.click("#network-bond-settings-dialog #network-bond-settings-close-button")

@@ -24,9 +24,10 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from "react-dom";
 
 import {
-    Button, ButtonVariant,
+    Button,
     ClipboardCopy,
     Divider,
+    Flex, FlexItem,
     List, ListItem,
     Page, PageSection, PageSectionVariants,
     Popover,
@@ -351,15 +352,47 @@ const ServicesFilter = ({ servicesFilter, onServicesFilterChange, currentService
 
 const TextFilter = ({ textFilter, onTextFilterChange }) => {
     const [unsubmittedTextFilter, setUnsubmittedTextFilter] = useState(textFilter);
+    const sinceUntilBody = _("Date specifications should be of the format YYYY-MM-DD hh:mm:ss. Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. 'now' refers to the current time. Finally, relative times may be specified, prefixed with '-' or '+'");
+    const sinceLabel = (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <FlexItem>{_("Since")}</FlexItem>
+            <Popover headerContent={_("Start showing entries on or newer than the specified date.")}
+                     showClose={false}
+                     bodyContent={sinceUntilBody}>
+                <HelpIcon />
+            </Popover>
+        </Flex>
+    );
+    const untilLabel = (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <FlexItem>{_("Until")}</FlexItem>
+            <Popover headerContent={_("Start showing entries on or older than the specified date.")}
+                     showClose={false}
+                     bodyContent={sinceUntilBody}>
+                <HelpIcon />
+            </Popover>
+        </Flex>
+    );
+    const bootLabel = (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <FlexItem>{_("Boot")}</FlexItem>
+            <Popover headerContent={_("Show messages from a specific boot.")}
+                     showClose={false}
+                     bodyContent={_("This will add a match for '_BOOT_ID='. If not specified the logs for the current boot will be shown. If the boot ID is omitted, a positive offset will look up the boots starting from the beginning of the journal, and an equal-or-less-than zero offset will look up boots starting from the end of the journal. Thus, 1 means the first boot found in the journal in chronological order, 2 the second and so on; while -0 is the last boot, -1 the boot before last, and so on.")}>
+                <HelpIcon />
+            </Popover>
+        </Flex>
+    );
+    const searchInputAttributes = [
+        { attr: "since", display: sinceLabel },
+        { attr: "until", display: untilLabel },
+        { attr: "boot", display: bootLabel },
+        { attr: "priority" }, // Hide this with CSS
+        { attr: "tag" }, // Hide this with CSS
+    ];
 
     return (
-        <SearchInput attributes={[
-                        { attr: "boot", display: _("Boot")},
-                        { attr: "since", display: _("Since")},
-                        { attr: "until", display: _("Until")},
-                        { attr: "priority" }, // Hide this with CSS
-                        { attr: "tag" }, // Hide this with CSS
-                     ]}
+        <SearchInput attributes={searchInputAttributes}
                      hasWordsAttrLabel={_("Regular expression match")}
                      advancedSearchDelimiter=":"
                      id="journal-grep"

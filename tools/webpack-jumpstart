@@ -15,7 +15,7 @@ export V="${V-0}"
 
 set -eu
 cd "$(realpath -m "$0"/../..)"
-. tools/git-utils.sh
+. pkg/lib/git-utils.sh
 
 [ -n "${quiet}" ] || set -x
 

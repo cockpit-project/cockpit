@@ -1,25 +1,35 @@
 #!/bin/bash
 
+GITHUB_REPO='pixel-test-reference'
+SUBDIR='test/reference'
+
 set -eu
-
-SUBDIR=test/reference
-REPO=pixel-test-reference
-
-GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
-GITHUB_REPOSITORY="${GITHUB_BASE%/*}/${REPO}"
-CLONE_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
-PUSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
-
-message() {
-    [ "${V-}" != 0 ] || printf "  %-8s %s\n" "$1" "$2"
-}
+cd "$(realpath -m "$0"/../../..)"
+. pkg/lib/git-utils.sh
 
 cmd_init() {
     git submodule add -b empty "$CLONE_REMOTE" "$SUBDIR"
 }
 
+cmd_checkout() {
+    local sha="${1-$(get_index_gitlink node_modules)}"
+
+    fetch_sha_to_cache "${sha}"
+    cmd_remove
+    clone_from_cache "${sha}"
+}
+
 cmd_pull() {
-    git submodule update --init -- "$SUBDIR"
+    # Our main goal is to ensure that the test/reference from
+    # the index is the one that we actually have.
+    local sha="$(get_index_gitlink test/reference)"
+    if [ ! -e test/reference/.git ]; then
+        # nothing there yet...
+        cmd_checkout "${sha}"
+    elif [ "$(git -C test/reference rev-parse HEAD)" != "${sha}" ]; then
+        # wrong thing there...
+        cmd_checkout "${sha}"
+    fi
 }
 
 cmd_status() {
@@ -45,7 +55,7 @@ cmd_push() {
       fi
       tag="sha-$(git rev-parse HEAD)"
       [ $(git tag -l "$tag") ] || git tag "$tag" HEAD
-      git push "$PUSH_REMOTE" "$tag"
+      git push "$SSH_REMOTE" "$tag"
     )
     git add "$SUBDIR"
 }
@@ -62,7 +72,7 @@ main() {
     fi
 
     shift
-    [ "${V-0}" = 0 ] || set -x
+    [ -n "${quiet}" ] || set -x
     "cmd_$cmd" "$@"
 }
 

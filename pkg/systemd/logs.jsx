@@ -27,7 +27,6 @@ import {
     Button, ButtonVariant,
     ClipboardCopy,
     Divider,
-    InputGroup,
     List, ListItem,
     Page, PageSection, PageSectionVariants,
     Popover,
@@ -36,7 +35,6 @@ import {
     Toolbar, ToolbarContent, ToolbarItem, ToolbarToggleGroup,
 } from "@patternfly/react-core";
 import {
-    ArrowRightIcon,
     ExternalLinkSquareAltIcon,
     FilterIcon,
     HelpIcon,
@@ -355,19 +353,21 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
     const [unsubmittedTextFilter, setUnsubmittedTextFilter] = useState(textFilter);
 
     return (
-        <InputGroup>
-            <SearchInput id="journal-grep"
-                         onClear={() => { onTextFilterChange(""); setUnsubmittedTextFilter("") }}
-                         placeholder={_("Type to filter")}
-                         value={unsubmittedTextFilter}
-                         onChange={setUnsubmittedTextFilter} />
-            <Button aria-label={_("Search")}
-                    onClick={() => onTextFilterChange(unsubmittedTextFilter)}
-                    type="submit"
-                    variant={ButtonVariant.control}>
-                <ArrowRightIcon />
-            </Button>
-        </InputGroup>
+        <SearchInput attributes={[
+                        { attr: "boot", display: _("Boot")},
+                        { attr: "since", display: _("Since")},
+                        { attr: "until", display: _("Until")},
+                        { attr: "priority" }, // Hide this with CSS
+                        { attr: "tag" }, // Hide this with CSS
+                     ]}
+                     hasWordsAttrLabel={_("Regular expression match")}
+                     advancedSearchDelimiter=":"
+                     id="journal-grep"
+                     onClear={() => { onTextFilterChange(""); setUnsubmittedTextFilter("") }}
+                     placeholder={_("Type to filter")}
+                     value={unsubmittedTextFilter}
+                     onChange={setUnsubmittedTextFilter}
+                     onSearch={() => onTextFilterChange(unsubmittedTextFilter)} />
     );
 };
 

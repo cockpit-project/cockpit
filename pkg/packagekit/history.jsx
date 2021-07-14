@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import moment from 'moment';
 import React from "react";
 import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core";
 import { ListingTable } from "cockpit-components-table.jsx";
+import * as timeformat from "timeformat.js";
 
 import cockpit from "cockpit";
 
@@ -46,7 +46,7 @@ export class History extends React.Component {
      * together for presentation.
      *
      * Returns a time sorted (descending) list of objects like
-     * { time: moment_object, num_packages: 2, packages: {names...}}
+     * { time: timestamp, num_packages: 2, packages: {names...}}
      */
     mergeHistory() {
         const history = [];
@@ -54,7 +54,7 @@ export class History extends React.Component {
 
         for (let i = 0; i < this.props.packagekit.length; ++i) {
             const packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");
-            const time = moment(this.props.packagekit[i]._time);
+            const time = this.props.packagekit[i]._time;
             packages.sort();
 
             if (prevTime && (time - prevTime) <= 600000 /* 10 mins */ &&
@@ -79,8 +79,6 @@ export class History extends React.Component {
             return null;
 
         const rows = history.map((update, index) => {
-            const time = update.time.format("YYYY-MM-DD HH:mm");
-
             const pkgcount = (
                 <div className="list-view-pf-additional-info-item">
                     <span className="pficon pficon-bundle" />
@@ -92,7 +90,7 @@ export class History extends React.Component {
             return ({
                 props: { key: index },
                 columns: [
-                    { title: time },
+                    { title: timeformat.dateTime(update.time) },
                     { title: pkgcount, props: { className: "history-pkgcount" } },
                 ],
                 initiallyExpanded: index == 0,

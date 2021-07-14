@@ -208,7 +208,7 @@ class TestSystemInfo(MachineCase):
         self.addCleanup(m.execute, "umount /proc/uptime")
         with b.wait_timeout(70):
             b.wait_text("#system_uptime", "33 minutes")
-        # 4 months and a bit, moment humanize() rounds quite aggressively; also, test a slightly different format
+        # 4 months and a bit, timeformat rounds quite aggressively; also, test a slightly different format
         m.write("/tmp/fake_uptime", "10370000 12345.30\n")
         with b.wait_timeout(70):
             b.wait_text("#system_uptime", "4 months")

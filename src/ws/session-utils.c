@@ -119,6 +119,8 @@ write_authorize_begin (void)
   auth_prefix_size = strlen (auth_prefix);
 
   authf = open_memstream (&auth_msg, &auth_msg_size);
+  if (!authf)
+    err (EX, "failed to open_memstream()");
   fprintf (authf, "%s", auth_prefix);
 }
 

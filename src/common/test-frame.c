@@ -48,6 +48,7 @@ fixture_setup (Fixture        *self,
   g_assert_cmpint (r, ==, 0);
 
   self->write_fp = fdopen (pipefd[1], "w");
+  g_assert (self->write_fp != NULL);
   self->read_fd = pipefd[0];
 
   if (tc->input)

@@ -23,7 +23,6 @@ import cockpit from "cockpit";
 import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
-import moment from "moment";
 import {
     Alert, Button, Gallery, Modal, Progress, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
@@ -55,6 +54,7 @@ import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
+import * as timeformat from "timeformat.js";
 
 import * as python from "python.js";
 import callTracerScript from 'raw-loader!./callTracer.py';
@@ -542,6 +542,7 @@ class ApplyUpdates extends React.Component {
         }
 
         const lastAction = this.state.actions[this.state.actions.length - 1];
+        const timeRemaining = this.state.timeRemaining && timeformat.distanceToNow(new Date().valueOf() + this.state.timeRemaining * 1000);
         return (
             <>
                 <div className="progress-main-view">
@@ -550,7 +551,7 @@ class ApplyUpdates extends React.Component {
                         <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                         &nbsp;{lastAction.package}
                     </div>
-                    <Progress title={this.state.timeRemaining && moment.duration(this.state.timeRemaining * 1000).humanize()} value={this.state.percentage} />
+                    <Progress title={timeRemaining} value={this.state.percentage} />
                     {cancelButton}
                 </div>
 
@@ -718,7 +719,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPacka
     const numRebootPackages = tracerPackages.reboot.length;
     let lastChecked;
     if (timeSinceRefresh !== null)
-        lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - timeSinceRefresh * 1000).fromNow());
+        lastChecked = cockpit.format(_("Last checked: $0"), timeformat.distanceToNow(new Date().valueOf() - timeSinceRefresh * 1000, true));
 
     const notifications = [];
     if (numUpdates > 0) {
@@ -1510,7 +1511,6 @@ class OsUpdates extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
-    moment.locale(cockpit.language);
     init();
     ReactDOM.render(<OsUpdates />, document.getElementById("app"));
 });

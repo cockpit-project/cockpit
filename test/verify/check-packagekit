@@ -156,7 +156,7 @@ class TestUpdates(NoSubManCase):
         b.wait_not_present("#status")
         b.wait_in_text("#status", "System is up to date")
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
-        b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
+        b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
 
         install_lockfile = "/tmp/finish-pk"
         # create two updates; force installing chocolate before vanilla
@@ -170,7 +170,7 @@ class TestUpdates(NoSubManCase):
         # check again
         b.click("#status .pf-c-card__header button")
 
-        b.wait_in_text("#last-checked", "Last checked: a few seconds ago")
+        b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
 
         b.wait_visible("#available-updates")
         b.wait_in_text("#status", "2 updates available")

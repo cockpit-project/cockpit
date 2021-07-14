@@ -90,13 +90,13 @@ po/cockpit.manifest.pot: package-lock.json
 
 po/cockpit.appstream.pot:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ \
-		$$(find $(TRANSLATE) -name '*.appdata.xml.in')
+	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
 
 po/cockpit.polkit.pot:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ \
-		$$(find $(TRANSLATE) -name '*.policy.in')
+	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in')
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot

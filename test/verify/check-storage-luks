@@ -73,8 +73,9 @@ class TestStorageLuks(StorageCase):
         elif self.default_crypto_type == "luks2":
             self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS2")
 
-        hour = b.eval_js("Intl.DateTimeFormat('en', { timeStyle: 'short' }).format()").split(':')[0]
-        self.content_tab_wait_in_info(1, 2, "Stored passphrase", "Last modified: Today at %s:" % hour)
+        # cut off minutes, to avoid a too wide race condition in the test
+        date_no_mins = b.eval_js("Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format()").split(':')[0]
+        self.content_tab_wait_in_info(1, 2, "Stored passphrase", "Last modified: %s:" % date_no_mins)
 
         tab = self.content_tab_expand(1, 2)
         b.assert_pixels(tab, "tab", ignore=["dt:contains(Stored passphrase) + dd"])

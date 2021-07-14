@@ -378,7 +378,6 @@ info.tests.forEach(test => {
 });
 
 const aliases = {
-    "moment": "moment/moment.js",
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
 

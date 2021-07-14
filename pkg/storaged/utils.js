@@ -20,9 +20,7 @@
 import cockpit from "cockpit";
 
 import * as service from "service";
-import moment from "moment";
-
-moment.locale(cockpit.language);
+import * as timeformat from "timeformat";
 
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
@@ -119,7 +117,7 @@ export function format_fsys_usage(used, total) {
 }
 
 export function format_delay(d) {
-    return moment.duration(d).humanize();
+    return timeformat.distanceToNow(new Date().valueOf() + d);
 }
 
 export function format_size_and_text(size, text) {

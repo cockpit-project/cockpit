@@ -25,7 +25,6 @@ import {
     Flex, FlexItem,
 } from "@patternfly/react-core";
 import cockpit from "cockpit";
-import moment from "moment";
 import { dialog_open, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename } from "./utils.js";
 
@@ -35,6 +34,7 @@ import { crypto_options_dialog_fields, crypto_options_dialog_options } from "./f
 
 import * as python from "python.js";
 import luksmeta_monitor_hack_py from "raw-loader!./luksmeta-monitor-hack.py";
+import * as timeformat from "timeformat.js";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
@@ -44,8 +44,9 @@ function parse_tag_mtime(tag) {
     if (tag && tag.indexOf("1:") == 0) {
         try {
             const parts = tag.split("-")[1].split(".");
-            const mtime = parseInt(parts[0]) + parseInt(parts[1]) * 1e-9;
-            return cockpit.format(_("Last modified: $0"), moment.unix(mtime).calendar());
+            // s:ns → ms
+            const mtime = parseInt(parts[0]) * 1000 + parseInt(parts[1]) * 1e-6;
+            return cockpit.format(_("Last modified: $0"), timeformat.dateTime(mtime));
         } catch {
             return null;
         }

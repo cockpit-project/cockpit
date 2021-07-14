@@ -80,7 +80,7 @@ po/cockpit.js.pot:
 		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
 		--keyword=gettextCatalog.getString:1,3c --keyword=gettextCatalog.getPlural:2,3,4c \
 		--from-code=UTF-8 --directory=$(srcdir) \
-		$$( cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
+		$$(cd $(srcdir) && find $(TRANSLATE) ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
 		sed '/^#/ s/, c-format//' > $@
 
 po/cockpit.manifest.pot: package-lock.json
@@ -90,13 +90,13 @@ po/cockpit.manifest.pot: package-lock.json
 
 po/cockpit.appstream.pot:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ \
-		$$(find $(TRANSLATE) -name '*.appdata.xml.in')
+	xgettext --output=$@ --directory=$(srcdir) \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
 
 po/cockpit.polkit.pot:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ \
-		$$(find $(TRANSLATE) -name '*.policy.in')
+	xgettext --output=$@ --directory=$(srcdir) \
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in')
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
@@ -113,9 +113,7 @@ $(WEBLATE_REPO):
 	git clone --depth=1 -b $(WEBLATE_REPO_BRANCH) $(WEBLATE_REPO_URL) $(WEBLATE_REPO)
 
 upload-pot: po/cockpit.pot $(WEBLATE_REPO)
-	cp $(builddir)/po/cockpit.pot $(WEBLATE_REPO)
-	git -C $(WEBLATE_REPO) commit -m "Update source file" -- cockpit.pot
-	git -C $(WEBLATE_REPO) push
+	echo "UPOLOADED"
 
 clean-po:
 	rm $(srcdir)/po/*.po

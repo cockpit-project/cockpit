@@ -60,24 +60,6 @@ const timeFilterOptions = [
     { key: "since", value: "-7days", toString: () => _("Last 7 days") },
 ];
 
-const journalPrioOptions = [
-    { value: "emerg", toString: () => _("Only emergency") },
-    { value: "alert", toString: () => _("Alert and above") },
-    { value: "crit", toString: () => _("Critical and above") },
-    { value: "err", toString: () => _("Error and above") },
-    { value: "warning", toString: () => _("Warning and above") },
-    { value: "notice", toString: () => _("Notice and above") },
-    { value: "info", toString: () => _("Info and above") },
-    { value: "debug", toString: () => _("Debug and above") },
-];
-
-const getPrioFilterOption = options => {
-    if (options.priority || options.prio)
-        return journalPrioOptions.find(option => option.value == options.priority || option.value == options.prio);
-
-    return journalPrioOptions.find(option => option.value == "err");
-};
-
 const getTimeFilterOption = options => {
     if (options.boot)
         return timeFilterOptions.find(option => option.key == 'boot' && option.value == options.boot);
@@ -100,10 +82,7 @@ export const LogsPage = () => {
     const [currentServices, setCurrentServices] = useState(undefined);
     const [dataFollowing, setDataFollowing] = useState(follow);
     const [filteredQuery, setFilteredQuery] = useState(undefined);
-    const [isOpenPrioFilter, setIsOpenPrioFilter] = useState(false);
     const [isOpenTimeFilter, setIsOpenTimeFilter] = useState(false);
-    // `prio` is a legacy name. Accept it, but don't generate it
-    const [journalPrio, setJournalPrio] = useState(getPrioFilterOption(options));
     const [servicesFilter, setServicesFilter] = useState(options.tag || _("All"));
     const [showTextSearch, setShowTextSearch] = useState(false);
     const [textFilter, setTextFilter] = useState(full_grep);
@@ -119,7 +98,6 @@ export const LogsPage = () => {
 
             if (path.length == 1) return;
 
-            setJournalPrio(getPrioFilterOption(options));
             setServicesFilter(options.tag || _("All"));
             setTextFilter(full_grep);
             setTimeFilter(getTimeFilterOption(options));
@@ -138,12 +116,6 @@ export const LogsPage = () => {
 
     const updateUrl = (options) => {
         cockpit.location.go([], options);
-    };
-
-    const onJournalPrioChange = (value) => {
-        setUpdateServicesList(true);
-
-        updateUrl(Object.assign(options, { priority: value }));
     };
 
     const onServicesFilterChange = (value) => {
@@ -199,21 +171,6 @@ export const LogsPage = () => {
                                 </Select>
                             </ToolbarItem>
 
-                            <ToolbarItem variant="label">
-                                {_("Priority")}
-                            </ToolbarItem>
-                            <ToolbarItem>
-                                <Select toggleId="journal-prio-menu"
-                                        isOpen={isOpenPrioFilter}
-                                        onToggle={setIsOpenPrioFilter}
-                                        onSelect={(e, selection) => {
-                                            setIsOpenPrioFilter(false);
-                                            onJournalPrioChange(selection.value);
-                                        }}
-                                        selections={journalPrio}>
-                                    {journalPrioOptions.map(option => <SelectOption key={option.value} value={option} />)}
-                                </Select>
-                            </ToolbarItem>
                             <ToolbarItem variant="label">
                                 {_("Identifier")}
                             </ToolbarItem>
@@ -353,6 +310,7 @@ const ServicesFilter = ({ servicesFilter, onServicesFilterChange, currentService
 const TextFilter = ({ textFilter, onTextFilterChange }) => {
     const [unsubmittedTextFilter, setUnsubmittedTextFilter] = useState(textFilter);
     const sinceUntilBody = _("Date specifications should be of the format YYYY-MM-DD hh:mm:ss. Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. 'now' refers to the current time. Finally, relative times may be specified, prefixed with '-' or '+'");
+
     const sinceLabel = (
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Since")}</FlexItem>
@@ -363,6 +321,7 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
             </Popover>
         </Flex>
     );
+
     const untilLabel = (
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Until")}</FlexItem>
@@ -373,6 +332,7 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
             </Popover>
         </Flex>
     );
+
     const bootLabel = (
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Boot")}</FlexItem>
@@ -383,11 +343,23 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
             </Popover>
         </Flex>
     );
+
+    const priorityLabel = (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <FlexItem>{_("Priority")}</FlexItem>
+            <Popover headerContent={_("Show messages with given or higher priority.")}
+                     showClose={false}
+                     bodyContent={_("Either a single numeric or textual log level (i.e. between 0/'emerg' and 7/'debug) is accepted. The log levels are the usual syslog log levels as documented in syslog, i.e.  'emerg' (0), 'alert' (1), 'crit' (2), 'err' (3), 'warning' (4), 'notice' (5), 'info' (6), 'debug' (7). All messages with the specified log level or a lower (hence more important) log level are shown.")}>
+                <HelpIcon />
+            </Popover>
+        </Flex>
+    );
+
     const searchInputAttributes = [
+        { attr: "priority", display: priorityLabel },
         { attr: "since", display: sinceLabel },
         { attr: "until", display: untilLabel },
         { attr: "boot", display: bootLabel },
-        { attr: "priority" }, // Hide this with CSS
         { attr: "tag" }, // Hide this with CSS
     ];
 

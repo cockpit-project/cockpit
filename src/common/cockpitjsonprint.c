@@ -189,6 +189,7 @@ cockpit_json_print_open_memfd (const char *name,
   assert (fd != -1);
 
   FILE *stream = fdopen (fd, "w");
+  assert (stream != NULL);
 
   if (version >= 0)
     fprintf (stream, "{\"version\": %d", version);

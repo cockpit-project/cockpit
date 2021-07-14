@@ -1183,13 +1183,10 @@ int
 main (int argc,
       char *argv[])
 {
-  gboolean res;
-
   cockpit_ws_session_program = BUILDDIR "/mock-auth-command";
   cockpit_ws_service_idle = 1;
 
-  res = g_setenv ("COCKPIT_WS_PROCESS_IDLE", "2", TRUE);
-  g_assert (res);
+  g_assert_setenv ("COCKPIT_WS_PROCESS_IDLE", "2", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

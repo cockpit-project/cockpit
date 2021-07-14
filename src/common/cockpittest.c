@@ -809,3 +809,11 @@ cockpit_assertion_message_error_matches (const char     *domain,
 
   g_assertion_message (domain, file, line, func, gstring->str);
 }
+
+void
+g_assert_setenv (const gchar *variable,
+                 const gchar *value,
+                 gboolean overwrite) {
+    gboolean result = g_setenv (variable, value, overwrite);
+    g_assert (result);
+}

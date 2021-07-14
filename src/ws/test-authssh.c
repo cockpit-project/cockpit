@@ -255,8 +255,8 @@ main (int argc,
 {
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
 
-  g_setenv ("COCKPIT_SSH_KNOWN_HOSTS_FILE", SRCDIR "/src/ssh/mock_known_hosts", TRUE);
-  g_setenv ("COCKPIT_SSH_BRIDGE_COMMAND", BUILDDIR "/cockpit-bridge", TRUE);
+  g_assert_setenv ("COCKPIT_SSH_KNOWN_HOSTS_FILE", SRCDIR "/src/ssh/mock_known_hosts", TRUE);
+  g_assert_setenv ("COCKPIT_SSH_BRIDGE_COMMAND", BUILDDIR "/cockpit-bridge", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

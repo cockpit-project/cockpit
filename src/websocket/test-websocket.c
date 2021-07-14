@@ -1284,9 +1284,9 @@ main (int argc,
   };
 
   signal (SIGPIPE, SIG_IGN);
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  g_assert (g_setenv ("GSETTINGS_BACKEND", "memory", TRUE));
+  g_assert (g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE));
+  g_assert (g_setenv ("GIO_USE_VFS", "local", TRUE));
 
   g_set_prgname ("test-websocket");
   g_test_init (&argc, &argv, NULL);

@@ -1054,9 +1054,9 @@ int
 main (int argc,
       char *argv[])
 {
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  g_assert_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_assert_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_assert_setenv ("GIO_USE_VFS", "local", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

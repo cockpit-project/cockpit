@@ -1202,8 +1202,8 @@ int
 main (int argc,
       char *argv[])
 {
-  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   cockpit_bridge_local_address = "127.0.0.1";
 

@@ -371,15 +371,15 @@ setup_default (Test *test,
   cockpit_config_file = fixture->config;
 
   if (fixture->config)
-    g_setenv ("XDG_CONFIG_DIRS", fixture->config, TRUE);
+    g_assert_setenv ("XDG_CONFIG_DIRS", fixture->config, TRUE);
   else
     g_unsetenv ("XDG_CONFIG_DIRS");
 
-  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   if (fixture->with_home)
-    g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+    g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   else
-    g_setenv ("XDG_DATA_HOME", "/nonexistent", TRUE);
+    g_assert_setenv ("XDG_DATA_HOME", "/nonexistent", TRUE);
 
   base_setup (test);
   test->response = cockpit_web_response_new (test->io,

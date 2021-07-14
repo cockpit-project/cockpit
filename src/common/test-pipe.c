@@ -1234,8 +1234,8 @@ test_get_environ (void)
   const gchar *input[] = { "ENVIRON=Marmalaaade", "ANOTHER=zerog", NULL };
   gchar **environ;
 
-  g_setenv ("BLAH", "exists", TRUE);
-  g_setenv ("ANOTHER", "original", TRUE);
+  g_assert_setenv ("BLAH", "exists", TRUE);
+  g_assert_setenv ("ANOTHER", "original", TRUE);
 
   environ = cockpit_pipe_get_environ (input, "/directory");
 
@@ -1266,8 +1266,8 @@ test_get_environ_null (void)
 {
   gchar **environ;
 
-  g_setenv ("BLAH", "exists", TRUE);
-  g_setenv ("ANOTHER", "original", TRUE);
+  g_assert_setenv ("BLAH", "exists", TRUE);
+  g_assert_setenv ("ANOTHER", "original", TRUE);
 
   environ = cockpit_pipe_get_environ (NULL, NULL);
 

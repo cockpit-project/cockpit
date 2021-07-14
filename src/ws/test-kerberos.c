@@ -277,8 +277,8 @@ test_authenticate (TestCase *test,
   JsonObject *response;
   GError *error = NULL;
 
-  g_setenv ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
-  g_setenv ("COCKPIT_TEST_KEEP_KTAB", "1", TRUE);
+  g_assert_setenv ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
+  g_assert_setenv ("COCKPIT_TEST_KEEP_KTAB", "1", TRUE);
 
   if (!mock_kdc_available)
     {
@@ -451,12 +451,12 @@ mock_kdc_up (void)
   const gchar *value;
   g_hash_table_iter_init (&iter, mock_kdc.environ);
   while (g_hash_table_iter_next (&iter, (gpointer *)&name, (gpointer *)&value))
-    g_setenv (name, value, TRUE);
+    g_assert_setenv (name, value, TRUE);
 
   /* Explicitly tell server side of GSSAPI about our keytab */
   value = g_hash_table_lookup (mock_kdc.environ, "KRB5_KTNAME");
   if (value)
-    g_setenv ("KRB5_KTNAME", value, TRUE);
+    g_assert_setenv ("KRB5_KTNAME", value, TRUE);
 }
 
 static void

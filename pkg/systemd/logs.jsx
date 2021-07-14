@@ -183,7 +183,7 @@ export const LogsPage = () => {
                             {showTextSearch &&
                             <>
                                 <ToolbarItem variant="label">
-                                    {_("Text")}
+                                    {_("Filters")}
                                 </ToolbarItem>
                                 <ToolbarItem className="text-search">
                                     <TextFilter id="journal-grep"

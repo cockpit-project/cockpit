@@ -65,6 +65,7 @@ export class JournalOutput {
 
         return (
             <div className="cockpit-logline" role="row" tabIndex="0" key={entry.__CURSOR}
+                data-cursor={entry.__CURSOR}
                 onClick={ev => this.onEvent(ev, entry.__CURSOR)}
                 onKeyPress={ev => this.onEvent(ev, entry.__CURSOR)}>
                 <div className="cockpit-log-warning" role="cell">

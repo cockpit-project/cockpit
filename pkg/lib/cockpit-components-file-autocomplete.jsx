@@ -168,6 +168,7 @@ export class FileAutoComplete extends React.Component {
             <Select
                 variant={SelectVariant.typeahead}
                 id={this.props.id}
+                isInputValuePersisted
                 onTypeaheadInputChanged={this.debouncedChange}
                 placeholderText={placeholder}
                 noResultsFoundText={this.state.error || _("No such file or directory")}

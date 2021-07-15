@@ -177,7 +177,7 @@ export class JournalBox extends React.Component {
             }
         }
         if (newServices) {
-            this.props.setCurrentServices(this.currentServices);
+            this.props.setCurrentIdentifiers(this.currentServices);
         }
         this.renderer.prepend_flush();
 
@@ -235,7 +235,7 @@ export class JournalBox extends React.Component {
                         console.log("Failed to load services:", e.message);
                 })
                 .finally(() => {
-                    this.props.setCurrentServices(this.currentServices);
+                    this.props.setCurrentIdentifiers(this.currentServices);
                 });
     }
 

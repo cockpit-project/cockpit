@@ -79,15 +79,15 @@ export const LogsPage = () => {
     const full_grep = getGrepFiltersFromOptions({ options })[0];
 
     /* Initial state */
-    const [currentServices, setCurrentServices] = useState(undefined);
+    const [currentIdentifiers, setCurrentIdentifiers] = useState(undefined);
     const [dataFollowing, setDataFollowing] = useState(follow);
     const [filteredQuery, setFilteredQuery] = useState(undefined);
     const [isOpenTimeFilter, setIsOpenTimeFilter] = useState(false);
-    const [servicesFilter, setServicesFilter] = useState(options.tag || _("All"));
+    const [identifiersFilter, setIdentifiersFilter] = useState(options.tag || _("All"));
     const [showTextSearch, setShowTextSearch] = useState(false);
     const [textFilter, setTextFilter] = useState(full_grep);
     const [timeFilter, setTimeFilter] = useState(getTimeFilterOption(options));
-    const [updateServicesList, setUpdateServicesList] = useState(true);
+    const [updateIdentifiersList, setUpdateIdentifiersList] = useState(true);
 
     useEffect(() => {
         checkJournalctlGrep(setShowTextSearch);
@@ -98,7 +98,7 @@ export const LogsPage = () => {
 
             if (path.length == 1) return;
 
-            setServicesFilter(options.tag || _("All"));
+            setIdentifiersFilter(options.tag || _("All"));
             setTextFilter(full_grep);
             setTimeFilter(getTimeFilterOption(options));
         }
@@ -118,8 +118,8 @@ export const LogsPage = () => {
         cockpit.location.go([], options);
     };
 
-    const onServicesFilterChange = (value) => {
-        setUpdateServicesList(false);
+    const onIdentifiersFilterChange = (value) => {
+        setUpdateIdentifiersList(false);
 
         if (value == _("All")) {
             delete options.tag;
@@ -130,13 +130,13 @@ export const LogsPage = () => {
     };
 
     const onTextFilterChange = (value) => {
-        setUpdateServicesList(true);
+        setUpdateIdentifiersList(true);
 
         updateUrl(Object.assign(getOptionsFromTextInput(value)));
     };
 
     const onTimeFilterChange = (newTimeFilter) => {
-        setUpdateServicesList(true);
+        setUpdateIdentifiersList(true);
 
         if (newTimeFilter.key == 'boot' && newTimeFilter.value !== "0") // Don't follow if specific boot is picked
             setDataFollowing(false);
@@ -174,10 +174,10 @@ export const LogsPage = () => {
                             <ToolbarItem variant="label">
                                 {_("Identifier")}
                             </ToolbarItem>
-                            <ToolbarItem id="journal-service-menu">
-                                <ServicesFilter currentServices={currentServices}
-                                                onServicesFilterChange={onServicesFilterChange}
-                                                servicesFilter={servicesFilter} />
+                            <ToolbarItem id="journal-identifier-menu">
+                                <IdentifiersFilter currentIdentifiers={currentIdentifiers}
+                                                onIdentifiersFilterChange={onIdentifiersFilterChange}
+                                                identifiersFilter={identifiersFilter} />
                             </ToolbarItem>
 
                             {showTextSearch &&
@@ -256,53 +256,53 @@ export const LogsPage = () => {
                          variant={PageSectionVariants.light}
                          id="journal-box">
                 <JournalBox dataFollowing={dataFollowing}
-                            setCurrentServices={setCurrentServices}
+                            setCurrentIdentifiers={setCurrentIdentifiers}
                             setFilteredQuery={setFilteredQuery}
-                            updateServicesList={updateServicesList}
-                            setUpdateServicesList={setUpdateServicesList} />
+                            updateIdentifiersList={updateIdentifiersList}
+                            setUpdateIdentifiersList={setUpdateIdentifiersList} />
             </PageSection>
         </Page>
     );
 };
 
-const ServicesFilter = ({ servicesFilter, onServicesFilterChange, currentServices }) => {
-    const [isOpenServicesFilter, setIsOpenServicesFilter] = useState(false);
+const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, currentIdentifiers }) => {
+    const [isOpenIdentifiersFilter, setIsOpenIdentifiersFilter] = useState(false);
 
-    let servicesArray;
-    if (currentServices !== undefined) {
-        servicesArray = [
+    let identifiersArray;
+    if (currentIdentifiers !== undefined) {
+        identifiersArray = [
             <SelectOption key="all" value={_("All")} />,
             <Divider component="li" key="divider" />
         ];
-        servicesArray = servicesArray.concat(
-            Array.from(currentServices)
+        identifiersArray = identifiersArray.concat(
+            Array.from(currentIdentifiers)
                     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
                     .map(unit => <SelectOption key={unit} value={unit} />)
         );
     } else {
-        servicesArray = [
-            <SelectOption key={servicesFilter} value={servicesFilter} isDisabled />
+        identifiersArray = [
+            <SelectOption key={identifiersFilter} value={identifiersFilter} isDisabled />
         ];
     }
 
     /* The noResultsFoundText is not shown because of https://github.com/patternfly/patternfly-react/issues/6005 */
     return (
-        <Select {...(currentServices === undefined && { loadingVariant: 'spinner' })}
-                onToggle={setIsOpenServicesFilter}
+        <Select {...(currentIdentifiers === undefined && { loadingVariant: 'spinner' })}
+                onToggle={setIsOpenIdentifiersFilter}
                 onSelect={(e, selection) => {
-                    setIsOpenServicesFilter(false);
-                    onServicesFilterChange(selection);
+                    setIsOpenIdentifiersFilter(false);
+                    onIdentifiersFilterChange(selection);
                 }}
-                isOpen={isOpenServicesFilter}
+                isOpen={isOpenIdentifiersFilter}
                 noResultsFoundText={_("No results found")}
                 onClear={() => {
-                    setIsOpenServicesFilter(false);
-                    onServicesFilterChange(_("All"));
+                    setIsOpenIdentifiersFilter(false);
+                    onIdentifiersFilterChange(_("All"));
                 }}
-                selections={servicesFilter}
-                typeAheadAriaLabel={_("Select a service")}
+                selections={identifiersFilter}
+                typeAheadAriaLabel={_("Select a identifier")}
                 variant={SelectVariant.typeahead}>
-            {servicesArray}
+            {identifiersArray}
         </Select>
     );
 };

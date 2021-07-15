@@ -769,6 +769,28 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                 # should clean up processes
                 self.assertEqual(m.execute("! pgrep -a cockpit-ws && ! pgrep -a cockpit-bridge"), "")
 
+        # browser runs as the same user when calling as user
+        m.write("/tmp/browser.sh", """#!/bin/sh -e
+                                      echo $$ > /tmp/browser-pid.txt
+                                      while [ -e /tmp/browser-pid.txt ]; do sleep 0.1; done""")
+        m.execute("chmod 755 /tmp/browser.sh")
+        m.spawn("su - -c 'BROWSER=/tmp/browser.sh %s system' admin" % cockpit_desktop, "cockpit-desktop-user.log")
+        ugid = m.execute("""until [ -e /tmp/browser-pid.txt ]; do sleep 0.1; done
+                            stat -c %U:%G /proc/$(cat /tmp/browser-pid.txt)
+                            rm /tmp/browser-pid.txt""").strip()
+        self.assertEqual(ugid, "admin:admin")
+
+        # does not start browser as root
+        m.write("/tmp/browser.sh", """#!/bin/sh -e
+                                      echo $$ > /tmp/browser-pid.txt
+                                      while [ -e /tmp/browser-pid.txt ]; do sleep 0.1; done""")
+        m.execute("chmod 755 /tmp/browser.sh")
+        m.spawn("BROWSER=/tmp/browser.sh %s system" % cockpit_desktop, "cockpit-desktop-root.log")
+        ugid = m.execute("""until [ -e /tmp/browser-pid.txt ]; do sleep 0.1; done
+                            stat -c %U:%G /proc/$(cat /tmp/browser-pid.txt)
+                            rm /tmp/browser-pid.txt""").strip()
+        self.assertEqual("bin:bin", ugid)
+
         # cockpit-desktop can start a privileged bridge through polkit
         # we don't have an agent, so just allow the privilege without interactive authentication
         m.write("/etc/polkit-1/localauthority/50-local.d/test.pkla", r"""

@@ -375,6 +375,12 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
         { attr: "tag" }, // Hide this with CSS
     ];
 
+    // FIXME - We need explanation also for the 'hasWords' field
+    // You can filter any text string of your choice in the logs messages. The string can also be in
+    // the form of a regular expressions. Also supports filtering by message log fields. These are
+    // space separated values, in form FIELD=VALUE, where value can be comma separated list of
+    // possible values.
+
     return (
         <SearchInput attributes={searchInputAttributes}
                      hasWordsAttrLabel={_("Free-form search")}
@@ -384,6 +390,8 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
                      placeholder={_("Type to filter")}
                      value={unsubmittedTextFilter}
                      onChange={setUnsubmittedTextFilter}
+                     resetButtonLabel={_("Reset")}
+                     submitSearchButtonLabel={_("Search")}
                      onSearch={() => onTextFilterChange(unsubmittedTextFilter)} />
     );
 };

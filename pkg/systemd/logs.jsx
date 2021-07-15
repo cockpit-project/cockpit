@@ -355,17 +355,29 @@ const TextFilter = ({ textFilter, onTextFilterChange }) => {
         </Flex>
     );
 
+    const serviceLabel = (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <FlexItem>{_("Unit")}</FlexItem>
+            <Popover headerContent={_("Show messages for the specified systemd unit.")}
+                     showClose={false}
+                     bodyContent={_("This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to find all possible messages for the given unit. Can contain more units separated by comma. ")}>
+                <HelpIcon />
+            </Popover>
+        </Flex>
+    );
+
     const searchInputAttributes = [
         { attr: "priority", display: priorityLabel },
         { attr: "since", display: sinceLabel },
         { attr: "until", display: untilLabel },
         { attr: "boot", display: bootLabel },
+        { attr: "service", display: serviceLabel },
         { attr: "tag" }, // Hide this with CSS
     ];
 
     return (
         <SearchInput attributes={searchInputAttributes}
-                     hasWordsAttrLabel={_("Regular expression match")}
+                     hasWordsAttrLabel={_("Free-form search")}
                      advancedSearchDelimiter=":"
                      id="journal-grep"
                      onClear={() => { onTextFilterChange(""); setUnsubmittedTextFilter("") }}

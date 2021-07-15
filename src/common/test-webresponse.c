@@ -50,6 +50,7 @@ typedef struct {
     const gchar *path;
     const gchar *header;
     const gchar *value;
+    const gchar *expected_content_type;
     CockpitCacheType cache;
     gboolean for_tls_proxy;
 } TestFixture;
@@ -342,22 +343,27 @@ test_file_breakout_non_existant (TestCase *tc,
   free (root);
 }
 
-static const TestFixture content_type_fixture = {
-  .path = "/pkg/shell/index.html"
+static const TestFixture content_type_fixture_html = {
+  .path = "/pkg/shell/index.html",
+  .expected_content_type = "text/html",
+};
+
+static const TestFixture content_type_fixture_png = {
+  .path = "/pkg/shell/images/server-small.png",
+  .expected_content_type = "image/png",
 };
 
 static void
 test_content_type (TestCase *tc,
                    gconstpointer user_data)
 {
+  const TestFixture *fixture = user_data;
   const gchar *roots[] = { srcdir, NULL };
   GHashTable *headers;
   const gchar *resp;
   gsize length;
   guint status;
   gssize off;
-
-  g_assert (user_data == &content_type_fixture);
 
   cockpit_web_response_file (tc->response, NULL, roots);
 
@@ -371,7 +377,7 @@ test_content_type (TestCase *tc,
   off = web_socket_util_parse_headers (resp + off, length - off, &headers);
   g_assert_cmpuint (off, >, 0);
 
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "text/html");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, fixture->expected_content_type);
 
   g_hash_table_unref (headers);
 }
@@ -1481,7 +1487,9 @@ main (int argc,
               setup, test_file_breakout_non_existant, teardown);
   g_test_add ("/web-reponse/file/template", TestCase, &template_fixture,
               setup, test_template, teardown);
-  g_test_add ("/web-response/content-type", TestCase, &content_type_fixture,
+  g_test_add ("/web-response/content-type/html", TestCase, &content_type_fixture_html,
+              setup, test_content_type, teardown);
+  g_test_add ("/web-response/content-type/png", TestCase, &content_type_fixture_png,
               setup, test_content_type, teardown);
   g_test_add ("/web-response/content-encoding", TestCase, NULL,
               setup, test_content_encoding, teardown);

@@ -91,12 +91,20 @@ opts.jobs = 1
 opts.fetch = True
 
 
-def attach(filename):
+def attach(filename, move=False):
+    '''Put a file into the attachments directory
+
+    By default the file gets copied. You can set move=True for dynamically generated
+    files which are not touched by parallel tests.
+    '''
     if not opts.attachments:
         return
     dest = os.path.join(opts.attachments, os.path.basename(filename))
     if os.path.exists(filename) and not os.path.exists(dest):
-        shutil.move(filename, dest)
+        if move:
+            shutil.move(filename, dest)
+        else:
+            shutil.copy(filename, dest)
 
 
 class Browser:
@@ -645,7 +653,7 @@ class Browser:
             if "data" in ret:
                 with open(filename, 'wb') as f:
                     f.write(base64.standard_b64decode(ret["data"]))
-                attach(filename)
+                attach(filename, move=True)
                 print("Wrote screenshot to " + filename)
             else:
                 print("Screenshot not available")
@@ -655,7 +663,7 @@ class Browser:
                                    no_trace=True)["result"]["value"]
             with open(filename, 'wb') as f:
                 f.write(html.encode('UTF-8'))
-            attach(filename)
+            attach(filename, move=True)
             print("Wrote HTML dump to " + filename)
 
     def assert_pixels(self, selector, key, ignore=[]):
@@ -689,7 +697,7 @@ class Browser:
         if not png_ref:
             with open(filename, 'wb') as f:
                 f.write(png_now)
-            attach(filename)
+            attach(filename, move=True)
             print("New pixel test reference " + filename)
             self.failed_pixel_tests += 1
         else:
@@ -754,13 +762,13 @@ class Browser:
                     # without further changes
                     img_now.putalpha(img_ref.getchannel("A"))
                 img_now.save(filename)
-                attach(filename)
+                attach(filename, move=True)
                 ref_filename_for_attach = base + "-reference.png"
                 img_ref.save(ref_filename_for_attach)
-                attach(ref_filename_for_attach)
+                attach(ref_filename_for_attach, move=True)
                 delta_filename = base + "-delta.png"
                 img_delta.save(delta_filename)
-                attach(delta_filename)
+                attach(delta_filename, move=True)
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
 
@@ -779,7 +787,7 @@ class Browser:
             filename = "{0}-{1}.js.log".format(label or self.label, title)
             with open(filename, 'wb') as f:
                 f.write('\n'.join(logs).encode('UTF-8'))
-            attach(filename)
+            attach(filename, move=True)
             print("Wrote JS log to " + filename)
 
     def kill(self):
@@ -1376,7 +1384,7 @@ class MachineCase(unittest.TestCase):
         with gzip.open(filename, "wb") as f:
             f.write(json.dumps(report).encode('UTF-8'))
         print("Wrote accessibility report to " + filename)
-        attach(filename)
+        attach(filename, move=True)
 
         # aXe triggers that *shrug*
         self.allow_journal_messages("received invalid message without channel prefix")
@@ -1411,7 +1419,7 @@ class MachineCase(unittest.TestCase):
                 with open(log, "w") as fp:
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
-                    attach(log)
+                    attach(log, move=True)
 
     def copy_cores(self, title, label=None):
         if self.allow_core_dumps:
@@ -1430,7 +1438,7 @@ class MachineCase(unittest.TestCase):
                     if ex.errno == errno.ENOTEMPTY:
                         print("Core dumps downloaded to %s" % (dest))
                         # Enable this to temporarily(!) create artifacts for core dumps, if a crash is hard to reproduce
-                        # attach(dest)
+                        # attach(dest, move=True)
 
     def settle_cpu(self):
         '''Wait until CPU usage in the VM settles down

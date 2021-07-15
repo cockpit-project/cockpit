@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Badge, Button, Card, CardHeader, CardActions, CardTitle, CardBody } from '@patternfly/react-core';
-import { AngleRightIcon, ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
+import { ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
 import "journal.css";
@@ -84,7 +84,7 @@ export class JournalOutput {
                     count > 1
                         ? <div className="cockpit-log-service-container" role="cell">
                             <div className="cockpit-log-service-reduced" role="cell">{ident}</div>
-                            <Badge isRead key={count} role="cell">{count}&#160;<AngleRightIcon /></Badge>
+                            <Badge isRead key={count} role="cell">{count}</Badge>
                         </div>
                         : <div className="cockpit-log-service" role="cell">{ident}</div>
                 }

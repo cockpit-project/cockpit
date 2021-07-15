@@ -28,7 +28,6 @@ import {
     ClipboardCopy,
     Divider,
     Flex, FlexItem,
-    List, ListItem,
     Page, PageSection, PageSectionVariants,
     Popover,
     SearchInput,
@@ -150,6 +149,8 @@ export const LogsPage = () => {
         cockpit.location.go([], Object.assign(options, { [newTimeFilter.key]: newTimeFilter.value }));
     };
 
+    // FIXME: Move the cli command into the search popup once it is supported
+
     return (
         <Page>
             <PageSection id="journal" padding={{ default: 'noPadding' }}>
@@ -195,25 +196,12 @@ export const LogsPage = () => {
                                              hasAutoWidth
                                              bodyContent={
                                                  <div className="logs-help-menu">
-                                                     <span>{_("Search the logs with a combination of terms:")}</span>
-                                                     <List>
-                                                         <ListItem><span>{_("qualifiers")}</span>, <span>{_("e.g.")}</span> 'priority:', 'identifier:', 'service:'</ListItem>
-                                                         <ListItem><span>{_("log fields")}</span>, <span>{_("e.g")}.</span> '_EXE=/usr/bin/python'</ListItem>
-                                                         <ListItem>{_("any free-form string as regular expression")}</ListItem>
-                                                     </List>
                                                      <span className="help-links">
-                                                         <Button variant="link" component="a"
-                                                                 href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/reviewing-logs_system-management-using-the-rhel-8-web-console#filtering-logs-in-the-web-console_reviewing-logs"
-                                                                 icon={<ExternalLinkSquareAltIcon />}
-                                                                 iconPosition="right"
-                                                                 target="blank" rel="noopener noreferrer">
-                                                             {_("Learn more")}
-                                                         </Button>
-                                                         <Button variant="link" component="a"
+                                                         <Button variant="link" component="a" isInline
                                                                  href="https://www.freedesktop.org/software/systemd/man/journalctl.html"
                                                                  icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
                                                                  target="blank" rel="noopener noreferrer">
-                                                             journalctl manpage
+                                                             {_("journalctl manpage")}
                                                          </Button>
                                                      </span>
                                                      <ClipboardCopy clickTip={_("Successfully copied to keyboard")}

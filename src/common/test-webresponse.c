@@ -353,6 +353,11 @@ static const TestFixture content_type_fixture_png = {
   .expected_content_type = "image/png",
 };
 
+static const TestFixture content_type_fixture_wasm = {
+  .path = "/src/common/mock-content/test.wasm",
+  .expected_content_type = "application/wasm",
+};
+
 static void
 test_content_type (TestCase *tc,
                    gconstpointer user_data)
@@ -1490,6 +1495,8 @@ main (int argc,
   g_test_add ("/web-response/content-type/html", TestCase, &content_type_fixture_html,
               setup, test_content_type, teardown);
   g_test_add ("/web-response/content-type/png", TestCase, &content_type_fixture_png,
+              setup, test_content_type, teardown);
+  g_test_add ("/web-response/content-type/wasm", TestCase, &content_type_fixture_wasm,
               setup, test_content_type, teardown);
   g_test_add ("/web-response/content-encoding", TestCase, NULL,
               setup, test_content_encoding, teardown);

@@ -1796,6 +1796,7 @@ cockpit_web_response_content_type (const gchar *path)
     { ".svg", "image/svg+xml" },
     { ".ttf", "application/octet-stream" }, /* unassigned */
     { ".txt", "text/plain" },
+    { ".wasm", "application/wasm" },
     { ".woff", "application/font-woff" },
     { ".xml", "text/xml" },
   };

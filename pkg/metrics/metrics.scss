@@ -232,7 +232,7 @@
 
 .metrics {
     --column-size: 10vw;
-    --half-column-size: 5vw;
+    --half-column-size: 8vw;
     --data-min-height: 5px;
 
     &-heading,
@@ -265,7 +265,7 @@
     }
 
     &-sublabels {
-        font-size: 65%;
+        font-size: var(--pf-global--FontSize--xs);
         color: rgba(0,0,0,0.7);
         display: flex;
     }
@@ -473,6 +473,18 @@
 
     .pf-c-card__body:first-child {
         padding-top: 0;
+    }
+}
+
+// Graph column labels are the widest part; scale down the labels for narrow widths
+@media (min-width: 800px) and (max-width: 1200px) {
+    .metrics-label-graph {
+        font-size: var(--pf-global--FontSize--s);
+    }
+}
+@media (max-width: 800px) {
+    .metrics-label-graph {
+        font-size: var(--pf-global--FontSize--xs);
     }
 }
 

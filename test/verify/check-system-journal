@@ -63,32 +63,7 @@ class TestJournal(MachineCase):
         """)
 
     def select_priority(self, value):
-        prio_map = {
-            "Only emergency": "emerg",
-            "Alert and above": "alert",
-            "Critical and above": "crit",
-            "Error and above": "err",
-            "Warning and above": "warning",
-            "Notice and above": "notice",
-            "Info and above": "info",
-            "Debug and above": "debug",
-        }
-
-        self.browser.set_val("#journal-prio-menu", prio_map[value])
-
-    def select_from_dropdown(self, browser, selector, value, click=True):
-        button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
-
-        browser.wait_visible(selector)
-        if not browser.text(button_text_selector) == value:
-            item_selector = "{0} ul li a:contains({1})".format(selector, value)
-            browser.click("{0} button".format(selector))
-            browser.wait_visible(item_selector)
-            if click:
-                browser.click(item_selector)
-                browser.wait_in_text(button_text_selector, value)
-            else:
-                browser.click(button_text_selector)
+        self.browser.select_PF4("#journal-prio-menu", value)
 
     def crash(self):
         self.allow_core_dumps = True
@@ -134,6 +109,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.injectExtras()
 
         def wait_log_lines(expected):
+            b.wait_visible(".cockpit-log-panel")
             b.wait_js_func("""(function (expected) {
           var lines = ph_get_log_lines ();
 
@@ -150,12 +126,13 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         })""", expected)
 
         def wait_journal_empty():
-            wait_log_lines(["No logs foundCan not find any logs using the current combination of filters."])
+            b.wait_in_text(".pf-c-empty-state__body", "Can not find any logs using the current combination of filters.")
 
         b.go("#/?priority=debug&service=log123.service")
         wait_journal_empty()
 
         def wait_log123():
+            b.wait_visible(".cockpit-log-panel")
             b.wait_js_func("""(function () {
           var lines = ph_get_log_lines();
 
@@ -239,19 +216,18 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b._wait_present("#journal-service-menu option[value='just-a-service']")
-        b.set_val("#journal-service-menu", "just-a-service")
+        b.select_PF4("#journal-service-menu .pf-c-select__toggle", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")
-        b.set_val("#journal-service-menu", "*")
+        b.select_PF4("#journal-service-menu .pf-c-select__toggle", "All")
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
         self.select_priority("Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")
-        b.set_val("#journal-service-menu", "check-journal")
-        b.wait_not_present("#journal-service-menu option[value='just-a-service']")
+        b.select_PF4("#journal-service-menu .pf-c-select__toggle", "check-journal")
+        b.wait_not_present("#journal-service-menu + ul button:contains('just-a-service')")
 
         b.go("#/?tag=test-stream&priority=notice")
         wait_journal_empty()
@@ -260,9 +236,11 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
         if m.image != "debian-stable":
             b.click("#logs-help-toggle")
-            b.wait_text("#journal-query", "journalctl --no-tail --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")
+            b.wait_val("#journal-cmd-copy input", "journalctl --no-tail --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")
             b.click("#logs-help-toggle")
-            b.wait_not_visible("#journal-query")
+            b.wait_not_present("#journal-cmd-copy")
+        else:
+            b.wait_not_present("#logs-help-toggle")
 
         # Test following
         m.execute("logger --tag test-stream Message 1")
@@ -291,15 +269,18 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
             b.wait_not_visible(".text-search")
             return
 
-        b.focus("#journal-grep")
-        b.key_press("1\r")
+        b.focus("#journal-grep input")
+        b.key_press("1")
+        b.click("#journal-grep + button[type=submit]")
+
         b.wait_js_cond('window.location.hash === "#/?priority=notice&tag=test-stream&grep=1"')
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
 
-        b.focus("#journal-grep")
-        b.key_press("\bm.*[2-5]\r")
+        b.focus("#journal-grep input")
+        b.key_press("\bm.*[2-5]")
+        b.click("#journal-grep + button[type=submit]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
@@ -314,40 +295,39 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
 
-        b.focus("#journal-grep")
-        b.key_press("FOO=bar [5-6]\r")
-        b.wait_val("#journal-grep", "priority:err identifier:logger FOO=bar [5-6]")
+        b.focus("#journal-grep input")
+        b.key_press("FOO=bar [5-6]")
+        b.click("#journal-grep + button[type=submit]")
+        b.wait_val("#journal-grep input", "priority:err identifier:logger FOO=bar [5-6]")
 
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
-        b.focus("#journal-grep")
-        b.key_press("\b" * 13 + "[5-6]\r")
+        b.focus("#journal-grep input")
+        b.key_press("\b" * 13 + "[5-6]")
+        b.click("#journal-grep + button[type=submit]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         # Test filters
-        b.click("#log-filters")
-        b.click("#logs-predefined-filters li:first-child a")
-        b.wait_val("#journal-grep", "priority:err identifier:logger boot:0 [5-6]")
+        b.select_PF4("#logs-predefined-filters", "Current boot")
+        b.wait_val("#journal-grep input", "priority:err identifier:logger boot:0 [5-6]")
 
-        b.click("#log-filters")
-        b.click("#logs-predefined-filters li:nth-child(2) a")
-        b.wait_val("#journal-grep", "priority:err identifier:logger boot:-1 [5-6]")
+        b.select_PF4("#logs-predefined-filters", "Previous boot")
+        b.wait_val("#journal-grep input", "priority:err identifier:logger boot:-1 [5-6]")
 
-        b.click("#log-filters")
-        b.click("#logs-predefined-filters li:nth-child(3) a")
-        b.wait_val("#journal-grep", "priority:err identifier:logger since:-24hours [5-6]")
+        b.select_PF4("#logs-predefined-filters", "Last 24 hours")
+        b.wait_val("#journal-grep input", "priority:err identifier:logger since:-24hours [5-6]")
 
-        b.click("#log-filters")
-        b.click("#logs-predefined-filters li:nth-child(4) a")
-        b.wait_val("#journal-grep", "priority:err identifier:logger since:-7days [5-6]")
+        b.select_PF4("#logs-predefined-filters", "Last 7 days")
+        b.wait_val("#journal-grep input", "priority:err identifier:logger since:-7days [5-6]")
 
         # Check that 'until' qualifier keeps streaming until given time
-        b.focus("#journal-grep")
-        b.key_press("\b\b\b\b6-9] until:+15s\r")
+        b.focus("#journal-grep input")
+        b.key_press("\b\b\b\b6-9] until:+15s")
+        b.click("#journal-grep + button[type=submit]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         m.execute(r"printf 'MESSAGE=Message 7\nPRIORITY=3\nBAR=foo\n' | logger --journald")
@@ -479,14 +459,16 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
-        b.focus("#journal-grep")
-        b.key_press("until:2038-01-01\\ 00:03\r")
+        b.focus("#journal-grep input")
+        b.key_press("until:2038-01-01\\ 00:03")
+        b.click("#journal-grep + button[type=submit]")
         wait_log_lines([expected_date,
                         ["check-journal", "BEFORE BOOT", ""],
                         "Load earlier entries"
                         ])
 
-        b._wait_present("#journal-service-menu option[value='check-journal']")
+        b.click("#journal-service-menu .pf-c-select__toggle")
+        b.wait_visible("#journal-service-menu .pf-c-select__toggle + ul button:contains('check-journal')")
 
         # New messages are not streamed when 'until' is in the past
         m.execute("logger -p user.err --tag check-journal RIGHT NOW")

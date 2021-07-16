@@ -334,10 +334,13 @@ class Browser:
         self.wait_val(selector, value)
 
     def select_PF4(self, selector, value):
-        self.click(selector + ':not([disabled]):not([aria-disabled=true])')
-        select_entry = "{0} + ul button:contains({1})".format(selector, value)
+        self.click(f"{selector}:not([disabled]):not([aria-disabled=true])")
+        select_entry = f"{selector} + ul button:contains('{value}')"
         self.click(select_entry)
-        self.wait_text(selector + " .pf-c-select__toggle-text", value)
+        if self.is_present(f"{selector}.pf-m-typeahead"):
+            self.wait_val(f"{selector} > div input[type=text]", value)
+        else:
+            self.wait_text(f"{selector} .pf-c-select__toggle-text", value)
 
     def set_input_text(self, selector, val, append=False, value_check=True):
         self.focus(selector)

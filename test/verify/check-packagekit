@@ -37,6 +37,8 @@ done
 """
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos"]
+OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable",
+                     "fedora-coreos", "fedora-33", "fedora-34", "centos-8-stream"]
 
 
 class NoSubManCase(PackageCase):
@@ -135,6 +137,126 @@ class TestUpdates(NoSubManCase):
             time.sleep(1)
         else:
             self.fail("Timed out waiting for updates spinner to go away")
+
+    @skipImage("kpatch is not available", *OSesWithoutKpatch)
+    def testKpatch(self):
+        b = self.browser
+        m = self.machine
+
+        kernel_ver_arch = m.execute("uname -r").strip()
+        sanitized_kernel_ver = "_".join(kernel_ver_arch.split(".")[:-2])
+        self.createPackage("kpatch-patch-" + sanitized_kernel_ver, "0", "0", arch=self.secondary_arch,
+                           provides="kpatch-patch = {0}".format(kernel_ver_arch))
+        self.enableRepo()
+
+        self.restore_file("/etc/dnf/plugins/kpatch.conf")
+        m.execute("systemctl disable --now kpatch")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        # Enable and install kpatch
+        b.wait_in_text("#kpatch-settings", "Disabled")
+        b.click("#kpatch-settings button:contains('Enable')")
+
+        # Apply kernel patches for current and future kernels
+        b.click("#apply-kpatch")
+        b.wait_visible("#apply-kpatch:checked")
+        b.wait_visible("#current-future:checked")
+
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kpatch-setup")
+
+        self.assertIn("True", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
+        self.assertEqual(m.execute("systemctl is-enabled kpatch").strip(), "enabled")
+        self.assertEqual(m.execute("systemctl is-active kpatch").strip(), "active")
+        # Patches should be installed
+        m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
+
+        # Faking real patches is really hard, so fake `kpatch list` command
+        # To make sure it has the same structure as we expect it to be first check the real command
+        self.assertEqual(m.execute("kpatch list"), "Loaded patch modules:\n\nInstalled patch modules:\n")
+
+        kpatch = """
+#!/bin/bash
+echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled patch modules:\nkpatch_3_10_0_1062_1_1 (3.10.0-1062.el7.x86_64)"
+"""
+
+        self.createPackage("kpatch-patch-" + sanitized_kernel_ver, "1", "0", arch=self.secondary_arch,
+                           provides="kpatch-patch = {0}".format(kernel_ver_arch),
+                           content={"/usr/local/bin/kpatch": kpatch},
+                           postinst="chmod +x /usr/local/bin/kpatch; mount -o bind /usr/local/bin/kpatch /usr/sbin/kpatch")
+        self.enableRepo()
+        self.addCleanup(m.execute, "umount /usr/sbin/kpatch")
+
+        b.click("#status .pf-c-card__actions button")
+        b.wait_visible(".pf-c-badge:contains('patches')")
+        b.click("button:contains('Install all updates')")
+        b.click("button:contains('Continue')")
+        b.wait_in_text("#status", "Kernel patch kpatch_3_10_0_1062_1_1 is active")
+
+        # Switch to 'for current kernel only'
+        b.click("#kpatch-settings button:contains('Edit')")
+        b.click("#current-only")
+        b.wait_visible("#current-future:not(:checked)")
+        b.wait_visible("#current-only:checked")
+
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kpatch-setup")
+
+        self.assertIn("False", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
+        self.assertEqual(m.execute("systemctl is-enabled kpatch").strip(), "enabled")
+        self.assertEqual(m.execute("systemctl is-active kpatch").strip(), "active")
+        # Patches should be installed
+        m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
+
+        # Test disabling applying patches
+        b.click("#kpatch-settings button:contains('Edit')")
+        b.click("#apply-kpatch")
+        b.wait_visible("#apply-kpatch:not(:checked)")
+
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kpatch-setup")
+
+        b.wait_in_text("#kpatch-settings", "Disabled")
+        b.click("#kpatch-settings button:contains('Enable')")
+
+        # Test closing of the dialog and resetting of changes
+        time.sleep(1) # Re-reading conf takes a second and bots are too fast
+        b.wait_visible("#apply-kpatch:not(:checked)")
+        b.click("#apply-kpatch")
+        b.wait_visible("#apply-kpatch:checked")
+        b.click("button:contains('Cancel')")
+        b.wait_not_present("#kpatch-setup")
+        b.click("#kpatch-settings button:contains('Enable')")
+        b.wait_visible("#apply-kpatch:not(:checked)")
+
+        # Test 'for current kernel only' from clean state
+        m.execute("umount /usr/sbin/kpatch")
+        m.execute("systemctl restart kpatch")
+        m.execute("dnf -y remove kpatch-patch-" + sanitized_kernel_ver)
+        b.reload() # Not listening on patches being removed
+        b.enter_page("/updates")
+
+        b.wait_in_text("#kpatch-settings", "Disabled")
+        b.click("#kpatch-settings button:contains('Enable')")
+
+        # Apply kernel patches for current and future kernels
+        b.click("#apply-kpatch")
+        b.wait_visible("#apply-kpatch:checked")
+        b.click("#current-only")
+        b.wait_visible("#current-future:not(:checked)")
+        b.wait_visible("#current-only:checked")
+
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kpatch-setup")
+
+        self.assertIn("False", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
+        self.assertEqual(m.execute("systemctl is-enabled kpatch").strip(), "enabled")
+        self.assertEqual(m.execute("systemctl is-active kpatch").strip(), "active")
+        # Patches should be installed
+        m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
+
 
     def testBasic(self):
         # no security updates, no changelogs
@@ -948,6 +1070,35 @@ class TestWsUpdate(NoSubManCase):
         b.wait_in_text(".cockpit-update-warning-text", "Web Console will restart")
 
         self.allow_restart_journal_messages()
+
+@skipImage("Image uses OSTree", *OSesWithoutKpatch)
+class TestKpatchInstall(NoSubManCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("rpm --erase --verbose kpatch kpatch-dnf")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+        b.wait_visible("#status")
+        time.sleep(5)
+        b.wait_not_present("#kpatch-settings")
+
+        dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
+        self.createPackage("kpatch", "999", "1", content={"/lib/systemd/system/kpatch.service": dummy_service})
+        self.createPackage("kpatch-dnf", "999", "1", content={"/etc/dnf/plugins/kpatch.conf": ""})
+        self.enableRepo()
+
+        b.reload()
+        b.enter_page("/updates")
+
+        b.wait_in_text("#kpatch-settings", "Not installed")
+        b.click("#kpatch-settings button:contains('Install')")
+        b.wait_in_text("#dialog", "kpatch, kpatch-dnf will be installed")
+        b.click("#dialog button:contains('Install')")
+
+        b.wait_in_text("#kpatch-settings", "Disabled")
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")

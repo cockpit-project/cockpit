@@ -24,7 +24,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import {
-    Alert, Button, Gallery, Modal, Progress, Popover, Tooltip,
+    Alert, Badge, Button, Gallery, Modal, Progress, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Flex, FlexItem,
@@ -45,6 +45,7 @@ import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
+import { KpatchSettings, KpatchStatus } from "./kpatch.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -271,9 +272,13 @@ function updateItem(info, pkgNames, key) {
         </Tooltip>)
     );
     const pkgs = pkgList;
-    let pkgsTruncated = pkgs;
+    const pkgsTruncated = pkgList.slice(0, 4);
+
     if (pkgList.length > 4)
-        pkgsTruncated = pkgList.slice(0, 4).concat(<span key="more">…</span>);
+        pkgsTruncated.push(<span key="more">…</span>);
+
+    if (pkgNames.some(p => p.name.startsWith("kpatch-patch")))
+        pkgsTruncated.push(<>{" "}<Badge>{_("patches")}</Badge></>);
 
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)
@@ -822,15 +827,21 @@ class CardsPage extends React.Component {
     render() {
         const cardContents = [];
         let settingsContent = null;
-        const statusContent = <UpdatesStatus key="updates-status"
+        const statusContent = <Stack hasGutter>
+            <UpdatesStatus key="updates-status"
                                 updates={this.props.updates}
                                 onValueChanged={this.props.onValueChanged}
                                 tracerPackages={this.props.tracerPackages}
                                 highestSeverity={this.props.highestSeverity}
-                                timeSinceRefresh={this.props.timeSinceRefresh} />;
+                                timeSinceRefresh={this.props.timeSinceRefresh} />
+            <KpatchStatus />
+        </Stack>;
 
         if (this.state.backend) {
-            settingsContent = <AutoUpdates backend={this.state.backend} privileged={this.props.privileged} />;
+            settingsContent = <Stack hasGutter>
+                <AutoUpdates backend={this.state.backend} privileged={this.props.privileged} />
+                <KpatchSettings privileged={this.props.privileged} />
+            </Stack>;
         }
 
         cardContents.push({

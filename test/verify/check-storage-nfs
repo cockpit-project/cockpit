@@ -215,7 +215,7 @@ class TestStorageNfs(StorageCase):
         b.click("#detail-header button:contains(Unmount)")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "The filesystem is in use")
-        b.wait_in_text("#dialog", "of user root")
+        self.assertRegex(b.text(".units-table td:first-child"), r"Session \d+ of [uU]ser root")
         self.dialog_apply()
 
         b.wait_visible("#detail-header button:contains(Mount)")

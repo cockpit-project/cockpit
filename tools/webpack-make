@@ -9,10 +9,12 @@ const webpack = require("webpack");
 const path = require("path");
 const stdio = require("stdio");
 const fs = require("fs");
+const child_process = require("child_process");
 
-var ops = stdio.getopt({
+const ops = stdio.getopt({
     config: { key: "c", args: 1, description: "Path to webpack.config.js", default: "webpack.config.js" },
     deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" },
+    rsync: { key: "r", args: 1, description: "rsync webpack to ssh target after build", default: "" },
     watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
 });
 
@@ -61,6 +63,9 @@ function process_result(err, stats) {
             process.exit(1);
         return;
     }
+
+    if (ops.rsync)
+        rsync();
 
     generateDeps(makefile, stats);
 }
@@ -159,4 +164,12 @@ function generateDeps(makefile, stats) {
     lines.push(prefix + ": " + stampfile);
 
     fs.writeFileSync(makefile, lines.join("\n") + "\n");
+}
+
+function rsync() {
+    const ret = child_process.spawnSync("rsync", ["--recursive", "--info=PROGRESS2", "--delete",
+                                        path.dirname(makefile), ops.rsync + ":/usr/share/cockpit/"],
+                                        { stdio: "inherit" });
+    if (ret.status !== 0)
+        process.exit(1);
 }

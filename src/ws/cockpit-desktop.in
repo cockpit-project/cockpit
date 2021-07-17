@@ -198,4 +198,10 @@ fi
 
 HOME="$BROWSER_HOME" '$BROWSER' http://127.0.0.90'"$URL_PATH"'
 '
-unshare --user --map-root-user --net /bin/bash -c "$SCRIPT" <&${COPROC[0]} >&${COPROC[1]}
+
+# avoid running ws and browser as root, drop to bin user if available
+if [ $(id -u) -eq 0 ] && id bin >/dev/null 2>/dev/null; then
+    DROPPRIVS='setpriv --reuid=bin --regid=bin --clear-groups --no-new-privs --bounding-set=-all'
+fi
+
+${DROPPRIVS:-} unshare --user --map-root-user --net /bin/bash -c "$SCRIPT" <&${COPROC[0]} >&${COPROC[1]}

@@ -4,12 +4,14 @@
 set -eu
 cd "$(realpath -m "$0"/../..)"
 
-if [ -z "${1:-}" ] || [ -n "${2:-}" ]; then
-    echo "Usage: $0 <page in pkg/>" >&2
+if [ -z "${1:-}" ]; then
+    echo "Usage: $0 <page in pkg/> [webpack-make options..]" >&2
     exit 1
 fi
+page="$1"
+shift
 
 # disable eslint by default, unless explicitly enabled
 export ESLINT=${ESLINT:-0}
 
-"tools/webpack-make" -d "dist/$1/Makefile.deps" -w
+"tools/webpack-make" -d "dist/$page/Makefile.deps" -w "$@"

@@ -67,9 +67,6 @@ class TestS4USsh(MachineCase):
         # add service which will be allowed to delegate creds
         ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true
 
-        # allow retrieval of service keytab by admin
-        ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan
-
         # set up delegation rule
         ipa servicedelegationtarget-add cockpit-target
         ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"

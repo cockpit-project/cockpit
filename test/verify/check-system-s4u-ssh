@@ -95,7 +95,7 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         # enable gssapiauth
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
-        client_machine.execute("KRB5RCACHEDIR=\"/var/cache/krb5rcache\" KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
+        client_machine.execute("KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/etc/cockpit.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
 
         sshd_machine.write('/etc/pam.d/sudo', """
 auth       sufficient   pam_sss_gss.so
@@ -117,7 +117,7 @@ session    include      system-auth
         """)
 
         # ssh via s4u gssapi + sudo
-        out = client_machine.execute("KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami'")
+        out = client_machine.execute("KRB5_TRACE=/dev/stderr KRB5CCNAME=/etc/cockpit.ccache ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami'")
         self.assertEqual(out.strip(), "root")
 
 

@@ -107,18 +107,11 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
         client_machine.execute("KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/etc/cockpit.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
 
-        sshd_machine.write('/etc/pam.d/sudo', """
-auth       sufficient   pam_sss_gss.so
-auth       required     pam_deny.so
-account    include      system-auth
-password   include      system-auth
-session    optional     pam_keyinit.so revoke
-session    required     pam_limits.so
-session    include      system-auth
-""")
-
-        sshd_machine.execute(script=r"""#!/bin/sh
+        # enable PAM kerberos authentication for sudo and check that sudo on ssh target works with a TGT
+        # (FIXME: use delegated ticket); see man pam_sss_gss(8)
+        sshd_machine.execute(script=r"""#!/bin/sh -eu
         sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
+        sed -i '1 a auth sufficient pam_sss_gss.so' /etc/pam.d/sudo
         systemctl restart sssd
         usermod -G wheel user
         su user

@@ -57,16 +57,20 @@ class TestS4USsh(MachineCase):
         sshd_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
 
         # configure ipa
-        ipa_machine.execute("podman exec freeipa bash -c 'echo foobarfoo | kinit admin@COCKPIT.LAN'")
+        script = """set -eu
+        echo foobarfoo | kinit admin@COCKPIT.LAN
+
         # add user to impersonate
-        ipa_machine.execute("podman exec freeipa bash -c 'ipa user-add --first=user --last=user user'")
-        ipa_machine.execute("podman exec freeipa bash -c 'echo foobarfoo | ipa user-mod user --password'")
+        ipa user-add --first=user --last=user user
+        echo foobarfoo | ipa user-mod user --password
+
         # add service which will be allowed to delegate creds
-        ipa_machine.execute("podman exec freeipa bash -c 'ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true'")
-        # Allow retrieval of service keytab by admin
-        ipa_machine.execute("podman exec freeipa bash -c 'ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan'")
+        ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true
+
+        # allow retrieval of service keytab by admin
+        ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan
+
         # set up delegation rule
-        script = """set -e
         ipa servicedelegationtarget-add cockpit-target
         ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add cockpit-delegation

@@ -42,19 +42,29 @@ class TestS4USsh(MachineCase):
 
     def testBasic(self):
         client_machine = self.machine
+        b = self.browser
         sshd_machine = self.machines["1"]
         ipa_machine = self.machines["services"]
 
         # set hostname for readable logs
         client_machine.execute("hostnamectl set-hostname sshclient.cockpit.lan")
         sshd_machine.execute("hostnamectl set-hostname sshserver.cockpit.lan")
-        self.login_and_go("/system")
 
         # join both machines
         wait(lambda: client_machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
         wait(lambda: sshd_machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
-        client_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
         sshd_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
+        # join client machine with Cockpit, to create the HTTP/ principal
+        self.login_and_go("/system")
+        b.click("#system_information_domain_button")
+        b.wait_popup("realms-op")
+        b.set_val("#realms-op-address", "cockpit.lan")
+        b.wait_text(".realms-op-address-error", "Contacted domain")
+        b.set_val("#realms-op-admin", "admin")
+        b.set_val("#realms-op-admin-password", "foobarfoo")
+        b.click(".realms-op-apply")
+        with b.wait_timeout(300):
+            b.wait_popdown("realms-op")
 
         # configure ipa
         script = """set -eu
@@ -64,14 +74,14 @@ class TestS4USsh(MachineCase):
         ipa user-add --first=user --last=user user
         echo foobarfoo | ipa user-mod user --password
 
-        # add service which will be allowed to delegate creds
-        ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true
+        # allow our cockpit/ws service to delegate creds; FIXME: do this by default, and document transition from existing ones
+        ipa service-mod HTTP/sshclient.cockpit.lan@COCKPIT.LAN --ok-to-auth-as-delegate=true
 
         # set up delegation rule
         ipa servicedelegationtarget-add cockpit-target
         ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add cockpit-delegation
-        ipa servicedelegationrule-add-member cockpit-delegation --principals="cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN"
+        ipa servicedelegationrule-add-member cockpit-delegation --principals="HTTP/sshclient.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
         """
         ipa_machine.execute("podman exec freeipa bash -ec '%s'" % script)
@@ -80,16 +90,15 @@ class TestS4USsh(MachineCase):
         client_machine.write('/tmp/make-cache.py', """
 import gssapi
 
-principal = gssapi.Name('cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
-credResult = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { 'keytab'.encode(): '/etc/cockpit-client.keytab'.encode() }, name=principal)
+principal = gssapi.Name('HTTP/sshclient.cockpit.lan@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
+credResult = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { 'keytab'.encode(): '/etc/cockpit/krb5.keytab'.encode() }, name=principal)
 impersonee = gssapi.Name('user@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
 credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(credResult.creds, impersonee)
-gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/cockpit.ccache'.encode(), 'keytab'.encode(): '/etc/cockpit-client.keytab'.encode() }, credResults4u2self.creds, overwrite=True)
+gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/cockpit.ccache'.encode(), 'keytab'.encode(): '/etc/cockpit/krb5.keytab'.encode() }, credResults4u2self.creds, overwrite=True)
 """)
         client_machine.execute(script="""#!/bin/sh
         echo foobarfoo | kinit admin@COCKPIT.LAN
-        ipa-getkeytab -k /etc/cockpit-client.keytab -p cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN
-        kinit -k -t /etc/cockpit-client.keytab cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN
+        kinit -k -t /etc/cockpit/krb5.keytab HTTP/sshclient.cockpit.lan@COCKPIT.LAN
         python3 /tmp/make-cache.py
         """)
 

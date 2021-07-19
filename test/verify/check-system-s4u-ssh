@@ -88,15 +88,22 @@ class TestS4USsh(MachineCase):
 
         # ssh client, get keytab for authenticating and make ccache using gssapi
         client_machine.write('/tmp/make-cache.py', """
-import gssapi
+import gssapi, pwd, os
+
+user = 'user@COCKPIT.LAN'
+ccache = f'/run/cockpit/tls/{user}.ccache'
 
 principal = gssapi.Name('HTTP/sshclient.cockpit.lan@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
 credResult = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { 'keytab'.encode(): '/etc/cockpit/krb5.keytab'.encode() }, name=principal)
-impersonee = gssapi.Name('user@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
+impersonee = gssapi.Name(user, gssapi.NameType.kerberos_principal)
 credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(credResult.creds, impersonee)
-gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/cockpit.ccache'.encode(), 'keytab'.encode(): '/etc/cockpit/krb5.keytab'.encode() }, credResults4u2self.creds, overwrite=True)
+gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): f'FILE:{ccache}'.encode(), 'keytab'.encode(): '/etc/cockpit/krb5.keytab'.encode() }, credResults4u2self.creds, overwrite=True)
+# make it readable for the user
+u = pwd.getpwnam(user)
+os.chmod(ccache, 0o400)
+os.chown(ccache, u.pw_uid, -1)
 """)
-        client_machine.execute(script="""#!/bin/sh
+        client_machine.execute(script="""#!/bin/sh -eu
         echo foobarfoo | kinit admin@COCKPIT.LAN
         kinit -k -t /etc/cockpit/krb5.keytab HTTP/sshclient.cockpit.lan@COCKPIT.LAN
         python3 /tmp/make-cache.py
@@ -105,7 +112,8 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         # enable gssapiauth
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
-        client_machine.execute("KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/etc/cockpit.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
+        out = client_machine.execute("su -c 'KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
+        self.assertEqual(out.strip(), "hello")
 
         # enable PAM kerberos authentication for sudo and check that sudo on ssh target works with a TGT
         # (FIXME: use delegated ticket); see man pam_sss_gss(8)
@@ -120,7 +128,7 @@ gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/co
         """)
 
         # ssh via s4u gssapi + sudo
-        out = client_machine.execute("KRB5_TRACE=/dev/stderr KRB5CCNAME=/etc/cockpit.ccache ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami'")
+        out = client_machine.execute("""su -c "KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami' " user""")
         self.assertEqual(out.strip(), "root")
 
 

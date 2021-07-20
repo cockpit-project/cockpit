@@ -34,8 +34,41 @@ jobs:
           path: webpack-jumpstart.tar
           retention-days: 1
 
+  build-head:
+    if: ${{ github.event.pull_request.merge_commit_sha != github.event.pull_request.head.sha }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: none
+    timeout-minutes: 20
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Build jumpstart tarball
+        run: |
+          id="$(docker container create -u node -w /home/node node /bin/sh -c \
+            'git init cockpit &&
+             cd cockpit &&
+             git fetch --depth 1 https://github.com/cockpit-project/cockpit "'"${HEAD_SHA}"'":build &&
+             git checkout build &&
+             pkg/build webpack-jumpstart.tar -j$(nproc)'
+          )"
+
+          docker container start --attach "${id}" >&2
+          docker container cp "${id}":/home/node/cockpit/webpack-jumpstart.tar .
+          docker container rm -f "${id}"
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: webpack-jumpstart-head
+          path: webpack-jumpstart.tar
+          retention-days: 1
+
   publish:
-    needs: build
+    needs:
+      - build
+      - build-head
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: none
@@ -72,9 +105,37 @@ jobs:
           git --work-tree worktree commit --quiet -m "Build for ${MERGE_SHA}"
           rm -rf worktree
 
-          git tag "sha-${HEAD_SHA}"
+          git tag "sha-${MERGE_SHA}"
 
       - name: Push git commit
+        run: |
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
+          git push cache tag "sha-${MERGE_SHA}"
+          ssh-add -D
+          ssh-agent -k
+
+      - name: Download "head" artifact
+        if: ${{ needs.build-head.result == 'success' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: webpack-jumpstart-head
+          path: head-artifact
+
+      - name: Stage "head" git commit
+        if: ${{ needs.build-head.result == 'success' }}
+        run: |
+          set -ux
+          mkdir worktree
+          tar -C worktree -x --exclude '.git*' dist package-lock.json < head-artifact/webpack-jumpstart.tar
+          git --work-tree worktree add dist package-lock.json
+          git --work-tree worktree commit --allow-empty --quiet -m "Build for ${HEAD_SHA}"
+          rm -rf worktree
+
+          git tag "sha-${HEAD_SHA}"
+
+      - name: Push "head" git commit
+        if: ${{ needs.build-head.result == 'success' }}
         run: |
           eval $(ssh-agent)
           ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'

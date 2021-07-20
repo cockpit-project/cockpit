@@ -38,6 +38,7 @@ class TestS4USsh(MachineCase):
         super().setUp()
         self.machines['services'].execute("/root/run-freeipa")
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
+        self.machines['0'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
         self.machines['1'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
 
     def testBasic(self):
@@ -79,7 +80,8 @@ class TestS4USsh(MachineCase):
 
         # set up delegation rule
         ipa servicedelegationtarget-add cockpit-target
-        ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"
+        # FIXME: how to allow this to all machines in the network? https://pagure.io/freeipa/issue/8927
+        ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN" --principals "host/sshclient.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add cockpit-delegation
         ipa servicedelegationrule-add-member cockpit-delegation --principals="HTTP/sshclient.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
@@ -109,19 +111,24 @@ os.chown(ccache, u.pw_uid, -1)
         python3 /tmp/make-cache.py
         """)
 
-        # enable gssapiauth
+        # enable gssapiauth for ssh
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
         sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
         out = client_machine.execute("su -c 'KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
         self.assertEqual(out.strip(), "hello")
 
         # enable PAM kerberos authentication for sudo; see man pam_sss_gss(8)
-        sshd_machine.execute(script=r"""#!/bin/sh -eu
-        sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
-        sed -i '1 a auth sufficient pam_sss_gss.so' /etc/pam.d/sudo
-        systemctl restart sssd
-        usermod -G wheel user
-        """)
+        for m in [client_machine, sshd_machine]:
+            m.execute(script=r"""#!/bin/sh -eu
+            sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
+            sed -i '1 a auth sufficient pam_sss_gss.so' /etc/pam.d/sudo
+            systemctl restart sssd
+            usermod -G wheel user
+            """)
+
+        # direct sudo with the delegated ticket
+        out = client_machine.execute('su -c "KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache sudo whoami" user')
+        self.assertEqual(out.strip(), "root")
 
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache; so scp it manually; this emulates what cockpit-ssh will eventually do

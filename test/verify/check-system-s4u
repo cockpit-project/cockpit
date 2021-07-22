@@ -66,14 +66,23 @@ class TestS4USsh(MachineCase):
         b.click(".realms-op-apply")
         with b.wait_timeout(300):
             b.wait_popdown("realms-op")
+        b.logout()
+        # the above installed a new certificate; pick this up, enable cert auth and TLS
+        client_machine.write("/etc/cockpit/cockpit.conf", '[WebService]\nClientCertAuthentication = true\n', append=True)
+        client_machine.start_cockpit(tls=True)
 
         # configure ipa to trust cockpit-generated S4U tickets for accessing our hosts
-        script = """set -eu
+        with open("src/tls/ca/alice.pem") as f:
+            alice_cert = f.read().strip()
+        # IPA does not like the ---BEGIN/END lines
+        alice_cert = '\n'.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
+        script = f"""set -eu
         echo foobarfoo | kinit admin@COCKPIT.LAN
 
         # add user to impersonate
         ipa user-add --first=user --last=user user
         echo foobarfoo | ipa user-mod user --password
+        ipa user-add-cert user --certificate="{ alice_cert }"
 
         # set up delegation rule
         ipa servicedelegationtarget-add cockpit-target
@@ -98,28 +107,12 @@ class TestS4USsh(MachineCase):
             usermod -G wheel user
             """)
 
-        # get keytab for authenticating and make ccache using gssapi (this will be done by cockpit-session eventually)
-        client_machine.write('/tmp/make-cache.py', """
-import gssapi, pwd, os
-
-user = 'user@COCKPIT.LAN'
-uid = pwd.getpwnam(user).pw_uid
-ccache = f'/run/user/{uid}/cockpit-s4u.ccache'
-ccache_dir = os.path.dirname(ccache)
-os.makedirs(ccache_dir)
-
-serverCred = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { b'client_keytab': b'/etc/cockpit/krb5.keytab' }, usage='initiate', lifetime=30)
-impersonee = gssapi.Name(user, gssapi.NameType.kerberos_principal)
-credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(serverCred.creds, impersonee)
-gssapi.creds.rcred_cred_store.store_cred_into({ b'ccache': f'FILE:{ccache}'.encode() }, credResults4u2self.creds, overwrite=True)
-# make it readable for the user
-os.chmod(ccache, 0o400)
-os.chown(ccache_dir, uid, -1)
-os.chown(ccache, uid, -1)
-print(ccache)
-""")
-        ccache = client_machine.execute(["python3", "/tmp/make-cache.py"]).strip()
-        ccache_env = 'KRB5CCNAME=FILE:' + ccache
+        # log into Cockpit with certificate, and grab the keytab
+        client_machine.upload(["alice.pem", "alice.key"], "/var/tmp", relative_dir="src/tls/ca/")
+        out = client_machine.execute(['curl', '-ksS', '-D-', '--cert', '/var/tmp/alice.pem', '--key', '/var/tmp/alice.key',
+                                      'https://localhost:9090/cockpit/login'])
+        self.assertIn("csrf-token", out)
+        ccache_env = client_machine.execute("xargs -0n1 < /proc/$(pgrep cockpit-bridge)/environ | grep KRB5CCNAME=").strip()
 
         # SSH with the delegated ticket
         out = client_machine.execute(f"su -c 'KRB5_TRACE=/dev/stderr {ccache_env} ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")

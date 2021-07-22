@@ -307,10 +307,22 @@ class CommonTests:
         This assumes that IdM and sssd are all set up correctly already.
         '''
         m = self.machine
+        b = self.browser
 
         # join domain, wait until it works
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
-        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
+        # join client machine with Cockpit, to create the HTTP/ principal and /etc/cockpit/krb5.keytab
+        self.login_and_go("/system")
+        b.click("#system_information_domain_button")
+        b.wait_popup("realms-op")
+        b.set_val("#realms-op-address", "cockpit.lan")
+        b.wait_text(".realms-op-address-error", "Contacted domain")
+        b.set_val("#realms-op-admin", self.admin_user)
+        b.set_val("#realms-op-admin-password", self.admin_password)
+        b.click(".realms-op-apply")
+        with b.wait_timeout(300):
+            b.wait_popdown("realms-op")
+        b.logout()
         m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
 
         # upload certificates to client machine
@@ -601,6 +613,7 @@ ExecStart=/bin/true
 
     def testClientCertAuthentication(self):
         m = self.machine
+        b = self.browser
 
         ipa_machine = self.machines['services']
         with open("src/tls/ca/alice.pem") as f:
@@ -609,7 +622,7 @@ ExecStart=/bin/true
         alice_cert = '\n'.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
         ipa_machine.execute(r"""podman exec -i freeipa sh -exc '
-ipa user-add --first=Alice --last="Developer" alice
+ipa user-add --first=Alice --last="Developer" --shell=/bin/bash alice
 yes "%(password)s" | ipa user-mod --password alice
 ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
 ipa user-add-cert alice --certificate="%(cert)s"
@@ -620,6 +633,51 @@ ipa user-add-cert alice --certificate="%(cert)s"
             m.write("/etc/sssd/conf.d/ifp.conf", "[sssd]\nservices = nss, sudo, pam, ssh, ifp\n", perm="0600")
 
         self.checkClientCertAuthentication()
+
+        # the above password login implicitly creates a persistent user ticket
+        if m.image == 'debian-stable':
+            # on Debian 9, the default kerberos config is a per-session FILE: keyring, so klist fails
+            alice_klist_cmd = 'su -c klist alice || true'
+        else:
+            alice_klist_cmd = 'su -c klist alice'
+        persistent_ticket = m.execute(alice_klist_cmd)
+
+        # the test below assumes exactly one running bridge
+        m.execute("! pgrep cockpit-bridge")
+
+        # check S4U proxy ticket for the user (not functional for anything without delegation rules)
+        # this is specific to IPA, as with AD cockpit-ws does not get a keytab
+
+        # as we can't do cert auth in the browser, splice socat in between to do that for us
+        m.execute(f'''! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443
+                      mkdir -p /run/systemd/system/cockpit.socket.d/
+                      printf "[Socket]\nListenStream=\nListenStream=443" > /run/systemd/system/cockpit.socket.d/listen.conf
+                      sed -i '/\[WebService/ aOrigins = http://{m.web_address}:{m.web_port}' /etc/cockpit/cockpit.conf''')
+        m.spawn("socat TCP-LISTEN:9090,reuseaddr,fork OPENSSL:x0.cockpit.lan:443,cert=/var/tmp/alice.pem,key=/var/tmp/alice.key", "socat-certauth.log")
+        m.start_cockpit(tls=True)
+
+        # S4U ticket is in the session
+        b.open("/system/terminal")
+        b.expect_load()
+        b.enter_page("/system/terminal")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
+        b.key_press("klist\r")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache: FILE:/run/user")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: alice@COCKPIT.LAN")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "for client HTTP/x0.cockpit.lan@COCKPIT.LAN")
+        self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u alice)/*.ccache"))
+        ccache_env = m.execute("xargs -0n1 < /proc/$(pgrep cockpit-bridge)/environ | grep KRB5CCNAME=").strip()
+
+        # does not interfere with persistent ticket in other sessions
+        self.assertEqual(m.execute(alice_klist_cmd), persistent_ticket)
+
+        # S4U proxy ticket gets cleaned up on logout
+        b.logout()
+        m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
+        m.execute(f"! su -c '{ccache_env} klist' alice")
+
+        # original persistent ticket remains in other sessions
+        self.assertEqual(m.execute(alice_klist_cmd), persistent_ticket)
 
 
 @skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")

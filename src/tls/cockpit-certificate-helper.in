@@ -102,7 +102,7 @@ cmd_ipa_request() {
 
     # create a kerberos Service Principal Name for cockpit-ws, unless already present
     ipa service-show "${SERVICE}" || \
-        ipa service-add --ok-as-delegate=true --force "${SERVICE}"
+        ipa service-add --ok-as-delegate=true --ok-to-auth-as-delegate=true --force "${SERVICE}"
 
     # add cockpit-ws key, unless already present
     klist -k "${KEYTAB}" | grep -qF "${SERVICE}" || \

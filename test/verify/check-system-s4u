@@ -75,9 +75,6 @@ class TestS4USsh(MachineCase):
         ipa user-add --first=user --last=user user
         echo foobarfoo | ipa user-mod user --password
 
-        # allow our cockpit/ws service to delegate creds; FIXME: do this by default, and document transition from existing ones
-        ipa service-mod HTTP/sshclient.cockpit.lan@COCKPIT.LAN --ok-to-auth-as-delegate=true
-
         # set up delegation rule
         ipa servicedelegationtarget-add cockpit-target
         # FIXME: how to allow this to all machines in the network? https://pagure.io/freeipa/issue/8927

@@ -486,8 +486,65 @@
     }
 }
 @media (max-width: 800px) {
+    // Drop extra padding in mobile sizes (graphs need all the available space)
+    main > .pf-c-page__main-section {
+        padding-left: 0;
+        padding-right: 0;
+
+        &:not(:first-child) {
+            padding-bottom: 1rem;
+        }
+
+        &:last-child {
+            padding-top: 0;
+            // Fix stacking order for stickiness
+            z-index: 999;
+        }
+    }
+
+    // Rotate labels
     .metrics-label-graph {
-        font-size: var(--pf-global--FontSize--xs);
+        // Use an in-between font size (half step from xs to s)
+        font-size: calc(var(--pf-global--FontSize--s) + var(--pf-global--FontSize--xs) / 2);
+        display: grid;
+        grid-template: 1fr / 1fr;
+
+        > span:not(.metrics-sublabels) {
+            // "Outdent" the main label by indenting with a negative medium spacer
+            // (This prevents a staggared look)
+            text-indent: calc(var(--pf-global--spacer--md) * -1);
+            // Wrapping causes odd alignment, so don't wrap
+            white-space: nowrap;
+        }
+
+        > span {
+            // Rotate!
+            transform: rotate(-45deg);
+            transform-origin: left;
+            text-align: left;
+
+            &:not(.metrics-sublabels) {
+                margin: 1.5rem 0 0;
+            }
+        }
+
+        > span:not(.metrics-sublabels),
+        .metrics-sublabels > span {
+            text-align: left;
+        }
+
+        .metrics-sublabels {
+            display: grid;
+            // Text is rotated and overlaps, so setting it to 50% fixed size works here
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 0 0.5em;
+
+            // Make singular grid cells span the full width
+            // (disk IO and network only have a "usage" label, no "load" or "swap")
+            > :only-child {
+                grid-column: 1 / -1;
+            }
+        }
     }
 }
 

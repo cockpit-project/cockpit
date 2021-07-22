@@ -97,12 +97,8 @@ prepare()
         exit 1
     fi
 
-    mv -n extract/$subdir/$DIRECTORY/html/ repo/guide/$version
-    if [ -f extract/$subdir/$DIRECTORY/index.html ]; then
-        mv extract/$subdir/$DIRECTORY/index.html repo/guide/index.html
-    fi
     rm -rf repo/guide/latest
-    cp -rp repo/guide/$version repo/guide/latest
+    mv -n extract/$subdir/$DIRECTORY/html/ repo/guide/latest
 
     # Add frontmatter for Jekyll
     find repo/guide/latest -name '*.html' | xargs sed -i '

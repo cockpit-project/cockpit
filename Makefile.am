@@ -45,10 +45,6 @@ SUFFIXES = \
 
 MV = mv -f
 
-CAT_RULE = \
-        $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $^ > $@.tmp && $(MV) $@.tmp $@
-
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \

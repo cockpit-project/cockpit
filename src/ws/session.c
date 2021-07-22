@@ -366,9 +366,11 @@ static bool
 acquire_service_credentials (gss_OID mech_type, gss_cred_usage_t usage, gss_cred_id_t *cred)
 {
   /* custom credential store with our cockpit keytab */
-  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB, },
-                                                         { .key = "ccache", .value = "MEMORY:", } };
-  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 2, .elements = store_elements };
+  gss_key_value_element_desc store_elements[] = {
+      { .key = (usage == GSS_C_INITIATE) ? "client_keytab" : "keytab", .value = COCKPIT_KTAB, },
+      { .key = "ccache", .value = "MEMORY:", }
+  };
+  const gss_key_value_set_desc cockpit_ktab_store = { .count = 2, .elements = store_elements };
   OM_uint32 major, minor;
 
   debug ("acquiring cockpit service credentials");
@@ -380,8 +382,10 @@ acquire_service_credentials (gss_OID mech_type, gss_cred_usage_t usage, gss_cred
     {
       const char *msg = gssapi_strerror (mech_type, major, minor);
       /* don't litter journal with error message if keytab was not set up, as that's expected */
-      if (major != GSS_S_NO_CRED && !strstr (msg, "nonexistent or empty"))
-        warnx ("couldn't acquire server credentials: %s", msg);
+      /* older krb versions hide the interesting bits behind the generic GSS_S_FAILURE and an uncomparable
+       * minor code, so do string comparison for these */
+      if (major != GSS_S_NO_CRED && !strstr (msg, "nonexistent or empty") && !strstr (msg, "No Kerberos credentials available"))
+        warnx ("couldn't acquire server credentials: %o %s", major, msg);
       return false;
     }
 
@@ -533,6 +537,45 @@ pam_conv_func_dummy (int num_msg,
   return PAM_CONV_ERR;
 }
 
+static void
+create_s4u_ticket (const char *username)
+{
+  OM_uint32 major, minor;
+  gss_cred_id_t server_cred = GSS_C_NO_CREDENTIAL;
+  gss_name_t impersonee = GSS_C_NO_NAME;
+
+  debug ("Attempting to create an S4U ticket for user %s", username);
+
+  if (!acquire_service_credentials (GSS_C_NO_OID, GSS_C_INITIATE, &server_cred))
+    goto out;
+
+  gss_buffer_desc user_buf = { .length = strlen (username), .value = (char *) username };
+  major = gss_import_name (&minor, &user_buf, GSS_KRB5_NT_PRINCIPAL_NAME, &impersonee);
+  if (GSS_ERROR (major))
+    {
+      warnx ("Failed to import user name %s: %s", username, gssapi_strerror (GSS_C_NO_OID, major, minor));
+      goto out;
+    }
+
+  /* store credentials into global creds; they will be put into the session and cleaned up in main() */
+  major = gss_acquire_cred_impersonate_name (&minor, server_cred, impersonee,
+                                             GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_INITIATE,
+                                             &creds, NULL, NULL);
+  if (GSS_ERROR (major))
+    {
+      warnx ("Failed to impersonate %s: %s", username, gssapi_strerror (GSS_C_NO_OID, major, minor));
+      goto out;
+    }
+
+  debug ("S4U ticket for user %s created successfully", username);
+
+out:
+  if (server_cred != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &server_cred);
+  if (impersonee != GSS_C_NO_NAME)
+    gss_release_name(&minor, &impersonee);
+}
+
 static pam_handle_t *
 perform_tlscert (const char *rhost,
                  const char *authorization)
@@ -552,7 +595,6 @@ perform_tlscert (const char *rhost,
     exit_init_problem (PAM_AUTH_ERR);
 
   res = pam_start ("cockpit", username, &conv, &pamh);
-  free (username);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
 
@@ -560,6 +602,10 @@ perform_tlscert (const char *rhost,
     errx (EX, "couldn't setup pam rhost");
 
   res = open_session (pamh);
+
+  create_s4u_ticket (username);
+
+  free (username);
 
   /* Our exit code is a PAM code */
   if (res != PAM_SUCCESS)

@@ -89,16 +89,23 @@ prepare()
 
     cd ..
 
+    trace "Building the docs"
+    mkdir build
+    cd build
+    "../extract/${subdir}/configure"
+    make "$DIRECTORY/html"
+    cd ..
+
     trace "Committing documentation for version $version"
     mkdir -p repo/guide/
     rm -rf repo/guide/$version
-    if [ ! -f extract/$subdir/$DIRECTORY/html/index.html ]; then
+    if [ ! -f build/$DIRECTORY/html/index.html ]; then
         message "no html/index.html documentation in $DIRECTORY"
         exit 1
     fi
 
     rm -rf repo/guide/latest
-    mv -n extract/$subdir/$DIRECTORY/html/ repo/guide/latest
+    mv -n build/$DIRECTORY/html/ repo/guide/latest
 
     # Add frontmatter for Jekyll
     find repo/guide/latest -name '*.html' | xargs sed -i '

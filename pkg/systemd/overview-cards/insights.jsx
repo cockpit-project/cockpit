@@ -133,9 +133,9 @@ export class InsightsStatus extends React.Component {
 
         let url;
         if (this.state.id)
-            url = "https://cloud.redhat.com/insights/inventory/" + this.state.id;
+            url = "https://console.redhat.com/insights/inventory/" + this.state.id;
         else
-            url = "https://cloud.redhat.com/insights";
+            url = "https://console.redhat.com/insights";
 
         let icon, text;
         if (this.state.hits) {

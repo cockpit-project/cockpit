@@ -106,7 +106,6 @@ os.chmod(ccache, 0o400)
 os.chown(ccache, u.pw_uid, -1)
 """)
         client_machine.execute(script="""#!/bin/sh -eu
-        echo foobarfoo | kinit admin@COCKPIT.LAN
         kinit -k -t /etc/cockpit/krb5.keytab HTTP/sshclient.cockpit.lan@COCKPIT.LAN
         python3 /tmp/make-cache.py
         """)

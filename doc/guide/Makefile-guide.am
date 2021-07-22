@@ -78,10 +78,12 @@ if ENABLE_DOC
 
 noinst_DATA = dist/guide/html/index.html
 
-EXTRA_DIST += $(GUIDE_FONTS)
-dist/guide/html/%.woff2: package-lock.json
-	@mkdir -p dist/guide/html
-	cp -L $(top_srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText/$(notdir $@) $@
+dist/guide/html/%.woff2: dist/static/manifest.json
+	@target='$(dir $@)'; \
+	source='dist/static/fonts/$(notdir $@)'; \
+	printf '  %-8s %s → %s\n' 'COPY' "$${source}" "$${target}"; \
+	mkdir -p "$${target}" && \
+	cp "$(top_srcdir)/$${source}" "$${target}"
 
 dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) dist/guide/html/ && \

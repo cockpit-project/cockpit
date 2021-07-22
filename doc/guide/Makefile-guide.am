@@ -80,10 +80,7 @@ EXTRA_DIST += \
 
 if ENABLE_DOC
 
-# we require fonts from `npm install` to build the docs
-noinst_DATA += $(GUIDE_HTML($SKIP_NODE))
-
-GUIDE_HTML = \
+noinst_DATA = \
 	dist/guide/html/index.html \
 	dist/guide/index.html
 

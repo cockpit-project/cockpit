@@ -85,10 +85,10 @@ dist/guide/html/%.woff2: dist/static/manifest.json
 
 dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) dist/guide/html/ && \
-	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/
-	$(AM_V_GEN) LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
+	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/ && \
+	LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
 		--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
-		$(srcdir)/$(GUIDE_DOCBOOK)
+		$(srcdir)/$(GUIDE_DOCBOOK) && \
 	rm -f dist/guide/html/cockpit-guide.proc
 
 dist/guide/html: dist/guide/html/index.html

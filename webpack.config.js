@@ -412,7 +412,7 @@ module.exports = {
     optimization: {
         minimize: production,
         minimizer: [
-           new TerserJSPlugin({ extractComments: false }),
+           new TerserJSPlugin(),
            new CssMinimizerPlugin({
                minimizerOptions: {
                    preset: ['lite']

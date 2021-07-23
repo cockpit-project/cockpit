@@ -113,7 +113,7 @@ function generateDeps(makefile, stats) {
             continue;
         }
 
-        if (output.endsWith(".map") || output.includes("included-modules"))
+        if (output.endsWith(".map") || output.includes("included-modules") || output.endsWith(".LICENSE.txt"))
             continue;
 
         if (uncompressed_patterns.some((s) => output.match(s))) {

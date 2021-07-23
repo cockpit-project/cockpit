@@ -247,7 +247,6 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
-const IncludedModulesPlugin = require("./pkg/lib/included-modules-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || __dirname;
@@ -340,7 +339,6 @@ function get_translation_reference_patterns () {
 }
 
 const plugins = [
-    new IncludedModulesPlugin((section || "") + "included-modules"),
     new copy({ patterns: info.files }),
     new miniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({

@@ -74,7 +74,7 @@ EXTRA_DIST += \
 
 if ENABLE_DOC
 
-noinst_DATA = dist/guide/html/index.html
+noinst_DATA += dist/guide/html/index.html
 
 dist/guide/html/%.woff2: dist/static/manifest.json
 	@target='$(dir $@)'; \

@@ -18,7 +18,6 @@ EXTRA_DIST += \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
 	pkg/lib/cockpit-po-plugin.js \
-	pkg/lib/included-modules-plugin.js \
 	pkg/lib/variables.scss \
 	pkg/lib/patternfly/patternfly-overrides-variables.scss \
 	$(pkg_TESTS) \

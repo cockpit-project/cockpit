@@ -362,6 +362,30 @@ map_gssapi_to_local (gss_name_t name,
   return str;
 }
 
+static bool
+acquire_service_credentials (gss_OID mech_type, gss_cred_usage_t usage, gss_cred_id_t *cred)
+{
+  /* custom credential store with our cockpit keytab */
+  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB } };
+  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 1, .elements = store_elements };
+  OM_uint32 major, minor;
+
+  debug ("acquiring cockpit service credentials");
+  major = gss_acquire_cred_from (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, usage,
+          (!getenv ("COCKPIT_TEST_KEEP_KTAB") && access (COCKPIT_KTAB, F_OK) == 0) ? &cockpit_ktab_store : NULL,
+          cred, NULL, NULL);
+
+  if (GSS_ERROR (major))
+    {
+      /* This is a routine error message, don't litter */
+      const char *msg = gssapi_strerror (mech_type, major, minor);
+      if (!strstr (msg, "nonexistent or empty"))
+        warnx ("couldn't acquire server credentials: %s", msg);
+      return false;
+    }
+
+  return true;
+}
 
 static pam_handle_t *
 perform_gssapi (const char *rhost,
@@ -377,14 +401,10 @@ perform_gssapi (const char *rhost,
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
-  /* custom credential store with our cockpit keytab */
-  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB } };
-  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 1, .elements = store_elements };
   pam_handle_t *pamh = NULL;
   char *response = NULL;
   char *challenge;
   OM_uint32 flags = 0;
-  const char *msg;
   char *str = NULL;
   OM_uint32 caps = 0;
   int res;
@@ -394,17 +414,8 @@ perform_gssapi (const char *rhost,
   debug ("reading kerberos auth from cockpit-ws");
   input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
-  debug ("acquiring server credentials");
-  major = gss_acquire_cred_from (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_ACCEPT,
-          (!getenv ("COCKPIT_TEST_KEEP_KTAB") && access (COCKPIT_KTAB, F_OK) == 0) ? &cockpit_ktab_store : NULL,
-          &server, NULL, NULL);
-
-  if (GSS_ERROR (major))
+  if (!acquire_service_credentials (mech_type, GSS_C_ACCEPT, &server))
     {
-      /* This is a routine error message, don't litter */
-      msg = gssapi_strerror (mech_type, major, minor);
-      if (input.length == 0 && !strstr (msg, "nonexistent or empty"))
-        warnx ("couldn't acquire server credentials: %s", msg);
       res = PAM_AUTHINFO_UNAVAIL;
       goto out;
     }

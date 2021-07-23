@@ -209,7 +209,7 @@ COMMITTED_DIST = \
 	$(NULL)
 
 tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
-	$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright > $@.tmp && \
+	$(AM_V_GEN) (cd $(srcdir) && ./tools/build-debian-copyright) > $@.tmp && \
 	$(MV) $@.tmp $@
 
 # This is the stock rule with $(BUILT_SOURCES) dependency removed.

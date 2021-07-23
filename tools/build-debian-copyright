@@ -1,18 +1,45 @@
 #!/usr/bin/python3
 # generate debian/copyright from debian/copyright.template and node_modules
 # Author: Martin Pitt <mpitt@debian.org>
-#
-# package.json license: format uses https://spdx.org/licenses/ identifiers, which
-# are mostly compatible with
-# https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification
+#         Allison Karlitskaya <allison.karlitskaya@redhat.com>
 
 import os
 import sys
-import json
 import re
-import subprocess
 import argparse
-from glob import glob
+
+
+license_patterns = {
+    # Common patterns
+    r'\bMIT\b': ['MIT'],
+    r'\bApache License v2.0\b': ['Apache-2.0'],
+
+    # https://github.com/janl/mustache.js/blob/master/LICENSE
+    r'\bmustache.js\b': ['MIT'],
+
+    # https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+    r'\bfocus-trap\b': ['MIT'],
+}
+
+copyright_patterns = {
+    # Common patterns
+    r'Copyright (.*)$': [r'\1'],
+    r'@copyright (.*)$': [r'\1'],
+    r'\(c\) (.*)$': [r'\1'],
+
+    # https://github.com/janl/mustache.js/blob/master/LICENSE
+    r'\bmustache.js\b': ['2009 Chris Wanstrath (Ruby)',
+                         '2010-2014 Jan Lehnardt (JavaScript)',
+                         '2010-2015 The mustache.js community'],
+
+    # https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+    r'\bfocus-trap\b': ['2015-2016 David Clark'],
+
+    # No copyright notices found
+    r'\bDatepicker for Bootstrap\b': ['boostrap-datepicker authors'],
+}
+
+used_patterns = set()
 
 debian_dir = os.path.join(os.path.dirname(__file__), 'debian')
 template_file = os.path.join(debian_dir, 'copyright.template')
@@ -33,105 +60,15 @@ def template_licenses(template):
     return ids
 
 
-def module_license(moddir):
-    '''Return License: short name for given module'''
+def find_patterns(patterns, text):
+    results = set()
 
-    # First check if package.json has a "license" field
-    try:
-        with open(os.path.join(moddir, 'package.json'), encoding='UTF-8') as f:
-            license = json.load(f)['license']
-            if license.startswith('(MIT OR'):
-                return 'MIT'
-            return license
-    except (IOError, KeyError):
-        pass
+    for pattern, templates in patterns.items():
+        for match in re.finditer(pattern, text, re.MULTILINE):
+            used_patterns.add(pattern)
+            results.update(match.expand(template) for template in templates)
 
-    # *LICENSE*/COPYING/README
-    if os.path.exists(os.path.join(moddir, 'MIT-LICENSE.txt')):
-        return 'MIT'
-    try:
-        with open((glob(os.path.join(moddir, 'LICENSE*')) +
-                   glob(os.path.join(moddir, 'COPYING')))[0]) as f:
-            text = f.read()
-        if 'Permission is hereby granted,' in text and 'THE SOFTWARE IS PROVIDED "AS IS"' in text:
-            return 'MIT'
-    except IndexError:
-        pass
-
-    raise SystemError('Could not determine license from %s' % moddir)
-
-
-def module_copyright(moddir):
-    '''Return Copyrights for given module'''
-
-    mod = os.path.basename(moddir)
-    copyrights = set()
-    try:
-        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', '--binary-files=without-match', r'copyright.*\([1-9][0-9]\+\|(c)\)'],
-                                      cwd=moddir).decode('UTF-8')
-        for line in out.splitlines():
-            # weed out some noise
-            reject_substr = ['Binary file',
-                             '{"version":',
-                             'function(',
-                             'eval("',
-                             '*//*!',
-                             '"!="',
-                             'Code released under the',
-                             'Add copyright statements',
-                             'grunt.template.today',
-                             'copyright-mark',
-                             '@font-face',
-                             '<name of author>',
-                             'glyph-name=',
-                             'copyright holder',
-                             'WIPO copyright treaty']
-            if any(substr in line for substr in reject_substr):
-                continue
-
-            line = line.replace('<copyright>', '').replace('</copyright>', '')
-            line = line.replace('&copy;', '(c)').replace('copyright = ', '')
-            line = re.sub('@license.*Copyright', '', line)
-            line = line.strip(' \t*/\'|,#')
-            if not line.endswith('Inc.'):
-                # avoids some duplicated lines which only differ in trailing dot
-                line = line.strip('.')
-            if line.startswith("u'") or line.startswith('u"'):  # Python unicode prefix
-                line = line[2:]
-            if 'Fixes #' in line:
-                continue  # this is from a changelog
-            # some noise fine-tuning for specific packages
-            if mod == 'bootstrap' and ('https://github.com' in line or line == 'Copyright 2015'):
-                continue
-            if mod == 'patternfly':
-                line = re.sub(' and licensed.*', '', line)
-
-            copyrights.add(' ' + line)  # space prefix for debian/copyright RFC822 format
-    except subprocess.CalledProcessError:
-        pass
-
-    if not copyrights:
-        # fall back to package.json's author
-        try:
-            with open(os.path.join(moddir, 'package.json')) as f:
-                author = json.load(f)['author']
-
-                # `author` can be either a string or a dict
-                # https://flaviocopes.com/package-json/#author
-                if isinstance(author, dict):
-                    author = author['name']
-                assert isinstance(author, str)
-
-                copyrights.add(' ' + author)
-        except (IOError, KeyError):
-            pass
-
-    if not copyrights and moddir.startswith('node_modules/@patternfly/'):
-        return module_copyright('node_modules/patternfly')
-
-    if not copyrights:
-        raise SystemError('Did not find any copyrights in %s' % moddir)
-    return copyrights
+    return sorted(results)
 
 #
 # main
@@ -144,29 +81,37 @@ with open(template_file, encoding='UTF-8') as f:
     template = f.read()
 
 license_ids = template_licenses(template)
-module_users = {}
-
-for included_modules in sorted(glob("dist/*/included-modules")):
-    pkg = os.path.basename(os.path.dirname(included_modules))
-    with open(included_modules) as f:
-        for module in f:
-            module = module.strip()
-            # collect all packages pointing to one node module
-            if module not in module_users:
-                module_users[module] = set()
-            module_users[module].add(f'dist/{pkg}/*')
 
 paragraphs = {}
-for moddir in module_users:
-    license = module_license(moddir)
-    if license.lower() not in license_ids:
-        raise KeyError('%s has license %s which is not in %s' % (moddir, license, template_file))
-    copyrights = '\n'.join(sorted(module_copyright(moddir)))
-    paragraph = f'Copyright:{copyrights}\nLicense: {license}'
-    # collect all modules with identical licence/copyright
-    if paragraph not in paragraphs:
-        paragraphs[paragraph] = set()
-    paragraphs[paragraph].update(module_users[moddir])
+
+for directory, subdirs, files in os.walk('dist'):
+    for file in files:
+        if not file.endswith('.LICENSE.txt'):
+            continue
+
+        with open(os.path.join(directory, file)) as license_file:
+            comments = license_file.read().split('\n\n')
+
+        for comment in comments:
+            licenses = find_patterns(license_patterns, comment)
+            if len(licenses) != 1:
+                raise SystemError('Can not determine license of:\n%s' % comment)
+            if licenses[0].lower() not in license_ids:
+                raise KeyError('License {licenses[0]} not found in {template_file}')
+
+            copyrights = ' \n'.join(find_patterns(copyright_patterns, comment))
+            if not copyrights:
+                raise SystemError('Did not find any copyrights in:\n%s' % comment)
+
+            paragraph = f'Copyright: {copyrights}\nLicense: {licenses[0]}'
+
+            if paragraph not in paragraphs:
+                paragraphs[paragraph] = set()
+            paragraphs[paragraph].add(directory)
+
+for pattern in set.union(set(license_patterns), set(copyright_patterns)):
+    if pattern not in used_patterns:
+        sys.exit(f'build-debian-copyright: Unused pattern: {pattern}')
 
 output = []
 for paragraph in sorted(paragraphs):

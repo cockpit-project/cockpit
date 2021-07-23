@@ -102,7 +102,6 @@ uninstall-local::
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
 	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
-	$(srcdir)/tools/build-copying $(distdir) > $(distdir)/COPYING.node
 
 #
 

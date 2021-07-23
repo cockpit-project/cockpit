@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitjsonprint.h"
+#include "common/cockpitmemory.h"
 
 #include "cockpit-session-client-certificate.h"
 #include "session-utils.h"
@@ -41,18 +42,6 @@ static char *conversation = NULL;
 #define COCKPIT_KTAB PACKAGE_SYSCONF_DIR "/cockpit/krb5.keytab"
 
 static gss_cred_id_t creds = GSS_C_NO_CREDENTIAL;
-
-static char *
-dup_string (const char *str,
-            size_t len)
-{
-  char *buf = malloc (len + 1);
-  if (!buf)
-    err (EX, "couldn't allocate memory for string");
-  memcpy (buf, str, len);
-  buf[len] = '\0';
-  return buf;
-}
 
 static const char *
 gssapi_strerror (gss_OID mech_type,
@@ -140,7 +129,6 @@ pam_conv_func (int num_msg,
   char *err_msg = NULL;
   char *txt_msg = NULL;
   char *buf, **msgp;
-  int ar;
 
   struct pam_response *resp;
   char *prompt = NULL;
@@ -153,12 +141,7 @@ pam_conv_func (int num_msg,
   err_msg = last_err_msg;
   last_err_msg = NULL;
 
-  resp = calloc (sizeof (struct pam_response), num_msg);
-  if (resp == NULL)
-    {
-      warnx ("couldn't allocate memory for pam response");
-      return PAM_BUF_ERR;
-    }
+  resp = callocx (sizeof (struct pam_response), num_msg);
 
   for (i = 0; i < num_msg; i++)
     {
@@ -180,16 +163,13 @@ pam_conv_func (int num_msg,
           if (*msgp)
             {
               buf = *msgp;
-              ar = asprintf (msgp, "%s\n%s", buf, msg[i]->msg);
+              asprintfx (msgp, "%s\n%s", buf, msg[i]->msg);
               free (buf);
             }
           else
             {
-              ar = asprintf (msgp, "%s", msg[i]->msg);
+              asprintfx (msgp, "%s", msg[i]->msg);
             }
-
-          if (ar < 0)
-            errx (EX, "couldn't allocate memory for message variable");
           warnx ("pam: %s", msg[i]->msg);
         }
       else
@@ -325,7 +305,7 @@ map_gssapi_to_local (gss_name_t name,
   if (major == GSS_S_COMPLETE)
     {
       minor = 0;
-      str = dup_string (local.value, local.length);
+      str = strndupx (local.value, local.length); /* user names are not allowed to contain \0 */
       if (getpwnam (str))
         {
           debug ("mapped gssapi name to local user '%s'", str);
@@ -356,7 +336,7 @@ map_gssapi_to_local (gss_name_t name,
             }
           else
             {
-              str = dup_string (display.value, display.length);
+              str = strndupx (display.value, display.length); /* display names are not allowed to contain \0 */
               if (getpwnam (str))
                 {
                   debug ("no local user mapping for gssapi name '%s'", str);

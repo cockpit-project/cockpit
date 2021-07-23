@@ -310,7 +310,6 @@ build_environment (GHashTable *os_release)
   JsonObject *object;
   const gchar *value;
   gchar *hostname;
-  g_autofree gchar *ca_path;
   JsonObject *osr;
   gint i;
 
@@ -337,7 +336,7 @@ build_environment (GHashTable *os_release)
 
   add_oauth_to_environment (object);
 
-  ca_path = cockpit_certificate_locate_selfsign_ca ();
+  g_autofree gchar *ca_path = cockpit_certificate_locate_selfsign_ca ();
   if (ca_path)
     json_object_set_string_member (object, "CACertUrl", "/ca.cer");
 

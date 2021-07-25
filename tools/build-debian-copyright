@@ -99,7 +99,7 @@ for directory, subdirs, files in os.walk('dist'):
             if licenses[0].lower() not in license_ids:
                 raise KeyError('License {licenses[0]} not found in {template_file}')
 
-            copyrights = ' \n'.join(find_patterns(copyright_patterns, comment))
+            copyrights = '\n '.join(find_patterns(copyright_patterns, comment))
             if not copyrights:
                 raise SystemError('Did not find any copyrights in:\n%s' % comment)
 

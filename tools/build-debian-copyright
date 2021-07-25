@@ -120,7 +120,7 @@ for pattern in set.union(set(license_patterns), set(copyright_patterns)):
 
 output = []
 for paragraph in sorted(paragraphs):
-    files = '\n '.join(f'{dir}' for dir in sorted(paragraphs[paragraph]))
+    files = '\n '.join(f'{dir}/*' for dir in sorted(paragraphs[paragraph]))
     output.append(f'Files: {files}\n{paragraph}')
 
 # force UTF-8 output, even when running in C locale

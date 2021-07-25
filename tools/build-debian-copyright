@@ -3,11 +3,14 @@
 # Author: Martin Pitt <mpitt@debian.org>
 #         Allison Karlitskaya <allison.karlitskaya@redhat.com>
 
-import os
-import sys
-import re
 import argparse
+import os
+import re
+import sys
+import time
 
+
+own_copyright = f"Copyright (C) 2013 - {time.strftime('%Y')} Red Hat, Inc."
 
 license_patterns = {
     # Common patterns
@@ -68,7 +71,7 @@ def find_patterns(patterns, text):
             used_patterns.add(pattern)
             results.update(match.expand(template) for template in templates)
 
-    return sorted(results)
+    return results
 
 #
 # main
@@ -82,7 +85,10 @@ with open(template_file, encoding='UTF-8') as f:
 
 license_ids = template_licenses(template)
 
-paragraphs = {}
+# scan dist/ webpacks for third-party copyrights and licenses
+
+dist_copyrights = {}  # Files: dirglob → set(copyrights)
+dist_licenses = {}  # Files: dirglob → set(licenses)
 
 for directory, subdirs, files in os.walk('dist'):
     for file in files:
@@ -94,20 +100,25 @@ for directory, subdirs, files in os.walk('dist'):
 
         for comment in comments:
             licenses = find_patterns(license_patterns, comment)
-            if len(licenses) != 1:
-                raise SystemError('Can not determine license of:\n%s' % comment)
-            if licenses[0].lower() not in license_ids:
-                raise KeyError('License {licenses[0]} not found in {template_file}')
+            if not licenses:
+                raise SystemError('Can not determine licenses of:\n%s' % comment)
+            for license in licenses:
+                if license.lower() not in license_ids:
+                    raise KeyError('License {license} not found in {template_file}')
 
-            copyrights = '\n '.join(find_patterns(copyright_patterns, comment))
+            # All webpacks also contain our own code
+            licenses.add("LGPL-2.1-or-later")
+
+            dist_licenses.setdefault(f'{directory}/*', set()).update(licenses)
+
+            copyrights = find_patterns(copyright_patterns, comment)
             if not copyrights:
                 raise SystemError('Did not find any copyrights in:\n%s' % comment)
 
-            paragraph = f'Copyright: {copyrights}\nLicense: {licenses[0]}'
+            # All webpacks also contain our own code
+            copyrights.add(own_copyright)
 
-            if paragraph not in paragraphs:
-                paragraphs[paragraph] = set()
-            paragraphs[paragraph].add(directory)
+            dist_copyrights.setdefault(f'{directory}/*', set()).update(copyrights)
 
 for pattern in set.union(set(license_patterns), set(copyright_patterns)):
     if pattern not in used_patterns:
@@ -118,15 +129,17 @@ for pattern in set.union(set(license_patterns), set(copyright_patterns)):
 
         sys.exit(f'build-debian-copyright: Unused pattern: {pattern}')
 
-output = []
-for paragraph in sorted(paragraphs):
-    files = '\n '.join(f'{dir}/*' for dir in sorted(paragraphs[paragraph]))
-    output.append(f'Files: {files}\n{paragraph}')
+paragraphs = []
+for files in sorted(dist_copyrights):
+    paragraphs.append("Files: {0}\nCopyright: {1}\nLicense: {2}".format(
+        files,
+        '\n '.join(sorted(dist_copyrights[files])),
+        ' and '.join(sorted(dist_licenses[files]))))
 
 # force UTF-8 output, even when running in C locale
 for line in template.splitlines():
     if '#NPM' in line:
-        sys.stdout.buffer.write('\n\n'.join(output).encode('UTF-8'))
+        sys.stdout.buffer.write('\n\n'.join(paragraphs).encode('UTF-8'))
     else:
         sys.stdout.buffer.write(line.encode('UTF-8'))
     sys.stdout.buffer.write(b'\n')

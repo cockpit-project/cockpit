@@ -11,17 +11,21 @@ jobs:
       pull-requests: none
     timeout-minutes: 20
     env:
-      MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+      BASE_SHA: ${{ github.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Build jumpstart tarball
         run: |
-          id="$(docker container create -u node -w /home/node node /bin/sh -c \
-            'git init cockpit &&
-             cd cockpit &&
-             git fetch --depth 1 https://github.com/cockpit-project/cockpit "'"${MERGE_SHA}"'":build &&
-             git checkout build &&
-             pkg/build webpack-jumpstart.tar -j$(nproc)'
-          )"
+          id="$(docker container create -u node -w /home/node node /bin/sh -ec \
+            "git init cockpit
+             cd cockpit
+             git config user.email '<>'
+             git config user.name 'nobody'
+             git remote add origin ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}
+             git fetch --no-tags origin ${BASE_SHA}:base ${HEAD_SHA}:head
+             git checkout --detach base
+             git merge --no-edit head
+             pkg/build webpack-jumpstart.tar -j$(nproc)")"
 
           docker container start --attach "${id}" >&2
           docker container cp "${id}":/home/node/cockpit/webpack-jumpstart.tar .
@@ -43,7 +47,7 @@ jobs:
     timeout-minutes: 5
     env:
       GIT_DIR: git-dir.git
-      MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+      BASE_SHA: ${{ github.sha }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Set up work area
@@ -67,9 +71,10 @@ jobs:
         run: |
           set -ux
           mkdir worktree
-          tar -C worktree -x --exclude '.git*' dist package-lock.json < artifact/webpack-jumpstart.tar
-          git --work-tree worktree add dist package-lock.json
-          git --work-tree worktree commit --quiet -m "Build for ${MERGE_SHA}"
+          tar -C worktree -x --exclude '.git*' dist package-lock.json tree < artifact/webpack-jumpstart.tar
+          echo "${BASE_SHA}" > worktree/merge-base
+          git --work-tree worktree add dist package-lock.json merge-base tree
+          git --work-tree worktree commit --quiet -m "Build for ${HEAD_SHA}"
           rm -rf worktree
 
           git tag "sha-${HEAD_SHA}"

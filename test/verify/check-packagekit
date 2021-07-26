@@ -1076,6 +1076,24 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_text(self.update_text, "Bug fix updates available")
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
+    def testNoSubOsRepo(self):
+        m = self.machine
+        b = self.browser
+
+        # pretend we have a proper OS repo that does not require subscription
+        self.createPackage("coreutils", "999", "1")
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        m.start_cockpit()
+        b.login_and_go("/system")
+        b.wait_text(self.update_text, "System is up to date")
+
+        b.go("/updates")
+        b.enter_page("/updates")
+        b.wait_visible("#status .pf-c-card__header button")
+        b.wait_in_text("#status", "System is up to date")
+
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @nondestructive

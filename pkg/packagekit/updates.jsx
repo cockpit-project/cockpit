@@ -916,6 +916,7 @@ class OsUpdates extends React.Component {
             timeSinceRefresh: null,
             loadPercent: null,
             cockpitUpdate: false,
+            haveOsRepo: null,
             allowCancel: null,
             history: [],
             unregistered: false,
@@ -1072,23 +1073,38 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdates() {
-        var updates = {};
-        var cockpitUpdate = false;
+        const updates = {};
+        let cockpitUpdate = false;
 
-        PK.cancellableTransaction("GetUpdates", [0],
-                                  data => this.setState({ state: data.waiting ? "locked" : "loading" }),
-                                  {
-                                      Package: (info, packageId, _summary) => {
-                                          const id_fields = packageId.split(";");
-                                          packageSummaries[id_fields[0]] = _summary;
-                                          // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-                                          if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
-                                              info = PK.Enum.INFO_NORMAL;
-                                          updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };
-                                          if (id_fields[0] == "cockpit-ws")
-                                              cockpitUpdate = true;
-                                      },
-                                  })
+        this.setState({ state: "loading" });
+
+        // check if there is an available version of coreutils; this is a heuristics for unregistered RHEL
+        // systems to see if they need a subscription to get "proper" OS updates
+        let have_coreutils = false;
+        PK.cancellableTransaction(
+            "Resolve",
+            [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED, ["coreutils"]],
+            null,
+            {
+                Package: (info, package_id) => { have_coreutils = true }
+            })
+                .then(() => this.setState({ haveOsRepo: have_coreutils }),
+                      ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
+                .then(() => PK.cancellableTransaction(
+                    "GetUpdates", [0],
+                    data => this.setState({ state: data.waiting ? "locked" : "loading" }),
+                    {
+                        Package: (info, packageId, _summary) => {
+                            const id_fields = packageId.split(";");
+                            packageSummaries[id_fields[0]] = _summary;
+                            // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+                            if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
+                                info = PK.Enum.INFO_NORMAL;
+                            updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };
+                            if (id_fields[0] == "cockpit-ws")
+                                cockpitUpdate = true;
+                        },
+                    }))
                 .then(() => {
                     // get the details for all packages
                     const pkg_ids = Object.keys(updates);
@@ -1246,10 +1262,11 @@ class OsUpdates extends React.Component {
     renderContent() {
         var applySecurity, applyAll;
 
-        if (this.state.unregistered) {
-            // always show empty state pattern, even if there are some
-            // repositories enabled that don't require subscriptions
-
+        /* On unregistered RHEL systems we need some heuristics: If the "main" OS repos (which provide coreutils) require
+         * a subscription, then point this out and don't show available updates, even if there are some auxiliary
+         * repositories enabled which don't require subscriptions. But there are a lot of cases (cloud repos, nightly internal
+         * repos) which don't need a subscription, there it would just be confusing */
+        if (this.state.unregistered && this.state.haveOsRepo === false) {
             page_status.set_own({
                 type: "warning",
                 title: _("Not registered"),

@@ -28,7 +28,6 @@
 #include <gssapi/gssapi.h>
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
-#include <krb5/krb5.h>
 #include <fcntl.h>
 
 static char *last_txt_msg = NULL;
@@ -553,9 +552,15 @@ perform_tlscert (const char *rhost)
 }
 
 
-static void
+/* Return path of ccache file (including FILE: prefix), clean this up at session end */
+static char *
 store_krb_credentials (gss_cred_id_t creds, uid_t uid, gid_t gid)
 {
+  gss_key_value_set_desc store;
+  struct gss_key_value_element_struct element;
+  OM_uint32 major, minor;
+  char *ccache;
+
   assert (creds != GSS_C_NO_CREDENTIAL);
 
   bool was_root = getuid() == 0;
@@ -568,35 +573,35 @@ store_krb_credentials (gss_cred_id_t creds, uid_t uid, gid_t gid)
 
   assert (geteuid () == uid && getegid() == gid);
 
-  krb5_context k5;
-  int res = krb5_init_context (&k5);
-  if (res == 0)
-    {
-      gss_key_value_set_desc store;
-      struct gss_key_value_element_struct element;
-      OM_uint32 major, minor;
+  /* The ccache path needs to be unique per cockpit session; as cockpit-session runs throughout the
+   * lifetime of sessions, our pid is unique. We expect the cache to be cleaned up at the end, but
+   * if not, and the PID gets recycled, this just overwrites the old obsolete one, which is good. */
+  asprintfx (&ccache, "FILE:/run/user/%u/cockpit-session-%u.ccache", uid, getpid ());
+  debug ("storing kerberos credentials in session: %s", ccache);
 
-      store.count = 1;
-      store.elements = &element;
-      element.key = "ccache";
-      element.value = krb5_cc_default_name (k5);
+  store.count = 1;
+  store.elements = &element;
+  element.key = "ccache";
+  element.value = ccache;
 
-      debug ("storing kerberos credentials in session: %s", element.value);
-
-      major = gss_store_cred_into (&minor, creds, GSS_C_INITIATE, GSS_C_NULL_OID, 1, 1, &store, NULL, NULL);
-      if (GSS_ERROR (major))
-        warnx ("couldn't store gssapi credentials: %s", gssapi_strerror (GSS_C_NO_OID, major, minor));
-
-      krb5_free_context (k5);
-    }
-  else
-    {
-      warnx ("couldn't initialize kerberos context: %s", krb5_get_error_message (NULL, res));
-    }
-
+  major = gss_store_cred_into (&minor, creds, GSS_C_INITIATE, GSS_C_NULL_OID, 1, 1, &store, NULL, NULL);
+  if (GSS_ERROR (major))
+    warnx ("couldn't store gssapi credentials: %s", gssapi_strerror (GSS_C_NO_OID, major, minor));
 
   if (was_root && (setresuid (0, 0, 0) != 0 || setresgid (0, 0, 0) != 0))
     err (127, "Unable to restore permissions after storing gss credentials");
+
+  return ccache;
+}
+
+static void
+release_krb_credentials (char *ccache)
+{
+  /* strip off FILE: prefix for deleting */
+  assert (strncmp (ccache, "FILE:", 5) == 0);
+  if (unlink (ccache + 5) != 0)
+    warn ("couldn't clean up kerberos ticket cache %s", ccache);
+  free (ccache);
 }
 
 int
@@ -609,6 +614,7 @@ main (int argc,
   char *authorization;
   char *type = NULL;
   const char **env;
+  char *ccache = NULL;
   int status;
   int res;
   int i;
@@ -679,10 +685,21 @@ main (int argc,
   for (i = 0; env_saved[i] != NULL; i++)
     pam_putenv (pamh, env_saved[i]);
 
-  if (want_session) /* no session → no login messages → no memfd */
+  if (want_session) /* no session → no login messages or XDG_RUNTIME_DIR → no memfd or session ccache */
     {
       if (pam_putenv (pamh, "COCKPIT_LOGIN_MESSAGES_MEMFD=3") != PAM_SUCCESS)
         errx (EX, "Failed to set COCKPIT_LOGIN_MESSAGES_MEMFD=3 in PAM environment");
+
+      if (creds != GSS_C_NO_CREDENTIAL)
+        {
+          ccache = store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);
+          char *ccache_env = NULL;
+          asprintfx (&ccache_env, "KRB5CCNAME=%s", ccache);
+
+          if (pam_putenv (pamh, ccache_env) != PAM_SUCCESS)
+            errx (EX, "Failed to set KRB5CCNAME in PAM environment");
+          free (ccache_env);
+        }
     }
 
   env = (const char **) pam_getenvlist (pamh);
@@ -711,9 +728,6 @@ main (int argc,
 
       int login_messages_fd = cockpit_json_print_finish_memfd (&login_messages);
 
-      if (creds != GSS_C_NO_CREDENTIAL)
-        store_krb_credentials (creds, pwd->pw_uid, pwd->pw_gid);
-
       const int remap_fds[] = { -1, -1, -1, login_messages_fd };
       status = spawn_and_wait (bridge_argv, env, remap_fds, 4, pwd->pw_uid, pwd->pw_gid);
 
@@ -731,6 +745,8 @@ main (int argc,
       res = pam_close_session (pamh, 0);
       if (res != PAM_SUCCESS)
         err (EX, "%s: couldn't close session: %s", pwd->pw_name, pam_strerror (pamh, res));
+      if (ccache)
+        release_krb_credentials (ccache);
     }
   else
     {

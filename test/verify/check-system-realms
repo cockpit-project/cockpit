@@ -833,6 +833,9 @@ ExecStart=/bin/true
         self.configure_kerberos("/etc/cockpit/krb5.keytab")
         m.restart_cockpit()
 
+        # user has no cockpit kerberos session tickets initially
+        m.execute("! ls /run/user/$(id -u admin)/*.ccache")
+
         output = m.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                             '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                             'http://x0.cockpit.lan:9090/cockpit/login'])
@@ -846,12 +849,15 @@ ExecStart=/bin/true
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
-        # run kinit and see if got forwarded the kerberos ticket into the session
+        # kerberos ticket got forwarded into the session
         b.enter_page("/system/terminal")
         b.wait_visible(".terminal .xterm-accessibility-tree")
         b.wait_in_text(line_sel(1), "admin")
         b.key_press("klist\r")
         b.wait_in_text(line_sel(2), "Ticket cache")
+        b.wait_in_text(line_sel(3), "Default principal: admin@COCKPIT.LAN")
+        b.wait_in_text(line_sel(6), "krbtgt/COCKPIT.LAN")
+        self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u admin)/*.ccache"))
 
         # Now connect to another machine
         self.assertNotIn("admin", m.execute("ps -xa | grep sshd"))
@@ -871,7 +877,10 @@ ExecStart=/bin/true
 
         # Make sure we connected via SSH
         self.assertIn("admin", m.execute("ps -xa | grep sshd"))
-        b.kill()
+
+        # forwarded ticket gets cleaned up with the session; this is not completely synchronous
+        b.logout()
+        m.execute("while ls /run/user/$(id -u admin)/*.ccache; do sleep 1; done", timeout=10)
 
         # Remove cockpit keytab
         m.execute("mv /etc/cockpit/krb5.keytab /etc/cockpit/bk.keytab")

@@ -28,11 +28,10 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/resource.h>
-#include <dirent.h>
 #include <signal.h>
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -46,6 +45,8 @@
 #include <security/pam_modules.h>
 
 #include "pam-ssh-add.h"
+
+#include "../common/cockpitcloserange.h"
 
 /* programs that can be overwidden in tests */
 const char *pam_ssh_agent_program = PATH_SSH_AGENT;
@@ -189,92 +190,6 @@ foreach_line (char *lines,
   return ret;
 }
 
-static int
-closefd (void *data,
-         int fd)
-{
-  int *from = data;
-  if (fd >= *from)
-    {
-      while (close (fd) < 0)
-        {
-          if (errno == EAGAIN || errno == EINTR)
-            continue;
-          if (errno == EBADF || errno == EINVAL)
-            break;
-          message ("couldn't close fd in child process: %m");
-          return -1;
-        }
-    }
-
-  return 0;
-}
-
-#ifndef HAVE_FDWALK
-
-static int
-fdwalk (int (*cb)(void *data, int fd),
-        void *data)
-{
-  int open_max;
-  int fd;
-  int res = 0;
-
-  struct rlimit rl;
-
-#ifdef __linux__
-  DIR *d;
-
-  if ((d = opendir ("/proc/self/fd"))) {
-      struct dirent *de;
-
-      while ((de = readdir (d))) {
-          long l;
-          char *e = NULL;
-
-          if (de->d_name[0] == '.')
-              continue;
-
-          errno = 0;
-          l = strtol (de->d_name, &e, 10);
-          if (errno != 0 || !e || *e)
-              continue;
-
-          fd = (int) l;
-
-          if ((long) fd != l)
-              continue;
-
-          if (fd == dirfd (d))
-              continue;
-
-          if ((res = cb (data, fd)) != 0)
-              break;
-        }
-
-      closedir (d);
-      return res;
-  }
-
-  /* If /proc is not mounted or not accessible we fall back to the old
-   * rlimit trick */
-
-#endif
-
-  if (getrlimit (RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
-      open_max = rl.rlim_max;
-  else
-      open_max = sysconf (_SC_OPEN_MAX);
-
-  for (fd = 0; fd < open_max; fd++)
-      if ((res = cb (data, fd)) != 0)
-          break;
-
-  return res;
-}
-
-#endif /* HAVE_FDWALK */
-
 static char *
 read_string (int fd,
              int consume)
@@ -416,8 +331,6 @@ setup_child (const char **args,
              int outp[2],
              int errp[2])
 {
-  int from;
-
   assert (pwd);
   assert (pwd->pw_dir);
 
@@ -430,8 +343,7 @@ setup_child (const char **args,
       exit (EXIT_FAILURE);
     }
 
-  from = STDERR + 1;
-  if (fdwalk (closefd, &from) < 0)
+  if (cockpit_close_range (STDERR + 1, INT_MAX, 0) < 0)
     {
       error ("couldn't close all file descirptors");
       exit (EXIT_FAILURE);

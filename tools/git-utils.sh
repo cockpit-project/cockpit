@@ -83,10 +83,15 @@ fetch_to_cache() {
     fi
 }
 
+# Get the content of "$2" from cache commit "$1"
+cat_from_cache() {
+    git_cache cat-file blob "$1:$2"
+}
+
 # Consistency checking: for a given cache commit "$1", check if it contains a
 # file "$2" which is equal to the file "$3" present in the working tree.
 cmp_from_cache() {
-    git_cache cat-file blob "$1:$2" | cmp "$3"
+    cat_from_cache "$1" "$2" | cmp "$3"
 }
 
 # Like `git clone` except that it uses the original origin url and supports

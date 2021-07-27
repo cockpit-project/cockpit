@@ -77,11 +77,16 @@ if [ -n "${rebase}" ]; then
     git rebase -- "${merge_base}"
 fi
 
-tools/node-modules make_package_lock_json
-
-if ! cmp_from_cache "${tag}" "package-lock.json" "package-lock.json"; then
-    echo "The cached package-lock.json doesn't match our own" >&2
-    exit 1
+target_tree="$(cat_from_cache "${tag}" tree)"
+if [ "$(git rev-parse HEAD^{tree})" != "${target_tree}" ]; then
+    if [ -n "${rebase-}" ]; then
+        echo "Internal error: even after rebase, don't have the correct tree" >&2
+        exit 1
+    else
+        echo "The current working tree needs to be rebased: try --rebase" >&2
+        exit 1
+    fi
 fi
 
+tools/node-modules make_package_lock_json
 unpack_from_cache "${tag}"

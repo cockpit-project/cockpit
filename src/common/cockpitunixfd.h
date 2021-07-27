@@ -45,13 +45,6 @@ guint       cockpit_unix_fd_add_full      (gint priority,
 GSource *   cockpit_unix_fd_source_new    (gint fd,
                                            GIOCondition condition);
 
-int         cockpit_unix_fd_close_all     (int from,
-                                           int except);
-
-int         cockpit_unix_fd_close_until   (int from,
-                                           int except,
-                                           int until);
-
 G_END_DECLS
 
 #endif /* __COCKPIT_UNIX_FD_H__ */

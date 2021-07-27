@@ -59,6 +59,8 @@ sbin_PROGRAMS += remotectl
 libexec_PROGRAMS += cockpit-ws cockpit-session
 
 cockpit_session_SOURCES = \
+	src/common/cockpitcloserange.h \
+	src/common/cockpitcloserange.c \
 	src/ws/cockpit-session-client-certificate.h \
 	src/ws/cockpit-session-client-certificate.c \
 	src/ws/cockpitwsinstancecert.h \

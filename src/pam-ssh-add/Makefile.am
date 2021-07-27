@@ -1,6 +1,8 @@
 noinst_LIBRARIES += libpam_ssh_add.a
 
 libpam_ssh_add_a_SOURCES = \
+	src/common/cockpitcloserange.h \
+	src/common/cockpitcloserange.c \
 	src/pam-ssh-add/pam-ssh-add.c \
 	src/pam-ssh-add/pam-ssh-add.h \
 	$(NULL)

@@ -28,6 +28,7 @@
 
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
+#include "common/cockpitcloserange.h"
 #include "common/cockpiterror.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
@@ -35,7 +36,6 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpitunixfd.h"
 #include "common/cockpitwebserver.h"
 
 #include <security/pam_appl.h>
@@ -507,7 +507,7 @@ session_child_setup (gpointer data)
 
   close (child->io);
 
-  if (cockpit_unix_fd_close_all (3, -1) < 0)
+  if (cockpit_close_range (3, INT_MAX, 0) < 0)
     {
       g_printerr ("couldn't close file descriptors: %m\n");
       _exit (127);

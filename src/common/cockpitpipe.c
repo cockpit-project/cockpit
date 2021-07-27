@@ -21,6 +21,7 @@
 
 #include "cockpitpipe.h"
 
+#include "cockpitcloserange.h"
 #include "cockpitflow.h"
 #include "cockpitunixfd.h"
 #include "cockpitunicode.h"
@@ -1407,7 +1408,7 @@ cockpit_pipe_pty (const gchar **argv,
   pid = forkpty (&fd, NULL, NULL, &winsz);
   if (pid == 0)
     {
-      if (cockpit_unix_fd_close_all (3, -1) < 0)
+      if (cockpit_close_range (3, INT_MAX, 0) < 0)
         {
           g_printerr ("couldn't close file descriptors\n");
           _exit (127);

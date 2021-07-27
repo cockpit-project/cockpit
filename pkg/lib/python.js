@@ -20,8 +20,6 @@
 import cockpit from "cockpit";
 
 // FIXME: eventually convert all images to python 3
-const pyinvoke = ["sh", "-ec", "exec $(which /usr/libexec/platform-python 2>/dev/null || which python3 2>/dev/null || which python) $@", "--", "-"];
-
 export function spawn (script_pieces, args, options) {
     var script;
     if (typeof script_pieces == "string")
@@ -29,5 +27,6 @@ export function spawn (script_pieces, args, options) {
     else
         script = script_pieces.join("\n");
 
-    return cockpit.spawn(pyinvoke.concat(args), options).input(script);
+    return cockpit.spawn(["/bin/sh", "-c", "which /usr/libexec/platform-python 2>/dev/null || which python3 2>/dev/null || which python"])
+                .then(pyexe => cockpit.spawn([pyexe.trim(), "--", "-", args], options).input(script));
 }

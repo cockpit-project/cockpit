@@ -39,13 +39,13 @@
 
 #include "common/cockpitassets.h"
 #include "common/cockpitchannel.h"
+#include "common/cockpitcloserange.h"
 #include "common/cockpitfdpassing.h"
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
-#include "common/cockpitunixfd.h"
 #include "common/cockpitwebresponse.h"
 
 #include <sys/prctl.h>
@@ -216,11 +216,11 @@ start_dbus_daemon (void)
 }
 
 static void
-setup_ssh_agent (gpointer addrfd)
+setup_ssh_agent (gpointer data)
 {
   g_unsetenv ("G_DEBUG");
   prctl (PR_SET_PDEATHSIG, SIGTERM);
-  cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
+  cockpit_close_range (3, INT_MAX, 0);
 }
 
 static GPid
@@ -257,7 +257,7 @@ start_ssh_agent (void)
 
   if (!g_spawn_sync (NULL, agent_argv, NULL,
                      G_SPAWN_SEARCH_PATH, setup_ssh_agent,
-                     GINT_TO_POINTER (-1),
+                     NULL,
                      &agent_output, &agent_error,
                      &status, &error))
     {

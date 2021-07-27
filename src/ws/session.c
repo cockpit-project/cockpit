@@ -366,8 +366,9 @@ static bool
 acquire_service_credentials (gss_OID mech_type, gss_cred_usage_t usage, gss_cred_id_t *cred)
 {
   /* custom credential store with our cockpit keytab */
-  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB } };
-  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 1, .elements = store_elements };
+  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB, },
+                                                         { .key = "ccache", .value = "MEMORY:", } };
+  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 2, .elements = store_elements };
   OM_uint32 major, minor;
 
   debug ("acquiring cockpit service credentials");

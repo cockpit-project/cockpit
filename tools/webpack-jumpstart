@@ -18,12 +18,15 @@ cd "$(realpath -m "$0"/../..)"
 . tools/git-utils.sh
 
 wait=''
+rebase=''
 while [ $# != 0 ] ; do
     case "$1" in
         --wait)
             wait=1;;
+        --rebase)
+            rebase=1;;
         *)
-            echo "usage: $0 [--wait]" >&2
+            echo "usage: $0 [--rebase] [--wait]" >&2
             exit 1
     esac
     shift
@@ -58,6 +61,21 @@ for try in $(seq 50 -1 0); do
     message WAIT 30s
     sleep 30s
 done
+
+if [ -n "${rebase}" ]; then
+    if [ -n "$(git status --porcelain)" ]; then
+        echo 'Refusing to rebase tree with local changes' >&2
+        git status >&2
+        exit 1
+    fi
+    merge_base="$(cat_from_cache "${tag}" merge-base)"
+    # If we don't already have that commit, we'll need to go fetch it
+    if ! git fsck --no-dangling --connectivity-only "${merge_base}"; then
+        message FETCH ".  [${merge_base}]"
+        git fetch --no-write-fetch-head origin "${merge_base}"
+    fi
+    git rebase -- "${merge_base}"
+fi
 
 tools/node-modules make_package_lock_json
 

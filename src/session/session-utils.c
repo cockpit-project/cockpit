@@ -146,42 +146,6 @@ write_control_end (void)
 }
 
 void
-exit_init_problem (int result_code)
-{
-  const char *problem = NULL;
-  const char *message = NULL;
-  char *payload = NULL;
-
-  assert (result_code != PAM_SUCCESS);
-
-  debug ("writing init problem %d", result_code);
-
-  if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
-    problem = "authentication-failed";
-  else if (result_code == PAM_PERM_DENIED)
-    problem = "access-denied";
-  else if (result_code == PAM_AUTHINFO_UNAVAIL)
-    problem = "authentication-unavailable";
-  else
-    problem = "internal-error";
-
-  if (last_err_msg)
-    message = last_err_msg;
-  else
-    message = pam_strerror (NULL, result_code);
-
-  if (asprintf (&payload, "\n{\"command\":\"init\",\"version\":1,\"problem\":\"%s\",\"message\":\"%s\"}",
-                problem, message) < 0)
-    errx (EX, "couldn't allocate memory for message");
-
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
-    err (EX, "couldn't write init message");
-
-  free (payload);
-  exit (5);
-}
-
-void
 build_string (char **buf,
               size_t *size,
               const char *str,
@@ -198,119 +162,6 @@ build_string (char **buf,
   *buf += len;
   *size -= len;
 }
-
-int
-open_session (pam_handle_t *pamh)
-{
-  const char *name;
-  int res;
-  static struct passwd pwd_buf;
-  static char pwd_string_buf[8192];
-  static char home_env_buf[8192];
-  int i;
-
-  name = NULL;
-  pwd = NULL;
-
-  res = pam_get_item (pamh, PAM_USER, (const void **)&name);
-  if (res != PAM_SUCCESS)
-    {
-      warnx ("couldn't load user from pam");
-      return res;
-    }
-
-  res = getpwnam_r (name, &pwd_buf, pwd_string_buf, sizeof (pwd_string_buf), &pwd);
-  if (pwd == NULL)
-    {
-      warnx ("couldn't load user info for: %s: %s", name,
-             res == 0 ? "not found" : strerror (res));
-      return PAM_SYSTEM_ERR;
-    }
-
-  /*
-   * If we're already running as the right user, and have authenticated
-   * then skip starting a new session. This is used when testing, or
-   * running as your own user.
-   */
-
-  want_session = !(geteuid () != 0 &&
-                   geteuid () == pwd->pw_uid &&
-                   getuid () == pwd->pw_uid &&
-                   getegid () == pwd->pw_gid &&
-                   getgid () == pwd->pw_gid);
-
-  if (want_session)
-    {
-      debug ("checking access for %s", name);
-      res = pam_acct_mgmt (pamh, 0);
-      if (res == PAM_NEW_AUTHTOK_REQD)
-        {
-          warnx ("user account or password has expired: %s: %s", name, pam_strerror (pamh, res));
-
-          /*
-           * Certain PAM implementations return PAM_AUTHTOK_ERR if the users input does not
-           * match criteria. Let the conversation happen three times in that case.
-           */
-          for (i = 0; i < 3; i++) {
-              res = pam_chauthtok (pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
-              if (res != PAM_SUCCESS)
-                warnx ("unable to change expired account or password: %s: %s", name, pam_strerror (pamh, res));
-              if (res != PAM_AUTHTOK_ERR)
-                break;
-          }
-        }
-      else if (res != PAM_SUCCESS)
-        {
-          warnx ("user account access failed: %d %s: %s", res, name, pam_strerror (pamh, res));
-        }
-
-      if (res != PAM_SUCCESS)
-        {
-          /* We change PAM_AUTH_ERR to PAM_PERM_DENIED so that we can
-           * distinguish between failures here and in *
-           * pam_authenticate.
-           */
-          if (res == PAM_AUTH_ERR)
-            res = PAM_PERM_DENIED;
-
-          return res;
-        }
-
-      debug ("opening pam session for %s", name);
-
-      res = snprintf (home_env_buf, sizeof (home_env_buf), "HOME=%s", pwd->pw_dir);
-      /* this really can't fail, as the buffer for the entire pwd is not larger, but make double sure */
-      assert (res < sizeof (home_env_buf));
-
-      pam_putenv (pamh, "XDG_SESSION_CLASS=user");
-      pam_putenv (pamh, "XDG_SESSION_TYPE=web");
-      pam_putenv (pamh, home_env_buf);
-
-      res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
-      if (res != PAM_SUCCESS)
-        {
-          warnx ("establishing credentials failed: %s: %s", name, pam_strerror (pamh, res));
-          return res;
-        }
-
-      res = pam_open_session (pamh, 0);
-      if (res != PAM_SUCCESS)
-        {
-          warnx ("couldn't open session: %s: %s", name, pam_strerror (pamh, res));
-          return res;
-        }
-
-      res = pam_setcred (pamh, PAM_REINITIALIZE_CRED);
-      if (res != PAM_SUCCESS)
-        {
-          warnx ("reinitializing credentials failed: %s: %s", name, pam_strerror (pamh, res));
-          return res;
-        }
-    }
-
-  return PAM_SUCCESS;
-}
-
 
 static bool
 do_lastlog (uid_t                 uid,
@@ -607,49 +458,6 @@ out:
 }
 
 void
-pass_to_child (int signo)
-{
-  if (child > 0)
-    kill (child, signo);
-}
-
-/* Environment variables to transfer */
-static const char *env_names[] = {
-  "G_DEBUG",
-  "G_MESSAGES_DEBUG",
-  "G_SLICE",
-  "PATH",
-  "COCKPIT_REMOTE_PEER",
-  NULL
-};
-
-/* Holds environment values to set in pam context */
-char *env_saved[sizeof (env_names) / sizeof (env_names)[0]] = { NULL, };
-
-void
-save_environment (void)
-{
-  const char *value;
-  int i, j;
-
-  /* Force save our default path */
-  if (!getenv ("COCKPIT_TEST_KEEP_PATH"))
-    setenv ("PATH", DEFAULT_PATH, 1);
-
-  for (i = 0, j = 0; env_names[i] != NULL; i++)
-    {
-      value = getenv (env_names[i]);
-      if (value)
-        {
-          if (asprintf (env_saved + (j++), "%s=%s", env_names[i], value) < 0)
-            errx (42, "couldn't allocate environment");
-        }
-    }
-
-  env_saved[j] = NULL;
-}
-
-void
 authorize_logger (const char *data)
 {
   warnx ("%s", data);
@@ -793,19 +601,4 @@ spawn_and_wait (const char **argv, const char **envp,
 
       return wstatus;
     }
-}
-
-bool
-user_has_valid_login_shell (const char **envp)
-{
-  /* <lis> >>> random.randint(0,127)
-   * <lis> 71
-   * <pitti> https://xkcd.com/221/
-   */
-  const char *argv[] = { pwd->pw_shell, "-c", "exit 71;", NULL };
-  const int remap_fds[] = { -1, 2, -1 }; /* send stdout to stderr */
-  int wstatus;
-
-  wstatus = spawn_and_wait (argv, envp, remap_fds, 3, pwd->pw_uid, pwd->pw_gid);
-  return WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71;
 }

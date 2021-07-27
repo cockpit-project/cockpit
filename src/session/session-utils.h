@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "config.h"
 
 #include <assert.h>
@@ -36,33 +38,29 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <security/pam_appl.h>
-
 #include "common/cockpitauthorize.h"
 #include "common/cockpitmemory.h"
 
 #define DEBUG_SESSION 0
+
+#if DEBUG_SESSION
+#define debug(fmt, ...) (fprintf (stderr, "%s: " fmt "\n", program_name, ##__VA_ARGS__))
+#else
+#define debug(...)
+#endif
+
 #define EX 127
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-#if     __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
-#define GNUC_NORETURN __attribute__((__noreturn__))
-#else
-#define GNUC_NORETURN
-#endif
 
 extern const char *program_name;
 extern struct passwd *pwd;
 extern char *last_err_msg;
 extern char *last_err_msg;
-extern char *env_saved[];
 extern int want_session;
 extern pid_t child;
 
 void build_string (char **buf, size_t *size, const char *str, size_t len);
 void authorize_logger (const char *data);
-void save_environment (void);
-void pass_to_child (int signo);
 void utmp_log (int login, const char *rhost, FILE *messages);
 void btmp_log (const char *username, const char *rhost);
 
@@ -72,16 +70,6 @@ void write_control_string (const char *field, const char *str);
 void write_control_bool (const char *field, bool val);
 void write_control_end (void);
 
-GNUC_NORETURN void exit_init_problem (int result_code);
-
-#if DEBUG_SESSION
-#define debug(fmt, ...) (fprintf (stderr, "%s: " fmt "\n", program_name, ##__VA_ARGS__))
-#else
-#define debug(...)
-#endif
-
-int open_session (pam_handle_t *pamh);
-
 int
 spawn_and_wait (const char **argv,
                 const char **envp,
@@ -89,6 +77,3 @@ spawn_and_wait (const char **argv,
                 int n_remap_fds,
                 uid_t uid,
                 gid_t gid);
-
-bool
-user_has_valid_login_shell (const char **envp);

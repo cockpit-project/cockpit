@@ -17,6 +17,18 @@ set -eu
 cd "$(realpath -m "$0"/../..)"
 . tools/git-utils.sh
 
+wait=''
+while [ $# != 0 ] ; do
+    case "$1" in
+        --wait)
+            wait=1;;
+        *)
+            echo "usage: $0 [--wait]" >&2
+            exit 1
+    esac
+    shift
+done
+
 [ -n "${quiet}" ] || set -x
 
 tools/node-modules make_package_lock_json
@@ -41,7 +53,7 @@ for try in $(seq 50 -1 0); do
     if fetch_to_cache tag "${tag}"; then
         break
     fi
-    if [ "${1-}" != '--wait' -o "$try" = '0' ]; then
+    if [ -z "${wait}" -o "$try" = '0' ]; then
         echo "There is no cache entry ${tag}" >&2
         exit 1
     fi

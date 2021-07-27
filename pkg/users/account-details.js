@@ -315,7 +315,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     <div>
                                         <div className="account-column-one">
                                             <Checkbox id="account-locked"
-                                                      isDisabled={!superuser.allowed || edited_locked != null}
+                                                      isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
                                                       isChecked={edited_locked != null ? edited_locked : details.locked}
                                                       label={_("Lock account")}
                                                       onChange={checked => change_locked(checked)} />

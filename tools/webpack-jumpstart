@@ -31,8 +31,6 @@ done
 
 [ -n "${quiet}" ] || set -x
 
-tools/node-modules make_package_lock_json
-
 if [ -e dist ]; then
     echo "jumpstart: dist/ already exists, skipping" >&2
     exit 1
@@ -60,6 +58,8 @@ for try in $(seq 50 -1 0); do
     message WAIT 30s
     sleep 30s
 done
+
+tools/node-modules make_package_lock_json
 
 if ! cmp_from_cache "${tag}" "package-lock.json" "package-lock.json"; then
     echo "The cached package-lock.json doesn't match our own" >&2

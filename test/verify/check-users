@@ -223,6 +223,10 @@ class TestAccounts(MachineCase):
             b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_visible(admin_role_sel + ":checked:not([disabled])")
+
+        # Cannot lock the current account
+        b.wait_visible("#account-locked[disabled]")
+
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_visible(admin_role_sel + ":checked")

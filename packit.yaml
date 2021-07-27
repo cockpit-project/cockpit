@@ -1,14 +1,17 @@
 specfile_path: cockpit.spec
 actions:
   post-upstream-clone:
+    # this is being triggered immediately on a pull_request event; wait for
+    # build-dist.yml to generate the dist tarball.  git rebase needs an
+    # identity in order to rewrite the committer field.
+    - git config --global user.name 'nobody'
+    - git config --global user.email '<>'
+    - tools/webpack-jumpstart --wait --rebase
     # the upstream git spec file has unresolved macros which are normally put
     # in at `make dist` time; they are not important for CI
     # also, build optional packages for CentOS 8
     - sh -c 'sed "s/%{npm-version:.*}/0/; s/build_optional 0/build_optional 1/" tools/cockpit.spec > cockpit.spec'
   create-archive:
-    # this is being triggered immediately on a pull_request event; wait for
-    # build-dist.yml to generate the dist tarball
-    - tools/webpack-jumpstart --wait
     - ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
     - make XZ_OPT=-0 dist
     - sh -c 'echo cockpit-*.tar.xz'

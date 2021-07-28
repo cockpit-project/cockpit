@@ -22,8 +22,6 @@
 #include "mock-service.h"
 #include "mock-dbus-tests.h"
 
-#include "common/cockpitunixfd.h"
-
 #include <gio/gio.h>
 #include <gio/gunixfdlist.h>
 #include <glib-unix.h>
@@ -528,7 +526,7 @@ on_make_test_fd (TestFrobber *frobber,
       g_assert_no_error (error);
       close (fds[1]);
 
-      cockpit_unix_fd_add (fds[0], G_IO_IN, test_fd_pipe_readable, NULL);
+      g_unix_fd_add (fds[0], G_IO_IN, test_fd_pipe_readable, NULL);
     }
   else
     g_assert_not_reached ();

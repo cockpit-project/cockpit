@@ -23,7 +23,6 @@
 
 #include "cockpitcloserange.h"
 #include "cockpitflow.h"
-#include "cockpitunixfd.h"
 #include "cockpitunicode.h"
 
 #include <glib-unix.h>
@@ -689,7 +688,7 @@ start_output (CockpitPipe *self)
   CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
 
   g_assert (priv->out_source == NULL);
-  priv->out_source = cockpit_unix_fd_source_new (priv->out_fd, G_IO_OUT);
+  priv->out_source = g_unix_fd_source_new (priv->out_fd, G_IO_OUT);
   g_source_set_name (priv->out_source, "pipe-output");
   g_source_set_callback (priv->out_source, (GSourceFunc)dispatch_output, self, NULL);
   g_source_attach (priv->out_source, priv->context);
@@ -701,7 +700,7 @@ start_input (CockpitPipe *self)
   CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
 
   g_assert (priv->in_source == NULL);
-  priv->in_source = cockpit_unix_fd_source_new (priv->in_fd, G_IO_IN);
+  priv->in_source = g_unix_fd_source_new (priv->in_fd, G_IO_IN);
   g_source_set_name (priv->in_source, "pipe-input");
   g_source_set_callback (priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
   g_source_attach (priv->in_source, priv->context);
@@ -760,7 +759,7 @@ cockpit_pipe_constructed (GObject *object)
         }
 
       priv->err_buffer = g_byte_array_new ();
-      priv->err_source = cockpit_unix_fd_source_new (priv->err_fd, G_IO_IN);
+      priv->err_source = g_unix_fd_source_new (priv->err_fd, G_IO_IN);
       g_source_set_name (priv->err_source, "pipe-error");
       g_source_set_callback (priv->err_source, (GSourceFunc)dispatch_error, self, NULL);
       g_source_attach (priv->err_source, priv->context);

@@ -26,7 +26,6 @@
 #include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitunicode.h"
-#include "common/cockpitunixfd.h"
 
 #include <gio/gunixsocketaddress.h>
 #include <glib-unix.h>
@@ -486,7 +485,7 @@ static void
 start_output (CockpitPacketChannel *self)
 {
   g_assert (self->out_source == NULL);
-  self->out_source = cockpit_unix_fd_source_new (self->fd, G_IO_OUT);
+  self->out_source = g_unix_fd_source_new (self->fd, G_IO_OUT);
   g_source_set_name (self->out_source, "packet-output");
   g_source_set_callback (self->out_source, (GSourceFunc)dispatch_output, self, NULL);
   g_source_attach (self->out_source, self->context);
@@ -496,7 +495,7 @@ static void
 start_input (CockpitPacketChannel *self)
 {
   g_assert (self->in_source == NULL);
-  self->in_source = cockpit_unix_fd_source_new (self->fd, G_IO_IN);
+  self->in_source = g_unix_fd_source_new (self->fd, G_IO_IN);
   g_source_set_name (self->in_source, "packet-input");
   g_source_set_callback (self->in_source, (GSourceFunc)dispatch_input, self, NULL);
   g_source_attach (self->in_source, self->context);

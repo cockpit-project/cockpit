@@ -24,7 +24,6 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpittransport.h"
-#include "common/cockpitunixfd.h"
 
 #include <errno.h>
 #include <stdlib.h>

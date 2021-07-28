@@ -27,7 +27,6 @@
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
-#include "common/cockpitunixfd.h"
 
 #include <errno.h>
 #include <stdio.h>

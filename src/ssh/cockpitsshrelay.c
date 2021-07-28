@@ -28,7 +28,6 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpittest.h"
 #include "common/cockpittransport.h"
-#include "common/cockpitunixfd.h"
 
 #include "cockpitsshrelay.h"
 #include "cockpitsshoptions.h"

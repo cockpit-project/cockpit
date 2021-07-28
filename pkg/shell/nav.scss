@@ -271,6 +271,18 @@ $desktop: $phone + 1px;
 
     .dropdown-menu {
         width: auto !important;
+
+        .pf-c-button {
+            // Set position relative to the menu item
+            position: relative;
+
+            // Align icons midway in the left gutter
+            svg {
+                position: absolute;
+                left: calc((var(--mobile-menu-padding-width) - var(--pf-global--icon--FontSize--sm)) / 2);
+                top: calc((100% - var(--pf-global--icon--FontSize--md))/2);
+            }
+        }
     }
 
     .area-ct-subnav,
@@ -323,9 +335,10 @@ $desktop: $phone + 1px;
         .dropdown-menu > li > a,
         .dropdown-menu > li > button,
         .dropdown-menu > li > span {
+            --mobile-menu-padding-width: var(--pf-global--spacer--2xl);
             /* Make menu items a consistent, touch-friendly size */
-            padding: 0 40px;
-            line-height: 54px;
+            padding: 0 var(--mobile-menu-padding-width);
+            line-height: var(--pf-global--spacer--2xl);
             color: #333;
         }
     }
@@ -633,9 +646,37 @@ $desktop: $phone + 1px;
     }
 }
 
-.super-user-indicator > button {
-    &:hover, &:focus {
-        text-decoration: underline;
+.super-user-indicator {
+    @media (min-width: $desktop) {
+        > .ct-locked {
+            > .ct-lock-wrapper {
+                background: var(--pf-global--BackgroundColor--dark-200);
+                border-radius: var(--pf-global--BorderRadius--sm);
+                padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+
+                > svg {
+                    margin-right: var(--pf-global--spacer--sm);
+                    color: var(--pf-global--palette--gold-300);
+                }
+            }
+
+            &:hover, &:focus {
+                background: none;
+                > .ct-lock-wrapper {
+                    background: var(--pf-global--BackgroundColor--dark-400);
+                }
+            }
+        }
+    }
+
+    > .ct-unlocked {
+        &:hover, &:focus {
+            text-decoration: underline;
+        }
+
+        svg {
+            display: none;
+        }
     }
 }
 

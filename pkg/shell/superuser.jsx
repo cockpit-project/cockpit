@@ -22,6 +22,7 @@ import React from "react";
 import { Alert, Button, Modal } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
+import { LockIcon } from '@patternfly/react-icons';
 
 import "form-layout.scss";
 
@@ -354,8 +355,11 @@ export class SuperuserIndicator extends React.Component {
     render() {
         function create_trigger(unlocked, onclick) {
             return (
-                <Button variant="link" onClick={onclick}>
-                    {unlocked ? _("Administrative access") : _("Limited access")}
+                <Button variant="link" onClick={onclick} className={unlocked ? "ct-unlocked" : "ct-locked"}>
+                    <span className="ct-lock-wrapper">
+                        <LockIcon />
+                        {unlocked ? _("Administrative access") : _("Limited access")}
+                    </span>
                 </Button>);
         }
 

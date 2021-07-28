@@ -5,6 +5,14 @@
 @import "../lib/table.css";
 
 .ct-limited-access-alert {
+  --pf-c-alert--GridTemplateColumns: auto auto 1fr;
+
+  // Fix vertical alignment
+  // Unset the H4 line-height (as PF3/Bootstrap/etc. sets it; PF4 doesn't)
+  > .pf-c-alert__title {
+    line-height: unset;
+  }
+
   // Deconstruct nicely on small screen sizes (especially mobile)
   // This will not be needed in a future PF4 update
   //
@@ -28,6 +36,12 @@
   padding-right: var(--pf-c-page__main-section--PaddingRight);
   > .pf-c-alert__action {
       margin-right: 0;
+      margin-left: var(--pf-global--spacer--md);
+  }
+
+  // Align left content with the rest of the page
+  @media (min-width: $pf-global--breakpoint--xl) {
+      padding-left: var(--pf-global--spacer--lg);
   }
 }
 

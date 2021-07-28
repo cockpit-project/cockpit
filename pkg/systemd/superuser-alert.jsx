@@ -24,6 +24,8 @@ import {
     Alert, Button
 } from '@patternfly/react-core';
 
+import { LockIcon } from '@patternfly/react-icons';
+
 import { SuperuserDialogs } from "../shell/superuser.jsx";
 
 const _ = cockpit.gettext;
@@ -50,7 +52,8 @@ export class SuperuserAlert extends React.Component {
             <>
                 <Alert className="ct-limited-access-alert"
                        hidden={this.superuser.Current != "none"}
-                       variant="info" isInline
+                       variant="warning" isInline
+                       customIcon={<LockIcon />}
                        actionClose={actions}
                        title={_("Web console is running in limited access mode.")} />
             </>);

@@ -153,7 +153,7 @@ static void
 handle_https_factory (int listen_fd)
 {
   int fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
-  Fingerprint fingerprint;
+  char instance[WSINSTANCE_MAX];
   const char *result;
 
   debug (HELPER, "connection to https-factory.sock:");
@@ -162,11 +162,11 @@ handle_https_factory (int listen_fd)
     err (EXIT_FAILURE, "accept connection to https-factory.sock");
 
   debug (HELPER, "  -> reading instance name... ");
-  if (!recv_alnum (fd, fingerprint.str, sizeof fingerprint.str, 10 * 1000000))
+  if (!recv_alnum (fd, instance, sizeof instance, 10 * 1000000))
     errx (EXIT_FAILURE, "failed to read fingerprint");
 
   debug (HELPER, "  -> success: '%s'", fingerprint.str);
-  if (strcmp (fingerprint.str, SHA256_NIL) == 0) /* we check this value from the tests */
+  if (strcmp (instance, SHA256_NIL) == 0) /* we check this value from the tests */
     result = "done";
   else
     result = "fail";

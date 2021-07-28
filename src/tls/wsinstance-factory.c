@@ -64,7 +64,7 @@ match_job_removed (sd_bus_message *message,
 int
 main (void)
 {
-  Fingerprint fingerprint;
+  char instance[WSINSTANCE_MAX];
   sd_bus_error error = SD_BUS_ERROR_NULL;
   sd_bus *bus = NULL;
   char unit[UNIT_MAX + 1];
@@ -76,7 +76,7 @@ main (void)
   if (sd_listen_fds_with_names (false, &fdnames) != 1 || strcmp (fdnames[0], "connection") != 0)
     errx (EXIT_FAILURE, "Must be spawned from a systemd service on a socket with Accept=yes %s", fdnames[0]);
 
-  if (!recv_alnum (SD_LISTEN_FDS_START, fingerprint.str, sizeof fingerprint.str, 10 * 1000000))
+  if (!recv_alnum (SD_LISTEN_FDS_START, instance, sizeof instance, 10 * 1000000))
     errx (EXIT_FAILURE, "Didn't receive fingerprint");
 
   r = sd_bus_open_system (&bus);
@@ -103,8 +103,8 @@ main (void)
   if (r < 0)
     errx (EXIT_FAILURE, "Failed to install match rule: %s", strerror (-r));
 
-  /* can't fail, because fingerprint is small */
-  r = snprintf (unit, sizeof unit, "cockpit-wsinstance-https@%s.socket", fingerprint.str);
+  /* can't fail, because instance is small */
+  r = snprintf (unit, sizeof unit, "cockpit-wsinstance-https@%s.socket", instance);
   assert (0 < r && r < sizeof unit);
 
   debug (FACTORY, "Requesting start of unit %s", unit);

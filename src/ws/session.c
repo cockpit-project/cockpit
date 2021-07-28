@@ -378,9 +378,9 @@ acquire_service_credentials (gss_OID mech_type, gss_cred_usage_t usage, gss_cred
 
   if (GSS_ERROR (major))
     {
-      /* This is a routine error message, don't litter */
       const char *msg = gssapi_strerror (mech_type, major, minor);
-      if (!strstr (msg, "nonexistent or empty"))
+      /* don't litter journal with error message if keytab was not set up, as that's expected */
+      if (major != GSS_S_NO_CRED && !strstr (msg, "nonexistent or empty"))
         warnx ("couldn't acquire server credentials: %s", msg);
       return false;
     }

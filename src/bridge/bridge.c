@@ -173,78 +173,49 @@ send_init_command (CockpitTransport *transport,
   g_bytes_unref (bytes);
 }
 
-static void
-setup_dbus_daemon (gpointer addrfd)
-{
-  g_unsetenv ("G_DEBUG");
-  cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
-}
-
-static GPid
+static GSubprocess *
 start_dbus_daemon (void)
 {
-  GError *error = NULL;
-  GString *address = NULL;
-  gchar *line;
-  gsize len;
-  gssize ret;
-  GPid pid = 0;
-  gchar *print_address = NULL;
+  g_autoptr(GError) error = NULL;
   int addrfd[2] = { -1, -1 };
-  GSpawnFlags flags;
-
-  gchar *dbus_argv[] = {
-      "dbus-daemon",
-      "--print-address=X",
-      "--session",
-      NULL
-  };
 
   if (pipe (addrfd))
     {
       g_warning ("pipe failed to allocate fds: %m");
-      goto out;
+      return NULL;
     }
 
-  print_address = g_strdup_printf ("--print-address=%d", addrfd[1]);
-  dbus_argv[1] = print_address;
-
   /* The DBus daemon produces useless messages on stderr mixed in */
-  flags = G_SPAWN_LEAVE_DESCRIPTORS_OPEN | G_SPAWN_SEARCH_PATH |
-          G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_STDOUT_TO_DEV_NULL;
-
-  g_spawn_async_with_pipes (NULL, dbus_argv, NULL, flags,
-                            setup_dbus_daemon, GINT_TO_POINTER (addrfd[1]),
-                            &pid, NULL, NULL, NULL, &error);
-
-  close (addrfd[1]);
+  g_autoptr(GSubprocessLauncher) dbus_daemon = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_SILENCE |
+                                                                          G_SUBPROCESS_FLAGS_STDERR_SILENCE);
+  g_subprocess_launcher_unsetenv (dbus_daemon, "G_DEBUG");
+  g_subprocess_launcher_take_fd (dbus_daemon, addrfd[1], 3);
+  GSubprocess *process = g_subprocess_launcher_spawn (dbus_daemon, &error, "dbus-daemon", "--print-address=3", "--session", NULL);
 
   if (error != NULL)
     {
       if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
-        g_debug ("couldn't start %s: %s", dbus_argv[0], error->message);
+        g_debug ("couldn't start dbus-daemon: %s", error->message);
       else
-        g_message ("couldn't start %s: %s", dbus_argv[0], error->message);
-      g_error_free (error);
-      pid = 0;
-      goto out;
+        g_message ("couldn't start dbus-daemon: %s", error->message);
+      return NULL;
     }
 
-  g_debug ("launched %s", dbus_argv[0]);
+  g_debug ("launched dbus-daemon: %s", g_subprocess_get_identifier (process));
 
-  address = g_string_new ("");
+  g_autoptr(GString) address = g_string_new ("");
   for (;;)
     {
-      len = address->len;
+      gsize len = address->len;
       g_string_set_size (address, len + 256);
-      ret = read (addrfd[0], address->str + len, 256);
+      int ret = read (addrfd[0], address->str + len, 256);
       if (ret < 0)
         {
           g_string_set_size (address, len);
           if (errno != EAGAIN && errno != EINTR)
             {
               g_warning ("couldn't read address from dbus-daemon: %s", g_strerror (errno));
-              goto out;
+              return process;
             }
         }
       else if (ret == 0)
@@ -255,7 +226,7 @@ start_dbus_daemon (void)
       else
         {
           g_string_set_size (address, len + ret);
-          line = strchr (address->str, '\n');
+          gchar *line = strchr (address->str, '\n');
           if (line != NULL)
             {
               *line = '\0';
@@ -263,6 +234,7 @@ start_dbus_daemon (void)
             }
         }
     }
+  close (addrfd[0]);
 
   if (address->str[0] == '\0')
     {
@@ -274,13 +246,7 @@ start_dbus_daemon (void)
       g_debug ("session bus address: %s", address->str);
     }
 
-out:
-  if (addrfd[0] >= 0)
-    close (addrfd[0]);
-  if (address)
-    g_string_free (address, TRUE);
-  g_free (print_address);
-  return pid;
+  return process;
 }
 
 static void
@@ -466,7 +432,7 @@ run_bridge (const gchar *interactive,
   gboolean closed = FALSE;
   const gchar *directory;
   struct passwd *pwd;
-  GPid daemon_pid = 0;
+  g_autoptr (GSubprocess) dbus_daemon_process = NULL;
   GPid agent_pid = 0;
   guint sig_term;
   guint sig_int;
@@ -512,7 +478,7 @@ run_bridge (const gchar *interactive,
   if (!interactive && !privileged_peer)
     {
       if (!have_env ("DBUS_SESSION_BUS_ADDRESS"))
-        daemon_pid = start_dbus_daemon ();
+        dbus_daemon_process = start_dbus_daemon ();
       if (!have_env ("SSH_AUTH_SOCK"))
         agent_pid = start_ssh_agent ();
     }
@@ -580,8 +546,8 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_machines_cleanup ();
   cockpit_dbus_internal_cleanup ();
 
-  if (daemon_pid)
-    kill (daemon_pid, SIGTERM);
+  if (dbus_daemon_process)
+    g_subprocess_send_signal (dbus_daemon_process, SIGTERM);
   if (agent_pid)
     kill (agent_pid, SIGTERM);
 

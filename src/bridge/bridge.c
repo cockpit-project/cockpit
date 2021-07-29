@@ -177,20 +177,12 @@ static GSubprocess *
 start_dbus_daemon (void)
 {
   g_autoptr(GError) error = NULL;
-  int addrfd[2] = { -1, -1 };
-
-  if (pipe (addrfd))
-    {
-      g_warning ("pipe failed to allocate fds: %m");
-      return NULL;
-    }
 
   /* The DBus daemon produces useless messages on stderr mixed in */
-  g_autoptr(GSubprocessLauncher) dbus_daemon = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_SILENCE |
+  g_autoptr(GSubprocessLauncher) dbus_daemon = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
                                                                           G_SUBPROCESS_FLAGS_STDERR_SILENCE);
   g_subprocess_launcher_unsetenv (dbus_daemon, "G_DEBUG");
-  g_subprocess_launcher_take_fd (dbus_daemon, addrfd[1], 3);
-  GSubprocess *process = g_subprocess_launcher_spawn (dbus_daemon, &error, "dbus-daemon", "--print-address=3", "--session", NULL);
+  GSubprocess *process = g_subprocess_launcher_spawn (dbus_daemon, &error, "dbus-daemon", "--print-address", "--session", NULL);
 
   if (error != NULL)
     {
@@ -203,47 +195,21 @@ start_dbus_daemon (void)
 
   g_debug ("launched dbus-daemon: %s", g_subprocess_get_identifier (process));
 
-  g_autoptr(GString) address = g_string_new ("");
-  for (;;)
-    {
-      gsize len = address->len;
-      g_string_set_size (address, len + 256);
-      int ret = read (addrfd[0], address->str + len, 256);
-      if (ret < 0)
-        {
-          g_string_set_size (address, len);
-          if (errno != EAGAIN && errno != EINTR)
-            {
-              g_warning ("couldn't read address from dbus-daemon: %s", g_strerror (errno));
-              return process;
-            }
-        }
-      else if (ret == 0)
-        {
-          g_string_set_size (address, len);
-          break;
-        }
-      else
-        {
-          g_string_set_size (address, len + ret);
-          gchar *line = strchr (address->str, '\n');
-          if (line != NULL)
-            {
-              *line = '\0';
-              break;
-            }
-        }
-    }
-  close (addrfd[0]);
+  /* dbus-daemon writes the address as one line */
+  g_autoptr (GDataInputStream) dbus_output = g_data_input_stream_new (g_subprocess_get_stdout_pipe (process));
+  g_autofree gchar *address = g_data_input_stream_read_line (dbus_output, NULL, NULL, &error);
 
-  if (address->str[0] == '\0')
+  if (address)
     {
-      g_message ("dbus-daemon didn't send us a dbus address; not installed?");
+      g_setenv ("DBUS_SESSION_BUS_ADDRESS", address, TRUE);
+      g_debug ("session bus address: %s", address);
     }
   else
     {
-      g_setenv ("DBUS_SESSION_BUS_ADDRESS", address->str, TRUE);
-      g_debug ("session bus address: %s", address->str);
+      if (error)
+        g_warning ("couldn't read address from dbus-daemon: %s", error->message);
+      else
+        g_message ("dbus-daemon didn't send us a dbus address; not installed?");
     }
 
   return process;

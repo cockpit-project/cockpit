@@ -11,7 +11,7 @@ libpam_ssh_add_a_LIBS = \
 	libpam_ssh_add.a \
 	$(PAM_LIBS)
 
-pam_ssh_add_FILES = src/pam-ssh-add/pam-ssh-add.c src/pam-ssh-add/pam-ssh-add.c
+pam_ssh_add_FILES = src/pam-ssh-add/pam-ssh-add.c
 pam_ssh_add.so: libpam_ssh_add.a $(pam_ssh_add_FILES)
 	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) $(libpam_ssh_add_a_CFLAGS) -I$(builddir) \
 		-o $@ $^ $(libpam_ssh_add_a_LIBS) $(LDFLAGS)

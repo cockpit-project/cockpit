@@ -108,10 +108,10 @@ import gssapi, pwd, os
 user = 'user@COCKPIT.LAN'
 ccache = f'/run/cockpit/tls/{user}.ccache'
 
-serverCred = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { b'client_keytab': b'/etc/cockpit/krb5.keytab' }, lifetime=30)
+serverCred = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { b'client_keytab': b'/etc/cockpit/krb5.keytab' }, usage='initiate', lifetime=30)
 impersonee = gssapi.Name(user, gssapi.NameType.kerberos_principal)
 credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(serverCred.creds, impersonee)
-gssapi.creds.rcred_cred_store.store_cred_into({ b'ccache': f'FILE:{ccache}'.encode(), b'keytab': b'/etc/cockpit/krb5.keytab' }, credResults4u2self.creds, overwrite=True)
+gssapi.creds.rcred_cred_store.store_cred_into({ b'ccache': f'FILE:{ccache}'.encode() }, credResults4u2self.creds, overwrite=True)
 # make it readable for the user
 u = pwd.getpwnam(user)
 os.chmod(ccache, 0o400)

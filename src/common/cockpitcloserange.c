@@ -56,8 +56,6 @@ closefd (void *data,
   return 0;
 }
 
-#ifndef HAVE_FDWALK
-
 static int
 fdwalk (int (*cb)(void *data, int fd),
         void *data)
@@ -118,9 +116,6 @@ fdwalk (int (*cb)(void *data, int fd),
 
   return res;
 }
-
-#endif /* HAVE_FDWALK */
-
 
 int
 cockpit_close_range (int from, int max_fd, int flags)

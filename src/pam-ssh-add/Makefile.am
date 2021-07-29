@@ -5,7 +5,7 @@ libpam_ssh_add_a_SOURCES = \
 	src/pam-ssh-add/pam-ssh-add.h \
 	$(NULL)
 
-libpam_ssh_add_a_CFLAGS = $(NULL)
+libpam_ssh_add_a_CFLAGS = -fPIC
 
 libpam_ssh_add_a_LIBS = \
 	libpam_ssh_add.a \

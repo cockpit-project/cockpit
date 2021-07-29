@@ -291,10 +291,6 @@ if test "x$GCC" = "xyes"; then
 fi
 changequote([,])dnl
 
-# System functions
-
-AC_CHECK_FUNCS(fdwalk)
-
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])

@@ -25,66 +25,33 @@
 #include <dirent.h>
 #include <err.h>
 #include <errno.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/resource.h>
 
-typedef struct {
-  int from;
-  int until;
-} CloseRange;
-
-static int
-closefd (void *data,
-         int fd)
+int
+cockpit_close_range (int from, int max_fd, int flags)
 {
-  CloseRange *ca = data;
-  if (fd >= ca->from && fd <= ca->until)
-    {
-      while (close (fd) < 0)
-        {
-          if (errno == EAGAIN || errno == EINTR)
-            continue;
-          if (errno == EBADF || errno == EINVAL)
-            break;
-          warnx ("couldn't close fd: %m");
-          return -1;
-        }
-    }
+  /* we want to keep the API compatible to glibc's upcoming close_range(), but don't implement flags or upper bounds */
+  assert (flags == 0);
+  assert (max_fd == INT_MAX);
 
-  return 0;
-}
-
-static int
-fdwalk (int (*cb)(void *data, int fd),
-        void *data)
-{
-  int open_max;
-  int fd;
-  int res = 0;
-
-  struct rlimit rl;
-
-#ifdef __linux__
   DIR *d;
 
   if ((d = opendir ("/proc/self/fd"))) {
       struct dirent *de;
 
       while ((de = readdir (d))) {
-          long l;
-          char *e = NULL;
-
-          if (de->d_name[0] == '.')
-              continue;
+          char *e;
 
           errno = 0;
-          l = strtol (de->d_name, &e, 10);
+          long l = strtol (de->d_name, &e, 10);
           if (errno != 0 || !e || *e)
               continue;
 
-          fd = (int) l;
+          int fd = (int) l;
 
           if ((long) fd != l)
               continue;
@@ -92,36 +59,27 @@ fdwalk (int (*cb)(void *data, int fd),
           if (fd == dirfd (d))
               continue;
 
-          if ((res = cb (data, fd)) != 0)
-              break;
+          /* don't bother about error checking; On Linux, EINTR still closes the fd, and with EBADF we already have a closed fd */
+          if (fd >= from)
+            close (fd);
         }
 
       closedir (d);
-      return res;
+      return 0;
   }
 
   /* If /proc is not mounted or not accessible we fall back to the old
    * rlimit trick */
-
-#endif
+  struct rlimit rl;
+  int open_max;
 
   if (getrlimit (RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
       open_max = rl.rlim_max;
   else
       open_max = sysconf (_SC_OPEN_MAX);
 
-  for (fd = 0; fd < open_max; fd++)
-      if ((res = cb (data, fd)) != 0)
-          break;
+  for (int fd = from; fd < open_max; fd++)
+    close (fd);
 
-  return res;
-}
-
-int
-cockpit_close_range (int from, int max_fd, int flags)
-{
-  /* we want to keep the API compatible to glibc's upcoming close_range(), but don't implement flags */
-  assert (flags == 0);
-  CloseRange ca = { from, max_fd };
-  return fdwalk (closefd, &ca);
+  return 0;
 }

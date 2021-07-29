@@ -90,7 +90,7 @@ class TestS4USsh(MachineCase):
 
         # enable gssapiauth for ssh
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
-        sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
+        sshd_machine.execute("systemctl restart sshd")
 
         # enable PAM kerberos authentication for sudo; see man pam_sss_gss(8)
         for m in [client_machine, sshd_machine]:

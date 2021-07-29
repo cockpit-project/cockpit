@@ -120,7 +120,7 @@ os.chown(ccache, u.pw_uid, -1)
         client_machine.execute(["python3", "/tmp/make-cache.py"])
 
         # SSH with the delegated ticket
-        out = client_machine.execute("su -c 'KRB5RCACHEDIR=/var/cache/krb5rcache KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
+        out = client_machine.execute("su -c 'KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
         self.assertEqual(out.strip(), "hello")
 
         # direct sudo with the delegated ticket

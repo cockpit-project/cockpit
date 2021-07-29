@@ -106,34 +106,39 @@ class TestS4USsh(MachineCase):
 import gssapi, pwd, os
 
 user = 'user@COCKPIT.LAN'
-ccache = f'/run/cockpit/tls/{user}.ccache'
+uid = pwd.getpwnam(user).pw_uid
+ccache = f'/run/user/{uid}/cockpit-s4u.ccache'
+ccache_dir = os.path.dirname(ccache)
+os.makedirs(ccache_dir)
 
 serverCred = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { b'client_keytab': b'/etc/cockpit/krb5.keytab' }, usage='initiate', lifetime=30)
 impersonee = gssapi.Name(user, gssapi.NameType.kerberos_principal)
 credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(serverCred.creds, impersonee)
 gssapi.creds.rcred_cred_store.store_cred_into({ b'ccache': f'FILE:{ccache}'.encode() }, credResults4u2self.creds, overwrite=True)
 # make it readable for the user
-u = pwd.getpwnam(user)
 os.chmod(ccache, 0o400)
-os.chown(ccache, u.pw_uid, -1)
+os.chown(ccache_dir, uid, -1)
+os.chown(ccache, uid, -1)
+print(ccache)
 """)
-        client_machine.execute(["python3", "/tmp/make-cache.py"])
+        ccache = client_machine.execute(["python3", "/tmp/make-cache.py"]).strip()
+        ccache_env = 'KRB5CCNAME=FILE:' + ccache
 
         # SSH with the delegated ticket
-        out = client_machine.execute("su -c 'KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
+        out = client_machine.execute(f"su -c 'KRB5_TRACE=/dev/stderr {ccache_env} ssh -vvv -K  user@sshserver.cockpit.lan echo hello' user")
         self.assertEqual(out.strip(), "hello")
 
         # direct sudo with the delegated ticket
-        out = client_machine.execute('su -c "KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache sudo whoami" user')
+        out = client_machine.execute(f'su -c "{ccache_env} sudo whoami" user')
         self.assertEqual(out.strip(), "root")
 
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache; so scp it manually; this emulates what cockpit-ssh will eventually do
         # (except that it would probably put the ticket into the default keyring)
-        client_machine.execute("""su -c "KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache scp /run/cockpit/tls/user@COCKPIT.LAN.ccache user@sshserver.cockpit.lan:cache" user """)
+        client_machine.execute(f"""su -c "KRB5_TRACE=/dev/stderr {ccache_env} scp {ccache_env.split('FILE:')[1]} user@sshserver.cockpit.lan:cache" user """)
 
         # ssh via s4u gssapi + sudo with the forwarded delegated ticket
-        out = client_machine.execute("""su -c "KRB5_TRACE=/dev/stderr KRB5CCNAME=/run/cockpit/tls/user@COCKPIT.LAN.ccache ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami' " user""")
+        out = client_machine.execute(f"""su -c "KRB5_TRACE=/dev/stderr {ccache_env} ssh -vvv -K  user@sshserver.cockpit.lan 'KRB5CCNAME=/home/user/cache sudo whoami' " user""")
         self.assertEqual(out.strip(), "root")
 
 

@@ -460,6 +460,9 @@ ExecStart=/bin/true
             while ! ipa user-find >/dev/null; do sleep 5; done'
             """ % (self.admin_password, self.admin_user), timeout=300)
 
+        # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
+        self.machine.execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
+
         # HACK: Figure out why this happens
         self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
                                     'cockpit-session:$')
@@ -626,6 +629,9 @@ ipa user-add --first=Alice --last="Developer" --shell=/bin/bash alice
 yes "%(password)s" | ipa user-mod --password alice
 ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
 ipa user-add-cert alice --certificate="%(cert)s"
+# make alice an admin
+ipa group-add-member admins --users=alice
+ipa-advise enable-admins-sudo | sh -ex
 ' """ % {"cert": alice_cert, "password": self.alice_password})
 
         # On Debian 9, D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
@@ -641,6 +647,20 @@ ipa user-add-cert alice --certificate="%(cert)s"
         else:
             alice_klist_cmd = 'su -c klist alice'
         persistent_ticket = m.execute(alice_klist_cmd)
+
+        # enable sudo GSSAPI authentication
+        m.execute(script=r"""#!/bin/sh -eu
+        sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
+        sed -i '1 a auth sufficient pam_sss_gss.so' /etc/pam.d/sudo
+        systemctl restart sssd
+        """)
+
+        # enable ssh GSSAPI authentication
+        m.execute("sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
+        m.execute("systemctl restart sshd")
+
+        # avoid "unknown host" error in SSH
+        m.execute("su -c 'mkdir -p ~/.ssh; ssh-keyscan localhost > ~/.ssh/known_hosts' alice")
 
         # the test below assumes exactly one running bridge
         m.execute("! pgrep cockpit-bridge")
@@ -671,13 +691,74 @@ ipa user-add-cert alice --certificate="%(cert)s"
         # does not interfere with persistent ticket in other sessions
         self.assertEqual(m.execute(alice_klist_cmd), persistent_ticket)
 
+        # destroy global user ccache, so that sudo/ssh really have to use the ccache_env one
+        m.execute("su -c 'kdestroy || true' alice")
+
+        # sanity check: sudo and ssh do not work without a ticket and password
+        self.assertIn("no askpass program", m.execute("su -c '! sudo -A whoami' alice 2>&1"))
+        self.assertIn("Permission denied", m.execute("su -c '! ssh x0.cockpit.lan 2>&1' alice"))
+
+        # in default configuration, ticket is not trusted by IPA
+        self.assertIn("no askpass program", m.execute(f"su -c '! {ccache_env} sudo -A whoami' alice 2>&1"))
+        self.assertIn("Permission denied", m.execute(f"su -c '! {ccache_env} ssh x0.cockpit.lan 2>&1' alice"))
+        b.switch_to_top()
+        b.click("#super-user-indicator button")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice:")
+        b.click(".pf-c-modal-box:contains('Switch to administrative access') .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+
+        # set up delegation rule
+        script = f"""
+        ipa servicedelegationtarget-add cockpit-target
+        ipa servicedelegationtarget-add-member cockpit-target --principals="host/x0.cockpit.lan@COCKPIT.LAN"
+        ipa servicedelegationrule-add cockpit-delegation
+        ipa servicedelegationrule-add-member cockpit-delegation --principals="HTTP/x0.cockpit.lan@COCKPIT.LAN"
+        ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
+        """
+        ipa_machine.execute("podman exec freeipa bash -euc '%s'" % script)
+
+        # now sudo works with the delegated ticket
+        # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
+        # to actually work, so on older distros it fails
+        supports_sudo_krb = m.image not in ["rhel-8-5", "centos-8-stream", "debian-stable", "ubuntu-2004", "ubuntu-stable"]
+        b.click("#super-user-indicator button")
+
+        if supports_sudo_krb:
+            b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
+            self.assertEqual("root\n", m.execute(f"su -c '{ccache_env} sudo -A whoami' alice"))
+            b.click(".pf-c-modal-box:contains('Administrative access') .btn-cancel")
+            b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
+
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_visible("#reboot-button")
+        else:
+            b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice:")
+            b.click(".pf-c-modal-box:contains('Switch to administrative access') .btn-cancel")
+            b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+            self.assertIn("no askpass program", m.execute(f"su -c '! {ccache_env} sudo -A whoami' alice 2>&1"))
+
+        # ssh works with the delegated ticket
+        out = m.execute(f"su -c '{ccache_env} ssh -vv -K x0.cockpit.lan echo hello' alice")
+        self.assertEqual(out.strip(), "hello")
+
+        # cockpit-ssh works with the delegated ticket
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.click(".nav-hosts-actions button")
+        b.set_val("#add-machine-address", "x0.cockpit.lan")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.click(".view-hosts a[href='/@x0.cockpit.lan']")
+        b.wait_js_cond("window.location.pathname == '/@x0.cockpit.lan/system'")
+        # no root privs in that session
+        b.enter_page("/system", "x0.cockpit.lan")
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.wait_not_present("#reboot-button")
+
         # S4U proxy ticket gets cleaned up on logout
         b.logout()
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")
-
-        # original persistent ticket remains in other sessions
-        self.assertEqual(m.execute(alice_klist_cmd), persistent_ticket)
 
 
 @skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")

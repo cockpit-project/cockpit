@@ -847,6 +847,9 @@ connection_thread_main (int fd)
 
   if (self.ws_fd != -1)
     close (self.ws_fd);
+
+  if (self.metadata_fd != -1)
+    close (self.metadata_fd);
 }
 
 /**

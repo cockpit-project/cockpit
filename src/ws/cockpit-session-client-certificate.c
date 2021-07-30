@@ -104,6 +104,20 @@ get_ws_https_instance (void)
   return buf + pmatch[CGROUP_REGEX_MATCH].rm_so;
 }
 
+/* valid_256_bit_hex_string:
+ * @str: a string
+ *
+ * Ensures that str is a hexadecimal character string, exactly 64
+ * characters in length.
+ */
+static bool
+valid_256_bit_hex_string (const char *str)
+{
+  size_t length = strspn (str, "0123456789abcdef");
+
+  return str[length] == '\0' && length == 64;
+}
+
 /**
  * cockpit_wsinstance_has_certificate_file:
  * @contents: an optional buffer to read the certificate into
@@ -126,8 +140,9 @@ get_ws_https_instance (void)
  * logged).
  */
 static ssize_t
-https_instance_has_certificate_file (char   *contents,
-                                     size_t  contents_size)
+cockpit_session_client_certificate_read_file (const char *filename,
+                                              char       *contents,
+                                              size_t      contents_size)
 {
   const char *https_instance = get_ws_https_instance ();
   int dirfd = -1, filefd = -1;
@@ -138,6 +153,19 @@ https_instance_has_certificate_file (char   *contents,
   if (https_instance == NULL) /* already warned */
     goto out;
 
+  /* No tricky stuff, please */
+  if (!valid_256_bit_hex_string (filename))
+    {
+      warnx ("tls-cert authentication token is invalid");
+      goto out;
+    }
+
+  if (strcmp (filename, https_instance) != 0)
+    {
+      warnx ("tls-cert authentication token doesn't match wsinstance cgroup");
+      goto out;
+    }
+
   dirfd = open ("/run/cockpit/tls", O_PATH | O_DIRECTORY | O_NOFOLLOW);
   if (dirfd == -1)
     {
@@ -145,62 +173,59 @@ https_instance_has_certificate_file (char   *contents,
       goto out;
     }
 
-  filefd = openat (dirfd, https_instance, O_RDONLY | O_NOFOLLOW);
+  filefd = openat (dirfd, filename, O_RDONLY | O_NOFOLLOW);
   if (filefd == -1)
     {
-      warn ("Failed to open certificate file /run/cockpit/tls/%s", https_instance);
+      warn ("Failed to open certificate file /run/cockpit/tls/%s", filename);
       goto out;
     }
 
   if (fstat (filefd, &buf) != 0)
     {
-      warn ("Failed to stat certificate file /run/cockpit/tls/%s", https_instance);
+      warn ("Failed to stat certificate file /run/cockpit/tls/%s", filename);
       goto out;
     }
 
   if (!S_ISREG (buf.st_mode))
     {
-      warnx ("Could not read certificate: /run/cockpit/tls/%s is not a regular file", https_instance);
+      warnx ("Could not read certificate: /run/cockpit/tls/%s is not a regular file", filename);
       goto out;
     }
 
   if (buf.st_size == 0)
     {
-      warnx ("Could not read certificate: /run/cockpit/tls/%s is empty", https_instance);
+      warnx ("Could not read certificate: /run/cockpit/tls/%s is empty", filename);
       goto out;
     }
 
-  if (contents != NULL)
+  /* Strictly less than, since we will add a nul */
+  if (!(buf.st_size < contents_size))
     {
-      /* Strictly less than, since we will add a nul */
-      if (!(buf.st_size < contents_size))
-        {
-          warnx ("Insufficient space in read buffer for /run/cockpit/tls/%s", https_instance);
-          goto out;
-        }
+      warnx ("Insufficient space in read buffer for /run/cockpit/tls/%s", filename);
+      goto out;
+    }
 
-      do
-        r = pread (filefd, contents, buf.st_size, 0);
-      while (r == -1 && errno == EINTR);
-      if (r == -1)
-        {
-          warn ("Could not read certificate file /run/cockpit/tls/%s", https_instance);
-          goto out;
-        }
-      if (r != buf.st_size)
-        {
-          warnx ("Read incomplete contents of certificate file /run/cockpit/tls/%s: %zu of %zu bytes",
-                 https_instance, r, (size_t) buf.st_size);
-          goto out;
-        }
+  do
+    r = pread (filefd, contents, buf.st_size, 0);
+  while (r == -1 && errno == EINTR);
+  if (r == -1)
+    {
+      warn ("Could not read certificate file /run/cockpit/tls/%s", filename);
+      goto out;
+    }
+  if (r != buf.st_size)
+    {
+      warnx ("Read incomplete contents of certificate file /run/cockpit/tls/%s: %zu of %zu bytes",
+             filename, r, (size_t) buf.st_size);
+      goto out;
+    }
 
-      contents[buf.st_size] = '\0';
+  contents[buf.st_size] = '\0';
 
-      if (strlen (contents) != buf.st_size)
-        {
-          warnx ("Certificate file /run/cockpit/tls/%s contains nul characters", https_instance);
-          goto out;
-        }
+  if (strlen (contents) != buf.st_size)
+    {
+      warnx ("Certificate file /run/cockpit/tls/%s contains nul characters", filename);
+      goto out;
     }
 
   result = buf.st_size;
@@ -295,13 +320,14 @@ out:
 }
 
 char *
-cockpit_session_client_certificate_map_user (void)
+cockpit_session_client_certificate_map_user (const char *client_certificate_filename)
 {
   char cert_pem[MAX_PEER_CERT_SIZE];
   char *sssd_user = NULL;
 
   /* read the certificate file from disk */
-  if (https_instance_has_certificate_file (cert_pem, sizeof cert_pem) < 0)
+  if (cockpit_session_client_certificate_read_file (client_certificate_filename,
+                                                    cert_pem, sizeof cert_pem) < 0)
     {
       warnx ("No https instance certificate present");
       return NULL;

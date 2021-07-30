@@ -534,15 +534,22 @@ pam_conv_func_dummy (int num_msg,
 }
 
 static pam_handle_t *
-perform_tlscert (const char *rhost)
+perform_tlscert (const char *rhost,
+                 const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func_dummy, };
+  const char *client_certificate;
   pam_handle_t *pamh;
   int res;
 
   debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
 
-  char *username = cockpit_session_client_certificate_map_user ();
+  if (strncmp (authorization, "tls-cert ", 9) == 0)
+    client_certificate = authorization + 9;
+  else
+    exit_init_problem (PAM_AUTH_ERR);
+
+  char *username = cockpit_session_client_certificate_map_user (client_certificate);
   if (username == NULL)
     exit_init_problem (PAM_AUTH_ERR);
 
@@ -684,7 +691,7 @@ main (int argc,
   else if (strcmp (type, "negotiate") == 0)
     pamh = perform_gssapi (rhost, authorization);
   else if (strcmp (type, "tls-cert") == 0)
-    pamh = perform_tlscert (rhost);
+    pamh = perform_tlscert (rhost, authorization);
 
   cockpit_memory_clear (authorization, -1);
   free (authorization);

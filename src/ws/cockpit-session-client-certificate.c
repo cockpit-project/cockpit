@@ -326,6 +326,10 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
       warnx ("Could not determine cgroup of this process");
       return NULL;
     }
+  /* A simple prefix comparison is appropriate here because my_cgroup
+   * will contain exactly one newline (at the end), and the expected
+   * value of my_cgroup is on the first line in cert_pem.
+   */
   if (strncmp (cert_pem, my_cgroup, my_cgroup_length) != 0)
     {
       warnx ("This client certificate is only meant to be used from another cgroup");

@@ -409,6 +409,13 @@ cockpit_auth_steal_authorization (GHashTable *headers,
   if (!cockpit_authorize_type (line, &type))
     goto out;
 
+  /* It's never valid for a "tls-cert" to come via Authorization: */
+  if (g_str_equal (type, "tls-cert"))
+    {
+      g_message ("received invalid 'Authorization: tls-cert' header");
+      goto out;
+    }
+
   /* If this is a conversation, get that part out too */
   if (g_str_equal (type, "x-conversation"))
     {

@@ -274,6 +274,9 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
         self.enable_preload("packagekit", "index")
 
+        # Refresh cache so cockpit does not try to reload page
+        m.execute("pkcon refresh")
+
         m.start_cockpit()
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates

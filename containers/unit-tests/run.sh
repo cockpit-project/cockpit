@@ -18,17 +18,17 @@ set -eux
 export LANG=C.UTF-8
 export MAKEFLAGS="-j $(nproc)"
 
-# Running the tests normally takes under half an hour.  Sometimes the build or
-# (more usually) the tests will wedge.  After 50 minutes, print out some
+# Running the tests normally takes under 20 minutes.  Sometimes the build or
+# (more usually) the tests will wedge.  After 18 minutes, print out some
 # information about the running processes in order to give us a better chance
 # of tracking down problems.
 ( set +x
-  sleep 50m
-  echo ===== 50 mins ====================
+  sleep 18m
+  echo ===== 18 mins ====================
   ps auxwfe
   echo
   top -b -n1
-  echo ===== 50 mins ====================
+  echo ===== 18 mins ====================
 )&
 
 # copy host's source tree to avoid changing that, and make sure we have a clean tree

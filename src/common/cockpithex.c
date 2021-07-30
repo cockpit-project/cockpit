@@ -21,6 +21,8 @@
 
 #include "cockpithex.h"
 
+#include "cockpitmemory.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,9 +39,7 @@ cockpit_hex_encode (const void * data,
   if (length < 0)
     length = strlen (data);
 
-  out = malloc (length * 2 + 1);
-  if (!out)
-    return NULL;
+  out = mallocx (length * 2 + 1);
   for (i = 0; i < length; i++)
     {
       out[i * 2] = HEX[in[i] >> 4];
@@ -64,9 +64,7 @@ cockpit_hex_decode (const char *hex,
   if (hexlen % 2 != 0)
     return NULL;
 
-  out = malloc (hexlen * 2 + 1);
-  if (!out)
-    return NULL;
+  out = mallocx (hexlen * 2 + 1);
   for (i = 0; i < hexlen / 2; i++)
     {
       hpos = strchr (HEX, hex[i * 2]);

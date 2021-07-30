@@ -538,7 +538,6 @@ perform_tlscert (const char *rhost,
                  const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func_dummy, };
-  const char *client_certificate;
   pam_handle_t *pamh;
   int res;
 
@@ -546,9 +545,9 @@ perform_tlscert (const char *rhost,
 
   /* True, otherwise we wouldn't be here. */
   assert (strncmp (authorization, "tls-cert ", 9) == 0);
-  client_certificate = authorization + 9;
+  const char *client_certificate_filename = authorization + 9;
 
-  char *username = cockpit_session_client_certificate_map_user (client_certificate);
+  char *username = cockpit_session_client_certificate_map_user (client_certificate_filename);
   if (username == NULL)
     exit_init_problem (PAM_AUTH_ERR);
 

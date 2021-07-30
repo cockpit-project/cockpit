@@ -544,10 +544,9 @@ perform_tlscert (const char *rhost,
 
   debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
 
-  if (strncmp (authorization, "tls-cert ", 9) == 0)
-    client_certificate = authorization + 9;
-  else
-    exit_init_problem (PAM_AUTH_ERR);
+  /* True, otherwise we wouldn't be here. */
+  assert (strncmp (authorization, "tls-cert ", 9) == 0);
+  client_certificate = authorization + 9;
 
   char *username = cockpit_session_client_certificate_map_user (client_certificate);
   if (username == NULL)

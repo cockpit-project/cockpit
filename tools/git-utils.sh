@@ -48,7 +48,8 @@ init_cache() {
 # we use git fsck to to avoid problems with incomplete fetches: we want to make
 # sure the complete commit is there
 check_ref() {
-    git_cache fsck --no-dangling --connectivity-only "$1" 2>/dev/null
+    git_cache show "$1" >/dev/null 2>&1 && \
+      git_cache fsck --no-dangling --connectivity-only "$1" 2>/dev/null
 }
 
 # Fetch a specific commit ID into the cache

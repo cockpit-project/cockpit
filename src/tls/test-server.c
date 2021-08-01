@@ -359,8 +359,15 @@ setup (TestCase *tc, gconstpointer data)
   tc->ws_socket_dir = g_dir_make_tmp ("server.wssock.XXXXXX", NULL);
   g_assert (tc->ws_socket_dir);
 
-  tc->runtime_dir = g_dir_make_tmp ("server.runtime.XXXXXX", NULL);
+  /* This absolutely must be on a real filesystem: overlayfs (as often
+   * seen for /tmp in containers) doesn't work.  /dev/shm is always
+   * tmpfs, which works nicely (and matches what we expect to be at /run
+   * when we use this code in production).
+   */
+  char runtime_dir_template[] = "/dev/shm/server.runtime.XXXXXX";
+  tc->runtime_dir = g_mkdtemp (runtime_dir_template);
   g_assert (tc->runtime_dir);
+  tc->runtime_dir = g_strdup (tc->runtime_dir);
 
   if (fixture && fixture->client_fingerprint)
     tc->cgroup_line = g_strdup_printf ("0::/system.slice/system-cockpithttps.slice/cockpit-wsinstance-https@%s.service\n", fixture->client_fingerprint);

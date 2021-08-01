@@ -163,9 +163,9 @@ handle_https_factory (int listen_fd)
 
   debug (HELPER, "  -> reading instance name... ");
   if (!recv_alnum (fd, instance, sizeof instance, 10 * 1000000))
-    errx (EXIT_FAILURE, "failed to read fingerprint");
+    errx (EXIT_FAILURE, "failed to read instance name");
 
-  debug (HELPER, "  -> success: '%s'", fingerprint.str);
+  debug (HELPER, "  -> success: '%s'", instance);
   if (strcmp (instance, SHA256_NIL) == 0) /* we check this value from the tests */
     result = "done";
   else

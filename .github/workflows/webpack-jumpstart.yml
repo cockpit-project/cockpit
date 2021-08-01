@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Build jumpstart tarball
         run: |
-          id="$(docker container create -u node -w /home/node node /bin/sh -ec \
+          id="$(docker container create -u node -w /home/node node:14 /bin/sh -ec \
             "git init cockpit
              cd cockpit
              git config user.email '<>'

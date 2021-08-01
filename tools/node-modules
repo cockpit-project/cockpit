@@ -14,7 +14,7 @@ cmd_remove() {
     message REMOVE node_modules
     rm -rf node_modules
     git submodule deinit node_modules
-    rm -rf "$(git rev-parse --absolute-git-dir)/modules/node_modules"
+    rm -rf -- "$(git rev-parse --absolute-git-dir)/modules/node_modules"
 }
 
 cmd_checkout() {

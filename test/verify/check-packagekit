@@ -61,9 +61,13 @@ class TestUpdates(NoSubManCase):
     def setUp(self):
         super().setUp()
 
-        # only the yum backend properly recognizes "enhancement" severity; apt
-        # does not have that metadata and PackageKit-dnf does not parse it
-        if self.backend == "yum":
+        pkcon_version = self.machine.execute("pkcon --version").strip()
+
+        # only the yum and PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
+        # properly recognize "enhancement" severity; apt does not have that metadata
+        self.supports_severity = not (self.backend == "apt" or pkcon_version < "1.2.4")
+
+        if self.supports_severity:
             self.enhancement_severity = "enhancement"
         else:
             self.enhancement_severity = "bug"
@@ -688,9 +692,7 @@ ExecStart=/usr/local/bin/{0}
         self.assertEqual(b.text("#available-updates button#install-security"), "Install security updates")
 
         # security fix without CVE URLs
-        # PackageKit's dnf backend does not recognize this (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-        # and PackageKit's deb backend does not know about severity at all, so only test this on RPM
-        if self.backend == "yum":
+        if self.supports_severity:
             self.createPackage("secnocve", "1", "1", install=True)
             self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
             self.enableRepo()

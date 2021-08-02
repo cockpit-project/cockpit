@@ -1097,7 +1097,7 @@ class OsUpdates extends React.Component {
                         Package: (info, packageId, _summary) => {
                             const id_fields = packageId.split(";");
                             packageSummaries[id_fields[0]] = _summary;
-                            // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+                            // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
                             if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
                                 info = PK.Enum.INFO_NORMAL;
                             updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };

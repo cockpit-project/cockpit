@@ -69,7 +69,7 @@ $desktop: $phone + 1px;
         }
     }
 
-    .hint {
+    .nav-item-hint {
         width: 100%;
         font-size: var(--pf-global--FontSize--sm);
         font-weight: var(--pf-global--FontWeight--normal);
@@ -78,7 +78,7 @@ $desktop: $phone + 1px;
         opacity: 0.8;
     }
 
-    .pf-c-button.pf-m-link.hint {
+    .pf-c-button.pf-m-link.nav-item-hint {
         color: var(--pf-global--active-color--300);
     }
 
@@ -427,6 +427,7 @@ $desktop: $phone + 1px;
     }
 }
 
+// Support links in headings
 .nav-group-heading {
     display: flex;
     justify-content: space-between;
@@ -445,64 +446,68 @@ $desktop: $phone + 1px;
     }
 }
 
-// Give additional style to individual menu items
-.nav-item {
+.nav-system-menu {
+    // Flow items, if wider (useful for mobile)
+    .pf-c-nav__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
 
-    &:hover {
-        cursor: pointer;
-        background-color: var(--pf-global--BackgroundColor--dark-400);
-    }
-
-    a {
-        color: unset;
-        flex: auto;
-        word-break: break-word;
-
-        &:hover,
-        &:focus {
-            text-decoration: none;
-        }
-
-        &:focus {
-            outline-offset: var(--pf-global--spacer--xs);
+        > a {
+            text-align: center;
         }
     }
 
-    button,
-    .nav-status {
-        margin-left: auto;
-        align-self: center;
-    }
+    // Give additional style to individual menu items
+    .pf-c-nav__link {
+        display: grid;
+        grid-template: "name status" "match match";
+        grid-template-columns: 1fr auto;
+        justify-content: space-between;
+        gap: 0 var(--pf-global--spacer--md);
+        padding-right: var(--pf-global--spacer--md);
+        // In mobile, sometimes items wrap; neighbors should also fill the space
+        height: 100%;
 
-    .nav-status {
-        display: flex;
-    }
+        > .nav-item-name {
+            grid-area: name;
+        }
 
-    // Add a background to shine through the icon's gaps
-    // (for better contrast, even when hovering / selected)
-    // TODO this does not seem to actually work
-    svg {
-        // Set position for the icon sandwiching
-        position: relative;
-        // Add a shadow around the icon
-        text-shadow: 1px 0 1px var(--ct-color-nav), 0 1px 1px var(--ct-color-nav), -1px 0 1px var(--ct-color-nav), 0 -1px 1px var(--ct-color-nav);
+        > .nav-item-status {
+            grid-area: status;
+        }
 
-        // Move the icon up the stack
-        &::before {
-            z-index: 1;
+        > .nav-item-hint {
+            grid-area: match;
+        }
+
+        > :empty {
+            display: none;
+        }
+
+        // Add a background to shine through the icon's gaps
+        // (for better contrast, even when hovering / selected)
+        .nav-item-status {
             position: relative;
-        }
 
-        // Fill the interior gaps
-        &::after {
-            position: absolute;
-            content: '';
-            background-color: var(--ct-color-nav);
-            border-radius: 3px;
-            top: 3px;
-            right: 5px;
-            bottom: 3px;
-            left: 5px;
+            > svg {
+                // Set position for the icon sandwiching
+                position: relative;
+                // Add a shadow around the icon
+                // Move the icon up the stack
+                z-index: 1;
+            }
+
+            // Fill the interior gaps
+            &::before {
+                position: absolute;
+                content: "";
+                background-color: var(--pf-c-nav__link--Color);
+                border-radius: 3px;
+                top: 6px;
+                right: 5px;
+                bottom: 6px;
+                left: 5px;
+            }
         }
     }
 }
@@ -534,7 +539,7 @@ $desktop: $phone + 1px;
         --button-margin-x: 1rem;
         --button-margin-y: 0.75rem;
         display: grid;
-        grid-gap: 0.5rem;
+        gap: var(--pf-global--spacer--sm);
         margin: var(--button-margin-y) var(--button-margin-x);
 
         > button {
@@ -548,28 +553,27 @@ $desktop: $phone + 1px;
 
     .nav-item {
         --pf-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+        display: grid;
+        grid-template-columns: 1fr auto;
 
         > .pf-c-nav__link {
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
         }
+
     }
 
-    .nav-host-action-buttons {
-        flex: none;
-        // Use grid instead of flex here, because Chrome (as of right now) doesn't support gap
-        // and Chrome thinks it does (so @supports doesn't work right in Chrome)
-        display: grid;
-        grid-gap: 0.25rem;
-        margin: -0.25rem -0.5rem -0.25rem 0.5rem;
-
-        @media (max-width: $phone) {
-            grid-auto-flow: column;
-        }
+    .nav-item-actions {
+        display: flex;
+        gap: var(--pf-global--spacer--xs);
+        padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+        // Pull the background color over
+        background: var(--pf-c-nav__link--BackgroundColor);
 
         @media (min-width: $desktop) {
             // Desktop has limited horizontal space, so stack these
             // Ironically, mobile has more space here (due to being a popup)
-            grid-auto-flow: row;
+            flex-direction: column;
         }
 
         > button {
@@ -582,18 +586,11 @@ $desktop: $phone + 1px;
             --pf-c-button--disabled--Color: rgba(0, 7, 13, 0.45);
             margin: 0;
         }
-
     }
-}
 
-.nav-system-menu {
-    .pf-c-nav__list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
-
-        > a {
-            text-align: center;
-        }
+    // Use the "current" background for actions color when item is selected
+    .pf-m-current + .nav-item-actions {
+        --pf-c-nav__link--BackgroundColor: var(--pf-c-nav--m-dark__item--m-current--BackgroundColor);
     }
 }
 

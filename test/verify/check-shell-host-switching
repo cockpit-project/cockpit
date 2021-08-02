@@ -47,10 +47,10 @@ class HostSwitcherHelpers:
 
     def machine_remove(self, b, address, machine, second_to_last=False):
         b.click("button:contains('Edit hosts')")
-        b.click(".nav-item span[data-for='/@{0}'] button.nav-action.pf-m-danger".format(address))
+        b.click(".nav-item a[href='/@{0}'] + span button.nav-action.pf-m-danger".format(address))
         if second_to_last:
             b.wait_not_present("button:contains('Stop editing hosts')")
-            b.wait_not_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger")
+            b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
         else:
             b.click("button:contains('Stop editing hosts')")
 
@@ -162,15 +162,15 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
-        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger:disabled")
-        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-secondary:disabled")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-danger:not(:disabled)")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger")
-        b.wait_not_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary")
+        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
@@ -192,7 +192,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.connect_and_wait(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
 
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses
         self.add_machine(b, "10.111.113.3", True)
@@ -209,7 +209,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#hosts-sel button")
         b.click("button:contains('Edit hosts')")
 
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
         b.wait_popup('hosts_setup_server_dialog')
         b.set_val('#add-machine-user', 'bad-user')
@@ -243,7 +243,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.switch_to_top()
         b.click("#hosts-sel button")
         b.click("button:contains('Edit hosts')")
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-danger")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-danger")
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
         b.wait_js_cond('window.location.pathname == "/system"')
         b.enter_page("/system", "localhost")
@@ -281,15 +281,15 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
-        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger:disabled")
-        b.wait_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-secondary:disabled")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-danger:not(:disabled)")
-        b.wait_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item span[data-for='/@localhost'] button.nav-action.pf-m-danger")
-        b.wait_not_visible(".nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary")
+        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
@@ -319,7 +319,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, ["10.111.113.3"])
         self.check_discovered_addresses(b2, ["10.111.113.3"])
 
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses on both browsers
         self.add_machine(b, "10.111.113.3", True)
@@ -354,7 +354,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.connect_and_wait(b, "10.111.113.3")
 
         b.click("button:contains('Edit hosts')")
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
         b.wait_popup('hosts_setup_server_dialog')
         old_machine3_color = b.attr("#host-edit-color", "style")
@@ -369,7 +369,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_popdown('hosts_setup_server_dialog')
 
-        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @machine3")
+        b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
 
         # Go to the updated machine and try to change whilst on it
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
@@ -378,9 +378,9 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         if not b.cdp.mobile:
             b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
         b.click("#hosts-sel button")
-        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @machine3")
+        b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
         b.click("button:contains('Edit hosts')")
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
         b.wait_val('#add-machine-address', "10.111.113.3")
         self.assertEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
@@ -400,8 +400,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # and that will close the host switcher.  Let's open it again
         # to check it.
         b.click("#hosts-sel button")
-        b.wait_not_present(".nav-item span[data-for='/@10.111.113.3']")
-        b.wait_text(".nav-item span[data-for='/@10.111.113.2']", "admin @machine2")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.3']")
+        b.wait_text(".nav-item a[href='/@10.111.113.2']", "admin @machine2")
 
     def testNoAutoconnect(self):
         b = self.browser

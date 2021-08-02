@@ -201,7 +201,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         b.click("#hosts-sel button")
         b.click("button:contains('Edit hosts')")
-        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.2'] button.nav-action.pf-m-secondary")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
         b.wait_popup('hosts_setup_server_dialog')
         b.wait_visible('#add-machine-user')

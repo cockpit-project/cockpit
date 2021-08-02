@@ -127,7 +127,7 @@ export class CockpitNav extends React.Component {
                         </section>
                     )}
                     { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
-                    { this.state.search !== "" && <span className="non-menu-item"><Button variant="link" onClick={this.clearSearch} className="hint">{_("Clear search")}</Button></span> }
+                    { this.state.search !== "" && <span className="non-menu-item"><Button variant="link" onClick={this.clearSearch} className="nav-item-hint">{_("Clear search")}</Button></span> }
                 </Nav>
             </>
         );
@@ -153,7 +153,7 @@ function PageStatus({ status, name }) {
     return (
         <Tooltip id={desc + "-tooltip"} content={status.title}
                  position={TooltipPosition.right}>
-            <span id={desc} className="nav-status">
+            <span id={desc} className="nav-item-status">
                 {status.type == "error" ? <ExclamationCircleIcon color="#f54f42" />
                     : status.type == "warning" ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" color="#f0ab00" />
                         : <InfoCircleIcon color="#73bcf7" />}
@@ -187,19 +187,21 @@ export function CockpitNavItem(props) {
 
     return (
         <li className={classes.join(" ")}>
-            <span className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")} data-for={props.to}>
-                <a href={props.to} onClick={ev => {
+            <a className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")}
+                aria-current={props.active && "page"}
+                href={props.to} onClick={ev => {
                     props.jump(props.to);
                     ev.preventDefault();
                 }}>
-                    { props.header && <span className="hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                <span className="nav-item-name">
                     { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
-                    { !name_matches && !header_matches && props.keyword && <span className="hint">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
-                </a>
+                </span>
                 {s && s.type && <PageStatus status={s} name={props.name} />}
-                <div role="presentation" className="nav-host-action-buttons">
-                    {props.actions}
-                </div>
+                { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+            </a>
+            <span className="nav-item-actions nav-host-action-buttons">
+                {props.actions}
             </span>
         </li>
     );

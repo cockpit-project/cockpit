@@ -822,6 +822,7 @@ ExecStart=/usr/local/bin/{0}
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl stop packagekit")
         system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
         m.execute('''mv {0} {0}.disabled
                      mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled

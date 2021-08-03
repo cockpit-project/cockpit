@@ -217,6 +217,7 @@ log in to test machines without authentication:
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
         IdentityFile ~/src/cockpit/bots/machine/identity
+        IdentitiesOnly yes
 
 Many cockpit developers take it a step further, and add an alias to
 allow typing `ssh c`:

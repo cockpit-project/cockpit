@@ -42,10 +42,7 @@ AC_USE_SYSTEM_EXTENSIONS
 
 AM_PROG_AR
 AC_PROG_CC
-AC_PROG_CC_C99
 AC_PROG_RANLIB
-AC_ISC_POSIX
-AC_HEADER_STDC
 AC_PROG_LN_S
 
 # HACK - Prevent valgrind false-positives due to GHashTable trickery
@@ -92,7 +89,7 @@ AC_SUBST(COCKPIT_CFLAGS)
 AC_SUBST(COCKPIT_LIBS)
 
 # bridge with optional polkit
-AC_ARG_ENABLE(polkit, AC_HELP_STRING([--disable-polkit], [Disable usage of polkit]),,enable_polkit=yes)
+AC_ARG_ENABLE(polkit, AS_HELP_STRING([--disable-polkit], [Disable usage of polkit]),,enable_polkit=yes)
 
 if test "$enable_polkit" = "yes"; then
   PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
@@ -133,7 +130,7 @@ AC_SUBST(COCKPIT_TLS_CFLAGS)
 AC_SUBST(COCKPIT_TLS_LIBS)
 
 # whether to build cockpit-ssh
-AC_ARG_ENABLE(ssh, AC_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build and libssh dependency]))
+AC_ARG_ENABLE(ssh, AS_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build and libssh dependency]))
 AC_MSG_CHECKING([build with cockpit-ssh])
 if test "$enable_ssh" != "no"; then
   enable_ssh="yes"
@@ -161,7 +158,7 @@ COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"
 
 # pam module directory
 AC_ARG_WITH([pamdir],
-            [AC_HELP_STRING([--with-pamdir=DIR],
+            [AS_HELP_STRING([--with-pamdir=DIR],
                              [directory to install pam modules in])],
              [], [with_pamdir='${libdir}/security'])
 pamdir=$with_pamdir
@@ -178,7 +175,7 @@ COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
 
 # pcp
 AC_MSG_CHECKING([whether to build with PCP])
-AC_ARG_ENABLE(pcp, AC_HELP_STRING([--disable-pcp], [Disable usage of PCP]))
+AC_ARG_ENABLE(pcp, AS_HELP_STRING([--disable-pcp], [Disable usage of PCP]))
 
 if test "$enable_pcp" = "no"; then
   AC_MSG_RESULT($enable_pcp)
@@ -213,7 +210,7 @@ fi
 AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 
 # systemd
-AC_ARG_WITH([systemdunitdir], [AC_HELP_STRING([--with-systemdunitdir=DIR],
+AC_ARG_WITH([systemdunitdir], [AS_HELP_STRING([--with-systemdunitdir=DIR],
                                               [directory to install systemd unit files in])])
 
 if test ! -z "$with_systemdunitdir"; then
@@ -295,7 +292,7 @@ changequote([,])dnl
 
 AC_MSG_CHECKING([for asan flags])
 AC_ARG_ENABLE(asan,
-              AC_HELP_STRING([--enable-asan=no/yes],
+              AS_HELP_STRING([--enable-asan=no/yes],
                              [Turn the Address Sanitizer on or off])
              )
 
@@ -366,7 +363,7 @@ AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
 
 # admin users group
 AC_ARG_WITH([admin-group],
-            [AC_HELP_STRING([--with-admin-group=GROUP],
+            [AS_HELP_STRING([--with-admin-group=GROUP],
                             [system group to which admin users belong])],
             [admin_group=$withval],
             [
@@ -396,7 +393,7 @@ AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(doc,
-              AC_HELP_STRING([--disable-doc],
+              AS_HELP_STRING([--disable-doc],
                              [Disable building documentation])
              )
 
@@ -431,7 +428,7 @@ AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
 
 AC_MSG_CHECKING([for debug mode])
 AC_ARG_ENABLE(debug,
-              AC_HELP_STRING([--enable-debug=no/default/yes],
+              AS_HELP_STRING([--enable-debug=no/default/yes],
                              [Turn on or off debugging])
              )
 

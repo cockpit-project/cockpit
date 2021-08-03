@@ -120,10 +120,7 @@ class TestServices(MachineCase):
     def wait_service_not_present(self, service):
         self.browser.wait_not_present(self.svc_sel(service))
 
-    def testBasic(self):
-        m = self.machine
-        b = self.browser
-
+    def make_test_service(self):
         self.write_file("/etc/systemd/system/test.service",
                         """
 [Unit]
@@ -148,6 +145,17 @@ while true; do
   echo WORKING
 done
 """)
+        # After writing files out tell systemd about them
+        self.machine.execute("systemctl daemon-reload")
+
+        # When the test fails while `test.service` is active, the process keeps running and
+        # `systemct status test.service` still shows it as active until this process dies
+        self.addCleanup(self.machine.execute, "systemctl stop test")
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
         self.write_file("/etc/systemd/system/test-fail.service",
                         """
 [Unit]
@@ -177,13 +185,8 @@ OnBootSec=200min
 Unit=test.service
 """)
 
-        # After writing files out tell systemd about them
-        m.execute("systemctl daemon-reload")
+        self.make_test_service()
         self.machine.execute("systemctl start default.target")
-
-        # When the test fails while `test.service` is active, the process keeps running and
-        # `systemct status test.service` still shows it as active until this process dies
-        self.addCleanup(self.machine.execute, "systemctl stop test")
 
         self.login_and_go("/system/services")
         self.wait_page_load()
@@ -203,6 +206,8 @@ Unit=test.service
         m.execute("systemctl enable test.service")
         self.wait_service_state("test.service", "inactive")
         self.wait_service_in_panel("test.service", "Enabled")
+
+        m.execute("systemctl start test.service")
 
         b.wait_attr("#services-toolbar", "data-loading", "false")
 
@@ -255,9 +260,6 @@ Unit=test.service
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 
-        # Make sure that test.service was not started by either test.timer or test-onboot.timer
-        m.execute("systemctl stop test.service")
-
         # Selects Paths tab
         self.pick_tab(5)
         b.wait_not_in_text("#services-list", "test")
@@ -269,53 +271,14 @@ Unit=test.service
         # Selects Services tab
         self.pick_tab(1)
 
-        # Check test.service and then start it
-        self.goto_service("test.service")
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
-        self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
-        b.click(".cockpit-log-panel .pf-c-card__header button")
-
-        b.enter_page("/system/logs")
-        b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
-        t = b.text("#journal-box .cockpit-log-panel > div:nth-child(3)") + b.text("#journal-box .cockpit-log-panel > div:nth-child(4)")
-        self.assertIn("START", t)
-        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-        if m.image != "debian-stable":
-            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
-        b.go("/system/services#test.service")
-        b.enter_page("/system/services")
-
-        b.click(".cockpit-logline:contains('WORKING')")
-        b.enter_page("/system/logs")
-        b.wait_text(".pf-c-card__title", "WORKING")
-        b.click(".pf-c-breadcrumb a:contains('Logs')")
-        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-        if m.image != "debian-stable":
-            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
-        b.go("/system/services#test.service")
-        b.enter_page("/system/services")
-
-        b.click(".cockpit-logline:contains('WORKING')")
-        b.enter_page("/system/logs")
-        b.click("button:contains('Go to test.service')")
-        b.enter_page("/system/services")
-        b.wait_js_cond('window.location.hash === "#/test.service"')
-
-        # Stop and disable and back again
-        self.toggle_onoff()
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
-        self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
-
         # Survives a burst of events
         b.go("#/")
         self.wait_service_present("test.service")
         m.execute("udevadm trigger; udevadm settle")
         self.goto_service("test.service")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+
+        # Stop and disable and back again
         self.toggle_onoff()
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
@@ -327,7 +290,6 @@ Unit=test.service
 
         b.relogin('/system/services#/test.service', superuser=True)
         self.wait_page_load()
-
         self.toggle_onoff()  # later on we need some disabled test
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
 
@@ -497,25 +459,56 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
-    def testApi(self):
+    def testLogs(self):
         m = self.machine
         b = self.browser
 
-        self.write_file("/etc/systemd/system/test.service",
-                        """
-[Unit]
-Description=Test Service
+        self.make_test_service()
 
-[Service]
-ExecStart=/bin/sh -c "while true; do sleep 5; done"
+        self.login_and_go("/system/services")
+        self.wait_page_load()
 
-[Install]
-WantedBy=default.target
-""")
+        # Check test.service and then start it
+        self.goto_service("test.service")
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.toggle_onoff()
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
+        b.click(".cockpit-log-panel .pf-c-card__header button")
 
-        # After writing files out tell systemd about them
-        m.execute("systemctl daemon-reload")
-        m.execute("systemctl stop test")
+        b.enter_page("/system/logs")
+        b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
+        t = b.text("#journal-box .cockpit-log-panel > div:nth-child(3)") + b.text("#journal-box .cockpit-log-panel > div:nth-child(4)")
+        self.assertIn("START", t)
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image != "debian-stable":
+            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
+        b.go("/system/services#test.service")
+        b.enter_page("/system/services")
+
+        b.wait_in_text(".cockpit-logline:nth-child(2)", "WORKING")
+        b.click(".cockpit-logline:nth-child(2)")
+        b.enter_page("/system/logs")
+        b.wait_text(".pf-c-card__title", "WORKING")
+        b.click(".pf-c-breadcrumb a:contains('Logs')")
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image != "debian-stable":
+            b.wait_val("#journal-grep input", "priority:debug service:test.service ")
+        b.go("/system/services#test.service")
+        b.enter_page("/system/services")
+
+        b.wait_in_text(".cockpit-logline:nth-child(2)", "WORKING")
+        b.click(".cockpit-logline:nth-child(2)")
+        b.enter_page("/system/logs")
+        b.click("button:contains('Go to test.service')")
+        b.enter_page("/system/services")
+        b.wait_js_cond('window.location.hash === "#/test.service"')
+
+    def testApi(self):
+        b = self.browser
+
+        self.make_test_service()
 
         self.login_and_go("/playground/service#/test")
 

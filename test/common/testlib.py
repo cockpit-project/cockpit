@@ -252,7 +252,6 @@ class Browser:
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
-        self.wait_visible(selector)
         return self.call_js_func('ph_text', selector)
 
     def attr(self, selector, attr):

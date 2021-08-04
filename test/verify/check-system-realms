@@ -849,6 +849,9 @@ ExecStart=/bin/true
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
+        # Remove failed units which will show up in the first terminal line
+        m.execute("systemctl reset-failed")
+
         # kerberos ticket got forwarded into the session
         b.enter_page("/system/terminal")
         b.wait_visible(".terminal .xterm-accessibility-tree")

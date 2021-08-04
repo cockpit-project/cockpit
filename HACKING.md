@@ -298,7 +298,7 @@ Cockpit is a designed project. Anything that the user will see should have
 design done first. This is done on the wiki and mailing list.
 
 Bigger changes need to be discussed on #cockpit or our mailing list
-cockpit-devel@lists.fedoraproject.org before you invest too much time and
+[cockpit-devel@lists.fedoraproject.org](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/) before you invest too much time and
 energy.
 
 Feature changes should have a video and/or screenshots that show the change.

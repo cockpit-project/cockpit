@@ -55,6 +55,9 @@ cockpit.file("/path/to/file").read()
         ...
     });
 </programlisting>
+    <para>It is recommended to use absolute paths. Relative paths are resolved against <code>/</code>.
+      To work with the current user's files <link linkend="cockpit-user">cockpit.user()</link> can be used to get the user's home directory.
+    </para>
     <para>The <code>read()</code> method returns a
       <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
     <para>When successful, the promise will be resolved with the content of the

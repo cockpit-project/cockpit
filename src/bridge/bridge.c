@@ -220,7 +220,11 @@ setup_ssh_agent (gpointer data)
 {
   g_unsetenv ("G_DEBUG");
   prctl (PR_SET_PDEATHSIG, SIGTERM);
-  cockpit_close_range (3, INT_MAX, 0);
+  if (cockpit_close_range (3, INT_MAX, 0) < 0)
+    {
+      g_printerr ("couldn't close file descriptors: %m\n");
+      _exit (127);
+    }
 }
 
 static GPid

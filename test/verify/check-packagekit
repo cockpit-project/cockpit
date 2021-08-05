@@ -150,7 +150,7 @@ class TestUpdates(NoSubManCase):
         kernel_ver_arch = m.execute("uname -r").strip()
         fields = kernel_ver_arch.split("-")
         kpp_kernel_version = fields[0].replace(".", "_")
-        release = fields[1].split(".")[:-2] # remove el8.x86_64
+        release = fields[1].split(".")[:-2]  # remove el8.x86_64
         kpp_kernel_release = "_".join(release)
 
         sanitized_kernel_ver = "_".join(kernel_ver_arch.split(".")[:-2])
@@ -244,7 +244,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m.execute("umount /usr/sbin/kpatch")
         m.execute("systemctl restart kpatch")
         m.execute("dnf -y remove kpatch-patch-" + sanitized_kernel_ver)
-        b.reload() # Not listening on patches being removed
+        b.reload()  # Not listening on patches being removed
         b.enter_page("/updates")
 
         b.wait_in_text("#kpatch-settings", "Disabled")
@@ -265,7 +265,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(m.execute("systemctl is-active kpatch").strip(), "active")
         # Patches should be installed
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
-
 
     def testBasic(self):
         # no security updates, no changelogs
@@ -1081,6 +1080,7 @@ class TestWsUpdate(NoSubManCase):
 
         self.allow_restart_journal_messages()
 
+
 @skipImage("kpatch is not available", *OSesWithoutKpatch)
 class TestKpatchInstall(NoSubManCase):
     def testBasic(self):
@@ -1112,6 +1112,7 @@ class TestKpatchInstall(NoSubManCase):
 
         # kpatch and kpatch-dnf should be installed
         m.execute("rpm -q kpatch kpatch-dnf")
+
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",

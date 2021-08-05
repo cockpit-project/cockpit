@@ -193,6 +193,10 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
         self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")
 
+        m.execute("hostnamectl set-hostname ''")
+        m.execute("hostnamectl set-hostname --transient 'mydhcpname'")
+        b.wait_in_text('#system_information_hostname_text', 'mydhcpname')
+
         b.logout()
         m.execute("chattr -i /etc/os-release && rm /etc/os-release")
         m.execute("rm /usr/lib/os-release || true")

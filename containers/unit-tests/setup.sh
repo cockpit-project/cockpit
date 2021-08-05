@@ -39,9 +39,8 @@ dependencies="\
     npm \
     nodejs:amd64 \
     pkg-config \
-    pyflakes3 \
     python3 \
-    python3-pep8 \
+    python3-pip \
     sassc \
     ssh \
     strace \
@@ -70,6 +69,9 @@ dpkg --add-architecture amd64
 apt-get update
 apt-get install -y --no-install-recommends eatmydata
 DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recommends ${dependencies}
+
+# too old from Debian stable
+pip3 install pyflakes pycodestyle
 
 adduser --system --gecos "Builder" builder
 

@@ -137,6 +137,11 @@ div.changelog {
     margin: 10ex auto 0;
 }
 
+/* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
+.pf-c-progress__status {
+    min-width: 3ch;
+}
+
 /* don't let the install progress bar get too wide */
 .progress-cancel {
     display: flex;

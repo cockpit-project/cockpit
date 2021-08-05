@@ -293,11 +293,16 @@ cockpit_conf_get_dirs (void)
 
   if (!initialized)
     {
-      char *env = getenv ("XDG_CONFIG_DIRS");
+      static char *env;
 
       initialized = true;
+      env = getenv ("XDG_CONFIG_DIRS");
       if (env && env[0])
-        system_config_dirs = strsplit (strdup (env), ':');
+        {
+          /* strsplit() modifies the string inline, so copy and keep a ref */
+          env = strdup (env);
+          system_config_dirs = strsplit (env, ':');
+        }
     }
 
   return (const char * const *) system_config_dirs ?: cockpit_config_dirs;

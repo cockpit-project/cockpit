@@ -11,7 +11,7 @@ jobs:
          - CC=clang distcheck
          - :i386 distcheck
       fail-fast: false
-    timeout-minutes: 20
+    timeout-minutes: 60
     env:
       # current podman backport falls over as non-root, and completely breaks down with :i386 image
       docker: docker
@@ -34,4 +34,5 @@ jobs:
           fi
 
       - name: Run unit-tests container
+        timeout-minutes: 20
         run: containers/unit-tests/start ${{ matrix.startarg }}

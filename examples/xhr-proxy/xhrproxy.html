@@ -3,29 +3,30 @@
 <head>
     <title>XMLHttpRequest proxy</title>
     <meta charset="utf-8">
-    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <link href="./patternfly.css" type="text/css" rel="stylesheet">
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
     <div class="pf-c-page">
         <main class="pf-c-page__main" tabindex="-1">
             <section class="pf-c-page__main-section pf-m-light">
-                <table class="form-table-ct">
-                    <tr>
-                        <th><label class="control-label" for="address">URL</label></th>
-                        <td><input class="form-control" id="address" value="http://localhost:12345"></td>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <td><button class="pf-c-button pf-m-primary" id="get">GET request</button></td>
-                    <tr>
-                        <th>Code</th>
-                        <td><span id="result"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Output</th>
-                        <td><pre id="output"></pre></td>
-                </table>
+                <div class="pf-l-stack pf-m-gutter">
+                    <div class="pf-l-stack__item">
+                        <label for="address">URL</label>
+                        <input id="address" value="http://localhost:12345">
+                    </div>
+                    <div class="pf-l-stack__item">
+                        <button class="pf-c-button pf-m-primary" id="get">GET request</button>
+                    </div>
+                    <div class="pf-l-stack__item">
+                        <label for="result">Code</label>
+                        <span id="result"></span>
+                    </div>
+                    <div class="pf-l-stack__item">
+                        <label for="output">Output</label>
+                        <pre id="output"></pre>
+                    </div>
+                </div>
             </section>
         </main>
     </div>

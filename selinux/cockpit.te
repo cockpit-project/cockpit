@@ -180,3 +180,11 @@ optional_policy(`
 optional_policy(`
 	unconfined_domtrans(cockpit_session_t)
 ')
+
+# login may read motd file through pam
+optional_policy(`
+    gen_require(`
+        type local_login_t;
+    ')
+    cockpit_read_pid_files(local_login_t)
+')

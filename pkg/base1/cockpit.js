@@ -4617,30 +4617,8 @@ function factory() {
 } /* scope end */
 
 /*
- * Register this script as a module and/or with globals
+ * Register this script as global
  */
 
-var self_module_id;
-
-/* Check how we're being loaded */
-var last = document.scripts[document.scripts.length - 1].src || "";
-var pos = last.indexOf("/cockpit.js");
-if (pos === -1)
-    pos = last.indexOf("/cockpit.min.js");
-if (pos !== -1)
-    pos = last.substring(0, pos).lastIndexOf("/");
-
-/* cockpit.js is being loaded as a <script>  and no other loader around? */
-if (pos !== -1) {
-    self_module_id = last.substring(pos + 1, last.indexOf(".", pos + 1));
-    window.cockpit = factory();
-}
-
-/* Cockpit loaded via AMD loader */
-if (is_function(window.define) && window.define.amd) {
-    if (self_module_id)
-        define(self_module_id, [], window.cockpit); // eslint-disable-line no-undef
-    else
-        define([], factory); // eslint-disable-line no-undef
-}
+window.cockpit = factory();
 })();

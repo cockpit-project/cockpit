@@ -31,7 +31,7 @@
  * Higher layers (cockpit-tls → cockpit-ws → cockpit-session) are
  * responsible for transporting the client certificate filename from
  * here to the counterpart of this file which performs the actual
- * checks: src/ws/cockpit-session-client-certificate.c.  The filename is
+ * checks: src/session/client-certificate.c.  The filename is
  * required information for authentication, but it's not sufficient:
  * the cgroup of the wsinstance must also match the one found in the
  * client certificate file.

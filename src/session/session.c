@@ -23,7 +23,7 @@
 #include "common/cockpitjsonprint.h"
 #include "common/cockpitmemory.h"
 
-#include "cockpit-session-client-certificate.h"
+#include "client-certificate.h"
 #include "session-utils.h"
 
 #include <security/pam_appl.h>

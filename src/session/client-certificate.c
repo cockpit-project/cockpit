@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpit-session-client-certificate.h"
+#include "client-certificate.h"
 
 #include <assert.h>
 #include <err.h>
@@ -115,20 +115,13 @@ valid_256_bit_hex_string (const char *str)
 }
 
 /**
- * cockpit_wsinstance_has_certificate_file:
- * @contents: an optional buffer to read the certificate into
+ * read_cert_file:
+ * @contents: a buffer to read the certificate into
  * @contents_size: the size of @contents
  *
- * Checks if an active, regular, non-empty https certificate file exists
- * for the cgroup of the current wsinstance.  This is true if there are
- * any active https connections from the client which was responsible
- * for this cockpit-ws instance being started.
- *
- * Optionally, reads the contents of the certificate file into
- * @contents (of size @contents_size).  The buffer must be large enough
- * for the contents of the certificate file, plus a nul terminator
- * (which will be added).  If @contents is %NULL then no attempt will be
- * made to read the file contents, but the other checks are performed.
+ * Reads the contents of the certificate file into @contents (of size @contents_size).
+ * The buffer must be large enough for the contents of the certificate file, plus
+ * a nul terminator (which will be added).
  *
  * On success, the size of the certificate file (excluding nul
  * terminator) is returned.  This value is never 0.  On error, -1 is
@@ -136,9 +129,9 @@ valid_256_bit_hex_string (const char *str)
  * logged).
  */
 static ssize_t
-cockpit_session_client_certificate_read_file (const char *filename,
-                                              char       *contents,
-                                              size_t      contents_size)
+read_cert_file (const char *filename,
+                char       *contents,
+                size_t      contents_size)
 {
   int dirfd = -1, filefd = -1;
   ssize_t result = -1;
@@ -305,6 +298,13 @@ out:
   return result;
 }
 
+/**
+ * cockpit_session_client_certificate_map_user
+ *
+ * Read the given certificate file, ensure that it belongs to our own cgroup, and ask
+ * sssd to map it to a user. If everything matches as expected, return the user name.
+ * Otherwise return %NULL, a warning message will already have been logged.
+ */
 char *
 cockpit_session_client_certificate_map_user (const char *client_certificate_filename)
 {
@@ -312,8 +312,7 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
   char *sssd_user = NULL;
 
   /* read the certificate file from disk */
-  if (cockpit_session_client_certificate_read_file (client_certificate_filename,
-                                                    cert_pem, sizeof cert_pem) < 0)
+  if (read_cert_file (client_certificate_filename, cert_pem, sizeof cert_pem) < 0)
     {
       warnx ("No https instance certificate present");
       return NULL;

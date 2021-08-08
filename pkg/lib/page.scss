@@ -33,12 +33,6 @@ a {
     cursor: pointer;
 }
 
-p + p {
-    // The mix of PF3 and PF4 removes margin from paragraphs.
-    // We want successive paragraphs to have spaces between each other.
-    margin-top: var(--pf-global--spacer--md);
-}
-
 .disabled {
     pointer-events: auto;
 }
@@ -129,23 +123,6 @@ a.disabled:hover {
     background-color: var(--pf-global--palette--black-200);
 }
 
-.well.blank-slate-pf {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05) inset;
-    padding-top: 40px;
-}
-
-.blank-slate-pf .spinner-lg {
-    height: 58px;
-    width: 58px;
-}
-
-/* Small list inside a dialog */
-/* Alert fixups */
-
-.modal-content .pf-c-alert {
-    text-align: left;
-    margin-bottom: 24px;
-}
 /* Dialog patterns */
 
 .dialog-wait-ct {
@@ -175,11 +152,6 @@ a.disabled:hover {
 /* HACK: https://github.com/patternfly/patternfly/issues/255 */
 input[type=number]:not(.pf-c-form-control) {
   padding: 0 0 0 5px;
-}
-
-/* Make a dialog visible */
-.dialog-ct-visible {
-    display: block;
 }
 
 :root {
@@ -237,11 +209,6 @@ html:not(.index-page) body {
   .ct-page-fill {
     height: 100% !important;
   }
-}
-
-// When there is an Alert above the Form add some spacing
-.pf-c-modal-box .pf-c-alert + .pf-c-form {
-    padding-top: var(--pf-global--FontSize--sm);
 }
 
 .ct-icon-exclamation-triangle {

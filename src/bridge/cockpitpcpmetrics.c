@@ -121,7 +121,7 @@ result_meta_equal (CockpitPcpMetrics *self,
 static gint64
 timestamp_from_timeval (struct timeval *tv)
 {
-  return tv->tv_sec * 1000 + tv->tv_usec / 1000;
+  return (gint64) tv->tv_sec * 1000 + tv->tv_usec / 1000;
 }
 
 static JsonObject *
@@ -695,7 +695,7 @@ add_archive (CockpitPcpMetrics *self,
       return;
     }
 
-  info->start = label.ll_start.tv_sec * 1000 + label.ll_start.tv_usec / 1000;
+  info->start = (gint64) label.ll_start.tv_sec * 1000 + label.ll_start.tv_usec / 1000;
   self->archives = g_list_prepend (self->archives, info);
   return;
 }
@@ -963,7 +963,7 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
     {
       struct timeval now;
       gettimeofday (&now, NULL);
-      timestamp = (now.tv_sec * 1000 + now.tv_usec / 1000) + timestamp;
+      timestamp = ((gint64) now.tv_sec * 1000 + now.tv_usec / 1000) + timestamp;
     }
 
   /* "limit" option */

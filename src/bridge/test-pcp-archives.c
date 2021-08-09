@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #include <pcp/pmapi.h>
@@ -300,6 +301,43 @@ test_metrics_archive_timestamp (TestCase *tc,
 }
 
 static void
+test_metrics_archive_timestamp_now (TestCase *tc,
+                                gconstpointer unused)
+{
+  time_t now = time (NULL);
+
+  g_assert (pmiStart ("mock-archives/3", 0) >= 0);
+  g_assert (pmiAddMetric ("mock.now", PM_ID_NULL,
+                          PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+                          pmiUnits (0, 0, 0, 0, 0, 0)) >= 0);
+  /* one second in the past to one second in the future */
+  g_assert (pmiPutValue ("mock.now", NULL, "41") >= 0);
+  g_assert (pmiWrite (now - 1, 0) >= 0);
+  g_assert (pmiPutValue ("mock.now", NULL, "42") >= 0);
+  g_assert (pmiWrite (now, 0) >= 0);
+  g_assert (pmiPutValue ("mock.now", NULL, "43") >= 0);
+  g_assert (pmiWrite (now + 1, 0) >= 0);
+
+  g_autofree gchar* json = g_strdup_printf("{ 'source': '" BUILDDIR "/mock-archives/3',"
+                                           "  'metrics': [ { 'name': 'mock.now' } ],"
+                                           "  'interval': 1000,"
+                                           "  'timestamp': %li000"
+                                           "}", now);
+  JsonObject *options = json_obj(json);
+
+  setup_metrics_channel_json (tc, options);
+
+  JsonObject *meta = recv_json_object (tc);
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.now', 'units': '', 'semantics': 'instant' } ]");
+
+  assert_sample (tc, "[[42],[43]]");
+
+  json_object_unref (options);
+}
+
+
+static void
 test_metrics_archive_directory (TestCase *tc,
                                 gconstpointer unused)
 {
@@ -388,6 +426,8 @@ main (int argc,
               setup, test_metrics_archive_limit, teardown);
   g_test_add ("/metrics/archive-timestamp", TestCase, NULL,
               setup, test_metrics_archive_timestamp, teardown);
+  g_test_add ("/metrics/archive-timestamp-now", TestCase, NULL,
+              setup, test_metrics_archive_timestamp_now, teardown);
   g_test_add ("/metrics/archive-directory", TestCase, NULL,
               setup, test_metrics_archive_directory, teardown);
   g_test_add ("/metrics/archive-directory-timestamp", TestCase, NULL,

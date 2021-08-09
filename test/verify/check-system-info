@@ -508,7 +508,7 @@ revision\t: 2.3 (pvr 004e 1203)
         # demidecode not available on certain images
         if not m.ostree_image:
             b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
-            b.wait_in_text('#hwinfo #memory-listing table', "DIMM 0")
+            b.wait_in_text('#hwinfo #memory-listing table', "DIMM")
             b.wait_in_text('#hwinfo #memory-listing table', "RAM")
 
             # Test more specific memory data with a fake dmidecode

@@ -39,6 +39,12 @@ const getDMI = info => machine_info.dmi_info()
             return true;
         });
 
+const getDeviceTree = info => machine_info.devicetree_info()
+        .then(fields => {
+            info.system.name = fields.model;
+            return true;
+        });
+
 // Add info.pci [{slot, cls, vendor, model}] list
 function findPCI(udevdb, info) {
     for (const syspath in udevdb) {
@@ -66,8 +72,13 @@ export default function detect() {
 
     tasks.push(getDMI(info)
             .catch(error => {
-                // DMI only works on x86 machines; check devicetree (or what lshw does) on other arches
                 console.warn("Failed to get DMI information:", error.toString());
+                return true;
+            }));
+
+    tasks.push(getDeviceTree(info)
+            .catch(error => {
+                console.debug("Failed to get DeviceTree information:", error.toString());
                 return true;
             }));
 

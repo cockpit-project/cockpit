@@ -81,20 +81,21 @@ class SystemInfo extends React.Component {
             <Flex id="hwinfo-system-info-list" direction={{ default: 'column', sm: 'row' }}>
                 <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
                     <DescriptionList className="pf-m-horizontal-on-md">
-                        { info.type && <>
+                        { info.type &&
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Type") }</DescriptionListTerm>
                                 <DescriptionListDescription>{ info.type }</DescriptionListDescription>
-                            </DescriptionListGroup>
+                            </DescriptionListGroup> }
+                        { info.name &&
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Name") }</DescriptionListTerm>
                                 <DescriptionListDescription>{ info.name }</DescriptionListDescription>
-                            </DescriptionListGroup>
+                            </DescriptionListGroup> }
+                        { info.version &&
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Version") }</DescriptionListTerm>
                                 <DescriptionListDescription>{ info.version }</DescriptionListDescription>
-                            </DescriptionListGroup>
-                        </> }
+                            </DescriptionListGroup> }
                     </DescriptionList>
                 </FlexItem>
                 <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>

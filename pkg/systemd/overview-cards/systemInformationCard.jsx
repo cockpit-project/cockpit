@@ -70,7 +70,7 @@ export class SystemInfomationCard extends React.Component {
         var self = this;
 
         machine_info.dmi_info()
-                .then(function(fields) {
+                .then(fields => {
                     let vendor = fields.sys_vendor;
                     let name = fields.product_name;
                     if (!vendor || !name) {
@@ -83,10 +83,16 @@ export class SystemInfomationCard extends React.Component {
                         self.setState({ hardwareText: vendor + " " + name });
 
                     self.setState({ assetTagText: fields.product_serial || fields.chassis_serial });
-                }, function(ex) {
-                    // FIXME show proper Alerts
-                    console.debug("couldn't read dmi info: " + ex);
-                    self.setState({ assetTagText: undefined, hardwareText: undefined });
+                })
+                .catch(ex => {
+                    // try DeviceTree
+                    machine_info.devicetree_info()
+                            .then(fields => self.setState({ assetTagText: fields.serial, hardwareText: fields.model }))
+                            .catch(dmiex => {
+                                console.debug("couldn't read dmi info: " + ex);
+                                console.debug("couldn't read DeviceTree info: " + dmiex.toString());
+                                self.setState({ assetTagText: undefined, hardwareText: undefined });
+                            });
                 });
     }
 

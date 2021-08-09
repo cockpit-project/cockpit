@@ -135,6 +135,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
     def testBasic(self):
         b = self.browser
+        m1 = self.machines["machine1"]
         m2 = self.machines["machine2"]
         m3 = self.machines["machine3"]
 
@@ -148,6 +149,12 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.wait_host_addresses(b, ["localhost"])
 
         b.wait_not_present("button:contains('Edit hosts')")
+
+        # Test that transient hostname shows up
+        m1.execute("hostnamectl set-hostname ''")
+        m1.execute("hostnamectl set-hostname --transient 'mydhcpname'")
+        b.wait_in_text("#nav-hosts .nav-item a", "mydhcpname")
+        m1.execute("hostnamectl set-hostname 'localhost'")
 
         self.add_machine(b, "10.111.113.2")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])

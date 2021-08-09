@@ -493,7 +493,7 @@ function Loader(machines, session_only) {
         if (!machine.color)
             overlay.color = machines.unused_color();
 
-        var label = props.PrettyHostname || props.StaticHostname;
+        var label = props.PrettyHostname || props.StaticHostname || props.Hostname;
         if (label && label !== machine.label)
             overlay.label = label;
 

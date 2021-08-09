@@ -131,6 +131,24 @@ export function dmi_info(address) {
     return pr;
 }
 
+// decode a binary Uint8Array with a trailing null byte
+function decode_proc_str(s) {
+    return cockpit.utf8_decoder().decode(s.slice(0, -1));
+}
+
+export function devicetree_info() {
+    let model, serial;
+
+    return Promise.all([
+        // these succeed with content === null if files are absent
+        cockpit.file("/proc/device-tree/model", { binary: true }).read()
+                .then(content => { model = content ? decode_proc_str(content) : null }),
+        cockpit.file("/proc/device-tree/serial-number", { binary: true }).read()
+                .then(content => { serial = content ? decode_proc_str(content) : null }),
+    ])
+            .then(() => ({ model, serial }));
+}
+
 /* we expect udev db paragraphs like this:
  *
    P: /devices/virtual/mem/null

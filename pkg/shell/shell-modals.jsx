@@ -20,12 +20,14 @@
 import cockpit from "cockpit";
 import React from "react";
 import {
+    AboutModal,
     Button,
     Divider,
     Flex,
     Menu, MenuList, MenuItem, MenuContent, MenuInput,
     Modal,
     TextInput,
+    TextContent, TextList, TextListItem
 } from '@patternfly/react-core';
 
 import "menu-select-widget.scss";
@@ -33,26 +35,70 @@ import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
-export function AboutModal(props) {
-    return (
-        <Modal isOpen position="top" variant="medium"
-               onClose={props.onClose}
-               id="about-cockpit-modal"
-               title={_("About Web Console")}
-               footer={<Button variant='secondary' onClick={props.onClose}>{_("Close")}</Button>}
-        >
-            <div>{_("Cockpit is an interactive Linux server admin interface.")}</div>
-            <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/">{_("Project website")}</a></div>
-            <div>
-                <span>{_("Version")} </span>
-                <span id="about-version">{cockpit.info.version}</span>.
-            </div>
-            <div>
-                <span>{_("Licensed under:")} </span>
-                <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
-              rel="noopener noreferrer" target="_blank">{_("GNU LGPL version 2.1")}</a>
-            </div>
-        </Modal>);
+export class AboutCockpitModal extends React.Component {
+    constructor(props) {
+        super();
+
+        this.state = {
+            packages: null,
+        };
+    }
+
+    componentDidMount() {
+        const packages = [];
+
+        cockpit.spawn(["bash", "-ec", "command -v zypper dnf apt | head -n1 | xargs --no-run-if-empty basename"], [], { err: "message" })
+                .then(output => {
+                    output = output.trim();
+                    let cmd = null;
+                    if (output === "dnf" || output === "zypper")
+                        cmd = "rpm -qa --qf '%{NAME} %{VERSION}\\n' | grep cockpit | sort";
+                    else if (output === "apt")
+                        cmd = "dpkg-query -f '${Package} ${Version}\n' --show | grep cockpit | sort";
+                    else
+                        console.log("Unknown package manager");
+
+                    if (cmd)
+                        return cockpit.spawn(["bash", "-ec", cmd], [], { err: "message" })
+                                .then(pkgs =>
+                                    pkgs.trim().split("\n")
+                                            .forEach(p => {
+                                                const parts = p.split(" ");
+                                                packages.push({ name: parts[0], version: parts[1] });
+                                            })
+                                );
+                })
+                .catch(error => console.error("Could not read packages versions:", error))
+                .finally(() => this.setState({ packages: packages }));
+    }
+
+    render() {
+        return (
+            <AboutModal
+                isOpen
+                onClose={this.props.onClose}
+                id="about-cockpit-modal"
+                trademark={_("Licensed under GNU LGPL version 2.1")}
+                productName={_("Web Console")}
+                brandImageSrc="../shell/images/cockpit-icon.svg"
+                brandImageAlt={_("Web console logo")}
+                backgroundImageSrc="../shell/images/bg-plain.jpg"
+            >
+                <div>{_("Cockpit is an interactive Linux server admin interface.")}</div>
+                <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/">{_("Project website")}</a></div>
+                <TextContent>
+                    <TextList component="dl">
+                        {this.state.packages === null && <span>{_("Loading packages...")}</span>}
+                        {this.state.packages !== null && this.state.packages.map(p =>
+                            <React.Fragment key={p.name}>
+                                <TextListItem key={p.name} component="dt">{p.name}</TextListItem>
+                                <TextListItem component="dd">{p.version}</TextListItem>
+                            </React.Fragment>
+                        )}
+                    </TextList>
+                </TextContent>
+            </AboutModal>);
+    }
 }
 
 export class LangModal extends React.Component {

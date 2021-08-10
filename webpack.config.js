@@ -209,6 +209,8 @@ const info = {
         "shell/images/server-error.png",
         "shell/images/server-large.png",
         "shell/images/server-small.png",
+        "shell/images/cockpit-icon.svg",
+        "shell/images/bg-plain.jpg",
         "shell/index.html",
         "shell/shell.html",
 

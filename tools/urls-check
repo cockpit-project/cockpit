@@ -99,7 +99,7 @@ def check_urls(verbose):
 
         try:
             # Specify agent as some websites otherwise block requests
-            req = Request(url=url, headers={"User-Agent": "Mozilla/5.0"})
+            req = Request(url=url, headers={"User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"})
             resp = urlopen(req)
             if resp.geturl() != url and url not in known_redirects:
                 redirects.append(url)

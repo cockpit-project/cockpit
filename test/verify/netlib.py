@@ -118,7 +118,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
         # Something unknown sometimes goes wrong with PCP, see #15625
         self.allow_journal_messages("pcp-archive: no such metric: network.interface.* Unknown metric name",
-                                    "direct: instance name lookup failed: network.* Unknown or illegal instance identifier")
+                                    "direct: instance name lookup failed: network.*")
 
     def get_iface(self, m, mac):
         def getit():

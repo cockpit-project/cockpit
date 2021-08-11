@@ -467,4 +467,4 @@ class StorageCase(MachineCase, StorageHelpers):
             self.mount_root = "/run/media"
 
         # Something unknown sometimes goes wrong with PCP, see #15625
-        self.allow_journal_messages("pcp-archive: no such metric: disk.all.read_bytes: Unknown metric name")
+        self.allow_journal_messages("pcp-archive: no such metric: disk.*")

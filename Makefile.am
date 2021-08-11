@@ -243,6 +243,7 @@ title2sentence: multi-word
 
 include po/Makefile.am
 include pkg/Makefile.am
+include src/branding/arch/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am
 include src/branding/default/Makefile.am

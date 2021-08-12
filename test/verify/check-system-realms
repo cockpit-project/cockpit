@@ -672,7 +672,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f'''! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443
                       mkdir -p /run/systemd/system/cockpit.socket.d/
                       printf "[Socket]\nListenStream=\nListenStream=443" > /run/systemd/system/cockpit.socket.d/listen.conf
-                      sed -i '/\[WebService/ aOrigins = http://{m.web_address}:{m.web_port}' /etc/cockpit/cockpit.conf''')
+                      sed -i '/\\[WebService/ aOrigins = http://{m.web_address}:{m.web_port}' /etc/cockpit/cockpit.conf''')
         m.spawn("socat TCP-LISTEN:9090,reuseaddr,fork OPENSSL:x0.cockpit.lan:443,cert=/var/tmp/alice.pem,key=/var/tmp/alice.key", "socat-certauth.log")
         m.start_cockpit(tls=True)
 
@@ -708,7 +708,7 @@ ipa-advise enable-admins-sudo | sh -ex
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
 
         # set up delegation rule
-        script = f"""
+        script = """
         ipa servicedelegationtarget-add cockpit-target
         ipa servicedelegationtarget-add-member cockpit-target --principals="host/x0.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add cockpit-delegation

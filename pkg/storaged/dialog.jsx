@@ -230,9 +230,9 @@ import {
     Slider,
     Spinner, Split,
     TextInput as TextInputPF4,
-    Tooltip, TooltipPosition,
+    Popover,
 } from "@patternfly/react-core";
-import { InfoCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { ExclamationTriangleIcon, HelpIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -749,11 +749,11 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                   label={
                       <>
                           {title}
-                          { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
+                          { tooltip && <Popover bodyContent={tooltip}>
                               <Button className="dialog-item-tooltip" variant="link">
-                                  <InfoCircleIcon />
+                                  <HelpIcon />
                               </Button>
-                          </Tooltip>
+                          </Popover>
                           }
                       </>
                   }

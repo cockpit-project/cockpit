@@ -689,6 +689,10 @@ class TestCurrentMetrics(MachineCase):
         super().setUp()
         # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
         self.machine.execute("systemctl mask packagekit && killall -9 /usr/libexec/packagekitd && killall -9 dnf || true")
+        # failing to load the metrics (stopped pmlogger and cleaned /var/log/pcp) generates this message
+        # from the metrics channel at first try
+        self.allow_journal_messages("pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name")
+
         self.addCleanup(self.machine.execute, "systemctl unmask packagekit")
         # make sure to clean up our test resource consumers on failures
         self.addCleanup(self.machine.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")

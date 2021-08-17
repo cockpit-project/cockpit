@@ -135,7 +135,8 @@ class TestSelinux(MachineCase):
         b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
         # system modifications automatically update for this new sebool
-        b.wait_in_text(".modifications-table", "Allow httpd to enable homedirs")
+        # was "enable homedir", is now "read home directory"
+        b.wait_text_matches(".modifications-table", "Allow httpd to .* home ?dir")
 
         # Second sebool solution can still be applied separately
         sebool_selector2 = panel_selector + " .selinux-details:contains('httpd_unified')"

@@ -461,7 +461,7 @@ ExecStart=/bin/true
             """ % (self.admin_password, self.admin_user), timeout=300)
 
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
-        self.machine.execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
+        self.machine.execute("mkdir -pZ /var/cache/krb5rcache")
 
         # HACK: Figure out why this happens
         self.allow_journal_messages('''.*didn't receive expected "authorize" message''',

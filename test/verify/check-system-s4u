@@ -38,8 +38,8 @@ class TestS4USsh(MachineCase):
         super().setUp()
         self.machines['services'].execute("/root/run-freeipa")
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
-        self.machines['0'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
-        self.machines['1'].execute("mkdir /var/cache/krb5rcache && restorecon /var/cache/krb5rcache")
+        self.machines['0'].execute("mkdir -pZ /var/cache/krb5rcache")
+        self.machines['1'].execute("mkdir -pZ /var/cache/krb5rcache")
 
     def testBasic(self):
         client_machine = self.machine

@@ -203,6 +203,11 @@ function ph_text_is (sel, text)
     return ph_text(sel) == text;
 }
 
+function ph_text_matches (sel, pattern)
+{
+    return ph_text(sel).match(pattern);
+}
+
 function ph_go(href) {
     if (href.indexOf("#") === 0) {
         window.location.hash = href;

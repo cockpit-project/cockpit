@@ -470,6 +470,10 @@ class Browser:
         self.wait_visible(selector)
         self.wait_js_func('!ph_text_is', selector, text)
 
+    def wait_text_matches(self, selector, pattern):
+        self.wait_visible(selector)
+        self.wait_js_func('ph_text_matches', selector, pattern)
+
     def wait_popup(self, id):
         """Wait for a popup to open.
 

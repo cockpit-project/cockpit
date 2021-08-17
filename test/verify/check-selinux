@@ -95,7 +95,7 @@ class TestSelinux(MachineCase):
         self.machine.execute(script=FIX_AUDITD)
 
         # wait for Modifications table to initialize
-        b.wait_in_text(".modifications-table", "Allow zebra to write config")
+        b.wait_in_text(".modifications-table", "Allow zebra")
 
         # httpd_read_user_content should be off by default
         self.assertIn("-> off", m.execute("getsebool httpd_read_user_content"))

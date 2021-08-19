@@ -945,6 +945,7 @@ ExecStart=/usr/local/bin/{0}
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
         self.allow_journal_messages("Process .* dumped core.*")
+        self.allow_journal_messages("Found module .* with build-id: .*")
         self.allow_journal_messages("Stack trace of thread.*")
         self.allow_journal_messages("#[0-9].*")
 

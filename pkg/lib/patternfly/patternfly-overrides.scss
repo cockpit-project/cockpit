@@ -634,6 +634,13 @@ input.pf-c-radio__input {
   margin: unset;
 }
 
+// Adjust non-classed number inputs, to fix stepper alignment.
+// (PF4 always uses the pf-c-form-control class on number inputs.)
+// Issue: https://github.com/patternfly/patternfly-3/issues/255
+input[type=number]:not(.pf-c-form-control) {
+  padding: 0 0 0 5px;
+}
+
 p + p {
     // The mix of PF3 and PF4 removes margin from paragraphs.
     // We want successive paragraphs to have spaces between each other.

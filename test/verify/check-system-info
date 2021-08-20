@@ -779,8 +779,9 @@ password=foobar
         self.assertGreater(hog_usage, initial_usage + 10)
 
         m.execute("kill %d" % mem_hog)
-        # should go back to initial_usage; often below, due to paged out stuff
-        wait(lambda: progressValue(2) <= initial_usage)
+        # Should go back to initial_usage, but it doesn't always, for example on fedora-35.
+        # So let's be happy if the usage drops significantly
+        wait(lambda: progressValue(2) <= hog_usage - 15)
         self.assertGreater(progressValue(2), 10)
 
 

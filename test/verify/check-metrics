@@ -208,8 +208,8 @@ class TestHistoryMetrics(MachineCase):
         #
 
         # disable swap, so that we can test current metrics without swap
-        m.execute('''systemctl stop "*.swap" "swap-create@*" || true
-                     systemctl mask "swap-create@"
+        m.execute('''systemctl stop "*.swap" "swap-create@*" "systemd-zram-setup@*" || true
+                     systemctl mask "swap-create@" "systemd-zram-setup@"
                      swapoff --all
                      while [ -n "$(swapon --show)" ]; do sleep 1; done''')
 

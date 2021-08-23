@@ -239,12 +239,17 @@ function ph_blur(sel)
 }
 
 class PhWaitCondTimeout extends Error {
-    constructor() {
-        super("condition did not become true");
+    constructor(description) {
+        if (description && description.apply)
+            description = description.apply();
+        if (description)
+            super(description);
+        else
+            super("condition did not become true");
     }
 }
 
-function ph_wait_cond(cond, timeout) {
+function ph_wait_cond(cond, timeout, error_description) {
     return new Promise((resolve, reject) => {
         // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
         // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
@@ -252,7 +257,7 @@ function ph_wait_cond(cond, timeout) {
         let tm = window.setTimeout( () => {
                 if (stepTimer)
                     window.clearTimeout(stepTimer);
-                reject(new PhWaitCondTimeout());
+                reject(new PhWaitCondTimeout(error_description));
             }, timeout);
         function step() {
             try {

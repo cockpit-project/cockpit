@@ -189,6 +189,8 @@ class Browser:
         # unwrap a typical error string
         if details.get("exception", {}).get("type") == "string":
             msg = details["exception"]["value"]
+        elif details.get("text", None):
+            msg = details.get("text", None)
         else:
             msg = str(details)
         if trailer:
@@ -397,9 +399,9 @@ class Browser:
             time.sleep(0.2)
         raise Error('timed out waiting for predicate to become true')
 
-    def wait_js_cond(self, cond):
+    def wait_js_cond(self, cond, error_description="null"):
         result = self.cdp.invoke("Runtime.evaluate",
-                                 expression="ph_wait_cond(() => %s, %i)" % (cond, self.cdp.timeout * self.timeout_factor * 1000),
+                                 expression="ph_wait_cond(() => %s, %i, %s)" % (cond, self.cdp.timeout * self.timeout_factor * 1000, error_description),
                                  silent=False, awaitPromise=True, trace="wait: " + cond)
         if "exceptionDetails" in result:
             trailer = "\n".join(self.cdp.get_js_log())
@@ -453,7 +455,8 @@ class Browser:
 
     def wait_in_text(self, selector, text):
         self.wait_visible(selector)
-        self.wait_js_func('ph_in_text', selector, text)
+        self.wait_js_cond("ph_in_text(%s,%s)" % (jsquote(selector), jsquote(text)),
+                          error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_not_in_text(self, selector, text):
         self.wait_visible(selector)
@@ -464,7 +467,8 @@ class Browser:
 
     def wait_text(self, selector, text):
         self.wait_visible(selector)
-        self.wait_js_func('ph_text_is', selector, text)
+        self.wait_js_cond("ph_text_is(%s,%s)" % (jsquote(selector), jsquote(text)),
+                          error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_text_not(self, selector, text):
         self.wait_visible(selector)

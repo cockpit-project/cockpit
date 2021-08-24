@@ -451,6 +451,40 @@ class TestStorageLuks(StorageCase):
         b.click(fsys_tab + " button:contains(Do not mount automatically)")
         b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
 
+    def testReboot(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem, then
+        # reboot and check that the filesystem is mounted.
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "ext4 file system")
+
+        self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+        b.wait_visible("#storage-detail")
+
+        self.wait_mounted(2, 1)
+
 
 if __name__ == '__main__':
     test_main()

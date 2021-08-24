@@ -436,6 +436,45 @@ class StorageHelpers:
         self.content_tab_wait_in_info(row, col, "Mount point",
                                       cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
 
+    def setup_systemd_password_agent(self, password):
+        # This sets up a systemd password agent that replies to all
+        # queries with the given password.
+
+        self.write_file("/usr/local/bin/test-password-agent",
+                        f"""#!/bin/sh
+for s in $(grep -h ^Socket= /run/systemd/ask-password/ask.* | sed 's/^Socket=//'); do
+  printf '%s' '{password}' | /usr/lib/systemd/systemd-reply-password 1 $s
+done
+
+# Sleep a bit to avoid starting this agent too quickly over and over,
+# which would be wasteful and also cause systemd to block us.
+sleep 2
+""", perm="0755")
+
+        self.write_file("/etc/systemd/system/test-password-agent.service",
+                        """
+[Unit]
+Description=Test Password Agent
+DefaultDependencies=no
+Conflicts=shutdown.target emergency.service
+Before=shutdown.target
+[Service]
+ExecStart=/usr/local/bin/test-password-agent
+""")
+
+        self.write_file("/etc/systemd/system/test-password-agent.path",
+                        """
+[Unit]
+Description=Test Password Agent Directory Watch
+DefaultDependencies=no
+Conflicts=shutdown.target emergency.service
+Before=paths.target shutdown.target cryptsetup.target
+[Path]
+DirectoryNotEmpty=/run/systemd/ask-password
+MakeDirectory=yes
+""")
+        self.machine.execute("ln -s ../test-password-agent.path /etc/systemd/system/sysinit.target.wants/")
+
 
 class StorageCase(MachineCase, StorageHelpers):
 

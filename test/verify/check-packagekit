@@ -271,6 +271,22 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b = self.browser
         m = self.machine
 
+        def check_status():
+            if m.image in OSesWithoutTracer:
+                b.wait_in_text("#status p", "System is up to date")
+                # PK starts from a blank state, thus should force refresh and set the "time since" to 0
+                b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
+            else:
+                code = m.execute("tracer > /dev/null 2>&1; echo $?").rstrip()
+                if code == "104":
+                    b.wait_in_text("#status p", "a system reboot")
+                elif code == "102" or code == "101":
+                    b.wait_in_text("#status p", "to be restarted")
+                else:
+                    b.wait_in_text("#status p", "System is up to date")
+                    # PK starts from a blank state, thus should force refresh and set the "time since" to 0
+                    b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
+
         self.enable_preload("packagekit", "index")
 
         # Refresh cache so cockpit does not try to reload page
@@ -286,9 +302,10 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # no updates on the Software Updates page
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_in_text("#status", "System is up to date")
-        # PK starts from a blank state, thus should force refresh and set the "time since" to 0
-        b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
+
+        # refresh
+        b.click("#status .pf-c-card__header button")
+        check_status()
 
         install_lockfile = "/tmp/finish-pk"
         # create two updates; force installing chocolate before vanilla
@@ -301,8 +318,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
         # check again
         b.click("#status .pf-c-card__header button")
-
-        b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
 
         b.wait_visible("#available-updates")
         b.wait_in_text("#status", "2 updates available")
@@ -355,8 +370,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
-        b.wait_in_text("#status", "System is up to date")
-        b.wait_in_text("#last-checked", "Last checked")
+        check_status()
 
         # TODO make Packagekit GetUpdates work for tests properly
         b.wait_not_present("#available-updates")

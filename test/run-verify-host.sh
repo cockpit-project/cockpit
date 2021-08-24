@@ -27,7 +27,7 @@ ln -s /usr/local/lib/firefox/firefox /usr/local/bin/
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd
 if rpm -q setroubleshoot-server; then
-    dnf remove -y setroubleshoot-server
+    dnf remove -y --noautoremove setroubleshoot-server
 fi
 
 if grep -q 'ID=.*fedora' /etc/os-release; then

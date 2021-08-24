@@ -53,7 +53,14 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         blank_state = ' '
 
         def wait_line(i, t):
-            b.wait_text(line_sel(i), t)
+            try:
+                b.wait_text(line_sel(i), t)
+            except Exception as e:
+                print("-----")
+                for i in range(max(1, i - 5), i + 5):
+                    print(b.text(line_sel(i)))
+                print("-----")
+                raise e
 
         # wait until first line is not empty
         n = 1

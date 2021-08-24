@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
+"POT-Creation-Date: 2021-08-17 18:06+0000\n"
 "PO-Revision-Date: 2021-06-22 19:04+0000\n"
 "Last-Translator: simmon <simmon@nplob.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -847,7 +847,7 @@ msgstr "システムブート後"
 msgid "Alert"
 msgstr "アラート"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "アラート以上のレベル"
 
@@ -857,7 +857,8 @@ msgstr "アラート以上のレベル"
 msgid "Alias"
 msgstr "alias"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "すべて"
 
@@ -884,6 +885,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Ansible ロールのドキュメント"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1140,6 +1149,10 @@ msgstr "Bond"
 msgid "Bond settings"
 msgstr "ボンド設定"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "バインドされた"
@@ -1222,7 +1235,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "ホスト名、IP アドレス、エイリアス名、または ssh:// URI を指定できます"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
@@ -1401,7 +1414,7 @@ msgstr "$target のクリーンアップ中"
 msgid "Clear 'Failed to start'"
 msgstr "'起動に失敗' を消去"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
@@ -1699,7 +1712,7 @@ msgstr "変換可能"
 msgid "Copy"
 msgstr "コピー"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
@@ -1863,7 +1876,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "ボリュームグループ $target の作成"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "重大以上のレベル"
 
@@ -1875,7 +1888,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "現在の起動"
 
@@ -1932,6 +1945,14 @@ msgstr "濃く"
 msgid "Data used"
 msgstr "使用済みデータ"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "解除"
@@ -1944,7 +1965,7 @@ msgstr "非アクティブ化"
 msgid "Deactivating $target"
 msgstr "$target の非アクティブ化"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "デバッグ以上のレベル"
 
@@ -2389,7 +2410,7 @@ msgstr "エラータ"
 msgid "Error"
 msgstr "エラー"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "エラー以上のレベル"
 
@@ -2537,6 +2558,12 @@ msgstr "tuned の有効化に失敗しました"
 msgid "Failed to enable tuned"
 msgstr "tuned の有効化に失敗しました"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "プロファイルの切り替えに失敗しました"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "承認された鍵のロードに失敗しました。"
@@ -2596,6 +2623,12 @@ msgstr "フィルターサービス"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "フィルターサービス"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "フィルター"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2683,6 +2716,12 @@ msgid ""
 msgstr ""
 "このグループ内で領域を解放します: 他の論理ボリュームを縮小または削除するか、"
 "新たな物理ボリュームを追加してください。"
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "検索の消去"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2776,10 +2815,6 @@ msgstr "Hello タイム $hello_time"
 msgid "Help"
 msgstr "ヘルプ"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "フィルターを隠す"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "履歴パッケージ数"
@@ -2857,7 +2892,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6 の設定"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "識別子"
 
@@ -2941,7 +2976,7 @@ msgstr "ダイレクト"
 msgid "Info"
 msgstr "情報"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "情報以上のレベル"
 
@@ -3233,11 +3268,11 @@ msgstr "LACP キー"
 msgid "Laptop"
 msgstr "ラップトップ"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "過去 24 時間"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "過去 7 日間"
 
@@ -3263,7 +3298,7 @@ msgstr "最終ログイン:"
 msgid "Last modified: $0"
 msgstr "最終確認: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3343,7 +3378,7 @@ msgstr "ロードバランシング"
 msgid "Load earlier data"
 msgstr "以前のデータのロード"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
@@ -3359,6 +3394,12 @@ msgstr "利用可能なアップデートのロードに失敗しました"
 msgid "Loading available updates, please wait..."
 msgstr "利用可能なアップデートをロード中です。しばらくお待ちください..."
 
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "以前のエントリーのロード"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "キーをロード中..."
@@ -3372,7 +3413,7 @@ msgid "Loading system modifications..."
 msgstr "システム変更をロード中..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -4092,7 +4133,7 @@ msgstr "ログエントリーなし"
 msgid "No logical volumes"
 msgstr "論理ボリュームなし"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "ログが見つかりません"
@@ -4123,7 +4164,7 @@ msgstr "パーティションなし"
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -4251,7 +4292,7 @@ msgstr "注記"
 msgid "Notebook"
 msgstr "ノートブック"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "注意以上のレベル"
 
@@ -4312,7 +4353,7 @@ msgstr "$1 のうち $0 だけが使用されています。"
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用できます"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "緊急時限定"
 
@@ -4555,7 +4596,7 @@ msgstr "ファイルのパス"
 msgid "Paths"
 msgstr "パス"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "一時停止"
 
@@ -4716,7 +4757,7 @@ msgstr "保存"
 msgid "Pretty host name"
 msgstr "プリティホスト名"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "以前のブート"
 
@@ -4724,8 +4765,8 @@ msgstr "以前のブート"
 msgid "Primary"
 msgstr "プライマリ"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "優先度"
 
@@ -5207,7 +5248,7 @@ msgstr "必須の"
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "リセット"
 
@@ -5248,7 +5289,7 @@ msgstr "再起動中"
 msgid "Restoring connection"
 msgstr "接続の復元"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "再開"
 
@@ -5400,13 +5441,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "検索"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "用語の組み合わせでログを検索します:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5435,6 +5472,12 @@ msgstr "セキュリティー更新のみ"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "選択"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "select container"
+msgid "Select a identifier"
+msgstr "コンテナーの選択"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5600,13 +5643,21 @@ msgstr "すべて表示"
 msgid "Show all threads"
 msgstr "すべてのスレッドの表示"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "フィルターを表示"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "フィンガープリントの表示"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5636,6 +5687,10 @@ msgstr "シャットダウン"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "シャットダウン"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5781,6 +5836,14 @@ msgstr "マルチパスの開始"
 msgid "Start service"
 msgstr "サービスの開始"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "RAID デバイス $target の起動"
@@ -5889,6 +5952,12 @@ msgstr "サブノート"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "クリップボードにコピー"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "クリップボードにコピー"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6064,10 +6133,6 @@ msgstr "kdump 設定のテスト"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "接続のテスト"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "テキスト"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6489,6 +6554,24 @@ msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 "この Web ブラウザーは古いため、Web コンソールを実行できません ($0 が不明)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "これにより、今後はパスワードなしでログインできるようになります。"
@@ -6520,7 +6603,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "毎週木曜日"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "時間"
 
@@ -6594,6 +6677,12 @@ msgstr "ビットマップを切り替える"
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "フィルターを隠す"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6703,7 +6792,7 @@ msgstr "管理者アクセスをオンにする"
 msgid "Type"
 msgstr "タイプ"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "フィルターのために入力"
 
@@ -6820,7 +6909,7 @@ msgstr "利用できません"
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "単位"
@@ -6945,6 +7034,10 @@ msgstr "ここでは、認識されないデータを小さくすることはで
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "サポートされないボリューム"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7232,7 +7325,7 @@ msgstr "望まれる"
 msgid "Wants"
 msgstr "望む"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "警告以上のレベル"
 
@@ -7338,7 +7431,7 @@ msgstr "このアカウントに承認された公開鍵を表示するパーミ
 msgid "You have been logged out due to inactivity."
 msgstr "アクティビティーがないためログアウトされました。"
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "古いエントリーのロードを試行することができます。"
 
@@ -7436,10 +7529,6 @@ msgstr "add-on"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "addon"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "正規表現としての任意の自由形式文字列"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7549,10 +7638,6 @@ msgstr "ドメイン"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "ドライブ"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "例:"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -7720,7 +7805,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "ジャーナル"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl man ページ"
 
@@ -7739,10 +7824,6 @@ msgstr "鍵"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "$0 (ローカル)"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "ログフィールド"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7900,10 +7981,6 @@ msgstr "ポート"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "電源"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "修飾子"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8124,6 +8201,27 @@ msgstr "ゾーン"
 msgid "{{host}} key changed"
 msgstr "{{host}} キーが変更されました"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "用語の組み合わせでログを検索します:"
+
+#~ msgid "Show filters"
+#~ msgstr "フィルターを表示"
+
+#~ msgid "Text"
+#~ msgstr "テキスト"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "正規表現としての任意の自由形式文字列"
+
+#~ msgid "e.g."
+#~ msgstr "例:"
+
+#~ msgid "log fields"
+#~ msgstr "ログフィールド"
+
+#~ msgid "qualifiers"
+#~ msgstr "修飾子"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "セッション設定を切り替える"
 
@@ -8144,9 +8242,6 @@ msgstr "{{host}} キーが変更されました"
 
 #~ msgid "Service name"
 #~ msgstr "サービス名"
-
-#~ msgid "Filter"
-#~ msgstr "フィルター"
 
 #~ msgid "Select unit state"
 #~ msgstr "ユニットの状態の選択"
@@ -10204,9 +10299,6 @@ msgstr "{{host}} キーが変更されました"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "名前、名前空間、または説明別の検索"
-
-#~ msgid "select container"
-#~ msgstr "コンテナーの選択"
 
 #~ msgid "shares"
 #~ msgstr "共有"

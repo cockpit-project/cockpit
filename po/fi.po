@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
-"PO-Revision-Date: 2021-07-16 13:04+0000\n"
+"POT-Creation-Date: 2021-08-17 18:06+0000\n"
+"PO-Revision-Date: 2021-08-18 19:04+0000\n"
 "Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.7.1\n"
+"X-Generator: Weblate 4.7.2\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -870,7 +870,7 @@ msgstr "Järjestelmän käynnistyksen jälkeen"
 msgid "Alert"
 msgstr "Hälytys"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Varoitus ja yli"
 
@@ -878,7 +878,8 @@ msgstr "Varoitus ja yli"
 msgid "Alias"
 msgstr "Alias"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "Kaikki"
 
@@ -905,6 +906,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Ansible -roolien dokumentointi"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1158,6 +1167,10 @@ msgstr "Side"
 msgid "Bond settings"
 msgstr "Sidoksen-asetukset"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "Sillä sidottu"
@@ -1240,7 +1253,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Voi olla isäntänimi, IP-osoite, aliaksen nimi tai ssh:// URI"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 
@@ -1420,7 +1433,7 @@ msgstr "Siivotaan kohteelle $target"
 msgid "Clear 'Failed to start'"
 msgstr "Tyhjennä \"Aloitus epäonnistui\""
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Tyhjennä kaikki suodattimet"
 
@@ -1718,7 +1731,7 @@ msgstr "Muunnettavissa"
 msgid "Copy"
 msgstr "Kopio"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "Kopioi leikepöydälle"
@@ -1882,7 +1895,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Luodaan taltioryhmä $target"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Kriittinen ja yli"
 
@@ -1894,7 +1907,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Vaihto-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "Tämänhetkinen käynnistys"
 
@@ -1951,6 +1964,14 @@ msgstr "Tumma"
 msgid "Data used"
 msgstr "Dataa käytetty"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "Deaktivoi"
@@ -1963,7 +1984,7 @@ msgstr "Deaktivoidaan"
 msgid "Deactivating $target"
 msgstr "Deaktivoidaan $target"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Virheenkorjaus ja yli"
 
@@ -2398,7 +2419,7 @@ msgstr "Virhe"
 msgid "Error"
 msgstr "Virhe"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Virhe ja yli"
 
@@ -2536,6 +2557,12 @@ msgstr "$0:n käyttöönotto firewalld:ssä epäonnistui"
 msgid "Failed to enable tuned"
 msgstr "tuned:n käyttöönotto epäonnistui"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "Profiilin vaihtaminen epäonnistui"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "Valtuutettujen avainten lataaminen epäonnistui."
@@ -2594,6 +2621,12 @@ msgstr "Suodata valikkokohteita"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "Suodata palveluja"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "Suodin"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2678,6 +2711,12 @@ msgid ""
 msgstr ""
 "Vapauta tilaa tässä ryhmässä: Kutista tai poista muita loogisia taltioita "
 "tai lisää uusi fyysinen taltio."
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "Tyhjennä haku"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2769,10 +2808,6 @@ msgstr "Tervehdysaika $hello_time"
 msgid "Help"
 msgstr "Ohjeita"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "Piilota suodattimet"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "Historian pakettien määrä"
@@ -2850,7 +2885,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6-asetukset"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "Tunniste"
 
@@ -2933,7 +2968,7 @@ msgstr "Epäsuora"
 msgid "Info"
 msgstr "Tiedot"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Tiedot ja yli"
 
@@ -3220,11 +3255,11 @@ msgstr "LACP-avain"
 msgid "Laptop"
 msgstr "Kannettava"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "Viimeiset 24 tuntia"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "Viimeiset 7 päivää"
 
@@ -3245,12 +3280,10 @@ msgid "Last login:"
 msgstr "Edellinen kirjautuminen:"
 
 #: pkg/storaged/crypto-tab.jsx:49
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "Viimeksi tarkistettu: $0 sitten"
+msgstr "Viimeksi muokattu: $0 sitten"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3326,7 +3359,7 @@ msgstr "Kuorman tasapainotus"
 msgid "Load earlier data"
 msgstr "Lataa aiemmat tiedot"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "Lataa aiemmat merkinnät"
 
@@ -3342,6 +3375,12 @@ msgstr "Saatavilla olevien päivitysten lataus epäonnistui"
 msgid "Loading available updates, please wait..."
 msgstr "Ladataan saatavilla olevat päivitykset, odota hetki..."
 
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "Lataa aiemmat merkinnät"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "Ladataan avaimet..."
@@ -3355,7 +3394,7 @@ msgid "Loading system modifications..."
 msgstr "Ladataan järjestelmän muutoksia ..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -3638,7 +3677,7 @@ msgstr "Muistin käyttö"
 
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Menu"
-msgstr ""
+msgstr "Valikko"
 
 #: pkg/systemd/services/services.jsx:166
 msgid "Merged"
@@ -4068,7 +4107,7 @@ msgstr "Ei lokimerkintöjä"
 msgid "No logical volumes"
 msgstr "Ei loogisia taltioita"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "Ei löytynyt lokeja"
@@ -4099,7 +4138,7 @@ msgstr "Ei osiointia"
 msgid "No real name specified"
 msgstr "Oikeaa nimeä ei ole määritetty"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "Tuloksia ei löytynyt"
 
@@ -4225,7 +4264,7 @@ msgstr "Huomautus"
 msgid "Notebook"
 msgstr "Muistikirja"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Ilmoitus ja yli"
 
@@ -4286,7 +4325,7 @@ msgstr "Vain $0 ja $1 ovat käytössä."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "Vain aakkoset, numerot, : , _ , . , @ , - ovat sallittuja"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "Vain hätätilanne"
 
@@ -4406,10 +4445,8 @@ msgid "Partitioning"
 msgstr "Osiointi"
 
 #: pkg/storaged/content-views.jsx:633
-#, fuzzy
-#| msgid "Partition"
 msgid "Partitions"
-msgstr "Osio"
+msgstr "Osiot"
 
 #: pkg/networkmanager/interfaces.js:1490
 msgid "Passive"
@@ -4521,7 +4558,7 @@ msgstr "Polku tiedostoon"
 msgid "Paths"
 msgstr "Polut"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "Keskeytä"
 
@@ -4684,7 +4721,7 @@ msgstr "Säilytä"
 msgid "Pretty host name"
 msgstr "Pretty-isäntänimi"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "Edellinen käynnistys"
 
@@ -4692,8 +4729,8 @@ msgstr "Edellinen käynnistys"
 msgid "Primary"
 msgstr "Ensisijainen"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "Prioriteeetti"
 
@@ -5170,7 +5207,7 @@ msgstr "Tämä vaaditaan"
 msgid "Reserved memory"
 msgstr "Varattu muisti"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "Nollaa"
 
@@ -5211,7 +5248,7 @@ msgstr "Käynnistetään uudelleen"
 msgid "Restoring connection"
 msgstr "Palautetaan yhteys"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Palauta"
 
@@ -5362,13 +5399,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "Suljettu tietokonekotelo"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "Haku"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "Hae lokista termien yhdistelmällä:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5397,6 +5430,12 @@ msgstr "Tietoturvapäivityksiä vain"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Valitse"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "Identifier"
+msgid "Select a identifier"
+msgstr "Tunniste"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5563,13 +5602,21 @@ msgstr "Näytä kaikki"
 msgid "Show all threads"
 msgstr "Näytä kaikki ketjut"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "Näytä suodattimet"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "Näytä sormenjäljet"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5599,6 +5646,10 @@ msgstr "Sammuta"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "Sammuta"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5743,6 +5794,14 @@ msgstr "Käynnistä monipolku"
 msgid "Start service"
 msgstr "Käynnistä palvelu"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "Käynnistetään RAID-laite $target"
@@ -5851,6 +5910,12 @@ msgstr "Ali -kannettava tietokone"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "Kopioi leikepöydälle"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "Kopioi leikepöydälle"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6024,10 +6089,6 @@ msgstr "Testaa kdump-asetukset"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "Testataan yhteyttä"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "Teksti"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6457,6 +6518,24 @@ msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 "Tämä verkkoselain on liian vanha Web-konsolin käyttämiseen (puuttuu $0)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "Tämän avulla voit tulevaisuudessa kirjautua sisään ilman salasanaa."
@@ -6487,7 +6566,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "Torstai"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "Aika"
 
@@ -6560,7 +6639,13 @@ msgstr "Vaihda bitmap"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
-msgstr ""
+msgstr "Vaihda päivämäärän valitsin"
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "Piilota suodattimet"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6668,7 +6753,7 @@ msgstr "Ota järjestelmänvalvojan käyttöoikeudet käyttöön"
 msgid "Type"
 msgstr "Tyyppi"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "Kirjoita suodattaaksesi"
 
@@ -6784,7 +6869,7 @@ msgstr "Ei käytettävissä"
 msgid "Unexpected error"
 msgstr "Odottamaton virhe"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "Yksikkö"
@@ -6907,6 +6992,10 @@ msgstr "Tunnistamattomat tiedot ei täällä voi tehdä pienemmiksi."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Tukematon taltio"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7188,7 +7277,7 @@ msgstr "Tämän haluama"
 msgid "Wants"
 msgstr "Haluaa"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Varoitus ja yli"
 
@@ -7295,7 +7384,7 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Sinut on kirjautunut ulos toimimattomuuden vuoksi."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "Voit yrittää ladata vanhempia merkintöjä."
 
@@ -7398,10 +7487,6 @@ msgstr "lisäosa"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "lisäosa"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "mikä tahansa vapaamuotoinen merkkijono säännöllisenä lausekkeena"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7511,10 +7596,6 @@ msgstr "toimialue"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "asema"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "esim."
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -7668,7 +7749,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "päiväkirja"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl manpage"
 
@@ -7687,10 +7768,6 @@ msgstr "avaimet"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "paikallisesti $0:ssa"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "lokikentät"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7842,10 +7919,6 @@ msgstr "portti"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "power"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "karsinnat"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8066,6 +8139,27 @@ msgstr "vyöhyke"
 msgid "{{host}} key changed"
 msgstr "{{host}} avain vaihdettu"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "Hae lokista termien yhdistelmällä:"
+
+#~ msgid "Show filters"
+#~ msgstr "Näytä suodattimet"
+
+#~ msgid "Text"
+#~ msgstr "Teksti"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "mikä tahansa vapaamuotoinen merkkijono säännöllisenä lausekkeena"
+
+#~ msgid "e.g."
+#~ msgstr "esim."
+
+#~ msgid "log fields"
+#~ msgstr "lokikentät"
+
+#~ msgid "qualifiers"
+#~ msgstr "karsinnat"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "Vaihda istunnon asetuksia"
 
@@ -8086,9 +8180,6 @@ msgstr "{{host}} avain vaihdettu"
 
 #~ msgid "Service name"
 #~ msgstr "Palvelun nimi"
-
-#~ msgid "Filter"
-#~ msgstr "Suodin"
 
 #~ msgid "Select unit state"
 #~ msgstr "Valitse uusi tila"

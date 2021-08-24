@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
-"PO-Revision-Date: 2021-07-09 14:54+0000\n"
+"POT-Creation-Date: 2021-08-17 18:06+0000\n"
+"PO-Revision-Date: 2021-08-18 19:04+0000\n"
 "Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/tr/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
-"X-Generator: Weblate 4.7.1\n"
+"X-Generator: Weblate 4.7.2\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -876,7 +876,7 @@ msgstr "Sistem önyüklemesinden sonra"
 msgid "Alert"
 msgstr "Uyarı"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Uyarı ve üstü"
 
@@ -884,7 +884,8 @@ msgstr "Uyarı ve üstü"
 msgid "Alias"
 msgstr "Kod adı"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "Tümü"
 
@@ -911,6 +912,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Ansible rolleri belgeleri"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1164,6 +1173,10 @@ msgstr "Birleştirme (Bond)"
 msgid "Bond settings"
 msgstr "Birleştirme ayarları"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "Bağlayan"
@@ -1247,7 +1260,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Bir anamakine adı, IP adresi, kod adı veya ssh:// URI olabilir"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Şu anki süzgeçlerin birleşimi kullanılarak herhangi bir günlük bulunamıyor."
@@ -1426,7 +1439,7 @@ msgstr "$target temizleniyor"
 msgid "Clear 'Failed to start'"
 msgstr "'Başlatılamadı' hatasını temizle"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Tüm süzgeçleri temizle"
 
@@ -1721,7 +1734,7 @@ msgstr "Dönüştürülebilir"
 msgid "Copy"
 msgstr "Kopyala"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "Panoya kopyala"
@@ -1885,7 +1898,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "$target birim grubu oluşturuluyor"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Kritik ve üstü"
 
@@ -1897,7 +1910,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "Şu anki önyükleme"
 
@@ -1954,6 +1967,14 @@ msgstr "Koyu"
 msgid "Data used"
 msgstr "Kullanılan veri"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "Devre dışı bırak"
@@ -1966,7 +1987,7 @@ msgstr "Devre dışı bırakılıyor"
 msgid "Deactivating $target"
 msgstr "$target devre dışı bırakılıyor"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Hata ayıklama ve üstü"
 
@@ -2401,7 +2422,7 @@ msgstr "Düzeltme"
 msgid "Error"
 msgstr "Hata"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Hata ve üstü"
 
@@ -2540,6 +2561,12 @@ msgstr "firewalld içinde $0 etkinleştirme başarısız oldu"
 msgid "Failed to enable tuned"
 msgstr "tuned etkinleştirme başarısız oldu"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "Profil değiştirme başarısız oldu"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "Yetkilendirilmiş anahtarları yükleme başarısız oldu."
@@ -2598,6 +2625,12 @@ msgstr "Menü öğelerini süz"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "Hizmetleri süz"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "Süz"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2682,6 +2715,12 @@ msgid ""
 msgstr ""
 "Bu grupta yer açın: Diğer mantıksal birimleri küçültün veya silin ya da "
 "başka bir fiziksel birim ekleyin."
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "Aramayı temizle"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2773,10 +2812,6 @@ msgstr "Merhaba süresi $hello_time"
 msgid "Help"
 msgstr "Yardım"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "Süzgeçleri gizle"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "Geçmiş paket sayısı"
@@ -2854,7 +2889,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6 ayarları"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "Tanımlayıcı"
 
@@ -2937,7 +2972,7 @@ msgstr "Dolaylı"
 msgid "Info"
 msgstr "Bilgi"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Bilgi ve üstü"
 
@@ -3225,11 +3260,11 @@ msgstr "LACP anahtarı"
 msgid "Laptop"
 msgstr "Dizüstü"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "Son 24 saat"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "Son 7 gün"
 
@@ -3250,12 +3285,10 @@ msgid "Last login:"
 msgstr "Son oturum açma:"
 
 #: pkg/storaged/crypto-tab.jsx:49
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "Son denetleme: $0"
+msgstr "Son değiştirilme: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3331,7 +3364,7 @@ msgstr "Yük dengeleme"
 msgid "Load earlier data"
 msgstr "Daha önceki verileri yükle"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "Daha önceki girişleri yükle"
 
@@ -3347,6 +3380,12 @@ msgstr "Mevcut güncellemeleri yükleme başarısız oldu"
 msgid "Loading available updates, please wait..."
 msgstr "Mevcut güncellemeler yükleniyor, lütfen bekleyin..."
 
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "Daha önceki girişleri yükle"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "Anahtarlar yükleniyor..."
@@ -3360,7 +3399,7 @@ msgid "Loading system modifications..."
 msgstr "Sistem değişiklikleri yükleniyor..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -3644,7 +3683,7 @@ msgstr "Bellek kullanımı"
 
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Menu"
-msgstr ""
+msgstr "Menü"
 
 #: pkg/systemd/services/services.jsx:166
 msgid "Merged"
@@ -4074,7 +4113,7 @@ msgstr "Günlük girişleri yok"
 msgid "No logical volumes"
 msgstr "Mantıksal birimler yok"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "Bulunan günlükler yok"
@@ -4105,7 +4144,7 @@ msgstr "Bölümlendirme yok"
 msgid "No real name specified"
 msgstr "Belirtilen gerçek ad yok"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "Bulunan sonuçlar yok"
 
@@ -4231,7 +4270,7 @@ msgstr "Not"
 msgid "Notebook"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Bildirim ve üstü"
 
@@ -4292,7 +4331,7 @@ msgstr "Sadece $0 / $1 kullanılıyor."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "Sadece harfler, sayılar, : , _ , . , @ , - karakterlerine izin verilir"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "Sadece acil durumlar"
 
@@ -4412,10 +4451,8 @@ msgid "Partitioning"
 msgstr "Bölümlendirme"
 
 #: pkg/storaged/content-views.jsx:633
-#, fuzzy
-#| msgid "Partition"
 msgid "Partitions"
-msgstr "Bölüm"
+msgstr "Bölümler"
 
 #: pkg/networkmanager/interfaces.js:1490
 msgid "Passive"
@@ -4527,7 +4564,7 @@ msgstr "Dosyanın yolu"
 msgid "Paths"
 msgstr "Yollar"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "Duraklat"
 
@@ -4690,7 +4727,7 @@ msgstr "Koru"
 msgid "Pretty host name"
 msgstr "Okunaklı anamakine adı"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "Önceki önyükleme"
 
@@ -4698,8 +4735,8 @@ msgstr "Önceki önyükleme"
 msgid "Primary"
 msgstr "Birincil"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "Öncelik"
 
@@ -5174,7 +5211,7 @@ msgstr "Gerekliliği"
 msgid "Reserved memory"
 msgstr "Ayrılan bellek"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "Sıfırla"
 
@@ -5215,7 +5252,7 @@ msgstr "Yeniden başlatılıyor"
 msgid "Restoring connection"
 msgstr "Bağlantı geri yükleniyor"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Devam"
 
@@ -5366,13 +5403,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "Mühürlü Kasa PC"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "Ara"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "Günlükleri terimlerin bir birleşimi ile ara:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5401,6 +5434,12 @@ msgstr "Sadece güvenlik güncellemeleri"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Seç"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "Identifier"
+msgid "Select a identifier"
+msgstr "Tanımlayıcı"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5568,13 +5607,21 @@ msgstr "Tümünü göster"
 msgid "Show all threads"
 msgstr "Tüm iş parçacıklarını göster"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "Süzgeçleri göster"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "Parmak izlerini göster"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5604,6 +5651,10 @@ msgstr "Kapat"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "Kapat"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5749,6 +5800,14 @@ msgstr "Multipath hizmetini başlat"
 msgid "Start service"
 msgstr "Hizmeti başlat"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "RAID aygıtı $target başlatılıyor"
@@ -5857,6 +5916,12 @@ msgstr "Alt Dizüstü"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "Panoya kopyala"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "Panoya kopyala"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6030,10 +6095,6 @@ msgstr "kdump ayarlarını dene"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "Bağlantı deneniyor"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "Metin"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6469,6 +6530,24 @@ msgstr ""
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "Bu web tarayıcısı, Web Konsolunu çalıştırmak için çok eski ($0 eksik)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "Bu, gelecekte parola olmadan oturum açmanıza izin verecek."
@@ -6499,7 +6578,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "Perşembe günleri"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "Zaman"
 
@@ -6571,7 +6650,13 @@ msgstr "Bit eşlemi aç/kapat"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
-msgstr ""
+msgstr "Tarihi seçiciyi aç/kapat"
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "Süzgeçleri gizle"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6679,7 +6764,7 @@ msgstr "Yönetimsel erişimi aç"
 msgid "Type"
 msgstr "Tür"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "Süzmek için yazın"
 
@@ -6799,7 +6884,7 @@ msgstr "Kullanılamıyor"
 msgid "Unexpected error"
 msgstr "Beklenmeyen hata"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "Birim"
@@ -6922,6 +7007,10 @@ msgstr "Tanınmayan veriler burada küçültülemez."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Desteklenmeyen birim"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7203,7 +7292,7 @@ msgstr "İsteyen"
 msgid "Wants"
 msgstr "İstenen"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Uyarı ve üstü"
 
@@ -7310,7 +7399,7 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Etkinlik olmamasından dolayı oturumunuz kapatıldı."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "Daha eski girişleri yüklemeyi deneyebilirsiniz."
 
@@ -7409,10 +7498,6 @@ msgstr "eklenti"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "eklenti"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "düzenli ifade olarak herhangi bir serbest biçimli dizgi"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7522,10 +7607,6 @@ msgstr "etki alanı"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "sürücü"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "örn."
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -7679,7 +7760,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "günlük"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl kılavuz sayfası"
 
@@ -7698,10 +7779,6 @@ msgstr "anahtarlar"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "$0 içinde yerel olarak"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "günlük alanları"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7853,10 +7930,6 @@ msgstr "bağlantı noktası"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "güç"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "niteleyiciler"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8077,6 +8150,27 @@ msgstr "bölge"
 msgid "{{host}} key changed"
 msgstr "{{host}} anahtarı değişti"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "Günlükleri terimlerin bir birleşimi ile ara:"
+
+#~ msgid "Show filters"
+#~ msgstr "Süzgeçleri göster"
+
+#~ msgid "Text"
+#~ msgstr "Metin"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "düzenli ifade olarak herhangi bir serbest biçimli dizgi"
+
+#~ msgid "e.g."
+#~ msgstr "örn."
+
+#~ msgid "log fields"
+#~ msgstr "günlük alanları"
+
+#~ msgid "qualifiers"
+#~ msgstr "niteleyiciler"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "Oturum ayarlarını değiştir"
 
@@ -8097,9 +8191,6 @@ msgstr "{{host}} anahtarı değişti"
 
 #~ msgid "Service name"
 #~ msgstr "Hizmet adı"
-
-#~ msgid "Filter"
-#~ msgstr "Süz"
 
 #~ msgid "Select unit state"
 #~ msgstr "Birim durumunu seçin"

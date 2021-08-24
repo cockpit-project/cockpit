@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
+"POT-Creation-Date: 2021-08-17 18:06+0000\n"
 "PO-Revision-Date: 2021-06-05 10:03+0000\n"
 "Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -842,7 +842,7 @@ msgstr "系统启动后"
 msgid "Alert"
 msgstr "警报"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Alert 及更高级别"
 
@@ -852,7 +852,8 @@ msgstr "Alert 及更高级别"
 msgid "Alias"
 msgstr "别名"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "所有"
 
@@ -879,6 +880,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Ansible 角色文档"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1135,6 +1144,10 @@ msgstr "绑定"
 msgid "Bond settings"
 msgstr "绑定设置"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "边界为"
@@ -1216,7 +1229,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "可以是主机名、IP 地址、别名或者 ssh:// URI"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr "使用当前的过滤器组合找不到任何日志。"
 
@@ -1391,7 +1404,7 @@ msgstr "清理 $target"
 msgid "Clear 'Failed to start'"
 msgstr "清除 'Failed to start'"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "清除所有过滤规则"
 
@@ -1685,7 +1698,7 @@ msgstr "可转换"
 msgid "Copy"
 msgstr "复制"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
@@ -1841,7 +1854,7 @@ msgstr "创建该组将断开与服务器的连接，并且将会导致管理界
 msgid "Creating volume group $target"
 msgstr "创建卷组 $target"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Critical 及更高级别"
 
@@ -1853,7 +1866,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "当前启动"
 
@@ -1910,6 +1923,14 @@ msgstr "暗色"
 msgid "Data used"
 msgstr "数据已使用空间"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "取消激活"
@@ -1922,7 +1943,7 @@ msgstr "取消激活中"
 msgid "Deactivating $target"
 msgstr "取消激活 $target"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Debug 及更高级别"
 
@@ -2359,7 +2380,7 @@ msgstr "勘误"
 msgid "Error"
 msgstr "错误"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Error 及更高级别"
 
@@ -2507,6 +2528,12 @@ msgstr "启用 tuned 失败"
 msgid "Failed to enable tuned"
 msgstr "启用 tuned 失败"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "切换配置集失败"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "载入 authorized key 失败。"
@@ -2566,6 +2593,12 @@ msgstr "过滤服务"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "过滤服务"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "过滤器"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2648,6 +2681,12 @@ msgid ""
 "Free up space in this group: Shrink or delete other logical volumes or add "
 "another physical volume."
 msgstr "在这个组中释放更多可用空间：缩小或删除其它逻辑卷或添加另外一个物理卷。"
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "清除搜寻"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2741,10 +2780,6 @@ msgstr "Hello 时间 $hello_time"
 msgid "Help"
 msgstr "帮助"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "隐藏过滤器"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "历史软件包数量"
@@ -2821,7 +2856,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6 设置"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "标识符"
 
@@ -2903,7 +2938,7 @@ msgstr "直接"
 msgid "Info"
 msgstr "信息"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Info 及更高级别"
 
@@ -3191,11 +3226,11 @@ msgstr "LACP 密钥"
 msgid "Laptop"
 msgstr "笔记本电脑"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "最近 24 小时"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "最近 7 天"
 
@@ -3221,7 +3256,7 @@ msgstr "最后登录："
 msgid "Last modified: $0"
 msgstr "最后检查于： $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3299,7 +3334,7 @@ msgstr "负载均衡"
 msgid "Load earlier data"
 msgstr "载入较早的数据"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "载入更早条目"
 
@@ -3315,6 +3350,12 @@ msgstr "加载可用的更新失败"
 msgid "Loading available updates, please wait..."
 msgstr "正在加载可用的更新，请等待..."
 
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "载入更早条目"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "正在加载密钥 ......"
@@ -3328,7 +3369,7 @@ msgid "Loading system modifications..."
 msgstr "加载系统改变..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -4047,7 +4088,7 @@ msgstr "无日志条目"
 msgid "No logical volumes"
 msgstr "没有逻辑卷"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "没有找到日志"
@@ -4077,7 +4118,7 @@ msgstr "无分区"
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "没有找到结果"
 
@@ -4203,7 +4244,7 @@ msgstr "注意"
 msgid "Notebook"
 msgstr "笔记本"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Notice 及更高级别"
 
@@ -4263,7 +4304,7 @@ msgstr "仅使用 $1 中的 $0。"
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "只允许使用字母, 数字, : , _ , . , @ , -"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "只有紧急情况"
 
@@ -4506,7 +4547,7 @@ msgstr "文件路径"
 msgid "Paths"
 msgstr "路径"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "暂停"
 
@@ -4667,7 +4708,7 @@ msgstr "保留"
 msgid "Pretty host name"
 msgstr "好主机名"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "以前的启动"
 
@@ -4675,8 +4716,8 @@ msgstr "以前的启动"
 msgid "Primary"
 msgstr "主"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "优先级"
 
@@ -5153,7 +5194,7 @@ msgstr "必备的"
 msgid "Reserved memory"
 msgstr "保留内存"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "重置"
 
@@ -5192,7 +5233,7 @@ msgstr "正在重启"
 msgid "Restoring connection"
 msgstr "恢复连接"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "恢复"
 
@@ -5341,13 +5382,9 @@ msgstr "保存新密码需要解锁磁盘。请提供当前的磁盘密码。"
 msgid "Sealed-case PC"
 msgstr "密封式 PC"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "搜索"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "使用组合条件搜索日志："
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5376,6 +5413,12 @@ msgstr "只包括安全更新"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "选择"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "select container"
+msgid "Select a identifier"
+msgstr "选择容器"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5541,13 +5584,21 @@ msgstr "显示全部"
 msgid "Show all threads"
 msgstr "显示所有线程"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "显示过滤器"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "显示指印"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5577,6 +5628,10 @@ msgstr "关机"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "关机"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5720,6 +5775,14 @@ msgstr "启用多路径"
 msgid "Start service"
 msgstr "启动服务"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "启动 RAID 设备 $target"
@@ -5828,6 +5891,12 @@ msgstr "子笔记本"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "复制到剪贴板"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "复制到剪贴板"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -5997,10 +6066,6 @@ msgstr "测试内核转储设置"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "测试连接"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "文本"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6379,6 +6444,24 @@ msgstr "在调整大小之前，需要激活此卷。"
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "这个浏览器太老，无法运行 Web 控制台（缺少 $0）"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "这样以后登陆时将不需要密码。"
@@ -6407,7 +6490,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "周四"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "时间"
 
@@ -6475,6 +6558,12 @@ msgstr "切换位图"
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "隐藏过滤器"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6583,7 +6672,7 @@ msgstr "开启管理员权限"
 msgid "Type"
 msgstr "类型"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "输入内容来过滤"
 
@@ -6697,7 +6786,7 @@ msgstr "不可用"
 msgid "Unexpected error"
 msgstr "意外的错误"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "单位"
@@ -6822,6 +6911,10 @@ msgstr "这里不能把无法识别的数据变小。"
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "不支持的卷"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7108,7 +7201,7 @@ msgstr "需要于"
 msgid "Wants"
 msgstr "需要"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Warning 及更高级别"
 
@@ -7213,7 +7306,7 @@ msgstr "您没有权限查看此帐户的授权公钥."
 msgid "You have been logged out due to inactivity."
 msgstr "您由于不活动而已注销。"
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "您可以尝试加载较早的条目。"
 
@@ -7311,10 +7404,6 @@ msgstr "add-on"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "addon"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "任意自由形式的字符串作为正则表达式"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7424,10 +7513,6 @@ msgstr "域"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "驱动"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "例如"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -7595,7 +7680,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "日志"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl 手册页"
 
@@ -7614,10 +7699,6 @@ msgstr "密钥"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "位于 $0 本地"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "日志项"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7775,10 +7856,6 @@ msgstr "端口"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "电源"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "合规者"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -7999,6 +8076,27 @@ msgstr "区"
 msgid "{{host}} key changed"
 msgstr "{{host}} 密钥已更改"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "使用组合条件搜索日志："
+
+#~ msgid "Show filters"
+#~ msgstr "显示过滤器"
+
+#~ msgid "Text"
+#~ msgstr "文本"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "任意自由形式的字符串作为正则表达式"
+
+#~ msgid "e.g."
+#~ msgstr "例如"
+
+#~ msgid "log fields"
+#~ msgstr "日志项"
+
+#~ msgid "qualifiers"
+#~ msgstr "合规者"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "切换会话设置"
 
@@ -8019,9 +8117,6 @@ msgstr "{{host}} 密钥已更改"
 
 #~ msgid "Service name"
 #~ msgstr "服务名称"
-
-#~ msgid "Filter"
-#~ msgstr "过滤器"
 
 #~ msgid "Select unit state"
 #~ msgstr "选择单元状态"
@@ -10019,9 +10114,6 @@ msgstr "{{host}} 密钥已更改"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "通过名称、命名空间或描述来搜索"
-
-#~ msgid "select container"
-#~ msgstr "选择容器"
 
 #~ msgid "shares"
 #~ msgstr "共享"

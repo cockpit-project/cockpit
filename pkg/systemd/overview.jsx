@@ -104,10 +104,19 @@ class LoginMessages extends React.Component {
             return message;
         }
 
+        function getFormattedDateTime(time) {
+            const now = new Date();
+            const date = new Date(time);
+            if (date.getFullYear() == now.getFullYear()) {
+                return timeformat.dateTimeNoYear(date);
+            }
+            return timeformat.dateTime(date);
+        }
+
         let last_login_message;
         if (messages['last-login-time']) {
             // time is a Unix time stamp, convert to ms since epoch
-            const datetime = timeformat.dateTime(messages['last-login-time'] * 1000);
+            const datetime = getFormattedDateTime(messages['last-login-time'] * 1000);
             const host = messages['last-login-host'];
             const line = messages['last-login-line'];
             last_login_message = generate_line(host, line, datetime);
@@ -115,7 +124,7 @@ class LoginMessages extends React.Component {
 
         let last_fail_message;
         if (messages['last-fail-time']) {
-            const datetime = timeformat.dateTime(messages['last-fail-time'] * 1000);
+            const datetime = getFormattedDateTime(messages['last-fail-time'] * 1000);
             const host = messages['last-fail-host'];
             const line = messages['last-fail-line'];
             last_fail_message = generate_line(host, line, datetime);

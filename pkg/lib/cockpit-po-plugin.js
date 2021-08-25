@@ -17,24 +17,15 @@ module.exports = class {
     }
 
     apply(compiler) {
-        if (!webpack.Compilation) {
-            // webpack v4
-            compiler.hooks.emit.tapPromise(
-                'CockpitPoPlugin',
-                compilation => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
+        compiler.hooks.thisCompilation.tap('CockpitPoPlugin', compilation => {
+            compilation.hooks.processAssets.tapPromise(
+                {
+                    name: 'CockpitPoPlugin',
+                    stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+                },
+                () => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
             );
-        } else {
-            // webpack v5
-            compiler.hooks.thisCompilation.tap('CockpitPoPlugin', compilation => {
-                compilation.hooks.processAssets.tapPromise(
-                    {
-                        name: 'CockpitPoPlugin',
-                        stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
-                    },
-                    () => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
-                );
-            });
-        }
+        });
     }
 
     get_plural_expr(statement) {
@@ -124,13 +115,7 @@ module.exports = class {
             const output = this.wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
             const lang = path.basename(po_file).slice(0, -3);
-            if (webpack.sources) {
-                // webpack v5
-                compilation.emitAsset(this.subdir + 'po.' + lang + '.js', new webpack.sources.RawSource(output));
-            } else {
-                // webpack v4
-                compilation.assets[this.subdir + 'po.' + lang + '.js'] = { source: () => output, size: () => output.length };
-            }
+            compilation.emitAsset(this.subdir + 'po.' + lang + '.js', new webpack.sources.RawSource(output));
             resolve();
         });
     }

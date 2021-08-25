@@ -24,14 +24,12 @@ import cockpit from "cockpit";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-    Alert, AlertActionCloseButton,
     Page, PageSection, PageSectionVariants,
     Gallery,
     Dropdown, DropdownItem, DropdownToggle, DropdownToggleAction,
 } from '@patternfly/react-core';
 
 import { superuser } from "superuser";
-import * as timeformat from "timeformat";
 
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
@@ -43,121 +41,6 @@ import { SuperuserIndicator } from "../shell/superuser.jsx";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 
 const _ = cockpit.gettext;
-
-class LoginMessages extends React.Component {
-    constructor() {
-        super();
-        this.state = { messages: {} };
-
-        this.close = this.close.bind(this);
-
-        const bridge = cockpit.dbus(null, { bus: "internal" });
-        bridge.call("/LoginMessages", "cockpit.LoginMessages", "Get", [])
-                .then(reply => {
-                    const obj = JSON.parse(reply[0]);
-                    if (obj.version == 1) {
-                        if (obj['fail-count'] > 5) {
-                            obj.type = "danger";
-                        } else if (obj['fail-count'] > 0) {
-                            obj.type = "warning";
-                        } else {
-                            obj.type = "info";
-                        }
-
-                        this.setState({ messages: obj });
-                    } else {
-                        // empty reply is okay -- older bridges just don't send that information
-                        if (obj.version !== undefined)
-                            console.error("unknown login-messages:", reply[0]);
-                    }
-                })
-                .catch(error => {
-                    console.error("failed to fetch login messages:", error);
-                });
-    }
-
-    close() {
-        const bridge = cockpit.dbus(null, { bus: "internal" });
-        bridge.call("/LoginMessages", "cockpit.LoginMessages", "Dismiss", [])
-                .catch(error => {
-                    console.error("failed to dismiss login messages:", error);
-                });
-
-        this.setState({ messages: {} });
-    }
-
-    render() {
-        const messages = this.state.messages;
-
-        // Do the full combinatorial thing to improve translatability
-        function generate_line(host, line, datetime) {
-            let message = "";
-            if (host && line) {
-                message = cockpit.format(_("<date> from <host> on <terminal>", "$0 from $1 on $2"), datetime, host, line);
-            } else if (host) {
-                message = cockpit.format(_("<date> from <host>", "$0 from $1"), datetime, host);
-            } else if (line) {
-                message = cockpit.format(_("<date> on <terminal>", "$0 on $1"), datetime, line);
-            } else {
-                message = datetime;
-            }
-            return message;
-        }
-
-        function getFormattedDateTime(time) {
-            const now = new Date();
-            const date = new Date(time);
-            if (date.getFullYear() == now.getFullYear()) {
-                return timeformat.dateTimeNoYear(date);
-            }
-            return timeformat.dateTime(date);
-        }
-
-        let last_login_message;
-        if (messages['last-login-time']) {
-            // time is a Unix time stamp, convert to ms since epoch
-            const datetime = getFormattedDateTime(messages['last-login-time'] * 1000);
-            const host = messages['last-login-host'];
-            const line = messages['last-login-line'];
-            last_login_message = generate_line(host, line, datetime);
-        }
-
-        let last_fail_message;
-        if (messages['last-fail-time']) {
-            const datetime = getFormattedDateTime(messages['last-fail-time'] * 1000);
-            const host = messages['last-fail-host'];
-            const line = messages['last-fail-line'];
-            last_fail_message = generate_line(host, line, datetime);
-        }
-
-        let fail_count_message = null;
-        if (messages['fail-count']) {
-            fail_count_message = cockpit.format(cockpit.ngettext(
-                "There was $0 failed login attempt since the last successful login.",
-                "There were $0 failed login attempts since the last successful login.",
-                messages['fail-count']), messages['fail-count']);
-        }
-
-        if (!last_login_message && !fail_count_message && !last_fail_message)
-            return null;
-
-        const last_log_item = <p id='last-login'><b>{_("Last login:")}</b> {last_login_message}</p>;
-        const last_fail_item = <p id='last-failed-login'><b>{_("Last failed login:")}</b> {last_fail_message}</p>;
-
-        return (
-            <Alert id='login-messages'
-                   variant={this.state.messages.type}
-                   isInline={!fail_count_message}
-                   className={!fail_count_message ? "login-messages" : ""}
-                   actionClose={<AlertActionCloseButton onClose={this.close} />}
-                   title={fail_count_message || last_log_item}
-            >
-                {last_login_message && fail_count_message && last_log_item}
-                {last_fail_message && last_fail_item}
-            </Alert>
-        );
-    }
-}
 
 class OverviewPage extends React.Component {
     constructor(props) {
@@ -273,7 +156,6 @@ class OverviewPage extends React.Component {
                     </PageSection>
                     <PageSection variant={PageSectionVariants.default}>
                         <Gallery className='ct-system-overview' hasGutter>
-                            <LoginMessages />
                             <MotdCard />
                             <HealthCard />
                             <UsageCard />

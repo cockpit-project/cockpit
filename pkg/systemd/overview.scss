@@ -94,7 +94,7 @@
   --card-width: 22rem;
   --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(var(--card-width), 1fr));
 
-  .motd-box, .login-messages {
+  .motd-box {
     grid-column: 1 / -1;
   }
 
@@ -320,16 +320,6 @@
 #motd-box > .pf-c-alert {
   /* Spacing between the MOTD is handled by the .pf-l-gallery grid */
   margin-bottom: 0;
-}
-
-.pf-c-alert.login-messages h4 {
-    font-weight: normal;
-    color: black;
-    font-family: inherit;
-}
-
-.pf-c-alert.login-messages .pf-c-alert__description {
-    padding-bottom: 0px;
 }
 
 .pf-c-alert .pf-c-alert__description a {

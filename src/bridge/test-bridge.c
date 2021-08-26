@@ -22,6 +22,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 
 #include <string.h>
@@ -293,8 +294,8 @@ int
 main (int argc,
       char *argv[])
 {
-  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

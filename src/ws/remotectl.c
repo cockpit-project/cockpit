@@ -25,6 +25,8 @@
 
 #include <unistd.h>
 
+#include <common/cockpitsystem.h>
+
 typedef struct {
     const char *name;
     int (* callback) (int, char *[]);
@@ -71,9 +73,9 @@ main (int argc,
   g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
                      message_handler, NULL);
 
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   g_set_prgname ("remotectl");
 

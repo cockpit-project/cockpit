@@ -135,12 +135,12 @@ main (int argc,
   CockpitHandlerData data;
 
   signal (SIGPIPE, SIG_IGN);
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   /* Any interaction with a krb5 ccache should be explicit */
-  g_setenv ("KRB5CCNAME", "FILE:/dev/null", TRUE);
+  cockpit_setenv_check ("KRB5CCNAME", "FILE:/dev/null", TRUE);
 
   memset (&data, 0, sizeof (data));
 

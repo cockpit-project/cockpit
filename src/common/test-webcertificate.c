@@ -23,6 +23,7 @@
 
 #include "cockpitwebcertificate.h"
 
+#include "cockpitsystem.h"
 #include "cockpittest.h"
 
 static void
@@ -64,7 +65,7 @@ test_locate (void)
   int cert_dir_fd;
 
   g_assert (g_mkdtemp (workdir) == workdir);
-  g_assert_setenv ("XDG_CONFIG_DIRS", workdir, TRUE);
+  cockpit_setenv_check ("XDG_CONFIG_DIRS", workdir, TRUE);
 
   /* nonexisting dir, nothing found */
   do_locate_test (-1, NULL, NULL, "No certificate found in dir: */ws-certs.d");

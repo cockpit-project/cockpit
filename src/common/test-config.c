@@ -21,6 +21,7 @@
 
 #include "cockpitconf.h"
 
+#include "cockpitsystem.h"
 #include "cockpittest.h"
 
 #include <glib.h>
@@ -133,7 +134,7 @@ test_get_strvs (void)
 static void
 test_load_dir (void)
 {
-  g_assert_setenv("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/ws/mock-config", 1);
+  cockpit_setenv_check("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/ws/mock-config", TRUE);
   cockpit_config_file = "cockpit.conf";
 
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");

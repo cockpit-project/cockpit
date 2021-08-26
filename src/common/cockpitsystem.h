@@ -33,6 +33,10 @@ guint64              cockpit_system_process_start_time         (void);
 
 char *               cockpit_system_session_id                 (void);
 
+void                 cockpit_setenv_check                     (const char *variable,
+                                                               const char *value,
+                                                               gboolean overwrite);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_SYSTEM_H__ */

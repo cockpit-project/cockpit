@@ -145,10 +145,6 @@ void             cockpit_assertion_message_error_matches (const char     *domain
                                              #err, err, dom, c, message_pattern); \
   } G_STMT_END
 
-void        g_assert_setenv                            (const gchar *variable,
-                                                        const gchar *value,
-                                                        gboolean overwrite);
-
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

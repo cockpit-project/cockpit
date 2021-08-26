@@ -26,6 +26,7 @@
 
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/mock-transport.h"
 
@@ -1202,8 +1203,8 @@ int
 main (int argc,
       char *argv[])
 {
-  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   cockpit_bridge_local_address = "127.0.0.1";
 

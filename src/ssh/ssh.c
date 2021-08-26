@@ -23,6 +23,7 @@
 
 #include "common/cockpithacks-glib.h"
 #include "common/cockpittest.h"
+#include "common/cockpitsystem.h"
 
 #include "cockpitsshrelay.h"
 
@@ -51,9 +52,9 @@ main (int argc,
   signal (SIGSEGV, cockpit_test_signal_backtrace);
 #endif
 
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   context = g_option_context_new ("- cockpit-ssh [user@]host[:port]");
 

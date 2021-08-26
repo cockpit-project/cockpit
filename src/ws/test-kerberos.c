@@ -22,6 +22,7 @@
 #include "cockpitauth.h"
 #include "cockpitws.h"
 
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
 
@@ -277,8 +278,8 @@ test_authenticate (TestCase *test,
   JsonObject *response;
   GError *error = NULL;
 
-  g_assert_setenv ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
-  g_assert_setenv ("COCKPIT_TEST_KEEP_KTAB", "1", TRUE);
+  cockpit_setenv_check ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
+  cockpit_setenv_check ("COCKPIT_TEST_KEEP_KTAB", "1", TRUE);
 
   if (!mock_kdc_available)
     {
@@ -451,12 +452,12 @@ mock_kdc_up (void)
   const gchar *value;
   g_hash_table_iter_init (&iter, mock_kdc.environ);
   while (g_hash_table_iter_next (&iter, (gpointer *)&name, (gpointer *)&value))
-    g_assert_setenv (name, value, TRUE);
+    cockpit_setenv_check (name, value, TRUE);
 
   /* Explicitly tell server side of GSSAPI about our keytab */
   value = g_hash_table_lookup (mock_kdc.environ, "KRB5_KTNAME");
   if (value)
-    g_assert_setenv ("KRB5_KTNAME", value, TRUE);
+    cockpit_setenv_check ("KRB5_KTNAME", value, TRUE);
 }
 
 static void

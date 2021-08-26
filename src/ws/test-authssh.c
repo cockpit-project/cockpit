@@ -23,6 +23,7 @@
 #include "cockpitws.h"
 #include "mock-auth.h"
 
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpiterror.h"
@@ -255,8 +256,8 @@ main (int argc,
 {
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
 
-  g_assert_setenv ("COCKPIT_SSH_KNOWN_HOSTS_FILE", SRCDIR "/src/ssh/mock_known_hosts", TRUE);
-  g_assert_setenv ("COCKPIT_SSH_BRIDGE_COMMAND", BUILDDIR "/cockpit-bridge", TRUE);
+  cockpit_setenv_check ("COCKPIT_SSH_KNOWN_HOSTS_FILE", SRCDIR "/src/ssh/mock_known_hosts", TRUE);
+  cockpit_setenv_check ("COCKPIT_SSH_BRIDGE_COMMAND", BUILDDIR "/cockpit-bridge", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

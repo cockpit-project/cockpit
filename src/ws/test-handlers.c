@@ -26,6 +26,7 @@
 
 #include "common/cockpitconf.h"
 #include "common/cockpitsocket.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
 #include "common/mock-io-stream.h"
@@ -371,15 +372,15 @@ setup_default (Test *test,
   cockpit_config_file = fixture->config;
 
   if (fixture->config)
-    g_assert_setenv ("XDG_CONFIG_DIRS", fixture->config, TRUE);
+    cockpit_setenv_check ("XDG_CONFIG_DIRS", fixture->config, TRUE);
   else
     g_unsetenv ("XDG_CONFIG_DIRS");
 
-  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   if (fixture->with_home)
-    g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+    cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   else
-    g_assert_setenv ("XDG_DATA_HOME", "/nonexistent", TRUE);
+    cockpit_setenv_check ("XDG_DATA_HOME", "/nonexistent", TRUE);
 
   base_setup (test);
   test->response = cockpit_web_response_new (test->io,

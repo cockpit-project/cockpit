@@ -117,9 +117,6 @@ class TestHistoryMetrics(MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
-        # failing to load the metrics (stopped pmlogger and cleaned /var/log/pcp) generates this message
-        # from the metrics channel at first try
-        self.allow_journal_messages("pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name")
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
@@ -686,9 +683,6 @@ class TestCurrentMetrics(MachineCase):
         super().setUp()
         # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
         self.machine.execute("systemctl mask packagekit && killall -9 /usr/libexec/packagekitd && killall -9 dnf || true")
-        # failing to load the metrics (stopped pmlogger and cleaned /var/log/pcp) generates this message
-        # from the metrics channel at first try
-        self.allow_journal_messages("pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name")
 
         self.addCleanup(self.machine.execute, "systemctl unmask packagekit")
         # make sure to clean up our test resource consumers on failures
@@ -1073,9 +1067,6 @@ class TestGrafanaClient(MachineCase):
                      systemctl reset-failed pmlogger
                      rm -rf /var/log/pcp/pmlogger
                      hostnamectl set-hostname grafana-client""")
-
-        # starting out with empty PCP logs and pmlogger not running causes this metrics channel message
-        self.allow_journal_messages("pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name")
 
         # start Grafana
         mg.execute("/root/run-grafana")

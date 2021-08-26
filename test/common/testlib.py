@@ -1196,6 +1196,9 @@ class MachineCase(unittest.TestCase):
         r"#1\) Respect the privacy of others.",
         r"#2\) Think before you type.",
         r"#3\) With great power comes great responsibility.",
+
+        # starting out with empty PCP logs and pmlogger not running causes this metrics channel message
+        "pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name",
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

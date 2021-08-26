@@ -553,7 +553,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
-        is_pam_tally2 = m.image == 'debian-stable' or m.image.startswith('ubuntu')
+        is_pam_tally2 = m.image.startswith('ubuntu')
 
         if is_pam_tally2:
             module = 'pam_tally2'
@@ -602,7 +602,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # add it to the pam config
         if is_pam_tally2:
             self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
-        elif m.image == 'debian-testing':
+        elif m.image.startswith('debian-'):
             # enable pam_faillock.  see example in pam_faillock(8), adopted for sss
             self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail deny=4/;
                              s/re.*pam_permit.so/sufficient pam_faillock.so authsucc deny=4/;
@@ -685,7 +685,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*Account locked due to .* failed logins")
 
     @skipImage("sssd not available", "fedora-coreos")
-    @skipImage("sssd can't do cert mapping yet", "debian-stable")
     def testClientCertAuthentication(self):
         # This only tests the cockpit ←→ sssd API, but this is completely unsafe!
         # Nothing currently checks whether the client certificate is signed by

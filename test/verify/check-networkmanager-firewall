@@ -61,7 +61,7 @@ class TestFirewall(NetworkCase):
 
         # many tests expect the "libvirt" zone; on images with libvirt, wait until libvirt adds its zone
         # (older versions don't do that yet)
-        if m.image not in ["debian-stable", "ubuntu-2004", "ubuntu-stable"]:
+        if m.image not in ["ubuntu-2004", "ubuntu-stable"]:
             m.execute("systemctl restart libvirtd")  # https://bugzilla.redhat.com/show_bug.cgi?id=1813830
             m.execute("virsh net-list | grep -qw default || virsh net-start default")
             m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
@@ -253,12 +253,10 @@ class TestFirewall(NetworkCase):
 
         # now add pop3
         addService('public', 'pop3')
-        # firewalld > 0.7.0 supports including services into another service
-        if m.image not in ['debian-stable']:
-            addService('public', 'freeipa-4')
-            b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
-            b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
-            b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
+        addService('public', 'freeipa-4')
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
+        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
@@ -308,7 +306,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
         # wait until all zones are present, including the ones added at runtime
-        if m.image not in ["debian-stable", "ubuntu-2004", "ubuntu-stable"]:
+        if m.image not in ["ubuntu-2004", "ubuntu-stable"]:
             b.wait_visible("#zones-listing .zone-section[data-id='libvirt']")
 
         # add a service to the runtime configuration via the cli, after all the

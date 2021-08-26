@@ -35,21 +35,12 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
-        if m.image in ["debian-stable"]:  # Still has sos in version 3.x
-            self.restore_file("/etc/sos.conf")
-            m.write("/etc/sos.conf",
-                    """
-[general]
-only-plugins=release,date,host,cgroups,networking
-threads=1
-""")
-        else:
-            # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
-            m.execute("mkdir -p /etc/sos")
+        # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
+        m.execute("mkdir -p /etc/sos")
 
-            self.restore_file("/etc/sos/sos.conf")
-            m.write("/etc/sos/sos.conf",
-                    """
+        self.restore_file("/etc/sos/sos.conf")
+        m.write("/etc/sos/sos.conf",
+                """
 [global]
 threads=1
 

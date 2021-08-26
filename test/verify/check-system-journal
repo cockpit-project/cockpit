@@ -220,25 +220,20 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
-        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-        if m.image != "debian-stable":
-            self.browser.select_PF4("#journal-prio-menu", "Error and above")
-            wait_log_not_present("THE SERVICE")
-            wait_log_present("JUST ERROR")
-            b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "check-journal")
-            b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
+        self.browser.select_PF4("#journal-prio-menu", "Error and above")
+        wait_log_not_present("THE SERVICE")
+        wait_log_present("JUST ERROR")
+        b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "check-journal")
+        b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
 
-            b.go("#/?tag=test-stream&priority=notice")
-            wait_journal_empty()
+        b.go("#/?tag=test-stream&priority=notice")
+        wait_journal_empty()
 
         # Test inline help
-        if m.image != "debian-stable":
-            b.click("#journal-grep button[aria-label='Open advanced search']")
-            b.wait_val("#journal-cmd-copy input", "journalctl --no-tail --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")
-            b.click("#journal-grep button[aria-label='Open advanced search']")
-            b.wait_not_present("#journal-cmd-copy")
-        else:
-            b.wait_not_present("#journal-grep")
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.wait_val("#journal-cmd-copy input", "journalctl --no-tail --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.wait_not_present("#journal-cmd-copy")
 
         # Test following
         m.execute("logger --tag test-stream Message 1")
@@ -261,11 +256,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
 
         # Test message filtering
-
-        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-        if m.image == "debian-stable":
-            b.wait_not_present(".text-search")
-            return
 
         b.focus("#journal-grep input")
         b.key_press("1")
@@ -447,11 +437,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         "Load earlier entries"
                         ])
 
-        # Debian supports grep only from release 10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-        if m.image == "debian-stable":
-            b.wait_not_present(".text-search")
-            return
-
         # Check that 'until' qualifier shows only until some date
         b.go("#/?tag=check-journal")
         wait_log_lines([expected_date,
@@ -522,29 +507,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
-        if m.image == "debian-stable":
-            b.wait_not_present(".text-search")  # Guard so we know when we can remove this special case
-            b.go("#/?tag=check-journal&priority=emerg&since=@" + self.test_start_time)
-        else:
-            self.browser.select_PF4("#journal-prio-menu", "Only emergency")
+        self.browser.select_PF4("#journal-prio-menu", "Only emergency")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        if m.image == "debian-stable":
-            b.wait_not_present(".text-search")
-            b.go("#/?tag=check-journal&priority=warning&since=@" + self.test_start_time)
-        else:
-            self.browser.select_PF4("#journal-prio-menu", "Warning and above")
+        self.browser.select_PF4("#journal-prio-menu", "Warning and above")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        if m.image == "debian-stable":
-            b.wait_not_present(".text-search")
-            b.go("#/?tag=check-journal&priority=info&since=@" + self.test_start_time)
-        else:
-            self.browser.select_PF4("#journal-prio-menu", "Info and above")
+        self.browser.select_PF4("#journal-prio-menu", "Info and above")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))

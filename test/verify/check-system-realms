@@ -200,9 +200,6 @@ class CommonTests:
                 # "More" link is part of the message component, so this looks a little funny here
                 if self.expected_server_software == 'active-directory':
                     self.assertEqual(error, "Failed to join the domain More")
-                elif m.image in ["debian-stable"]:
-                    # older ipa-client releases have a less useful error message
-                    self.assertEqual(error, "Running ipa-client-install failed More")
                 else:
                     self.assertEqual(error, "Password is incorrect More")
                 # "More" should be visible, and diagnostics not shown by default
@@ -426,7 +423,7 @@ class TestRealms(MachineCase):
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
 
 
-@skipImage("freeipa not currently available", "debian-testing")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
@@ -565,8 +562,8 @@ ExecStart=/bin/true
         m.start_cockpit()
 
         # now try 2FA with OTP
-        # This does not yet work with sssd < 2.2.2-1 on Debian/Ubuntu
-        if m.image in ["ubuntu-2004", "ubuntu-stable", "debian-stable"]:
+        # This does not yet work with sssd < 2.2.2-1 on Ubuntu
+        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
             return
 
         # normal b.login_and_go() doesn't support 2FA
@@ -634,18 +631,10 @@ ipa group-add-member admins --users=alice
 ipa-advise enable-admins-sudo | sh -ex
 ' """ % {"cert": alice_cert, "password": self.alice_password})
 
-        # On Debian 9, D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
-        if m.image in ["debian-stable"]:
-            m.write("/etc/sssd/conf.d/ifp.conf", "[sssd]\nservices = nss, sudo, pam, ssh, ifp\n", perm="0600")
-
         self.checkClientCertAuthentication()
 
         # the above password login implicitly creates a persistent user ticket
-        if m.image == 'debian-stable':
-            # on Debian 9, the default kerberos config is a per-session FILE: keyring, so klist fails
-            alice_klist_cmd = 'su -c klist alice || true'
-        else:
-            alice_klist_cmd = 'su -c klist alice'
+        alice_klist_cmd = 'su -c klist alice'
         persistent_ticket = m.execute(alice_klist_cmd)
 
         # enable sudo GSSAPI authentication
@@ -720,7 +709,7 @@ ipa-advise enable-admins-sudo | sh -ex
         # now sudo works with the delegated ticket
         # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
         # to actually work, so on older distros it fails
-        supports_sudo_krb = m.image not in ["rhel-8-5", "centos-8-stream", "debian-stable", "ubuntu-2004", "ubuntu-stable"]
+        supports_sudo_krb = m.image not in ["rhel-8-5", "centos-8-stream", "ubuntu-2004", "ubuntu-stable"]
         b.click("#super-user-indicator button")
 
         if supports_sudo_krb:
@@ -905,7 +894,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently available", "debian-testing")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestKerberos(MachineCase):

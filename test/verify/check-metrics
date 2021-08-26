@@ -417,7 +417,6 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
-    @skipImage("init.d script is too impredictable", "debian-stable")
     def testNoDataEnable(self):
         b = self.browser
         m = self.machine
@@ -480,7 +479,6 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
-    @skipImage("init.d script is too impredictable", "debian-stable")
     def testLoggerSettings(self):
         b = self.browser
         m = self.machine
@@ -517,7 +515,6 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
-    @skipImage("pmproxy broken", "debian-stable")
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine
@@ -735,16 +732,10 @@ class TestCurrentMetrics(MachineCase):
         # Load looks like "1 min: 1.41, 5 min: 1.47, 15 min: 2.30"
         b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) < 5)
 
-        # HACK: debian-stable does not update load when done though systemd-run
-        if m.image != "debian-stable":
-            m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
-                      "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
-            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
-            m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
-        else:
-            load_hog = m.spawn("for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done", "load-hog.log")
-            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
-            m.execute("kill %d 2>/dev/null || true" % load_hog)  # ok to fail, as the command exits by itself
+        m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
+                  "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
+        b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
+        m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(180):
@@ -1063,7 +1054,6 @@ class TestMultiCPU(MachineCase):
 
 
 @skipImage("no PCP support", "fedora-coreos")
-@skipImage("pmproxy broken", "debian-stable")
 @skipDistroPackage()
 class TestGrafanaClient(MachineCase):
 

@@ -23,8 +23,8 @@ from testlib import *
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
-@skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "ubuntu-2004")
+@skipImage("Skip these for now, unsure what's broken", "ubuntu-stable")
 @skipDistroPackage()
 @skipImage("Needs sssd >=2.4.1", "rhel-8-4", "rhel-8-5", "centos-8-stream")
 class TestS4USsh(MachineCase):

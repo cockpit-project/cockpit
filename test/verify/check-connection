@@ -480,10 +480,6 @@ class TestConnection(MachineCase):
         m.execute("passwd -d admin")
         m.execute("passwd -d user")
 
-        # debian-stable only allows passwordless logins from /etc/securetty, which excludes ssh
-        if m.image in ['debian-stable']:
-            self.sed_file('s/nullok_secure/nullok/', '/etc/pam.d/common-auth')
-
         self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
                       'systemctl restart sshd.service')
 

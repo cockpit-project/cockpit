@@ -18,6 +18,7 @@
  */
 
 #include "cockpitlocale.h"
+#include "common/cockpitsystem.h"
 
 #include <locale.h>
 #include <string.h>
@@ -99,7 +100,7 @@ cockpit_locale_set_language (const gchar *value)
   else
     {
       g_debug ("set bridge locale to: %s", locale);
-      g_setenv ("LANG", locale, TRUE);
+      cockpit_setenv_check ("LANG", locale, TRUE);
     }
 
   strncpy (previous, value, sizeof (previous) - 1);

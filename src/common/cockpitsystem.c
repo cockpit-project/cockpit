@@ -198,3 +198,12 @@ cockpit_system_session_id (void)
       return NULL;
     }
 }
+
+void
+cockpit_setenv_check (const char *variable,
+                      const char *value,
+                      gboolean overwrite)
+{
+  if (!g_setenv (variable, value, overwrite))
+    g_error("could not set $%s to %s", variable, value);
+}

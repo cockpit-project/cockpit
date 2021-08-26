@@ -27,6 +27,7 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebinject.h"
@@ -772,7 +773,7 @@ setup_path (const char *argv0)
                           old ? ":" : "",
                           old ? old : NULL);
 
-  g_assert_setenv ("PATH", path, TRUE);
+  cockpit_setenv_check ("PATH", path, TRUE);
 
   g_free (path);
   g_free (dir);
@@ -848,7 +849,7 @@ main (int argc,
 
   signal (SIGPIPE, SIG_IGN);
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
-  g_assert_setenv ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   /* playground config directory */
   config_dir = g_dir_make_tmp ("cockpit.config.XXXXXX", NULL);
@@ -857,9 +858,9 @@ main (int argc,
   g_assert (g_mkdir_with_parents (machines_dir, 0755) == 0);
   g_free (machines_dir);
 
-  g_assert_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
-  g_assert_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  g_assert_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
+  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  cockpit_setenv_check ("XDG_CONFIG_DIRS", config_dir, TRUE);
 
   setup_path (argv[0]);
 

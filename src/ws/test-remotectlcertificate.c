@@ -21,6 +21,7 @@
 
 #include "remotectl.h"
 
+#include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 
 #include <glib.h>
@@ -94,7 +95,7 @@ setup (TestCase *tc,
   gint i;
   struct group *gr;
 
-  g_assert_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
+  cockpit_setenv_check ("XDG_CONFIG_DIRS", config_dir, TRUE);
   tc->cert_dir = g_build_filename (config_dir, "cockpit", "ws-certs.d", NULL);
 
   /* make sure we start clean */
@@ -150,7 +151,7 @@ setup (TestCase *tc,
 
   g_ptr_array_free (ptr, TRUE);
   if (old_val)
-    g_assert_setenv ("XDG_CONFIG_DIRS", old_val, TRUE);
+    cockpit_setenv_check ("XDG_CONFIG_DIRS", old_val, TRUE);
   else
     g_unsetenv ("XDG_CONFIG_DIRS");
 }

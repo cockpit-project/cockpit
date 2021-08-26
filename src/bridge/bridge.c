@@ -201,7 +201,7 @@ start_dbus_daemon (void)
 
   if (address)
     {
-      g_setenv ("DBUS_SESSION_BUS_ADDRESS", address, TRUE);
+      cockpit_setenv_check ("DBUS_SESSION_BUS_ADDRESS", address, TRUE);
       g_debug ("session bus address: %s", address);
     }
   else
@@ -296,7 +296,7 @@ start_ssh_agent (void)
     }
 
   g_debug ("launched %s", agent_argv[0]);
-  g_setenv ("SSH_AUTH_SOCK", bind_address, TRUE);
+  cockpit_setenv_check ("SSH_AUTH_SOCK", bind_address, TRUE);
 
 out:
   g_clear_error (&error);
@@ -420,13 +420,13 @@ run_bridge (const gchar *interactive,
     }
   else
     {
-      g_setenv ("USER", pwd->pw_name, TRUE);
-      g_setenv ("HOME", pwd->pw_dir, TRUE);
-      g_setenv ("SHELL", pwd->pw_shell, TRUE);
+      cockpit_setenv_check ("USER", pwd->pw_name, TRUE);
+      cockpit_setenv_check ("HOME", pwd->pw_dir, TRUE);
+      cockpit_setenv_check ("SHELL", pwd->pw_shell, TRUE);
     }
 
   /* Set a path if nothing is set */
-  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
+  cockpit_setenv_check ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", FALSE);
 
   /*
    * The bridge always runs from within $XDG_RUNTIME_DIR
@@ -679,10 +679,10 @@ main (int argc,
    * to do this very early.
    */
   if (!g_getenv ("XDG_DATA_DIRS") && !g_str_equal (DATADIR, "/usr/share"))
-    g_setenv ("XDG_DATA_DIRS", DATADIR, TRUE);
+    cockpit_setenv_check ("XDG_DATA_DIRS", DATADIR, TRUE);
 
-  g_setenv ("LANG", "C.UTF-8", FALSE);
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("LANG", "C.UTF-8", FALSE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, NULL);

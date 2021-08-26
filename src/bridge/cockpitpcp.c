@@ -27,6 +27,7 @@
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitsystem.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -101,9 +102,9 @@ main (int argc,
 
   signal (SIGPIPE, SIG_IGN);
 
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, NULL);

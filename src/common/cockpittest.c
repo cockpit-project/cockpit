@@ -24,6 +24,7 @@
 #include "cockpitjson.h"
 
 #include "cockpitconf.h"
+#include "common/cockpitsystem.h"
 
 #include <glib-object.h>
 
@@ -213,12 +214,12 @@ cockpit_test_init (int *argc,
 
   signal (SIGPIPE, SIG_IGN);
 
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
+  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
+  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
 
   g_assert (g_snprintf (path, sizeof (path), "%s:%s", BUILDDIR, g_getenv ("PATH")) < sizeof (path));
-  g_setenv ("PATH", path, TRUE);
+  cockpit_setenv_check ("PATH", path, TRUE);
 
   /* For our process (children are handled through $G_DEBUG) */
   g_log_set_always_fatal (G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
@@ -739,7 +740,7 @@ cockpit_test_allow_warnings (void)
   /* make some noise if this gets called twice */
   g_return_if_fail (orig_g_debug == NULL);
   orig_g_debug = g_getenv ("G_DEBUG");
-  g_setenv ("G_DEBUG", "fatal-criticals", TRUE);
+  cockpit_setenv_check ("G_DEBUG", "fatal-criticals", TRUE);
 }
 
 void
@@ -747,7 +748,7 @@ cockpit_test_reset_warnings (void)
 {
   if (orig_g_debug != NULL)
     {
-      g_setenv ("G_DEBUG", orig_g_debug, TRUE);
+      cockpit_setenv_check ("G_DEBUG", orig_g_debug, TRUE);
       orig_g_debug = NULL;
     }
 }
@@ -808,12 +809,4 @@ cockpit_assertion_message_error_matches (const char     *domain,
     g_string_append_printf (gstring, "%s is NULL", expr);
 
   g_assertion_message (domain, file, line, func, gstring->str);
-}
-
-void
-g_assert_setenv (const gchar *variable,
-                 const gchar *value,
-                 gboolean overwrite) {
-    gboolean result = g_setenv (variable, value, overwrite);
-    g_assert (result);
 }

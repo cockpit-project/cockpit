@@ -22,10 +22,9 @@ const stdio = require('stdio');
 var opts = stdio.getopt({
     directory: { key: "d", args: 1, description: "Base directory for input files", default: "." },
     output: { key: "o", args: 1, description: "Output file" },
-    from: { key: "f", args: 1, description: "File containing list of input files", default: "" },
 });
 
-if (!opts.from && opts.args.length < 1) {
+if (opts.args.length < 1) {
     usage();
 }
 
@@ -35,25 +34,9 @@ var entries = { };
 /* Filename being parsed */
 var filename = null;
 
-prepare();
-
-/* Decide what input files to process */
-function prepare() {
-    if (opts.from) {
-        fs.readFile(opts.from, { encoding: "utf-8"}, function(err, data) {
-            if (err)
-                fatal(err.message);
-            input = data.split("\n").filter(function(value) {
-                return !!value;
-            }).concat(input);
-            step();
-        });
-    } else {
-        step();
-    }
-}
-
 /* Now process each file in turn */
+step();
+
 function step() {
     filename = input.shift();
     if (filename === undefined) {

@@ -12,14 +12,18 @@ const fs = require("fs");
 const child_process = require("child_process");
 
 const parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--deps', { help: "Output dependencies in Makefile format", metavar: "FILENAME" })
 parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" })
 parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after build", metavar: "HOST" })
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode" })
+parser.add_argument('prefix', { help: "The directory to build (eg. base1, shell, ...)", metavar: "DIRECTORY" })
 args = parser.parse_args()
 
-const makefile = args.deps;
-const prefix = makefile.split("/").slice(-2, -1)[0];
+if (args.prefix.includes('/')) {
+    parser.error("Directory must not contain '/'")
+}
+
+const prefix = args.prefix;
+const makefile = "dist/" + prefix + "/Makefile.deps";
 process.env["ONLYDIR"] = prefix + "/";
 
 const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');

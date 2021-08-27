@@ -62,7 +62,7 @@ dist/%/Makefile.deps:
 	@true
 
 dist/%/manifest.json: $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json $(WEBPACK_CONFIG)
-	$(V_WEBPACK) $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG)
+	$(V_WEBPACK) $(WEBPACK_MAKE) -c $(WEBPACK_CONFIG) $*
 
 -include $(WEBPACK_DEPS)
 

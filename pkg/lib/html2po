@@ -28,16 +28,10 @@ function usage() {
     process.exit(2);
 }
 
-var fs, htmlparser, path, stdio;
-
-try {
-    fs = require('fs');
-    path = require('path');
-    htmlparser = require('htmlparser');
-    stdio = require('stdio');
-} catch (ex) {
-    fatal(ex.message, 127); /* missing looks for this */
-}
+const fs = require('fs');
+const path = require('path');
+const htmlparser = require('htmlparser');
+const stdio = require('stdio');
 
 var opts = stdio.getopt({
     directory: { key: "d", args: 1, description: "Base directory for input files", default: "." },

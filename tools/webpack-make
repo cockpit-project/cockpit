@@ -7,29 +7,29 @@
 
 const webpack = require("webpack");
 const path = require("path");
-const stdio = require("stdio");
+const argparse = require("argparse");
 const fs = require("fs");
 const child_process = require("child_process");
 
-const ops = stdio.getopt({
-    config: { key: "c", args: 1, description: "Path to webpack.config.js", default: "webpack.config.js" },
-    deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" },
-    rsync: { key: "r", args: 1, description: "rsync webpack to ssh target after build", default: "" },
-    watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
-});
+const parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--deps', { help: "Output dependencies in Makefile format", metavar: "FILENAME" })
+parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" })
+parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after build", metavar: "HOST" })
+parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode" })
+args = parser.parse_args()
 
-const makefile = ops.deps;
+const makefile = args.deps;
 const prefix = makefile.split("/").slice(-2, -1)[0];
 process.env["ONLYDIR"] = prefix + "/";
 
 const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 const cwd = process.cwd();
-const config_path = path.resolve(cwd, ops.config);
+const config_path = path.resolve(cwd, args.config);
 const config = require(config_path);
 
 const compiler = webpack(config);
 
-if (ops.watch) {
+if (args.watch) {
     compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
         const time = new Date().toTimeString().split(' ')[0];
         process.stdout.write(`${ time  } Build started\n`);
@@ -48,7 +48,7 @@ function process_result(err, stats) {
         return;
     }
 
-    if (ops.watch) {
+    if (args.watch) {
         const info = stats.toJson();
         const time = new Date().toTimeString().split(' ')[0];
         process.stdout.write(`${ time  } Build succeeded, took ${ info.time/1000 }s\n`);
@@ -59,12 +59,12 @@ function process_result(err, stats) {
         console.log(stats.toString("normal"));
 
     if (stats.hasErrors()) {
-        if (!ops.watch)
+        if (!args.watch)
             process.exit(1);
         return;
     }
 
-    if (ops.rsync)
+    if (args.rsync)
         rsync();
 
     generateDeps(makefile, stats);
@@ -168,7 +168,7 @@ function generateDeps(makefile, stats) {
 
 function rsync() {
     const ret = child_process.spawnSync("rsync", ["--recursive", "--info=PROGRESS2", "--delete",
-                                        path.dirname(makefile), ops.rsync + ":/usr/share/cockpit/"],
+                                        path.dirname(makefile), args.rsync + ":/usr/share/cockpit/"],
                                         { stdio: "inherit" });
     if (ret.status !== 0)
         process.exit(1);

@@ -10,25 +10,17 @@ function fatal(message, code) {
     process.exit(code || 1);
 }
 
-function usage() {
-    console.log("usage: manifest2po [-o output] input...");
-    process.exit(2);
-}
-
 const fs = require('fs');
 const path = require('path');
-const stdio = require('stdio');
+const { ArgumentParser } = require('argparse');
 
-var opts = stdio.getopt({
-    directory: { key: "d", args: 1, description: "Base directory for input files", default: "." },
-    output: { key: "o", args: 1, description: "Output file" },
-});
+const parser = new ArgumentParser()
+parser.add_argument('-d', '--directory', { help: "Base directory for input files" })
+parser.add_argument('-o', '--output', { help: 'Output file', required: true })
+parser.add_argument('files', { nargs: '+', help: "One or more input files", metavar: "FILE" })
+const args = parser.parse_args()
 
-if (opts.args.length < 1) {
-    usage();
-}
-
-var input = opts.args;
+var input = args.files;
 var entries = { };
 
 /* Filename being parsed */
@@ -49,8 +41,8 @@ function step() {
 
     /* Qualify the filename if necessary */
     var full = filename;
-    if (opts.directory)
-        full = path.join(opts.directory, filename);
+    if (args.directory)
+        full = path.join(args.directory, filename);
 
     fs.readFile(full, { encoding: "utf-8"}, function(err, data) {
         if (err)
@@ -157,11 +149,11 @@ function finish() {
     }
 
     var data = result.join('\n');
-    if (!opts.output) {
+    if (!args.output) {
         process.stdout.write(data);
         process.exit(0);
     } else {
-        fs.writeFile(opts.output, data, function(err) {
+        fs.writeFile(args.output, data, function(err) {
             if (err)
                 fatal(err.message);
             process.exit(0);

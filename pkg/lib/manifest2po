@@ -15,15 +15,9 @@ function usage() {
     process.exit(2);
 }
 
-var fs, path, stdio;
-
-try {
-    fs = require('fs');
-    path = require('path');
-    stdio = require('stdio');
-} catch (ex) {
-    fatal(ex.message, 127); /* missing looks for this */
-}
+const fs = require('fs');
+const path = require('path');
+const stdio = require('stdio');
 
 var opts = stdio.getopt({
     directory: { key: "d", args: 1, description: "Base directory for input files", default: "." },

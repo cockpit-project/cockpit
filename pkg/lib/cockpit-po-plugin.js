@@ -20,13 +20,16 @@ module.exports = class {
         try {
             const linguas_file = path.resolve(srcdir, "po/LINGUAS");
             const linguas = fs.readFileSync(linguas_file, 'utf8').match(/\S+/g);
+            compilation.fileDependencies.add(linguas_file); // Only after reading the file
             return linguas.map(lang => path.resolve(srcdir, 'po', lang + '.po'));
         } catch (error) {
             if (error.code !== 'ENOENT') {
                 throw error;
             }
 
-            /* No LINGUAS file?  Fall back to globbing. */
+            /* No LINGUAS file?  Fall back to globbing.
+             * Note: we won't detect .po files being added in this case.
+             */
             return glob.sync(path.resolve(srcdir, 'po/*.po'));
         }
     }
@@ -91,6 +94,8 @@ module.exports = class {
     }
 
     buildFile(po_file, compilation) {
+        compilation.fileDependencies.add(po_file);
+
         return new Promise((resolve, reject) => {
             const patterns = this.build_patterns(compilation, this.reference_patterns);
 

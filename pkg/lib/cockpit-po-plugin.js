@@ -16,6 +16,21 @@ module.exports = class {
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
     }
 
+    get_po_files(compilation) {
+        try {
+            const linguas_file = path.resolve(srcdir, "po/LINGUAS");
+            const linguas = fs.readFileSync(linguas_file, 'utf8').match(/\S+/g);
+            return linguas.map(lang => path.resolve(srcdir, 'po', lang + '.po'));
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                throw error;
+            }
+
+            /* No LINGUAS file?  Fall back to globbing. */
+            return glob.sync(path.resolve(srcdir, 'po/*.po'));
+        }
+    }
+
     apply(compiler) {
         compiler.hooks.thisCompilation.tap('CockpitPoPlugin', compilation => {
             compilation.hooks.processAssets.tapPromise(
@@ -23,7 +38,7 @@ module.exports = class {
                     name: 'CockpitPoPlugin',
                     stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
                 },
-                () => Promise.all(glob.sync(path.resolve(srcdir, 'po/*.po')).map(f => this.buildFile(f, compilation)))
+                () => Promise.all(this.get_po_files(compilation).map(f => this.buildFile(f, compilation)))
             );
         });
     }

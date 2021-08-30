@@ -14,4 +14,4 @@ shift
 # disable eslint by default, unless explicitly enabled
 export ESLINT=${ESLINT:-0}
 
-"tools/webpack-make" -d "dist/$page/Makefile.deps" -w "$@"
+"tools/webpack-make" "$page" -w "$@"

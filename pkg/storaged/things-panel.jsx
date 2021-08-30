@@ -26,12 +26,14 @@ import { create_mdraid, mdraid_rows } from "./mdraids-panel.jsx";
 import { create_vgroup, vgroup_rows } from "./vgroups-panel.jsx";
 import { vdo_feature, create_vdo, vdo_rows } from "./vdos-panel.jsx";
 import { StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
+import { dialog_open } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
 export class ThingsPanel extends React.Component {
     render() {
         const { client } = this.props;
+        const self = this;
 
         // See OptionalPanel for a description of the "feature"
         // argument here.
@@ -47,7 +49,15 @@ export class ThingsPanel extends React.Component {
                 if (!feature_enabled) {
                     install_dialog(required_package, feature.dialog_options).then(
                         () => {
-                            feature.enable().then(action);
+                            feature.enable()
+                                    .then(action)
+                                    .catch(error => {
+                                        dialog_open({
+                                            Title: _("Error"),
+                                            Body: error.toString()
+                                        });
+                                        self.setState({});
+                                    });
                         },
                         () => null /* ignore cancel */);
                 } else {

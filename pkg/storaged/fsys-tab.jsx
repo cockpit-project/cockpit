@@ -284,8 +284,6 @@ export function mounting_dialog(client, block, mode) {
         // systemd might do some uexpected mounts/unmounts behind our
         // backs.
 
-        console.log("UP", JSON.stringify(old_config), JSON.stringify(new_config));
-
         return (utils.reload_systemd()
                 .then(maybe_unmount)
                 .then(maybe_unlock)

@@ -496,8 +496,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_options.auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 file system")
+        self.content_row_wait_in_col(1, 1, "ext4 file system (encrypted)")
 
         self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
@@ -507,7 +506,7 @@ class TestStorageLuks(StorageCase):
         b.enter_page("/storage")
         b.wait_visible("#storage-detail")
 
-        self.wait_mounted(2, 1)
+        self.wait_mounted(1, 1)
 
 
 if __name__ == '__main__':

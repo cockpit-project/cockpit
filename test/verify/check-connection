@@ -590,13 +590,12 @@ class TestConnection(MachineCase):
         m = self.machine
         m.execute(
             'mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')
-        m.execute('mkdir -p /test/cockpit/static/ && echo "<!DOCTYPE html><html><head></head><body><p>Custom Default Root</p></body></html>" > /test/cockpit/static/login.html')
 
-        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test remotectl certificate --ensure")
+        m.execute("XDG_CONFIG_DIRS=/test remotectl certificate --ensure")
         self.assertTrue(m.execute("ls /test/cockpit/ws-certs.d/*"))
         self.assertFalse(m.execute("ls /etc/cockpit/ws-certs.d/* || true"))
 
-        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(self.ws_executable))
+        m.execute("XDG_CONFIG_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(self.ws_executable))
 
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))

@@ -495,8 +495,9 @@ ExecStart=/bin/true
         self.assertIn("Content-Type: text/html", m.execute("curl --head https://x0.cockpit.lan:9090"))
         # don't leave the secret key copy behind
         m.execute("! test -e /run/cockpit/ipa.key")
-        # remotectl agrees
-        self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.cert", m.execute("remotectl certificate"))
+        # cockpit-certificate-ensure agrees
+        self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.cert",
+                      m.execute(f"{self.libexecdir}/cockpit-certificate-ensure --check"))
         # correct permissions
         self.assertEqual("root:cockpit-ws/640", m.execute("stat --printf '%U:%G/%a' /etc/cockpit/ws-certs.d/10-ipa.key"))
         # cert is being tracked

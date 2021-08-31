@@ -27,7 +27,7 @@ import ReactDOM from "react-dom";
 import { SuperuserIndicator } from "./superuser.jsx";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
-import { AboutModal } from "./shell-modals.jsx";
+import { AboutCockpitModal } from "./shell-modals.jsx";
 
 import * as base_index from "./base_index";
 
@@ -423,7 +423,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         const about = document.createElement("li");
         const el_a = document.createElement("a");
         el_a.onclick = () => {
-            ReactDOM.render(React.createElement(AboutModal, {
+            ReactDOM.render(React.createElement(AboutCockpitModal, {
                 onClose: () =>
                     ReactDOM.unmountComponentAtNode(document.getElementById('about'))
             }),

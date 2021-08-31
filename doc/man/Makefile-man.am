@@ -6,7 +6,6 @@ EXTRA_DIST += \
 	doc/man/cockpit-desktop.xml \
 	doc/man/cockpit.conf.xml \
 	doc/man/pam_ssh_add.xml \
-	doc/man/remotectl.xml \
 	$(NULL)
 
 if ENABLE_DOC
@@ -22,7 +21,6 @@ man_MANS += \
 	doc/man/cockpit-tls.8 \
 	doc/man/cockpit.conf.5 \
 	doc/man/pam_ssh_add.8 \
-	doc/man/remotectl.8 \
 	$(NULL)
 
 MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \

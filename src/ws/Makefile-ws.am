@@ -52,8 +52,6 @@ EXTRA_DIST += \
 
 # ----------------------------------------------------------------------------------------------------
 
-sbin_PROGRAMS += remotectl
-
 libexec_PROGRAMS += cockpit-ws
 
 cockpit_ws_SOURCES =					\
@@ -69,24 +67,6 @@ cockpit_ws_CFLAGS = 					\
 cockpit_ws_LDADD = 					\
 	$(libcockpit_ws_LIBS) \
 	$(COCKPIT_WS_LIBS)					\
-	$(NULL)
-
-remotectl_SOURCES = \
-	src/ws/cockpitcertificate.c \
-	src/ws/cockpitcertificate.h \
-	src/ws/remotectl-certificate.c \
-	src/ws/remotectl.c \
-	src/ws/remotectl.h \
-	$(NULL)
-
-remotectl_CFLAGS = \
-	$(COCKPIT_CFLAGS) \
-	$(NULL)
-
-remotectl_LDADD = \
-	libcockpit-common.a \
-	libcockpit-common-nodeps.a \
-	$(COCKPIT_LIBS) \
 	$(NULL)
 
 systemd_units_in = \
@@ -240,7 +220,6 @@ WS_CHECKS = \
 	test-channelresponse \
 	test-handlers \
 	test-kerberos \
-	test-remotectlcertificate \
 	$(NULL)
 
 test_auth_CFLAGS = $(cockpit_ws_CFLAGS)
@@ -288,22 +267,6 @@ test_handlers_SOURCES = \
 test_handlers_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
-	$(NULL)
-
-test_remotectlcertificate_CFLAGS = \
-	$(COCKPIT_CFLAGS) \
-	$(NULL)
-test_remotectlcertificate_SOURCES = \
-	src/ws/test-remotectlcertificate.c \
-	src/ws/cockpitcertificate.c \
-	src/ws/cockpitcertificate.h \
-	src/ws/remotectl-certificate.c \
-	src/ws/remotectl.h \
-	$(NULL)
-test_remotectlcertificate_LDADD = \
-	libcockpit-common.a \
-	libcockpit-common-nodeps.a \
-	$(COCKPIT_LIBS) \
 	$(NULL)
 
 test_webservice_SOURCES = \

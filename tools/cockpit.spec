@@ -291,7 +291,7 @@ for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-ws
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
-rm %{buildroot}/usr/bin/cockpit-bridge %{buildroot}/usr/sbin/remotectl
+rm %{buildroot}/usr/bin/cockpit-bridge
 rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 %endif
@@ -469,7 +469,6 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/cockpit-tls.8.gz
-%doc %{_mandir}/man8/remotectl.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
@@ -493,7 +492,6 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-wsinstance-https@.service
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
-%{_sbindir}/remotectl
 %{pamdir}/pam_ssh_add.so
 %{pamdir}/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws

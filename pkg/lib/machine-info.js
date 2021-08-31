@@ -101,7 +101,12 @@ function parseDMIFields(text) {
             return;
         const file = line.slice(0, sep);
         const key = file.slice(file.lastIndexOf('/') + 1);
-        const value = line.slice(sep + 1);
+        let value = line.slice(sep + 1);
+
+        // clean up after lazy OEMs
+        if (value.match(/to be filled by o\.?e\.?m\.?/i))
+            value = "";
+
         info[key] = value;
 
         if (key === "chassis_type")

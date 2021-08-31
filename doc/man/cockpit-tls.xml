@@ -89,7 +89,11 @@
       run the following command.</para>
 
 <programlisting>
-$ sudo remotectl certificate
+$ sudo /usr/libexec/cockpit-certificate-ensure --check
+</programlisting>
+    <para>Or, on Debian-based systems:</para>
+<programlisting>
+$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
 </programlisting>
 
     <para>If using <literal>certmonger</literal> to manage certificates, following command can

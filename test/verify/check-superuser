@@ -59,6 +59,8 @@ class TestSuperuser(MachineCase):
                            "We trust you have received the usual lecture")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
         b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.focus(".pf-c-modal-box button:contains('Cancel')")
+        b.assert_pixels(".pf-c-modal-box:contains('Switch to administrative access')", "superuser-modal")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")

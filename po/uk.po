@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 18:06+0000\n"
-"PO-Revision-Date: 2021-08-18 19:04+0000\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
+"PO-Revision-Date: 2021-08-29 11:04+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.7.2\n"
+"X-Generator: Weblate 4.8\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -937,6 +937,11 @@ msgid ""
 "fields. These are space separated values, in form FIELD=VALUE, where value "
 "can be comma separated list of possible values."
 msgstr ""
+"Будь-який текстовий рядок у журналі можна фільтрувати. Рядок може бути також "
+"записано у формі формального виразу. Крім того, передбачено підтримку "
+"фільтрування за полями повідомлення журналу. Поля слід вказувати у формі "
+"відокремлених комами записів ПОЛЕ=ЗНАЧЕННЯ, де значенням є список "
+"відокремлених комами можливих значень."
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -963,10 +968,8 @@ msgid "Apply"
 msgstr "Застосувати"
 
 #: pkg/packagekit/kpatch.jsx:240
-#, fuzzy
-#| msgid "Apply security updates"
 msgid "Apply kernel patches"
-msgstr "Застосувати оновлення захисту"
+msgstr "Застосувати латки до ядра"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -1193,7 +1196,7 @@ msgstr "Параметри прив'язки"
 
 #: pkg/systemd/logs.jsx:355
 msgid "Boot"
-msgstr ""
+msgstr "Завантаження"
 
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
@@ -1994,6 +1997,10 @@ msgid ""
 "'now' refers to the current time. Finally, relative times may be specified, "
 "prefixed with '-' or '+'"
 msgstr ""
+"Дату слід вказувати у форматі РРРР-ММ-ДД гг:хх:сс. Крім того, можна "
+"використовувати рядки «yesterday» («вчора»), «today» («сьогодні»), «tomorrow»"
+" («завтра»). Рядок «now» відповідає поточному моменту часу. Нарешті, можна "
+"вказувати відносний час за допомогою префіксів «-» і «+»"
 
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
@@ -2586,10 +2593,8 @@ msgid "Failed to enable tuned"
 msgstr "Не вдалося увімкнути tuned"
 
 #: pkg/systemd/logsJournal.jsx:260
-#, fuzzy
-#| msgid "Failed to switch profile"
 msgid "Failed to fetch logs"
-msgstr "Не вдалося перемкнути профіль"
+msgstr "Не вдалося отримати журнал"
 
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
@@ -2651,10 +2656,8 @@ msgid "Filter services"
 msgstr "Фільтрувати служби"
 
 #: pkg/systemd/logs.jsx:237
-#, fuzzy
-#| msgid "Filter"
 msgid "Filters"
-msgstr "Фільтрування"
+msgstr "Фільтри"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2744,10 +2747,8 @@ msgstr ""
 "вилучіть їх чи додайте ще один фізичний том."
 
 #: pkg/systemd/logs.jsx:377
-#, fuzzy
-#| msgid "Clear search"
 msgid "Free-form search"
-msgstr "Очистити критерій пошуку"
+msgstr "Пошук із довільним критерієм"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -3228,25 +3229,19 @@ msgstr "Дамп ядра"
 
 #: pkg/packagekit/kpatch.jsx:345
 msgid "Kernel patch $0 is active"
-msgstr ""
+msgstr "Активною є латка до ядра $0"
 
 #: pkg/packagekit/kpatch.jsx:352
-#, fuzzy
-#| msgid "Support is installed."
 msgid "Kernel patch $0 is installed"
-msgstr "Підтримку встановлено."
+msgstr "Встановлено латку до ядра $0"
 
 #: pkg/packagekit/kpatch.jsx:278
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel patch settings"
-msgstr "Змінити параметри"
+msgstr "Параметри латок до ядра"
 
 #: pkg/packagekit/kpatch.jsx:261
-#, fuzzy
-#| msgid "Kernel Dump"
 msgid "Kernel patching"
-msgstr "Дамп ядра"
+msgstr "Латання ядра"
 
 #: pkg/shell/machines/machine-change-auth.html:38
 #: pkg/shell/machines/machine-change-auth.html:53
@@ -3407,10 +3402,8 @@ msgid "Loading available updates, please wait..."
 msgstr "Завантажуємо доступні оновлення, зачекайте…"
 
 #: pkg/systemd/logsJournal.jsx:291
-#, fuzzy
-#| msgid "Load earlier entries"
 msgid "Loading earlier entries"
-msgstr "Завантажити попередні записи"
+msgstr "Завантажуємо попередні записи"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
@@ -4250,10 +4243,8 @@ msgid "Not found"
 msgstr "Не знайдено"
 
 #: pkg/packagekit/kpatch.jsx:227
-#, fuzzy
-#| msgid "Installed"
 msgid "Not installed"
-msgstr "Встановлено"
+msgstr "Не встановлено"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:78
 msgid "Not joined"
@@ -5469,10 +5460,8 @@ msgid "Select"
 msgstr "Вибрати"
 
 #: pkg/systemd/logs.jsx:320
-#, fuzzy
-#| msgid "select container"
 msgid "Select a identifier"
-msgstr "вибрати контейнер"
+msgstr "Виберіть ідентифікатор"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5648,15 +5637,15 @@ msgstr "Показати відбитки"
 
 #: pkg/systemd/logs.jsx:378
 msgid "Show messages containing given string."
-msgstr ""
+msgstr "Показати повідомлення, які містять вказаний рядок."
 
 #: pkg/systemd/logs.jsx:367
 msgid "Show messages for the specified systemd unit."
-msgstr ""
+msgstr "Показати повідомлення для вказаного модуля systemd."
 
 #: pkg/systemd/logs.jsx:356
 msgid "Show messages from a specific boot."
-msgstr ""
+msgstr "Показати повідомлення з вказаного завантаження."
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5689,7 +5678,7 @@ msgstr "Вимкнути"
 
 #: pkg/systemd/logs.jsx:333
 msgid "Since"
-msgstr ""
+msgstr "З"
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5838,11 +5827,12 @@ msgstr "Запустити службу"
 
 #: pkg/systemd/logs.jsx:334
 msgid "Start showing entries on or newer than the specified date."
-msgstr ""
+msgstr "Почати показ записів, дата яких є рівною вказаній або новішою за неї."
 
 #: pkg/systemd/logs.jsx:345
 msgid "Start showing entries on or older than the specified date."
 msgstr ""
+"Показати показ записів, дата яких є рівною вказаній або старішою за неї."
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
@@ -5949,16 +5939,12 @@ msgid "Sub-Notebook"
 msgstr "Підноутбук"
 
 #: pkg/storaged/crypto-keyslots.jsx:372
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
-msgstr "Копіювати до буфера"
+msgstr "Успішно скопійовано до буфера обміну!"
 
 #: pkg/systemd/logs.jsx:413
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to keyboard"
-msgstr "Копіювати до буфера"
+msgstr "Успішно скопійовано до клавіатури"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
 msgid "Sundays"
@@ -6584,6 +6570,13 @@ msgid ""
 "chronological order, 2 the second and so on; while -0 is the last boot, -1 "
 "the boot before last, and so on."
 msgstr ""
+"Це додасть відповідність «_BOOT_ID=». Якщо не вказано, буде показано журнал "
+"поточного завантаження. Якщо не вказано ідентифікатор завантаження, додатний "
+"відступ призводитиме до пошуку завантажень від початку журналу, а нульовий "
+"або від'ємний відступ призводитиме до пошуку завантажень починаючи від кінця "
+"журналу. Отже, 1 означає перше завантаження, яке буде знайдено у журналі у "
+"хронологічному порядку, 2 — друге завантаження тощо; а -0 — останнє "
+"завантаження, -1 — завантаження перед останнім тощо."
 
 #: pkg/systemd/logs.jsx:369
 msgid ""
@@ -6591,6 +6584,9 @@ msgid ""
 "find all possible messages for the given unit. Can contain more units "
 "separated by comma. "
 msgstr ""
+"Це додасть відповідність «_SYSTEMD_UNIT=», «COREDUMP_UNIT=» та «UNIT=» для "
+"пошуку усіх можливих повідомлень для вказаного модуля. Запис може містити "
+"декілька записів модулів, які слід відокремлювати комами. "
 
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
@@ -6698,10 +6694,8 @@ msgid "Toggle date picker"
 msgstr "Перемкнути засіб вибору дати"
 
 #: pkg/systemd/logs.jsx:190
-#, fuzzy
-#| msgid "Hide filters"
 msgid "Toggle filters"
-msgstr "Приховати фільтри"
+msgstr "Перемкнути фільтри"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -7052,7 +7046,7 @@ msgstr "Непідтримуваний том"
 
 #: pkg/systemd/logs.jsx:344
 msgid "Until"
-msgstr ""
+msgstr "До"
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7741,13 +7735,11 @@ msgstr "firewalld"
 
 #: pkg/packagekit/kpatch.jsx:244
 msgid "for current and future kernels"
-msgstr ""
+msgstr "для поточного і майбутніх ядер"
 
 #: pkg/packagekit/kpatch.jsx:249
-#, fuzzy
-#| msgid "Mount read only"
 msgid "for current kernel only"
-msgstr "Змонтувати лише для читання"
+msgstr "лише для поточного ядра"
 
 #: pkg/storaged/manifest.json:0
 msgid "format"
@@ -7944,7 +7936,7 @@ msgstr "якість пароля"
 
 #: pkg/packagekit/updates.jsx:281
 msgid "patches"
-msgstr ""
+msgstr "латки"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"

@@ -2,6 +2,6 @@
 
 set -ex
 
-/sbin/remotectl certificate --ensure
+/usr/libexec/cockpit-certificate-ensure
 
 exec /usr/libexec/cockpit-ws

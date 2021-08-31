@@ -51,7 +51,6 @@ on_handle_hello_world (TestFrobber *object,
 static gboolean
 on_handle_never_return (TestFrobber *object,
                         GDBusMethodInvocation *invocation,
-                        const gchar *greeting,
                         gpointer user_data)
 {
   return TRUE;

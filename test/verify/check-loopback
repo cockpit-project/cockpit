@@ -29,13 +29,8 @@ class TestLoopback(MachineCase):
         b = self.browser
         m = self.machine
 
-        if "debian" in m.image or "ubuntu" in m.image:
-            cockpit_ws = "/usr/lib/cockpit/cockpit-ws"
-        else:
-            cockpit_ws = "/usr/libexec/cockpit-ws"
-
         # Start Cockpit with option to access SSH
-        m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws")
+        m.spawn(f"{self.libexecdir}/cockpit-ws --local-ssh --no-tls", "cockpit-ws")
         m.wait_for_cockpit_running()
 
         b.login_and_go("/system", user="admin")

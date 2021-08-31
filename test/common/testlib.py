@@ -846,6 +846,7 @@ unittest.case._Outcome = _DebugOutcome
 
 class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
+    libexecdir = None
     runner = None
     machine = None
     machines = {}
@@ -1041,6 +1042,11 @@ class MachineCase(unittest.TestCase):
             # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
             if self.is_devel_build():
                 self.disable_preload("packagekit", "systemd")
+
+            if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu'):
+                self.libexecdir = '/usr/lib/cockpit'
+            else:
+                self.libexecdir = '/usr/libexec'
 
     def nonDestructiveSetup(self):
         '''generic setUp/tearDown for @nondestructive tests'''

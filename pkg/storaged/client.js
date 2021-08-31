@@ -574,7 +574,7 @@ function nfs_mounts() {
                         client.dispatchEvent('changed');
                     }
                 })
-                .fail(function (error) {
+                .catch(function (error) {
                     if (error != "closed") {
                         console.warn(error);
                     }
@@ -591,12 +591,12 @@ function nfs_mounts() {
 
         self.fsys_sizes[path] = false;
         cockpit.spawn(["stat", "-f", "-c", "[ %S, %f, %b ]", path], { err: "message" })
-                .done(function (output) {
+                .then(function (output) {
                     var data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
                     client.dispatchEvent('changed');
                 })
-                .fail(function () {
+                .catch(function () {
                     self.fsys_sizes[path] = [0, 0];
                     client.dispatchEvent('changed');
                 });
@@ -772,7 +772,7 @@ function vdo_overlay() {
                                         update(JSON.parse(lines[lines.length - 2]));
                                     }
                                 })
-                                .fail(function (error) {
+                                .catch(function (error) {
                                     if (error != "closed") {
                                         console.warn(error);
                                     }

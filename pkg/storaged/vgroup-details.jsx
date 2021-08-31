@@ -174,7 +174,7 @@ export class VGroupDetails extends React.Component {
                     Title: _("Rename"),
                     action: function (vals) {
                         return vgroup.Rename(vals.name, { })
-                                .done(function () {
+                                .then(function () {
                                     location.go(['vg', vals.name]);
                                 });
                     }
@@ -206,7 +206,7 @@ export class VGroupDetails extends React.Component {
                                 .then(function () {
                                     return vgroup.Delete(true,
                                                          { 'tear-down': { t: 'b', v: true } })
-                                            .done(function () {
+                                            .then(function () {
                                                 location.go('/');
                                             });
                                 });

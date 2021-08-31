@@ -76,10 +76,10 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
     }
 
     client.nfs.entry_users(entry)
-            .done(function (users) {
+            .then(function (users) {
                 show(users);
             })
-            .fail(function () {
+            .catch(function () {
                 show([]);
             });
 }
@@ -205,9 +205,9 @@ export function nfs_fstab_dialog(client, entry) {
                         mounting_options(vals) || "defaults"];
                     if (entry) {
                         return client.nfs.update_entry(entry, fields)
-                                .done(function () {
+                                .then(function () {
                                     if (entry.fields[0] != fields[0] ||
-                                                                 entry.fields[1] != fields[1])
+                                    entry.fields[1] != fields[1])
                                         location.go(["nfs", fields[0], fields[1]]);
                                 });
                     } else
@@ -222,10 +222,10 @@ export function nfs_fstab_dialog(client, entry) {
 
     if (entry) {
         client.nfs.entry_users(entry)
-                .done(function (users) {
+                .then(function (users) {
                     show(users.length > 0);
                 })
-                .fail(function () {
+                .catch(function () {
                     show(false);
                 });
     } else
@@ -241,7 +241,7 @@ export class NFSDetails extends React.Component {
             fsys_size = client.nfs.get_fsys_size(entry);
 
         function checked(error_title, promise) {
-            promise.fail(function (error) {
+            promise.catch(error => {
                 dialog_open({
                     Title: error_title,
                     Body: error.toString()
@@ -257,18 +257,18 @@ export class NFSDetails extends React.Component {
         function unmount() {
             var location = cockpit.location;
             client.nfs.unmount_entry(entry)
-                    .done(function () {
+                    .then(function () {
                         if (!entry.fstab)
                             location.go("/");
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         nfs_busy_dialog(client,
                                         _("Unable to unmount filesystem"),
                                         entry, error,
                                         _("Stop and unmount"),
                                         function (users) {
                                             return client.nfs.stop_and_unmount_entry(users, entry)
-                                                    .done(function () {
+                                                    .then(function () {
                                                         if (!entry.fstab)
                                                             location.go("/");
                                                     });
@@ -283,17 +283,17 @@ export class NFSDetails extends React.Component {
         function remove() {
             var location = cockpit.location;
             client.nfs.remove_entry(entry)
-                    .done(function () {
+                    .then(function () {
                         location.go("/");
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         nfs_busy_dialog(client,
                                         _("Unable to remove mount"),
                                         entry, error,
                                         _("Stop and remove"),
                                         function (users) {
                                             return client.nfs.stop_and_remove_entry(users, entry)
-                                                    .done(function () {
+                                                    .then(function () {
                                                         location.go("/");
                                                     });
                                         });

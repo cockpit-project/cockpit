@@ -85,7 +85,7 @@ function checked(callback) {
 
         var promise = client.run(callback);
         if (promise)
-            promise.fail(function (error) {
+            promise.catch(function (error) {
                 dialog_open({
                     Title: _("Error"),
                     Body: error.toString()
@@ -162,13 +162,13 @@ export class StorageOnOff extends React.Component {
         function onChange(val) {
             var promise = self.props.onChange(val);
             if (promise) {
-                promise.always(() => { self.setState({ promise: null }) });
-                promise.fail((error) => {
+                promise.catch(error => {
                     dialog_open({
                         Title: _("Error"),
                         Body: error.toString()
                     });
-                });
+                })
+                        .finally(() => { self.setState({ promise: null }) });
             }
 
             self.setState({ promise: promise, promise_goal_state: val });

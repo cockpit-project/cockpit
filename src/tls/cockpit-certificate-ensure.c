@@ -14,7 +14,8 @@
 #define EXPIRY_THRESHOLD (30 * 24 * 60 * 60)
 
 static bool
-check_expiry (const char *filename)
+check_expiry (const char *filename,
+              bool        verbose)
 {
   Certificate *certificate = certificate_load (filename);
 
@@ -24,11 +25,26 @@ check_expiry (const char *filename)
 
   certificate_unref (certificate);
 
-  return expires > time (NULL) + EXPIRY_THRESHOLD;
+  time_t last_valid_expiry = time (NULL) + EXPIRY_THRESHOLD;
+  if (expires < last_valid_expiry)
+    {
+      debug (ENSURE, "Certificate %s expires %ld, which is before %ld",
+             filename, (long) expires, (long) last_valid_expiry);
+
+      if (verbose)
+        printf ("Would renew %s\n", filename);
+
+      return false;
+    }
+
+   debug (ENSURE, "Certificate %s expires %ld, which is after %ld",
+          filename, (long) expires, (long) last_valid_expiry);
+
+  return true;
 }
 
 static bool
-have_certificate (void)
+have_certificate (bool verbose)
 {
   char *error = NULL;
   char *filename = cockpit_certificate_locate (true, &error);
@@ -39,16 +55,24 @@ have_certificate (void)
   if (filename == NULL)
     {
       debug (ENSURE, "Couldn't locate any certificate");
+
+      if (verbose)
+        printf ("No certificate found\n");
+
       return false;
     }
 
   if (strstr (filename, "/0-self-signed.cert"))
     {
       debug (ENSURE, "Certificate is self-signed, checking expiry");
-      return check_expiry (filename);
+      if (!check_expiry (filename, verbose))
+        return false;
     }
 
   debug (ENSURE, "Certificate looks good: %s", filename);
+
+  if (verbose)
+    printf ("Would use certificate: %s\n", filename);
 
   return true;
 }
@@ -56,10 +80,22 @@ have_certificate (void)
 #define COCKPIT_CERTIFICATE_HELPER   LIBEXECDIR "/cockpit-certificate-helper"
 
 int
-main (void)
+main (int argc, char **argv)
 {
-  if (have_certificate ())
+  bool check = false;
+
+  if (argc == 1)
+    ;
+  else if (argc == 2 && strcmp (argv[1], "--check") == 0)
+    check = true;
+  else
+    errx (EXIT_FAILURE, "usage: %s [--check]", argv[0]);
+
+  if (have_certificate (check))
     return 0;
+
+  if (check)
+    return 1;
 
   debug (ENSURE, "Calling %s to create a certificate", COCKPIT_CERTIFICATE_HELPER);
 

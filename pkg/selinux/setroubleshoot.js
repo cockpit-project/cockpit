@@ -128,7 +128,7 @@ var initStore = function(rootElement) {
      * This function will only be called if the backend functionality is actually present
      */
     var deleteAlert = function(alertId) {
-        dataStore.client.capabilities.deleteAlert(alertId)
+        return dataStore.client.capabilities.deleteAlert(alertId)
                 .then(() => {
                     let idx;
                     for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {

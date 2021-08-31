@@ -23,13 +23,13 @@ import React from "react";
 import {
     Alert, AlertGroup, AlertActionCloseButton, Badge, Button,
     Divider,
-    Card, CardHeader, CardTitle, CardBody,
+    Card, CardActions, CardHeader, CardTitle, CardBody,
     ExpandableSection,
     Flex,
     Page, PageSection, PageSectionVariants,
     Switch, Stack, StackItem, Text, TextArea, TextVariants,
 } from "@patternfly/react-core";
-import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon, TrashIcon } from "@patternfly/react-icons";
+import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -296,17 +296,9 @@ class SELinuxStatus extends React.Component {
 export class SETroubleshootPage extends React.Component {
     constructor(props) {
         super(props);
-        this.handleDeleteAlert = this.handleDeleteAlert.bind(this);
+        this.state = { selected: {} };
         this.handleDismissError = this.handleDismissError.bind(this);
-    }
-
-    handleDeleteAlert(alertId, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        if (this.props.deleteAlert)
-            this.props.deleteAlert(alertId);
-        e.stopPropagation();
+        this.onSelect = this.onSelect.bind(this);
     }
 
     handleDismissError(e) {
@@ -316,6 +308,12 @@ export class SETroubleshootPage extends React.Component {
         if (this.props.dismissError)
             this.props.dismissError();
         e.stopPropagation();
+    }
+
+    onSelect(_, isSelected, rowId) {
+        const selected = Object.assign(this.state.selected);
+        selected[this.props.entries[rowId / 2].key] = isSelected;
+        this.setState({ selected });
     }
 
     render() {
@@ -352,19 +350,6 @@ export class SETroubleshootPage extends React.Component {
                         listingDetail = cockpit.format(_("Occurred $0"), timeformat.dateTime(itm.details.firstSeen));
                     }
                 }
-                var onDeleteClick;
-                if (itm.details)
-                    onDeleteClick = self.handleDeleteAlert.bind(self, itm.details.localId);
-                var dismissAction = (
-                    <Button className="selinux-alert-dismiss"
-                            isSmall
-                            variant="danger"
-                            aria-label={ _("Dismiss") }
-                            onClick={onDeleteClick}
-                            isDisabled={ !onDeleteClick || !self.props.deleteAlert }>
-                        <TrashIcon />
-                    </Button>
-                );
                 var tabRenderers = [
                     {
                         name: _("Solutions"),
@@ -392,22 +377,39 @@ export class SETroubleshootPage extends React.Component {
                 }
                 return ({
                     props: { key: itm.details ? itm.details.localId : index },
+                    selected: self.state.selected[itm.details ? itm.details.localId : index],
+                    disableSelection: !itm.details,
                     columns,
                     expandedContent: <ListingPanel tabRenderers={tabRenderers}
-                                                   listingDetail={listingDetail}
-                                                   listingActions={dismissAction} />
+                                                   listingDetail={listingDetail} />
                 });
             });
         }
-
+        let selectedCnt = 0;
+        for (const k in this.state.selected) if (this.state.selected[k]) selectedCnt++;
+        const onDeleteClick = () => {
+            for (const k in this.state.selected)
+                if (this.state.selected[k])
+                    this.props.deleteAlert(k).then(() => this.setState({ selected: { ...this.state.selected, [k]: false } }));
+        };
         troubleshooting = (
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
+                    {!emptyState ? <CardActions>
+                        <Button className="selinux-alert-dismiss"
+                                variant="danger"
+                                onClick={onDeleteClick}
+                                isDisabled={ !this.props.deleteAlert || !selectedCnt}>
+                            {selectedCnt ? cockpit.format(cockpit.ngettext(_("Dismiss $0 alert"), _("Dismiss $0 alerts"), selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
+                        </Button>
+                    </CardActions> : null}
                 </CardHeader>
                 <CardBody className="contains-list">
                     {!emptyState
                         ? <ListingTable aria-label={ title }
+                                  id="selinux-alerts"
+                                  onSelect={this.onSelect}
                                   gridBreakPoint=''
                                   emptyCaption={ emptyCaption }
                                   columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}

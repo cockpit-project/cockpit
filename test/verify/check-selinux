@@ -85,11 +85,11 @@ class TestSelinux(MachineCase):
             b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
-            num_alerts = b.call_js_func("ph_count", dismiss_sel)
-            b.click('tbody:first-of-type .pf-c-table__toggle button')
-            b.click('tbody:first-of-type ' + dismiss_sel)
+            num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
+            b.click('tbody:first-of-type input[type=checkbox]')
+            b.click(dismiss_sel)
             # wait for the dismissed alert to go away
-            b.wait_js_func("ph_count_check", dismiss_sel, num_alerts - 1)
+            num_alerts = b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
 
         # fix audit events first
         self.machine.execute(script=FIX_AUDITD)
@@ -143,7 +143,8 @@ class TestSelinux(MachineCase):
         b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
 
         # now dismiss the alert
-        b.click(row_selector + " " + dismiss_sel)
+        b.click(row_selector + " input[type=checkbox]")
+        b.click(dismiss_sel)
         b.wait_not_present(row_selector)
         b.wait_in_text("body", "No SELinux alerts.")
 
@@ -184,7 +185,8 @@ class TestSelinux(MachineCase):
             print("====================")
             raise
 
-        b.click(row_selector + " button{}".format(self.danger_btn_class))
+        b.click(row_selector + " input[type=checkbox]")
+        b.click(dismiss_sel)
         b.wait_not_present(row_selector)
 
         try:

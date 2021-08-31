@@ -58,7 +58,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "NeverReturn", [], { timeout: 10 })
                 .done(function(reply) {
-                    assert(false, "should not be reached");
+                    assert.ok(false, "should not be reached");
                 })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.Timeout");

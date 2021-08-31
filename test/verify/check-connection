@@ -588,14 +588,23 @@ class TestConnection(MachineCase):
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testCommandline(self):
         m = self.machine
-        m.execute(
-            'mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')
 
-        m.execute("XDG_CONFIG_DIRS=/test remotectl certificate --ensure")
-        self.assertTrue(m.execute("ls /test/cockpit/ws-certs.d/*"))
-        self.assertFalse(m.execute("ls /etc/cockpit/ws-certs.d/* || true"))
+        # Large requests are processed correctly with plain HTTP through cockpit-tls
+        m.start_cockpit(tls=True)
+        self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
 
-        m.execute("XDG_CONFIG_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(self.ws_executable))
+        # Large requests are processed correctly with TLS through cockpit-tls
+        self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
+        m.stop_cockpit()
+
+        self.restore_dir("/etc/cockpit")
+        m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
+
+        m.execute("remotectl certificate --ensure")
+        self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
+
+        m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
 
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))
@@ -608,13 +617,6 @@ class TestConnection(MachineCase):
 
         # Large requests are processed correctly with TLS
         self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
-
-        # Large requests are processed correctly with plain HTTP through cockpit-tls
-        m.start_cockpit(tls=True)
-        self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
-
-        # Large requests are processed correctly with TLS through cockpit-tls
-        self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
 
     def testHeadRequest(self):
         m = self.machine

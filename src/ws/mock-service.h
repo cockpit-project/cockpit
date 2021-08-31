@@ -25,8 +25,4 @@
 GObject *   mock_service_create_and_export    (GDBusConnection *connection,
                                                const gchar *object_manager_path);
 
-void        mock_service_start                (void);
-
-void        mock_service_stop                 (void);
-
 #endif /* __MOCK_SERVICE_H__ */

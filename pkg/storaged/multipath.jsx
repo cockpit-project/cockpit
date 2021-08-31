@@ -56,7 +56,7 @@ export class MultipathAlert extends React.Component {
                 return;
             cockpit.spawn(["mpathconf", "--enable", "--with_multipathd", "y"],
                           { superuser: "try" })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         dialog_open({
                             Title: _("Error"),
                             Body: error.toString()

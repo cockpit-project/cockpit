@@ -112,7 +112,7 @@ export class CryptoTab extends React.Component {
                         this.setState({ slots: data.slots, luks_version: data.version, max_slots: data.max_slots });
                     }
                 });
-                this.monitor_channel.fail(err => {
+                this.monitor_channel.catch(err => {
                     this.setState({ slots: [], slot_error: err });
                 });
             }

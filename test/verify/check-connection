@@ -601,7 +601,7 @@ class TestConnection(MachineCase):
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
 
-        m.execute("remotectl certificate --ensure")
+        m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
         self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
 
         m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")

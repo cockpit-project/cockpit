@@ -31,6 +31,7 @@ typedef struct {
   GDBusConnection *connection;
   GDBusObjectManagerServer *object_manager;
   GHashTable *other_names;
+  GList *never_return_invocations;
 } MockData;
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -53,6 +54,10 @@ on_handle_never_return (TestFrobber *object,
                         GDBusMethodInvocation *invocation,
                         gpointer user_data)
 {
+  MockData *data = user_data;
+  /* just ignoring the call causes long TestDBus shutdown errors, as the unanswered call spooks around in the server's brain until
+   * the global D-Bus timeout; so remember them and answer on shutdown */
+  data->never_return_invocations = g_list_append (data->never_return_invocations, g_object_ref (invocation));
   return TRUE;
 }
 
@@ -711,6 +716,12 @@ static void
 mock_data_free (gpointer data)
 {
   MockData *mock_data = data;
+
+  /* answer all NeverReturn() calls now, to avoid service shutdown hang */
+  for (GList *elem = mock_data->never_return_invocations; elem; elem = elem->next)
+    g_dbus_method_invocation_return_value (elem->data, NULL);
+  g_list_free_full (mock_data->never_return_invocations, g_object_unref);
+
   g_object_unref (mock_data->connection);
   g_hash_table_destroy (mock_data->other_names);
   g_free (mock_data);
@@ -768,7 +779,7 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_signal_connect (exported_frobber, "handle-hello-world",
                     G_CALLBACK (on_handle_hello_world), NULL);
   g_signal_connect (exported_frobber, "handle-never-return",
-                    G_CALLBACK (on_handle_never_return), NULL);
+                    G_CALLBACK (on_handle_never_return), mock_data);
   g_signal_connect (exported_frobber,
                     "handle-test-primitive-types",
                     G_CALLBACK (on_handle_test_primitive_types), NULL);

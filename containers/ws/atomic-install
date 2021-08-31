@@ -65,4 +65,4 @@ fi
 
 # Ensure we have certificates
 /bin/mount --bind /host/etc/cockpit /etc/cockpit
-/usr/sbin/remotectl certificate --ensure
+/usr/libexec/cockpit-certificate-ensure

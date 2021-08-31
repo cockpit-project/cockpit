@@ -468,6 +468,20 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(2) dd', "NAME")
         b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(3) dd', "VENDOR")
 
+        # Clean up after lazy OEMs, falls back to board vendor/name
+        m.write("/sys/class/dmi/id/sys_vendor", "To Be Filled By O.E.M.")
+        m.write("/sys/class/dmi/id/product_name", "To Be Filled By O.E.M.")
+        m.write("/sys/class/dmi/id/board_vendor", "brdven")
+        m.write("/sys/class/dmi/id/board_name", "brdnam")
+        b.reload()
+        b.go("/system")
+        b.enter_page('/system')
+        b.wait_in_text('#system_information_hardware_text', "brdven brdnam")
+        b.click(hardware_page_link)
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(2) dd', "brdnam")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(3) dd', "brdven")
+
         # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
         m.write("/tmp/cpuinfo", """processor\t: 0
 vendor_id\t: GenuineIntel

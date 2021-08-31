@@ -168,6 +168,8 @@ export class ListingTable extends React.Component {
             // For selectable rows
             if ('selected' in currentValue)
                 rowFormatted.selected = currentValue.selected;
+            if ('disableSelection' in currentValue)
+                rowFormatted.disableSelection = currentValue.disableSelection;
 
             // For expandable rows
             if (currentValue.expandedContent)

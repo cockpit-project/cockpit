@@ -19,12 +19,10 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, Button, Modal } from '@patternfly/react-core';
+import { Alert, Button, Form, FormGroup, Modal, TextInput } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
-
-import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
@@ -41,6 +39,7 @@ function sudo_polish(msg) {
 class UnlockDialog extends React.Component {
     render() {
         const { state } = this.props;
+        const validated = state.error_variant == "danger" ? "error" : state.error_variant;
 
         let title = null;
         let title_icon = null;
@@ -54,23 +53,29 @@ class UnlockDialog extends React.Component {
             }
 
             title = _("Switch to administrative access");
-
             body = (
                 <>
                     { state.error && <><Alert variant={state.error_variant || 'danger'} isInline title={state.error} /><br /></> }
-                    <form className="ct-form"
-                          onSubmit={event => { state.apply(); event.preventDefault(); return false }}>
+                    <Form isHorizontal onSubmit={event => { state.apply(); event.preventDefault(); return false }}>
                         { state.prompt.message && <span>{state.prompt.message}</span> }
-                        { state.prompt.prompt && <label className="control-label">{state.prompt.prompt}</label> }
-                        <input className="form-control" type={state.prompt.echo ? "text" : "password"}
-                               value={state.prompt.value}
-                               autoFocus
-                               disabled={state.busy}
-                               onChange={event => {
-                                   state.change(event.target.value);
-                               }} />
-                    </form>
-                </>);
+                        <FormGroup
+                          fieldId="switch-to-admin-access-password"
+                          label={state.prompt.prompt}
+                          validated={!state.error ? "default" : validated || "error"}
+                        >
+                            <TextInput
+                                autoFocus
+                                id="switch-to-admin-access-password"
+                                isDisabled={state.busy}
+                                onChange={state.change}
+                                type={!state.prompt.echo ? 'password' : 'text'}
+                                validated={!state.error ? "default" : validated || "error"}
+                                value={state.prompt.value}
+                            />
+                        </FormGroup>
+                    </Form>
+                </>
+            );
 
             footer = (
                 <>

@@ -215,7 +215,7 @@ install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 %endif
 
 # only ship deprecated PatternFly API for stable releases
-%if 0%{?fedora} <= 33 || 0%{?rhel} <= 8
+%if 0%{?rhel} <= 8
     ln -s cockpit.css.gz %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css.gz
 %endif
 
@@ -428,10 +428,8 @@ Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 Requires: sos
 %endif
-%if 0%{?fedora} >= 29
-# 0.7.0 (actually) supports task cancellation.
-# 0.7.1 fixes tasks never announcing completion.
-Recommends: (reportd >= 0.7.1 if abrt)
+%if 0%{?fedora}
+Recommends: (reportd if abrt)
 %endif
 # NPM modules which are also available as packages
 Provides: bundled(js-jquery) = %{npm-version:jquery}

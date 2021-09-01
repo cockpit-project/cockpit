@@ -1,17 +1,1 @@
-#!/bin/sh
-# Calls webpack-make in watch mode for the given pkg/<page>
-
-set -eu
-cd "$(realpath -m "$0"/../..)"
-
-if [ -z "${1:-}" ]; then
-    echo "Usage: $0 <page in pkg/> [webpack-make options..]" >&2
-    exit 1
-fi
-page="$1"
-shift
-
-# disable eslint by default, unless explicitly enabled
-export ESLINT=${ESLINT:-0}
-
-"tools/webpack-make" "$page" -w "$@"
+webpack-make

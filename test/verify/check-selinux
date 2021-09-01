@@ -144,6 +144,7 @@ class TestSelinux(MachineCase):
 
         # now dismiss the alert
         b.click(row_selector + " input[type=checkbox]")
+        b.assert_pixels("#app", "selinux", ignore=["table .ct-listing-panel-head"])
         b.click(dismiss_sel)
         b.wait_not_present(row_selector)
         b.wait_in_text("body", "No SELinux alerts.")

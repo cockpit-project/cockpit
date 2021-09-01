@@ -72,7 +72,6 @@ class TestTeam(NetworkCase):
 
         # Deactivate the team and make sure it is still there after a
         # reload.
-        b.wait_text_not("#network-interface-mac", "")
         self.wait_onoff(".pf-c-card__header:contains('tteam')", True)
         self.toggle_onoff(".pf-c-card__header:contains('tteam')")
         self.wait_for_iface_setting('Status', 'Inactive')

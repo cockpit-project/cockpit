@@ -621,7 +621,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # pam_faillock tries to chown the file to be owned by the user itself,
         # which is currently an selinux fail on the following distros:
-        if m.image in ['centos-8-stream', 'fedora-testing', 'fedora-33', 'fedora-34', 'rhel-8-4', 'rhel-8-5', 'rhel-8-5-distropkg', 'rhel-9-0']:
+        if m.image in ['centos-8-stream', 'fedora-testing', 'fedora-34', 'rhel-8-4', 'rhel-8-5', 'rhel-8-5-distropkg', 'rhel-9-0']:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 

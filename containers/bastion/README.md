@@ -7,7 +7,7 @@ By default on login cockpit will attempt to establish a ssh connection to the gi
 
 You can also mount an encrypted private key inside the container and set the environment variable `COCKPIT_SSH_KEY_PATH` to point to it.
 
-`docker run -e COCKPIT_SSH_KEY_PATH='/var/secret/id_rsa' -v ~/.ssh/id_rsa:/var/secret/id_rsa cockpit/bastion`
+`docker run -e COCKPIT_SSH_KEY_PATH='/var/secret/id_rsa' -v ~/.ssh/id_rsa:/var/secret/id_rsa cockpit/bastion:Z`
 
 When setup like this cockpit will use the provided password to attempt to decrypt the key and attempt to establish a ssh connection to the given host using that private key.
 

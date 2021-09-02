@@ -1206,6 +1206,7 @@ class MachineCase(unittest.TestCase):
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         "pcp-archive: no such metric: kernel.all.cpu.nice: Unknown metric name",
         "pcp-archive: instance name lookup failed:.*",
+        "pcp-archive: couldn't create pcp archive context for.*",
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

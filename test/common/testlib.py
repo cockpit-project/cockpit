@@ -700,6 +700,8 @@ class Browser:
 
         ignore_rects = list(map(relative_clip, map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
+        if bool(os.environ.get("TEST_MOBILE", "")):
+            base += "-mobile"
         filename = base + "-pixels.png"
         ref_filename = os.path.join(reference_dir, filename)
         ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)

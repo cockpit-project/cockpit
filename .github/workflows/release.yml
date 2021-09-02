@@ -33,3 +33,35 @@ jobs:
           export HOME=$(getent passwd $(id -u) | cut -f6 -d:)
           cd /build
           release-runner -r https://github.com/$GITHUB_REPOSITORY -t $(basename $GITHUB_REF) tools/cockpituous-release
+
+  release-node-cache:
+    runs-on: ubuntu-latest
+    environment: node-cache
+    # done via deploy key, token needs no write permissions at all
+    permissions:
+      contents: read
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Set up git
+        run: |
+            git config user.name "GitHub Workflow"
+            git config user.email "cockpituous@cockpit-project.org"
+
+      - name: Tag node-cache
+        run: |
+          set -eux
+          TAG="$(basename $GITHUB_REF)"
+
+          tools/node-modules checkout
+          cd node_modules
+          git tag "$TAG"
+
+          git remote add cache "ssh://git@github.com/${GITHUB_REPOSITORY%/*}/node-cache"
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
+          # make this idempotent: delete an existing tag
+          git push cache :"$TAG" || true
+          git push cache tag "$TAG"
+          ssh-add -D

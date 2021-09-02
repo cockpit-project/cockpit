@@ -75,12 +75,19 @@ class CDP:
         self.inject_helpers = inject_helpers
         self.browser = os.environ.get("TEST_BROWSER", "chromium")
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
+        self.mobile = bool(os.environ.get("TEST_MOBILE", ""))
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None
         self._browser_home = None
         self._browser_path = None
         self._cdp_port_lockfile = None
+        if not self.mobile:
+            self.window_width = "1920"
+            self.window_height = "1200"
+        else:
+            self.window_width = "414"
+            self.window_height = "1920"
 
     def invoke(self, fn, **kwargs):
         """Call a particular CDP method such as Runtime.evaluate
@@ -175,7 +182,7 @@ class CDP:
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                     "--font-render-hinting=none",
-                    "--v=0", "--window-size=1920x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"]
+                    "--v=0", f"--window-size={self.window_width}x{self.window_height}", f"--remote-debugging-port={cdp_port}", "about:blank"]
         elif self.browser == "firefox":
             subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
             profile = glob.glob(os.path.join(self._browser_home, ".mozilla/firefox/*.blank"))[0]
@@ -197,7 +204,7 @@ class CDP:
             with open(os.path.join(profile, "handlers.json"), "w") as f:
                 f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
 
-            cmd = [exe, "-P", "blank", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
+            cmd = [exe, "-P", "blank", f"--window-size={self.window_width},{self.window_height}", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
             if not self.show_browser:
                 cmd.insert(3, "--headless")
             return cmd

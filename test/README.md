@@ -107,6 +107,8 @@ You can set these environment variables to configure the test suite:
     TEST_SHOW_BROWSER  Set to run browser interactively. When not specified,
                        browser is run in headless mode.
 
+    TEST_MOBILE  Set to run browser with mobile screen window size.
+
     TEST_TIMEOUT_FACTOR Scale normal timeouts by given integer. Useful for
                         slow/busy testbeds or architectures.
 

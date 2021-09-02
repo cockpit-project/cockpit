@@ -32,7 +32,7 @@ class BastionContainerMachine(VirtMachine):
     def start_cockpit(self, *args, **kwargs):
         extra = ""
         if kwargs.get("key_based"):
-            extra = " -e COCKPIT_SSH_KEY_PATH='/var/secret/enc_rsa' -v /tmp/enc_rsa:/var/secret/enc_rsa"
+            extra = " -e COCKPIT_SSH_KEY_PATH='/var/secret/enc_rsa' -v /tmp/enc_rsa:/var/secret/enc_rsa:Z"
             self.upload([AUTH_KEY], "/tmp")
 
         self.execute("podman run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 "

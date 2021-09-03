@@ -20,6 +20,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Nav, NavList, NavItem } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 
@@ -56,7 +57,7 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
                                  isActive={activeItem == key}>
                             <a href="#">
                                 {service_tabs[key]}
-                                {tabErrors[key] ? <span className="fa fa-exclamation-circle" /> : null}
+                                {tabErrors[key] ? <ExclamationCircleIcon className="ct-exclamation-circle" /> : null}
                             </a>
                         </NavItem>
                     );

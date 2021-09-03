@@ -25,6 +25,7 @@ import {
     Tooltip, TooltipPosition, Badge,
 } from '@patternfly/react-core';
 import { ListingTable } from 'cockpit-components-table.jsx';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 
@@ -99,7 +100,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
             title: (
                 <Flex id={cockpit.format("$0-service-unit-state", Id)} className='service-unit-status-flex-container'>
                     {CombinedState && <FlexItem flex={{ default: 'flex_2' }} className={"service-unit-status" + (HasFailed ? " service-unit-status-failed" : "")}>
-                        {HasFailed && <span className='fa fa-exclamation-circle' />}
+                        {HasFailed && <ExclamationCircleIcon className='ct-exclamation-circle' />}
                         {CombinedState}
                     </FlexItem>}
                     <FlexItem flex={{ default: 'flex_1' }}>

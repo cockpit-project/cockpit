@@ -779,7 +779,7 @@ ExecStart=/usr/bin/false
 
         # Services tab should have icon
         # Aab-fail should be at the top, and have failed
-        b.wait_visible('a:contains("System services") .fa-exclamation-circle')
+        b.wait_visible('a:contains("System services") .ct-exclamation-circle')
         b.wait_visible('tr[data-goto-unit="aab-fail.service"]')
         b.wait_visible('tr[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
@@ -806,7 +806,7 @@ ExecStart=/usr/bin/false
 
         if self.count_failures() == 0:
             # Services tab should not have icon
-            b.wait_not_present('a:contains("System services") .fa-exclamation-circle')
+            b.wait_not_present('a:contains("System services") .ct-exclamation-circle')
 
             # Nav link should not have icon
             b.switch_to_top()

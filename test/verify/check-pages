@@ -27,6 +27,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipDistroPackage()
+@skipMobile()
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine

@@ -612,6 +612,7 @@ ExecStart=/bin/true
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
+    @skipMobile()
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser
@@ -932,6 +933,7 @@ ExecStart=/bin/true
         self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
+    @skipMobile()
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser

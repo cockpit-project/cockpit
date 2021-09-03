@@ -30,6 +30,7 @@ from testlib import *
 @skipDistroPackage()
 class TestLogin(MachineCase):
 
+    @skipMobile()
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -243,6 +244,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # But after that login, they should be gone again
         verify_correct(True, 0)
 
+    @skipMobile()
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -344,6 +346,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
+    @skipMobile()
     def testConversation(self):
         m = self.machine
         b = self.browser

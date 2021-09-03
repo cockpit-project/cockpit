@@ -386,6 +386,7 @@ class TestSystemInfo(MachineCase):
         self.allow_restart_journal_messages()
 
     @nondestructive
+    @skipMobile()
     def testHardwareInfo(self):
         b = self.browser
         m = self.machine

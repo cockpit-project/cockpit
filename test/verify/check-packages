@@ -52,6 +52,7 @@ test_html = """
 @nondestructive
 class TestPackages(MachineCase):
 
+    @skipMobile()
     def testBasic(self):
         m = self.machine
         b = self.browser

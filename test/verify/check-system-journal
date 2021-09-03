@@ -71,6 +71,7 @@ class TestJournal(MachineCase):
         sleep = m.spawn("sleep 1m", "sleep.log")
         m.execute("kill -SEGV %d" % (sleep))
 
+    @skipMobile()
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
@@ -327,6 +328,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_journal_messages(".*Data from the specified boot .* is not available: No such boot ID in journal.*")
 
+    @skipMobile()
     def testRebootAndTime(self):
         b = self.browser
         m = self.machine
@@ -494,6 +496,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_text(".pf-c-card__title", "[no data]")
 
     @nondestructive
+    @skipMobile()
     def testLogLevel(self):
 
         b = self.browser
@@ -525,6 +528,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-4", "rhel-8-5", "rhel-9-0", "centos-8-stream")
     @nondestructive
+    @skipMobile()
     def testAbrtSegv(self):
         b = self.browser
         m = self.machine

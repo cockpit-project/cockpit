@@ -1049,6 +1049,7 @@ class TestMultiCPU(MachineCase):
 
 @skipImage("no PCP support", "fedora-coreos")
 @skipDistroPackage()
+@skipMobile()
 class TestGrafanaClient(MachineCase):
 
     provision = {

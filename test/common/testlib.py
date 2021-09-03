@@ -67,6 +67,7 @@ __all__ = (
     'no_retry_when_changed',
     'skipImage',
     'skipDistroPackage',
+    'skipMobile',
     'skipBrowser',
     'skipPackage',
     'enableAxe',
@@ -1575,6 +1576,12 @@ def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return generic_metadata_setter("_testlib__skipImage", args)
+
+
+def skipMobile():
+    if bool(os.environ.get("TEST_MOBILE", "")):
+        return unittest.skip("mobile: This test breaks on small screen sizes")
+    return generic_metadata_setter("_testlib__skipMobile", None)
 
 
 def skipDistroPackage():

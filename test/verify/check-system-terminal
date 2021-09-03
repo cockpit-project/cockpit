@@ -94,7 +94,10 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         wait_line(n + 2, prompt)
 
         b.key_press('echo -e "1\\u0041"\r')
-        wait_line(n + 3, '1A')
+        if not b.cdp.mobile:
+            wait_line(n + 3, '1A')
+        else:
+            wait_line(n + 4, '1A')
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')
@@ -140,9 +143,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             # Execute command
             wait_line(n, prompt)
             b.key_press('echo "XYZ"\r')
-            wait_line(n + 1, "XYZ")
+            echo_result_line = n + 1
+            if b.cdp.mobile:
+                echo_result_line = n + 2
 
-            sel = line_sel(n + 1)
+            wait_line(echo_result_line, "XYZ")
+
+            sel = line_sel(echo_result_line)
 
             # Highlight 40px (3 letters, never wider that ~14px)
             select_line(sel, 40)
@@ -156,9 +163,9 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             b.click('.contextMenu .contextMenuOption:nth-child(2)')
 
             # Wait for text to show up
-            wait_line(n + 2, prompt + "XYZ")
+            wait_line(echo_result_line + 1, prompt + "XYZ")
             b.key_press('\r')
-            b.wait_in_text(line_sel(n + 3), 'XYZ')
+            b.wait_in_text(line_sel(echo_result_line + 2), 'XYZ')
 
         # now reset terminal
         b.click('button:contains("Reset")')
@@ -169,9 +176,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # Execute another command
         wait_line(n, prompt)
         b.key_press('echo "foo"\r')
-        wait_line(n + 1, "foo")
+        echo_result_line = n + 1
+        if b.cdp.mobile:
+            echo_result_line = n + 2
 
-        sel = line_sel(n + 1)
+        wait_line(echo_result_line, "foo")
+
+        sel = line_sel(echo_result_line)
         # Highlight 40px (3 letters, never wider that ~14px)
         select_line(sel, 40)
 
@@ -180,12 +191,12 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.key_press(chr(45), 8, use_ord=True)  # Shift + Insert
 
         # Wait for text to show up
-        wait_line(n + 2, prompt + "foo")
+        wait_line(echo_result_line + 1, prompt + "foo")
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
         b.key_press('\rclear\recho $PATH > /tmp/path\r')
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
-        wait_line(n + 1, prompt)
+        wait_line(echo_result_line, prompt)
         path = m.execute("cat /tmp/path").strip()
         if m.ostree_image:
             self.assertIn("/usr/local/bin:/usr/bin", path)

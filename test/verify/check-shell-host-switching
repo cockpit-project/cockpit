@@ -329,6 +329,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
+    @skipMobile()
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']

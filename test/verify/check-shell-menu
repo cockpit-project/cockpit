@@ -27,6 +27,7 @@ from testlib import *
 class TestMenu(MachineCase):
 
     @enableAxe
+    @skipMobile()
     def testBasic(self):
         b = self.browser
         m = self.machine

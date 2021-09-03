@@ -405,6 +405,7 @@ class TestMultiMachine(MachineCase):
         self.machine.start_cockpit()
         self.checkDirectLogin('/')
 
+    @skipMobile()
     def testUrlRoot(self):
         b = self.browser
         m = self.machine

@@ -459,6 +459,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
+    @skipMobile()
     def testLogs(self):
         b = self.browser
 
@@ -742,6 +743,7 @@ WantedBy=default.target
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
 
+    @skipMobile()
     def testNotifyFailed(self):
         m = self.machine
         b = self.browser
@@ -818,6 +820,7 @@ ExecStart=/usr/bin/false
             b.wait_not_in_text(".system-health-events", "service has failed")
             b.wait_not_in_text(".system-health-events", "services have failed")
 
+    @skipMobile()
     def testHiddenFailure(self):
         m = self.machine
         b = self.browser

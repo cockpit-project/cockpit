@@ -141,7 +141,7 @@ export class SystemInfomationCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <a href="#" className="no-left-padding" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
+                    <a href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
                         {_("View hardware details")}
                     </a>
                 </CardFooter>

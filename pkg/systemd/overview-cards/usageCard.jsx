@@ -145,7 +145,7 @@ export class UsageCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <a href="#" className="no-left-padding" onClick={ev => { ev.preventDefault(); cockpit.jump("/metrics", cockpit.transport.host) }}>
+                    <a href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/metrics", cockpit.transport.host) }}>
                         {_("View details and history")}
                     </a>
                 </CardFooter>

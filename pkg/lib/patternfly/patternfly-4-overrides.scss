@@ -123,15 +123,6 @@ svg {
 }
 
 .pf-c-toolbar {
-    // There should be an opt-in to make toolbars sticky.
-    // For now, we'll use a ct-sticky class while we wait for an official solution.
-    // https://github.com/patternfly/patternfly/issues/4113
-    &.ct-sticky {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-    }
-
     // Make summary content use the same vertical space as the filter toggle,
     // when possible.
     // https://github.com/patternfly/patternfly-design/issues/1055

@@ -30,10 +30,6 @@ import { ServerTimeConfig } from 'serverTime.js';
 import * as realmd from "./realmd-operation.js";
 import { superuser } from "superuser";
 
-/* These add themselves to jQuery so just including is enough */
-import "patterns";
-import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
-
 import "./configurationCard.scss";
 
 const _ = cockpit.gettext;

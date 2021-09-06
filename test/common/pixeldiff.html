@@ -3,7 +3,6 @@
     <head>
         <title>Cockpit Integration Tests - Pixel diffs</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
         <style>
 /*
 MIT License
@@ -564,24 +563,42 @@ window.setup_pixelcompare = function() {
 };
         </script>
         <script>
-$(function () {
-    var base = window.location.hash.replace("#", "");
-    $('#key').text(base);
-    $('#new').text(base + "-pixels.png").attr("href", base + "-pixels.png");
-    var img_now = $("<img>", { src: base + "-pixels.png", width: "100%" });
-    var img_ref = $("<img>", { src: base + "-reference.png", width: "100%" });
-    var img_delta = $("<img>", { src: base + "-delta.png", width: "100%" });
-    img_now.on("load", function () {
-        var diff = $('#diff')[0];
-        diff.style.width = img_now[0].naturalWidth + "px";
-        diff.style.height = img_now[0].naturalHeight + "px";
-        $(diff).append(
-            $("<div class=pixelcompare data-pixelcompare>").append(img_now, img_ref));
+document.addEventListener("DOMContentLoaded", () => {
+    const base = window.location.hash.replace("#", "");
+    document.getElementById("key").textContent = base;
+
+    const e_new = document.getElementById("new");
+    e_new.textContent = base + "-pixels.png";
+    e_new.setAttribute("href", base + "-pixels.png");
+
+    const img_now = document.createElement("img");
+    img_now.setAttribute("src", base + "-pixels.png");
+    img_now.setAttribute("width", "100%");
+
+    const img_ref = document.createElement("img");
+    img_ref.setAttribute("src", base + "-reference.png");
+    img_ref.setAttribute("width", "100%");
+
+    const img_delta = document.createElement("img");
+    img_delta.setAttribute("src", base + "-delta.png");
+    img_delta.setAttribute("width", "100%");
+
+    img_now.addEventListener("load", () => {
+        const diff = document.getElementById("diff");
+        diff.style.width = img_now.naturalWidth + "px";
+        diff.style.height = img_now.naturalHeight + "px";
+        const ecompare = document.createElement("div");
+        ecompare.classList.add("pixelcompare");
+        ecompare.setAttribute("data-pixelcompare", "");
+        ecompare.appendChild(img_now);
+        ecompare.appendChild(img_ref);
+        diff.appendChild(ecompare);
         window.setup_pixelcompare();
-        var delta = $('#delta')[0];
-        delta.style.width = img_now[0].naturalWidth + "px";
-        delta.style.height = img_now[0].naturalHeight + "px";
-        $(delta).append(img_delta);
+
+        const delta = document.getElementById("delta");
+        delta.style.width = img_now.naturalWidth + "px";
+        delta.style.height = img_now.naturalHeight + "px";
+        delta.appendChild(img_delta);
     });
 });
         </script>

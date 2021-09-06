@@ -70,7 +70,7 @@ client.init = function(capabilitiesChangedCallback) {
         client.alertCallback = callback;
     };
 
-    // returns a jquery promise
+    // returns a promise
     client.getAlerts = function(since) {
         return new Promise((resolve, reject) => {
             let call;

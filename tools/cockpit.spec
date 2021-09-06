@@ -433,7 +433,6 @@ Recommends: (reportd if abrt)
 %endif
 # NPM modules which are also available as packages
 Provides: bundled(js-jquery) = %{npm-version:jquery}
-Provides: bundled(xstatic-bootstrap-datepicker-common) = %{npm-version:bootstrap-datepicker}
 Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
 
 %description system

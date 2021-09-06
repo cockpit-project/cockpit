@@ -18,7 +18,6 @@
  */
 
 import cockpit from "cockpit";
-import $ from "jquery";
 import { superuser } from "superuser";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
@@ -35,21 +34,26 @@ function sos_init() {
 }
 
 function sos_error(message, extra) {
-    $("#sos-alert, #sos-progress, #sos-download").hide();
-    $("#sos-error .alert-message").text(message);
+    document.getElementById("sos-alert").setAttribute("hidden", "hidden");
+    document.getElementById("sos-progress").setAttribute("hidden", "hidden");
+    document.getElementById("sos-download").setAttribute("hidden", "hidden");
+    document.querySelector("#sos-error .alert-message").textContent = message;
+
+    const e_extra = document.getElementById("sos-error-extra");
     if (extra) {
-        $("#sos-error-extra").text(extra);
-        $("#sos-error-extra").show();
+        e_extra.textContent = extra;
+        e_extra.removeAttribute("hidden");
     } else
-        $("#sos-error-extra").hide();
-    $("#sos-error").show();
-    $("#sos-cancel").text(_("Close"));
+        e_extra.setAttribute("hidden", "hidden");
+    document.getElementById("sos-cancel").textContent = _("Close");
+    document.getElementById("sos-error").removeAttribute("hidden");
 }
 
 function sos_create() {
-    $("#sos-progress .progress-bar").css("width", "0%");
-    $("#sos-download, #sos-error").hide();
-    $("#sos-cancel").text(_("Cancel"));
+    document.querySelector("#sos-progress .progress-bar").style.width = "0%";
+    document.getElementById("sos-download").setAttribute("hidden", "hidden");
+    document.getElementById("sos-error").setAttribute("hidden", "hidden");
+    document.getElementById("sos-cancel").textContent = _("Cancel");
 
     sos_archive_url = null;
     sos_archive_files = [];
@@ -91,8 +95,9 @@ function sos_create() {
                     break;
                 }
             }
-            $("#sos-alert, #sos-progress").show();
-            $("#sos-progress .progress-bar").css("width", p.toString() + "%");
+            document.getElementById("sos-alert").removeAttribute("hidden");
+            document.getElementById("sos-progress").removeAttribute("hidden");
+            document.querySelector("#sos-progress .progress-bar").style.width = p.toString() + "%";
         }
     });
     task.done(function () {
@@ -123,9 +128,11 @@ function sos_create() {
                 }));
                 var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
                 sos_archive_url = prefix + '?' + query;
-                $("#sos-progress, #sos-error").hide();
-                $("#sos-alert, #sos-download").show();
-                $("#sos-cancel").text(_("Close"));
+                document.getElementById("sos-progress").setAttribute("hidden", "hidden");
+                document.getElementById("sos-error").setAttribute("hidden", "hidden");
+                document.getElementById("sos-alert").removeAttribute("hidden");
+                document.getElementById("sos-download").removeAttribute("hidden");
+                document.getElementById("sos-cancel").textContent = _("Close");
             } else {
                 sos_error(_("No archive has been created."), output);
             }
@@ -153,47 +160,47 @@ function sos_cancel() {
     }
     sos_archive_url = null;
     sos_archive_files = [];
-    $("#sos").prop('hidden', true);
+    document.getElementById("sos").setAttribute("hidden", "hidden");
 }
 
 function sos_download() {
     // We download via a hidden iframe to get better control over
     // the error cases.
-    var iframe = $('<iframe>').attr('src', sos_archive_url)
-            .hide();
-    iframe.on('load', function (event) {
-        var title = iframe.get(0).contentDocument.title;
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("src", sos_archive_url);
+    iframe.setAttribute("hidden", "hidden");
+    iframe.addEventListener("load", () => {
+        const title = iframe.contentDocument.title;
         if (title)
             sos_error(title);
     });
-    $('body').append(iframe);
+    document.body.appendChild(iframe);
 }
 
-function init() {
-    $(function () {
-        $("#create-button").on("click", () => {
-            $("#sos").prop('hidden', false);
-            sos_init();
-        });
-        $("#sos-cancel").on("click", sos_cancel);
-        $('#sos-download button').on('click', sos_download);
-
-        cockpit.translate();
-        $('body').prop("hidden", false);
-
-        function update_admin_allowed() {
-            $("#switch-instructions").toggle(superuser.allowed === false);
-            $("#create-button").toggle(!!superuser.allowed);
-        }
-
-        $(superuser).on("changed", update_admin_allowed);
-        update_admin_allowed();
-
-        // Send a 'init' message.  This tells the tests that we
-        // are ready to go.
-        //
-        cockpit.transport.wait(function () { });
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("create-button").addEventListener("click", () => {
+        document.getElementById("sos").removeAttribute("hidden");
+        sos_init();
     });
-}
+    document.getElementById("sos-cancel").addEventListener("click", sos_cancel);
+    document.querySelector("#sos-download button").addEventListener("click", sos_download);
 
-init();
+    cockpit.translate();
+    document.body.removeAttribute("hidden");
+
+    function update_admin_allowed() {
+        document.getElementById("switch-instructions").style.display = superuser.allowed === false ? "block" : "none";
+        if (superuser.allowed)
+            document.getElementById("create-button").removeAttribute("hidden");
+        else
+            document.getElementById("create-button").setAttribute("hidden", "hidden");
+    }
+
+    superuser.addEventListener("changed", update_admin_allowed);
+    update_admin_allowed();
+
+    // Send a 'init' message.  This tells the tests that we
+    // are ready to go.
+    //
+    cockpit.transport.wait(() => { });
+});

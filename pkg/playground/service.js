@@ -1,37 +1,34 @@
-import $ from "jquery";
 import cockpit from "cockpit";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 
 import * as service from "service";
 
-$(function() {
-    var proxy;
+document.addEventListener("DOMContentLoaded", () => {
+    let proxy;
 
     function navigate() {
         proxy = service.proxy(cockpit.location.path[0] || "");
 
         function show() {
             function s(t) {
-                $('#' + t).text(JSON.stringify(proxy[t]));
+                document.getElementById(t).textContent = JSON.stringify(proxy[t]);
             }
             s('exists');
             s('state');
             s('enabled');
         }
 
-        $(proxy).on('changed', show);
+        proxy.addEventListener("changed", show);
         show();
 
-        $("body").prop("hidden", false);
+        document.body.removeAttribute("hidden");
     }
 
     function b(t) {
-        $('#' + t).on('click', function () {
+        document.getElementById(t).addEventListener("click", () => {
             proxy[t]()
-                    .fail(function (error) {
-                        console.error("action", t, "failed:", JSON.stringify(error));
-                    });
+                    .catch(error => console.error("action", t, "failed:", JSON.stringify(error)));
         });
     }
 
@@ -40,6 +37,6 @@ $(function() {
     b('enable');
     b('disable');
 
-    $(cockpit).on('locationchanged', navigate);
+    cockpit.addEventListener("locationchanged", navigate);
     navigate();
 });

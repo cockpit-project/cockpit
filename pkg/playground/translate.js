@@ -1,48 +1,44 @@
-import $ from "jquery";
 import cockpit from "cockpit";
 import { mustache } from "mustache";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 
 const _ = cockpit.gettext;
-var C_ = cockpit.gettext;
+const C_ = cockpit.gettext;
 
-$(function () {
+document.addEventListener("DOMContentLoaded", () => {
     cockpit.translate();
 
-    var text = _("Empty");
-    $("#underscore-empty").text(text);
+    let text = _("Empty");
+    document.getElementById("underscore-empty").textContent = text;
 
     text = _("verb", "Empty");
-    $("#underscore-context-empty").text(text);
+    document.getElementById("underscore-context-empty").textContent = text;
 
     text = C_("verb", "Empty");
-    $("#cunderscore-context-empty").text(text);
+    document.getElementById("cunderscore-context-empty").textContent = text;
 
     text = cockpit.gettext("Control");
-    $("#gettext-control").text(text);
+    document.getElementById("gettext-control").textContent = text;
 
     text = cockpit.gettext("key", "Control");
-    $("#gettext-context-control").text(text);
+    document.getElementById("gettext-context-control").textContent = text;
 
     text = cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 1);
-    $("#ngettext-disks-1").text(text);
+    document.getElementById("ngettext-disks-1").textContent = text;
 
     text = cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 2);
-    $("#ngettext-disks-2").text(text);
+    document.getElementById("ngettext-disks-2").textContent = text;
 
     text = cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 1);
-    $("#ngettext-context-disks-1").text(text);
+    document.getElementById("ngettext-context-disks-1").textContent = text;
 
     text = cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 2);
-    $("#ngettext-context-disks-2").text(text);
+    document.getElementById("ngettext-context-disks-2").textContent = text;
 
-    var template = $("#mustache-input").text();
-    var output = mustache.render(template);
-    $("#mustache-output").empty()
-            .append(output);
+    const template = document.getElementById("mustache-input").textContent;
+    const output = mustache.render(template);
+    document.getElementById("mustache-output").innerHTML = output;
 
-    cockpit.transport.wait(function() {
-        $("body").prop("hidden", false);
-    });
+    cockpit.transport.wait(() => document.body.removeAttribute("hidden"));
 });

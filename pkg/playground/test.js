@@ -1,81 +1,77 @@
-import $ from "jquery";
 import cockpit from "cockpit";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
-$(function() {
-    $("#hammer").on("click", function () { $(this).hide() });
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("hammer").addEventListener("click", e => e.target.setAttribute("hidden", "hidden"));
 
-    $(".cockpit-internal-reauthorize .pf-c-button").on("click", function() {
-        $(".cockpit-internal-reauthorize span").text("checking...");
-        var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
-        cockpit.spawn(["sh", "-c", cmd], { superuser: "try" })
-                .stream(function(data) {
-                    console.debug(data);
+    document.querySelector(".cockpit-internal-reauthorize .pf-c-button").addEventListener("click", () => {
+        document.querySelector(".cockpit-internal-reauthorize span").textContent = "checking...";
+        cockpit.script("pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1", { superuser: "try" })
+                .stream(data => console.debug(data))
+                .then(() => {
+                    document.querySelector(".cockpit-internal-reauthorize span").textContent = "result: authorized";
                 })
-                .done(function() {
-                    $(".cockpit-internal-reauthorize span").text("result: authorized");
-                })
-                .fail(function() {
-                    $(".cockpit-internal-reauthorize span").text("result: access-denied");
+                .catch(() => {
+                    document.querySelector(".cockpit-internal-reauthorize span").textContent = "result: access-denied";
                 });
     });
 
-    $(".super-channel .pf-c-button").on("click", function() {
-        $(".super-channel span").text("checking...");
+    document.querySelector(".super-channel .pf-c-button").addEventListener("click", () => {
+        document.querySelector(".super-channel span").textContent = "checking...";
         cockpit.spawn(["id"], { superuser: true })
-                .done(function(data) {
+                .then(data => {
                     console.log("done");
-                    $(".super-channel span").text("result: " + data);
+                    document.querySelector(".super-channel span").textContent = "result: " + data;
                 })
-                .fail(function(ex) {
+                .catch(ex => {
                     console.log("fail");
-                    $(".super-channel span").text("result: " + ex.problem);
+                    document.querySelector(".super-channel span").textContent = "result: " + ex.problem;
                 });
     });
 
-    $(".lock-channel .pf-c-button").on("click", function() {
-        $(".lock-channel span").text("locking...");
+    document.querySelector(".lock-channel .pf-c-button").addEventListener("click", () => {
+        document.querySelector(".lock-channel span").textContent = "locking...";
         cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
                       { superuser: "try", err: "message" })
-                .stream(function(data) {
-                    $(".lock-channel span").text(data);
+                .stream(data => {
+                    document.querySelector(".lock-channel span").textContent = data;
                 })
-                .fail(function(ex) {
-                    $(".lock-channel span").text("failed: " + ex.toString());
+                .catch(ex => {
+                    document.querySelector(".lock-channel span").textContent = "failed: " + ex.toString();
                 });
     });
 
     function update_nav() {
-        $('#nav').empty();
-        var path = ["top"].concat(cockpit.location.path);
-        $(path).each(function (i, p) {
+        document.getElementById("nav").innerHTML = '';
+        const path = ["top"].concat(cockpit.location.path);
+        const e_nav = document.getElementById("nav");
+        path.forEach((p, i) => {
             if (i < path.length - 1) {
-                $('#nav').append(
-                    $('<a tabindex="0">')
-                            .text(p)
-                            .click(function () {
-                                cockpit.location.go(path.slice(1, i + 1));
-                            }),
-                    " >> ");
+                const e_link = document.createElement("a");
+                e_link.setAttribute("tabindex", "0");
+                e_link.textContent = p;
+                e_link.addEventListener("click", () => cockpit.location.go(path.slice(1, i + 1)));
+                e_nav.append(e_link, " >> ");
             } else {
-                $('#nav').append(
-                    $('<span>').text(p));
+                const e_span = document.createElement("span");
+                e_span.textContent = p;
+                e_nav.appendChild(e_span);
             }
         });
     }
 
-    $(cockpit).on('locationchanged', update_nav);
+    cockpit.addEventListener('locationchanged', update_nav);
     update_nav();
 
-    $('#go-down').click(function () {
-        var len = cockpit.location.path.length;
+    document.getElementById('go-down').addEventListener("click", () => {
+        const len = cockpit.location.path.length;
         cockpit.location.go(cockpit.location.path.concat(len.toString()), { length: len.toString() });
     });
 
-    var counter = cockpit.file("/tmp/counter", { syntax: JSON });
+    const counter = cockpit.file("/tmp/counter", { syntax: JSON });
 
     function normalize_counter(obj) {
         obj = obj || { };
@@ -84,53 +80,51 @@ $(function() {
     }
 
     function complain(error) {
-        $('#file-error').text(error.toString());
+        document.getElementById('file-error').textContent = error.toString();
     }
 
     function changed(content, tag, error) {
         if (error)
             return complain(error);
-        $('#file-content').text(normalize_counter(content).counter);
-        $('#file-error').empty();
+        document.getElementById('file-content').textContent = normalize_counter(content).counter;
+        document.getElementById('file-error').innerHTML = "";
     }
 
     counter.watch(changed);
 
-    $('#modify-file').click(function () {
+    document.getElementById('modify-file').addEventListener("click", () => {
         counter
-                .modify(function (obj) {
+                .modify(obj => {
                     obj = normalize_counter(obj);
                     obj.counter += 1;
                     return obj;
                 })
-                .fail(complain);
+                .catch(complain);
     });
 
     function load_file() {
         cockpit.file("/tmp/counter").read()
-                .done(function (content) {
-                    $('#edit-file').val(content);
+                .then(content => {
+                    document.getElementById('edit-file').value = content;
                 });
     }
 
     function save_file() {
-        cockpit.file("/tmp/counter").replace($('#edit-file').val());
+        cockpit.file("/tmp/counter").replace(document.getElementById('edit-file').value);
     }
 
-    $('#load-file').click(load_file);
-    $('#save-file').click(save_file);
+    document.getElementById('load-file').addEventListener("click", load_file);
+    document.getElementById('save-file').addEventListener("click", save_file);
     load_file();
 
-    $('#delete-file').click(function () {
-        cockpit.spawn(["rm", "-f", "tmp/counter"]);
-    });
+    document.getElementById('delete-file').addEventListener("click", () => cockpit.spawn(["rm", "-f", "/tmp/counter"]));
 
-    $("body").prop("hidden", false);
+    document.body.removeAttribute("hidden");
 
     function show_hidden() {
-        $("#hidden").text(cockpit.hidden ? "hidden" : "visible");
+        document.getElementById("hidden").textContent = cockpit.hidden ? "hidden" : "visible";
     }
 
-    $(cockpit).on("visibilitychange", show_hidden);
+    cockpit.addEventListener("visibilitychange", show_hidden);
     show_hidden();
 });

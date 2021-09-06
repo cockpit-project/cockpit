@@ -171,10 +171,8 @@ which reduces the build time to less than a third. E. g.
 
     $ tools/webpack-watch systemd
 
-Note that this disables eslint by default -- if you want to enable it, run it
-as
-
-    $ ESLINT=1 tools/webpack-watch systemd
+Note that this enables eslint by default -- if you want to disable it, run it
+with `-e`/`--no-eslint`.
 
 Then reload cockpit in your browser after building the page.
 

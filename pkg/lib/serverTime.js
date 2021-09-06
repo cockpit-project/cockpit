@@ -17,14 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
-import React, { useState, useRef, useEffect } from "react";
-import { Button, Popover, Select, SelectOption, SelectVariant } from '@patternfly/react-core';
+import React, { useState } from "react";
+import { Button, DatePicker, Popover, Select, SelectOption, SelectVariant } from '@patternfly/react-core';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
 import * as service from "service.js";
 import * as timeformat from "timeformat.js";
-import jQuery from "jquery";
 
 import { superuser } from "superuser.js";
 
@@ -430,16 +429,6 @@ function ValidatedInput({ errors, error_key, children }) {
 }
 
 function ChangeSystimeBody({ state, errors, change }) {
-    const date_ref = useRef(null);
-    useEffect(() => {
-        if (date_ref.current)
-            jQuery(date_ref.current).datepicker({
-                autoclose: true,
-                todayHighlight: true,
-                format: 'yyyy-mm-dd'
-            });
-    });
-
     const [zonesOpen, setZonesOpen] = useState(false);
     const [modeOpen, setModeOpen] = useState(false);
 
@@ -523,8 +512,16 @@ function ChangeSystimeBody({ state, errors, change }) {
             { mode == "manual_time" &&
                 <div id="systime-manual-row">
                     <ValidatedInput errors={errors} error_key="manual_date">
-                        <input ref={date_ref} className="form-control" id="systime-date-input"
-                     value={manual_date} onChange={event => change("manual_date", event.target.value)} /> { "\n" }
+                        <DatePicker id="systime-date-input"
+                                    aria-label={_("Pick date")}
+                                    buttonAriaLabel={_("Toggle date picker")}
+                                    dateFormat={timeformat.dateShort}
+                                    dateParse={timeformat.parseShortDate}
+                                    invalidFormatText=""
+                                    locale={cockpit.language}
+                                    placeholder={timeformat.dateShortFormat()}
+                                    onChange={d => change("manual_date", d)}
+                                    value={manual_date} />
                     </ValidatedInput>
                     <ValidatedInput errors={errors} error_key="manual_hours">
                         <input type='text' className="form-control" id="systime-time-hours"

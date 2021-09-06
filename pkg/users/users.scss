@@ -5,26 +5,6 @@
 
 #account .pf-c-card {
     @extend .ct-card;
-
-    // Make the header properly wrap
-    &__header {
-        flex-wrap: wrap;
-        // WebKit and older versions of Chrome have issues with "gap" on flex
-        // (but they'll just be a few pixels too close together)
-        gap: var(--pf-global--spacer--sm) 0;
-    }
-
-    // Remove the gap from the actions...
-    &__actions {
-        margin-left: 0;
-        padding-left: 0;
-    }
-
-    // And add the gap to the title
-    &__title {
-        flex: auto;
-        margin-right: var(--pf-global--spacer--md);
-    }
 }
 
 .account-details .pf-c-card__header {

@@ -148,7 +148,7 @@ export class ListingTable extends React.Component {
         return res;
     }
 
-    reformatRows(rows) {
+    reformatRows(rows, colSpan) {
         let rowIndex = 0;
         return rows.reduce((total, currentValue) => {
             const rowFormatted = {
@@ -181,7 +181,7 @@ export class ListingTable extends React.Component {
             if (currentValue.expandedContent) {
                 total.push({
                     parent: rowIndex - 1,
-                    cells: [{ title: currentValue.expandedContent }],
+                    cells: [{ title: currentValue.expandedContent, props: { colSpan } }],
                     fullWidth: true, noPadding: !currentValue.hasPadding,
                     props: { key: currentValue.props.key + "-expanded" },
                 });
@@ -257,7 +257,7 @@ export class ListingTable extends React.Component {
         /* if the Table has sortable, selectable, expandable or clickable rows do some prep work */
         if (!isTableBasic) {
             tableProps.rowWrapper = this.rowWrapper;
-            tableProps.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
+            tableProps.rows = this.props.rows.length ? this.reformatRows(this.props.rows, this.props.columns.length + (isExpandable ? 1 : 0) + (this.props.onSelect ? 1 : 0)) : [];
             if (this.state.sortBy.index != undefined)
                 tableProps.rows = this.sortRows(tableProps.rows);
             tableProps.cells = this.reformatColumns(this.props.columns, isExpandable);

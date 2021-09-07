@@ -35,10 +35,11 @@ function Keys() {
     var proc = null;
     var timeout = null;
 
-    cockpit.user().done(function (user) {
-        self.path = user.home + '/.ssh';
-        refresh();
-    });
+    cockpit.user()
+            .then(user => {
+                self.path = user.home + '/.ssh';
+                refresh();
+            });
 
     function refresh() {
         if (watch === null) {
@@ -72,18 +73,15 @@ function Keys() {
         window.clearTimeout(timeout);
         timeout = null;
 
-        proc = cockpit.script(lister, [self.path], { err: "message" })
-                .always(function() {
+        proc = cockpit.script(lister, [self.path], { err: "message" });
+        proc
+                .then(data => process(data))
+                .catch(ex => console.warn("failed to list keys in home directory: " + ex.message))
+                .finally(() => {
                     proc = null;
 
                     if (!timeout)
                         timeout = window.setTimeout(refresh, 5000);
-                })
-                .done(function(data) {
-                    process(data);
-                })
-                .fail(function(ex) {
-                    console.warn("failed to list keys in home directory: " + ex.message);
                 });
     }
 
@@ -184,78 +182,73 @@ function Keys() {
         var new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
         var bad_exps = [/.*failed: passphrase is too short.*/];
 
-        var dfd = $.Deferred();
-        var buffer = "";
-        var sent_new = false;
-        var failure = _("No such file or directory");
-        var i;
+        return new Promise((resolve, reject) => {
+            let buffer = "";
+            let sent_new = false;
+            let failure = _("No such file or directory");
 
-        if (new_pass !== two_pass) {
-            dfd.reject(new Error(_("The passwords do not match.")));
-            return dfd.promise();
-        }
+            if (new_pass !== two_pass) {
+                reject(new Error(_("The passwords do not match.")));
+                return;
+            }
 
-        var proc;
-        var timeout = window.setTimeout(function() {
-            failure = _("Prompting via ssh-keygen timed out");
-            proc.close("terminated");
-        }, 10 * 1000);
+            // Exactly one of new_type or old_pass must be given
+            console.assert((new_type == null) != (old_pass == null));
 
-        // Exactly one of new_type or old_pass must be given
-        console.assert((new_type == null) != (old_pass == null));
+            const cmd = ["ssh-keygen", "-f", file];
+            if (new_type)
+                cmd.push("-t", new_type);
+            else
+                cmd.push("-p");
 
-        var cmd = ["ssh-keygen", "-f", file];
-        if (new_type)
-            cmd.push("-t", new_type);
-        else
-            cmd.push("-p");
+            const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
 
-        proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
-                .always(function() {
-                    window.clearInterval(timeout);
-                })
-                .done(function() {
-                    dfd.resolve();
-                })
-                .fail(function(ex) {
-                    if (ex.exit_status)
-                        ex = new Error(failure);
-                    dfd.reject(ex);
-                })
-                .stream(function(data) {
-                    buffer += data;
-                    if (old_pass) {
-                        for (i = 0; i < old_exps.length; i++) {
-                            if (old_exps[i].test(buffer)) {
+            const timeout = window.setTimeout(() => {
+                failure = _("Prompting via ssh-keygen timed out");
+                proc.close("terminated");
+            }, 10 * 1000);
+
+            proc
+                    .stream(data => {
+                        buffer += data;
+                        if (old_pass) {
+                            for (let i = 0; i < old_exps.length; i++) {
+                                if (old_exps[i].test(buffer)) {
+                                    buffer = "";
+                                    failure = _("Old password not accepted");
+                                    proc.input(old_pass + "\n", true);
+                                    return;
+                                }
+                            }
+                        }
+
+                        for (let i = 0; i < new_exps.length; i++) {
+                            if (new_exps[i].test(buffer)) {
                                 buffer = "";
-                                failure = _("Old password not accepted");
-                                this.input(old_pass + "\n", true);
+                                proc.input(new_pass + "\n", true);
+                                failure = _("Failed to change password");
+                                sent_new = true;
                                 return;
                             }
                         }
-                    }
 
-                    for (i = 0; i < new_exps.length; i++) {
-                        if (new_exps[i].test(buffer)) {
-                            buffer = "";
-                            this.input(new_pass + "\n", true);
-                            failure = _("Failed to change password");
-                            sent_new = true;
-                            return;
-                        }
-                    }
-
-                    if (sent_new) {
-                        for (i = 0; i < bad_exps.length; i++) {
-                            if (bad_exps[i].test(buffer)) {
-                                failure = _("New password was not accepted");
-                                return;
+                        if (sent_new) {
+                            for (let i = 0; i < bad_exps.length; i++) {
+                                if (bad_exps[i].test(buffer)) {
+                                    failure = _("New password was not accepted");
+                                    return;
+                                }
                             }
                         }
-                    }
-                });
-
-        return dfd.promise();
+                    })
+                    .then(resolve)
+                    .catch(ex => {
+                        if (ex.exit_status)
+                            ex = new Error(failure);
+                        reject(ex);
+                    })
+                    .finally(() => window.clearInterval(timeout));
+        });
     }
 
     self.change = function change(name, old_pass, new_pass, two_pass) {
@@ -276,65 +269,63 @@ function Keys() {
         var perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
         var bad_exp = /.*Bad passphrase.*/;
 
-        var dfd = $.Deferred();
         var buffer = "";
         var output = "";
         var failure = _("Not a valid private key");
         var sent_password = false;
 
-        var proc;
-        var timeout = window.setTimeout(function() {
-            failure = _("Prompting via ssh-add timed out");
-            proc.close("terminated");
-        }, 10 * 1000);
+        return new Promise((resolve, reject) => {
+            const proc = cockpit.spawn(["ssh-add", name],
+                                       { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
 
-        proc = cockpit.spawn(["ssh-add", name],
-                             { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
-                .always(function() {
-                    window.clearInterval(timeout);
-                })
-                .done(function() {
-                    refresh();
-                    dfd.resolve();
-                })
-                .fail(function(ex) {
-                    console.log(output);
-                    if (ex.exit_status)
-                        ex = new Error(failure);
+            const timeout = window.setTimeout(() => {
+                failure = _("Prompting via ssh-add timed out");
+                proc.close("terminated");
+            }, 10 * 1000);
 
-                    ex.sent_password = sent_password;
-                    dfd.reject(ex);
-                })
-                .stream(function(data) {
-                    buffer += data;
-                    output += data;
-                    if (perm_exp.test(buffer)) {
-                        failure = _("Invalid file permissions");
-                        buffer = "";
-                    } else if (ask_exp.test(buffer)) {
-                        buffer = "";
-                        failure = _("Password not accepted");
-                        this.input(password + "\n", true);
-                        sent_password = true;
-                    } else if (bad_exp.test(buffer)) {
-                        buffer = "";
-                        this.input("\n", true);
-                    }
-                });
+            proc
+                    .stream(data => {
+                        buffer += data;
+                        output += data;
+                        if (perm_exp.test(buffer)) {
+                            failure = _("Invalid file permissions");
+                            buffer = "";
+                        } else if (ask_exp.test(buffer)) {
+                            buffer = "";
+                            failure = _("Password not accepted");
+                            proc.input(password + "\n", true);
+                            sent_password = true;
+                        } else if (bad_exp.test(buffer)) {
+                            buffer = "";
+                            proc.input("\n", true);
+                        }
+                    })
+                    .then(() => {
+                        refresh();
+                        resolve();
+                    })
+                    .catch(ex => {
+                        console.log(output);
+                        if (ex.exit_status)
+                            ex = new Error(failure);
 
-        return dfd.promise();
+                        ex.sent_password = sent_password;
+                        reject(ex);
+                    })
+                    .finally(() => window.clearInterval(timeout));
+        });
     };
 
     self.unload = function unload(key) {
         var proc;
-        var options = { pty: true, err: "message", directory: self.path };
+        const options = { pty: true, err: "message", directory: self.path };
 
         if (key.name && !key.agent_only)
             proc = cockpit.spawn(["ssh-add", "-d", key.name], options);
         else
             proc = cockpit.script(remove_key, [key.data], options);
 
-        return proc.done(refresh);
+        return proc.then(refresh);
     };
 
     self.close = function close() {

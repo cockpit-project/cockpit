@@ -280,7 +280,7 @@ export function setup() {
 
         keys = credentials.keys_instance();
 
-        $(keys).on("changed", function() {
+        keys.addEventListener("changed", () => {
             const rows = { };
             const table = $("#credentials-dialog table.credential-listing");
 

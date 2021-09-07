@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from "jquery";
 import cockpit from "cockpit";
 
 import lister from "raw-loader!credentials-ssh-private-keys.sh";
@@ -35,6 +34,8 @@ function Keys() {
     var proc = null;
     var timeout = null;
 
+    cockpit.event_target(this);
+
     cockpit.user()
             .then(user => {
                 self.path = user.home + '/.ssh';
@@ -42,29 +43,33 @@ function Keys() {
             });
 
     function refresh() {
+        function on_message(ev, payload) {
+            const item = JSON.parse(payload);
+            const name = item.path;
+            if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
+                if (item.event === "present" || item.event === "created" ||
+                item.event === "changed" || item.event === "deleted") {
+                    window.clearInterval(timeout);
+                    timeout = window.setTimeout(refresh, 100);
+                }
+            }
+        }
+
+        function on_close(ev, data) {
+            watch.removeEventListener("close", on_close);
+            watch.removeEventListener("message", on_message);
+            if (!data.problem || data.problem == "not-found") {
+                watch = null; /* Watch again */
+            } else {
+                console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
+                watch = false; /* Don't watch again */
+            }
+        }
+
         if (watch === null) {
             watch = cockpit.channel({ payload: "fslist1", path: self.path });
-            $(watch)
-                    .on("close", function(ev, data) {
-                        $(watch).off();
-                        if (!data.problem || data.problem == "not-found") {
-                            watch = null; /* Watch again */
-                        } else {
-                            console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
-                            watch = false; /* Don't watch again */
-                        }
-                    })
-                    .on("message", function(ev, payload) {
-                        var item = JSON.parse(payload);
-                        var name = item.path;
-                        if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
-                            if (item.event === "present" || item.event === "created" ||
-                            item.event === "changed" || item.event === "deleted") {
-                                window.clearInterval(timeout);
-                                timeout = window.setTimeout(refresh, 100);
-                            }
-                        }
-                    });
+            watch.addEventListener("close", on_close);
+            watch.addEventListener("message", on_message);
         }
 
         if (proc)
@@ -123,7 +128,7 @@ function Keys() {
         });
 
         self.items = items;
-        $(self).triggerHandler("changed");
+        self.dispatchEvent("changed");
     }
 
     function parse_key(line, items) {

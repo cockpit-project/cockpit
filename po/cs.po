@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
 "PO-Revision-Date: 2020-12-05 09:04+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -922,7 +922,7 @@ msgstr "Po startu systému"
 msgid "Alert"
 msgstr "Výstraha"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Výstraha a závažnější"
 
@@ -932,7 +932,8 @@ msgstr "Výstraha a závažnější"
 msgid "Alias"
 msgstr "alternativní název"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "Vše"
 
@@ -961,6 +962,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Dokumentace k Ansible rolím"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 #, fuzzy
@@ -1237,6 +1246,10 @@ msgstr "Vazba"
 msgid "Bond settings"
 msgstr "Nastavení mostu"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "Spojeno"
@@ -1323,7 +1336,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr ""
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Při použití stávající kombinace filtrů se nedaří nalézt žádné záznamy "
@@ -1506,7 +1519,7 @@ msgstr "Čištění pro $target"
 msgid "Clear 'Failed to start'"
 msgstr "Vyčistit „Nepodařilo se spustit“"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Vyčistit všechny filtry"
 
@@ -1820,7 +1833,7 @@ msgstr "Počítač 2v1"
 msgid "Copy"
 msgstr "Zkopírovat"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "Zkopírovat do schránky"
@@ -1988,7 +2001,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Vytváření skupiny svazků $target"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Kritické a závažnější"
 
@@ -2000,7 +2013,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "Od tohoto spuštění systému"
 
@@ -2059,6 +2072,14 @@ msgstr "Tmavý"
 msgid "Data used"
 msgstr "Využito dat"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "Deaktivovat"
@@ -2071,7 +2092,7 @@ msgstr "Deaktivuje se"
 msgid "Deactivating $target"
 msgstr "Deaktivuje se $target"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Ladící a závažnější"
 
@@ -2562,7 +2583,7 @@ msgstr "Errata"
 msgid "Error"
 msgstr "Chyba"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Chyba a závažnější"
 
@@ -2714,6 +2735,12 @@ msgstr "Nepodařilo se zapnout tuned"
 msgid "Failed to enable tuned"
 msgstr "Nepodařilo se zapnout tuned"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "Nepodařilo se přepnout profil"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "Nepodařilo se nahrát ověřovací klíče."
@@ -2781,6 +2808,12 @@ msgstr "Filtrovat služby"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "Filtrovat služby"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "Filtrovat"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
@@ -2882,6 +2915,12 @@ msgstr ""
 "Uvolněte prostor v této skupině: zmenšete nebo smažte nějaké logické svazky "
 "nebo přidejte fyzický svazek."
 
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "Vyčistit vyhledávání"
+
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
 msgstr "Pátky"
@@ -2982,10 +3021,6 @@ msgstr "Oznamovací čas $hello_time"
 msgid "Help"
 msgstr "Nápověda"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "Skrýt filtry"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "Počet historie balíčku"
@@ -3081,7 +3116,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "Nastavení IPv6"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "Identifikátor"
 
@@ -3165,7 +3200,7 @@ msgstr "přímé"
 msgid "Info"
 msgstr ""
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Informace a závažnější"
 
@@ -3478,11 +3513,11 @@ msgstr "LACP klíč"
 msgid "Laptop"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "Uplynulých 24 hodin"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "Uplynulých 7 dnů"
 
@@ -3508,7 +3543,7 @@ msgstr "Poslední přihlášení:"
 msgid "Last modified: $0"
 msgstr "Naposledy zkontrolováno: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3588,7 +3623,7 @@ msgstr "Rozkládání zátěže"
 msgid "Load earlier data"
 msgstr "Načíst dřívější data"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "Načíst dřívější položky"
 
@@ -3603,6 +3638,12 @@ msgstr "Načtení dostupných aktualizací se nezdařilo"
 #: pkg/packagekit/updates.jsx:73
 msgid "Loading available updates, please wait..."
 msgstr "Načítání dostupných aktualizací, čekejte…"
+
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "Načíst dřívější položky"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 #, fuzzy
@@ -3621,7 +3662,7 @@ msgid "Loading system modifications..."
 msgstr "Načítání modifikací systému…"
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -4416,7 +4457,7 @@ msgstr "Žádné položky záznamu událostí"
 msgid "No logical volumes"
 msgstr "Žádné logické svazky"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "Nenalezeny žádné záznamy událostí"
@@ -4447,7 +4488,7 @@ msgstr "Žádný oddíl"
 msgid "No real name specified"
 msgstr "Není zadán skutečný název"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "Nenalezeny žádné výsledky"
 
@@ -4584,7 +4625,7 @@ msgstr "Poznámka"
 msgid "Notebook"
 msgstr "Notebook"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
@@ -4648,7 +4689,7 @@ msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr ""
 "Dovolena jsou pouze písmena a číslice, dále ještě znaky : , _ , . , @ , -"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "Pouze nouzové"
 
@@ -4919,7 +4960,7 @@ msgstr "Popis umístění serveru"
 msgid "Paths"
 msgstr "Popisy umístění"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "Pozastavit"
 
@@ -5097,7 +5138,7 @@ msgstr "Zachovat"
 msgid "Pretty host name"
 msgstr "Hezký název stroje"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "Předchozí zavedení"
 
@@ -5109,8 +5150,8 @@ msgstr "Primární"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "Priorita"
 
@@ -5610,7 +5651,7 @@ msgstr "Vyhrazená paměť"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "Reset"
 
@@ -5655,7 +5696,7 @@ msgstr "Restartuje se"
 msgid "Restoring connection"
 msgstr "Obnovování spojení"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Obnovit chod"
 
@@ -5814,13 +5855,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "Počítač se zapečetěnou skříní"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "Hledat"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "Prohledat záznamy událostí pomocí kombinace pojmů:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5854,6 +5891,12 @@ msgstr "Jsou k dispozici aktualizace zabezpečení"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Vybrat"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "select container"
+msgid "Select a identifier"
+msgstr "vybrat kontejner"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -6042,13 +6085,21 @@ msgstr "Zobrazit vše"
 msgid "Show all threads"
 msgstr "Zobrazit všechny obrazy"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "Zobrazit filtry"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "Zobrazit otisky"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -6082,6 +6133,10 @@ msgstr "Vypnout"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "Vypnout"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -6231,6 +6286,14 @@ msgstr "Spustit multipath"
 msgid "Start service"
 msgstr "Spustit službu"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "Spouštění RAID zařízení $target"
@@ -6349,6 +6412,12 @@ msgstr "Zmenšený notebook"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "Zkopírovat do schránky"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "Zkopírovat do schránky"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6534,10 +6603,6 @@ msgstr "Vyzkoušet nastavení kdump"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "Zkouška spojení"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "Text"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6965,6 +7030,24 @@ msgstr ""
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "Tento webový prohlížeč je příliš starý pro spuštění Cockpit (chybí $0)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "Toto vám umožní se napříště přihlašovat bez hesla."
@@ -6995,7 +7078,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "Čtvrtky"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "Čas"
 
@@ -7064,6 +7147,12 @@ msgstr ""
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "Skrýt filtry"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -7178,7 +7267,7 @@ msgstr "Zapnout přístup na úrovni správce"
 msgid "Type"
 msgstr "Typ"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "Filtrujte psaním"
 
@@ -7301,7 +7390,7 @@ msgstr "Nedostupné"
 msgid "Unexpected error"
 msgstr "Neočekávaná chyba"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "Jednotka"
@@ -7434,6 +7523,10 @@ msgstr "Nerozpoznaná data zde nelze zmenšit."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Nepodporovaný svazek"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7768,7 +7861,7 @@ msgstr "Vyžadováno"
 msgid "Wants"
 msgstr "Vyžaduje"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Varování a závažnější"
 
@@ -7877,7 +7970,7 @@ msgstr "Nemáte oprávnění zobrazovat pověřené klíče pro tento účet."
 msgid "You have been logged out due to inactivity."
 msgstr "Byli jste odhlášeni z důvodu nečinnosti."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "Můžete zkusit načíst starší položky."
 
@@ -7982,10 +8075,6 @@ msgstr "doplněk"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "doplněk"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "libovolně formulovaný řetězec jako regulární výraz"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -8099,10 +8188,6 @@ msgstr "doména"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "jednotka"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "např."
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -8274,7 +8359,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "žurnál"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "manuálová stránka ke journalctl"
 
@@ -8293,10 +8378,6 @@ msgstr "klíče"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "místně v $0"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "kolonky záznamu událostí"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -8462,10 +8543,6 @@ msgstr "port"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "napájení"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "kvalifikátory"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8698,6 +8775,27 @@ msgstr "zóna"
 msgid "{{host}} key changed"
 msgstr "Vynutit změnu"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "Prohledat záznamy událostí pomocí kombinace pojmů:"
+
+#~ msgid "Show filters"
+#~ msgstr "Zobrazit filtry"
+
+#~ msgid "Text"
+#~ msgstr "Text"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "libovolně formulovaný řetězec jako regulární výraz"
+
+#~ msgid "e.g."
+#~ msgstr "např."
+
+#~ msgid "log fields"
+#~ msgstr "kolonky záznamu událostí"
+
+#~ msgid "qualifiers"
+#~ msgstr "kvalifikátory"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "Vyp/zap. nastavení relace"
 
@@ -8720,9 +8818,6 @@ msgstr "Vynutit změnu"
 
 #~ msgid "Service name"
 #~ msgstr "Název služby"
-
-#~ msgid "Filter"
-#~ msgstr "Filtrovat"
 
 #, fuzzy
 #~| msgid "Console type"
@@ -10959,9 +11054,6 @@ msgstr "Vynutit změnu"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "hledat podle názvu, jmenného prostoru nebo popisu"
-
-#~ msgid "select container"
-#~ msgstr "vybrat kontejner"
 
 #~ msgid "shares"
 #~ msgstr "sdílení"

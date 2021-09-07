@@ -147,7 +147,7 @@ class SELinuxEventDetails extends React.Component {
             }
 
             return (
-                <React.Fragment key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
+                <StackItem key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
                     <div className="selinux-details">
                         <div>
                             <div>
@@ -164,10 +164,10 @@ class SELinuxEventDetails extends React.Component {
                         {fixit}
                     </div>
                     {itmIdx != self.props.details.pluginAnalysis.length - 1 && <Divider />}
-                </React.Fragment>
+                </StackItem>
             );
         });
-        return fixEntries;
+        return <Stack hasGutter>{fixEntries}</Stack>;
     }
 }
 

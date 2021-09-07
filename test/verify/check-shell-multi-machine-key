@@ -70,17 +70,17 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.browser.eval_js("loaded = false")
         self.browser.eval_js("""
             load = function (user) {{
-                var proc = cockpit.spawn([ 'ssh-add', '{0}' ], {{ pty: true, directory: user.home + '/.ssh' }})
-                    .stream(function(data) {{
+                const proc = cockpit.spawn([ 'ssh-add', '{0}' ], {{ pty: true, directory: user.home + '/.ssh' }});
+                proc.stream(data => {{
                         if (data.indexOf('passphrase') !== -1)
                             proc.input('{1}\\n', true);
                         console.log(data);
                     }})
-                    .done(function() {{
+                    .then(() => {{
                         loaded = true;
                     }})
-                    .fail(function(ex) {{
-                        console.log(ex);
+                    .catch(ex => {{
+                        console.error(JSON.stringify(ex));
                     }});
             }}
         """.format(name, password))

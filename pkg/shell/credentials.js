@@ -54,10 +54,8 @@ export function setup() {
         var tr = $("#credentials-dialog tr.load-custom-key");
         var val = tr.find("input").val();
         keys.load(val)
-                .done(function () {
-                    hide_add_key();
-                })
-                .fail(function(ex) {
+                .then(() => hide_add_key())
+                .catch(ex => {
                     if (!ex.sent_password) {
                         tr.find("td").toggleClass("has-error", true);
                         tr.find("td div.dialog-error").text(ex.message);
@@ -94,10 +92,8 @@ export function setup() {
             /* Key needs to be unloaded, do that directly */
         } else if (!enable && key.loaded) {
             keys.unload(key)
-                    .done(function(ex) {
-                        tbody.removeClass("open");
-                    })
-                    .fail(function(ex) {
+                    .then(() => tbody.removeClass("open"))
+                    .catch(ex => {
                         console.log(ex);
                         tbody.addClass("open").removeClass("unlock");
                         tbody.find(".pf-c-alert").show()
@@ -184,21 +180,19 @@ export function setup() {
 
                 var password = body.find(".credential-password").val();
                 keys.load(name, password)
-                        .always(function(ex) {
-                            body.find("input button").prop("disabled", false);
-                        })
-                        .done(function(ex) {
+                        .then(() => {
                             body.find(".credential-password").val("");
                             body.removeClass("unlock");
                             hide_add_key();
                             body.find(".pf-c-alert").hide();
                         })
-                        .fail(function(ex) {
+                        .catch(ex => {
                             body.find(".pf-c-alert").show()
                                     .find("h4")
                                     .text(ex.message);
                             console.warn("loading key failed: ", ex.message);
-                        });
+                        })
+                        .finally(() => body.find("input button").prop("disabled", false));
                 ev.preventDefault();
                 ev.stopPropagation();
             })
@@ -223,17 +217,15 @@ export function setup() {
                     throw Error("invalid password fields");
 
                 keys.change(key.name, old_pass, new_pass, two_pass)
-                        .always(function(ex) {
-                            body.find("input button").prop("disabled", false);
-                        })
-                        .done(function() {
+                        .finally(() => body.find("input button").prop("disabled", false))
+                        .then(() => {
                             body.find(".credential-old").val("");
                             body.find(".credential-new").val("");
                             body.find(".credential-two").val("");
                             body.find("li a").first()
                                     .click();
                         })
-                        .fail(function(ex) {
+                        .catch(ex => {
                             body.find(".pf-c-alert").show()
                                     .find("h4")
                                     .text(ex.message);

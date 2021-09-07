@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
-"PO-Revision-Date: 2021-08-01 14:04+0000\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
+"PO-Revision-Date: 2021-08-29 11:04+0000\n"
 "Last-Translator: simmon <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.7.2\n"
+"X-Generator: Weblate 4.8\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -838,7 +838,7 @@ msgstr "시스템 부팅 후"
 msgid "Alert"
 msgstr "주의"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "경고 이상의 수준"
 
@@ -846,7 +846,8 @@ msgstr "경고 이상의 수준"
 msgid "Alias"
 msgstr "별명"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "모두"
 
@@ -874,6 +875,17 @@ msgstr "앤서블"
 msgid "Ansible roles documentation"
 msgstr "Ansible 역할 문서"
 
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
+"로그 메시지에서 모든 텍스트 문자열을 필터링 될 수 있습니다. 문자열은 또한 정규식 표현의 형식일 수도 있습니다. 또한 메시지 로그 "
+"부분에 의해 필터링을 지원합니다. 이들은 형식 FIELD=VALUE 에서 공백으로 분리된 값이며, 해당 값은 가능한 값의 쉼표로 구분된 "
+"목록일 수 있습니다."
+
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
 msgstr "표시형식"
@@ -899,10 +911,8 @@ msgid "Apply"
 msgstr "적용"
 
 #: pkg/packagekit/kpatch.jsx:240
-#, fuzzy
-#| msgid "Apply security updates"
 msgid "Apply kernel patches"
-msgstr "보안 업데이트 적용"
+msgstr "커널 패치 적용"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -1123,6 +1133,10 @@ msgstr "본드"
 msgid "Bond settings"
 msgstr "본드 설정"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr "부팅"
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "바인딩 기준"
@@ -1205,7 +1219,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "호스트 이름, IP 주소, 별칭 이름 또는 ssh:// URI일 수 있습니다"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
@@ -1381,7 +1395,7 @@ msgstr "$target 지우는 중"
 msgid "Clear 'Failed to start'"
 msgstr "‘시작 실패’ 지우기"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "모든 필터 지우기"
 
@@ -1675,7 +1689,7 @@ msgstr "변환 가능"
 msgid "Copy"
 msgstr "복사"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "클립보드로 복사"
@@ -1837,7 +1851,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "볼륨 그룹 $target 생성 중"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "중대한 이상 수준"
 
@@ -1849,7 +1863,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "현재 부팅"
 
@@ -1906,6 +1920,17 @@ msgstr "진하게"
 msgid "Data used"
 msgstr "사용된 데이터"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+"날짜 상세는 연-월-일 시:분:초 (YYYY-MM-DD hh:mm:ss)형식이어야 합니다. 대안으로 문자열 '어제', '오늘', "
+"'내일'로 이해 할 수 있습니다. '지금'은 현재 시간을 나타냅니다. 마지막으로, '-' 또는 '+'를 접두사로 사용하여, 상대 시간으로 "
+"지정 할 수 있습니다"
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "비활성화"
@@ -1918,7 +1943,7 @@ msgstr "비활성화 중 입니다"
 msgid "Deactivating $target"
 msgstr "$target 비활성화 중"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "디버그 이상의 수준"
 
@@ -2357,7 +2382,7 @@ msgstr "에라타"
 msgid "Error"
 msgstr "오류"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "오류 이상의 수준"
 
@@ -2495,6 +2520,10 @@ msgstr "방화벽에서 $0 활성화에 실패"
 msgid "Failed to enable tuned"
 msgstr "tuned 활성화에 실패하였습니다"
 
+#: pkg/systemd/logsJournal.jsx:260
+msgid "Failed to fetch logs"
+msgstr "패치 기록에실패했습니다"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "승인된 키를 불러오지 못했습니다."
@@ -2553,6 +2582,10 @@ msgstr "필터 메뉴 항목"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "필터 서비스"
+
+#: pkg/systemd/logs.jsx:237
+msgid "Filters"
+msgstr "필터"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2637,6 +2670,10 @@ msgid ""
 msgstr ""
 "이 그룹에서 여유 공간을 확보합니다: 다른 논리 볼륨을 축소 또는 제거하거나 신"
 "규 물리 볼륨을 추가하십시오."
+
+#: pkg/systemd/logs.jsx:377
+msgid "Free-form search"
+msgstr "자유-형식 검색"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2728,10 +2765,6 @@ msgstr "Hello 타임 $hello_time"
 msgid "Help"
 msgstr "도움말"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "필터 숨기기"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "기록 꾸러미 수"
@@ -2809,7 +2842,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6 설정"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "식별자"
 
@@ -2890,7 +2923,7 @@ msgstr "간접"
 msgid "Info"
 msgstr "정보"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "정보 이상의 수준"
 
@@ -3121,25 +3154,19 @@ msgstr "커널 덤프"
 
 #: pkg/packagekit/kpatch.jsx:345
 msgid "Kernel patch $0 is active"
-msgstr ""
+msgstr "커널 패치 $0가 활성화 중입니다"
 
 #: pkg/packagekit/kpatch.jsx:352
-#, fuzzy
-#| msgid "Support is installed."
 msgid "Kernel patch $0 is installed"
-msgstr "지원이 설치되어 있습니다."
+msgstr "커널 패치 $0가 설치되었습니다"
 
 #: pkg/packagekit/kpatch.jsx:278
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel patch settings"
-msgstr "설정 변경"
+msgstr "커널 패치 설정"
 
 #: pkg/packagekit/kpatch.jsx:261
-#, fuzzy
-#| msgid "Kernel Dump"
 msgid "Kernel patching"
-msgstr "커널 덤프"
+msgstr "커널 패치 중"
 
 #: pkg/shell/machines/machine-change-auth.html:38
 #: pkg/shell/machines/machine-change-auth.html:53
@@ -3179,11 +3206,11 @@ msgstr "LACP 키"
 msgid "Laptop"
 msgstr "랩탑"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "지난 24 시간"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "지난 7일"
 
@@ -3204,12 +3231,10 @@ msgid "Last login:"
 msgstr "마지막 로그인:"
 
 #: pkg/storaged/crypto-tab.jsx:49
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "마지막 접속 날짜: $0"
+msgstr "마지막 수정 날짜: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3285,7 +3310,7 @@ msgstr "부하 분산"
 msgid "Load earlier data"
 msgstr "이전 자료 적재"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "이전 항목 적재"
 
@@ -3300,6 +3325,10 @@ msgstr "사용 가능한 최신화 적재에 실패했습니다"
 #: pkg/packagekit/updates.jsx:73
 msgid "Loading available updates, please wait..."
 msgstr "사용 가능한 최신화를 적재하고 있습니다. 잠시만 기다리십시오..."
+
+#: pkg/systemd/logsJournal.jsx:291
+msgid "Loading earlier entries"
+msgstr "이전 항목 적재하기"
 
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
@@ -3318,7 +3347,7 @@ msgstr "시스템 수정 적재 중..."
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -3602,7 +3631,7 @@ msgstr "메모리 사용량"
 
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Menu"
-msgstr ""
+msgstr "메뉴"
 
 #: pkg/systemd/services/services.jsx:166
 msgid "Merged"
@@ -4032,7 +4061,7 @@ msgstr "로그 항목이 없습니다"
 msgid "No logical volumes"
 msgstr "논리 볼륨 없음"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "기록을 찾을 수 없음"
@@ -4062,7 +4091,7 @@ msgstr "파티션 설정하지 않음"
 msgid "No real name specified"
 msgstr "실제 이름이 지정되지 않았습니다"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
@@ -4142,10 +4171,8 @@ msgstr "찾을 수 없습니다"
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/packagekit/kpatch.jsx:227
-#, fuzzy
-#| msgid "Installed"
 msgid "Not installed"
-msgstr "설치되었습니다"
+msgstr "설치되지 않음"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:78
 msgid "Not joined"
@@ -4190,7 +4217,7 @@ msgstr "알림"
 msgid "Notebook"
 msgstr "노트북"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "알림 이상의 수준"
 
@@ -4251,7 +4278,7 @@ msgstr "$1 중 $0만 사용됩니다."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "알파벳, 숫자, : , _ , . , @ , - 만 사용 할 수 있습니다"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "긴급 상황에서만"
 
@@ -4373,8 +4400,6 @@ msgid "Partitioning"
 msgstr "파티션"
 
 #: pkg/storaged/content-views.jsx:633
-#, fuzzy
-#| msgid "Partition"
 msgid "Partitions"
 msgstr "파티션"
 
@@ -4490,7 +4515,7 @@ msgstr "파일의 경로"
 msgid "Paths"
 msgstr "경로"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "일시정지"
 
@@ -4654,7 +4679,7 @@ msgstr "저장"
 msgid "Pretty host name"
 msgstr "지정 호스트 이름"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "이전 재시작"
 
@@ -4662,8 +4687,8 @@ msgstr "이전 재시작"
 msgid "Primary"
 msgstr "주"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "우선순위"
 
@@ -5143,7 +5168,7 @@ msgstr "필수 사항"
 msgid "Reserved memory"
 msgstr "예약된 메모리"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "초기화"
 
@@ -5185,7 +5210,7 @@ msgstr "재시작 중"
 msgid "Restoring connection"
 msgstr "연결 복원 중"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "다시 시작"
 
@@ -5338,13 +5363,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "쉴드 케이스 PC"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "검색"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "결합된 조건을 사용하여 로그를 검색하십시오:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5373,6 +5394,10 @@ msgstr "보안 최신화만"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "선택"
+
+#: pkg/systemd/logs.jsx:320
+msgid "Select a identifier"
+msgstr "식별자 선택"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5541,13 +5566,21 @@ msgstr "모두 표시"
 msgid "Show all threads"
 msgstr "모든 스레드 표시"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "필터 표시"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "지문 표시"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr "제공된 문자열을 포함하여 메시지를 표시합니다."
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr "상세한 systemd 단위를 위해 메세지를 표시하기."
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr "특정 부팅에서 메세지 표시하기."
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5579,6 +5612,10 @@ msgstr "종료"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "종료"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr "이후"
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5725,6 +5762,14 @@ msgstr "멀티패스 시작"
 msgid "Start service"
 msgstr "서비스 시작"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr "항목 표시를 시작하거나 지정된 날짜보다 최신입니다."
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr "항목 표시를 시작하거나 지정된 날짜보다 오래되었습니다."
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "RAID 장치 $target 시작 중"
@@ -5830,10 +5875,12 @@ msgid "Sub-Notebook"
 msgstr "서브 노트북"
 
 #: pkg/storaged/crypto-keyslots.jsx:372
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
-msgstr "클립보드로 복사"
+msgstr "성공적으로 클립보드로 복사됨!"
+
+#: pkg/systemd/logs.jsx:413
+msgid "Successfully copied to keyboard"
+msgstr "키보드에 성공적으로 복사되었습니다"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
 msgid "Sundays"
@@ -6006,10 +6053,6 @@ msgstr "kdump 설정 테스트"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "연결 시험 중"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "텍스트"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6417,6 +6460,30 @@ msgstr "볼륨 크기를 변경하기 전에 활성화해야 합니다."
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "이 웹 브라우저는 오래되어 웹 콘솔을 실행할 수 없습니다($0 누락)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+"이는 '_BOOT_ID='를 위해 일치 항목을 추가합니다. 만약 지정하지 않으면 현재 부팅을 위한 기록(로그)가 표시 될 것입니다. 만약 "
+"부트 ID가 생략되었으면, 양수 오프셋은 저널의 시작 부분에서 시작하여 부팅을 조회 할 것이고, 0 보다 같거나 작은 오프셋은 저널의 "
+"끝에서 부팅을 조회 할 것입니다. 그러므로, 1은 시간 순서에서 저널에서 발견된 처음 부팅을 의미하고, 2는 두 번째 부팅 등을 "
+"의미합니다; 반면 -0은 마지막 부팅이고, -1은 마지막 부팅 전의 부팅입니다."
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+"이는 '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' 와 'UNIT=' 을 위한 일치를 추가하여 제공된 단위를 위해 모든 "
+"가능한 메시지를 찾습니다. 쉼표에 의해 구분된 더 많은 단위를 포함할 수 있습니다. "
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "이를 통해 나중에 비밀번호 없이 로그인 할 수 있습니다."
@@ -6446,7 +6513,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "목요일"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "시간"
 
@@ -6519,7 +6586,11 @@ msgstr "비트맵 전환"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
-msgstr ""
+msgstr "날짜 선택기 전환"
+
+#: pkg/systemd/logs.jsx:190
+msgid "Toggle filters"
+msgstr "필터 전환"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6626,7 +6697,7 @@ msgstr "관리자 액세스 설정"
 msgid "Type"
 msgstr "유형"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "필터 입력"
 
@@ -6747,7 +6818,7 @@ msgstr "사용 불가능"
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "단위"
@@ -6870,6 +6941,10 @@ msgstr "여기에서는 인식되지 않은 데이터를 작게할 수 없습니
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "지원되지 않는 볼륨"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr "까지"
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7158,7 +7233,7 @@ msgstr "필요한 대상"
 msgid "Wants"
 msgstr "필요"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "경고 이상의 수준"
 
@@ -7264,7 +7339,7 @@ msgstr "이 계정에 승인된 공개 키를 표시할 수 있는 권한이 없
 msgid "You have been logged out due to inactivity."
 msgstr "비활성 상태로 인해 로그 아웃되었습니다."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "오래된 항목이 로드될 수 있습니다."
 
@@ -7360,10 +7435,6 @@ msgstr "add-on"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "addon"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "정규식으로 사용되는 자유 형식 문자열"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7477,10 +7548,6 @@ msgstr "도메인"
 msgid "drive"
 msgstr "드라이브"
 
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "예."
-
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
 msgid "e.g. \"$0\""
@@ -7565,13 +7632,11 @@ msgstr "firewalld"
 
 #: pkg/packagekit/kpatch.jsx:244
 msgid "for current and future kernels"
-msgstr ""
+msgstr "현재와 미래의 커널을 위하여"
 
 #: pkg/packagekit/kpatch.jsx:249
-#, fuzzy
-#| msgid "Mount read only"
 msgid "for current kernel only"
-msgstr "읽기 전용으로 적재"
+msgstr "현재 커널만"
 
 #: pkg/storaged/manifest.json:0
 msgid "format"
@@ -7633,7 +7698,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "저널"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl manpage"
 
@@ -7652,10 +7717,6 @@ msgstr "키"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "$0 (로컬)"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "로그 필드"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7769,7 +7830,7 @@ msgstr "비밀번호 수준"
 
 #: pkg/packagekit/updates.jsx:281
 msgid "patches"
-msgstr ""
+msgstr "패치"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"
@@ -7806,10 +7867,6 @@ msgstr "포트"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "전원"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "qualifiers"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8030,6 +8087,27 @@ msgstr "영역"
 msgid "{{host}} key changed"
 msgstr "{{host}} 키 변경됩니다"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "결합된 조건을 사용하여 로그를 검색하십시오:"
+
+#~ msgid "Show filters"
+#~ msgstr "필터 표시"
+
+#~ msgid "Text"
+#~ msgstr "텍스트"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "정규식으로 사용되는 자유 형식 문자열"
+
+#~ msgid "e.g."
+#~ msgstr "예."
+
+#~ msgid "log fields"
+#~ msgstr "로그 필드"
+
+#~ msgid "qualifiers"
+#~ msgstr "qualifiers"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "세션 설정 전환"
 
@@ -8050,9 +8128,6 @@ msgstr "{{host}} 키 변경됩니다"
 
 #~ msgid "Service name"
 #~ msgstr "서비스 이름"
-
-#~ msgid "Filter"
-#~ msgstr "필터"
 
 #~ msgid "Select unit state"
 #~ msgstr "장치 상태 선택"
@@ -10098,9 +10173,6 @@ msgstr "{{host}} 키 변경됩니다"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "이름, 네임 스페이스, 설명으로 검색"
-
-#~ msgid "select container"
-#~ msgstr "컨테이너 선택"
 
 #~ msgid "shares"
 #~ msgstr "공유"

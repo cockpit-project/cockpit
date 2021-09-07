@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
-"PO-Revision-Date: 2021-07-26 08:04+0000\n"
-"Last-Translator: Albert B <fedora@norlan.nl>\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
+"PO-Revision-Date: 2021-08-29 11:04+0000\n"
+"Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "main/nl/>\n"
 "Language: nl\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.7.2\n"
+"X-Generator: Weblate 4.8\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -874,7 +874,7 @@ msgstr "Na het opstarten van het systeem"
 msgid "Alert"
 msgstr "Alarm"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Alert en hoger"
 
@@ -882,7 +882,8 @@ msgstr "Alert en hoger"
 msgid "Alias"
 msgstr "Alias"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "Alle"
 
@@ -910,6 +911,19 @@ msgstr "Ansible"
 msgid "Ansible roles documentation"
 msgstr "Ansible rollen documentatie"
 
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
+"Elke tekenreeks in de logboekberichten kan worden gefilterd. De string kan "
+"ook de vorm hebben van een reguliere expressie. Ondersteunt ook filteren op "
+"berichtlogboekvelden. Dit zijn door spaties gescheiden waarden, in de vorm "
+"FIELD=WAARDE, waarbij de waarde een door komma's gescheiden lijst van "
+"mogelijke waarden kan zijn."
+
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
 msgstr "Uiterlijk"
@@ -935,10 +949,8 @@ msgid "Apply"
 msgstr "Toepassen"
 
 #: pkg/packagekit/kpatch.jsx:240
-#, fuzzy
-#| msgid "Apply security updates"
 msgid "Apply kernel patches"
-msgstr "Pas beveiligingsvernieuwingen toe"
+msgstr "Pas kernelpatches toe"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -1162,6 +1174,10 @@ msgstr "Binding"
 msgid "Bond settings"
 msgstr "Bindingsinstellingen"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr "Boot"
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "Gebonden door"
@@ -1245,7 +1261,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Kan een hostnaam, IP-adres, aliasnaam, of ssh:// URI zijn"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 
@@ -1425,7 +1441,7 @@ msgstr "Opschonen voor $target"
 msgid "Clear 'Failed to start'"
 msgstr "Wis 'Kan niet starten'"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Wis alle filters"
 
@@ -1722,7 +1738,7 @@ msgstr "Converteerbaar"
 msgid "Copy"
 msgstr "Kopiëren"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "Kopiëren naar clipboard"
@@ -1886,7 +1902,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Volumegroep $target aanmaken"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Kritiek en hoger"
 
@@ -1898,7 +1914,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "Huidige opstartprocedure"
 
@@ -1955,6 +1971,18 @@ msgstr "Donker"
 msgid "Data used"
 msgstr "Gebruikte data"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+"Datumspecificaties moeten het formaat JJJJ-MM-DD uu:mm:ss hebben. Als "
+"alternatief worden de strings 'gisteren', 'vandaag', 'morgen' begrepen. 'nu' "
+"verwijst naar de huidige tijd. Ten slotte kunnen relatieve tijden worden "
+"opgegeven, voorafgegaan door '-' of '+'"
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "Deactiveren"
@@ -1967,7 +1995,7 @@ msgstr "Wordt gedeactiveerd"
 msgid "Deactivating $target"
 msgstr "$target deactiveren"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Debug en hoger"
 
@@ -2402,7 +2430,7 @@ msgstr "Errata"
 msgid "Error"
 msgstr "Fout"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Fout en hoger"
 
@@ -2541,6 +2569,10 @@ msgstr "Kan $0 niet inschakelen in firewalld"
 msgid "Failed to enable tuned"
 msgstr "Kan tuned niet inschakelen"
 
+#: pkg/systemd/logsJournal.jsx:260
+msgid "Failed to fetch logs"
+msgstr "Kan logboeken niet ophalen"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "Kan gemachtigde sleutels niet laden."
@@ -2599,6 +2631,10 @@ msgstr "Filtermenu items"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "Filter services"
+
+#: pkg/systemd/logs.jsx:237
+msgid "Filters"
+msgstr "Filters"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2683,6 +2719,10 @@ msgid ""
 msgstr ""
 "Maak ruimte vrij in deze groep: verklein of verwijder andere logische "
 "volumes of voeg een ander fysiek volume toe."
+
+#: pkg/systemd/logs.jsx:377
+msgid "Free-form search"
+msgstr "Zoeken in vrije vorm"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2774,10 +2814,6 @@ msgstr "Hallo tijd $hello_time"
 msgid "Help"
 msgstr "Hulp"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "Verberg filters"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "Geschiedenis van pakketaantallen"
@@ -2855,7 +2891,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6-instellingen"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "Identificatie"
 
@@ -2937,7 +2973,7 @@ msgstr "Indirect"
 msgid "Info"
 msgstr "Info"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Info en hoger"
 
@@ -3166,25 +3202,19 @@ msgstr "Kerneldump"
 
 #: pkg/packagekit/kpatch.jsx:345
 msgid "Kernel patch $0 is active"
-msgstr ""
+msgstr "Kernel patch $0 is actief"
 
 #: pkg/packagekit/kpatch.jsx:352
-#, fuzzy
-#| msgid "Support is installed."
 msgid "Kernel patch $0 is installed"
-msgstr "Ondersteuning is geïnstalleerd."
+msgstr "Kernel patch $0 is geïnstalleerd"
 
 #: pkg/packagekit/kpatch.jsx:278
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel patch settings"
-msgstr "Verander de instellingen"
+msgstr "Kernelpatch instellingen"
 
 #: pkg/packagekit/kpatch.jsx:261
-#, fuzzy
-#| msgid "Kernel Dump"
 msgid "Kernel patching"
-msgstr "Kerneldump"
+msgstr "Kernel-patching"
 
 #: pkg/shell/machines/machine-change-auth.html:38
 #: pkg/shell/machines/machine-change-auth.html:53
@@ -3224,11 +3254,11 @@ msgstr "LACP-sleutel"
 msgid "Laptop"
 msgstr "Laptop"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "Laatste 24 uur"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "Laatste 7 dagen"
 
@@ -3249,12 +3279,10 @@ msgid "Last login:"
 msgstr "Laatste aanmelding:"
 
 #: pkg/storaged/crypto-tab.jsx:49
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "Laatst gecontroleerd: $0"
+msgstr "Laatst gewijzigd: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3330,7 +3358,7 @@ msgstr "Taakverdeling"
 msgid "Load earlier data"
 msgstr "Laad eerdere data"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "Laad eerdere ingangen"
 
@@ -3346,6 +3374,10 @@ msgstr "Het laden van beschikbare updates is mislukt"
 msgid "Loading available updates, please wait..."
 msgstr "Beschikbare updates worden geladen, even geduld..."
 
+#: pkg/systemd/logsJournal.jsx:291
+msgid "Loading earlier entries"
+msgstr "Laad eerdere ingangen"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "Sleutels laden..."
@@ -3359,7 +3391,7 @@ msgid "Loading system modifications..."
 msgstr "Systeemwijzigingen laden..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -3643,7 +3675,7 @@ msgstr "Geheugengebruik"
 
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: pkg/systemd/services/services.jsx:166
 msgid "Merged"
@@ -4074,7 +4106,7 @@ msgstr "Geen logboekvermeldingen"
 msgid "No logical volumes"
 msgstr "Geen logische volumes"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "Geen logs gevonden"
@@ -4105,7 +4137,7 @@ msgstr "Geen partitionering"
 msgid "No real name specified"
 msgstr "Geen echte naam opgegeven"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "Geen resultaten gevonden"
 
@@ -4183,10 +4215,8 @@ msgid "Not found"
 msgstr "Niet gevonden"
 
 #: pkg/packagekit/kpatch.jsx:227
-#, fuzzy
-#| msgid "Installed"
 msgid "Not installed"
-msgstr "Geïnstalleerd"
+msgstr "Niet geïnstalleerd"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:78
 msgid "Not joined"
@@ -4231,7 +4261,7 @@ msgstr "Notitie"
 msgid "Notebook"
 msgstr "Notitieboekje"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Kennisgeving en hoger"
 
@@ -4292,7 +4322,7 @@ msgstr "Alleen $0 van $1 worden gebruikt."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "Alleen letters, cijfers, : , _ , . , @ , - zijn toegestaan"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "Alleen noodgevallen"
 
@@ -4412,10 +4442,8 @@ msgid "Partitioning"
 msgstr "Partitionering"
 
 #: pkg/storaged/content-views.jsx:633
-#, fuzzy
-#| msgid "Partition"
 msgid "Partitions"
-msgstr "Partitie"
+msgstr "Partities"
 
 #: pkg/networkmanager/interfaces.js:1490
 msgid "Passive"
@@ -4527,7 +4555,7 @@ msgstr "Pad naar bestand"
 msgid "Paths"
 msgstr "Paden"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "Pauze"
 
@@ -4690,7 +4718,7 @@ msgstr "Behouden"
 msgid "Pretty host name"
 msgstr "Mooie hostnaam"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "Vorige opstart"
 
@@ -4698,8 +4726,8 @@ msgstr "Vorige opstart"
 msgid "Primary"
 msgstr "Primair"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "Prioriteit"
 
@@ -5176,7 +5204,7 @@ msgstr "Vereiste van"
 msgid "Reserved memory"
 msgstr "Gereserveerd geheugen"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "Reset"
 
@@ -5217,7 +5245,7 @@ msgstr "Herstarten"
 msgid "Restoring connection"
 msgstr "Verbinding herstellen"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Samenvatten"
 
@@ -5368,13 +5396,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "Gesloten PC"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "Zoeken"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "Zoek in de logboeken met een combinatie van termen:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5403,6 +5427,10 @@ msgstr "Alleen beveiligingsupdates"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Selecteren"
+
+#: pkg/systemd/logs.jsx:320
+msgid "Select a identifier"
+msgstr "Selecteer een ID"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5570,13 +5598,21 @@ msgstr "Toon alles"
 msgid "Show all threads"
 msgstr "Toon alle threads"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "Toon filters"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "Toon vingerafdrukken"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr "Toon berichten die een gegeven string bevatten."
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr "Toon berichten voor de gespecificeerde systemd unit."
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr "Toon berichten van een specifieke boot."
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5606,6 +5642,10 @@ msgstr "Afsluiten"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "Afsluiten"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr "Sinds"
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5752,6 +5792,16 @@ msgstr "Start multipath"
 msgid "Start service"
 msgstr "Start service"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+"Begin met het weergeven van ingangen op of nieuwer dan de opgegeven datum."
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+"Begin met het weergeven van ingangen op of ouder dan de opgegeven datum."
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "RAID-apparaat $target starten"
@@ -5857,10 +5907,12 @@ msgid "Sub-Notebook"
 msgstr "Sub-notebook"
 
 #: pkg/storaged/crypto-keyslots.jsx:372
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
-msgstr "Kopiëren naar clipboard"
+msgstr "Succesvol naar het klembord gekopieerd!"
+
+#: pkg/systemd/logs.jsx:413
+msgid "Successfully copied to keyboard"
+msgstr "Succesvol gekopieerd naar toetsenbord"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
 msgid "Sundays"
@@ -6033,10 +6085,6 @@ msgstr "Test kdump instellingen"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "Verbinding testen"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "Tekst"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6479,6 +6527,35 @@ msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 "Deze webbrowser is te oud om de Webconsole uit te voeren ($0 ontbreekt)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+"Dit voegt een overeenkomst toe voor '_BOOT_ID='. Als dit niet is opgegeven, "
+"worden de logboeken voor de huidige boot weergegeven. Als de boot-ID wordt "
+"weggelaten, zoekt een positieve offset de boots op vanaf het begin van het "
+"journaal, en een offset die gelijk is aan of kleiner is dan nul, zoekt de "
+"boots op vanaf het einde van het journaal. Dus 1 betekent de eerste boot die "
+"in chronologische volgorde in het journaal wordt gevonden, 2 de tweede "
+"enzovoort; terwijl -0 de laatste keer opstarten is, -1 de opstart voor het "
+"laatst, enzovoort."
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+"Dit voegt een overeenkomst toe voor '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' en "
+"'UNIT=' om alle mogelijke berichten voor de gegeven eenheid te vinden. Kan "
+"meer eenheden bevatten, gescheiden door komma's. "
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "Hiermee kun je in de toekomst zonder wachtwoord inloggen."
@@ -6509,7 +6586,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "donderdagen"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "Tijd"
 
@@ -6582,7 +6659,11 @@ msgstr "Wissel bitmap"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
-msgstr ""
+msgstr "Datumkiezer omschakelen"
+
+#: pkg/systemd/logs.jsx:190
+msgid "Toggle filters"
+msgstr "Schakel filters om"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6690,7 +6771,7 @@ msgstr "Schakel beheerderstoegang in"
 msgid "Type"
 msgstr "Type"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "Typ om te filteren"
 
@@ -6807,7 +6888,7 @@ msgstr "Niet beschikbaar"
 msgid "Unexpected error"
 msgstr "Onverwachte fout"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "Unit"
@@ -6930,6 +7011,10 @@ msgstr "Onbekende data kan hier niet kleiner gemaakt worden."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Niet-ondersteunde volume"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr "Tot"
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7213,7 +7298,7 @@ msgstr "Gezocht door"
 msgid "Wants"
 msgstr "Behoeften"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Waarschuwing en hoger"
 
@@ -7321,7 +7406,7 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Je bent uitgelogd vanwege inactiviteit."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "Je kunt proberen oudere items te laden."
 
@@ -7422,10 +7507,6 @@ msgstr "toevoeging"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "toevoeging"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "elke vrije tekenreeks als reguliere expressie"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7536,10 +7617,6 @@ msgstr "domein"
 msgid "drive"
 msgstr "station"
 
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "b.v."
-
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
 msgid "e.g. \"$0\""
@@ -7624,13 +7701,11 @@ msgstr "firewalld"
 
 #: pkg/packagekit/kpatch.jsx:244
 msgid "for current and future kernels"
-msgstr ""
+msgstr "voor huidige en toekomstige kernels"
 
 #: pkg/packagekit/kpatch.jsx:249
-#, fuzzy
-#| msgid "Mount read only"
 msgid "for current kernel only"
-msgstr "Koppel alleen-lezen aan"
+msgstr "alleen voor huidige kernel"
 
 #: pkg/storaged/manifest.json:0
 msgid "format"
@@ -7692,7 +7767,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "logboek"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl manualpagina"
 
@@ -7711,10 +7786,6 @@ msgstr "sleutels"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "lokaal in $0"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "logboekvelden"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7829,7 +7900,7 @@ msgstr "wachtwoordkwaliteit"
 
 #: pkg/packagekit/updates.jsx:281
 msgid "patches"
-msgstr ""
+msgstr "patches"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"
@@ -7866,10 +7937,6 @@ msgstr "poort"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "vermogen"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "kwalificaties"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8090,6 +8157,27 @@ msgstr "zone"
 msgid "{{host}} key changed"
 msgstr "{{host}} sleutel gewijzigd"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "Zoek in de logboeken met een combinatie van termen:"
+
+#~ msgid "Show filters"
+#~ msgstr "Toon filters"
+
+#~ msgid "Text"
+#~ msgstr "Tekst"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "elke vrije tekenreeks als reguliere expressie"
+
+#~ msgid "e.g."
+#~ msgstr "b.v."
+
+#~ msgid "log fields"
+#~ msgstr "logboekvelden"
+
+#~ msgid "qualifiers"
+#~ msgstr "kwalificaties"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "Wissel sessie-instellingen"
 
@@ -8110,9 +8198,6 @@ msgstr "{{host}} sleutel gewijzigd"
 
 #~ msgid "Service name"
 #~ msgstr "Servicenaam"
-
-#~ msgid "Filter"
-#~ msgstr "Filter"
 
 #~ msgid "Select unit state"
 #~ msgstr "Selecteer unit status"
@@ -10207,9 +10292,6 @@ msgstr "{{host}} sleutel gewijzigd"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "zoeken op naam, naamruimte of beschrijving"
-
-#~ msgid "select container"
-#~ msgstr "selecteer container"
 
 #~ msgid "shares"
 #~ msgstr "delen"

@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
 "PO-Revision-Date: 2021-03-28 06:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -928,7 +928,7 @@ msgstr "לאחר עליית המערכת"
 msgid "Alert"
 msgstr "התראה"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "אזעקה ומעלה"
 
@@ -938,7 +938,8 @@ msgstr "אזעקה ומעלה"
 msgid "Alias"
 msgstr "כינוי"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "הכול"
 
@@ -965,6 +966,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "תיעוד תפקידים של Ansible"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1224,6 +1233,10 @@ msgstr "מאגד"
 msgid "Bond settings"
 msgstr "הגדרות מאגד"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "מאוגד על ידי"
@@ -1306,7 +1319,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "יכול להיות שם מארח, כתובת IP, שם כינוי או כתובת ssh://‎ מלאה"
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr "לא ניתן למצוא יומנים עם שילוב המסננים הנוכחי."
 
@@ -1481,7 +1494,7 @@ msgstr "מתבצע ניקוי לכבוד $target"
 msgid "Clear 'Failed to start'"
 msgstr "לנקות ‚התחלה נכשלה’"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "ניקוי כל המסננים"
 
@@ -1777,7 +1790,7 @@ msgstr "מתהפך"
 msgid "Copy"
 msgstr "העתקה"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "העתקה ללוח הגזירים"
@@ -1933,7 +1946,7 @@ msgstr "יצירת הציוות הזה תקטע את החיבור לשרת ות�
 msgid "Creating volume group $target"
 msgstr "קבוצת הכרכים $target נוצרת"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "חמור ומעלה"
 
@@ -1945,7 +1958,7 @@ msgstr "Ctrl+Insert"
 msgid "Ctrl-Shift-J"
 msgstr "Ctrl-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "עלייה נוכחית"
 
@@ -2002,6 +2015,14 @@ msgstr "כהה"
 msgid "Data used"
 msgstr "נתונים בשימוש"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "השבתה"
@@ -2014,7 +2035,7 @@ msgstr "מתבצעת השבתה"
 msgid "Deactivating $target"
 msgstr "מתבצעת השבתה של $target"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "ניפוי שגיאות ומעלה"
 
@@ -2451,7 +2472,7 @@ msgstr "טעויות ידועות"
 msgid "Error"
 msgstr "שגיאה"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "שגיאה ומעלה"
 
@@ -2599,6 +2620,12 @@ msgstr "ההפעלה של tuned נכשלה"
 msgid "Failed to enable tuned"
 msgstr "ההפעלה של tuned נכשלה"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "החלפת פרופיל נכשלה"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "טעינת המפתחות המורשים נכשלה."
@@ -2658,6 +2685,12 @@ msgstr "סינון שירותים"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "סינון שירותים"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "מסנן"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2742,6 +2775,12 @@ msgid ""
 msgstr ""
 "פינוי מקום בקבוצה הזו: יש לכווץ או למחוק כרכים לוגיים אחרים או להוסיף עוד "
 "כרך פיזי."
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "ניקוי החיפוש"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2835,10 +2874,6 @@ msgstr "זמן Hello‏ $hello_time"
 msgid "Help"
 msgstr "עזרה"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "הסתרת מסננים"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "ספירת חבילות היסטורית"
@@ -2916,7 +2951,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "הגדרות IPv6"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "מזהה"
 
@@ -2999,7 +3034,7 @@ msgstr "ישיר"
 msgid "Info"
 msgstr "מידע"
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "מידע ומעלה"
 
@@ -3287,11 +3322,11 @@ msgstr "מפתח LACP"
 msgid "Laptop"
 msgstr "מחשב נייד"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "24 השעות האחרונות"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "7 הימים האחרונים"
 
@@ -3317,7 +3352,7 @@ msgstr "כניסה אחרונה:"
 msgid "Last modified: $0"
 msgstr "בדיקה אחרונה: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3397,7 +3432,7 @@ msgstr "איזון עומס"
 msgid "Load earlier data"
 msgstr "טעינת נתונים קודמים"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "טעינת רשומות קודמות"
 
@@ -3413,6 +3448,12 @@ msgstr "טעינת העדכונים הזמינים נכשלה"
 msgid "Loading available updates, please wait..."
 msgstr "העדכונים הזמינים נטענים, נא להמתין…"
 
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "טעינת רשומות קודמות"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
 msgstr "המפתחות נטענים…"
@@ -3426,7 +3467,7 @@ msgid "Loading system modifications..."
 msgstr "השינויים למערכת נטענים…"
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -4145,7 +4186,7 @@ msgstr "אין רשומות ביומן"
 msgid "No logical volumes"
 msgstr "אין כרכים לוגיים"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr "לא נמצאו יומנים"
@@ -4176,7 +4217,7 @@ msgstr "אין חלוקה למחיצות"
 msgid "No real name specified"
 msgstr "לא צוין שם אמתי"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "לא נמצאו תוצאות"
 
@@ -4302,7 +4343,7 @@ msgstr "הערה"
 msgid "Notebook"
 msgstr "מחברת"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "הודעה ומעלה"
 
@@ -4363,7 +4404,7 @@ msgstr "רק $0 מתוך $1 מנוצלים."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "מותר רק אותיות באנגלית, מספרים, : , _ , . , @ , -"
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "חירום בלבד"
 
@@ -4606,7 +4647,7 @@ msgstr "הנתיב לקובץ"
 msgid "Paths"
 msgstr "נתיבים"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "השהיה"
 
@@ -4767,7 +4808,7 @@ msgstr "שימור"
 msgid "Pretty host name"
 msgstr "שם מארח יפה"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr "עלייה קודמת"
 
@@ -4775,8 +4816,8 @@ msgstr "עלייה קודמת"
 msgid "Primary"
 msgstr "עיקרי"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "עדיפות"
 
@@ -5255,7 +5296,7 @@ msgstr "הכרח של"
 msgid "Reserved memory"
 msgstr "זיכרון שמור"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "איפוס"
 
@@ -5296,7 +5337,7 @@ msgstr "מתבצעת הפעלה מחדש"
 msgid "Restoring connection"
 msgstr "החיבור משוחזר"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "המשך"
 
@@ -5448,13 +5489,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "מחשב במארז אטום"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "חיפוש"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "חיפוש ביומנים עם שילוב של הביטויים:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5483,6 +5520,12 @@ msgstr "עדכוני אבטחה בלבד"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "בחירה"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "select container"
+msgid "Select a identifier"
+msgstr "בחירת מכולה"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5654,13 +5697,21 @@ msgstr "להציג הכול"
 msgid "Show all threads"
 msgstr "להציג את כל התהליכונים"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "הצגת מסננים"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "הצגת טביעות אצבע"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5690,6 +5741,10 @@ msgstr "כיבוי"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "כיבוי"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -5833,6 +5888,14 @@ msgstr "הפעלת רב נתיבי"
 msgid "Start service"
 msgstr "התחלת שירות"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "התקן ה־RAID‏ $target מתחיל"
@@ -5941,6 +6004,12 @@ msgstr "תת מחברת"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "העתקה ללוח הגזירים"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "העתקה ללוח הגזירים"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6113,10 +6182,6 @@ msgstr "בדיקת הגדרות kdump"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "החיבור נבדק"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "טקסט"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6516,6 +6581,24 @@ msgstr "יש להפעיל את הכרך הזה לפני שיתאפשר לשנו�
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "דפדפן זה מיושן מכדי להריץ את המסוף לדפדפן (חסר $0)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr "הגדרה זו תאפשר לך להיכנס ללא ססמה בעתיד."
@@ -6545,7 +6628,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "ימי חמישי"
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "שעה"
 
@@ -6618,6 +6701,12 @@ msgstr "החלפת מצב מפת סיביות"
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "הסתרת מסננים"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6726,7 +6815,7 @@ msgstr "הפעלת גישה ניהולית"
 msgid "Type"
 msgstr "סוג"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "יש להקליד כדי לסנן"
 
@@ -6842,7 +6931,7 @@ msgstr "לא זמין"
 msgid "Unexpected error"
 msgstr "שגיאה בלתי צפויה"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "יחידה"
@@ -6967,6 +7056,10 @@ msgstr "לא ניתן להקטין כאן נתונים בלתי מזוהים."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "כרך לא נתמך"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7253,7 +7346,7 @@ msgstr "נדרש על ידי"
 msgid "Wants"
 msgstr "דורש"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "אזהרה ומעלה"
 
@@ -7358,7 +7451,7 @@ msgstr "אין לך הרשאה לצפות במפתחות ציבוריים מור
 msgid "You have been logged out due to inactivity."
 msgstr "יצאת מהמערכת עקב חוסר פעילות."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "כדאי לך לנסות לטעון רשומות ישנות יותר."
 
@@ -7455,10 +7548,6 @@ msgstr "תוספת"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "תוספת"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr "כל מחרוזת חופשית כביטוי רגולרי"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7568,10 +7657,6 @@ msgstr "שם תחום"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "כונן"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "למשל:"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -7739,7 +7824,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "ז׳ורנל"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "מדריך השימוש ב־journalctl"
 
@@ -7758,10 +7843,6 @@ msgstr "מפתחות"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "מקומית ב־$0"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr "שדות יומן"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -7922,10 +8003,6 @@ msgstr "פתחה"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "חשמל"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "קטגוריות"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8146,6 +8223,27 @@ msgstr "אזור"
 msgid "{{host}} key changed"
 msgstr "המפתח של {{host}} השתנה"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "חיפוש ביומנים עם שילוב של הביטויים:"
+
+#~ msgid "Show filters"
+#~ msgstr "הצגת מסננים"
+
+#~ msgid "Text"
+#~ msgstr "טקסט"
+
+#~ msgid "any free-form string as regular expression"
+#~ msgstr "כל מחרוזת חופשית כביטוי רגולרי"
+
+#~ msgid "e.g."
+#~ msgstr "למשל:"
+
+#~ msgid "log fields"
+#~ msgstr "שדות יומן"
+
+#~ msgid "qualifiers"
+#~ msgstr "קטגוריות"
+
 #~ msgid "Toggle session settings"
 #~ msgstr "החלפה בין ערכות הגדרות"
 
@@ -8166,9 +8264,6 @@ msgstr "המפתח של {{host}} השתנה"
 
 #~ msgid "Service name"
 #~ msgstr "שם השירות"
-
-#~ msgid "Filter"
-#~ msgstr "מסנן"
 
 #~ msgid "Select unit state"
 #~ msgstr "נא לבחור מצב יחידה"
@@ -10220,9 +10315,6 @@ msgstr "המפתח של {{host}} השתנה"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "חיפוש לפי שם, מרחב שם או תיאור"
-
-#~ msgid "select container"
-#~ msgstr "בחירת מכולה"
 
 #~ msgid "shares"
 #~ msgstr "שיתופים"

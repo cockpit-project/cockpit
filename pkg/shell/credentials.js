@@ -43,7 +43,7 @@ export function setup() {
     }
 
     function show_pending(val) {
-        var body = $("tbody.ssh-add-key-body");
+        const body = $("tbody.ssh-add-key-body");
         body.attr("data-name", val);
         body.find("th.credential-label").text(val);
         body.addClass("unlock");
@@ -51,8 +51,8 @@ export function setup() {
     }
 
     function add_custom_key() {
-        var tr = $("#credentials-dialog tr.load-custom-key");
-        var val = tr.find("input").val();
+        const tr = $("#credentials-dialog tr.load-custom-key");
+        const val = tr.find("input").val();
         keys.load(val)
                 .then(() => hide_add_key())
                 .catch(ex => {
@@ -78,7 +78,7 @@ export function setup() {
     }
 
     function onToggleKey(id, enable, tbody) {
-        var key = keys.items[id];
+        const key = keys.items[id];
         if (!key || !key.name)
             return;
 
@@ -137,10 +137,9 @@ export function setup() {
 
     /* Show and hide panels */
             .on("click", "tr.listing-ct-item", function(ev) {
-                var body;
                 hide_add_key();
                 if ($(ev.target).parents(".listing-ct-actions, ul").length === 0) {
-                    body = $(ev.target).parents("tbody");
+                    const body = $(ev.target).parents("tbody");
                     body.toggleClass("open").removeClass("unlock");
                     body.find(".pf-c-alert").hide();
                     ev.preventDefault();
@@ -162,10 +161,10 @@ export function setup() {
 
     /* Load key */
             .on("click", ".credential-unlock button", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
-                var name;
+                const body = $(this).parents("tbody");
+                const id = body.attr("data-id");
+                const key = keys.items[id];
+                let name;
 
                 if (key)
                     name = key.name;
@@ -178,7 +177,7 @@ export function setup() {
                 body.find("input button").prop("disabled", true);
                 body.find(".pf-c-alert").hide();
 
-                var password = body.find(".credential-password").val();
+                const password = body.find(".credential-password").val();
                 keys.load(name, password)
                         .then(() => {
                             body.find(".credential-password").val("");
@@ -199,9 +198,9 @@ export function setup() {
 
     /* Change key */
             .on("click", ".credential-change", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
+                const body = $(this).parents("tbody");
+                const id = body.attr("data-id");
+                const key = keys.items[id];
                 if (!key || !key.name)
                     return;
 
@@ -210,9 +209,9 @@ export function setup() {
                 body.find("input button").prop("disabled", true);
                 body.find(".pf-c-alert").hide();
 
-                var old_pass = body.find(".credential-old").val();
-                var new_pass = body.find(".credential-new").val();
-                var two_pass = body.find(".credential-two").val();
+                const old_pass = body.find(".credential-old").val();
+                const new_pass = body.find(".credential-new").val();
+                const two_pass = body.find(".credential-two").val();
                 if (old_pass === undefined || new_pass === undefined || two_pass === undefined)
                     throw Error("invalid password fields");
 
@@ -235,7 +234,7 @@ export function setup() {
             })
 
             .on("change keypress", "input", function(ev) {
-                var body = $(this).parents("tbody");
+                const body = $(this).parents("tbody");
                 if (ev.type == "keypress" && ev.keyCode == 13)
                     $(this).parents("dl")
                             .find(".pf-m-primary")
@@ -245,12 +244,12 @@ export function setup() {
 
     /* Change tabs */
             .on("click", "tr.credential-panel ul > li > a", function(ev) {
-                var li = $(this).parent();
-                var index = li.index();
+                const li = $(this).parent();
+                const index = li.index();
                 li.parent().children()
                         .removeClass("active");
                 li.addClass("active");
-                var body = $(this).parents("tbody");
+                const body = $(this).parents("tbody");
                 body.find(".credential-tab").prop("hidden", true)
                         .eq(index)
                         .prop("hidden", false);
@@ -282,19 +281,18 @@ export function setup() {
         keys = credentials.keys_instance();
 
         $(keys).on("changed", function() {
-            var key, id, row;
-            var rows = { };
-            var table = $("#credentials-dialog table.credential-listing");
+            const rows = { };
+            const table = $("#credentials-dialog table.credential-listing");
 
             table.find("tbody[data-id]").each(function(i, el) {
-                row = $(el);
+                const row = $(el);
                 rows[row.attr("data-id")] = row;
             });
 
-            var body = table.find("tbody.ssh-key-body").first();
-            for (id in keys.items) {
+            const body = table.find("tbody.ssh-key-body").first();
+            for (const id in keys.items) {
                 if (!(id in rows)) {
-                    row = rows[id] = body.clone();
+                    const row = rows[id] = body.clone();
                     row.attr("data-id", id)
                             .removeAttr("hidden");
                     table.append(row);
@@ -302,15 +300,15 @@ export function setup() {
             }
 
             function text(row, field, string) {
-                var sel = row.find(field);
+                const sel = row.find(field);
                 string = string || "";
                 if (sel.text() !== string)
                     sel.text(string);
             }
 
-            for (id in rows) {
-                row = rows[id];
-                key = keys.items[id];
+            for (const id in rows) {
+                const row = rows[id];
+                const key = keys.items[id];
                 if (key) {
                     text(row, ".credential-label", key.name || key.comment);
                     text(row, ".credential-type", key.type);

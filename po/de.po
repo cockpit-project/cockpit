@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-10 18:06+0000\n"
+"POT-Creation-Date: 2021-08-24 18:06+0000\n"
 "PO-Revision-Date: 2021-07-23 15:04+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -897,7 +897,7 @@ msgstr "Nach dem Systemstart"
 msgid "Alert"
 msgstr "Alarm"
 
-#: pkg/systemd/logs.html:53
+#: pkg/systemd/logs.jsx:65
 msgid "Alert and above"
 msgstr "Alarm und höher"
 
@@ -907,7 +907,8 @@ msgstr "Alarm und höher"
 msgid "Alias"
 msgstr "Alias"
 
-#: pkg/systemd/logs.js:170
+#: pkg/systemd/logs.jsx:111 pkg/systemd/logs.jsx:127 pkg/systemd/logs.jsx:156
+#: pkg/systemd/logs.jsx:291 pkg/systemd/logs.jsx:317
 msgid "All"
 msgstr "Alle"
 
@@ -934,6 +935,14 @@ msgstr "Ansible"
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
 msgstr "Ansible Rollendokumentation"
+
+#: pkg/systemd/logs.jsx:380
+msgid ""
+"Any text string in the logs messages can be filtered. The string can also be "
+"in the form of a regular expressions. Also supports filtering by message log "
+"fields. These are space separated values, in form FIELD=VALUE, where value "
+"can be comma separated list of possible values."
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -1199,6 +1208,10 @@ msgstr "Bond"
 msgid "Bond settings"
 msgstr "Bond-Einstellungen"
 
+#: pkg/systemd/logs.jsx:355
+msgid "Boot"
+msgstr ""
+
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
 msgstr "Gebunden"
@@ -1279,7 +1292,7 @@ msgstr "CVE"
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr ""
 
-#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:281
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Es konnten keine Logeinträge für die aktuellen Filtereinstellungen gefunden "
@@ -1460,7 +1473,7 @@ msgstr "$target wird aufgeräumt"
 msgid "Clear 'Failed to start'"
 msgstr "'Starten Fehlgeschlagen' zurücksetzen"
 
-#: pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:961 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Alle Filter entfernen"
 
@@ -1763,7 +1776,7 @@ msgstr "Convertible"
 msgid "Copy"
 msgstr "Kopieren"
 
-#: pkg/storaged/crypto-keyslots.jsx:371
+#: pkg/systemd/logs.jsx:415 pkg/storaged/crypto-keyslots.jsx:371
 #: pkg/lib/cockpit-components-modifications.jsx:75
 msgid "Copy to clipboard"
 msgstr "In Zwischenablage kopieren"
@@ -1932,7 +1945,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Erzeuge Datenträgerverbund $target"
 
-#: pkg/systemd/logs.html:54
+#: pkg/systemd/logs.jsx:66
 msgid "Critical and above"
 msgstr "Kritisch und höher"
 
@@ -1944,7 +1957,7 @@ msgstr "Strg+Einfügen"
 msgid "Ctrl-Shift-J"
 msgstr "Strg-Shift-J"
 
-#: pkg/systemd/logs.html:42
+#: pkg/systemd/logs.jsx:57
 msgid "Current boot"
 msgstr "Aktueller Boot"
 
@@ -2001,6 +2014,14 @@ msgstr "Dunkel"
 msgid "Data used"
 msgstr "Verwendete Daten"
 
+#: pkg/systemd/logs.jsx:329
+msgid ""
+"Date specifications should be of the format YYYY-MM-DD hh:mm:ss. "
+"Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. "
+"'now' refers to the current time. Finally, relative times may be specified, "
+"prefixed with '-' or '+'"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
 msgstr "Deaktivieren"
@@ -2013,7 +2034,7 @@ msgstr "Wird deaktiviert"
 msgid "Deactivating $target"
 msgstr "Deaktiviere $target"
 
-#: pkg/systemd/logs.html:59
+#: pkg/systemd/logs.jsx:71
 msgid "Debug and above"
 msgstr "Debug und höher"
 
@@ -2476,7 +2497,7 @@ msgstr "Errata:"
 msgid "Error"
 msgstr "Fehler"
 
-#: pkg/systemd/logs.html:55
+#: pkg/systemd/logs.jsx:67
 msgid "Error and above"
 msgstr "Fehler und höher"
 
@@ -2630,6 +2651,12 @@ msgstr "Tuned konnte nicht aktiviert werden"
 msgid "Failed to enable tuned"
 msgstr "Tuned konnte nicht aktiviert werden"
 
+#: pkg/systemd/logsJournal.jsx:260
+#, fuzzy
+#| msgid "Failed to switch profile"
+msgid "Failed to fetch logs"
+msgstr "Profil konnte nicht gewechselt werden"
+
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
 msgstr "Fehler beim Laden autorisierter Schlüssel."
@@ -2693,6 +2720,12 @@ msgstr "Filterdienste"
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "Filterdienste"
+
+#: pkg/systemd/logs.jsx:237
+#, fuzzy
+#| msgid "Filter"
+msgid "Filters"
+msgstr "Filter"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2779,6 +2812,12 @@ msgid ""
 "Free up space in this group: Shrink or delete other logical volumes or add "
 "another physical volume."
 msgstr ""
+
+#: pkg/systemd/logs.jsx:377
+#, fuzzy
+#| msgid "Clear search"
+msgid "Free-form search"
+msgstr "Suche zurücksetzen"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2875,10 +2914,6 @@ msgstr "Hello-Zeit $hello_time"
 msgid "Help"
 msgstr "Hilfe"
 
-#: pkg/systemd/logs.js:428 pkg/systemd/logs.js:558
-msgid "Hide filters"
-msgstr "Filter verstecken"
-
 #: pkg/packagekit/history.jsx:106
 msgid "History package count"
 msgstr "History Packet-Anzahl"
@@ -2957,7 +2992,7 @@ msgstr "IPv6"
 msgid "IPv6 settings"
 msgstr "IPv6-Einstellungen"
 
-#: pkg/systemd/logs.html:64
+#: pkg/systemd/logs.jsx:224
 msgid "Identifier"
 msgstr "Kennung"
 
@@ -3034,7 +3069,7 @@ msgstr "Direkte"
 msgid "Info"
 msgstr ""
 
-#: pkg/systemd/logs.html:58
+#: pkg/systemd/logs.jsx:70
 msgid "Info and above"
 msgstr "Info und höher"
 
@@ -3333,11 +3368,11 @@ msgstr "LACP key"
 msgid "Laptop"
 msgstr "Laptop"
 
-#: pkg/systemd/logs.html:44
+#: pkg/systemd/logs.jsx:59
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: pkg/systemd/logs.html:45
+#: pkg/systemd/logs.jsx:60
 msgid "Last 7 days"
 msgstr "Letzte 7 Tage"
 
@@ -3363,7 +3398,7 @@ msgstr "Letzte Anmeldung:"
 msgid "Last modified: $0"
 msgstr "Zuletzt geprüft: $0"
 
-#: pkg/systemd/logs.html:86 pkg/lib/cockpit-components-dialog.jsx:226
+#: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 msgid "Learn more"
@@ -3443,7 +3478,7 @@ msgstr "Adaptives Load Balancing (alb)"
 msgid "Load earlier data"
 msgstr "Frühere Einträge laden"
 
-#: pkg/systemd/logs.js:115
+#: pkg/systemd/logsJournal.jsx:290
 msgid "Load earlier entries"
 msgstr "Frühere Einträge laden"
 
@@ -3458,6 +3493,12 @@ msgstr "Das Laden verfügbarer Updates ist fehlgeschlagen"
 #: pkg/packagekit/updates.jsx:73
 msgid "Loading available updates, please wait..."
 msgstr "Verfügbare Updates werden geladen, bitte warten ..."
+
+#: pkg/systemd/logsJournal.jsx:291
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "Loading earlier entries"
+msgstr "Frühere Einträge laden"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 #, fuzzy
@@ -3476,7 +3517,7 @@ msgid "Loading system modifications..."
 msgstr "System-Änderungen laden..."
 
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/services/services.jsx:816
-#: pkg/systemd/logs.js:165 pkg/systemd/logs.js:217 pkg/storaged/devices.jsx:75
+#: pkg/systemd/logsJournal.jsx:269 pkg/storaged/devices.jsx:75
 #: pkg/kdump/kdump-view.jsx:369 pkg/metrics/metrics.jsx:744
 #: pkg/metrics/metrics.jsx:1396
 msgid "Loading..."
@@ -4247,7 +4288,7 @@ msgstr "Frühere Einträge laden"
 msgid "No logical volumes"
 msgstr "Keine logischen Volumes"
 
-#: pkg/systemd/logs.js:113 pkg/systemd/logs.js:140 pkg/systemd/logs.js:277
+#: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
 #: pkg/metrics/metrics.jsx:744
 msgid "No logs found"
 msgstr ""
@@ -4278,7 +4319,7 @@ msgstr "Keine Partitionierung"
 msgid "No real name specified"
 msgstr "Es wurde kein echter Name angegeben"
 
-#: pkg/shell/nav.jsx:129
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:129
 msgid "No results found"
 msgstr "Keine Ergebnisse gefunden"
 
@@ -4411,7 +4452,7 @@ msgstr "Hinweis"
 msgid "Notebook"
 msgstr "Notizbuch"
 
-#: pkg/systemd/logs.html:57
+#: pkg/systemd/logs.jsx:69
 msgid "Notice and above"
 msgstr "Hinweis und höher"
 
@@ -4477,7 +4518,7 @@ msgstr "Nur $0 von $1 werden verwendet."
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
 msgstr "Nur Alphabete, Zahlen,:, _,. , @ , - sind erlaubt."
 
-#: pkg/systemd/logs.html:52
+#: pkg/systemd/logs.jsx:64
 msgid "Only emergency"
 msgstr "Nur Notfall"
 
@@ -4723,7 +4764,7 @@ msgstr "Pfad zur Datei"
 msgid "Paths"
 msgstr "Pfade"
 
-#: pkg/systemd/logs.html:107 pkg/systemd/logs.js:348 pkg/systemd/logs.js:545
+#: pkg/systemd/logs.jsx:263
 msgid "Pause"
 msgstr "Pause"
 
@@ -4893,7 +4934,7 @@ msgstr "Beibehalten"
 msgid "Pretty host name"
 msgstr "Anzeige-Rechnername"
 
-#: pkg/systemd/logs.html:43
+#: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
 msgstr ""
 
@@ -4901,8 +4942,8 @@ msgstr ""
 msgid "Primary"
 msgstr "Primär"
 
-#: pkg/systemd/logs.html:50 pkg/networkmanager/index.html:133
-#: pkg/networkmanager/index.html:252 pkg/networkmanager/index.html:262
+#: pkg/networkmanager/index.html:133 pkg/networkmanager/index.html:252
+#: pkg/networkmanager/index.html:262 pkg/systemd/logs.jsx:208
 msgid "Priority"
 msgstr "Priorität"
 
@@ -5398,7 +5439,7 @@ msgstr "Erfordernis von"
 msgid "Reserved memory"
 msgstr "Reservierter Speicher"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -5445,7 +5486,7 @@ msgstr "Neustart"
 msgid "Restoring connection"
 msgstr "Erneut verbinden"
 
-#: pkg/systemd/logs.js:351 pkg/systemd/logs.js:541
+#: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Fortfahren"
 
@@ -5599,13 +5640,9 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "PC mit versiegeltem Gehäuse"
 
-#: pkg/shell/nav.jsx:109
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:109
 msgid "Search"
 msgstr "Suche"
-
-#: pkg/systemd/logs.html:79
-msgid "Search the logs with a combination of terms:"
-msgstr "Durchsuchen sie die Logdateien mit einer Kombination von Begriffen:"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5638,6 +5675,12 @@ msgstr "Sicherheitsupdates verfügbar"
 #: pkg/shell/shell-modals.jsx:95
 msgid "Select"
 msgstr "Auswählen"
+
+#: pkg/systemd/logs.jsx:320
+#, fuzzy
+#| msgid "select container"
+msgid "Select a identifier"
+msgstr "Container auswählen"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5818,13 +5861,21 @@ msgstr "Alle anzeigen"
 msgid "Show all threads"
 msgstr "Alle Bilder anzeigen"
 
-#: pkg/systemd/logs.html:104 pkg/systemd/logs.js:426 pkg/systemd/logs.js:560
-msgid "Show filters"
-msgstr "Filter anzeigen"
-
 #: pkg/systemd/overview-cards/configurationCard.jsx:119
 msgid "Show fingerprints"
 msgstr "Fingerabdrücke anzeigen"
+
+#: pkg/systemd/logs.jsx:378
+msgid "Show messages containing given string."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:367
+msgid "Show messages for the specified systemd unit."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:356
+msgid "Show messages from a specific boot."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
@@ -5854,6 +5905,10 @@ msgstr "Herunterfahren"
 #: pkg/systemd/overview.jsx:211
 msgid "Shutdown"
 msgstr "Herunterfahren"
+
+#: pkg/systemd/logs.jsx:333
+msgid "Since"
+msgstr ""
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
@@ -6000,6 +6055,14 @@ msgstr "Multipath starten"
 msgid "Start service"
 msgstr "Dienst starten"
 
+#: pkg/systemd/logs.jsx:334
+msgid "Start showing entries on or newer than the specified date."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:345
+msgid "Start showing entries on or older than the specified date."
+msgstr ""
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "Starte RAID-Gerät $target"
@@ -6111,6 +6174,12 @@ msgstr "Subnotizbuch"
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
+msgstr "In Zwischenablage kopieren"
+
+#: pkg/systemd/logs.jsx:413
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Successfully copied to keyboard"
 msgstr "In Zwischenablage kopieren"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
@@ -6293,10 +6362,6 @@ msgstr "kdump-Einstellungen prüfen"
 #: pkg/networkmanager/index.html:39
 msgid "Testing connection"
 msgstr "Prüfe Verbindung"
-
-#: pkg/systemd/logs.html:71
-msgid "Text"
-msgstr "Text"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
@@ -6734,6 +6799,24 @@ msgstr ""
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "Dieser Webbrowser ist zu alt, um Cockpit auszuführen (fehlt) $0)"
 
+#: pkg/systemd/logs.jsx:358
+msgid ""
+"This will add a match for '_BOOT_ID='. If not specified the logs for the "
+"current boot will be shown. If the boot ID is omitted, a positive offset "
+"will look up the boots starting from the beginning of the journal, and an "
+"equal-or-less-than zero offset will look up boots starting from the end of "
+"the journal. Thus, 1 means the first boot found in the journal in "
+"chronological order, 2 the second and so on; while -0 is the last boot, -1 "
+"the boot before last, and so on."
+msgstr ""
+
+#: pkg/systemd/logs.jsx:369
+msgid ""
+"This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
+"find all possible messages for the given unit. Can contain more units "
+"separated by comma. "
+msgstr ""
+
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
 msgstr ""
@@ -6763,7 +6846,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr ""
 
-#: pkg/systemd/logs.html:38 pkg/packagekit/history.jsx:106
+#: pkg/systemd/logs.jsx:201 pkg/packagekit/history.jsx:106
 msgid "Time"
 msgstr "Zeit"
 
@@ -6833,6 +6916,12 @@ msgstr ""
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
+
+#: pkg/systemd/logs.jsx:190
+#, fuzzy
+#| msgid "Hide filters"
+msgid "Toggle filters"
+msgstr "Filter verstecken"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6945,7 +7034,7 @@ msgstr "Administrator-Zugriff aktivieren"
 msgid "Type"
 msgstr "Typ"
 
-#: pkg/systemd/logs.html:73
+#: pkg/systemd/logs.jsx:401
 msgid "Type to filter"
 msgstr "Zum Filtern tippen"
 
@@ -7067,7 +7156,7 @@ msgstr "Nicht verfügbar"
 msgid "Unexpected error"
 msgstr "Unerwarteter Fehler"
 
-#: pkg/systemd/services/services-list.jsx:37
+#: pkg/systemd/logs.jsx:366 pkg/systemd/services/services-list.jsx:37
 #: pkg/systemd/services/services-list.jsx:42 pkg/storaged/dialog.jsx:1081
 msgid "Unit"
 msgstr "Einheit"
@@ -7194,6 +7283,10 @@ msgstr "Nicht erkannte Daten können hier nicht verkleinert werden."
 #: pkg/storaged/content-views.jsx:702
 msgid "Unsupported volume"
 msgstr "Nicht unterstützter Datenträger"
+
+#: pkg/systemd/logs.jsx:344
+msgid "Until"
+msgstr ""
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -7505,7 +7598,7 @@ msgstr "Gesucht von"
 msgid "Wants"
 msgstr "Will"
 
-#: pkg/systemd/logs.html:56
+#: pkg/systemd/logs.jsx:68
 msgid "Warning and above"
 msgstr "Warnung und höher"
 
@@ -7616,7 +7709,7 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr "Sie wurden wegen Inaktivität abgemeldet."
 
-#: pkg/systemd/logs.js:114
+#: pkg/systemd/logsJournal.jsx:324
 msgid "You may try to load older entries."
 msgstr "Wollen sie probieren alte Einträge zu laden."
 
@@ -7714,10 +7807,6 @@ msgstr "Add-on"
 #: pkg/apps/manifest.json:0
 msgid "addon"
 msgstr "AddOn"
-
-#: pkg/systemd/logs.html:83
-msgid "any free-form string as regular expression"
-msgstr ""
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7832,10 +7921,6 @@ msgstr "Domain"
 #: pkg/storaged/manifest.json:0
 msgid "drive"
 msgstr "Speichergerät"
-
-#: pkg/systemd/logs.html:81 pkg/systemd/logs.html:82
-msgid "e.g."
-msgstr "z.B."
 
 #: pkg/systemd/overview-cards/realmd-operation.js:302
 #: pkg/systemd/overview-cards/realmd-operation.js:308
@@ -8008,7 +8093,7 @@ msgstr "iscsi"
 msgid "journal"
 msgstr "Journal"
 
-#: pkg/systemd/logs.html:87
+#: pkg/systemd/logs.jsx:411
 msgid "journalctl manpage"
 msgstr "journalctl manpage"
 
@@ -8027,10 +8112,6 @@ msgstr "Schlüssel"
 #: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
 msgid "locally in $0"
 msgstr "lokal in $0"
-
-#: pkg/systemd/logs.html:82
-msgid "log fields"
-msgstr ""
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -8195,10 +8276,6 @@ msgstr "Port"
 #: pkg/systemd/manifest.json:0
 msgid "power"
 msgstr "Leistung"
-
-#: pkg/systemd/logs.html:81
-msgid "qualifiers"
-msgstr "Kennzeichner"
 
 #: pkg/storaged/manifest.json:0
 msgid "raid"
@@ -8425,6 +8502,21 @@ msgstr "Zone"
 msgid "{{host}} key changed"
 msgstr "Änderung erzwingen"
 
+#~ msgid "Search the logs with a combination of terms:"
+#~ msgstr "Durchsuchen sie die Logdateien mit einer Kombination von Begriffen:"
+
+#~ msgid "Show filters"
+#~ msgstr "Filter anzeigen"
+
+#~ msgid "Text"
+#~ msgstr "Text"
+
+#~ msgid "e.g."
+#~ msgstr "z.B."
+
+#~ msgid "qualifiers"
+#~ msgstr "Kennzeichner"
+
 #, fuzzy
 #~ msgid "Toggle session settings"
 #~ msgstr "Bridge Port-Einstellungen"
@@ -8443,9 +8535,6 @@ msgstr "Änderung erzwingen"
 
 #~ msgid "Service name"
 #~ msgstr "Dienstname"
-
-#~ msgid "Filter"
-#~ msgstr "Filter"
 
 #, fuzzy
 #~| msgid "Console type"
@@ -10354,9 +10443,6 @@ msgstr "Änderung erzwingen"
 
 #~ msgid "search by name, namespace or description"
 #~ msgstr "Suche nach Name, Namensraum oder Beschreibung"
-
-#~ msgid "select container"
-#~ msgstr "Container auswählen"
 
 #~ msgid "shares"
 #~ msgstr "Freigaben"

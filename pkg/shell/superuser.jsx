@@ -79,17 +79,12 @@ class UnlockDialog extends React.Component {
 
             footer = (
                 <>
-                    <Button variant='primary' onClick={state.apply} isDisabled={state.busy}>
+                    <Button variant='primary' onClick={state.apply} isDisabled={state.busy} isLoading={state.busy}>
                         {_("Authenticate")}
                     </Button>
                     <Button variant='link' className='btn-cancel' onClick={state.cancel} isDisabled={!state.cancel}>
                         {_("Cancel")}
                     </Button>
-                    { state.busy &&
-                        <div className="dialog-wait-ct">
-                            <div className="spinner spinner-sm" />
-                        </div>
-                    }
                 </>);
         } else if (state.message) {
             title = _("Administrative access");

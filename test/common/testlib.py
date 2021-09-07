@@ -125,6 +125,7 @@ class Browser:
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
+        self.is_mobile = bool(os.environ.get("TEST_MOBILE"))
         self.failed_pixel_tests = 0
 
     def title(self):
@@ -701,7 +702,7 @@ class Browser:
 
         ignore_rects = list(map(relative_clip, map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
-        if bool(os.environ.get("TEST_MOBILE", "")):
+        if self.is_mobile:
             base += "-mobile"
         filename = base + "-pixels.png"
         ref_filename = os.path.join(reference_dir, filename)

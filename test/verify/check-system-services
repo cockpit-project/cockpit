@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import parent
 import testvm
 from testlib import *
@@ -299,6 +301,7 @@ Unit=test.service
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+        b.assert_pixels("#service-details", "details-test-fail", ignore=[".cockpit-log-panel .pf-c-card__body"])
         b.click(".action-button:contains('Start service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
@@ -356,6 +359,16 @@ Unit=test.service
         b.set_input_text("#services-text-filter input", "Test Service")
         self.wait_service_present("test.service")
         self.wait_service_present("test-fail.service")
+        if b.is_mobile:
+            # close the expanded toolbar again to see the whole list
+            b.click("#services-page .pf-c-toolbar__toggle button")
+            b.wait_not_visible("#services-page .pf-m-search-filter")
+            # scroll the menu navbar all the way to the left
+            nav_scroll_btn = ".services-header button[aria-label='Scroll left']"
+            while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
+                b.click(nav_scroll_btn)
+                time.sleep(0.5)
+        b.assert_pixels("#services-page", "text-filter-test")
 
         # Filter by description capitalization not matching the unit description
         init_filter_state()

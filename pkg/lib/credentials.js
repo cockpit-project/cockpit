@@ -26,7 +26,7 @@ import remove_key from "raw-loader!credentials-ssh-remove-key.sh";
 const _ = cockpit.gettext;
 
 function Keys() {
-    var self = this;
+    const self = this;
 
     self.path = null;
     self.items = { };
@@ -86,9 +86,9 @@ function Keys() {
     }
 
     function process(data) {
-        var blocks = data.split('\v');
-        var key;
-        var items = { };
+        const blocks = data.split('\v');
+        let key;
+        const items = { };
 
         /* First block is the data from ssh agent */
         blocks[0].trim().split("\n")
@@ -127,8 +127,8 @@ function Keys() {
     }
 
     function parse_key(line, items) {
-        var parts = line.trim().split(" ");
-        var id, type, comment;
+        const parts = line.trim().split(" ");
+        let id, type, comment;
 
         /* SSHv1 keys */
         if (!isNaN(parseInt(parts[0], 10))) {
@@ -147,7 +147,7 @@ function Keys() {
             return;
         }
 
-        var key = items[id];
+        let key = items[id];
         if (!key)
             key = items[id] = { };
 
@@ -158,10 +158,8 @@ function Keys() {
     }
 
     function parse_info(line, key) {
-        var parts = line.trim().split(" ");
-        parts = parts.filter(function(n) {
-            return !!n;
-        });
+        const parts = line.trim().split(" ")
+                .filter(n => !!n);
 
         key.size = parseInt(parts[0], 10);
         if (isNaN(key.size))
@@ -178,9 +176,9 @@ function Keys() {
     }
 
     function run_keygen(file, new_type, old_pass, new_pass, two_pass) {
-        var old_exps = [/.*Enter old passphrase: $/];
-        var new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
-        var bad_exps = [/.*failed: passphrase is too short.*/];
+        const old_exps = [/.*Enter old passphrase: $/];
+        const new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
+        const bad_exps = [/.*failed: passphrase is too short.*/];
 
         return new Promise((resolve, reject) => {
             let buffer = "";
@@ -265,14 +263,14 @@ function Keys() {
     };
 
     self.load = function(name, password) {
-        var ask_exp = /.*Enter passphrase for .*/;
-        var perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
-        var bad_exp = /.*Bad passphrase.*/;
+        const ask_exp = /.*Enter passphrase for .*/;
+        const perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
+        const bad_exp = /.*Bad passphrase.*/;
 
-        var buffer = "";
-        var output = "";
-        var failure = _("Not a valid private key");
-        var sent_password = false;
+        let buffer = "";
+        let output = "";
+        let failure = _("Not a valid private key");
+        let sent_password = false;
 
         return new Promise((resolve, reject) => {
             const proc = cockpit.spawn(["ssh-add", name],
@@ -317,13 +315,11 @@ function Keys() {
     };
 
     self.unload = function unload(key) {
-        var proc;
         const options = { pty: true, err: "message", directory: self.path };
 
-        if (key.name && !key.agent_only)
-            proc = cockpit.spawn(["ssh-add", "-d", key.name], options);
-        else
-            proc = cockpit.script(remove_key, [key.data], options);
+        const proc = (key.name && !key.agent_only)
+            ? cockpit.spawn(["ssh-add", "-d", key.name], options)
+            : cockpit.script(remove_key, [key.data], options);
 
         return proc.then(refresh);
     };

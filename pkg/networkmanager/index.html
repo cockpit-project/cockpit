@@ -104,27 +104,30 @@
         {{! member interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Spanning tree protocol (STP)</label>
+      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Options</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
           {{#stp_checked}}checked{{/stp_checked}}/>
+        <span translate="yes">Spanning tree protocol (STP)</span>
       </label>
 
-      <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP priority</label>
-      <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
-             value="{{stp_priority}}"/>
+      <div role="group" class="ct-form" id="network-bridge-settings-stp">
+        <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP priority</label>
+        <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
+              value="{{stp_priority}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP forward delay</label>
-      <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
-             value="{{stp_forward_delay}}"/>
+        <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP forward delay</label>
+        <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
+              value="{{stp_forward_delay}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP hello time</label>
-      <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
-             value="{{stp_hello_time}}"/>
+        <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP hello time</label>
+        <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
+              value="{{stp_hello_time}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP maximum message age</label>
-      <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
-             value="{{stp_max_age}}"/>
+        <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP maximum message age</label>
+        <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
+              value="{{stp_max_age}}"/>
+      </div>
     </form>
   </script>
 

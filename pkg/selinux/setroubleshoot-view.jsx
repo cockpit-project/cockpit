@@ -371,9 +371,9 @@ export class SETroubleshootPage extends React.Component {
                     { title: itm.description }
                 ];
                 if (itm.count > 1) {
-                    columns.push({ title: <Badge isRead>{itm.count}</Badge> });
+                    columns.push({ title: <Badge isRead>{itm.count}</Badge>, props: { className: "pf-c-table__action" } });
                 } else {
-                    columns.push({ title: <span /> });
+                    columns.push({ title: <span />, props: { className: "pf-c-table__action" } });
                 }
                 return ({
                     props: { key: itm.details ? itm.details.localId : index },

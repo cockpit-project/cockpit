@@ -359,7 +359,7 @@ Unit=test.service
         b.set_input_text("#services-text-filter input", "Test Service")
         self.wait_service_present("test.service")
         self.wait_service_present("test-fail.service")
-        if b.is_mobile:
+        if b.cdp.mobile:
             # close the expanded toolbar again to see the whole list
             b.click("#services-page .pf-c-toolbar__toggle button")
             b.wait_not_visible("#services-page .pf-m-search-filter")

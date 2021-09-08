@@ -2758,7 +2758,7 @@ PageNetworkBridgeSettings.prototype = {
         var con = PageNetworkBridgeSettings.connection;
         var options = self.settings.bridge;
 
-        var stp_input, priority_input, forward_delay_input, hello_time_input, max_age_input;
+        var stp_input, stp_options, priority_input, forward_delay_input, hello_time_input, max_age_input;
 
         function change_members() {
             self.members_changed = true;
@@ -2772,14 +2772,7 @@ PageNetworkBridgeSettings.prototype = {
             options.hello_time = parseInt(hello_time_input.val(), 10);
             options.max_age = parseInt(max_age_input.val(), 10);
 
-            priority_input.toggle(options.stp);
-            priority_input.prev().toggle(options.stp);
-            forward_delay_input.toggle(options.stp);
-            forward_delay_input.prev().toggle(options.stp);
-            hello_time_input.toggle(options.stp);
-            hello_time_input.prev().toggle(options.stp);
-            max_age_input.toggle(options.stp);
-            max_age_input.prev().toggle(options.stp);
+            stp_options.toggle(options.stp);
         }
 
         var body = $(mustache.render(self.bridge_settings_template, {
@@ -2802,6 +2795,7 @@ PageNetworkBridgeSettings.prototype = {
         member_interfaces.toggle(!con);
         member_interfaces.prev().toggle(!con);
 
+        stp_options = body.find('#network-bridge-settings-stp');
         stp_input = body.find('#network-bridge-settings-stp-enabled-input');
         stp_input.change(change_stp);
         priority_input = body.find('#network-bridge-settings-stp-priority-input');

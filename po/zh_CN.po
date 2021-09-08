@@ -20,16 +20,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-24 18:06+0000\n"
-"PO-Revision-Date: 2021-06-05 10:03+0000\n"
+"PO-Revision-Date: 2021-09-08 06:49+0000\n"
 "Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
-"projects/cockpit/master/zh_CN/>\n"
+"projects/cockpit/rhel-9-0/zh_CN/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.6.2\n"
+"X-Generator: Weblate 4.8\n"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -284,10 +284,8 @@ msgid "(Optional)"
 msgstr "(可选)"
 
 #: pkg/storaged/format-dialog.jsx:165 pkg/storaged/format-dialog.jsx:182
-#, fuzzy
-#| msgid "recommended"
 msgid "(recommended)"
-msgstr "推荐"
+msgstr "（推荐）"
 
 #: pkg/packagekit/updates.jsx:742
 msgid ", including $1 security fix"
@@ -638,10 +636,8 @@ msgstr "活跃自 "
 
 #: pkg/systemd/services/services.jsx:903 pkg/systemd/services/services.jsx:904
 #: pkg/systemd/services/services.jsx:911
-#, fuzzy
-#| msgid "Activate"
 msgid "Active state"
-msgstr "激活"
+msgstr "活跃状态"
 
 #: pkg/networkmanager/interfaces.js:1470
 msgid "Adaptive load balancing"
@@ -847,8 +843,6 @@ msgid "Alert and above"
 msgstr "Alert 及更高级别"
 
 #: pkg/systemd/services/services.jsx:190
-#, fuzzy
-#| msgid "alias"
 msgid "Alias"
 msgstr "别名"
 
@@ -888,6 +882,8 @@ msgid ""
 "fields. These are space separated values, in form FIELD=VALUE, where value "
 "can be comma separated list of possible values."
 msgstr ""
+"可以对日志信息中的文本字符串进行过滤。字符串也可以是正则表达式的形式。另外，还支持按消息日志的字段进行过滤。它们是使用空格分隔的列，格式为 "
+"FIELD=VALUE，其中的值是以逗号分隔的可能的值的列表。"
 
 #: pkg/systemd/terminal.jsx:146
 msgid "Appearance"
@@ -914,10 +910,8 @@ msgid "Apply"
 msgstr "应用"
 
 #: pkg/packagekit/kpatch.jsx:240
-#, fuzzy
-#| msgid "Apply security updates"
 msgid "Apply kernel patches"
-msgstr "应用安全更新"
+msgstr "应用内核补丁"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -959,10 +953,8 @@ msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
 #: pkg/systemd/services/timer-dialog.jsx:241
-#, fuzzy
-#| msgid "1 minute"
 msgid "At minute"
-msgstr "1 分钟"
+msgstr "分钟"
 
 #: pkg/systemd/services/timer-dialog.jsx:180
 msgid "At specific time"
@@ -1082,16 +1074,12 @@ msgid "Backing device"
 msgstr "后端设备"
 
 #: pkg/systemd/services/services.jsx:198
-#, fuzzy
-#| msgid "Blade"
 msgid "Bad"
-msgstr "刀片"
+msgstr "错误"
 
 #: pkg/systemd/services/services.jsx:164
-#, fuzzy
-#| msgid "Bond settings"
 msgid "Bad setting"
-msgstr "绑定设置"
+msgstr "错误设置"
 
 #: pkg/networkmanager/index.html:222
 msgid "Balancer"
@@ -1146,7 +1134,7 @@ msgstr "绑定设置"
 
 #: pkg/systemd/logs.jsx:355
 msgid "Boot"
-msgstr ""
+msgstr "可引导"
 
 #: pkg/systemd/services/service-details.jsx:451
 msgid "Bound by"
@@ -1502,10 +1490,8 @@ msgstr ""
 "服务器，并开始进行管理。"
 
 #: pkg/metrics/metrics.jsx:1043
-#, fuzzy
-#| msgid "Store metrics"
 msgid "Collect metrics"
-msgstr "存储指标数据"
+msgstr "收集指标"
 
 #: pkg/shell/machines/machine-add.html:37
 msgid "Color"
@@ -1602,10 +1588,8 @@ msgid "Confirm removal of $0"
 msgstr "确认移除 $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:414
-#, fuzzy
-#| msgid "Confirm removal with passphrase"
 msgid "Confirm removal with an alternate passphrase"
-msgstr "使用密码确认删除"
+msgstr "使用一个备用密码短语确认删除"
 
 #: pkg/systemd/services/service-details.jsx:454
 msgid "Conflicted by"
@@ -1930,6 +1914,8 @@ msgid ""
 "'now' refers to the current time. Finally, relative times may be specified, "
 "prefixed with '-' or '+'"
 msgstr ""
+"日期规格应为 YYYY-MM-DD hh:mm:ss 格式。另外，也可以使用字符串 'yesterday', 'today', 'tomorrow'。"
+"'now' 代表当前时间。另外，还可以指定相对时间，前缀为 '-' 或 '+'"
 
 #: pkg/storaged/content-views.jsx:280
 msgid "Deactivate"
@@ -1962,10 +1948,8 @@ msgid "Delay"
 msgstr "延时"
 
 #: pkg/systemd/services/timer-dialog.jsx:186
-#, fuzzy
-#| msgid "Size must be a number"
 msgid "Delay must be a number"
-msgstr "大小必须是一个数字"
+msgstr "延迟必须是一个数字"
 
 #: pkg/systemd/abrtLog.jsx:242 pkg/users/account-details.js:277
 #: pkg/users/delete-account-dialog.js:60 pkg/storaged/mdraid-details.jsx:300
@@ -2150,7 +2134,7 @@ msgstr "不要在启动时自动安装"
 
 #: pkg/lib/machine-info.js:69
 msgid "Docking station"
-msgstr "Docking station"
+msgstr "扩展坞"
 
 #: pkg/systemd/services/services-list.jsx:77
 msgid "Does not automatically start"
@@ -2224,7 +2208,7 @@ msgstr "驱动器"
 
 #: pkg/lib/machine-info.js:252
 msgid "Dual rank"
-msgstr "Dual rank"
+msgstr "双 rank"
 
 #: pkg/storaged/nfs-details.jsx:318 pkg/storaged/crypto-keyslots.jsx:552
 #: pkg/storaged/iscsi-panel.jsx:255 pkg/packagekit/kpatch.jsx:223
@@ -2283,8 +2267,6 @@ msgid "Emptying $target"
 msgstr "清空 $target"
 
 #: pkg/packagekit/kpatch.jsx:232 pkg/packagekit/autoupdates.jsx:401
-#, fuzzy
-#| msgid "Enabled"
 msgid "Enable"
 msgstr "启用"
 
@@ -2339,10 +2321,8 @@ msgid "Encryption options"
 msgstr "加密选项"
 
 #: pkg/storaged/crypto-tab.jsx:211
-#, fuzzy
-#| msgid "Encryption"
 msgid "Encryption type"
-msgstr "加密"
+msgstr "加密类型"
 
 #: pkg/selinux/setroubleshoot-view.jsx:263
 msgid "Enforcing"
@@ -2446,22 +2426,16 @@ msgid "Expansion chassis"
 msgstr "扩展机箱"
 
 #: pkg/users/expiration-dialogs.js:62
-#, fuzzy
-#| msgid "Lock account on $0"
 msgid "Expire account on"
-msgstr "锁定 $0 上的账号"
+msgstr "过期账号于"
 
 #: pkg/users/account-details.js:111
-#, fuzzy
-#| msgid "Lock account on $0"
 msgid "Expire account on $0"
-msgstr "锁定 $0 上的账号"
+msgstr "过期帐号于 $0"
 
 #: pkg/metrics/metrics.jsx:1060
-#, fuzzy
-#| msgid "Routed network"
 msgid "Export to network"
-msgstr "路由的网络"
+msgstr "导出到网络"
 
 #: pkg/systemd/abrtLog.jsx:244
 msgid "Extended information"
@@ -2497,10 +2471,8 @@ msgid "Failed to change password"
 msgstr "修改密码失败"
 
 #: pkg/metrics/metrics.jsx:1028
-#, fuzzy
-#| msgid "Failed to clone VM $0"
 msgid "Failed to configure PCP"
-msgstr "克隆虚拟机 $0 失败"
+msgstr "配置 PCP 失败"
 
 #: pkg/selinux/setroubleshoot-client.js:164
 msgid "Failed to delete alert: $0"
@@ -2519,20 +2491,16 @@ msgid "Failed to edit machine: $0"
 msgstr "编辑主机失败: $0"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:116
-#, fuzzy
-#| msgid "Failed to enable tuned"
 msgid "Failed to enable $0 in firewalld"
-msgstr "启用 tuned 失败"
+msgstr "在 firewalld 中启用 $0 失败"
 
 #: pkg/tuned/dialog.js:163
 msgid "Failed to enable tuned"
 msgstr "启用 tuned 失败"
 
 #: pkg/systemd/logsJournal.jsx:260
-#, fuzzy
-#| msgid "Failed to switch profile"
 msgid "Failed to fetch logs"
-msgstr "切换配置集失败"
+msgstr "获取日志失败"
 
 #: pkg/users/authorized-keys-panel.js:108
 msgid "Failed to load authorized keys."
@@ -2543,6 +2511,7 @@ msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
 msgstr ""
+"为 dnf-automatic.timer 或 dnf-automatic-install.timer 解析单元文件失败。请删除自定义覆盖来配置自动更新。"
 
 #: pkg/packagekit/updates.jsx:424
 msgid "Failed to restart service"
@@ -2563,10 +2532,8 @@ msgstr "切换配置集失败"
 
 #: pkg/systemd/services/services.jsx:919 pkg/systemd/services/services.jsx:920
 #: pkg/systemd/services/services.jsx:927
-#, fuzzy
-#| msgid "Failed to start"
 msgid "File state"
-msgstr "启动失败"
+msgstr "文件状态"
 
 #: pkg/storaged/content-views.jsx:161
 msgid "Filesystem"
@@ -2585,20 +2552,16 @@ msgid "Filter by name or description"
 msgstr "根据名称或描述进行过滤"
 
 #: pkg/shell/shell-modals.jsx:109
-#, fuzzy
-#| msgid "Filter services"
 msgid "Filter menu items"
-msgstr "过滤服务"
+msgstr "过滤菜单项"
 
 #: pkg/networkmanager/firewall.jsx:238
 msgid "Filter services"
 msgstr "过滤服务"
 
 #: pkg/systemd/logs.jsx:237
-#, fuzzy
-#| msgid "Filter"
 msgid "Filters"
-msgstr "过滤器"
+msgstr "过滤"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2683,10 +2646,8 @@ msgid ""
 msgstr "在这个组中释放更多可用空间：缩小或删除其它逻辑卷或添加另外一个物理卷。"
 
 #: pkg/systemd/logs.jsx:377
-#, fuzzy
-#| msgid "Clear search"
 msgid "Free-form search"
-msgstr "清除搜寻"
+msgstr "自由形式搜索"
 
 #: pkg/systemd/services/timer-dialog.jsx:286 pkg/packagekit/autoupdates.jsx:312
 msgid "Fridays"
@@ -2705,10 +2666,8 @@ msgid "General"
 msgstr "通用"
 
 #: pkg/systemd/services/services.jsx:196
-#, fuzzy
-#| msgid "General"
 msgid "Generated"
-msgstr "通用"
+msgstr "生成的"
 
 #: pkg/sosreport/index.html:62
 msgid "Generating report"
@@ -2929,10 +2888,8 @@ msgid "Index memory"
 msgstr "索引内存"
 
 #: pkg/systemd/services/services.jsx:195
-#, fuzzy
-#| msgid "direct"
 msgid "Indirect"
-msgstr "直接"
+msgstr "间接"
 
 #: pkg/packagekit/updates.jsx:698
 msgid "Info"
@@ -3021,10 +2978,8 @@ msgid "Internal error: Invalid challenge header"
 msgstr "内部错误：无效的挑战字头部"
 
 #: pkg/systemd/services/services.jsx:194
-#, fuzzy
-#| msgid "Invalid key"
 msgid "Invalid"
-msgstr "无效的 key"
+msgstr "无效"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3157,10 +3112,8 @@ msgid "Kernel Dump"
 msgstr "内核转储"
 
 #: pkg/kdump/kdump-view.jsx:500
-#, fuzzy
-#| msgid "Kernel dump"
 msgid "Kernel crash dump"
-msgstr "内核转储"
+msgstr "内核崩溃转储"
 
 #: pkg/kdump/index.html:23
 msgid "Kernel dump"
@@ -3168,25 +3121,19 @@ msgstr "内核转储"
 
 #: pkg/packagekit/kpatch.jsx:345
 msgid "Kernel patch $0 is active"
-msgstr ""
+msgstr "内核补丁 $0 处于活跃状态"
 
 #: pkg/packagekit/kpatch.jsx:352
-#, fuzzy
-#| msgid "Support is installed."
 msgid "Kernel patch $0 is installed"
-msgstr "已安装支持。"
+msgstr "内核补丁 $0 已安装"
 
 #: pkg/packagekit/kpatch.jsx:278
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel patch settings"
-msgstr "修改设置"
+msgstr "内核补丁设置"
 
 #: pkg/packagekit/kpatch.jsx:261
-#, fuzzy
-#| msgid "Kernel Dump"
 msgid "Kernel patching"
-msgstr "内核转储"
+msgstr "内核补丁"
 
 #: pkg/shell/machines/machine-change-auth.html:38
 #: pkg/shell/machines/machine-change-auth.html:53
@@ -3251,10 +3198,8 @@ msgid "Last login:"
 msgstr "最后登录："
 
 #: pkg/storaged/crypto-tab.jsx:49
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "最后检查于： $0"
+msgstr "最后修改于： $0"
 
 #: pkg/lib/cockpit-components-dialog.jsx:226
 #: pkg/lib/cockpit-components-dialog.jsx:233
@@ -3310,16 +3255,12 @@ msgid "Link watch"
 msgstr "侦测连接状态"
 
 #: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:189
-#, fuzzy
-#| msgid "Links"
 msgid "Linked"
 msgstr "连接"
 
 #: pkg/systemd/services/service-details.jsx:537
-#, fuzzy
-#| msgid "Persistent"
 msgid "Listen"
-msgstr "持久"
+msgstr "监听"
 
 #: pkg/metrics/metrics.jsx:102 pkg/metrics/metrics.jsx:480
 #: pkg/metrics/metrics.jsx:1378
@@ -3351,10 +3292,8 @@ msgid "Loading available updates, please wait..."
 msgstr "正在加载可用的更新，请等待..."
 
 #: pkg/systemd/logsJournal.jsx:291
-#, fuzzy
-#| msgid "Load earlier entries"
 msgid "Loading earlier entries"
-msgstr "载入更早条目"
+msgstr "载入更早的条目"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:214
 msgid "Loading keys..."
@@ -3514,14 +3453,12 @@ msgstr "主服务器机箱"
 
 #: pkg/systemd/services/services.jsx:179
 msgid "Maintanance"
-msgstr ""
+msgstr "维护"
 
 #: pkg/storaged/crypto-keyslots.jsx:361
-#, fuzzy
-#| msgid "Make sure the key hash from the Tang server matches:"
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
-msgstr "确保来自 Tang 服务器的密钥哈希匹配："
+msgstr "确保来自 Tang 服务器的密钥哈希与以下之一匹配："
 
 #: pkg/networkmanager/network-main.jsx:176
 msgid "Managed interfaces"
@@ -3652,11 +3589,11 @@ msgstr "内存使用"
 
 #: pkg/storaged/content-views.jsx:647 pkg/storaged/content-views.jsx:816
 msgid "Menu"
-msgstr ""
+msgstr "菜单"
 
 #: pkg/systemd/services/services.jsx:166
 msgid "Merged"
-msgstr ""
+msgstr "合并"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:177
 msgid "Message to logged in users"
@@ -3675,10 +3612,8 @@ msgid "Metrics history could not be loaded"
 msgstr "无法加载指标历史记录"
 
 #: pkg/metrics/metrics.jsx:1007 pkg/metrics/metrics.jsx:1014
-#, fuzzy
-#| msgid "Bridge settings"
 msgid "Metrics settings"
-msgstr "网桥设置"
+msgstr "指标设置"
 
 #: pkg/lib/machine-info.js:92
 msgid "Mini PC"
@@ -3942,10 +3877,8 @@ msgid "Never"
 msgstr "从不"
 
 #: pkg/users/account-details.js:108 pkg/users/expiration-dialogs.js:36
-#, fuzzy
-#| msgid "Never lock account"
 msgid "Never expire account"
-msgstr "账号从不锁定"
+msgstr "账号从不过期"
 
 #: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:144
 msgid "Never expire password"
@@ -4047,10 +3980,8 @@ msgid "No drives attached"
 msgstr "没有附件的驱动器"
 
 #: pkg/storaged/format-dialog.jsx:187
-#, fuzzy
-#| msgid "encryption"
 msgid "No encryption"
-msgstr "加密"
+msgstr "无加密"
 
 #: pkg/storaged/format-dialog.jsx:169
 msgid "No filesystem"
@@ -4194,10 +4125,8 @@ msgid "Not found"
 msgstr "未找到"
 
 #: pkg/packagekit/kpatch.jsx:227
-#, fuzzy
-#| msgid "Installed"
 msgid "Not installed"
-msgstr "已安装"
+msgstr "未安装"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:78
 msgid "Not joined"
@@ -4227,10 +4156,8 @@ msgid "Not running"
 msgstr "未运行"
 
 #: pkg/packagekit/autoupdates.jsx:336
-#, fuzzy
-#| msgid "No NFS mounts set up"
 msgid "Not set up"
-msgstr "没有设置 NFS 挂载"
+msgstr "未设置"
 
 #: pkg/lib/serverTime.js:380
 msgid "Not synchronized"
@@ -4250,7 +4177,7 @@ msgstr "Notice 及更高级别"
 
 #: pkg/selinux/setroubleshoot-view.jsx:415
 msgid "Occurances"
-msgstr "Occurances"
+msgstr "发生次数"
 
 #: pkg/selinux/setroubleshoot-view.jsx:352
 msgid "Occurred $0"
@@ -4314,11 +4241,11 @@ msgstr "糟糕！"
 
 #: pkg/metrics/metrics.jsx:977
 msgid "Open the pmproxy service in the firewall to share metrics."
-msgstr ""
+msgstr "在防火墙中打开 pmproxy 服务以共享指标。"
 
 #: pkg/storaged/jobs-panel.jsx:91
 msgid "Operation '$operation' on $target"
-msgstr "在 $target 操作 '$operation'"
+msgstr "在 $target 上操作 '$operation'"
 
 #: pkg/storaged/drives-panel.jsx:76
 msgctxt "storage"
@@ -4424,8 +4351,6 @@ msgid "Partitioning"
 msgstr "分区"
 
 #: pkg/storaged/content-views.jsx:633
-#, fuzzy
-#| msgid "Partition"
 msgid "Partitions"
 msgstr "分区"
 
@@ -4439,10 +4364,8 @@ msgid "Passphrase"
 msgstr "口令"
 
 #: pkg/storaged/crypto-keyslots.jsx:397
-#, fuzzy
-#| msgid "Passphrase cannot be empty"
 msgid "Passphrase can not be empty"
-msgstr "密码不能为空"
+msgstr "密码短语不能为空"
 
 #: pkg/storaged/crypto-keyslots.jsx:179 pkg/storaged/crypto-keyslots.jsx:270
 #: pkg/storaged/crypto-keyslots.jsx:311 pkg/storaged/crypto-keyslots.jsx:314
@@ -4451,10 +4374,8 @@ msgid "Passphrase cannot be empty"
 msgstr "密码不能为空"
 
 #: pkg/storaged/crypto-keyslots.jsx:420
-#, fuzzy
-#| msgid "Passphrase cannot be empty"
 msgid "Passphrase from any other key slot"
-msgstr "密码不能为空"
+msgstr "来自其他密钥插槽的密码短语"
 
 #: pkg/storaged/crypto-keyslots.jsx:410
 msgid "Passphrase removal may prevent unlocking $0."
@@ -4480,10 +4401,8 @@ msgid "Password expiration"
 msgstr "密码过期"
 
 #: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:211
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Password is longer than 256 characters"
-msgstr "名称不能长于127个字符。"
+msgstr "密码长度不能超过 256 个字符"
 
 #: pkg/lib/cockpit-components-password.jsx:41
 msgid "Password is not acceptable"
@@ -4506,10 +4425,8 @@ msgid "Paste"
 msgstr "粘贴"
 
 #: pkg/lib/cockpit-components-terminal.jsx:201
-#, fuzzy
-#| msgid "Internal error"
 msgid "Paste error"
-msgstr "内部错误"
+msgstr "粘贴错误"
 
 #: pkg/users/authorized-keys-panel.js:36
 msgid "Paste the contents of your public SSH key file here"
@@ -4555,7 +4472,7 @@ msgstr "暂停"
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
-msgstr ""
+msgstr "Performance Co-Pilot 会收集或分析来自您的系统的性能指标。"
 
 #: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1415
 msgid "Performance Metrics"
@@ -4727,10 +4644,8 @@ msgid "Priority $priority"
 msgstr "优先级 $priority"
 
 #: pkg/shell/superuser.jsx:98
-#, fuzzy
-#| msgid "Domain administrator name"
 msgid "Problem becoming administrator"
-msgstr "域管理员用户名"
+msgstr "成为管理员出问题"
 
 #: pkg/systemd/abrtLog.jsx:272
 msgid "Problem details"
@@ -4979,10 +4894,8 @@ msgid "Reload propagated from"
 msgstr "重新加载的传播来自"
 
 #: pkg/systemd/services/services.jsx:174
-#, fuzzy
-#| msgid "Reading"
 msgid "Reloading"
-msgstr "读取中"
+msgstr "重新加载中"
 
 #: pkg/packagekit/updates.jsx:435
 msgid "Reloading the state of remaining services"
@@ -5031,20 +4944,16 @@ msgid "Remove Tang keyserver"
 msgstr "删除 Tang keyserver"
 
 #: pkg/storaged/format-dialog.jsx:136
-#, fuzzy
-#| msgid "Login format"
 msgid "Remove and format"
-msgstr "登陆格式"
+msgstr "删除并格式化"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "删除设备"
 
 #: pkg/storaged/crypto-keyslots.jsx:434
-#, fuzzy
-#| msgid "Remove passphrase in $0?"
 msgid "Remove passphrase in key slot $0"
-msgstr "在 $0 中删除密码？"
+msgstr "删除密钥插槽 $0 中的密码短语"
 
 #: pkg/networkmanager/firewall.jsx:73
 msgid "Remove service $0"
@@ -5076,7 +4985,7 @@ msgstr "移除 <b>$0</b> 将断开与服务器的连接，并将导致管理界�
 msgid ""
 "Removing a passphrase without confirmation of another passphrase may prevent "
 "unlocking or key management, if other passphrases are forgotten or lost."
-msgstr ""
+msgstr "当删除密码短语而没有确认另外一个密码短语时，如果忘记或丢失了其他密码短语，则可能无法取消锁定或进行密钥管理。"
 
 #: pkg/storaged/jobs-panel.jsx:81
 msgid "Removing physical volume from $target"
@@ -5255,14 +5164,12 @@ msgstr "路由"
 
 #: pkg/systemd/services/timer-dialog.jsx:234
 #: pkg/systemd/services/timer-dialog.jsx:243
-#, fuzzy
-#| msgid "Run image"
 msgid "Run at"
-msgstr "运行镜像"
+msgstr "运行于"
 
 #: pkg/systemd/services/timer-dialog.jsx:245
 msgid "Run on"
-msgstr ""
+msgstr "运行于"
 
 #: pkg/networkmanager/index.html:217
 msgid "Runner"
@@ -5305,11 +5212,11 @@ msgstr "SELinux 排错"
 
 #: pkg/storaged/crypto-keyslots.jsx:366
 msgid "SHA1"
-msgstr ""
+msgstr "SHA1"
 
 #: pkg/storaged/crypto-keyslots.jsx:363
 msgid "SHA256"
-msgstr ""
+msgstr "SHA256"
 
 #: pkg/storaged/jobs-panel.jsx:42
 msgid "SMART self-test of $target"
@@ -5415,10 +5322,8 @@ msgid "Select"
 msgstr "选择"
 
 #: pkg/systemd/logs.jsx:320
-#, fuzzy
-#| msgid "select container"
 msgid "Select a identifier"
-msgstr "选择容器"
+msgstr "选择标识符"
 
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
@@ -5545,8 +5450,6 @@ msgid "Setting up loop device $target"
 msgstr "创建 loop 设备 $target"
 
 #: pkg/packagekit/updates.jsx:861
-#, fuzzy
-#| msgid "Setting up"
 msgid "Settings"
 msgstr "设置"
 
@@ -5590,23 +5493,23 @@ msgstr "显示指印"
 
 #: pkg/systemd/logs.jsx:378
 msgid "Show messages containing given string."
-msgstr ""
+msgstr "显示包含给定字符串的消息."
 
 #: pkg/systemd/logs.jsx:367
 msgid "Show messages for the specified systemd unit."
-msgstr ""
+msgstr "显示指定 systemd 单元的消息。"
 
 #: pkg/systemd/logs.jsx:356
 msgid "Show messages from a specific boot."
-msgstr ""
+msgstr "显示来自特定引导的消息."
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show more relationships"
-msgstr ""
+msgstr "显示更多关系"
 
 #: pkg/systemd/services/service-details.jsx:553
 msgid "Show relationships"
-msgstr ""
+msgstr "显示关系"
 
 #: pkg/storaged/lvol-tabs.jsx:359 pkg/storaged/lvol-tabs.jsx:430
 msgid "Shrink"
@@ -5631,11 +5534,11 @@ msgstr "关机"
 
 #: pkg/systemd/logs.jsx:333
 msgid "Since"
-msgstr ""
+msgstr "自"
 
 #: pkg/lib/machine-info.js:250
 msgid "Single rank"
-msgstr "Single rank"
+msgstr "单 rank"
 
 #: pkg/systemd/hwinfo.jsx:312 pkg/storaged/nfs-details.jsx:339
 #: pkg/storaged/nfs-panel.jsx:105 pkg/storaged/format-dialog.jsx:222
@@ -5777,11 +5680,11 @@ msgstr "启动服务"
 
 #: pkg/systemd/logs.jsx:334
 msgid "Start showing entries on or newer than the specified date."
-msgstr ""
+msgstr "开始显示指定日期及更新的条目。"
 
 #: pkg/systemd/logs.jsx:345
 msgid "Start showing entries on or older than the specified date."
-msgstr ""
+msgstr "开始显示指定日期及更早的条目。"
 
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
@@ -5813,7 +5716,7 @@ msgstr "状态"
 
 #: pkg/lib/machine-info.js:93
 msgid "Stick PC"
-msgstr "Stick PC"
+msgstr "PC 棒"
 
 #: pkg/networkmanager/index.html:256
 msgid "Sticky"
@@ -5877,7 +5780,7 @@ msgstr "保存的密码"
 
 #: pkg/systemd/services/services.jsx:161
 msgid "Stub"
-msgstr ""
+msgstr "Stub"
 
 #: pkg/lib/machine-info.js:76
 msgid "Sub-Chassis"
@@ -5888,16 +5791,12 @@ msgid "Sub-Notebook"
 msgstr "子笔记本"
 
 #: pkg/storaged/crypto-keyslots.jsx:372
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to clipboard!"
-msgstr "复制到剪贴板"
+msgstr "成功复制到剪贴板！"
 
 #: pkg/systemd/logs.jsx:413
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Successfully copied to keyboard"
-msgstr "复制到剪贴板"
+msgstr "成功复制到键盘"
 
 #: pkg/systemd/services/timer-dialog.jsx:288 pkg/packagekit/autoupdates.jsx:314
 msgid "Sundays"
@@ -5936,10 +5835,8 @@ msgid "Switch on $0"
 msgstr "打开 $0"
 
 #: pkg/shell/superuser.jsx:56
-#, fuzzy
-#| msgid "Turn on administrative access"
 msgid "Switch to administrative access"
-msgstr "开启管理员权限"
+msgstr "切换到管理权限"
 
 #: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
@@ -6019,7 +5916,7 @@ msgstr "平板"
 
 #: pkg/storaged/crypto-keyslots.jsx:263
 msgid "Tang keyserver"
-msgstr "Tang keyserver"
+msgstr "Tang 密钥服务器"
 
 #: pkg/systemd/services/service-tabs.jsx:39
 msgid "Targets"
@@ -6454,6 +6351,9 @@ msgid ""
 "chronological order, 2 the second and so on; while -0 is the last boot, -1 "
 "the boot before last, and so on."
 msgstr ""
+"这将添加一个 '_BOOT_ID=' 匹配项。 如果未指定，则将显示来自当前引导的日志。 在没有指定 ID "
+"时，正偏移将从日志开始查找启动，而等于或小于零的偏移将从日志末尾开始查找启动。因此，1 表示日志中第一次引导（按时间顺序排列），2 为第二个，以此类推；-"
+"0 是最后一次引导，-1 是最后一次引导前的一个，以此类推。"
 
 #: pkg/systemd/logs.jsx:369
 msgid ""
@@ -6461,6 +6361,8 @@ msgid ""
 "find all possible messages for the given unit. Can contain more units "
 "separated by comma. "
 msgstr ""
+"这将添加 '_SYSTEMD_UNIT='、'COREDUMP_UNIT=' 和 'UNIT=' "
+"匹配项，以查找给定单元的所有可能消息。可以包含以逗号分隔的多个单元。 "
 
 #: pkg/shell/machines/machine-dialogs.js:757
 msgid "This will allow you to log in without password in the future."
@@ -6557,13 +6459,11 @@ msgstr "切换位图"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
-msgstr ""
+msgstr "切换日期选择器"
 
 #: pkg/systemd/logs.jsx:190
-#, fuzzy
-#| msgid "Hide filters"
 msgid "Toggle filters"
-msgstr "隐藏过滤器"
+msgstr "切换过滤器"
 
 #: pkg/base1/cockpit.js:4056
 msgid "Too much data"
@@ -6591,12 +6491,10 @@ msgstr "Tower"
 
 #: pkg/systemd/services/services.jsx:197
 msgid "Transient"
-msgstr ""
+msgstr "短暂的"
 
 #: pkg/systemd/services/services-list.jsx:43
 #: pkg/systemd/services/timer-dialog.jsx:167
-#, fuzzy
-#| msgid "Triggers"
 msgid "Trigger"
 msgstr "触发器"
 
@@ -6874,10 +6772,8 @@ msgid "Unmount"
 msgstr "卸载"
 
 #: pkg/storaged/format-dialog.jsx:134
-#, fuzzy
-#| msgid "Unmount now"
 msgid "Unmount and format"
-msgstr "现在卸载"
+msgstr "卸载并格式化"
 
 #: pkg/storaged/fsys-tab.jsx:286
 msgid "Unmount filesystem"
@@ -6914,7 +6810,7 @@ msgstr "不支持的卷"
 
 #: pkg/systemd/logs.jsx:344
 msgid "Until"
-msgstr ""
+msgstr "直到"
 
 #: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
 msgid "Untrusted host"
@@ -6984,11 +6880,8 @@ msgid "Usage"
 msgstr "使用"
 
 #: pkg/storaged/storage-controls.jsx:207
-#, fuzzy
-#| msgid "Usage of $0 CPU core"
-#| msgid_plural "Usage of $0 CPU cores"
 msgid "Usage of $0"
-msgstr "使用 $0 CPU 内核"
+msgstr "$0 的使用"
 
 #: pkg/storaged/vdos-panel.jsx:128
 msgid "Use 512 byte emulation"
@@ -7119,10 +7012,8 @@ msgid "Very securely erasing $target"
 msgstr "非常安全地擦除 $target"
 
 #: pkg/metrics/metrics.jsx:737 pkg/lib/cockpit-components-logs-panel.jsx:162
-#, fuzzy
-#| msgid "All logs"
 msgid "View all logs"
-msgstr "所有日志"
+msgstr "查看所有日志"
 
 #: pkg/lib/cockpit-components-modifications.jsx:162
 msgid "View automation script"
@@ -7146,10 +7037,8 @@ msgstr "查看报告"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-#, fuzzy
-#| msgid "Firewall"
 msgid "Visit Firewall"
-msgstr "防火墙"
+msgstr "访问防火墙"
 
 #: pkg/storaged/content-views.jsx:150
 msgid "Volume"
@@ -7320,10 +7209,8 @@ msgid "You must wait longer to change your password"
 msgstr "您需要等待更长时间来修改您的密码"
 
 #: pkg/metrics/metrics.jsx:1287
-#, fuzzy
-#| msgid "You need to relogin to be able to see metrics"
 msgid "You need to relogin to be able to see metrics history"
-msgstr "您需要重新登录才能查看指标"
+msgstr "您需要重新登录才能查看指标历史数据"
 
 #: pkg/sosreport/index.html:39
 msgid ""
@@ -7346,7 +7233,7 @@ msgstr "您的账户"
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
-msgstr ""
+msgstr "您的浏览器不允许从上下文菜单中进行粘贴，您可以使用 Shift+Insert。"
 
 #: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
@@ -7368,10 +7255,8 @@ msgstr "会话超时。请重新登录。"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:135
 #: pkg/lib/cockpit-components-firewalld-request.jsx:138
-#, fuzzy
-#| msgid "$0 Zone"
 msgid "Zone"
-msgstr "$0 区"
+msgstr "区"
 
 #: pkg/lib/journal.js:216
 msgid "[$0 bytes of binary data]"
@@ -7391,7 +7276,7 @@ msgstr "abrt"
 
 #: pkg/users/manifest.json:0
 msgid "access"
-msgstr "access"
+msgstr "访问"
 
 #: pkg/shell/active-pages-dialog.jsx:50 pkg/tuned/change-profile.jsx:57
 msgid "active"
@@ -7399,11 +7284,11 @@ msgstr "激活"
 
 #: pkg/apps/manifest.json:0
 msgid "add-on"
-msgstr "add-on"
+msgstr "插件"
 
 #: pkg/apps/manifest.json:0
 msgid "addon"
-msgstr "addon"
+msgstr "插件"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -7447,7 +7332,7 @@ msgstr "网桥"
 
 #: pkg/packagekit/updates.jsx:260
 msgid "bug fix"
-msgstr "Bug 修正"
+msgstr "程序漏洞修复"
 
 #: pkg/storaged/utils.js:95
 msgctxt "format-bytes"
@@ -7545,46 +7430,32 @@ msgid "error"
 msgstr "错误"
 
 #: pkg/packagekit/autoupdates.jsx:344
-#, fuzzy
-#| msgid "every day"
 msgid "every Friday"
-msgstr "每天"
+msgstr "每周五"
 
 #: pkg/packagekit/autoupdates.jsx:340
-#, fuzzy
-#| msgid "every day"
 msgid "every Monday"
-msgstr "每天"
+msgstr "每周一"
 
 #: pkg/packagekit/autoupdates.jsx:345
-#, fuzzy
-#| msgid "every day"
 msgid "every Saturday"
-msgstr "每天"
+msgstr "每周六"
 
 #: pkg/packagekit/autoupdates.jsx:346
-#, fuzzy
-#| msgid "every day"
 msgid "every Sunday"
-msgstr "每天"
+msgstr "每周日"
 
 #: pkg/packagekit/autoupdates.jsx:343
-#, fuzzy
-#| msgid "every day"
 msgid "every Thursday"
-msgstr "每天"
+msgstr "每周四"
 
 #: pkg/packagekit/autoupdates.jsx:341
-#, fuzzy
-#| msgid "every day"
 msgid "every Tuesday"
-msgstr "每天"
+msgstr "每周二"
 
 #: pkg/packagekit/autoupdates.jsx:342
-#, fuzzy
-#| msgid "Wednesday"
 msgid "every Wednesday"
-msgstr "星期三"
+msgstr "没周三"
 
 #: pkg/packagekit/autoupdates.jsx:307 pkg/packagekit/autoupdates.jsx:339
 msgid "every day"
@@ -7612,13 +7483,11 @@ msgstr "firewalld"
 
 #: pkg/packagekit/kpatch.jsx:244
 msgid "for current and future kernels"
-msgstr ""
+msgstr "对于当前和将来的内核"
 
 #: pkg/packagekit/kpatch.jsx:249
-#, fuzzy
-#| msgid "Mount read only"
 msgid "for current kernel only"
-msgstr "只读挂载"
+msgstr "只对于当前的内核"
 
 #: pkg/storaged/manifest.json:0
 msgid "format"
@@ -7741,8 +7610,6 @@ msgid "mkfs"
 msgstr "mkfs"
 
 #: pkg/kdump/kdump-view.jsx:461
-#, fuzzy
-#| msgid "More details"
 msgid "more details"
 msgstr "更多详情"
 
@@ -7814,7 +7681,7 @@ msgstr "密码质量"
 
 #: pkg/packagekit/updates.jsx:281
 msgid "patches"
-msgstr ""
+msgstr "补丁"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"
@@ -7833,21 +7700,16 @@ msgid "plugin"
 msgstr "插件"
 
 #: pkg/metrics/metrics.jsx:1308
-#, fuzzy
-#| msgid "$0 service has failed"
-#| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
-msgstr "$0 个服务失败"
+msgstr "pmlogger.service 失败"
 
 #: pkg/metrics/metrics.jsx:1310
 msgid "pmlogger.service is failing to collect data"
-msgstr ""
+msgstr "pmlogger.service 收集数据失败"
 
 #: pkg/metrics/metrics.jsx:1301
-#, fuzzy
-#| msgid "Is 'pmlogger' service running?"
 msgid "pmlogger.service is not running"
-msgstr "'pmlogger' 服务是否正在运行？"
+msgstr "pmlogger.service 没有运行"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"

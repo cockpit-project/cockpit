@@ -5,24 +5,28 @@
 
 /* Globally resize headings */
 h1 {
-  font-size: var(--pf-global--FontSize--4xl);
+  --ct-heading-font-size: var(--pf-global--FontSize--4xl);
 }
 
 h2 {
-  font-size: var(--pf-global--FontSize--3xl);
+  --ct-heading-font-size: var(--pf-global--FontSize--3xl);
 }
 
 h3 {
-  font-size: var(--pf-global--FontSize--2xl);
+  --ct-heading-font-size: var(--pf-global--FontSize--2xl);
 }
 
 h4 {
-  font-size: var(--pf-global--FontSize--xl);
+  --ct-heading-font-size: var(--pf-global--FontSize--lg);
 }
 
-h4 {
-  font-size: var(--pf-global--FontSize--lg);
+// Only apply a custom font size when a heading does NOT have a PF4 class
+h1, h2, h3, h4 {
+    &:not([class*=pf-]) {
+        font-size: var(--ct-heading-font-size);
+    }
 }
+
 /* End of headings resize */
 
 a {

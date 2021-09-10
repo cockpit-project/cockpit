@@ -1016,18 +1016,8 @@ ExecStart=/usr/local/bin/{0}
         # error message visible
         b.wait_in_text("#app .pf-c-empty-state__body", "authentication")
 
-        # become superuser
-        b.switch_to_top()
-        b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-
-        b.wait_text("#super-user-indicator", "Administrative access")
-
         # page adjusts automatically to privilege change
-        b.switch_to_frame("cockpit1:localhost/updates")
+        b.become_superuser()
         b.wait_in_text("#status", "1 update available")
         b.wait_visible("#available-updates")
 
@@ -1507,16 +1497,8 @@ class TestAutoUpdates(NoSubManCase):
         # detecting auto updates configuration works unprivileged, but changing does not
         b.wait_visible("#autoupdates-settings button:disabled")
 
-        # become superuser
-        b.switch_to_top()
-        b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        b.switch_to_frame("cockpit1:localhost/updates")
-
-        # enable auto-updates
+        # become superuser, enable auto-updates
+        b.become_superuser()
         b.wait_in_text("#autoupdates-settings", "Disabled")
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
@@ -1524,16 +1506,8 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#automatic-updates-dialog button:contains('Save changes')")
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
-        # Drop privileges
-        b.switch_to_top()
-        b.click("#super-user-indicator button")
-        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-
-        b.wait_text("#super-user-indicator", "Limited access")
-        b.switch_to_frame("cockpit1:localhost/updates")
-
-        # auto-update status still visible, but disabled
+        # without superuser, auto-update status still visible, but disabled
+        b.drop_superuser()
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         b.wait_visible("#autoupdates-settings button:disabled")
 

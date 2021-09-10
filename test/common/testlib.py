@@ -638,6 +638,31 @@ class Browser:
                 host = None
             self.enter_page(path.split("#")[0], host=host)
 
+    def become_superuser(self, user=None, password=None):
+        cur_frame = self.cdp.cur_frame
+        self.switch_to_top()
+
+        self.click("#super-user-indicator button")
+        self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+        self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
+        self.click(".pf-c-modal-box button:contains('Authenticate')")
+        self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+        self.wait_text("#super-user-indicator", "Administrative access")
+
+        self.switch_to_frame(cur_frame)
+
+    def drop_superuser(self):
+        cur_frame = self.cdp.cur_frame
+        self.switch_to_top()
+
+        self.click("#super-user-indicator button")
+        self.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        self.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
+
+        self.wait_text("#super-user-indicator", "Limited access")
+
+        self.switch_to_frame(cur_frame)
+
     def ignore_ssl_certificate_errors(self, ignore):
         action = ignore and "continue" or "cancel"
         if opts.trace:

@@ -56,13 +56,7 @@ class TestReauthorize(MachineCase):
         m.execute("! flock -n /tmp/playground-test-lock true")
 
         # Deauthorize user
-        b.leave_page()
-        b.click("#super-user-indicator button")
-        b.click(".pf-c-modal-box:contains('Limit access') button:contains('Limit access')")
-        b.wait_not_present(".pf-c-modal-box:contains('Limit access')")
-
-        b.enter_page("/playground/test")
-
+        b.drop_superuser()
         m.execute("flock -n /tmp/playground-test-lock true")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -80,12 +74,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".super-channel span", 'result: uid=0')
 
         # Deauthorize
-        b.leave_page()
-        b.click("#super-user-indicator button")
-        b.click(".pf-c-modal-box:contains('Limit access') button:contains('Limit access')")
-        b.wait_not_present(".pf-c-modal-box:contains('Limit access')")
-
-        b.enter_page("/playground/test")
+        b.drop_superuser()
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: access-denied')
 

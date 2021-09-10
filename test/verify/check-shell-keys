@@ -111,17 +111,8 @@ class TestKeys(MachineCase):
             b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
                            "You do not have permission to view the authorized public keys for this account.")
 
-        # Get admin privs
-        b.leave_page()
-        b.wait_text("#super-user-indicator", "Limited access")
-        b.click("#super-user-indicator button")
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
         # users page reloads on superuser change
-        b.expect_load_frame("cockpit1:localhost/users")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        b.wait_text("#super-user-indicator", "Administrative access")
+        b.become_superuser()
         b.enter_page("/users")
 
         b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",

@@ -806,8 +806,7 @@ ExecStart=/usr/bin/false
         health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
 
         # System page should have notification
-        b.click('#host-apps a[href="/system"]')
-        b.enter_page('/system')
+        b.click_system_menu("/system")
         b.wait_in_text(".system-health-events", health_message)
 
         # Clear aab-fail
@@ -815,8 +814,7 @@ ExecStart=/usr/bin/false
 
         # aab-fail should not be at the top
         b.switch_to_top()
-        b.click('#host-apps a[href="/system/services"]')
-        b.enter_page('/system/services')
+        b.click_system_menu("/system/services")
         b.wait_not_present('li:nth-child(1)[data-goto-unit="aab-fail.service"]')
 
         if self.count_failures() == 0:
@@ -828,8 +826,7 @@ ExecStart=/usr/bin/false
             b.wait_not_present("#services-error")
 
             # System page should not have notification
-            b.click('#host-apps a[href="/system"]')
-            b.enter_page('/system')
+            b.click_system_menu('/system')
             b.wait_not_in_text(".system-health-events", "service has failed")
             b.wait_not_in_text(".system-health-events", "services have failed")
 
@@ -862,8 +859,7 @@ Where=/fail
             b.wait_not_present("#services-error")
 
             # System page should not have notification
-            b.click('#host-apps a[href="/system"]')
-            b.enter_page('/system')
+            b.click_system_menu("/system")
             b.wait_not_in_text(".system-health-events", "service has failed")
             b.wait_not_in_text(".system-health-events", "services have failed")
 

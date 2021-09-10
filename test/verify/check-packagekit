@@ -996,7 +996,6 @@ ExecStart=/usr/local/bin/{0}
         self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
     @skipDistroPackage()
-    @skipMobile()
     def testUnprivileged(self):
         b = self.browser
         m = self.machine
@@ -1482,7 +1481,6 @@ class TestAutoUpdates(NoSubManCase):
             raise NotImplementedError(self.backend)
 
     @skipDistroPackage()
-    @skipMobile()
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine

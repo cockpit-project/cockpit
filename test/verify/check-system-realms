@@ -612,7 +612,6 @@ ExecStart=/bin/true
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
-    @skipMobile()
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser
@@ -693,7 +692,7 @@ ipa-advise enable-admins-sudo | sh -ex
         self.assertIn("no askpass program", m.execute(f"su -c '! {ccache_env} sudo -A whoami' alice 2>&1"))
         self.assertIn("Permission denied", m.execute(f"su -c '! {ccache_env} ssh x0.cockpit.lan 2>&1' alice"))
         b.switch_to_top()
-        b.click("#super-user-indicator button")
+        b.open_superuser_dialog()
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice:")
         b.click(".pf-c-modal-box:contains('Switch to administrative access') .btn-cancel")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
@@ -712,7 +711,7 @@ ipa-advise enable-admins-sudo | sh -ex
         # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
         # to actually work, so on older distros it fails
         supports_sudo_krb = m.image not in ["rhel-8-5", "centos-8-stream", "ubuntu-2004", "ubuntu-stable"]
-        b.click("#super-user-indicator button")
+        b.open_superuser_dialog()
 
         if supports_sudo_krb:
             b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")

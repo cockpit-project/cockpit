@@ -22,7 +22,6 @@ from testlib import *
 
 
 @skipDistroPackage()
-@skipMobile()
 class TestSession(MachineCase):
 
     def testBasic(self):
@@ -73,7 +72,7 @@ class TestSession(MachineCase):
         # Kill session from the inside
         b.switch_to_top()
         b.wait_visible("#content")
-        b.wait_text('#current-username', 'admin')
+        b.wait_visible("#nav-hosts-sel")
 
 
 if __name__ == '__main__':

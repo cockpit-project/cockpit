@@ -24,7 +24,6 @@ from testlib import *
 @skipDistroPackage()
 class TestRoles(MachineCase):
 
-    @skipMobile()
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -47,7 +46,12 @@ class TestRoles(MachineCase):
         b.expect_load()
         b.enter_page("/system")
         b.switch_to_top()
-        b.wait_text('#current-username', 'user')
+        if b.cdp.mobile:
+            b.click("#hosts-sel button")
+            b.wait_in_text(".view-hosts .pf-m-current", "user @")
+            b.click("#hosts-sel button")
+        else:
+            b.wait_text('#current-username', 'user')
 
         b.go("/users#/user")
         b.enter_page("/users")

@@ -677,6 +677,18 @@ class Browser:
 
         self.switch_to_frame(cur_frame)
 
+    def click_system_menu(self, path):
+        '''Click on a "System" menu entry with given URL path
+
+        Enters the given target frame afterwards.
+        '''
+        self.switch_to_top()
+        if self.cdp.mobile:
+            self.click("#nav-system-item")
+        self.click(f"#host-apps a[href='{path}']")
+        # strip off parameters after hash
+        self.enter_page(path.split('#')[0].rstrip('/'))
+
     def ignore_ssl_certificate_errors(self, ignore):
         action = ignore and "continue" or "cancel"
         if opts.trace:

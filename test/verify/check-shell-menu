@@ -27,7 +27,6 @@ from testlib import *
 class TestMenu(MachineCase):
 
     @enableAxe
-    @skipMobile()
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -52,7 +51,7 @@ class TestMenu(MachineCase):
         # Test session timeout
         time.sleep(20)
         b.wait_not_present("#session-timeout-modal")
-        b.wait_visible("#nav-system")
+        b.wait_visible("#nav-hosts-sel")
         b.enter_page("/system")
         b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
         b.switch_to_top()
@@ -77,7 +76,7 @@ class TestMenu(MachineCase):
         b.switch_to_top()
         time.sleep(75)
         b.wait_not_present("#session-timeout-modal")
-        b.wait_visible("#nav-system")
+        b.wait_visible("#nav-hosts-sel")
 
         self.check_axe("Test-navigation")
 
@@ -89,8 +88,12 @@ class TestMenu(MachineCase):
         b.go("/playground/exception")
 
         # Test that subpages are correctly shown in the navigation (twice - once that only one page is shown as active)
-        b.wait_visible("#host-apps .pf-m-current")
-        b.wait_visible("#host-apps .pf-m-current:contains('Development')")
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
+        b.wait_in_text("#host-apps .pf-m-current", "Development")
+        if b.cdp.mobile:
+            # close menu again
+            b.click("#nav-system-item")
 
         b.enter_page("/playground/exception")
         b.wait_visible("button")

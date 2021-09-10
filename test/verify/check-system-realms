@@ -932,7 +932,6 @@ ExecStart=/bin/true
         self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
-    @skipMobile()
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser
@@ -976,20 +975,17 @@ ExecStart=/bin/true
         b.open("/system/terminal", cookie={"name": "cockpit", "value": cookie, "domain": m.web_address, "path": "/"})
         b.wait_visible('#content')
 
-        def line_sel(i):
-            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
-
         # Remove failed units which will show up in the first terminal line
         m.execute("systemctl reset-failed")
 
         # kerberos ticket got forwarded into the session
         b.enter_page("/system/terminal")
-        b.wait_visible(".terminal .xterm-accessibility-tree")
-        b.wait_in_text(line_sel(1), "admin")
+        # wait for prompt
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "admin")
         b.key_press("klist\r")
-        b.wait_in_text(line_sel(2), "Ticket cache")
-        b.wait_in_text(line_sel(3), "Default principal: admin@COCKPIT.LAN")
-        b.wait_in_text(line_sel(6), "krbtgt/COCKPIT.LAN")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: admin@COCKPIT.LAN")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "krbtgt/COCKPIT.LAN")
         self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u admin)/*.ccache"))
 
         # Now connect to another machine

@@ -71,7 +71,6 @@ class TestJournal(MachineCase):
         sleep = m.spawn("sleep 1m", "sleep.log")
         m.execute("kill -SEGV %d" % (sleep))
 
-    @skipMobile()
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
@@ -213,6 +212,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("THE SERVICE")
         wait_log_present("JUST ERROR")
 
+        if b.cdp.mobile:
+            b.click(".pf-c-toolbar__toggle button")
+
         # We cannot open this select with tests but we need to wait until it gets loaded
         b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "just-a-service")
         wait_log_not_present("JUST ERROR")
@@ -328,7 +330,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_journal_messages(".*Data from the specified boot .* is not available: No such boot ID in journal.*")
 
-    @skipMobile()
     def testRebootAndTime(self):
         b = self.browser
         m = self.machine
@@ -446,6 +447,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
+        if b.cdp.mobile:
+            b.click(".pf-c-toolbar__toggle button")
+
         b.focus("#journal-grep input")
         b.key_press("until:2038-01-01\\ 00:03")
         b.click("#journal-grep button[aria-label=Search]")
@@ -496,7 +500,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_text(".pf-c-card__title", "[no data]")
 
     @nondestructive
-    @skipMobile()
     def testLogLevel(self):
 
         b = self.browser
@@ -509,6 +512,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.login_and_go("/system/logs#/?tag=check-journal&since=@" + self.test_start_time)
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
+
+        if b.cdp.mobile:
+            b.click(".pf-c-toolbar__toggle button")
 
         self.browser.select_PF4("#journal-prio-menu", "Only emergency")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
@@ -528,7 +534,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-4", "rhel-8-5", "rhel-9-0", "centos-8-stream")
     @nondestructive
-    @skipMobile()
     def testAbrtSegv(self):
         b = self.browser
         m = self.machine
@@ -537,6 +542,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.crash()
 
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
+        if b.cdp.mobile:
+            b.click(".pf-c-toolbar__toggle button")
+
         self.browser.select_PF4("#journal-prio-menu", "Critical and above")
         b.wait_visible(sleep_crash_list_sel)
 

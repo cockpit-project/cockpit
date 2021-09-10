@@ -30,7 +30,16 @@ from testlib import *
 @skipDistroPackage()
 class TestLogin(MachineCase):
 
-    @skipMobile()
+    def check_shell(self):
+        b = self.browser
+        b.wait_visible("#content")
+        if b.cdp.mobile:
+            b.click("#hosts-sel button")
+            b.wait_in_text(".view-hosts .pf-m-current", "admin @")
+            b.click("#hosts-sel button")
+        else:
+            b.wait_text('#current-username', 'admin')
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -103,15 +112,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Login as admin
         b.open("/system")
         b.login_and_go()
-        b.wait_text('#current-username', 'admin')
+        self.check_shell()
 
         if m.image not in ['fedora-coreos']:  # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
 
         # reload, which should log us in with the cookie
         b.reload()
-        b.wait_visible("#content")
-        b.wait_text('#current-username', 'admin')
+        self.check_shell()
 
         if m.image not in ['fedora-coreos']:  # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
@@ -244,7 +252,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # But after that login, they should be gone again
         verify_correct(True, 0)
 
-    @skipMobile()
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -337,8 +344,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         b.expect_load()
-        b.wait_visible("#content")
-        b.wait_text('#current-username', 'admin')
+        self.check_shell()
 
         self.allow_journal_messages('.*You are required to change your password immediately.*',
                                     '.*user account or password has expired.*',
@@ -346,7 +352,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
-    @skipMobile()
     def testConversation(self):
         m = self.machine
         b = self.browser
@@ -382,8 +387,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         b.expect_load()
-        b.wait_visible("#content")
-        b.wait_text('#current-username', 'admin')
+        self.check_shell()
 
         self.allow_restart_journal_messages()
 

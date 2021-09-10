@@ -386,7 +386,6 @@ class TestSystemInfo(MachineCase):
         self.allow_restart_journal_messages()
 
     @nondestructive
-    @skipMobile()
     def testHardwareInfo(self):
         b = self.browser
         m = self.machine
@@ -421,11 +420,12 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
         b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
 
-        # sort by model
-        b.click(pci_selector + ' thead th[data-label=Model] button')
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
-        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
-        b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
+        # sort by model (no sort buttons in mobile mode)
+        if not b.cdp.mobile:
+            b.click(pci_selector + ' thead th[data-label=Model] button')
+            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
+            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
+            b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
         b.click('.pf-c-breadcrumb li:first a')

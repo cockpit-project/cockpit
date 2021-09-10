@@ -759,7 +759,19 @@ WantedBy=default.target
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
 
-    @skipMobile()
+    def check_system_menu_services_error(self, expected):
+        b = self.browser
+        b.switch_to_top()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
+        if expected:
+            b.wait_visible("#services-error")
+        else:
+            b.wait_not_present("#services-error")
+        if b.cdp.mobile:
+            # close menu again
+            b.click("#nav-system-item")
+
     def testNotifyFailed(self):
         m = self.machine
         b = self.browser
@@ -802,8 +814,7 @@ ExecStart=/usr/bin/false
         b.wait_visible('tr[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
-        b.switch_to_top()
-        b.wait_visible("#services-error")
+        self.check_system_menu_services_error(True)
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
@@ -825,15 +836,13 @@ ExecStart=/usr/bin/false
             b.wait_not_present('a:contains("System services") .ct-exclamation-circle')
 
             # Nav link should not have icon
-            b.switch_to_top()
-            b.wait_not_present("#services-error")
+            self.check_system_menu_services_error(False)
 
             # System page should not have notification
             b.click_system_menu('/system')
             b.wait_not_in_text(".system-health-events", "service has failed")
             b.wait_not_in_text(".system-health-events", "services have failed")
 
-    @skipMobile()
     def testHiddenFailure(self):
         m = self.machine
         b = self.browser
@@ -858,8 +867,7 @@ Where=/fail
 
         if self.count_failures() == 1:
             # Nav link should not have icon
-            b.switch_to_top()
-            b.wait_not_present("#services-error")
+            self.check_system_menu_services_error(False)
 
             # System page should not have notification
             b.click_system_menu("/system")

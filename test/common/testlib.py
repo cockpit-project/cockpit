@@ -638,16 +638,31 @@ class Browser:
                 host = None
             self.enter_page(path.split("#")[0], host=host)
 
+    def open_superuser_dialog(self):
+        if self.cdp.mobile:
+            self.click("#navbar-dropdown")
+            self.click("#super-user-indicator-mobile button")
+        else:
+            self.click("#super-user-indicator button")
+
+    def check_superuser_indicator(self, expected):
+        if self.cdp.mobile:
+            self.click("#navbar-dropdown")
+            self.wait_text("#super-user-indicator-mobile", expected)
+            self.click("#navbar-dropdown")
+        else:
+            self.wait_text("#super-user-indicator", expected)
+
     def become_superuser(self, user=None, password=None):
         cur_frame = self.cdp.cur_frame
         self.switch_to_top()
 
-        self.click("#super-user-indicator button")
+        self.open_superuser_dialog()
         self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
         self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
         self.click(".pf-c-modal-box button:contains('Authenticate')")
         self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        self.wait_text("#super-user-indicator", "Administrative access")
+        self.check_superuser_indicator("Administrative access")
 
         self.switch_to_frame(cur_frame)
 
@@ -655,11 +670,10 @@ class Browser:
         cur_frame = self.cdp.cur_frame
         self.switch_to_top()
 
-        self.click("#super-user-indicator button")
+        self.open_superuser_dialog()
         self.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
         self.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-
-        self.wait_text("#super-user-indicator", "Limited access")
+        self.check_superuser_indicator("Limited access")
 
         self.switch_to_frame(cur_frame)
 

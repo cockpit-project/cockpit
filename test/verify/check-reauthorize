@@ -22,7 +22,6 @@ from testlib import *
 
 
 @skipDistroPackage()
-@skipMobile()
 class TestReauthorize(MachineCase):
 
     def testBasic(self):
@@ -33,7 +32,7 @@ class TestReauthorize(MachineCase):
         # Log in without being authorized
         self.login_and_go("/playground/test", superuser=False)
         b.leave_page()
-        b.wait_text("#super-user-indicator", "Limited access")
+        b.check_superuser_indicator("Limited access")
         b.enter_page("/playground/test")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -42,7 +41,7 @@ class TestReauthorize(MachineCase):
         # Log in again but be authorized
         b.relogin("/playground/test", superuser=True)
         b.leave_page()
-        b.wait_text("#super-user-indicator", "Administrative access")
+        b.check_superuser_indicator("Administrative access")
         b.enter_page("/playground/test")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -84,7 +83,7 @@ class TestReauthorize(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: uid=0')
         b.leave_page()
-        b.wait_text("#super-user-indicator", "")
+        b.check_superuser_indicator("")
 
     def testSudo(self):
         m = self.machine

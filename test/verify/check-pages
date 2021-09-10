@@ -27,7 +27,6 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipDistroPackage()
-@skipMobile()
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine
@@ -49,6 +48,20 @@ class TestPages(MachineCase):
         b.wait_collected_text("#navbar-docs-items", expected)
         b.click("#navbar-docs > a")
         b.wait_not_visible("#navbar-docs-items")
+
+    def check_system_menu(self, label, present):
+        b = self.browser
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
+
+        if present:
+            b.wait_visible(f"#host-apps li a:contains('{label}')")
+        else:
+            b.wait_not_present(f"#host-apps li a:contains('{label}')")
+
+        if b.cdp.mobile:
+            # close menu again
+            b.click("#nav-system-item")
 
     def open_lang_modal(self):
         self.browser.switch_to_top()
@@ -160,7 +173,7 @@ OnCalendar=daily
         # Test 'parent' manifest option
         b.switch_to_top()
         b.go("/metrics")
-        b.wait_text("#host-apps .pf-m-current", "Overview")
+        self.check_system_menu("Overview", True)
         self.checkDocs(["Performance Co-Pilot"])
 
         # Lets try changing the language
@@ -412,13 +425,13 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        b.wait_in_text("#host-apps", "Overview")
+        self.check_system_menu("Overview", True)
         self.restore_dir("/home/admin")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
         b.reload()
-        b.wait_in_text("#host-apps", "FOO!")
+        self.check_system_menu("FOO!", True)
 
         self.allow_restart_journal_messages()
 
@@ -430,6 +443,8 @@ OnCalendar=daily
         self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
         self.login_and_go()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
 
         filter_sel = ".filter-menus"
 
@@ -471,6 +486,9 @@ OnCalendar=daily
 
         # Visited page, search should be cleaned up
         b.switch_to_top()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
+            b.focus(filter_sel)
         b.wait_val(filter_sel, "")
 
         # Check that escape cleans the search
@@ -505,6 +523,8 @@ OnCalendar=daily
 
         # Check we jump into subpage when defined in manifest
         b.switch_to_top()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
         b.focus(filter_sel)
         b.key_press("firew")
         b.wait_visible("#host-apps li a:contains('Networking')")
@@ -533,6 +553,8 @@ OnCalendar=daily
         b.wait_in_text(".ct-overview-header", "Neustart")
 
         b.switch_to_top()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
         b.wait_visible("#host-apps li a:contains('Dienste')")
         b.wait_visible("#host-apps li a:contains('Protokolle')")
         b.focus(filter_sel)
@@ -693,6 +715,8 @@ OnCalendar=daily
         b.click("#set-status")
 
         b.switch_to_top()
+        if b.cdp.mobile:
+            b.click("#nav-system-item")
         b.wait_visible("#development-info")
         b.mouse("#development-info", "mouseenter")
         b.wait_in_text(".pf-c-tooltip", "My Little Page Status")

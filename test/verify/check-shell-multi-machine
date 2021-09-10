@@ -405,7 +405,6 @@ class TestMultiMachine(MachineCase):
         self.machine.start_cockpit()
         self.checkDirectLogin('/')
 
-    @skipMobile()
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -440,7 +439,7 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
 
         # Test subnav
-        b.click('a[href="/@10.111.113.2/users"]')
+        b.click_system_menu("/@10.111.113.2/users", enter=False)
         b.enter_page("/users", host="10.111.113.2")
         b.wait_visible("#accounts-list")
         b.click("#accounts-list .pf-c-card:first-child")

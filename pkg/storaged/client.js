@@ -929,6 +929,7 @@ client.stratis_start = () => {
                 return stratis.watch({ path_namespace: "/org/storage/stratis2" }).then(() => {
                     client.stratis_manager.client.addEventListener('notify', (event, data) => {
                         client.update();
+                        stratis_fixup_pool_notifications(data);
                     });
 
                     // We need to explicitly retrieve the values of
@@ -1029,6 +1030,44 @@ function stratis_poll() {
 function stratis_start_polling() {
     stratis_poll();
     window.setInterval(stratis_poll, 30000);
+}
+
+function stratis_fixup_pool_notifications(data) {
+    const fixup_data = { };
+    let have_fixup = false;
+
+    // When renaming a pool, stratisd 2.4.2 sends out notifications
+    // with wrong interface names and forgets about notifications for
+    // Devnode properties.
+    //
+    // https://github.com/stratis-storage/stratisd/issues/2731
+
+    for (const path in data) {
+        if (client.stratis_pools[path]) {
+            for (const iface in data[path]) {
+                if (iface == "org.storage.stratis2.filesystem") {
+                    const props = data[path][iface];
+                    if (props && props.Name) {
+                        // The pool at 'path' got renamed.
+                        fixup_data[path] = { "org.storage.stratis2.pool.r1": { Name: props.Name } };
+                        for (const fsys of client.stratis_pool_filesystems[path]) {
+                            fixup_data[fsys.path] = {
+                                "org.storage.stratis2.filesystem": {
+                                    Devnode: "/dev/stratis/" + props.Name + "/" + fsys.Name
+                                }
+                            };
+                        }
+                        have_fixup = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (have_fixup) {
+        const stratis = client.stratis_manager.client;
+        stratis.notify(fixup_data);
+    }
 }
 
 function init_client(manager, callback) {

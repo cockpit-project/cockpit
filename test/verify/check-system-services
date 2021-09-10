@@ -472,7 +472,6 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
-    @skipMobile()
     def testLogs(self):
         b = self.browser
 
@@ -494,6 +493,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
         t = b.text("#journal-box .cockpit-log-panel > div:nth-child(3)") + b.text("#journal-box .cockpit-log-panel > div:nth-child(4)")
         self.assertIn("START", t)
+        if b.cdp.mobile:
+            b.click("button[aria-label='Show Filters']")
         b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
@@ -503,6 +504,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog.awk
         b.enter_page("/system/logs")
         b.wait_text(".pf-c-card__title", "WORKING")
         b.click(".pf-c-breadcrumb a:contains('Logs')")
+        if b.cdp.mobile:
+            b.click("button[aria-label='Show Filters']")
         b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")

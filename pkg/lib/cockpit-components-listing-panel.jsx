@@ -19,7 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Nav, NavItem, NavList } from '@patternfly/react-core';
+import { Flex, Nav, NavItem, NavList } from '@patternfly/react-core';
 import './cockpit-components-listing-panel.scss';
 
 /* tabRenderers optional: list of tab renderers for inline expansion, array of objects with
@@ -114,7 +114,7 @@ export class ListingPanel extends React.Component {
             );
         }
 
-        const heading = (<div className="ct-listing-panel-head">
+        const heading = (<Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }} className="ct-listing-panel-head">
             {links.length && <Nav variant="tertiary" onSelect={this.handleTabClick}>
                 <NavList>
                     {links}
@@ -124,7 +124,7 @@ export class ListingPanel extends React.Component {
                 {listingDetail}
                 {this.props.listingActions}
             </div>
-        </div>);
+        </Flex>);
 
         return (
             <>

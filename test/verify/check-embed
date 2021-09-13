@@ -22,12 +22,14 @@ from testlib import *
 
 
 @skipDistroPackage()
+@nondestructive
 class TestEmbed(MachineCase):
 
     def testBasic(self):
         b = self.browser
         m = self.machine
 
+        self.restore_dir("/home/admin/.local/share/cockpit")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
         m.upload(["verify/files/embed-cockpit/index.html",
                   "verify/files/embed-cockpit/embed.js",

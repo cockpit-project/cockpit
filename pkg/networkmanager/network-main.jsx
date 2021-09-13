@@ -164,7 +164,7 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                                     component="a"
                                     isInline
                                     onClick={() => cockpit.jump("/network/firewall", cockpit.transport.host)}>
-                                {cockpit.format(cockpit.ngettext(_("$0 active zone"), _("$0 active zones"), firewall.activeZones.size), firewall.activeZones.size)}
+                                {cockpit.format(cockpit.ngettext("$0 active zone", "$0 active zones", firewall.activeZones.size), firewall.activeZones.size)}
                             </Button>
                         </CardBody>
                     </Card>}

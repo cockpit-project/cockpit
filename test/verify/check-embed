@@ -31,6 +31,7 @@ class TestEmbed(MachineCase):
         m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
         m.upload(["verify/files/embed-cockpit/index.html",
                   "verify/files/embed-cockpit/embed.js",
+                  "verify/files/embed-cockpit/embed.css",
                   "verify/files/embed-cockpit/manifest.json"],
                  "/home/admin/.local/share/cockpit/embed-cockpit/")
 

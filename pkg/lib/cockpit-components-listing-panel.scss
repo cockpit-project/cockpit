@@ -5,9 +5,9 @@
       var(--pf-global--BorderColor--100) 1px,
       transparent 1px
     );
-    display: flex;
     align-items: flex-end;
     padding-right: var(--pf-global--spacer--lg);
+    gap: var(--pf-global--spacer--sm);
 
     .pf-c-nav {
       margin-left: var(--pf-global--spacer--xs);
@@ -47,20 +47,8 @@
     }
   }
 
-  // Support action buttons on the right
   &-actions {
-    display: flex;
-    flex: auto;
-    justify-content: flex-end;
-    margin: var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
-    row-gap: var(--pf-global--spacer--sm);
-    column-gap: var(--pf-global--spacer--sm);
-  }
-
-  // Tabless mode, with just action buttons
-  &-simplebody-actions {
-    padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--md) var(--pf-global--spacer--xs) 0;
-    float: right;
+      padding: var(--pf-global--spacer--sm) 0 var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
   }
 
   &-body {
@@ -82,11 +70,6 @@
       clear: both;
       display: table;
     }
-  }
-
-  &-simplebody-actions + &-body {
-    // Containing hack part 3: Unset float for simplebody actions
-    float: none;
   }
 }
 

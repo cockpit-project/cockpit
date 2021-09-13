@@ -917,23 +917,23 @@ ProtocolHeader = X-Forwarded-Proto
         m.execute("setsebool -P httpd_can_network_connect on")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
 
-    def checkCockpitOnProxy(self):
+    def checkCockpitOnProxy(self, urlroot=""):
         b = self.browser
 
         # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
         (https_host, https_port) = self.machine.forward["443"].split(':')
         out = subprocess.check_output(
             ["curl", "--verbose", "--head",
-             "--resolve", "alice:%s:%s" % (https_port, https_host),
+             "--resolve", f"alice:{https_port}:{https_host}",
              "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
-             "https://alice:%s/cockpit/static/login.html" % https_port],
+             f"https://alice:{https_port}{urlroot}/cockpit/static/login.html"],
             stderr=subprocess.STDOUT)
         self.assertIn(b"HTTP/1.1 200 OK", out)
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
 
         # works with browser (but we can't set our CA)
         b.ignore_ssl_certificate_errors(True)
-        b.open("https://%s:%s/system" % (https_host, https_port))
+        b.open(f"https://{https_host}:{https_port}{urlroot}/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -959,6 +959,7 @@ ProtocolHeader = X-Forwarded-Proto
 server {
     listen 443 ssl;
     server_name %(origin)s;
+    root /srv/www;
 
     ssl_certificate "/etc/pki/alice.pem";
     ssl_certificate_key "/etc/pki/alice.key";
@@ -985,6 +986,47 @@ server {
         m.execute("systemctl start nginx")
         m.start_cockpit(tls=True)
         self.checkCockpitOnProxy()
+
+        # now test with UrlRoot
+        m.write("/etc/cockpit/cockpit.conf", "UrlRoot = cockpit-root\n", append=True)
+        m.execute("systemctl stop cockpit.service")
+        self.sed_file("s_location /_location /cockpit-root_", "/etc/nginx/conf.d/cockpit.conf",
+                      "systemctl restart nginx")
+        self.checkCockpitOnProxy(urlroot="/cockpit-root")
+
+        # get a non-cockpit file from the server
+        m.execute("mkdir -p /srv/www/embed-cockpit")
+        m.upload(["verify/files/embed-cockpit/index.html",
+                  "verify/files/embed-cockpit/embed.js",
+                  "verify/files/embed-cockpit/embed.css"],
+                 "/srv/www/embed-cockpit/")
+        m.execute("if selinuxenabled 2>&1; then chcon -R -t httpd_sys_content_t /srv/www; fi")
+
+        (https_host, https_port) = self.machine.forward["443"].split(':')
+        out = subprocess.check_output(
+            ["curl", "--verbose",
+             "--resolve", f"alice:{https_port}:{https_host}",
+             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
+             f"https://alice:{https_port}/embed-cockpit/embed.css"],
+            stderr=subprocess.STDOUT)
+        self.assertIn(b"HTTP/1.1 200 OK", out)
+        self.assertIn(b"#embed-links", out)
+
+        # embedding
+        b = self.browser
+        b.ignore_ssl_certificate_errors(True)
+        b.open(f"https://{https_host}:{https_port}/embed-cockpit/index.html")
+        b.set_val("#embed-address", f"https://{https_host}:{https_port}/cockpit-root")
+        b.click("#embed-full")
+        b.wait_visible("iframe[name='embed-full'][loaded]")
+        b.switch_to_frame("embed-full")
+
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load_frame("embed-full")
+        b.wait_visible('article.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
                "rhel-8-4", "rhel-8-5", "rhel-9-0", "ubuntu-stable", "ubuntu-2004")

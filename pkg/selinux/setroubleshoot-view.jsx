@@ -401,7 +401,7 @@ export class SETroubleshootPage extends React.Component {
                                 variant="danger"
                                 onClick={onDeleteClick}
                                 isDisabled={ !this.props.deleteAlert || !selectedCnt}>
-                            {selectedCnt ? cockpit.format(cockpit.ngettext(_("Dismiss $0 alert"), _("Dismiss $0 alerts"), selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
+                            {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
                         </Button>
                     </CardActions> : null}
                 </CardHeader>

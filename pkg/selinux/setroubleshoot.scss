@@ -45,9 +45,11 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
     > div:first-child {
         width: 70%;
+        flex: auto;
     }
 
     + hr {

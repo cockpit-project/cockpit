@@ -206,7 +206,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         def check_theme_select(name, style):
             b.select_from_dropdown("#theme-select + div select", name)
-            b.wait_attr(".xterm-viewport", "style", style)
+            b.wait_attr_contains(".xterm-viewport", "style", style)
 
         # Check that color theme changes
         white_style = "background-color: rgb(255, 255, 255);"
@@ -230,7 +230,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.wait_visible('.terminal')
-        b.wait_attr(".xterm-viewport", "style", white_style)
+        b.wait_attr_contains(".xterm-viewport", "style", white_style)
         b.wait_val("#toolbar input", 17)
         b.wait_attr(".xterm-accessibility-tree div:first-child", "style", new_style)
         b.click("#toolbar button[aria-label='Decrease by one']")

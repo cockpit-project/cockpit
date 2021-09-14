@@ -1229,6 +1229,12 @@ on_manager_signal (GDBusConnection *connection,
   const gchar * manager_added;
   ProcessInterfacesData *pis;
 
+  /* We have to filter the sender ourselves; glib doesn't do that for
+     well-known names.
+   */
+  if (self->name_owner && g_strcmp0 (sender, self->name_owner) != 0)
+    return;
+
   /* Note that this is an ObjectManager */
   manager_added = cockpit_paths_add (self->managed_not_ready, path);
 

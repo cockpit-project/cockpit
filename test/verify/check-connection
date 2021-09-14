@@ -411,8 +411,9 @@ class TestConnection(MachineCase):
         self.assertIn(
             "default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
         self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
-        # CORP is also set for dynamic paths
+        # CORP and Frame-Options are also set for dynamic paths
         self.assertIn("Cross-Origin-Resource-Policy: same-origin", headers)
+        self.assertIn("X-Frame-Options: sameorigin", headers)
 
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
@@ -627,6 +628,7 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Content-Type: text/html\r\n", headers)
         self.assertIn("Cross-Origin-Resource-Policy: same-origin\r\n", headers)
+        self.assertIn("X-Frame-Options: sameorigin\r\n", headers)
         # login.html is not always accessible as a file (e.g. on CoreOS), so just assert a reasonable content length
         self.assertIn("Content-Length: ", headers)
         length = int(headers.split('Content-Length: ', 1)[1].split()[0])

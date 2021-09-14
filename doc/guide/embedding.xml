@@ -5,7 +5,9 @@
   <title>Embedding and Integrating Cockpit</title>
 
   <para>Cockpit can be embedded in other web applications either as a whole or specific
-    Cockpit components can be integrated.</para>
+    Cockpit components can be integrated. Due to frame security policy restrictions,
+    this only works if Cockpit and the web application have the <emphasis>same origin</emphasis>;
+    this is commonly achieved by running both from a common reverse proxy.</para>
 
   <section id="embedding-full">
     <title>Embedding the Cockpit Interface</title>

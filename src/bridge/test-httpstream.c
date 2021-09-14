@@ -34,7 +34,7 @@
 extern gboolean cockpit_webserver_want_certificate;
 
 /* JSON dict snippet for headers that are present in every request */
-#define STATIC_HEADERS "\"Cross-Origin-Resource-Policy\":\"same-origin\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"X-DNS-Prefetch-Control\":\"off\""
+#define STATIC_HEADERS "\"Cross-Origin-Resource-Policy\":\"same-origin\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"X-DNS-Prefetch-Control\":\"off\",\"X-Frame-Options\":\"sameorigin\""
 
 static void
 on_closed_set_flag (CockpitChannel *channel,

@@ -87,7 +87,7 @@ export class JournalBox extends React.Component {
 
         this.options = cockpit.location.options;
         this.match = getGrepFiltersFromOptions({ options: this.options })[1];
-        const { dataFollowing, updateIdentifiersList, setFilteredQuery } = this.props;
+        const { dataFollowing, defaultSince, updateIdentifiersList, setFilteredQuery } = this.props;
         const { priority, grep, boot, since, until } = this.options;
         let last = dataFollowing ? null : 1;
         let count = 0;
@@ -109,7 +109,7 @@ export class JournalBox extends React.Component {
             grep,
             priority,
             reverse: true, /* reverse: Reverse output so that the newest entries are displayed first */
-            since,
+            since: since || defaultSince,
             until
         };
 

@@ -56,7 +56,7 @@ const _ = cockpit.gettext;
 const timeFilterOptions = [
     { key: "boot", value: 0, toString: () => _("Current boot"), },
     { key: "boot", value: "-1", toString: () => _("Previous boot") },
-    { key: "since", value: "-24hours", toString: () => _("Last 24 hours") },
+    { key: "since", value: "-24hours", toString: () => _("Last 24 hours"), default: true },
     { key: "since", value: "-7days", toString: () => _("Last 7 days") },
 ];
 
@@ -83,8 +83,7 @@ const getTimeFilterOption = options => {
         return timeFilterOptions.find(option => option.key == 'boot' && option.value == options.boot);
     else if (options.since)
         return timeFilterOptions.find(option => option.key == 'since' && option.value == options.since);
-    else
-        return undefined;
+    return timeFilterOptions.find(option => 'default' in option); // Use the default key
 };
 
 export const LogsPage = () => {
@@ -273,6 +272,7 @@ export const LogsPage = () => {
                          variant={PageSectionVariants.light}
                          id="journal-box">
                 <JournalBox dataFollowing={dataFollowing}
+                            defaultSince={timeFilter ? timeFilter.value : getTimeFilterOption({}).value}
                             setCurrentIdentifiers={setCurrentIdentifiers}
                             setFilteredQuery={setFilteredQuery}
                             updateIdentifiersList={updateIdentifiersList}

@@ -47,7 +47,7 @@
 #define CHECKSUM_CSP            "80921dc3cde9ff9f2acd2a5851f9b2a3b25ea7b4577128461d9e32fbdd671e16"
 
 /* JSON dict snippet for headers that are present in every request */
-#define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"Cross-Origin-Resource-Policy\": \"same-origin\""
+#define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"Cross-Origin-Resource-Policy\": \"same-origin\",\"X-Frame-Options\": \"sameorigin\""
 #define STATIC_HEADERS_CACHECONTROL STATIC_HEADERS ",\"Cache-Control\":\"no-cache, no-store\""
 
 extern const gchar **cockpit_bridge_data_dirs;

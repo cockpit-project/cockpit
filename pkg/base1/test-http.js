@@ -208,6 +208,7 @@ QUnit.test("headers", function (assert) {
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
                     "X-Content-Type-Options": "nosniff",
+                    "X-Frame-Options": "sameorigin",
                     "Cross-Origin-Resource-Policy": "same-origin",
                 }, "got back headers");
             })
@@ -250,6 +251,7 @@ QUnit.test("connection headers", function (assert) {
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
                     "X-Content-Type-Options": "nosniff",
+                    "X-Frame-Options": "sameorigin",
                     "Cross-Origin-Resource-Policy": "same-origin",
                 }, "got back combined headers");
             })

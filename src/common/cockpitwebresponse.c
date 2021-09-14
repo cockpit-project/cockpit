@@ -747,6 +747,7 @@ enum {
     HEADER_REFERRER_POLICY = 1 << 5,
     HEADER_CONTENT_TYPE_OPTIONS = 1 << 6,
     HEADER_CROSS_ORIGIN_RESOURCE_POLICY = 1 << 7,
+    HEADER_X_FRAME_OPTIONS = 1 << 8,
 };
 
 static GString *
@@ -789,6 +790,8 @@ append_header (GString *string,
     return HEADER_CONTENT_TYPE_OPTIONS;
   if (g_ascii_strcasecmp ("Cross-Origin-Resource-Policy", name) == 0)
     return HEADER_CROSS_ORIGIN_RESOURCE_POLICY;
+  if (g_ascii_strcasecmp ("X-Frame-Options", name) == 0)
+    return HEADER_X_FRAME_OPTIONS;
   if (g_ascii_strcasecmp ("Content-Length", name) == 0 ||
       g_ascii_strcasecmp ("Transfer-Encoding", name) == 0 ||
       g_ascii_strcasecmp ("Connection", name) == 0)
@@ -900,6 +903,9 @@ finish_headers (CockpitWebResponse *self,
    * be able to read any resource. This does *not* affect embedding with <iframe> */
   if ((seen & HEADER_CROSS_ORIGIN_RESOURCE_POLICY) == 0)
     g_string_append (string, "Cross-Origin-Resource-Policy: same-origin\r\n");
+  /* This is the counterpart for iframe embedding, line of defence against clickjacking */
+  if ((seen & HEADER_X_FRAME_OPTIONS) == 0)
+    g_string_append (string, "X-Frame-Options: sameorigin\r\n");
 
   g_string_append (string, "\r\n");
   return g_string_free_to_bytes (string);

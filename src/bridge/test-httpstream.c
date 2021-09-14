@@ -34,7 +34,7 @@
 extern gboolean cockpit_webserver_want_certificate;
 
 /* JSON dict snippet for headers that are present in every request */
-#define STATIC_HEADERS "\"Cross-Origin-Resource-Policy\":\"same-origin\",\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\""
+#define STATIC_HEADERS "\"Cross-Origin-Resource-Policy\":\"same-origin\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"X-DNS-Prefetch-Control\":\"off\""
 
 static void
 on_closed_set_flag (CockpitChannel *channel,
@@ -114,6 +114,24 @@ handle_host_header (CockpitWebServer *server,
   return TRUE;
 }
 
+/* Compare subsequent "{ control JSON }" and "body" channel messages against expected values. */
+static void
+assert_channel_response (MockTransport *transport,
+                         const gchar *channel_id,
+                         const gchar *expected_control,
+                         const gchar *expected_body)
+{
+  GBytes *data;
+
+  data = mock_transport_pop_channel (transport, channel_id);
+  JsonNode *node = cockpit_json_parse (g_bytes_get_data (data, NULL), -1, NULL);
+  cockpit_assert_json_eq (json_node_get_object (node), expected_control);
+  json_node_unref (node);
+
+  data = mock_transport_pop_channel (transport, channel_id);
+  cockpit_assert_bytes_eq (data, expected_body, -1);
+}
+
 static void
 test_host_header (TestGeneral *tt,
                   gconstpointer unused)
@@ -123,8 +141,6 @@ test_host_header (TestGeneral *tt,
   JsonObject *options;
   const gchar *control;
   gboolean closed;
-  GBytes *data;
-  guint count;
 
   if (tt->host == NULL)
     {
@@ -162,10 +178,9 @@ test_host_header (TestGeneral *tt,
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
 
-  data = mock_transport_combine_output (tt->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}Da Da Da", -1);
-  g_assert_cmpuint (count, ==, 2);
-  g_bytes_unref (data);
+  assert_channel_response (tt->transport, "444",
+                           "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}",
+                           "Da Da Da");
 }
 
 static gboolean
@@ -347,11 +362,8 @@ test_http_chunked (void)
   TestResult *tr = g_slice_new (TestResult);
 
   GBytes *bytes = NULL;
-  GBytes *data = NULL;
 
   const gchar *control;
-  gchar *expected = g_strdup_printf ("{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}%0*d", MAGIC_NUMBER, 0);
-  guint count;
   guint port;
 
   web_server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, NULL);
@@ -396,12 +408,13 @@ test_http_chunked (void)
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tr->problem, ==, NULL);
 
-  data = mock_transport_combine_output (transport, "444", &count);
-  cockpit_assert_bytes_eq (data, expected, -1);
-  g_assert_cmpuint (count, ==, 2);
 
-  g_bytes_unref (data);
-  g_free (expected);
+
+  g_autofree gchar *expected_body = g_strdup_printf ("%0*d", MAGIC_NUMBER, 0);
+
+  assert_channel_response (transport, "444",
+                           "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}",
+                           expected_body);
 
   g_object_unref (transport);
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
@@ -524,7 +537,6 @@ test_tls_basic (TestTls *test,
   JsonObject *options;
   const gchar *control;
   GBytes *bytes;
-  GBytes *data;
 
   options = json_object_new ();
   json_object_set_int_member (options, "port", test->port);
@@ -552,10 +564,9 @@ test_tls_basic (TestTls *test,
   while (closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
 
-  data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}Oh Marmalaade!", -1);
-
-  g_bytes_unref (data);
+  assert_channel_response (test->transport, "444",
+                           "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}",
+                           "Oh Marmalaade!");
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
   g_object_unref (channel);
@@ -683,7 +694,6 @@ test_tls_certificate (TestTls *test,
   GTlsCertificate *cert;
   const gchar *control;
   GBytes *bytes;
-  GBytes *data;
 
   /* tell server to request client cert */
   cockpit_webserver_want_certificate = TRUE;
@@ -720,10 +730,9 @@ test_tls_certificate (TestTls *test,
   while (closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
 
-  data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}Oh Marmalaade!", -1);
-
-  g_bytes_unref (data);
+  assert_channel_response (test->transport, "444",
+                           "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}",
+                           "Oh Marmalaade!");
 
   g_assert (test->peer != NULL);
 
@@ -754,7 +763,6 @@ test_tls_authority_good (TestTls *test,
   GError *error = NULL;
   const gchar *control;
   GBytes *bytes;
-  GBytes *data;
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);
@@ -785,10 +793,9 @@ test_tls_authority_good (TestTls *test,
   while (closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
 
-  data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}Oh Marmalaade!", -1);
-
-  g_bytes_unref (data);
+  assert_channel_response (test->transport, "444",
+                           "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS "}}",
+                           "Oh Marmalaade!");
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
   g_object_unref (channel);

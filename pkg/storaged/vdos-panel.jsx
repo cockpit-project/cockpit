@@ -24,7 +24,6 @@ import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, decode_filename,
     get_available_spaces, prepare_available_spaces,
-    get_config
 } from "./utils.js";
 import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBoxes } from "./dialog.jsx";
 
@@ -33,7 +32,7 @@ const _ = cockpit.gettext;
 export function vdo_feature(client) {
     return {
         is_enabled: () => client.features.vdo,
-        package: get_config("vdo_package", false),
+        package: client.get_config("vdo_package", false),
         enable: () => {
             client.features.vdo = true;
             client.vdo_overlay.start();

@@ -364,12 +364,34 @@ function update_indices() {
     }
 }
 
+function parse_simple_vars(text) {
+    const res = { };
+    for (const l of text.split('\n')) {
+        const pos = l.indexOf('=');
+        if (pos > 0) {
+            const name = l.substring(0, pos);
+            let val = l.substring(pos + 1);
+            if (val[0] == '"' && val[val.length - 1] == '"')
+                val = val.substring(1, val.length - 1);
+            res[name] = val;
+        }
+    }
+    return res;
+}
+
+const simple_vars = { parse: parse_simple_vars };
+
 function init_model(callback) {
     function pull_time() {
         return cockpit.spawn(["date", "+%s"])
                 .then(function (now) {
                     client.time_offset = parseInt(now, 10) * 1000 - new Date().getTime();
                 });
+    }
+
+    function read_os_release() {
+        return cockpit.file("/etc/os-release", { syntax: simple_vars }).read()
+                .then(data => { client.os_release = data });
     }
 
     function enable_udisks_features() {
@@ -496,20 +518,22 @@ function init_model(callback) {
     }
 
     pull_time().then(function() {
-        enable_features().then(function() {
-            query_fsys_info().then(function(fsys_info) {
-                client.fsys_info = fsys_info;
-                callback();
+        read_os_release().then(function () {
+            enable_features().then(function() {
+                query_fsys_info().then(function(fsys_info) {
+                    client.fsys_info = fsys_info;
+                    callback();
+                });
             });
-        });
 
-        client.storaged_client.addEventListener('notify', function () {
+            client.storaged_client.addEventListener('notify', function () {
+                update_indices();
+                client.path_warnings = find_warnings(client);
+                client.dispatchEvent("changed");
+            });
             update_indices();
             client.path_warnings = find_warnings(client);
-            client.dispatchEvent("changed");
         });
-        update_indices();
-        client.path_warnings = find_warnings(client);
     });
 }
 
@@ -852,6 +876,17 @@ client.wait_for = function wait_for(cond) {
     check();
 
     return dfd.promise();
+};
+
+client.get_config = (name, def) => {
+    if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
+        let val = cockpit.manifests.storage.config[name];
+        if (typeof val === 'object' && val !== null)
+            val = val[client.os_release.ID];
+        return val !== undefined ? val : def;
+    } else {
+        return def;
+    }
 };
 
 export default client;

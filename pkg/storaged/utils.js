@@ -746,19 +746,6 @@ export function teardown_active_usage(client, usage) {
     ));
 }
 
-export function get_config(name, def) {
-    if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
-        let val = cockpit.manifests.storage.config[name];
-        if (typeof val === 'object' && val !== null) {
-            const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
-            val = val[os_release.ID];
-        }
-        return val !== undefined ? val : def;
-    } else {
-        return def;
-    }
-}
-
 // TODO - generalize this to arbitrary number of arguments (when needed)
 export function fmt_to_array(fmt, arg) {
     var index = fmt.indexOf("$0");

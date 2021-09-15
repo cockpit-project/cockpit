@@ -24,7 +24,6 @@ import { PlusIcon } from '@patternfly/react-icons';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
-import { get_config } from "./utils.js";
 import { nfs_fstab_dialog } from "./nfs-details.jsx";
 import { OptionalPanel } from "./optional-panel.jsx";
 
@@ -70,7 +69,7 @@ export class NFSPanel extends React.Component {
 
         var nfs_feature = {
             is_enabled: () => client.features.nfs,
-            package: get_config("nfs_client_package", false),
+            package: client.get_config("nfs_client_package", false),
             enable: () => {
                 client.features.nfs = true;
                 client.nfs.start();

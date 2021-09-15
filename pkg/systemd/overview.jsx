@@ -271,7 +271,7 @@ class OverviewPage extends React.Component {
                             { headerActions }
                         </div>
                     </PageSection>
-                    <PageSection variant={PageSectionVariants.default}>
+                    <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding', sm: 'padding' }} className="ct-page-add-top-bottom-padding">
                         <Gallery className='ct-system-overview' hasGutter>
                             <LoginMessages />
                             <MotdCard />

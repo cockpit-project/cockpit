@@ -154,8 +154,6 @@ client.call = function call(path, iface, method, args, options) {
 };
 
 function init_proxies () {
-    client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
-
     client.mdraids = proxies("MDRaid");
     client.vgroups = proxies("VolumeGroup");
     client.lvols = proxies("LogicalVolume");
@@ -171,6 +169,8 @@ function init_proxies () {
     client.blocks_swap = proxies("Swapspace");
     client.iscsi_sessions = proxies("ISCSI.Session");
     client.jobs = proxies("Job");
+
+    return client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
 }
 
 /* Monitors
@@ -495,34 +495,21 @@ function init_model(callback) {
         }
     }
 
-    Promise.allSettled([client.manager.wait(),
-        client.mdraids.wait(), client.vgroups.wait(), client.drives.wait(),
-        client.blocks.wait(), client.blocks_ptable.wait(), client.blocks_lvm2.wait(), client.blocks_fsys.wait()
-    ]).then(results => {
-        // we at least need the manager object; if it doesn't exist, wait for the next proxy onchanged
-        if (results[0].status !== 'fulfilled') {
-            console.warn("init_model(): udisks manager proxy failed:", JSON.stringify(results[0].reason));
-            client.features = false;
-            callback();
-            return;
-        }
-
-        pull_time().then(function() {
-            enable_features().then(function() {
-                query_fsys_info().then(function(fsys_info) {
-                    client.fsys_info = fsys_info;
-                    callback();
-                });
+    pull_time().then(function() {
+        enable_features().then(function() {
+            query_fsys_info().then(function(fsys_info) {
+                client.fsys_info = fsys_info;
+                callback();
             });
+        });
 
-            client.storaged_client.addEventListener('notify', function () {
-                update_indices();
-                client.path_warnings = find_warnings(client);
-                client.dispatchEvent("changed");
-            });
+        client.storaged_client.addEventListener('notify', function () {
             update_indices();
             client.path_warnings = find_warnings(client);
+            client.dispatchEvent("changed");
         });
+        update_indices();
+        client.path_warnings = find_warnings(client);
     });
 }
 
@@ -832,8 +819,7 @@ function init_client(manager, callback) {
     client.storaged_client = manager.client;
     client.manager = manager;
 
-    init_proxies();
-    init_model(callback);
+    init_proxies().then(() => init_model(callback));
 }
 
 client.init = function init_storaged(callback) {

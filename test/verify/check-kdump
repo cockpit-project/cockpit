@@ -27,27 +27,20 @@ from testlib import *
 @skipDistroPackage()
 class TestKdump(MachineCase):
 
-    def rreplace(self, s, old, new, count):
-        li = s.rsplit(old, count)
-        return new.join(li)
-
     def enableKdump(self):
         # all current Fedora/CentOS/RHEL images use BootLoaderSpec
         self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
         self.machine.execute("mkdir -p /var/crash")
-
-    def enableLocalSsh(self):
-        self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
-        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
-        self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
-
-    def rebootMachine(self):
-        # Now reboot things
         self.machine.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         self.machine.wait_reboot()
         self.machine.start_cockpit()
         self.browser.switch_to_top()
         self.browser.relogin("/kdump")
+
+    def enableLocalSsh(self):
+        self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
+        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
+        self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
 
     def testBasic(self):
         b = self.browser
@@ -89,41 +82,42 @@ class TestKdump(MachineCase):
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
         self.enableKdump()
-        self.rebootMachine()
         b.wait_visible("#app")
         self.enableLocalSsh()
 
         # minimal nfs validation
-        settingsLink = "button:contains('locally in /var/crash')"
+        b.wait_text("#kdump-change-target", "locally in /var/crash")
 
-        b.click(settingsLink)
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_visible(".pf-c-alert__title:contains('Unable to apply settings')")
         b.set_input_text(mountInput, "localhost:")
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_visible(".pf-c-alert__title:contains('Unable to apply settings')")
+        b.click("#kdump-settings-dialog button.cancel")
+        b.wait_not_present("#kdump-settings-dialog")
 
         # test compression
-        b.click(settingsLink)
+        b.click("#kdump-change-target")
         b.click("#kdump-settings-compression")
         pathInput = "#kdump-settings-local-directory"
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(pathInput)
         m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
         # generate a valid kdump config with ssh target
-        b.click(settingsLink)
+        b.click("#kdump-change-target")
         b.set_val("#kdump-settings-location", "ssh")
         sshInput = "#kdump-settings-ssh-server"
         b.set_input_text(sshInput, "root@localhost")
         sshKeyInput = "#kdump-settings-ssh-key"
         b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
         b.set_input_text(pathInput, "/var/crash")
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(pathInput)
 
         # we should have the amount of memory reserved that we indicated
@@ -132,24 +126,24 @@ class TestKdump(MachineCase):
         b.wait_in_text("#app", "Service is running")
         assertActive(True)
         b.wait_in_text("#app", "Service is running")
+        b.wait_text("#kdump-change-target", "Remote over SSH")
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
-        settingsLink = "button:contains('Remote over SSH')"
-        b.click(settingsLink)
+        b.click("#kdump-change-target")
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
         b.set_input_text(pathInput, customPath)
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
         b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
-        m.execute("mkdir -p {0}".format(customPath))
-        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
+        m.execute(f"mkdir -p {customPath}")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(pathInput)
-        b.wait_visible("button:contains('locally in {0}')".format(customPath))
+        b.wait_text("#kdump-change-target", f"locally in {customPath}")
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
@@ -157,10 +151,9 @@ class TestKdump(MachineCase):
         assertActive(True)
 
         # crash the kernel and make sure it wrote a report into the right directory
-        b.click("button{}".format(self.default_btn_class))
+        b.click(f"button{self.default_btn_class}")
         # we should get a warning dialog, confirm
-        crashButton = "button{}:contains('Crash system')".format(self.danger_btn_class)
-        b.click(crashButton)
+        b.click(f"button{self.danger_btn_class}:contains('Crash system')")
 
         # wait until we've actuall triggered a crash
         b.wait_visible(".dialog-wait-ct")

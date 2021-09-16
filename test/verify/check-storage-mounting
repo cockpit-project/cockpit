@@ -224,12 +224,13 @@ class TestStorageMounting(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         self.content_tab_wait_in_info(1, 1, "Mount point", "/run/foo")
 
-        fsys_tab = self.content_tab_expand(1, 1)
-
         # Unmount and lock externally, unlock and remount with Cockpit
 
         m.execute("umount /run/foo")
         m.execute("udisksctl lock -b %s" % dev)
+        # wait until the UI updated to the locking
+        self.content_tab_wait_in_info(1, 2, "Cleartext device", "-")
+        fsys_tab = self.content_tab_expand(1, 1)
         b.click(fsys_tab + " button:contains(Mount now)")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         b.wait_not_present(fsys_tab + " button:contains(Mount now)")

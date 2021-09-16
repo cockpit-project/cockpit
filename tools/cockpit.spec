@@ -220,7 +220,9 @@ install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 %endif
 
 # Build the package lists for resource packages
-echo '%dir %{_datadir}/cockpit/base1' > base.list
+# cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
+echo '%dir %{_datadir}/cockpit' > base.list
+echo '%dir %{_datadir}/cockpit/base1' >> base.list
 echo '%dir %{_datadir}/cockpit/base1/fonts' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
@@ -356,7 +358,6 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/AUTHORS
 %{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
-%dir %{_datadir}/cockpit
 %{_datadir}/metainfo/cockpit.appdata.xml
 %{_datadir}/pixmaps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz

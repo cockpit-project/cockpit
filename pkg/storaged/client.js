@@ -364,6 +364,12 @@ function update_indices() {
     }
 }
 
+client.update = () => {
+    update_indices();
+    client.path_warnings = find_warnings(client);
+    client.dispatchEvent("changed");
+};
+
 function parse_simple_vars(text) {
     const res = { };
     for (const l of text.split('\n')) {
@@ -462,10 +468,10 @@ function init_model(callback) {
     function enable_features() {
         client.features = { };
         return (enable_udisks_features()
-                .then(enable_vdo_features)
                 .then(enable_clevis_features)
                 .then(enable_nfs_features)
-                .then(enable_pk_features));
+                .then(enable_pk_features)
+                .then(enable_vdo_features));
     }
 
     function query_fsys_info() {
@@ -524,13 +530,10 @@ function init_model(callback) {
                     client.fsys_info = fsys_info;
 
                     client.storaged_client.addEventListener('notify', function () {
-                        update_indices();
-                        client.path_warnings = find_warnings(client);
-                        client.dispatchEvent("changed");
+                        client.update();
                     });
 
-                    update_indices();
-                    client.path_warnings = find_warnings(client);
+                    client.update();
                     callback();
                 });
             });
@@ -754,12 +757,7 @@ function vdo_overlay() {
             return v;
         });
 
-        // We trigger a change on the client right away and not
-        // just on the vdo_overlay since this data is used all
-        // over the place...
-
-        client.path_warnings = find_warnings(client);
-        client.dispatchEvent("changed");
+        client.update();
     }
 
     function start() {

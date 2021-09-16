@@ -522,17 +522,18 @@ function init_model(callback) {
             enable_features().then(function() {
                 query_fsys_info().then(function(fsys_info) {
                     client.fsys_info = fsys_info;
+
+                    client.storaged_client.addEventListener('notify', function () {
+                        update_indices();
+                        client.path_warnings = find_warnings(client);
+                        client.dispatchEvent("changed");
+                    });
+
+                    update_indices();
+                    client.path_warnings = find_warnings(client);
                     callback();
                 });
             });
-
-            client.storaged_client.addEventListener('notify', function () {
-                update_indices();
-                client.path_warnings = find_warnings(client);
-                client.dispatchEvent("changed");
-            });
-            update_indices();
-            client.path_warnings = find_warnings(client);
         });
     });
 }

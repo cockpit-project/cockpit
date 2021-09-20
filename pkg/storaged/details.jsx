@@ -74,7 +74,7 @@ export class StdDetailsLayout extends React.Component {
 
 export class Details extends React.Component {
     render() {
-        var client = this.props.client;
+        const client = this.props.client;
 
         function go_up(event) {
             if (!event || event.button !== 0)
@@ -82,11 +82,11 @@ export class Details extends React.Component {
             cockpit.location.go("/");
         }
 
-        var body = null;
-        var name = this.props.name;
+        let body = null;
+        let name = this.props.name;
         if (this.props.type == "block") {
-            var block = client.slashdevs_block["/dev/" + this.props.name];
-            var drive = block && client.drives[block.Drive];
+            const block = client.slashdevs_block["/dev/" + this.props.name];
+            const drive = block && client.drives[block.Drive];
 
             if (drive) {
                 name = utils.drive_name(drive);
@@ -96,25 +96,25 @@ export class Details extends React.Component {
                 body = <BlockDetails client={client} block={block} />;
             }
         } else if (this.props.type == "vg") {
-            var vgroup = client.vgnames_vgroup[this.props.name];
+            const vgroup = client.vgnames_vgroup[this.props.name];
             if (vgroup) {
                 name = vgroup.Name;
                 body = <VGroupDetails client={client} vgroup={vgroup} />;
             }
         } else if (this.props.type == "mdraid") {
-            var mdraid = client.uuids_mdraid[this.props.name];
+            const mdraid = client.uuids_mdraid[this.props.name];
             if (mdraid) {
                 name = utils.mdraid_name(mdraid);
                 body = <MDRaidDetails client={client} mdraid={mdraid} />;
             }
         } else if (this.props.type == "vdo") {
-            var vdo = client.vdo_overlay.by_name[this.props.name];
+            const vdo = client.vdo_overlay.by_name[this.props.name];
             if (vdo) {
                 name = vdo.name;
                 body = <VDODetails client={client} vdo={vdo} />;
             }
         } else if (this.props.type == "nfs") {
-            var entry = client.nfs.find_entry(name, this.props.name2);
+            const entry = client.nfs.find_entry(name, this.props.name2);
             if (entry)
                 body = <NFSDetails client={client} entry={entry} />;
         }

@@ -59,7 +59,7 @@ function parse_tag_mtime(tag) {
 const edit_config_mutex = new Mutex();
 
 export function edit_config(block, modify) {
-    var old_config, new_config;
+    let old_config, new_config;
 
     return edit_config_mutex.lock().then(unlock => {
         function commit() {
@@ -103,13 +103,12 @@ export class CryptoTab extends React.Component {
                 this.monitor_channel.close();
             this.monitored_block = block;
             if (block) {
-                var dev = decode_filename(block.Device);
+                const dev = decode_filename(block.Device);
                 this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: true });
-                var buf = "";
+                let buf = "";
                 this.monitor_channel.stream(output => {
-                    var lines;
                     buf += output;
-                    lines = buf.split("\n");
+                    const lines = buf.split("\n");
                     buf = lines[lines.length - 1];
                     if (lines.length >= 2) {
                         const data = JSON.parse(lines[lines.length - 2]);
@@ -142,9 +141,9 @@ export class CryptoTab extends React.Component {
     }
 
     render() {
-        var self = this;
-        var client = self.props.client;
-        var block = self.props.block;
+        const self = this;
+        const client = self.props.client;
+        const block = self.props.block;
 
         this.monitor_slots(block);
 
@@ -175,9 +174,8 @@ export class CryptoTab extends React.Component {
             });
         }
 
-        var old_config, old_options, passphrase_path;
-
-        old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+        let old_options, passphrase_path;
+        const old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
         if (old_config) {
             old_options = (decode_filename(old_config[1].options.v)
                     .split(",")
@@ -188,15 +186,15 @@ export class CryptoTab extends React.Component {
 
         this.monitor_path_mtime(passphrase_path);
 
-        var split_options = parse_options(old_options);
-        var opt_noauto = extract_option(split_options, "noauto");
-        var extra_options = unparse_options(split_options);
+        const split_options = parse_options(old_options);
+        let opt_noauto = extract_option(split_options, "noauto");
+        const extra_options = unparse_options(split_options);
 
         function edit_options() {
-            var fsys_config = array_find(client.blocks_crypto[block.path].ChildConfiguration,
-                                         c => c[0] == "fstab");
-            var content_block = client.blocks_cleartext[block.path];
-            var is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
+            const fsys_config = array_find(client.blocks_crypto[block.path].ChildConfiguration,
+                                           c => c[0] == "fstab");
+            const content_block = client.blocks_cleartext[block.path];
+            const is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
 
             edit_config(block, function (config, commit) {
                 dialog_open({
@@ -208,7 +206,7 @@ export class CryptoTab extends React.Component {
                     Action: {
                         Title: _("Apply"),
                         action: function (vals) {
-                            var opts = [];
+                            let opts = [];
                             if (is_fsys && content_block)
                                 opt_noauto = !is_mounted(client, content_block);
                             if (opt_noauto)
@@ -225,12 +223,12 @@ export class CryptoTab extends React.Component {
             });
         }
 
-        var cleartext = client.blocks_cleartext[block.path];
+        const cleartext = client.blocks_cleartext[block.path];
 
-        var option_parts = [];
+        const option_parts = [];
         if (extra_options)
             option_parts.push(extra_options);
-        var options = option_parts.join(", ");
+        const options = option_parts.join(", ");
 
         return (
             <div>

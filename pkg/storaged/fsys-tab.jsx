@@ -165,20 +165,20 @@ export function check_mismounted_fsys(client, path, enter_warning) {
 
 export function mounting_dialog(client, block, mode) {
     const block_fsys = client.blocks_fsys[block.path];
-    var [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
-    var options = old_config ? old_opts : initial_tab_options(client, block, true);
+    const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
+    const options = old_config ? old_opts : initial_tab_options(client, block, true);
 
-    var split_options = parse_options(options == "defaults" ? "" : options);
+    const split_options = parse_options(options == "defaults" ? "" : options);
     extract_option(split_options, "noauto");
-    var opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
-    var opt_ro = extract_option(split_options, "ro");
-    var extra_options = unparse_options(split_options);
+    const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
+    const opt_ro = extract_option(split_options, "ro");
+    const extra_options = unparse_options(split_options);
 
-    var is_filesystem_mounted = is_mounted(client, block);
+    const is_filesystem_mounted = is_mounted(client, block);
 
     function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
-        var new_config = null;
-        var all_new_opts;
+        let new_config = null;
+        let all_new_opts;
 
         if (new_opts && old_parents)
             all_new_opts = new_opts + "," + old_parents;
@@ -370,7 +370,7 @@ export function mounting_dialog(client, block, mode) {
     };
 
     function do_unmount() {
-        var opts = [];
+        let opts = [];
         opts.push("noauto");
         if (opt_ro)
             opts.push("ro");
@@ -407,7 +407,7 @@ export function mounting_dialog(client, block, mode) {
                 if (mode == "unmount") {
                     return do_unmount();
                 } else if (mode == "mount" || mode == "update") {
-                    var opts = [];
+                    let opts = [];
                     if ((mode == "update" && !is_filesystem_mounted) || vals.mount_options.never_auto)
                         opts.push("noauto");
                     if (vals.mount_options.ro)
@@ -448,11 +448,11 @@ export class FilesystemTab extends React.Component {
     }
 
     render() {
-        var self = this;
-        var block = self.props.block;
-        var is_locked = block && block.IdUsage == 'crypto';
-        var block_fsys = block && self.props.client.blocks_fsys[block.path];
-        var mismounted_fsys_warning = self.props.warnings.find(w => w.warning == "mismounted-fsys");
+        const self = this;
+        const block = self.props.block;
+        const is_locked = block && block.IdUsage == 'crypto';
+        const block_fsys = block && self.props.client.blocks_fsys[block.path];
+        const mismounted_fsys_warning = self.props.warnings.find(w => w.warning == "mismounted-fsys");
 
         function rename_dialog() {
             dialog_open({
@@ -473,16 +473,16 @@ export class FilesystemTab extends React.Component {
             });
         }
 
-        var is_filesystem_mounted = is_mounted(self.props.client, block);
-        var [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
-        var split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
+        const is_filesystem_mounted = is_mounted(self.props.client, block);
+        const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
+        const split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
         extract_option(split_options, "noauto");
-        var opt_ro = extract_option(split_options, "ro");
-        var opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
+        const opt_ro = extract_option(split_options, "ro");
+        const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
 
-        var used;
+        let used;
         if (is_filesystem_mounted) {
-            var samples = self.props.client.fsys_sizes.data[old_dir];
+            const samples = self.props.client.fsys_sizes.data[old_dir];
             if (samples)
                 used = cockpit.format(_("$0 of $1"),
                                       utils.fmt_size(samples[0]),
@@ -493,10 +493,10 @@ export class FilesystemTab extends React.Component {
             used = "-";
         }
 
-        var mount_point_text = null;
+        let mount_point_text = null;
         if (old_dir) {
             if (old_opts && old_opts != "defaults") {
-                var opt_texts = [];
+                let opt_texts = [];
                 if (opt_ro)
                     opt_texts.push(_("read only"));
                 if (opt_never_auto)
@@ -510,7 +510,7 @@ export class FilesystemTab extends React.Component {
                 mount_point_text = old_dir;
         }
 
-        var extra_text = null;
+        let extra_text = null;
         if (!is_filesystem_mounted) {
             if (!old_dir)
                 extra_text = _("The filesystem has no permanent mount point.");
@@ -614,7 +614,7 @@ export class FilesystemTab extends React.Component {
             }
         }
 
-        var mismounted_section = null;
+        let mismounted_section = null;
         if (mismounted_fsys_warning) {
             const { type, other } = mismounted_fsys_warning;
             let text;

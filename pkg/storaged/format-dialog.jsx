@@ -47,7 +47,7 @@ export function unparse_options(split) {
 }
 
 export function extract_option(split, opt) {
-    var index = split.indexOf(opt);
+    const index = split.indexOf(opt);
     if (index >= 0) {
         split.splice(index, 1);
         return true;
@@ -57,7 +57,7 @@ export function extract_option(split, opt) {
 }
 
 export function initial_tab_options(client, block, for_fstab) {
-    var options = { };
+    const options = { };
 
     utils.get_parent_blocks(client, block.path).forEach(p => {
         if (utils.is_netdev(client, p)) {
@@ -95,7 +95,7 @@ function teardown_and_format_title(usage) {
 export const never_auto_explanation = _("If this option is checked, the filesystem will not be mounted during the next boot even if it was mounted before it.  This is useful if mounting during boot is not possible, such as when a passphrase is required to unlock the filesystem but booting is unattended.");
 
 export function format_dialog(client, path, start, size, enable_dos_extended) {
-    var block = client.blocks[path];
+    const block = client.blocks[path];
     if (block.IdUsage == "crypto") {
         cockpit.spawn(["cryptsetup", "luksDump", utils.decode_filename(block.Device)], { superuser: true })
                 .then(output => {
@@ -116,15 +116,15 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 }
 
 function format_dialog_internal(client, path, start, size, enable_dos_extended, old_luks_version) {
-    var block = client.blocks[path];
-    var block_ptable = client.blocks_ptable[path];
+    const block = client.blocks[path];
+    const block_ptable = client.blocks_ptable[path];
 
-    var offer_keep_keys = block.IdUsage == "crypto";
-    var unlock_before_format = offer_keep_keys && !client.blocks_cleartext[path];
+    const offer_keep_keys = block.IdUsage == "crypto";
+    const unlock_before_format = offer_keep_keys && !client.blocks_cleartext[path];
 
-    var create_partition = (start !== undefined);
+    const create_partition = (start !== undefined);
 
-    var title;
+    let title;
     if (create_partition)
         title = cockpit.format(_("Create partition on $0"), utils.block_name(block));
     else
@@ -141,7 +141,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         }
     }
 
-    var filesystem_options = [];
+    const filesystem_options = [];
     add_fsys("xfs", { value: "xfs", title: "XFS " + _("(recommended)") });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
@@ -164,7 +164,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         }
     }
 
-    var crypto_types = [{ value: "none", title: _("No encryption") }];
+    const crypto_types = [{ value: "none", title: _("No encryption") }];
     if (offer_keep_keys) {
         if (old_luks_version)
             crypto_types.push({
@@ -177,7 +177,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_crypto_type("luks1", "LUKS1", false);
     add_crypto_type("luks2", "LUKS2", true);
 
-    var usage = utils.get_active_usage(client, create_partition ? null : path);
+    const usage = utils.get_active_usage(client, create_partition ? null : path);
 
     if (usage.Blocking) {
         dialog_open({
@@ -187,8 +187,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         return;
     }
 
-    var crypto_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
-    var crypto_options;
+    const crypto_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    let crypto_options;
     if (crypto_config) {
         crypto_options = (utils.decode_filename(crypto_config[1].options.v)
                 .split(",")
@@ -198,19 +198,19 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         crypto_options = initial_crypto_options(client, block);
     }
 
-    var crypto_split_options = parse_options(crypto_options);
+    const crypto_split_options = parse_options(crypto_options);
     extract_option(crypto_split_options, "noauto");
-    var crypto_extra_options = unparse_options(crypto_split_options);
+    const crypto_extra_options = unparse_options(crypto_split_options);
 
-    var [, old_dir, old_opts] = get_fstab_config(block, true);
+    let [, old_dir, old_opts] = get_fstab_config(block, true);
     if (!old_opts || old_opts == "defaults")
         old_opts = initial_mount_options(client, block);
 
-    var split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
+    const split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
     extract_option(split_options, "noauto");
-    var opt_ro = extract_option(split_options, "ro");
-    var opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
-    var extra_options = unparse_options(split_options);
+    const opt_ro = extract_option(split_options, "ro");
+    const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
+    const extra_options = unparse_options(split_options);
 
     let existing_passphrase_type = null;
 
@@ -317,7 +317,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             Danger: (create_partition ? null : _("Formatting a storage device will erase all data on it.")),
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             action: function (vals) {
-                var options = {
+                const options = {
                     'tear-down': { t: 'b', v: true }
                 };
                 if (vals.erase.on)
@@ -330,12 +330,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     options['no-discard'] = { t: 'b', v: true };
                 }
 
-                var keep_keys = is_encrypted(vals) && offer_keep_keys && vals.crypto == " keep";
+                const keep_keys = is_encrypted(vals) && offer_keep_keys && vals.crypto == " keep";
 
-                var config_items = [];
-                var new_crypto_options;
+                const config_items = [];
+                let new_crypto_options;
                 if (is_encrypted(vals)) {
-                    var opts = [];
+                    let opts = [];
                     if (vals.mount_options && vals.mount_options &&
                         (!vals.mount_options.auto || vals.mount_options.never_auto)) {
                         opts.push("noauto");
@@ -343,7 +343,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                     opts = opts.concat(parse_options(vals.crypto_options));
                     new_crypto_options = { t: 'ay', v: utils.encode_filename(unparse_options(opts)) };
-                    var item = {
+                    const item = {
                         options: new_crypto_options,
                         "track-parents": { t: 'b', v: true }
                     };
@@ -361,7 +361,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 }
 
                 if (is_filesystem(vals)) {
-                    var mount_options = [];
+                    const mount_options = [];
                     if (!vals.mount_options.auto || vals.mount_options.never_auto) {
                         mount_options.push("noauto");
                     }
@@ -372,7 +372,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (vals.mount_options.extra)
                         mount_options.push(vals.mount_options.extra);
 
-                    var mount_point = vals.mount_point;
+                    let mount_point = vals.mount_point;
                     if (mount_point[0] != "/")
                         mount_point = "/" + mount_point;
 

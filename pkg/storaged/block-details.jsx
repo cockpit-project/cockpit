@@ -37,9 +37,9 @@ const _ = cockpit.gettext;
 
 export class BlockDetails extends React.Component {
     render() {
-        var block = this.props.block;
+        const block = this.props.block;
 
-        var header = (
+        const header = (
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Block")}</Text></CardTitle>
                 <CardBody>
@@ -57,7 +57,7 @@ export class BlockDetails extends React.Component {
             </Card>
         );
 
-        var content = <Content.Block client={this.props.client} block={block} />;
+        const content = <Content.Block client={this.props.client} block={block} />;
 
         return <StdDetailsLayout client={this.props.client} header={header} content={content} />;
     }

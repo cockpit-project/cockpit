@@ -921,8 +921,8 @@ export const SizeSlider = (tag, title, options) => {
             // too large (or too small) and sometimes not.
 
             const sanitize = (limit) => {
-                var fmt = cockpit.format_number(limit / unit);
-                var parse = +fmt * unit;
+                const fmt = cockpit.format_number(limit / unit);
+                const parse = +fmt * unit;
 
                 if (val == parse)
                     val = limit;

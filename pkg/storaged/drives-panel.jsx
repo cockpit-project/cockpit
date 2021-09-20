@@ -28,8 +28,8 @@ const C_ = cockpit.gettext;
 
 export class DrivesPanel extends React.Component {
     render() {
-        var props = this.props;
-        var client = props.client;
+        const props = this.props;
+        const client = props.client;
 
         function cmp_drive(path_a, path_b) {
             return client.drives[path_a].SortKey.localeCompare(client.drives[path_b].SortKey);
@@ -37,7 +37,7 @@ export class DrivesPanel extends React.Component {
 
         function classify_drive(drive) {
             if (drive.MediaRemovable || drive.Media) {
-                for (var i = 0; i < drive.MediaCompatibility.length; i++)
+                for (let i = 0; i < drive.MediaCompatibility.length; i++)
                     if (drive.MediaCompatibility[i].indexOf("optical") === 0)
                         return "optical";
                 return "removable";
@@ -47,8 +47,8 @@ export class DrivesPanel extends React.Component {
         }
 
         function make_drive(path) {
-            var drive = client.drives[path];
-            var block = client.drives_block[path];
+            const drive = client.drives[path];
+            let block = client.drives_block[path];
 
             if (!block) {
                 // A drive without a primary block device might be
@@ -61,12 +61,12 @@ export class DrivesPanel extends React.Component {
             if (!block)
                 return null;
 
-            var dev = decode_filename(block.Device).replace(/^\/dev\//, "");
+            const dev = decode_filename(block.Device).replace(/^\/dev\//, "");
 
-            var name = drive_name(drive);
-            var classification = classify_drive(drive);
-            var size_str = fmt_size(drive.Size);
-            var desc;
+            const name = drive_name(drive);
+            const classification = classify_drive(drive);
+            const size_str = fmt_size(drive.Size);
+            let desc;
             if (classification == "removable") {
                 if (drive.Size === 0)
                     desc = C_("storage", "Removable drive");
@@ -92,7 +92,7 @@ export class DrivesPanel extends React.Component {
             );
         }
 
-        var drives = Object.keys(client.drives).sort(cmp_drive)
+        const drives = Object.keys(client.drives).sort(cmp_drive)
                 .map(make_drive);
 
         return (

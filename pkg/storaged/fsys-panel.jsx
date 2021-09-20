@@ -44,10 +44,10 @@ export class FilesystemsPanel extends React.Component {
     }
 
     render() {
-        var client = this.props.client;
+        const client = this.props.client;
 
         function is_mount(path) {
-            var block = client.blocks[path];
+            const block = client.blocks[path];
 
             if (block.HintIgnore)
                 return false;
@@ -56,7 +56,7 @@ export class FilesystemsPanel extends React.Component {
                 return true;
 
             if (block.IdUsage == "crypto" && !client.blocks_cleartext[block.path]) {
-                var [, mount_point] = get_fstab_config(block, true);
+                const [, mount_point] = get_fstab_config(block, true);
                 return !!mount_point;
             }
 
@@ -64,10 +64,10 @@ export class FilesystemsPanel extends React.Component {
         }
 
         function make_mount(path) {
-            var block = client.blocks[path];
-            var [, mount_point] = get_fstab_config(block, true);
-            var fsys_size = client.fsys_sizes.data[mount_point];
-            var backing_block = client.blocks[block.CryptoBackingDevice];
+            const block = client.blocks[path];
+            const [, mount_point] = get_fstab_config(block, true);
+            const fsys_size = client.fsys_sizes.data[mount_point];
+            const backing_block = client.blocks[block.CryptoBackingDevice];
 
             return {
                 props: { path, client, key: path },
@@ -83,7 +83,7 @@ export class FilesystemsPanel extends React.Component {
             };
         }
 
-        var mounts = Object.keys(client.blocks).filter(is_mount)
+        const mounts = Object.keys(client.blocks).filter(is_mount)
                 .map(make_mount);
 
         function onRowClick(event, row) {

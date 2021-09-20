@@ -36,11 +36,11 @@ const _ = cockpit.gettext;
 
 export class DriveDetails extends React.Component {
     render() {
-        var client = this.props.client;
-        var drive = this.props.drive;
-        var drive_ata = client.drives_ata[drive.path];
-        var drive_block = drive && client.drives_block[drive.path];
-        var multipath_blocks = drive && client.drives_multipath_blocks[drive.path];
+        const client = this.props.client;
+        const drive = this.props.drive;
+        const drive_ata = client.drives_ata[drive.path];
+        const drive_block = drive && client.drives_block[drive.path];
+        const multipath_blocks = drive && client.drives_multipath_blocks[drive.path];
 
         const DriveDetailsRow = ({ title, value }) => {
             if (!value)
@@ -53,7 +53,7 @@ export class DriveDetails extends React.Component {
             );
         };
 
-        var assessment = null;
+        let assessment = null;
         if (drive_ata) {
             assessment = (
                 <DescriptionListGroup>
@@ -72,7 +72,7 @@ export class DriveDetails extends React.Component {
             );
         }
 
-        var header = (
+        const header = (
             <Card>
                 <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
                 <CardBody>
@@ -92,7 +92,7 @@ export class DriveDetails extends React.Component {
             </Card>
         );
 
-        var content = <Block client={this.props.client} block={drive_block} />;
+        const content = <Block client={this.props.client} block={drive_block} />;
 
         return <StdDetailsLayout client={this.props.client} header={header} content={content} />;
     }

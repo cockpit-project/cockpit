@@ -33,7 +33,7 @@ import { find_warnings } from "./warnings.jsx";
 /* STORAGED CLIENT
  */
 
-var client = {
+const client = {
     busy: 0
 };
 
@@ -61,8 +61,8 @@ client.superuser.addEventListener("changed", () => client.dispatchEvent("changed
  */
 
 function instance_sampler(metrics, source) {
-    var instances;
-    var self = {
+    let instances;
+    const self = {
         data: { },
         close: close
     };
@@ -72,9 +72,9 @@ function instance_sampler(metrics, source) {
     function handle_meta(msg) {
         self.data = { };
         instances = [];
-        for (var m = 0; m < msg.metrics.length; m++) {
+        for (let m = 0; m < msg.metrics.length; m++) {
             instances[m] = msg.metrics[m].instances;
-            for (var i = 0; i < instances[m].length; i++)
+            for (let i = 0; i < instances[m].length; i++)
                 self.data[instances[m][i]] = [];
         }
         if (Object.keys(self.data).length > 100) {
@@ -84,12 +84,12 @@ function instance_sampler(metrics, source) {
     }
 
     function handle_data(msg) {
-        var changed = false;
-        for (var s = 0; s < msg.length; s++) {
-            var metrics = msg[s];
-            for (var m = 0; m < metrics.length; m++) {
-                var inst = metrics[m];
-                for (var i = 0; i < inst.length; i++) {
+        let changed = false;
+        for (let s = 0; s < msg.length; s++) {
+            const metrics = msg[s];
+            for (let m = 0; m < metrics.length; m++) {
+                const inst = metrics[m];
+                for (let i = 0; i < inst.length; i++) {
                     if (inst[i] !== null) {
                         changed = true;
                         self.data[instances[m][i]][m] = inst[i];
@@ -101,7 +101,7 @@ function instance_sampler(metrics, source) {
             self.dispatchEvent('changed');
     }
 
-    var channel = cockpit.channel({
+    const channel = cockpit.channel({
         payload: "metrics1",
         source: source || "internal",
         metrics: metrics
@@ -110,7 +110,7 @@ function instance_sampler(metrics, source) {
         console.log("closed", error);
     });
     channel.addEventListener("message", function (event, message) {
-        var msg = JSON.parse(message);
+        const msg = JSON.parse(message);
         if (msg.length)
             handle_data(msg);
         else
@@ -192,7 +192,7 @@ function is_multipath_master(block) {
     // future, storaged will hopefully provide this information
     // directly.
     if (block.Symlinks && block.Symlinks.length) {
-        for (var i = 0; i < block.Symlinks.length; i++)
+        for (let i = 0; i < block.Symlinks.length; i++)
             if (utils.decode_filename(block.Symlinks[i]).indexOf("/dev/disk/by-id/dm-uuid-mpath-") === 0)
                 return true;
     }
@@ -200,7 +200,7 @@ function is_multipath_master(block) {
 }
 
 function update_indices() {
-    var path, block, mdraid, vgroup, pvol, lvol, part, i;
+    let path, block, mdraid, vgroup, pvol, lvol, part, i;
 
     client.broken_multipath_present = false;
     client.drives_multipath_blocks = { };
@@ -351,7 +351,7 @@ function update_indices() {
             return;
         job.Objects.forEach(function (path) {
             client.path_jobs[path] = job;
-            var parent = utils.get_parent(client, path);
+            let parent = utils.get_parent(client, path);
             while (parent) {
                 path = parent;
                 parent = utils.get_parent(client, path);
@@ -401,7 +401,7 @@ function init_model(callback) {
             return cockpit.resolve();
         return client.manager.EnableModules(true).then(
             function() {
-                var defer = cockpit.defer();
+                const defer = cockpit.defer();
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                 client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
                 Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait()]).then(() => {
@@ -545,7 +545,7 @@ client.older_than = function older_than(version) {
  */
 
 function nfs_mounts() {
-    var self = {
+    const self = {
         entries: [],
         fsys_sizes: { },
 
@@ -571,13 +571,11 @@ function nfs_mounts() {
     }
 
     function start() {
-        var buf = "";
+        let buf = "";
         spawn_nfs_mounts(["monitor"])
                 .stream(function (output) {
-                    var lines;
-
                     buf += output;
-                    lines = buf.split("\n");
+                    const lines = buf.split("\n");
                     buf = lines[lines.length - 1];
                     if (lines.length >= 2) {
                         self.entries = JSON.parse(lines[lines.length - 2]);
@@ -593,7 +591,7 @@ function nfs_mounts() {
     }
 
     function get_fsys_size(entry) {
-        var path = entry.fields[1];
+        const path = entry.fields[1];
         if (self.fsys_sizes[path])
             return self.fsys_sizes[path];
 
@@ -603,7 +601,7 @@ function nfs_mounts() {
         self.fsys_sizes[path] = false;
         cockpit.spawn(["stat", "-f", "-c", "[ %S, %f, %b ]", path], { err: "message" })
                 .then(function (output) {
-                    var data = JSON.parse(output);
+                    const data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
                     client.dispatchEvent('changed');
                 })
@@ -636,12 +634,12 @@ function nfs_mounts() {
     }
 
     function stop_and_unmount_entry(users, entry) {
-        var units = users.map(function (u) { return u.unit });
+        const units = users.map(function (u) { return u.unit });
         return spawn_nfs_mounts(["stop-and-unmount", JSON.stringify(units), JSON.stringify(entry)]);
     }
 
     function stop_and_remove_entry(users, entry) {
-        var units = users.map(function (u) { return u.unit });
+        const units = users.map(function (u) { return u.unit });
         return spawn_nfs_mounts(["stop-and-remove", JSON.stringify(units), JSON.stringify(entry)]);
     }
 
@@ -650,7 +648,7 @@ function nfs_mounts() {
     }
 
     function find_entry(remote, local) {
-        for (var i = 0; i < self.entries.length; i++) {
+        for (let i = 0; i < self.entries.length; i++) {
             if (self.entries[i].fields[0] == remote && self.entries[i].fields[1] == local)
                 return self.entries[i];
         }
@@ -664,7 +662,7 @@ client.nfs = nfs_mounts();
 /* VDO */
 
 function vdo_overlay() {
-    var self = {
+    const self = {
         start: start,
 
         volumes: [],
@@ -693,13 +691,13 @@ function vdo_overlay() {
         self.by_backing_dev = { };
 
         self.volumes = data.map(function (vol, index) {
-            var name = vol.name;
+            const name = vol.name;
 
             function volcmd(args) {
                 return cmd(args.concat(["--name", name]));
             }
 
-            var v = {
+            const v = {
                 name: name,
                 broken: vol.broken,
                 dev: "/dev/mapper/" + name,
@@ -764,7 +762,7 @@ function vdo_overlay() {
     }
 
     function start() {
-        var buf = "";
+        let buf = "";
 
         return cockpit.spawn(["/bin/sh", "-c", "head -1 $(which vdo || echo /dev/null)"],
                              { err: "ignore" })
@@ -774,10 +772,8 @@ function vdo_overlay() {
                         cockpit.spawn([self.python, "--", "-"], { superuser: "try", err: "message" })
                                 .input(inotify_py + vdo_monitor_py)
                                 .stream(function (output) {
-                                    var lines;
-
                                     buf += output;
-                                    lines = buf.split("\n");
+                                    const lines = buf.split("\n");
                                     buf = lines[lines.length - 1];
                                     if (lines.length >= 2) {
                                         update(JSON.parse(lines[lines.length - 2]));
@@ -796,9 +792,9 @@ function vdo_overlay() {
     }
 
     function some(array, func) {
-        var i;
+        let i;
         for (i = 0; i < array.length; i++) {
-            var val = func(array[i]);
+            const val = func(array[i]);
             if (val)
                 return val;
         }
@@ -816,7 +812,7 @@ function vdo_overlay() {
     }
 
     function create(options) {
-        var args = ["create", "--name", options.name,
+        const args = ["create", "--name", options.name,
             "--device", utils.decode_filename(options.block.PreferredDevice)];
         if (options.logical_size !== undefined)
             args.push("--vdoLogicalSize", options.logical_size + "B");
@@ -862,10 +858,10 @@ client.init = function init_storaged(callback) {
 };
 
 client.wait_for = function wait_for(cond) {
-    var dfd = cockpit.defer();
+    const dfd = cockpit.defer();
 
     function check() {
-        var res = cond();
+        const res = cond();
         if (res) {
             client.removeEventListener("changed", check);
             dfd.resolve(res);

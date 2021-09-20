@@ -68,7 +68,7 @@ function jwk_b64_encode(bytes) {
 }
 
 function compute_thp(jwk) {
-    var REQUIRED_ATTRS = {
+    const REQUIRED_ATTRS = {
         RSA: ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
         EC:  ['kty', 'crv', 'x', 'y'],
         oct: ['kty', 'k'],
@@ -79,8 +79,8 @@ function compute_thp(jwk) {
     if (!REQUIRED_ATTRS[jwk.kty])
         return cockpit.format("(unknown keytype $0)", jwk.kty);
 
-    var req = REQUIRED_ATTRS[jwk.kty];
-    var norm = { };
+    const req = REQUIRED_ATTRS[jwk.kty];
+    const norm = { };
     req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
     return {
         sha256: jwk_b64_encode(sha256.digest(stable_stringify(norm))),
@@ -106,7 +106,7 @@ function compute_sigkey_thps(adv) {
  */
 
 function clevis_add(block, pin, cfg, passphrase) {
-    var dev = decode_filename(block.Device);
+    const dev = decode_filename(block.Device);
     return cockpit.spawn(["clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg)],
                          { superuser: true, err: "message" }).input(passphrase);
 }
@@ -118,8 +118,8 @@ function clevis_remove(block, key) {
 }
 
 export function clevis_recover_passphrase(block, just_type) {
-    var dev = decode_filename(block.Device);
-    var args = [];
+    const dev = decode_filename(block.Device);
+    const args = [];
     if (just_type)
         args.push("--type");
     args.push(dev);
@@ -129,8 +129,8 @@ export function clevis_recover_passphrase(block, just_type) {
 }
 
 function clevis_unlock(block) {
-    var dev = decode_filename(block.Device);
-    var clear_dev = "luks-" + block.IdUUID;
+    const dev = decode_filename(block.Device);
+    const clear_dev = "luks-" + block.IdUUID;
     return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
                          { superuser: true });
 }
@@ -153,13 +153,13 @@ export function unlock_with_type(client, block, passphrase, passphrase_type) {
  */
 
 function passphrase_add(block, new_passphrase, old_passphrase) {
-    var dev = decode_filename(block.Device);
+    const dev = decode_filename(block.Device);
     return cockpit.spawn(["cryptsetup", "luksAddKey", dev],
                          { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase);
 }
 
 function passphrase_change(block, key, new_passphrase, old_passphrase) {
-    var dev = decode_filename(block.Device);
+    const dev = decode_filename(block.Device);
     return cockpit.spawn(["cryptsetup", "luksChangeKey", dev, "--key-slot", key.slot.toString()],
                          { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
 }
@@ -181,7 +181,7 @@ function slot_remove(block, slot, passphrase) {
 }
 
 function passphrase_test(block, passphrase) {
-    var dev = decode_filename(block.Device);
+    const dev = decode_filename(block.Device);
     return (cockpit.spawn(["cryptsetup", "luksOpen", "--test-passphrase", dev],
                           { superuser: true, err: "message" }).input(passphrase)
             .then(() => true)
@@ -209,7 +209,7 @@ function get_stored_passphrase(block, just_type) {
         if (just_type)
             return Promise.resolve("stored");
         return block.GetSecretConfiguration({}).then(function (items) {
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (items[i][0] == 'crypttab' && items[i][1]['passphrase-contents'])
                     return decode_filename(items[i][1]['passphrase-contents'].v);
             }
@@ -370,10 +370,10 @@ function edit_clevis_dialog(client, block, key) {
 }
 
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
-    var parsed = parse_url(url);
-    var cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
+    const parsed = parse_url(url);
+    const cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
 
-    var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
+    const sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
     const dlg = dialog_open({
         Title: _("Verify key"),
@@ -504,7 +504,7 @@ function remove_clevis_dialog(client, block, key) {
 
 export class CryptoKeyslots extends React.Component {
     render() {
-        var { client, block, slots, slot_error, max_slots } = this.props;
+        const { client, block, slots, slot_error, max_slots } = this.props;
 
         if (!client.features.clevis)
             return null;
@@ -514,7 +514,7 @@ export class CryptoKeyslots extends React.Component {
 
         function decode_clevis_slot(slot) {
             if (slot.ClevisConfig) {
-                var clevis = JSON.parse(slot.ClevisConfig.v);
+                const clevis = JSON.parse(slot.ClevisConfig.v);
                 if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
                     return {
                         slot: slot.Index.v,
@@ -536,11 +536,11 @@ export class CryptoKeyslots extends React.Component {
             }
         }
 
-        var keys = slots ? slots.map(decode_clevis_slot).filter(k => !!k) : [];
+        const keys = slots ? slots.map(decode_clevis_slot).filter(k => !!k) : [];
 
-        var rows;
+        let rows;
         if (keys.length == 0) {
-            var text;
+            let text;
             if (slot_error) {
                 if (slot_error.problem == "access-denied")
                     text = _("The currently logged in user is not permitted to see information about keys.");
@@ -553,7 +553,7 @@ export class CryptoKeyslots extends React.Component {
         } else {
             rows = [];
 
-            var add_row = (slot, type, desc, edit, edit_excuse, remove) => {
+            const add_row = (slot, type, desc, edit, edit_excuse, remove) => {
                 rows.push(
                     <DataListItem key={slot}>
                         <DataListItemRow>

@@ -48,20 +48,20 @@ import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 
 const _ = cockpit.gettext;
 
-var C_ = cockpit.gettext;
+const C_ = cockpit.gettext;
 
 function next_default_logical_volume_name(client, vgroup) {
     function find_lvol(name) {
-        var lvols = client.vgroups_lvols[vgroup.path];
-        for (var i = 0; i < lvols.length; i++) {
+        const lvols = client.vgroups_lvols[vgroup.path];
+        for (let i = 0; i < lvols.length; i++) {
             if (lvols[i].Name == name)
                 return lvols[i];
         }
         return null;
     }
 
-    var name;
-    for (var i = 0; i < 1000; i++) {
+    let name;
+    for (let i = 0; i < 1000; i++) {
         name = "lvol" + i.toFixed();
         if (!find_lvol(name))
             break;
@@ -97,27 +97,27 @@ function create_tabs(client, target, is_partition) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
-    var block = endsWith(target.iface, ".Block") ? target : null;
-    var is_crypto = (block && block.IdUsage == 'crypto');
-    var content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
+    const block = endsWith(target.iface, ".Block") ? target : null;
+    const is_crypto = (block && block.IdUsage == 'crypto');
+    const content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
 
-    var block_fsys = content_block && client.blocks_fsys[content_block.path];
-    var block_lvm2 = block && client.blocks_lvm2[block.path];
-    var block_pvol = content_block && client.blocks_pvol[content_block.path];
-    var block_swap = content_block && client.blocks_swap[content_block.path];
+    const block_fsys = content_block && client.blocks_fsys[content_block.path];
+    const block_lvm2 = block && client.blocks_lvm2[block.path];
+    const block_pvol = content_block && client.blocks_pvol[content_block.path];
+    const block_swap = content_block && client.blocks_swap[content_block.path];
 
-    var lvol = (endsWith(target.iface, ".LogicalVolume")
+    const lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
         : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
-    var is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
+    const is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
 
-    var warnings = client.path_warnings[target.path] || [];
+    let warnings = client.path_warnings[target.path] || [];
     if (content_block)
         warnings = warnings.concat(client.path_warnings[content_block.path] || []);
 
-    var tabs = [];
-    var row_action = null;
+    const tabs = [];
+    let row_action = null;
 
     function add_tab(name, renderer, for_content, associated_warnings) {
         let tab_warnings = [];
@@ -139,7 +139,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     function create_thin() {
-        var vgroup = lvol && client.vgroups[lvol.VolumeGroup];
+        const vgroup = lvol && client.vgroups[lvol.VolumeGroup];
         if (!vgroup)
             return;
 
@@ -207,9 +207,9 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Encryption"), CryptoTab);
     }
 
-    var tab_actions = [];
-    var tab_menu_actions = [];
-    var tab_menu_danger_actions = [];
+    const tab_actions = [];
+    const tab_menu_actions = [];
+    const tab_menu_danger_actions = [];
 
     function add_action(title, func) {
         tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
@@ -224,7 +224,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     function lock() {
-        var crypto = client.blocks_crypto[block.path];
+        const crypto = client.blocks_crypto[block.path];
         if (!crypto)
             return;
 
@@ -232,7 +232,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     function unlock() {
-        var crypto = client.blocks_crypto[block.path];
+        const crypto = client.blocks_crypto[block.path];
         if (!crypto)
             return;
 
@@ -244,7 +244,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     function unlock_with_passphrase() {
-        var crypto = client.blocks_crypto[block.path];
+        const crypto = client.blocks_crypto[block.path];
         if (!crypto)
             return;
 
@@ -328,7 +328,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     function delete_() {
-        var block_part;
+        let block_part;
 
         /* This is called only for logical volumes and partitions
          */
@@ -336,7 +336,7 @@ function create_tabs(client, target, is_partition) {
         if (block)
             block_part = client.blocks_part[block.path];
 
-        var name, danger;
+        let name, danger;
 
         if (lvol) {
             name = utils.lvol_name(lvol);
@@ -347,7 +347,7 @@ function create_tabs(client, target, is_partition) {
         }
 
         if (name) {
-            var usage = utils.get_active_usage(client, target.path);
+            const usage = utils.get_active_usage(client, target.path);
 
             if (usage.Blocking) {
                 dialog_open({
@@ -406,15 +406,15 @@ function create_tabs(client, target, is_partition) {
 }
 
 function block_description(client, block) {
-    var usage;
-    var cleartext = client.blocks_cleartext[block.path];
+    let usage;
+    const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
         block = cleartext;
 
-    var block_pvol = client.blocks_pvol[block.path];
+    const block_pvol = client.blocks_pvol[block.path];
 
     if (block.IdUsage == "crypto" && !cleartext) {
-        var [config] = get_fstab_config(block, true);
+        const [config] = get_fstab_config(block, true);
         if (config)
             usage = C_("storage-id-desc", "Filesystem (encrypted)");
         else
@@ -423,10 +423,10 @@ function block_description(client, block) {
         usage = cockpit.format(C_("storage-id-desc", "$0 file system"), block.IdType);
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
-            var vgroup = client.vgroups[block_pvol.VolumeGroup];
+            const vgroup = client.vgroups[block_pvol.VolumeGroup];
             usage = cockpit.format(_("Physical volume of $0"), vgroup.Name);
         } else if (client.mdraids[block.MDRaidMember]) {
-            var mdraid = client.mdraids[block.MDRaidMember];
+            const mdraid = client.mdraids[block.MDRaidMember];
             usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
         } else if (block.IdType == "LVM2_member") {
             usage = _("Physical volume");
@@ -462,8 +462,8 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
             return <DropdownSeparator key="sep" />;
     }
 
-    var menu = null;
-    var menu_actions = tabs.menu_actions || [];
+    let menu = null;
+    let menu_actions = tabs.menu_actions || [];
     if (tabs.menu_danger_actions && tabs.menu_danger_actions.length > 0) {
         if (menu_actions.length > 0)
             menu_actions.push(null); // separator
@@ -473,9 +473,9 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (menu_actions.length > 0)
         menu = <StorageBarMenu id={"menu-" + name} menuItems={menu_actions.map(menuitem)} isKebab />;
 
-    var actions = <>{tabs.row_action}{tabs.actions}</>;
+    const actions = <>{tabs.row_action}{tabs.actions}</>;
 
-    var info = null;
+    let info = null;
     if (job_object && client.path_jobs[job_object])
         info = <Spinner isSVG size="md" />;
     if (tabs.has_warnings)
@@ -483,7 +483,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (info)
         info = <>{"\n"}{info}</>;
 
-    var cols = [
+    const cols = [
         {
             title: (
                 <span key={name}>
@@ -504,32 +504,30 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
 }
 
 function append_non_partitioned_block(client, rows, level, block, is_partition) {
-    var desc, tabs;
-
-    tabs = create_tabs(client, block, is_partition);
-    desc = block_description(client, block);
+    const tabs = create_tabs(client, block, is_partition);
+    const desc = block_description(client, block);
 
     append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
 }
 
 function append_partitions(client, rows, level, block) {
-    var block_ptable = client.blocks_ptable[block.path];
-    var device_level = level;
+    const block_ptable = client.blocks_ptable[block.path];
+    const device_level = level;
 
-    var is_dos_partitioned = (block_ptable.Type == 'dos');
+    const is_dos_partitioned = (block_ptable.Type == 'dos');
 
     function append_free_space(level, start, size) {
         function create_partition() {
             format_dialog(client, block.path, start, size, is_dos_partitioned && level <= device_level);
         }
 
-        var btn = (
+        const btn = (
             <StorageButton onClick={create_partition}>
                 {_("Create partition")}
             </StorageButton>
         );
 
-        var cols = [
+        const cols = [
             {
                 title: <span key={start.toString() + size.toString()} className={"content-level-" + level}>
                     {utils.format_size_and_text(size, _("Free space"))}
@@ -547,17 +545,17 @@ function append_partitions(client, rows, level, block) {
     }
 
     function append_extended_partition(level, partition) {
-        var desc = {
+        const desc = {
             size: partition.size,
             text: _("Extended partition")
         };
-        var tabs = create_tabs(client, partition.block, true);
+        const tabs = create_tabs(client, partition.block, true);
         append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
         process_partitions(level + 1, partition.partitions);
     }
 
     function process_partitions(level, partitions) {
-        var i, p;
+        let i, p;
         for (i = 0; i < partitions.length; i++) {
             p = partitions[i];
             if (p.type == 'free')
@@ -584,7 +582,7 @@ function append_device(client, rows, level, block) {
 // then return proper React component hierarchy based on this collected data.
 // Benefit: much easier debugging, better manipulation with "key" props and relying on well-tested React's functionality
 function block_rows(client, block) {
-    var rows = [];
+    const rows = [];
     append_device(client, rows, 0, block);
     return rows;
 }
@@ -597,7 +595,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         return null;
 
     function format_disk() {
-        var usage = utils.get_active_usage(client, block.path);
+        const usage = utils.get_active_usage(client, block.path);
 
         if (usage.Blocking) {
             dialog_open({
@@ -636,7 +634,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 Danger: _("Formatting a disk will erase all data on it."),
                 wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {
-                    var options = {
+                    const options = {
                         'tear-down': { t: 'b', v: true }
                     };
                     if (vals.erase != "no")
@@ -650,7 +648,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         });
     }
 
-    var format_disk_btn = null;
+    let format_disk_btn = null;
     if (allow_partitions)
         format_disk_btn = (
             <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
@@ -658,7 +656,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             </StorageButton>
         );
 
-    var title;
+    let title;
     if (client.blocks_ptable[block.path])
         title = _("Partitions");
     else
@@ -690,7 +688,7 @@ export const Block = ({ client, block, allow_partitions }) => {
 };
 
 function append_logical_volume_block(client, rows, level, block, lvol) {
-    var tabs, desc;
+    let tabs, desc;
     if (client.blocks_ptable[block.path]) {
         desc = {
             size: block.Size,
@@ -705,7 +703,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
 }
 
 function append_logical_volume(client, rows, level, lvol) {
-    var tabs, desc, block;
+    let tabs, desc, block;
 
     if (lvol.Type == "pool") {
         desc = {
@@ -738,7 +736,7 @@ function append_logical_volume(client, rows, level, lvol) {
 }
 
 function vgroup_rows(client, vgroup) {
-    var rows = [];
+    const rows = [];
     (client.vgroups_lvols[vgroup.path] || []).forEach(function (lvol) {
         if (lvol.ThinPool == "/" && lvol.Origin == "/")
             append_logical_volume(client, rows, 0, lvol);
@@ -748,8 +746,8 @@ function vgroup_rows(client, vgroup) {
 
 export class VGroup extends React.Component {
     render() {
-        var self = this;
-        var vgroup = this.props.vgroup;
+        const self = this;
+        const vgroup = this.props.vgroup;
 
         function create_logical_volume() {
             if (vgroup.FreeSize == 0)
@@ -823,9 +821,9 @@ export class VGroup extends React.Component {
             });
         }
 
-        var excuse = vgroup.FreeSize == 0 && _("No free space");
+        const excuse = vgroup.FreeSize == 0 && _("No free space");
 
-        var new_volume_link = (
+        const new_volume_link = (
             <StorageLink onClick={create_logical_volume}
                          excuse={excuse}>
                 <span className="pficon pficon-add-circle-o" />

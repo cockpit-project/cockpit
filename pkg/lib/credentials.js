@@ -30,9 +30,9 @@ function Keys() {
     self.path = null;
     self.items = { };
 
-    var watch = null;
-    var proc = null;
-    var timeout = null;
+    let watch = null;
+    let proc = null;
+    let timeout = null;
 
     cockpit.event_target(this);
 

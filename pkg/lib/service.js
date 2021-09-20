@@ -82,8 +82,8 @@ import cockpit from "cockpit";
  * Disable the service.
  */
 
-var systemd_client;
-var systemd_manager;
+let systemd_client;
+let systemd_manager;
 
 function wait_valid(proxy, callback) {
     proxy.wait(function() {
@@ -110,7 +110,7 @@ function with_systemd_manager(done) {
 }
 
 export function proxy(name, kind) {
-    var self = {
+    const self = {
         exists: null,
         state: null,
         enabled: null,
@@ -128,8 +128,8 @@ export function proxy(name, kind) {
 
     cockpit.event_target(self);
 
-    var unit, details;
-    var wait_callbacks = cockpit.defer();
+    let unit, details;
+    const wait_callbacks = cockpit.defer();
 
     if (name.indexOf(".") == -1)
         name = name + ".service";
@@ -199,12 +199,12 @@ export function proxy(name, kind) {
                         console.log(error);
                     })
                     .done(function (result) {
-                        var props = { };
-                        for (var p in result[0])
+                        const props = { };
+                        for (const p in result[0])
                             props[p] = result[0][p].v;
-                        var ifaces = { };
+                        const ifaces = { };
                         ifaces[iface] = props;
-                        var data = { };
+                        const data = { };
                         data[unit.path] = ifaces;
                         systemd_client.notify(data);
                     });
@@ -259,7 +259,7 @@ export function proxy(name, kind) {
      * might not be ready when these functions are called.
      */
 
-    var pending_jobs = { };
+    const pending_jobs = { };
 
     systemd_manager.addEventListener("JobRemoved", function (event, number, path, unit_id, result) {
         if (pending_jobs[path]) {
@@ -278,10 +278,10 @@ export function proxy(name, kind) {
     }
 
     function call_manager_with_job(method, args) {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         call_manager(method, args)
                 .done(function (results) {
-                    var path = results[0];
+                    const path = results[0];
                     pending_jobs[path] = dfd;
                 })
                 .fail(function (error) {
@@ -292,7 +292,7 @@ export function proxy(name, kind) {
 
     function call_manager_with_reload(method, args) {
         return call_manager(method, args).then(function () {
-            var dfd = cockpit.defer();
+            const dfd = cockpit.defer();
             call_manager("Reload", [])
                     .done(function () { dfd.resolve() })
                     .fail(function (error) {

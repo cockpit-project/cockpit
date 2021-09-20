@@ -60,7 +60,7 @@ export const Enum = {
 
 export const transactionInterface = "org.freedesktop.PackageKit.Transaction";
 
-var _dbus_client = null;
+let _dbus_client = null;
 
 /**
  * Get PackageKit D-Bus client
@@ -119,9 +119,9 @@ export function detect() {
  * Returns: If notifyHandler is set, Cockpit promise that resolves when the watch got set up
  */
 export function watchTransaction(transactionPath, signalHandlers, notifyHandler) {
-    var subscriptions = [];
-    var notifyReturn;
-    var client = dbus_client();
+    const subscriptions = [];
+    let notifyReturn;
+    const client = dbus_client();
 
     // Listen for PackageKit crashes while the transaction runs
     function onClose(event, ex) {
@@ -384,7 +384,7 @@ export function watchRedHatSubscription(callback) {
  */
 
 export function check_missing_packages(names, progress_cb) {
-    var data = {
+    const data = {
         missing_names: [],
         unavailable_names: [],
     };
@@ -399,7 +399,7 @@ export function check_missing_packages(names, progress_cb) {
     function resolve() {
         data.missing_ids = [];
 
-        var installed_names = { };
+        const installed_names = { };
 
         return cancellableTransaction("Resolve",
                                       [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names],
@@ -494,7 +494,7 @@ export function install_missing_packages(data, progress_cb) {
     if (!data || data.missing_ids.length === 0)
         return Promise.resolve();
 
-    var last_progress, last_info, last_name;
+    let last_progress, last_info, last_name;
 
     function report_progess() {
         progress_cb({

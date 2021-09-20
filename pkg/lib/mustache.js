@@ -24,21 +24,21 @@ import orig_mustache from "mustache/mustache";
  * Turns a mustache template into a translated mustache template
  * by preparsing it and translating it.
  */
-var cache = { };
+let cache = { };
 
 function translate(template) {
     if (template in cache)
         return cache[template];
-    var div = document.createElement("div");
+    const div = document.createElement("div");
     div.innerHTML = template;
     cockpit.translate(div);
-    var result = div.innerHTML;
+    const result = div.innerHTML;
     cache[template] = result;
     return result;
 }
 
 /* Just like the mustache object, except for translated */
-export var mustache = cockpit.extend({ }, orig_mustache, {
+export const mustache = cockpit.extend({ }, orig_mustache, {
     render: function render(template, view, partials) {
         if (!view)
             view = {};

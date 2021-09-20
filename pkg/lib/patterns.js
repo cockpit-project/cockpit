@@ -11,8 +11,7 @@ function clear_errors(sel) {
 }
 
 function field_error(target, error) {
-    var wrapper = target.parent();
-    var next, refresh;
+    let wrapper = target.parent();
 
     if (!wrapper.is(".dialog-wrapper")) {
         wrapper = $("<div class='dialog-wrapper'>").insertBefore(target);
@@ -22,7 +21,8 @@ function field_error(target, error) {
          * stuff, so we have to account for that here.
          */
 
-        next = target.next();
+        const next = target.next();
+        let refresh;
         if (next.is(".bootstrap-select") && next.selectpicker) {
             next.remove();
             refresh = next.selectpicker;
@@ -34,7 +34,7 @@ function field_error(target, error) {
             refresh.call(target);
     }
 
-    var message;
+    let message;
     if (error.message) {
         console.warn(error.message);
         message = $("<div class='dialog-error help-block'>").text(error.message);
@@ -51,8 +51,8 @@ function field_error(target, error) {
 }
 
 function global_error(sel, error) {
-    var alert = $("<div class='pf-c-alert pf-m-danger pf-m-inline dialog-error' aria-label='inline danger alert'>");
-    var text = error.message || error.toString();
+    const alert = $("<div class='pf-c-alert pf-m-danger pf-m-inline dialog-error' aria-label='inline danger alert'>");
+    const text = error.message || error.toString();
     $("<div class='pf-c-alert__icon'>").append($("<span class='pficon pficon-error-circle-o'>"))
             .prependTo(alert);
     $("<h4 class='pf-c-alert__title'>").text(text)
@@ -61,7 +61,7 @@ function global_error(sel, error) {
     /* Always log global dialog errors for easier debugging */
     console.warn(text);
 
-    var footer = sel.find(".modal-footer");
+    const footer = sel.find(".modal-footer");
     if (footer.length)
         alert.prependTo(footer);
     else
@@ -75,11 +75,10 @@ function display_errors(sel, errors) {
     if (errors.length == 1 && $.isArray(errors[0]))
         errors = errors[0];
 
-    var any = false;
+    let any = false;
     errors.forEach(function(error) {
-        var target;
         if (error) {
-            target = sel.find(error.target);
+            const target = sel.find(error.target);
 
             /* Errors for a specific field added below that field */
             if (target && target.length)
@@ -107,7 +106,7 @@ function DialogWait(promise, handle) {
 }
 
 function clear_wait(sel) {
-    var data = sel.data("dialog-wait");
+    const data = sel.data("dialog-wait");
     sel.data("dialog-wait", null);
 
     sel.find(".dialog-wait-ct").remove();
@@ -134,25 +133,25 @@ function display_wait(sel, promise, handle) {
     if (handle)
         display_errors(sel, []);
 
-    var wait = $("<div class='dialog-wait-ct pull-right'>");
+    const wait = $("<div class='dialog-wait-ct pull-right'>");
     $("<div class='spinner spinner-sm'>").appendTo(wait);
-    var message = $("<span>").appendTo(wait);
+    const message = $("<span>").appendTo(wait);
 
     sel.find(".modal-footer button").first()
             .before(wait);
 
-    var data = new DialogWait(promise, handle);
+    const data = new DialogWait(promise, handle);
     sel.data("dialog-wait", data);
 
-    var cancellation = promise.cancel || promise.close;
-    var cancelled = false;
+    const cancellation = promise.cancel || promise.close;
+    let cancelled = false;
 
     /* Disable everything and stash previous disabled state */
-    var controls = sel.find(".form-control").add(".btn", sel);
+    let controls = sel.find(".form-control").add(".btn", sel);
     if (cancellation)
         controls = controls.not("[data-dismiss]").not(".btn-cancel");
     controls.each(function() {
-        var ctl = $(this);
+        const ctl = $(this);
         if (!ctl.attr("disabled")) {
             data.disabled.push(ctl);
             ctl.attr("disabled", "disabled");
@@ -177,11 +176,10 @@ function display_wait(sel, promise, handle) {
      * processing the same promise.
      */
     function restore() {
-        var state;
-        var data = sel.data("dialog-wait");
+        const data = sel.data("dialog-wait");
         if (data && data.promise === promise) {
             clear_wait(sel);
-            state = promise.state();
+            const state = promise.state();
             if (cancelled || (state == "resolved" && data.handle))
                 sel.modal('hide');
             else if (state == "rejected" && data.handle)
@@ -190,7 +188,7 @@ function display_wait(sel, promise, handle) {
     }
 
     function update(arg) {
-        var data = sel.data("dialog-wait");
+        const data = sel.data("dialog-wait");
         if (data && data.promise === promise) {
             if (typeof arg !== "string")
                 arg = "";

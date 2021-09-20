@@ -53,8 +53,8 @@ export class JournalOutput {
     }
 
     render_line(ident, prio, message, count, time, entry) {
-        var problem = false;
-        var warning = false;
+        let problem = false;
+        let warning = false;
 
         if (ident === 'abrt-notification') {
             problem = true;
@@ -136,11 +136,11 @@ export class LogsPanel extends React.Component {
     componentDidMount() {
         this.journalctl = journal.journalctl(this.props.match, { count: this.props.max });
 
-        var out = new JournalOutput(this.props.search_options);
-        var render = journal.renderer(out);
+        const out = new JournalOutput(this.props.search_options);
+        const render = journal.renderer(out);
 
         this.journalctl.stream((entries) => {
-            for (var i = 0; i < entries.length; i++)
+            for (let i = 0; i < entries.length; i++)
                 render.prepend(entries[i]);
             render.prepend_flush();
             // "max + 1" since there is always a date header and we

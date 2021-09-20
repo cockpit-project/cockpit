@@ -22,7 +22,7 @@ import * as timeformat from "timeformat";
 
 const _ = cockpit.gettext;
 
-export var journal = { };
+export const journal = { };
 
 /**
  * journalctl([match, ...], [options])
@@ -67,11 +67,10 @@ export var journal = { };
  */
 
 journal.build_cmd = function build_cmd(/* ... */) {
-    var matches = [];
-    var i, arg;
-    var options = { follow: true };
-    for (i = 0; i < arguments.length; i++) {
-        arg = arguments[i];
+    const matches = [];
+    const options = { follow: true };
+    for (let i = 0; i < arguments.length; i++) {
+        const arg = arguments[i];
         if (typeof arg == "string") {
             matches.push(arg);
         } else if (typeof arg == "object") {
@@ -93,7 +92,7 @@ journal.build_cmd = function build_cmd(/* ... */) {
             options.count = null;
     }
 
-    var cmd = ["journalctl", "-q"];
+    const cmd = ["journalctl", "-q"];
     if (!options.count)
         cmd.push("--no-tail");
     else
@@ -228,7 +227,7 @@ journal.printable = function printable(value) {
    A new renderer is created by calling 'journal.renderer' like
    so:
 
-      var renderer = journal.renderer(funcs);
+      const renderer = journal.renderer(funcs);
 
    You can feed new entries into the renderer by calling various
    methods on the returned object:
@@ -285,7 +284,7 @@ journal.renderer = function renderer(output_funcs) {
         console.error("Invalid renderer provided");
 
     function copy_object(o) {
-        var c = { }; for (var p in o) c[p] = o[p]; return c;
+        const c = { }; for (const p in o) c[p] = o[p]; return c;
     }
 
     // A 'entry' object describes a journal entry in formatted form.
@@ -347,7 +346,7 @@ journal.renderer = function renderer(output_funcs) {
     // line has been output so far, top_state and bottom_state point
     // to the same object.
 
-    var top_state, bottom_state;
+    let top_state, bottom_state;
 
     top_state = bottom_state = { };
 
@@ -374,7 +373,7 @@ journal.renderer = function renderer(output_funcs) {
     }
 
     function prepend(journal_entry) {
-        var entry = format_entry(journal_entry);
+        const entry = format_entry(journal_entry);
 
         if (entry_is_equal(top_state.entry, entry)) {
             top_state.count += 1;
@@ -417,7 +416,7 @@ journal.renderer = function renderer(output_funcs) {
     }
 
     function append(journal_entry) {
-        var entry = format_entry(journal_entry);
+        const entry = format_entry(journal_entry);
 
         if (entry_is_equal(bottom_state.entry, entry)) {
             bottom_state.count += 1;

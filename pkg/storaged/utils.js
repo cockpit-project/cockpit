@@ -253,7 +253,7 @@ export function get_block_link_parts(client, path) {
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
         const target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
         location = ["vg", target];
-        link = cockpit.format(_("Volume group $0"), target);
+        link = cockpit.format(_("LVM2 volume group $0"), target);
     } else {
         const vdo = client.vdo_overlay.find_by_block(block);
         if (vdo) {

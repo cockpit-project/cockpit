@@ -104,7 +104,7 @@ class TestStorageLvm2(StorageCase):
 
         # create volume group in the UI
 
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create volume group"),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
                                expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                self.dialog_is_present('disks', dev_2) and
                                                self.dialog_check({"name": "vgroup0"})),
@@ -116,7 +116,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_in_text("#devices", "vgroup0")
 
         # Check that the next name is "vgroup1"
-        self.devices_dropdown("Create volume group")
+        self.devices_dropdown("Create LVM2 volume group")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vgroup1")
         self.dialog_cancel()
@@ -212,7 +212,7 @@ class TestStorageLvm2(StorageCase):
         self.wait_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
 
         # remove volume group
-        b.click('.pf-c-card__header:contains("Volume group") button:contains("Delete")')
+        b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
@@ -233,7 +233,7 @@ class TestStorageLvm2(StorageCase):
         m.execute('parted -s %s mktable gpt' % disk2)
 
         # Create a volume group out of disk1
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create volume group'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create LVM2 volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
                                self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
                                values={"disks": {disk1: True}})

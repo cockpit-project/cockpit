@@ -199,7 +199,7 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
     } else if ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
                (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
-        add_tab(_("Physical volume"), PVolTab, true);
+        add_tab(_("LVM2 physical volume"), PVolTab, true);
     } else if (is_stratis) {
         add_tab(_("Stratis pool"), StratisBlockdevTab, false);
     } else if ((content_block && content_block.IdUsage == "raid") ||
@@ -445,7 +445,7 @@ function block_description(client, block) {
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
             const vgroup = client.vgroups[block_pvol.VolumeGroup];
-            usage = cockpit.format(_("Physical volume of $0"), vgroup.Name);
+            usage = cockpit.format(_("LVM2 physical volume of $0"), vgroup.Name);
         } else if (client.mdraids[block.MDRaidMember]) {
             const mdraid = client.mdraids[block.MDRaidMember];
             usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
@@ -453,7 +453,7 @@ function block_description(client, block) {
             const pool = client.stratis_pools[block_stratis_blockdev.Pool];
             usage = cockpit.format(_("Blockdev of Stratis pool $0"), pool.Name);
         } else if (block.IdType == "LVM2_member") {
-            usage = _("Physical volume");
+            usage = _("LVM2 physical volume");
         } else if (block.IdType == "stratis") {
             usage = _("Member of Stratis Pool");
         } else {

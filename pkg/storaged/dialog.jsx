@@ -1010,7 +1010,7 @@ export const BlockingMessage = (usage) => {
         return null;
 
     add_usage_message(parts, blocking.PhysicalVolumes,
-                      _("This device is currently used for volume groups."),
+                      _("This device is currently used for LVM2 volume groups."),
                       "Name", "VGroup");
 
     add_usage_message(parts, blocking.MDRaidMembers,
@@ -1043,7 +1043,7 @@ export const TeardownMessage = (usage) => {
                       "Name", "MountPoint");
 
     add_usage_message(parts, teardown.PhysicalVolumes,
-                      _("This device is currently used for volume groups. Proceeding will remove it from its volume groups."),
+                      _("This device is currently used for LVM2 volume groups. Proceeding will remove it from its volume groups."),
                       "Name", "VGroup");
 
     add_usage_message(parts, teardown.MDRaidMembers,

@@ -76,7 +76,7 @@ export class ThingsPanel extends React.Component {
         const actions = (
             <StorageBarMenu id="devices-menu" label={_("Create devices")} menuItems={[
                 menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
-                menu_item(lvm2_feature, _("Create volume group"), () => create_vgroup(client)),
+                menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup(client)),
                 menu_item(vdo_feature(client), _("Create VDO device"), () => create_vdo(client)),
                 menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client))].filter(item => item !== null)} />
         );

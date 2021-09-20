@@ -86,7 +86,7 @@ class TestStorageMultipath(StorageCase):
 
         # Check that neither is offered as a free block device
         b.go("#/")
-        self.devices_dropdown('Create volume group')
+        self.devices_dropdown('Create LVM2 volume group')
         self.dialog_wait_open()
         check_free_block_devices([])
         self.dialog_cancel()
@@ -104,7 +104,7 @@ class TestStorageMultipath(StorageCase):
 
         # Check that (exactly) the primary device is offered as free
         b.go("#/")
-        self.devices_dropdown('Create volume group')
+        self.devices_dropdown('Create LVM2 volume group')
         self.dialog_wait_open()
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()

@@ -240,6 +240,9 @@ class TestStorageMounting(StorageCase):
 
         m.execute("umount /run/foo")
         m.execute("udisksctl lock -b %s" % dev)
+        # wait until the UI updated to the locking
+        self.content_tab_wait_in_info(1, 2, "Cleartext device", "-")
+        fsys_tab = self.content_tab_expand(1, 1)
         b.click(fsys_tab + " button:contains(Do not mount automatically on boot)")
         b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically on boot)")
 

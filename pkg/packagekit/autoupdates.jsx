@@ -117,7 +117,7 @@ class DnfImpl extends ImplBase {
         const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
         const validTime = /^((|0|1)[0-9]|2[0-3]):[0-5][0-9]$/;
 
-        var words = spec.trim().toLowerCase()
+        const words = spec.trim().toLowerCase()
                 .split(/\s+/);
 
         // check if we have a day of week
@@ -139,7 +139,7 @@ class DnfImpl extends ImplBase {
 
     setConfig(enabled, type, day, time) {
         const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
-        var script = "set -e; ";
+        let script = "set -e; ";
 
         if (type !== null) {
             const value = (type == "security") ? "security" : "default";
@@ -219,9 +219,7 @@ export function getBackend(forceReinit) {
                     .then(output => {
                         output = output.trim();
                         debug("getBackend(): detection finished, output", output);
-                        let backend;
-                        if (output === "dnf")
-                            backend = new DnfImpl();
+                        const backend = (output === "dnf") ? new DnfImpl() : undefined;
                         // TODO: apt backend
                         if (backend)
                             backend.getConfig().then(() => resolve(backend));

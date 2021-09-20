@@ -97,7 +97,7 @@ export function injectMockUpdates(updates) {
     };
 
     // many bug fixes
-    var bugs = [];
+    const bugs = [];
     for (let i = 10000; i < 10025; ++i)
         bugs.push("http://bugzilla.example.com/" + i);
     updates["buggy;1-1"] = {

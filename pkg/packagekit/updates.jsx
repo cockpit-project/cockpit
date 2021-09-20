@@ -63,37 +63,31 @@ import callTracerScript from 'raw-loader!./callTracer.py';
 const _ = cockpit.gettext;
 
 // "available" heading is built dynamically
-let STATE_HEADINGS = {};
-let PK_STATUS_STRINGS = {};
-let PK_STATUS_LOG_STRINGS = {};
+const STATE_HEADINGS = {};
+const PK_STATUS_STRINGS = {};
+const PK_STATUS_LOG_STRINGS = {};
 const packageSummaries = {};
 
 function init() {
-    STATE_HEADINGS = {
-        loading: _("Loading available updates, please wait..."),
-        locked: _("Some other program is currently using the package manager, please wait..."),
-        refreshing: _("Refreshing package information"),
-        uptodate: _("System is up to date"),
-        applying: _("Applying updates"),
-        updateError: _("Applying updates failed"),
-        loadError: _("Loading available updates failed"),
-    };
+    STATE_HEADINGS.loading = _("Loading available updates, please wait...");
+    STATE_HEADINGS.locked = _("Some other program is currently using the package manager, please wait...");
+    STATE_HEADINGS.refreshing = _("Refreshing package information");
+    STATE_HEADINGS.uptodate = _("System is up to date");
+    STATE_HEADINGS.applying = _("Applying updates");
+    STATE_HEADINGS.updateError = _("Applying updates failed");
+    STATE_HEADINGS.loadError = _("Loading available updates failed");
 
-    PK_STATUS_STRINGS = {
-        [PK.Enum.STATUS_DOWNLOAD]: _("Downloading"),
-        [PK.Enum.STATUS_INSTALL]: _("Installing"),
-        [PK.Enum.STATUS_UPDATE]: _("Updating"),
-        [PK.Enum.STATUS_CLEANUP]: _("Setting up"),
-        [PK.Enum.STATUS_SIGCHECK]: _("Verifying"),
-    };
+    PK_STATUS_STRINGS[PK.Enum.STATUS_DOWNLOAD] = _("Downloading");
+    PK_STATUS_STRINGS[PK.Enum.STATUS_INSTALL] = _("Installing");
+    PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] = _("Updating");
+    PK_STATUS_STRINGS[PK.Enum.STATUS_CLEANUP] = _("Setting up");
+    PK_STATUS_STRINGS[PK.Enum.STATUS_SIGCHECK] = _("Verifying");
 
-    PK_STATUS_LOG_STRINGS = {
-        [PK.Enum.STATUS_DOWNLOAD]: _("Downloaded"),
-        [PK.Enum.STATUS_INSTALL]: _("Installed"),
-        [PK.Enum.STATUS_UPDATE]: _("Updated"),
-        [PK.Enum.STATUS_CLEANUP]: _("Set up"),
-        [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
-    };
+    PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_DOWNLOAD] = _("Downloaded");
+    PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_INSTALL] = _("Installed");
+    PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE] = _("Updated");
+    PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_CLEANUP] = _("Set up");
+    PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_SIGCHECK] = _("Verified");
 }
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
@@ -101,16 +95,16 @@ function parseCVEs(text) {
     if (!text)
         return [];
 
-    var cves = text.match(/CVE-\d{4}-\d+/g);
+    const cves = text.match(/CVE-\d{4}-\d+/g);
     if (!cves)
         return [];
     return cves.map(n => "https://cve.mitre.org/cgi-bin/cvename.cgi?name=" + n);
 }
 
 function deduplicate(list) {
-    var d = { };
+    const d = { };
     list.forEach(i => { if (i) d[i] = true; });
-    var result = Object.keys(d);
+    const result = Object.keys(d);
     result.sort();
     return result;
 }
@@ -173,7 +167,7 @@ const Expander = ({ title, onExpand, children }) => {
 };
 
 function count_security_updates(updates) {
-    var num_security = 0;
+    let num_security = 0;
     for (const u in updates)
         if (updates[u].severity === PK.Enum.INFO_SECURITY)
             ++num_security;
@@ -181,7 +175,7 @@ function count_security_updates(updates) {
 }
 
 function find_highest_severity(updates) {
-    var max = PK.Enum.INFO_LOW;
+    let max = PK.Enum.INFO_LOW;
     for (const u in updates)
         if (updates[u].severity > max)
             max = updates[u].severity;
@@ -194,8 +188,8 @@ function getSeverityURL(urls) {
 
     // in ascending severity
     const knownLevels = ["low", "moderate", "important", "critical"];
-    var highestIndex = -1;
-    var highestURL = null;
+    let highestIndex = -1;
+    let highestURL = null;
 
     // search URLs for highest valid severity; by all means we expect an update to have at most one, but for paranoia..
     urls.map(value => {
@@ -484,7 +478,7 @@ class ApplyUpdates extends React.Component {
 
     componentDidMount() {
         this._mounted = true;
-        var transactionPath = this.props.transaction;
+        const transactionPath = this.props.transaction;
 
         PK.watchTransaction(transactionPath, {
             Package: (info, packageId) => {
@@ -1246,7 +1240,7 @@ class OsUpdates extends React.Component {
     }
 
     applyUpdates(securityOnly) {
-        var ids = Object.keys(this.state.updates);
+        let ids = Object.keys(this.state.updates);
         if (securityOnly)
             ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
 
@@ -1271,7 +1265,7 @@ class OsUpdates extends React.Component {
     }
 
     renderContent() {
-        var applySecurity, applyAll;
+        let applySecurity, applyAll;
 
         /* On unregistered RHEL systems we need some heuristics: If the "main" OS repos (which provide coreutils) require
          * a subscription, then point this out and don't show available updates, even if there are some auxiliary
@@ -1323,7 +1317,6 @@ class OsUpdates extends React.Component {
             const num_updates = Object.keys(this.state.updates).length;
             const num_security_updates = count_security_updates(this.state.updates);
             const highest_severity = find_highest_severity(this.state.updates);
-            let text;
 
             applyAll = (
                 <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(false) }>
@@ -1338,6 +1331,7 @@ class OsUpdates extends React.Component {
                     </Button>);
             }
 
+            let text;
             if (highest_severity == PK.Enum.INFO_SECURITY)
                 text = _("Security updates available");
             else if (highest_severity >= PK.Enum.INFO_NORMAL)

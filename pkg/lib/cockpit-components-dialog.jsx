@@ -75,7 +75,7 @@ export class DialogFooter extends React.Component {
             action_canceled: false,
         });
 
-        var p = handler(this.update_progress)
+        const p = handler(this.update_progress)
                 .then(() => {
                     this.setState({ action_in_progress: false, error_message: null });
                     if (this.props.dialog_done)
@@ -125,19 +125,15 @@ export class DialogFooter extends React.Component {
     }
 
     render() {
-        var cancel_caption;
-        if ('cancel_caption' in this.props)
-            cancel_caption = this.props.cancel_caption;
-        else
-            cancel_caption = _("Cancel");
+        const cancel_caption = ('cancel_caption' in this.props) ? this.props.cancel_caption : _("Cancel");
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
         // via the progress reporting.
 
-        var wait_element;
-        var actions_disabled;
-        var cancel_disabled;
+        let wait_element;
+        let actions_disabled;
+        let cancel_disabled;
         if (this.state.action_in_progress) {
             actions_disabled = true;
             if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
@@ -152,7 +148,7 @@ export class DialogFooter extends React.Component {
             </div>;
         }
 
-        var action_buttons = this.props.actions.map(action => {
+        const action_buttons = this.props.actions.map(action => {
             let caption;
             if ('caption' in action)
                 caption = action.caption;
@@ -170,8 +166,8 @@ export class DialogFooter extends React.Component {
         });
 
         // If we have an error message, display the error
-        var error_element;
-        var error_message;
+        let error_element;
+        let error_message;
         if (this.props.static_error !== undefined && this.props.static_error !== null)
             error_message = this.props.static_error;
         else
@@ -265,28 +261,28 @@ Dialog.propTypes = {
  * The DOM node and React metadata are freed once the dialog has closed
  */
 export function show_modal_dialog(props, footerProps) {
-    var dialogName = 'cockpit_modal_dialog';
+    const dialogName = 'cockpit_modal_dialog';
     // don't allow nested dialogs, just close whatever is open
-    var curElement = document.getElementById(dialogName);
+    const curElement = document.getElementById(dialogName);
     if (curElement) {
         ReactDOM.unmountComponentAtNode(curElement);
         curElement.remove();
     }
     // create an element to render into
-    var rootElement = document.createElement("div");
+    const rootElement = document.createElement("div");
     rootElement.id = dialogName;
     document.body.appendChild(rootElement);
 
     // register our own on-close callback
-    var origCallback;
-    var closeCallback = function() {
+    let origCallback;
+    const closeCallback = function() {
         if (origCallback)
             origCallback.apply(this, arguments);
         ReactDOM.unmountComponentAtNode(rootElement);
         rootElement.remove();
     };
 
-    var dialogObj = { };
+    const dialogObj = { };
     dialogObj.props = props;
     dialogObj.footerProps = null;
     dialogObj.render = function() {

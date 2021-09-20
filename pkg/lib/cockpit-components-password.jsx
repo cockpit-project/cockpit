@@ -30,7 +30,7 @@ export function password_quality(password, force) {
         cockpit.spawn('/usr/bin/pwscore', { err: "message" })
                 .input(password)
                 .done(function(content) {
-                    var quality = parseInt(content, 10);
+                    const quality = parseInt(content, 10);
                     if (quality === 0)
                         reject(new Error(_("Password is too weak")));
                     else

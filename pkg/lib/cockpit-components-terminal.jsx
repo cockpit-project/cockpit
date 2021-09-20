@@ -115,7 +115,7 @@ export class Terminal extends React.Component {
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
 
-        var term = new Term({
+        const term = new Term({
             cols: props.cols || 80,
             rows: props.rows || 25,
             screenKeys: true,
@@ -254,14 +254,14 @@ export class Terminal extends React.Component {
     }
 
     onChannelClose(event, options) {
-        var term = this.state.terminal;
+        const term = this.state.terminal;
         term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
         term.cursorHidden = true;
         term.refresh(term.rows, term.rows);
     }
 
     connectChannel() {
-        var channel = this.props.channel;
+        const channel = this.props.channel;
         if (channel && channel.valid) {
             channel.addEventListener('message', this.onChannelMessage.bind(this));
             channel.addEventListener('close', this.onChannelClose.bind(this));

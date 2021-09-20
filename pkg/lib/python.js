@@ -23,11 +23,9 @@ import cockpit from "cockpit";
 const pyinvoke = ["sh", "-ec", "exec $(which /usr/libexec/platform-python 2>/dev/null || which python3 2>/dev/null || which python) $@", "--", "-"];
 
 export function spawn (script_pieces, args, options) {
-    var script;
-    if (typeof script_pieces == "string")
-        script = script_pieces;
-    else
-        script = script_pieces.join("\n");
+    const script = (typeof script_pieces == "string")
+        ? script_pieces
+        : script_pieces.join("\n");
 
     return cockpit.spawn(pyinvoke.concat(args), options).input(script);
 }

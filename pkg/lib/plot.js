@@ -56,7 +56,7 @@ class Metrics_series {
     }
 
     remove_series() {
-        var pos = this.plot_data.indexOf(this.options);
+        const pos = this.plot_data.indexOf(this.options);
         if (pos >= 0)
             this.plot_data.splice(pos, 1);
     }
@@ -111,12 +111,10 @@ class Metrics_sum_series extends Metrics_series {
     }
 
     flat_sum(val) {
-        var sum;
-
         if (!val)
             return 0;
         if (val.length !== undefined) {
-            sum = 0;
+            let sum = 0;
             for (let i = 0; i < val.length; i++)
                 sum += this.flat_sum(val[i]);
             return sum;
@@ -130,10 +128,10 @@ class Metrics_sum_series extends Metrics_series {
 
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
 
-        var metrics_row = this.grid.add(this.channel, []);
-        var factor = this.desc.factor || 1;
-        var threshold = this.desc.threshold || null;
-        var offset = this.desc.offset || 0;
+        const metrics_row = this.grid.add(this.channel, []);
+        const factor = this.desc.factor || 1;
+        const threshold = this.desc.threshold || null;
+        const offset = this.desc.offset || 0;
         this.options.data = this.grid.add((row, x, n) => {
             for (let i = 0; i < n; i++) {
                 const value = offset + this.flat_sum(metrics_row[x + i]) * factor;
@@ -202,11 +200,11 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (this.instances[name])
             return;
 
-        var instance_data = Object.assign({ selector: selector }, this.options);
-        var factor = this.desc.factor || 1;
-        var threshold = this.desc.threshold || 0;
-        var metrics_row;
-        var last = this.last_instance;
+        const instance_data = Object.assign({ selector: selector }, this.options);
+        const factor = this.desc.factor || 1;
+        const threshold = this.desc.threshold || 0;
+        const last = this.last_instance;
+        let metrics_row;
 
         function reset() {
             metrics_row = this.grid.add(this.channel, ['a', name]);
@@ -239,7 +237,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
         function remove() {
             this.grid.remove(metrics_row);
             this.grid.remove(instance_data.data);
-            var pos = this.plot_data.indexOf(instance_data);
+            const pos = this.plot_data.indexOf(instance_data);
             if (pos >= 0)
                 this.plot_data.splice(pos, 1);
         }
@@ -297,14 +295,12 @@ class Plot {
         // TODO - do this based on the actual size of the plot.
         this.interval = Math.ceil(x_range_seconds / 1000) * 1000;
 
-        var x_offset;
-        if (x_stop_seconds !== undefined)
-            x_offset = (new Date().getTime()) - x_stop_seconds * 1000;
-        else
-            x_offset = 0;
+        const x_offset = (x_stop_seconds !== undefined)
+            ? (new Date().getTime()) - x_stop_seconds * 1000
+            : 0;
 
-        var beg = -Math.ceil((x_range_seconds * 1000 + x_offset) / this.interval);
-        var end = -Math.floor(x_offset / this.interval);
+        const beg = -Math.ceil((x_range_seconds * 1000 + x_offset) / this.interval);
+        const end = -Math.floor(x_offset / this.interval);
 
         if (this.grid && this.grid.interval == this.interval) {
             this.grid.move(beg, end);
@@ -313,7 +309,7 @@ class Plot {
                 this.grid.close();
             this.grid = cockpit.grid(this.interval, beg, end);
             this.sync_suppressed++;
-            for (var i = 0; i < this.series.length; i++) {
+            for (let i = 0; i < this.series.length; i++) {
                 this.series[i].stop();
                 this.series[i].interval = this.interval;
                 this.series[i].grid = this.grid;
@@ -335,7 +331,7 @@ class Plot {
 
     destroy() {
         this.grid.close();
-        for (var i = 0; i < this.series.length; i++)
+        for (let i = 0; i < this.series.length; i++)
             this.series[i].stop();
 
         this.options = { };
@@ -351,7 +347,7 @@ class Plot {
     }
 
     add_metrics_sum_series(desc, opts) {
-        var sum_series = new Metrics_sum_series(desc, opts, this.grid, this.plot_data, this.interval);
+        const sum_series = new Metrics_sum_series(desc, opts, this.grid, this.plot_data, this.interval);
 
         sum_series.addEventListener("removed", this.refresh.bind(this));
         sum_series.addEventListener("changed", this.check_archives.bind(this));
@@ -366,7 +362,7 @@ class Plot {
     }
 
     add_metrics_stacked_instances_series(desc, opts) {
-        var stacked_series = new Metrics_stacked_instances_series(desc, opts, this.grid, this.plot_data, this.interval);
+        const stacked_series = new Metrics_stacked_instances_series(desc, opts, this.grid, this.plot_data, this.interval);
 
         stacked_series.addEventListener("removed", this.refresh.bind(this));
         stacked_series.addEventListener("changed", this.check_archives.bind(this));
@@ -442,9 +438,9 @@ class ZoomState {
             365 * 24 * 60 * 60
         ];
 
-        var r = this.history.pop();
+        let r = this.history.pop();
         if (r === undefined) {
-            var i;
+            let i;
             for (i = 0; i < plot_zoom_steps.length - 1; i++) {
                 if (plot_zoom_steps[i] > this.x_range)
                     break;
@@ -463,7 +459,7 @@ class ZoomState {
     }
 
     scroll_left() {
-        var step = this.x_range / 10;
+        const step = this.x_range / 10;
         if (this.x_stop === undefined)
             this.x_stop = (new Date()).getTime() / 1000;
         this.x_stop -= step;
@@ -471,7 +467,7 @@ class ZoomState {
     }
 
     scroll_right() {
-        var step = this.x_range / 10;
+        const step = this.x_range / 10;
         if (this.x_stop !== undefined) {
             this.x_stop += step;
             this.reset();
@@ -512,7 +508,7 @@ class SinglePlotState {
                 this._stacked_instances_series.clear_instances();
         }
 
-        for (var i = 0; i < insts.length; i++) {
+        for (let i = 0; i < insts.length; i++) {
             this._stacked_instances_series.add_instance(insts[i]);
         }
     }

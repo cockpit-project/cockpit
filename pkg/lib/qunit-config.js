@@ -1,6 +1,6 @@
 /* global QUnit, qunitTap */
 
-var qunit_started = false;
+let qunit_started = false;
 
 /* Always use explicit start */
 QUnit.config.autostart = false;
@@ -13,11 +13,11 @@ QUnit.config.autostart = false;
  * So remove the qunit window.onerror handler until the tests actually
  * start, and any errors become part of the test suite results.
  */
-var qunit_onerror = window.onerror;
+const qunit_onerror = window.onerror;
 window.onerror = null;
 QUnit.begin(function() {
     window.onerror = function(error, file, line) {
-        var ret = false;
+        let ret = false;
         if (qunit_onerror)
             ret = qunit_onerror(error, file, line);
 
@@ -60,10 +60,10 @@ QUnit.done(function() {
  *
  * We also want to insert the current test name into all tap lines.
  */
-var tap_regex = /^((not )?ok [0-9]+ (- )?)(.*)$/;
+const tap_regex = /^((not )?ok [0-9]+ (- )?)(.*)$/;
 qunitTap(QUnit, function() {
     if (arguments.length == 1 && QUnit.config.current) {
-        var match = tap_regex.exec(arguments[0]);
+        const match = tap_regex.exec(arguments[0]);
         if (match) {
             console.log(match[1] + QUnit.config.current.testName + ": " + match[4]);
             return;

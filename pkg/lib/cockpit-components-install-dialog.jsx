@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 
 // TODO - generalize this to arbitrary number of arguments (when needed)
 function format_to_fragments(fmt, arg) {
-    var index = fmt.indexOf("$0");
+    const index = fmt.indexOf("$0");
     if (index >= 0)
         return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
     else
@@ -51,20 +51,20 @@ function format_to_fragments(fmt, arg) {
  */
 
 export function install_dialog(pkg, options) {
-    var data = null;
-    var error_message = null;
-    var progress_message = null;
-    var cancel = null;
-    var done = null;
+    let data = null;
+    let error_message = null;
+    let progress_message = null;
+    let cancel = null;
+    let done = null;
 
     if (!Array.isArray(pkg))
         pkg = [pkg];
 
     options = options || { };
 
-    var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
+    const prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
-    var dialog = null;
+    let dialog = null;
     function update() {
         let extra_details = null;
         let remove_details = null;
@@ -141,7 +141,7 @@ export function install_dialog(pkg, options) {
         PK.check_missing_packages(pkg,
                                   p => {
                                       cancel = p.cancel;
-                                      var pm = null;
+                                      let pm = null;
                                       if (p.waiting)
                                           pm = _("Waiting for other software management operations to finish");
                                       else
@@ -172,15 +172,15 @@ export function install_dialog(pkg, options) {
     function install_missing() {
         // We need to return a Cockpit flavoured promise since we want
         // to use progress notifications.
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
 
         PK.install_missing_packages(data,
                                     p => {
-                                        var text = null;
+                                        let text = null;
                                         if (p.waiting) {
                                             text = _("Waiting for other software management operations to finish");
                                         } else if (p.package) {
-                                            var fmt;
+                                            let fmt;
                                             if (p.info == PK.Enum.INFO_DOWNLOADING)
                                                 fmt = _("Downloading $0");
                                             else if (p.info == PK.Enum.INFO_REMOVING)

@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
-"PO-Revision-Date: 2021-09-08 09:06+0000\n"
-"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
+"PO-Revision-Date: 2021-09-14 23:05+0000\n"
+"Last-Translator: Charles Lee <lchopn@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -32,10 +32,8 @@ msgstr ""
 "X-Generator: Weblate 4.8\n"
 
 #: pkg/storaged/content-views.jsx:449
-#, fuzzy
-#| msgid "Encrypted $0"
 msgid "$0 (encrypted)"
-msgstr "已加密 $0"
+msgstr "$0（已加密）"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -51,12 +49,11 @@ msgid "$0 GiB total"
 msgstr "$0 GiB 总数"
 
 #: pkg/networkmanager/network-main.jsx:167
+#, fuzzy
+#| msgid "$0 active zone"
 msgid "$0 active zone"
-msgstr "$0活跃区"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "$0活跃区"
+msgid_plural "$0 active zones"
+msgstr[0] "$0活跃区"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -803,7 +800,7 @@ msgstr "地址"
 msgid "Administration with Cockpit Web Console"
 msgstr "使用 Cockpit Web 控制台管理"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "管理员权限"
 
@@ -1241,7 +1238,7 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1408,10 +1405,8 @@ msgid "Clear search"
 msgstr "清除搜寻"
 
 #: pkg/storaged/crypto-tab.jsx:247
-#, fuzzy
-#| msgid "Create devices"
 msgid "Cleartext device"
-msgstr "创建设备"
+msgstr "明文设备"
 
 #: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:216
 msgid "Click $0 again to use the password anyway."
@@ -1430,8 +1425,8 @@ msgstr "客户端软件"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2127,19 +2122,14 @@ msgstr "磁盘"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 #, fuzzy
-#| msgid "Dismiss"
+#| msgid "Dismiss $0 alert"
 msgid "Dismiss $0 alert"
-msgstr "取消"
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "忽略 $0 警报"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr ""
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-#, fuzzy
-#| msgid "Close selected pages"
 msgid "Dismiss selected alerts"
-msgstr "关闭已选的页面"
+msgstr "忽略所选警报"
 
 #: pkg/shell/index.html:71 pkg/shell/shell-modals.jsx:139
 msgid "Display language"
@@ -2478,7 +2468,7 @@ msgstr "添加服务失败"
 msgid "Failed to add zone"
 msgstr "添加区域失败"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "修改密码失败"
@@ -2554,17 +2544,13 @@ msgid "Filesystem"
 msgstr "文件系统"
 
 #: pkg/storaged/content-views.jsx:419
-#, fuzzy
-#| msgid "Filesystem directory"
 msgctxt "storage-id-desc"
 msgid "Filesystem (encrypted)"
-msgstr "文件系统目录"
+msgstr "文件系统（已加密）"
 
 #: pkg/storaged/fsys-tab.jsx:671
-#, fuzzy
-#| msgid "Filesystems"
 msgid "Filesystem is locked"
-msgstr "文件系统"
+msgstr "文件系统已锁定"
 
 #: pkg/storaged/fsys-tab.jsx:459
 msgid "Filesystem name"
@@ -2588,7 +2574,7 @@ msgstr "过滤服务"
 
 #: pkg/systemd/logs.jsx:237
 msgid "Filters"
-msgstr "过滤"
+msgstr "过滤器"
 
 #: pkg/shell/index.html:231
 msgid "Fingerprint"
@@ -2847,16 +2833,13 @@ msgstr "标识符"
 msgid ""
 "If the fingerprint matches, click \"Accept key and connect\". Otherwise, do "
 "not connect and contact your administrator."
-msgstr ""
-"如果指纹匹配，点\"Accept key and connect\"。否则，请不要连接并联系您的管理"
-"员。"
+msgstr "如果指纹匹配，点“接受密钥并连接”。否则，请不要连接并联系您的管理员。"
 
 #: pkg/static/login.html:72
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
-msgstr ""
-"如果指纹匹配，点\"Accept key and log in\"。否则，请不要登录并联系您的管理员。"
+msgstr "如果指纹匹配，点“接受密钥并登录”。否则，请不要登录并联系您的管理员。"
 
 #: pkg/storaged/format-dialog.jsx:95
 msgid ""
@@ -2865,6 +2848,9 @@ msgid ""
 "during boot is not possible, such as when a passphrase is required to unlock "
 "the filesystem but booting is unattended."
 msgstr ""
+"如果此选项被选中，此文件系统将不会在下次启动时被挂载，即使其已经在之前挂载"
+"过。这在文件系统无法在启动阶段时挂载的情况下有用，比如启动时需要解锁文件系统"
+"但无人值守。"
 
 #: pkg/networkmanager/interfaces.js:1459 pkg/packagekit/updates.jsx:631
 #: pkg/packagekit/updates.jsx:706
@@ -3029,7 +3015,7 @@ msgstr "无效的日期格式和时间格式"
 msgid "Invalid expiration date"
 msgstr "无效的过期时间"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "无效的文件权限"
 
@@ -3245,24 +3231,22 @@ msgid "Leave domain"
 msgstr "离开域"
 
 #: pkg/shell/shell-modals.jsx:81
-#, fuzzy
-#| msgid "GNU LGPL version 2.1"
 msgid "Licensed under GNU LGPL version 2.1"
-msgstr "GNU LGPL 版本 2.1"
+msgstr "以 GNU LGPL 版本 2.1 许可"
 
 #: pkg/systemd/terminal.jsx:154
 msgid "Light"
 msgstr "亮色"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "限制访问"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "被限制的访问"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3338,10 +3322,8 @@ msgid "Loading of SSH keys failed"
 msgstr "加载 SSH 密钥失败"
 
 #: pkg/shell/shell-modals.jsx:91
-#, fuzzy
-#| msgid "Loading keys..."
 msgid "Loading packages..."
-msgstr "正在加载密钥 ......"
+msgstr "正在加载软件包……"
 
 #: pkg/lib/cockpit-components-modifications.jsx:142
 msgid "Loading system modifications..."
@@ -3383,12 +3365,9 @@ msgid "Locked devices"
 msgstr "锁定的设备"
 
 #: pkg/storaged/content-views.jsx:421
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Encrypted data"
 msgctxt "storage-id-desc"
 msgid "Locked encrypted data"
-msgstr "加密的数据"
+msgstr "已锁定的加密数据"
 
 #: pkg/storaged/jobs-panel.jsx:45
 msgid "Locking $target"
@@ -3935,10 +3914,8 @@ msgid "Never expire password"
 msgstr "密码从不过期"
 
 #: pkg/storaged/fsys-tab.jsx:328 pkg/storaged/format-dialog.jsx:261
-#, fuzzy
-#| msgid "Mount at boot"
 msgid "Never mount at boot"
-msgstr "引导时挂载"
+msgstr "永远不在启动时挂载"
 
 #: pkg/storaged/nfs-details.jsx:144
 msgid "New NFS mount"
@@ -3960,7 +3937,7 @@ msgstr "新口令"
 msgid "New password"
 msgstr "新密码"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "新密码不被接受"
 
@@ -4119,7 +4096,7 @@ msgid "No rule hits"
 msgstr "无规则命中"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "没有该文件或目录"
 
@@ -4140,7 +4117,7 @@ msgstr "未指定用户名"
 msgid "None"
 msgstr "无"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "无效的私钥"
 
@@ -4255,7 +4232,7 @@ msgstr "旧密码口令"
 msgid "Old password"
 msgstr "旧密码"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "旧密码不被接受"
 
@@ -4474,7 +4451,7 @@ msgstr "密码太弱"
 msgid "Password must be changed"
 msgstr "密码必须被修改"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "密码未接受"
 
@@ -4701,7 +4678,7 @@ msgstr "优先级"
 msgid "Priority $priority"
 msgstr "优先级 $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 msgid "Problem becoming administrator"
 msgstr "成为管理员出问题"
 
@@ -4725,11 +4702,11 @@ msgstr "项目网站"
 msgid "Prompting via passwd timed out"
 msgstr "通过密码提示已超时"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "通过 ssh-add 提示超时"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "通过 ssh-keygen 提示超时"
 
@@ -5207,14 +5184,12 @@ msgid "Resume"
 msgstr "恢复"
 
 #: pkg/storaged/format-dialog.jsx:175
-#, fuzzy
-#| msgid "Using LUKS encryption"
 msgid "Reuse existing encryption"
-msgstr "使用 LUKS 加密"
+msgstr "重用现存的加密"
 
 #: pkg/storaged/format-dialog.jsx:172
 msgid "Reuse existing encryption ($0)"
-msgstr ""
+msgstr "重用现存的加密（$0）"
 
 #: pkg/systemd/manifest.json:0
 msgid "Reviewing logs"
@@ -5908,7 +5883,7 @@ msgstr "打开 $0"
 msgid "Switch to administrative access"
 msgstr "切换到管理权限"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "切换到限制权限"
 
@@ -6110,7 +6085,7 @@ msgstr "当前登录的用户不允许查看有关密钥的信息。"
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
-msgstr ""
+msgstr "此磁盘在格式化之前需要解锁。请提供存在的口令。"
 
 #: pkg/storaged/fsys-tab.jsx:516
 msgid "The filesystem has no permanent mount point."
@@ -6172,7 +6147,7 @@ msgstr "文件系统未挂载。"
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
-msgstr ""
+msgstr "此文件系统将在下次启动的时候解锁并挂载。这可能要求输入口令。"
 
 #: pkg/packagekit/updates.jsx:439
 msgid "The following service will be restarted:"
@@ -6825,10 +6800,8 @@ msgid "Unlock"
 msgstr "未锁定"
 
 #: pkg/storaged/fsys-tab.jsx:643
-#, fuzzy
-#| msgid "Mount also automatically on boot"
 msgid "Unlock automatically on boot"
-msgstr "在引导时也自动挂载"
+msgstr "在启动时自动解锁"
 
 #: pkg/shell/index.html:171 pkg/shell/index.html:215
 msgid "Unlock key"
@@ -6976,7 +6949,7 @@ msgstr "使用压缩"
 msgid "Use deduplication"
 msgstr "使用 deduplication"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 msgid "Use key"
 msgstr "使用密钥"
 
@@ -7191,10 +7164,8 @@ msgid "Web console is running in limited access mode."
 msgstr "Web 控制台正运行于限制访问模式。"
 
 #: pkg/shell/shell-modals.jsx:84
-#, fuzzy
-#| msgid "Web Console"
 msgid "Web console logo"
-msgstr "Web 控制台"
+msgstr "Web 控制台 logo"
 
 #: pkg/systemd/services/timer-dialog.jsx:284 pkg/packagekit/autoupdates.jsx:310
 msgid "Wednesdays"
@@ -7303,7 +7274,7 @@ msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr "为了创建报告，您需要切换到\"管理员权限\"。"
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "您已经获取了管理员权限。"
 
@@ -7321,7 +7292,7 @@ msgid ""
 "+Insert."
 msgstr "您的浏览器不允许从上下文菜单中进行粘贴，您可以使用 Shift+Insert。"
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的浏览器将会在不同会话之间记住您的访问级别。"
 
@@ -7712,10 +7683,8 @@ msgid "network"
 msgstr "网络"
 
 #: pkg/storaged/fsys-tab.jsx:503
-#, fuzzy
-#| msgid "Mount at boot"
 msgid "never mounted at boot"
-msgstr "引导时挂载"
+msgstr "永不在引导时挂载"
 
 #: pkg/storaged/manifest.json:0
 msgid "nfs"
@@ -8029,6 +7998,12 @@ msgstr "区"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} 密钥已更改"
+
+#~ msgid "$0 active zones"
+#~ msgstr "$0活跃区"
+
+#~ msgid "Dismiss $0 alerts"
+#~ msgstr "忽略 $0 警报"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

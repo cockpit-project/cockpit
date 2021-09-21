@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
-"PO-Revision-Date: 2021-09-09 21:05+0000\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
+"PO-Revision-Date: 2021-09-18 05:04+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
@@ -43,11 +43,10 @@ msgstr "Загалом $0 ГіБ"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
-msgstr "Активна зона $0"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "Активні зони $0"
+msgid_plural "$0 active zones"
+msgstr[0] "$0 активна зона"
+msgstr[1] "$0 активні зони"
+msgstr[2] "$0 активних зон"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -852,7 +851,7 @@ msgstr "Адреси"
 msgid "Administration with Cockpit Web Console"
 msgstr "Адміністрування за допомогою вебконсолі Cockpit"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "Адміністративний доступ"
 
@@ -1300,7 +1299,7 @@ msgstr "Не вдалося знайти журналів на основі по
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1490,8 +1489,8 @@ msgstr "Клієнтське програмне забезпечення"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2211,11 +2210,10 @@ msgstr "Диски"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss $0 alert"
-msgstr "Відкинути $0 попередження"
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr "Відкинути $0 попереджень"
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "Відкинути $0 попередження"
+msgstr[1] "Відкинути $0 попередження"
+msgstr[2] "Відкинути $0 попереджень"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss selected alerts"
@@ -2560,7 +2558,7 @@ msgstr "Не вдалося додати службу"
 msgid "Failed to add zone"
 msgstr "Не вдалося додати зону"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Не вдалося змінити пароль"
@@ -3123,7 +3121,7 @@ msgstr "Некоректний формат дати і часу"
 msgid "Invalid expiration date"
 msgstr "Некоректна дата строку завершення дії"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "Некоректні права доступу до файла"
 
@@ -3348,15 +3346,15 @@ msgstr "Ліцензовано за умов дотримання GNU LGPL ве�
 msgid "Light"
 msgstr "Світлий"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "Обмежити доступ"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "Обмежений доступ"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4054,7 +4052,7 @@ msgstr "Новий пароль"
 msgid "New password"
 msgstr "Новий пароль"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Новий пароль не прийнято"
 
@@ -4216,7 +4214,7 @@ msgid "No rule hits"
 msgstr "Немає збігів з правилами"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Немає такого файла або каталогу"
 
@@ -4237,7 +4235,7 @@ msgstr "Не вказано імені користувача"
 msgid "None"
 msgstr "Немає"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "Некоректний закритий ключ"
 
@@ -4352,7 +4350,7 @@ msgstr "Старий пароль"
 msgid "Old password"
 msgstr "Старий пароль"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "Старий пароль не прийнято"
 
@@ -4574,7 +4572,7 @@ msgstr "Пароль є надто простим"
 msgid "Password must be changed"
 msgstr "Пароль має бути змінено"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "Пароль не прийнято"
 
@@ -4804,7 +4802,7 @@ msgstr "Пріоритетність"
 msgid "Priority $priority"
 msgstr "Пріоритетність $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 msgid "Problem becoming administrator"
 msgstr "Проблеми із набуттям прав адміністратора"
 
@@ -4828,11 +4826,11 @@ msgstr "Сайт проєкту"
 msgid "Prompting via passwd timed out"
 msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "Час очікування відповіді на запит за допомогою ssh-add вичерпано"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Час очікування відповіді на запит за допомогою ssh-keygen вичерпано"
 
@@ -6031,7 +6029,7 @@ msgstr "Увімкнути $0"
 msgid "Switch to administrative access"
 msgstr "Перемкнутися на адміністративний доступ"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "Перемкнутися на обмежений доступ"
 
@@ -7188,7 +7186,7 @@ msgstr "Скористатися стисканням"
 msgid "Use deduplication"
 msgstr "Скористатися скасуванням дублювання"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 msgid "Use key"
 msgstr "Використати ключ"
 
@@ -7522,7 +7520,7 @@ msgstr ""
 "Вам слід перемкнутися на «Адміністративний доступ», щоб мати змогу "
 "створювати звіти."
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "Тепер ви маєте адміністративний доступ."
 
@@ -7543,7 +7541,7 @@ msgstr ""
 "контекстного меню. Ви можете скористатися для вставлення комбінацією Shift"
 "+Insert."
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "Ваш браузер запам'ятовуватиме ваш рівень доступу між сеансами."
 
@@ -8256,6 +8254,12 @@ msgstr "зона"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "Змінено ключ {{host}}"
+
+#~ msgid "$0 active zones"
+#~ msgstr "Активні зони $0"
+
+#~ msgid "Dismiss $0 alerts"
+#~ msgstr "Відкинути $0 попереджень"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
 "PO-Revision-Date: 2021-03-28 06:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -60,12 +60,14 @@ msgid "$0 GiB total"
 msgstr "$0 GiB סך הכול"
 
 #: pkg/networkmanager/network-main.jsx:167
+#, fuzzy
+#| msgid "$0 active zone"
 msgid "$0 active zone"
-msgstr "אזור פעיל אחד"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "$0 אזורים פעילים"
+msgid_plural "$0 active zones"
+msgstr[0] "אזור פעיל אחד"
+msgstr[1] "אזור פעיל אחד"
+msgstr[2] "אזור פעיל אחד"
+msgstr[3] "אזור פעיל אחד"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -889,7 +891,7 @@ msgstr "כתובות"
 msgid "Administration with Cockpit Web Console"
 msgstr "ניהול עם המסוף המקוון Cockpit"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "גישה ניהולית"
 
@@ -1339,7 +1341,7 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1528,8 +1530,8 @@ msgstr "תכנה מצד לקוח"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2232,11 +2234,11 @@ msgstr "כוננים"
 #, fuzzy
 #| msgid "Dismiss"
 msgid "Dismiss $0 alert"
-msgstr "התעלמות"
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr ""
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "התעלמות"
+msgstr[1] "התעלמות"
+msgstr[2] "התעלמות"
+msgstr[3] "התעלמות"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 #, fuzzy
@@ -2591,7 +2593,7 @@ msgstr "הוספת השירות נכשל"
 msgid "Failed to add zone"
 msgstr "הוספת האזור נכשלה"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "החלפת הססמה נכשלה"
@@ -3164,7 +3166,7 @@ msgstr "מבנה תאריך שגוי ומבנה שעה שגוי"
 msgid "Invalid expiration date"
 msgstr "מועד התפוגה שגוי"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "הרשאות הקובץ שגויות"
 
@@ -3399,15 +3401,15 @@ msgstr "LGPL מבית GNU בגרסה 2.1"
 msgid "Light"
 msgstr "בהירה"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "הגבלת גישה"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "גישה מוגבלת"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4119,7 +4121,7 @@ msgstr "מילת צופן חדשה"
 msgid "New password"
 msgstr "ססמה חדשה"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "הססמה החדשה לא התקבלה"
 
@@ -4281,7 +4283,7 @@ msgid "No rule hits"
 msgstr "אין פגיעות בכללים"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "אין קובץ או תיקייה בשם הזה"
 
@@ -4302,7 +4304,7 @@ msgstr "לא צוין שם משתמש"
 msgid "None"
 msgstr "אין"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "לא מפתח פרטי תקני"
 
@@ -4421,7 +4423,7 @@ msgstr "מילת צופן ישנה"
 msgid "Old password"
 msgstr "ססמה ישנה"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "הססמה הישנה לא התקבלה"
 
@@ -4649,7 +4651,7 @@ msgstr "הססמה חלשה מדי"
 msgid "Password must be changed"
 msgstr "חובה לשנות את הססמה"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "הססמה לא התקבלה"
 
@@ -4878,7 +4880,7 @@ msgstr "עדיפות"
 msgid "Priority $priority"
 msgstr "עדיפות $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 #, fuzzy
 #| msgid "Domain administrator name"
 msgid "Problem becoming administrator"
@@ -4904,11 +4906,11 @@ msgstr "אתר המיזם"
 msgid "Prompting via passwd timed out"
 msgstr "משך הצגת הבקשה דרך passwd תם"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "משך הצגת הבקשה דרך ssh-add תם"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "משך הצגת הבקשה דרך ssh-keygen תם"
 
@@ -6116,7 +6118,7 @@ msgstr "הדלקת $0"
 msgid "Switch to administrative access"
 msgstr "הפעלת גישה ניהולית"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "העברה לגישה מוגבלת"
 
@@ -7219,7 +7221,7 @@ msgstr "להשתמש בדחיסה"
 msgid "Use deduplication"
 msgstr "להשתמש בהסרת כפילות"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 msgid "Use key"
 msgstr "להשתמש במפתח"
 
@@ -7552,7 +7554,7 @@ msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr "עליך לעבור ל„גישה ניהולית” כדי ליצור דוחות."
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "מעתה יש לך גישה ניהולית."
 
@@ -7570,7 +7572,7 @@ msgid ""
 "+Insert."
 msgstr ""
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "הדפדפן שלך יזכור את רמת הגישה שלך בין הפעלות."
 
@@ -8305,6 +8307,9 @@ msgstr "אזור"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "המפתח של {{host}} השתנה"
+
+#~ msgid "$0 active zones"
+#~ msgstr "$0 אזורים פעילים"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

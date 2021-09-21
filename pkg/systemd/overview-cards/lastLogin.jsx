@@ -107,7 +107,7 @@ const LastLogin = () => {
     return (
         <li className="last-login" id="page_status_last_login">
             <Flex flexWrap={{ default: 'nowrap' }}>
-                <FlexItem spacer={{ default: 'spacerSm' }} className="last-login-icon">{icon}</FlexItem>
+                <FlexItem spacer={{ default: 'spacerSm' }}>{icon}</FlexItem>
                 <Flex direction={{ default: 'column' }}>
                     <FlexItem id="system_last_login"
                             className={headerClass}

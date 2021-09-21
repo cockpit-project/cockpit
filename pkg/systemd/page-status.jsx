@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Button } from "@patternfly/react-core";
+import { Button, Flex } from "@patternfly/react-core";
 import { page_status } from "notifications";
 
 function icon_class_for_type(type) {
@@ -69,8 +69,10 @@ export class PageStatusNotifications extends React.Component {
                     icon = icon_class_for_type(status.type);
                 return (
                     <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
-                        <span className={icon} />
-                        {action}
+                        <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                            <span className={icon} />
+                            {action}
+                        </Flex>
                     </li>);
             } else {
                 return null;

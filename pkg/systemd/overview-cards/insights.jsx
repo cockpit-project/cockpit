@@ -18,8 +18,8 @@
  */
 
 import React from 'react';
-import { Button } from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { Button, Flex } from '@patternfly/react-core';
+import { CheckIcon, ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import * as service from "service.js";
@@ -121,11 +121,13 @@ export class InsightsStatus extends React.Component {
                 // subscriptions page can register us
                 return (
                     <li className="system-health-insights">
-                        <span className="fa fa-exclamation-triangle" />
-                        <a href="#"
-                    onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
-                            {_("Not connected to Insights")}
-                        </a>
+                        <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                            <ExclamationTriangleIcon className="ct-exclamation-triangle" />
+                            <a href="#"
+                        onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
+                                {_("Not connected to Insights")}
+                            </a>
+                        </Flex>
                     </li>);
             } else
                 return null;
@@ -141,7 +143,7 @@ export class InsightsStatus extends React.Component {
         if (this.state.hits) {
             const n = this.state.hits.n;
             if (n == 0) {
-                icon = <span className="fa fa-check-circle-o" />;
+                icon = <CheckIcon className="ct-check-circle" />;
                 text = _("No rule hits");
             } else {
                 const by_risk = this.state.hits.n_by_risk;
@@ -182,13 +184,15 @@ export class InsightsStatus extends React.Component {
 
         return (
             <li className="system-health-insights">
-                {icon}
-                <Button isInline variant="link" component='a' href={url}
-                        target="_blank" rel="noopener noreferrer"
-                        icon={<ExternalLinkAltIcon />}
-                        iconPosition="right">
-                    {_("Insights: ")} {text}
-                </Button>
+                <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    {icon}
+                    <Button isInline variant="link" component='a' href={url}
+                            target="_blank" rel="noopener noreferrer"
+                            icon={<ExternalLinkAltIcon />}
+                            iconPosition="right">
+                        {_("Insights: ")} {text}
+                    </Button>
+                </Flex>
             </li>);
     }
 }

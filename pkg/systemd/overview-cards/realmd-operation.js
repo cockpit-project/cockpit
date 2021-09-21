@@ -1,5 +1,6 @@
 import jQuery from "jquery";
 import cockpit from "cockpit";
+import { superuser } from "superuser";
 import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import "patterns";
@@ -577,6 +578,11 @@ export function setup() {
     }
 
     function setup_realms_proxy() {
+        if (realmd) {
+            $(realmd).off();
+            realmd.close();
+        }
+
         // HACK: need to reinitialize after installing realmd (https://github.com/cockpit-project/cockpit/pull/9125)
         realmd = cockpit.dbus("org.freedesktop.realmd", { superuser: "try" });
         realmd.watch(MANAGER);
@@ -647,6 +653,8 @@ export function setup() {
 
     setup_realms_proxy();
     update_realms();
+
+    superuser.addEventListener("changed", setup_realms_proxy);
 
     self.close = function close() {
         if (dialog)

@@ -97,8 +97,8 @@ export class TunedDialogBody extends React.Component {
     }
 
     render() {
-        var self = this;
-        var profiles = this.props.profiles.map(function(itm) {
+        const self = this;
+        const profiles = this.props.profiles.map(function(itm) {
             itm.active = (self.props.active_profile == itm.name);
             itm.selected = (self.state.selected_profile == itm.name);
             itm.click = self.handleProfileClick.bind(self, itm.name);

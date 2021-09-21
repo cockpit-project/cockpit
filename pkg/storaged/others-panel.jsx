@@ -27,12 +27,12 @@ const _ = cockpit.gettext;
 
 export class OthersPanel extends React.Component {
     render() {
-        var client = this.props.client;
+        const client = this.props.client;
 
         function is_other(path) {
-            var block = client.blocks[path];
-            var block_part = client.blocks_part[path];
-            var block_lvm2 = client.blocks_lvm2[path];
+            const block = client.blocks[path];
+            const block_part = client.blocks_part[path];
+            const block_lvm2 = client.blocks_lvm2[path];
 
             return ((!block_part || block_part.Table == "/") &&
                     block.Drive == "/" &&
@@ -45,9 +45,9 @@ export class OthersPanel extends React.Component {
         }
 
         function make_other(path) {
-            var block = client.blocks[path];
-            var name = block_name(block);
-            var dev = name.replace(/^\/dev\//, "");
+            const block = client.blocks[path];
+            const name = block_name(block);
+            const dev = name.replace(/^\/dev\//, "");
 
             return (
                 <SidePanelRow client={client}
@@ -61,7 +61,7 @@ export class OthersPanel extends React.Component {
             );
         }
 
-        var others = Object.keys(client.blocks).filter(is_other)
+        const others = Object.keys(client.blocks).filter(is_other)
                 .sort(make_block_path_cmp(client))
                 .map(make_other);
 

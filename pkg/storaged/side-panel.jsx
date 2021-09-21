@@ -35,8 +35,8 @@ export class SidePanel extends React.Component {
     }
 
     render() {
-        var show_all_button = null;
-        var children = this.props.children;
+        let show_all_button = null;
+        let children = this.props.children;
 
         if (this.state.collapsed && children.length > 20) {
             show_all_button = (

@@ -58,9 +58,9 @@ const instances_write_metric = {
 
 export function update_plot_state(ps, client) {
     const devs = [];
-    for (var p in client.drives) {
-        var block = client.drives_block[p];
-        var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
+    for (const p in client.drives) {
+        const block = client.drives_block[p];
+        const dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
         if (dev)
             devs.push(dev);
     }

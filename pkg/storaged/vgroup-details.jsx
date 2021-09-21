@@ -44,16 +44,16 @@ const _ = cockpit.gettext;
 
 class VGroupSidebar extends React.Component {
     render() {
-        var self = this;
-        var client = self.props.client;
-        var vgroup = self.props.vgroup;
-        var pvols = client.vgroups_pvols[vgroup.path] || [];
+        const self = this;
+        const client = self.props.client;
+        const vgroup = self.props.vgroup;
+        const pvols = client.vgroups_pvols[vgroup.path] || [];
 
         function filter_inside_vgroup(spc) {
-            var block = spc.block;
+            let block = spc.block;
             if (client.blocks_part[block.path])
                 block = client.blocks[client.blocks_part[block.path].Table];
-            var lvol = (block &&
+            const lvol = (block &&
                         client.blocks_lvm2[block.path] &&
                         client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
             return !lvol || lvol.VolumeGroup != vgroup.path;
@@ -84,8 +84,8 @@ class VGroupSidebar extends React.Component {
         }
 
         function render_pvol(pvol) {
-            var remove_action = null;
-            var remove_excuse = null;
+            let remove_action = null;
+            let remove_excuse = null;
 
             function pvol_remove() {
                 return vgroup.RemoveDevice(pvol.path, true, {});
@@ -153,13 +153,13 @@ export class VGroupDetails extends React.Component {
     }
 
     render() {
-        var client = this.props.client;
-        var vgroup = this.props.vgroup;
+        const client = this.props.client;
+        const vgroup = this.props.vgroup;
 
         this.ensurePolling(vgroup.NeedsPolling);
 
         function rename() {
-            var location = cockpit.location;
+            const location = cockpit.location;
 
             dialog_open({
                 Title: _("Rename volume group"),
@@ -183,8 +183,8 @@ export class VGroupDetails extends React.Component {
         }
 
         function delete_() {
-            var location = cockpit.location;
-            var usage = utils.get_active_usage(client, vgroup.path);
+            const location = cockpit.location;
+            const usage = utils.get_active_usage(client, vgroup.path);
 
             if (usage.Blocking) {
                 dialog_open({
@@ -215,7 +215,7 @@ export class VGroupDetails extends React.Component {
             });
         }
 
-        var header = (
+        const header = (
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{fmt_to_fragments(_("Volume group $0"), <b>{vgroup.Name}</b>)}</Text></CardTitle>
@@ -241,9 +241,9 @@ export class VGroupDetails extends React.Component {
             </Card>
         );
 
-        var sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;
+        const sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;
 
-        var content = <VGroup client={this.props.client} vgroup={vgroup} />;
+        const content = <VGroup client={this.props.client} vgroup={vgroup} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  header={ header }

@@ -128,7 +128,7 @@ export function create_mdraid(client) {
                          {
                              empty_warning: _("No disks are available."),
                              validate: function (disks, vals) {
-                                 var disks_needed = vals.level == "raid6" ? 4 : 2;
+                                 const disks_needed = vals.level == "raid6" ? 4 : 2;
                                  if (disks.length < disks_needed)
                                      return cockpit.format(cockpit.ngettext("At least $0 disk is needed.", "At least $0 disks are needed.", disks_needed),
                                                            disks_needed);

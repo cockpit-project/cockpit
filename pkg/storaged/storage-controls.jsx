@@ -51,7 +51,7 @@ const _ = cockpit.gettext;
 
 class StorageControl extends React.Component {
     render() {
-        var excuse = this.props.excuse;
+        const excuse = this.props.excuse;
         if (!client.superuser.allowed)
             return <div />;
 
@@ -83,7 +83,7 @@ function checked(callback) {
         if (event.type === 'keypress' && event.key !== "Enter")
             return;
 
-        var promise = client.run(callback);
+        const promise = client.run(callback);
         if (promise)
             promise.catch(function (error) {
                 dialog_open({
@@ -157,10 +157,10 @@ export class StorageOnOff extends React.Component {
     }
 
     render() {
-        var self = this;
+        const self = this;
 
         function onChange(val) {
-            var promise = self.props.onChange(val);
+            const promise = self.props.onChange(val);
             if (promise) {
                 promise.catch(error => {
                     dialog_open({

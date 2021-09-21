@@ -21,21 +21,21 @@ import * as utils from "./utils";
 import QUnit from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
-    var checks = [
+    const checks = [
         [3000, "less than a minute"],
         [60000, "1 minute"],
         [15550000, "about 4 hours"],
     ];
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(utils.format_delay(checks[i][0]), checks[i][1],
                            "format_delay(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
 QUnit.test("compare_versions", function (assert) {
-    var checks = [
+    const checks = [
         ["", "", 0],
         ["0", "0", 0],
         ["1", "0", 1],
@@ -51,7 +51,7 @@ QUnit.test("compare_versions", function (assert) {
     }
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(sign(utils.compare_versions(checks[i][0], checks[i][1])), checks[i][2],
                            "compare_versions(" + checks[i][0] + ", " + checks[i][1] + ") = " + checks[i][2]);
     }

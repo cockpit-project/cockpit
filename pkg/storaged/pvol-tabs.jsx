@@ -33,8 +33,8 @@ const _ = cockpit.gettext;
 
 export class PVolTab extends React.Component {
     render() {
-        var block_pvol = this.props.client.blocks_pvol[this.props.block.path];
-        var vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
+        const block_pvol = this.props.client.blocks_pvol[this.props.block.path];
+        const vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
 
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">
@@ -59,7 +59,7 @@ export class PVolTab extends React.Component {
 
 export class MDRaidMemberTab extends React.Component {
     render() {
-        var mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
+        const mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
 
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">
@@ -80,7 +80,7 @@ export class MDRaidMemberTab extends React.Component {
 
 export class VDOBackingTab extends React.Component {
     render() {
-        var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
+        const vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
 
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">

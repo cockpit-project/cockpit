@@ -54,15 +54,15 @@ export function vgroup_rows(client) {
 
 export function create_vgroup(client) {
     function find_vgroup(name) {
-        for (var p in client.vgroups) {
+        for (const p in client.vgroups) {
             if (client.vgroups[p].Name == name)
                 return client.vgroups[p];
         }
         return null;
     }
 
-    var name;
-    for (var i = 0; i < 1000; i++) {
+    let name;
+    for (let i = 0; i < 1000; i++) {
         name = "vgroup" + i.toFixed();
         if (!find_vgroup(name))
             break;

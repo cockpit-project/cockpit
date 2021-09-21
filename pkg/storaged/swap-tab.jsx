@@ -49,13 +49,13 @@ export class SwapTab extends React.Component {
     }
 
     render() {
-        var self = this;
-        var block_swap = self.props.client.blocks_swap[self.props.block.path];
-        var is_active = block_swap && block_swap.Active;
-        var used;
+        const self = this;
+        const block_swap = self.props.client.blocks_swap[self.props.block.path];
+        const is_active = block_swap && block_swap.Active;
+        let used;
 
         if (is_active) {
-            var samples = self.props.client.swap_sizes.data[utils.decode_filename(self.props.block.Device)];
+            const samples = self.props.client.swap_sizes.data[utils.decode_filename(self.props.block.Device)];
             if (samples)
                 used = utils.fmt_size(samples[0] - samples[1]);
             else

@@ -87,9 +87,9 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
 function get_exported_directories(server) {
     return cockpit.spawn(["showmount", "-e", "--no-headers", server], { err: "message" })
             .then(function (output) {
-                var dirs = [];
+                const dirs = [];
                 output.split("\n").forEach(function (line) {
-                    var d = line.split(" ")[0];
+                    const d = line.split(" ")[0];
                     if (d)
                         dirs.push(d);
                 });
@@ -98,14 +98,14 @@ function get_exported_directories(server) {
 }
 
 export function nfs_fstab_dialog(client, entry) {
-    var mount_options = entry ? entry.fields[3] : "defaults";
-    var split_options = format.parse_options(mount_options == "defaults" ? "" : mount_options);
-    var opt_auto = !format.extract_option(split_options, "noauto");
-    var opt_ro = format.extract_option(split_options, "ro");
-    var extra_options = format.unparse_options(split_options);
+    const mount_options = entry ? entry.fields[3] : "defaults";
+    const split_options = format.parse_options(mount_options == "defaults" ? "" : mount_options);
+    const opt_auto = !format.extract_option(split_options, "noauto");
+    const opt_ro = format.extract_option(split_options, "ro");
+    const extra_options = format.unparse_options(split_options);
 
     function mounting_options(vals) {
-        var opts = [];
+        let opts = [];
         if (!vals.mount_options.auto)
             opts.push("noauto");
         if (vals.mount_options.ro)
@@ -198,8 +198,8 @@ export function nfs_fstab_dialog(client, entry) {
             Action: {
                 Title: entry ? _("Apply") : _("Add"),
                 action: function (vals) {
-                    var location = cockpit.location;
-                    var fields = [vals.server + ":" + vals.remote,
+                    const location = cockpit.location;
+                    const fields = [vals.server + ":" + vals.remote,
                         vals.dir,
                         entry ? entry.fields[2] : "nfs",
                         mounting_options(vals) || "defaults"];
@@ -234,9 +234,9 @@ export function nfs_fstab_dialog(client, entry) {
 
 export class NFSDetails extends React.Component {
     render() {
-        var client = this.props.client;
-        var entry = this.props.entry;
-        var fsys_size;
+        const client = this.props.client;
+        const entry = this.props.entry;
+        let fsys_size;
         if (entry.mounted)
             fsys_size = client.nfs.get_fsys_size(entry);
 
@@ -255,7 +255,7 @@ export class NFSDetails extends React.Component {
         }
 
         function unmount() {
-            var location = cockpit.location;
+            const location = cockpit.location;
             client.nfs.unmount_entry(entry)
                     .then(function () {
                         if (!entry.fstab)
@@ -281,7 +281,7 @@ export class NFSDetails extends React.Component {
         }
 
         function remove() {
-            var location = cockpit.location;
+            const location = cockpit.location;
             client.nfs.remove_entry(entry)
                     .then(function () {
                         location.go("/");
@@ -300,7 +300,7 @@ export class NFSDetails extends React.Component {
                     });
         }
 
-        var header = (
+        const header = (
             <Card>
                 <CardHeader>
                     <CardTitle>

@@ -26,7 +26,7 @@ const _ = cockpit.gettext;
 
 export class StorageLogsPanel extends React.Component {
     render() {
-        var match = [
+        const match = [
             "_SYSTEMD_UNIT=storaged.service", "+",
             "_SYSTEMD_UNIT=udisks2.service", "+",
             "_SYSTEMD_UNIT=dm-event.service", "+",

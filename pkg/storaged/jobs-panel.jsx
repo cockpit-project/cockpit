@@ -38,7 +38,7 @@ const _ = cockpit.gettext;
  * http://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Job.html
  */
 
-var descriptions = {
+const descriptions = {
     'ata-smart-selftest':          _("SMART self-test of $target"),
     'drive-eject':                 _("Ejecting $target"),
     'encrypted-unlock':            _("Unlocking $target"),
@@ -86,11 +86,11 @@ var descriptions = {
 };
 
 function make_description(client, job) {
-    var fmt = descriptions[job.Operation];
+    let fmt = descriptions[job.Operation];
     if (!fmt)
         fmt = _("Operation '$operation' on $target");
 
-    var target = job.Objects.map(function (path) {
+    const target = job.Objects.map(function (path) {
         if (client.blocks[path])
             return block_name(client.blocks[client.blocks[path].CryptoBackingDevice] || client.blocks[path]);
         else if (client.mdraids[path])
@@ -108,15 +108,15 @@ function make_description(client, job) {
 
 class JobRow extends React.Component {
     render() {
-        var job = this.props.job;
+        const job = this.props.job;
 
         function cancel() {
             return job.Cancel({});
         }
 
-        var remaining = null;
+        let remaining = null;
         if (job.ExpectedEndTime > 0) {
-            var d = job.ExpectedEndTime / 1000 - this.props.now;
+            const d = job.ExpectedEndTime / 1000 - this.props.now;
             if (d > 0)
                 remaining = format_delay(d);
         }
@@ -160,17 +160,17 @@ export class JobsPanel extends React.Component {
     }
 
     render() {
-        var client = this.props.client;
-        var server_now = new Date().getTime() + client.time_offset;
+        const client = this.props.client;
+        const server_now = new Date().getTime() + client.time_offset;
 
         function cmp_job(path_a, path_b) {
             return client.jobs[path_a].StartTime - client.jobs[path_b].StartTime;
         }
 
         function job_is_stable(path) {
-            var j = client.jobs[path];
+            const j = client.jobs[path];
 
-            var age_ms = server_now - j.StartTime / 1000;
+            const age_ms = server_now - j.StartTime / 1000;
             if (age_ms >= 2000)
                 return true;
 
@@ -180,9 +180,9 @@ export class JobsPanel extends React.Component {
             return false;
         }
 
-        var jobs = [];
-        var have_reminder = false;
-        for (var p in client.jobs) {
+        let jobs = [];
+        let have_reminder = false;
+        for (const p in client.jobs) {
             if (job_is_stable(p)) {
                 jobs.push(p);
             } else if (!have_reminder) {

@@ -69,7 +69,7 @@ export class ThingsPanel extends React.Component {
                 menu_item(vdo_feature(client), _("Create VDO device"), () => create_vdo(client))].filter(item => item !== null)} />
         );
 
-        var devices = [].concat(
+        const devices = [].concat(
             mdraid_rows(client),
             vgroup_rows(client),
             vdo_rows(client));

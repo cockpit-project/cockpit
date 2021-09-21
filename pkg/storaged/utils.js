@@ -33,10 +33,10 @@ export function compare_versions(a, b) {
         return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0 });
     }
 
-    var a_ints = to_ints(a);
-    var b_ints = to_ints(b);
-    var len = Math.min(a_ints.length, b_ints.length);
-    var i;
+    const a_ints = to_ints(a);
+    const b_ints = to_ints(b);
+    const len = Math.min(a_ints.length, b_ints.length);
+    let i;
 
     for (i = 0; i < len; i++) {
         if (a_ints[i] == b_ints[i])
@@ -47,10 +47,10 @@ export function compare_versions(a, b) {
     return a_ints.length - b_ints.length;
 }
 
-export var hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
+export let hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
 // for unit tests
-var orig_hostnamed;
+let orig_hostnamed;
 
 export function mock_hostnamed(value) {
     if (value) {
@@ -62,7 +62,7 @@ export function mock_hostnamed(value) {
 }
 
 export function array_find(array, pred) {
-    for (var i = 0; i < array.length; i++)
+    for (let i = 0; i < array.length; i++)
         if (pred(array[i]))
             return array[i];
     return undefined;
@@ -89,8 +89,8 @@ export function fmt_size(bytes) {
 }
 
 export function fmt_size_long(bytes) {
-    var with_binary_unit = cockpit.format_bytes(bytes, 1024);
-    var with_decimal_unit = cockpit.format_bytes(bytes, 1000);
+    const with_binary_unit = cockpit.format_bytes(bytes, 1024);
+    const with_decimal_unit = cockpit.format_bytes(bytes, 1000);
     /* Translators: Used in "..." */
     return with_binary_unit + ", " + with_decimal_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
 }
@@ -100,15 +100,15 @@ export function fmt_rate(bytes_per_sec) {
 }
 
 export function format_temperature(kelvin) {
-    var celsius = kelvin - 273.15;
-    var fahrenheit = 9.0 * celsius / 5.0 + 32.0;
+    const celsius = kelvin - 273.15;
+    const fahrenheit = 9.0 * celsius / 5.0 + 32.0;
     return celsius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
 }
 
 export function format_fsys_usage(used, total) {
-    var text = "";
-    var units = 1024;
-    var parts = cockpit.format_bytes(total, units, true);
+    let text = "";
+    let units = 1024;
+    let parts = cockpit.format_bytes(total, units, true);
     text = " / " + parts.join(" ");
     units = parts[1];
 
@@ -133,7 +133,7 @@ export function validate_lvm2_name(name) {
         return _("Name cannot be empty.");
     if (name.length > 127)
         return _("Name cannot be longer than 127 characters.");
-    var m = name.match(/[^a-zA-Z0-9+._-]/);
+    const m = name.match(/[^a-zA-Z0-9+._-]/);
     if (m) {
         if (m[0].search(/\s+/) === -1)
             return cockpit.format(_("Name cannot contain the character '$0'."), m[0]);
@@ -143,15 +143,15 @@ export function validate_lvm2_name(name) {
 }
 
 export function validate_fsys_label(label, type) {
-    var fs_label_max = {
+    const fs_label_max = {
         xfs:   12,
         ext4:  16,
         vfat:  11,
         ntfs: 128,
     };
 
-    var limit = fs_label_max[type.replace("luks+", "")];
-    var bytes = cockpit.utf8_encoder().encode(label);
+    const limit = fs_label_max[type.replace("luks+", "")];
+    const bytes = cockpit.utf8_encoder().encode(label);
     if (limit && bytes.length > limit) {
         // Let's not confuse people with encoding issues unless
         // they use funny characters.
@@ -195,7 +195,7 @@ export function mdraid_name(mdraid) {
 }
 
 export function lvol_name(lvol) {
-    var type;
+    let type;
     if (lvol.Type == "pool")
         type = _("Pool for thin logical volumes");
     else if (lvol.ThinPool != "/")
@@ -208,13 +208,13 @@ export function lvol_name(lvol) {
 }
 
 export function drive_name(drive) {
-    var name_parts = [];
+    const name_parts = [];
     if (drive.Vendor)
         name_parts.push(drive.Vendor);
     if (drive.Model)
         name_parts.push(drive.Model);
 
-    var name = name_parts.join(" ");
+    let name = name_parts.join(" ");
     if (drive.Serial)
         name += " (" + drive.Serial + ")";
     else if (drive.WWN)
@@ -224,7 +224,7 @@ export function drive_name(drive) {
 }
 
 export function get_block_link_parts(client, path) {
-    var is_part, is_crypt, is_lvol;
+    let is_part, is_crypt, is_lvol;
 
     while (true) {
         if (client.blocks_part[path] && client.blocks_ptable[client.blocks_part[path].Table]) {
@@ -240,22 +240,22 @@ export function get_block_link_parts(client, path) {
     if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
         is_lvol = true;
 
-    var block = client.blocks[path];
+    const block = client.blocks[path];
     if (!block)
         return;
 
-    var location, link;
+    let location, link;
     if (client.mdraids[block.MDRaid]) {
         location = ["mdraid", client.mdraids[block.MDRaid].UUID];
         link = cockpit.format(_("RAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
-        var target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
+        const target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
         location = ["vg", target];
         link = cockpit.format(_("Volume group $0"), target);
     } else {
-        var vdo = client.vdo_overlay.find_by_block(block);
+        const vdo = client.vdo_overlay.find_by_block(block);
         if (vdo) {
             location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO device $0"), vdo.name);
@@ -269,7 +269,7 @@ export function get_block_link_parts(client, path) {
     }
 
     // Partitions of logical volumes are shown as just logical volumes.
-    var format;
+    let format;
     if (is_lvol && is_crypt)
         format = _("Encrypted logical volume of $0");
     else if (is_part && is_crypt)
@@ -291,20 +291,20 @@ export function get_block_link_parts(client, path) {
 }
 
 export function go_to_block(client, path) {
-    var parts = get_block_link_parts(client, path);
+    const parts = get_block_link_parts(client, path);
     cockpit.location.go(parts.location);
 }
 
 export function get_partitions(client, block) {
-    var partitions = client.blocks_partitions[block.path];
+    const partitions = client.blocks_partitions[block.path];
 
     function process_level(level, container_start, container_size) {
-        var n;
-        var last_end = container_start;
-        var total_end = container_start + container_size;
-        var block, start, size, is_container, is_contained;
+        let n;
+        let last_end = container_start;
+        const total_end = container_start + container_size;
+        let block, start, size, is_container, is_contained;
 
-        var result = [];
+        const result = [];
 
         function append_free_space(start, size) {
             // There is a lot of rounding and aligning going on in
@@ -372,10 +372,10 @@ export function get_partitions(client, block) {
 
 export function get_available_spaces(client) {
     function is_free(path) {
-        var block = client.blocks[path];
-        var block_ptable = client.blocks_ptable[path];
-        var block_part = client.blocks_part[path];
-        var block_pvol = client.blocks_pvol[path];
+        const block = client.blocks[path];
+        const block_ptable = client.blocks_ptable[path];
+        const block_part = client.blocks_part[path];
+        const block_pvol = client.blocks_pvol[path];
 
         function has_fs_label() {
             if (!block.IdUsage)
@@ -394,8 +394,8 @@ export function get_available_spaces(client) {
                 // Broken multipath drive
                 return true;
             }
-            var members = client.drives_multipath_blocks[block.Drive];
-            for (var i = 0; i < members.length; i++) {
+            const members = client.drives_multipath_blocks[block.Drive];
+            for (let i = 0; i < members.length; i++) {
                 if (members[i] == block)
                     return true;
             }
@@ -416,19 +416,19 @@ export function get_available_spaces(client) {
     }
 
     function make(path) {
-        var block = client.blocks[path];
-        var parts = get_block_link_parts(client, path);
-        var text = cockpit.format(parts.format, parts.link);
+        const block = client.blocks[path];
+        const parts = get_block_link_parts(client, path);
+        const text = cockpit.format(parts.format, parts.link);
         return { type: 'block', block: block, size: block.Size, desc: text };
     }
 
-    var spaces = Object.keys(client.blocks).filter(is_free)
+    const spaces = Object.keys(client.blocks).filter(is_free)
             .sort(make_block_path_cmp(client))
             .map(make);
 
     function add_free_spaces(block) {
-        var parts = get_partitions(client, block);
-        var i, p, link_parts, text;
+        const parts = get_partitions(client, block);
+        let i, p, link_parts, text;
         for (i in parts) {
             p = parts[i];
             if (p.type == 'free') {
@@ -442,7 +442,7 @@ export function get_available_spaces(client) {
         }
     }
 
-    for (var p in client.blocks_ptable)
+    for (const p in client.blocks_ptable)
         add_free_spaces(client.blocks[p]);
 
     return spaces;
@@ -453,7 +453,7 @@ export function prepare_available_spaces(client, spcs) {
         if (spc.type == 'block')
             return cockpit.resolve(spc.block.path);
         else if (spc.type == 'free') {
-            var block_ptable = client.blocks_ptable[spc.block.path];
+            const block_ptable = client.blocks_ptable[spc.block.path];
             return block_ptable.CreatePartition(spc.start, spc.size, "", "", { });
         }
     }
@@ -483,7 +483,7 @@ export function make_block_path_cmp(client) {
     };
 }
 
-var multipathd_service;
+let multipathd_service;
 
 export function get_multipathd_service () {
     if (!multipathd_service)
@@ -507,7 +507,7 @@ export function get_parent(client, path) {
 }
 
 export function get_direct_parent_blocks(client, path) {
-    var parent = get_parent(client, path);
+    let parent = get_parent(client, path);
     if (!parent)
         return [];
     if (client.blocks[parent])
@@ -522,16 +522,16 @@ export function get_direct_parent_blocks(client, path) {
 }
 
 export function get_parent_blocks(client, path) {
-    var direct_parents = get_direct_parent_blocks(client, path);
-    var direct_and_indirect_parents = flatten(direct_parents.map(function (p) {
+    const direct_parents = get_direct_parent_blocks(client, path);
+    const direct_and_indirect_parents = flatten(direct_parents.map(function (p) {
         return get_parent_blocks(client, p);
     }));
     return [path].concat(direct_and_indirect_parents);
 }
 
 export function is_netdev(client, path) {
-    var block = client.blocks[path];
-    var drive = block && client.drives[block.Drive];
+    const block = client.blocks[path];
+    const drive = block && client.drives[block.Drive];
     if (drive && drive.Vendor == "LIO-ORG")
         return true;
     if (block && block.Major == 43) // NBD
@@ -540,7 +540,7 @@ export function is_netdev(client, path) {
 }
 
 function get_children(client, path) {
-    var children = [];
+    const children = [];
 
     if (client.blocks_cleartext[path]) {
         children.push(client.blocks_cleartext[path].path);
@@ -554,7 +554,7 @@ function get_children(client, path) {
     }
 
     if (client.blocks_part[path] && client.blocks_part[path].IsContainer) {
-        var ptable_path = client.blocks_part[path].Table;
+        const ptable_path = client.blocks_part[path].Table;
         client.blocks_partitions[ptable_path].forEach(function (part) {
             if (part.IsContained)
                 children.push(part.path);
@@ -573,14 +573,14 @@ function get_children(client, path) {
 
 export function get_active_usage(client, path) {
     function get_usage(path) {
-        var block = client.blocks[path];
-        var fsys = client.blocks_fsys[path];
-        var mdraid = block && client.mdraids[block.MDRaidMember];
-        var pvol = client.blocks_pvol[path];
-        var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
-        var vdo = block && client.vdo_overlay.find_by_backing_block(block);
+        const block = client.blocks[path];
+        const fsys = client.blocks_fsys[path];
+        const mdraid = block && client.mdraids[block.MDRaidMember];
+        const pvol = client.blocks_pvol[path];
+        const vgroup = pvol && client.vgroups[pvol.VolumeGroup];
+        const vdo = block && client.vdo_overlay.find_by_backing_block(block);
 
-        var usage = flatten(get_children(client, path).map(get_usage));
+        const usage = flatten(get_children(client, path).map(get_usage));
 
         if (fsys && fsys.MountPoints.length > 0)
             usage.push({
@@ -616,9 +616,9 @@ export function get_active_usage(client, path) {
 
     // Prepare the result for the dialogs
 
-    var usage = get_usage(path);
+    const usage = get_usage(path);
 
-    var res = {
+    const res = {
         raw: usage,
         Teardown: {
             Mounts: [],
@@ -634,7 +634,7 @@ export function get_active_usage(client, path) {
     };
 
     usage.forEach(function (use) {
-        var entry, active_state;
+        let entry, active_state;
 
         if (use.usage == 'mounted') {
             res.Teardown.Mounts.push({
@@ -715,8 +715,8 @@ export function teardown_active_usage(client, usage) {
     }
 
     function pvol_remove(pvols) {
-        var by_vgroup = { };
-        var p;
+        const by_vgroup = { };
+        let p;
         pvols.forEach(function (p) {
             if (!by_vgroup[p.vgroup.path])
                 by_vgroup[p.vgroup.path] = [];
@@ -724,8 +724,8 @@ export function teardown_active_usage(client, usage) {
         });
 
         function handle_vg(p) {
-            var vg = client.vgroups[p];
-            var pvs = by_vgroup[p];
+            const vg = client.vgroups[p];
+            const pvs = by_vgroup[p];
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
             if (pvs.length == client.vgroups_pvols[p].length) {
@@ -748,7 +748,7 @@ export function teardown_active_usage(client, usage) {
 
 // TODO - generalize this to arbitrary number of arguments (when needed)
 export function fmt_to_array(fmt, arg) {
-    var index = fmt.indexOf("$0");
+    const index = fmt.indexOf("$0");
     if (index >= 0)
         return [fmt.slice(0, index), arg, fmt.slice(index + 2)];
     else

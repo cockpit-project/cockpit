@@ -39,12 +39,12 @@ const _ = cockpit.gettext;
 
 class MDRaidSidebar extends React.Component {
     render() {
-        var self = this;
-        var client = self.props.client;
-        var mdraid = self.props.mdraid;
+        const self = this;
+        const client = self.props.client;
+        const mdraid = self.props.mdraid;
 
         function filter_inside_mdraid(spc) {
-            var block = spc.block;
+            let block = spc.block;
             if (client.blocks_part[block.path])
                 block = client.blocks[client.blocks_part[block.path].Table];
             return block && block.MDRaid != mdraid.path;
@@ -79,11 +79,11 @@ class MDRaidSidebar extends React.Component {
             });
         }
 
-        var members = client.mdraids_members[mdraid.path] || [];
-        var dynamic_members = (mdraid.Level != "raid0");
+        const members = client.mdraids_members[mdraid.path] || [];
+        const dynamic_members = (mdraid.Level != "raid0");
 
-        var n_spares = 0;
-        var n_recovering = 0;
+        let n_spares = 0;
+        let n_recovering = 0;
         mdraid.ActiveDevices.forEach(function(as) {
             if (as[2].indexOf("spare") >= 0) {
                 if (as[1] < 0)
@@ -94,12 +94,12 @@ class MDRaidSidebar extends React.Component {
         });
 
         /* Older versions of Udisks/storaged don't have a Running property */
-        var running = mdraid.Running;
+        let running = mdraid.Running;
         if (running === undefined)
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
         function render_member(block) {
-            var active_state = utils.array_find(mdraid.ActiveDevices, function(as) {
+            const active_state = utils.array_find(mdraid.ActiveDevices, function(as) {
                 return as[0] == block.path;
             });
 
@@ -113,16 +113,16 @@ class MDRaidSidebar extends React.Component {
                 }[state] || cockpit.format(_("Unknown ($0)"), state);
             }
 
-            var slot = active_state && active_state[1] >= 0 && active_state[1].toString();
-            var states = active_state && active_state[2].map(state_text).join(", ");
+            const slot = active_state && active_state[1] >= 0 && active_state[1].toString();
+            let states = active_state && active_state[2].map(state_text).join(", ");
 
             if (slot)
                 states = cockpit.format(_("Slot $0"), slot) + ", " + states;
 
-            var is_in_sync = (active_state && active_state[2].indexOf("in_sync") >= 0);
-            var is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
+            const is_in_sync = (active_state && active_state[2].indexOf("in_sync") >= 0);
+            const is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
 
-            var remove_excuse = false;
+            let remove_excuse = false;
             if (!running)
                 remove_excuse = _("The RAID device must be running in order to remove disks.");
             else if ((is_in_sync && n_recovering > 0) || is_recovering)
@@ -151,7 +151,7 @@ class MDRaidSidebar extends React.Component {
                                    key={block.path} />);
         }
 
-        var add_excuse = false;
+        let add_excuse = false;
         if (!running)
             add_excuse = _("The RAID device must be running in order to add spare disks.");
 
@@ -171,9 +171,9 @@ class MDRaidSidebar extends React.Component {
 
 export class MDRaidDetails extends React.Component {
     render() {
-        var client = this.props.client;
-        var mdraid = this.props.mdraid;
-        var block = mdraid && client.mdraids_block[mdraid.path];
+        const client = this.props.client;
+        const mdraid = this.props.mdraid;
+        const block = mdraid && client.mdraids_block[mdraid.path];
 
         function format_level(str) {
             return {
@@ -186,7 +186,7 @@ export class MDRaidDetails extends React.Component {
             }[str] || cockpit.format(_("RAID ($0)"), str);
         }
 
-        var level = format_level(mdraid.Level);
+        let level = format_level(mdraid.Level);
         if (mdraid.NumDevices > 0)
             level += ", " + cockpit.format(_("$0 disks"), mdraid.NumDevices);
         if (mdraid.ChunkSize > 0)
@@ -196,9 +196,9 @@ export class MDRaidDetails extends React.Component {
             return mdraid.SetBitmapLocation(utils.encode_filename(val ? 'internal' : 'none'), {});
         }
 
-        var bitmap = null;
+        let bitmap = null;
         if (mdraid.BitmapLocation) {
-            var value = utils.decode_filename(mdraid.BitmapLocation) != "none";
+            const value = utils.decode_filename(mdraid.BitmapLocation) != "none";
             bitmap = (
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("storage", "Bitmap")}</DescriptionListTerm>
@@ -209,9 +209,9 @@ export class MDRaidDetails extends React.Component {
             );
         }
 
-        var degraded_message = null;
+        let degraded_message = null;
         if (mdraid.Degraded > 0) {
-            var text = cockpit.format(
+            const text = cockpit.format(
                 cockpit.ngettext("$0 disk is missing", "$0 disks are missing", mdraid.Degraded),
                 mdraid.Degraded
             );
@@ -221,7 +221,7 @@ export class MDRaidDetails extends React.Component {
         }
 
         /* Older versions of Udisks/storaged don't have a Running property */
-        var running = mdraid.Running;
+        let running = mdraid.Running;
         if (running === undefined)
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
@@ -230,7 +230,7 @@ export class MDRaidDetails extends React.Component {
         }
 
         function stop() {
-            var usage = utils.get_active_usage(client, block ? block.path : "");
+            const usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
                 dialog_open({
@@ -262,7 +262,7 @@ export class MDRaidDetails extends React.Component {
         }
 
         function delete_dialog() {
-            var location = cockpit.location;
+            const location = cockpit.location;
 
             function delete_() {
                 if (mdraid.Delete)
@@ -282,7 +282,7 @@ export class MDRaidDetails extends React.Component {
                     return wipe_members();
             }
 
-            var usage = utils.get_active_usage(client, block ? block.path : "");
+            const usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
                 dialog_open({
@@ -310,7 +310,7 @@ export class MDRaidDetails extends React.Component {
             });
         }
 
-        var header = (
+        const header = (
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{ cockpit.format(_("RAID device $0"), utils.mdraid_name(mdraid)) }</Text></CardTitle>
@@ -356,9 +356,9 @@ export class MDRaidDetails extends React.Component {
             </Card>
         );
 
-        var sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid} />;
+        const sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid} />;
 
-        var content = <Block client={this.props.client} block={block} />;
+        const content = <Block client={this.props.client} block={block} />;
 
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
                                  header={ header }

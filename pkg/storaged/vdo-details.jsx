@@ -46,12 +46,12 @@ export class VDODetails extends React.Component {
     }
 
     ensure_polling(enable) {
-        var client = this.props.client;
-        var vdo = this.props.vdo;
-        var block = client.slashdevs_block[vdo.dev];
-        var path = enable && block ? vdo.dev : null;
+        const client = this.props.client;
+        const vdo = this.props.vdo;
+        const block = client.slashdevs_block[vdo.dev];
+        const path = enable && block ? vdo.dev : null;
 
-        var buf = "";
+        let buf = "";
 
         if (this.poll_path === path)
             return;
@@ -66,7 +66,7 @@ export class VDODetails extends React.Component {
                     .input(inotify_py + vdo_monitor_py)
                     .stream((data) => {
                         buf += data;
-                        var lines = buf.split("\n");
+                        const lines = buf.split("\n");
                         buf = lines[lines.length - 1];
                         if (lines.length >= 2) {
                             this.setState({ stats: JSON.parse(lines[lines.length - 2]) });
@@ -88,20 +88,20 @@ export class VDODetails extends React.Component {
     }
 
     render() {
-        var client = this.props.client;
-        var vdo = this.props.vdo;
-        var block = client.slashdevs_block[vdo.dev];
-        var backing_block = client.slashdevs_block[vdo.backing_dev];
+        const client = this.props.client;
+        const vdo = this.props.vdo;
+        const block = client.slashdevs_block[vdo.dev];
+        const backing_block = client.slashdevs_block[vdo.backing_dev];
 
         function force_delete() {
-            var location = cockpit.location;
+            const location = cockpit.location;
             return vdo.force_remove().then(function () {
                 location.go("/");
             });
         }
 
         if (vdo.broken) {
-            var broken = (
+            const broken = (
                 <Alert variant='danger' isInline title={
                     <>
                         <StorageButton onClick={force_delete}>{_("Remove device")}</StorageButton>
@@ -111,7 +111,7 @@ export class VDODetails extends React.Component {
             return <StdDetailsLayout client={this.props.client} alert={broken} />;
         }
 
-        var alert = null;
+        let alert = null;
         if (backing_block && backing_block.Size > vdo.physical_size)
             alert = (
                 <Alert variant='warning' isInline
@@ -124,7 +124,7 @@ export class VDODetails extends React.Component {
             );
 
         function stop() {
-            var usage = get_active_usage(client, block ? block.path : "/");
+            const usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
                 dialog_open({
@@ -155,7 +155,7 @@ export class VDODetails extends React.Component {
         }
 
         function delete_() {
-            var usage = get_active_usage(client, block ? block.path : "/");
+            const usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
                 dialog_open({
@@ -204,7 +204,7 @@ export class VDODetails extends React.Component {
                         return (teardown_active_usage(client, usage)
                                 .then(teardown_configs)
                                 .then(function () {
-                                    var location = cockpit.location;
+                                    const location = cockpit.location;
                                     return vdo.remove().then(function () {
                                         location.go("/");
                                     });
@@ -249,9 +249,9 @@ export class VDODetails extends React.Component {
                 return "--";
         }
 
-        var stats = this.state.stats;
+        const stats = this.state.stats;
 
-        var header = (
+        const header = (
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO device $0"), vdo.name)}</Text></CardTitle>
@@ -335,7 +335,7 @@ export class VDODetails extends React.Component {
             </Card>
         );
 
-        var content = <Block client={client} block={block} allow_partitions={false} />;
+        const content = <Block client={client} block={block} allow_partitions={false} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  alert={alert}

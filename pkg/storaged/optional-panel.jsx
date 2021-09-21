@@ -72,14 +72,14 @@ export class OptionalPanel extends React.Component {
     }
 
     render() {
-        var self = this;
-        var {
+        const self = this;
+        const {
             actions, className, id, title,
             feature, not_installed_text, install_title
         } = this.props;
 
-        var feature_enabled = !feature || feature.is_enabled();
-        var required_package = feature && feature.package;
+        const feature_enabled = !feature || feature.is_enabled();
+        const required_package = feature && feature.package;
 
         if (!feature_enabled && !(required_package && this.props.client.features.packagekit))
             return null;
@@ -94,7 +94,7 @@ export class OptionalPanel extends React.Component {
                                                   () => null /* ignore cancel */);
         }
 
-        var heading_right = null;
+        let heading_right = null;
         if (!feature_enabled) {
             heading_right = <StorageButton kind="primary" onClick={install}>{install_title}</StorageButton>;
         } else {

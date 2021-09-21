@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 
 export class PartitionTab extends React.Component {
     render() {
-        var block_part = this.props.client.blocks_part[this.props.block.path];
+        const block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">

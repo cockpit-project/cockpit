@@ -37,8 +37,8 @@ export class IscsiPanel extends React.Component {
     }
 
     render() {
-        var self = this;
-        var client = this.props.client;
+        const self = this;
+        const client = this.props.client;
 
         function iscsi_discover() {
             dialog_open({
@@ -52,15 +52,15 @@ export class IscsiPanel extends React.Component {
                 Action: {
                     Title: _("Next"),
                     action: function (vals, progress_callback) {
-                        var dfd = cockpit.defer();
+                        const dfd = cockpit.defer();
 
-                        var options = { };
+                        const options = { };
                         if (vals.username || vals.password) {
                             options.username = { t: 's', v: vals.username };
                             options.password = { t: 's', v: vals.password };
                         }
 
-                        var cancelled = false;
+                        let cancelled = false;
                         client.manager_iscsi.call('DiscoverSendTargets',
                                                   [vals.address,
                                                       0,
@@ -106,7 +106,7 @@ export class IscsiPanel extends React.Component {
         }
 
         function iscsi_login(target, cred_vals) {
-            var options = {
+            const options = {
                 'node.startup': { t: 's', v: "automatic" }
             };
             if (cred_vals.username || cred_vals.password) {
@@ -181,7 +181,7 @@ export class IscsiPanel extends React.Component {
         function iscsi_change_name() {
             client.manager_iscsi.call('GetInitiatorName')
                     .then(function (results) {
-                        var name = results[0];
+                        const name = results[0];
                         dialog_open({
                             Title: _("Change iSCSI initiator name"),
                             Fields: [
@@ -201,23 +201,23 @@ export class IscsiPanel extends React.Component {
         }
 
         function cmp_session(path_a, path_b) {
-            var a = client.iscsi_sessions[path_a];
-            var b = client.iscsi_sessions[path_b];
-            var a_name = a.data.target_name || "";
-            var b_name = b.data.target_name || "";
+            const a = client.iscsi_sessions[path_a];
+            const b = client.iscsi_sessions[path_b];
+            const a_name = a.data.target_name || "";
+            const b_name = b.data.target_name || "";
 
             return a_name.localeCompare(b_name);
         }
 
         function make_session(path) {
-            var session = client.iscsi_sessions[path];
+            const session = client.iscsi_sessions[path];
 
             function iscsi_remove() {
                 self.setState({ armed: false });
                 return session.Logout({ 'node.startup': { t: 's', v: "manual" } });
             }
 
-            var actions = null;
+            let actions = null;
             if (self.state.armed)
                 actions = (
                     <StorageButton kind="danger" onClick={iscsi_remove}>
@@ -242,10 +242,10 @@ export class IscsiPanel extends React.Component {
             this.setState({ armed: !this.state.armed });
         };
 
-        var sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)
+        const sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)
                 .map(make_session);
 
-        var actions = (
+        const actions = (
             <>
                 { sessions.length > 0
                     ? <Button aria-label={_("Toggle")} variant="secondary" className={"toggle-armed" + (this.state.armed ? " active" : "")}
@@ -262,7 +262,7 @@ export class IscsiPanel extends React.Component {
             </>
         );
 
-        var iscsi_feature = {
+        const iscsi_feature = {
             is_enabled: () => client.features.iscsi
         };
 

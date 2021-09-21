@@ -55,18 +55,18 @@ function lvol_rename(lvol) {
 }
 
 function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
-    var block, crypto, fsys;
-    var crypto_overhead;
-    var vdo;
-    var orig_size = lvol.Size;
+    let fsys;
+    let crypto_overhead;
+    let vdo;
+    const orig_size = lvol.Size;
 
-    block = client.lvols_block[lvol.path];
+    const block = client.lvols_block[lvol.path];
     if (!block)
         return lvol.Resize(size, { });
 
-    crypto = client.blocks_crypto[block.path];
+    const crypto = client.blocks_crypto[block.path];
     if (crypto) {
-        var cleartext = client.blocks_cleartext[block.path];
+        const cleartext = client.blocks_cleartext[block.path];
         if (!cleartext)
             return;
         fsys = client.blocks_fsys[cleartext.path];
@@ -160,8 +160,8 @@ function get_resize_info(client, block, to_fit) {
 
     if (block) {
         if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
-            var encrypted = client.blocks_crypto[block.path];
-            var cleartext = client.blocks_cleartext[block.path];
+            const encrypted = client.blocks_crypto[block.path];
+            const cleartext = client.blocks_cleartext[block.path];
 
             if (!encrypted.Resize) {
                 info = { };
@@ -218,11 +218,11 @@ function get_resize_info(client, block, to_fit) {
 }
 
 function lvol_grow(client, lvol, info, to_fit) {
-    var block = client.lvols_block[lvol.path];
-    var vgroup = client.vgroups[lvol.VolumeGroup];
-    var pool = client.lvols[lvol.ThinPool];
+    const block = client.lvols_block[lvol.path];
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+    const pool = client.lvols[lvol.ThinPool];
 
-    var usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
+    const usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
         dialog_open({
@@ -282,10 +282,10 @@ function lvol_grow(client, lvol, info, to_fit) {
 }
 
 function lvol_shrink(client, lvol, info, to_fit) {
-    var block = client.lvols_block[lvol.path];
-    var vgroup = client.vgroups[lvol.VolumeGroup];
+    const block = client.lvols_block[lvol.path];
+    const vgroup = client.vgroups[lvol.VolumeGroup];
 
-    var usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
+    const usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
         dialog_open({
@@ -369,20 +369,20 @@ function lvol_shrink(client, lvol, info, to_fit) {
 
 export class BlockVolTab extends React.Component {
     render() {
-        var self = this;
-        var client = self.props.client;
-        var lvol = self.props.lvol;
-        var pool = client.lvols[lvol.ThinPool];
-        var block = client.lvols_block[lvol.path];
-        var vgroup = client.vgroups[lvol.VolumeGroup];
-        var unused_space_warning = self.props.warnings.find(w => w.warning == "unused-space");
-        var unused_space = !!unused_space_warning;
+        const self = this;
+        const client = self.props.client;
+        const lvol = self.props.lvol;
+        const pool = client.lvols[lvol.ThinPool];
+        const block = client.lvols_block[lvol.path];
+        const vgroup = client.vgroups[lvol.VolumeGroup];
+        const unused_space_warning = self.props.warnings.find(w => w.warning == "unused-space");
+        const unused_space = !!unused_space_warning;
 
         function rename() {
             lvol_rename(lvol);
         }
 
-        var { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
+        let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
 
         if (!unused_space && !grow_excuse && !pool && vgroup.FreeSize == 0) {
             grow_excuse = (
@@ -450,7 +450,7 @@ export class BlockVolTab extends React.Component {
 
 export class PoolVolTab extends React.Component {
     render() {
-        var self = this;
+        const self = this;
 
         function perc(ratio) {
             return (ratio * 100).toFixed(0) + "%";

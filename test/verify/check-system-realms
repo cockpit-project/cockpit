@@ -83,7 +83,12 @@ class CommonTests:
         # Tell realmd to enable domain-qualified logins; unqualified ones are covered in testUnqualifiedUsers
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = yes\n", append=True)
 
-        self.login_and_go("/system")
+        # Test that we reconnect on privileges change
+        self.login_and_go("/system", superuser=False)
+        b.click("button:contains('Turn on administrative access')")
+        b.set_input_text("#switch-to-admin-access-password", "foobar")
+        b.click("button:contains('Authenticate')")
+        b.wait_not_present("#switch-to-admin-access-password")
 
         def wait_number_domains(n):
             if n == 0:

@@ -572,7 +572,8 @@ export class FilesystemTab extends React.Component {
                     type: { t: 'ay', v: utils.encode_filename("auto") },
                     opts: { t: 'ay', v: utils.encode_filename(all_new_opts || "defaults") },
                     freq: { t: 'i', v: 0 },
-                    passno: { t: 'i', v: 0 }
+                    passno: { t: 'i', v: 0 },
+                    "track-parents": { t: 'b', v: !old_config }
                 }];
 
             function fixup_crypto_backing() {

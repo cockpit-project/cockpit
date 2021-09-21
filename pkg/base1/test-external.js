@@ -6,13 +6,13 @@ QUnit.test("external get", function (assert) {
     assert.expect(4);
 
     /* The query string used to open the channel */
-    var query = window.btoa(JSON.stringify({
+    const query = window.btoa(JSON.stringify({
         payload: "fslist1",
         path: "/tmp",
         watch: false
     }));
 
-    var req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open("GET", "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query);
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
@@ -30,7 +30,7 @@ QUnit.test("external headers", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var query = window.btoa(JSON.stringify({
+    const query = window.btoa(JSON.stringify({
         payload: "fslist1",
         path: "/tmp",
         watch: false,
@@ -40,7 +40,7 @@ QUnit.test("external headers", function (assert) {
         },
     }));
 
-    var req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open("GET", "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query);
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
@@ -57,7 +57,7 @@ QUnit.test("external invalid", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open("GET", "/cockpit/channel/invalid");
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
@@ -73,13 +73,13 @@ QUnit.test("external no token", function (assert) {
     assert.expect(1);
 
     /* The query string used to open the channel */
-    var query = window.btoa(JSON.stringify({
+    const query = window.btoa(JSON.stringify({
         payload: "fslist1",
         path: "/tmp",
         watch: false
     }));
 
-    var req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open("GET", "/cockpit/channel/?" + query);
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
@@ -94,13 +94,13 @@ QUnit.test("external websocket", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var query = window.btoa(JSON.stringify({
+    const query = window.btoa(JSON.stringify({
         payload: "echo"
     }));
 
-    var count = 0;
-    var ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
-                           cockpit.transport.csrf_token + '?' + query, "protocol-unused");
+    let count = 0;
+    const ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
+                             cockpit.transport.csrf_token + '?' + query, "protocol-unused");
     ws.onopen = function() {
         assert.ok(true, "websocket is open");
         ws.send("oh marmalade");

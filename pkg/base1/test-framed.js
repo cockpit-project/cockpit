@@ -11,8 +11,8 @@ function parent_window(assert) {
 
     document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
     window.name = "cockpit1";
-    var initialized = false;
-    var frame;
+    let initialized = false;
+    let frame;
 
     cockpit.transport.filter(function(message, channel, control) {
         if (initialized)
@@ -48,8 +48,8 @@ function parent_window(assert) {
 function child_frame() {
     const assert = window.parent.assert;
 
-    var spawn_done = false;
-    var binary_done = false;
+    let spawn_done = false;
+    let binary_done = false;
 
     const promise = cockpit.spawn(["/bin/sh", "-c", "echo hi"], { host : "localhost" })
             .then(resp => {

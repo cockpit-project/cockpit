@@ -4,7 +4,7 @@ import QUnit from "qunit-tests";
 /* Set this to a regexp to ignore that warning once */
 /*
 function console_ignore_warning(exp) {
-    var console_warn = console.warn;
+    const console_warn = console.warn;
     console.warn = function() {
         if (!exp.exec(arguments[0]))
             console_warn.apply(console, arguments);
@@ -14,7 +14,7 @@ function console_ignore_warning(exp) {
 */
 
 QUnit.test("public api", function (assert) {
-    var client = cockpit.http("/test");
+    const client = cockpit.http("/test");
     assert.equal(typeof client, "object", "http is an object");
     assert.equal(typeof client.get, "function", "http.get() is a function");
     assert.equal(typeof client.post, "function", "http.post() is a function");
@@ -104,7 +104,7 @@ QUnit.test("not found", function (assert) {
     const done = assert.async();
     assert.expect(7);
 
-    var promise = cockpit.http({ internal: "/test-server" })
+    const promise = cockpit.http({ internal: "/test-server" })
             .get("/not/found")
             .response(function(status, headers) {
                 assert.equal(status, 404, "status code");
@@ -126,9 +126,9 @@ QUnit.test("streaming", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var at = 0;
-    var got = "";
-    var promise = cockpit.http({ internal: "/test-server" })
+    let at = 0;
+    let got = "";
+    const promise = cockpit.http({ internal: "/test-server" })
             .get("/mock/stream")
             .stream(function(resp) {
                 if (at === 0)
@@ -137,8 +137,8 @@ QUnit.test("streaming", function (assert) {
                 at++;
             })
             .always(function() {
-                var expected = "";
-                for (var i = 0; i < at; i++)
+                let expected = "";
+                for (let i = 0; i < at; i++)
                     expected += String(i) + " ";
                 assert.equal(got, expected, "stream got right data");
                 assert.equal(this.state(), "resolved", "split response didn't fail");
@@ -150,9 +150,9 @@ QUnit.test("close", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var req = cockpit.http({ internal: "/test-server" }).get("/mock/stream");
+    const req = cockpit.http({ internal: "/test-server" }).get("/mock/stream");
 
-    var at = 0;
+    let at = 0;
     req.stream(function(resp) {
         at += 1;
         assert.equal(resp, "0 ", "first stream part");
@@ -172,10 +172,10 @@ QUnit.test("close all", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var http = cockpit.http({ internal: "/test-server" });
-    var req = http.get("/mock/stream");
+    const http = cockpit.http({ internal: "/test-server" });
+    const req = http.get("/mock/stream");
 
-    var at = 0;
+    let at = 0;
     req.stream(function(resp) {
         at += 1;
         assert.equal(resp, "0 ", "first stream part");
@@ -264,16 +264,16 @@ QUnit.test("connection headers", function (assert) {
 QUnit.test("http promise recursive", function (assert) {
     assert.expect(7);
 
-    var promise = cockpit.http({ internal: "/test-server" }).get("/");
+    const promise = cockpit.http({ internal: "/test-server" }).get("/");
 
-    var target = { };
-    var promise2 = promise.promise(target);
+    const target = { };
+    const promise2 = promise.promise(target);
     assert.strictEqual(promise2, target, "used target");
     assert.equal(typeof promise2.done, "function", "promise2.done()");
     assert.equal(typeof promise2.promise, "function", "promise2.promise()");
     assert.equal(typeof promise2.input, "function", "promise2.input()");
 
-    var promise3 = promise2.promise();
+    const promise3 = promise2.promise();
     assert.equal(typeof promise3.done, "function", "promise3.done()");
     assert.equal(typeof promise3.promise, "function", "promise3.promise()");
     assert.equal(typeof promise3.input, "function", "promise3.input()");
@@ -288,13 +288,12 @@ QUnit.test("http keep alive", function (assert) {
      * a different connection is used.
      */
 
-    var first;
     cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
-                first = data;
+                const first = data;
                 cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
                         .done(function(data) {
                             assert.equal(first, data, "same connection");
@@ -315,13 +314,12 @@ QUnit.test("http connection different", function (assert) {
      * a different connection is used.
      */
 
-    var first;
     cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
-                first = data;
+                const first = data;
                 cockpit.http({ internal: "/test-server", connection: "two" }).get("/mock/connection")
                         .done(function(data) {
                             assert.notEqual(first, data, "different connection");
@@ -341,13 +339,12 @@ QUnit.test("http connection without address ", function (assert) {
      * Able to reuse connection client info and not specify address again.
      */
 
-    var first;
     cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
-                first = data;
+                const first = data;
                 cockpit.http({ connection: "one" }).get("/mock/connection")
                         .done(function(data) {
                             assert.equal(first, data, "different connection");

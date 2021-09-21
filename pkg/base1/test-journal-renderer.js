@@ -23,7 +23,7 @@ import { journal } from "journal";
 const debug = false;
 
 function pk(label, obj) {
-    var str = label;
+    let str = label;
     if (obj) {
         str += ": ";
         str += obj.toSource();
@@ -37,7 +37,7 @@ function dbg(label, obj) {
 }
 
 const time = 0;
-var bootid = 0;
+let bootid = 0;
 
 function make_entry(message) {
     return {
@@ -56,9 +56,9 @@ function reboot() {
     bootid += 1;
 }
 
-var output;
-var renderer;
-var expected_day;
+let output;
+let renderer;
+let expected_day;
 
 const funcs = {
     render_line: (ident, prio, message, count, time, cursor) => ({ message: message, count: count }),

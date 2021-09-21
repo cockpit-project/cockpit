@@ -48,8 +48,8 @@ function MockPeer() {
         }, 5);
     };
 
-    var peer = this;
-    var last_channel = 0;
+    const peer = this;
+    let last_channel = 0;
 
     function MockChannel(options) {
         cockpit.event_target(this);
@@ -57,7 +57,7 @@ function MockPeer() {
         this.options = options;
         this.valid = true;
 
-        var channel = this;
+        const channel = this;
 
         function Transport() {
             this.close = function(problem) { console.assert(arguments.length == 1) };
@@ -86,19 +86,18 @@ function MockPeer() {
         };
 
         this.buffer = function(callback) {
-            var buffers = [];
+            const buffers = [];
             buffers.callback = callback;
             buffers.squash = function squash() {
                 return buffers.join("");
             };
 
             this.onmessage = function(event, data) {
-                var consumed, block;
                 buffers.push(data);
                 if (buffers.callback) {
-                    block = buffers.squash();
+                    const block = buffers.squash();
                     if (block.length > 0) {
-                        consumed = buffers.callback.call(this, block);
+                        const consumed = buffers.callback.call(this, block);
                         if (typeof consumed !== "number" || consumed === block.length) {
                             buffers.length = 0;
                         } else {
@@ -132,7 +131,7 @@ QUnit.test("simple request", function (assert) {
     const done = assert.async();
     assert.expect(5);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel, options) {
         assert.deepEqual(channel.options.spawn, ["/the/path", "arg1", "arg2"], "passed spawn correctly");
         assert.equal(channel.options.host, undefined, "had no host");
@@ -158,11 +157,11 @@ QUnit.test("input large", function (assert) {
     const done = assert.async();
     assert.expect(25);
 
-    var str = new Array(128 * 1024).join('abcdef12345');
-    var output = "";
-    var count = 0;
+    const str = new Array(128 * 1024).join('abcdef12345');
+    let output = "";
+    let count = 0;
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("recv", function(event, channel, payload) {
         assert.ok(typeof (payload) == "string", "got payload");
         output += payload;
@@ -187,15 +186,14 @@ QUnit.test("binary large", function (assert) {
     const done = assert.async();
     assert.expect(10);
 
-    var data = new Uint8Array(249 * 1023);
-    var i;
-    var len = data.byteLength;
-    for (i = 0; i < len; i++)
+    const data = new Uint8Array(249 * 1023);
+    const len = data.byteLength;
+    for (let i = 0; i < len; i++)
         data[i] = i % 233;
 
-    var count = 0;
+    let count = 0;
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("recv", function(event, channel, payload) {
         console.log(typeof (payload), payload.constructor);
         assert.equal(typeof (payload), "object", "got payload");
@@ -221,7 +219,7 @@ QUnit.test("string command", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel, options) {
         assert.deepEqual(channel.options.spawn, ["/the/path"], "passed spawn correctly");
         assert.equal(channel.options.host, "hostname", "had host");
@@ -235,7 +233,7 @@ QUnit.test("channel options", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel) {
         assert.deepEqual(channel.options, {
             spawn: ["/the/path", "arg"],
@@ -247,7 +245,7 @@ QUnit.test("channel options", function (assert) {
     });
 
     /* Don't care about the result ... */
-    var options = { "extra-option": "zerogjuggs", host: "the-other-host.example.com" };
+    const options = { "extra-option": "zerogjuggs", host: "the-other-host.example.com" };
     cockpit.spawn(["/the/path", "arg"], options);
 });
 
@@ -255,15 +253,15 @@ QUnit.test("streaming", function (assert) {
     const done = assert.async();
     assert.expect(15);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel) {
-        for (var i = 0; i < 10; i++)
+        for (let i = 0; i < 10; i++)
             this.send(channel, String(i));
         this.close(channel);
     });
 
-    var at = 0;
-    var promise = cockpit.spawn(["/unused"])
+    let at = 0;
+    const promise = cockpit.spawn(["/unused"])
             .stream(function(resp) {
                 assert.equal(String(at), resp, "stream got right data");
                 if (at === 0)
@@ -285,7 +283,7 @@ QUnit.test("with problem", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel) {
         peer.close(channel, { problem: "not-found" });
     });
@@ -306,7 +304,7 @@ QUnit.test("with status", function (assert) {
     const done = assert.async();
     assert.expect(5);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel) {
         peer.send(channel, "the data");
         peer.close(channel, { "exit-status": 5 });
@@ -329,7 +327,7 @@ QUnit.test("with signal", function (assert) {
     const done = assert.async();
     assert.expect(5);
 
-    var peer = new MockPeer();
+    const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel) {
         peer.send(channel, "signal data here");
         peer.close(channel, { "exit-signal": "TERM" });
@@ -351,16 +349,16 @@ QUnit.test("with signal", function (assert) {
 QUnit.test("spawn promise recursive", function (assert) {
     assert.expect(7);
 
-    var promise = cockpit.spawn(["/the/path", "arg1", "arg2"]);
+    const promise = cockpit.spawn(["/the/path", "arg1", "arg2"]);
 
-    var target = { };
-    var promise2 = promise.promise(target);
+    const target = { };
+    const promise2 = promise.promise(target);
     assert.strictEqual(promise2, target, "used target");
     assert.equal(typeof promise2.done, "function", "promise2.done()");
     assert.equal(typeof promise2.promise, "function", "promise2.promise()");
     assert.equal(typeof promise2.input, "function", "promise2.input()");
 
-    var promise3 = promise2.promise();
+    const promise3 = promise2.promise();
     assert.equal(typeof promise3.done, "function", "promise3.done()");
     assert.equal(typeof promise3.promise, "function", "promise3.promise()");
     assert.equal(typeof promise3.input, "function", "promise3.input()");

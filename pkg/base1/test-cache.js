@@ -9,13 +9,13 @@ QUnit.test("single cache", function (assert) {
     const done = assert.async();
     assert.expect(6);
 
-    var closed = false;
+    let closed = false;
 
     function provider(result, key) {
         assert.equal(key, "test-key-1", "provider got right key");
         assert.equal(typeof result, "function", "provider got result function");
 
-        var timer = window.setTimeout(function() {
+        const timer = window.setTimeout(function() {
             result({ myobject: "value" });
         }, 200);
 
@@ -38,14 +38,14 @@ QUnit.test("single cache", function (assert) {
         done();
     }
 
-    var cache = cockpit.cache("test-key-1", provider, consumer);
+    const cache = cockpit.cache("test-key-1", provider, consumer);
 });
 
 QUnit.test("multi cache", function (assert) {
     const done = assert.async();
     assert.expect(12);
 
-    var closed1 = false;
+    let closed1 = false;
 
     function provider1(result, key) {
         assert.equal(key, "test-key-b", "provider1 got right key");
@@ -64,7 +64,7 @@ QUnit.test("multi cache", function (assert) {
         assert.equal(key, "test-key-b", "provider2 got right key");
         assert.equal(typeof result, "function", "provider2 got result function");
 
-        var timer = window.setTimeout(function() {
+        const timer = window.setTimeout(function() {
             result({ myobject: "value2" });
         }, 200);
 
@@ -80,7 +80,7 @@ QUnit.test("multi cache", function (assert) {
         assert.deepEqual(value, { myobject: "value1" }, "consumer1 got right value");
     }
 
-    var count = 0;
+    let count = 0;
 
     function consumer2(value, key) {
         assert.equal(key, "test-key-b", "consumer2 got right key");
@@ -96,7 +96,7 @@ QUnit.test("multi cache", function (assert) {
         }
     }
 
-    var cache1 = cockpit.cache("test-key-b", provider1, consumer1);
+    const cache1 = cockpit.cache("test-key-b", provider1, consumer1);
     cockpit.cache("test-key-b", provider2, consumer2);
 });
 

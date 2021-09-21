@@ -37,7 +37,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         assert.equal(typeof dbus.call, "function", "is a function");
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "HelloWorld", ["Browser-side JS"])
@@ -54,7 +54,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "NeverReturn", [], { timeout: 10 })
                 .done(function(reply) {
@@ -72,7 +72,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
     QUnit.test("close immediately", function (assert) {
         const done = assert.async();
         assert.expect(1);
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.addEventListener("close", function(event, options) {
             assert.equal(options.problem, "test-code", "got right code");
             done();
@@ -87,7 +87,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "HelloWorld", ["Browser-side JS"])
                 .fail(function(ex) {
@@ -105,7 +105,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.close("blah-blah");
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -123,7 +123,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestPrimitiveTypes", [
                       10, true, 11, 12, 13, 14, 15, 16, 17,
@@ -145,7 +145,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
     QUnit.test("integer bounds", function (assert) {
         assert.expect(35);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
 
         function testNumber(type, value, valid) {
             const done = assert.async();
@@ -194,7 +194,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestNonPrimitiveTypes", [
                       { one: "red", two: "blue" },
@@ -219,7 +219,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestAsv", [{
                       one: cockpit.variant("s", "foo"),
@@ -243,7 +243,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestAsv", [{
                       one: "foo",
@@ -266,7 +266,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestAsv", [{
                       one: "foo",
@@ -289,7 +289,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties",
                   "GetAll", ["com.redhat.Cockpit.DBusTests.Frobber"])
                 .done(function(reply) {
@@ -325,7 +325,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "UnimplementedMethod", [])
                 .fail(function(ex) {
@@ -342,7 +342,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestPrimitiveTypes", [10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
                       "Yooohooo!~ bad base64"])
@@ -360,7 +360,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "UnknownBlahMethod", [1])
                 .fail(function(ex) {
@@ -377,8 +377,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(6);
 
-        var received = false;
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        let received = false;
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.subscribe({
             interface: "com.redhat.Cockpit.DBusTests.Frobber",
             path: "/otree/frobber"
@@ -406,14 +406,14 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(4);
 
-        var received = true;
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        let received = true;
+        const dbus = cockpit.dbus(bus_name, channel_options);
 
         function on_signal() {
             received = true;
         }
 
-        var subscription = dbus.subscribe({
+        const subscription = dbus.subscribe({
             interface: "com.redhat.Cockpit.DBusTests.Frobber",
             path: "/otree/frobber"
         }, on_signal);
@@ -440,7 +440,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo",
                   [{ one: "red", two: "blue" }, 55, 66, 32],
                   { type: "a{ss}uit" })
@@ -458,7 +458,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var meta = {
+        const meta = {
             "borkety.Bork": {
                 methods: {
                     Echo: {
@@ -469,7 +469,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
             }
         };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.addEventListener("meta", function(event, data) {
             assert.deepEqual(data, meta, "got meta data");
         });
@@ -493,7 +493,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo",
                   [""],
                   { type: "ay" })
@@ -511,7 +511,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("invalid/path", "borkety.Bork", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -526,7 +526,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/path", "!invalid!interface!", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -541,7 +541,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -556,7 +556,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/path", "borkety.Bork", "Method", [1], { flags: 5 })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -571,7 +571,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo", [1],
                   { type: "!!%%" })
                 .fail(function(ex) {
@@ -588,7 +588,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo", [1], { type: 5 }) // invalid
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -604,7 +604,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "Nobody", [{ "!!!": "value" }], { type: "a{is}" })
                 .fail(function(ex) {
@@ -621,7 +621,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "Nobody", ["not/a/path"], { type: "o" })
                 .fail(function(ex) {
@@ -638,7 +638,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "Nobody", ["bad signature"], { type: "g" })
                 .fail(function(ex) {
@@ -655,7 +655,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "HelloWorld", ["test"], { flags: "" })
                 .done(function(reply, options) {
@@ -672,7 +672,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo")
                 .done(function(reply) {
                     assert.deepEqual(reply, [], "round trip");
@@ -687,9 +687,9 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => deep_update(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -715,9 +715,9 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(1);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => deep_update(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -780,9 +780,9 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => deep_update(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -813,9 +813,9 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(3);
 
-        var cache = { };
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => deep_update(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -880,10 +880,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var name = "yo" + new Date().getTime();
-        var cache = { };
+        const name = "yo" + new Date().getTime();
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => Object.assign(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -892,9 +892,9 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                               "CreateClique", [name])
                             .done(function(path) {
-                                var expect = { };
+                                const expect = { };
                                 /* The same way mock-service.c calculates the paths */
-                                for (var i = 0; i < 3; i++) {
+                                for (let i = 0; i < 3; i++) {
                                     expect["/cliques/" + name + "/" + i] = {
                                         "com.redhat.Cockpit.DBusTests.Clique": {
                                             Friend: "/cliques/" + name + "/" + (i + 1) % 3
@@ -915,10 +915,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(4);
 
-        var name = "yo" + new Date().getTime();
-        var cache = { };
+        const name = "yo" + new Date().getTime();
+        const cache = { };
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         const onnotify = (event, data) => Object.assign(cache, data);
         dbus.addEventListener("notify", onnotify);
 
@@ -946,8 +946,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(7);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
-        var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+        const dbus = cockpit.dbus(bus_name, channel_options);
+        const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
         proxy.wait(function() {
             assert.strictEqual(proxy.valid, true, "proxy: is valid");
             assert.deepEqual(proxy.data, {
@@ -979,8 +979,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
-        var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+        const dbus = cockpit.dbus(bus_name, channel_options);
+        const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
         /* No wait */
         proxy.call("HelloWorld", ["From a proxy"])
@@ -997,8 +997,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(2);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
-        var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+        const dbus = cockpit.dbus(bus_name, channel_options);
+        const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
         proxy.call('NeverReturn', [], { timeout: 10 })
                 .fail(function (ex) {
@@ -1014,10 +1014,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(4);
 
-        var received = false;
+        let received = false;
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
-        var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+        const dbus = cockpit.dbus(bus_name, channel_options);
+        const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
         const onsignal = (event, name, args) => {
             assert.equal(name, "TestSignal", "signals: got right name");
@@ -1041,8 +1041,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(1);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
-        var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+        const dbus = cockpit.dbus(bus_name, channel_options);
+        const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
         proxy.wait().done(function() {
             const onchanged = () => {
@@ -1066,27 +1066,27 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         const done = assert.async();
         assert.expect(13);
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
 
         /* Just some cleanup */
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "DeleteAllObjects", [])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "deleted stray objects");
 
-                    var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
+                    const proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
                     proxies.wait().always(function() {
-                        var added;
+                        let added;
                         proxies.addEventListener("added", function(event, proxy) {
                             added = proxy;
                             assert.strictEqual(added.valid, true, "added objects valid");
                         });
 
-                        var changed;
+                        let changed;
                         proxies.addEventListener("changed", function(event, proxy) {
                             changed = proxy;
                         });
 
-                        var removed;
+                        let removed;
                         proxies.addEventListener("removed", function(event, proxy) {
                             removed = proxy;
                         });
@@ -1130,17 +1130,17 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(4);
 
-        var name = "yo.x" + new Date().getTime();
-        var released = false;
-        var gone = false;
+        const name = "yo.x" + new Date().getTime();
+        let released = false;
+        let gone = false;
 
-        var dbus = cockpit.dbus(bus_name, channel_options);
+        const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "ClaimOtherName", [name])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
-                    var other = cockpit.dbus(name, {
+                    const other = cockpit.dbus(name, {
                         bus: channel_options.bus,
                         address: channel_options.address,
                         track: true
@@ -1173,16 +1173,16 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(5);
 
-        var name = "yo.y" + new Date().getTime();
-        var gone = false;
+        const name = "yo.y" + new Date().getTime();
+        let gone = false;
 
-        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "ClaimOtherName", [name])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
-                    var other = cockpit.dbus(name, channel_options);
+                    const other = cockpit.dbus(name, channel_options);
                     other.addEventListener("close", function(event, data) {
                         gone = true;
                     });
@@ -1213,14 +1213,14 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(4);
 
-        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"])
                 .done(function (reply) {
-                    var fd = reply[0];
+                    const fd = reply[0];
                     assert.equal(typeof (fd.internal), 'string');
                     assert.equal(fd.payload, 'stream');
 
-                    var channel = cockpit.channel(fd);
+                    const channel = cockpit.channel(fd);
 
                     const messageReceived = assert.async();
                     channel.onmessage = function (event, data) {
@@ -1239,16 +1239,16 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(7);
 
-        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"])
                 .done(function (reply) {
-                    var fd = reply[0];
+                    const fd = reply[0];
                     assert.equal(typeof (fd.internal), 'string');
                     assert.equal(fd.payload, 'stream');
 
-                    var channel1 = cockpit.channel(fd);
+                    const channel1 = cockpit.channel(fd);
                     assert.ok(channel1);
-                    var channel2 = cockpit.channel(fd);
+                    const channel2 = cockpit.channel(fd);
 
                     const closed = assert.async();
                     channel2.onclose = function (event, options) {
@@ -1268,14 +1268,14 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(6);
 
-        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"])
                 .done(function (reply) {
-                    var fd = reply[0];
+                    const fd = reply[0];
                     assert.equal(typeof (fd.internal), 'string');
                     assert.equal(fd.payload, 'stream');
 
-                    var channel = cockpit.channel(fd);
+                    const channel = cockpit.channel(fd);
                     channel.send('Hello, fd');
 
                     const closed = assert.async();
@@ -1296,14 +1296,14 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
         const done = assert.async();
         assert.expect(3);
 
-        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["writable"])
                 .done(function (reply) {
-                    var fd = reply[0];
+                    const fd = reply[0];
                     assert.equal(typeof (fd.internal), 'string');
                     assert.equal(fd.payload, 'stream');
 
-                    var channel = cockpit.channel(fd);
+                    const channel = cockpit.channel(fd);
                     channel.send('Hello, fd');
                     channel.close();
                 })

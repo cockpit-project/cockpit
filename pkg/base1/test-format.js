@@ -20,7 +20,7 @@ QUnit.test("format", function (assert) {
 });
 
 QUnit.test("format_number", function (assert) {
-    var checks = [
+    const checks = [
         [23.4, "23.4", "23,4"],
         [23.46, "23.5", "23,5"],
         [23.44, "23.4", "23,4"],
@@ -41,25 +41,24 @@ QUnit.test("format_number", function (assert) {
         [undefined, "", ""],
     ];
 
-    var saved_language = cockpit.language;
-    var i;
+    const saved_language = cockpit.language;
 
     assert.expect(checks.length * 3);
 
     cockpit.language = 'en';
-    for (i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
                            "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
     }
 
     cockpit.language = 'de';
-    for (i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
                            "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
     }
 
     cockpit.language = 'pt_BR';
-    for (i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
                            "format_number@pt_BR(" + checks[i][0] + ") = " + checks[i][2]);
     }
@@ -69,7 +68,7 @@ QUnit.test("format_number", function (assert) {
 });
 
 QUnit.test("format_bytes", function (assert) {
-    var checks = [
+    const checks = [
         [999, 1000, "999"],
         [1934, undefined, "1.89 KiB"],
         [1934, 1000, "1.93 KB"],
@@ -92,34 +91,32 @@ QUnit.test("format_bytes", function (assert) {
         [null, "KB", ""],
     ];
 
-    var i, split;
-
     assert.expect(checks.length * 2);
-    for (i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
                            "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
     }
-    for (i = 0; i < checks.length; i++) {
-        split = checks[i][2].split(" ");
+    for (let i = 0; i < checks.length; i++) {
+        const split = checks[i][2].split(" ");
         assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
                          "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
     }
 });
 
 QUnit.test("get_byte_units", function (assert) {
-    var mib = 1024 * 1024;
-    var gib = mib * 1024;
-    var tib = gib * 1024;
+    const mib = 1024 * 1024;
+    const gib = mib * 1024;
+    const tib = gib * 1024;
 
-    var mib_unit = { factor: mib, name: "MiB" };
-    var gib_unit = { factor: gib, name: "GiB" };
-    var tib_unit = { factor: tib, name: "TiB" };
+    const mib_unit = { factor: mib, name: "MiB" };
+    const gib_unit = { factor: gib, name: "GiB" };
+    const tib_unit = { factor: tib, name: "TiB" };
 
     function selected(unit) {
         return { factor: unit.factor, name: unit.name, selected: true };
     }
 
-    var checks = [
+    const checks = [
         [0 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
         [20 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
         [200 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
@@ -132,26 +129,26 @@ QUnit.test("get_byte_units", function (assert) {
     ];
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
                          "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
     }
 });
 
 QUnit.test("format_bytes_per_sec", function (assert) {
-    var checks = [
+    const checks = [
         [2555, "2.50 KiB/s"]
     ];
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
                            "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
 QUnit.test("format_bits_per_sec", function (assert) {
-    var checks = [
+    const checks = [
         [55, "55 bps"],
         [55.23456789, "55.2 bps"],
         [55.98765432, "56.0 bps"],
@@ -161,7 +158,7 @@ QUnit.test("format_bits_per_sec", function (assert) {
     ];
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
                            "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }

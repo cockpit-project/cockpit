@@ -5,15 +5,15 @@ QUnit.test("external channel websocket", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var query = window.btoa(JSON.stringify({
+    const query = window.btoa(JSON.stringify({
         payload: "websocket-stream1",
         address: "localhost",
         port: parseInt(window.location.port, 10),
         path: "/cockpit/echosocket/",
     }));
 
-    var count = 0;
-    var ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
+    let count = 0;
+    const ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
                            cockpit.transport.csrf_token + '?' + query);
     ws.onopen = function() {
         assert.ok(true, "websocket is open");
@@ -39,7 +39,7 @@ QUnit.test("external channel websocket", function (assert) {
 
 QUnit.test("bad channel options websocket", function (assert) {
     const done = assert.async();
-    var payloads = [
+    const payloads = [
         window.btoa(JSON.stringify({
             payload: "websocket-stream1",
             address: "localhost",
@@ -54,11 +54,11 @@ QUnit.test("bad channel options websocket", function (assert) {
     ];
     assert.expect(payloads.length * 3);
     function step() {
-        var query = payloads.shift();
-        var url = "ws://" + window.location.host + "/cockpit/channel/" +
+        const query = payloads.shift();
+        const url = "ws://" + window.location.host + "/cockpit/channel/" +
                                cockpit.transport.csrf_token + '?' + query;
         console.log(url);
-        var ws = new WebSocket(url);
+        let ws = new WebSocket(url);
         ws.onopen = function() {
             assert.ok(true, "websocket opened");
         };

@@ -2,12 +2,12 @@ import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
 QUnit.test("utf8 basic", function (assert) {
-    var str = "Base 64 \u2014 Mozilla Developer Network";
-    var expect = [66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
+    const str = "Base 64 \u2014 Mozilla Developer Network";
+    const expect = [66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
         111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 
-    var encoded = cockpit.utf8_encoder().encode(str);
+    const encoded = cockpit.utf8_encoder().encode(str);
     assert.deepEqual(encoded, expect, "encoded");
 
     assert.equal(cockpit.utf8_decoder().decode(encoded), str, "decoded");
@@ -33,24 +33,24 @@ QUnit.test("utf8 basic", function (assert) {
 // Helpers for test_utf_roundtrip.
 
 QUnit.test("utf8 round trip", function (assert) {
-    var MIN_CODEPOINT = 0;
-    var MAX_CODEPOINT = 0x10FFFF;
-    var BLOCK_SIZE = 0x1000;
-    var SKIP_SIZE = 31;
-    var encoder = cockpit.utf8_encoder();
-    var decoder = cockpit.utf8_decoder();
+    const MIN_CODEPOINT = 0;
+    const MAX_CODEPOINT = 0x10FFFF;
+    const BLOCK_SIZE = 0x1000;
+    const SKIP_SIZE = 31;
+    const encoder = cockpit.utf8_encoder();
+    const decoder = cockpit.utf8_decoder();
 
     function cpname(n) {
         if (n + 0 !== n)
             return n.toString();
-        var w = (n <= 0xFFFF) ? 4 : 6;
+        const w = (n <= 0xFFFF) ? 4 : 6;
         return 'U+' + ('000000' + n.toString(16).toUpperCase()).slice(-w);
     }
 
     function genblock(from, len, skip) {
-        var block = [];
-        for (var i = 0; i < len; i += skip) {
-            var cp = from + i;
+        const block = [];
+        for (let i = 0; i < len; i += skip) {
+            let cp = from + i;
             if (cp >= 0xD800 && cp <= 0xDFFF)
                 continue;
             if (cp < 0x10000) {
@@ -64,14 +64,14 @@ QUnit.test("utf8 round trip", function (assert) {
         return block.join('');
     }
 
-    for (var i = MIN_CODEPOINT; i < MAX_CODEPOINT; i += BLOCK_SIZE) {
-        var block_tag = cpname(i) + " - " + cpname(i + BLOCK_SIZE - 1);
-        var block = genblock(i, BLOCK_SIZE, SKIP_SIZE);
-        var encoded = encoder.encode(block);
-        var decoded = decoder.decode(encoded);
+    for (let i = MIN_CODEPOINT; i < MAX_CODEPOINT; i += BLOCK_SIZE) {
+        const block_tag = cpname(i) + " - " + cpname(i + BLOCK_SIZE - 1);
+        const block = genblock(i, BLOCK_SIZE, SKIP_SIZE);
+        const encoded = encoder.encode(block);
+        const decoded = decoder.decode(encoded);
 
-        var length = block.length;
-        for (var j = 0; j < length; j++) {
+        const length = block.length;
+        for (let j = 0; j < length; j++) {
             if (block[j] != decoded[j])
                 assert.deepEqual(block, decoded, "round trip " + block_tag);
         }
@@ -82,25 +82,25 @@ QUnit.test("utf8 round trip", function (assert) {
 
 QUnit.test("utf8 samples", function (assert) {
     // z, cent, CJK water, G-Clef, Private-use character
-    var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
-    var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
+    const sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
+    const expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
 
-    var encoded = cockpit.utf8_encoder().encode(sample);
+    const encoded = cockpit.utf8_encoder().encode(sample);
     assert.deepEqual(encoded, expected, "encoded");
 
-    var decoded = cockpit.utf8_decoder().decode(expected);
+    const decoded = cockpit.utf8_decoder().decode(expected);
     assert.deepEqual(decoded, sample, "decoded");
 });
 
 QUnit.test("utf8 stream", function (assert) {
     // z, cent, CJK water, G-Clef, Private-use character
-    var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
-    var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
+    const sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
+    const expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
 
-    var decoder = cockpit.utf8_decoder();
-    var decoded = "";
+    const decoder = cockpit.utf8_decoder();
+    let decoded = "";
 
-    for (var i = 0; i < expected.length; i += 2)
+    for (let i = 0; i < expected.length; i += 2)
         decoded += decoder.decode(expected.slice(i, i + 2), { stream: true });
     decoded += decoder.decode();
 
@@ -108,18 +108,18 @@ QUnit.test("utf8 stream", function (assert) {
 });
 
 QUnit.test("utf8 invalid", function (assert) {
-    var sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
-    var data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
+    const sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
+    const data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
         111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 
-    var decoded = cockpit.utf8_decoder().decode(data);
+    const decoded = cockpit.utf8_decoder().decode(data);
 
     assert.deepEqual(decoded, sample, "decoded");
 });
 
 QUnit.test("utf8 fatal", function (assert) {
-    var data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
+    const data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
         111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 

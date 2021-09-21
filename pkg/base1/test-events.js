@@ -2,10 +2,10 @@ import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
 QUnit.test("event dispatch", function (assert) {
-    var obj = { };
+    const obj = { };
     cockpit.event_target(obj);
 
-    var count = 0;
+    let count = 0;
     function handler(ev) {
         if (count === 0) {
             assert.equal(typeof ev, "object", "event is object");
@@ -15,7 +15,7 @@ QUnit.test("event dispatch", function (assert) {
         count += 1;
     }
 
-    var ev = new Event("action", { bubbles: false, cancelable: false });
+    const ev = new Event("action", { bubbles: false, cancelable: false });
     ev.data = "Data";
 
     obj.dispatchEvent(ev);

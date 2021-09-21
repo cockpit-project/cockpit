@@ -19,7 +19,7 @@ QUnit.test("basic", function (assert) {
 QUnit.test("decode", function (assert) {
     window.location.hash = "#/base/test";
 
-    var checks = [
+    const checks = [
         ["#/host/path/sub?a=1&b=2", {
             path: ["host", "path", "sub"],
             options: { a: "1", b: "2" }
@@ -123,9 +123,9 @@ QUnit.test("decode", function (assert) {
     ];
 
     assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
-        var options = { };
-        var path = cockpit.location.decode(checks[i][0], options);
+    for (let i = 0; i < checks.length; i++) {
+        const options = { };
+        const path = cockpit.location.decode(checks[i][0], options);
         assert.deepEqual({ path: path, options: options }, checks[i][1], "decode(\"" + checks[i][0] + "\")");
     }
 });
@@ -135,7 +135,7 @@ QUnit.test("encode", function (assert) {
        which they appear in the hash.  Encoding of options is covered
        in the "roundtrip" test.
     */
-    var checks = [
+    const checks = [
         ["/host/path/sub?a=1&b=2", {
             path: ["host", "path", "sub"],
             options: { a: "1", b: "2" }
@@ -177,17 +177,15 @@ QUnit.test("encode", function (assert) {
         }]
     ];
 
-    var i;
-
     assert.expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        var encoded = cockpit.location.encode(checks[i][1].path, checks[i][1].options);
+    for (let i = 0; i < checks.length; i++) {
+        const encoded = cockpit.location.encode(checks[i][1].path, checks[i][1].options);
         assert.strictEqual(encoded, checks[i][0], "encode(" + JSON.stringify(checks[i][1]) + ")");
     }
 });
 
 QUnit.test("roundtrip", function (assert) {
-    var checks = [
+    const checks = [
         {
             path: ["path", "sub"],
             options: { a: "1", b: "2" }
@@ -202,19 +200,17 @@ QUnit.test("roundtrip", function (assert) {
         },
     ];
 
-    var i;
-
     assert.expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        var encoded = cockpit.location.encode(checks[i].path, checks[i].options);
-        var decoded = { options: { } };
+    for (let i = 0; i < checks.length; i++) {
+        const encoded = cockpit.location.encode(checks[i].path, checks[i].options);
+        const decoded = { options: { } };
         decoded.path = cockpit.location.decode(encoded, decoded.options);
         assert.deepEqual(decoded, checks[i], "roundtrip(" + JSON.stringify(checks[i]) + ")");
     }
 });
 
 QUnit.test("external change", function (assert) {
-    var location = cockpit.location;
+    const location = cockpit.location;
 
     window.location.hash = "#/a/b/c?x=1&y=2";
 
@@ -266,7 +262,7 @@ QUnit.test("test", function (assert) {
     const done = assert.async();
     window.location.hash = "#/hello";
 
-    var triggered = false;
+    let triggered = false;
 
     assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
     const onLocationChanged = () => {
@@ -285,7 +281,7 @@ QUnit.test("test", function (assert) {
     const done = assert.async();
     window.location.hash = "#/hello";
 
-    var location = cockpit.location;
+    const location = cockpit.location;
     assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
 
     window.setTimeout(function() {

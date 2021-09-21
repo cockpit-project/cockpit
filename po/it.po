@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
 "PO-Revision-Date: 2021-08-29 11:04+0000\n"
 "Last-Translator: Nathan <nathan95@live.it>\n"
 "Language-Team: Italian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -44,12 +44,12 @@ msgid "$0 GiB total"
 msgstr "$0 GiB totali"
 
 #: pkg/networkmanager/network-main.jsx:167
+#, fuzzy
+#| msgid "$0 active zone"
 msgid "$0 active zone"
-msgstr "$0 Zona Attiva"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "$0 Zone Attive"
+msgid_plural "$0 active zones"
+msgstr[0] "$0 Zona Attiva"
+msgstr[1] "$0 Zona Attiva"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -839,7 +839,7 @@ msgstr "Indirizzi"
 msgid "Administration with Cockpit Web Console"
 msgstr "Amministrazione con Cockpit Web Console"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "Accesso amministrativo"
 
@@ -1289,7 +1289,7 @@ msgstr ""
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1483,8 +1483,8 @@ msgstr "Software Client"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2221,11 +2221,9 @@ msgstr "Dischi"
 #, fuzzy
 #| msgid "Dismiss"
 msgid "Dismiss $0 alert"
-msgstr "Scartare"
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr ""
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "Scartare"
+msgstr[1] "Scartare"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 #, fuzzy
@@ -2585,7 +2583,7 @@ msgstr "Impossibile aggiungere il servizio"
 msgid "Failed to add zone"
 msgstr "Impossibile aggiungere la zona"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Impossibile cambiare la password"
@@ -3172,7 +3170,7 @@ msgstr "Formato data non valido e formato ora non valido"
 msgid "Invalid expiration date"
 msgstr "Data di scadenza non valida"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "Autorizzazioni file non valide"
 
@@ -3411,15 +3409,15 @@ msgstr "GNU LGPL versione 2.1"
 msgid "Light"
 msgstr "Chiaro"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "Limitare l'accesso"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "Accesso limitato"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4149,7 +4147,7 @@ msgstr "Nuova frase di accesso"
 msgid "New password"
 msgstr "Nuova password"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "La nuova password non è stata accettata"
 
@@ -4313,7 +4311,7 @@ msgid "No rule hits"
 msgstr "Nessuna regola trovata"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Nessun file o directory"
 
@@ -4335,7 +4333,7 @@ msgstr "Nessun nome utente specificato"
 msgid "None"
 msgstr "Nessuno"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "Chiave privata invalida"
 
@@ -4456,7 +4454,7 @@ msgstr "Vecchia frase di accesso"
 msgid "Old password"
 msgstr "Vecchia password"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "Vecchia password non accettata"
 
@@ -4694,7 +4692,7 @@ msgstr "La password è troppo debole"
 msgid "Password must be changed"
 msgstr "La password deve essere cambiata"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "Password non accettata"
 
@@ -4925,7 +4923,7 @@ msgstr "Priorità"
 msgid "Priority $priority"
 msgstr "Priorità $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 #, fuzzy
 #| msgid "Domain administrator name"
 msgid "Problem becoming administrator"
@@ -4951,11 +4949,11 @@ msgstr "Sito web del progetto"
 msgid "Prompting via passwd timed out"
 msgstr "Richiesta tramite passwd scaduta"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "Richiesta tramite ssh-add scaduta"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Richiesta tramite ssh-keygen scaduta"
 
@@ -6197,7 +6195,7 @@ msgstr "Accendi $0"
 msgid "Switch to administrative access"
 msgstr "Attiva l'accesso amministrativo"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "Passa ad accesso limitato"
 
@@ -7386,7 +7384,7 @@ msgstr "Compressione"
 msgid "Use deduplication"
 msgstr "Deduplicazione"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 #, fuzzy
 #| msgid "ssh key"
 msgid "Use key"
@@ -7742,7 +7740,7 @@ msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr "Devi passare ad \"Accesso amministrativo\" per creare report."
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "Ora hai accesso amministrativo."
 
@@ -7760,7 +7758,7 @@ msgid ""
 "+Insert."
 msgstr ""
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "Il tuo browser ricorderà il tuo livello di accesso tra le sessioni."
 
@@ -8505,6 +8503,9 @@ msgstr "zona"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "chiave {{host}} modificata"
+
+#~ msgid "$0 active zones"
+#~ msgstr "$0 Zone Attive"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

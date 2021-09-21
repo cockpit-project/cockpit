@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
-"PO-Revision-Date: 2021-09-09 21:05+0000\n"
-"Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
+"PO-Revision-Date: 2021-09-16 15:05+0000\n"
+"Last-Translator: Oğuz Ersen <oguzersen@protonmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/tr/>\n"
 "Language: tr\n"
@@ -42,11 +42,9 @@ msgstr "$0 GiB toplam"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
-msgstr "$0 etkin bölge"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "$0 etkin bölge"
+msgid_plural "$0 active zones"
+msgstr[0] "$0 etkin bölge"
+msgstr[1] "$0 etkin bölge"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -836,7 +834,7 @@ msgstr "Adresler"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit Web Konsolu ile Yönetim"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "Yönetimsel erişim"
 
@@ -1283,7 +1281,7 @@ msgstr ""
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1473,8 +1471,8 @@ msgstr "İstemci yazılımı"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2186,11 +2184,9 @@ msgstr "Diskler"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss $0 alert"
-msgstr "$0 uyarıyı yoksay"
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr "$0 uyarıyı yoksay"
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "$0 uyarıyı yoksay"
+msgstr[1] "$0 uyarıyı yoksay"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss selected alerts"
@@ -2536,7 +2532,7 @@ msgstr "Hizmet ekleme başarısız oldu"
 msgid "Failed to add zone"
 msgstr "Bölge ekleme başarısız oldu"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Parolayı değiştirme başarısız oldu"
@@ -3097,7 +3093,7 @@ msgstr "Geçersiz tarih ve saat biçimi"
 msgid "Invalid expiration date"
 msgstr "Geçersiz süre dolma tarihi"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "Geçersiz dosya izinleri"
 
@@ -3322,15 +3318,15 @@ msgstr "GNU LGPL sürüm 2.1 altında lisanslıdır"
 msgid "Light"
 msgstr "Açık"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "Erişimi sınırla"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "Sınırlı erişim"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4026,7 +4022,7 @@ msgstr "Yeni parola"
 msgid "New password"
 msgstr "Yeni parola"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Yeni parola kabul edilmedi"
 
@@ -4188,7 +4184,7 @@ msgid "No rule hits"
 msgstr "Kural sonuçları yok"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Böyle bir dosya ya da dizin yok"
 
@@ -4209,7 +4205,7 @@ msgstr "Belirtilen kullanıcı adı yok"
 msgid "None"
 msgstr "Yok"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "Geçerli bir özel anahtar değil"
 
@@ -4324,7 +4320,7 @@ msgstr "Eski parola"
 msgid "Old password"
 msgstr "Eski parola"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "Eski parola kabul edilmedi"
 
@@ -4544,7 +4540,7 @@ msgstr "Parola çok zayıf"
 msgid "Password must be changed"
 msgstr "Parola değiştirilmek zorundadır"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "Parola kabul edilmedi"
 
@@ -4773,7 +4769,7 @@ msgstr "Öncelik"
 msgid "Priority $priority"
 msgstr "Öncelik $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 msgid "Problem becoming administrator"
 msgstr "Yönetici olma sorunu"
 
@@ -4797,11 +4793,11 @@ msgstr "Proje web sitesi"
 msgid "Prompting via passwd timed out"
 msgstr "passwd aracılığıyla sorma zaman aşımına uğradı"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "ssh-add aracılığıyla sorma zaman aşımına uğradı"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "ssh-keygen aracılığıyla sorma zaman aşımına uğradı"
 
@@ -5996,7 +5992,7 @@ msgstr "$0 arayüzünü aç"
 msgid "Switch to administrative access"
 msgstr "Yönetimsel erişime geç"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "Sınırlı erişime geç"
 
@@ -7148,7 +7144,7 @@ msgstr "Sıkıştırma kullan"
 msgid "Use deduplication"
 msgstr "Tekilleştirme kullan"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 msgid "Use key"
 msgstr "Anahtar kullan"
 
@@ -7477,7 +7473,7 @@ msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr "Raporları oluşturmak için \"Yönetimsel erişim\"e geçmeniz gerekli."
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "Artık yönetimsel erişiminiz var."
 
@@ -7497,7 +7493,7 @@ msgstr ""
 "Tarayıcınız, bağlam menüsünden yapıştırmaya izin vermiyor. Shift+Insert "
 "kullanabilirsiniz."
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "Tarayıcınız, oturumlar arasında erişim seviyenizi hatırlayacaktır."
 
@@ -8206,6 +8202,12 @@ msgstr "bölge"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} anahtarı değişti"
+
+#~ msgid "$0 active zones"
+#~ msgstr "$0 etkin bölge"
+
+#~ msgid "Dismiss $0 alerts"
+#~ msgstr "$0 uyarıyı yoksay"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

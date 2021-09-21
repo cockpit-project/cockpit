@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 18:06+0000\n"
-"PO-Revision-Date: 2021-09-09 21:05+0000\n"
+"POT-Creation-Date: 2021-09-14 18:06+0000\n"
+"PO-Revision-Date: 2021-09-16 15:05+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "main/nl/>\n"
@@ -40,11 +40,9 @@ msgstr "$0 GiB totaal"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
-msgstr "$0 actieve zone"
-
-#: pkg/networkmanager/network-main.jsx:167
-msgid "$0 active zones"
-msgstr "$0 actieve zones"
+msgid_plural "$0 active zones"
+msgstr[0] "$0 actieve zone"
+msgstr[1] "$0 actieve zones"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 block device"
@@ -834,7 +832,7 @@ msgstr "Adressen"
 msgid "Administration with Cockpit Web Console"
 msgstr "Beheer met Cockpit Web Console"
 
-#: pkg/shell/superuser.jsx:95 pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:361
 msgid "Administrative access"
 msgstr "Administratieve toegang"
 
@@ -1281,7 +1279,7 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:132 pkg/shell/superuser.jsx:86
-#: pkg/shell/superuser.jsx:160 pkg/shell/shell-modals.jsx:142
+#: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
@@ -1473,8 +1471,8 @@ msgstr "Cliënt software"
 #: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
 #: pkg/apps/utils.jsx:93 pkg/storaged/dialog.jsx:431 pkg/sosreport/index.js:48
 #: pkg/sosreport/index.js:135 pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:99
-#: pkg/shell/superuser.jsx:107 pkg/shell/shell-modals.jsx:194
+#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/shell/superuser.jsx:94
+#: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:229
 #: pkg/users/dialog-utils.js:58
 msgid "Close"
@@ -2188,11 +2186,9 @@ msgstr "Schijven"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss $0 alert"
-msgstr "$0 melding afwijzen"
-
-#: pkg/selinux/setroubleshoot-view.jsx:404
-msgid "Dismiss $0 alerts"
-msgstr "$0 meldingen afwijzen"
+msgid_plural "Dismiss $0 alerts"
+msgstr[0] "$0 melding afwijzen"
+msgstr[1] "$0 meldingen afwijzen"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Dismiss selected alerts"
@@ -2538,7 +2534,7 @@ msgstr "Kan service niet toevoegen"
 msgid "Failed to add zone"
 msgstr "Kan zone niet toevoegen"
 
-#: pkg/lib/credentials.js:242 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Kan wachtwoord niet veranderen"
@@ -3097,7 +3093,7 @@ msgstr "Ongeldige datumnotatie en ongeldige tijdnotatie"
 msgid "Invalid expiration date"
 msgstr "Ongeldige vervaldatum"
 
-#: pkg/lib/credentials.js:312
+#: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
 msgstr "Ongeldige bestandsrechten"
 
@@ -3322,15 +3318,15 @@ msgstr "Licentie onder GNU LGPL versie 2.1"
 msgid "Light"
 msgstr "Licht"
 
-#: pkg/shell/superuser.jsx:157
+#: pkg/shell/superuser.jsx:152
 msgid "Limit access"
 msgstr "Beperk toegang"
 
-#: pkg/shell/superuser.jsx:366
+#: pkg/shell/superuser.jsx:361
 msgid "Limited access"
 msgstr "Beperkte toegang"
 
-#: pkg/shell/superuser.jsx:171
+#: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4027,7 +4023,7 @@ msgstr "Nieuwe wachtzin"
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
-#: pkg/lib/credentials.js:251 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Nieuw wachtwoord is niet geaccepteerd"
 
@@ -4189,7 +4185,7 @@ msgid "No rule hits"
 msgstr "Geen regeltreffers"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:174
-#: pkg/lib/credentials.js:190
+#: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Bestand of map bestaat niet"
 
@@ -4210,7 +4206,7 @@ msgstr "Geen gebruikersnaam opgegeven"
 msgid "None"
 msgstr "Geen"
 
-#: pkg/lib/credentials.js:282
+#: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
 msgstr "Geen geldige privésleutel"
 
@@ -4325,7 +4321,7 @@ msgstr "Oude wachtzin"
 msgid "Old password"
 msgstr "Oud wachtwoord"
 
-#: pkg/lib/credentials.js:231 pkg/users/password-dialogs.js:53
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "Oude wachtwoord niet geaccepteerd"
 
@@ -4545,7 +4541,7 @@ msgstr "Wachtwoord is te zwak"
 msgid "Password must be changed"
 msgstr "Wachtwoord moet veranderd worden"
 
-#: pkg/lib/credentials.js:316
+#: pkg/lib/credentials.js:298
 msgid "Password not accepted"
 msgstr "Wachtwoord wordt niet geaccepteerd"
 
@@ -4774,7 +4770,7 @@ msgstr "Prioriteit"
 msgid "Priority $priority"
 msgstr "Prioriteit $priority"
 
-#: pkg/shell/superuser.jsx:103
+#: pkg/shell/superuser.jsx:98
 msgid "Problem becoming administrator"
 msgstr "Probleem om beheerder te worden"
 
@@ -4798,11 +4794,11 @@ msgstr "Project website"
 msgid "Prompting via passwd timed out"
 msgstr "Vragen via wachtwoord is verlopen"
 
-#: pkg/lib/credentials.js:287
+#: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
 msgstr "Vragen via ssh-add is verlopen"
 
-#: pkg/lib/credentials.js:200
+#: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Vragen ssh-keygen is verlopen"
 
@@ -6000,7 +5996,7 @@ msgstr "Schakel $0 in"
 msgid "Switch to administrative access"
 msgstr "Schakel om naar beheerderstoegang"
 
-#: pkg/shell/superuser.jsx:169
+#: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
 msgstr "Schakel over naar beperkte toegang"
 
@@ -7159,7 +7155,7 @@ msgstr "Gebruik compressie"
 msgid "Use deduplication"
 msgstr "Gebruik deduplicatie"
 
-#: pkg/shell/credentials.js:76
+#: pkg/shell/credentials.js:74
 msgid "Use key"
 msgstr "Gebruik sleutel"
 
@@ -7492,7 +7488,7 @@ msgid ""
 msgstr ""
 "Je moet overschakelen naar \"Beheerderstoegang\" om rapporten aan te maken."
 
-#: pkg/shell/superuser.jsx:314
+#: pkg/shell/superuser.jsx:309
 msgid "You now have administrative access."
 msgstr "Je hebt nu administratieve toegang."
 
@@ -7512,7 +7508,7 @@ msgstr ""
 "Je browser staat plakken vanuit het contextmenu niet toe. Je kunt Shift"
 "+Insert gebruiken."
 
-#: pkg/shell/superuser.jsx:172
+#: pkg/shell/superuser.jsx:167
 msgid "Your browser will remember your access level across sessions."
 msgstr "Je browser onthoudt je toegangsniveau tijdens sessies."
 
@@ -8221,6 +8217,12 @@ msgstr "zone"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "{{host}} sleutel gewijzigd"
+
+#~ msgid "$0 active zones"
+#~ msgstr "$0 actieve zones"
+
+#~ msgid "Dismiss $0 alerts"
+#~ msgstr "$0 meldingen afwijzen"
 
 #~ msgid "$0 occurrence"
 #~ msgid_plural "$0 occurrences"

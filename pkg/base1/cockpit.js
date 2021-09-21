@@ -2447,31 +2447,26 @@ function factory() {
             cockpit.info.dispatchEvent("changed");
     };
 
-    var the_user = null;
+    let the_user = null;
     cockpit.user = function () {
-        var dfd = cockpit.defer();
-        var dbus;
+        const dfd = cockpit.defer();
         if (!the_user) {
-            dbus = cockpit.dbus(null, { bus: "internal" });
+            const dbus = cockpit.dbus(null, { bus: "internal" });
             dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
                       ["cockpit.User"], { type: "s" })
-                .done(function(reply) {
-                    var user = reply[0];
-                    dfd.resolve({
+                .then(([user]) => {
+                    the_user = {
                         id: user.Id.v,
                         name: user.Name.v,
                         full_name: user.Full.v,
                         groups: user.Groups.v,
                         home: user.Home.v,
                         shell: user.Shell.v
-                    });
+                    };
+                    dfd.resolve(the_user);
                 })
-                .fail(function(ex) {
-                    dfd.reject(ex);
-                })
-                .always(function() {
-                    dbus.close();
-                });
+                .catch(ex => dfd.reject(ex))
+                .finally(() => dbus.close());
         } else {
             dfd.resolve(the_user);
         }

@@ -2511,7 +2511,7 @@ function factory() {
 
         var href = get_window_location_hash();
         var options = { };
-        var path = decode(href, options);
+        self.path = decode(href, options);
 
         function decode_path(input) {
             var parts = input.split('/').map(decodeURIComponent);
@@ -2522,7 +2522,7 @@ function factory() {
                 pre_parts = self.url_root.split('/').map(decodeURIComponent);
 
             if (input && input[0] !== "/") {
-                result = [].concat(path);
+                result = [].concat(self.path);
                 result.pop();
                 result = result.concat(parts);
             } else {
@@ -2542,7 +2542,7 @@ function factory() {
 
         function encode(path, options, with_root) {
             if (typeof path == "string")
-                path = decode_path(path, self.path);
+                path = decode_path(path);
 
             var href = "/" + path.map(encodeURIComponent).join("/");
             if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/" !== 0))
@@ -2582,7 +2582,7 @@ function factory() {
                 first = href;
             else
                 first = href.substr(0, pos);
-            var path = decode_path(first);
+            const path = decode_path(first);
             if (pos !== -1 && options) {
                 href.substring(pos + 1).split("&")
                 .forEach(function(opt) {
@@ -2635,7 +2635,7 @@ function factory() {
             path: {
                 enumerable: true,
                 writable: false,
-                value: path
+                value: self.path
             },
             options: {
                 enumerable: true,

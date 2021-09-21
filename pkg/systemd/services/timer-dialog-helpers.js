@@ -56,28 +56,28 @@ export function create_timer({ name, description, command, delay, delayUnit, del
 }
 
 function create_timer_file({ timer_unit, delay }) {
-    var unit = "[Unit]\nDescription=";
-    var service = "\n[Service]\nExecStart=";
-    var timer = "\n[Timer]\n";
-    var install = "[Install]\nWantedBy=timers.target\n";
-    var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n";
-    var timer_file = " ";
+    const unit = "[Unit]\nDescription=";
+    const service = "\n[Service]\nExecStart=";
+    const timer = "\n[Timer]\n";
+    const install = "[Install]\nWantedBy=timers.target\n";
+    const service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n";
+    let timer_file = " ";
     if (delay == "system-boot") {
-        var boottimer = timer + "OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
+        const boottimer = timer + "OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
         timer_file = unit + timer_unit.Description + boottimer;
     } else if (timer_unit.OnCalendar) {
-        var calendartimer = timer + timer_unit.OnCalendar + "\n";
+        const calendartimer = timer + timer_unit.OnCalendar + "\n";
         timer_file = unit + timer_unit.Description + calendartimer;
     }
     timer_file += install;
     // writing to file
-    var service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
-    var file = cockpit.file(service_path, { superuser: 'try' });
-    file.replace(service_file)
+    const service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
+    cockpit.file(service_path, { superuser: 'try' })
+            .replace(service_file)
             .catch(error => console.log(error.toString()));
-    var timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
-    file = cockpit.file(timer_path, { superuser: 'try' });
-    return file.replace(timer_file)
+    const timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
+    return cockpit.file(timer_path, { superuser: 'try' })
+            .replace(timer_file)
             .then(tag => {
                 return systemd_client.call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]);
             })

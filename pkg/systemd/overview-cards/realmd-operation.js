@@ -18,21 +18,21 @@ const KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
 const REALM = "org.freedesktop.realmd.Realm";
 
 function instance(realmd, mode, realm, state) {
-    var dialog = jQuery.parseHTML(operation_html)[0];
+    const dialog = jQuery.parseHTML(operation_html)[0];
 
     /* Scope the jQuery selector to our dialog */
-    var $ = function(selector, context) {
+    const $ = function(selector, context) {
         return new jQuery.fn.init(selector, context || dialog); // eslint-disable-line new-cap
     };
     $.fn = $.prototype = jQuery.fn;
     jQuery.extend($, jQuery);
 
-    var error_message = null;
-    var operation = null;
-    var checking = null;
-    var checked = null;
-    var kerberos_membership = null;
-    var kerberos = null;
+    let error_message = null;
+    let operation = null;
+    let checking = null;
+    let checked = null;
+    let kerberos_membership = null;
+    let kerberos = null;
 
     $(".realms-op-error").prop("hidden", true);
 
@@ -60,7 +60,7 @@ function instance(realmd, mode, realm, state) {
         $(".realms-op-diagnostics").prop("hidden", false);
     });
 
-    var timeout = null;
+    let timeout = null;
     $("#realms-op-address").on("keyup change", function() {
         if ($("#realms-op-address").val() != checked) {
             $(".realms-op-address-error").empty();
@@ -73,24 +73,24 @@ function instance(realmd, mode, realm, state) {
     });
 
     function hide_control(path) {
-        var e = $(path);
+        const e = $(path);
         e.hide();
         e.prev().hide(); // hide the associated label
     }
 
     function show_control(path) {
-        var e = $(path);
+        const e = $(path);
         e.show();
         e.prev().show(); // hide the associated label
     }
 
-    var auth = null;
+    let auth = null;
     function auth_changed(item) {
         auth = item.attr('data-value');
         $("#realms-op-auth span").text(item.text());
-        var parts = (auth || "").split("/");
-        var type = parts[0];
-        var owner = parts[1];
+        const parts = (auth || "").split("/");
+        const type = parts[0];
+        const owner = parts[1];
 
         hide_control("#realms-op-admin");
         hide_control("#realms-op-admin-password");
@@ -113,7 +113,7 @@ function instance(realmd, mode, realm, state) {
         auth_changed($(this));
     });
 
-    var title, label;
+    let title, label;
     if (mode == 'join') {
         title = _("page-title", _("Join a domain"));
         label = _("Join");
@@ -154,7 +154,7 @@ function instance(realmd, mode, realm, state) {
     $(".realms-op-field").val("");
 
     function check(name) {
-        var dfd = $.Deferred();
+        const dfd = $.Deferred();
 
         if (name === undefined)
             name = $("#realms-op-address").val();
@@ -175,8 +175,8 @@ function instance(realmd, mode, realm, state) {
                         return;
                     }
 
-                    var error, path;
-                    var result = [];
+                    let error;
+                    let result = [];
                     if (this.state() == "rejected") {
                         error = arguments[0];
                         $(".realms-op-message")
@@ -187,7 +187,7 @@ function instance(realmd, mode, realm, state) {
 
                     if (arguments[0][1])
                         result = arguments[0][1];
-                    path = result[0]; /* the first realm */
+                    const path = result[0]; /* the first realm */
 
                     if (!path) {
                         if (name) {
@@ -227,7 +227,7 @@ function instance(realmd, mode, realm, state) {
 
     function ensure() {
         if (mode != 'join') {
-            var dfd = $.Deferred();
+            const dfd = $.Deferred();
             dfd.resolve(realm);
             return dfd.promise();
         }
@@ -246,7 +246,7 @@ function instance(realmd, mode, realm, state) {
      * field key.
      */
     function find_detail(realm, field) {
-        var result = null;
+        let result = null;
         if (realm && realm.Details) {
             realm.Details.forEach(function(value) {
                 if (value[0] === field)
@@ -257,8 +257,6 @@ function instance(realmd, mode, realm, state) {
     }
 
     function update() {
-        var message;
-
         if (operation)
             $(".realms-op-apply").addClass("pf-m-in-progress");
         else
@@ -269,7 +267,7 @@ function instance(realmd, mode, realm, state) {
         $(".realms-op-apply").prop('disabled', !!operation);
         $(".realm-active-directory-only").hide();
 
-        var server = find_detail(realm, "server-software");
+        const server = find_detail(realm, "server-software");
 
         if (realm && kerberos_membership) {
             if (kerberos_membership.valid) {
@@ -282,7 +280,7 @@ function instance(realmd, mode, realm, state) {
                         .removeClass("has-error")
                         .addClass("has-success");
             } else {
-                message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
+                const message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
                 $(".realms-op-address-spinner").hide();
                 $(".realms-op-address-error").text(message);
                 $("#realms-op-address").parent()
@@ -303,27 +301,25 @@ function instance(realmd, mode, realm, state) {
             $("#realms-op-address")[0].placeholder = cockpit.format(_("e.g. \"$0\""), realm.Name);
         }
 
-        var placeholder = "";
+        let placeholder = "";
         if (kerberos_membership) {
             if (kerberos_membership.SuggestedAdministrator)
                 placeholder = cockpit.format(_("e.g. \"$0\""), kerberos_membership.SuggestedAdministrator);
         }
         $("#realms-op-admin")[0].placeholder = placeholder;
 
-        var list = $("#realms-op-auth .dropdown-menu");
-        var supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [];
+        const list = $("#realms-op-auth .dropdown-menu");
+        const supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [];
         supported.push(["password", "administrator"]);
 
-        var first = true;
-        var count = 0;
+        let first = true;
+        let count = 0;
 
         function add_choice(owner, type, text) {
-            var item, choice, i;
-            var length = supported.length;
-            for (i = 0; i < length; i++) {
+            for (let i = 0; i < supported.length; i++) {
                 if ((!owner || owner == supported[i][1]) && type == supported[i][0]) {
-                    choice = type + "/" + supported[i][1];
-                    item = $("<li>").attr("data-value", choice)
+                    const choice = type + "/" + supported[i][1];
+                    const item = $("<li>").attr("data-value", choice)
                             .append($("<a tabindex='0'>").text(text));
                     list.append(item);
                     if (first) {
@@ -348,11 +344,11 @@ function instance(realmd, mode, realm, state) {
     }
 
     function credentials() {
-        var creds, secret;
+        let creds;
 
-        var parts = (auth || "").split("/");
-        var type = parts[0];
-        var owner = parts[1];
+        const parts = (auth || "").split("/");
+        const type = parts[0];
+        const owner = parts[1];
 
         if (owner == "user" && type == "password") {
             creds = [
@@ -365,7 +361,7 @@ function instance(realmd, mode, realm, state) {
                 cockpit.variant('(ss)', [$("#realms-op-admin").val(), $("#realms-op-admin-password").val()])
             ];
         } else if (type == "secret") {
-            secret = $("#realms-op-ot-password").val();
+            const secret = $("#realms-op-ot-password").val();
             creds = [
                 type, owner,
                 cockpit.variant('ay', cockpit.utf8_encoder().encode(secret))
@@ -398,12 +394,12 @@ function instance(realmd, mode, realm, state) {
             return cockpit.resolve();
         }
 
-        var user = $("#realms-op-admin").val();
-        var password = $("#realms-op-admin-password").val();
-        var helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
+        const user = $("#realms-op-admin").val();
+        const password = $("#realms-op-admin-password").val();
+        const helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
 
-        var proc = cockpit.spawn([helper, "ipa", "request", kerberos.RealmName, user],
-                                 { superuser: "require", err: "message" });
+        const proc = cockpit.spawn([helper, "ipa", "request", kerberos.RealmName, user],
+                                   { superuser: "require", err: "message" });
         proc.input(password);
         return proc;
     }
@@ -414,7 +410,7 @@ function instance(realmd, mode, realm, state) {
         if (cockpit.transport.host !== "localhost")
             return cockpit.resolve();
 
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
 
         kerberos = realmd.proxy(KERBEROS, realm.path);
         kerberos.wait()
@@ -433,10 +429,10 @@ function instance(realmd, mode, realm, state) {
         return dfd.promise();
     }
 
-    var unique = 1;
+    let unique = 1;
 
     function perform() {
-        var id = "cockpit-" + unique;
+        const id = "cockpit-" + unique;
         unique += 1;
         busy(id);
         $(".realms-op-error").prop("hidden", true);
@@ -448,22 +444,22 @@ function instance(realmd, mode, realm, state) {
                     busy(null);
                 })
                 .done(function(realm) {
-                    var options = { operation: cockpit.variant('s', id) };
+                    const options = { operation: cockpit.variant('s', id) };
 
                     $(".realms-op-message").empty();
                     $(".realms-op-diagnostics").empty()
                             .prop("hidden", true);
 
-                    var diagnostics = "";
-                    var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
+                    let diagnostics = "";
+                    const sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
                         if (args[1] === id) {
                             diagnostics += args[0];
                         }
                     });
 
-                    var call, computer_ou;
+                    let call;
                     if (mode == 'join') {
-                        computer_ou = $(".realms-join-computer-ou").val();
+                        const computer_ou = $(".realms-join-computer-ou").val();
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
                         if (kerberos_membership.valid) {
@@ -531,9 +527,9 @@ function instance(realmd, mode, realm, state) {
 }
 
 export function setup() {
-    var $ = jQuery;
+    const $ = jQuery;
 
-    var self = {
+    const self = {
         button_text: "",
         button_tooltip: null,
         button_disabled: false,
@@ -545,23 +541,23 @@ export function setup() {
 
     cockpit.event_target(self);
 
-    var realmd = null;
-    var realms = null;
+    let realmd = null;
+    let realms = null;
 
     /* The realm we are joined to */
-    var joined = null;
+    let joined = null;
 
-    var install_realmd = false;
+    let install_realmd = false;
 
     function update_realms() {
-        var text, path, realm;
         joined = [];
-        for (path in realms) {
-            realm = realms[path];
+        for (const path in realms) {
+            const realm = realms[path];
             if (realm.Configured)
                 joined.push(realm);
         }
 
+        let text;
         if (!joined || !joined.length) {
             text = _("Join domain");
             self.hostname_button_disabled = false;
@@ -629,7 +625,7 @@ export function setup() {
                 .catch(function() { }); // dialog cancelled
     }
 
-    var dialog = null;
+    let dialog = null;
     function handle_link_click() {
         if (dialog)
             $(dialog).remove();

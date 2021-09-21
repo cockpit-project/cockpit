@@ -38,8 +38,8 @@ const _ = cockpit.gettext;
 
         constructor(props) {
             super(props);
-            var theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
-            var size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+            const theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+            const size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
             this.state = {
                 title: 'Terminal',
                 theme: theme || "black-theme",
@@ -108,16 +108,14 @@ const _ = cockpit.gettext;
         }
 
         render() {
-            var terminal;
-            if (this.state.channel)
-                terminal = (<Terminal ref={this.terminalRef}
-                     channel={this.state.channel}
-                     theme={this.state.theme}
-                     fontSize={this.state.size}
-                     parentId="the-terminal"
-                     onTitleChanged={this.onTitleChanged} />);
-            else
-                terminal = <span>Loading...</span>;
+            const terminal = this.state.channel
+                ? <Terminal ref={this.terminalRef}
+                            channel={this.state.channel}
+                            theme={this.state.theme}
+                            fontSize={this.state.size}
+                            parentId="the-terminal"
+                            onTitleChanged={this.onTitleChanged} />
+                : <span>Loading...</span>;
 
             return (
                 <div className="console-ct-container">

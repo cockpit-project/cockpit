@@ -106,7 +106,7 @@ export function account_expiration_dialog(account, expire_date) {
                     style: "primary",
                     clicked: () => {
                         if (validate()) {
-                            var prog = ["/usr/sbin/usermod", "-e"];
+                            const prog = ["/usr/sbin/usermod", "-e"];
                             if (state.mode == "expires") {
                                 const date = new Date(state.date + "T12:00:00Z");
                                 prog.push(date.toISOString().substr(0, 10));
@@ -164,7 +164,7 @@ export function password_expiration_dialog(account, expire_days) {
     let dlg = null;
 
     /* TRANSLATORS: This is split up and therefore cannot use ngettext plurals */
-    var parts = _("Require password change every $0 days").split("$0");
+    const parts = _("Require password change every $0 days").split("$0");
 
     if (parseInt(expire_days) >= 99999)
         expire_days = null;

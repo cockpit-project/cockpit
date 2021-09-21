@@ -237,13 +237,13 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
 
     const self_mod_allowed = (user == current_user || !!superuser.allowed);
 
-    var title_name = account.gecos;
+    let title_name = account.gecos;
     if (title_name)
         title_name = title_name.split(',')[0];
     else
         title_name = account.name;
 
-    var last_login;
+    let last_login;
     if (details.logged.currently)
         last_login = _("Logged in");
     else if (!details.logged.last)

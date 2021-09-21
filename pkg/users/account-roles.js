@@ -38,14 +38,9 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
     function change_role(group, enabled) {
         setChanging({ group: group.name, to: enabled });
 
-        var proc;
-        if (enabled) {
-            proc = cockpit.spawn(["/usr/sbin/usermod", account.name, "-G", group.name, "-a"],
-                                 { superuser: "require", err: "message" });
-        } else {
-            proc = cockpit.spawn(["/usr/bin/gpasswd", "-d", account.name, group.name],
-                                 { superuser: "require", err: "message" });
-        }
+        const proc = enabled
+            ? cockpit.spawn(["/usr/sbin/usermod", account.name, "-G", group.name, "-a"], { superuser: "require", err: "message" })
+            : cockpit.spawn(["/usr/bin/gpasswd", "-d", account.name, group.name], { superuser: "require", err: "message" });
 
         proc
                 .then(() => {
@@ -65,7 +60,7 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
         weldr:   _("Image builder")
     };
 
-    var roles = [];
+    const roles = [];
 
     groups.forEach(group => {
         if (role_groups[group.name]) {

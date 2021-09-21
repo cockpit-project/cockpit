@@ -31,14 +31,14 @@ import { superuser } from "superuser";
 
 superuser.reload_page_on_change();
 
-var initStore = function(rootElement) {
-    var dataStore = { };
+const initStore = function(rootElement) {
+    const dataStore = { };
     dataStore.domRootElement = rootElement;
 
     dataStore.kdumpClient = new kdumpClient.KdumpClient();
 
     dataStore.applySettings = function(settings) {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         dataStore.kdumpClient.validateSettings(settings)
                 .done(function() {
                     dataStore.kdumpClient.writeSettings(settings)
@@ -56,7 +56,7 @@ var initStore = function(rootElement) {
             console.log("already trying to change state");
             return;
         }
-        var promise = desiredState ? dataStore.kdumpClient.ensureOn() : dataStore.kdumpClient.ensureOff();
+        const promise = desiredState ? dataStore.kdumpClient.ensureOn() : dataStore.kdumpClient.ensureOff();
         dataStore.stateChanging = true;
         dataStore.render();
         promise.finally(function() {
@@ -64,7 +64,7 @@ var initStore = function(rootElement) {
             dataStore.render();
         });
     }
-    var render = function() {
+    const render = function() {
         ReactDOM.render(React.createElement(KdumpPage, {
             kdumpActive: false,
             onSetServiceState: setServiceState,
@@ -84,7 +84,7 @@ var initStore = function(rootElement) {
     // cockpit.file("/sys/kernel/kexec_crash_size").read()
     cockpit.spawn(["cat", "/sys/kernel/kexec_crash_size"])
             .done(function(content) {
-                var value = parseInt(content, 10);
+                const value = parseInt(content, 10);
                 if (!isNaN(value)) {
                 // if it's only a number, guess from the size what units we should use
                 // https://access.redhat.com/solutions/59432 states limit to be 896M and the auto at 768M max

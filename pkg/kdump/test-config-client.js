@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import * as kdump from "./config-client.js";
 
-var basicConfig = [
+const basicConfig = [
     "# top comment",
     "",
     "foo bar",
@@ -32,7 +32,7 @@ var basicConfig = [
     "key value #comment"
 ].join("\n");
 
-var changedConfig = [
+const changedConfig = [
     "# top comment",
     "",
     "foo moo",
@@ -44,11 +44,11 @@ var changedConfig = [
 ].join("\n");
 
 QUnit.test("config_update", function (assert) {
-    var done = assert.async();
+    const done = assert.async();
     assert.expect(10);
-    var dataWasChanged = cockpit.defer();
-    var config;
-    var configChanged = function(event, settings) {
+    const dataWasChanged = cockpit.defer();
+    let config;
+    const configChanged = function(event, settings) {
         assert.equal(settings.foo.value, "moo", "value changed correctly");
         assert.equal("key" in settings, false, "setting with comment deleted correctly");
         assert.equal("will" in settings, false, "setting without comment deleted correctly");
@@ -57,8 +57,8 @@ QUnit.test("config_update", function (assert) {
         dataWasChanged.resolve();
     };
 
-    var filename = "cockpit_config_read";
-    var configFile = cockpit.file(filename);
+    const filename = "cockpit_config_read";
+    const configFile = cockpit.file(filename);
     configFile
             .replace(basicConfig)
             .always(function() {

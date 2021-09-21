@@ -69,14 +69,14 @@ class KdumpTargetBody extends React.Component {
     }
 
     render() {
-        var detailRows;
+        let detailRows;
         // only allow compression if there is no core collector set or it's set to makedumpfile
-        var compressionPossible = (
+        const compressionPossible = (
             !this.props.settings ||
             !("core_collector" in this.props.settings) ||
             (this.props.settings.core_collector.value.trim().indexOf("makedumpfile") === 0)
         );
-        var directory = "";
+        let directory = "";
         if (this.props.settings && "path" in this.props.settings)
             directory = this.props.settings.path.value;
 
@@ -90,7 +90,7 @@ class KdumpTargetBody extends React.Component {
                 </FormGroup>
             );
         } else if (this.state.storeDest == "nfs") {
-            var nfs = "";
+            let nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings.nfs.value;
             detailRows = (
@@ -101,10 +101,10 @@ class KdumpTargetBody extends React.Component {
                 </FormGroup>
             );
         } else if (this.state.storeDest == "ssh") {
-            var ssh = "";
+            let ssh = "";
             if (this.props.settings && "ssh" in this.props.settings)
                 ssh = this.props.settings.ssh.value;
-            var sshkey = "";
+            let sshkey = "";
             if (this.props.settings && "sshkey" in this.props.settings)
                 sshkey = this.props.settings.sshkey.value;
             detailRows = (
@@ -131,13 +131,13 @@ class KdumpTargetBody extends React.Component {
             );
         }
 
-        var targetDescription = {
+        const targetDescription = {
             local: _("Local filesystem"),
             nfs: _("Remote over NFS"),
             ssh: _("Remote over SSH"),
         };
         // we don't support all known storage options currently
-        var storageDest = this.state.storeDest;
+        const storageDest = this.state.storeDest;
         return (
             <Form isHorizontal>
                 <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
@@ -202,7 +202,7 @@ export class KdumpPage extends React.Component {
     }
 
     changeSetting(key, value) {
-        var settings = this.state.dialogSettings;
+        let settings = this.state.dialogSettings;
 
         // a few special cases, otherwise write to config directly
         if (key == "compression") {
@@ -272,7 +272,7 @@ export class KdumpPage extends React.Component {
     }
 
     handleApplyClick() {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         this.props.onApplySettings(this.state.dialogSettings)
                 .done(dfd.resolve)
                 .fail(function(error) {
@@ -288,16 +288,16 @@ export class KdumpPage extends React.Component {
         // don't let the click "fall through" to the dialog that we are about to open
         e.preventDefault();
         // open a dialog to confirm crashing the kernel to test the settings - then do it
-        var self = this;
+        const self = this;
         // open the confirmation dialog
-        var dialogProps = {
+        const dialogProps = {
             title: _("Test kdump settings"),
             body: (
                 <span>{_("This will test kdump settings by crashing the kernel and thereby the system. Depending on the settings, the system may not automatically reboot and the process may take a while.")}</span>
             )
         };
         // also test modifying properties in subsequent render calls
-        var footerProps = {
+        const footerProps = {
             actions: [
                 {
                     clicked: self.props.onCrashKernel.bind(self),
@@ -307,7 +307,7 @@ export class KdumpPage extends React.Component {
             ],
             dialog_done: self.dialogClosed,
         };
-        var dialogObj = show_modal_dialog(dialogProps, footerProps);
+        const dialogObj = show_modal_dialog(dialogProps, footerProps);
         this.setState({ dialogObj: dialogObj });
     }
 
@@ -327,17 +327,17 @@ export class KdumpPage extends React.Component {
         if (!e || e.button !== 0)
             return;
         e.preventDefault();
-        var self = this;
-        var settings = { };
+        const self = this;
+        const settings = { };
         Object.keys(self.props.kdumpStatus.config).forEach((key) => {
             settings[key] = cockpit.extend({}, self.props.kdumpStatus.config[key]);
         });
         // open the settings dialog
-        var dialogProps = {
+        const dialogProps = {
             title: _("Crash dump location"),
             id: "kdump-settings-dialog"
         };
-        var updateDialogBody = function(newSettings) {
+        const updateDialogBody = function(newSettings) {
             dialogProps.body = React.createElement(KdumpTargetBody, {
                 settings: newSettings || settings,
                 onChange: self.changeSetting,
@@ -347,7 +347,7 @@ export class KdumpPage extends React.Component {
         };
         updateDialogBody();
         // also test modifying properties in subsequent render calls
-        var footerProps = {
+        const footerProps = {
             actions: [
                 {
                     clicked: this.handleApplyClick.bind(this),
@@ -357,23 +357,22 @@ export class KdumpPage extends React.Component {
             ],
             dialog_done: this.dialogClosed.bind(this),
         };
-        var dialogObj = show_modal_dialog(dialogProps, footerProps);
+        const dialogObj = show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
         this.setState({ dialogSettings: settings, dialogTarget: self.props.kdumpStatus.target, dialogObj: dialogObj });
     }
 
     render() {
-        var kdumpLocation = (
+        let kdumpLocation = (
             <div className="dialog-wait-ct">
                 <Spinner isSVG size="md" />
                 <span>{ _("Loading...") }</span>
             </div>
         );
-        var target;
-        var targetCanChange = true;
+        let targetCanChange = true;
         if (this.props.kdumpStatus && this.props.kdumpStatus.target) {
             // if we have multiple targets defined, the config is invalid
-            target = this.props.kdumpStatus.target;
+            const target = this.props.kdumpStatus.target;
             if (target.multipleTargets) {
                 kdumpLocation = _("invalid: multiple targets defined");
             } else {
@@ -401,12 +400,10 @@ export class KdumpPage extends React.Component {
             }
         }
         // this.storeLocation(this.props.kdumpStatus.config);
-        var settingsLink;
-        if (targetCanChange && !!this.props.kdumpStatus)
-            settingsLink = <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</Button>;
-        else
-            settingsLink = <span>{ kdumpLocation }</span>;
-        var reservedMemory;
+        const settingsLink = (targetCanChange && !!this.props.kdumpStatus)
+            ? <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</Button>
+            : <span>{ kdumpLocation }</span>;
+        let reservedMemory;
         if (this.props.reservedMemory === undefined) {
             // still waiting for result
             reservedMemory = (
@@ -428,13 +425,13 @@ export class KdumpPage extends React.Component {
             reservedMemory = <span>{this.props.reservedMemory}</span>;
         }
 
-        var serviceRunning = this.props.kdumpStatus &&
+        const serviceRunning = this.props.kdumpStatus &&
                              this.props.kdumpStatus.installed &&
                              this.props.kdumpStatus.state == "running";
 
-        var kdumpServiceDetails;
-        var serviceDescription;
-        var serviceHint;
+        let kdumpServiceDetails;
+        let serviceDescription;
+        let serviceHint;
         if (this.props.kdumpStatus && this.props.kdumpStatus.installed) {
             if (this.props.kdumpStatus.state == "running")
                 serviceDescription = <span>{_("Service is running")}</span>;
@@ -470,11 +467,11 @@ export class KdumpPage extends React.Component {
                 </Tooltip>
             );
         }
-        var serviceWaiting;
+        let serviceWaiting;
         if (this.props.stateChanging)
             serviceWaiting = <Spinner isSVG size="md" />;
 
-        var testButton;
+        let testButton;
         if (serviceRunning) {
             testButton = (
                 <Button variant="secondary" onClick={this.handleTestSettingsClick}>

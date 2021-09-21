@@ -97,15 +97,15 @@ export class KdumpClient {
     }
 
     validateSettings(settings) {
-        var target = this.targetFromSettings(settings);
-        var path;
+        const target = this.targetFromSettings(settings);
+        let path;
         if (target && target.path)
             path = target.path;
         // if path is invalid or we haven't set one, use default
         if (!path)
             path = "/var/crash";
 
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         if (target.target === "local") {
             // local path, try to see if we can write
             cockpit.script(testWritableScript, [path], { superuser: "try" })
@@ -128,7 +128,7 @@ export class KdumpClient {
     }
 
     writeSettings(settings) {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         this.configClient.write(settings)
                 .done(() => {
                 // after we've written the new config, we may have to restart the service
@@ -145,7 +145,7 @@ export class KdumpClient {
         // check for the presence of all known targets
         // we have the additional difficulty that partitions don't have a good config key, since their
         // lines begin with the fs_type
-        var target = {
+        const target = {
             target: "unknown",
             multipleTargets: false,
         };
@@ -179,7 +179,7 @@ export class KdumpClient {
                 if (!key || key in knownKeys || key in deprecatedKeys)
                     return;
                 // if we have a UUID, LABEL or /dev in the value, we can be pretty sure it's a mount option
-                var value = JSON.stringify(settings[key]).toLowerCase();
+                const value = JSON.stringify(settings[key]).toLowerCase();
                 if (value.indexOf("uuid") > -1 || value.indexOf("label") > -1 || value.indexOf("/dev") > -1) {
                     if (target.target != "unknown")
                         target.multipleTargets = true;

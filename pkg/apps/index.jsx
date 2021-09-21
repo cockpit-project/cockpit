@@ -31,7 +31,7 @@ import { get_metainfo_db } from "./appstream.js";
 
 import "page.scss";
 
-var metainfo_db = get_metainfo_db();
+const metainfo_db = get_metainfo_db();
 
 function render_list() {
     ReactDOM.render(<ApplicationList metainfo_db={metainfo_db} />,
@@ -52,7 +52,7 @@ function hide(id) {
 }
 
 function navigate() {
-    var path = cockpit.location.path;
+    const path = cockpit.location.path;
 
     if (path.length === 0) {
         show('list-page');

@@ -42,15 +42,14 @@ export class Application extends React.Component {
     }
 
     render() {
-        var self = this;
-        var state = this.state;
-        var metainfo_db = this.props.metainfo_db;
-        var comp;
+        const self = this;
+        const state = this.state;
+        const metainfo_db = this.props.metainfo_db;
 
         if (!this.props.id)
             return null;
 
-        comp = metainfo_db.components[this.props.id];
+        const comp = metainfo_db.components[this.props.id];
 
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
@@ -111,7 +110,7 @@ export class Application extends React.Component {
                     return <div className="spinner" />;
             }
 
-            var progress_or_launch, button;
+            let progress_or_launch, button;
             if (state.progress) {
                 progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress} />;
                 button = <CancelButton data={self.state.progress} />;

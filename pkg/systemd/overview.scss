@@ -84,10 +84,6 @@
   &-subheading {
     font-size: var(--pf-global--FontSize--md);
   }
-
-  .fa.fa-lock, .fa.fa-unlock-alt {
-    margin-right: 0.5rem;
-  }
 }
 
 .ct-system-overview {
@@ -105,22 +101,6 @@
     }
 
     &__body {
-      .fa,
-      .pficon {
-        + a, + span {
-          /* Space out icons + links */
-          margin-left: 0.5rem;
-        }
-      }
-
-      a {
-        > .fa,
-        > .pficon {
-          /* Space out icons inside of links */
-          margin-right: 0.5rem;
-        }
-      }
-
       &:last-child .pf-c-table:last-child tr:last-child {
         /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
         border-bottom: none;

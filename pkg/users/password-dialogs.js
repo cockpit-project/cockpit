@@ -29,37 +29,35 @@ import { password_quality, PasswordFormFields } from "cockpit-components-passwor
 const _ = cockpit.gettext;
 
 function passwd_self(old_pass, new_pass) {
-    var old_exps = [
+    const old_exps = [
         /Current password: $/,
         /Current Password: $/,
         /.*\(current\) UNIX password: $/,
     ];
-    var new_exps = [
+    const new_exps = [
         /.*New password: $/,
         /.*Retype new password: $/,
         /.*Enter new \w*\s?password: $/,
         /.*Retype new \w*\s?password: $/
     ];
-    var bad_exps = [
+    const bad_exps = [
         /.*BAD PASSWORD:.*/
     ];
-    var too_new_exps = [
+    const too_new_exps = [
         /.*must wait longer to change.*/
     ];
 
     return new Promise((resolve, reject) => {
-        var buffer = "";
-        var sent_new = false;
-        var failure = _("Old password not accepted");
-        var i;
+        let buffer = "";
+        let sent_new = false;
+        let failure = _("Old password not accepted");
 
-        var proc;
-        var timeout = window.setTimeout(function() {
+        const timeout = window.setTimeout(function() {
             failure = _("Prompting via passwd timed out");
             proc.close("timeout");
         }, 10 * 1000);
 
-        proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
+        const proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -74,21 +72,21 @@ function passwd_self(old_pass, new_pass) {
                 .stream(function(data) {
                     buffer += data;
 
-                    for (i = 0; i < too_new_exps.length; i++) {
+                    for (let i = 0; i < too_new_exps.length; i++) {
                         if (too_new_exps[i].test(buffer)) {
                             failure = _("You must wait longer to change your password");
                         }
                     }
 
                     if (sent_new) {
-                        for (i = 0; i < bad_exps.length; i++) {
+                        for (let i = 0; i < bad_exps.length; i++) {
                             if (bad_exps[i].test(buffer)) {
                                 failure = _("New password was not accepted");
                             }
                         }
                     }
 
-                    for (i = 0; i < old_exps.length; i++) {
+                    for (let i = 0; i < old_exps.length; i++) {
                         if (old_exps[i].test(buffer)) {
                             buffer = "";
                             this.input(old_pass + "\n", true);
@@ -96,7 +94,7 @@ function passwd_self(old_pass, new_pass) {
                         }
                     }
 
-                    for (i = 0; i < new_exps.length; i++) {
+                    for (let i = 0; i < new_exps.length; i++) {
                         if (new_exps[i].test(buffer)) {
                             buffer = "";
                             this.input(new_pass + "\n", true);
@@ -264,8 +262,8 @@ export function set_password_dialog(account, current_user) {
 }
 
 export function reset_password_dialog(account) {
-    var msg = cockpit.format(_("The account '$0' will be forced to change their password on next login"),
-                             account.name);
+    const msg = cockpit.format(_("The account '$0' will be forced to change their password on next login"),
+                               account.name);
 
     const props = {
         id: "password-reset",

@@ -86,12 +86,12 @@ function validate_username(username, accounts) {
     if (!username)
         return _("No user name specified");
 
-    for (var i = 0; i < username.length; i++) {
+    for (let i = 0; i < username.length; i++) {
         if (!is_valid_char_username(username[i]))
             return _("The user name can only consist of letters from a-z, digits, dots, dashes and underscores.");
     }
 
-    for (var k = 0; k < accounts.length; k++) {
+    for (let k = 0; k < accounts.length; k++) {
         if (accounts[k].name == username)
             return _("This user name already exists");
     }
@@ -101,7 +101,7 @@ function validate_username(username, accounts) {
 
 function suggest_username(realname) {
     function remove_diacritics(str) {
-        var translate_table = {
+        const translate_table = {
             a :  '[àáâãäå]',
             ae:  'æ',
             c :  '[čç]',
@@ -119,10 +119,10 @@ function suggest_username(realname) {
             y :  '[ýÿ]',
             z :  'ž',
         };
-        for (var i in translate_table)
+        for (const i in translate_table)
             str = str.replace(new RegExp(translate_table[i], 'g'), i);
 
-        for (var k = 0; k < str.length;) {
+        for (let k = 0; k < str.length;) {
             if (!is_valid_char_username(str[k]))
                 str = str.substr(0, k) + str.substr(k + 1);
             else
@@ -132,8 +132,8 @@ function suggest_username(realname) {
         return str;
     }
 
-    var result = "";
-    var name = realname.split(' ');
+    let result = "";
+    const name = realname.split(' ');
 
     if (name.length === 1)
         result = name[0].toLowerCase();
@@ -224,7 +224,7 @@ export function account_create_dialog(accounts) {
                             shell = item.split("=")[1] || "";
                         }
                     });
-                    var prog = ["/usr/sbin/useradd", "--create-home", "-s", shell || "/bin/bash"];
+                    const prog = ["/usr/sbin/useradd", "--create-home", "-s", shell || "/bin/bash"];
                     if (state.real_name) {
                         prog.push('-c');
                         prog.push(state.real_name);

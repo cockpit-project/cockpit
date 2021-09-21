@@ -60,7 +60,7 @@ export function delete_account_dialog(account) {
                     caption: _("Delete"),
                     style: "danger",
                     clicked: () => {
-                        var prog = ["/usr/sbin/userdel"];
+                        const prog = ["/usr/sbin/userdel"];
                         if (state.delete_files)
                             prog.push("-r");
                         prog.push(account.name);

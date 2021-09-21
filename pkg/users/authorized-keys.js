@@ -6,12 +6,12 @@ import adder from "raw-loader!./ssh-add-public-key.sh";
 const _ = cockpit.gettext;
 
 function AuthorizedKeys (user_name, home_dir) {
-    var self = this;
-    var dir = home_dir + "/.ssh";
-    var filename = dir + "/authorized_keys";
-    var file = null;
-    var watch = null;
-    var last_tag = null;
+    const self = this;
+    const dir = home_dir + "/.ssh";
+    const filename = dir + "/authorized_keys";
+    let file = null;
+    let watch = null;
+    let last_tag = null;
 
     cockpit.event_target(self);
 
@@ -46,23 +46,22 @@ function AuthorizedKeys (user_name, home_dir) {
      * 2048 SHA256:AAAAB3NzaC1yc2EAAAADAQ Comment Here (RSA)
      * 2048 SHA256:AAAAB3NzaC1yc2EAAAADAQ (RSA)
      */
-    var PUBKEY_RE = /^(\S+)\s+(\S+)\s+(.*)\((\S+)\)$/;
+    const PUBKEY_RE = /^(\S+)\s+(\S+)\s+(.*)\((\S+)\)$/;
 
     function parse_pubkeys(input) {
-        var df = cockpit.defer();
-        var keys = [];
+        const df = cockpit.defer();
+        const keys = [];
 
         cockpit
                 .script(lister)
                 .input(input + "\n")
                 .done(function(output) {
-                    var match, obj, i;
-                    var lines = output.split("\n");
+                    const lines = output.split("\n");
 
-                    for (i = 0; i + 1 < lines.length; i += 2) {
-                        obj = { raw: lines[i + 1] };
+                    for (let i = 0; i + 1 < lines.length; i += 2) {
+                        const obj = { raw: lines[i + 1] };
                         keys.push(obj);
-                        match = lines[i].trim().match(PUBKEY_RE);
+                        const match = lines[i].trim().match(PUBKEY_RE);
                         obj.valid = !!match && !!obj.raw;
                         if (match) {
                             obj.size = match[1];
@@ -104,11 +103,11 @@ function AuthorizedKeys (user_name, home_dir) {
     }
 
     self.add_key = function(key) {
-        var df = cockpit.defer();
+        const df = cockpit.defer();
         df.notify(_("Validating key"));
         parse_pubkeys(key)
                 .done(function(keys) {
-                    var obj = keys[0];
+                    const obj = keys[0];
                     if (obj && obj.valid) {
                         df.notify(_("Adding key"));
                         cockpit
@@ -130,16 +129,14 @@ function AuthorizedKeys (user_name, home_dir) {
 
     self.remove_key = function(key) {
         return file.modify(function(content) {
-            var i;
-            var lines = null;
-            var new_lines = [];
+            let lines = null;
+            const new_lines = [];
 
             if (!content)
                 return "";
 
-            new_lines = [];
             lines = content.trim().split('\n');
-            for (i = 0; i < lines.length; i++) {
+            for (let i = 0; i < lines.length; i++) {
                 if (lines[i] === key)
                     key = undefined;
                 else

@@ -23,14 +23,13 @@ function parse_passwd_content(content) {
         return [];
     }
 
-    var ret = [];
-    var lines = content.split('\n');
-    var column;
+    const ret = [];
+    const lines = content.split('\n');
 
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
         if (!lines[i])
             continue;
-        column = lines[i].split(':');
+        const column = lines[i].split(':');
         ret.push({
             name: column[0],
             password: column[1],
@@ -56,14 +55,13 @@ function parse_group_content(content) {
         return [];
     }
 
-    var ret = [];
-    var lines = content.split('\n');
-    var column;
+    const ret = [];
+    const lines = content.split('\n');
 
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
         if (!lines[i])
             continue;
-        column = lines[i].split(':');
+        const column = lines[i].split(':');
         ret.push({
             name: column[0],
             password: column[1],

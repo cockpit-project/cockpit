@@ -50,8 +50,8 @@ export class SystemInfomationCard extends React.Component {
     }
 
     getMachineId() {
-        var machine_id = cockpit.file("/etc/machine-id");
-        var self = this;
+        const machine_id = cockpit.file("/etc/machine-id");
+        const self = this;
 
         machine_id.read()
                 .done(function(content) {
@@ -67,7 +67,7 @@ export class SystemInfomationCard extends React.Component {
     }
 
     getDMIInfo() {
-        var self = this;
+        const self = this;
 
         machine_info.dmi_info()
                 .then(fields => {

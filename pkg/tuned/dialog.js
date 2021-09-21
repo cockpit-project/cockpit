@@ -33,12 +33,12 @@ import 'bootstrap/js/tooltip';
 const _ = cockpit.gettext;
 
 function setup() {
-    var tuned_service = service.proxy('tuned.service');
+    const tuned_service = service.proxy('tuned.service');
 
-    var element = $(link_html);
+    const element = $(link_html);
 
-    var button = element.find(".action-trigger");
-    var tooltip = element.find("#tuned-status-tooltip");
+    const button = element.find(".action-trigger");
+    const tooltip = element.find("#tuned-status-tooltip");
     tooltip.tooltip({ placement: "top" });
 
     /* Tuned doesn't implement the DBus.Properties interface, so
@@ -49,7 +49,7 @@ function setup() {
      */
 
     function poll(tuned) {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
 
         Promise.all([
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'is_running', []),
@@ -57,9 +57,9 @@ function setup() {
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'recommend_profile', [])
         ])
                 .then(function([is_running_result, active_result, recommended_result]) {
-                    var is_running = is_running_result[0];
-                    var active = is_running ? active_result[0] : "none";
-                    var recommended = recommended_result[0];
+                    const is_running = is_running_result[0];
+                    const active = is_running ? active_result[0] : "none";
+                    const recommended = recommended_result[0];
 
                     dfd.resolve("running", active, recommended);
                 })
@@ -79,7 +79,7 @@ function setup() {
 
     function update_button() {
         /* Reading the current profile works as user */
-        var tuned = cockpit.dbus('com.redhat.tuned');
+        const tuned = cockpit.dbus('com.redhat.tuned');
 
         function set_status(text) {
             tooltip.attr("data-original-title", text);
@@ -87,7 +87,7 @@ function setup() {
 
         poll(tuned)
                 .done(function (state, active, recommended) {
-                    var status;
+                    let status;
 
                     if (state == "not-installed")
                         status = _("Tuned is not available");
@@ -113,13 +113,13 @@ function setup() {
     }
 
     function open_dialog() {
-        var tuned;
-        var dialog_selected;
+        let tuned;
+        let dialog_selected;
 
         function set_profile() {
             // no need to check input here, all states are valid
-            var profile = dialog_selected;
-            var promise;
+            const profile = dialog_selected;
+            let promise;
 
             if (profile == "none") {
                 promise = tuned.call("/Tuned", 'com.redhat.tuned.control', 'disable', [])
@@ -150,8 +150,8 @@ function setup() {
 
         function set_service() {
             /* When the profile is none we disable tuned */
-            var enable = (dialog_selected != "none");
-            var action = enable ? "start" : "stop";
+            const enable = (dialog_selected != "none");
+            const action = enable ? "start" : "stop";
             return tuned.call('/Tuned', 'com.redhat.tuned.control', action, [])
                     .then(function(results) {
                     /* Yup this is how tuned returns failures */
@@ -181,7 +181,7 @@ function setup() {
 
         function create_dialog(profiles, active_profile, primary_disabled, static_error) {
             dialog_selected = active_profile;
-            var dialog_props = {
+            const dialog_props = {
                 helpMessage: _("Tuned is a service that monitors your system and optimizes the performance under certain workloads. The core of Tuned are profiles, which tune your system for different use cases."),
                 helpLink: "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/managing_systems_using_the_rhel_8_web_console/index#optimizing-the-system-performance-using-the-web-console_system-management-using-the-RHEL-8-web-console",
                 title: _("Change performance profile"),
@@ -191,7 +191,7 @@ function setup() {
                     profiles: profiles,
                 }),
             };
-            var footer_props = {
+            const footer_props = {
                 actions: [{
                     clicked: set_profile,
                     caption: _("Change profile"),
@@ -204,9 +204,9 @@ function setup() {
         }
 
         function with_info(active, recommended, profiles) {
-            var model = [];
+            const model = [];
             profiles.forEach(function(p) {
-                var name, desc;
+                let name, desc;
                 if (typeof p === "string") {
                     name = p;
                     desc = "";
@@ -291,7 +291,7 @@ function setup() {
 }
 
 $(superuser).on('changed', function () {
-    var element = $('#system-info-performance');
+    const element = $('#system-info-performance');
     element.empty().append(setup());
     element.removeAttr('hidden');
 });

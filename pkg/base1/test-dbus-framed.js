@@ -11,8 +11,8 @@ function parent_window(assert) {
 
     document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
     window.name = "cockpit1";
-    var initialized = false;
-    var frame;
+    let initialized = false;
+    let frame;
 
     cockpit.transport.filter((message, channel, control) => {
         if (initialized) {

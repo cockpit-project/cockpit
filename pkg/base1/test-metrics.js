@@ -10,7 +10,7 @@ function MockPeer() {
      */
     cockpit.event_target(this);
 
-    var channel = null;
+    let channel = null;
 
     /* open: triggered when mock Channel is created */
     this.onopened = function(event, channel, options) {
@@ -48,8 +48,8 @@ function MockPeer() {
         }
     };
 
-    var peer = this;
-    var last_channel = 0;
+    const peer = this;
+    let last_channel = 0;
 
     function MockChannel(options) {
         cockpit.event_target(this);
@@ -57,7 +57,7 @@ function MockPeer() {
         this.options = options;
         this.valid = true;
 
-        var channel = this;
+        const channel = this;
 
         function Transport() {
             this.close = function(problem) { console.assert(arguments.length == 1) };
@@ -91,12 +91,12 @@ function MockPeer() {
 }
 
 function MockSink(expected, callback) {
-    var self = this;
+    const self = this;
 
     self.samples = [];
 
     function input(beg, items, mapping) {
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             self.samples[beg + i] = items[i];
     }
 
@@ -107,10 +107,10 @@ function MockSink(expected, callback) {
 QUnit.test("non-instanced decompression", function (assert) {
     assert.expect(1);
 
-    var peer = new MockPeer();
-    var sink = new MockSink();
+    const peer = new MockPeer();
+    const sink = new MockSink();
 
-    var metrics = cockpit.metrics(1000, {
+    const metrics = cockpit.metrics(1000, {
         source: "source",
         metrics: [{ name: "m1" }],
     });

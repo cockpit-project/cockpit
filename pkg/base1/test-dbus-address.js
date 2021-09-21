@@ -4,7 +4,7 @@ import { common_dbus_tests, dbus_track_tests } from "./test-dbus-common.js";
 import QUnit from "qunit-tests";
 
 /* no name */
-var direct_options = {
+const direct_options = {
     address: direct_address,
     bus: "none",
     capabilities: ["address"]
@@ -13,7 +13,7 @@ var direct_options = {
 common_dbus_tests(direct_options, null);
 
 /* with a name */
-var address_options = {
+const address_options = {
     address: bus_address,
     bus: "none",
     capabilities: ["address"]

@@ -1,10 +1,10 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
-var pig_latin = {
+const pig_latin = {
     "": {
         language: "pig", "plural-forms": function(n) {
-            var plural = (n != 1);
+            const plural = (n != 1);
             return plural;
         }
     },
@@ -24,11 +24,11 @@ var pig_latin = {
     ]
 };
 
-var ru = {
+const ru = {
     "": {
         language: "ru", "plural-forms":
         function(n) {
-            var plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
+            const plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;
         }
     },
@@ -53,7 +53,7 @@ QUnit.test("underscore", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(pig_latin);
     const _ = cockpit.gettext;
-    var C_ = _;
+    const C_ = _;
     assert.equal(_("Control"), "Ontrolcay", "returned translation");
     assert.equal(_("Empty"), "Empty", "english default");
     assert.equal(C_("key", "Control"), "OntrolCAY", "with context");

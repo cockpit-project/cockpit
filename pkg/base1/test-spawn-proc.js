@@ -95,7 +95,7 @@ QUnit.test("write eof read", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var proc = cockpit.spawn(["/usr/bin/sort"]);
+    const proc = cockpit.spawn(["/usr/bin/sort"]);
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n", "output");
@@ -114,9 +114,9 @@ QUnit.test("stream", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var streamed = 0;
-    var result = "";
-    var proc = cockpit.spawn(["/bin/cat"])
+    let streamed = 0;
+    let result = "";
+    const proc = cockpit.spawn(["/bin/cat"])
             .stream(function(resp) {
                 result += resp;
                 streamed += 1;
@@ -140,8 +140,8 @@ QUnit.test("stream packets", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var streamed = "";
-    var proc = cockpit.spawn(["/bin/cat"])
+    let streamed = "";
+    const proc = cockpit.spawn(["/bin/cat"])
             .stream(function(resp) {
                 streamed += resp;
             })
@@ -163,10 +163,10 @@ QUnit.test("stream replaced", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var first = false;
-    var second = false;
+    let first = false;
+    let second = false;
 
-    var proc = cockpit.spawn(["/bin/cat"])
+    const proc = cockpit.spawn(["/bin/cat"])
             .stream(function(resp) {
                 first = true;
             })
@@ -189,8 +189,8 @@ QUnit.test("stream partial", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var streamed = "";
-    var proc = cockpit.spawn(["/bin/cat"])
+    let streamed = "";
+    const proc = cockpit.spawn(["/bin/cat"])
             .stream(function(resp) {
                 if (resp.length > 0) {
                     streamed += resp[0];
@@ -213,8 +213,8 @@ QUnit.test("stream partial binary", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var streamed = [];
-    var proc = cockpit.spawn(["/bin/cat"], { binary: true })
+    const streamed = [];
+    const proc = cockpit.spawn(["/bin/cat"], { binary: true })
             .stream(function(resp) {
                 if (resp.length > 0) {
                     streamed.push(resp[0]);
@@ -237,9 +237,9 @@ QUnit.test("script with input", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
+    const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
 
-    var proc = cockpit.script(script, ["5", "4"]);
+    const proc = cockpit.script(script, ["5", "4"]);
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
@@ -258,9 +258,9 @@ QUnit.test("script with options", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
+    const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
 
-    var proc = cockpit.script(script, ["5", "4"], { err: "out" });
+    const proc = cockpit.script(script, ["5", "4"], { err: "out" });
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
@@ -279,9 +279,9 @@ QUnit.test("script without args", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";
+    const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";
 
-    var proc = cockpit.script(script, { err: "out" });
+    const proc = cockpit.script(script, { err: "out" });
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n", "output matched");
@@ -300,7 +300,7 @@ QUnit.test("stream large output", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var lastblock = null;
+    let lastblock = null;
     cockpit.spawn(["seq", "10000000"])
             .stream(function(resp) {
                 if (lastblock === null)

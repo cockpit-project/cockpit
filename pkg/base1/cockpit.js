@@ -28,7 +28,7 @@ import "../lib/table.css";
 
 /* eslint-disable indent,no-empty */
 
-var url_root;
+let url_root;
 
 try {
     // Sometimes this throws a SecurityError such as during testing
@@ -36,10 +36,10 @@ try {
 } catch (e) { }
 
 /* injected by tests */
-var mock = mock || { }; // eslint-disable-line no-use-before-define
+var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var
 
 (function() {
-var cockpit = { };
+const cockpit = { };
 event_mixin(cockpit, { });
 
 /*
@@ -62,8 +62,8 @@ if (typeof window.debugging === "undefined") {
 }
 
 function in_array(array, val) {
-    var length = array.length;
-    for (var i = 0; i < length; i++) {
+    const length = array.length;
+    for (let i = 0; i < length; i++) {
         if (val === array[i])
             return true;
     }
@@ -89,11 +89,11 @@ function is_negative(n) {
 
 /* Object.assign() workalike */
 function extend(to/* , from ... */) {
-    var j, len, key, from;
-    for (j = 1, len = arguments.length; j < len; j++) {
-        from = arguments[j];
+    const len = arguments.length;
+    for (let j = 1; j < len; j++) {
+        const from = arguments[j];
         if (from) {
-            for (key in from) {
+            for (const key in from) {
                 if (from[key] !== undefined)
                     to[key] = from[key];
             }
@@ -103,17 +103,16 @@ function extend(to/* , from ... */) {
 }
 
 function invoke_functions(functions, self, args) {
-    var length = functions ? functions.length : 0;
-    for (var i = 0; i < length; i++) {
+    const length = functions ? functions.length : 0;
+    for (let i = 0; i < length; i++) {
         if (functions[i])
             functions[i].apply(self, args);
     }
 }
 
 function iterate_data(data, callback, batch) {
-    var binary = false;
-    var i, n;
-    var len = 0;
+    let binary = false;
+    let len = 0;
 
     if (!batch)
         batch = 64 * 1024;
@@ -127,8 +126,8 @@ function iterate_data(data, callback, batch) {
          }
     }
 
-    for (i = 0; i < len; i += batch) {
-        n = Math.min(len - i, batch);
+    for (let i = 0; i < len; i += batch) {
+        const n = Math.min(len - i, batch);
         if (binary)
             callback(new window.Uint8Array(data.buffer, i, n));
         else
@@ -142,17 +141,17 @@ function iterate_data(data, callback, batch) {
  * Public: https://cockpit-project.org/guide/latest/api-base1.html
  */
 
-var default_transport = null;
-var public_transport = null;
-var reload_after_disconnect = false;
-var expect_disconnect = false;
-var init_callback = null;
-var default_host = null;
-var process_hints = null;
-var incoming_filters = null;
-var outgoing_filters = null;
+let default_transport = null;
+let public_transport = null;
+let reload_after_disconnect = false;
+let expect_disconnect = false;
+let init_callback = null;
+let default_host = null;
+let process_hints = null;
+let incoming_filters = null;
+let outgoing_filters = null;
 
-var transport_origin = window.location.origin;
+let transport_origin = window.location.origin;
 
 if (!transport_origin) {
     transport_origin = window.location.protocol + "//" + window.location.hostname +
@@ -160,17 +159,17 @@ if (!transport_origin) {
 }
 
 function array_from_raw_string(str, constructor) {
-    var length = str.length;
-    var data = new (constructor || Array)(length);
-    for (var i = 0; i < length; i++)
+    const length = str.length;
+    const data = new (constructor || Array)(length);
+    for (let i = 0; i < length; i++)
         data[i] = str.charCodeAt(i) & 0xFF;
     return data;
 }
 
 function array_to_raw_string(data) {
-    var length = data.length;
-    var str = "";
-    for (var i = 0; i < length; i++)
+    const length = data.length;
+    let str = "";
+    for (let i = 0; i < length; i++)
         str += String.fromCharCode(data[i]);
     return str;
 }
@@ -192,10 +191,10 @@ function base64_encode(data) {
     /* For when the caller has chosen to use ArrayBuffer */
     if (data instanceof window.ArrayBuffer)
         data = new window.Uint8Array(data);
-    var length = data.length;
-    var mod3 = 2;
-    var str = "";
-    for (var uint24 = 0, i = 0; i < length; i++) {
+    const length = data.length;
+    let mod3 = 2;
+    let str = "";
+    for (let uint24 = 0, i = 0; i < length; i++) {
         mod3 = i % 3;
         uint24 |= data[i] << (16 >>> mod3 & 24);
         if (mod3 === 2 || length - i === 1) {
@@ -218,14 +217,15 @@ function b64_to_uint6 (x) {
 function base64_decode(str, constructor) {
     if (constructor === String)
         return window.atob(str);
-    var ilen = str.length;
-    for (var eq = 0; eq < 3; eq++) {
+    const ilen = str.length;
+    let eq;
+    for (eq = 0; eq < 3; eq++) {
         if (str[ilen - (eq + 1)] != '=')
             break;
     }
-    var olen = (ilen * 3 + 1 >> 2) - eq;
-    var data = new (constructor || Array)(olen);
-    for (var mod3, mod4, uint24 = 0, oi = 0, ii = 0; ii < ilen; ii++) {
+    const olen = (ilen * 3 + 1 >> 2) - eq;
+    const data = new (constructor || Array)(olen);
+    for (let mod3, mod4, uint24 = 0, oi = 0, ii = 0; ii < ilen; ii++) {
         mod4 = ii & 3;
         uint24 |= b64_to_uint6(str.charCodeAt(ii)) << 18 - 6 * mod4;
         if (mod4 === 3 || ilen - ii === 1) {
@@ -265,8 +265,8 @@ function event_mixin(obj, handlers) {
         removeEventListener: {
             enumerable: false,
             value: function removeEventListener(type, handler) {
-                var length = handlers[type] ? handlers[type].length : 0;
-                for (var i = 0; i < length; i++) {
+                const length = handlers[type] ? handlers[type].length : 0;
+                for (let i = 0; i < length; i++) {
                     if (handlers[type][i] === handler) {
                         handlers[type][i] = null;
                         break;
@@ -277,12 +277,12 @@ function event_mixin(obj, handlers) {
         dispatchEvent: {
             enumerable: false,
             value: function dispatchEvent(event) {
-                var type, args;
+                let type, args;
                 if (typeof event === "string") {
                     type = event;
                     args = Array.prototype.slice.call(arguments, 1);
 
-                    var detail = null;
+                    let detail = null;
                     if (arguments.length == 2)
                         detail = arguments[1];
                     else if (arguments.length > 2)
@@ -308,8 +308,8 @@ function event_mixin(obj, handlers) {
 }
 
 function calculate_application() {
-    var path = window.location.pathname || "/";
-    var _url_root = url_root;
+    let path = window.location.pathname || "/";
+    let _url_root = url_root;
     if (window.mock && window.mock.pathname)
         path = window.mock.pathname;
     if (window.mock && window.mock.url_root)
@@ -331,15 +331,15 @@ function calculate_application() {
 function calculate_url(suffix) {
     if (!suffix)
         suffix = "socket";
-    var window_loc = window.location.toString();
-    var _url_root = url_root;
+    const window_loc = window.location.toString();
+    let _url_root = url_root;
 
     if (window.mock && window.mock.url)
         return window.mock.url;
     if (window.mock && window.mock.url_root)
         _url_root = window.mock.url_root;
 
-    var prefix = calculate_application();
+    let prefix = calculate_application();
     if (_url_root)
         prefix = _url_root + "/" + prefix;
 
@@ -357,26 +357,21 @@ function join_data(buffers, binary) {
     if (!binary)
         return buffers.join("");
 
-    var data;
-    var i, j, k;
-    var total = 0;
-    var length = buffers.length;
-    for (i = 0; i < length; i++)
+    let total = 0;
+    const length = buffers.length;
+    for (let i = 0; i < length; i++)
         total += buffers[i].length;
 
-    if (window.Uint8Array)
-        data = new window.Uint8Array(total);
-    else
-        data = new Array(total);
+    const data = window.Uint8Array ? new window.Uint8Array(total) : new Array(total);
 
     if (data.set) {
-        for (j = 0, i = 0; i < length; i++) {
+        for (let j = 0, i = 0; i < length; i++) {
             data.set(buffers[i], j);
             j += buffers[i].length;
         }
     } else {
-        for (j = 0, i = 0; i < length; i++) {
-            for (k = 0; k < buffers[i].length; k++)
+        for (let j = 0, i = 0; i < length; i++) {
+            for (let k = 0; k < buffers[i].length; k++)
                 data[i + j] = buffers[i][k];
             j += buffers[i].length;
         }
@@ -396,13 +391,13 @@ function join_data(buffers, binary) {
  *  * An empty string message means "close" (not completely used yet)
  */
 function ParentWebSocket(parent) {
-    var self = this;
+    const self = this;
     self.readyState = 0;
 
     window.addEventListener("message", function receive(event) {
         if (event.origin !== transport_origin || event.source !== parent)
             return;
-        var data = event.data;
+        const data = event.data;
         if (data === undefined || (data.length === undefined && data.byteLength === undefined))
             return;
         if (data.length === 0) {
@@ -430,12 +425,13 @@ function ParentWebSocket(parent) {
 }
 
 function parse_channel(data) {
-    var binary, length, pos, channel;
+    let channel;
 
     /* A binary message, split out the channel */
     if (data instanceof window.ArrayBuffer) {
-        binary = new window.Uint8Array(data);
-        length = binary.length;
+        const binary = new window.Uint8Array(data);
+        const length = binary.length;
+        let pos;
         for (pos = 0; pos < length; pos++) {
             if (binary[pos] == 10) /* new line */
                 break;
@@ -452,7 +448,7 @@ function parse_channel(data) {
 
     /* A textual message */
     } else {
-        pos = data.indexOf('\n');
+        const pos = data.indexOf('\n');
         if (pos === -1) {
             console.warn("text message without channel");
             return null;
@@ -465,26 +461,27 @@ function parse_channel(data) {
 
 /* Private Transport class */
 function Transport() {
-    var self = this;
+    const self = this;
     self.application = calculate_application();
 
     /* We can trigger events */
     event_mixin(self, { });
 
-    var last_channel = 0;
-    var channel_seed = "";
+    let last_channel = 0;
+    let channel_seed = "";
 
     if (window.mock)
         window.mock.last_transport = self;
 
-    var ws;
-    var check_health_timer;
-    var ignore_health_check = false;
-    var got_message = false;
+    let ws;
+    let ignore_health_check = false;
+    let got_message = false;
 
     /* See if we should communicate via parent */
     if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
         ws = new ParentWebSocket(window.parent);
+
+    let check_health_timer;
 
     /* HACK: Compatibility if we're hosted by older Cockpit versions */
     try {
@@ -498,7 +495,7 @@ function Transport() {
     }
 
     if (!ws) {
-        var ws_loc = calculate_url();
+        const ws_loc = calculate_url();
         transport_debug("connecting to " + ws_loc);
 
         if (ws_loc) {
@@ -533,9 +530,9 @@ function Transport() {
         }, 50);
     }
 
-    var control_cbs = { };
-    var message_cbs = { };
-    var waiting_for_init = true;
+    const control_cbs = { };
+    const message_cbs = { };
+    let waiting_for_init = true;
     self.ready = false;
 
     /* Called when ready for channels to interact */
@@ -568,17 +565,16 @@ function Transport() {
         got_message = true;
 
         /* The first line of a message is the channel */
-        var message = arg.data;
+        const message = arg.data;
 
-        var channel = parse_channel(message);
+        const channel = parse_channel(message);
         if (channel === null)
             return false;
 
-        var payload, control;
-        if (message instanceof window.ArrayBuffer)
-            payload = new window.Uint8Array(message, channel.length + 1);
-        else
-            payload = message.substring(channel.length + 1);
+        const payload = message instanceof window.ArrayBuffer
+            ? new window.Uint8Array(message, channel.length + 1)
+            : message.substring(channel.length + 1);
+        let control;
 
         /* A control message, always string */
         if (!channel) {
@@ -588,9 +584,8 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        var i;
-        var length = incoming_filters ? incoming_filters.length : 0;
-        for (i = 0; i < length; i++) {
+        const length = incoming_filters ? incoming_filters.length : 0;
+        for (let i = 0; i < length; i++) {
             if (incoming_filters[i](message, channel, control) === false)
                 return false;
         }
@@ -608,7 +603,7 @@ function Transport() {
             options = { problem: "disconnected" };
         options.command = "close";
         window.clearInterval(check_health_timer);
-        var ows = ws;
+        const ows = ws;
         ws = null;
         if (ows)
             ows.close();
@@ -617,7 +612,7 @@ function Transport() {
         ready_for_channels(); /* ready to fail */
 
         /* Broadcast to everyone */
-        for (var chan in control_cbs)
+        for (const chan in control_cbs)
             control_cbs[chan].apply(null, [options]);
     };
 
@@ -659,8 +654,7 @@ function Transport() {
     }
 
     function process_control(data) {
-        var channel = data.channel;
-        var func;
+        const channel = data.channel;
 
         /* Init message received */
         if (data.command == "init") {
@@ -684,14 +678,14 @@ function Transport() {
             if (process_hints)
                 process_hints(data);
         } else if (channel !== undefined) {
-            func = control_cbs[channel];
+            const func = control_cbs[channel];
             if (func)
                 func(data);
         }
     }
 
     function process_message(channel, payload) {
-        var func = message_cbs[channel];
+        const func = message_cbs[channel];
         if (func)
             func(payload);
     }
@@ -702,9 +696,8 @@ function Transport() {
             return false;
         }
 
-        var i;
-        var length = outgoing_filters ? outgoing_filters.length : 0;
-        for (i = 0; i < length; i++) {
+        const length = outgoing_filters ? outgoing_filters.length : 0;
+        for (let i = 0; i < length; i++) {
             if (channel === undefined)
                 channel = parse_channel(data);
             if (!channel && control === undefined)
@@ -728,7 +721,7 @@ function Transport() {
         if (payload.byteLength || Array.isArray(payload)) {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
-            var output = join_data([array_from_raw_string(channel), [10], payload], true);
+            const output = join_data([array_from_raw_string(channel), [10], payload], true);
             return self.send_data(output.buffer, channel, control);
 
         /* A string message */
@@ -761,10 +754,9 @@ function Transport() {
 }
 
 function ensure_transport(callback) {
-    var transport;
     if (!default_transport)
         default_transport = new Transport();
-    transport = default_transport;
+    const transport = default_transport;
     if (transport.ready) {
         callback(transport);
     } else {
@@ -781,25 +773,25 @@ window.addEventListener("unload", function() {
 });
 
 function Channel(options) {
-    var self = this;
+    const self = this;
 
     /* We can trigger events */
     event_mixin(self, { });
 
-    var transport;
-    var ready = null;
-    var closed = null;
-    var waiting = null;
-    var received_done = false;
-    var sent_done = false;
-    var id = null;
-    var binary = (options.binary === true);
+    let transport;
+    let ready = null;
+    let closed = null;
+    let waiting = null;
+    let received_done = false;
+    let sent_done = false;
+    let id = null;
+    const binary = (options.binary === true);
 
     /*
      * Queue while waiting for transport, items are tuples:
      * [is_control ? true : false, payload]
      */
-    var queue = [];
+    const queue = [];
 
     /* Handy for callers, but not used by us */
     self.valid = true;
@@ -841,7 +833,7 @@ function Channel(options) {
             on_ready(data);
         }
 
-        var done = data.command === "done";
+        const done = data.command === "done";
         if (done && received_done) {
             console.warn("received two done commands on channel");
             self.close("protocol-error");
@@ -872,8 +864,8 @@ function Channel(options) {
         transport.register(id, on_control, on_message);
 
         /* Now open the channel */
-        var command = { };
-        for (var i in options)
+        const command = { };
+        for (const i in options)
             command[i] = options[i];
         command.command = "open";
         command.channel = id;
@@ -893,7 +885,7 @@ function Channel(options) {
 
         /* Now drain the queue */
         while (queue.length > 0) {
-            var item = queue.shift();
+            const item = queue.shift();
             if (item[0]) {
                 item[1].channel = id;
                 transport.send_control(item[1]);
@@ -943,7 +935,7 @@ function Channel(options) {
                 });
             }
         }
-        var promise = waiting.promise;
+        const promise = waiting.promise;
         if (callback)
             promise.then(callback, callback);
         return promise;
@@ -968,19 +960,18 @@ function Channel(options) {
     };
 
     self.buffer = function buffer(callback) {
-        var buffers = [];
+        const buffers = [];
         buffers.callback = callback;
         buffers.squash = function squash() {
             return join_data(buffers, binary);
         };
 
         function on_message(event, data) {
-            var consumed, block;
             buffers.push(data);
             if (buffers.callback) {
-                block = join_data(buffers, binary);
+                const block = join_data(buffers, binary);
                 if (block.length > 0) {
-                    consumed = buffers.callback.call(self, block);
+                    const consumed = buffers.callback.call(self, block);
                     if (typeof consumed !== "number" || consumed === block.length) {
                         buffers.length = 0;
                     } else if (consumed === 0) {
@@ -1011,17 +1002,17 @@ function Channel(options) {
     };
 
     self.toString = function toString() {
-        var host = options.host || "localhost";
+        const host = options.host || "localhost";
         return "[Channel " + (self.valid ? id : "<invalid>") + " -> " + host + "]";
     };
 }
 
 /* Resolve dots and double dots */
 function resolve_path_dots(parts) {
-    var out = [];
-    var length = parts.length;
-    for (var i = 0; i < length; i++) {
-        var part = parts[i];
+    const out = [];
+    const length = parts.length;
+    for (let i = 0; i < length; i++) {
+        const part = parts[i];
         if (part === "" || part == ".") {
             continue;
         } else if (part == "..") {
@@ -1055,11 +1046,11 @@ function factory() {
      */
 
     function Utf8TextEncoder(constructor) {
-        var self = this;
+        const self = this;
         self.encoding = "utf-8";
 
         self.encode = function encode(string, options) {
-            var data = window.unescape(encodeURIComponent(string));
+            const data = window.unescape(encodeURIComponent(string));
             if (constructor === String)
                 return data;
             return array_from_raw_string(data, constructor);
@@ -1067,12 +1058,12 @@ function factory() {
     }
 
     function Utf8TextDecoder(fatal) {
-        var self = this;
-        var buffer = null;
+        const self = this;
+        let buffer = null;
         self.encoding = "utf-8";
 
         self.decode = function decode(data, options) {
-            var stream = options && options.stream;
+            const stream = options && options.stream;
 
             if (data === null || data === undefined)
                 data = "";
@@ -1084,15 +1075,14 @@ function factory() {
             }
 
             /* We have to scan to do non-fatal and streaming */
-            var beg = 0;
-            var i = 0;
-            var len = data.length;
-            var p, x, j, ok;
-            var str = "";
+            const len = data.length;
+            let beg = 0;
+            let i = 0;
+            let str = "";
 
             while (i < len) {
-                p = data.charCodeAt(i);
-                x = p == 255 ? 0
+                const p = data.charCodeAt(i);
+                const x = p == 255 ? 0
                     : p > 251 && p < 254 ? 6
                     : p > 247 && p < 252 ? 5
                     : p > 239 && p < 248 ? 4
@@ -1100,14 +1090,14 @@ function factory() {
                     : p > 191 && p < 224 ? 2
                     : p < 128 ? 1 : 0;
 
-                ok = (i + x <= len);
+                let ok = (i + x <= len);
                 if (!ok && stream) {
                     buffer = data.substring(i);
                     break;
                 }
                 if (x === 0)
                     ok = false;
-                for (j = 1; ok && j < x; j++)
+                for (let j = 1; ok && j < x; j++)
                     ok = (data.charCodeAt(i + j) & 0x80) !== 0;
 
                 if (!ok) {
@@ -1142,7 +1132,7 @@ function factory() {
     cockpit.base64_decode = base64_decode;
 
     cockpit.kill = function kill(host, group) {
-        var options = { };
+        const options = { };
         if (host)
             options.host = host;
         if (group)
@@ -1184,11 +1174,8 @@ function factory() {
             }
         },
         close: function close(problem) {
-            var options;
-            if (problem)
-                options = { problem: problem };
             if (default_transport)
-                default_transport.close(options);
+                default_transport.close(problem ? { problem: problem } : undefined);
             default_transport = null;
             this.options = { };
         },
@@ -1213,16 +1200,15 @@ function factory() {
      * An ordered queue of functions that should be called later.
      */
 
-    var later_queue = [];
-    var later_timeout = null;
+    let later_queue = [];
+    let later_timeout = null;
 
     function later_drain() {
-        var func;
-        var queue = later_queue;
+        const queue = later_queue;
         later_timeout = null;
         later_queue = [];
         for (;;) {
-            func = queue.shift();
+            const func = queue.shift();
             if (!func)
                 break;
             func();
@@ -1251,7 +1237,7 @@ function factory() {
     function promise_then(state, fulfilled, rejected, updated) {
         if (fulfilled === undefined && rejected === undefined && updated === undefined)
             return null;
-        var result = new Deferred();
+        const result = new Deferred();
         state.pending = state.pending || [];
         state.pending.push([result, fulfilled, rejected, updated]);
         if (state.status > 0)
@@ -1261,7 +1247,7 @@ function factory() {
 
     function create_promise(state) {
         /* Like jQuery the promise object is callable */
-        var self = function Promise(target) {
+        const self = function Promise(target) {
             if (target) {
                 extend(target, self);
                 return target;
@@ -1323,15 +1309,13 @@ function factory() {
     }
 
     function process_queue(state) {
-        var fn, deferred, pending;
-
-        pending = state.pending;
+        const pending = state.pending;
         state.process_scheduled = false;
         state.pending = undefined;
-        for (var i = 0, ii = pending.length; i < ii; ++i) {
+        for (let i = 0, ii = pending.length; i < ii; ++i) {
             state.pur = true;
-            deferred = pending[i][0];
-            fn = pending[i][state.status];
+            const deferred = pending[i][0];
+            const fn = pending[i][state.status];
             if (is_function(fn)) {
                 deferred.resolve(fn.apply(state.promise, state.values));
             } else if (state.status === 1) {
@@ -1350,8 +1334,8 @@ function factory() {
     }
 
     function deferred_resolve(state, values) {
-        var then;
-        var done = false;
+        let then;
+        let done = false;
         if (is_object(values[0]) || is_function(values[0]))
             then = values[0] && values[0].then;
         if (is_function(then)) {
@@ -1383,13 +1367,12 @@ function factory() {
     }
 
     function deferred_notify(state, values) {
-        var callbacks = state.pending;
+        const callbacks = state.pending;
         if ((state.status <= 0) && callbacks && callbacks.length) {
             later_invoke(function() {
-                var callback, result;
-                for (var i = 0, ii = callbacks.length; i < ii; i++) {
-                    result = callbacks[i][0];
-                    callback = callbacks[i][3];
+                for (let i = 0, ii = callbacks.length; i < ii; i++) {
+                    const result = callbacks[i][0];
+                    const callback = callbacks[i][3];
                     if (is_function(callback))
                         result.notify(callback.apply(state.promise, values));
                     else
@@ -1400,8 +1383,8 @@ function factory() {
     }
 
     function Deferred() {
-        var self = this;
-        var state = { };
+        const self = this;
+        const state = { };
         self.promise = state.promise = create_promise(state);
 
         self.resolve = function resolve(/* ... */) {
@@ -1426,7 +1409,7 @@ function factory() {
     }
 
     function prep_promise(values, resolved) {
-        var result = cockpit.defer();
+        const result = cockpit.defer();
         if (resolved)
             result.resolve.apply(result, values);
         else
@@ -1435,7 +1418,7 @@ function factory() {
     }
 
     function handle_callback(values, is_resolved, callback) {
-        var callback_output = null;
+        let callback_output = null;
         if (is_function(callback))
             callback_output = callback();
         if (callback_output && is_function(callback_output.then)) {
@@ -1450,7 +1433,7 @@ function factory() {
     }
 
     cockpit.when = function when(value, fulfilled, rejected, updated) {
-        var result = cockpit.defer();
+        const result = cockpit.defer();
         result.resolve(value);
         return result.promise.then(fulfilled, rejected, updated);
     };
@@ -1471,13 +1454,13 @@ function factory() {
      * Utilities
      */
 
-    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+    const fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     cockpit.format = function format(fmt, args) {
         if (arguments.length != 2 || !is_object(args) || args === null)
             args = Array.prototype.slice.call(arguments, 1);
 
         function replace(m, x, y) {
-            var value = args[x || y];
+            const value = args[x || y];
 
             /* Special-case 0 (also catches 0.0). All other falsy values return
              * the empty string.
@@ -1501,7 +1484,7 @@ function factory() {
          * non-localised conversions (and in both cases, show no
          * fractional part).
          */
-        var lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
+        const lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
 
         if (!number && number !== 0)
             return "";
@@ -1521,23 +1504,19 @@ function factory() {
     };
 
     function format_units(number, suffixes, factor, separate) {
-        var quotient;
-        var suffix = null;
-        var key, keys;
-        var divisor;
-        var y, x, i;
+        let suffix = null;
 
         /* Find that factor string */
         if (!number && number !== 0) {
             suffix = null;
         } else if (typeof (factor) === "string") {
             /* Prefer larger factors */
-            keys = [];
-            for (key in suffixes)
+            const keys = [];
+            for (const key in suffixes)
                 keys.push(key);
             keys.sort().reverse();
-            for (y = 0; y < keys.length; y++) {
-                for (x = 0; x < suffixes[keys[y]].length; x++) {
+            for (let y = 0; y < keys.length; y++) {
+                for (let x = 0; x < suffixes[keys[y]].length; x++) {
                     if (factor == suffixes[keys[y]][x]) {
                         number = number / Math.pow(keys[y], x);
                         suffix = factor;
@@ -1550,9 +1529,9 @@ function factory() {
 
         /* @factor is a number */
         } else if (factor in suffixes) {
-            divisor = 1;
-            for (i = 0; i < suffixes[factor].length; i++) {
-                quotient = number / divisor;
+            let divisor = 1;
+            for (let i = 0; i < suffixes[factor].length; i++) {
+                const quotient = number / divisor;
                 if (quotient < factor) {
                     number = quotient;
                     suffix = suffixes[factor][i];
@@ -1562,8 +1541,8 @@ function factory() {
             }
         }
 
-        var string_representation = cockpit.format_number(number);
-        var ret;
+        const string_representation = cockpit.format_number(number);
+        let ret;
 
         if (string_representation && suffix)
             ret = [string_representation, suffix];
@@ -1576,7 +1555,7 @@ function factory() {
         return ret;
     }
 
-    var byte_suffixes = {
+    const byte_suffixes = {
         1000: [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"],
         1024: [null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
     };
@@ -1598,12 +1577,12 @@ function factory() {
                    };
         }
 
-        var units = [unit(2), unit(3), unit(4)];
+        const units = [unit(2), unit(3), unit(4)];
 
         // The default unit is the largest one that gives us at least
         // two decimal digits in front of the comma.
 
-        for (var i = units.length - 1; i >= 0; i--) {
+        for (let i = units.length - 1; i >= 0; i--) {
             if (i === 0 || (guide_value / units[i].factor) >= 10) {
                 units[i].selected = true;
                 break;
@@ -1613,7 +1592,7 @@ function factory() {
         return units;
     };
 
-    var byte_sec_suffixes = {
+    const byte_sec_suffixes = {
         1024: ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s"]
     };
 
@@ -1623,7 +1602,7 @@ function factory() {
         return format_units(number, byte_sec_suffixes, factor, separate);
     };
 
-    var bit_suffixes = {
+    const bit_suffixes = {
         1000: ["bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps"]
     };
 
@@ -1640,8 +1619,8 @@ function factory() {
      * with helpers for compatibility.
      */
     function StorageHelper(storageName) {
-        var self = this;
-        var storage;
+        const self = this;
+        let storage;
 
         try {
             storage = window[storageName];
@@ -1652,7 +1631,7 @@ function factory() {
         };
 
         self.getItem = function (key, both) {
-            var value = storage.getItem(self.prefixedKey(key));
+            let value = storage.getItem(self.prefixedKey(key));
             if (!value && both)
                 value = storage.getItem(key);
             return value;
@@ -1674,9 +1653,9 @@ function factory() {
          * and anything prefixed with our application.
          */
         self.clear = function(full) {
-            var i = 0;
+            let i = 0;
             while (i < storage.length) {
-                var k = storage.key(i);
+                const k = storage.key(i);
                 if (full && k.indexOf("cockpit") !== 0)
                     storage.removeItem(k);
                 else if (k.indexOf(cockpit.transport.application()) === 0)
@@ -1699,7 +1678,7 @@ function factory() {
      */
 
     function lookup_storage(win) {
-        var storage;
+        let storage;
         if (win.parent && win.parent !== win)
             storage = lookup_storage(win.parent);
         if (!storage) {
@@ -1713,24 +1692,22 @@ function factory() {
     }
 
     function StorageCache(org_key, provider, consumer) {
-        var self = this;
-        var key = cockpit.transport.application() + ":" + org_key;
+        const self = this;
+        const key = cockpit.transport.application() + ":" + org_key;
 
         /* For triggering events and ownership */
-        var trigger = window.sessionStorage;
-        var last;
+        const trigger = window.sessionStorage;
+        let last;
 
-        var storage = lookup_storage(window);
+        const storage = lookup_storage(window);
 
-        var claimed = false;
-        var source;
+        let claimed = false;
+        let source;
 
         function callback() {
-            var value;
-
             /* Only run the callback if we have a result */
             if (storage[key] !== undefined) {
-                value = storage[key];
+                const value = storage[key];
                 window.setTimeout(function() {
                     if (consumer(value, org_key) === false)
                         self.close();
@@ -1745,10 +1722,10 @@ function factory() {
                 return;
 
             // use a random number to avoid races by separate instances
-            var version = Math.floor(Math.random() * 10000000) + 1;
+            const version = Math.floor(Math.random() * 10000000) + 1;
 
             /* Event for the local window */
-            var ev = document.createEvent("StorageEvent");
+            const ev = document.createEvent("StorageEvent");
             ev.initStorageEvent("storage", false, false, key, null,
                                 version, window.location, trigger);
 
@@ -1763,10 +1740,10 @@ function factory() {
                 return;
 
             /* In case we're unclaimed during the callback */
-            var claiming = { close: function() { } };
+            const claiming = { close: function() { } };
             source = claiming;
 
-            var changed = provider(result, org_key);
+            const changed = provider(result, org_key);
             if (source === claiming)
                 source = changed;
             else
@@ -1783,15 +1760,15 @@ function factory() {
 
             claimed = false;
 
-            var current_value = trigger.getItem(key);
+            let current_value = trigger.getItem(key);
             if (current_value)
                 current_value = parseInt(current_value, 10);
             else
                 current_value = null;
 
             if (last && last === current_value) {
-                var ev = document.createEvent("StorageEvent");
-                var version = trigger[key];
+                const ev = document.createEvent("StorageEvent");
+                const version = trigger[key];
                 ev.initStorageEvent("storage", false, false, key, version,
                                     null, window.location, trigger);
                 delete storage[key];
@@ -1821,7 +1798,7 @@ function factory() {
                 unclaim();
             }
 
-            var new_value = null;
+            let new_value = null;
             if (event.newValue)
                 new_value = parseInt(event.newValue, 10);
             if (last !== new_value) {
@@ -1863,7 +1840,7 @@ function factory() {
      */
 
     function SeriesSink(interval, identifier, fetch_callback) {
-        var self = this;
+        const self = this;
 
         self.interval = interval;
         self.limit = identifier ? 64 * 1024 : 1024;
@@ -1876,37 +1853,36 @@ function factory() {
          *
          * { beg: N, items: [], mapping: { }, next: item }
          */
-        var index = setup_index(identifier);
+        const index = setup_index(identifier);
 
         /*
          * A linked list through the index, that we use for expiry
          * of the cache.
          */
-        var count = 0;
-        var head = null;
-        var tail = null;
+        let count = 0;
+        let head = null;
+        let tail = null;
 
         function setup_index(id) {
             if (!id)
                 return [];
 
             /* Try and find a good place to cache data */
-            var storage = lookup_storage(window);
+            const storage = lookup_storage(window);
 
-            var index = storage[id];
+            let index = storage[id];
             if (!index)
                 storage[id] = index = [];
             return index;
         }
 
         function search(idx, beg) {
-            var low = 0;
-            var high = idx.length - 1;
-            var mid, val;
+            let low = 0;
+            let high = idx.length - 1;
 
             while (low <= high) {
-                mid = (low + high) / 2 | 0;
-                val = idx[mid].beg;
+                const mid = (low + high) / 2 | 0;
+                const val = idx[mid].beg;
                 if (val < beg)
                     low = mid + 1;
                 else if (val > beg)
@@ -1934,12 +1910,10 @@ function factory() {
             if (end <= beg)
                 return;
 
-            var at = search(index, beg);
+            const at = search(index, beg);
 
-            var entry;
-            var b, e, eb, en, i;
-            var len = index.length;
-            var last = beg;
+            const len = index.length;
+            let last = beg;
 
             /* We do this in two phases: First, we walk the index to
              * process what we already have and at the same time make
@@ -1950,18 +1924,18 @@ function factory() {
              * first phase.
              */
 
-            var fetches = [];
+            const fetches = [];
 
             /* Data relevant to this range can be at the found index, or earlier */
-            for (i = at > 0 ? at - 1 : at; i < len; i++) {
-                entry = index[i];
-                en = entry.items.length;
+            for (let i = at > 0 ? at - 1 : at; i < len; i++) {
+                const entry = index[i];
+                const en = entry.items.length;
                 if (!en)
                     continue;
 
-                eb = entry.beg;
-                b = Math.max(eb, beg);
-                e = Math.min(eb + en, end);
+                const eb = entry.beg;
+                const b = Math.max(eb, beg);
+                const e = Math.min(eb + en, end);
 
                 if (b < e) {
                     if (b > last)
@@ -1973,7 +1947,7 @@ function factory() {
                 }
             }
 
-            for (i = 0; i < fetches.length; i++)
+            for (let i = 0; i < fetches.length; i++)
                 fetch(fetches[i][0], fetches[i][1], for_walking);
 
             if (last != end)
@@ -1984,23 +1958,21 @@ function factory() {
             if (!items.length)
                 return;
 
-            var at = search(index, beg);
+            let at = search(index, beg);
 
-            var end = beg + items.length;
-            var entry;
-            var num;
+            const end = beg + items.length;
 
-            var b, e, eb, en, i;
-            var len = index.length;
+            const len = index.length;
+            let i;
             for (i = at > 0 ? at - 1 : at; i < len; i++) {
-                entry = index[i];
-                en = entry.items.length;
+                const entry = index[i];
+                const en = entry.items.length;
                 if (!en)
                     continue;
 
-                eb = entry.beg;
-                b = Math.max(eb, beg);
-                e = Math.min(eb + en, end);
+                const eb = entry.beg;
+                const b = Math.max(eb, beg);
+                const e = Math.min(eb + en, end);
 
                 /*
                  * We truncate blocks that intersect with this one
@@ -2011,7 +1983,7 @@ function factory() {
                  */
 
                 if (b < e) {
-                    num = e - b;
+                    const num = e - b;
                     entry.items.splice(b - eb, num);
                     count -= num;
                     if (b - eb === 0)
@@ -2022,7 +1994,7 @@ function factory() {
             }
 
             /* Insert our item into the array */
-            entry = { beg: beg, items: items, mapping: mapping };
+            const entry = { beg: beg, items: items, mapping: mapping };
             if (!head)
                 head = entry;
             if (tail)
@@ -2033,7 +2005,7 @@ function factory() {
 
             /* Remove any items with zero length around insertion point */
             for (at--; at <= i; at++) {
-                entry = index[at];
+                const entry = index[at];
                 if (entry && !entry.items.length) {
                     index.splice(at, 1);
                     at--;
@@ -2049,8 +2021,8 @@ function factory() {
             }
 
             /* Remove any entries with zero length at beginning */
-            len = index.length;
-            for (i = 0; i < len; i++) {
+            const newlen = index.length;
+            for (i = 0; i < newlen; i++) {
                 if (index[i].items.length > 0)
                     break;
             }
@@ -2064,13 +2036,13 @@ function factory() {
          * The rows field is an object indexed by paths
          * container aliases, and the values are: [ row, path ]
          */
-        var registered = { };
+        const registered = { };
 
         /* An undocumented function called by DataGrid */
         self._register = function _register(grid, id) {
             if (grid.interval != interval)
                 throw Error("mismatched metric interval between grid and sink");
-            var gdata = registered[id];
+            let gdata = registered[id];
             if (!gdata) {
                 gdata = registered[id] = { grid: grid, links: [] };
                 gdata.links.remove = function remove() {
@@ -2081,42 +2053,37 @@ function factory() {
         };
 
         function process(beg, items, mapping) {
-            var i, j, jlen, k, klen;
-            var data, path, row, map;
-            var id, gdata, grid;
-            var f, t, n, b, e;
+            const end = beg + items.length;
 
-            var end = beg + items.length;
+            for (const id in registered) {
+                const gdata = registered[id];
+                const grid = gdata.grid;
 
-            for (id in registered) {
-                gdata = registered[id];
-                grid = gdata.grid;
-
-                b = Math.max(beg, grid.beg);
-                e = Math.min(end, grid.end);
+                const b = Math.max(beg, grid.beg);
+                const e = Math.min(end, grid.end);
 
                 /* Does this grid overlap the bounds of item? */
                 if (b < e) {
                     /* Where in the items to take from */
-                    f = b - beg;
+                    const f = b - beg;
 
                     /* Where and how many to place */
-                    t = b - grid.beg;
+                    const t = b - grid.beg;
 
                     /* How many to process */
-                    n = e - b;
+                    const n = e - b;
 
-                    for (i = 0; i < n; i++) {
-                        klen = gdata.links.length;
-                        for (k = 0; k < klen; k++) {
-                            path = gdata.links[k][0];
-                            row = gdata.links[k][1];
+                    for (let i = 0; i < n; i++) {
+                        const klen = gdata.links.length;
+                        for (let k = 0; k < klen; k++) {
+                            const path = gdata.links[k][0];
+                            const row = gdata.links[k][1];
 
                             /* Calculate the data field to fill in */
-                            data = items[f + i];
-                            map = mapping;
-                            jlen = path.length;
-                            for (j = 0; data !== undefined && j < jlen; j++) {
+                            let data = items[f + i];
+                            let map = mapping;
+                            const jlen = path.length;
+                            for (let j = 0; data !== undefined && j < jlen; j++) {
                                 if (!data) {
                                     data = undefined;
                                 } else if (map !== undefined && map !== null) {
@@ -2146,9 +2113,8 @@ function factory() {
         };
 
         self.close = function () {
-            var grid, id;
-            for (id in registered) {
-                grid = registered[id];
+            for (const id in registered) {
+                const grid = registered[id];
                 if (grid && grid.grid)
                     grid.grid.remove_sink(self);
             }
@@ -2159,15 +2125,15 @@ function factory() {
         return new SeriesSink(interval, cache, fetch);
     };
 
-    var unique = 1;
+    let unique = 1;
 
     function SeriesGrid(interval, beg, end) {
-        var self = this;
+        const self = this;
 
         /* We can trigger events */
         event_mixin(self, { });
 
-        var rows = [];
+        const rows = [];
 
         self.interval = interval;
         self.beg = 0;
@@ -2177,18 +2143,18 @@ function factory() {
          * Used to populate table data, the values are:
          * [ callback, row ]
          */
-        var callbacks = [];
+        const callbacks = [];
 
-        var sinks = [];
+        const sinks = [];
 
-        var suppress = 0;
+        let suppress = 0;
 
-        var id = "g1-" + unique;
+        const id = "g1-" + unique;
         unique += 1;
 
         /* Used while walking */
-        var walking = null;
-        var offset = null;
+        let walking = null;
+        let offset = null;
 
         self.notify = function notify(x, n) {
             if (suppress)
@@ -2197,12 +2163,10 @@ function factory() {
                 n = (self.end - self.beg) - x;
             if (n <= 0)
                 return;
-            var j;
-            var jlen = callbacks.length;
-            var callback, row;
-            for (j = 0; j < jlen; j++) {
-                callback = callbacks[j][0];
-                row = callbacks[j][1];
+            const jlen = callbacks.length;
+            for (let j = 0; j < jlen; j++) {
+                const callback = callbacks[j][0];
+                const row = callbacks[j][1];
                 callback.call(self, row, x, n);
             }
 
@@ -2210,31 +2174,28 @@ function factory() {
         };
 
         self.add = function add(/* sink, path */) {
-            var row = [];
+            const row = [];
             rows.push(row);
-
-            var sink, path, links, cb;
 
             /* Called as add(sink, path) */
             if (is_object(arguments[0])) {
-                sink = arguments[0];
-                sink = sink.series || sink;
+                const sink = arguments[0].series || arguments[0];
 
                 /* The path argument can be an array, or a dot separated string */
-                path = arguments[1];
+                let path = arguments[1];
                 if (!path)
                     path = [];
                 else if (typeof (path) === "string")
                     path = path.split(".");
 
-                links = sink._register(self, id);
+                const links = sink._register(self, id);
                 if (!links.length)
                     sinks.push({ sink: sink, links: links });
                 links.push([path, row]);
 
             /* Called as add(callback) */
             } else if (is_function(arguments[0])) {
-                cb = [arguments[0], row];
+                const cb = [arguments[0], row];
                 if (arguments[1] === true)
                     callbacks.unshift(cb);
                 else
@@ -2249,13 +2210,11 @@ function factory() {
         };
 
         self.remove = function remove(row) {
-            var j, i, ilen, jlen;
-
             /* Remove from the sinks */
-            ilen = sinks.length;
-            for (i = 0; i < ilen; i++) {
-                jlen = sinks[i].links.length;
-                for (j = 0; j < jlen; j++) {
+            let ilen = sinks.length;
+            for (let i = 0; i < ilen; i++) {
+                const jlen = sinks[i].links.length;
+                for (let j = 0; j < jlen; j++) {
                     if (sinks[i].links[j][1] === row) {
                         sinks[i].links.splice(j, 1);
                         break;
@@ -2265,7 +2224,7 @@ function factory() {
 
             /* Remove from our list of rows */
             ilen = rows.length;
-            for (i = 0; i < ilen; i++) {
+            for (let i = 0; i < ilen; i++) {
                 if (rows[i] === row) {
                     rows.splice(i, 1);
                     break;
@@ -2274,9 +2233,8 @@ function factory() {
         };
 
         self.remove_sink = function remove_sink(sink) {
-            var i;
-            var len = sinks.length;
-            for (i = 0; i < len; i++) {
+            const len = sinks.length;
+            for (let i = 0; i < len; i++) {
                 if (sinks[i].sink === sink) {
                     sinks[i].links.remove();
                     sinks.splice(i, 1);
@@ -2290,10 +2248,9 @@ function factory() {
             suppress++;
 
             /* Ask all sinks to load data */
-            var sink, i;
-            var len = sinks.length;
-            for (i = 0; i < len; i++) {
-                sink = sinks[i].sink;
+            const len = sinks.length;
+            for (let i = 0; i < len; i++) {
+                const sink = sinks[i].sink;
                 sink.load(self.beg, self.end, for_walking);
             }
 
@@ -2334,7 +2291,7 @@ function factory() {
             /* Some code paths use now twice.
              * They should use the same value.
              */
-            var now = null;
+            let now = null;
 
             /* Treat negative numbers relative to now */
             if (beg === undefined) {
@@ -2369,14 +2326,14 @@ function factory() {
              *    resulting in the timeout being executed immediately.
              */
 
-            var start = Date.now();
+            const start = Date.now();
             if (self.interval > 2000000000)
                 return;
 
             stop_walking();
             offset = start - self.beg * self.interval;
             walking = window.setInterval(function() {
-                var now = Date.now();
+                const now = Date.now();
                 move_internal(Math.floor((now - offset) / self.interval), undefined, true);
             }, self.interval);
         };
@@ -2493,15 +2450,15 @@ function factory() {
      * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
      */
 
-    var last_loc = null;
+    let last_loc = null;
 
     function get_window_location_hash() {
         return (window.location.href.split('#')[1] || '');
     }
 
     function Location() {
-        var self = this;
-        var application = cockpit.transport.application();
+        const self = this;
+        const application = cockpit.transport.application();
         self.url_root = url_root || "";
         if (application.indexOf("cockpit+=") === 0) {
             if (self.url_root)
@@ -2509,14 +2466,14 @@ function factory() {
             self.url_root = self.url_root + application.replace("cockpit+", '');
         }
 
-        var href = get_window_location_hash();
-        var options = { };
+        const href = get_window_location_hash();
+        const options = { };
         self.path = decode(href, options);
 
         function decode_path(input) {
-            var parts = input.split('/').map(decodeURIComponent);
-            var result, i;
-            var pre_parts = [];
+            const parts = input.split('/').map(decodeURIComponent);
+            let result, i;
+            let pre_parts = [];
 
             if (self.url_root)
                 pre_parts = self.url_root.split('/').map(decodeURIComponent);
@@ -2544,7 +2501,7 @@ function factory() {
             if (typeof path == "string")
                 path = decode_path(path);
 
-            var href = "/" + path.map(encodeURIComponent).join("/");
+            let href = "/" + path.map(encodeURIComponent).join("/");
             if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/" !== 0))
                 href = "/" + self.url_root + href;
 
@@ -2553,15 +2510,15 @@ function factory() {
             href = href.replace("%3D", "=");
             href = href.replace(/%2B/g, "+");
 
-            var opt, value;
-            var query = [];
+            let opt;
+            const query = [];
             function push_option(v) {
                 query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
             }
 
             if (options) {
                 for (opt in options) {
-                    value = options[opt];
+                    let value = options[opt];
                     if (!Array.isArray(value))
                         value = [value];
                     value.forEach(push_option);
@@ -2576,8 +2533,8 @@ function factory() {
             if (href[0] == '#')
                 href = href.substr(1);
 
-            var pos = href.indexOf('?');
-            var first = href;
+            const pos = href.indexOf('?');
+            let first = href;
             if (pos === -1)
                 first = href;
             else
@@ -2586,12 +2543,11 @@ function factory() {
             if (pos !== -1 && options) {
                 href.substring(pos + 1).split("&")
                 .forEach(function(opt) {
-                    var last;
-                    var parts = opt.split('=');
-                    var name = decodeURIComponent(parts[0]);
-                    var value = decodeURIComponent(parts[1]);
+                    const parts = opt.split('=');
+                    const name = decodeURIComponent(parts[0]);
+                    const value = decodeURIComponent(parts[1]);
                     if (options[name]) {
-                        last = options[name];
+                        let last = options[name];
                         if (!Array.isArray(value))
                             last = options[name] = [last];
                         last.push(value);
@@ -2605,11 +2561,11 @@ function factory() {
         }
 
         function href_for_go_or_replace(/* ... */) {
-            var href;
+            let href;
             if (arguments.length == 1 && arguments[0] instanceof Location) {
                 href = String(arguments[0]);
             } else if (typeof arguments[0] == "string") {
-                var options = arguments[1] || { };
+                const options = arguments[1] || { };
                 href = encode(decode(arguments[0], options), options);
             } else {
                 href = encode.apply(self, arguments);
@@ -2620,14 +2576,14 @@ function factory() {
         function replace(/* ... */) {
             if (self !== last_loc)
                 return;
-            var href = href_for_go_or_replace.apply(self, arguments);
+            const href = href_for_go_or_replace.apply(self, arguments);
             window.location.replace(window.location.pathname + '#' + href);
         }
 
         function go(/* ... */) {
             if (self !== last_loc)
                 return;
-            var href = href_for_go_or_replace.apply(self, arguments);
+            const href = href_for_go_or_replace.apply(self, arguments);
             window.location.hash = '#' + href;
         }
 
@@ -2668,7 +2624,7 @@ function factory() {
 
     window.addEventListener("hashchange", function() {
         last_loc = null;
-        var hash = window.location.hash;
+        let hash = window.location.hash;
         if (hash.indexOf("#") === 0)
             hash = hash.substring(1);
         cockpit.hint("location", { hash: hash });
@@ -2694,7 +2650,7 @@ function factory() {
         if (host === undefined)
             host = cockpit.transport.host;
 
-        var options = { command: "jump", location: path, host: host };
+        const options = { command: "jump", location: path, host: host };
         cockpit.transport.inject("\n" + JSON.stringify(options));
     };
 
@@ -2703,11 +2659,11 @@ function factory() {
      */
 
     (function() {
-        var hiddenProp;
-        var hiddenHint = false;
+        let hiddenProp;
+        let hiddenHint = false;
 
         function visibility_change() {
-            var value = document[hiddenProp];
+            let value = document[hiddenProp];
             if (!hiddenProp || typeof value === "undefined")
                 value = false;
             if (value === false)
@@ -2787,11 +2743,11 @@ function factory() {
 
     /* public */
     cockpit.spawn = function(command, options) {
-        var dfd = cockpit.defer();
+        const dfd = cockpit.defer();
 
-        var args = { payload: "stream", spawn: [] };
+        const args = { payload: "stream", spawn: [] };
         if (command instanceof Array) {
-            for (var i = 0; i < command.length; i++)
+            for (let i = 0; i < command.length; i++)
                 args.spawn.push(String(command[i]));
         } else {
             args.spawn.push(String(command));
@@ -2799,14 +2755,14 @@ function factory() {
         if (options !== undefined)
             extend(args, options);
 
-        var name = args.spawn[0] || "process";
-        var channel = cockpit.channel(args);
+        const name = args.spawn[0] || "process";
+        const channel = cockpit.channel(args);
 
         /* Callback that wants a stream response, see below */
-        var buffer = channel.buffer(null);
+        const buffer = channel.buffer(null);
 
         channel.addEventListener("close", function(event, options) {
-            var data = buffer.squash();
+            const data = buffer.squash();
             spawn_debug("process closed:", JSON.stringify(options));
             if (data)
                 spawn_debug("process output:", data);
@@ -2823,7 +2779,7 @@ function factory() {
                 dfd.resolve(data);
         });
 
-        var ret = dfd.promise;
+        const ret = dfd.promise;
         ret.stream = function(callback) {
             buffer.callback = callback.bind(ret);
             return this;
@@ -2857,7 +2813,7 @@ function factory() {
             options = args;
             args = [];
         }
-        var command = ["/bin/sh", "-c", script, "--"];
+        const command = ["/bin/sh", "-c", script, "--"];
         command.push.apply(command, args);
         return cockpit.spawn(command, options);
     };
@@ -2883,24 +2839,23 @@ function factory() {
     }
 
     function DBusCache() {
-        var self = this;
+        const self = this;
 
-        var callbacks = [];
+        let callbacks = [];
         self.data = { };
         self.meta = { };
 
         self.connect = function connect(path, iface, callback, first) {
-            var cb = [path, iface, callback];
+            const cb = [path, iface, callback];
             if (first)
                 callbacks.unshift(cb);
             else
                 callbacks.push(cb);
             return {
                 remove: function remove() {
-                    var i;
-                    var length = callbacks.length;
-                    for (i = 0; i < length; i++) {
-                        var cb = callbacks[i];
+                    const length = callbacks.length;
+                    for (let i = 0; i < length; i++) {
+                        const cb = callbacks[i];
                         if (cb[0] === path && cb[1] === iface && cb[2] === callback) {
                             delete cb[i];
                             break;
@@ -2911,11 +2866,10 @@ function factory() {
         };
 
         function emit(path, iface, props) {
-            var copy = callbacks.slice();
-            var i;
-            var length = copy.length;
-            for (i = 0; i < length; i++) {
-                var cb = copy[i];
+            const copy = callbacks.slice();
+            const length = copy.length;
+            for (let i = 0; i < length; i++) {
+                const cb = copy[i];
                 if ((!cb[0] || cb[0] === path) &&
                     (!cb[1] || cb[1] === iface)) {
                     cb[2](props, path);
@@ -2957,22 +2911,21 @@ function factory() {
 
         self.close = function close() {
             self.data = { };
-            var copy = callbacks;
+            const copy = callbacks;
             callbacks = [];
-            var i;
-            var length = copy.length;
-            for (i = 0; i < length; i++)
+            const length = copy.length;
+            for (let i = 0; i < length; i++)
                 copy[i].callback();
         };
     }
 
     function DBusProxy(client, cache, iface, path, options) {
-        var self = this;
+        const self = this;
         event_mixin(self, { });
 
-        var valid = false;
-        var defined = false;
-        var waits = cockpit.defer();
+        let valid = false;
+        let defined = false;
+        const waits = cockpit.defer();
 
         /* No enumeration on these properties */
         Object.defineProperties(self, {
@@ -3008,7 +2961,7 @@ function factory() {
             if (!cache.meta[iface])
                 return;
 
-            var meta = cache.meta[iface];
+            const meta = cache.meta[iface];
             defined = true;
 
             Object.keys(meta.methods || { }).forEach(function(name) {
@@ -3019,7 +2972,7 @@ function factory() {
                 Object.defineProperty(self, name, {
                     enumerable: false,
                     value: function() {
-                        var dfd = cockpit.defer();
+                        const dfd = cockpit.defer();
                         client.call(path, iface, name, Array.prototype.slice.call(arguments))
                             .done(function(reply) { dfd.resolve.apply(dfd, reply) })
                             .fail(function(ex) { dfd.reject(ex) });
@@ -3032,13 +2985,13 @@ function factory() {
                 if (name[0].toLowerCase() == name[0])
                     return; /* Only map upper case */
 
-                var config = {
+                const config = {
                     enumerable: true,
                     get: function() { return self.data[name] },
                     set: function(v) { throw Error(name + "is not writable") }
                 };
 
-                var prop = meta.properties[name];
+                const prop = meta.properties[name];
                 if (prop.flags && prop.flags.indexOf('w') !== -1) {
                     config.set = function(v) {
                         client.call(path, "org.freedesktop.DBus.Properties", "Set",
@@ -3096,10 +3049,10 @@ function factory() {
     }
 
     function DBusProxies(client, cache, iface, path_namespace, options) {
-        var self = this;
+        const self = this;
         event_mixin(self, { });
 
-        var waits;
+        let waits;
 
         Object.defineProperties(self, {
             client: { value: client, enumerable: false, writable: false },
@@ -3122,7 +3075,7 @@ function factory() {
         }
 
         /* Subscribe to signals once for all proxies */
-        var match = { interface: iface, path_namespace: path_namespace };
+        const match = { interface: iface, path_namespace: path_namespace };
 
         /* Callbacks added by proxies */
         client.subscribe(match);
@@ -3138,7 +3091,7 @@ function factory() {
         options = extend({ watch: false, subscribe: false }, options);
 
         function update(props, path) {
-            var proxy = self[path];
+            let proxy = self[path];
             if (path) {
                 if (!props && proxy) {
                     delete self[path];
@@ -3158,12 +3111,12 @@ function factory() {
     }
 
     function DBusClient(name, options) {
-        var self = this;
+        const self = this;
         event_mixin(self, { });
 
-        var args = { };
-        var track = false;
-        var owner = null;
+        const args = { };
+        let track = false;
+        let owner = null;
 
         if (options) {
             if (options.track)
@@ -3180,14 +3133,14 @@ function factory() {
 
         dbus_debug("dbus open: ", args);
 
-        var channel = cockpit.channel(args);
-        var subscribers = { };
-        var published = { };
-        var calls = { };
-        var cache;
+        let channel = cockpit.channel(args);
+        const subscribers = { };
+        const published = { };
+        let calls = { };
+        let cache;
 
         /* The problem we closed with */
-        var closed;
+        let closed;
 
         self.constructors = { "*": DBusProxy };
 
@@ -3224,7 +3177,7 @@ function factory() {
 
         function on_message(event, payload) {
             dbus_debug("dbus:", payload);
-            var msg;
+            let msg;
             try {
                 msg = JSON.parse(payload);
             } catch (ex) {
@@ -3234,12 +3187,10 @@ function factory() {
                 channel.close({ problem: "protocol-error" });
                 return;
             }
-            var dfd, options;
-            if (msg.id !== undefined)
-                dfd = calls[msg.id];
+            const dfd = (msg.id !== undefined) ? calls[msg.id] : undefined;
             if (msg.reply) {
                 if (dfd) {
-                    options = { };
+                    const options = { };
                     if (msg.type)
                         options.type = msg.type;
                     if (msg.flags)
@@ -3262,10 +3213,9 @@ function factory() {
              * also have to process other events that way too.
              */
             later_invoke(function() {
-                var id, subscription;
                 if (msg.signal) {
-                    for (id in subscribers) {
-                        subscription = subscribers[id];
+                    for (const id in subscribers) {
+                        const subscription = subscribers[id];
                         if (subscription.callback) {
                             if (matches(msg.signal, subscription.match))
                                 subscription.callback.apply(self, msg.signal);
@@ -3305,7 +3255,7 @@ function factory() {
             if (!channel || !channel.valid)
                 return;
 
-            var message = extend({ }, options, {
+            const message = extend({ }, options, {
                 meta: data
             });
 
@@ -3315,10 +3265,9 @@ function factory() {
 
         function notify(data) {
             ensure_cache();
-            var path, iface, props;
-            for (path in data) {
-                for (iface in data[path]) {
-                    props = data[path][iface];
+            for (const path in data) {
+                for (const iface in data[path]) {
+                    const props = data[path][iface];
                     if (!props)
                         cache.remove(path, iface);
                     else
@@ -3332,10 +3281,9 @@ function factory() {
 
         function close_perform(options) {
             closed = options.problem || "disconnected";
-            var id;
-            var outstanding = calls;
+            const outstanding = calls;
             calls = { };
-            for (id in outstanding) {
+            for (const id in outstanding) {
                 outstanding[id].reject(new DBusError(closed, options.message));
             }
             self.dispatchEvent("close", options);
@@ -3370,18 +3318,18 @@ function factory() {
         channel.addEventListener("message", on_message);
         channel.addEventListener("close", on_close);
 
-        var last_cookie = 1;
+        let last_cookie = 1;
 
         this.call = function call(path, iface, method, args, options) {
-            var dfd = cockpit.defer();
-            var id = String(last_cookie);
+            const dfd = cockpit.defer();
+            const id = String(last_cookie);
             last_cookie++;
-            var method_call = extend({ }, options, {
+            const method_call = extend({ }, options, {
                 call: [path, iface, method, args || []],
                 id: id
             });
 
-            var msg = JSON.stringify(method_call);
+            const msg = JSON.stringify(method_call);
             if (send(msg))
                 calls[id] = dfd;
             else
@@ -3394,7 +3342,7 @@ function factory() {
             if (!channel || !channel.valid)
                 return;
 
-            var message = extend({ }, options, {
+            const message = extend({ }, options, {
                 signal: [path, iface, member, args || []]
             });
 
@@ -3402,7 +3350,7 @@ function factory() {
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
-            var subscription = {
+            const subscription = {
                 match: extend({ }, match),
                 callback: callback
             };
@@ -3410,7 +3358,7 @@ function factory() {
             if (rule !== false)
                 send(JSON.stringify({ "add-match": subscription.match }));
 
-            var id;
+            let id;
             if (callback) {
                 id = String(last_cookie);
                 last_cookie++;
@@ -3419,7 +3367,7 @@ function factory() {
 
             return {
                 remove: function() {
-                    var prev;
+                    let prev;
                     if (id) {
                         prev = subscribers[id];
                         if (prev)
@@ -3432,23 +3380,19 @@ function factory() {
         };
 
         self.watch = function watch(path) {
-            var match;
-            if (is_plain_object(path))
-                match = extend({ }, path);
-            else
-                match = { path: String(path) };
+            const match = is_plain_object(path) ? extend({ }, path) : { path: String(path) };
 
-            var id = String(last_cookie);
+            const id = String(last_cookie);
             last_cookie++;
-            var dfd = cockpit.defer();
+            const dfd = cockpit.defer();
 
-            var msg = JSON.stringify({ watch: match, id: id });
+            const msg = JSON.stringify({ watch: match, id: id });
             if (send(msg))
                 calls[id] = dfd;
             else
                 dfd.reject(new DBusError(closed));
 
-            var ret = dfd.promise;
+            const ret = dfd.promise;
             ret.remove = function remove() {
                 if (id in calls) {
                     dfd.reject(new DBusError("cancelled"));
@@ -3460,12 +3404,12 @@ function factory() {
         };
 
         function unknown_interface(path, iface) {
-            var message = "DBus interface " + iface + " not available at " + path;
+            const message = "DBus interface " + iface + " not available at " + path;
             return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownInterface", [message]]));
         }
 
         function unknown_method(path, iface, method) {
-            var message = "DBus method " + iface + " " + method + " not available at " + path;
+            const message = "DBus method " + iface + " " + method + " not available at " + path;
             return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownMethod", [message]]));
         }
 
@@ -3475,11 +3419,11 @@ function factory() {
         }
 
         function invoke(call) {
-            var path = call[0];
-            var iface = call[1];
-            var method = call[2];
-            var object = published[path + "\n" + iface];
-            var info = cache.meta[iface];
+            const path = call[0];
+            const iface = call[1];
+            const method = call[2];
+            const object = published[path + "\n" + iface];
+            const info = cache.meta[iface];
             if (!object || !info)
                 return unknown_interface(path, iface);
             if (!info.methods || !(method in info.methods))
@@ -3490,16 +3434,16 @@ function factory() {
         }
 
         function handle(call, cookie) {
-            var result = invoke(call);
+            const result = invoke(call);
             if (!cookie)
                 return; /* Discard result */
             cockpit.when(result).then(function() {
-                var out = Array.prototype.slice.call(arguments, 0);
+                let out = Array.prototype.slice.call(arguments, 0);
                 if (out.length == 1 && typeof out[0] == "undefined")
                     out = [];
                 send(JSON.stringify({ reply: [out], id: cookie }));
             }, function(ex) {
-                var error = [];
+                const error = [];
                 error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
                 error[1] = [cockpit.message(ex) || error[0]];
                 send(JSON.stringify({ error: error, id: cookie }));
@@ -3507,13 +3451,13 @@ function factory() {
         }
 
         self.publish = function(path, iface, object, options) {
-            var publish = [path, iface];
+            const publish = [path, iface];
 
-            var id = String(last_cookie);
+            const id = String(last_cookie);
             last_cookie++;
-            var dfd = calls[id] = cockpit.defer();
+            const dfd = calls[id] = cockpit.defer();
 
-            var payload = JSON.stringify(extend({ }, options, {
+            const payload = JSON.stringify(extend({ }, options, {
                 publish: publish,
                 id: id,
             }));
@@ -3523,13 +3467,13 @@ function factory() {
             else
                 dfd.reject(new DBusError(closed));
 
-            var key = path + "\n" + iface;
+            const key = path + "\n" + iface;
             dfd.promise.then(function() {
                 published[key] = object;
             });
 
             /* Return a way to remove this object */
-            var ret = dfd.promise;
+            const ret = dfd.promise;
             ret.remove = function remove() {
                 if (id in calls) {
                     dfd.reject(new DBusError("cancelled"));
@@ -3547,7 +3491,7 @@ function factory() {
             iface = String(iface);
             if (!path)
                 path = "/" + iface.replace(/\./g, "/");
-            var Constructor = self.constructors[iface];
+            let Constructor = self.constructors[iface];
             if (!Constructor)
                 Constructor = self.constructors["*"];
             if (!options)
@@ -3569,7 +3513,7 @@ function factory() {
     }
 
     /* Well known buses */
-    var shared_dbus = {
+    const shared_dbus = {
         internal: null,
         session: null,
         system: null,
@@ -3586,14 +3530,14 @@ function factory() {
          * This is only the case if a null name *and* the
          * options are just a simple { "bus": "xxxx" }
          */
-        var keys = Object.keys(options);
-        var bus = options.bus;
-        var shared = !name && keys.length == 1 && bus in shared_dbus;
+        const keys = Object.keys(options);
+        const bus = options.bus;
+        const shared = !name && keys.length == 1 && bus in shared_dbus;
 
         if (shared && shared_dbus[bus])
             return shared_dbus[bus];
 
-        var client = new DBusClient(name, options);
+        const client = new DBusClient(name, options);
 
         /*
          * Store the shared bus for next time. Override the
@@ -3629,9 +3573,9 @@ function factory() {
 
     cockpit.file = function file(path, options) {
         options = options || { };
-        var binary = options.binary;
+        const binary = options.binary;
 
-        var self = {
+        const self = {
             path: path,
             read: read,
             replace: replace,
@@ -3642,7 +3586,7 @@ function factory() {
             close: close
         };
 
-        var base_channel_options = extend({ }, options);
+        const base_channel_options = extend({ }, options);
         delete base_channel_options.syntax;
 
         function parse(str) {
@@ -3659,22 +3603,22 @@ function factory() {
                 return obj;
         }
 
-        var read_promise = null;
-        var read_channel;
+        let read_promise = null;
+        let read_channel;
 
         function read() {
             if (read_promise)
                 return read_promise;
 
-            var dfd = cockpit.defer();
-            var opts = extend({ }, base_channel_options, {
+            const dfd = cockpit.defer();
+            const opts = extend({ }, base_channel_options, {
                 payload: "fsread1",
                 path: path
             });
 
             function try_read() {
                 read_channel = cockpit.channel(opts);
-                var content_parts = [];
+                const content_parts = [];
                 read_channel.addEventListener("message", function (event, message) {
                     content_parts.push(message);
                 });
@@ -3689,13 +3633,13 @@ function factory() {
                     read_promise = null;
 
                     if (message.problem) {
-                        var error = new BasicError(message.problem, message.message);
+                        const error = new BasicError(message.problem, message.message);
                         fire_watch_callbacks(null, null, error);
                         dfd.reject(error);
                         return;
                     }
 
-                    var content;
+                    let content;
                     if (message.tag == "-")
                         content = null;
                     else {
@@ -3719,17 +3663,14 @@ function factory() {
             return read_promise;
         }
 
-        var replace_channel = null;
+        let replace_channel = null;
 
         function replace(new_content, expected_tag) {
-            var dfd = cockpit.defer();
+            const dfd = cockpit.defer();
 
-            var file_content;
+            let file_content;
             try {
-                if (new_content === null)
-                    file_content = null;
-                else
-                    file_content = stringify(new_content);
+                file_content = (new_content === null) ? null : stringify(new_content);
             } catch (e) {
                 dfd.reject(e);
                 return dfd.promise;
@@ -3738,7 +3679,7 @@ function factory() {
             if (replace_channel)
                 replace_channel.close("abort");
 
-            var opts = extend({ }, base_channel_options, {
+            const opts = extend({ }, base_channel_options, {
                 payload: "fsreplace1",
                 path: path,
                 tag: expected_tag
@@ -3764,10 +3705,10 @@ function factory() {
         }
 
         function modify(callback, initial_content, initial_tag) {
-            var dfd = cockpit.defer();
+            const dfd = cockpit.defer();
 
             function update(content, tag) {
-                var new_content = callback(content);
+                let new_content = callback(content);
                 if (new_content === undefined)
                     new_content = content;
                 replace(new_content, tag)
@@ -3798,11 +3739,11 @@ function factory() {
             return dfd.promise;
         }
 
-        var watch_callbacks = [];
-        var n_watch_callbacks = 0;
+        const watch_callbacks = [];
+        let n_watch_callbacks = 0;
 
-        var watch_channel = null;
-        var watch_tag;
+        let watch_channel = null;
+        let watch_tag;
 
         function ensure_watch_channel(options) {
             if (n_watch_callbacks > 0) {
@@ -3816,7 +3757,7 @@ function factory() {
                 };
                 watch_channel = cockpit.channel(opts);
                 watch_channel.addEventListener("message", function (event, message_string) {
-                    var message;
+                    let message;
                     try {
                         message = JSON.parse(message_string);
                     } catch (e) {
@@ -3853,9 +3794,8 @@ function factory() {
 
             return {
                 remove: function () {
-                    var index;
                     if (callback) {
-                        index = watch_callbacks.indexOf(callback);
+                        const index = watch_callbacks.indexOf(callback);
                         if (index > -1)
                             watch_callbacks[index] = null;
                     }
@@ -3881,14 +3821,14 @@ function factory() {
      * Localization
      */
 
-    var po_data = { };
-    var po_plural;
+    let po_data = { };
+    let po_plural;
 
     cockpit.language = "en";
 
     cockpit.locale = function locale(po) {
-        var lang = cockpit.language;
-        var header;
+        let lang = cockpit.language;
+        let header;
 
         if (po) {
             extend(po_data, po);
@@ -3908,7 +3848,7 @@ function factory() {
     };
 
     cockpit.translate = function translate(/* ... */) {
-        var what;
+        let what;
 
         /* Called without arguments, entire document */
         if (arguments.length === 0)
@@ -3923,27 +3863,27 @@ function factory() {
             what = arguments;
 
         /* Translate all the things */
-        var w, wlen, val, i, ilen, t, tlen, list, tasks, el;
-        for (w = 0, wlen = what.length; w < wlen; w++) {
+        const wlen = what.length;
+        for (let w = 0; w < wlen; w++) {
             /* The list of things to translate */
-            list = null;
+            let list = null;
             if (what[w].querySelectorAll)
                 list = what[w].querySelectorAll("[translatable], [translate]");
             if (!list)
                 continue;
 
             /* Each element */
-            for (i = 0, ilen = list.length; i < ilen; i++) {
-                el = list[i];
+            for (let i = 0; i < list.length; i++) {
+                const el = list[i];
 
-                val = el.getAttribute("translate") || el.getAttribute("translatable") || "yes";
+                let val = el.getAttribute("translate") || el.getAttribute("translatable") || "yes";
                 if (val == "no")
                     continue;
 
                 /* Each thing to translate */
-                tasks = val.split(" ");
+                const tasks = val.split(" ");
                 val = el.getAttribute("translate-context") || el.getAttribute("context");
-                for (t = 0, tlen = tasks.length; t < tlen; t++) {
+                for (let t = 0; t < tasks.length; t++) {
                     if (tasks[t] == "yes" || tasks[t] == "translate")
                         el.textContent = cockpit.gettext(val, el.textContent);
                     else if (tasks[t])
@@ -3964,9 +3904,9 @@ function factory() {
             context = undefined;
         }
 
-        var key = context ? context + '\u0004' + string : string;
+        const key = context ? context + '\u0004' + string : string;
         if (po_data) {
-            var translated = po_data[key];
+            const translated = po_data[key];
             if (translated && translated[1])
                 return translated[1];
         }
@@ -3986,11 +3926,11 @@ function factory() {
             context = undefined;
         }
 
-        var key = context ? context + '\u0004' + string1 : string1;
+        const key = context ? context + '\u0004' + string1 : string1;
         if (po_data && po_plural) {
-            var translated = po_data[key];
+            const translated = po_data[key];
             if (translated) {
-                var i = imply(po_plural(num)) + 1;
+                const i = imply(po_plural(num)) + 1;
                 if (translated[i])
                     return translated[i];
             }
@@ -4005,13 +3945,13 @@ function factory() {
     };
 
     /* Only for _() calls here in the cockpit code */
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
 
     cockpit.message = function message(arg) {
         if (arg.message)
             return arg.message;
 
-        var problem = null;
+        let problem = null;
         if (arg.problem)
             problem = arg.problem;
         else
@@ -4075,7 +4015,7 @@ function factory() {
         if (!headers)
             return undefined;
         name = name.toLowerCase();
-        for (var head in headers) {
+        for (const head in headers) {
             if (head.toLowerCase() == name)
                 return headers[head];
         }
@@ -4083,18 +4023,18 @@ function factory() {
     }
 
     function HttpClient(endpoint, options) {
-        var self = this;
+        const self = this;
 
         self.options = options;
         options.payload = "http-stream2";
 
-        var active_requests = [];
+        const active_requests = [];
 
         if (endpoint !== undefined) {
             if (endpoint.indexOf && endpoint.indexOf("/") === 0) {
                 options.unix = endpoint;
             } else {
-                var port = parseInt(endpoint, 10);
+                const port = parseInt(endpoint, 10);
                 if (!isNaN(port))
                     options.port = port;
                 else
@@ -4118,8 +4058,8 @@ function factory() {
         }
 
         self.request = function request(req) {
-            var dfd = cockpit.defer();
-            var ret = dfd.promise;
+            const dfd = cockpit.defer();
+            const ret = dfd.promise;
 
             if (!req.path)
                 req.path = "/";
@@ -4133,10 +4073,10 @@ function factory() {
             }
             delete req.params;
 
-            var input = req.body;
+            const input = req.body;
             delete req.body;
 
-            var headers = req.headers;
+            const headers = req.headers;
             delete req.headers;
 
             extend(req, options);
@@ -4152,7 +4092,7 @@ function factory() {
             http_debug("http request:", JSON.stringify(req));
 
             /* We need a channel for the request */
-            var channel = cockpit.channel(req);
+            const channel = cockpit.channel(req);
 
             if (input !== undefined) {
                 if (input !== "") {
@@ -4166,12 +4106,12 @@ function factory() {
             }
 
             /* Callbacks that want to stream or get headers */
-            var streamer = null;
-            var responsers = null;
+            let streamer = null;
+            let responsers = null;
 
-            var resp = null;
+            let resp = null;
 
-            var buffer = channel.buffer(function(data) {
+            const buffer = channel.buffer(function(data) {
                 /* Fire any streamers */
                 if (resp && resp.status >= 200 && resp.status <= 299 && streamer)
                     return streamer.call(ret, data);
@@ -4190,7 +4130,7 @@ function factory() {
             }
 
             function on_close(event, options) {
-                var pos = active_requests.indexOf(ret);
+                const pos = active_requests.indexOf(ret);
                 if (pos >= 0)
                     active_requests.splice(pos, 1);
 
@@ -4198,12 +4138,12 @@ function factory() {
                     http_debug("http problem: ", options.problem);
                     dfd.reject(new BasicError(options.problem));
                 } else {
-                    var body = buffer.squash();
+                    const body = buffer.squash();
 
                     /* An error, fail here */
                     if (resp && (resp.status < 200 || resp.status > 299)) {
-                        var message;
-                        var type = find_header(resp.headers, "Content-Type");
+                        let message;
+                        const type = find_header(resp.headers, "Content-Type");
                         if (type && !channel.binary) {
                             if (type.indexOf("text/plain") === 0)
                                 message = body;
@@ -4288,8 +4228,8 @@ function factory() {
         };
 
         self.close = function close(problem) {
-            var reqs = active_requests.slice();
-            for (var i = 0; i < reqs.length; i++)
+            const reqs = active_requests.slice();
+            for (let i = 0; i < reqs.length; i++)
                 reqs[i].close(problem);
         };
     }
@@ -4318,10 +4258,10 @@ function factory() {
     }
 
     function Permission(options) {
-        var self = this;
+        const self = this;
         event_mixin(self, { });
 
-        var api = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser");
+        const api = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser");
         api.addEventListener("changed", maybe_reload);
 
         function maybe_reload() {
@@ -4335,8 +4275,8 @@ function factory() {
         self.user = options ? options.user : null; // pre-fill for unit tests
         self.is_superuser = options ? options._is_superuser : null; // pre-fill for unit tests
 
-        var group = null;
-        var admin = false;
+        let group = null;
+        let admin = false;
 
         if (options)
             group = options.group;
@@ -4391,14 +4331,14 @@ function factory() {
      */
 
     function MetricsChannel(interval, options_list, cache) {
-        var self = this;
+        const self = this;
         event_mixin(self, { });
 
         if (options_list.length === undefined)
             options_list = [options_list];
 
-        var channels = [];
-        var following = false;
+        const channels = [];
+        let following = false;
 
         self.series = cockpit.series(interval, cache, fetch_for_series);
         self.archives = null;
@@ -4421,7 +4361,7 @@ function factory() {
                 following = true;
             }
 
-            var options = extend({
+            const options = extend({
                 payload: "metrics1",
                 interval: interval,
                 source: "internal"
@@ -4429,12 +4369,12 @@ function factory() {
 
             delete options.archive_source;
 
-            var channel = cockpit.channel(options);
+            const channel = cockpit.channel(options);
             channels.push(channel);
 
-            var meta = null;
-            var last = null;
-            var beg;
+            let meta = null;
+            let last = null;
+            let beg;
 
             channel.addEventListener("close", function(ev, close_options) {
                 if (!is_archive)
@@ -4460,17 +4400,13 @@ function factory() {
             });
 
             channel.addEventListener("message", function(ev, payload) {
-                var message = JSON.parse(payload);
-
-                var data, last_len, dataj, dataj_len, lastj, lastj_len;
-                var i, j, k;
-                var timestamp;
+                const message = JSON.parse(payload);
 
                 /* A meta message? */
-                var message_len = message.length;
+                const message_len = message.length;
                 if (message_len === undefined) {
                     meta = message;
-                    timestamp = 0;
+                    let timestamp = 0;
                     if (meta.now && meta.timestamp)
                         timestamp = meta.timestamp + (Date.now() - meta.now);
                     beg = Math.floor(timestamp / interval);
@@ -4483,19 +4419,19 @@ function factory() {
                 /* A data message */
                 } else if (meta) {
                     /* Data decompression */
-                    for (i = 0; i < message_len; i++) {
-                        data = message[i];
+                    for (let i = 0; i < message_len; i++) {
+                        const data = message[i];
                         if (last) {
-                            last_len = last.length;
-                            for (j = 0; j < last_len; j++) {
-                                dataj = data[j];
+                            for (let j = 0; j < last.length; j++) {
+                                const dataj = data[j];
                                 if (dataj === null || dataj === undefined) {
                                     data[j] = last[j];
                                 } else {
-                                    dataj_len = dataj.length;
+                                    const dataj_len = dataj.length;
                                     if (dataj_len !== undefined) {
-                                        lastj = last[j];
-                                        lastj_len = last[j].length;
+                                        const lastj = last[j];
+                                        const lastj_len = last[j].length;
+                                        let k;
                                         for (k = 0; k < dataj_len; k++) {
                                             if (dataj[k] === null)
                                                 dataj[k] = lastj[k];
@@ -4520,18 +4456,13 @@ function factory() {
         }
 
         function drain(beg, meta, message, options) {
-            var mapping, map, name;
-
             /* Generate a mapping object if necessary */
-            mapping = meta.mapping;
+            let mapping = meta.mapping;
             if (!mapping) {
                 mapping = { };
                 meta.metrics.forEach(function(metric, i) {
-                    map = { "": i };
-                    if (options.metrics_path_names)
-                        name = options.metrics_path_names[i];
-                    else
-                        name = metric.name;
+                    const map = { "": i };
+                    const name = options.metrics_path_names ? options.metrics_path_names[i] : metric.name;
                     mapping[name] = map;
                     if (metric.instances) {
                         metric.instances.forEach(function(instance, i) {
@@ -4549,11 +4480,11 @@ function factory() {
         }
 
         self.fetch = function fetch(beg, end) {
-            var timestamp = beg * interval - Date.now();
-            var limit = end - beg;
+            const timestamp = beg * interval - Date.now();
+            const limit = end - beg;
 
-            var archive_options_list = [];
-            for (var i = 0; i < options_list.length; i++) {
+            const archive_options_list = [];
+            for (let i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
                     archive_options_list.push(extend({}, options_list[i],
                                                        {
@@ -4572,12 +4503,11 @@ function factory() {
         };
 
         self.close = function close(options) {
-            var i;
-            var len = channels.length;
+            const len = channels.length;
             if (self.series)
                 self.series.close();
 
-            for (i = 0; i < len; i++)
+            for (let i = 0; i < len; i++)
                 channels[i].close(options);
         };
     }
@@ -4599,7 +4529,7 @@ function factory() {
             window.parent.postMessage("\n{ \"command\": \"oops\" }", transport_origin);
     };
 
-    var old_onerror = window.onerror;
+    const old_onerror = window.onerror;
     window.onerror = function(msg, url, line) {
         cockpit.oops();
         if (old_onerror)

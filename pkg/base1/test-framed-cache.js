@@ -8,8 +8,8 @@ function parent_window(assert) {
     window.assert = assert; // for the child frame
 
     document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
-    var count = 0;
-    var child_done = false;
+    let count = 0;
+    let child_done = false;
 
     function maybe_done () {
         if (child_done && count == 2) {
@@ -55,8 +55,7 @@ function parent_window(assert) {
 function child_frame() {
     const assert = window.parent.assert;
 
-    var count = 0;
-    var cache;
+    let count = 0;
 
     function provider(result, key) {
         assert.equal(key, "cross-frame-cache", "child provider got right key");
@@ -82,7 +81,7 @@ function child_frame() {
         }
     }
 
-    cache = cockpit.cache("cross-frame-cache", provider, consumer, 'child');
+    const cache = cockpit.cache("cross-frame-cache", provider, consumer, 'child');
 }
 
 if (window.parent === window) {

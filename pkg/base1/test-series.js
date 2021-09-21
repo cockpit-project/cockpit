@@ -5,34 +5,34 @@ QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
     assert.equal(typeof cockpit.series, "function", "cockpit.series is a function");
 
-    var grid = cockpit.grid(555, 3, 8);
-    assert.strictEqual(grid.interval, 555, "grid.interval");
-    assert.strictEqual(grid.beg, 3, "grid.beg");
-    assert.strictEqual(grid.end, 8, "grid.end");
-    assert.equal(typeof grid.add, "function", "grid.add()");
-    assert.equal(typeof grid.remove, "function", "grid.remove()");
-    assert.equal(typeof grid.close, "function", "grid.close()");
-    assert.equal(typeof grid.notify, "function", "grid.notify()");
-    assert.equal(typeof grid.move, "function", "grid.move()");
-    assert.equal(typeof grid.sync, "function", "grid.sync()");
+    const grid1 = cockpit.grid(555, 3, 8);
+    assert.strictEqual(grid1.interval, 555, "grid.interval");
+    assert.strictEqual(grid1.beg, 3, "grid.beg");
+    assert.strictEqual(grid1.end, 8, "grid.end");
+    assert.equal(typeof grid1.add, "function", "grid.add()");
+    assert.equal(typeof grid1.remove, "function", "grid.remove()");
+    assert.equal(typeof grid1.close, "function", "grid.close()");
+    assert.equal(typeof grid1.notify, "function", "grid.notify()");
+    assert.equal(typeof grid1.move, "function", "grid.move()");
+    assert.equal(typeof grid1.sync, "function", "grid.sync()");
 
-    grid = cockpit.grid(555, 3);
-    assert.strictEqual(grid.beg, 3, "not-null grid.beg");
-    assert.strictEqual(grid.end, 3, "same grid.end");
+    const grid2 = cockpit.grid(555, 3);
+    assert.strictEqual(grid2.beg, 3, "not-null grid.beg");
+    assert.strictEqual(grid2.end, 3, "same grid.end");
 
-    grid = cockpit.grid(555, 0);
-    assert.strictEqual(grid.end, 0, "zero grid.end");
+    const grid3 = cockpit.grid(555, 0);
+    assert.strictEqual(grid3.end, 0, "zero grid.end");
 
-    var sink = cockpit.series(888);
+    const sink = cockpit.series(888);
     assert.strictEqual(sink.interval, 888, "series.interval");
     assert.equal(typeof sink.input, "function", "series.input()");
     assert.equal(typeof sink.load, "function", "series.load()");
 });
 
 QUnit.test("calculated row", function (assert) {
-    var grid = cockpit.grid(1000, 3, 8);
-    var calculated = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const grid = cockpit.grid(1000, 3, 8);
+    const calculated = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[i + x] = i;
     });
 
@@ -41,16 +41,16 @@ QUnit.test("calculated row", function (assert) {
 });
 
 QUnit.test("calculated order", function (assert) {
-    var grid = cockpit.grid(1000, 3, 8);
+    const grid = cockpit.grid(1000, 3, 8);
 
-    var calculated = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const calculated = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[i + x] = i;
     });
 
     /* Callbacks must be called in the right order for this to work */
-    var dependent = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const dependent = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[i + x] = calculated[i + x] + 10;
     });
 
@@ -59,19 +59,17 @@ QUnit.test("calculated order", function (assert) {
 });
 
 QUnit.test("calculated early", function (assert) {
-    var grid = cockpit.grid(1000, 3, 8);
-
-    var calculated;
+    const grid = cockpit.grid(1000, 3, 8);
 
     /* Callbacks must be called in the right order for this to work */
-    var dependent = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const dependent = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[i + x] = calculated[i + x] + 10;
     });
 
     /* Even though this one is added after, run first, due to early flag */
-    calculated = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const calculated = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[i + x] = i;
     }, true);
 
@@ -80,9 +78,9 @@ QUnit.test("calculated early", function (assert) {
 });
 
 QUnit.test("notify limit", function (assert) {
-    var grid = cockpit.grid(1000, 5, 15);
+    const grid = cockpit.grid(1000, 5, 15);
 
-    var called = -1;
+    let called = -1;
     grid.add(function(row, x, n) {
         called = n;
     });
@@ -98,22 +96,22 @@ QUnit.test("notify limit", function (assert) {
 });
 
 QUnit.test("sink row", function (assert) {
-    var grid = cockpit.grid(1000, 5, 15);
-    var sink = cockpit.series(1000);
+    const grid = cockpit.grid(1000, 5, 15);
+    const sink = cockpit.series(1000);
 
-    var row1 = grid.add(sink, "one.sub.2");
-    var row2 = grid.add(sink, ["one", "sub", 2]);
-    var calc = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const row1 = grid.add(sink, "one.sub.2");
+    const row2 = grid.add(sink, ["one", "sub", 2]);
+    const calc = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[x + i] = row1[x + i] + row2[x + i];
     });
 
-    var notified = null;
+    let notified = null;
     grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
-    var items = [
+    const items = [
         {
             one: { sub: [200, 201, 202], another: [20, 21, 22] },
             two: { sub: [2000, 2001, 2002], marmalade: [0, 1, 2] }
@@ -140,12 +138,12 @@ QUnit.test("sink row", function (assert) {
 });
 
 QUnit.test("sink no path", function (assert) {
-    var grid = cockpit.grid(1000, 5, 15);
-    var sink = cockpit.series(1000);
+    const grid = cockpit.grid(1000, 5, 15);
+    const sink = cockpit.series(1000);
 
-    var row = grid.add(sink);
+    const row = grid.add(sink);
 
-    var items = [567, 768, { hello: "scruffy" }];
+    const items = [567, 768, { hello: "scruffy" }];
 
     sink.input(8, items);
 
@@ -153,12 +151,12 @@ QUnit.test("sink no path", function (assert) {
 });
 
 QUnit.test("sink after close", function (assert) {
-    var grid = cockpit.grid(1000, 5, 15);
-    var sink = cockpit.series(1000);
+    const grid = cockpit.grid(1000, 5, 15);
+    const sink = cockpit.series(1000);
 
-    var row = grid.add(sink);
+    const row = grid.add(sink);
 
-    var items = [1, 2, 3];
+    const items = [1, 2, 3];
 
     sink.input(5, items);
     assert.deepEqual(row, [1, 2, 3], "row got values");
@@ -173,19 +171,19 @@ QUnit.test("sink after close", function (assert) {
 });
 
 QUnit.test("sink mapping", function (assert) {
-    var grid = cockpit.grid(1000, 5, 15);
-    var sink = cockpit.series(1000);
+    const grid = cockpit.grid(1000, 5, 15);
+    const sink = cockpit.series(1000);
 
-    var row1 = grid.add(sink, "two.sub.1");
-    var row2 = grid.add(sink, "one.sub");
-    var row3 = grid.add(sink, "invalid");
+    const row1 = grid.add(sink, "two.sub.1");
+    const row2 = grid.add(sink, "one.sub");
+    const row3 = grid.add(sink, "invalid");
 
-    var mapping = {
+    const mapping = {
         one: { "": 0, sub: { "": 0 }, another: { "": 1 } },
         two: { "": 1, sub: { "": 0 }, marmalade: { "": 1 } }
     };
 
-    var items = [
+    const items = [
         [
             [[200, 201, 202], [20, 21, 22]],
             [[2000, 2001, 2002], [0, 1, 2]]
@@ -210,12 +208,12 @@ QUnit.test("sink mapping", function (assert) {
 });
 
 QUnit.test("cache simple", function (assert) {
-    var fetched = [];
+    const fetched = [];
     function fetch(beg, end) {
         fetched.push([beg, end]);
     }
 
-    var sink = cockpit.series(1000, null, fetch);
+    const sink = cockpit.series(1000, null, fetch);
 
     sink.input(7, [
         {
@@ -232,17 +230,17 @@ QUnit.test("cache simple", function (assert) {
         }
     ]);
 
-    var grid = cockpit.grid(1000, 5, 15);
+    const grid = cockpit.grid(1000, 5, 15);
 
-    var notified = null;
+    let notified = null;
     grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
-    var row1 = grid.add(sink, "one.sub.2");
-    var row2 = grid.add(sink, ["one", "sub", 2]);
-    var calc = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const row1 = grid.add(sink, "one.sub.2");
+    const row2 = grid.add(sink, ["one", "sub", 2]);
+    const calc = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
     });
 
@@ -260,12 +258,12 @@ QUnit.test("cache simple", function (assert) {
 });
 
 QUnit.test("cache multiple", function (assert) {
-    var fetched = [];
+    const fetched = [];
     function fetch(beg, end) {
         fetched.push([beg, end]);
     }
 
-    var sink = cockpit.series(1000, null, fetch);
+    const sink = cockpit.series(1000, null, fetch);
 
     sink.input(7, [{
         one: { sub: [200, 201, 202], another: [20, 21, 22] },
@@ -282,17 +280,17 @@ QUnit.test("cache multiple", function (assert) {
         two: { sub: [4000, 4001, 4002], marmalade: [0, 1, 2] }
     }]);
 
-    var grid = cockpit.grid(1000, 5, 15);
+    const grid = cockpit.grid(1000, 5, 15);
 
-    var notified = null;
+    let notified = null;
     grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
 
-    var row1 = grid.add(sink, "one.sub.2");
-    var row2 = grid.add(sink, ["one", "sub", 2]);
-    var calc = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const row1 = grid.add(sink, "one.sub.2");
+    const row2 = grid.add(sink, ["one", "sub", 2]);
+    const calc = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
     });
 
@@ -310,14 +308,14 @@ QUnit.test("cache multiple", function (assert) {
 });
 
 QUnit.test("cache overlap", function (assert) {
-    var fetched = [];
+    const fetched = [];
     function fetch(beg, end) {
         fetched.push([beg, end]);
     }
 
-    var sink = cockpit.series(1000, null, fetch);
-    var grid = cockpit.grid(1000, 5, 15);
-    var row1 = grid.add(sink, "one.sub.2");
+    const sink = cockpit.series(1000, null, fetch);
+    const grid = cockpit.grid(1000, 5, 15);
+    const row1 = grid.add(sink, "one.sub.2");
 
     /* Initial state of the cache */
     sink.input(6, [{
@@ -351,7 +349,7 @@ QUnit.test("cache overlap", function (assert) {
         two: { sub: [4000, 4001, 4002], marmalade: [0, 1, 2] }
     }]);
 
-    var row2 = grid.add(sink, "one.sub.2");
+    const row2 = grid.add(sink, "one.sub.2");
     grid.sync();
 
     assert.deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with filled data");
@@ -361,14 +359,14 @@ QUnit.test("cache overlap", function (assert) {
 });
 
 QUnit.test("cache limit", function (assert) {
-    var series = cockpit.series(1000, null);
+    const series = cockpit.series(1000, null);
     series.limit = 5;
     series.input(8, ["eight"]);
     series.input(6, ["six", "seven"]);
     series.input(9, ["nine"]);
 
-    var grid = cockpit.grid(1000, 5, 15);
-    var row = grid.add(series, null);
+    const grid = cockpit.grid(1000, 5, 15);
+    const row = grid.add(series, null);
     grid.sync();
 
     assert.deepEqual(row, [undefined, "six", "seven", "eight", "nine"], "initial data correct");
@@ -392,22 +390,22 @@ QUnit.test("cache limit", function (assert) {
 });
 
 QUnit.test("move", function (assert) {
-    var fetched = [];
+    const fetched = [];
     function fetch(beg, end) {
         fetched.push([beg, end]);
     }
 
-    var sink = cockpit.series(1000, null, fetch);
-    var grid = cockpit.grid(1000, 20, 25);
+    const sink = cockpit.series(1000, null, fetch);
+    const grid = cockpit.grid(1000, 20, 25);
 
-    var row1 = grid.add(sink, "one.sub.2");
-    var row2 = grid.add(sink, ["one", "sub", 2]);
-    var calc = grid.add(function(row, x, n) {
-        for (var i = 0; i < n; i++)
+    const row1 = grid.add(sink, "one.sub.2");
+    const row2 = grid.add(sink, ["one", "sub", 2]);
+    const calc = grid.add(function(row, x, n) {
+        for (let i = 0; i < n; i++)
             row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
     });
 
-    var notified = null;
+    let notified = null;
     grid.addEventListener("notify", (ev, n, x) => {
         notified = [n, x];
     });
@@ -446,8 +444,8 @@ QUnit.test("move", function (assert) {
 });
 
 QUnit.test("move negative", function (assert) {
-    var now = Date.now();
-    var grid = cockpit.grid(1000, -20, -5);
+    const now = Date.now();
+    const grid = cockpit.grid(1000, -20, -5);
 
     assert.equal(grid.beg, Math.floor(now / 1000) - 20);
     assert.equal(grid.end, Math.floor(now / 1000) - 5);
@@ -464,17 +462,17 @@ QUnit.test("test", function (assert) {
     const done = assert.async();
     assert.expect(5);
 
-    var fetched = [];
+    const fetched = [];
     function fetch(beg, end) {
         fetched.push([beg, end]);
     }
 
-    var series = cockpit.series(100, null, fetch);
-    var grid = cockpit.grid(100, 20, 25);
+    const series = cockpit.series(100, null, fetch);
+    const grid = cockpit.grid(100, 20, 25);
 
     grid.add(series, []);
 
-    var count = 0;
+    let count = 0;
     grid.walk();
 
     grid.addEventListener("notify", () => {

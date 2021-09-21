@@ -5,12 +5,12 @@ QUnit.test("load user info", function (assert) {
     const done = assert.async();
     assert.expect(9);
 
-    var dbus = cockpit.dbus(null, { bus: "internal" });
+    const dbus = cockpit.dbus(null, { bus: "internal" });
     dbus.call("/user", "org.freedesktop.DBus.Properties",
               "GetAll", ["cockpit.User"],
               { type: "s" })
             .done(function(reply) {
-                var user = reply[0];
+                const user = reply[0];
                 assert.ok(user.Name !== undefined, "has Name");
                 assert.equal(user.Name.t, "s", "string Name");
                 assert.ok(user.Full !== undefined, "has Full name");
@@ -47,7 +47,7 @@ QUnit.test("user environment", function (assert) {
 
     cockpit.spawn(["/bin/sh", "-c", "echo $USER~$SHELL~$HOME"])
             .done(function(data) {
-                var parts = data.split("~");
+                const parts = data.split("~");
                 assert.ok(parts[0].length > 0, "valid $USER");
                 assert.ok(parts[1].length > 0, "valid $HOME");
                 assert.equal(parts[1].indexOf("/"), 0, "$HOME starts with slash");

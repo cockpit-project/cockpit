@@ -5,8 +5,8 @@ QUnit.test("basic", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var channel = cockpit.channel({ payload: "echo" });
-    var pass = 0;
+    const channel = cockpit.channel({ payload: "echo" });
+    let pass = 0;
 
     const onControl = (ev, options) => {
         if (pass === 0) {
@@ -34,7 +34,7 @@ QUnit.test("binary empty", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var channel = cockpit.channel({
+    const channel = cockpit.channel({
         payload: "echo",
         binary: true
     });
@@ -54,13 +54,13 @@ QUnit.test("binary", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var channel = cockpit.channel({ payload: "echo", binary: true });
+    const channel = cockpit.channel({ payload: "echo", binary: true });
 
     const onMessage = (ev, payload) => {
         assert.ok(payload instanceof Uint8Array, "got a byte array");
 
-        var array = [];
-        for (var i = 0; i < payload.length; i++)
+        const array = [];
+        for (let i = 0; i < payload.length; i++)
             array.push(payload[i]);
         assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7], "got back right data");
 
@@ -70,11 +70,9 @@ QUnit.test("binary", function (assert) {
     };
     channel.addEventListener("message", onMessage);
 
-    var i, buffer;
-
-    buffer = new ArrayBuffer(8);
-    var view = new Uint8Array(buffer);
-    for (i = 0; i < 8; i++)
+    const buffer = new ArrayBuffer(8);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < 8; i++)
         view[i] = i;
 
     assert.strictEqual(channel.binary, true, "binary set");
@@ -85,16 +83,16 @@ QUnit.test("fence", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var before = cockpit.channel({ payload: "echo" });
+    const before = cockpit.channel({ payload: "echo" });
     before.addEventListener("message", onMessage);
 
-    var fence = cockpit.channel({ payload: "echo", group: "fence" });
+    const fence = cockpit.channel({ payload: "echo", group: "fence" });
     fence.addEventListener("message", onMessage);
 
-    var after = cockpit.channel({ payload: "echo" });
+    const after = cockpit.channel({ payload: "echo" });
     after.addEventListener("message", onMessage);
 
-    var received = [];
+    const received = [];
     function onMessage(ev, payload) {
         received.push(payload);
         if (received.length == 3) {

@@ -1,12 +1,12 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
-var dir;
+let dir;
 
 QUnit.test("simple read", function (assert) {
     const done = assert.async();
     assert.expect(3);
-    var file = cockpit.file(dir + "/foo");
+    const file = cockpit.file(dir + "/foo");
     assert.equal(file.path, dir + "/foo", "file has path");
     file.read()
             .done(function(resp) {
@@ -151,7 +151,7 @@ QUnit.test("stringify replace", function (assert) {
 QUnit.test("stringify replace error", function (assert) {
     const done = assert.async();
     assert.expect(2);
-    var cycle = { };
+    const cycle = { };
     cycle.me = cycle;
     cockpit.file(dir + "/bar", { syntax: JSON }).replace(cycle)
             .fail(function(error) {
@@ -180,7 +180,7 @@ QUnit.test("binary replace", function (assert) {
 QUnit.test("replace large", function (assert) {
     const done = assert.async();
     assert.expect(3);
-    var str = new Array(23 * 1023).join('abcdef12345');
+    const str = new Array(23 * 1023).join('abcdef12345');
     cockpit.file(dir + "/large").replace(str)
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
@@ -196,22 +196,20 @@ QUnit.test("replace large", function (assert) {
 QUnit.test("binary replace large", function (assert) {
     const done = assert.async();
     assert.expect(4);
-    var data = new Uint8Array(249 * 1023);
-    var i;
-    var len = data.byteLength;
-    for (i = 0; i < len; i++)
+    const data = new Uint8Array(249 * 1023);
+    const len = data.byteLength;
+    for (let i = 0; i < len; i++)
         data[i] = i % 233;
     cockpit.file(dir + "/large-binary", { binary: true }).replace(data)
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 cockpit.spawn(["cat", dir + "/large-binary"], { binary: true })
                         .done(function (res) {
-                            var i;
-                            var len = res.byteLength;
-                            var eq = true;
+                            const len = res.byteLength;
+                            let eq = true;
                             assert.equal(res.byteLength, 249 * 1023, "check length");
                             assert.equal(res.byteLength, data.byteLength, "correct large length");
-                            for (i = 0; i < len; i++) {
+                            for (let i = 0; i < len; i++) {
                                 if (res[i] !== data[i] || res[i] === undefined) {
                                     eq = false;
                                     break;
@@ -245,9 +243,9 @@ QUnit.test("abort replace", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var file = cockpit.file(dir + "/bar");
+    const file = cockpit.file(dir + "/bar");
 
-    var n = 0;
+    let n = 0;
     function start_after_two() {
         n += 1;
         if (n == 2)
@@ -269,7 +267,7 @@ QUnit.test("abort replace", function (assert) {
 
 QUnit.test("replace with tag", function (assert) {
     const done = assert.async();
-    var file = cockpit.file(dir + "/barfoo");
+    const file = cockpit.file(dir + "/barfoo");
 
     file.read()
             .always(function () {
@@ -304,9 +302,9 @@ QUnit.test("modify", function (assert) {
     const done = assert.async();
     assert.expect(7);
 
-    var file = cockpit.file(dir + "/quux");
+    const file = cockpit.file(dir + "/quux");
 
-    var n = 0;
+    let n = 0;
     file
             .modify(function (old) {
                 n += 1;
@@ -318,7 +316,7 @@ QUnit.test("modify", function (assert) {
                 assert.equal(n, 1, "callback called once");
             })
             .done(function () {
-                var n = 0;
+                let n = 0;
                 file
                         .modify(function (old) {
                             n += 1;
@@ -341,9 +339,9 @@ QUnit.test("modify with conflict", function (assert) {
     const done = assert.async();
     assert.expect(8);
 
-    var file = cockpit.file(dir + "/baz");
+    const file = cockpit.file(dir + "/baz");
 
-    var n = 0;
+    let n = 0;
     file
             .modify(function (old) {
                 n += 1;
@@ -355,7 +353,7 @@ QUnit.test("modify with conflict", function (assert) {
                 assert.equal(n, 1, "callback called once");
             })
             .done(function (content, tag) {
-                var n = 0;
+                let n = 0;
                 cockpit.spawn(["bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz"])
                         .done(function () {
                             file
@@ -384,10 +382,10 @@ QUnit.test("watching", function (assert) {
     const done = assert.async();
     assert.expect(7);
 
-    var file = cockpit.file(dir + "/foobar");
-    var watch = file.watch(changed);
+    const file = cockpit.file(dir + "/foobar");
+    const watch = file.watch(changed);
 
-    var n = 0;
+    let n = 0;
     function changed(content, tag) {
         n += 1;
         if (n == 1) {
@@ -412,10 +410,10 @@ QUnit.test("binary watching", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var file = cockpit.file(dir + "/foobar", { binary: true });
-    var watch = file.watch(changed);
+    const file = cockpit.file(dir + "/foobar", { binary: true });
+    const watch = file.watch(changed);
 
-    var n = 0;
+    let n = 0;
     function changed(content, tag) {
         n += 1;
         if (n == 1) {
@@ -436,10 +434,10 @@ QUnit.test("syntax watching", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
-    var watch = file.watch(changed);
+    const file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
+    const watch = file.watch(changed);
 
-    var n = 0;
+    let n = 0;
     function changed(content, tag, err) {
         n += 1;
         if (n == 1) {
@@ -461,10 +459,10 @@ QUnit.test("watching without reading", function (assert) {
     const done = assert.async();
     assert.expect(7);
 
-    var file = cockpit.file(dir + "/foobar");
-    var watch = file.watch(changed, { read: false });
+    const file = cockpit.file(dir + "/foobar");
+    const watch = file.watch(changed, { read: false });
 
-    var n = 0;
+    let n = 0;
     function changed(content, tag) {
         n += 1;
         if (n == 1) {
@@ -489,10 +487,10 @@ QUnit.test("closing", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var file = cockpit.file(dir + "/foobarbaz");
-    var watch = file.watch(changed);
+    const file = cockpit.file(dir + "/foobarbaz");
+    const watch = file.watch(changed);
 
-    var n = 0;
+    let n = 0;
     function start_after_two() {
         n += 1;
         if (n == 2) {

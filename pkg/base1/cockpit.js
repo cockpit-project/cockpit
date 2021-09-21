@@ -2947,9 +2947,8 @@ function factory() {
         };
 
         self.each = function each(iface, callback) {
-            var path, ifa;
-            for (path in self.data) {
-                for (iface in self.data[path]) {
+            for (const path in self.data) {
+                for (const ifa in self.data[path]) {
                     if (ifa == iface)
                         callback(self.data[path][iface], path);
                 }

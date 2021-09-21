@@ -42,9 +42,9 @@ class ApplicationRow extends React.Component {
     }
 
     render() {
-        var self = this;
-        var comp = self.props.comp;
-        var state = self.state;
+        const self = this;
+        const comp = self.props.comp;
+        const state = self.state;
 
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
@@ -61,14 +61,14 @@ class ApplicationRow extends React.Component {
             action(PackageKit.remove, comp.file, _("Removing"));
         }
 
-        var name, summary_or_progress, button;
+        const name = (
+            <Button variant="link"
+                isInline id={comp.name}
+                onClick={left_click(() => comp.installed ? launch(comp) : cockpit.location.go(comp.id))}>
+                {comp.name}
+            </Button>);
 
-        if (comp.installed) {
-            name = <Button variant="link" isInline id={comp.name} onClick={left_click(() => launch(comp))}>{comp.name}</Button>;
-        } else {
-            name = <Button variant="link" isInline id={comp.name} onClick={left_click(() => cockpit.location.go(comp.id))}>{comp.name}</Button>;
-        }
-
+        let summary_or_progress, button;
         if (state.progress) {
             summary_or_progress = <ProgressBar title={state.progress_title} data={state.progress} />;
             button = <CancelButton data={state.progress} />;
@@ -125,9 +125,9 @@ export class ApplicationList extends React.Component {
     }
 
     render() {
-        var self = this;
-        var comps = [];
-        for (var id in this.props.metainfo_db.components)
+        const self = this;
+        const comps = [];
+        for (const id in this.props.metainfo_db.components)
             comps.push(this.props.metainfo_db.components[id]);
         comps.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -153,7 +153,7 @@ export class ApplicationList extends React.Component {
                     .catch(show_error);
         }
 
-        var refresh_progress, refresh_button, empty_caption, tbody;
+        let refresh_progress, refresh_button, tbody;
         if (this.state.progress) {
             refresh_progress = <ProgressBar size="sm" title={_("Checking for new applications")} data={this.state.progress} />;
             refresh_button = <CancelButton data={this.state.progress} />;
@@ -167,10 +167,9 @@ export class ApplicationList extends React.Component {
         }
 
         if (comps.length === 0) {
-            if (this.props.metainfo_db.ready)
-                empty_caption = _("No applications installed or available");
-            else
-                empty_caption = <div className="spinner spinner-sm" />;
+            const empty_caption = this.props.metainfo_db.ready
+                ? _("No applications installed or available")
+                : <div className="spinner spinner-sm" />;
             tbody = <div className="app-list-empty">{empty_caption}</div>;
         } else {
             tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);

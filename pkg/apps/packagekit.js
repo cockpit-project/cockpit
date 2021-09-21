@@ -31,7 +31,7 @@ function progress_reporter(base, range, callback) {
 }
 
 function resolve_many(method, filter, names, progress_cb) {
-    var ids = [];
+    const ids = [];
 
     return PK.cancellableTransaction(method, [filter, names], progress_cb,
                                      {
@@ -72,8 +72,8 @@ export function remove(name, progress_cb) {
 }
 
 export function refresh(origin_files, config_packages, data_packages, progress_cb) {
-    var origin_pkgs = { };
-    var update_ids = [];
+    const origin_pkgs = { };
+    const update_ids = [];
 
     /* In addition to refreshing the repository metadata, we also
      * update all packages that contain AppStream collection metadata.
@@ -97,7 +97,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
                                          progress_reporter(5, 1, progress_cb),
                                          {
                                              Package: (info, package_id) => {
-                                                 var pkg = package_id.split(";")[0];
+                                                 const pkg = package_id.split(";")[0];
                                                  origin_pkgs[pkg] = true;
                                              },
                                          });

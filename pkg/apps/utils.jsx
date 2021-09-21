@@ -40,7 +40,7 @@ export function icon_url(path_or_url) {
     if (path_or_url[0] != '/')
         return path_or_url;
 
-    var queryobj = {
+    const queryobj = {
         payload: "fsread1",
         binary: "raw",
         path: path_or_url,
@@ -50,8 +50,8 @@ export function icon_url(path_or_url) {
         queryobj.external = { "content-type": "image/svg+xml" };
     }
 
-    var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
-    var query = window.btoa(JSON.stringify(queryobj));
+    const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
+    const query = window.btoa(JSON.stringify(queryobj));
     return prefix + '?' + query;
 }
 
@@ -96,8 +96,7 @@ export const show_error = ex => {
 };
 
 export const launch = (comp) => {
-    var i;
-    for (i = 0; i < comp.launchables.length; i++) {
+    for (let i = 0; i < comp.launchables.length; i++) {
         if (comp.launchables[i].type == "cockpit-manifest") {
             cockpit.jump([comp.launchables[i].name]);
             return;

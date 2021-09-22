@@ -67,14 +67,15 @@ const formatUTC_ISO = t => `${t.getUTCFullYear()}-${t.getUTCMonth() + 1}-${t.get
 
 // keep track of maximum values for unbounded data, so that we can normalize it properly
 // pre-init them to avoid inflating noise
-var scaleSatCPU = 4;
-var scaleUseDisks = 10000; // KB/s
-var scaleUseNetwork = 100000; // B/s
+let scaleSatCPU = 4;
+let scaleUseDisks = 10000; // KB/s
+let scaleUseNetwork = 100000; // B/s
 
-var numCpu = 1;
-var memTotal; // GiB
-var swapTotal; // GiB, can be undefined
-var machine_info_promise = machine_info.cpu_ram_info();
+let numCpu = 1;
+let memTotal; // GiB
+let swapTotal; // GiB, can be undefined
+
+const machine_info_promise = machine_info.cpu_ram_info();
 machine_info_promise.then(info => {
     numCpu = info.cpus;
     memTotal = Number((info.memory / (1024 * 1024 * 1024)).toFixed(1));

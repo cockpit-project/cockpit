@@ -32,7 +32,7 @@ function assert_throws(assert, func, checks) {
 }
 
 QUnit.test("ip_prefix_from_text", function (assert) {
-    var checks = [
+    const checks = [
         ["0", 0],
         ["12", 12],
         [" 12  ", 12]
@@ -46,7 +46,7 @@ QUnit.test("ip_prefix_from_text", function (assert) {
 });
 
 QUnit.test("ip_prefix_from_text invalids", function (assert) {
-    var checks = [
+    const checks = [
         "",
         "-1",
         "foo",
@@ -59,7 +59,7 @@ QUnit.test("ip_prefix_from_text invalids", function (assert) {
 });
 
 QUnit.test("ip_metric_from_text", function (assert) {
-    var checks = [
+    const checks = [
         ["", 0],
         ["0", 0],
         ["12", 12],
@@ -74,7 +74,7 @@ QUnit.test("ip_metric_from_text", function (assert) {
 });
 
 QUnit.test("ip_metric_from_text invalids", function (assert) {
-    var checks = [
+    const checks = [
         "-1",
         "foo",
         "1foo",
@@ -86,7 +86,7 @@ QUnit.test("ip_metric_from_text invalids", function (assert) {
 });
 
 QUnit.test("ip4_to/from_text be", function (assert) {
-    var checks = [
+    const checks = [
         ["0.0.0.0", 0x00000000],
         ["255.255.255.255", 0xFFFFFFFF],
         ["1.2.3.4", 0x01020304],
@@ -104,7 +104,7 @@ QUnit.test("ip4_to/from_text be", function (assert) {
 });
 
 QUnit.test("ip4_to/from_text le", function (assert) {
-    var checks = [
+    const checks = [
         ["0.0.0.0", 0x00000000],
         ["255.255.255.255", 0xFFFFFFFF],
         ["1.2.3.4", 0x04030201],
@@ -122,7 +122,7 @@ QUnit.test("ip4_to/from_text le", function (assert) {
 });
 
 QUnit.test("ip4_from_text invalids", function (assert) {
-    var checks = [
+    const checks = [
         "",
         "0",
         "0.0",
@@ -157,7 +157,7 @@ QUnit.test("ip4_to/from_text invalid byteorder", function (assert) {
 });
 
 QUnit.test("ip4_prefix_from_text", function (assert) {
-    var checks = [
+    const checks = [
         "0.0.0.0",
 
         " 128.0.0.0",
@@ -205,7 +205,7 @@ QUnit.test("ip4_prefix_from_text", function (assert) {
 });
 
 QUnit.test("ip4_prefix_from_text invalids", function (assert) {
-    var checks = [
+    const checks = [
         "",
         "-1",
         "foo",
@@ -224,7 +224,7 @@ QUnit.test("ip4_prefix_from_text invalids", function (assert) {
 });
 
 QUnit.test("ip6_to/from_text", function (assert) {
-    var checks = [
+    const checks = [
         [[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
         "0:0:0:0:0:0:0:0"
@@ -248,7 +248,7 @@ QUnit.test("ip6_to/from_text", function (assert) {
 });
 
 QUnit.test("ip6_from_text abbrevs", function (assert) {
-    var checks = [
+    const checks = [
         ["::",
             [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
@@ -277,7 +277,7 @@ QUnit.test("ip6_from_text abbrevs", function (assert) {
 });
 
 QUnit.test("ip6_from_text invalids", function (assert) {
-    var checks = [
+    const checks = [
         "",
         "0",
         "0:0",
@@ -302,14 +302,14 @@ QUnit.test("ip6_from_text invalids", function (assert) {
 });
 
 QUnit.test("ip6_to_text zero", function (assert) {
-    var zero = [0, 0, 0, 0, 0, 0, 0, 0,
+    const zero = [0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0
     ];
     assert.strictEqual(utils.ip6_to_text(cockpit.base64_encode(zero), true), "");
 });
 
 QUnit.test("ip6_from_text empty", function (assert) {
-    var zero = [0, 0, 0, 0, 0, 0, 0, 0,
+    const zero = [0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0
     ];
     assert.deepEqual(cockpit.base64_decode(utils.ip6_from_text("", true)), zero);

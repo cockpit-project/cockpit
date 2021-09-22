@@ -39,7 +39,7 @@ import "form-layout.scss";
 const _ = cockpit.gettext;
 
 export function show_unexpected_error(error) {
-    var msg = error.message || error || "???";
+    const msg = error.message || error || "???";
     console.warn(msg);
     $("#error-popup-message").text(msg);
     $('#error-popup').prop('hidden', false);
@@ -47,13 +47,13 @@ export function show_unexpected_error(error) {
 }
 
 function select_btn(func, spec, klass) {
-    var choice = spec[0] ? spec[0].choice : null;
+    let choice = spec[0] ? spec[0].choice : null;
 
     function option_mapper(opt) {
         return $('<option>', { value: opt.choice, 'data-value': opt.title }).text(opt.title);
     }
 
-    var btn = $('<select class="pf-c-form-control">').append(spec.map(option_mapper));
+    const btn = $('<select class="pf-c-form-control">').append(spec.map(option_mapper));
     btn.on('change', function() {
         choice = $(this).val();
         select(choice);
@@ -112,7 +112,7 @@ export function connection_settings(c) {
  *
  * For example,
  *
- *    var manager = model.get_manager();
+ *    const manager = model.get_manager();
  *    manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0][0]
  *
  * is the first IPv4 address of the first device as a string.
@@ -177,10 +177,10 @@ export function NetworkManagerModel() {
      * and helps with removing obsolete objects.
      */
 
-    var self = this;
+    const self = this;
     cockpit.event_target(self);
 
-    var client = cockpit.dbus("org.freedesktop.NetworkManager", { superuser: "try" });
+    const client = cockpit.dbus("org.freedesktop.NetworkManager", { superuser: "try" });
     self.client = client;
 
     /* resolved once first stage of initialization is done */
@@ -202,7 +202,7 @@ export function NetworkManagerModel() {
 
     /* Mostly generic D-Bus stuff.  */
 
-    var objects = { };
+    const objects = { };
 
     function complain() {
         self.ready = false;
@@ -225,7 +225,7 @@ export function NetworkManagerModel() {
         return obj[' priv'];
     }
 
-    var outstanding_refreshes = 0;
+    let outstanding_refreshes = 0;
 
     function push_refresh() {
         outstanding_refreshes += 1;
@@ -244,7 +244,7 @@ export function NetworkManagerModel() {
             this[' priv'] = { };
             priv(this).type = type;
             priv(this).path = path;
-            for (var p in type.props)
+            for (const p in type.props)
                 this[p] = type.props[p].def;
         }
         if (!objects[path]) {
@@ -263,7 +263,7 @@ export function NetworkManagerModel() {
     }
 
     function drop_object(path) {
-        var obj = objects[path];
+        const obj = objects[path];
         if (obj) {
             if (priv(obj).type.drop)
                 priv(obj).type.drop(obj);
@@ -273,10 +273,9 @@ export function NetworkManagerModel() {
     }
 
     function set_object_properties(obj, props) {
-        var p, decl, val;
-        decl = priv(obj).type.props;
-        for (p in decl) {
-            val = props[decl[p].prop || p];
+        const decl = priv(obj).type.props;
+        for (const p in decl) {
+            let val = props[decl[p].prop || p];
             if (val !== undefined) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
@@ -290,8 +289,8 @@ export function NetworkManagerModel() {
     }
 
     function remove_signatures(props_with_sigs) {
-        var props = { };
-        for (var p in props_with_sigs) {
+        const props = { };
+        for (const p in props_with_sigs) {
             if (props_with_sigs[p]) {
                 props[p] = props_with_sigs[p].v;
             }
@@ -307,7 +306,7 @@ export function NetworkManagerModel() {
     }
 
     function call_object_method(obj, iface, method) {
-        var dfd = new $.Deferred();
+        const dfd = new $.Deferred();
         client.call(objpath(obj), iface, method, Array.prototype.slice.call(arguments, 3))
                 .fail(function(ex) {
                     dfd.reject(ex);
@@ -318,9 +317,9 @@ export function NetworkManagerModel() {
         return dfd.promise();
     }
 
-    var interface_types = { };
-    var max_export_phases = 0;
-    var export_pending;
+    const interface_types = { };
+    let max_export_phases = 0;
+    let export_pending;
 
     function set_object_types(all_types) {
         all_types.forEach(function (type) {
@@ -333,10 +332,10 @@ export function NetworkManagerModel() {
     }
 
     function signal_emitted(path, iface, signal, args) {
-        var obj = peek_object(path);
+        const obj = peek_object(path);
 
         if (obj) {
-            var type = priv(obj).type;
+            const type = priv(obj).type;
 
             if (signal == "PropertiesChanged") {
                 push_refresh();
@@ -348,7 +347,7 @@ export function NetworkManagerModel() {
     }
 
     function interface_properties(path, iface, props) {
-        var type = interface_types[iface];
+        const type = interface_types[iface];
         if (type)
             set_object_properties(get_object(path, type), props);
     }
@@ -358,15 +357,14 @@ export function NetworkManagerModel() {
         drop_object(path);
     }
 
-    var export_model_deferred = null;
+    let export_model_deferred = null;
 
     function export_model() {
         function doit() {
-            var phase, path, obj, exp;
-            for (phase = 0; phase < max_export_phases; phase++) {
-                for (path in objects) {
-                    obj = objects[path];
-                    exp = priv(obj).type.exporters;
+            for (let phase = 0; phase < max_export_phases; phase++) {
+                for (const path in objects) {
+                    const obj = objects[path];
+                    const exp = priv(obj).type.exporters;
                     if (exp && exp[phase])
                         exp[phase](obj);
                 }
@@ -396,8 +394,8 @@ export function NetworkManagerModel() {
         }
     };
 
-    var subscription;
-    var watch;
+    let subscription;
+    let watch;
 
     self.preinit.then(() => {
         subscription = client.subscribe({ }, signal_emitted);
@@ -503,7 +501,7 @@ export function NetworkManagerModel() {
             };
         }
 
-        var result = {
+        const result = {
             connection: {
                 type:           get("connection", "type"),
                 uuid:           get("connection", "uuid"),
@@ -591,7 +589,7 @@ export function NetworkManagerModel() {
     }
 
     function settings_to_nm(settings, orig) {
-        var result = $.extend(true, {}, orig);
+        const result = $.extend(true, {}, orig);
 
         function set(first, second, sig, val, def) {
             if (val === undefined)
@@ -609,16 +607,16 @@ export function NetworkManagerModel() {
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
 
-            var addresses = settings[first].addresses;
+            const addresses = settings[first].addresses;
             if (addresses)
                 set(first, "addresses", addrs_sig, addresses.map(addr_to_nm));
 
-            var dns = settings[first].dns;
+            const dns = settings[first].dns;
             if (dns)
                 set(first, "dns", ips_sig, dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
 
-            var routes = settings[first].routes;
+            const routes = settings[first].routes;
             if (routes)
                 set(first, "routes", routes_sig, routes.map(route_to_nm));
 
@@ -765,7 +763,7 @@ export function NetworkManagerModel() {
         }
     }
 
-    var connections_by_uuid = { };
+    const connections_by_uuid = { };
 
     function set_settings(obj, settings) {
         if (obj.Settings && obj.Settings.connection && obj.Settings.connection.uuid)
@@ -781,7 +779,7 @@ export function NetworkManagerModel() {
                 .always(pop_refresh)
                 .fail(complain)
                 .done(function(reply) {
-                    var result = reply[0];
+                    const result = reply[0];
                     if (result) {
                         priv(obj).orig = result;
                         set_settings(obj, settings_from_nm(result));
@@ -796,9 +794,9 @@ export function NetworkManagerModel() {
         push_refresh();
         cockpit.spawn(["udevadm", "info", obj.Udi], { err: 'message' })
                 .done(function(res) {
-                    var props = { };
+                    const props = { };
                     function snarf_prop(line, env, prop) {
-                        var prefix = "E: " + env + "=";
+                        const prefix = "E: " + env + "=";
                         if (line.indexOf(prefix) === 0) {
                             props[prop] = line.substr(prefix.length);
                         }
@@ -827,9 +825,7 @@ export function NetworkManagerModel() {
      * code and using the data conversion functions.
      */
 
-    var type_Manager;
-
-    var type_Ipv4Config = {
+    const type_Ipv4Config = {
         interfaces: [
             "org.freedesktop.NetworkManager.IP4Config"
         ],
@@ -839,7 +835,7 @@ export function NetworkManagerModel() {
         }
     };
 
-    var type_Ipv6Config = {
+    const type_Ipv6Config = {
         interfaces: [
             "org.freedesktop.NetworkManager.IP6Config"
         ],
@@ -849,7 +845,7 @@ export function NetworkManagerModel() {
         }
     };
 
-    var type_Connection = {
+    const type_Connection = {
         interfaces: [
             "org.freedesktop.NetworkManager.Settings.Connection"
         ],
@@ -874,7 +870,7 @@ export function NetworkManagerModel() {
             },
 
             apply_settings: function (settings) {
-                var self = this;
+                const self = this;
                 try {
                     return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
@@ -915,8 +911,6 @@ export function NetworkManagerModel() {
             //        type_Connection.Groups
             //
             function (obj) {
-                var group, iface;
-
                 // Most of the time, a connection has zero or one groups,
                 // but when a connection refers to its group by interface
                 // name, we might end up with more than one group
@@ -925,22 +919,22 @@ export function NetworkManagerModel() {
                 // TODO - Nail down how NM really handles this.
 
                 function check_con(con) {
-                    var group_settings = connection_settings(con);
-                    var my_settings = connection_settings(obj);
+                    const group_settings = connection_settings(con);
+                    const my_settings = connection_settings(obj);
                     if (group_settings.type == my_settings.member_type) {
                         obj.Groups.push(con);
                         con.Members.push(obj);
                     }
                 }
 
-                var cs = connection_settings(obj);
+                const cs = connection_settings(obj);
                 if (cs.member_type) {
-                    group = connections_by_uuid[cs.group];
+                    const group = connections_by_uuid[cs.group];
                     if (group) {
                         obj.Groups.push(group);
                         group.Members.push(obj);
                     } else {
-                        iface = peek_interface(cs.group);
+                        const iface = peek_interface(cs.group);
                         if (iface) {
                             iface.Connections.forEach(check_con);
                         }
@@ -951,7 +945,7 @@ export function NetworkManagerModel() {
 
     };
 
-    var type_ActiveConnection = {
+    const type_ActiveConnection = {
         interfaces: [
             "org.freedesktop.NetworkManager.Connection.Active"
         ],
@@ -972,7 +966,7 @@ export function NetworkManagerModel() {
         }
     };
 
-    var type_Device = {
+    const type_Device = {
         interfaces: [
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
@@ -1033,7 +1027,7 @@ export function NetworkManagerModel() {
     // This is a HACK: NetworkManager should export Device nodes for
     // these.
 
-    var type_Interface = {
+    const type_Interface = {
         interfaces: [],
 
         exporters: [
@@ -1095,7 +1089,7 @@ export function NetworkManagerModel() {
     };
 
     function get_interface(iface) {
-        var obj = get_object(":interface:" + iface, type_Interface);
+        const obj = get_object(":interface:" + iface, type_Interface);
         obj.Name = iface;
         return obj;
     }
@@ -1104,7 +1098,7 @@ export function NetworkManagerModel() {
         return peek_object(":interface:" + iface);
     }
 
-    var type_Settings = {
+    const type_Settings = {
         interfaces: [
             "org.freedesktop.NetworkManager.Settings"
         ],
@@ -1115,7 +1109,7 @@ export function NetworkManagerModel() {
 
         prototype: {
             add_connection: function (conf) {
-                var dfd = $.Deferred();
+                const dfd = $.Deferred();
                 try {
                     call_object_method(this,
                                        'org.freedesktop.NetworkManager.Settings',
@@ -1144,7 +1138,7 @@ export function NetworkManagerModel() {
                     obj.Connections.forEach(function (con) {
                         function add_to_interface(name) {
                             if (name) {
-                                var cons = get_interface(name)._NonDeviceConnections;
+                                const cons = get_interface(name)._NonDeviceConnections;
                                 if (cons.indexOf(con) == -1)
                                     cons.push(con);
                             }
@@ -1168,7 +1162,7 @@ export function NetworkManagerModel() {
         ]
     };
 
-    type_Manager = {
+    const type_Manager = {
         interfaces: [
             "org.freedesktop.NetworkManager"
         ],
@@ -1184,7 +1178,7 @@ export function NetworkManagerModel() {
 
         prototype: {
             checkpoint_create: function (devices, timeout) {
-                var dfd = $.Deferred();
+                const dfd = $.Deferred();
                 call_object_method(this,
                                    'org.freedesktop.NetworkManager',
                                    'CheckpointCreate',
@@ -1231,7 +1225,7 @@ export function NetworkManagerModel() {
             function (obj) {
                 obj.Devices.forEach(function (dev) {
                     if (dev.Interface) {
-                        var iface = get_interface(dev.Interface);
+                        const iface = get_interface(dev.Interface);
                         iface.Device = dev;
                     }
                 });
@@ -1248,10 +1242,9 @@ export function NetworkManagerModel() {
      */
 
     self.list_interfaces = function list_interfaces() {
-        var path, obj;
-        var result = [];
-        for (path in objects) {
-            obj = objects[path];
+        const result = [];
+        for (const path in objects) {
+            const obj = objects[path];
             if (priv(obj).type === type_Interface)
                 result.push(obj);
         }
@@ -1295,8 +1288,8 @@ export function NetworkManagerModel() {
 $.fn.extend({
     syn_click: function(model, fun) {
         return this.click(function() {
-            var self = this;
-            var self_args = arguments;
+            const self = this;
+            const self_args = arguments;
             model.synchronize().then(function() {
                 fun.apply(self, self_args);
             });
@@ -1341,8 +1334,8 @@ export function device_state_text(dev) {
 }
 
 export function array_join(elts, sep) {
-    var result = [];
-    for (var i = 0; i < elts.length; i++) {
+    const result = [];
+    for (let i = 0; i < elts.length; i++) {
         result.push(elts[i]);
         if (i < elts.length - 1)
             result.push(sep);
@@ -1351,13 +1344,12 @@ export function array_join(elts, sep) {
 }
 
 export function render_active_connection(dev, with_link, hide_link_local) {
-    var parts = [];
-    var con;
+    const parts = [];
 
     if (!dev)
         return "";
 
-    con = dev.ActiveConnection;
+    const con = dev.ActiveConnection;
 
     if (con && con.Group) {
         return $('<span>').append(
@@ -1365,7 +1357,7 @@ export function render_active_connection(dev, with_link, hide_link_local) {
             (with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface));
     }
 
-    var ip4config = con ? con.Ip4Config : dev.Ip4Config;
+    const ip4config = con ? con.Ip4Config : dev.Ip4Config;
     if (ip4config) {
         ip4config.Addresses.forEach(function (a) {
             parts.push(a[0] + "/" + a[1]);
@@ -1379,7 +1371,7 @@ export function render_active_connection(dev, with_link, hide_link_local) {
                 addr.indexOf("feb") === 0);
     }
 
-    var ip6config = con ? con.Ip6Config : dev.Ip6Config;
+    const ip6config = con ? con.Ip6Config : dev.Ip6Config;
     if (ip6config) {
         ip6config.Addresses.forEach(function (a) {
             if (!(hide_link_local && is_ipv6_link_local(a[0])))
@@ -1441,7 +1433,7 @@ export function settings_applier(model, device, connection) {
     };
 }
 
-export var ipv4_method_choices =
+export const ipv4_method_choices =
     [
         { choice: 'auto', title: _("Automatic (DHCP)") },
         { choice: 'link-local', title: _("Link local") },
@@ -1450,7 +1442,7 @@ export var ipv4_method_choices =
         { choice: 'disabled', title: _("Disabled") }
     ];
 
-export var ipv6_method_choices =
+export const ipv6_method_choices =
     [
         { choice: 'auto', title: _("Automatic") },
         { choice: 'dhcp', title: _("Automatic (DHCP only)") },
@@ -1459,7 +1451,7 @@ export var ipv6_method_choices =
         { choice: 'ignore', title: _("Ignore") }
     ];
 
-export var bond_mode_choices =
+export const bond_mode_choices =
     [
         { choice: 'balance-rr', title: _("Round robin") },
         { choice: 'active-backup', title: _("Active backup") },
@@ -1470,13 +1462,13 @@ export var bond_mode_choices =
         { choice: 'balance-alb', title: _("Adaptive load balancing") }
     ];
 
-export var bond_monitoring_choices =
+export const bond_monitoring_choices =
     [
         { choice: 'mii', title: _("MII (recommended)") },
         { choice: 'arp', title: _("ARP") }
     ];
 
-export var team_runner_choices =
+export const team_runner_choices =
     [
         { choice: 'roundrobin', title: _("Round robin") },
         { choice: 'activebackup', title: _("Active backup") },
@@ -1485,13 +1477,13 @@ export var team_runner_choices =
         { choice: 'lacp', title: _("802.3ad LACP") },
     ];
 
-export var team_balancer_choices =
+export const team_balancer_choices =
     [
         { choice: 'none', title: _("Passive") },
         { choice: 'basic', title: _("Active") }
     ];
 
-export var team_watch_choices =
+export const team_watch_choices =
     [
         { choice: 'ethtool', title: _("Ethtool") },
         { choice: 'arp-ping', title: _("ARP ping") },
@@ -1499,7 +1491,7 @@ export var team_watch_choices =
     ];
 
 export function choice_title(choices, choice, def) {
-    for (var i = 0; i < choices.length; i++) {
+    for (let i = 0; i < choices.length; i++) {
         if (choices[i].choice == choice)
             return choices[i].title;
     }
@@ -1594,19 +1586,19 @@ export function choice_title(choices, choice, def) {
  *                          less patience than Linux in this regard.
  */
 
-var curtain_time = 1.5;
-var settle_time = 1.0;
-var rollback_time = 7.0;
+const curtain_time = 1.5;
+let settle_time = 1.0;
+const rollback_time = 7.0;
 
 export function with_checkpoint(model, modify, options) {
-    var manager = model.get_manager();
-    var curtain = $('#testing-connection-curtain');
-    var curtain_testing = $('#testing-connection-curtain-testing');
-    var curtain_restoring = $('#testing-connection-curtain-restoring');
-    var dialog = $('#confirm-breaking-change-popup');
+    const manager = model.get_manager();
+    const curtain = $('#testing-connection-curtain');
+    const curtain_testing = $('#testing-connection-curtain-testing');
+    const curtain_restoring = $('#testing-connection-curtain-restoring');
+    const dialog = $('#confirm-breaking-change-popup');
 
-    var curtain_timeout;
-    var curtain_title_timeout;
+    let curtain_timeout;
+    let curtain_title_timeout;
 
     function show_curtain() {
         cockpit.hint("ignore_transport_health_check", { data: true });
@@ -1698,8 +1690,8 @@ export function with_checkpoint(model, modify, options) {
 }
 
 export function switchbox(val, callback) {
-    var onoff = $('<span>');
-    var disabled = false;
+    const onoff = $('<span>');
+    let disabled = false;
     function render () {
         ReactDOM.render(
             React.createElement(Switch, {
@@ -1727,7 +1719,7 @@ function with_settings_checkpoint(model, modify, options) {
 }
 
 function show_dialog_error(error_id, error) {
-    var msg = error.message || error.toString();
+    const msg = error.message || error.toString();
     console.warn(msg);
     $(error_id).prop('hidden', false)
             .find('h4')
@@ -1735,7 +1727,7 @@ function show_dialog_error(error_id, error) {
 }
 
 function connection_devices(con) {
-    var devices = [];
+    const devices = [];
 
     if (con)
         con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
@@ -1767,17 +1759,17 @@ PageNetworkIpSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var topic = PageNetworkIpSettings.topic;
-        var params = self.settings[topic];
+        const self = this;
+        const topic = PageNetworkIpSettings.topic;
+        const params = self.settings[topic];
 
-        var addresses_table;
-        var auto_dns_btn, dns_table;
-        var auto_dns_search_btn, dns_search_table;
-        var auto_routes_btn, routes_table;
+        let addresses_table;
+        let auto_dns_btn, dns_table;
+        let auto_dns_search_btn, dns_search_table;
+        let auto_routes_btn, routes_table;
 
         function choicebox(p, choices) {
-            var btn = select_btn(
+            const btn = select_btn(
                 function (choice) {
                     params[p] = choice;
                     self.update();
@@ -1789,8 +1781,8 @@ PageNetworkIpSettings.prototype = {
         }
 
         function inverted_switchbox(title, p) {
-            var onoff;
-            var btn = $('<span>').append(
+            let onoff;
+            const btn = $('<span>').append(
                 $('<span class="inverted-switchbox">').text(title),
                 onoff = switchbox(!params[p], function(val) {
                     params[p] = !val;
@@ -1803,8 +1795,7 @@ PageNetworkIpSettings.prototype = {
         }
 
         function tablebox(title, p, columns, def, header_buttons) {
-            var direct = false;
-            var add_btn;
+            let direct = false;
 
             if (typeof columns == "string") {
                 direct = true;
@@ -1839,7 +1830,8 @@ PageNetworkIpSettings.prototype = {
                 };
             }
 
-            var panel =
+            let add_btn;
+            const panel =
                 $('<div class="network-ip-settings-row">').append(
                     $('<div>').append(
                         $('<strong>').text(title),
@@ -1878,8 +1870,8 @@ PageNetworkIpSettings.prototype = {
         }
 
         function render_ip_settings() {
-            var prefix_text = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
-            var body =
+            const prefix_text = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
+            const body =
                 $('<div>').append(
                     addresses_table = tablebox(_("Addresses"), "addresses", ["Address", prefix_text, "Gateway"],
                                                ["", "", ""],
@@ -1914,10 +1906,10 @@ PageNetworkIpSettings.prototype = {
         // since that doesn't make sense, we remove routes as well for
         // these methods.
 
-        var is_off = (params.method == "disabled" ||
+        const is_off = (params.method == "disabled" ||
                       params.method == "ignore");
 
-        var can_have_extra = !(params.method == "link-local" ||
+        const can_have_extra = !(params.method == "link-local" ||
                                params.method == "shared" ||
                                is_off);
 
@@ -1937,7 +1929,7 @@ PageNetworkIpSettings.prototype = {
         // The auto_*_btns only make sense when the address method
         // is "auto" or "dhcp".
         //
-        var can_auto = (params.method == "auto" || params.method == "dhcp");
+        const can_auto = (params.method == "auto" || params.method == "dhcp");
         auto_dns_btn.enable(can_auto);
         auto_dns_search_btn.enable(can_auto);
         auto_routes_btn.enable(can_auto);
@@ -1953,7 +1945,7 @@ PageNetworkIpSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
+        const self = this;
 
         function modify() {
             return PageNetworkIpSettings.apply_settings(self.settings)
@@ -1992,14 +1984,13 @@ export function array_find(array, predicate) {
     if (typeof predicate !== 'function') {
         throw new TypeError('predicate must be a function');
     }
-    var list = Object(array);
-    var length = list.length >>> 0;
-    var thisArg = arguments[1];
-    var value;
+    const list = Object(array);
+    const length = list.length >>> 0;
+    const thisArg = arguments[1];
 
-    for (var i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
         if (i in list) {
-            value = list[i];
+            const value = list[i];
             if (predicate.call(thisArg, value, i, list)) {
                 return value;
             }
@@ -2038,9 +2029,9 @@ export function render_member_interface_choices(model, group) {
 }
 
 export function member_chooser_btn(change, member_choices) {
-    var choices = [{ title: "-", choice: "", is_default: true }];
+    const choices = [{ title: "-", choice: "", is_default: true }];
     member_choices.find('input[data-iface]').each(function (i, elt) {
-        var name = $(elt).attr("data-iface");
+        const name = $(elt).attr("data-iface");
         if ($(elt).prop('checked'))
             choices.push({ title: name, choice: name });
     });
@@ -2048,7 +2039,7 @@ export function member_chooser_btn(change, member_choices) {
 }
 
 export function free_member_connection(con) {
-    var cs = connection_settings(con);
+    const cs = connection_settings(con);
     if (cs.member_type) {
         delete cs.member_type;
         delete cs.group;
@@ -2060,30 +2051,24 @@ export function free_member_connection(con) {
 
 export function set_member(model, group_connection, group_settings, member_type,
     iface_name, val) {
-    var iface;
-    var main_connection;
-
-    iface = model.find_interface(iface_name);
+    const iface = model.find_interface(iface_name);
     if (!iface)
         return false;
 
-    main_connection = iface.MainConnection;
+    const main_connection = iface.MainConnection;
 
     if (val) {
         /* Turn the main_connection into a member for group.
          */
 
-        var group_iface;
-        if (group_connection) {
-            group_iface = group_connection.Interfaces[0].Name;
-        } else {
-            group_iface = group_settings.connection.interface_name;
-        }
+        const group_iface = group_connection
+            ? group_connection.Interfaces[0].Name
+            : group_settings.connection.interface_name;
 
         if (!group_iface)
             return false;
 
-        var member_settings;
+        let member_settings;
         if (main_connection) {
             member_settings = main_connection.Settings;
 
@@ -2117,7 +2102,7 @@ export function set_member(model, group_connection, group_settings, member_type,
             // the settings actually apply and the interface becomes a member.  Otherwise we
             // activate it later when the group is created.
             if (group_connection) {
-                var group_dev = group_connection.Interfaces[0].Device;
+                const group_dev = group_connection.Interfaces[0].Device;
                 if (group_dev && group_dev.ActiveConnection)
                     return main_connection.activate(iface.Device);
                 else if (iface.Device.ActiveConnection)
@@ -2137,21 +2122,19 @@ export function set_member(model, group_connection, group_settings, member_type,
 }
 
 function apply_group_member(choices, model, apply_group, group_connection, group_settings, member_type) {
-    var active_settings = [];
-    var iface;
+    const active_settings = [];
 
     if (!group_connection) {
         if (group_settings.bond &&
             group_settings.bond.options &&
             group_settings.bond.options.primary) {
-            iface = model.find_interface(group_settings.bond.options.primary);
+            const iface = model.find_interface(group_settings.bond.options.primary);
             if (iface && iface.MainConnection)
                 active_settings.push(iface.MainConnection.Settings);
         } else {
             choices.find('input[data-iface]').map(function (i, elt) {
-                var iface;
                 if ($(elt).prop('checked')) {
-                    iface = model.find_interface($(elt).attr("data-iface"));
+                    const iface = model.find_interface($(elt).attr("data-iface"));
                     if (iface && iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
                         active_settings.push(iface.Device.ActiveConnection.Connection.Settings);
                     }
@@ -2174,7 +2157,7 @@ function apply_group_member(choices, model, apply_group, group_connection, group
      */
 
     function set_all_members() {
-        var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
+        const deferreds = choices.find('input[data-iface]').map(function (i, elt) {
             return model.synchronize().then(function () {
                 return set_member(model, group_connection, group_settings, member_type,
                                   $(elt).attr("data-iface"), $(elt).prop('checked'));
@@ -2247,17 +2230,17 @@ PageNetworkBondSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var model = PageNetworkBondSettings.model;
-        var group = PageNetworkBondSettings.connection;
-        var options = self.settings.bond.options;
+        const self = this;
+        const model = PageNetworkBondSettings.model;
+        const group = PageNetworkBondSettings.connection;
+        const options = self.settings.bond.options;
 
-        var members_element;
-        var mac_input, mode_btn, primary_btn;
-        var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
+        let members_element;
+        let mac_input, mode_btn, primary_btn;
+        let monitoring_btn;
 
         function change_members() {
-            var btn = member_chooser_btn(change_mode, members_element);
+            const btn = member_chooser_btn(change_mode, members_element);
             primary_btn.replaceWith(btn);
             primary_btn = btn;
             select_btn_select(primary_btn, options.primary);
@@ -2284,7 +2267,7 @@ PageNetworkBondSettings.prototype = {
         }
 
         function change_monitoring() {
-            var use_mii = select_btn_selected(monitoring_btn) == "mii";
+            const use_mii = select_btn_selected(monitoring_btn) == "mii";
 
             targets_input.toggle(!use_mii);
             targets_input.prev().toggle(!use_mii);
@@ -2308,8 +2291,8 @@ PageNetworkBondSettings.prototype = {
             }
         }
 
-        var mac = (self.settings.ethernet && self.settings.ethernet.assigned_mac_address) || "";
-        var body = $(mustache.render(self.bond_settings_template, {
+        const mac = (self.settings.ethernet && self.settings.ethernet.assigned_mac_address) || "";
+        const body = $(mustache.render(self.bond_settings_template, {
             interface_name: self.settings.bond.interface_name,
             assigned_mac_address: mac,
             monitoring_interval: options.miimon || options.arp_interval || "100",
@@ -2319,7 +2302,7 @@ PageNetworkBondSettings.prototype = {
         }));
         body.find('#network-bond-settings-interface-name-input')
                 .change(function (event) {
-                    var val = $(event.target).val();
+                    const val = $(event.target).val();
                     self.settings.bond.interface_name = val;
                     self.settings.connection.id = val;
                     self.settings.connection.interface_name = val;
@@ -2341,13 +2324,13 @@ PageNetworkBondSettings.prototype = {
         primary_btn.attr("id", "network-bond-settings-primary-select");
         monitoring_btn.attr("id", "network-bond-settings-link-monitoring-select");
 
-        interval_input = body.find('#network-bond-settings-monitoring-interval-input');
+        const interval_input = body.find('#network-bond-settings-monitoring-interval-input');
         interval_input.change(change_monitoring);
-        targets_input = body.find('#network-bond-settings-monitoring-targets-input');
+        const targets_input = body.find('#network-bond-settings-monitoring-targets-input');
         targets_input.change(change_monitoring);
-        updelay_input = body.find('#network-bond-settings-link-up-delay-input');
+        const updelay_input = body.find('#network-bond-settings-link-up-delay-input');
         updelay_input.change(change_monitoring);
-        downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
+        const downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
         downdelay_input.change(change_monitoring);
 
         select_btn_select(mode_btn, options.mode);
@@ -2366,7 +2349,7 @@ PageNetworkBondSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
+        const self = this;
 
         function modify() {
             return apply_group_member($('#network-bond-settings-body'),
@@ -2449,13 +2432,12 @@ PageNetworkTeamSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var model = PageNetworkTeamSettings.model;
-        var group = PageNetworkTeamSettings.connection;
-        var config = self.settings.team.config;
+        const self = this;
+        const model = PageNetworkTeamSettings.model;
+        const group = PageNetworkTeamSettings.connection;
+        let config = self.settings.team.config;
 
-        var runner_btn, balancer_btn, watch_btn;
-        var interval_input, target_input, updelay_input, downdelay_input;
+        let runner_btn, balancer_btn, watch_btn;
 
         if (!config)
             self.settings.team.config = config = { };
@@ -2480,13 +2462,13 @@ PageNetworkTeamSettings.prototype = {
 
         function change_runner() {
             config.runner.name = select_btn_selected(runner_btn);
-            var toggle_condition = config.runner.name == "loadbalance" || config.runner.name == "lacp";
+            const toggle_condition = config.runner.name == "loadbalance" || config.runner.name == "lacp";
             balancer_btn.toggle(toggle_condition);
             balancer_btn.prev().toggle(toggle_condition);
         }
 
         function change_balancer() {
-            var balancer = select_btn_selected(balancer_btn);
+            const balancer = select_btn_selected(balancer_btn);
             if (balancer == "none") {
                 if (config.runner.tx_balancer)
                     delete config.runner.tx_balancer.name;
@@ -2498,8 +2480,8 @@ PageNetworkTeamSettings.prototype = {
         }
 
         function change_watch() {
-            var name = select_btn_selected(watch_btn);
-            var toggle_condition = name != "ethtool";
+            const name = select_btn_selected(watch_btn);
+            const toggle_condition = name != "ethtool";
 
             interval_input.toggle(toggle_condition);
             interval_input.prev().toggle(toggle_condition);
@@ -2521,14 +2503,14 @@ PageNetworkTeamSettings.prototype = {
             }
         }
 
-        var body = $(mustache.render(self.team_settings_template,
-                                     {
-                                         interface_name: self.settings.team.interface_name,
-                                         config: config
-                                     }));
+        const body = $(mustache.render(self.team_settings_template,
+                                       {
+                                           interface_name: self.settings.team.interface_name,
+                                           config: config
+                                       }));
         body.find('#network-team-settings-interface-name-input')
                 .change(function (event) {
-                    var val = $(event.target).val();
+                    const val = $(event.target).val();
                     self.settings.team.interface_name = val;
                     self.settings.connection.id = val;
                     self.settings.connection.interface_name = val;
@@ -2545,13 +2527,13 @@ PageNetworkTeamSettings.prototype = {
         balancer_btn.attr("id", "network-team-settings-balancer-select");
         watch_btn.attr("id", "network-team-settings-link-watch-select");
 
-        interval_input = body.find('#network-team-settings-ping-interval-input');
+        const interval_input = body.find('#network-team-settings-ping-interval-input');
         interval_input.change(change_watch);
-        target_input = body.find('#network-team-settings-ping-target-input');
+        const target_input = body.find('#network-team-settings-ping-target-input');
         target_input.change(change_watch);
-        updelay_input = body.find('#network-team-settings-link-up-delay-input');
+        const updelay_input = body.find('#network-team-settings-link-up-delay-input');
         updelay_input.change(change_watch);
-        downdelay_input = body.find('#network-team-settings-link-down-delay-input');
+        const downdelay_input = body.find('#network-team-settings-link-down-delay-input');
         downdelay_input.change(change_watch);
 
         select_btn_select(runner_btn, config.runner.name);
@@ -2570,7 +2552,7 @@ PageNetworkTeamSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
+        const self = this;
 
         function modify () {
             return apply_group_member($('#network-team-settings-body'),
@@ -2644,11 +2626,9 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var group_config = PageNetworkTeamPortSettings.group_settings.team.config;
-        var config = self.settings.team_port.config;
-
-        var ab_prio_input, ab_sticky_input, lacp_prio_input, lacp_key_input;
+        const self = this;
+        const group_config = PageNetworkTeamPortSettings.group_settings.team.config;
+        let config = self.settings.team_port.config;
 
         if (!config)
             self.settings.team_port.config = config = { };
@@ -2664,14 +2644,14 @@ PageNetworkTeamPortSettings.prototype = {
             }
         }
 
-        var body = $(mustache.render(self.team_port_settings_template, config));
-        ab_prio_input = body.find('#network-team-port-settings-ab-prio-input');
+        const body = $(mustache.render(self.team_port_settings_template, config));
+        const ab_prio_input = body.find('#network-team-port-settings-ab-prio-input');
         ab_prio_input.change(change);
-        ab_sticky_input = body.find('#network-team-port-settings-ab-sticky-input');
+        const ab_sticky_input = body.find('#network-team-port-settings-ab-sticky-input');
         ab_sticky_input.change(change);
-        lacp_prio_input = body.find('#network-team-port-settings-lacp-prio-input');
+        const lacp_prio_input = body.find('#network-team-port-settings-lacp-prio-input');
         lacp_prio_input.change(change);
-        lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
+        const lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
         lacp_key_input.change(change);
 
         ab_prio_input.toggle(group_config.runner.name == "activebackup");
@@ -2694,8 +2674,8 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
-        var model = PageNetworkTeamPortSettings.model;
+        const self = this;
+        const model = PageNetworkTeamPortSettings.model;
 
         function modify () {
             return PageNetworkTeamPortSettings.apply_settings(self.settings)
@@ -2753,12 +2733,10 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var model = PageNetworkBridgeSettings.model;
-        var con = PageNetworkBridgeSettings.connection;
-        var options = self.settings.bridge;
-
-        var stp_input, stp_options, priority_input, forward_delay_input, hello_time_input, max_age_input;
+        const self = this;
+        const model = PageNetworkBridgeSettings.model;
+        const con = PageNetworkBridgeSettings.connection;
+        const options = self.settings.bridge;
 
         function change_members() {
             self.members_changed = true;
@@ -2775,7 +2753,7 @@ PageNetworkBridgeSettings.prototype = {
             stp_options.toggle(options.stp);
         }
 
-        var body = $(mustache.render(self.bridge_settings_template, {
+        const body = $(mustache.render(self.bridge_settings_template, {
             bridge_name: options.interface_name,
             stp_checked: options.stp,
             stp_priority: options.priority,
@@ -2785,26 +2763,26 @@ PageNetworkBridgeSettings.prototype = {
         }));
         body.find('#network-bridge-settings-name-input')
                 .change(function (event) {
-                    var val = $(event.target).val();
+                    const val = $(event.target).val();
                     options.interface_name = val;
                     self.settings.connection.id = val;
                     self.settings.connection.interface_name = val;
                 });
-        var member_interfaces = body.find('#network-bridge-settings-member-interfaces')
+        const member_interfaces = body.find('#network-bridge-settings-member-interfaces')
                 .replaceWith(render_member_interface_choices(model, con).change(change_members));
         member_interfaces.toggle(!con);
         member_interfaces.prev().toggle(!con);
 
-        stp_options = body.find('#network-bridge-settings-stp');
-        stp_input = body.find('#network-bridge-settings-stp-enabled-input');
+        const stp_options = body.find('#network-bridge-settings-stp');
+        const stp_input = body.find('#network-bridge-settings-stp-enabled-input');
         stp_input.change(change_stp);
-        priority_input = body.find('#network-bridge-settings-stp-priority-input');
+        const priority_input = body.find('#network-bridge-settings-stp-priority-input');
         priority_input.change(change_stp);
-        forward_delay_input = body.find('#network-bridge-settings-stp-forward-delay-input');
+        const forward_delay_input = body.find('#network-bridge-settings-stp-forward-delay-input');
         forward_delay_input.change(change_stp);
-        hello_time_input = body.find('#network-bridge-settings-stp-hello-time-input');
+        const hello_time_input = body.find('#network-bridge-settings-stp-hello-time-input');
         hello_time_input.change(change_stp);
-        max_age_input = body.find('#network-bridge-settings-stp-max-age-input');
+        const max_age_input = body.find('#network-bridge-settings-stp-max-age-input');
         max_age_input.change(change_stp);
 
         change_stp();
@@ -2819,7 +2797,7 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
+        const self = this;
 
         function modify () {
             return apply_group_member($('#network-bridge-settings-body'),
@@ -2895,10 +2873,8 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var options = self.settings.bridge_port;
-
-        var priority_input, path_cost_input, hairpin_mode_input;
+        const self = this;
+        const options = self.settings.bridge_port;
 
         function change() {
             // XXX - handle parse errors
@@ -2907,16 +2883,16 @@ PageNetworkBridgePortSettings.prototype = {
             options.hairpin_mode = hairpin_mode_input.prop('checked');
         }
 
-        var body = $(mustache.render(self.bridge_port_settings_template, {
+        const body = $(mustache.render(self.bridge_port_settings_template, {
             priority: options.priority,
             path_cost: options.path_cost,
             hairpin_mode_checked: options.hairpin_mode
         }));
-        priority_input = body.find('#network-bridge-port-settings-priority-input');
+        const priority_input = body.find('#network-bridge-port-settings-priority-input');
         priority_input.change(change);
-        path_cost_input = body.find('#network-bridge-port-settings-path-cost-input');
+        const path_cost_input = body.find('#network-bridge-port-settings-path-cost-input');
         path_cost_input.change(change);
-        hairpin_mode_input = body.find('#network-bridge-port-settings-hairpin-mode-input');
+        const hairpin_mode_input = body.find('#network-bridge-port-settings-hairpin-mode-input');
         hairpin_mode_input.change(change);
 
         $('#network-bridgeport-settings-body').html(body);
@@ -2927,8 +2903,8 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
-        var model = PageNetworkBridgePortSettings.model;
+        const self = this;
+        const model = PageNetworkBridgePortSettings.model;
 
         function modify () {
             return PageNetworkBridgePortSettings.apply_settings(self.settings)
@@ -2978,12 +2954,11 @@ PageNetworkVlanSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var model = PageNetworkVlanSettings.model;
-        var options = self.settings.vlan;
+        const self = this;
+        const model = PageNetworkVlanSettings.model;
+        const options = self.settings.vlan;
 
-        var auto_update_name = true;
-        var parent_btn, id_input, name_input;
+        let auto_update_name = true;
 
         function change() {
             // XXX - parse errors
@@ -3005,24 +2980,24 @@ PageNetworkVlanSettings.prototype = {
             change();
         }
 
-        var parent_choices = [];
+        const parent_choices = [];
         model.list_interfaces().forEach(function (i) {
             if (!is_interface_connection(i, PageNetworkVlanSettings.connection) &&
                 is_interesting_interface(i))
                 parent_choices.push({ title: i.Name, choice: i.Name });
         });
 
-        var body = $(mustache.render(self.vlan_settings_template, {
+        const body = $(mustache.render(self.vlan_settings_template, {
             vlan_id: options.id || "1",
             interface_name: options.interface_name
         }));
-        parent_btn = select_btn(change, parent_choices, "form-control");
+        const parent_btn = select_btn(change, parent_choices, "form-control");
         parent_btn.attr('id', 'network-vlan-settings-parent-select');
         body.find('#network-vlan-settings-parent-select').replaceWith(parent_btn);
-        id_input = body.find('#network-vlan-settings-vlan-id-input')
+        const id_input = body.find('#network-vlan-settings-vlan-id-input')
                 .change(change)
                 .on('input', change);
-        name_input = body.find('#network-vlan-settings-interface-name-input')
+        const name_input = body.find('#network-vlan-settings-interface-name-input')
                 .change(change_name)
                 .on('input', change_name);
 
@@ -3039,8 +3014,8 @@ PageNetworkVlanSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
-        var model = PageNetworkVlanSettings.model;
+        const self = this;
+        const model = PageNetworkVlanSettings.model;
 
         function modify () {
             return PageNetworkVlanSettings.apply_settings(self.settings)
@@ -3101,10 +3076,10 @@ PageNetworkMtuSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var options = self.settings.ethernet;
+        const self = this;
+        const options = self.settings.ethernet;
 
-        var body = $(mustache.render(self.ethernet_settings_template, options));
+        const body = $(mustache.render(self.ethernet_settings_template, options));
         $('#network-mtu-settings-body').html(body);
         $('#network-mtu-settings-input').focus(function () {
             $('#network-mtu-settings-custom').prop('checked', true);
@@ -3116,8 +3091,8 @@ PageNetworkMtuSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
-        var model = PageNetworkMtuSettings.model;
+        const self = this;
+        const model = PageNetworkMtuSettings.model;
 
         function show_error(error) {
             show_dialog_error('#network-mtu-settings-error', error);
@@ -3126,7 +3101,7 @@ PageNetworkMtuSettings.prototype = {
         if ($("#network-mtu-settings-auto").prop('checked'))
             self.settings.ethernet.mtu = 0;
         else {
-            var mtu = $("#network-mtu-settings-input").val();
+            const mtu = $("#network-mtu-settings-input").val();
             if (/^[0-9]+$/.test(mtu))
                 self.settings.ethernet.mtu = parseInt(mtu, 10);
             else {
@@ -3181,10 +3156,10 @@ PageNetworkMacSettings.prototype = {
     },
 
     update: function() {
-        var self = this;
-        var options = self.settings.ethernet;
+        const self = this;
+        const options = self.settings.ethernet;
 
-        var body = $(mustache.render(self.ethernet_settings_template, options));
+        const body = $(mustache.render(self.ethernet_settings_template, options));
         $('#network-mac-settings-body').html(body);
 
         fill_mac_menu($('#network-mac-settings-menu'),
@@ -3197,8 +3172,8 @@ PageNetworkMacSettings.prototype = {
     },
 
     apply: function() {
-        var self = this;
-        var model = PageNetworkMacSettings.model;
+        const self = this;
+        const model = PageNetworkMacSettings.model;
 
         function show_error(error) {
             show_dialog_error('#network-mac-settings-error', error);

@@ -22,7 +22,7 @@ import * as service from 'service';
 import { debounce } from 'throttle-debounce';
 import * as utils from './utils';
 
-var firewall = {
+const firewall = {
     owner: null,
     installed: true,
     enabled: false,
@@ -47,7 +47,7 @@ utils.list_interfaces().then(interfaces => {
 });
 
 const firewalld_service = service.proxy('firewalld');
-var firewalld_dbus = null;
+let firewalld_dbus = null;
 
 firewall.debouncedGetZones = debounce(300, () => {
     getZones()

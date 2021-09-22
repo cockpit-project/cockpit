@@ -4,16 +4,16 @@ import '../lib/patternfly/patternfly-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
-var channel = null;
-var websocket = null;
-var timer = null;
-var start = null;
-var total = 0;
-var proc = null;
-var close_problem;
+let channel = null;
+let websocket = null;
+let timer = null;
+let start = null;
+let total = 0;
+let proc = null;
+let close_problem;
 
 function update() {
-    var element = document.getElementById("speed");
+    const element = document.getElementById("speed");
     if (channel || websocket) {
         element.innerHTML = cockpit.format_bytes_per_sec((total * 1000) / (Date.now() - start));
         console.log(total);
@@ -21,12 +21,12 @@ function update() {
         element.innerHTML = "";
     }
 
-    var memory = document.getElementById("memory");
-    var pid = document.getElementById("pid");
+    const memory = document.getElementById("memory");
+    const pid = document.getElementById("pid");
     if (!proc) {
         proc = cockpit.script("echo $PPID && cat /proc/$PPID/statm");
         proc.then(function(data) {
-            var parts = data.split("\n");
+            const parts = data.split("\n");
             pid.innerHTML = parts[0];
             memory.innerHTML = parts[1];
             proc = null;
@@ -40,7 +40,7 @@ function update() {
 function echo(ev) {
     stop();
 
-    var sideband = ev.target.id == "echo-sideband";
+    const sideband = ev.target.id == "echo-sideband";
 
     function generate(length, binary) {
         if (binary)
@@ -49,18 +49,18 @@ function echo(ev) {
             return (new Array(length)).join("x");
     }
 
-    var length = parseInt(document.getElementById("message").value, 10);
-    var batch = parseInt(document.getElementById("batch").value, 10);
-    var interval = parseInt(document.getElementById("interval").value, 10);
+    const length = parseInt(document.getElementById("message").value, 10);
+    const batch = parseInt(document.getElementById("batch").value, 10);
+    const interval = parseInt(document.getElementById("interval").value, 10);
 
     if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
         window.alert("Bad value");
         return;
     }
 
-    var binary = document.getElementById.checked;
-    var options = { payload: "echo" };
-    var input = generate(length, binary);
+    const binary = document.getElementById.checked;
+    const options = { payload: "echo" };
+    const input = generate(length, binary);
     start = new Date();
     total = 0;
 
@@ -73,10 +73,10 @@ function echo(ev) {
         websocket.binaryType = 'arraybuffer';
 
         websocket.onopen = function() {
-            for (var i = 0; i < batch; i++)
+            for (let i = 0; i < batch; i++)
                 websocket.send(input);
             timer = window.setInterval(function() {
-                for (var i = 0; i < batch; i++)
+                for (let i = 0; i < batch; i++)
                     websocket.send(input);
             }, interval);
         };
@@ -108,11 +108,11 @@ function echo(ev) {
             stop();
         });
 
-        for (var i = 0; i < batch; i++)
+        for (let i = 0; i < batch; i++)
             channel.send(input);
 
         timer = window.setInterval(function() {
-            for (var i = 0; i < batch; i++)
+            for (let i = 0; i < batch; i++)
                 channel.send(input);
         }, interval);
     }
@@ -121,10 +121,10 @@ function echo(ev) {
 function read(ev) {
     stop();
 
-    var sideband = ev.target.id == "read-sideband";
-    var path = document.getElementById("read-path");
+    const sideband = ev.target.id == "read-sideband";
+    const path = document.getElementById("read-path");
 
-    var options = {
+    const options = {
         payload: "fsread1",
         path: path.value,
         max_read_size: 100 * 1024 * 1024 * 1024,
@@ -162,10 +162,9 @@ function read(ev) {
 function download(ev) {
     stop();
 
-    var path = document.getElementById("download-path");
-    var anchor;
+    const path = document.getElementById("download-path");
 
-    var options = {
+    const options = {
         binary: "raw",
         max_read_size: 100 * 1024 * 1024 * 1024,
         external: {
@@ -176,7 +175,7 @@ function download(ev) {
 
     /* Allow use of HTTP URLs */
     if (path.value.indexOf("http") === 0) {
-        anchor = document.createElement("a");
+        const anchor = document.createElement("a");
         anchor.href = path.value;
         options.payload = "http-stream2";
         options.address = anchor.hostname;
@@ -193,8 +192,8 @@ function download(ev) {
     start = Date.now();
     total = 0;
 
-    var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
-    var query = window.btoa(JSON.stringify(options));
+    const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
+    const query = window.btoa(JSON.stringify(options));
     window.open(prefix + "?" + query);
 }
 
@@ -234,7 +233,7 @@ function stop() {
         channel.close(close_problem);
     channel = null;
     close_problem = undefined;
-    var ws = websocket;
+    const ws = websocket;
     websocket = null;
     if (ws)
         ws.close();

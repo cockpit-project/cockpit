@@ -8,17 +8,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let manifests;
 
     function update(str) {
-        var new_m = JSON.parse(str);
-        var p;
+        const new_m = JSON.parse(str);
 
         if (manifests) {
-            for (p in new_m) {
+            for (const p in new_m) {
                 if (!manifests[p])
                     console.log("ADD", p);
                 else if (manifests[p].checksum != new_m[p].checksum)
                     console.log("CHG", p);
             }
-            for (p in manifests) {
+            for (const p in manifests) {
                 if (!new_m[p])
                     console.log("REM", p);
             }

@@ -34,16 +34,15 @@ import { showFileAcDemo } from "./react-demo-file-autocomplete.jsx";
   -----------------------------------------------------------------------------
  */
 
-var lastAction = "";
+let lastAction = "";
 
-var onDialogStandardClicked = function(mode) {
+const onDialogStandardClicked = function(mode) {
     lastAction = mode;
-    var dfd = cockpit.defer();
+    const dfd = cockpit.defer();
     dfd.notify("Starting something long");
     if (mode == 'steps') {
-        var interval;
-        var count = 0;
-        interval = window.setInterval(function() {
+        let count = 0;
+        const interval = window.setInterval(function() {
             count += 1;
             dfd.notify("Step " + count);
         }, 500);
@@ -66,19 +65,19 @@ var onDialogStandardClicked = function(mode) {
     return dfd.promise;
 };
 
-var onDialogDone = function(success) {
-    var result = success ? "successful" : "Canceled";
-    var action = success ? lastAction : "no action";
+const onDialogDone = function(success) {
+    const result = success ? "successful" : "Canceled";
+    const action = success ? lastAction : "no action";
     document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result + "(" + action + ")";
 };
 
-var onStandardDemoClicked = function(staticError) {
-    var dialogProps = {
+const onStandardDemoClicked = function(staticError) {
+    const dialogProps = {
         title: "This shouldn't be seen",
         body: React.createElement(PatternDialogBody, { clickNested: onStandardDemoClicked }),
     };
     // also test modifying properties in subsequent render calls
-    var footerProps = {
+    const footerProps = {
         actions: [
             {
                 clicked: onDialogStandardClicked.bind(null, 'standard action'),
@@ -98,7 +97,7 @@ var onStandardDemoClicked = function(staticError) {
         static_error: staticError,
         dialog_done: onDialogDone,
     };
-    var dialogObj = show_modal_dialog(dialogProps, footerProps);
+    const dialogObj = show_modal_dialog(dialogProps, footerProps);
     // if this failed, exit (trying to create a nested dialog)
     if (!dialogObj)
         return;

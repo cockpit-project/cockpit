@@ -24,7 +24,7 @@ const _ = cockpit.gettext;
 /* NetworkManager specific data conversions and utility functions.
  */
 
-var byteorder;
+let byteorder;
 
 export function set_byteorder(bo) {
     byteorder = bo;
@@ -60,15 +60,14 @@ function toDec(n) {
 }
 
 function bytes_from_nm32(num) {
-    var bytes = [];
-    var i;
+    const bytes = [];
     if (byteorder == "be") {
-        for (i = 3; i >= 0; i--) {
+        for (let i = 3; i >= 0; i--) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
         }
     } else if (byteorder == "le") {
-        for (i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
         }
@@ -93,31 +92,30 @@ export function ip4_from_text(text, empty_is_zero) {
     if (text === "" && empty_is_zero)
         return 0;
 
-    var parts = text.split('.');
+    const parts = text.split('.');
     if (parts.length != 4)
         invalid();
 
-    var bytes = parts.map(function(s) {
+    const bytes = parts.map(function(s) {
         if (/^[0-9]+$/.test(s.trim()))
             return parseInt(s, 10);
         else
             invalid();
     });
 
-    var num = 0;
+    let num = 0;
     function shift(b) {
         if (isNaN(b) || b < 0 || b > 0xFF)
             invalid();
         num = 0x100 * num + b;
     }
 
-    var i;
     if (byteorder == "be") {
-        for (i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             shift(bytes[i]);
         }
     } else if (byteorder == "le") {
-        for (i = 3; i >= 0; i--) {
+        for (let i = 3; i >= 0; i--) {
             shift(bytes[i]);
         }
     } else {
@@ -127,7 +125,7 @@ export function ip4_from_text(text, empty_is_zero) {
     return num;
 }
 
-var text_to_prefix_bits = {
+const text_to_prefix_bits = {
     255: 8, 254: 7, 252: 6, 248: 5, 240: 4, 224: 3, 192: 2, 128: 1, 0: 0
 };
 
@@ -138,13 +136,13 @@ export function ip4_prefix_from_text(text) {
 
     if (/^[0-9]+$/.test(text.trim()))
         return parseInt(text, 10);
-    var parts = text.split('.');
+    const parts = text.split('.');
     if (parts.length != 4)
         invalid();
-    var prefix = 0;
-    var i;
+    let prefix = 0;
+    let i;
     for (i = 0; i < 4; i++) {
-        var p = text_to_prefix_bits[parts[i].trim()];
+        const p = text_to_prefix_bits[parts[i].trim()];
         if (p !== undefined) {
             prefix += p;
             if (p < 8)
@@ -160,11 +158,11 @@ export function ip4_prefix_from_text(text) {
 }
 
 export function ip6_to_text(data, zero_is_empty) {
-    var parts = [];
-    var bytes = cockpit.base64_decode(data);
-    for (var i = 0; i < 8; i++)
+    const parts = [];
+    const bytes = cockpit.base64_decode(data);
+    for (let i = 0; i < 8; i++)
         parts[i] = ((bytes[2 * i] << 8) + bytes[2 * i + 1]).toString(16);
-    var result = parts.join(':');
+    const result = parts.join(':');
     if (result == "0:0:0:0:0:0:0:0" && zero_is_empty)
         return "";
     return result;
@@ -180,7 +178,7 @@ export function ip6_from_text(text, empty_is_zero) {
             0, 0, 0, 0, 0, 0, 0, 0,
         ]);
 
-    var parts = text.split(':');
+    const parts = text.split(':');
     if (parts.length < 1 || parts.length > 8)
         invalid();
 
@@ -189,10 +187,10 @@ export function ip6_from_text(text, empty_is_zero) {
     if (parts[parts.length - 1] === "")
         parts[parts.length - 1] = "0";
 
-    var bytes = [];
-    var n, i, j;
-    var empty_seen = false;
-    for (i = 0, j = 0; i < parts.length; i++, j++) {
+    const bytes = [];
+    let empty_seen = false;
+    let j = 0;
+    for (let i = 0; i < parts.length; i++, j++) {
         if (parts[i] === "") {
             if (empty_seen)
                 invalid();
@@ -204,7 +202,7 @@ export function ip6_from_text(text, empty_is_zero) {
         } else {
             if (!/^[0-9a-fA-F]+$/.test(parts[i].trim()))
                 invalid();
-            n = parseInt(parts[i], 16);
+            const n = parseInt(parts[i], 16);
             if (isNaN(n) || n < 0 || n > 0xFFFF)
                 invalid();
             bytes[2 * j] = n >> 8;

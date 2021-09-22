@@ -52,8 +52,8 @@ const _ = cockpit.gettext;
 superuser.reload_page_on_change();
 
 function serviceRow(props) {
-    var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
-    var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
+    let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
+    let udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
     for (const s of props.service.includes) {
         if (firewall.services[s]) {
@@ -70,9 +70,9 @@ function serviceRow(props) {
         event.stopPropagation();
     }
 
-    var deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
+    const deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
 
-    var columns = [
+    const columns = [
         {
             title: props.service.id, header: true
         },
@@ -306,7 +306,7 @@ class AddServicesModal extends React.Component {
     }
 
     createPorts() {
-        var ret = [];
+        const ret = [];
         this.state.custom_tcp_ports.forEach(port => ret.push([port, 'tcp']));
         this.state.custom_udp_ports.forEach(port => ret.push([port, 'udp']));
         return ret;
@@ -333,8 +333,8 @@ class AddServicesModal extends React.Component {
     }
 
     onToggleService(event, serviceId) {
-        var service = serviceId;
-        var enabled = event.target.checked;
+        const service = serviceId;
+        const enabled = event.target.checked;
 
         this.setState(oldState => {
             const selected = new Set(oldState.selected);
@@ -366,7 +366,7 @@ class AddServicesModal extends React.Component {
             return [];
         }
 
-        var ret = {};
+        const ret = {};
         content.split('\n').forEach(line => {
             if (!line || line.startsWith("#"))
                 return;
@@ -913,13 +913,13 @@ export class Firewall extends React.Component {
                                     icon={ ExclamationCircleIcon } />;
         }
 
-        var addZoneAction = (
+        const addZoneAction = (
             <Button variant="primary" onClick={this.openAddZoneDialog} id="add-zone-button" aria-label={_("Add a new zone")}>
                 {_("Add zone")}
             </Button>
         );
 
-        var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
+        const zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
         ).map(id => this.state.firewall.zones[id]);
 

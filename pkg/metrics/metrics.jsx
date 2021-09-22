@@ -1441,10 +1441,10 @@ export const Application = () => {
           }>
         { firewalldRequest &&
             <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
-        <PageSection>
+        <PageSection className="ct-pagesection-mobile">
             <CurrentMetrics />
         </PageSection>
-        <PageSection>
+        <PageSection className="ct-pagesection-mobile">
             <MetricsHistory firewalldRequest={setFirewalldRequest}
                             needsLogout={needsLogout}
                             setNeedsLogout={setNeedsLogout} />

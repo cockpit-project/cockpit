@@ -148,7 +148,7 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
                       <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
                   </Breadcrumb>
               }>
-            <PageSection>
+            <PageSection className="ct-pagesection-mobile">
                 {render_comp()}
             </PageSection>
         </Page>

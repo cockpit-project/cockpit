@@ -450,7 +450,7 @@ export class SETroubleshootPage extends React.Component {
                             dismissError={this.props.dismissStatusError}
                         />
                     </PageSection>
-                    <PageSection>
+                    <PageSection className="ct-pagesection-mobile">
                         <Stack hasGutter>
                             <StackItem>{modifications}</StackItem>
                             <StackItem>{troubleshooting}</StackItem>

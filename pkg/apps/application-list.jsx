@@ -140,7 +140,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
 
     return (
         <Page id="list-page">
-            <PageSection variant={PageSectionVariants.light}>
+            <PageSection variant={PageSectionVariants.light} className="ct-pagesection-mobile">
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>
                     <FlexItem align={{ default: 'alignRight' }}>
@@ -153,7 +153,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
             </PageSection>
             {comps.length == 0
                 ? <EmptyStatePanel title={ _("No applications installed or available.") } />
-                : <PageSection>
+                : <PageSection className="ct-pagesection-mobile">
                     <Card>
                         <DataList aria-label={_("Applications list")}>
                             { tbody }

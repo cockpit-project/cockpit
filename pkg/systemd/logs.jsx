@@ -183,7 +183,7 @@ export const LogsPage = () => {
 
     return (
         <Page>
-            <PageSection id="journal" padding={{ default: 'noPadding' }}>
+            <PageSection id="journal" padding={{ default: 'noPadding' }} className="ct-pagesection-mobile">
                 <Toolbar>
                     <ToolbarContent>
                         <ToolbarToggleGroup toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="md">

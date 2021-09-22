@@ -138,10 +138,10 @@ class OverviewPage extends React.Component {
                 {this.state.rebootModal && <ShutdownModal onClose={() => this.setState({ rebootModal: false })} />}
                 {this.state.shutdownModal && <ShutdownModal shutdown onClose={() => this.setState({ shutdownModal: false })} />}
                 <Page>
-                    <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+                    <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }} className="ct-pagesection-mobile">
                         <SuperuserAlert />
                     </PageSection>
-                    <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
+                    <PageSection variant={PageSectionVariants.light} className='ct-overview-header'>
                         <div className='ct-overview-header-hostname'>
                             <h1>
                                 {this.hostname_text()}
@@ -156,7 +156,7 @@ class OverviewPage extends React.Component {
                             { headerActions }
                         </div>
                     </PageSection>
-                    <PageSection variant={PageSectionVariants.default}>
+                    <PageSection variant={PageSectionVariants.default} className="ct-pagesection-mobile">
                         <Gallery className='ct-system-overview' hasGutter>
                             <MotdCard />
                             <HealthCard />

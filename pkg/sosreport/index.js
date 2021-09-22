@@ -24,9 +24,9 @@ import '../lib/patternfly/patternfly-cockpit.scss';
 
 const _ = cockpit.gettext;
 
-var sos_task;
-var sos_archive_url;
-var sos_archive_files;
+let sos_task;
+let sos_archive_url;
+let sos_archive_files;
 
 function sos_init() {
     // Start right away
@@ -58,28 +58,28 @@ function sos_create() {
     sos_archive_url = null;
     sos_archive_files = [];
 
-    var task = cockpit.spawn(["sosreport", "--batch"],
-                             { superuser: true, err: "out", pty: true });
+    const task = cockpit.spawn(["sosreport", "--batch"],
+                               { superuser: true, err: "out", pty: true });
     sos_task = task;
 
     // TODO - Use a real API instead of scraping stdout once such
     //        an API exists.
 
-    var output = "";
-    var plugins_count = 0;
-    var progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
-    var finishing_regex = /Finishing plugins.*\[Running: (.*)\]/;
-    var starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
-    var archive_regex = /Your sosreport has been generated and saved in:\s+(\/[^\r\n]+)/;
+    let output = "";
+    let plugins_count = 0;
+    const progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
+    const finishing_regex = /Finishing plugins.*\[Running: (.*)\]/;
+    const starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
+    const archive_regex = /Your sosreport has been generated and saved in:\s+(\/[^\r\n]+)/;
 
     task.stream(function (text) {
         if (sos_task == task) {
-            var m, p;
-            p = 0;
+            let p = 0;
+            let m;
 
             output += text;
-            var lines = output.split("\n");
-            for (var i = lines.length - 1; i >= 0; i--) {
+            const lines = output.split("\n");
+            for (let i = lines.length - 1; i >= 0; i--) {
                 if ((m = starting_regex.exec(lines[i]))) {
                     plugins_count = parseInt(m[2], 10);
                     p = ((parseInt(m[1], 10) - m[3].split(" ").length) / plugins_count) * 100;
@@ -102,10 +102,10 @@ function sos_create() {
     });
     task.done(function () {
         if (sos_task == task) {
-            var m = archive_regex.exec(output);
+            const m = archive_regex.exec(output);
             if (m) {
-                var archive = m[1];
-                var basename = archive.replace(/.*\//, "");
+                let archive = m[1];
+                const basename = archive.replace(/.*\//, "");
 
                 // When running sosreport in a container on the
                 // Atomics, the archive path needs to be adjusted.
@@ -115,7 +115,7 @@ function sos_create() {
 
                 sos_archive_files = [archive, archive + ".md5"];
 
-                var query = window.btoa(JSON.stringify({
+                const query = window.btoa(JSON.stringify({
                     payload: "fsread1",
                     binary: "raw",
                     path: archive,
@@ -126,7 +126,7 @@ function sos_create() {
                         "content-type": "application/x-xz, application/octet-stream"
                     }
                 }));
-                var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
+                const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
                 sos_archive_url = prefix + '?' + query;
                 document.getElementById("sos-progress").setAttribute("hidden", "hidden");
                 document.getElementById("sos-error").setAttribute("hidden", "hidden");

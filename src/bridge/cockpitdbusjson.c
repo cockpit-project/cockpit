@@ -2703,7 +2703,13 @@ on_name_vanished (GDBusConnection *connection,
 
   CockpitDBusPeer *peer = g_hash_table_lookup (self->peers, name);
   if (peer)
-    cockpit_dbus_cache_set_name_owner (peer->cache, NULL);
+    {
+      // Using the empty string as the name owner means that the cache
+      // will not process any signals until we set a real name owner
+      // again in on_name_appeared.
+      //
+      cockpit_dbus_cache_set_name_owner (peer->cache, "");
+    }
 
   if (!G_IS_DBUS_CONNECTION (connection) || g_dbus_connection_is_closed (connection))
     cockpit_channel_close (channel, "disconnected");

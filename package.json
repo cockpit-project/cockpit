@@ -74,7 +74,7 @@
     "webpack-cli": "^4.7.0"
   },
   "scripts": {
-    "eslint": "eslint --ext .js --ext .jsx pkg/",
+    "eslint": "eslint --ext .js --ext .jsx pkg/ --rule 'no-var: warn'",
     "eslint:fix": "eslint --fix --ext .js --ext .jsx pkg/"
   }
 }

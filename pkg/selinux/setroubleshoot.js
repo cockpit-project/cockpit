@@ -33,8 +33,8 @@ const _ = cockpit.gettext;
 
 superuser.reload_page_on_change();
 
-var initStore = function(rootElement) {
-    var dataStore = { };
+const initStore = function(rootElement) {
+    const dataStore = { };
     dataStore.domRootElement = rootElement;
 
     dataStore.entries = [];
@@ -52,17 +52,17 @@ var initStore = function(rootElement) {
 
     dataStore.selinuxStatusError = undefined;
 
-    var selinuxStatusChanged = function(status, errorMessage) {
+    const selinuxStatusChanged = function(status, errorMessage) {
         dataStore.selinuxStatus = status;
         if (errorMessage !== undefined)
             dataStore.selinuxStatusError = errorMessage;
         dataStore.render();
     };
-    var selinuxStatusDismissError = function() {
+    const selinuxStatusDismissError = function() {
         dataStore.selinuxStatusError = undefined;
         dataStore.render();
     };
-    var selinuxChangeMode = function(newMode) {
+    const selinuxChangeMode = function(newMode) {
         selinuxClient.setEnforcing(newMode).then(
             function() {
                 dataStore.selinuxStatus.enforcing = newMode;
@@ -77,8 +77,8 @@ var initStore = function(rootElement) {
     dataStore.selinuxStatus = selinuxClient.init(selinuxStatusChanged);
 
     // run a fix and update the entries accordingly
-    var runFix = function(alertId, analysisId, fixId, runCommand) {
-        var idx;
+    const runFix = function(alertId, analysisId, fixId, runCommand) {
+        let idx;
         for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
             if (dataStore.entries[idx].key == alertId)
                 break;
@@ -94,11 +94,9 @@ var initStore = function(rootElement) {
             success: false,
         };
         dataStore.render();
-        var promise;
-        if (runCommand)
-            promise = cockpit.script(runCommand, { err: "message", superuser: "require" });
-        else
-            promise = dataStore.client.runFix(alertId, analysisId);
+        const promise = runCommand
+            ? cockpit.script(runCommand, { err: "message", superuser: "require" })
+            : dataStore.client.runFix(alertId, analysisId);
 
         promise
                 .then(output => {
@@ -127,7 +125,7 @@ var initStore = function(rootElement) {
      * remove the entry if successful
      * This function will only be called if the backend functionality is actually present
      */
-    var deleteAlert = function(alertId) {
+    const deleteAlert = function(alertId) {
         return dataStore.client.capabilities.deleteAlert(alertId)
                 .then(() => {
                     let idx;
@@ -146,13 +144,13 @@ var initStore = function(rootElement) {
                 });
     };
 
-    var dismissError = function() {
+    const dismissError = function() {
         dataStore.error = null;
         dataStore.render();
     };
 
-    var render = function() {
-        var enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
+    const render = function() {
+        const enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
         ReactDOM.render(React.createElement(SETroubleshootPage, {
             connected: dataStore.connected,
             connecting: dataStore.connecting,
@@ -174,12 +172,11 @@ var initStore = function(rootElement) {
        while null means an error occurred while retrieving them
        The function doesn't trigger a render
     */
-    var maybeUpdateAlert = function(localId, description, count, details) {
+    const maybeUpdateAlert = function(localId, description, count, details) {
         // if we already know about this alert, ignore unless the repetition count changed
-        var idx;
         // we start at the back because that's where we push new entries
         // if we receive an alert multiple times, this is where it will be
-        for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
+        for (let idx = dataStore.entries.length - 1; idx >= 0; --idx) {
             if (dataStore.entries[idx].key == localId) {
                 if (description === undefined || count === undefined) {
                     dataStore.entries[idx].details = details;
@@ -209,11 +206,9 @@ var initStore = function(rootElement) {
     /* Add a list of messages and triggers getting details for each of them
        The list is added without details at first (if it's a new entry) to preserve the order
      */
-    var handleMultipleMessages = function(entries) {
-        var idxEntry;
-        var entry;
-        for (idxEntry = 0; idxEntry != entries.length; ++idxEntry) {
-            entry = entries[idxEntry];
+    const handleMultipleMessages = function(entries) {
+        for (let idxEntry = 0; idxEntry != entries.length; ++idxEntry) {
+            const entry = entries[idxEntry];
             maybeUpdateAlert(entry.localId, entry.summary, entry.reportCount, undefined);
             dataStore.getAlertDetails(entry.localId);
         }
@@ -228,7 +223,7 @@ var initStore = function(rootElement) {
         dataStore.getAlertDetails(localId);
     };
 
-    var getAlertDetails = function(id) {
+    const getAlertDetails = function(id) {
         dataStore.client.getAlert(id)
                 .then(details => {
                     maybeUpdateAlert(id, details.summary, details.reportCount, details);
@@ -241,12 +236,12 @@ var initStore = function(rootElement) {
     };
     dataStore.getAlertDetails = getAlertDetails;
 
-    var setDisconnected = function() {
+    const setDisconnected = function() {
         dataStore.connected = false;
         render();
     };
 
-    var setErrorIfNotConnected = function() {
+    const setErrorIfNotConnected = function() {
         if (dataStore.connecting === null)
             return;
         dataStore.error = _("Not connected");

@@ -24,12 +24,12 @@ import cockpit from 'cockpit';
  */
 
 // how often to check the status [milliseconds]
-var pollingInterval = 10000;
+const pollingInterval = 10000;
 
-var statusCommand = "sestatus";
+const statusCommand = "sestatus";
 
 // currentStatus reflects the status of SELinux on the system
-var status = {
+const status = {
     enabled: undefined,
     enforcing: false,
     configEnforcing: false, // configured mode at boot time
@@ -57,7 +57,7 @@ var status = {
  * Since we're screenscraping we need to run this in LC_ALL=C mode
  */
 export function init(statusChangedCallback) {
-    var refreshInfo = function() {
+    const refreshInfo = function() {
         cockpit.spawn(statusCommand, { err: 'message', environ: ["LC_ALL=C"], superuser: "try" }).then(
             function(output) {
                 /* parse output that looks like this:
@@ -73,13 +73,13 @@ export function init(statusChangedCallback) {
                  * We want the lines 'SELinux status', 'Current mode' and 'Mode from config file'
                  */
 
-                var lines = output.split("\n");
+                const lines = output.split("\n");
                 lines.map(function(itm) {
-                    var items = itm.trim().split(":");
+                    const items = itm.trim().split(":");
                     if (items.length !== 2)
                         return;
-                    var key = items[0].trim();
-                    var value = items[1].trim();
+                    const key = items[0].trim();
+                    const value = items[1].trim();
                     if (key == "SELinux status") {
                         status.enabled = (value == "enabled");
                     } else if (key == "Current mode") {
@@ -106,7 +106,7 @@ export function init(statusChangedCallback) {
         );
     };
 
-    var polling = null;
+    let polling = null;
 
     function setupPolling() {
         if (cockpit.hidden) {
@@ -233,6 +233,6 @@ ${rules}
 
 // returns a promise of the command used to set enforcing mode
 export function setEnforcing(enforcingMode) {
-    var command = ["setenforce", (enforcingMode ? "1" : "0")];
+    const command = ["setenforce", (enforcingMode ? "1" : "0")];
     return cockpit.spawn(command, { superuser: true, err: "message" });
 }

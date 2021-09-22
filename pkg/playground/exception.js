@@ -2,9 +2,9 @@
 import '../lib/patternfly/patternfly-cockpit.scss';
 import cockpit from "cockpit";
 
-var button = document.getElementById("exception");
+const button = document.getElementById("exception");
 button.addEventListener("click", function() {
-    var obj = { };
+    const obj = { };
     window.setTimeout(function() {
         obj[0].value = 1;
     }, 0);

@@ -82,7 +82,7 @@ export class Service extends React.Component {
                               {this.props.unit.Id}
                           </BreadcrumbItem>
                       </Breadcrumb>}>
-                <PageSection>
+                <PageSection className="ct-pagesection-mobile">
                     <Gallery hasGutter>
                         <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
                         {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&

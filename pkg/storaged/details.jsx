@@ -140,7 +140,7 @@ export class Details extends React.Component {
                           <BreadcrumbItem to="#/">{_("Storage")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>{name}</BreadcrumbItem>
                       </Breadcrumb>}>
-                <PageSection>
+                <PageSection className="ct-pagesection-mobile">
                     <Grid hasGutter>
                         {body}
                     </Grid>

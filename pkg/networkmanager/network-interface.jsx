@@ -698,10 +698,10 @@ export const NetworkInterfacePage = ({
                           {dev_name}
                       </BreadcrumbItem>
                   </Breadcrumb>}>
-            <PageSection variant={PageSectionVariants.light}>
+            <PageSection variant={PageSectionVariants.light} className="ct-pagesection-mobile">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>
-            <PageSection>
+            <PageSection className="ct-pagesection-mobile">
                 <Gallery hasGutter>
                     <Card className="network-interface-details">
                         <CardHeader>

@@ -508,7 +508,7 @@ export class KdumpPage extends React.Component {
                                 isDisabled={this.props.stateChanging} />
                     </Flex>
                 </PageSection>
-                <PageSection>
+                <PageSection className="ct-pagesection-mobile">
                     <Card>
                         <CardBody>
                             <DescriptionList className="pf-m-horizontal-on-sm">

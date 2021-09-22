@@ -327,7 +327,7 @@ class HardwareInfo extends React.Component {
                           <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                       </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
-                <PageSection>
+                <PageSection className="ct-pagesection-mobile">
                     <Gallery hasGutter>
                         <Card>
                             <CardHeader>

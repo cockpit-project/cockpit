@@ -143,7 +143,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>
-            <PageSection>
+            <PageSection className="ct-pagesection-mobile">
                 <Gallery hasGutter>
                     {firewall.installed && <Card id="networking-firewall-summary">
                         <CardHeader>

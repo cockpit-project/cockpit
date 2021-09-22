@@ -1370,7 +1370,7 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <PageSection>
+                    <PageSection className="ct-pagesection-mobile">
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
@@ -1495,7 +1495,7 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <PageSection>
+                    <PageSection className="ct-pagesection-mobile">
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                         </Gallery>
@@ -1537,7 +1537,7 @@ class OsUpdates extends React.Component {
     render() {
         let content = this.renderContent();
         if (!["available", "uptodate"].includes(this.state.state))
-            content = <PageSection variant={PageSectionVariants.light}>{content}</PageSection>;
+            content = <PageSection variant={PageSectionVariants.light} className="ct-pagesection-mobile">{content}</PageSection>;
 
         return (
             <Page>

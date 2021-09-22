@@ -943,7 +943,7 @@ export class Firewall extends React.Component {
                           <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
                       </Breadcrumb>}
                   additionalGroupedContent={
-                      <PageSection id="firewall-heading" className="firewall-heading" variant={PageSectionVariants.light}>
+                      <PageSection id="firewall-heading" variant={PageSectionVariants.light} className="firewall-heading">
                           <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                               <Flex alignItems={{ default: 'alignItemsCenter' }} id="firewall-heading-title-group">
                                   <Title headingLevel="h2" size="3xl">
@@ -954,7 +954,7 @@ export class Firewall extends React.Component {
                               { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                           </Flex>
                       </PageSection>}>
-                <PageSection id="zones-listing">
+                <PageSection id="zones-listing" className="ct-pagesection-mobile">
                     { enabled && <Stack hasGutter>
                         {
                             zones.map(z => <ZoneSection key={z.id}

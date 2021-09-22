@@ -1,5 +1,5 @@
 (function(console) {
-    var localStorage;
+    let localStorage;
 
     /* Some browsers fail localStorage access due to corruption, preventing Cockpit login */
     try {
@@ -11,9 +11,9 @@
         console.warn(String(ex));
     }
 
-    var url_root;
-    var environment = window.environment || { };
-    var oauth = environment.OAuth || null;
+    let url_root;
+    const environment = window.environment || { };
+    const oauth = environment.OAuth || null;
     if (oauth) {
         if (!oauth.TokenParam)
             oauth.TokenParam = "access_token";
@@ -21,15 +21,15 @@
             oauth.ErrorParam = "error_description";
     }
 
-    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+    const fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     function format(fmt /* ... */) {
-        var args = Array.prototype.slice.call(arguments, 1);
+        const args = Array.prototype.slice.call(arguments, 1);
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || "" });
     }
 
     function gettext(key) {
         if (window.cockpit_po) {
-            var translated = window.cockpit_po[key];
+            const translated = window.cockpit_po[key];
             if (translated && translated[1])
                 return translated[1];
         }
@@ -39,25 +39,24 @@
     function translate() {
         if (!document.querySelectorAll)
             return;
-        var list = document.querySelectorAll("[translate]");
-        for (var i = 0; i < list.length; i++)
+        const list = document.querySelectorAll("[translate]");
+        for (let i = 0; i < list.length; i++)
             list[i].textContent = gettext(list[i].textContent);
     }
 
-    var _ = gettext;
+    const _ = gettext;
 
-    var login_path, application, org_login_path, org_application;
-    var qs_re = /[?&]?([^=]+)=([^&]*)/g;
-    var oauth_redirect_to = null;
+    let login_path, application, org_login_path, org_application;
+    const qs_re = /[?&]?([^=]+)=([^&]*)/g;
+    let oauth_redirect_to = null;
 
     function QueryParams(qs) {
         qs = qs.split('+').join(' ');
 
-        var params = {};
-        var tokens;
+        const params = {};
 
         for (;;) {
-            tokens = qs_re.exec(qs);
+            const tokens = qs_re.exec(qs);
             if (!tokens)
                 break;
             params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
@@ -75,18 +74,16 @@
     // Hide an element (or set of elements) based on a boolean
     // true: element is hidden, false: element is shown
     function hideToggle(elements, toggle) {
-        var els;
-
         // If it's a single selector, convert it to an array for the loop
         if (typeof elements === "string")
             elements = [elements];
 
         // >= 1 arguments (of type element or string (for CSS selectors))
         // (passed in "arguments" isn't a a true array, so forEach wouldn't always work)
-        for (var i = 0; i < elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             if (typeof elements[i] === "string") {
                 // Support CSS selectors as a string
-                els = document.querySelectorAll(elements[i]);
+                const els = document.querySelectorAll(elements[i]);
 
                 if (els)
                     els.forEach(function(element) {
@@ -125,24 +122,21 @@
         hide("#login", "#login-details");
         show("#login-fatal");
 
-        var el = id("login-fatal-message");
+        const el = id("login-fatal-message");
         el.textContent = "";
         el.appendChild(document.createTextNode(msg));
     }
 
     function brand(_id, def) {
-        var style;
-        var elt = id(_id);
-        if (elt && window.getComputedStyle)
-            style = window.getComputedStyle(elt, ":before");
+        const elt = id(_id);
+        const style = (elt && window.getComputedStyle) ? window.getComputedStyle(elt, ":before") : null;
 
         if (!style)
             return;
 
-        var len;
-        var content = style.content;
+        let content = style.content;
         if (content && content != "none" && content != "normal") {
-            len = content.length;
+            const len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])
                 content = content.substr(1, len - 2);
@@ -156,7 +150,7 @@
         function disableLogin(name) {
             if (name === "supports")
                 name = "@supports API";
-            var errorString = format(_("This web browser is too old to run the Web Console (missing $0)"), name);
+            const errorString = format(_("This web browser is too old to run the Web Console (missing $0)"), name);
 
             if (window.console)
                 console.warn(errorString);
@@ -167,7 +161,7 @@
         }
 
         function req(name, obj) {
-            var ret;
+            let ret;
             try {
                 ret = (obj && obj[name]);
             } catch (ex) {
@@ -191,7 +185,7 @@
              *        or
              * "display", "inline"
              */
-            var args = [].join.call(arguments, ": ");
+            const args = [].join.call(arguments, ": ");
 
             if (!window.CSS || !window.CSS.supports.apply(this, arguments)) {
                 disableLogin(args);
@@ -221,12 +215,11 @@
 
     /* Sets values for application, url_root and login_path */
     function setup_path_globals (path) {
-        var parser = document.createElement('a');
-        var base = document.baseURI;
-        var base_tags;
+        const parser = document.createElement('a');
+        let base = document.baseURI;
         /* Some IEs don't support baseURI */
         if (!base) {
-            base_tags = document.getElementsByTagName("base");
+            const base_tags = document.getElementsByTagName("base");
             if (base_tags.length > 0)
                 base = base_tags[0].href;
             else
@@ -298,7 +291,7 @@
             document.documentElement.setAttribute("class", "inline");
 
         // Setup title
-        var title = environment.page.title;
+        let title = environment.page.title;
         if (!title || application.indexOf("cockpit+=") === 0)
             title = environment.hostname;
         document.title = title;
@@ -321,20 +314,20 @@
         id("show-other-login-options").addEventListener("click", toggle_options);
         id("show-other-login-options").addEventListener("keypress", toggle_options);
         id("server-clear").addEventListener("click", function () {
-            var el = id("server-field");
+            const el = id("server-field");
             el.value = "";
             el.focus();
         });
 
-        var os_release = environment["os-release"];
+        const os_release = environment["os-release"];
         if (os_release)
             localStorage.setItem('os-release', JSON.stringify(os_release));
 
-        var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
+        const logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
 
-        var logout_reason = window.sessionStorage.getItem("logout-reason");
+        const logout_reason = window.sessionStorage.getItem("logout-reason");
         if (logout_reason)
             window.sessionStorage.removeItem("logout-reason");
 
@@ -356,7 +349,7 @@
     }
 
     function standard_auto_login() {
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
@@ -377,7 +370,7 @@
     }
 
     function build_oauth_redirect_to() {
-        var url_parts = window.location.href.split('#', 2);
+        const url_parts = window.location.href.split('#', 2);
         oauth_redirect_to = oauth.URL;
         if (oauth.URL.indexOf("?") > -1)
             oauth_redirect_to += "&";
@@ -387,17 +380,16 @@
     }
 
     function oauth_auto_login() {
-        var parser = document.createElement('a');
+        const parser = document.createElement('a');
         if (!oauth.URL)
             return fatal(_("Cockpit authentication is configured incorrectly."));
 
-        var query = QueryParams(window.location.search);
-        if (!window.location.search && window.location.hash)
-            query = QueryParams(window.location.hash.slice(1));
+        const query = (!window.location.search && window.location.hash)
+            ? QueryParams(window.location.hash.slice(1))
+            : QueryParams(window.location.search);
 
         /* Not all providers allow hashes in redirect urls */
 
-        var token_val, prompt_data, xhr;
         build_oauth_redirect_to();
 
         if (query[oauth.TokenParam]) {
@@ -406,9 +398,9 @@
                 setup_path_globals(parser.pathname);
             }
 
-            token_val = query[oauth.TokenParam];
+            const token_val = query[oauth.TokenParam];
             show("#login-wait-validating");
-            xhr = new XMLHttpRequest();
+            const xhr = new XMLHttpRequest();
             xhr.open("GET", login_path, true);
             xhr.setRequestHeader("Authorization", "Bearer " + token_val);
             xhr.onreadystatechange = function () {
@@ -416,8 +408,7 @@
                     if (xhr.status == 200) {
                         run(JSON.parse(xhr.responseText));
                     } else {
-                        prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"),
-                                                                xhr.responseText);
+                        const prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"), xhr.responseText);
                         if (prompt_data)
                             show_converse(prompt_data);
                         else
@@ -471,7 +462,7 @@
     }
 
     function host_failure(msg) {
-        var host = id("server-field").value;
+        const host = id("server-field").value;
         if (!host) {
             login_failure(msg);
         } else {
@@ -484,7 +475,7 @@
     }
 
     function login_note(msg) {
-        var el = id("login-note");
+        const el = id("login-note");
         if (msg) {
             show(el);
             el.textContent = msg;
@@ -500,14 +491,13 @@
 
     function call_login() {
         login_failure(null);
-        var machine;
-        var user = trim(id("login-user-input").value);
+        const user = trim(id("login-user-input").value);
         if (user === "") {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && id("server-field").value === "") {
             login_failure(_("Please specify the host to connect to"));
         } else {
-            machine = id("server-field").value;
+            const machine = id("server-field").value;
             if (machine) {
                 application = "cockpit+=" + machine;
                 login_path = org_login_path.replace("/" + org_application + "/", "/" + application + "/");
@@ -523,17 +513,17 @@
             id("server-name").textContent = machine || environment.hostname;
             id("login-button").removeEventListener("click", call_login);
 
-            var password = id("login-password-input").value;
+            const password = id("login-password-input").value;
 
-            var superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
-            var superuser = localStorage.getItem(superuser_key) || "none";
+            const superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
+            const superuser = localStorage.getItem(superuser_key) || "none";
             localStorage.setItem("superuser-key", superuser_key);
             localStorage.setItem(superuser_key, superuser);
 
             /* Keep information if login page was used */
             localStorage.setItem('standard-login', true);
 
-            var headers = {
+            const headers = {
                 Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Superuser": superuser,
             };
@@ -546,8 +536,8 @@
     }
 
     function show_form(form) {
-        var connectable = environment.page.connect;
-        var expanded = id("option-group").getAttribute("data-state");
+        const connectable = environment.page.connect;
+        let expanded = id("option-group").getAttribute("data-state");
 
         hide("#login-wait-validating");
         show("#login", "#login-details");
@@ -594,7 +584,7 @@
                 id("login-password-input").focus();
         }, false);
 
-        var do_login = function(e) {
+        const do_login = function(e) {
             login_failure(null);
             if (e.which == 13)
                 call_login();
@@ -624,10 +614,10 @@
     }
 
     function do_hostkey_verification(data) {
-        var key_db = get_known_hosts_db();
-        var key = data["host-key"];
-        var key_key = key.split(" ")[0];
-        var key_type = key.split(" ")[1];
+        const key_db = get_known_hosts_db();
+        const key = data["host-key"];
+        const key_key = key.split(" ")[0];
+        const key_type = key.split(" ")[1];
 
         if (key_db[key_key] == key) {
             converse(data.id, data.default);
@@ -684,11 +674,11 @@
             return;
         }
 
-        var type = prompt_data.echo ? "text" : "password";
+        const type = prompt_data.echo ? "text" : "password";
         id("conversation-prompt").textContent = prompt_data.prompt;
 
-        var em = id("conversation-message");
-        var msg = prompt_data.error || prompt_data.message;
+        const em = id("conversation-message");
+        const msg = prompt_data.error || prompt_data.message;
         if (msg) {
             em.textContent = msg;
             show(em);
@@ -696,7 +686,7 @@
             hide(em);
         }
 
-        var ei = id("conversation-input");
+        const ei = id("conversation-input");
         ei.value = "";
         if (prompt_data.default)
             ei.value = prompt_data.default;
@@ -729,19 +719,15 @@
     }
 
     function get_prompt_from_challenge (header, body) {
-        var parts;
-        var prompt;
-        var resp;
-        var id;
-
         if (!header)
             return null;
 
-        parts = header.split(' ');
+        const parts = header.split(' ');
         if (parts[0].toLowerCase() !== 'x-conversation' && parts.length != 3)
             return null;
 
-        id = parts[1];
+        const id = parts[1];
+        let prompt;
         try {
             prompt = window.atob(parts[2]);
         } catch (err) {
@@ -750,6 +736,7 @@
             return null;
         }
 
+        let resp;
         try {
             resp = JSON.parse(body);
         } catch (err) {
@@ -766,13 +753,10 @@
     function send_login_request(method, headers, is_conversation) {
         id("login-button").setAttribute('disabled', "true");
         id("login-button").setAttribute('spinning', "true");
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
-        var prompt_data;
-        var challenge;
 
-        var k;
-        for (k in headers)
+        for (const k in headers)
             xhr.setRequestHeader(k, headers[k]);
 
         xhr.onreadystatechange = function () {
@@ -780,12 +764,12 @@
                 return;
             }
             if (xhr.status == 200) {
-                var resp = JSON.parse(xhr.responseText);
+                const resp = JSON.parse(xhr.responseText);
                 run(resp);
             } else if (xhr.status == 401) {
-                challenge = xhr.getResponseHeader("WWW-Authenticate");
+                const challenge = xhr.getResponseHeader("WWW-Authenticate");
                 if (challenge && challenge.toLowerCase().indexOf("x-conversation") === 0) {
-                    prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
+                    const prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
                     if (prompt_data)
                         show_converse(prompt_data);
                     else
@@ -794,7 +778,7 @@
                     if (window.console)
                         console.log(xhr.statusText);
                     if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
-                        var user = trim(id("login-user-input").value);
+                        const user = trim(id("login-user-input").value);
                         fatal(format(_("The server refused to authenticate '$0' using password authentication, and no other supported authentication methods are available."), user));
                     } else if (xhr.statusText.indexOf("terminated") > -1) {
                         login_failure(_("Authentication failed: Server closed connection"));
@@ -824,7 +808,7 @@
     }
 
     function converse(id, msg) {
-        var headers = {
+        const headers = {
             Authorization: "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
         send_login_request("GET", headers, true);
@@ -834,7 +818,7 @@
         // Force a reload if not triggered below
         // because only the hash part of the url
         // changed
-        var timer = window.setTimeout(function() {
+        let timer = window.setTimeout(function() {
             timer = null;
             window.location.reload(true);
         }, 100);
@@ -851,9 +835,9 @@
     }
 
     function clear_storage (storage, prefix, full) {
-        var i = 0;
+        let i = 0;
         while (i < storage.length) {
-            var k = storage.key(i);
+            const k = storage.key(i);
             if (full && k.indexOf("cockpit") !== 0)
                 storage.removeItem(k);
             else if (k.indexOf(prefix) === 0)
@@ -875,9 +859,8 @@
         localStorage.removeItem('login-data');
         clear_storage(localStorage, application, false);
 
-        var str;
         if (response && response["login-data"]) {
-            str = JSON.stringify(response["login-data"]);
+            const str = JSON.stringify(response["login-data"]);
             /* login-data is tied to the auth cookie, since
              * cookies are available after the page
              * session ends login-data should be too.
@@ -893,14 +876,14 @@
         if (url_root)
             localStorage.setItem('url-root', url_root);
 
-        var ca_cert_url = environment.CACertUrl;
+        const ca_cert_url = environment.CACertUrl;
         if (ca_cert_url)
             window.sessionStorage.setItem('CACertUrl', ca_cert_url);
     }
 
     function run(response) {
-        var wanted = window.sessionStorage.getItem('login-wanted');
-        var machine = id("server-field").value;
+        let wanted = window.sessionStorage.getItem('login-wanted');
+        const machine = id("server-field").value;
 
         if (machine && application != org_application) {
             wanted = "/=" + machine;

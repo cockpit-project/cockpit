@@ -351,8 +351,13 @@ const plugins = [
     }),
 ];
 
-if (eslint)
-    plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"] }));
+if (eslint) {
+    // temporary hack: not all pages got converted to no-var yet; drop this again once they are
+    const overrideConfig = {};
+    if (section === "shell/" || section === 'networkmanager/' || section === "static/" || section === "systemd/")
+        overrideConfig.rules = { "no-var": "off" };
+    plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"], overrideConfig }));
+}
 
 if (section.startsWith('base1'))
     plugins.push(new copy({ patterns: base1_fonts }));

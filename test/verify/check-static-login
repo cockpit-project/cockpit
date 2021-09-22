@@ -189,22 +189,17 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def assert_messages(has_last, n_fail):
             if has_last:
-                b.wait_visible('#login-messages')
-                b.wait_visible('#last-login')
-                b.wait_in_text('#last-login', "Last login")
-                b.wait_in_text('#last-login', "from")  # only present if IP was logged
+                b.wait_visible('#system_last_login')
+                b.wait_in_text('#system_last_login', "Last successful login")
+                b.wait_in_text('#system_last_login_from', "from")  # only present if IP was logged
 
-                if n_fail:
-                    b.wait_visible('#last-failed-login')
-                    b.wait_in_text('#last-failed-login', "from")
-                    b.wait_in_text('#login-messages', 'There were {} failed'.format(n_fail))
-                else:
-                    self.assertFalse(b.is_present('#last-failed-login'))
-                    b.wait_not_in_text('#login-messages', 'failed')
-
+            if n_fail:
+                b.wait_visible('#system_last_login')
+                b.wait_in_text('#system_last_login', '{} failed login'.format(n_fail))
+                b.wait_in_text('#system_last_login_from', "from")
+                b.wait_in_text('#system_last_login_success', "Last successful login")
             else:
-                self.assertEqual(n_fail, 0)
-                b.wait_not_present('#login-messages')
+                self.assertFalse(b.is_present('#system_last_login_success'))
 
         def verify_correct(has_last, n_fail):
             b.login_and_go('/system')
@@ -214,16 +209,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.reload()
             b.enter_page('/system')
             assert_messages(has_last, n_fail)
-
-            if has_last:
-                # dismiss and make sure it's gone
-                b.click('#login-messages button')
-                assert_messages(False, 0)
-
-                # reload and make sure it's still gone
-                b.reload()
-                b.enter_page('/system')
-                assert_messages(False, 0)
 
             b.logout()
 
@@ -247,7 +232,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text_not("#login-error-message", "")
 
         # We should see those bogus attempts now
-        verify_correct(True, 3)
+        verify_correct(False, 3)
 
         # But after that login, they should be gone again
         verify_correct(True, 0)
@@ -463,8 +448,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # not an admin
         b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
-        b.wait_in_text('#last-login', "Last login:")
-        b.wait_in_text('#last-login', "web console")
+        b.wait_in_text('#system_last_login', "Last successful login")
+        b.wait_in_text('#system_last_login_from', "web console")
 
         b.logout()
         # not allowed to restricted users
@@ -479,8 +464,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # passing login info memfd should work
         b.logout()
         b.login_and_go("/system")
-        b.wait_in_text('#last-login', "Last login:")
-        b.wait_in_text('#last-login', "web console")
+        b.wait_in_text('#system_last_login', "Last successful login")
+        b.wait_in_text('#system_last_login_from', "web console")
 
         b.go("/playground/test")
         b.enter_page("/playground/test")

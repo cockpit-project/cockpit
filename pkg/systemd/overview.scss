@@ -175,16 +175,6 @@
 }
 
 @media (max-width: 320px) {
-  /* Make the overview fit on very narrow screens like an iPhone SE */
-
-  .pf-c-page__main-section:not(.ct-overview-header) {
-    /* Remove left and right padding for cards on narrow viewports */
-    --pf-c-page__main-section--PaddingRight: 0;
-    --pf-c-page__main-section--PaddingLeft: 0;
-    --pf-c-page__main-section--PaddingTop: 0.5rem;
-    --pf-c-page__main-section--PaddingBottom: 0.5rem;
-  }
-
   .ct-system-overview {
     /* Reduce spacing between items */
     --pf-l-gallery--m-gutter--GridGap: 0.25rem;

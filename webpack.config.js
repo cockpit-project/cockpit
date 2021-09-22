@@ -354,7 +354,7 @@ const plugins = [
 if (eslint) {
     // temporary hack: not all pages got converted to no-var yet; drop this again once they are
     const overrideConfig = {};
-    if (section === "shell/" || section === 'networkmanager/' || section === "static/" || section === "systemd/")
+    if (section === "shell/" || section === 'networkmanager/' || section === "systemd/")
         overrideConfig.rules = { "no-var": "off" };
     plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"], overrideConfig }));
 }

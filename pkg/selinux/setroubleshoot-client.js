@@ -21,19 +21,19 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
-export var client = {};
+export const client = {};
 
-var busName = "org.fedoraproject.Setroubleshootd";
-var dbusInterface = "org.fedoraproject.SetroubleshootdIface";
-var dbusPath = "/org/fedoraproject/Setroubleshootd";
+const busName = "org.fedoraproject.Setroubleshootd";
+const dbusInterface = "org.fedoraproject.SetroubleshootdIface";
+const dbusPath = "/org/fedoraproject/Setroubleshootd";
 
-var busNameFixit = "org.fedoraproject.SetroubleshootFixit";
-var dbusInterfaceFixit = busNameFixit;
-var dbusPathFixit = "/org/fedoraproject/SetroubleshootFixit/object";
+const busNameFixit = "org.fedoraproject.SetroubleshootFixit";
+const dbusInterfaceFixit = busNameFixit;
+const dbusPathFixit = "/org/fedoraproject/SetroubleshootFixit/object";
 
 client.init = function(capabilitiesChangedCallback) {
     client.connected = false;
-    var dbusClientSeTroubleshoot = cockpit.dbus(busName, { superuser: "try" });
+    const dbusClientSeTroubleshoot = cockpit.dbus(busName, { superuser: "try" });
     client.proxy = dbusClientSeTroubleshoot.proxy(dbusInterface, dbusPath);
 
     client.proxyFixit = cockpit.dbus(busNameFixit, { superuser: "try" }).proxy(dbusInterfaceFixit, dbusPathFixit);
@@ -54,8 +54,8 @@ client.init = function(capabilitiesChangedCallback) {
 
     function handleSignal(event, name, args) {
         if (client.alertCallback && name == "alert") {
-            var level = args[0];
-            var localId = args[1];
+            const level = args[0];
+            const localId = args[1];
             client.alertCallback(level, localId);
         }
     }
@@ -154,7 +154,7 @@ client.init = function(capabilitiesChangedCallback) {
     /* Delete an alert from the database (will be removed for all users), returns true on success
      * Only assign this to the client variable if the dbus interface actually supports the operation
      */
-    var deleteAlert = function(localId) {
+    const deleteAlert = function(localId) {
         return new Promise((resolve, reject) => {
             client.proxy.call("delete_alert", [localId])
                     .then(success => {

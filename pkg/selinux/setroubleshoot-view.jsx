@@ -44,8 +44,8 @@ const _ = cockpit.gettext;
  */
 class SELinuxEventDetails extends React.Component {
     runFix(itmIdx, runCommand) {
-        var localId = this.props.details.localId;
-        var analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;
+        const localId = this.props.details.localId;
+        const analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;
         this.props.runFix(localId, analysisId, itmIdx, runCommand);
     }
 
@@ -58,15 +58,15 @@ class SELinuxEventDetails extends React.Component {
                 return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Unable to get alert details.") } />;
         }
 
-        var self = this;
-        var fixEntries = this.props.details.pluginAnalysis.map(function(itm, itmIdx) {
-            var fixit = null;
-            var fixit_command = null;
-            var msg = null;
+        const self = this;
+        const fixEntries = this.props.details.pluginAnalysis.map(function(itm, itmIdx) {
+            let fixit = null;
+            let fixit_command = null;
+            let msg = null;
 
             /* some plugins like catchall_sebool don't report fixable as they offer multiple solutions;
              * we can offer to run a single setsebool command for convenience */
-            var fixable = itm.fixable;
+            let fixable = itm.fixable;
             if (!fixable && itm.doText && itm.doText.startsWith("setsebool") && itm.doText.indexOf("\n") < 0) {
                 fixable = true;
                 fixit_command = itm.doText;
@@ -224,12 +224,9 @@ class DismissableError extends React.Component {
  */
 class SELinuxStatus extends React.Component {
     render() {
-        var errorMessage;
-        if (this.props.selinuxStatusError) {
-            errorMessage = (
-                <DismissableError dismissError={this.props.dismissError}>{this.props.selinuxStatusError}</DismissableError>
-            );
-        }
+        const errorMessage = this.props.selinuxStatusError
+            ? <DismissableError dismissError={this.props.dismissError}>{this.props.selinuxStatusError}</DismissableError>
+            : null;
 
         if (this.props.selinuxStatus.enabled === undefined) {
             // we don't know the current state
@@ -248,8 +245,8 @@ class SELinuxStatus extends React.Component {
                 </div>
             );
         }
-        var note = null;
-        var configUnknown = (this.props.selinuxStatus.configEnforcing === undefined);
+        const configUnknown = (this.props.selinuxStatus.configEnforcing === undefined);
+        let note = null;
         if (configUnknown)
             note = _("The configured state is unknown, it might change on the next boot.");
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
@@ -321,13 +318,11 @@ export class SETroubleshootPage extends React.Component {
         if (this.props.selinuxStatus.enabled === false) {
             return <EmptyStatePanel icon={ ExclamationCircleIcon } title={ _("SELinux is disabled on the system") } />;
         }
-        var self = this;
-        var entries;
-        var troubleshooting;
-        var modifications;
-        var title = _("SELinux access control errors");
-        var emptyCaption = _("No SELinux alerts.");
+        const self = this;
+        const title = _("SELinux access control errors");
+        const emptyCaption = _("No SELinux alerts.");
         let emptyState;
+        let entries;
         if (!this.props.connected) {
             if (this.props.connecting) {
                 emptyState = <EmptyStatePanel paragraph={ _("Connecting to SETroubleshoot daemon...") } loading />;
@@ -339,7 +334,7 @@ export class SETroubleshootPage extends React.Component {
         } else {
             entries = this.props.entries.map(function(itm, index) {
                 itm.runFix = self.props.runFix;
-                var listingDetail;
+                let listingDetail;
                 if (itm.details && 'firstSeen' in itm.details) {
                     if (itm.details.reportCount >= 2) {
                         listingDetail = cockpit.format(_("Occurred between $0 and $1"),
@@ -350,7 +345,7 @@ export class SETroubleshootPage extends React.Component {
                         listingDetail = cockpit.format(_("Occurred $0"), timeformat.dateTime(itm.details.firstSeen));
                     }
                 }
-                var tabRenderers = [
+                const tabRenderers = [
                     {
                         name: _("Solutions"),
                         renderer: SELinuxEventDetails,
@@ -363,10 +358,10 @@ export class SETroubleshootPage extends React.Component {
                     },
                 ];
                 // if the alert has level "red", it's critical
-                var criticalAlert = null;
-                if (itm.details && 'level' in itm.details && itm.details.level == "red")
-                    criticalAlert = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />;
-                var columns = [
+                const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level == "red")
+                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />
+                    : null;
+                const columns = [
                     { title: criticalAlert },
                     { title: itm.description }
                 ];
@@ -392,7 +387,7 @@ export class SETroubleshootPage extends React.Component {
                 if (this.state.selected[k])
                     this.props.deleteAlert(k).then(() => this.setState({ selected: { ...this.state.selected, [k]: false } }));
         };
-        troubleshooting = (
+        const troubleshooting = (
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
@@ -420,7 +415,7 @@ export class SETroubleshootPage extends React.Component {
             </Card>
         );
 
-        modifications = (
+        const modifications = (
             <Modifications
                 title={ _("System modifications") }
                 permitted={ this.props.selinuxStatus.permitted }

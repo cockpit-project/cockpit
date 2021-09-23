@@ -310,10 +310,6 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertIn("\npath dumps\n", conf)
 
-        # FIXME: changing the config does not restart failed service
-        b.wait_visible(".pf-c-switch__input:not(:checked)")
-        b.click(".pf-c-switch__input")
-
         b.wait_visible(".pf-c-switch__input:checked")
 
         self.crashKernel()

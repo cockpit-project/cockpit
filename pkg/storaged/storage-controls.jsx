@@ -116,7 +116,6 @@ export const StorageLink = ({ id, excuse, onClick, children }) => (
                                 style={excuse ? { pointerEvents: 'none' } : null}
                                 variant="link"
                                 isInline
-                                className="ct-form-relax"
                                 isDisabled={!!excuse}>
                             {children}
                         </Button>

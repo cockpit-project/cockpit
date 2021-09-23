@@ -18,7 +18,8 @@
  */
 import cockpit from "cockpit";
 import React, { useState } from "react";
-import { Button, DatePicker, Popover, Select, SelectOption, SelectVariant } from '@patternfly/react-core';
+import { Button, DatePicker, Flex, Popover, Select, SelectOption, SelectVariant, Spinner } from '@patternfly/react-core';
+import { ExclamationCircleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
@@ -365,17 +366,17 @@ export function ServerTimeConfig() {
     if (ntp && ntp.active) {
         let icon; let header; let body = ""; let footer = null;
         if (ntp.synch) {
-            icon = <span className="fa fa-lg fa-info-circle" />;
+            icon = <InfoCircleIcon className="ct-info-circle" />;
             header = _("Synchronized");
             if (ntp.server)
                 body = <div>{cockpit.format(_("Synchronized with $0"), ntp.server)}</div>;
         } else {
             if (ntp.server) {
-                icon = <span className="spinner spinner-xs spinner-inline" />;
+                icon = <Spinner size="md" isSVG />;
                 header = _("Synchronizing");
                 body = <div>{cockpit.format(_("Trying to synchronize with $0"), ntp.server)}</div>;
             } else {
-                icon = <span className="fa fa-lg fa-exclamation-circle" />;
+                icon = <ExclamationCircleIcon className="ct-exclamation-circle" />;
                 header = _("Not synchronized");
                 if (ntp.service) {
                     footer = (
@@ -398,11 +399,12 @@ export function ServerTimeConfig() {
             </Popover>);
     }
 
-    return <>
-        <span>{systime_button}</span>
-        {"\n"}
-        {ntp_status}
-    </>;
+    return (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+            {systime_button}
+            {ntp_status}
+        </Flex>
+    );
 }
 
 function Validated({ errors, error_key, children }) {

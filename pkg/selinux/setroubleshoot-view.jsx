@@ -25,7 +25,7 @@ import {
     Divider,
     Card, CardActions, CardHeader, CardTitle, CardBody,
     ExpandableSection,
-    Flex,
+    Flex, FlexItem,
     Page, PageSection, PageSectionVariants,
     Switch, Stack, StackItem, Text, TextArea, TextVariants,
 } from "@patternfly/react-core";
@@ -253,7 +253,7 @@ class SELinuxStatus extends React.Component {
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
         return (
-            <div className="selinux-policy-ct">
+            <Stack hasGutter className="selinux-policy-ct">
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2>{_("SELinux policy")}</h2>
                     <Switch isChecked={this.props.selinuxStatus.enforcing}
@@ -262,13 +262,13 @@ class SELinuxStatus extends React.Component {
                             onChange={this.props.changeSelinuxMode} />
                 </Flex>
                 { note !== null &&
-                    <label className="note">
-                        <i className="pficon pficon-info" />
-                        { note }
-                    </label>
+                    <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        <InfoCircleIcon />
+                        <FlexItem>{ note }</FlexItem>
+                    </Flex>
                 }
                 {errorMessage}
-            </div>
+            </Stack>
         );
     }
 }

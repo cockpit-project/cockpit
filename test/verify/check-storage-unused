@@ -57,16 +57,21 @@ mkpart logical ext2 24 48"""
             return ph_select(sel).map(function(e) { return e.textContent });
           }""")
 
-        # Keep opening the dialog until exactly /dev/sda6 and /dev/sdb
-        # are offered as free block devices.
-
         def check_free_block_devices():
             blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")
             print("blocks", blocks)
             # On Ubuntu we see /dev/ram devices as well
             # On Fedora also /dev/zram0 - see https://github.com/cockpit-project/cockpit/issues/14516
-            blocks = [block for block in blocks if "/dev/ram" not in block and "/dev/zram" not in block]
-            return len(blocks) == 2 and "/dev/sda6" in blocks[0] and "/dev/sdb" in blocks[1]
+            allowed = ["/dev/sda", "/dev/sdb", "/dev/vda", "/dev/ram", "/dev/zram"]
+            for block in blocks:
+                for allow in allowed:
+                    if allow in block:
+                        break
+                else:
+                    return False
+
+            # Require these two to be present
+            return "/dev/sda6" in blocks and "/dev/sdb" in blocks
 
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
                                expect=check_free_block_devices,

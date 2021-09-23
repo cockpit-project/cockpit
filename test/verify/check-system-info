@@ -130,6 +130,19 @@ class TestSystemInfo(MachineCase):
 
         self.check_axe()
 
+        # ensure general page/card layout without the changing specifics
+        b.assert_pixels("#overview", "overview", ignore=[
+            ".system-health-events",
+            "#system_machine_id",
+            "#system_uptime",
+            # #system_information_systime_button is not enough, need to grab the icon as well
+            "tr:contains('System time') td",
+            # CPU/memory metrics
+            "#system-usage-cpu-progress + td",
+            "#system-usage-memory-progress + td",
+            "#system-info-performance",
+        ])
+
         # Generate a new rsa key and change the config
         m.execute("ssh-keygen -f /etc/ssh/weirdname -t rsa -N ''")
         m.execute("chmod 600 /etc/ssh/weirdname")
@@ -362,6 +375,8 @@ class TestSystemInfo(MachineCase):
         b.wait_visible('#motd-box')
         # strips empty lines, but not leading spaces
         b.wait_text('#motd', "  Hello\n  World")
+
+        b.assert_pixels("#motd-box", "motd")
 
         b.click('#motd-box button:not(#motd-box-edit)')
         b.wait_not_present('#motd-box')

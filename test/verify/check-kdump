@@ -33,6 +33,20 @@ class KdumpHelpers(MachineCase):
         self.browser.switch_to_top()
         self.browser.relogin("/kdump")
 
+    def crashKernel(self):
+        b = self.browser
+        b.click(f"button{self.default_btn_class}")
+        # we should get a warning dialog, confirm
+        b.click(f"button{self.danger_btn_class}")
+        # wait until we've actually triggered a crash
+        b.wait_visible(".dialog-wait-ct")
+
+        # wait for disconnect and then try connecting again
+        b.switch_to_top()
+        b.wait_in_text("div.curtains-ct h1", "Disconnected")
+        self.machine.disconnect()
+        self.machine.wait_boot(timeout_sec=300)
+
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
            "debian-testing", "ubuntu-2004", "ubuntu-stable")
@@ -155,18 +169,7 @@ class TestKdump(KdumpHelpers):
         assertActive(True)
 
         # crash the kernel and make sure it wrote a report into the right directory
-        b.click(f"button{self.default_btn_class}")
-        # we should get a warning dialog, confirm
-        b.click(f"button{self.danger_btn_class}:contains('Crash system')")
-
-        # wait until we've actuall triggered a crash
-        b.wait_visible(".dialog-wait-ct")
-
-        # wait for disconnect and then try connecting again
-        b.switch_to_top()
-        b.wait_in_text("div.curtains-ct h1", "Disconnected")
-        m.disconnect()
-        m.wait_boot(timeout_sec=300)
+        self.crashKernel()
         self.assertNotEqual(m.execute(f"find '{customPath}' -maxdepth 1 -mindepth 1 -type d"), "")
 
     @nondestructive
@@ -269,18 +272,7 @@ class TestKdumpNFS(KdumpHelpers):
         b.wait_visible(".pf-c-switch__input:checked")
         b.wait_in_text("#app", "Service is running")
 
-        # Test configuration; crash the kernel and confirm in dialog
-        b.click(f"button{self.default_btn_class}")
-        b.click(f"button{self.danger_btn_class}")
-
-        # wait until we've actuall triggered a crash
-        b.wait_visible(".dialog-wait-ct")
-
-        # wait for disconnect and then try connecting again
-        b.switch_to_top()
-        b.wait_in_text("div.curtains-ct h1", "Disconnected")
-        m.disconnect()
-        m.wait_boot(timeout_sec=300)
+        self.crashKernel()
 
         # dump is done during boot, so should exist now
         self.assertIn("Kdump compressed dump",

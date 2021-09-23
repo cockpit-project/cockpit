@@ -33,7 +33,7 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
+import { StorageButton, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { format_dialog, parse_options, extract_option, unparse_options } from "./format-dialog.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
@@ -824,12 +824,10 @@ export class VGroup extends React.Component {
         const excuse = vgroup.FreeSize == 0 && _("No free space");
 
         const new_volume_link = (
-            <StorageLink onClick={create_logical_volume}
-                         excuse={excuse}>
-                <span className="pficon pficon-add-circle-o" />
-                {" "}
+            <StorageButton onClick={create_logical_volume}
+                           excuse={excuse}>
                 {_("Create new logical volume")}
-            </StorageLink>
+            </StorageButton>
         );
 
         return (

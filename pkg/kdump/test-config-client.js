@@ -46,15 +46,15 @@ const changedConfig = [
 QUnit.test("config_update", function (assert) {
     const done = assert.async();
     assert.expect(6);
-    const dataWasChanged = cockpit.defer();
+    const dataWasChanged = new Promise(resolve => { this.dataWasChangedResolve = resolve });
     let config;
-    const configChanged = function(event, settings) {
+    const configChanged = (event, settings) => {
         assert.equal(settings.foo.value, "moo", "value changed correctly");
         assert.equal("key" in settings, false, "setting with comment deleted correctly");
         assert.equal("will" in settings, false, "setting without comment deleted correctly");
         assert.equal(settings.hooray.value, "value", "value added correctly");
         assert.equal(config._rawContent, changedConfig, "raw text for changed config is correct");
-        dataWasChanged.resolve();
+        this.dataWasChangedResolve();
     };
 
     const filename = "cockpit_config_read";
@@ -71,7 +71,7 @@ QUnit.test("config_update", function (assert) {
                     config.settings.hooray = { value: "value" };
                     config.addEventListener('kdumpConfigChanged', configChanged);
                     config.write(config.settings)
-                            .then(() => dataWasChanged.promise().then(done));
+                            .then(() => dataWasChanged.then(done));
                 });
             });
 });

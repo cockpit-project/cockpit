@@ -37,17 +37,9 @@ const initStore = function(rootElement) {
 
     dataStore.kdumpClient = new kdumpClient.KdumpClient();
 
-    dataStore.applySettings = function(settings) {
-        const dfd = cockpit.defer();
+    dataStore.applySettings = settings =>
         dataStore.kdumpClient.validateSettings(settings)
-                .done(function() {
-                    dataStore.kdumpClient.writeSettings(settings)
-                            .done(dfd.resolve)
-                            .fail(dfd.reject);
-                })
-                .fail(dfd.reject);
-        return dfd.promise();
-    };
+                .then(() => dataStore.kdumpClient.writeSettings(settings));
 
     // whether we're actively trying to change the state
     dataStore.stateChanging = false;
@@ -83,7 +75,7 @@ const initStore = function(rootElement) {
     // https://github.com/cockpit-project/cockpit/issues/5597
     // cockpit.file("/sys/kernel/kexec_crash_size").read()
     cockpit.spawn(["cat", "/sys/kernel/kexec_crash_size"])
-            .done(function(content) {
+            .then(content => {
                 const value = parseInt(content, 10);
                 if (!isNaN(value)) {
                 // if it's only a number, guess from the size what units we should use
@@ -99,12 +91,8 @@ const initStore = function(rootElement) {
                     dataStore.kdumpMemory = content.trim();
                 }
             })
-            .fail(function() {
-                dataStore.kdumpMemory = "error";
-            })
-            .always(function() {
-                render();
-            });
+            .catch(() => { dataStore.kdumpMemory = "error" })
+            .finally(render);
 
     // catch kdump config and service changes
     dataStore.kdumpClient.addEventListener('kdumpStatusChanged', function(event, status) {

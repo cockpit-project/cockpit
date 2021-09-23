@@ -280,13 +280,11 @@ export class KdumpPage extends React.Component {
     }
 
     handleApplyClick() {
-        const dfd = cockpit.defer();
-        this.props.onApplySettings(this.state.dialogSettings)
-                .done(dfd.resolve)
-                .fail(function(error) {
-                    dfd.reject(cockpit.format(_("Unable to apply settings: $0"), String(error)));
-                });
-        return dfd.promise();
+        return new Promise((resolve, reject) => {
+            this.props.onApplySettings(this.state.dialogSettings)
+                    .then(resolve)
+                    .catch(error => reject(cockpit.format(_("Unable to apply settings: $0"), String(error))));
+        });
     }
 
     handleTestSettingsClick(e) {

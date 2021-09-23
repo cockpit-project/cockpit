@@ -105,43 +105,37 @@ export class KdumpClient {
         if (!path)
             path = "/var/crash";
 
-        const dfd = cockpit.defer();
-        if (target.target === "local") {
-            // local path, try to see if we can write
-            cockpit.script(testWritableScript, [path], { superuser: "try" })
-                    .done(dfd.resolve)
-                    .fail(() => dfd.reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path)));
-            return dfd.promise();
-        } else if (target.target === "nfs") {
-            if (!target.nfs.value.match("\\S+:/.+"))
-                dfd.reject(_("nfs dump target isn't formatted as server:path"));
-        } else if (target.target === "ssh") {
-            if (!target.ssh.value.trim())
-                dfd.reject(_("ssh server is empty"));
-            if (target.sshkey && !target.sshkey.value.match("/.+"))
-                dfd.reject(_("ssh key isn't a path"));
-        }
+        return new Promise((resolve, reject) => {
+            if (target.target === "local") {
+                // local path, try to see if we can write
+                cockpit.script(testWritableScript, [path], { superuser: "try" })
+                        .then(resolve)
+                        .catch(() => reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path)));
+                return;
+            } else if (target.target === "nfs") {
+                if (!target.nfs.value.match("\\S+:/.+"))
+                    reject(_("nfs dump target isn't formatted as server:path"));
+            } else if (target.target === "ssh") {
+                if (!target.ssh.value.trim())
+                    reject(_("ssh server is empty"));
+                if (target.sshkey && !target.sshkey.value.match("/.+"))
+                    reject(_("ssh key isn't a path"));
+            }
 
-        /* no-op if already rejected  */
-        dfd.resolve();
-        return dfd.promise();
+            /* no-op if already rejected  */
+            resolve();
+        });
     }
 
     writeSettings(settings) {
-        const dfd = cockpit.defer();
-        this.configClient.write(settings)
-                .done(() => {
+        return this.configClient.write(settings)
+                .then(() => {
                     // after we've written the new config, we have to restart the service to pick up changes or clean up after errors
-                    if (this.kdumpService.enabled) {
-                        this.kdumpService.restart()
-                                .done(dfd.resolve)
-                                .fail(dfd.reject);
-                    } else {
-                        dfd.resolve();
-                    }
-                })
-                .fail(dfd.reject);
-        return dfd.promise();
+                    if (this.kdumpService.enabled)
+                        return this.kdumpService.restart();
+                    else
+                        return true;
+                });
     }
 
     targetFromSettings(settings) {

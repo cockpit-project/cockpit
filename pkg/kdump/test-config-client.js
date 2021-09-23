@@ -45,7 +45,7 @@ const changedConfig = [
 
 QUnit.test("config_update", function (assert) {
     const done = assert.async();
-    assert.expect(10);
+    assert.expect(6);
     const dataWasChanged = cockpit.defer();
     let config;
     const configChanged = function(event, settings) {
@@ -61,25 +61,17 @@ QUnit.test("config_update", function (assert) {
     const configFile = cockpit.file(filename);
     configFile
             .replace(basicConfig)
-            .always(function() {
-                assert.equal(this.state(), "resolved", "writing initial config didn't fail");
+            .then(() => {
                 assert.equal(configFile.path, filename, "file has correct path");
                 config = new kdump.ConfigFile(filename);
-                config.wait().always(function() {
-                    assert.equal(this.state(), "resolved", "waiting for config didn't fail");
+                config.wait().then(() => {
                     config.settings.foo.value = "moo";
                     delete config.settings.key;
                     delete config.settings.will;
                     config.settings.hooray = { value: "value" };
                     config.addEventListener('kdumpConfigChanged', configChanged);
                     config.write(config.settings)
-                            .always(function() {
-                                assert.equal(this.state(), "resolved", "writing to config didn't fail");
-                                dataWasChanged.promise().done(function() {
-                                    assert.equal(this.state(), "resolved", "waiting for config change didn't fail");
-                                    done();
-                                });
-                            });
+                            .then(() => dataWasChanged.promise().then(done));
                 });
             });
 });

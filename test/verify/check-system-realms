@@ -715,7 +715,7 @@ ipa-advise enable-admins-sudo | sh -ex
         # now sudo works with the delegated ticket
         # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
         # to actually work, so on older distros it fails
-        supports_sudo_krb = m.image not in ["rhel-8-5", "centos-8-stream", "ubuntu-2004", "ubuntu-stable"]
+        supports_sudo_krb = m.image not in ["rhel-8-5", "rhel-8-6", "centos-8-stream", "ubuntu-2004", "ubuntu-stable"]
         b.open_superuser_dialog()
 
         if supports_sudo_krb:

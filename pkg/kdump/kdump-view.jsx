@@ -94,11 +94,19 @@ class KdumpTargetBody extends React.Component {
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings.nfs.value;
             detailRows = (
-                <FormGroup fieldId="kdump-settings-nfs-mount" label={_("Mount")}>
-                    <TextInput id="kdump-settings-nfs-mount" key="mount"
-                               placeholder="penguin.example.com:/export/cores" value={nfs}
-                               onChange={value => this.props.onChange("nfs", value)} />
-                </FormGroup>
+                <>
+                    <FormGroup fieldId="kdump-settings-nfs-mount" label={_("Mount")}>
+                        <TextInput id="kdump-settings-nfs-mount" key="mount"
+                                placeholder="penguin.example.com:/export/cores" value={nfs}
+                                onChange={value => this.props.onChange("nfs", value)} />
+                    </FormGroup>
+                    <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")}>
+                        <TextInput id="kdump-settings-nfs-directory" key="directory"
+                                placeholder="/var/crash" value={directory}
+                                data-stored={directory}
+                                onChange={value => this.props.onChange("path", value)} />
+                    </FormGroup>
+                </>
             );
         } else if (this.state.storeDest == "ssh") {
             let ssh = "";

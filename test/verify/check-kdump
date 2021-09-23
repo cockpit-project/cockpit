@@ -202,14 +202,24 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
-        b.set_input_text("#kdump-settings-nfs-mount", "localhost:/var/tmp/crash")
+        b.set_input_text("#kdump-settings-nfs-mount", "someserver:/srv")
         b.click("button:contains('Apply')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
-        self.assertIn("nfs localhost:/var/tmp/crash", conf)
-        self.assertNotIn("path /var/tmp/crash", conf)
-        self.assertNotIn("ssh admin@localhost", conf)
-        self.assertNotIn("sshkey /home/admin/.ssh/id_rsa", conf)
+        self.assertIn("nfs someserver:/srv", conf)
+        # directory unspecified, using default path
+        self.assertNotIn("\npath ", conf)
+        self.assertNotIn("\nssh ", conf)
+
+        # NFS with custom path
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-nfs-directory", "dumps")
+        b.click("button:contains('Apply')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("nfs someserver:/srv", conf)
+        self.assertIn("\npath dumps", conf)
 
         # Check local location
         b.click("#kdump-change-target")
@@ -220,7 +230,7 @@ class TestKdump(KdumpHelpers):
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("path /var/tmp", conf)
-        self.assertNotIn("nfs localhost:/var/tmp/crash", conf)
+        self.assertNotIn("\nnfs ", conf)
 
         # Check compression
         current = m.execute("grep '^core_collector' /etc/kdump.conf").strip()
@@ -272,11 +282,43 @@ class TestKdumpNFS(KdumpHelpers):
         b.wait_visible(".pf-c-switch__input:checked")
         b.wait_in_text("#app", "Service is running")
 
+        # explicit nfs option, unset path
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
+        self.assertNotIn("\npath", conf)
+
         self.crashKernel()
 
         # dump is done during boot, so should exist now
         self.assertIn("Kdump compressed dump",
                       self.machines["nfs"].execute("file /srv/kdump/var/crash/10.111.113.1*/vmcore"))
+
+        # set custom path
+        self.login_and_go("/kdump")
+        b.wait_visible(".pf-c-switch__input:checked")
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-nfs-directory", "dumps")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        # dumps directory does not exist, error
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        # create the directory on the NFS server
+        self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
+        self.assertIn("\npath dumps\n", conf)
+
+        # FIXME: changing the config does not restart failed service
+        b.wait_visible(".pf-c-switch__input:not(:checked)")
+        b.click(".pf-c-switch__input")
+
+        b.wait_visible(".pf-c-switch__input:checked")
+
+        self.crashKernel()
+        self.assertIn("Kdump compressed dump",
+                      self.machines["nfs"].execute("file /srv/kdump/dumps/10.111.113.1*/vmcore"))
 
 
 if __name__ == '__main__':

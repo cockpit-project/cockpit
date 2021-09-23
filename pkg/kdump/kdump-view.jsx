@@ -121,8 +121,8 @@ class KdumpTargetBody extends React.Component {
                                    onChange={value => this.props.onChange("sshkey", value)} />
                     </FormGroup>
 
-                    <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")}>
-                        <TextInput id="kdump-settings-local-directory" key="directory"
+                    <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")}>
+                        <TextInput id="kdump-settings-ssh-directory" key="directory"
                                    placeholder="/var/crash" value={directory}
                                    data-stored={directory}
                                    onChange={value => this.props.onChange("path", value)} />

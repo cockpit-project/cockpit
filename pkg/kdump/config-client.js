@@ -28,7 +28,7 @@ export class ConfigFile {
         this._rawContent = undefined;
         this._lines = [];
         this._originalSettings = { };
-        this._dataAvailable = cockpit.defer();
+        this._dataAvailable = new Promise(resolve => { this._dataAvailableResolve = resolve });
         this.settings = { };
 
         cockpit.event_target(this);
@@ -48,7 +48,7 @@ export class ConfigFile {
 
     // wait for data to have been read at least once
     wait() {
-        return this._dataAvailable.promise();
+        return this._dataAvailable;
     }
 
     /* parse lines of the config file
@@ -60,8 +60,7 @@ export class ConfigFile {
      * skipNotify: Don't notify about changes, e.g.to avoid multiple updates when writing a file
      */
     _parseText(rawContent, skipNotify = false) {
-        if (this._dataAvailable)
-            this._dataAvailable.resolve();
+        this._dataAvailableResolve();
 
         // if nothing changed, don't bother parsing the content
         // do proceed if the content is empty, it might be our initial read

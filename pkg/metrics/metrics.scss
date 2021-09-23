@@ -368,6 +368,8 @@
         contain: strict;
         margin-left: 0.5rem;
         margin-right: 0.5rem;
+        // Make SVG and generated before/after line position relative to metrics-data
+        position: relative;
 
         // vertical ruler line for areas with data, and horizontal tick mark for utilization half
         &.valid-data:before {
@@ -401,6 +403,10 @@
             min-width: 2px;
             width: 100%;
             height: 100%;
+            // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         &-cpu {

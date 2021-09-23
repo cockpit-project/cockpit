@@ -131,10 +131,14 @@ export class KdumpClient {
         const dfd = cockpit.defer();
         this.configClient.write(settings)
                 .done(() => {
-                // after we've written the new config, we may have to restart the service
-                    this.kdumpService.tryRestart()
-                            .done(dfd.resolve)
-                            .fail(dfd.reject);
+                    // after we've written the new config, we have to restart the service to pick up changes or clean up after errors
+                    if (this.kdumpService.enabled) {
+                        this.kdumpService.restart()
+                                .done(dfd.resolve)
+                                .fail(dfd.reject);
+                    } else {
+                        dfd.resolve();
+                    }
                 })
                 .fail(dfd.reject);
         return dfd.promise();

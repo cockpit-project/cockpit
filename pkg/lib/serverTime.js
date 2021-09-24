@@ -18,7 +18,7 @@
  */
 import cockpit from "cockpit";
 import React, { useState } from "react";
-import { Button, DatePicker, Flex, Popover, Select, SelectOption, SelectVariant, Spinner } from '@patternfly/react-core';
+import { Button, DatePicker, Flex, Popover, Select, SelectOption, SelectVariant, Spinner, TimePicker } from '@patternfly/react-core';
 import { ExclamationCircleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
@@ -27,6 +27,8 @@ import * as service from "service.js";
 import * as timeformat from "timeformat.js";
 
 import { superuser } from "superuser.js";
+
+import "serverTime.scss";
 
 const _ = cockpit.gettext;
 
@@ -116,13 +118,13 @@ export function ServerTime() {
                 });
     };
 
-    self.change_time = function change_time(datestr, hourstr, minstr) {
+    self.change_time = function change_time(datestr, timestr) {
         return new Promise((resolve, reject) => {
             /*
              * There is no way to make sense of this date without a round trip to the
              * server, as the timezone is really server specific.
              */
-            cockpit.spawn(["date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
+            cockpit.spawn(["date", "--date=" + datestr + " " + timestr, "+%s"])
                     .fail(function(ex) {
                         reject(ex);
                     })
@@ -437,7 +439,7 @@ function ChangeSystimeBody({ state, errors, change }) {
     const {
         time_zone, time_zones,
         mode,
-        manual_date, manual_hours, manual_minutes,
+        manual_date, manual_time,
         ntp_supported, custom_ntp
     } = state;
 
@@ -525,19 +527,17 @@ function ChangeSystimeBody({ state, errors, change }) {
                                     onChange={d => change("manual_date", d)}
                                     value={manual_date} />
                     </ValidatedInput>
-                    <ValidatedInput errors={errors} error_key="manual_hours">
-                        <input type='text' className="form-control" id="systime-time-hours"
-                     value={manual_hours} onChange={event => change("manual_hours", event.target.value)} /> { "\n" }
-                    </ValidatedInput>
-                    : { "\n" }
-                    <ValidatedInput errors={errors} error_key="manual_minutes">
-                        <input type='text' className="form-control" id="systime-time-minutes"
-                     value={manual_minutes} onChange={event => change("manual_minutes", event.target.value)}
-                     onBlur={event => change("manual_minutes", event.target.value, true)} />
+                    <ValidatedInput errors={errors} error_key="manual_time">
+                        <TimePicker id="systime-time-input"
+                                    className="ct-serverTime-time-picker"
+                                    time={manual_time}
+                                    is24Hour
+                                    menuAppendTo={() => document.body}
+                                    invalidFormatErrorMessage=""
+                                    onChange={(time, h, m, valid) => change("manual_time", time, valid) } />
                     </ValidatedInput>
                     <Validated errors={errors} error_key="manual_date" />
-                    <Validated errors={errors} error_key="manual_hours" />
-                    <Validated errors={errors} error_key="manual_minutes" />
+                    <Validated errors={errors} error_key="manual_time" />
                 </div>
             }
             { mode == "ntp_time_custom" &&
@@ -567,31 +567,29 @@ function change_systime_dialog(server_time, timezone) {
         time_zones: null,
         mode: null,
         ntp_supported: server_time.get_ntp_supported(),
-        custom_ntp: null
+        custom_ntp: null,
+        manual_time_valid: null,
     };
     let errors = { };
 
     function get_current_time() {
         state.manual_date = server_time.format();
-        state.manual_hours = server_time.utc_fake_now.getUTCHours().toString();
-        state.manual_minutes = server_time.utc_fake_now.getUTCMinutes().toString();
+
+        const minutes = server_time.utc_fake_now.getUTCMinutes();
+        // normalize to two digits
+        const minutes_str = (minutes < 10) ? "0" + minutes.toString() : minutes.toString();
+        state.manual_time = `${server_time.utc_fake_now.getUTCHours()}:${minutes_str}`;
     }
 
-    function normalize_minutes() {
-        const mins = parseInt(state.manual_minutes);
-        if (mins < 10)
-            state.manual_minutes = "0" + mins;
-    }
-
-    function change(field, value, commit) {
+    function change(field, value, isValid) {
         state[field] = value;
         errors = { };
 
         if (field == "mode" && value == "manual_time")
             get_current_time();
 
-        if (field == "manual_minutes" && commit)
-            normalize_minutes();
+        if (field == "manual_time")
+            state.manual_time_valid = value && isValid;
 
         update();
     }
@@ -607,15 +605,8 @@ function change_systime_dialog(server_time, timezone) {
             if (isNaN(new_date.getTime()) || new_date.getTime() < 0)
                 errors.manual_date = _("Invalid date format");
 
-            if (!/^[0-9]+$/.test(state.manual_hours.trim()) ||
-                Number(state.manual_hours) < 0 ||
-                Number(state.manual_hours) > 23)
-                errors.manual_hours = _("Hours must be a number between 0 and 23");
-
-            if (!/^[0-9]+$/.test(state.manual_minutes.trim()) ||
-                Number(state.manual_minutes) < 0 ||
-                Number(state.manual_minutes) > 59)
-                errors.manual_minutes = _("Minutes must be a number between 0 and 59");
+            if (!state.manual_time_valid)
+                errors.manual_time = _("Invalid time format");
         }
 
         if (state.mode == "ntp_time_custom") {
@@ -632,8 +623,7 @@ function change_systime_dialog(server_time, timezone) {
                     if (state.mode == "manual_time") {
                         return server_time.set_ntp(false)
                                 .then(() => server_time.change_time(state.manual_date,
-                                                                    state.manual_hours,
-                                                                    state.manual_minutes));
+                                                                    state.manual_time));
                     } else {
                         // Switch off NTP, write the config file, and switch NTP back on
                         return server_time.set_ntp(false)
@@ -695,7 +685,6 @@ function change_systime_dialog(server_time, timezone) {
                 } else {
                     state.mode = "manual_time";
                     get_current_time();
-                    normalize_minutes();
                 }
                 update();
             });

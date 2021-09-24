@@ -542,7 +542,7 @@ revision\t: 2.3 (pvr 004e 1203)
             # Test more specific memory data with a fake dmidecode
             m.write('/tmp/dmidecode', dmidecode)
             m.execute('chmod +x /tmp/dmidecode; mount -o bind /tmp/dmidecode $(which dmidecode)')
-            self.addCleanup(m.execute, 'umount $(which dmidecode)')
+            self.addCleanup(m.execute, 'until umount $(which dmidecode); do sleep 1; done')
             b.reload()
             b.enter_page('/system/hwinfo')
             # first DIMM has unknown technology and rank

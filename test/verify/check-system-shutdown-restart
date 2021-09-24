@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-from datetime import date
 from testlib import *
 
 
@@ -176,9 +175,10 @@ class TestShutdownRestart(MachineCase):
 
         # Insert a date using the widget dropdown
         b.click("button[aria-label='Toggle date picker']")
-        today = date.today()
-        b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today.strftime('%-d %B %Y')}']")
-        b.wait_val(".shutdown-date-picker input", today.strftime("%-m/%-d/%Y"))
+        today_label = m.execute("date +'%d %B %Y'").strip()
+        today_format = m.execute("date +'%-m/%d/%Y'").strip()
+        b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today_label}']")
+        b.wait_val(".shutdown-date-picker input", today_format)
         b.blur(".shutdown-date-picker input")
 
         # Power off

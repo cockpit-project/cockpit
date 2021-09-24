@@ -497,11 +497,12 @@ AM_PATH_PYTHON([3.6])
 
 AC_SUBST(PAM_LIBS)
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 doc/guide/version
 src/tls/cockpit-certificate-helper
 ])
+AC_OUTPUT
 
 
 dnl ==========================================================================

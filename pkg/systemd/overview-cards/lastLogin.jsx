@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React, { useState, useEffect } from 'react';
-import { Flex, FlexItem } from '@patternfly/react-core';
+import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { ExclamationTriangleIcon, UserIcon } from "@patternfly/react-icons";
 
 import * as timeformat from "timeformat";
@@ -52,6 +52,7 @@ const getFormattedDateTime = (time) => {
 
 const LastLogin = () => {
     const [messages, setLoginMessages] = useState(null);
+    const [name, setName] = useState(null);
 
     useEffect(() => {
         if (messages === null) {
@@ -71,7 +72,10 @@ const LastLogin = () => {
                         console.error("failed to fetch login messages:", error);
                     });
         }
-    }, [messages]);
+        if (name === null) {
+            cockpit.user().then(user => setName(user.name));
+        }
+    }, [messages, name]);
 
     if (messages === null || !messages['last-login-time']) {
         return null;
@@ -123,6 +127,15 @@ const LastLogin = () => {
                     {failedLogins &&
                     <FlexItem id="system_last_login_success" className="pf-u-text-break-word">
                         {lastLoginText}
+                    </FlexItem>
+                    }
+                    {name &&
+                    <FlexItem>
+                        <Button variant="link" isInline
+                                className="pf-u-font-size-sm"
+                                onClick={() => cockpit.jump("/users#/" + name)}>
+                            {_("View login history")}
+                        </Button>
                     </FlexItem>
                     }
                 </Flex>

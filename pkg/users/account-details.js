@@ -38,6 +38,7 @@ import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountRoles } from "./account-roles.js";
+import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
 import * as timeformat from "timeformat.js";
 
@@ -371,6 +372,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                         </CardBody>
                     </Card>
                     <AuthorizedKeys name={account.name} home={account.home} allow_mods={self_mod_allowed} />
+                    <AccountLogs name={account.name} />
                 </Gallery>
             </PageSection>
         </Page>);

@@ -508,6 +508,24 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#password-expiration-text", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
+    @skipImage("User is not shown as logged in when logged in through Cockpit", "fedora-coreos")
+    def testAccountLogs(self):
+        b = self.browser
+        m = self.machine
+
+        # Clean out the relevant logfiles
+        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+
+        # Login once to create an entry
+        self.login_and_go("/users")
+        b.logout()
+
+        self.login_and_go("/users")
+        b.go("#/admin")
+        b.wait_visible("#account-logs")
+        # Header + one line of logins
+        b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+
 
 if __name__ == '__main__':
     test_main()

@@ -267,8 +267,23 @@ class TestSystemInfo(MachineCase):
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Manually")
         b.set_input_text("#systime-date-input input", "2037-01-24")
-        b.set_input_text("#systime-time-hours", "08")
-        b.set_input_text("#systime-time-minutes", "03")
+        # invalid time
+        b.set_input_text("#systime-time-input-input", "25:61")
+        b.click("#system_information_change_systime .apply")
+        b.wait_text("#systime-manual-row .dialog-error", "Invalid time format")
+        # valid time
+        b.set_input_text("#systime-time-input-input", "08:03")
+        # wait until icon settles down
+        b.wait_visible("#systime-time-input-input[aria-invalid='false']")
+        b.wait_not_present("#systime-manual-row .dialog-error")
+        # avoid blinking cursor
+        b.blur("#systime-time-input-input")
+        if b.cdp.mobile:
+            # HACK: the clock icon in the <input> has too much jitter on mobile
+            ignore = ["#systime-time-input-input"]
+        else:
+            ignore = []
+        b.assert_pixels("#system_information_change_systime", "systime-manual-time", ignore=ignore)
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
@@ -292,8 +307,7 @@ class TestSystemInfo(MachineCase):
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Manually")
         b.set_input_text("#systime-date-input input", "2018-06-04")
-        b.set_input_text("#systime-time-hours", "06")
-        b.set_input_text("#systime-time-minutes", "34")
+        b.set_input_text("#systime-time-input-input", "06:34")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 

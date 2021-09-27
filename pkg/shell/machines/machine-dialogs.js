@@ -43,7 +43,7 @@ import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
-var default_codes = {
+const default_codes = {
     "no-cockpit": "not-supported",
     "not-supported": "not-supported",
     "protocol-error": "not-supported",
@@ -57,10 +57,10 @@ var default_codes = {
 };
 
 function translate_and_init(tmpl) {
-    var tmp = $("<div>").append(tmpl);
+    const tmp = $("<div>").append(tmpl);
     tmp.find("[translate=\"yes\"]").each(function(i, e) {
-        var old = e.outerHTML;
-        var translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
+        const old = e.outerHTML;
+        const translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
         $(e).removeAttr("translate")
                 .text(translated);
         tmpl = tmpl.replace(old, e.outerHTML);
@@ -91,7 +91,7 @@ function fmt_to_array(fmt, args) {
     return fmt.split(fmt_re).map(replace);
 }
 
-var templates = {
+const templates = {
     "add-machine" : translate_and_init(add_tmpl),
     "auth-failed" : translate_and_init(auth_failed_tmpl),
     "change-auth" : translate_and_init(change_auth_tmpl),
@@ -104,7 +104,7 @@ var templates = {
 };
 
 function full_address(machines_ins, address) {
-    var machine = machines_ins.lookup(address);
+    const machine = machines_ins.lookup(address);
     if (machine && machine.address != "localhost")
         return machine.connection_string;
 
@@ -112,29 +112,29 @@ function full_address(machines_ins, address) {
 }
 
 function Dialog(selector, address, machines_ins, codes, caller_callback) {
-    var self = this;
+    const self = this;
 
     self.machines_ins = machines_ins;
     self.codes = codes;
     self.address = full_address(self.machines_ins, address);
 
-    var promise_callback = null;
+    let promise_callback = null;
 
-    var success_callback = null;
+    let success_callback = null;
 
-    var current_template = null;
-    var current_instance = null;
+    let current_template = null;
+    let current_instance = null;
 
     function address_or_label() {
-        var machine = self.machines_ins.lookup(self.address);
-        var host = self.machines_ins.split_connection_string(self.address).address;
+        const machine = self.machines_ins.lookup(self.address);
+        let host = self.machines_ins.split_connection_string(self.address).address;
         if (machine && machine.label)
             host = machine.label;
         return host;
     }
 
     function change_content(template, error_options) {
-        var old_instance = current_instance;
+        let old_instance = current_instance;
 
         if (current_template === template)
             return;
@@ -161,18 +161,18 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
     }
 
     self.try_to_connect = function(address, options) {
-        var dfd = $.Deferred();
-        var conn_options = $.extend({ payload: "echo", host: address }, options);
+        const dfd = $.Deferred();
+        const conn_options = $.extend({ payload: "echo", host: address }, options);
 
         conn_options["init-superuser"] = get_init_superuser_for_options(conn_options);
 
-        var machine = self.machines_ins.lookup(address);
+        const machine = self.machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {
             conn_options['temp-session'] = false; /* Compatibility option */
             conn_options.session = 'shared';
             conn_options['host-key'] = machine.host_key;
         }
-        var client = cockpit.channel(conn_options);
+        const client = cockpit.channel(conn_options);
         client.send("x");
         $(client)
                 .on("message", function() {
@@ -188,7 +188,7 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
     };
 
     self.get_sel = function(child_selector) {
-        var ret_txt = selector;
+        let ret_txt = selector;
         if (child_selector)
             ret_txt = ret_txt + " " + child_selector;
         return $(ret_txt);
@@ -222,8 +222,8 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
         if (!template)
             template = current_template;
 
-        var address_data = self.machines_ins.split_connection_string(self.address);
-        var context = $.extend({
+        const address_data = self.machines_ins.split_connection_string(self.address);
+        const context = $.extend({
             host : address_or_label(),
             full_address : self.address,
             context_title : self.context_title,
@@ -234,13 +234,13 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
             }
         }, data, address_data);
 
-        var output = $(mustache.render(templates[template], context));
+        const output = $(mustache.render(templates[template], context));
         cockpit.translate(output);
         self.get_sel(".modal-content").html(output);
     };
 
     self.render_error = function render_error(error) {
-        var template;
+        let template;
         if (error.problem && error.command == "close")
             template = self.codes[error.problem];
 
@@ -259,7 +259,7 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
     };
 
     self.show = function () {
-        var sel = self.get_sel();
+        const sel = self.get_sel();
         sel.on('hide.bs.modal', function () {
             self.get_sel(".model-content").empty();
         });
@@ -267,8 +267,8 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
     };
 
     self.run = function (promise, failure_callback) {
-        var dialog_dfd = $.Deferred();
-        var promise_funcs = [];
+        const dialog_dfd = $.Deferred();
+        const promise_funcs = [];
 
         function next(i) {
             promise_funcs[i]()
@@ -305,15 +305,15 @@ function Dialog(selector, address, machines_ins, codes, caller_callback) {
 }
 
 function is_method_supported(methods, method) {
-    var result = methods[method];
+    const result = methods[method];
     return result ? result != "no-server-support" : false;
 }
 
 function MachineColorPicker(machines_ins) {
-    var self = this;
+    const self = this;
 
     self.render = function(selector, address, selected_color) {
-        var machine;
+        let machine;
 
         if (address && !selected_color) {
             machine = machines_ins.lookup(address);
@@ -324,14 +324,14 @@ function MachineColorPicker(machines_ins) {
         if (!selected_color)
             selected_color = machines_ins.unused_color();
 
-        var part;
-        var colors = [];
-        for (var i = 0; i < machines.colors.length; i += 6) {
+        let part;
+        const colors = [];
+        for (let i = 0; i < machines.colors.length; i += 6) {
             part = machines.colors.slice(i, i + 6);
             colors.push({ list : part });
         }
 
-        var text = mustache.render(templates["color-picker"], { colors : colors, });
+        const text = mustache.render(templates["color-picker"], { colors : colors, });
         $(selector).html(text);
 
         $("#host-edit-color", selector).css("background-color", selected_color);
@@ -341,7 +341,7 @@ function MachineColorPicker(machines_ins) {
 
         $('#host-edit-color-popover .popover-content .color-cell', selector)
                 .click(function() {
-                    var color = $(this).css('background-color');
+                    const color = $(this).css('background-color');
                     $('#host-edit-color', selector).css('background-color', color);
                 });
 
@@ -356,7 +356,7 @@ function MachineColorPicker(machines_ins) {
 }
 
 function Simple(dialog) {
-    var self = this;
+    const self = this;
 
     self.load = function() {
         dialog.render();
@@ -364,21 +364,21 @@ function Simple(dialog) {
 }
 
 function AddMachine(dialog) {
-    var self = this;
-    var selector = dialog.get_sel();
-    var run_error = null;
+    const self = this;
+    const selector = dialog.get_sel();
+    let run_error = null;
 
-    var user_name_dirty = false;
-    var unused_color = dialog.machines_ins.unused_color();
+    let user_name_dirty = false;
+    const unused_color = dialog.machines_ins.unused_color();
 
-    var invisible = dialog.machines_ins.addresses.filter(function(addr) {
-        var m = dialog.machines_ins.lookup(addr);
+    const invisible = dialog.machines_ins.addresses.filter(function(addr) {
+        const m = dialog.machines_ins.lookup(addr);
         return !m || !m.visible;
     });
 
     function existing_error(address) {
-        var ex = null;
-        var machine = dialog.machines_ins.lookup(address);
+        let ex = null;
+        const machine = dialog.machines_ins.lookup(address);
         if (machine && machine.visible && machine.on_disk && machine != self.old_machine) {
             ex = new Error(_("This machine has already been added."));
             ex.target = "#add-machine-address";
@@ -387,11 +387,11 @@ function AddMachine(dialog) {
     }
 
     function check_address(evt) {
-        var disabled = true;
-        var ex = null;
+        let disabled = true;
+        let ex = null;
 
-        var addr = $('#add-machine-address').val();
-        var button = dialog.get_sel(".modal-footer>.pf-m-primary");
+        const addr = $('#add-machine-address').val();
+        const button = dialog.get_sel(".modal-footer>.pf-m-primary");
 
         if (addr === "") {
             disabled = true;
@@ -412,7 +412,7 @@ function AddMachine(dialog) {
             selector.dialog("failure", ex);
 
         if (!user_name_dirty) {
-            var m = addr ? dialog.machines_ins.lookup(addr) : null;
+            const m = addr ? dialog.machines_ins.lookup(addr) : null;
             if (m && m.user)
                 $('#add-machine-user').val(m.user);
             if (m && m.color)
@@ -427,14 +427,14 @@ function AddMachine(dialog) {
     function add_machine() {
         run_error = null;
         dialog.address = $('#add-machine-address').val();
-        var user = $('#add-machine-user').val();
+        const user = $('#add-machine-user').val();
         if (user) {
-            var parts = dialog.machines_ins.split_connection_string(dialog.address);
+            const parts = dialog.machines_ins.split_connection_string(dialog.address);
             parts.user = user;
             dialog.address = dialog.machines_ins.generate_connection_string(user, parts.port, parts.address);
         }
 
-        var color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
+        const color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
 
         if (self.old_machine && dialog.address == self.old_machine.connection_string) {
             dialog.run(dialog.machines_ins.change(self.old_machine.key, { color: color }));
@@ -445,7 +445,7 @@ function AddMachine(dialog) {
             return;
 
         dialog.set_goal(function() {
-            var dfp = $.Deferred();
+            const dfp = $.Deferred();
             dialog.machines_ins.add(dialog.address, color)
                     .then(function () {
                         if (self.old_machine && self.old_machine != dialog.machines_ins.lookup(dialog.address)) {
@@ -455,8 +455,8 @@ function AddMachine(dialog) {
                             dfp.resolve();
                     })
                     .catch(function (ex) {
-                        var msg = cockpit.format(_("Failed to add machine: $0"),
-                                                 cockpit.message(ex));
+                        const msg = cockpit.format(_("Failed to add machine: $0"),
+                                                   cockpit.message(ex));
                         dfp.reject(msg);
                     });
 
@@ -465,9 +465,9 @@ function AddMachine(dialog) {
 
         dialog.run(dialog.try_to_connect(dialog.address), function (ex) {
             if (ex.problem == "no-host") {
-                var host_id_port = dialog.address;
-                var port_index = host_id_port.lastIndexOf(":");
-                var port = "22";
+                let host_id_port = dialog.address;
+                const port_index = host_id_port.lastIndexOf(":");
+                let port = "22";
                 if (port_index === -1)
                     host_id_port = dialog.address + ":22";
                 else
@@ -481,14 +481,14 @@ function AddMachine(dialog) {
     }
 
     self.load = function() {
-        var manifest = cockpit.manifests.shell || {};
-        var limit = parseInt(manifest["machine-limit"], 10);
-        var color_picker = new MachineColorPicker(dialog.machines_ins);
+        const manifest = cockpit.manifests.shell || {};
+        let limit = parseInt(manifest["machine-limit"], 10);
+        const color_picker = new MachineColorPicker(dialog.machines_ins);
         if (!limit || isNaN(limit))
             limit = 20;
 
         self.old_machine = null;
-        var address_parts = null;
+        let address_parts = null;
         if (dialog.address) {
             self.old_machine = dialog.machines_ins.lookup(dialog.address);
             if (self.old_machine && !self.old_machine.visible)
@@ -496,7 +496,7 @@ function AddMachine(dialog) {
             address_parts = dialog.machines_ins.split_connection_string(dialog.address);
         }
 
-        var host_address = ""; var host_user = "";
+        let host_address = ""; let host_user = "";
         if (address_parts) {
             host_address = address_parts.address;
             if (address_parts.port)
@@ -514,7 +514,7 @@ function AddMachine(dialog) {
             options : invisible,
         });
 
-        var button = dialog.get_sel(".modal-footer>.pf-m-primary");
+        const button = dialog.get_sel(".modal-footer>.pf-m-primary");
         button.on("click", add_machine);
 
         $("#add-machine-address").on("input focus change", check_address);
@@ -525,15 +525,15 @@ function AddMachine(dialog) {
 }
 
 function MachinePort(dialog) {
-    var self = this;
+    const self = this;
 
     function change_port() {
-        var dfp = $.Deferred();
-        var parts = dialog.machines_ins.split_connection_string(dialog.address);
+        const dfp = $.Deferred();
+        const parts = dialog.machines_ins.split_connection_string(dialog.address);
         parts.port = $("#edit-machine-port").val();
-        var address = dialog.machines_ins.generate_connection_string(parts.user,
-                                                                     parts.port,
-                                                                     parts.address);
+        const address = dialog.machines_ins.generate_connection_string(parts.user,
+                                                                       parts.port,
+                                                                       parts.address);
         function update_host(ex) {
             dialog.address = address;
             dialog.machines_ins.change(parts.address, { port: parts.port })
@@ -551,8 +551,8 @@ function MachinePort(dialog) {
                         }
                     })
                     .catch(function (ex) {
-                        var msg = cockpit.format(_("Failed to edit machine: $0"),
-                                                 cockpit.message(ex));
+                        const msg = cockpit.format(_("Failed to edit machine: $0"),
+                                                   cockpit.message(ex));
                         dfp.reject(msg);
                     });
         }
@@ -573,7 +573,7 @@ function MachinePort(dialog) {
     }
 
     self.load = function() {
-        var machine = dialog.machines_ins.lookup(dialog.address);
+        const machine = dialog.machines_ins.lookup(dialog.address);
         if (!machine) {
             dialog.get_sel().modal('hide');
             return;
@@ -587,13 +587,13 @@ function MachinePort(dialog) {
 }
 
 function HostKey(dialog, problem) {
-    var self = this;
-    var error_options = null;
-    var key = null;
+    const self = this;
+    let error_options = null;
+    let key = null;
 
     function add_key() {
-        var q;
-        var machine = dialog.machines_ins.lookup(dialog.address);
+        let q;
+        const machine = dialog.machines_ins.lookup(dialog.address);
         if (!machine || machine.on_disk) {
             q = dialog.machines_ins.add_key(key);
         } else {
@@ -604,8 +604,8 @@ function HostKey(dialog, problem) {
             });
         }
 
-        var promise = q.then(function () {
-            var inner = dialog.try_to_connect(dialog.address);
+        const promise = q.then(function () {
+            const inner = dialog.try_to_connect(dialog.address);
 
             inner.catch(function(ex) {
                 if ((ex.problem == "invalid-hostkey" ||
@@ -624,11 +624,11 @@ function HostKey(dialog, problem) {
     }
 
     function render() {
-        var promise = null;
-        var options = {};
-        var match_problem = problem;
-        var fp;
-        var key_type;
+        let promise = null;
+        const options = {};
+        let match_problem = problem;
+        let fp;
+        let key_type;
 
         if (error_options) {
             key = error_options["host-key"];
@@ -677,19 +677,19 @@ function HostKey(dialog, problem) {
 }
 
 function ChangeAuth(dialog) {
-    var self = this;
-    var error_options = null;
-    var identity_path = null;
-    var keys = null;
-    var machine = dialog.machines_ins.lookup(dialog.address);
-    var default_ssh_key = null;
+    const self = this;
+    let error_options = null;
+    let identity_path = null;
+    let keys = null;
+    const machine = dialog.machines_ins.lookup(dialog.address);
+    let default_ssh_key = null;
 
-    var offer_login_password;
-    var offer_key_password;
-    var use_login_password;
-    var use_key_password;
+    let offer_login_password;
+    let offer_key_password;
+    let use_login_password;
+    let use_key_password;
 
-    var offer_key_setup;
+    let offer_key_setup;
 
     self.user = { };
 
@@ -700,7 +700,7 @@ function ChangeAuth(dialog) {
             identity_path = error_options.error.split(": ")[1];
     }
 
-    var old_extra_state = null;
+    let old_extra_state = null;
 
     function update_key_setup() {
         if (!default_ssh_key)
@@ -713,7 +713,7 @@ function ChangeAuth(dialog) {
 
         const lmach = dialog.machines_ins.lookup(null);
 
-        var params = {
+        const params = {
             key: bold(default_ssh_key.name),
             luser: bold(self.user.name),
             lhost: bold(lmach ? lmach.label || lmach.address : "localhost"),
@@ -725,7 +725,7 @@ function ChangeAuth(dialog) {
         default_ssh_key.unaligned_passphrase =
             (default_ssh_key.encrypted && identity_path && identity_path == default_ssh_key.name);
 
-        var text, extra, state;
+        let text, extra, state;
         if (!default_ssh_key.exists) {
             state = "create";
             text = _("Create a new SSH key and authorize it.");
@@ -841,10 +841,10 @@ function ChangeAuth(dialog) {
     }
 
     function login() {
-        var options = {};
-        var user = dialog.machines_ins.split_connection_string(dialog.address).user || "";
-        var do_setup_keys = offer_key_setup && $("#login-setup-keys").prop('checked');
-        var do_key_password_change = do_setup_keys && default_ssh_key.unaligned_passphrase;
+        const options = {};
+        const user = dialog.machines_ins.split_connection_string(dialog.address).user || "";
+        const do_setup_keys = offer_key_setup && $("#login-setup-keys").prop('checked');
+        const do_key_password_change = do_setup_keys && default_ssh_key.unaligned_passphrase;
 
         if (use_login_password) {
             options.password = $("#login-custom-password").val();
@@ -860,23 +860,23 @@ function ChangeAuth(dialog) {
             }
         }
 
-        var key_password = dialog.get_sel(".locked-identity-password").val();
+        const key_password = dialog.get_sel(".locked-identity-password").val();
 
         if (use_key_password && !key_password) {
             show_error(_("The key password can not be empty"), ".locked-identity-password");
             return;
         }
 
-        var setup_new_key_password = dialog.get_sel(".login-setup-new-key-password").val();
-        var setup_new_key_password2 = dialog.get_sel(".login-setup-new-key-password2").val();
+        const setup_new_key_password = dialog.get_sel(".login-setup-new-key-password").val();
+        const setup_new_key_password2 = dialog.get_sel(".login-setup-new-key-password2").val();
 
         if (do_setup_keys && !do_key_password_change && setup_new_key_password != setup_new_key_password2) {
             show_error(_("The key passwords do not match"), ".login-setup-new-key-password2");
             return;
         }
 
-        var setup_login_password = dialog.get_sel(".login-setup-login-password").val();
-        var setup_login_password2 = dialog.get_sel(".login-setup-login-password2").val();
+        const setup_login_password = dialog.get_sel(".login-setup-login-password").val();
+        const setup_login_password2 = dialog.get_sel(".login-setup-login-password2").val();
 
         if (do_key_password_change && !setup_login_password) {
             show_error(_("The new key password can not be empty"), ".login-setup-login-password");
@@ -920,18 +920,18 @@ function ChangeAuth(dialog) {
     }
 
     function render() {
-        var promise = null;
-        var template = "change-auth";
-        var methods = null;
-        var available = null;
-        var locked_identity = false;
+        let promise = null;
+        let template = "change-auth";
+        let methods = null;
+        let available = null;
+        let locked_identity = false;
 
         if (error_options) {
             available = {};
 
             methods = error_options["auth-method-results"];
             if (methods) {
-                for (var method in methods) {
+                for (const method in methods) {
                     if (is_method_supported(methods, method)) {
                         available[method] = true;
                     }
@@ -1013,7 +1013,7 @@ function ChangeAuth(dialog) {
                 .always(function (user) {
                     cockpit.script(ssh_show_default_key_sh, [], { })
                             .then(function (data) {
-                                var info = data.split("\n");
+                                const info = data.split("\n");
                                 if (info[0])
                                     default_ssh_key = { name: info[0], exists: true, encrypted: info[1] == "encrypted" };
                                 else
@@ -1035,23 +1035,23 @@ function ChangeAuth(dialog) {
 }
 
 function MachineDialogManager(machines_ins, codes) {
-    var self = this;
+    const self = this;
 
     if (!codes)
         codes = default_codes;
 
-    var color_picker = new MachineColorPicker(machines_ins);
+    const color_picker = new MachineColorPicker(machines_ins);
 
     self.troubleshoot = function(target_id, machine) {
-        var selector = "#" + target_id;
+        const selector = "#" + target_id;
         if (!machine || !machine.problem)
             return;
 
-        var template = codes[machine.problem];
+        let template = codes[machine.problem];
         if (machine.problem == "no-host")
             template = "change-port";
 
-        var dialog = new Dialog(selector, machine.address, machines_ins, codes);
+        const dialog = new Dialog(selector, machine.address, machines_ins, codes);
         dialog.render_template(template);
         dialog.show();
     };
@@ -1067,8 +1067,8 @@ function MachineDialogManager(machines_ins, codes) {
     };
 
     self.render_dialog = function (template, target_id, address, callback) {
-        var selector = "#" + target_id;
-        var dialog = new Dialog(selector, address, machines_ins, codes, callback);
+        const selector = "#" + target_id;
+        const dialog = new Dialog(selector, address, machines_ins, codes, callback);
         dialog.render_template(template);
         dialog.show();
     };

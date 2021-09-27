@@ -112,7 +112,7 @@ export class CockpitHosts extends React.Component {
     onHostEdit(event, machine) {
         this.mdialogs.render_dialog("add-machine", "hosts_setup_server_dialog", machine.address,
                                     (new_connection_string) => {
-                                        var parts = this.props.machines.split_connection_string(new_connection_string);
+                                        const parts = this.props.machines.split_connection_string(new_connection_string);
                                         if (machine == this.props.machine && parts.address != machine.address) {
                                             const addr = this.props.hostAddr({ host: parts.address }, true);
                                             this.props.jump(addr);

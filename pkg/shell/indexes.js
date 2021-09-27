@@ -37,7 +37,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     if (!index_options)
         index_options = {};
 
-    var page_status = { };
+    const page_status = { };
     sessionStorage.removeItem("cockpit:page_status");
 
     index_options.navigate = function (state, sidebar) {
@@ -54,7 +54,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         }
     };
 
-    var index = base_index.new_index_from_proto(index_options);
+    const index = base_index.new_index_from_proto(index_options);
 
     /* Restarts */
     $(index).on("expect_restart", function (ev, host) {
@@ -62,14 +62,14 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     });
 
     /* Disconnection Dialog */
-    var watchdog_problem = null;
+    let watchdog_problem = null;
     $(index).on("disconnect", function (ev, problem) {
         watchdog_problem = problem;
         show_disconnected();
     });
 
     /* Is troubleshooting dialog open */
-    var troubleshooting = false;
+    let troubleshooting = false;
 
     $("#nav-system-item").on("click", function (ev) {
         $(this).toggleClass("active");
@@ -110,7 +110,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     });
 
     /* Navigation */
-    var ready = false;
+    let ready = false;
     function on_ready() {
         ready = true;
         index.ready();
@@ -156,7 +156,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             return;
         }
 
-        var current_frame = index.current_frame();
+        const current_frame = index.current_frame();
 
         if (current_frame)
             $(current_frame).hide();
@@ -173,8 +173,6 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
     /* Handles navigation */
     function navigate(state, reconnect) {
-        var machine;
-
         /* If this is a watchdog problem or we are troubleshooting
          * let the dialog handle it */
         if (watchdog_problem || troubleshooting)
@@ -182,7 +180,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         if (!state)
             state = index.retrieve_state();
-        machine = machines.lookup(state.host);
+        let machine = machines.lookup(state.host);
 
         /* No such machine */
         if (!machine) {
@@ -202,7 +200,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             loader.connect(state.host);
         }
 
-        var compiled = compile(machine);
+        const compiled = compile(machine);
         if (machine.manifests && !state.component)
             state.component = choose_component(state, compiled);
 
@@ -449,16 +447,15 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_title(label, machine) {
-        var compiled;
         if (label)
             label += " - ";
         else
             label = "";
-        var suffix = index.default_title;
+        let suffix = index.default_title;
 
         if (machine) {
             if (machine.address === "localhost") {
-                compiled = compile(machine);
+                const compiled = compile(machine);
                 if (compiled.ordered("menu").length || compiled.ordered("tools").length)
                     suffix = (machine.user || current_user) + "@" + machine.label;
             } else {
@@ -490,15 +487,15 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_frame(machine, state, compiled) {
-        var title, message, connecting, restarting;
-        var current_frame = index.current_frame();
+        let current_frame = index.current_frame();
 
         if (machine.state != "connected") {
             $(current_frame).hide();
             current_frame = null;
             index.current_frame(current_frame);
 
-            connecting = (machine.state == "connecting");
+            const connecting = (machine.state == "connecting");
+            let title, message;
             if (machine.restarting) {
                 title = _("The machine is rebooting");
                 message = "";
@@ -510,7 +507,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 if (machine.problem == "not-found") {
                     message = _("Cannot connect to an unknown host");
                 } else {
-                    var error = machine.problem || machine.state;
+                    const error = machine.problem || machine.state;
                     if (error)
                         message = cockpit.message(error);
                     else
@@ -518,7 +515,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 }
             }
 
-            var troubleshooting;
+            let troubleshooting;
             if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
                 $("#machine-troubleshoot").off()
                         .on("click", function () {
@@ -531,7 +528,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 $("#machine-troubleshoot").hide();
             }
 
-            restarting = !!machine.restarting;
+            const restarting = !!machine.restarting;
             $(".curtains-ct").prop("hidden", false);
             $(".curtains-ct .spinner").prop("hidden", !connecting && !restarting);
             $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found" && !troubleshooting);
@@ -548,22 +545,19 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 return;
         }
 
-        var hash = state.hash;
-        var component = state.component;
+        let hash = state.hash;
+        let component = state.component;
 
         /* Old cockpit packages, used to be in shell/shell.html */
-        var compat;
         if (machine && compiled.compat) {
-            compat = compiled.compat[component];
+            const compat = compiled.compat[component];
             if (compat) {
                 component = "shell/shell";
                 hash = compat;
             }
         }
 
-        var frame;
-        if (component)
-            frame = index.frames.lookup(machine, component, hash);
+        const frame = component ? index.frames.lookup(machine, component, hash) : undefined;
         if (frame != current_frame) {
             $(current_frame).css('display', 'none');
             if (current_frame)
@@ -573,7 +567,6 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             index.current_frame(frame);
         }
 
-        var label, item;
         if (machine.state == "connected") {
             $(".curtains-ct").prop("hidden", true);
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
@@ -581,8 +574,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             $(frame).attr('data-active', 'true');
 
             const component_manifest = find_component(state, compiled);
-            item = compiled.items[component_manifest];
-            label = item ? item.label : "";
+            const item = compiled.items[component_manifest];
+            const label = item ? item.label : "";
             update_title(label, machine);
             if (label)
                 $(frame).attr('title', label);
@@ -593,11 +586,11 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (!machine.manifests || machine.address === "localhost")
             return null;
 
-        var shell = machine.manifests.shell || { };
-        var menu = shell.menu || { };
-        var tools = shell.tools || { };
+        const shell = machine.manifests.shell || { };
+        const menu = shell.menu || { };
+        const tools = shell.tools || { };
 
-        var mapping = { };
+        const mapping = { };
 
         /* The following were included in shell/shell.html in old versions */
         if ("_host_" in menu)
@@ -619,7 +612,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function compile(machine) {
-        var compiled = base_index.new_compiled();
+        const compiled = base_index.new_compiled();
         compiled.load(machine.manifests, "tools");
         compiled.load(machine.manifests, "dashboard");
         compiled.load(machine.manifests, "menu");

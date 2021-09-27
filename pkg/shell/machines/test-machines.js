@@ -2,8 +2,8 @@ import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 import { machines } from "./machines";
 
-var dbus = cockpit.dbus(null, { bus: "internal" });
-var configDir;
+const dbus = cockpit.dbus(null, { bus: "internal" });
+let configDir;
 
 QUnit.module("machines.d parsing tests", {
     beforeEach: () => cockpit.spawn(["mkdir", "-p", configDir + "/cockpit/machines.d"]),
@@ -19,11 +19,10 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
     const done = assert.async();
     assert.expect(3);
 
-    var setup = [];
-    var path;
+    const setup = [];
 
-    for (var fname in machines_defs) {
-        path = fname;
+    for (const fname in machines_defs) {
+        let path = fname;
         if (fname.indexOf('/') < 0)
             path = configDir + "/cockpit/machines.d/" + fname;
         setup.push(cockpit.file(path).replace(machines_defs[fname]));
@@ -144,7 +143,7 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
     const done = assert.async();
     assert.expect(3);
 
-    var f = configDir + "/cockpit/machines.d/99-webui.json";
+    const f = configDir + "/cockpit/machines.d/99-webui.json";
 
     cockpit.file(f).replace(origJson)
             .done(function(tag) {
@@ -250,7 +249,7 @@ QUnit.test("colors.parse()", function (assert) {
 
 /* The test cockpit-bridge gets started with temp $XDG_CONFIG_DIRS instead of defaulting to /etc/.
  * Read it from the bridge so that we can put our test files into it. */
-var proxy = dbus.proxy("cockpit.Environment", "/environment");
+const proxy = dbus.proxy("cockpit.Environment", "/environment");
 proxy.wait(function () {
     configDir = proxy.Variables.XDG_CONFIG_DIRS;
     QUnit.start();

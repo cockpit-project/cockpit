@@ -32,7 +32,7 @@ import "patterns";
 const _ = cockpit.gettext;
 
 export function setup() {
-    var keys;
+    let keys;
 
     function hide_add_key() {
         $("tbody.ssh-add-key-body").attr("data-name", "");

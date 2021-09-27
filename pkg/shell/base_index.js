@@ -25,18 +25,18 @@ import ReactDOM from "react-dom";
 import { showDialog } from "./active-pages";
 import { LangModal, TimeoutModal, OopsModal } from "./shell-modals.jsx";
 
-var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
+const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
 
 function component_checksum(machine, component) {
-    var parts = component.split("/");
-    var pkg = parts[0];
+    const parts = component.split("/");
+    const pkg = parts[0];
     if (machine.manifests && machine.manifests[pkg] && machine.manifests[pkg][".checksum"])
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
 function Frames(index, setupIdleResetTimers) {
-    var self = this;
+    const self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
         language = "en-us";
@@ -50,14 +50,14 @@ function Frames(index, setupIdleResetTimers) {
     }
 
     self.remove = function remove(machine, component) {
-        var address;
+        let address;
         if (typeof machine == "string")
             address = machine;
         else if (machine)
             address = machine.address;
         if (!address)
             address = "localhost";
-        var list = self.iframes[address] || { };
+        const list = self.iframes[address] || { };
         if (!component)
             delete self.iframes[address];
         Object.keys(list).forEach(function(key) {
@@ -69,7 +69,7 @@ function Frames(index, setupIdleResetTimers) {
     };
 
     function frame_ready(frame, count) {
-        var ready = false;
+        let ready = false;
 
         window.clearTimeout(frame.timer);
         frame.timer = null;
@@ -105,9 +105,9 @@ function Frames(index, setupIdleResetTimers) {
     }
 
     self.lookup = function lookup(machine, component, hash) {
-        var host;
-        var address;
-        var new_frame = false;
+        let host;
+        let address;
+        let new_frame = false;
 
         if (typeof machine == "string") {
             address = host = machine;
@@ -121,26 +121,24 @@ function Frames(index, setupIdleResetTimers) {
         if (!address)
             address = host;
 
-        var list = self.iframes[address];
+        let list = self.iframes[address];
         if (!list)
             self.iframes[address] = list = { };
 
-        var name = "cockpit1:" + host + "/" + component;
-        var frame = list[component];
+        const name = "cockpit1:" + host + "/" + component;
+        let frame = list[component];
         if (frame && frame.getAttribute("name") != name) {
             remove_frame(frame);
             frame = null;
         }
 
-        var wind, src;
-
         /* A preloaded frame */
         if (!frame) {
-            wind = window.frames[name];
+            const wind = window.frames[name];
             if (wind)
                 frame = wind.frameElement;
             if (frame) {
-                src = frame.getAttribute('src');
+                const src = frame.getAttribute('src');
                 frame.url = src.split("#")[0];
                 list[component] = frame;
             }
@@ -155,7 +153,7 @@ function Frames(index, setupIdleResetTimers) {
             frame.setAttribute("data-host", host);
             frame.style.display = "none";
 
-            var base, checksum;
+            let base, checksum;
             if (machine) {
                 if (machine.manifests && machine.manifests[".checksum"])
                     checksum = "$" + machine.manifests[".checksum"];
@@ -190,7 +188,7 @@ function Frames(index, setupIdleResetTimers) {
 
         if (!hash)
             hash = "/";
-        src = frame.url + "#" + hash;
+        const src = frame.url + "#" + hash;
         if (frame.getAttribute('src') != src)
             frame.setAttribute('src', src);
 
@@ -205,21 +203,19 @@ function Frames(index, setupIdleResetTimers) {
 }
 
 function Router(index) {
-    var self = this;
+    const self = this;
 
-    var unique_id = 0;
-    var origin = cockpit.transport.origin;
-    var source_by_seed = { };
-    var source_by_name = { };
+    let unique_id = 0;
+    const origin = cockpit.transport.origin;
+    const source_by_seed = { };
+    const source_by_name = { };
 
     cockpit.transport.filter(function(message, channel, control) {
-        var seed, source, pos;
-
         /* Only control messages with a channel are forwardable */
         if (control) {
             if (control.channel !== undefined) {
-                for (seed in source_by_seed) {
-                    source = source_by_seed[seed];
+                for (const seed in source_by_seed) {
+                    const source = source_by_seed[seed];
                     if (!source.window.closed)
                         source.window.postMessage(message, origin);
                 }
@@ -231,10 +227,10 @@ function Router(index) {
 
         /* Forward message to relevant frame */
         } else if (channel) {
-            pos = channel.indexOf('!');
+            const pos = channel.indexOf('!');
             if (pos !== -1) {
-                seed = channel.substring(0, pos + 1);
-                source = source_by_seed[seed];
+                const seed = channel.substring(0, pos + 1);
+                const source = source_by_seed[seed];
                 if (source) {
                     if (!source.window.closed)
                         source.window.postMessage(message, origin);
@@ -248,12 +244,12 @@ function Router(index) {
     }, false);
 
     function perform_jump(child, control) {
-        var current_frame = index.current_frame();
+        const current_frame = index.current_frame();
         if (child !== window) {
             if (!current_frame || current_frame.contentWindow != child)
                 return;
         }
-        var str = control.location || "";
+        let str = control.location || "";
         if (str[0] != "/")
             str = "/" + str;
         if (control.host)
@@ -262,12 +258,11 @@ function Router(index) {
     }
 
     function perform_track(child) {
-        var hash;
-        var current_frame = index.current_frame();
+        const current_frame = index.current_frame();
         /* Note that we ignore tracknig for old shell code */
         if (current_frame && current_frame.contentWindow === child &&
             child.name && child.name.indexOf("/shell/shell") === -1) {
-            hash = child.location.hash;
+            let hash = child.location.hash;
             if (hash.indexOf("#") === 0)
                 hash = hash.substring(1);
             if (hash === "/")
@@ -277,7 +272,7 @@ function Router(index) {
     }
 
     function on_unload(ev) {
-        var source;
+        let source;
         if (ev.target.defaultView)
             source = source_by_name[ev.target.defaultView.name];
         else if (ev.view)
@@ -287,21 +282,21 @@ function Router(index) {
     }
 
     function on_hashchange(ev) {
-        var source = source_by_name[ev.target.name];
+        const source = source_by_name[ev.target.name];
         if (source)
             perform_track(source.window);
     }
 
     function on_load(ev) {
-        var source = source_by_name[ev.target.contentWindow.name];
+        const source = source_by_name[ev.target.contentWindow.name];
         if (source)
             perform_track(source.window);
     }
 
     function unregister(source) {
-        var child = source.window;
+        const child = source.window;
         cockpit.kill(null, child.name);
-        var frame = child.frameElement;
+        const frame = child.frameElement;
         if (frame)
             frame.removeEventListener("load", on_load);
         /* This is often invalid when the window is closed */
@@ -314,10 +309,10 @@ function Router(index) {
     }
 
     function register(child) {
-        var host, page;
-        var name = child.name || "";
+        let host, page;
+        const name = child.name || "";
         if (name.indexOf("cockpit1:") === 0) {
-            var parts = name.substring(9).split("/");
+            const parts = name.substring(9).split("/");
             host = parts[0];
             page = parts.slice(1).join("/");
         }
@@ -327,8 +322,8 @@ function Router(index) {
         }
 
         unique_id += 1;
-        var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
-        var source = {
+        const seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
+        const source = {
             name: name,
             window: child,
             channel_seed: seed,
@@ -339,7 +334,7 @@ function Router(index) {
         source_by_seed[seed] = source;
         source_by_name[name] = source;
 
-        var frame = child.frameElement;
+        const frame = child.frameElement;
         frame.addEventListener("load", on_load);
         child.addEventListener("unload", on_unload);
         child.addEventListener("hashchange", on_hashchange);
@@ -361,9 +356,9 @@ function Router(index) {
         if (event.origin !== origin)
             return;
 
-        var forward_command = false;
-        var data = event.data;
-        var child = event.source;
+        let forward_command = false;
+        let data = event.data;
+        const child = event.source;
         if (!child)
             return;
 
@@ -379,7 +374,7 @@ function Router(index) {
         if (typeof data !== "string")
             return;
 
-        var source, control;
+        let source, control;
 
         /*
          * On Internet Explorer we see Access Denied when non Cockpit
@@ -413,8 +408,8 @@ function Router(index) {
                     source = register(child);
                 }
                 if (source) {
-                    var reply = $.extend({ }, cockpit.transport.options,
-                                         { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
+                    const reply = $.extend({ }, cockpit.transport.options,
+                                           { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
                     );
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;
@@ -466,17 +461,16 @@ function Router(index) {
 
     self.start = function start(messages) {
         window.addEventListener("message", message_handler, false);
-        for (var i = 0, len = messages.length; i < len; i++)
+        for (let i = 0, len = messages.length; i < len; i++)
             message_handler(messages[i]);
     };
 
     self.hint = function hint(child, data) {
-        var message;
-        var source = source_by_name[child.name];
+        const source = source_by_name[child.name];
         /* This is often invalid when the window is closed */
         if (source && source.inited && !source.window.closed) {
             data.command = "hint";
-            message = "\n" + JSON.stringify(data);
+            const message = "\n" + JSON.stringify(data);
             source.window.postMessage(message, origin);
         }
     };
@@ -497,8 +491,8 @@ function Router(index) {
  * handled by the caller.
  */
 function Index() {
-    var self = this;
-    var current_frame;
+    const self = this;
+    let current_frame;
 
     if (typeof self.navigate !== "function")
         throw Error("Index requires a prototype with a navigate function");
@@ -579,16 +573,16 @@ function Index() {
     self.router = new Router(self);
 
     /* Watchdog for disconnect */
-    var watchdog = cockpit.channel({ payload: "null" });
+    const watchdog = cockpit.channel({ payload: "null" });
     $(watchdog).on("close", function(event, options) {
-        var watchdog_problem = options.problem || "disconnected";
+        const watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
         $(self).triggerHandler("disconnect", watchdog_problem);
     });
 
     /* Handles an href link as seen below */
     $(document).on("click", "a[href]", function(ev) {
-        var a = this;
+        const a = this;
         if (!a.host || window.location.host === a.host) {
             self.jump(a.getAttribute('href'));
             ev.preventDefault();
@@ -596,7 +590,7 @@ function Index() {
         }
     });
 
-    var old_onerror = window.onerror;
+    const old_onerror = window.onerror;
     window.onerror = function cockpit_error_handler(msg, url, line) {
         self.show_oops();
         if (old_onerror)
@@ -629,12 +623,12 @@ function Index() {
      * generating a string for a link.
      */
     function encode(state, sidebar, with_root) {
-        var path = [];
+        const path = [];
         if (state.host && (sidebar || state.host !== "localhost"))
             path.push("@" + state.host);
         if (state.component)
             path.push.apply(path, state.component.split("/"));
-        var string = cockpit.location.encode(path, null, with_root);
+        let string = cockpit.location.encode(path, null, with_root);
         if (state.hash && state.hash !== "/")
             string += "#" + state.hash;
         return string;
@@ -642,15 +636,15 @@ function Index() {
 
     /* Decodes navigate state from a string */
     function decode(string) {
-        var state = { version: "v1", hash: "" };
-        var pos = string.indexOf("#");
+        const state = { version: "v1", hash: "" };
+        const pos = string.indexOf("#");
         if (pos !== -1) {
             state.hash = string.substring(pos + 1);
             string = string.substring(0, pos);
         }
         if (string[0] != '/')
             string = "/" + string;
-        var path = cockpit.location.decode(string);
+        const path = cockpit.location.decode(string);
         if (path[0] && path[0][0] == "@") {
             state.host = path.shift().substring(1);
             state.sidebar = true;
@@ -664,7 +658,7 @@ function Index() {
     }
 
     self.retrieve_state = function() {
-        var state = window.history.state;
+        let state = window.history.state;
         if (!state || state.version !== "v1") {
             if (shell_embedded)
                 state = decode("/" + window.location.hash);
@@ -675,17 +669,14 @@ function Index() {
     };
 
     function lookup_component_hash(address, component) {
-        var iframe, src;
-
         if (!address)
             address = "localhost";
 
-        var list = self.frames.iframes[address];
-        if (list)
-            iframe = list[component];
+        const list = self.frames.iframes[address];
+        const iframe = list ? list[component] : undefined;
 
         if (iframe) {
-            src = iframe.getAttribute('src');
+            const src = iframe.getAttribute('src');
             if (src)
                 return src.split("#")[1];
         }
@@ -712,7 +703,7 @@ function Index() {
         if (typeof (state) === "string")
             state = decode(state);
 
-        var current = self.retrieve_state();
+        const current = self.retrieve_state();
 
         /* Make sure we have the data we need */
         if (!state.host)
@@ -730,18 +721,14 @@ function Index() {
         if (!("component" in state))
             state.component = current.component || "";
 
-        var target;
-        var history = window.history;
-        var frame_change = (state.host !== current.host ||
+        const history = window.history;
+        const frame_change = (state.host !== current.host ||
                             state.component !== current.component);
 
         if (frame_change && !state.hash)
             state.hash = lookup_component_hash(state.host, state.component);
 
-        if (shell_embedded)
-            target = window.location;
-        else
-            target = encode(state, null, true);
+        const target = shell_embedded ? window.location : encode(state, null, true);
 
         if (replace) {
             history.replaceState(state, "", target);
@@ -783,7 +770,7 @@ function Index() {
 
     self.start = function() {
         /* window.messages is initialized in shell/indexes.js */
-        var messages = window.messages;
+        const messages = window.messages;
         if (messages)
             messages.cancel();
         self.router.start(messages || []);
@@ -806,7 +793,7 @@ function Index() {
     /* Menu items */
     /* The oops bar */
     function setup_oops(id) {
-        var oops = $(id);
+        const oops = $(id);
         if (!oops)
             return;
         oops.children("a").on("click", function() {
@@ -854,13 +841,13 @@ function Index() {
 }
 
 function CompiledComponents() {
-    var self = this;
+    const self = this;
     self.items = {};
 
     self.load = function(manifests, section) {
         $.each(manifests || { }, function(name, manifest) {
             $.each(manifest[section] || { }, function(prop, info) {
-                var item = {
+                const item = {
                     section: section,
                     label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order,
@@ -886,7 +873,7 @@ function CompiledComponents() {
                     item.path = name + "/" + prop;
 
                 /* Split out any hash in the path */
-                var pos = item.path.indexOf("#");
+                const pos = item.path.indexOf("#");
                 if (pos !== -1) {
                     item.hash = item.path.substr(pos + 1);
                     item.path = item.path.substr(0, pos);
@@ -903,14 +890,13 @@ function CompiledComponents() {
     };
 
     self.ordered = function(section) {
-        var x;
-        var list = [];
-        for (x in self.items) {
+        const list = [];
+        for (const x in self.items) {
             if (!section || self.items[x].section === section)
                 list.push(self.items[x]);
         }
         list.sort(function(a, b) {
-            var ret = a.order - b.order;
+            let ret = a.order - b.order;
             if (ret === 0)
                 ret = a.label.localeCompare(b.label);
             return ret;
@@ -919,8 +905,7 @@ function CompiledComponents() {
     };
 
     self.search = function(prop, value) {
-        var x;
-        for (x in self.items) {
+        for (const x in self.items) {
             if (self.items[x][prop] === value)
                 return self.items[x];
         }
@@ -937,7 +922,7 @@ function follow(arg) {
     }
 }
 
-var zz_value;
+let zz_value;
 
 /* For debugging utility in the index window */
 Object.defineProperties(window, {
@@ -949,7 +934,7 @@ Object.defineProperties(window, {
 });
 
 export function new_index_from_proto(proto) {
-    var o = new Object(proto); // eslint-disable-line no-new-object
+    const o = new Object(proto); // eslint-disable-line no-new-object
     Index.call(o);
     return o;
 }

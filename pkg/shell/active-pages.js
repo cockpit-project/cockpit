@@ -28,7 +28,7 @@ const _ = cockpit.gettext;
 
 // The argument is a Frames object from base_index.js
 export function showDialog (frames) {
-    var dataStore = { };
+    const dataStore = { };
 
     // we omit the host for all pages on our current system
     function displayName(address, component) {
@@ -38,11 +38,10 @@ export function showDialog (frames) {
     }
 
     function gatherIframes() {
-        var result = [];
-        var address, component, iframe;
-        for (address in frames.iframes) {
-            for (component in frames.iframes[address]) {
-                iframe = frames.iframes[address][component];
+        const result = [];
+        for (const address in frames.iframes) {
+            for (const component in frames.iframes[address]) {
+                const iframe = frames.iframes[address][component];
                 result.push({
                     frame: iframe,
                     component: component,
@@ -56,7 +55,7 @@ export function showDialog (frames) {
         return result;
     }
 
-    var selectedFrames = [];
+    const selectedFrames = [];
 
     dataStore.closePage = function() {
         // the user wants to close the selected pages
@@ -67,7 +66,7 @@ export function showDialog (frames) {
     };
 
     function selectionChanged(frame, selected) {
-        var index = selectedFrames.indexOf(frame);
+        const index = selectedFrames.indexOf(frame);
         if (selected) {
             if (index === -1)
                 selectedFrames.push(frame);
@@ -77,7 +76,7 @@ export function showDialog (frames) {
         }
     }
 
-    var iframes = gatherIframes();
+    const iframes = gatherIframes();
     // by default, select currently active (visible) frame
     iframes.forEach(function(f, index) {
         if (f.visible) {

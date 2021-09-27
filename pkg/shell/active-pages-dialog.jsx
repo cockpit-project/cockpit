@@ -39,9 +39,9 @@ export class ActivePagesDialogBody extends React.Component {
     }
 
     render() {
-        var self = this;
-        var frames = self.state.iframes.map(function(frame) {
-            var columns = [{
+        const self = this;
+        const frames = self.state.iframes.map(function(frame) {
+            const columns = [{
                 title: <Split>
                     <SplitItem isFilled>
                         {frame.displayName}

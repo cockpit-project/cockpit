@@ -553,7 +553,6 @@ function Loader(machines, session_only) {
         /* Request is null, and message is true when connected */
         var request = null;
         var open = local;
-        var problem = null;
 
         var url;
         if (!machine.manifests) {
@@ -566,7 +565,7 @@ function Loader(machines, session_only) {
         function whirl() {
             if (!request && open)
                 state(host, "connected", null);
-            else if (!problem)
+            else
                 state(host, "connecting", null);
         }
 

@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 
 import ssh_add_key_sh from "raw-loader!./ssh-add-key.sh";
 
-var mod = { };
+const mod = { };
 
 /*
  * We share the Machines state between multiple frames. Only
@@ -20,8 +20,8 @@ var mod = { };
  * because we don't ever want to write unprefixed keys.
  */
 
-var key = cockpit.sessionStorage.prefixedKey("v2-machines.json");
-var session_prefix = cockpit.sessionStorage.prefixedKey("v1-session-machine");
+const key = cockpit.sessionStorage.prefixedKey("v2-machines.json");
+const session_prefix = cockpit.sessionStorage.prefixedKey("v1-session-machine");
 
 function generate_session_key(host) {
     return session_prefix + "/" + host;
@@ -70,16 +70,16 @@ export function get_init_superuser_for_options(options) {
 }
 
 function Machines() {
-    var self = this;
+    const self = this;
 
-    var flat = null;
+    let flat = null;
     self.ready = false;
 
     /* parsed machine data */
-    var machines = { };
+    const machines = { };
 
     /* Data shared between Machines() instances */
-    var last = {
+    let last = {
         content: null,
         overlay: {
             localhost: {
@@ -97,21 +97,20 @@ function Machines() {
     window.addEventListener("storage", storage);
 
     window.setTimeout(function() {
-        var value = window.sessionStorage.getItem(key);
+        const value = window.sessionStorage.getItem(key);
         if (!self.ready && value)
             refresh(JSON.parse(value));
     });
 
-    var timeout = null;
+    let timeout = null;
 
     function sync(machine, values, overlay) {
-        var desired = $.extend({ }, values || { }, overlay || { });
-        var prop;
-        for (prop in desired) {
+        const desired = $.extend({ }, values || { }, overlay || { });
+        for (const prop in desired) {
             if (machine[prop] !== desired[prop])
                 machine[prop] = desired[prop];
         }
-        for (prop in machine) {
+        for (const prop in machine) {
             if (machine[prop] !== desired[prop])
                 delete machine[prop];
         }
@@ -132,27 +131,25 @@ function Machines() {
             }, 10);
         }
 
-        var host;
-        var hosts = { };
-        var content = shared.content || { };
-        var overlay = shared.overlay || { };
-        for (host in content)
+        const hosts = { };
+        const content = shared.content || { };
+        const overlay = shared.overlay || { };
+        for (const host in content)
             hosts[host] = true;
-        for (host in overlay)
+        for (const host in overlay)
             hosts[host] = true;
 
-        var events = [];
+        const events = [];
 
-        var machine, application;
-        for (host in hosts) {
-            var old_machine = machines[host] || { };
-            var old_conns = old_machine.connection_string;
+        for (const host in hosts) {
+            const old_machine = machines[host] || { };
+            const old_conns = old_machine.connection_string;
 
             /* Invert logic for color, always respect what's on disk */
             if (content[host] && content[host].color && overlay[host])
                 delete overlay[host].color;
 
-            machine = sync(old_machine, content[host], overlay[host]);
+            const machine = sync(old_machine, content[host], overlay[host]);
 
             /* Fill in defaults */
             machine.key = host;
@@ -165,7 +162,7 @@ function Machines() {
 
             if (!machine.label) {
                 if (host == "localhost" || host == "localhost.localdomain") {
-                    application = cockpit.transport.application();
+                    const application = cockpit.transport.application();
                     if (application.indexOf('cockpit+=') === 0)
                         machine.label = application.replace('cockpit+=', '');
                     else
@@ -183,9 +180,9 @@ function Machines() {
         }
 
         /* Remove any lost hosts */
-        for (host in machines) {
+        for (const host in machines) {
             if (!(host in hosts)) {
-                machine = machines[host];
+                const machine = machines[host];
                 delete machines[host];
                 delete overlay[host];
                 events.push(["removed", [machine, host]]);
@@ -193,17 +190,16 @@ function Machines() {
         }
 
         /* Fire off all events */
-        var i;
-        var sel = $(self);
-        var len = events.length;
-        for (i = 0; i < len; i++)
+        const sel = $(self);
+        const len = events.length;
+        for (let i = 0; i < len; i++)
             sel.triggerHandler(events[i][0], events[i][1]);
     }
 
     function update_session_machine(machine, host, values) {
         /* We don't save the whole machine object */
-        var skey = generate_session_key(host);
-        var data = $.extend({}, machine, values);
+        const skey = generate_session_key(host);
+        const data = $.extend({}, machine, values);
         window.sessionStorage.setItem(skey, JSON.stringify(data));
         self.overlay(host, values);
         return cockpit.when([]);
@@ -212,8 +208,8 @@ function Machines() {
     function update_saved_machine(host, values) {
         // wrap values in variants for D-Bus call; at least values.port can
         // be int or string, so stringify everything but the "visible" boolean
-        var values_variant = {};
-        for (var prop in values) {
+        const values_variant = {};
+        for (const prop in values) {
             if (values[prop] !== null) {
                 if (prop == "visible")
                     values_variant[prop] = cockpit.variant('b', values[prop]);
@@ -223,8 +219,8 @@ function Machines() {
         }
 
         // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
-        var bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
-        var mod =
+        const bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
+        const mod =
             bridge.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, values_variant])
                     .catch(function(error) {
                         console.error("failed to call cockpit.Machines.Update(): ", error);
@@ -248,15 +244,15 @@ function Machines() {
     };
 
     self.add = function add(connection_string, color) {
-        var values = self.split_connection_string(connection_string);
-        var host = values.address;
+        let values = self.split_connection_string(connection_string);
+        const host = values.address;
 
         values = $.extend({
             visible: true,
             color: color || self.unused_color(),
         }, values);
 
-        var machine = self.lookup(host);
+        const machine = self.lookup(host);
         if (machine)
             machine.on_disk = true;
 
@@ -264,9 +260,8 @@ function Machines() {
     };
 
     self.unused_color = function unused_color() {
-        var i;
-        var len = mod.colors.length;
-        for (i = 0; i < len; i++) {
+        const len = mod.colors.length;
+        for (let i = 0; i < len; i++) {
             if (!color_in_use(mod.colors[i]))
                 return mod.colors[i];
         }
@@ -274,10 +269,9 @@ function Machines() {
     };
 
     function color_in_use(color) {
-        var key, machine;
-        var norm = mod.colors.parse(color);
-        for (key in machines) {
-            machine = machines[key];
+        const norm = mod.colors.parse(color);
+        for (const key in machines) {
+            const machine = machines[key];
             if (machine.color && mod.colors.parse(machine.color) == norm)
                 return true;
         }
@@ -285,7 +279,7 @@ function Machines() {
     }
 
     function merge(item, values) {
-        for (var prop in values) {
+        for (const prop in values) {
             if (values[prop] === null)
                 delete item[prop];
             else
@@ -294,7 +288,7 @@ function Machines() {
     }
 
     self.change = function change(host, values) {
-        var machine = self.lookup(host);
+        const machine = self.lookup(host);
 
         if (machine && !machine.on_disk)
             return update_session_machine(machine, host, values);
@@ -303,10 +297,9 @@ function Machines() {
     };
 
     self.data = function data(content) {
-        var host;
-        var changes = {};
+        const changes = {};
 
-        for (host in content) {
+        for (const host in content) {
             changes[host] = $.extend({ }, last.overlay[host] || { });
             merge(changes[host], { on_disk: true });
         }
@@ -314,7 +307,7 @@ function Machines() {
         /* It's a full reload, so data not
          * present is no longer from disk
          */
-        for (host in machines) {
+        for (const host in machines) {
             if (content && !content[host]) {
                 changes[host] = $.extend({ }, last.overlay[host] || { });
                 merge(changes[host], { on_disk: null });
@@ -328,8 +321,8 @@ function Machines() {
     };
 
     self.overlay = function overlay(host, values) {
-        var address = self.split_connection_string(host).address;
-        var changes = { };
+        const address = self.split_connection_string(host).address;
+        const changes = { };
         changes[address] = $.extend({ }, last.overlay[address] || { });
         merge(changes[address], values);
         refresh({
@@ -341,10 +334,9 @@ function Machines() {
     Object.defineProperty(self, "list", {
         enumerable: true,
         get: function get() {
-            var key;
             if (!flat) {
                 flat = [];
-                for (key in machines) {
+                for (const key in machines) {
                     if (machines[key].visible)
                         flat.push(machines[key]);
                 }
@@ -364,12 +356,12 @@ function Machines() {
     });
 
     self.lookup = function lookup(address) {
-        var parts = self.split_connection_string(address);
+        const parts = self.split_connection_string(address);
         return machines[parts.address || "localhost"] || null;
     };
 
     self.generate_connection_string = function (user, port, addr) {
-        var address = addr;
+        let address = addr;
         if (user)
             address = user + "@" + address;
 
@@ -380,9 +372,9 @@ function Machines() {
     };
 
     self.split_connection_string = function(conn_to) {
-        var parts = {};
-        var user_spot = -1;
-        var port_spot = -1;
+        const parts = {};
+        let user_spot = -1;
+        let port_spot = -1;
 
         if (conn_to) {
             user_spot = conn_to.lastIndexOf('@');
@@ -396,7 +388,7 @@ function Machines() {
         }
 
         if (port_spot > -1) {
-            var port = parseInt(conn_to.substring(port_spot + 1), 10);
+            const port = parseInt(conn_to.substring(port_spot + 1), 10);
             if (!isNaN(port)) {
                 parts.port = port;
                 conn_to = conn_to.substring(0, port_spot);
@@ -413,29 +405,28 @@ function Machines() {
 }
 
 function Loader(machines, session_only) {
-    var self = this;
+    const self = this;
 
     /* Have we loaded from cockpit session */
-    var session_loaded = false;
+    let session_loaded = false;
 
     /* echo channels to each machine */
-    var channels = { };
+    const channels = { };
 
     /* hostnamed proxies to each machine, if hostnamed available */
-    var proxies = { };
+    const proxies = { };
 
     /* clients for the bridge D-Bus API */
-    var bridge_dbus = { };
+    const bridge_dbus = { };
 
     function process_session_key(key, value) {
-        var host, values, machine;
-        var parts = key.split("/");
+        const parts = key.split("/");
         if (parts[0] == session_prefix &&
             parts.length === 2) {
-            host = parts[1];
+            const host = parts[1];
             if (value) {
-                values = JSON.parse(value);
-                machine = machines.lookup(host);
+                const values = JSON.parse(value);
+                const machine = machines.lookup(host);
                 if (!machine || !machine.on_disk)
                     machines.overlay(host, values);
                 else if (!machine.visible)
@@ -446,10 +437,9 @@ function Loader(machines, session_only) {
     }
 
     function load_from_session_storage() {
-        var i;
         session_loaded = true;
-        for (i = 0; i < window.sessionStorage.length; i++) {
-            var k = window.sessionStorage.key(i);
+        for (let i = 0; i < window.sessionStorage.length; i++) {
+            const k = window.sessionStorage.key(i);
             process_session_key(k, window.sessionStorage.getItem(k));
         }
     }
@@ -461,7 +451,7 @@ function Loader(machines, session_only) {
     window.addEventListener("storage", process_session_machines);
 
     function state(host, value, problem) {
-        var values = { state: value, problem: problem };
+        const values = { state: value, problem: problem };
         if (value == "connected") {
             values.restarting = false;
         } else if (problem) {
@@ -484,20 +474,20 @@ function Loader(machines, session_only) {
                 return;
         }
 
-        var props = proxies[host];
+        let props = proxies[host];
         if (!props || !props.valid)
             props = { };
 
-        var overlay = { };
+        const overlay = { };
 
         if (!machine.color)
             overlay.color = machines.unused_color();
 
-        var label = props.PrettyHostname || props.StaticHostname || props.Hostname;
+        const label = props.PrettyHostname || props.StaticHostname || props.Hostname;
         if (label && label !== machine.label)
             overlay.label = label;
 
-        var os = props.OperatingSystemPrettyName;
+        const os = props.OperatingSystemPrettyName;
         if (os && os != machine.os)
             overlay.os = props.OperatingSystemPrettyName;
 
@@ -524,15 +514,15 @@ function Loader(machines, session_only) {
     }
 
     self.connect = function connect(host) {
-        var machine = machines.lookup(host);
+        const machine = machines.lookup(host);
         if (!machine)
             return;
 
-        var channel = channels[host];
+        let channel = channels[host];
         if (channel)
             return;
 
-        var options = {
+        const options = {
             host: machine.connection_string,
             payload: "echo",
         };
@@ -548,13 +538,13 @@ function Loader(machines, session_only) {
         channel = cockpit.channel(options);
         channels[host] = channel;
 
-        var local = host === "localhost";
+        const local = host === "localhost";
 
         /* Request is null, and message is true when connected */
-        var request = null;
-        var open = local;
+        let request = null;
+        let open = local;
 
-        var url;
+        let url;
         if (!machine.manifests) {
             if (machine.checksum)
                 url = "../../" + machine.checksum + "/manifests.json";
@@ -573,8 +563,8 @@ function Loader(machines, session_only) {
         function request_manifest() {
             request = $.ajax({ url: url, dataType: "json", cache: true })
                     .done(function(manifests) {
-                        var overlay = { manifests: manifests };
-                        var etag = request.getResponseHeader("ETag");
+                        const overlay = { manifests: manifests };
+                        const etag = request.getResponseHeader("ETag");
                         if (etag) /* and remove quotes */
                             overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
                         machines.overlay(host, overlay);
@@ -595,7 +585,7 @@ function Loader(machines, session_only) {
         */
 
         function watch_manifests() {
-            var dbus = cockpit.dbus(null, {
+            const dbus = cockpit.dbus(null, {
                 bus: "internal",
                 host: machine.connection_string
             });
@@ -608,7 +598,7 @@ function Loader(machines, session_only) {
                            function (path, iface, mamber, args) {
                                if (args[0] == "cockpit.Packages") {
                                    if (args[1].Manifests) {
-                                       var manifests = JSON.parse(args[1].Manifests.v);
+                                       const manifests = JSON.parse(args[1].Manifests.v);
                                        machines.overlay(host, { manifests: manifests });
                                    }
                                }
@@ -624,8 +614,8 @@ function Loader(machines, session_only) {
 
         function request_hostname() {
             if (!machine.static_hostname) {
-                var proxy = cockpit.dbus("org.freedesktop.hostname1",
-                                         { host: machine.connection_string }).proxy();
+                const proxy = cockpit.dbus("org.freedesktop.hostname1",
+                                           { host: machine.connection_string }).proxy();
                 proxies[host] = proxy;
                 proxy.wait(function() {
                     $(proxy).on("changed", function() {
@@ -650,7 +640,7 @@ function Loader(machines, session_only) {
                         whirl();
                     })
                     .on("close", function(ev, options) {
-                        var m = machines.lookup(host);
+                        const m = machines.lookup(host);
                         open = false;
                         // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
                         if (!options.problem && m && !m.visible)
@@ -679,21 +669,21 @@ function Loader(machines, session_only) {
         if (host === "localhost")
             return;
 
-        var channel = channels[host];
+        const channel = channels[host];
         delete channels[host];
         if (channel) {
             channel.close();
             $(channel).off();
         }
 
-        var proxy = proxies[host];
+        const proxy = proxies[host];
         delete proxies[host];
         if (proxy) {
             proxy.client.close();
             $(proxy).off();
         }
 
-        var dbus = bridge_dbus[host];
+        const dbus = bridge_dbus[host];
         delete bridge_dbus[host];
         if (dbus) {
             dbus.close();
@@ -701,7 +691,7 @@ function Loader(machines, session_only) {
     };
 
     self.expect_restart = function expect_restart(host) {
-        var parts = machines.split_connection_string(host);
+        const parts = machines.split_connection_string(host);
         machines.overlay(parts.address, {
             restarting: true,
             problem: null
@@ -715,20 +705,19 @@ function Loader(machines, session_only) {
         machines = null;
 
         window.removeEventListener("storage", process_session_machines);
-        var hosts = Object.keys(channels);
+        const hosts = Object.keys(channels);
         hosts.forEach(self.disconnect);
     };
 
     if (!session_only) {
-        var proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Machines", "/machines");
+        const proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Machines", "/machines");
         $(proxy).on("changed", function(data) {
             // unwrap variants from D-Bus call
-            var wrapped = proxy.Machines;
-            var data_unwrap = {};
-            var host_props;
-            for (var host in wrapped) {
-                host_props = {};
-                for (var prop in wrapped[host])
+            const wrapped = proxy.Machines;
+            const data_unwrap = {};
+            for (const host in wrapped) {
+                const host_props = {};
+                for (const prop in wrapped[host])
                     host_props[prop] = wrapped[host][prop].v;
                 data_unwrap[host] = host_props;
             }
@@ -781,9 +770,9 @@ mod.colors = [
 ];
 
 mod.colors.parse = function parse_color(input) {
-    var div = document.createElement('div');
+    const div = document.createElement('div');
     div.style.color = input;
-    var style = window.getComputedStyle(div, null);
+    const style = window.getComputedStyle(div, null);
     return style.getPropertyValue("color") || div.style.color;
 };
 

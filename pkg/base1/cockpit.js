@@ -2316,7 +2316,7 @@ function factory() {
              * at all, but I guess that is ok.
              *
              * For example,
-             * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
+             * https://developer.mozilla.org/en-US/docs/Web/API/setTimeout
              * says:
              *
              *    Browsers including Internet Explorer, Chrome,

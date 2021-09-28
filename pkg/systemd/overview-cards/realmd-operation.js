@@ -113,13 +113,11 @@ function instance(realmd, mode, realm, state) {
         auth_changed($(this));
     });
 
-    let title, label;
+    let title;
     if (mode == 'join') {
         title = _("page-title", _("Join a domain"));
-        label = _("Join");
         $(".realms-op-join-only").show();
         $(".realms-op-leave-only-row").hide();
-        $(".realms-op-apply").text(label);
         check("");
     } else {
         title = _("page-title", _("Domain"));

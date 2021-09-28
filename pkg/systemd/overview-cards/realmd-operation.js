@@ -195,6 +195,9 @@ function instance(realmd, mode, realm, state) {
                             $("#realms-op-address").parent()
                                     .removeClass("has-success")
                                     .addClass("has-error");
+                            $("#realms-op-address").attr("data-discover", "failed");
+                        } else {
+                            $("#realms-op-address").attr("data-discover", "empty");
                         }
 
                         realm = null;
@@ -211,6 +214,12 @@ function instance(realmd, mode, realm, state) {
                         realm = realmd.proxy(REALM, path);
                         $(realm).on("changed", update);
                         realm.wait(function() {
+                            // fill in unset realm/user with autodetected values
+                            if (realm.Name && !$("#realms-op-address").val())
+                                $("#realms-op-address").val(realm.Name);
+                            if (kerberos_membership.SuggestedAdministrator && !$("#realms-op-admin").val())
+                                $("#realms-op-admin").val(kerberos_membership.SuggestedAdministrator);
+
                             dfd.resolve(realm);
                         });
                     }
@@ -294,17 +303,6 @@ function instance(realmd, mode, realm, state) {
             return;
 
         $(".realm-active-directory-only").toggle(!server || server == "active-directory");
-
-        if (realm && realm.Name && !$("#realms-op-address")[0].placeholder) {
-            $("#realms-op-address")[0].placeholder = cockpit.format(_("e.g. \"$0\""), realm.Name);
-        }
-
-        let placeholder = "";
-        if (kerberos_membership) {
-            if (kerberos_membership.SuggestedAdministrator)
-                placeholder = cockpit.format(_("e.g. \"$0\""), kerberos_membership.SuggestedAdministrator);
-        }
-        $("#realms-op-admin")[0].placeholder = placeholder;
 
         const list = $("#realms-op-auth .dropdown-menu");
         const supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [];

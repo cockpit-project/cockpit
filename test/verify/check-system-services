@@ -152,7 +152,7 @@ done
 
         # When the test fails while `test.service` is active, the process keeps running and
         # `systemct status test.service` still shows it as active until this process dies
-        self.addCleanup(self.machine.execute, "systemctl stop test")
+        self.addCleanup(self.machine.execute, "for op in stop reset-failed disable; do systemctl $op test || true; done")
 
     def testBasic(self):
         m = self.machine

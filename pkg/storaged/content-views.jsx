@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider,
-    BlockingMessage, TeardownMessage
+    BlockingMessage, TeardownMessage, teardown_and_apply_title
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
 
@@ -34,7 +34,10 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
-import { format_dialog, parse_options, extract_option, unparse_options } from "./format-dialog.jsx";
+import {
+    format_dialog, parse_options, extract_option, unparse_options,
+    teardown_and_format_title
+} from "./format-dialog.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./fsys-tab.jsx";
@@ -359,10 +362,13 @@ function create_tabs(client, target, is_partition) {
 
             dialog_open({
                 Title: cockpit.format(_("Please confirm deletion of $0"), name),
-                Footer: TeardownMessage(usage),
+                Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: danger,
-                    Title: _("Delete"),
+                    Title: teardown_and_apply_title(usage,
+                                                    _("Delete"),
+                                                    _("Unmount and delete"),
+                                                    _("Remove and delete")),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(function () {
@@ -607,7 +613,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
 
         dialog_open({
             Title: cockpit.format(_("Format disk $0"), utils.block_name(block)),
-            Footer: TeardownMessage(usage),
+            Teardown: TeardownMessage(usage),
             Fields: [
                 SelectOne("erase", _("Erase"),
                           {
@@ -630,7 +636,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                           })
             ],
             Action: {
-                Title: _("Format"),
+                Title: teardown_and_format_title(usage),
                 Danger: _("Formatting a disk will erase all data on it."),
                 wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {

@@ -23,7 +23,7 @@ import * as utils from "./utils.js";
 import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
-    BlockingMessage, TeardownMessage
+    BlockingMessage, TeardownMessage, teardown_and_apply_title
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
@@ -83,13 +83,11 @@ export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
-function teardown_and_format_title(usage) {
-    if (usage.Teardown && usage.Teardown.Mounts)
-        return _("Unmount and format");
-    else if (usage.Teardown && (usage.Teardown.PhysicalVolumes || usage.Teardown.MDRaidMembers))
-        return _("Remove and format");
-    else
-        return _("Format");
+export function teardown_and_format_title(usage) {
+    return teardown_and_apply_title(usage,
+                                    _("Format"),
+                                    _("Unmount and format"),
+                                    _("Remove and format"));
 }
 
 export const never_auto_explanation = _("If this option is checked, the filesystem will not be mounted during the next boot even if it was mounted before it.  This is useful if mounting during boot is not possible, such as when a passphrase is required to unlock the filesystem but booting is unattended.");
@@ -216,7 +214,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
     const dlg = dialog_open({
         Title: title,
-        Footer: TeardownMessage(usage),
+        Teardown: TeardownMessage(usage),
         Fields: [
             TextInput("name", _("Name"),
                       {

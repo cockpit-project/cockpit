@@ -289,7 +289,7 @@ function is_visible(field, values) {
     return !field.options || field.options.visible == undefined || field.options.visible(values);
 }
 
-const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
+const Body = ({ body, teardown, fields, values, errors, isFormHorizontal, onChange }) => {
     let error_alert = null;
 
     if (errors && errors.toString() != "[object Object]") {
@@ -322,6 +322,7 @@ const Body = ({ body, fields, values, errors, isFormHorizontal, onChange }) => {
             { error_alert }
             { body || null }
             { make_rows(fields) }
+            { teardown }
         </>
     );
 };
@@ -363,6 +364,7 @@ export const dialog_open = (def) => {
             id: "dialog",
             title: def.Title,
             body: <Body body={def.Body}
+                        teardown={def.Teardown}
                         fields={nested_fields}
                         values={values}
                         errors={errors}
@@ -415,7 +417,6 @@ export const dialog_open = (def) => {
         }
 
         const extra = <div>
-            { def.Footer }
             { def.Action && def.Action.Danger ? <HelperTextWarning text={def.Action.Danger} /> : null }
         </div>;
 
@@ -1091,3 +1092,12 @@ export const TeardownMessage = (usage) => {
     else
         return null;
 };
+
+export function teardown_and_apply_title(usage, plain_title, unmount_title, remove_title) {
+    if (usage.Teardown && usage.Teardown.Mounts)
+        return unmount_title;
+    else if (usage.Teardown && (usage.Teardown.PhysicalVolumes || usage.Teardown.MDRaidMembers))
+        return remove_title;
+    else
+        return plain_title;
+}

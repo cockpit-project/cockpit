@@ -34,7 +34,10 @@ import {
     existing_passphrase_fields, get_existing_passphrase_for_dialog,
     request_passphrase_on_error_handler
 } from "./crypto-keyslots.jsx";
-import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
+import {
+    dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage,
+    teardown_and_apply_title
+} from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -260,10 +263,13 @@ function lvol_grow(client, lvol, info, to_fit) {
 
     const dlg = dialog_open({
         Title: _("Grow logical volume"),
-        Footer: TeardownMessage(usage),
+        Teardown: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
-            Title: _("Grow"),
+            Title: teardown_and_apply_title(usage,
+                                            _("Grow"),
+                                            _("Unmount and grow"),
+                                            _("Remove and grow")),
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
@@ -346,10 +352,13 @@ function lvol_shrink(client, lvol, info, to_fit) {
 
     const dlg = dialog_open({
         Title: _("Shrink logical volume"),
-        Footer: TeardownMessage(usage),
+        Teardown: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
-            Title: _("Shrink"),
+            Title: teardown_and_apply_title(usage,
+                                            _("Shrink"),
+                                            _("Unmount and shrink"),
+                                            _("Remove and shrink")),
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {

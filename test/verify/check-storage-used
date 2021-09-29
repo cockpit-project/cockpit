@@ -50,12 +50,14 @@ class TestStorageUsed(StorageCase):
         self.content_dropdown_action(1, "Format")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.assert_pixels('#dialog', "format")
         self.dialog_cancel()
         self.dialog_wait_close()
 
         self.content_dropdown_action(1, "Delete")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.assert_pixels('#dialog', "delete")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -64,6 +66,7 @@ class TestStorageUsed(StorageCase):
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.assert_pixels('#dialog', "format-disk")
         self.dialog_apply()
         self.dialog_wait_close()
 

@@ -174,8 +174,11 @@ td.job-action {
 }
 
 .modal-footer-teardown {
-    padding-bottom: var(--pf-global--spacer--md);
     text-align: left;
+}
+
+* + .modal-footer-teardown {
+    padding-top: var(--pf-global--spacer--xl);
 }
 
 tr[class*=content-level-] {

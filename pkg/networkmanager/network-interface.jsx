@@ -32,10 +32,10 @@ import {
 
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
+import { BondAction } from './bond.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
-    PageNetworkBondSettings,
     PageNetworkBridgePortSettings,
     PageNetworkBridgeSettings,
     PageNetworkIpSettings,
@@ -61,6 +61,19 @@ import {
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
+
+function reactivateConnection({ con, dev }) {
+    if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
+        if (con.Settings.connection.interface_name &&
+            con.Settings.connection.interface_name != dev.Interface) {
+            return dev.disconnect().then(function () { return con.activate(null, null) })
+                    .fail(show_unexpected_error);
+        } else {
+            return con.activate(dev, null)
+                    .fail(show_unexpected_error);
+        }
+    }
+}
 
 export const NetworkInterfacePage = ({
     privileged,
@@ -331,10 +344,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
         }
 
-        function configureBondSettings() {
-            show_dialog(PageNetworkBondSettings, '#network-bond-settings-dialog');
-        }
-
         function configureTeamSettings() {
             show_dialog(PageNetworkTeamSettings, '#network-team-settings-dialog');
         }
@@ -395,7 +404,7 @@ export const NetworkInterfacePage = ({
                             {link_text}
                         </span>}
                         {privileged &&
-                        <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button>}
+                        (typeof configure === 'function' ? <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button> : configure)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
             );
@@ -471,7 +480,9 @@ export const NetworkInterfacePage = ({
             if (parts.length > 0)
                 rows.push(parts.join(", "));
 
-            return renderSettingsRow(_("Bond"), rows, configureBondSettings);
+            const con = iface.MainConnection;
+            const configure = <BondAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            return renderSettingsRow(_("Bond"), rows, configure);
         }
 
         function renderTeamSettingsRow() {
@@ -672,24 +683,11 @@ export const NetworkInterfacePage = ({
     function show_dialog(dialog, id) {
         const con = iface.MainConnection;
 
-        function reactivateConnection() {
-            if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
-                if (con.Settings.connection.interface_name &&
-                    con.Settings.connection.interface_name != dev.Interface) {
-                    return dev.disconnect().then(function () { return con.activate(null, null) })
-                            .fail(show_unexpected_error);
-                } else {
-                    return con.activate(dev, null)
-                            .fail(show_unexpected_error);
-                }
-            }
-        }
-
         dialog.model = model;
         dialog.connection = con;
         dialog.ghost_settings = ghostSettings;
         dialog.apply_settings = settings_applier(model, dev, con);
-        dialog.done = reactivateConnection;
+        dialog.done = () => reactivateConnection({ con, dev });
         $(id).trigger('show');
     }
 

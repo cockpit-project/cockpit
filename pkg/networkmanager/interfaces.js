@@ -1709,7 +1709,7 @@ export function switchbox(val, callback) {
     return onoff;
 }
 
-function with_settings_checkpoint(model, modify, options) {
+export function with_settings_checkpoint(model, modify, options) {
     with_checkpoint(model, modify,
                     $.extend(
                         {
@@ -1726,7 +1726,7 @@ function show_dialog_error(error_id, error) {
             .text(msg);
 }
 
-function connection_devices(con) {
+export function connection_devices(con) {
     const devices = [];
 
     if (con)
@@ -2121,7 +2121,7 @@ export function set_member(model, group_connection, group_settings, member_type,
     return true;
 }
 
-function apply_group_member(choices, model, apply_group, group_connection, group_settings, member_type) {
+export function apply_group_member(choices, model, apply_group, group_connection, group_settings, member_type) {
     const active_settings = [];
 
     if (!group_connection) {
@@ -2193,208 +2193,6 @@ function fill_mac_menu(menu, input, model) {
     menu_append(_("Preserve"), "preserve");
     menu_append(_("Random"), "random");
     menu_append(_("Stable"), "stable");
-}
-
-PageNetworkBondSettings.prototype = {
-    _init: function () {
-        this.id = "network-bond-settings-dialog";
-        this.bond_settings_template = $("#network-bond-settings-template").html();
-        mustache.parse(this.bond_settings_template);
-    },
-
-    setup: function () {
-        $('#network-bond-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-bond-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-bond-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-bond-settings-error').prop('hidden', true);
-        this.settings = PageNetworkBondSettings.ghost_settings || PageNetworkBondSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    find_member_con: function(iface) {
-        if (!PageNetworkBondSettings.connection)
-            return null;
-
-        return array_find(PageNetworkBondSettings.connection.Members, function (s) {
-            return s.Interfaces.indexOf(iface) >= 0;
-        }) || null;
-    },
-
-    update: function() {
-        const self = this;
-        const model = PageNetworkBondSettings.model;
-        const group = PageNetworkBondSettings.connection;
-        const options = self.settings.bond.options;
-
-        let members_element;
-        let mac_input, mode_btn, primary_btn;
-        let monitoring_btn;
-
-        function change_members() {
-            const btn = member_chooser_btn(change_mode, members_element);
-            primary_btn.replaceWith(btn);
-            primary_btn = btn;
-            select_btn_select(primary_btn, options.primary);
-            change_mode();
-            self.members_changed = true;
-        }
-
-        function change_mac() {
-            console.log("mac");
-            if (!self.settings.ethernet)
-                self.settings.ethernet = { };
-            self.settings.ethernet.assigned_mac_address = mac_input.val();
-        }
-
-        function change_mode() {
-            options.mode = select_btn_selected(mode_btn);
-
-            primary_btn.toggle(options.mode == "active-backup");
-            primary_btn.prev().toggle(options.mode == "active-backup");
-            if (options.mode == "active-backup")
-                options.primary = select_btn_selected(primary_btn);
-            else
-                delete options.primary;
-        }
-
-        function change_monitoring() {
-            const use_mii = select_btn_selected(monitoring_btn) == "mii";
-
-            targets_input.toggle(!use_mii);
-            targets_input.prev().toggle(!use_mii);
-            updelay_input.toggle(use_mii);
-            updelay_input.prev().toggle(use_mii);
-            downdelay_input.toggle(use_mii);
-            downdelay_input.prev().toggle(use_mii);
-
-            if (use_mii) {
-                options.miimon = interval_input.val();
-                options.updelay = updelay_input.val();
-                options.downdelay = downdelay_input.val();
-                delete options.arp_interval;
-                delete options.arp_ip_target;
-            } else {
-                delete options.miimon;
-                delete options.updelay;
-                delete options.downdelay;
-                options.arp_interval = interval_input.val();
-                options.arp_ip_target = targets_input.val();
-            }
-        }
-
-        const mac = (self.settings.ethernet && self.settings.ethernet.assigned_mac_address) || "";
-        const body = $(mustache.render(self.bond_settings_template, {
-            interface_name: self.settings.bond.interface_name,
-            assigned_mac_address: mac,
-            monitoring_interval: options.miimon || options.arp_interval || "100",
-            monitoring_target: options.arp_ip_target,
-            link_up_delay: options.updelay || "0",
-            link_down_delay: options.downdelay || "0"
-        }));
-        body.find('#network-bond-settings-interface-name-input')
-                .change(function (event) {
-                    const val = $(event.target).val();
-                    self.settings.bond.interface_name = val;
-                    self.settings.connection.id = val;
-                    self.settings.connection.interface_name = val;
-                });
-        body.find('#network-bond-settings-members')
-                .replaceWith(members_element = render_member_interface_choices(model, group)
-                        .change(change_members));
-        fill_mac_menu(body.find('#network-bond-settings-mac-menu'),
-                      mac_input = body.find('#network-bond-settings-mac-input'),
-                      model);
-        mac_input.change(change_mac);
-        body.find('#network-bond-settings-mode-select')
-                .replaceWith(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
-        body.find('#network-bond-settings-primary-select')
-                .replaceWith(primary_btn = member_chooser_btn(change_mode, members_element, "form-control"));
-        body.find('#network-bond-settings-link-monitoring-select')
-                .replaceWith(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
-        mode_btn.attr("id", "network-bond-settings-mode-select");
-        primary_btn.attr("id", "network-bond-settings-primary-select");
-        monitoring_btn.attr("id", "network-bond-settings-link-monitoring-select");
-
-        const interval_input = body.find('#network-bond-settings-monitoring-interval-input');
-        interval_input.change(change_monitoring);
-        const targets_input = body.find('#network-bond-settings-monitoring-targets-input');
-        targets_input.change(change_monitoring);
-        const updelay_input = body.find('#network-bond-settings-link-up-delay-input');
-        updelay_input.change(change_monitoring);
-        const downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
-        downdelay_input.change(change_monitoring);
-
-        select_btn_select(mode_btn, options.mode);
-        select_btn_select(monitoring_btn, options.arp_interval ? "arp" : "mii");
-        change_members();
-        change_mode();
-        change_monitoring();
-
-        self.members_changed = false;
-
-        $('#network-bond-settings-body').html(body);
-    },
-
-    cancel: function() {
-        $('#network-bond-settings-dialog').trigger('hide');
-    },
-
-    apply: function() {
-        const self = this;
-
-        function modify() {
-            return apply_group_member($('#network-bond-settings-body'),
-                                      PageNetworkBondSettings.model,
-                                      PageNetworkBondSettings.apply_settings,
-                                      PageNetworkBondSettings.connection,
-                                      self.settings,
-                                      "bond")
-                    .then(function() {
-                        $('#network-bond-settings-dialog').trigger('hide');
-                        if (PageNetworkBondSettings.connection)
-                            cockpit.location.go([self.settings.connection.interface_name]);
-                        if (PageNetworkBondSettings.done)
-                            return PageNetworkBondSettings.done();
-                    })
-                    .catch(function (error) {
-                        show_dialog_error('#network-bond-settings-error', error);
-                    });
-        }
-
-        if (PageNetworkBondSettings.connection) {
-            with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     {
-                                         devices: (self.members_changed
-                                             ? [] : connection_devices(PageNetworkBondSettings.connection)),
-                                         hack_does_add_or_remove: self.members_changed,
-                                         rollback_on_failure: self.members_changed
-                                     });
-        } else {
-            with_checkpoint(
-                PageNetworkBondSettings.model,
-                modify,
-                {
-                    fail_text: _("Creating this bond will break the connection to the server, and will make the administration UI unavailable."),
-                    anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true,
-                    rollback_on_failure: true
-                });
-        }
-    }
-
-};
-
-export function PageNetworkBondSettings() {
-    this._init();
 }
 
 PageNetworkTeamSettings.prototype = {
@@ -3231,7 +3029,6 @@ export function init() {
     cockpit.translate();
 
     dialog_setup(new PageNetworkIpSettings());
-    dialog_setup(new PageNetworkBondSettings());
     dialog_setup(new PageNetworkTeamSettings());
     dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgeSettings());

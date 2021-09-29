@@ -25,13 +25,13 @@ import {
 } from "@patternfly/react-core";
 
 import {
-    PageNetworkBondSettings,
     PageNetworkBridgeSettings,
     PageNetworkTeamSettings,
     PageNetworkVlanSettings,
     settings_applier,
     syn_click,
 } from './interfaces.js';
+import { BondAction } from './bond.jsx';
 import { ModelContext } from './model-context.jsx';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -46,7 +46,6 @@ export class NetworkPageDialogs extends React.Component {
              */
             showAddTeam: undefined,
         };
-        this.addBond = this.addBond.bind(this);
         this.addBridge = this.addBridge.bind(this);
         this.addTeam = this.addTeam.bind(this);
         this.addVlan = this.addVlan.bind(this);
@@ -68,47 +67,6 @@ export class NetworkPageDialogs extends React.Component {
                 .fail(() => {
                     this.setState({ showAddTeam: false });
                 });
-
-        const desc = _("A network bond combines multiple network interfaces into one logical interface with higher throughput or redundancy.");
-        const lm = _("Learn more");
-        const url = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console";
-        const popover_content = desc + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link fa-xs"></i>' + lm + '</a>';
-
-        const popover_options = {
-            content: popover_content,
-            placement: "left",
-            title: _("Network bond"),
-            html: true,
-        };
-        $('#bond-help-popup-button').popover(popover_options);
-    }
-
-    addBond() {
-        let iface;
-
-        const uuid = uuidv4();
-        for (let i = 0; i < 100; i++) {
-            iface = "bond" + i;
-            if (!this.model.find_interface(iface))
-                break;
-        }
-
-        const ghost_settings = {
-            connection: {
-                id: iface,
-                autoconnect: true,
-                type: "bond",
-                uuid: uuid,
-                interface_name: iface
-            },
-            bond: {
-                options: {
-                    mode: "active-backup"
-                },
-                interface_name: iface
-            }
-        };
-        this.show_dialog(PageNetworkBondSettings, '#network-bond-settings-dialog', ghost_settings);
     }
 
     addTeam() {
@@ -206,9 +164,7 @@ export class NetworkPageDialogs extends React.Component {
     render() {
         return (
             <>
-                <Button id="networking-add-bond"
-                        onClick={syn_click(this.model, this.addBond)}
-                        variant="secondary">{_("Add bond")}</Button>
+                <BondAction />
                 {this.state.showAddTeam &&
                 <Button data-test-stable={this.state.showAddTeam !== undefined}
                         id="networking-add-team"

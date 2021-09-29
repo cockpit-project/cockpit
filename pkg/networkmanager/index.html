@@ -40,24 +40,6 @@
     <h1 id="testing-connection-curtain-restoring" translate="yes">Restoring connection</h1>
   </div>
 
-  <script id="network-bridge-port-settings-template" type="x-template/mustache">
-    <form class="ct-form">
-      <label class="control-label" for="network-bridge-port-settings-priority-input" translate="yes">Priority</label>
-      <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field ct-form-relax"
-             type="text" value="{{priority}}"/>
-
-      <label class="control-label" for="network-bridge-port-settings-path-cost-input" translate="yes">Path cost</label>
-      <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field ct-form-relax"
-             type="text" value="{{path_cost}}"/>
-
-      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translate="yes">Hair pin mode</label>
-      <label class="checkbox-inline">
-        <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
-               {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
-      </label>
-    </form>
-  </script>
-
   <div hidden aria-hidden="true" id="network-ip-settings-dialog">
     <div class="pf-c-backdrop">
       <div class="pf-l-bullseye">
@@ -81,35 +63,6 @@
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-ip-settings-cancel">Cancel</button>
-          </footer>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div hidden aria-hidden="true" id="network-bridgeport-settings-dialog">
-    <div class="pf-c-backdrop">
-      <div class="pf-l-bullseye">
-        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
-          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bridgeport-settings-close-button" translate="aria-label">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-          <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" translate="yes">Bridge port settings</h1>
-          </header>
-          <div class="pf-c-modal-box__body">
-            <div id="network-bridgeport-settings-body">
-            </div>
-          </div>
-          <footer class="pf-c-modal-box__footer">
-            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
-              <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </div>
-              <h4 class="pf-c-alert__title"></h4>
-            </div>
-            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
-            <button class="pf-c-button pf-m-link" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
           </footer>
         </div>
       </div>

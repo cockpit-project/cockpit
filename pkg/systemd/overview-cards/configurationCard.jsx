@@ -39,7 +39,6 @@ export class ConfigurationCard extends React.Component {
         super(props);
 
         this.state = {
-            serverTime: '',
             hostEditModal: false,
             showKeysModal: false,
         };

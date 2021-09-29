@@ -6,27 +6,26 @@ on:
   workflow_dispatch:
 jobs:
   npm-update:
+    environment: self
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-20.04
     steps:
       - name: Set up dependencies
         run: |
           sudo apt update
-          sudo apt install -y npm make
-
-      - name: Set up configuration and secrets
-        run: |
-          printf '[user]\n\tname = Cockpit Project\n\temail=cockpituous@gmail.com\n' > ~/.gitconfig
-          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/github-token
+          sudo apt install -y npm
 
       - name: Clone repository
         uses: actions/checkout@v2
         with:
-          # need this to be able to push to the cockpituous fork
-          fetch-depth: 0
-          # the default GITHUB_TOKEN would override our ~/.git-credentials from above
-          token: '${{ secrets.COCKPITUOUS_TOKEN }}'
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Run npm-update bot
         run: |
           tools/make-bots
-          bots/npm-update
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          mkdir -p ~/.config/cockpit-dev
+          echo ${{ github.token }} >> ~/.config/cockpit-dev/github-token
+          bots/npm-update >&2

@@ -2101,30 +2101,6 @@ export function apply_group_member(choices, model, apply_group, group_connection
     });
 }
 
-function fill_mac_menu(menu, input, model) {
-    menu.empty();
-
-    function menu_append(title, value) {
-        menu.append(
-            $('<li class="presentation">').append(
-                $('<a tabindex="0">')
-                        .text(title)
-                        .click(function () {
-                            input.val(value).trigger("change");
-                        })));
-    }
-
-    model.list_interfaces().forEach(function (iface) {
-        if (iface.Device && iface.Device.HwAddress && iface.Device.HwAddress !== "00:00:00:00:00:00")
-            menu_append(cockpit.format("$0 ($1)", iface.Device.HwAddress, iface.Name), iface.Device.HwAddress);
-    });
-
-    menu_append(_("Permanent"), "permanent");
-    menu_append(_("Preserve"), "preserve");
-    menu_append(_("Random"), "random");
-    menu_append(_("Stable"), "stable");
-}
-
 PageNetworkTeamPortSettings.prototype = {
     _init: function () {
         this.id = "network-teamport-settings-dialog";
@@ -2304,79 +2280,6 @@ export function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-PageNetworkMacSettings.prototype = {
-    _init: function () {
-        this.id = "network-mac-settings-dialog";
-        this.ethernet_settings_template = $("#network-mac-settings-template").html();
-        mustache.parse(this.ethernet_settings_template);
-    },
-
-    setup: function () {
-        $('#networl-mac-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-mac-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-mac-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-mac-settings-error').prop('hidden', true);
-        this.settings = PageNetworkMacSettings.ghost_settings || PageNetworkMacSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const options = self.settings.ethernet;
-
-        const body = $(mustache.render(self.ethernet_settings_template, options));
-        $('#network-mac-settings-body').html(body);
-
-        fill_mac_menu($('#network-mac-settings-menu'),
-                      $('#network-mac-settings-input'),
-                      PageNetworkMacSettings.model);
-    },
-
-    cancel: function() {
-        $('#network-mac-settings-dialog').prop('hidden', true);
-    },
-
-    apply: function() {
-        const self = this;
-        const model = PageNetworkMacSettings.model;
-
-        function show_error(error) {
-            show_dialog_error('#network-mac-settings-error', error);
-        }
-
-        if (!self.settings.ethernet)
-            self.settings.ethernet = { };
-        self.settings.ethernet.assigned_mac_address = $("#network-mac-settings-input").val();
-
-        function modify () {
-            return PageNetworkMacSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-mac-settings-dialog').prop('hidden', true);
-                        if (PageNetworkMacSettings.done)
-                            return PageNetworkMacSettings.done();
-                    })
-                    .fail(show_error);
-        }
-
-        with_settings_checkpoint(model, modify,
-                                 { devices: connection_devices(PageNetworkMacSettings.connection) });
-    }
-
-};
-
-export function PageNetworkMacSettings() {
-    this._init();
-}
-
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -2407,7 +2310,6 @@ export function init() {
     dialog_setup(new PageNetworkIpSettings());
     dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
-    dialog_setup(new PageNetworkMacSettings());
 
     $('#confirm-breaking-change-popup [data-dismiss]').click(() =>
         $('#confirm-breaking-change-popup').prop('hidden', true));

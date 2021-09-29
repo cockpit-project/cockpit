@@ -38,7 +38,6 @@ import { NetworkPlots } from "./plots";
 import {
     PageNetworkBridgePortSettings,
     PageNetworkIpSettings,
-    PageNetworkMacSettings,
     PageNetworkTeamPortSettings,
     array_join,
     choice_title,
@@ -236,20 +235,13 @@ export const NetworkInterfacePage = ({
         let mac_desc;
         if (can_edit_mac) {
             mac_desc = (
-                <Button variant="link" isInline isDisabled={!privileged}
-                        onClick={syn_click(model, setMac)}>
-                    {mac}
-                </Button>
+                <NetworkAction type="mac" iface={iface} buttonText={mac} connectionSettings={iface.MainConnection.Settings} />
             );
         } else {
             mac_desc = mac;
         }
 
         return mac_desc;
-    }
-
-    function setMac() {
-        show_dialog(PageNetworkMacSettings, "#network-mac-settings-dialog");
     }
 
     function renderCarrierStatusRow() {

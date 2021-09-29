@@ -29,6 +29,7 @@ import {
 import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx';
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';
 import { BridgePortDialog } from './bridgeport.jsx';
+import { IpSettingsDialog } from './ip-settings.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
 import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
@@ -135,7 +136,7 @@ export const Name = ({ idPrefix, iface, setIface }) => {
     );
 };
 
-export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, onSubmit, children }) => {
+export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, onSubmit, children, isFormHorizontal }) => {
     return (
         <Modal id={idPrefix + "-dialog"} position="top" variant="medium"
             isOpen
@@ -153,7 +154,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
                 </>
             }
         >
-            <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal>
+            <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal={isFormHorizontal !== false}>
                 {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
                 {children}
             </Form>
@@ -229,6 +230,8 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             {isOpen && type == 'mac' ? <MacDialog {...properties} /> : null}
             {isOpen && type == 'teamport' ? <TeamPortDialog {...properties} /> : null}
             {isOpen && type == 'bridgeport' ? <BridgePortDialog {...properties} /> : null}
+            {isOpen && type == 'ipv4' ? <IpSettingsDialog topic="ipv4" {...properties} /> : null}
+            {isOpen && type == 'ipv6' ? <IpSettingsDialog topic="ipv6" {...properties} /> : null}
         </>
     );
 };

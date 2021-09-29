@@ -51,50 +51,8 @@
     }
 }
 
-.ipv4-address {
-    display: inline;
-
-    input {
-        width: 2em;
-        background: none;
-        border: none;
-        text-align: center;
-    }
-}
-
 .network-number-field {
     max-width: 4em;
-}
-
-.network-ip-settings-row {
-    border-bottom: 1px solid lightgray;
-    padding-bottom: 10px;
-
-    &:last-of-type {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    table {
-        margin-top: 20px;
-    }
-
-    tr {
-        background: #F4F4F4;
-        border: 1px solid #BABABA;
-
-        td {
-            padding: 4px;
-        }
-    }
-
-    .pf-m-secondary {
-        margin-right: 5px;
-    }
-
-    tr td .pf-m-secondary {
-        margin-right: 0px;
-    }
 }
 
 .network-graph {
@@ -169,53 +127,6 @@ th {
     padding-left: var(--pf-global--spacer--md);
 }
 
-// IPv4 / IPv6 settings
-#network-ip-settings-dialog {
-    @at-root {
-        // Used in IPv4 / IPv6 automatic to manual selections
-        .inverted-switchbox {
-            margin-right: var(--pf-global--spacer--md);
-        }
-
-        .network-ip-settings-row {
-            border-bottom: 1px solid lightgray;
-            padding-bottom: 10px;
-
-            &:last-of-type {
-                border-bottom: none;
-                padding-bottom: 0;
-            }
-
-            .pf-m-secondary {
-                margin-right: 5px;
-            }
-
-            table {
-                margin-top: 20px;
-            }
-
-            tr {
-                background: #F4F4F4;
-                border: 1px solid #BABABA;
-            }
-
-            td {
-                padding: 4px;
-                text-align: right;
-                padding-right: 0;
-
-                &:last-child {
-                    width: 28px;
-                }
-
-                .pf-m-secondary {
-                    margin-right: 4px;
-                }
-            }
-        }
-    }
-}
-
 #network-mtu-settings-custom {
     position: relative;
     top: 6px;
@@ -239,45 +150,22 @@ th {
     margin-right: 20px;
 }
 
-// Some old PF3 dialogs are still in use within the networking page
-.modal {
-    @at-root {
-        .modal-title {
-            display: inline-block;
-            background: pink;
-            color: red;
-        }
-
-        .modal-header {
-            button {
-                margin-left: 10px;
-                background: pink;
-                color: red;
-            }
-
-            i.fa {
-                margin-right: 2px;
-                background: pink;
-                color: red;
-            }
-        }
-    }
+.pf-l-flex > .network-ip-settings-method {
+    width: 12rem;
 }
 
-// Handle form error state highlighting
-// This is done natively by PF4, but this is specifically for widgets on the networking page
-// (Can be removed once ported to PF4)
-.form-control.error {
-    border-color: #cc0000;
-
-    &:hover {
-        border-color: #990000;
+#network-ip-settings-body {
+    .pf-c-form__label {
+        // Don't allow labels to wrap
+        white-space: nowrap
     }
 
-    &:focus {
-        border-color: #990000;
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+    .remove-button-group {
+        // Move 'Remove' button the the end of the row
+        grid-column: -1;
+        // Move 'Remove' button to the bottom of the line so as to align with the other form fields
+        display: flex;
+        align-items: flex-end;
     }
 }
 
@@ -426,10 +314,6 @@ th {
 #add-zone-services-readonly legend {
     padding: 0;
     line-height: 1;
-}
-
-.network-ip-settings-row .pull-right {
-    display: flex;
 }
 
 // Animation for Firewall's add service dialog,

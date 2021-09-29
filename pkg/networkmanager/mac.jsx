@@ -1,5 +1,4 @@
 /*
-
  * This file is part of Cockpit.
  *
  * Copyright (C) 2021 Red Hat, Inc.

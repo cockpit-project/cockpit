@@ -1,0 +1,46 @@
+name: weblate-sync-pot
+on:
+  schedule:
+    # Run this on Tuesday evening (UTC), so that it's ready for release on
+    # Wednesday, with some spare time
+    - cron: '0 18 * * 2'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+
+jobs:
+  pot-upload:
+    environment: cockpit-weblate
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends gettext
+
+      - name: Clone source repository
+        uses: actions/checkout@v2
+        with:
+          path: src
+
+      - name: Install node_modules
+        run: make -C src -f pkg/build package-lock.json
+
+      - name: Generate .pot file
+        run: make -C src -f po/Makefile.am po/cockpit.pot
+
+      - name: Clone weblate repository
+        uses: actions/checkout@v2
+        with:
+          path: weblate
+          repository: ${{ github.repository }}-weblate
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Commit .pot to weblate repo
+        run: |
+          cp src/po/cockpit.pot weblate/cockpit.pot
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          git -C weblate commit -m "Update source file" -- cockpit.pot
+          git -C weblate push

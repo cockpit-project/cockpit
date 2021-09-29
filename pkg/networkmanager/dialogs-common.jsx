@@ -28,6 +28,7 @@ import {
 
 import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx';
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';
+import { BridgePortDialog } from './bridgeport.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
 import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
@@ -227,6 +228,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             {isOpen && type == 'mtu' ? <MtuDialog {...properties} /> : null}
             {isOpen && type == 'mac' ? <MacDialog {...properties} /> : null}
             {isOpen && type == 'teamport' ? <TeamPortDialog {...properties} /> : null}
+            {isOpen && type == 'bridgeport' ? <BridgePortDialog {...properties} /> : null}
         </>
     );
 };

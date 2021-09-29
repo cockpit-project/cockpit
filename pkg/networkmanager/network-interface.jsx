@@ -36,7 +36,6 @@ import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
-    PageNetworkBridgePortSettings,
     PageNetworkIpSettings,
     array_join,
     choice_title,
@@ -336,10 +335,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
         }
 
-        function configureBridgePortSettings() {
-            show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
-        }
-
         function renderAutoconnectRow() {
             if (settings.connection.autoconnect !== undefined) {
                 return (
@@ -558,7 +553,8 @@ export const NetworkInterfacePage = ({
             if (options.hairpin_mode)
                 addRow(_("Hairpin mode"));
 
-            return renderSettingsRow(_("Bridge port"), rows, configureBridgePortSettings);
+            const configure = <NetworkAction type="bridgeport" iface={iface} connectionSettings={settings} />;
+            return renderSettingsRow(_("Bridge port"), rows, configure);
         }
 
         function renderVlanSettingsRow() {

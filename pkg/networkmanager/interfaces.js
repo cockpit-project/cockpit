@@ -25,8 +25,6 @@ import cockpit from 'cockpit';
 import * as utils from './utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import { mustache } from 'mustache';
-
 /* jQuery extensions */
 import 'patterns';
 import 'bootstrap/dist/js/bootstrap';
@@ -2101,87 +2099,6 @@ export function apply_group_member(choices, model, apply_group, group_connection
     });
 }
 
-PageNetworkBridgePortSettings.prototype = {
-    _init: function () {
-        this.id = "network-bridgeport-settings-dialog";
-        this.bridge_port_settings_template = $("#network-bridge-port-settings-template").html();
-        mustache.parse(this.bridge_port_settings_template);
-    },
-
-    setup: function () {
-        $('#network-bridgeport-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-bridgeport-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-bridgeport-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-bridgeport-settings-error').prop('hidden', true);
-        this.settings = PageNetworkBridgePortSettings.ghost_settings || PageNetworkBridgePortSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const options = self.settings.bridge_port;
-
-        function change() {
-            // XXX - handle parse errors
-            options.priority = parseInt(priority_input.val(), 10);
-            options.path_cost = parseInt(path_cost_input.val(), 10);
-            options.hairpin_mode = hairpin_mode_input.prop('checked');
-        }
-
-        const body = $(mustache.render(self.bridge_port_settings_template, {
-            priority: options.priority,
-            path_cost: options.path_cost,
-            hairpin_mode_checked: options.hairpin_mode
-        }));
-        const priority_input = body.find('#network-bridge-port-settings-priority-input');
-        priority_input.change(change);
-        const path_cost_input = body.find('#network-bridge-port-settings-path-cost-input');
-        path_cost_input.change(change);
-        const hairpin_mode_input = body.find('#network-bridge-port-settings-hairpin-mode-input');
-        hairpin_mode_input.change(change);
-
-        $('#network-bridgeport-settings-body').html(body);
-    },
-
-    cancel: function() {
-        $('#network-bridgeport-settings-dialog').trigger('hide');
-    },
-
-    apply: function() {
-        const self = this;
-        const model = PageNetworkBridgePortSettings.model;
-
-        function modify () {
-            return PageNetworkBridgePortSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-bridgeport-settings-dialog').trigger('hide');
-                        if (PageNetworkBridgePortSettings.done)
-                            return PageNetworkBridgePortSettings.done();
-                    })
-                    .fail(function (error) {
-                        show_dialog_error('#network-bridgeport-settings-error', error);
-                    });
-        }
-
-        with_settings_checkpoint(model, modify,
-                                 { devices: connection_devices(PageNetworkBridgePortSettings.connection) });
-    }
-
-};
-
-export function PageNetworkBridgePortSettings() {
-    this._init();
-}
-
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -2210,7 +2127,6 @@ export function init() {
     cockpit.translate();
 
     dialog_setup(new PageNetworkIpSettings());
-    dialog_setup(new PageNetworkBridgePortSettings());
 
     $('#confirm-breaking-change-popup [data-dismiss]').click(() =>
         $('#confirm-breaking-change-popup').prop('hidden', true));

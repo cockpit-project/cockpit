@@ -63,7 +63,7 @@
 }
 
 .network-number-field {
-    width: 4em;
+    max-width: 4em;
 }
 
 .network-ip-settings-row {
@@ -237,13 +237,6 @@ th {
     font-weight: normal;
 }
 
-// Flip the MAC address dropdown to the inner of the modal
-// Bootstrap dropdown cannot escape the PF4 modal and it ends up cropped otherwise
-#network-bond-settings-mac-menu.dropdown-menu {
-    left: unset;
-    right: 0;
-}
-
 // Temporary curtain to hide the conten as it loads
 #testing-connection-curtain {
     z-index: 2000;
@@ -295,16 +288,6 @@ th {
         border-color: #990000;
         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
-    }
-}
-
-// Adjust the "learn more" link in the dialog help link (for bond settings)
-.pf-c-modal-box__header-help .popover-content > a {
-    display: block;
-    padding: var(--pf-global--spacer--md) 0 var(--pf-global--spacer--sm);
-
-    > .fa {
-        margin-right: var(--pf-global--spacer--sm);
     }
 }
 

@@ -45,28 +45,27 @@ class TestBonding(NetworkCase):
 
         # Bond them
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
+        b.wait_visible("#network-bond-settings-dialog")
         # wait until dialog initialized
-        b.wait_visible("#network-bond-settings-close-button")
-        b.wait_visible("#network-bond-settings-mac-input")
+        b.wait_visible("#network-bond-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-bond-settings-mac-input-select-typeahead")
         # menu is not visible by default, but gets initialized dynamically
-        b._wait_present("#network-bond-settings-mac-menu")
-        b.assert_pixels("#network-bond-settings-dialog .pf-c-modal-box", "networking-bond-settings-dialog")
+        b.assert_pixels("#network-bond-settings-dialog", "networking-bond-settings-dialog")
 
-        b.click("#network-bond-settings-dialog #network-bond-settings-close-button")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.click("#network-bond-settings-dialog > button[aria-label=Close]")
+        b.wait_not_present("#network-bond-settings-dialog")
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
+        b.wait_visible("#network-bond-settings-dialog")
         b.click("#network-bond-settings-dialog #bond-help-popup-button")
-        b.wait_visible(".popover .popover-title:contains('Network bond')")
+        b.wait_in_text("#popover-bond-help-header", "Network bond")
         b.click("#network-bond-settings-dialog #bond-help-popup-button")
-        b.wait_not_present(".popover .popover-title:contains('Network bond')")
+        b.wait_not_present("#popover-bond-help-header")
 
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that the configuration file has the expected sane name
@@ -88,7 +87,7 @@ class TestBonding(NetworkCase):
         b.click("#network-interface-settings dd:contains('Active backup') button")
         b.wait_val("#network-bond-settings-link-monitoring-select", "mii")
         b.click("#network-bond-settings-dialog button:contains('Cancel')")
-        b.wait_not_present("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         # Navigate to the first member, check it, navigate back
         b.click("#network-interface-members tr[data-interface='%s'] button.pf-m-link" % iface1)
@@ -153,12 +152,12 @@ class TestBonding(NetworkCase):
         b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
 
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         b.wait_visible("#network-interface")
@@ -179,12 +178,12 @@ class TestBonding(NetworkCase):
         # test the renaming.
 
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-link-monitoring-select", "arp")
-        b.set_val("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.select_from_dropdown("#network-bond-settings-link-monitoring-select", "arp")
+        b.set_input_text("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         # Rename while it is active
         self.addCleanup(m.execute, "nmcli dev delete tbond3000 2>/dev/null || true")
@@ -194,15 +193,15 @@ class TestBonding(NetworkCase):
         self.wait_for_iface_setting('Status', 'Configuring')
 
         self.configure_iface_setting('Bond')
-        b.wait_popup("network-bond-settings-dialog")
+        b.wait_visible("#network-bond-settings-dialog")
 
         # Check that link monitoring is correctly set up
         b.wait_val("#network-bond-settings-link-monitoring-select", "arp")
         b.wait_val("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
 
-        b.set_val("#network-bond-settings-interface-name-input", "tbond3000")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond3000")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
         b.wait_text("#network-interface-name", "tbond3000")
 
     def testActive(self):
@@ -221,13 +220,13 @@ class TestBonding(NetworkCase):
         # the same IP as the active interface.
 
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
-        b.click("#network-bond-settings-mac-input + .dropdown .dropdown-toggle")
-        b.click("#network-bond-settings-mac-input + .dropdown a:contains('(cockpit1)')")
+        b.click("#network-bond-settings-mac-input")
+        b.click("li button:contains('(cockpit1)')")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
@@ -290,11 +289,11 @@ class TestBondingVirt(NetworkCase):
 
         # Put the main interface into a bond.  Everything should keep working.
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
@@ -328,11 +327,11 @@ class TestBondingVirt(NetworkCase):
         # is actually triggered.
 
         b.click("button:contains('Add bond')")
-        b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-interface-name-input", "tbond")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_not_present("#network-bond-settings-dialog")
 
         # Check that it has the main connection and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] button")

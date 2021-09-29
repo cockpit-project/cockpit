@@ -149,63 +149,6 @@
     </form>
   </script>
 
-  <script id="network-bond-settings-template" type="x-template/mustache">
-    <form class="ct-form">
-      <label class="control-label" for="network-bond-settings-interface-name-input" translate="yes">Name</label>
-      <input id="network-bond-settings-interface-name-input" class="form-control"
-             value="{{interface_name}}"/>
-
-      <label class="control-label" translate="yes">Interfaces</label>
-      <div id="network-bond-settings-members">
-      {{! member interfaces will be rendered into here as a list of checkboxes }}
-      </div>
-
-      <label class="control-label" for="network-bond-settings-mac-input" translate="yes">MAC</label>
-      <div class="input-group">
-        <input id="network-bond-settings-mac-input" class="form-control" type="text"
-               value="{{assigned_mac_address}}"/>
-        <div class="input-group-btn dropdown">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span class="fa fa-caret-down"></span>
-          </button>
-          <ul id="network-bond-settings-mac-menu" class="dropdown-menu add-button" role="menu">
-          </ul>
-        </div>
-      </div>
-
-      <label class="control-label" for="network-bond-settings-mode-select" translate="yes">Mode</label>
-      <div id="network-bond-settings-mode-select">
-        {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-bond-settings-primary-select" translate="yes">Primary</label>
-      <div id="network-bond-settings-primary-select">
-        {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-bond-settings-link-monitoring-select" translate="yes">Link monitoring</label>
-      <div id="network-bond-settings-link-monitoring-select">
-        {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translate="yes">Monitoring interval</label>
-      <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{monitoring_interval}}"/>
-
-      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translate="yes">Monitoring targets</label>
-      <input id="network-bond-settings-monitoring-targets-input" class="form-control"
-             type="text" value="{{monitoring_target}}"/>
-
-      <label class="control-label" for="network-bond-settings-link-up-delay-input" translate="yes">Link up delay</label>
-      <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{link_up_delay}}"/>
-
-      <label class="control-label" for="network-bond-settings-link-down-delay-input" translate="yes">Link down delay</label>
-      <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{link_down_delay}}"/>
-    </form>
-  </script>
-
   <script id="network-team-settings-template" type="x-template/mustache">
     <form class="ct-form">
       <label class="control-label" for="network-team-settings-interface-name-input" translate="yes">Name</label>
@@ -295,41 +238,6 @@
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-ip-settings-cancel">Cancel</button>
-          </footer>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div hidden aria-hidden="true" id="network-bond-settings-dialog">
-    <div class="pf-c-backdrop">
-      <div class="pf-l-bullseye">
-        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
-          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bond-settings-close-button" translate="aria-label">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-          <header class="pf-c-modal-box__header pf-m-help">
-            <div class="pf-c-modal-box__header-main">
-              <h1 class="pf-c-modal-box__title" translate="yes">Bond settings</h1>
-            </div>
-            <div class="pf-c-modal-box__header-help">
-              <button id="bond-help-popup-button" class="pf-c-button pf-m-plain" type="button" aria-label="Help" tranlate="aria-label">
-                <i class="pficon pficon-help" aria-hidden="true" data-toggle="popover"></i>
-              </button>
-            </div>
-          </header>
-          <div class="pf-c-modal-box__body">
-            <div id="network-bond-settings-body"></div>
-          </div>
-          <footer class="pf-c-modal-box__footer">
-            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
-              <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </div>
-              <h4 class="pf-c-alert__title"></h4>
-            </div>
-            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
-            <button class="pf-c-button pf-m-link" translate="yes" id="network-bond-settings-cancel">Cancel</button>
           </footer>
         </div>
       </div>

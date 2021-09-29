@@ -20,13 +20,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cockpit from 'cockpit';
 
-import { Button, Checkbox, Form, FormGroup, Modal, Stack, TextInput } from '@patternfly/react-core';
+import {
+    Button, Checkbox, Form, FormGroup, Modal,
+    Select, SelectOption, SelectVariant,
+    Stack, TextInput
+} from '@patternfly/react-core';
 
 import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx';
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
 import { MtuDialog } from './mtu.jsx';
+import { MacDialog } from './mac.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ModelContext } from './model-context.jsx';
 
@@ -40,6 +45,69 @@ import {
 import { reactivateConnection } from './network-interface.jsx';
 
 const _ = cockpit.gettext;
+
+export const MacMenu = ({ idPrefix, model, mac, setMAC }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [optionsMap, setOptionsMap] = useState([]);
+
+    useEffect(() => {
+        const optionsMapInit = [];
+
+        model.list_interfaces().forEach(iface => {
+            if (iface.Device && iface.Device.HwAddress && iface.Device.HwAddress !== "00:00:00:00:00:00") {
+                optionsMapInit.push({
+                    toString: () => cockpit.format("$0 ($1)", iface.Device.HwAddress, iface.Name),
+                    value: iface.Device.HwAddress
+                });
+            }
+        });
+        optionsMapInit.push(
+            { toString: () => _("Permanent"), value: "permanent" },
+            { toString: () => _("Perserve"), value: "preserve" },
+            { toString: () => _("Random"), value: "random" },
+            { toString: () => _("Stable"), value: "stable" },
+        );
+        setOptionsMap(optionsMapInit);
+    }, [model]);
+
+    const clearSelection = () => {
+        setMAC(undefined);
+        setIsOpen(false);
+    };
+
+    const onSelect = (_, selection) => {
+        if (typeof selection == 'object')
+            setMAC(selection.value);
+        else
+            setMAC(selection);
+        setIsOpen(false);
+    };
+
+    const onCreateOption = newValue => {
+        setOptionsMap([...optionsMap, { value: newValue, toString: () => newValue }]);
+    };
+
+    return (
+        <Select createText={_("Use")}
+                isCreatable
+                isOpen={isOpen}
+                menuAppendTo={() => document.body}
+                onClear={clearSelection}
+                onCreateOption={onCreateOption}
+                onSelect={onSelect}
+                onToggle={value => setIsOpen(value)}
+                selections={optionsMap.find(option => option.value == mac)}
+                variant={SelectVariant.typeahead}
+                toggleId={idPrefix + "-mac-input"}
+        >
+            {optionsMap.map((option, index) => (
+                <SelectOption key={index}
+                              value={option}
+                />
+            ))}
+        </Select>
+    );
+};
 
 export const MemberInterfaceChoices = ({ idPrefix, memberChoices, setMemberChoices, model, group }) => {
     return (
@@ -91,7 +159,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
     );
 };
 
-export const NetworkAction = ({ addButtonText, iface, connectionSettings, type }) => {
+export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showAddTeam, setShowAddTeam] = useState(undefined);
     const model = useContext(ModelContext);
@@ -149,13 +217,14 @@ export const NetworkAction = ({ addButtonText, iface, connectionSettings, type }
                     isInline={!!iface}
                     onClick={syn_click(model, setIsOpen, true)}
                     variant={!iface ? "secondary" : "link"}>
-                {!iface ? addButtonText : _("edit")}
+                {buttonText || _("edit")}
             </Button>
             {isOpen && type == 'bond' ? <BondDialog {...properties} /> : null}
             {isOpen && type == 'vlan' ? <VlanDialog {...properties} /> : null}
             {isOpen && type == 'team' ? <TeamDialog {...properties} /> : null}
             {isOpen && type == 'bridge' ? <BridgeDialog {...properties} /> : null}
             {isOpen && type == 'mtu' ? <MtuDialog {...properties} /> : null}
+            {isOpen && type == 'mac' ? <MacDialog {...properties} /> : null}
         </>
     );
 };

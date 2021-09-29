@@ -49,10 +49,11 @@ class TestNetworkingMAC(NetworkCase):
         if self.networkmanager_version >= [1, 4, 0]:
             new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac button")
-            b.wait_popup("network-mac-settings-dialog")
-            b.set_val('#network-mac-settings-input', new_mac)
+            b.wait_visible("#network-mac-settings-dialog")
+            b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
+            b.click(".pf-c-select ul > li > button")
             b.click("#network-mac-settings-apply")
-            b.wait_popdown("network-mac-settings-dialog")
+            b.wait_not_present("#network-mac-settings-dialog")
 
             b.wait_text("#network-interface-mac", new_mac.upper())
             self.assertIn(new_mac.lower(), m.execute("ip link show '%s'" % iface))
@@ -89,10 +90,11 @@ class TestNetworkingMAC(NetworkCase):
         if self.networkmanager_version >= [1, 6, 0]:
             new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac button")
-            b.wait_popup("network-mac-settings-dialog")
-            b.set_val('#network-mac-settings-input', new_mac)
+            b.wait_visible("#network-mac-settings-dialog")
+            b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
+            b.click(".pf-c-select ul > li > button")
             b.click("#network-mac-settings-apply")
-            b.wait_popdown("network-mac-settings-dialog")
+            b.wait_not_present("#network-mac-settings-dialog")
 
             b.wait_text("#network-interface-mac", new_mac.upper())
             self.assertIn(new_mac.lower(), m.execute("ip link show tbond"))

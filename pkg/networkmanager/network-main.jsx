@@ -172,10 +172,10 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                         <CardHeader>
                             <CardTitle><Text component={TextVariants.h2}>{_("Interfaces")}</Text></CardTitle>
                             {privileged && <CardActions>
-                                <NetworkAction addButtonText={_("Add bond")} type='bond' />
-                                <NetworkAction addButtonText={_("Add team")} type='team' />
-                                <NetworkAction addButtonText={_("Add bridge")} type='bridge' />
-                                <NetworkAction addButtonText={_("Add VLAN")} type='vlan' />
+                                <NetworkAction buttonText={_("Add bond")} type='bond' />
+                                <NetworkAction buttonText={_("Add team")} type='team' />
+                                <NetworkAction buttonText={_("Add bridge")} type='bridge' />
+                                <NetworkAction buttonText={_("Add VLAN")} type='vlan' />
                             </CardActions>}
                         </CardHeader>
                         <ListingTable aria-label={_("Managed interfaces")}

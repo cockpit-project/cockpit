@@ -17,19 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
 import {
     Button,
     FormGroup,
     FormSelect, FormSelectOption,
     Popover,
-    Select, SelectOption, SelectVariant,
     TextInput,
 } from '@patternfly/react-core';
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
-import { MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
+import { MacMenu, MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -167,7 +166,7 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
                     <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-mac-input"} label={_("MAC")}>
-                    <MacMenu model={model} mac={mac} setMAC={setMAC} />
+                    <MacMenu idPrefix={idPrefix} model={model} mac={mac} setMAC={setMAC} />
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-mode-select"} label={_("Mode")}>
                     <FormSelect id={idPrefix + "-mode-select"} onChange={setMode}
@@ -208,69 +207,6 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
                 </FormGroup>}
             </>
         </NetworkModal>
-    );
-};
-
-const MacMenu = ({ model, mac, setMAC }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [optionsMap, setOptionsMap] = useState([]);
-
-    useEffect(() => {
-        const optionsMapInit = [];
-
-        model.list_interfaces().forEach(iface => {
-            if (iface.Device && iface.Device.HwAddress && iface.Device.HwAddress !== "00:00:00:00:00:00") {
-                optionsMapInit.push({
-                    toString: () => cockpit.format("$0 ($1)", iface.Device.HwAddress, iface.Name),
-                    value: iface.Device.HwAddress
-                });
-            }
-        });
-        optionsMapInit.push(
-            { toString: () => _("Permanent"), value: "permanent" },
-            { toString: () => _("Perserve"), value: "preserve" },
-            { toString: () => _("Random"), value: "random" },
-            { toString: () => _("Stable"), value: "stable" },
-        );
-        setOptionsMap(optionsMapInit);
-    }, [model]);
-
-    const clearSelection = () => {
-        setMAC(undefined);
-        setIsOpen(false);
-    };
-
-    const onSelect = (_, selection) => {
-        if (typeof selection == 'object')
-            setMAC(selection.value);
-        else
-            setMAC(selection);
-        setIsOpen(false);
-    };
-
-    const onCreateOption = newValue => {
-        setOptionsMap([...optionsMap, { value: newValue, toString: () => newValue }]);
-    };
-
-    return (
-        <Select createText={_("Use")}
-                isCreatable
-                isOpen={isOpen}
-                menuAppendTo={() => document.body}
-                onClear={clearSelection}
-                onCreateOption={onCreateOption}
-                onSelect={onSelect}
-                onToggle={value => setIsOpen(value)}
-                selections={optionsMap.find(option => option.value == mac) || mac}
-                variant={SelectVariant.typeahead}
-                toggleId="network-bond-settings-mac-input"
-        >
-            {optionsMap.map((option, index) => (
-                <SelectOption key={index}
-                              value={option}
-                />
-            ))}
-        </Select>
     );
 };
 

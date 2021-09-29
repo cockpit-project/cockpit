@@ -58,7 +58,10 @@ read_file (int dirfd,
   const ssize_t len = read (fd, buf, bufsize);
   if (len < 0)
     {
-      g_message ("error loading file: %s/%s: %m", cgroup, fname);
+      if (errno == ENODEV) /* similar to error at open() */
+        g_debug ("error loading file: %s/%s: %m", cgroup, fname);
+      else
+        g_message ("error loading file: %s/%s: %m", cgroup, fname);
       goto out;
     }
   /* we really expect a much smaller read; if we get a full buffer, there's likely

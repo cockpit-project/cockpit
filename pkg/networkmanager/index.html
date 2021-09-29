@@ -149,50 +149,6 @@
     </form>
   </script>
 
-  <script id="network-team-settings-template" type="x-template/mustache">
-    <form class="ct-form">
-      <label class="control-label" for="network-team-settings-interface-name-input" translate="yes">Name</label>
-      <input id="network-team-settings-interface-name-input" class="form-control"
-             value="{{interface_name}}"/>
-
-      <label class="control-label" translate="yes">Ports</label>
-      <div id="network-team-settings-members">
-          {{! ports will be rendered into here as a list of checkboxes }}
-      </div>
-
-      <label class="control-label" for="network-team-settings-runner-select" translate="yes">Runner</label>
-      <div id="network-team-settings-runner-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-team-settings-balancer-select" translate="yes">Balancer</label>
-      <div id="network-team-settings-balancer-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-team-settings-link-watch-select" translate="yes">Link watch</label>
-      <div id="network-team-settings-link-watch-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-      </div>
-
-      <label class="control-label" for="network-team-settings-ping-interval-input" translate="yes">Ping interval</label>
-      <input id="network-team-settings-ping-interval-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
-
-      <label class="control-label" for="network-team-settings-ping-target-input" translate="yes">Ping target</label>
-      <input id="network-team-settings-ping-target-input" class="form-control"
-             type="text" value="{{config.link_watch.target_host}}"/>
-
-      <label class="control-label" for="network-team-settings-link-up-delay-input" translate="yes">Link up delay</label>
-      <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
-
-      <label class="control-label" for="network-team-settings-link-down-delay-input" translate="yes">Link down delay</label>
-      <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field ct-form-relax"
-             type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
-    </form>
-  </script>
-
   <script id="network-team-port-settings-template" type="x-template/mustache">
     <form class="ct-form">
       <label class="control-label" for="network-team-port-settings-ab-prio-input" translate="yes">Priority</label>
@@ -238,35 +194,6 @@
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-ip-settings-cancel">Cancel</button>
-          </footer>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div hidden aria-hidden="true" id="network-team-settings-dialog">
-    <div class="pf-c-backdrop">
-      <div class="pf-l-bullseye">
-        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
-          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-team-settings-close-button" translate="aria-label">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-          <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" translate="yes">Team settings</h1>
-          </header>
-          <div class="pf-c-modal-box__body">
-            <div id="network-team-settings-body">
-            </div>
-          </div>
-          <footer class="pf-c-modal-box__footer">
-            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
-              <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </div>
-              <h4 class="pf-c-alert__title"></h4>
-            </div>
-            <button class="pf-c-button pf-m-primary" translate="yes" id="network-team-settings-apply">Apply</button>
-            <button class="pf-c-button pf-m-link" translate="yes" id="network-team-settings-cancel">Cancel</button>
           </footer>
         </div>
       </div>

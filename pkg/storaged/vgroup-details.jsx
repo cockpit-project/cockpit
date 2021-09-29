@@ -37,7 +37,8 @@ import { VGroup } from "./content-views.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import {
     dialog_open, TextInput, SelectSpaces,
-    BlockingMessage, TeardownMessage
+    BlockingMessage, TeardownMessage,
+    teardown_and_apply_title
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -197,10 +198,13 @@ export class VGroupDetails extends React.Component {
 
             dialog_open({
                 Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
-                Footer: TeardownMessage(usage),
+                Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: _("Deleting a volume group will erase all data on it."),
-                    Title: _("Delete"),
+                    Title: teardown_and_apply_title(usage,
+                                                    _("Delete"),
+                                                    _("Unmount and delete"),
+                                                    _("Remove and delete")),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(function () {

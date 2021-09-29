@@ -33,7 +33,7 @@ import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
-import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage } from "./dialog.jsx";
+import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage, teardown_and_apply_title } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -244,9 +244,12 @@ export class MDRaidDetails extends React.Component {
                 dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           utils.mdraid_name(mdraid)),
-                    Footer: TeardownMessage(usage),
+                    Teardown: TeardownMessage(usage),
                     Action: {
-                        Title: _("Stop device"),
+                        Title: teardown_and_apply_title(usage,
+                                                        _("Stop device"),
+                                                        _("Unmount and stop device"),
+                                                        _("Remove and stop device")),
                         action: function () {
                             return utils.teardown_active_usage(client, usage)
                                     .then(function () {
@@ -295,9 +298,12 @@ export class MDRaidDetails extends React.Component {
             dialog_open({
                 Title: cockpit.format(_("Please confirm deletion of $0"),
                                       utils.mdraid_name(mdraid)),
-                Footer: TeardownMessage(usage),
+                Teardown: TeardownMessage(usage),
                 Action: {
-                    Title: _("Delete"),
+                    Title: teardown_and_apply_title(usage,
+                                                    _("Delete"),
+                                                    _("Unmount and delete"),
+                                                    _("Remove and delete")),
                     Danger: _("Deleting a RAID device will erase all data on it."),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)

@@ -34,11 +34,11 @@ import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { BondAction } from './bond.jsx';
 import { TeamAction } from './team.jsx';
+import { BridgeAction } from './bridge.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
     PageNetworkBridgePortSettings,
-    PageNetworkBridgeSettings,
     PageNetworkIpSettings,
     PageNetworkMacSettings,
     PageNetworkMtuSettings,
@@ -349,10 +349,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
         }
 
-        function configureBridgeSettings() {
-            show_dialog(PageNetworkBridgeSettings, '#network-bridge-settings-dialog');
-        }
-
         function configureBridgePortSettings() {
             show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
         }
@@ -558,7 +554,9 @@ export const NetworkInterfacePage = ({
                     addRow(_("Maximum message age $max_age"), options);
             }
 
-            return renderSettingsRow(_("Bridge"), rows, configureBridgeSettings);
+            const con = iface.MainConnection;
+            const configure = <BridgeAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            return renderSettingsRow(_("Bridge"), rows, configure);
         }
 
         function renderBridgePortSettingsRow() {

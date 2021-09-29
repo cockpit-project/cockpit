@@ -45,18 +45,18 @@ class TestBridge(NetworkCase):
 
         # Bridge them
         b.click("button:contains('Add bridge')")
-        b.wait_popup("network-bridge-settings-dialog")
+        b.wait_visible("#network-bridge-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-bridge-settings-close-button")
+        b.wait_visible("#network-bridge-settings-dialog > button[aria-label=Close]")
         b.wait_in_text("#network-bridge-settings-body", "cockpit2")
-        b.assert_pixels("#network-bridge-settings-dialog .pf-c-modal-box", "networking-bridge-settings-dialog")
+        b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
 
-        b.set_val("#network-bridge-settings-name-input", "tbridge")
+        b.set_input_text("#network-bridge-settings-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bridge-settings-dialog")
+        b.wait_not_present("#network-bridge-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
 
         # Check that the configuration file has the expected sane name
@@ -73,7 +73,7 @@ class TestBridge(NetworkCase):
         b.wait_text_not("#network-interface-mac", "")
         self.configure_iface_setting('Bridge')
         b.click("#network-bridge-settings-dialog button:contains('Cancel')")
-        b.wait_not_present("network-bridge-settings-dialog")
+        b.wait_not_present("#network-bridge-settings-dialog")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
@@ -99,11 +99,11 @@ class TestBridge(NetworkCase):
         # get the same IP as the active interface, but it should get a valid DHCP IP.
 
         b.click("button:contains('Add bridge')")
-        b.wait_popup("network-bridge-settings-dialog")
-        b.set_val("#network-bridge-settings-name-input", "tbridge")
+        b.wait_visible("#network-bridge-settings-dialog")
+        b.set_input_text("#network-bridge-settings-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-bridge-settings-dialog")
+        b.wait_not_present("#network-bridge-settings-dialog")
 
         # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbridge'] th button")

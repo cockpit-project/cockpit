@@ -33,6 +33,7 @@ import {
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { BondAction } from './bond.jsx';
+import { TeamAction } from './team.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
@@ -42,7 +43,6 @@ import {
     PageNetworkMacSettings,
     PageNetworkMtuSettings,
     PageNetworkTeamPortSettings,
-    PageNetworkTeamSettings,
     PageNetworkVlanSettings,
     array_join,
     bond_mode_choices,
@@ -344,10 +344,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
         }
 
-        function configureTeamSettings() {
-            show_dialog(PageNetworkTeamSettings, '#network-team-settings-dialog');
-        }
-
         function configureTeamPortSettings() {
             PageNetworkTeamPortSettings.group_settings = group_settings;
             show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
@@ -505,7 +501,10 @@ export const NetworkInterfacePage = ({
 
             if (parts.length > 0)
                 rows.push(parts.join(", "));
-            return renderSettingsRow(_("Team"), rows, configureTeamSettings);
+
+            const con = iface.MainConnection;
+            const configure = <TeamAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            return renderSettingsRow(_("Team"), rows, configure);
         }
 
         function renderTeamPortSettingsRow() {

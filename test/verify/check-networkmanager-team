@@ -32,7 +32,7 @@ class TestTeam(NetworkCase):
 
         self.login_and_go("/network")
 
-        b.wait_attr("#networking-add-team", "data-test-stable", "true")
+        b.wait_visible("button:contains('Add team')")
 
         iface1 = "cockpit1"
         self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
@@ -45,18 +45,18 @@ class TestTeam(NetworkCase):
 
         # team them
         b.click("button:contains('Add team')")
-        b.wait_popup("network-team-settings-dialog")
+        b.wait_visible("#network-team-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-team-settings-close-button")
+        b.wait_visible("#network-team-settings-dialog > button[aria-label=Close]")
         b.wait_in_text("#network-team-settings-body", "cockpit2")
-        b.assert_pixels("#network-team-settings-dialog .pf-c-modal-box", "networking-team-settings-dialog")
+        b.assert_pixels("#network-team-settings-dialog", "networking-team-settings-dialog")
 
-        b.set_val("#network-team-settings-interface-name-input", "tteam")
+        b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-team-settings-dialog")
+        b.wait_not_present("#network-team-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that the configuration file has the expected sane name
@@ -110,11 +110,11 @@ class TestTeam(NetworkCase):
         # get the same IP as the active interface, but it should get a valid DHCP IP.
 
         b.click("button:contains('Add team')")
-        b.wait_popup("network-team-settings-dialog")
-        b.set_val("#network-team-settings-interface-name-input", "tteam")
+        b.wait_visible("#network-team-settings-dialog")
+        b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-team-settings-dialog")
+        b.wait_not_present("#network-team-settings-dialog")
 
         # Check that it has the interface and the right IP address
         self.select_iface('tteam')

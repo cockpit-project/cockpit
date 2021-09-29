@@ -26,12 +26,12 @@ import {
 
 import {
     PageNetworkBridgeSettings,
-    PageNetworkTeamSettings,
     PageNetworkVlanSettings,
     settings_applier,
     syn_click,
 } from './interfaces.js';
 import { BondAction } from './bond.jsx';
+import { TeamAction } from './team.jsx';
 import { ModelContext } from './model-context.jsx';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -40,59 +40,10 @@ const _ = cockpit.gettext;
 export class NetworkPageDialogs extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {
-            /* HACK - hide "Add team" if it doesn't work due to missing bits
-             * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
-             */
-            showAddTeam: undefined,
-        };
         this.addBridge = this.addBridge.bind(this);
-        this.addTeam = this.addTeam.bind(this);
         this.addVlan = this.addVlan.bind(this);
 
         this.model = context;
-    }
-
-    componentDidMount() {
-        // We need both the plugin and teamd
-        cockpit.script("test -f /usr/bin/teamd && " +
-                       "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib*/NetworkManager/*/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/*/libnm-device-plugin-team.so)",
-                       { err: "ignore" })
-                .done(() => {
-                    this.setState({ showAddTeam: true });
-                })
-                .fail(() => {
-                    this.setState({ showAddTeam: false });
-                });
-    }
-
-    addTeam() {
-        let iface;
-
-        const uuid = uuidv4();
-        for (let i = 0; i < 100; i++) {
-            iface = "team" + i;
-            if (!this.model.find_interface(iface))
-                break;
-        }
-
-        const ghost_settings = {
-            connection: {
-                id: iface,
-                autoconnect: true,
-                type: "team",
-                uuid: uuid,
-                interface_name: iface
-            },
-            team: {
-                config: { },
-                interface_name: iface
-            }
-        };
-        this.show_dialog(PageNetworkTeamSettings, '#network-team-settings-dialog', ghost_settings);
     }
 
     addBridge() {
@@ -165,11 +116,7 @@ export class NetworkPageDialogs extends React.Component {
         return (
             <>
                 <BondAction />
-                {this.state.showAddTeam &&
-                <Button data-test-stable={this.state.showAddTeam !== undefined}
-                        id="networking-add-team"
-                        onClick={syn_click(this.model, this.addTeam)}
-                        variant="secondary">{_("Add team")}</Button>}
+                <TeamAction />
                 <Button id="networking-add-bridge"
                         onClick={syn_click(this.model, this.addBridge)}
                         variant="secondary">{_("Add bridge")}</Button>

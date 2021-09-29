@@ -2101,104 +2101,6 @@ export function apply_group_member(choices, model, apply_group, group_connection
     });
 }
 
-PageNetworkTeamPortSettings.prototype = {
-    _init: function () {
-        this.id = "network-teamport-settings-dialog";
-        this.team_port_settings_template = $("#network-team-port-settings-template").html();
-        mustache.parse(this.team_port_settings_template);
-    },
-
-    setup: function () {
-        $('#network-teamport-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-teamport-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-teamport-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-teamport-settings-error').prop('hidden', true);
-        this.settings = PageNetworkTeamPortSettings.ghost_settings || PageNetworkTeamPortSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const group_config = PageNetworkTeamPortSettings.group_settings.team.config;
-        let config = self.settings.team_port.config;
-
-        if (!config)
-            self.settings.team_port.config = config = { };
-
-        function change() {
-            // XXX - handle parse errors
-            if (group_config.runner.name == "activebackup") {
-                config.prio = parseInt(ab_prio_input.val(), 10);
-                config.sticky = ab_sticky_input.prop('checked');
-            } else if (group_config.runner.name == "lacp") {
-                config.lacp_prio = parseInt(lacp_prio_input.val(), 10);
-                config.lacp_key = parseInt(lacp_key_input.val(), 10);
-            }
-        }
-
-        const body = $(mustache.render(self.team_port_settings_template, config));
-        const ab_prio_input = body.find('#network-team-port-settings-ab-prio-input');
-        ab_prio_input.change(change);
-        const ab_sticky_input = body.find('#network-team-port-settings-ab-sticky-input');
-        ab_sticky_input.change(change);
-        const lacp_prio_input = body.find('#network-team-port-settings-lacp-prio-input');
-        lacp_prio_input.change(change);
-        const lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
-        lacp_key_input.change(change);
-
-        ab_prio_input.toggle(group_config.runner.name == "activebackup");
-        ab_prio_input.prev().toggle(group_config.runner.name == "activebackup");
-        ab_sticky_input.toggle(group_config.runner.name == "activebackup");
-        ab_sticky_input
-                .parent()
-                .prev()
-                .toggle(group_config.runner.name == "activebackup");
-        lacp_prio_input.toggle(group_config.runner.name == "lacp");
-        lacp_prio_input.prev().toggle(group_config.runner.name == "lacp");
-        lacp_key_input.toggle(group_config.runner.name == "lacp");
-        lacp_key_input.prev().toggle(group_config.runner.name == "lacp");
-
-        $('#network-teamport-settings-body').html(body);
-    },
-
-    cancel: function() {
-        $('#network-teamport-settings-dialog').prop('hidden', true);
-    },
-
-    apply: function() {
-        const self = this;
-        const model = PageNetworkTeamPortSettings.model;
-
-        function modify () {
-            return PageNetworkTeamPortSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-teamport-settings-dialog').trigger('hide');
-                        if (PageNetworkTeamPortSettings.done)
-                            return PageNetworkTeamPortSettings.done();
-                    })
-                    .fail(function (error) {
-                        show_dialog_error('#network-teamport-settings-error', error);
-                    });
-        }
-
-        with_settings_checkpoint(model, modify,
-                                 { devices: connection_devices(PageNetworkTeamPortSettings.connection) });
-    }
-};
-
-export function PageNetworkTeamPortSettings() {
-    this._init();
-}
-
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
         this.id = "network-bridgeport-settings-dialog";
@@ -2308,7 +2210,6 @@ export function init() {
     cockpit.translate();
 
     dialog_setup(new PageNetworkIpSettings());
-    dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
 
     $('#confirm-breaking-change-popup [data-dismiss]').click(() =>

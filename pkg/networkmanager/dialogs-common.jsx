@@ -29,6 +29,7 @@ import {
 import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx';
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
+import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
 import { MtuDialog } from './mtu.jsx';
 import { MacDialog } from './mac.jsx';
@@ -213,7 +214,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
 
     return (
         <>
-            <Button id={"networking-add-" + type}
+            <Button id={"networking-" + (!iface ? "add-" : "edit-") + type}
                     isInline={!!iface}
                     onClick={syn_click(model, setIsOpen, true)}
                     variant={!iface ? "secondary" : "link"}>
@@ -225,6 +226,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             {isOpen && type == 'bridge' ? <BridgeDialog {...properties} /> : null}
             {isOpen && type == 'mtu' ? <MtuDialog {...properties} /> : null}
             {isOpen && type == 'mac' ? <MacDialog {...properties} /> : null}
+            {isOpen && type == 'teamport' ? <TeamPortDialog {...properties} /> : null}
         </>
     );
 };

@@ -232,7 +232,7 @@ export class CryptoTab extends React.Component {
 
         return (
             <div>
-                <DescriptionList className="pf-m-horizontal-on-sm">
+                <DescriptionList className="pf-m-horizontal-on-sm ct-wide-labels">
                     { !this.state.slot_error &&
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Encryption type")}</DescriptionListTerm>

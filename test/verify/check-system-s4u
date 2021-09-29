@@ -58,14 +58,15 @@ class TestS4USsh(MachineCase):
         # join client machine with Cockpit, to create the HTTP/ principal
         self.login_and_go("/system")
         b.click("#system_information_domain_button")
-        b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "cockpit.lan")
-        b.wait_text(".realms-op-address-error", "Contacted domain")
-        b.set_val("#realms-op-admin", "admin")
-        b.set_val("#realms-op-admin-password", "foobarfoo")
-        b.click(".realms-op-apply")
+        b.wait_popup("realms-join-dialog")
+        b.wait_attr("#realms-op-address", "data-discover", "done")
+        b.set_input_text("#realms-op-address", "cockpit.lan")
+        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        b.set_input_text("#realms-op-admin", "admin")
+        b.set_input_text("#realms-op-admin-password", "foobarfoo")
+        b.click(f"#realms-join-dialog button{self.primary_btn_class}")
         with b.wait_timeout(300):
-            b.wait_popdown("realms-op")
+            b.wait_not_present("#realms-join-dialog")
         b.logout()
         # the above installed a new certificate; pick this up, enable cert auth and TLS
         client_machine.write("/etc/cockpit/cockpit.conf", '[WebService]\nClientCertAuthentication = true\n', append=True)

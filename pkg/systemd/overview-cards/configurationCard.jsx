@@ -24,11 +24,10 @@ import {
 
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { Privileged } from "cockpit-components-privileged.jsx";
-import { ServerTimeConfig } from 'serverTime.js';
-import * as realmd from "./realmd-operation.js";
 import { superuser } from "superuser";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ServerTimeConfig } from 'serverTime.js';
+import { RealmdClient, RealmButton } from "./realmd.jsx";
 
 import "./configurationCard.scss";
 
@@ -43,36 +42,23 @@ export class ConfigurationCard extends React.Component {
             showKeysModal: false,
         };
 
-        this.realmd = realmd.setup();
+        this.realmd_client = new RealmdClient();
+        superuser.addEventListener("changed", () => this.realmd_client.initProxy());
     }
 
     componentDidMount() {
-        this.realmd.addEventListener("changed", () => this.setState({}));
+        this.realmd_client.addEventListener("changed", () => this.setState({}));
     }
 
     render() {
         let hostname_button = null;
-        if (superuser.allowed && !this.realmd.hostname_button_disabled)
+        if (superuser.allowed && this.realmd_client.allowHostnameChange())
             hostname_button = (
                 <Button id="system_information_hostname_button" variant="link"
                         onClick={ () => this.setState({ hostEditModal: true }) }
                         isInline aria-label="edit hostname">
                     {this.props.hostname !== "" ? _("edit") : _("Set hostname")}
                 </Button>);
-
-        const domain_tooltip = superuser.allowed && this.realmd.button_tooltip;
-        const domain_disabled = !superuser.allowed || this.realmd.button_disabled;
-
-        const domain_button = (
-            <Privileged allowed={ !domain_tooltip }
-                        tooltipId="system_information_domain_tooltip"
-                        excuse={ domain_tooltip }>
-                <Button id="system_information_domain_button" variant="link"
-                        onClick={ () => this.realmd.clicked() }
-                        isInline isDisabled={ domain_disabled } aria-label="join domain">
-                    { superuser.allowed ? this.realmd.button_text : _("Not joined") }
-                </Button>
-            </Privileged>);
 
         return (
             <>
@@ -98,7 +84,7 @@ export class ConfigurationCard extends React.Component {
 
                                 <tr>
                                     <th scope="row">{_("Domain")}</th>
-                                    <td>{domain_button}</td>
+                                    <td><RealmButton realmd_client={this.realmd_client} /></td>
                                 </tr>
 
                                 <tr>

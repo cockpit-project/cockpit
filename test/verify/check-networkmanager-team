@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import json
 from netlib import *
 from testlib import *
 
@@ -97,6 +98,7 @@ class TestTeam(NetworkCase):
 
     def testActive(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -122,6 +124,19 @@ class TestTeam(NetworkCase):
         b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")
 
+        # Check team port
+        b.click("#network-interface-members button:contains(cockpit1)")
+        b.click("#networking-edit-teamport")
+        b.wait_visible("#network-team-port-settings-dialog")
+        b.set_input_text("#network-team-port-settings-activebackup-prio-input", "10")
+        b.set_checked("#network-team-port-settings-activebackup-sticky-input", True)
+        b.click("#network-team-port-settings-apply")
+        b.wait_not_present("#network-team-port-settings-dialog")
+
+        # Confirm that team port settings are applied
+        team_port_config = json.loads(m.execute("teamdctl tteam port config dump cockpit1"))
+        self.assertEqual(team_port_config.get("prio"), "10")
+        self.assertTrue(team_port_config.get("sticky"))
 
 if __name__ == '__main__':
     test_main()

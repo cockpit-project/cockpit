@@ -38,7 +38,6 @@ import { NetworkPlots } from "./plots";
 import {
     PageNetworkBridgePortSettings,
     PageNetworkIpSettings,
-    PageNetworkTeamPortSettings,
     array_join,
     choice_title,
     complete_settings,
@@ -337,11 +336,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
         }
 
-        function configureTeamPortSettings() {
-            PageNetworkTeamPortSettings.group_settings = group_settings;
-            show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
-        }
-
         function configureBridgePortSettings() {
             show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
         }
@@ -514,7 +508,9 @@ export const NetworkInterfacePage = ({
 
             if (parts.length > 0)
                 rows.push(parts.join(", "));
-            return renderSettingsRow(_("Team port"), rows, configureTeamPortSettings);
+
+            const configure = <NetworkAction type="teamport" iface={iface} connectionSettings={settings} />;
+            return renderSettingsRow(_("Team port"), rows, configure);
         }
 
         function renderBridgeSettingsRow() {

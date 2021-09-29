@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import $ from 'jquery';
 import cockpit from "cockpit";
 import React, { useContext } from "react";
 import {
@@ -36,13 +35,11 @@ import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
-    PageNetworkIpSettings,
     array_join,
     choice_title,
     complete_settings,
     connection_settings,
     free_member_connection,
-    ipv4_method_choices, ipv6_method_choices,
     is_managed,
     render_active_connection,
     settings_applier,
@@ -57,6 +54,9 @@ import {
 import {
     bond_mode_choices,
 } from './bond.jsx';
+import {
+    ipv4_method_choices, ipv6_method_choices,
+} from './ip-settings.jsx';
 
 const _ = cockpit.gettext;
 
@@ -330,11 +330,6 @@ export const NetworkInterfacePage = ({
             return parts;
         }
 
-        function configureIpSettings(topic) {
-            PageNetworkIpSettings.topic = topic;
-            show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
-        }
-
         function renderAutoconnectRow() {
             if (settings.connection.autoconnect !== undefined) {
                 return (
@@ -382,8 +377,8 @@ export const NetworkInterfacePage = ({
             if (!settings[topic])
                 return null;
 
-            return renderSettingsRow(title, renderIpSettings(topic),
-                                     function () { configureIpSettings(topic) });
+            const configure = <NetworkAction type={topic} iface={iface} connectionSettings={settings} />;
+            return renderSettingsRow(title, renderIpSettings(topic), configure);
         }
 
         function renderMtuSettingsRow() {
@@ -652,17 +647,6 @@ export const NetworkInterfacePage = ({
                                      iface={iface}
                                      usage_monitor={usage_monitor}
                                      privileged={privileged} />);
-    }
-
-    function show_dialog(dialog, id) {
-        const con = iface.MainConnection;
-
-        dialog.model = model;
-        dialog.connection = con;
-        dialog.ghost_settings = ghostSettings;
-        dialog.apply_settings = settings_applier(model, dev, con);
-        dialog.done = () => reactivateConnection({ con, dev });
-        $(id).trigger('show');
     }
 
     function createGhostConnectionSettings() {

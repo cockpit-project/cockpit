@@ -52,12 +52,12 @@ class TestNetworkingSettings(NetworkCase):
 
         # Edit and apply the ghost settings
         self.configure_iface_setting('IPv4')
-        b.wait_popup("network-ip-settings-dialog")
-        b.select_from_dropdown("#network-ip-settings-dialog select", "manual")
-        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
-        b.set_val('#network-ip-settings-dialog input[placeholder*="netmask"]', "24")
-        b.click("#network-ip-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-apply")
+        b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
 
         # Check that we now have connection settings
@@ -101,10 +101,10 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_visible("#network-interface")
 
         self.configure_iface_setting('IPv4')
-        b.wait_popup("network-ip-settings-dialog")
-        b.select_from_dropdown("#network-ip-settings-dialog select", "shared")
-        b.click("#network-ip-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "shared")
+        b.click("#network-ip-settings-apply")
+        b.wait_not_present("#network-ip-settings-dialog")
 
         self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.method con show '%s'" % con_id).strip(),
                          "shared")
@@ -118,14 +118,14 @@ class TestNetworkingSettings(NetworkCase):
         wait(lambda: "fe80::/64" in m.execute(show_cmd))
         # add a manual one
         self.configure_iface_setting('IPv6')
-        b.wait_popup("network-ip-settings-dialog")
-        b.click('.network-ip-settings-row[data-field="routes"] button')  # +
-        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2::")
-        b.set_val('#network-ip-settings-dialog input[placeholder="Prefix length"]', "60")
-        b.set_val('#network-ip-settings-dialog input[placeholder="Gateway"]', "fe80:2::3")
-        b.set_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.click('#network-ip-settings-route-add')
+        b.set_input_text('#network-ip-settings-route-address-0', "fe80:2::")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "60")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "fe80:2::3")
+        b.set_input_text('#network-ip-settings-route-metric-0', "42")
         b.click('#network-ip-settings-apply')
-        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_not_present("#network-ip-settings-dialog")
 
         # setting should be applied
         wait(lambda: "metric 42" in m.execute(show_cmd))
@@ -137,14 +137,14 @@ class TestNetworkingSettings(NetworkCase):
 
         # dialog prefills fields with current settings
         self.configure_iface_setting('IPv6')
-        b.wait_popup("network-ip-settings-dialog")
+        b.wait_visible("#network-ip-settings-dialog")
 
-        b.wait_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2:0:0:0:0:0:0")
-        b.wait_val('#network-ip-settings-dialog input[placeholder="Prefix length"]', "60")
-        b.wait_val('#network-ip-settings-dialog input[placeholder="Gateway"]', "fe80:2:0:0:0:0:0:3")
-        b.wait_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
+        b.wait_val('#network-ip-settings-route-address-0', "fe80:2:0:0:0:0:0:0")
+        b.wait_val('#network-ip-settings-route-netmask-0', "60")
+        b.wait_val('#network-ip-settings-route-gateway-0', "fe80:2:0:0:0:0:0:3")
+        b.wait_val('#network-ip-settings-route-metric-0', "42")
         b.click('#network-ip-settings-cancel')
-        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_not_present("#network-ip-settings-dialog")
 
 
 if __name__ == '__main__':

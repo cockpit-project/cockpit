@@ -17,9 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import $ from 'jquery';
-import React from "react";
-import ReactDOM from "react-dom";
-import { Switch } from "@patternfly/react-core";
 import cockpit from 'cockpit';
 
 import * as utils from './utils';
@@ -42,41 +39,6 @@ export function show_unexpected_error(error) {
     $("#error-popup-message").text(msg);
     $('#error-popup').prop('hidden', false);
     $('#error-popup-cancel').click(() => $('#error-popup').prop('hidden', true));
-}
-
-function select_btn(func, spec, klass) {
-    let choice = spec[0] ? spec[0].choice : null;
-
-    function option_mapper(opt) {
-        return $('<option>', { value: opt.choice, 'data-value': opt.title }).text(opt.title);
-    }
-
-    const btn = $('<select class="pf-c-form-control">').append(spec.map(option_mapper));
-    btn.on('change', function() {
-        choice = $(this).val();
-        select(choice);
-        func(choice);
-    });
-
-    function select(a) {
-        choice = a;
-        $(btn).val(a);
-    }
-
-    function selected() {
-        return choice;
-    }
-
-    select(choice);
-    $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
-    if (klass)
-        btn.addClass(klass);
-
-    return btn;
-}
-
-function select_btn_select(btn, choice) {
-    $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
 }
 
 export function connection_settings(c) {
@@ -1427,24 +1389,6 @@ export function settings_applier(model, device, connection) {
     };
 }
 
-export const ipv4_method_choices =
-    [
-        { choice: 'auto', title: _("Automatic (DHCP)") },
-        { choice: 'link-local', title: _("Link local") },
-        { choice: 'manual', title: _("Manual") },
-        { choice: 'shared', title: _("Shared") },
-        { choice: 'disabled', title: _("Disabled") }
-    ];
-
-export const ipv6_method_choices =
-    [
-        { choice: 'auto', title: _("Automatic") },
-        { choice: 'dhcp', title: _("Automatic (DHCP only)") },
-        { choice: 'link-local', title: _("Link local") },
-        { choice: 'manual', title: _("Manual") },
-        { choice: 'ignore', title: _("Ignore") }
-    ];
-
 export function choice_title(choices, choice, def) {
     for (let i = 0; i < choices.length; i++) {
         if (choices[i].choice == choice)
@@ -1644,26 +1588,6 @@ export function with_checkpoint(model, modify, options) {
             });
 }
 
-export function switchbox(val, callback) {
-    const onoff = $('<span>');
-    let disabled = false;
-    function render () {
-        ReactDOM.render(
-            React.createElement(Switch, {
-                isChecked: val,
-                isDisabled: disabled,
-                onChange: callback
-            }),
-            onoff[0]);
-    }
-    onoff.enable = function (val) {
-        disabled = !val;
-        render();
-    };
-    render();
-    return onoff;
-}
-
 export function with_settings_checkpoint(model, modify, options) {
     with_checkpoint(model, modify,
                     $.extend(
@@ -1673,14 +1597,6 @@ export function with_settings_checkpoint(model, modify, options) {
                         }, options));
 }
 
-function show_dialog_error(error_id, error) {
-    const msg = error.message || error.toString();
-    console.warn(msg);
-    $(error_id).prop('hidden', false)
-            .find('h4')
-            .text(msg);
-}
-
 export function connection_devices(con) {
     const devices = [];
 
@@ -1688,240 +1604,6 @@ export function connection_devices(con) {
         con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
 
     return devices;
-}
-
-PageNetworkIpSettings.prototype = {
-    _init: function () {
-        this.id = "network-ip-settings-dialog";
-    },
-
-    setup: function () {
-        $('#network-ip-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-ip-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-ip-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-ip-settings-error').prop('hidden', true);
-        this.settings = PageNetworkIpSettings.ghost_settings || PageNetworkIpSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const topic = PageNetworkIpSettings.topic;
-        const params = self.settings[topic];
-
-        let addresses_table;
-        let auto_dns_btn, dns_table;
-        let auto_dns_search_btn, dns_search_table;
-        let auto_routes_btn, routes_table;
-
-        function choicebox(p, choices) {
-            const btn = select_btn(
-                function (choice) {
-                    params[p] = choice;
-                    self.update();
-                },
-                choices);
-            btn.addClass("col-left");
-            select_btn_select(btn, params[p]);
-            return btn;
-        }
-
-        function inverted_switchbox(title, p) {
-            let onoff;
-            const btn = $('<span>').append(
-                $('<span class="inverted-switchbox">').text(title),
-                onoff = switchbox(!params[p], function(val) {
-                    params[p] = !val;
-                    self.update();
-                }));
-            btn.enable = function enable(val) {
-                onoff.enable(val);
-            };
-            return btn;
-        }
-
-        function tablebox(title, p, columns, def, header_buttons) {
-            let direct = false;
-
-            if (typeof columns == "string") {
-                direct = true;
-                columns = [columns];
-            }
-
-            function get(i, j) {
-                if (direct)
-                    return params[p][i];
-                else
-                    return params[p][i][j];
-            }
-
-            function set(i, j, val) {
-                if (direct)
-                    params[p][i] = val;
-                else
-                    params[p][i][j] = val;
-            }
-
-            function add() {
-                return function() {
-                    params[p].push(def);
-                    self.update();
-                };
-            }
-
-            function remove(index) {
-                return function () {
-                    params[p].splice(index, 1);
-                    self.update();
-                };
-            }
-
-            let add_btn;
-            const panel =
-                $('<div class="network-ip-settings-row">').append(
-                    $('<div>').append(
-                        $('<strong>').text(title),
-                        $('<div class="pull-right">').append(
-                            header_buttons,
-                            add_btn = $('<button class="pf-c-button pf-m-secondary pf-m-small">')
-                                    .append('<span class="fa fa-plus">')
-                                    .css("margin-left", "10px")
-                                    .click(add()))),
-                    $('<table width="100%">').append(
-                        params[p].map(function (a, i) {
-                            return ($('<tr>').append(
-                                columns.map(function (c, j) {
-                                    return $('<td>').append(
-                                        $('<input class="form-control">')
-                                                .val(get(i, j))
-                                                .attr('placeholder', c)
-                                                .change(function (event) {
-                                                    set(i, j, $(event.target).val());
-                                                }));
-                                }),
-                                $('<td>').append(
-                                    $('<button class="pf-c-button pf-m-secondary pf-m-small">')
-                                            .append('<span class="fa fa-minus">')
-                                            .click(remove(i)))));
-                        })));
-
-            // For testing
-            panel.attr("data-field", p);
-
-            panel.enable_add = function enable_add(val) {
-                add_btn.prop('disabled', !val);
-            };
-
-            return panel;
-        }
-
-        function render_ip_settings() {
-            const prefix_text = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
-            const body =
-                $('<div>').append(
-                    addresses_table = tablebox(_("Addresses"), "addresses", ["Address", prefix_text, "Gateway"],
-                                               ["", "", ""],
-                                               choicebox("method", (topic == "ipv4")
-                                                   ? ipv4_method_choices : ipv6_method_choices)
-                                                       .css('display', 'inline-block')),
-                    $('<br>'),
-                    dns_table =
-                        tablebox(_("DNS"), "dns", "Server", "",
-                                 auto_dns_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")),
-                    $('<br>'),
-                    dns_search_table =
-                        tablebox(_("DNS search domains"), "dns_search", "Search Domain", "",
-                                 auto_dns_search_btn = inverted_switchbox(_("Automatic"),
-                                                                          "ignore_auto_dns")),
-                    $('<br>'),
-                    routes_table =
-                        tablebox(_("Routes"), "routes",
-                                 ["Address", prefix_text, "Gateway", "Metric"], ["", "", "", ""],
-                                 auto_routes_btn = inverted_switchbox(_("Automatic"), "ignore_auto_routes")));
-            return body;
-        }
-
-        // The manual method needs at least one address
-        //
-        if (params.method == "manual" && params.addresses.length === 0)
-            params.addresses = [["", "", ""]];
-
-        // The link local, shared, and disabled methods can't take any
-        // addresses, dns servers, or dns search domains.  Routes,
-        // however, are ok, even for "disabled" and "ignored".  But
-        // since that doesn't make sense, we remove routes as well for
-        // these methods.
-
-        const is_off = (params.method == "disabled" ||
-                      params.method == "ignore");
-
-        const can_have_extra = !(params.method == "link-local" ||
-                               params.method == "shared" ||
-                               is_off);
-
-        if (!can_have_extra) {
-            params.addresses = [];
-            params.dns = [];
-            params.dns_search = [];
-        }
-        if (is_off) {
-            params.routes = [];
-        }
-
-        $('#network-ip-settings-dialog .pf-c-modal-box__title').text(
-            (topic == "ipv4") ? _("IPv4 settings") : _("IPv6 settings"));
-        $('#network-ip-settings-body').html(render_ip_settings());
-
-        // The auto_*_btns only make sense when the address method
-        // is "auto" or "dhcp".
-        //
-        const can_auto = (params.method == "auto" || params.method == "dhcp");
-        auto_dns_btn.enable(can_auto);
-        auto_dns_search_btn.enable(can_auto);
-        auto_routes_btn.enable(can_auto);
-
-        addresses_table.enable_add(can_have_extra);
-        dns_table.enable_add(can_have_extra);
-        dns_search_table.enable_add(can_have_extra);
-        routes_table.enable_add(!is_off);
-    },
-
-    cancel: function() {
-        $('#network-ip-settings-dialog').trigger('hide');
-    },
-
-    apply: function() {
-        const self = this;
-
-        function modify() {
-            return PageNetworkIpSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-ip-settings-dialog').trigger('hide');
-                        if (PageNetworkIpSettings.done)
-                            return PageNetworkIpSettings.done();
-                    })
-                    .fail(function (error) {
-                        show_dialog_error('#network-ip-settings-error', error);
-                    });
-        }
-
-        with_settings_checkpoint(PageNetworkIpSettings.model, modify,
-                                 { devices: connection_devices(PageNetworkIpSettings.connection) });
-    }
-
-};
-
-export function PageNetworkIpSettings() {
-    this._init();
 }
 
 export function is_interface_connection(iface, connection) {
@@ -2099,34 +1781,8 @@ export function apply_group_member(choices, model, apply_group, group_connection
     });
 }
 
-/* INITIALIZATION AND NAVIGATION
- *
- * The code above still uses the legacy 'Page' abstraction for both
- * pages and dialogs, and expects page.setup, page.enter, page.show,
- * and page.leave to be called at the right times.
- *
- * We cater to this with a little compatibility shim consisting of
- * 'dialog_setup'.
- */
-
-function dialog_setup(d) {
-    d.setup();
-    $('#' + d.id)
-            .on('show', function () {
-                $('#' + d.id).prop('hidden', false);
-                d.enter();
-                d.show();
-            })
-            .on('hide', function () {
-                $('#' + d.id).prop('hidden', true);
-                d.leave();
-            });
-}
-
 export function init() {
     cockpit.translate();
-
-    dialog_setup(new PageNetworkIpSettings());
 
     $('#confirm-breaking-change-popup [data-dismiss]').click(() =>
         $('#confirm-breaking-change-popup').prop('hidden', true));

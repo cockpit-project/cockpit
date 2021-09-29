@@ -12,10 +12,6 @@ GETTEXT_PACKAGE = cockpit
 # The concrete set of linguas we are using
 LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 
-WEBLATE_REPO=tmp/weblate-repo
-WEBLATE_REPO_URL=https://github.com/cockpit-project/cockpit-weblate.git
-WEBLATE_REPO_BRANCH=main
-
 # The full list of various input and output file types
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
@@ -102,24 +98,6 @@ po/cockpit.polkit.pot:
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	msgcat --sort-output --output-file=$@ $^
-
-# Actually update the old translations with new translatable text
-update-po: po/cockpit.pot
-	for lang in $(LINGUAS); do \
-		msgmerge --output-file=$(srcdir)/po/$$lang.po $(srcdir)/po/$$lang.po $<; \
-	done
-
-$(WEBLATE_REPO):
-	git clone --depth=1 -b $(WEBLATE_REPO_BRANCH) $(WEBLATE_REPO_URL) $(WEBLATE_REPO)
-
-upload-pot:
-	@true
-
-clean-po:
-	rm $(srcdir)/po/*.po
-
-download-po: $(WEBLATE_REPO)
-	cp $(WEBLATE_REPO)/*.po $(srcdir)/po/
 
 CLEANFILES += \
 	$(MO_FILES) \

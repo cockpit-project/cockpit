@@ -35,6 +35,7 @@ import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { BondAction } from './bond.jsx';
 import { TeamAction } from './team.jsx';
 import { BridgeAction } from './bridge.jsx';
+import { VlanAction } from './vlan.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
@@ -43,7 +44,6 @@ import {
     PageNetworkMacSettings,
     PageNetworkMtuSettings,
     PageNetworkTeamPortSettings,
-    PageNetworkVlanSettings,
     array_join,
     bond_mode_choices,
     choice_title,
@@ -353,10 +353,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
         }
 
-        function configureVlanSettings() {
-            show_dialog(PageNetworkVlanSettings, '#network-vlan-settings-dialog');
-        }
-
         function configureMtuSettings() {
             show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
         }
@@ -594,8 +590,9 @@ export const NetworkInterfacePage = ({
             addRow(_("Parent $parent"), options);
             addRow(_("ID $id"), options);
 
-            return renderSettingsRow(_("VLAN"), rows,
-                                     configureVlanSettings);
+            const con = iface.MainConnection;
+            const configure = <VlanAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            return renderSettingsRow(_("VLAN"), rows, configure);
         }
 
         return [

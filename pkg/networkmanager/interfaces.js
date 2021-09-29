@@ -81,10 +81,6 @@ function select_btn_select(btn, choice) {
     $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
 }
 
-function select_btn_selected(btn) {
-    return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
-}
-
 export function connection_settings(c) {
     if (c && c.Settings && c.Settings.connection) {
         return c.Settings.connection;
@@ -2374,128 +2370,6 @@ export function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-PageNetworkVlanSettings.prototype = {
-    _init: function () {
-        this.id = "network-vlan-settings-dialog";
-        this.vlan_settings_template = $("#network-vlan-settings-template").html();
-        mustache.parse(this.vlan_settings_template);
-    },
-
-    setup: function () {
-        $('#network-vlan-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-vlan-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-vlan-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-vlan-settings-error').prop('hidden', true);
-        this.settings = PageNetworkVlanSettings.ghost_settings || PageNetworkVlanSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const model = PageNetworkVlanSettings.model;
-        const options = self.settings.vlan;
-
-        let auto_update_name = true;
-
-        function change() {
-            // XXX - parse errors
-            options.parent = select_btn_selected(parent_btn);
-            $("#network-vlan-settings-apply").prop("disabled", !options.parent);
-
-            options.id = parseInt(id_input.val(), 10);
-
-            if (auto_update_name && options.parent && options.id)
-                name_input.val(options.parent + "." + options.id);
-
-            options.interface_name = name_input.val();
-            self.settings.connection.id = options.interface_name;
-            self.settings.connection.interface_name = options.interface_name;
-        }
-
-        function change_name() {
-            auto_update_name = false;
-            change();
-        }
-
-        const parent_choices = [];
-        model.list_interfaces().forEach(function (i) {
-            if (!is_interface_connection(i, PageNetworkVlanSettings.connection) &&
-                is_interesting_interface(i))
-                parent_choices.push({ title: i.Name, choice: i.Name });
-        });
-
-        const body = $(mustache.render(self.vlan_settings_template, {
-            vlan_id: options.id || "1",
-            interface_name: options.interface_name
-        }));
-        const parent_btn = select_btn(change, parent_choices, "form-control");
-        parent_btn.attr('id', 'network-vlan-settings-parent-select');
-        body.find('#network-vlan-settings-parent-select').replaceWith(parent_btn);
-        const id_input = body.find('#network-vlan-settings-vlan-id-input')
-                .change(change)
-                .on('input', change);
-        const name_input = body.find('#network-vlan-settings-interface-name-input')
-                .change(change_name)
-                .on('input', change_name);
-
-        select_btn_select(parent_btn, (options.parent ||
-                                               (parent_choices[0]
-                                                   ? parent_choices[0].choice
-                                                   : "")));
-        change();
-        $('#network-vlan-settings-body').html(body);
-    },
-
-    cancel: function() {
-        $('#network-vlan-settings-dialog').prop('hidden', true);
-    },
-
-    apply: function() {
-        const self = this;
-        const model = PageNetworkVlanSettings.model;
-
-        function modify () {
-            return PageNetworkVlanSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-vlan-settings-dialog').trigger('hide');
-                        if (PageNetworkVlanSettings.connection)
-                            cockpit.location.go([self.settings.connection.interface_name]);
-                        if (PageNetworkVlanSettings.done)
-                            return PageNetworkVlanSettings.done();
-                    })
-                    .fail(function (error) {
-                        show_dialog_error('#network-vlan-settings-error', error);
-                    });
-        }
-
-        if (PageNetworkVlanSettings.connection)
-            with_settings_checkpoint(model, modify, { hack_does_add_or_remove: true });
-        else
-            with_checkpoint(
-                PageNetworkVlanSettings.model,
-                modify,
-                {
-                    fail_text: _("Creating this VLAN will break the connection to the server, and will make the administration UI unavailable."),
-                    anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true
-                });
-    }
-
-};
-
-export function PageNetworkVlanSettings() {
-    this._init();
-}
-
 PageNetworkMtuSettings.prototype = {
     _init: function () {
         this.id = "network-mtu-settings-dialog";
@@ -2679,7 +2553,6 @@ export function init() {
     dialog_setup(new PageNetworkIpSettings());
     dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
-    dialog_setup(new PageNetworkVlanSettings());
     dialog_setup(new PageNetworkMtuSettings());
     dialog_setup(new PageNetworkMacSettings());
 

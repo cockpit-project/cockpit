@@ -38,18 +38,18 @@ class TestNetworkingVLAN(NetworkCase):
 
         # Make a VLAN interface
         b.click("button:contains('Add VLAN')")
-        b.wait_popup("network-vlan-settings-dialog")
+        b.wait_visible("#network-vlan-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-vlan-settings-close-button")
+        b.wait_visible("#network-vlan-settings-dialog > button[aria-label=Close]")
         b.wait_visible("#network-vlan-settings-interface-name-input")
-        b.assert_pixels("#network-vlan-settings-dialog .pf-c-modal-box", "networking-vlan-settings-dialog")
+        b.assert_pixels("#network-vlan-settings-dialog", "networking-vlan-settings-dialog")
 
-        b.select_from_dropdown("#network-vlan-settings-body form select", iface)
-        b.set_val("#network-vlan-settings-interface-name-input", "tvlan")
-        b.set_val("#network-vlan-settings-vlan-id-input", "123")
+        b.select_from_dropdown("#network-vlan-settings-parent-select", iface)
+        b.set_input_text("#network-vlan-settings-interface-name-input", "tvlan")
+        b.set_input_text("#network-vlan-settings-vlan-id-input", "123")
         b.click("#network-vlan-settings-dialog button:contains('Apply')")
-        b.wait_popdown("network-vlan-settings-dialog")
+        b.wait_not_present("#network-vlan-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tvlan']")
 
         # It automatically activates.  It won't get an IP address, but that's okay.

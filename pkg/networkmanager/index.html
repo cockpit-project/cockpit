@@ -93,44 +93,6 @@
     </form>
   </script>
 
-  <script id="network-bridge-settings-template" type="x-template/mustache">
-    <form class="ct-form">
-      <label class="control-label" for="network-bridge-settings-name-input" translate="yes">Name</label>
-      <input id="network-bridge-settings-name-input" class="form-control" type="text"
-             value="{{bridge_name}}"/>
-
-      <label class="control-label" translate="yes">Ports</label>
-      <div id="network-bridge-settings-member-interfaces">
-        {{! member interfaces will be rendered into here as a list of checkboxes }}
-      </div>
-
-      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Options</label>
-      <label class="checkbox-inline">
-        <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
-          {{#stp_checked}}checked{{/stp_checked}}/>
-        <span translate="yes">Spanning tree protocol (STP)</span>
-      </label>
-
-      <div role="group" class="ct-form" id="network-bridge-settings-stp">
-        <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP priority</label>
-        <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
-              value="{{stp_priority}}"/>
-
-        <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP forward delay</label>
-        <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
-              value="{{stp_forward_delay}}"/>
-
-        <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP hello time</label>
-        <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
-              value="{{stp_hello_time}}"/>
-
-        <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP maximum message age</label>
-        <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
-              value="{{stp_max_age}}"/>
-      </div>
-    </form>
-  </script>
-
   <script id="network-bridge-port-settings-template" type="x-template/mustache">
     <form class="ct-form">
       <label class="control-label" for="network-bridge-port-settings-priority-input" translate="yes">Priority</label>
@@ -223,35 +185,6 @@
             </div>
             <button class="pf-c-button pf-m-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
             <button class="pf-c-button pf-m-link" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
-          </footer>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div hidden aria-hidden="true" id="network-bridge-settings-dialog">
-    <div class="pf-c-backdrop">
-      <div class="pf-l-bullseye">
-        <div class="pf-c-modal-box pf-m-md pf-m-align-top" role="dialog" aria-modal="true">
-          <button class="pf-c-button pf-m-plain" type="button" aria-label="Close" id="network-bridge-settings-close-button" translate="aria-label">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-          <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" translate="yes">Bridge settings</h1>
-          </header>
-          <div class="pf-c-modal-box__body">
-            <div id="network-bridge-settings-body">
-            </div>
-          </div>
-          <footer class="pf-c-modal-box__footer">
-            <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
-              <div class="pf-c-alert__icon">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </div>
-              <h4 class="pf-c-alert__title"></h4>
-            </div>
-            <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
-            <button class="pf-c-button pf-m-link" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
           </footer>
         </div>
       </div>

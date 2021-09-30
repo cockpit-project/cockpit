@@ -194,12 +194,11 @@ export class VDODetails extends React.Component {
             }
 
             dialog_open({
-                Title: cockpit.format(_("Please confirm deletion of $0"),
-                                      vdo.name),
+                Title: cockpit.format(_("Permanently delete $0?"), vdo.name),
                 Body: TeardownMessage(usage),
                 Action: {
                     Title: _("Delete"),
-                    Danger: _("Deleting a VDO device will erase all data on it."),
+                    Danger: _("Deleting erases all data on a VDO device."),
                     action: function () {
                         return (teardown_active_usage(client, usage)
                                 .then(teardown_configs)

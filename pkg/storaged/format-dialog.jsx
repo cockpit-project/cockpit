@@ -312,7 +312,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         ],
         Action: {
             Title: create_partition ? _("Create partition") : teardown_and_format_title(usage),
-            Danger: (create_partition ? null : _("Formatting a storage device will erase all data on it.")),
+            Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             action: function (vals) {
                 const options = {

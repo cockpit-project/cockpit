@@ -361,7 +361,7 @@ function create_tabs(client, target, is_partition) {
             }
 
             dialog_open({
-                Title: cockpit.format(_("Please confirm deletion of $0"), name),
+                Title: cockpit.format(_("Permanently delete $0?"), name),
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: danger,
@@ -637,7 +637,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             ],
             Action: {
                 Title: teardown_and_format_title(usage),
-                Danger: _("Formatting a disk will erase all data on it."),
+                Danger: _("Formatting erases all data on a disk."),
                 wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {
                     const options = {

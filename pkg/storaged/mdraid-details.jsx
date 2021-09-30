@@ -296,15 +296,14 @@ export class MDRaidDetails extends React.Component {
             }
 
             dialog_open({
-                Title: cockpit.format(_("Please confirm deletion of $0"),
-                                      utils.mdraid_name(mdraid)),
+                Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Title: teardown_and_apply_title(usage,
                                                     _("Delete"),
                                                     _("Unmount and delete"),
                                                     _("Remove and delete")),
-                    Danger: _("Deleting a RAID device will erase all data on it."),
+                    Danger: _("Deleting erases all data on a RAID device."),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(delete_)

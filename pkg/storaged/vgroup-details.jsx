@@ -197,10 +197,10 @@ export class VGroupDetails extends React.Component {
             }
 
             dialog_open({
-                Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
+                Title: cockpit.format(_("Permanently delete $0?"), vgroup.Name),
                 Teardown: TeardownMessage(usage),
                 Action: {
-                    Danger: _("Deleting a volume group will erase all data on it."),
+                    Danger: _("Deleting erases all data on a volume group."),
                     Title: teardown_and_apply_title(usage,
                                                     _("Delete"),
                                                     _("Unmount and delete"),

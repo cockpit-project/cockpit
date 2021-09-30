@@ -27,7 +27,7 @@ import {
     DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
     Text, TextVariants, TextInput as TextInputPF, Stack,
 } from "@patternfly/react-core";
-import { EditIcon, MinusIcon, PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
 
 import sha1 from "js-sha1";
 import sha256 from "js-sha256";
@@ -452,7 +452,7 @@ const RemovePassphraseField = (tag, key, dev) => {
 
 function remove_passphrase_dialog(block, key) {
     dialog_open({
-        Title: <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {cockpit.format(_("Remove passphrase in key slot $0"), key.slot)}</>,
+        Title: cockpit.format(_("Remove passphrase in key slot $0?"), key.slot),
         Fields: [
             RemovePassphraseField("passphrase", key, block_name(block))
         ],
@@ -488,7 +488,7 @@ const RemoveClevisField = (tag, key, dev) => {
 
 function remove_clevis_dialog(client, block, key) {
     dialog_open({
-        Title: <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {_("Remove Tang keyserver")}</>,
+        Title: _("Remove Tang keyserver?"),
         Fields: [
             RemoveClevisField("keyserver", key, block_name(block))
         ],

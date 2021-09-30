@@ -231,6 +231,7 @@ import {
     Spinner, Split,
     TextInput as TextInputPF4,
     Popover,
+    HelperText, HelperTextItem
 } from "@patternfly/react-core";
 import { ExclamationTriangleIcon, HelpIcon } from "@patternfly/react-icons";
 
@@ -331,16 +332,6 @@ function flatten(arr1) {
     return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flatten(val)) : acc.concat(val), []);
 }
 
-const HelperTextWarning = ({ text }) =>
-    <div className="pf-c-helper-text">
-        <div className="pf-c-helper-text__item pf-m-warning">
-            <span className="pf-c-helper-text__item-icon">
-                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-            </span>
-            <span className="pf-c-helper-text__item-text">{text}</span>
-        </div>
-    </div>;
-
 export const dialog_open = (def) => {
     const nested_fields = def.Fields || [];
     const fields = flatten(nested_fields);
@@ -360,9 +351,12 @@ export const dialog_open = (def) => {
     };
 
     const props = (errors) => {
+        const title = (def.Action && (def.Action.Danger || def.Action.DangerButton)
+            ? <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {def.Title}</>
+            : def.Title);
         return {
             id: "dialog",
-            title: def.Title,
+            title: title,
             body: <Body body={def.Body}
                         teardown={def.Teardown}
                         fields={nested_fields}
@@ -416,9 +410,13 @@ export const dialog_open = (def) => {
             ];
         }
 
-        const extra = <div>
-            { def.Action && def.Action.Danger ? <HelperTextWarning text={def.Action.Danger} /> : null }
-        </div>;
+        const extra = (
+            <div>
+                { def.Action && def.Action.Danger
+                    ? <HelperText><HelperTextItem variant="error">{def.Action.Danger} </HelperTextItem></HelperText>
+                    : null
+                }
+            </div>);
 
         return {
             idle_message: (running_promise

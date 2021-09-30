@@ -19,8 +19,8 @@ free -h
 rpm -q cockpit-system
 
 # install browser; on RHEL, use firefox-nightly as chromium broke CDP on rhel-9
-# Install firefox to pull in all the deps
-dnf -y install firefox
+# Install firefox to pull in all the deps; but see rhbz#2005760
+dnf install --disablerepo=fedora-cisco-openh264 -y firefox
 curl --location 'https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US' | tar -C /usr/local/lib/ -xj
 ln -s /usr/local/lib/firefox/firefox /usr/local/bin/
 

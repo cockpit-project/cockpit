@@ -146,7 +146,7 @@ Requires: cockpit-system
 
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
-Recommends: cockpit-packagekit
+Recommends: (cockpit-packagekit if dnf)
 Suggests: cockpit-pcp
 
 %if 0%{?rhel} == 0

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import {
-    dialog_open, TextInput, PassInput, SelectOne, SizeSlider,
+    dialog_open, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
     BlockingMessage, TeardownMessage, teardown_and_apply_title
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
@@ -35,8 +35,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import {
-    format_dialog, parse_options, extract_option, unparse_options,
-    teardown_and_format_title
+    format_dialog, parse_options, extract_option, unparse_options
 } from "./format-dialog.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
@@ -612,16 +611,9 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         }
 
         dialog_open({
-            Title: cockpit.format(_("Format disk $0"), utils.block_name(block)),
+            Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
             Teardown: TeardownMessage(usage),
             Fields: [
-                SelectOne("erase", _("Erase"),
-                          {
-                              choices: [
-                                  { value: "no", title: _("Don't overwrite existing data") },
-                                  { value: "zero", title: _("Overwrite existing data with zeros") }
-                              ]
-                          }),
                 SelectOne("type", _("Partitioning"),
                           {
                               value: "gpt",
@@ -633,18 +625,27 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                   },
                                   { value: "empty", title: _("No partitioning") }
                               ]
-                          })
+                          }),
+                CheckBoxes("erase", _("Erase"),
+                           {
+                               fields: [
+                                   { tag: "on", title: _("Overwrite existing data with zeros") }
+                               ],
+                           }),
             ],
             Action: {
-                Title: teardown_and_format_title(usage),
-                Danger: _("Formatting erases all data on a disk."),
+                Title: teardown_and_apply_title(usage,
+                                                _("Initialize"),
+                                                _("Unmount and initialize"),
+                                                _("Remove and initialize")),
+                Danger: _("Initializing erases all data on a disk."),
                 wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {
                     const options = {
                         'tear-down': { t: 'b', v: true }
                     };
-                    if (vals.erase != "no")
-                        options.erase = { t: 's', v: vals.erase };
+                    if (vals.erase.on)
+                        options.erase = { t: 's', v: "zero" };
                     return utils.teardown_active_usage(client, usage)
                             .then(function () {
                                 return block.Format(vals.type, options);

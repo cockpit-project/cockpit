@@ -272,9 +272,6 @@ function instance(realmd, mode, realm, state) {
         $(".realms-op-wait-message").toggle(!!operation);
         $(".realms-op-field").prop('disabled', !!operation);
         $(".realms-op-apply").prop('disabled', !!operation);
-        $(".realm-active-directory-only").hide();
-
-        const server = find_detail(realm, "server-software");
 
         if (realm && kerberos_membership) {
             if (kerberos_membership.valid) {
@@ -301,8 +298,6 @@ function instance(realmd, mode, realm, state) {
 
         if (mode != 'join')
             return;
-
-        $(".realm-active-directory-only").toggle(!server || server == "active-directory");
 
         const list = $("#realms-op-auth .dropdown-menu");
         const supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [];
@@ -455,9 +450,6 @@ function instance(realmd, mode, realm, state) {
 
                     let call;
                     if (mode == 'join') {
-                        const computer_ou = $(".realms-join-computer-ou").val();
-                        if (computer_ou)
-                            options["computer-ou"] = cockpit.variant('s', computer_ou);
                         if (kerberos_membership.valid) {
                             call = kerberos_membership.call("Join", [credentials(), options]).then(install_ws_credentials);
                         } else {

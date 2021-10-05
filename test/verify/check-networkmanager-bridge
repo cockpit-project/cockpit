@@ -52,7 +52,7 @@ class TestBridge(NetworkCase):
         b.wait_in_text("#network-bridge-settings-body", "cockpit2")
         b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
 
-        b.set_input_text("#network-bridge-settings-name-input", "tbridge")
+        b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
@@ -100,7 +100,7 @@ class TestBridge(NetworkCase):
 
         b.click("button:contains('Add bridge')")
         b.wait_visible("#network-bridge-settings-dialog")
-        b.set_input_text("#network-bridge-settings-name-input", "tbridge")
+        b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-bridge-settings-dialog")

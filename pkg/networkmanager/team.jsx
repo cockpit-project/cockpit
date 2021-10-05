@@ -18,39 +18,29 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from 'jquery';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
 import {
-    Button,
-    Checkbox,
-    Form, FormGroup,
+    FormGroup,
     FormSelect, FormSelectOption,
-    Modal,
-    Stack,
     TextInput,
 } from '@patternfly/react-core';
 
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-    apply_group_member,
     team_balancer_choices,
     team_runner_choices,
     team_watch_choices,
-    connection_devices,
     member_connection_for_interface,
     member_interface_choices,
-    settings_applier,
-    syn_click,
-    with_checkpoint, with_settings_checkpoint,
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
 
-const TeamDialog = ({ connection, dev, done, setIsOpen, settings }) => {
+export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
     const model = useContext(ModelContext);
     const config = settings.team.config || {};
     if (!config.runner)
@@ -119,46 +109,16 @@ const TeamDialog = ({ connection, dev, done, setIsOpen, settings }) => {
             }
         });
 
-        const apply_settings = settings_applier(model, dev, connection);
-
-        const modify = () => {
-            // When all dialogs are ported to React this helper should stop using jquery
-            return apply_group_member($('#network-team-settings-body'),
-                                      model,
-                                      apply_settings,
-                                      connection,
-                                      createSettingsObj(),
-                                      "team")
-                    .then(() => {
-                        setIsOpen(false);
-                        if (connection)
-                            cockpit.location.go([iface]);
-                        if (done)
-                            return done();
-                    })
-                    .catch(ex => setDialogError(ex.message));
-        };
-        const membersChanged = Object.keys(memberChoicesInit).some(iface => memberChoicesInit[iface] != memberChoices[iface]);
-
-        if (connection) {
-            with_settings_checkpoint(model, modify,
-                                     {
-                                         devices: (membersChanged
-                                             ? [] : connection_devices(connection)),
-                                         hack_does_add_or_remove: membersChanged,
-                                         rollback_on_failure: membersChanged
-                                     });
-        } else {
-            with_checkpoint(
-                model,
-                modify,
-                {
-                    fail_text: _("Creating this team will break the connection to the server, and will make the administration UI unavailable."),
-                    anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true,
-                    rollback_on_failure: true
-                });
-        }
+        dialogApply({
+            model,
+            dev,
+            connection,
+            members: memberChoices,
+            membersInit: memberChoicesInit,
+            settings: createSettingsObj(),
+            setDialogError,
+            setIsOpen,
+        });
 
         // Prevent dialog from closing because of <form> onsubmit event
         if (event)
@@ -168,28 +128,16 @@ const TeamDialog = ({ connection, dev, done, setIsOpen, settings }) => {
     };
 
     return (
-        <Modal id="network-team-settings-dialog" position="top" variant="medium"
-            isOpen
-            onClose={() => setIsOpen(false)}
-            title={_("Team settings")}
-            footer={
-                <>
-                    {dialogError && <ModalError id="network-team-settings-error" dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
-                    <Button variant='primary' id="network-team-settings-apply" onClick={onSubmit}>
-                        {_("Apply")}
-                    </Button>
-                    <Button variant='link' id="network-team-settings-cancel" onClick={() => setIsOpen(false)}>
-                        {_("Cancel")}
-                    </Button>
-                </>
-            }
+        <NetworkModal dialogError={dialogError}
+                      idPrefix="network-team-settings"
+                      onSubmit={onSubmit}
+                      setIsOpen={setIsOpen}
+                      title={_("Team settings")}
         >
-            <Form id="network-team-settings-body" onSubmit={onSubmit} isHorizontal>
-                <FormGroup fieldId="network-team-settings-interface-name-input" label={_("Name")}>
-                    <TextInput id="network-team-settings-interface-name-input" value={iface} onChange={setIface} />
-                </FormGroup>
+            <>
+                <Name idPrefix="network-team-settings" iface={iface} setIface={setIface} />
                 <FormGroup label={_("Ports")} fieldId="network-team-settings-interface-members-list" hasNoPaddingTop>
-                    <MemberInterfaceChoices memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                    <MemberInterfaceChoices idPrefix="network-team-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup fieldId="network-team-settings-runner-select" label={_("Runner")}>
                     <FormSelect id="network-team-settings-runner-select" onChange={setRunner}
@@ -236,94 +184,25 @@ const TeamDialog = ({ connection, dev, done, setIsOpen, settings }) => {
                         <TextInput id="network-team-settings-ping-target-input" value={pingTarget} onChange={setPingTarget} />
                     </FormGroup>
                 </>}
-            </Form>
-        </Modal>
+            </>
+        </NetworkModal>
     );
 };
 
-const MemberInterfaceChoices = ({ memberChoices, setMemberChoices, model, group }) => {
+export const getGhostSettings = ({ newIfaceName }) => {
     return (
-        <Stack hasGutter id="network-team-settings-interface-members-list">
-            {Object.keys(memberChoices).map((iface, idx) => (
-                <Checkbox data-iface={iface}
-                          id={"network-team-settings-interface-members-" + iface}
-                          isChecked={memberChoices[iface]}
-                          key={iface}
-                          label={iface}
-                          onChange={checked => setMemberChoices({ ...memberChoices, [iface]: checked })}
-                />
-            ))}
-        </Stack>
-    );
-};
-
-export const TeamAction = ({ iface, done, connectionSettings }) => {
-    const [isTeamOpen, setIsTeamOpen] = useState(false);
-    const [showAddTeam, setShowAddTeam] = useState(undefined);
-
-    useEffect(() => {
-        /* HACK - hide "Add team" if it doesn't work due to missing bits
-         * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
-         * We need both the plugin and teamd
-         */
-        cockpit.script("test -f /usr/bin/teamd && " +
-                       "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib*/NetworkManager/*/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/*/libnm-device-plugin-team.so)",
-                       { err: "ignore" })
-                .then(() => setShowAddTeam(true))
-                .fail(() => setShowAddTeam(false));
-    }, []);
-
-    const con = iface && iface.MainConnection;
-    const dev = iface && iface.Device;
-    const model = useContext(ModelContext);
-    const getName = () => {
-        let name;
-        // Find the first free interface name
-        for (let i = 0; i < 100; i++) {
-            name = "team" + i;
-            if (!model.find_interface(name))
-                break;
-        }
-        return name;
-    };
-
-    const newIfaceName = !iface ? getName() : undefined;
-    const settings = (
-        iface
-            ? connectionSettings
-            : {
-                connection: {
-                    id: newIfaceName,
-                    autoconnect: true,
-                    type: "team",
-                    uuid: uuidv4(),
-                    interface_name: newIfaceName,
-                },
-                team: {
-                    config: {},
-                    interface_name: newIfaceName
-                }
+        {
+            connection: {
+                id: newIfaceName,
+                autoconnect: true,
+                type: "team",
+                uuid: uuidv4(),
+                interface_name: newIfaceName,
+            },
+            team: {
+                config: {},
+                interface_name: newIfaceName
             }
-    );
-
-    if (!showAddTeam)
-        return null;
-
-    return (
-        <>
-            <Button id="networking-add-team"
-                    isInline={!!iface}
-                    onClick={syn_click(model, setIsTeamOpen, true)}
-                    variant={!iface ? "secondary" : "link"}>
-                {!iface ? _("Add team") : _("edit")}
-            </Button>
-            {isTeamOpen ? <TeamDialog connection={con}
-                                      dev={dev} done={done}
-                                      setIsOpen={setIsTeamOpen}
-                                      settings={settings} /> : null}
-        </>
+        }
     );
 };

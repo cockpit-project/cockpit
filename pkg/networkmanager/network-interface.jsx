@@ -32,10 +32,7 @@ import {
 
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
-import { BondAction } from './bond.jsx';
-import { TeamAction } from './team.jsx';
-import { BridgeAction } from './bridge.jsx';
-import { VlanAction } from './vlan.jsx';
+import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
 
 import {
@@ -62,7 +59,7 @@ import {
 
 const _ = cockpit.gettext;
 
-function reactivateConnection({ con, dev }) {
+export function reactivateConnection({ con, dev }) {
     if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
         if (con.Settings.connection.interface_name &&
             con.Settings.connection.interface_name != dev.Interface) {
@@ -468,8 +465,7 @@ export const NetworkInterfacePage = ({
             if (parts.length > 0)
                 rows.push(parts.join(", "));
 
-            const con = iface.MainConnection;
-            const configure = <BondAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            const configure = <NetworkAction type="bond" iface={iface} connectionSettings={settings} />;
             return renderSettingsRow(_("Bond"), rows, configure);
         }
 
@@ -494,8 +490,7 @@ export const NetworkInterfacePage = ({
             if (parts.length > 0)
                 rows.push(parts.join(", "));
 
-            const con = iface.MainConnection;
-            const configure = <TeamAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            const configure = <NetworkAction type="team" iface={iface} connectionSettings={settings} />;
             return renderSettingsRow(_("Team"), rows, configure);
         }
 
@@ -550,8 +545,7 @@ export const NetworkInterfacePage = ({
                     addRow(_("Maximum message age $max_age"), options);
             }
 
-            const con = iface.MainConnection;
-            const configure = <BridgeAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            const configure = <NetworkAction type="bridge" iface={iface} connectionSettings={settings} />;
             return renderSettingsRow(_("Bridge"), rows, configure);
         }
 
@@ -590,8 +584,7 @@ export const NetworkInterfacePage = ({
             addRow(_("Parent $parent"), options);
             addRow(_("ID $id"), options);
 
-            const con = iface.MainConnection;
-            const configure = <VlanAction iface={iface} connectionSettings={settings} done={() => reactivateConnection({ con, dev })} />;
+            const configure = <NetworkAction type="vlan" iface={iface} connectionSettings={settings} />;
             return renderSettingsRow(_("VLAN"), rows, configure);
         }
 

@@ -231,10 +231,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                return create_partition;
                            }
                        }),
-            CheckBoxes("erase", _("Erase"),
+            CheckBoxes("erase", _("Overwrite"),
                        {
                            fields: [
-                               { tag: "on", title: _("Overwrite existing data with zeros") }
+                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
                            ],
                        }),
             TextInput("mount_point", _("Mount point"),
